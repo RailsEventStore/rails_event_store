@@ -1,5 +1,5 @@
 require 'ostruct'
-require 'pry'
+
 module RailsEventStore
   class EventInMemoryRepository
 
