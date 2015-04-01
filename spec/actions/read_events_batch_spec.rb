@@ -1,5 +1,5 @@
 require 'rspec'
-require 'pry'
+
 module RailsEventStore
   describe Actions::ReadEventsBatch do
 
