@@ -6,8 +6,14 @@ module RailsEventStore
         @adapter = adapter
       end
 
-      def create(model)
-        adapter.create model
+      def find(condition)
+        adapter.where(condition).first
+      end
+
+      def create(data)
+        model = adapter.new(data)
+        raise EventCannotBeSaved unless model.valid?
+        model.save
       end
 
       def delete(condition)
