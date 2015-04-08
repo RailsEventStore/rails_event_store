@@ -6,7 +6,7 @@ module RailsEventStore
     end
 
     def delete_stream(stream_name)
-      #TODO
+      Actions::DeleteStreamEvents.new(event_repository).call(stream_name)
     end
 
     def read_events_forward(stream_name, start, count)
@@ -23,6 +23,10 @@ module RailsEventStore
 
     def read_all_events_backward(stream_name)
       Actions::ReadAllEvents.new(event_repository).call(stream_name, :backward)
+    end
+
+    def read_all_streams
+      Actions::ReadAllStreams.new(event_repository).call
     end
 
     private
