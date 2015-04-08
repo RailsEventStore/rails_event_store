@@ -1,4 +1,4 @@
-require 'rspec'
+require 'spec_helper'
 
 module RailsEventStore
   describe Actions::ReadEventsBatch do
