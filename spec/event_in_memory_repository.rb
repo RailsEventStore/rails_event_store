@@ -17,8 +17,8 @@ module RailsEventStore
       db.push(OpenStruct.new(model))
     end
 
-    def delete(stream_name)
-      db.reject! { |event| event.stream == stream_name }
+    def delete(condition)
+      db.reject! { |event| event.stream == condition[:stream] }
     end
 
     def last_stream_event(stream_name)
@@ -31,6 +31,10 @@ module RailsEventStore
 
     def load_all_events_backward(stream_name)
       db.reverse.select { |event| event.stream == stream_name }
+    end
+
+    def gel_all_events
+      db
     end
 
     def load_events_batch(stream_name, start_point, count)
