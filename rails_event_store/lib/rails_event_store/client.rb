@@ -3,10 +3,12 @@ module RailsEventStore
 
     def initialize(repository=Repositories::EventRepository.new)
       @repository = repository
+      @observers = []
     end
 
     def append_to_stream(stream_name, event_data, expected_version = nil)
-      Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
+      event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
+      @observers.each {|observer| observer.handle_event(event)}
     end
 
     def delete_stream(stream_name)
@@ -31,6 +33,10 @@ module RailsEventStore
 
     def read_all_streams
       Actions::ReadAllStreams.new(@repository).call
+    end
+
+    def subscribe_to_all_events(observer)
+      @observers << observer
     end
 
   end

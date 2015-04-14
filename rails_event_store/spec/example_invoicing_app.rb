@@ -51,7 +51,7 @@ class PriceChanged
 end
 
 class InvoiceReadModel
-  def initialize(events)
+  def initialize(events=[])
     @items = []
     events.each{|event| handle_event(event)}
   end
@@ -64,8 +64,6 @@ class InvoiceReadModel
     @items.map(&:value).inject(0, :+).to_s
   end
 
-  private
-
   def handle_event(event)
     if event.event_type == "ProductAdded"
       add_new_invoice_item(event.data[:product_name])
@@ -77,6 +75,9 @@ class InvoiceReadModel
       set_price(event.data[:product_name], event.data[:new_price])
     end
   end
+
+  private
+
 
   def add_new_invoice_item(product_name)
     @items << InvoiceItem.new(product_name)

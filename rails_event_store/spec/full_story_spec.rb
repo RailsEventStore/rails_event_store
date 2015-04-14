@@ -3,20 +3,31 @@ require 'example_invoicing_app'
 
 module RailsEventStore
 
+
   describe "Event Store" do
 
-    specify "happy path" do
+    specify "restoring a read model from all events" do
       client = Client.new(EventInMemoryRepository.new)
-      events = [
-          OrderCreated.new("andrzejkrzywda"),
-          ProductAdded.new("Rails meets ReactJS",  1, 49),
-          ProductAdded.new("Fearless Refactoring", 1, 49),
-          PriceChanged.new("Rails meets ReactJS",  24)
-      ]
-      events.each{ |event| client.append_to_stream("order_1", event.data) }
-
+      ordering_events.each{ |event| client.append_to_stream("order_1", event.data) }
 
       invoice = InvoiceReadModel.new(order_events(client, "order_1"))
+      assert_invoice(
+          [
+              ["Rails meets ReactJS" , 1, "24", "24"],
+              ["Fearless Refactoring", 1, "49", "49"]
+          ],
+          "73",
+          invoice
+      )
+    end
+
+    specify "building a read model runtime - pubsub" do
+      client = Client.new(EventInMemoryRepository.new)
+      invoice = InvoiceReadModel.new
+      client.subscribe_to_all_events(invoice)
+      ordering_events.each{ |event| client.append_to_stream("order_1", event.data) }
+
+
       assert_invoice(
           [
               ["Rails meets ReactJS" , 1, "24", "24"],
@@ -32,6 +43,15 @@ module RailsEventStore
     end
 
     private
+
+    def ordering_events
+      [
+          OrderCreated.new("andrzejkrzywda"),
+          ProductAdded.new("Rails meets ReactJS", 1, 49),
+          ProductAdded.new("Fearless Refactoring", 1, 49),
+          PriceChanged.new("Rails meets ReactJS", 24)
+      ]
+    end
 
     def assert_invoice(expected_items, expected_total, invoice)
       assert_total_value(expected_total, invoice)
