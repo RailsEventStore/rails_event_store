@@ -8,41 +8,28 @@ module RailsEventStore
 
     specify "restoring a read model from all events" do
       client = Client.new(EventInMemoryRepository.new)
-      ordering_events.each{ |event| client.append_to_stream("order_1", event.data) }
-
-      invoice = InvoiceReadModel.new(order_events(client, "order_1"))
-      assert_invoice(
-          [
-              ["Rails meets ReactJS" , 1, "24", "24"],
-              ["Fearless Refactoring", 1, "49", "49"]
-          ],
-          "73",
-          invoice
-      )
+      publish_ordering_events(client)
+      order_events = client.read_all_events_forward("order_1")
+      invoice = InvoiceReadModel.new(order_events)
+      assert_invoice_structure(invoice)
     end
 
     specify "building a read model runtime - pubsub" do
       client = Client.new(EventInMemoryRepository.new)
       invoice = InvoiceReadModel.new
+
       client.subscribe_to_all_events(invoice)
-      ordering_events.each{ |event| client.append_to_stream("order_1", event.data) }
 
-
-      assert_invoice(
-          [
-              ["Rails meets ReactJS" , 1, "24", "24"],
-              ["Fearless Refactoring", 1, "49", "49"]
-          ],
-          "73",
-          invoice
-      )
-    end
-
-    def order_events(client, stream_name)
-      client.read_all_events_forward(stream_name)
+      publish_ordering_events(client)
+      assert_invoice_structure(invoice)
     end
 
     private
+
+
+    def publish_ordering_events(client)
+      ordering_events.each { |event| client.append_to_stream("order_1", event.data) }
+    end
 
     def ordering_events
       [
@@ -51,6 +38,17 @@ module RailsEventStore
           ProductAdded.new("Fearless Refactoring", 1, 49),
           PriceChanged.new("Rails meets ReactJS", 24)
       ]
+    end
+
+    def assert_invoice_structure(invoice)
+      assert_invoice(
+          [
+              ["Rails meets ReactJS", 1, "24", "24"],
+              ["Fearless Refactoring", 1, "49", "49"]
+          ],
+          "73",
+          invoice
+      )
     end
 
     def assert_invoice(expected_items, expected_total, invoice)
