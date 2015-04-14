@@ -1,9 +1,23 @@
 module RailsEventStore
   module Repositories
-    class EventRepository < Repository
+    class EventRepository
 
       def initialize(adapter = Models::Event)
-        super adapter
+        @adapter = adapter
+      end
+
+      def find(condition)
+        adapter.where(condition).first
+      end
+
+      def create(data)
+        model = adapter.new(data)
+        raise EventCannotBeSaved unless model.valid?
+        model.save
+      end
+
+      def delete(condition)
+        adapter.destroy_all condition
       end
 
       def gel_all_events
@@ -27,6 +41,8 @@ module RailsEventStore
       end
 
       private
+
+      attr_reader :adapter
 
       def map_record(record)
         Models::EventEntity.new.tap do |event|
