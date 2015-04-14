@@ -11,6 +11,7 @@ module RailsEventStore
         event = create_event_entity(stream_name, event_data)
         raise IncorrectStreamData if event.validate!
         save_event(event)
+        return event
       end
 
       private
