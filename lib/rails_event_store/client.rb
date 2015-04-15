@@ -27,10 +27,6 @@ module RailsEventStore
       Actions::ReadAllEvents.new(@repository).call(stream_name, :forward)
     end
 
-    def read_all_events_backward(stream_name)
-      Actions::ReadAllEvents.new(@repository).call(stream_name, :backward)
-    end
-
     def read_all_streams
       Actions::ReadAllStreams.new(@repository).call
     end
