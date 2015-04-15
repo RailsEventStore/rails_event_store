@@ -16,7 +16,7 @@ module RailsEventStore
     end
 
     def publish_event(event_data)
-      @observers.each {|observer| observer.handle_event(Object.new)}
+      notify_observers(event_data[:event_type], event_data[:data])
     end
 
     def read_events(stream_name, start, count)
@@ -33,6 +33,12 @@ module RailsEventStore
 
     def subscribe_to_all_events(observer)
       @observers << observer
+    end
+
+    private
+
+    def notify_observers(event_type, data)
+      @observers.each {|observer| observer.handle_event({event_type: event_type, data: (data || {})})}
     end
 
   end
