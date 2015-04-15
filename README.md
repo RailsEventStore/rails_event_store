@@ -34,7 +34,7 @@ stream_name = "order_1"
 event_data = { event_type: "OrderCreated",
                data: { data: "sample" },
                event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd" }
-client.append_to_stream(stream_name, event_data)
+client.publish_event(stream_name, event_data)
 ```
 
 OR
@@ -43,7 +43,7 @@ OR
 EventData = Struct.new(:data, :event_type)
 stream_name = "order_1"
 event_data = EventData.new({ data: "sample" }, "OrderCreated")
-client.append_to_stream(stream_name, event_data)
+client.publish_event(stream_name, event_data)
 ```
 
 Creating a single event with optimistic locking:

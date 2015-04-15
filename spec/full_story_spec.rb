@@ -28,7 +28,7 @@ module RailsEventStore
 
 
     def publish_ordering_events(client)
-      ordering_events.each { |event| client.append_to_stream(event.data, "order_1") }
+      ordering_events.each { |event| client.publish_event(event.data, "order_1") }
     end
 
     def ordering_events
