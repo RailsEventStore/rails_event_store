@@ -12,13 +12,13 @@ module RailsEventStore
     end
 
     specify 'raise exception if stream name is incorrect' do
-      expect { service.call(nil, :direction) }.to raise_error(IncorrectStreamData)
-      expect { service.call('', :direction) }.to raise_error(IncorrectStreamData)
+      expect { service.call(nil) }.to raise_error(IncorrectStreamData)
+      expect { service.call('') }.to raise_error(IncorrectStreamData)
     end
 
-    specify 'return all events ordered forward' do
+    specify 'return all events ordered ascending' do
       prepare_events_in_store
-      response = service.call(stream_name, :forward)
+      response = service.call(stream_name)
       expect(response.length).to eq 4
       expect(response[0].event_id).to eq '0'
       expect(response[1].event_id).to eq '1'
