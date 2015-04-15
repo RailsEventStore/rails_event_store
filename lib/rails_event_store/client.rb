@@ -6,7 +6,7 @@ module RailsEventStore
       @observers = []
     end
 
-    def append_to_stream(event_data, stream_name, expected_version = nil)
+    def append_to_stream(event_data, stream_name="all", expected_version = nil)
       event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
       notify_observers(event)
     end
