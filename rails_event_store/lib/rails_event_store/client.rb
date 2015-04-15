@@ -8,7 +8,7 @@ module RailsEventStore
 
     def append_to_stream(stream_name, event_data, expected_version = nil)
       event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
-      @observers.each {|observer| observer.handle_event(event)}
+      notify_observers(event)
     end
 
     def delete_stream(stream_name)
@@ -16,7 +16,8 @@ module RailsEventStore
     end
 
     def publish_event(event_data)
-      notify_observers(event_data[:event_type], event_data[:data])
+      event = OpenStruct.new(event_type: event_data[:event_type], data: (event_data[:data]|| {}))
+      notify_observers(event)
     end
 
     def read_events(stream_name, start, count)
@@ -37,8 +38,8 @@ module RailsEventStore
 
     private
 
-    def notify_observers(event_type, data)
-      @observers.each {|observer| observer.handle_event({event_type: event_type, data: (data || {})})}
+    def notify_observers(event)
+      @observers.each {|observer| observer.handle_event(event)}
     end
 
   end

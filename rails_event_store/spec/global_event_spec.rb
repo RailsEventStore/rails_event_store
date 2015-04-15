@@ -9,7 +9,6 @@ module RailsEventStore
       observer = Observer.new
       client.subscribe_to_all_events(observer)
       client.publish_event({event_type: "LessonCreated"})
-
       expect(observer.events.length).to(eql(1))
     end
 
@@ -18,7 +17,7 @@ module RailsEventStore
       observer = Observer.new
       client.subscribe_to_all_events(observer)
       client.publish_event({event_type: "LessonCreated"})
-      expect(observer.events[0][:event_type]).to(eql("LessonCreated"))
+      expect(observer.events[0].event_type).to(eql("LessonCreated"))
     end
 
     specify "published event has the right event type" do
@@ -26,7 +25,7 @@ module RailsEventStore
       observer = Observer.new
       client.subscribe_to_all_events(observer)
       client.publish_event({event_type: "OrderCreated"})
-      expect(observer.events[0][:event_type]).to(eql("OrderCreated"))
+      expect(observer.events[0].event_type).to(eql("OrderCreated"))
     end
 
     specify "published event contains empty data when event had no data" do
@@ -34,7 +33,7 @@ module RailsEventStore
       observer = Observer.new
       client.subscribe_to_all_events(observer)
       client.publish_event({event_type: "OrderCreated"})
-      expect(observer.events[0][:data]).to_not be_nil
+      expect(observer.events[0].data).to_not be_nil
     end
 
     specify "published event contains the event data" do
@@ -42,7 +41,7 @@ module RailsEventStore
       observer = Observer.new
       client.subscribe_to_all_events(observer)
       client.publish_event({event_type: "OrderCreated", data: {foo: 0}})
-      expect(observer.events[0][:data]).to(eql({foo: 0}))
+      expect(observer.events[0].data).to(eql({foo: 0}))
     end
 
     class Observer
