@@ -16,15 +16,6 @@ module RailsEventStore
       expect { service.call('', 1, 1, :direction) }.to raise_error(IncorrectStreamData)
     end
 
-    specify 'return all events ordered backward' do
-      prepare_events_in_store
-      response = service.call(stream_name, 1, 3, :backward)
-      expect(response.length).to eq 3
-      expect(response[0].event_id).to eq '3'
-      expect(response[1].event_id).to eq '2'
-      expect(response[2].event_id).to eq '1'
-    end
-
     specify 'return all events ordered forward' do
       prepare_events_in_store
       response = service.call(stream_name, 1, 3, :forward)

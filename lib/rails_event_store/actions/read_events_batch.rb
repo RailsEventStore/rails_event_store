@@ -16,11 +16,7 @@ module RailsEventStore
       attr_reader :repository
 
       def get_events_batch(stream_name, start, count, direction)
-        unless direction != :forward
-          repository.load_events_batch(stream_name, start, count)
-        else
-          repository.load_events_batch(stream_name, start, count).reverse
-        end
+        repository.load_events_batch(stream_name, start, count)
       end
 
       def find_event(start)
