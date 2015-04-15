@@ -15,6 +15,10 @@ module RailsEventStore
       Actions::DeleteStreamEvents.new(@repository).call(stream_name)
     end
 
+    def publish_event(event_data)
+      @observers.each {|observer| observer.handle_event(Object.new)}
+    end
+
     def read_events(stream_name, start, count)
       Actions::ReadEventsBatch.new(@repository).call(stream_name, start, count)
     end
