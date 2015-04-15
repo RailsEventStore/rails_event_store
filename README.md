@@ -64,13 +64,6 @@ count = 40
 client.read_events_forward(stream_name, start, count)
 ```
 
-#### Reading stream's event backward
-
-```ruby
-stream_name = "order_1"
-start = "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
-count = 40
-client.read_events_backward(stream_name, start, count)
 ```
 
 #### Reading all stream's event forward
@@ -82,12 +75,4 @@ stream_name = "order_1"
 client.read_all_events_forward(stream_name)
 ```
 
-#### Reading all stream's event backward
-
-This method allows us to load all stream's events descending.
-
-```ruby
-stream_name = "order_1"
-client.read_all_events_backward(stream_name)
-```
 
