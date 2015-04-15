@@ -9,7 +9,7 @@ module RailsEventStore
     specify "restoring a read model from all events" do
       client = Client.new(EventInMemoryRepository.new)
       publish_ordering_events(client)
-      order_events = client.read_all_events_forward("order_1")
+      order_events = client.read_all_events("order_1")
       invoice = InvoiceReadModel.new(order_events)
       assert_invoice_structure(invoice)
     end
