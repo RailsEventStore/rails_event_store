@@ -11,7 +11,7 @@ module RailsEventStore
       repository.reset!
     end
 
-    specify 'return all events ordered backward' do
+    specify 'return all events ordered forward' do
       prepare_events_in_store('order_1')
       prepare_events_in_store('order_2')
       response = service.call
