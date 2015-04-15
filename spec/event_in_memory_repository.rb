@@ -29,10 +29,6 @@ module RailsEventStore
       db.select { |event| event.stream == stream_name }
     end
 
-    def load_all_events_backward(stream_name)
-      db.reverse.select { |event| event.stream == stream_name }
-    end
-
     def gel_all_events
       db
     end

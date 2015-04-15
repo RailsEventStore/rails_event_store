@@ -32,10 +32,6 @@ module RailsEventStore
         adapter.where(stream: stream_name).order('id ASC').map &method(:map_record)
       end
 
-      def load_all_events_backward(stream_name)
-        adapter.where(stream: stream_name).order('id DESC').map &method(:map_record)
-      end
-
       def load_events_batch(stream_name, start_point, count)
         adapter.where('id >= ? AND stream = ?', start_point, stream_name).limit(count).map &method(:map_record)
       end
