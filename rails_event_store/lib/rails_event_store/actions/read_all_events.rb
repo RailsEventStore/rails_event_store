@@ -15,11 +15,7 @@ module RailsEventStore
       attr_reader :repository
 
       def get_all_events(stream_name, direction)
-        if direction == :forward
-          repository.load_all_events_forward(stream_name)
-        else
-          repository.load_all_events_backward(stream_name)
-        end
+        repository.load_all_events_forward(stream_name)
       end
     end
   end
