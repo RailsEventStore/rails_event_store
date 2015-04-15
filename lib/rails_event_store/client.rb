@@ -15,7 +15,7 @@ module RailsEventStore
       Actions::DeleteStreamEvents.new(@repository).call(stream_name)
     end
 
-    def read_events_forward(stream_name, start, count)
+    def read_events(stream_name, start, count)
       Actions::ReadEventsBatch.new(@repository).call(stream_name, start, count)
     end
 
