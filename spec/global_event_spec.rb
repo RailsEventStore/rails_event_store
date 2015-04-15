@@ -8,7 +8,7 @@ module RailsEventStore
       client = Client.new(EventInMemoryRepository.new)
       observer = Observer.new
       client.subscribe_to_all_events(observer)
-      client.publish_event({event_type: "LessonCreated"})
+      client.publish_event({event_type: "LessonCreated", data: { id: 1}})
       expect(observer.events.length).to(eql(1))
     end
 
@@ -16,7 +16,7 @@ module RailsEventStore
       client = Client.new(EventInMemoryRepository.new)
       observer = Observer.new
       client.subscribe_to_all_events(observer)
-      client.publish_event({event_type: "LessonCreated"})
+      client.publish_event({event_type: "LessonCreated", data: { id: 1}})
       expect(observer.events[0].event_type).to(eql("LessonCreated"))
     end
 
@@ -24,7 +24,7 @@ module RailsEventStore
       client = Client.new(EventInMemoryRepository.new)
       observer = Observer.new
       client.subscribe_to_all_events(observer)
-      client.publish_event({event_type: "OrderCreated"})
+      client.publish_event({event_type: "OrderCreated", data: { id: 1}})
       expect(observer.events[0].event_type).to(eql("OrderCreated"))
     end
 
@@ -32,7 +32,7 @@ module RailsEventStore
       client = Client.new(EventInMemoryRepository.new)
       observer = Observer.new
       client.subscribe_to_all_events(observer)
-      client.publish_event({event_type: "OrderCreated"})
+      client.publish_event({event_type: "OrderCreated", data: { id: 1}})
       expect(observer.events[0].data).to_not be_nil
     end
 

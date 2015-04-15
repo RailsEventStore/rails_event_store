@@ -1,3 +1,4 @@
+require 'pry'
 module RailsEventStore
   module Actions
     class AppendEventToStream
