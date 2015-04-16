@@ -14,7 +14,9 @@ module RailsEventStore
       attr_reader :stream, :event_type, :event_id, :metadata, :data
 
       def validate!
-        [stream, event_type, event_id, data].any? { |var| var.nil? || var.empty? }
+        [stream, event_type, event_id, data].each do |attribute|
+          raise IncorrectStreamData if is_invalid?(attribute)
+        end
       end
 
       def to_h
@@ -25,6 +27,12 @@ module RailsEventStore
             metadata: metadata,
             data: data
         }
+      end
+
+      private
+
+      def is_invalid?(attribute)
+        attribute.nil? || attribute.empty?
       end
     end
   end
