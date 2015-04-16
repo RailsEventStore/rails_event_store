@@ -59,6 +59,14 @@ module RailsEventStore
       expect{service.call(stream_name, event_data_2, nil)}.to raise_error(IncorrectStreamData)
     end
 
+    specify 'create global event without stream name' do
+      service.call('all', {event_type: 'LessonCreated', data: { id: 1}}, nil)
+      expect(repository.db.length).to eq 1
+      expect(repository.db[0].event_type).to eq 'LessonCreated'
+      expect(repository.db[0].data).to eq({ id: 1})
+      expect(repository.db[0].stream).to eq 'all'
+    end
+
 
     private
 
