@@ -9,7 +9,7 @@ module RailsEventStore
       def call(stream_name, event_data, expected_version)
         raise WrongExpectedEventVersion if version_incorrect?(stream_name, expected_version)
         event = create_event_entity(stream_name, event_data)
-        raise IncorrectStreamData if event.validate!
+        event.validate!
         save_event(event)
         return event
       end
