@@ -1,21 +1,31 @@
-require 'virtus'
 require 'securerandom'
 
 module RailsEventStore
   module Models
     class Event
-      include Virtus.model
 
-      attribute :stream,      String
-      attribute :event_type,  String
-      attribute :event_id,    String, default: SecureRandom.uuid
-      attribute :metadata,    Hash
-      attribute :data,        Hash
+      def initialize(event_data)
+        @stream     = event_data.fetch(:stream, nil)
+        @event_type = event_data.fetch(:event_type, nil)
+        @event_id   = event_data.fetch(:event_id, SecureRandom.uuid).to_s
+        @metadata   = event_data.fetch(:metadata, nil)
+        @data       = event_data.fetch(:data, nil)
+      end
+      attr_reader :stream, :event_type, :event_id, :metadata, :data
 
       def validate!
-        [self.stream, self.event_type, self.event_id, self.data].any? { |var| var.nil? || var.empty? }
+        [stream, event_type, event_id, data].any? { |var| var.nil? || var.empty? }
       end
 
+      def to_h
+        {
+            stream: stream,
+            event_type: event_type,
+            event_id: event_id,
+            metadata: metadata,
+            data: data
+        }
+      end
     end
   end
 end
