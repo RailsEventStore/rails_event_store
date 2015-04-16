@@ -1,13 +1,21 @@
-require 'active_record'
+require 'virtus'
+require 'securerandom'
 
 module RailsEventStore
   module Models
-    class Event < ActiveRecord::Base
-      self.primary_key = :id
-      self.table_name = 'event_store_events'
-      serialize :metadata
-      serialize :data
-      validates_uniqueness_of :event_id
+    class Event
+      include Virtus.model
+
+      attribute :stream,      String
+      attribute :event_type,  String
+      attribute :event_id,    String, default: SecureRandom.uuid
+      attribute :metadata,    Hash
+      attribute :data,        Hash
+
+      def validate!
+        [self.stream, self.event_type, self.event_id, self.data].any? { |var| var.nil? || var.empty? }
+      end
+
     end
   end
 end

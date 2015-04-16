@@ -33,9 +33,9 @@ module RailsEventStore
 
       def create_event_entity(stream_name, event_data)
         if event_data.is_a?(Hash)
-          Models::EventEntity.new(event_data.merge!(stream: stream_name))
+          Models::Event.new(event_data.merge!(stream: stream_name))
         else
-          Models::EventEntity.new(event_data.to_h.merge!(stream: stream_name))
+          Models::Event.new(event_data.to_h.merge!(stream: stream_name))
         end
       end
     end
