@@ -1,6 +1,6 @@
 # EventStore
 
-Production ready Ruby implementation of an EventStore based on Active Record.
+A Ruby implementation of an EventStore based on Active Record.
 
 ## Installation
 
