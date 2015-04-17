@@ -64,7 +64,7 @@ event_data = {
              }
 event = OrderCreated.new(event_data)
 expected_version = 1 #last event_id
-client.append_to_stream(event, stream_name, expected_version)
+client.publish_event(event, stream_name, expected_version)
 ```
 
 #### Reading stream's events forward in batch
