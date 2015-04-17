@@ -5,6 +5,7 @@ module RailsEventStore
       def initialize(adapter = EventEntity)
         @adapter = adapter
       end
+      attr_reader :adapter
 
       def find(condition)
         adapter.where(condition).first
@@ -19,6 +20,7 @@ module RailsEventStore
       def delete(condition)
         adapter.destroy_all condition
       end
+
       def gel_all_events
         adapter.find(:all, order: 'stream').map &method(:map_record)
       end
@@ -37,10 +39,8 @@ module RailsEventStore
 
       private
 
-      attr_reader :adapter
-
       def map_record(record)
-        Models::EventEntity.new.tap do |event|
+        EventEntity.new.tap do |event|
           event.stream     = record.stream
           event.event_type = record.event_type
           event.event_id   = record.event_id
