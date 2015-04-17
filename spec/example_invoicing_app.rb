@@ -1,59 +1,16 @@
-
-class OrderCreated
-  def initialize(customer_name)
-    @customer_name = customer_name
-  end
-
-  def data
-    {
-        data: {
-            customer_name: @customer_name,
-        },
-        event_type: "OrderCreated"
-    }
-  end
+class OrderCreated < RailsEventStore::Models::Event
 end
 
-class ProductAdded
-  def initialize(product_name, quantity, price)
-    @product_name = product_name
-    @quantity     = quantity
-    @price        = price
-  end
-
-  def data
-    {
-        data: {
-            product_name: @product_name,
-            quantity:     @quantity,
-            price:        @price
-        },
-        event_type: "ProductAdded"
-    }
-  end
+class ProductAdded < RailsEventStore::Models::Event
 end
 
-class PriceChanged
-  def initialize(product_name, new_price)
-    @product_name = product_name
-    @new_price    = new_price
-  end
-
-  def data
-    {
-        data: {
-            product_name: @product_name,
-            new_price:    @new_price
-        },
-        event_type: "PriceChanged"
-    }
-  end
+class PriceChanged < RailsEventStore::Models::Event
 end
 
 class InvoiceReadModel
   def initialize(events=[])
     @items = []
-    events.each{|event| handle_event(event)}
+    events.each { |event| handle_event(event) }
   end
 
   def items
@@ -120,6 +77,5 @@ class InvoiceReadModel
     end
 
   end
-
 
 end

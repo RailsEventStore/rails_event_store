@@ -2,7 +2,7 @@ module RailsEventStore
   module Repositories
     class EventRepository
 
-      def initialize(adapter = Models::Event)
+      def initialize(adapter = Models::EventEntity)
         @adapter = adapter
       end
 
@@ -19,7 +19,6 @@ module RailsEventStore
       def delete(condition)
         adapter.destroy_all condition
       end
-
       def gel_all_events
         adapter.find(:all, order: 'stream').map &method(:map_record)
       end
