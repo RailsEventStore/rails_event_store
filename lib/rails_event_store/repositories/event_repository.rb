@@ -2,7 +2,7 @@ module RailsEventStore
   module Repositories
     class EventRepository
 
-      def initialize(adapter = Models::EventEntity)
+      def initialize(adapter = EventEntity)
         @adapter = adapter
       end
 
