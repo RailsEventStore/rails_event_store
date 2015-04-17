@@ -3,23 +3,20 @@ require 'example_invoicing_app'
 
 module RailsEventStore
 
+  describe 'Event Store' do
 
-  describe "Event Store" do
-
-    specify "restoring a read model from all events" do
+    specify 'restoring a read model from all events' do
       client = Client.new(EventInMemoryRepository.new)
       publish_ordering_events(client)
-      order_events = client.read_all_events("order_1")
+      order_events = client.read_all_events('order_1')
       invoice = InvoiceReadModel.new(order_events)
       assert_invoice_structure(invoice)
     end
 
-    specify "building a read model runtime - pubsub" do
+    specify 'building a read model runtime - pubsub' do
       client = Client.new(EventInMemoryRepository.new)
       invoice = InvoiceReadModel.new
-
       client.subscribe_to_all_events(invoice)
-
       publish_ordering_events(client)
       assert_invoice_structure(invoice)
     end
@@ -28,25 +25,25 @@ module RailsEventStore
 
 
     def publish_ordering_events(client)
-      ordering_events.each { |event| client.publish_event(event.data, "order_1") }
+      ordering_events.each { |event| client.publish_event(event, 'order_1') }
     end
 
     def ordering_events
       [
-          OrderCreated.new("andrzejkrzywda"),
-          ProductAdded.new("Rails meets ReactJS", 1, 49),
-          ProductAdded.new("Fearless Refactoring", 1, 49),
-          PriceChanged.new("Rails meets ReactJS", 24)
+          OrderCreated.new({data: {customer_name: 'andrzejkrzywda'}}),
+          ProductAdded.new({data: { product_name: 'Rails meets ReactJS', quantity: 1, price: 49}}),
+          ProductAdded.new({data: { product_name: 'Fearless Refactoring', quantity: 1, price: 49}}),
+          PriceChanged.new({data: { product_name: 'Rails meets ReactJS', new_price: 24 }})
       ]
     end
 
     def assert_invoice_structure(invoice)
       assert_invoice(
           [
-              ["Rails meets ReactJS", 1, "24", "24"],
-              ["Fearless Refactoring", 1, "49", "49"]
+              ['Rails meets ReactJS', 1, '24', '24'],
+              ['Fearless Refactoring', 1, '49', '49']
           ],
-          "73",
+          '73',
           invoice
       )
     end
@@ -71,8 +68,6 @@ module RailsEventStore
     def assert_items_length(expected_items, invoice)
       expect(expected_items.length).to(eql(invoice.items.length))
     end
-
   end
-
 end
 

@@ -30,16 +30,13 @@ module RailsEventStore
 
     def prepare_events_in_store
       4.times do |index|
-        event_data = {event_type: 'OrderCreated',
-                      data: {data: 'sample'},
-                      event_id: index}
-        create_event(event_data)
+        event = OrderCreated.new({data: {data: 'sample'}, event_id: index})
+        create_event(event, stream_name)
       end
     end
 
-    def create_event(event_data)
-      Actions::AppendEventToStream.new(repository).call(stream_name, event_data, nil)
+    def create_event(event, stream_name)
+      Actions::AppendEventToStream.new(repository).call(stream_name, event, nil)
     end
-
   end
 end
