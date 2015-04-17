@@ -1,8 +1,6 @@
-if defined?(Rails)
-  require 'rails_event_store/event_entity'
-  require 'rails_event_store/generators/migrate_generator'
-  require 'rails_event_store/generators/templates/migration_template'
-end
+require 'rails_event_store/event_entity'
+require 'rails_event_store/generators/migrate_generator'
+require 'rails_event_store/generators/templates/migration_template'
 require 'rails_event_store/version'
 require 'rails_event_store/event'
 require 'rails_event_store/repositories/event_repository'
