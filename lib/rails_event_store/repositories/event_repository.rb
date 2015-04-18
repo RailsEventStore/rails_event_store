@@ -21,7 +21,7 @@ module RailsEventStore
         adapter.destroy_all condition
       end
 
-      def gel_all_events
+      def get_all_events
         adapter.find(:all, order: 'stream').map &method(:map_record)
       end
 
@@ -40,13 +40,14 @@ module RailsEventStore
       private
 
       def map_record(record)
-        EventEntity.new.tap do |event|
-          event.stream     = record.stream
-          event.event_type = record.event_type
-          event.event_id   = record.event_id
-          event.metadata   = record.metadata
-          event.data       = record.data
-        end
+        event_data = {
+            stream:     record.stream,
+            event_type: record.event_type,
+            event_id:   record.event_id,
+            metadata:   record.metadata,
+            data:       record.data
+        }
+        OpenStruct.new(event_data)
       end
     end
   end
