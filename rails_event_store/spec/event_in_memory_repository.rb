@@ -29,7 +29,7 @@ module RailsEventStore
       db.select { |event| event.stream == stream_name }
     end
 
-    def gel_all_events
+    def get_all_events
       db
     end
 

@@ -14,7 +14,7 @@ module RailsEventStore
       attr_reader :repository
 
       def get_all_events
-        repository.gel_all_events
+        repository.get_all_events
       end
     end
   end
