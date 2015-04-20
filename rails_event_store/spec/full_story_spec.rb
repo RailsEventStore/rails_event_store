@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'example_invoicing_app'
 
 module RailsEventStore
-
   describe 'Event Store' do
 
     specify 'restoring a read model from all events' do
@@ -13,16 +12,15 @@ module RailsEventStore
       assert_invoice_structure(invoice)
     end
 
-    specify 'building a read model runtime - pubsub' do
+    specify 'building a read model runtime - pub_sub' do
       client = Client.new(EventInMemoryRepository.new)
       invoice = InvoiceReadModel.new
-      client.subscribe_to_all_events(invoice)
+      client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
       publish_ordering_events(client)
       assert_invoice_structure(invoice)
     end
 
     private
-
 
     def publish_ordering_events(client)
       ordering_events.each { |event| client.publish_event(event, 'order_1') }
