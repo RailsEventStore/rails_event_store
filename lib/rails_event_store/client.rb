@@ -1,14 +1,13 @@
 module RailsEventStore
   class Client
 
-    def initialize(repository=Repositories::EventRepository.new)
+    def initialize(repository = Repositories::EventRepository.new)
       @repository = repository
-      @observers = []
     end
 
     def publish_event(event_data, stream_name = 'all', expected_version = nil)
       event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
-      notify_observers(event)
+      event_broker.notify_subscribers(event)
     end
 
     def delete_stream(stream_name)
@@ -27,15 +26,14 @@ module RailsEventStore
       Actions::ReadAllStreams.new(@repository).call
     end
 
-    def subscribe_to_all_events(observer)
-      @observers << observer
+    def subscribe(subscriber, event_types = [])
+      event_broker.add_subscriber(subscriber, event_types)
     end
 
     private
 
-    def notify_observers(event)
-      @observers.each {|observer| observer.handle_event(event)}
+    def event_broker
+      @event_broker ||= PubSub::Broker.new
     end
-
   end
 end
