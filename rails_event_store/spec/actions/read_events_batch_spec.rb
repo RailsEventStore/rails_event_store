@@ -1,10 +1,10 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 
 module RailsEventStore
-  describe Actions::ReadEventsBatch do
+  describe 'Read events in batch' do
 
     let(:repository)  { EventInMemoryRepository.new }
-    let(:service)     { Actions::ReadEventsBatch.new(repository) }
+    let(:client)      { RailsEventStore::Client.new(repository) }
     let(:stream_name) { 'stream_name' }
 
     before(:each) do
@@ -12,13 +12,13 @@ module RailsEventStore
     end
 
     specify 'raise exception if stream name is incorrect' do
-      expect { service.call(nil, 1, 1) }.to raise_error(IncorrectStreamData)
-      expect { service.call('', 1, 1) }.to raise_error(IncorrectStreamData)
+      expect { client.read_events(nil, 1, 1) }.to raise_error(IncorrectStreamData)
+      expect { client.read_events('', 1, 1) }.to raise_error(IncorrectStreamData)
     end
 
     specify 'return all events ordered forward' do
       prepare_events_in_store
-      response = service.call(stream_name, 1, 3)
+      response = client.read_events(stream_name, 1, 3)
       expect(response.length).to eq 3
       expect(response[0].event_id).to eq '1'
       expect(response[1].event_id).to eq '2'
@@ -35,7 +35,7 @@ module RailsEventStore
     end
 
     def create_event(event, stream_name)
-      Actions::AppendEventToStream.new(repository).call(stream_name, event, nil)
+      client.publish_event(event, stream_name)
     end
   end
 end

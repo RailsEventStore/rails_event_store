@@ -1,10 +1,10 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 
 module RailsEventStore
-  describe Actions::ReadAllStreams do
+  describe 'Read all streams events' do
 
     let(:repository)  { EventInMemoryRepository.new }
-    let(:service)     { Actions::ReadAllStreams.new(repository) }
+    let(:client)      { RailsEventStore::Client.new(repository) }
     let(:stream_name) { 'stream_name' }
 
     before(:each) do
@@ -14,7 +14,7 @@ module RailsEventStore
     specify 'return all events ordered forward' do
       prepare_events_in_store('order_1')
       prepare_events_in_store('order_2')
-      response = service.call
+      response = client.read_all_streams
       expect(response['order_1'].length).to be 1
       expect(response['order_1'][0].event_id).to eq '0'
       expect(response['order_2'].length).to be 1
@@ -31,7 +31,7 @@ module RailsEventStore
     end
 
     def create_event(event, stream_name)
-      Actions::AppendEventToStream.new(repository).call(stream_name, event, nil)
+      client.publish_event(event, stream_name)
     end
   end
 end
