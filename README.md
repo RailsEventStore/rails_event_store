@@ -4,13 +4,13 @@ A Ruby implementation of an EventStore based on Active Record.
 
 ## Installation
 
-1. Add this line to your application's Gemfile:
+* Add following line to your application's Gemfile:
 
 ```ruby
 gem 'rails_event_store'
 ```
 
-2. Generate table to store events in you DB. For this purpose you can use provided migration generator.
+* Use provided task to generate a table to store events in you DB.
 
 ```ruby
 rails generate rails_event_store:migrate
@@ -45,7 +45,7 @@ event = OrderCreated.new(event_data)
 #publishing event for specific stream
 client.publish_event(event, stream_name)
 
-#publishing global event
+#publishing global event. In this case stream_name is 'all'.
 client.publish_event(event)
 ```
 
@@ -63,7 +63,7 @@ event_data = {
                event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
              }
 event = OrderCreated.new(event_data)
-expected_version = 1 #last event_id
+expected_version = "850c347f-423a-4158-a5ce-b885396c5b73" #last event_id
 client.publish_event(event, stream_name, expected_version)
 ```
 
@@ -91,4 +91,21 @@ This method allows us to load all stored events ascending.
 
 ```ruby
 client.read_all_streams
+```
+
+#### Subscribing to events
+
+To listen on specific events synchronously you have to create subscriber reprezentation. The only requirement is that subscriber class has to implement the 'handle_event(event)' method.
+
+```ruby
+class InvoiceReadModel
+	def handle_event(event)
+		#we deal here with event's data
+	end
+end
+```
+
+```ruby
+invoice = InvoiceReadModel.new
+client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
 ```
