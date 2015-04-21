@@ -19,12 +19,13 @@ module RailsEventStore
     specify 'create successfully delete streams events' do
       prepare_events_in_store('test_1')
       prepare_events_in_store('test_2')
-      expect(repository.db.length).to eq 8
+      all_events = client.read_all_streams
+      expect(all_events['test_1'].length).to eq 4
+      expect(all_events['test_2'].length).to eq 4
       client.delete_stream('test_2')
-      expect(repository.db.length).to eq 4
-      repository.db.each do |event|
-        expect(event.stream).to eq 'test_1'
-      end
+      all_events = client.read_all_streams
+      expect(all_events['test_1'].length).to eq 4
+      expect(all_events['test_2']).to eq nil
     end
 
     private
