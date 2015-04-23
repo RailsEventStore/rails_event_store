@@ -103,9 +103,9 @@ To listen on specific events synchronously you have to create subscriber repreze
 
 ```ruby
 class InvoiceReadModel
-	def handle_event(event)
-		#we deal here with event's data
-	end
+  def handle_event(event)
+    #we deal here with event's data
+  end
 end
 ```
 
