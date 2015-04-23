@@ -75,7 +75,7 @@ client.publish_event(event, stream_name, expected_version)
 
 ```ruby
 stream_name = "order_1"
-start = 1
+start = "850c347f-423a-4158-a5ce-b885396c5b73"
 count = 40
 client.read_all_events(stream_name, start, count)
 ```
@@ -95,6 +95,15 @@ This method allows us to load all stored events ascending.
 
 ```ruby
 client.read_all_streams
+```
+
+#### Deleting stream
+
+You can permanently delete all events from a specific stream. Use this wisely.
+
+```ruby
+stream_name = "product_1"
+client.delete_stream(stream_name)
 ```
 
 #### Subscribing to events
