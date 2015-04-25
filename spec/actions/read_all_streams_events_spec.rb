@@ -3,7 +3,7 @@ require_relative '../spec_helper'
 module RailsEventStore
   describe 'Read all streams events' do
 
-    let(:repository)  { EventInMemoryRepository.new }
+    let(:repository)  { Repositories::EventInMemoryRepository.new }
     let(:client)      { RailsEventStore::Client.new(repository) }
     let(:stream_name) { 'stream_name' }
 
