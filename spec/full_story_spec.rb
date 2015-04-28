@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'example_invoicing_app'
 
 module RailsEventStore
-  describe 'Event Store' do
+  describe Client do
 
     specify 'restoring a read model from all events' do
       client = Client.new(EventInMemoryRepository.new)
