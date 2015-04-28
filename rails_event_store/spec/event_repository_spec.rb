@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module RailsEventStore
-  describe Repositories::EventRepository do
+  describe Client do
 
     specify 'initialize proper adapter type' do
       repository = Repositories::EventRepository.new

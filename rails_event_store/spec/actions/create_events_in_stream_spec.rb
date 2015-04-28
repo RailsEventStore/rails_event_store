@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 require 'ostruct'
 
 module RailsEventStore
-  describe 'Appending events to stream' do
+  describe Client do
 
     let(:repository) { EventInMemoryRepository.new }
     let(:client) { RailsEventStore::Client.new(repository) }

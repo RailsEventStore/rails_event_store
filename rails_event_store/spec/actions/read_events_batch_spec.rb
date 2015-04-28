@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 
 module RailsEventStore
-  describe 'Read events in batch' do
+  describe Client do
 
     let(:repository)  { EventInMemoryRepository.new }
     let(:client)      { RailsEventStore::Client.new(repository) }
