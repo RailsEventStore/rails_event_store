@@ -7,8 +7,6 @@ module RailsEventStore
       end
 
       def add_subscriber(subscriber, event_types)
-        raise SubscriberNotExist  if subscriber.nil?
-        raise MethodNotDefined    unless subscriber.methods.include? :handle_event
         subscribe(subscriber, [*event_types])
       end
 
