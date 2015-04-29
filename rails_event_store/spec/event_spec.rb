@@ -12,7 +12,7 @@ module RailsEventStore
       event = Test::TestCreated.new({})
       expect(event.event_type).to eq  'TestCreated'
       expect(event.event_id).to_not   be_nil
-      expect(event.metadata).to       be_nil
+      expect(event.metadata).to_not   be_nil
       expect(event.data).to           be_nil
     end
 

@@ -6,7 +6,7 @@ module RailsEventStore
     def initialize(event_data)
       @event_type = event_data.fetch(:event_type, event_name)
       @event_id   = event_data.fetch(:event_id, generate_id).to_s
-      @metadata   = event_data.fetch(:metadata, nil)
+      @metadata   = event_data.fetch(:metadata, { timestamp: Time.now.utc })
       @data       = event_data.fetch(:data, nil)
     end
     attr_reader :event_type, :event_id, :metadata, :data
