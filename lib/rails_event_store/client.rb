@@ -5,7 +5,7 @@ module RailsEventStore
       @repository = repository
     end
 
-    def publish_event(event_data, stream_name = 'all', expected_version = nil)
+    def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
       event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
       event_broker.notify_subscribers(event)
     end
@@ -26,7 +26,7 @@ module RailsEventStore
       Actions::ReadAllStreams.new(@repository).call
     end
 
-    def subscribe(subscriber, event_types = [])
+    def subscribe(subscriber, event_types = [ ALL_EVENTS ])
       event_broker.add_subscriber(subscriber, event_types)
     end
 
