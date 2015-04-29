@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'example_invoicing_app'
 
 module RailsEventStore
   describe Client do
