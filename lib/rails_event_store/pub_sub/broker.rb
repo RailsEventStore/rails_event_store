@@ -13,8 +13,9 @@ module RailsEventStore
       end
 
       def notify_subscribers(event)
-        notify(event, event.event_type)
-        notify(event, ALL_EVENTS)
+        [event.event_type, ALL_EVENTS].each do |type|
+          notify(event, type)
+        end
       end
 
       private
