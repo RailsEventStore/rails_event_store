@@ -118,7 +118,16 @@ class InvoiceReadModel
 end
 ```
 
+* You can subscribe on specific set of events
+
 ```ruby
 invoice = InvoiceReadModel.new
 client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
+```
+
+* You can also listen on all incoming events
+
+```ruby
+invoice = InvoiceReadModel.new
+client.subscribe(invoice)
 ```
