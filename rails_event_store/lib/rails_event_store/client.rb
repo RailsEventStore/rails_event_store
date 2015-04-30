@@ -4,6 +4,7 @@ module RailsEventStore
     def initialize(repository = Repositories::EventRepository.new)
       @repository = repository
     end
+    attr_reader :repository
 
     def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
       event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
