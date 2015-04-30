@@ -16,6 +16,10 @@ module RailsEventStore
       expect { client.read_events('', 1, 1) }.to raise_error(IncorrectStreamData)
     end
 
+    specify 'raise exception if event_id doesnt exist' do
+      expect { client.read_events(stream_name, 0, 1) }.to raise_error(EventNotFound)
+    end
+
     specify 'return all events ordered forward' do
       prepare_events_in_store
       events = client.read_events(stream_name, 1, 3)
