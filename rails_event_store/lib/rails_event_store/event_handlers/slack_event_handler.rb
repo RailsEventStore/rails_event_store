@@ -8,7 +8,7 @@ module RailsEventStore
         def post(url, params)
           uri = URI.parse(url)
 
-          req = Net::HTTP::Post.new(uri.request_uri)
+          req = Net::HTTP::Post.new(uri)
           req.set_form_data(params)
 
           http = Net::HTTP.new(uri.host, uri.port)
