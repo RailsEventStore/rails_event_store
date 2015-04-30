@@ -51,13 +51,5 @@ module RailsEventStore
       expect(subscriber.handled_events).to eq 2
     end
 
-    specify 'notifies subscribers listening on single event' do
-      subscriber = Subscribers::OrderDenormalizer.new
-      client.subscribe(subscriber, ['OrderCreated'])
-      event = OrderCreated.new
-      client.publish_event(event)
-      expect(subscriber.handled_events).to eq 1
-    end
-
   end
 end
