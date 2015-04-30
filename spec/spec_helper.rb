@@ -9,3 +9,5 @@ require 'in_memory/event_in_memory_repository'
 require 'matchers/event_store_matcher'
 require 'example_invoicing_app'
 require 'webmock/rspec'
+
+WebMock.allow_net_connect!
