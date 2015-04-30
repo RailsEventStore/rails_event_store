@@ -6,11 +6,6 @@ module RailsEventStore
     let(:repository) { EventInMemoryRepository.new }
     let(:client) { Client.new(repository) }
 
-    specify "should have handle_event method with one arg" do
-      slack_event_handler = EventHandlers::SlackEventHandler.new(webhook_url)
-      expect(slack_event_handler).to respond_to(:handle_event)
-    end
-
     specify "should send request to slack" do
       WebMock.disable_net_connect!
 
