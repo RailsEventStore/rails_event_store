@@ -17,12 +17,11 @@ module RailsEventStore
 
       metadata = event.metadata
       expect(metadata).to be_a Hash
-      expect(metadata[:timestamp]).to be_a Time
     end
 
     specify 'UUID should be unique' do
-      event_1 = Test::TestCreated.new({})
-      event_2 = Test::TestCreated.new({})
+      event_1 = Test::TestCreated.new
+      event_2 = Test::TestCreated.new
       expect(event_1.event_id).to_not eq(event_2.event_id)
     end
 
