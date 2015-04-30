@@ -3,7 +3,7 @@ require 'securerandom'
 module RailsEventStore
   class Event
 
-    def initialize(event_data)
+    def initialize(event_data={})
       @event_type = event_data.fetch(:event_type, event_name)
       @event_id   = event_data.fetch(:event_id, generate_id).to_s
       @metadata   = event_data.fetch(:metadata, { timestamp: Time.now.utc })
