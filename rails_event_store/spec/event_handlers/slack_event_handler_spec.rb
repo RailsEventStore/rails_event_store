@@ -12,6 +12,8 @@ module RailsEventStore
     end
 
     specify "should send request to slack" do
+      WebMock.disable_net_connect!
+
       stub_request(:any, webhook_url)
 
       slack_event_handler = EventHandlers::SlackEventHandler.new(webhook_url)
@@ -25,6 +27,8 @@ module RailsEventStore
       }
 
       expect(a_request(:post, webhook_url).with(body: expected_body)).to have_been_made
+
+      WebMock.allow_net_connect!
     end
   end
 end
