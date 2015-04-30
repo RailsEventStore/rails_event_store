@@ -25,5 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rails', '~> 4.2.1'
   spec.add_development_dependency 'mutant', '~> 0.7.8'
   spec.add_development_dependency 'mutant-rspec', '~> 0.7.8'
+  spec.add_development_dependency 'webmock', '~> 1.21.0'
 
 end
