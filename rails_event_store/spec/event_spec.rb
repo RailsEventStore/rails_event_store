@@ -6,7 +6,7 @@ module Test
 end
 
 module RailsEventStore
-  describe Event do
+  describe Client do
 
     specify 'for empty data it initializes instance with default values' do
       event = Test::TestCreated.new({})
@@ -14,6 +14,16 @@ module RailsEventStore
       expect(event.event_id).to_not   be_nil
       expect(event.metadata).to_not   be_nil
       expect(event.data).to           be_nil
+
+      metadata = event.metadata
+      expect(metadata).to be_a Hash
+      expect(metadata[:timestamp]).to be_a Time
+    end
+
+    specify 'UUID should be unique' do
+      event_1 = Test::TestCreated.new({})
+      event_2 = Test::TestCreated.new({})
+      expect(event_1.event_id).to_not eq(event_2.event_id)
     end
 
     specify 'convert to hash' do
