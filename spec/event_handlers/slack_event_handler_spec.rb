@@ -20,7 +20,11 @@ module RailsEventStore
       event = OrderCreated.new({data: 'sample'})
       client.publish_event(event)
 
-      expect(a_request(:post, webhook_url)).to have_been_made
+      expected_body = {
+        payload: '{"text":"Event OrderCreated raised.","username":"Rails EventStore Bot"}'
+      }
+
+      expect(a_request(:post, webhook_url).with(body: expected_body)).to have_been_made
     end
   end
 end

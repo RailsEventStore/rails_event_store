@@ -26,8 +26,14 @@ module RailsEventStore
       attr_reader :webhook_url, :http_client
 
       def handle_event(event)
+        event_name = event.event_type
+        payload = {
+          text: "Event #{event_name} raised.",
+          username: "Rails EventStore Bot",
+        }
+
         @http_client.post(@webhook_url, {
-          payload: "foo"
+          payload: payload.to_json
         })
       end
     end
