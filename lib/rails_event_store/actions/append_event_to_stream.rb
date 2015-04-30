@@ -10,7 +10,7 @@ module RailsEventStore
         raise WrongExpectedEventVersion if version_incorrect?(stream_name, expected_version)
         event.validate!
         save_event(event, stream_name)
-        return event
+        event
       end
 
       private
