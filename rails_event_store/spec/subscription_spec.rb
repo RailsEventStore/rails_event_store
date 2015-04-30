@@ -34,7 +34,7 @@ module RailsEventStore
     specify 'notifies subscribers listening on all events' do
       subscriber = Subscribers::OrderDenormalizer.new
       client.subscribe(subscriber)
-      event = OrderCreated.new({data: 'sample'})
+      event = OrderCreated.new
       client.publish_event(event)
       expect(subscriber.handled_events).to eq 1
     end
@@ -42,8 +42,8 @@ module RailsEventStore
     specify 'notifies subscribers listening on list of events' do
       subscriber = Subscribers::OrderDenormalizer.new
       client.subscribe(subscriber, ['OrderCreated', 'ProductAdded'])
-      event_1 = OrderCreated.new({data: 'sample'})
-      event_2 = ProductAdded.new({data: 'sample'})
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
       client.publish_event(event_1)
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq 2
@@ -52,7 +52,7 @@ module RailsEventStore
     specify 'notifies subscribers listening on single event' do
       subscriber = Subscribers::OrderDenormalizer.new
       client.subscribe(subscriber, 'OrderCreated')
-      event = OrderCreated.new({data: 'sample'})
+      event = OrderCreated.new
       client.publish_event(event)
       expect(subscriber.handled_events).to eq 1
     end

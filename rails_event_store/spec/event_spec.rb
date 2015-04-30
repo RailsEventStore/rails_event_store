@@ -9,7 +9,7 @@ module RailsEventStore
   describe Client do
 
     specify 'for empty data it initializes instance with default values' do
-      event = Test::TestCreated.new({})
+      event = Test::TestCreated.new
       expect(event.event_type).to eq  'TestCreated'
       expect(event.event_id).to_not   be_nil
       expect(event.metadata).to_not   be_nil
