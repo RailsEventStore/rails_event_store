@@ -11,10 +11,6 @@ module RailsEventStore
     end
     attr_reader :event_type, :event_id, :metadata, :data
 
-    def validate!
-      raise IncorrectStreamData if data.nil? || data.empty?
-    end
-
     def to_h
       {
           event_type: event_type,

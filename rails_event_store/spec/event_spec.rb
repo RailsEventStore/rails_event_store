@@ -16,11 +16,6 @@ module RailsEventStore
       expect(event.data).to           be_nil
     end
 
-    specify 'for empty events data it throws validation exception' do
-      event = Test::TestCreated.new({})
-      expect { event.validate! }.to raise_error(IncorrectStreamData)
-    end
-
     specify 'convert to hash' do
       event_data = {
           data: { data: 'sample' },
