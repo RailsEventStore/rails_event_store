@@ -14,7 +14,7 @@ module RailsEventStore
       slack_event_handler = EventHandlers::SlackEventHandler.new(webhook_url)
 
       client.subscribe(slack_event_handler)
-      event = OrderCreated.new({data: 'sample'})
+      event = OrderCreated.new
       client.publish_event(event)
 
       expected_body = {
