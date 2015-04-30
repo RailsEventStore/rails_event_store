@@ -1,3 +1,3 @@
 module RailsEventStore
-  GLOBAL_STREAM, ALL_EVENTS = 'all'.freeze
+  GLOBAL_STREAM = 'all'.freeze
 end
