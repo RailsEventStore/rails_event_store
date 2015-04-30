@@ -4,6 +4,7 @@ module RailsEventStore
 
       def initialize
         @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
+        @global_subscribers = []
       end
 
       def add_subscriber(subscriber, event_types)
@@ -13,12 +14,12 @@ module RailsEventStore
 
       def add_global_subscriber(subscriber)
         verify_subscriber(subscriber)
-        subscribe(subscriber, [ALL_EVENTS])
+        @global_subscribers << subscriber
       end
 
       def notify_subscribers(event)
-        [event.event_type, ALL_EVENTS].each do |type|
-          notify(event, type)
+        all_subscribers_for(event.event_type).each do |subscriber|
+          subscriber.handle_event(event)
         end
       end
 
@@ -36,10 +37,8 @@ module RailsEventStore
         end
       end
 
-      def notify(event, event_type)
-        subscribers[event_type].each do |subscriber|
-          subscriber.handle_event(event)
-        end
+      def all_subscribers_for(event_type)
+        subscribers[event_type] + @global_subscribers
       end
     end
   end
