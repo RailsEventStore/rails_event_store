@@ -3,7 +3,7 @@ require 'json'
 
 module RailsEventStore
   module EventHandlers
-    class SlackEventHandler < EventHandler
+    class SlackEventHandler
       class HTTPClient
         def post(url, params)
           uri = URI.parse(url)
