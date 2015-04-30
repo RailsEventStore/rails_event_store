@@ -3,7 +3,7 @@ module RailsEventStore
     class Broker
 
       def initialize
-        @subscribers = {}
+        @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
       end
 
       def add_subscriber(subscriber, event_types)
@@ -23,15 +23,13 @@ module RailsEventStore
 
       def subscribe(subscriber, event_types)
         event_types.each do |type|
-          (subscribers[type] ||= []) << subscriber
+          subscribers[type] << subscriber
         end
       end
 
       def notify(event, event_type)
-        if subscribers.key? event_type
-          subscribers[event_type].each do |subscriber|
-            subscriber.handle_event(event)
-          end
+        subscribers[event_type].each do |subscriber|
+          subscriber.handle_event(event)
         end
       end
     end
