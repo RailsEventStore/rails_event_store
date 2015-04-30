@@ -46,5 +46,15 @@ module RailsEventStore
       expected = {data: 'sample', event_type: 'OrderCreated', stream: 'all'}
       expect(saved_events[0]).to be_event(expected)
     end
+
+    specify 'create event with optimistic locking' do
+      event_id_0 = "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
+      event = OrderCreated.new({data: 'sample', event_id: event_id_0})
+      client.publish_event(event, stream_name)
+
+      event_id_1 = "724dd49d-6e20-40e6-bc32-ed75258f886b"
+      event = OrderCreated.new({data: 'sample', event_id: event_id_1})
+      client.publish_event(event, stream_name, event_id_0)
+    end
   end
 end
