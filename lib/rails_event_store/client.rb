@@ -32,7 +32,7 @@ module RailsEventStore
     end
 
     def subscribe_to_all_events(subscriber)
-      event_broker.add_subscriber(subscriber, [ALL_EVENTS])
+      event_broker.add_global_subscriber(subscriber)
     end
 
     private
