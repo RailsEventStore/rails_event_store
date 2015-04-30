@@ -27,8 +27,12 @@ module RailsEventStore
       Actions::ReadAllStreams.new(@repository).call
     end
 
-    def subscribe(subscriber, event_types = [ ALL_EVENTS ])
+    def subscribe(subscriber, event_types)
       event_broker.add_subscriber(subscriber, event_types)
+    end
+
+    def subscribe_to_all_events(subscriber)
+      event_broker.add_subscriber(subscriber, [ALL_EVENTS])
     end
 
     private
