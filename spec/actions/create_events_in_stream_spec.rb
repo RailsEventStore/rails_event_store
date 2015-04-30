@@ -37,6 +37,9 @@ module RailsEventStore
     specify 'raise exception if event data incorrect' do
       incorrect_event = OrderCreated.new({data: nil})
       expect { client.publish_event(incorrect_event, stream_name) }.to raise_error(IncorrectStreamData)
+
+      incorrect_event = OrderCreated.new({data: {}})
+      expect { client.publish_event(incorrect_event, stream_name) }.to raise_error(IncorrectStreamData)
     end
 
     specify 'create global event without stream name' do
