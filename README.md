@@ -133,3 +133,10 @@ client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
 invoice = InvoiceReadModel.new
 client.subscribe(invoice)
 ```
+
+#### Resources
+
+There're already few blogposts about Rails EventStore. Check them out:
+
+* [The Event Store for Rails developers](http://blog.arkency.com/2015/04/the-event-store-for-rails-developers/)
+* [Why I want to introduce mutation testing to the rails_event_store gem](http://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/)
