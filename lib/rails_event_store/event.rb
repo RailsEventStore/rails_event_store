@@ -27,7 +27,7 @@ module RailsEventStore
     end
 
     def event_name
-      self.class.name.demodulize
+      self.class.name
     end
   end
 end
