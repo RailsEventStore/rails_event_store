@@ -12,9 +12,11 @@ module RailsEventStore
       end
 
       def create(data)
-        model = adapter.new(data)
-        raise EventCannotBeSaved unless model.valid?
-        model.save
+        begin
+          adapter.create(data)
+        rescue ActiveRecord::RecordNotUnique
+          raise EventCannotBeSaved
+        end
       end
 
       def delete(condition)
