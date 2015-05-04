@@ -7,7 +7,7 @@ class CreateEventsTable < ActiveRecord::Migration
       t.string      :event_id,    null: false
       t.text        :metadata
       t.text        :data,        null: false
-      t.timestamps
+      t.datetime    :created_at,  null: false
     end
     add_index :event_store_events, :stream
     add_index :event_store_events, :event_id
