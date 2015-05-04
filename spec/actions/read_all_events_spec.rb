@@ -19,10 +19,10 @@ module RailsEventStore
     specify 'return all events ordered ascending' do
       prepare_events_in_store
       events = client.read_all_events(stream_name)
-      expect(events[0]).to be_event({event_id: '0', event_type: 'OrderCreated', stream: stream_name})
-      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', stream: stream_name})
-      expect(events[2]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name})
-      expect(events[3]).to be_event({event_id: '3', event_type: 'OrderCreated', stream: stream_name})
+      expect(events[0]).to be_event({event_id: '0', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[2]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[3]).to be_event({event_id: '3', event_type: 'OrderCreated', stream: stream_name, data: {}})
     end
 
     private

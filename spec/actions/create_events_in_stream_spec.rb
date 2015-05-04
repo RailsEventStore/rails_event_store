@@ -16,7 +16,7 @@ module RailsEventStore
       event = OrderCreated.new({event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'})
       client.publish_event(event, stream_name)
       saved_events = client.read_all_events(stream_name)
-      expected = {event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd', event_type: 'OrderCreated', stream: stream_name}
+      expected = {event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd', event_type: 'OrderCreated', stream: stream_name, data: {}}
       expect(saved_events[0]).to be_event(expected)
     end
 
@@ -24,7 +24,7 @@ module RailsEventStore
       event = OrderCreated.new
       client.publish_event(event, stream_name)
       saved_events = client.read_all_events(stream_name)
-      expected = {event_type: 'OrderCreated', stream: stream_name}
+      expected = {event_type: 'OrderCreated', stream: stream_name, data: {}}
       expect(saved_events[0]).to be_event(expected)
     end
 
@@ -38,16 +38,16 @@ module RailsEventStore
       event = OrderCreated.new
       client.publish_event(event)
       saved_events = client.read_all_events('all')
-      expected = {event_type: 'OrderCreated', stream: 'all'}
+      expected = {event_type: 'OrderCreated', stream: 'all', data: {}}
       expect(saved_events[0]).to be_event(expected)
     end
 
     specify 'create event with optimistic locking' do
-      event_id_0 = "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
+      event_id_0 = 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'
       event = OrderCreated.new({event_id: event_id_0})
       client.publish_event(event, stream_name)
 
-      event_id_1 = "724dd49d-6e20-40e6-bc32-ed75258f886b"
+      event_id_1 = '724dd49d-6e20-40e6-bc32-ed75258f886b'
       event = OrderCreated.new({event_id: event_id_1})
       client.publish_event(event, stream_name, event_id_0)
     end
