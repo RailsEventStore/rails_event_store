@@ -10,7 +10,7 @@ class CreateEventsTable < ActiveRecord::Migration
       t.datetime    :created_at,  null: false
     end
     add_index :event_store_events, :stream
-    add_index :event_store_events, :event_id
+    add_index :event_store_events, :event_id, unique: true
   end
 
   def self.down
