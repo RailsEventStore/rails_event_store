@@ -13,7 +13,7 @@ module RailsEventStore
       expect(event.event_type).to eq  'Test::TestCreated'
       expect(event.event_id).to_not   be_nil
       expect(event.metadata).to       eq({})
-      expect(event.data).to           be_nil
+      expect(event.data).to           eq({})
     end
 
     specify 'UUID should be unique' do
