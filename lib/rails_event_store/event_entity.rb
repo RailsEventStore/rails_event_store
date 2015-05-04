@@ -6,5 +6,6 @@ module RailsEventStore
     self.table_name = 'event_store_events'
     serialize :metadata
     serialize :data
+    validates_uniqueness_of :event_id
   end
 end
