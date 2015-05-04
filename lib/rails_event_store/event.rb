@@ -14,13 +14,17 @@ module RailsEventStore
     def to_h
       {
           event_type: event_type,
-          event_id: event_id,
-          metadata: metadata,
-          data: data
+          event_id:   event_id,
+          metadata:   metadata.merge!(publish_time),
+          data:       data
       }
     end
 
     private
+
+    def publish_time
+      { published_at: Time.now.utc }
+    end
 
     def generate_id
       SecureRandom.uuid
