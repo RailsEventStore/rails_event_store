@@ -10,7 +10,7 @@ module RailsEventStore
     include ActiveModel::Validations
 
     def validate!
-      raise ValidationError.new(42) unless valid?
+      raise ValidationError.new(errors) unless valid?
     end
   end
 end

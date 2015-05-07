@@ -32,7 +32,7 @@ module RailsEventStore
       begin
         cmd.validate!
       rescue RailsEventStore::Command::ValidationError => e
-        expect(e.errors).to be_truthy
+        expect(e.errors.messages).to eq({ order_id: ["can't be blank"] })
       end
     end
   end
