@@ -1,11 +1,16 @@
 module RailsEventStore
   class Command
-    ValidationError = Class.new(StandardError)
+    class ValidationError < StandardError
+      def initialize(errors)
+        @errors = errors
+      end
+      attr_accessor :errors
+    end
 
     include ActiveModel::Validations
 
     def validate!
-      raise ValidationError unless valid?
+      raise ValidationError.new(42) unless valid?
     end
   end
 end
