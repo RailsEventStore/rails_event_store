@@ -35,5 +35,10 @@ module RailsEventStore
         expect(e.errors.messages).to eq({ order_id: ["can't be blank"] })
       end
     end
+
+    it "should have convenient initialization syntax for busy rails developers" do
+      cmd = Commands::CreateOrder.new(order_id: 3)
+      expect(cmd.order_id).to eq(3)
+    end
   end
 end
