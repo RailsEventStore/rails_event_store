@@ -7,6 +7,7 @@ module RailsEventStore
       attr_accessor :errors
     end
 
+    include ActiveModel::Model
     include ActiveModel::Validations
 
     def validate!
