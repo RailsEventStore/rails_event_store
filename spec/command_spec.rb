@@ -21,5 +21,12 @@ module RailsEventStore
       cmd.order_id = 5
       cmd.validate!
     end
+
+    it "should raise error if order is not valid" do
+      cmd = Commands::CreateOrder.new
+      expect do
+        cmd.validate!
+      end.to raise_error(RailsEventStore::Command::ValidationError)
+    end
   end
 end
