@@ -15,5 +15,11 @@ module RailsEventStore
       cmd.order_id = 5
       expect(cmd.valid?).to eq(true)
     end
+
+    it "#validate! should validate command" do
+      cmd = Commands::CreateOrder.new
+      cmd.order_id = 5
+      cmd.validate!
+    end
   end
 end
