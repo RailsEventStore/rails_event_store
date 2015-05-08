@@ -5,9 +5,17 @@ class Order
 
   def initialize(id = generate_uuid)
     @id = id
+    @status = :draft
   end
 
-  attr_accessor :id
+  def apply_order_created
+    @status = :created
+  end
+
+  attr_accessor :id, :status
+end
+
+class OrderCreated < RailsEventStore::Event
 end
 
 module RailsEventStore
@@ -17,6 +25,17 @@ module RailsEventStore
       order2 = Order.new
       expect(order1.id).to_not eq(order2.id)
       expect(order1.id).to be_a(String)
+    end
+
+    it "should have ability to apply event on itself" do
+      order = Order.new
+      order_created = OrderCreated.new
+
+      expect(order.status).to eq(:draft)
+
+      order.apply(order_created)
+
+      expect(order.status).to eq(:created)
     end
   end
 end
