@@ -45,10 +45,11 @@ module RailsEventStore
       let(:event_store_repo) { EventInMemoryRepository.new }
       let(:event_store) { Client.new(event_store_repo) }
 
-      it "should have ability to store aggregate" do
+      it "should have ability to store & load aggregate" do
         aggregate_repository = Repositories::AggregateRepository.new(event_store)
         order = Order.new
         order_created = OrderCreated.new
+        order_id = order.id
         order.apply(order_created)
 
         aggregate_repository.store(order)
@@ -59,10 +60,15 @@ module RailsEventStore
           stream: order.id,
           data: {}
         })
+
+        order = Order.new(order_id)
+        aggregate_repository.load(order)
+        expect(order.unpublished_events).to be_empty
+
+        expect(order.status).to eq(:created)
       end
 
       it "should initialize default RES client if event_store not provided" do
-        expect(RailsEventStore)
         aggregate_repository = Repositories::AggregateRepository.new
         expect(aggregate_repository.event_store).to be_a(RailsEventStore::Client)
       end

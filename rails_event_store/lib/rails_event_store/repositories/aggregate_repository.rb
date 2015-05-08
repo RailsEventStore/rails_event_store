@@ -11,6 +11,13 @@ module RailsEventStore
         end
       end
 
+      def load(aggregate)
+        events = event_store.read_all_events(aggregate.id)
+        events.each do |event|
+          aggregate.apply_old_event(event)
+        end
+      end
+
       attr_accessor :event_store
 
       def default_event_store
