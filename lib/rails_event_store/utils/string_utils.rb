@@ -8,7 +8,7 @@ module StringUtils
     word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
     word.tr!("-", "_")
     word.downcase!
-    word.gsub!('/', '_')
+    word.gsub!(/[^A-Za-z0-9_]/, '_')
     word
   end
 end

@@ -5,8 +5,16 @@ module RailsEventStore
     end
 
     def apply(event)
-      public_send("apply_#{StringUtils.underscore(event.class.name)}")
-      unpublished_events << event
+      apply_event(event, true)
+    end
+
+    def apply_old_event(event)
+      apply_event(event, false)
+    end
+
+    def apply_event(event, new)
+      public_send("apply_#{StringUtils.underscore(event.event_type)}")
+      unpublished_events << event if new
     end
 
     def unpublished_events
