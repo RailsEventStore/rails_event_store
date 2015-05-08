@@ -4,7 +4,7 @@ module RailsEventStore
   describe Client do
 
     specify 'restoring a read model from all events' do
-      client = Client.new(EventInMemoryRepository.new)
+      client = Client.new(Repositories::EventInMemoryRepository.new)
       publish_ordering_events(client)
       order_events = client.read_all_events('order_1')
       invoice = InvoiceReadModel.new(order_events)
@@ -12,7 +12,7 @@ module RailsEventStore
     end
 
     specify 'building a read model runtime - pub_sub' do
-      client = Client.new(EventInMemoryRepository.new)
+      client = Client.new(Repositories::EventInMemoryRepository.new)
       invoice = InvoiceReadModel.new
       client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
       publish_ordering_events(client)
