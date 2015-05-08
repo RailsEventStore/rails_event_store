@@ -34,6 +34,7 @@ module RailsEventStore
       expect(order.status).to eq(:draft)
 
       order.apply(order_created)
+      expect(order.unpublished_events).to eq([order_created])
 
       expect(order.status).to eq(:created)
     end
