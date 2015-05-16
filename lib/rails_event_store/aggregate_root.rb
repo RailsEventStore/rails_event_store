@@ -1,11 +1,12 @@
 module RailsEventStore
   module AggregateRoot
     def apply(event)
-      apply_event(event, true)
+      apply_event(event)
+      unpublished_events << event
     end
 
     def apply_old_event(event)
-      apply_event(event, false)
+      apply_event(event)
     end
 
     def unpublished_events
@@ -14,9 +15,8 @@ module RailsEventStore
 
     private
 
-    def apply_event(event, new)
+    def apply_event(event)
       public_send("apply_#{StringUtils.underscore(event.event_type)}")
-      unpublished_events << event if new
     end
 
     def generate_uuid
