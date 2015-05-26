@@ -7,38 +7,37 @@ module RailsEventStore
     attr_reader :repository
 
     def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
-      event = Actions::AppendEventToStream.new(@repository).call(stream_name, event_data, expected_version)
-      event_broker.notify_subscribers(event)
+      event_store.publish_event(event_data, stream_name, expected_version)
     end
 
     def delete_stream(stream_name)
-      Actions::DeleteStreamEvents.new(@repository).call(stream_name)
+      event_store.delete_stream(stream_name)
     end
 
     def read_events(stream_name, start, count)
-      Actions::ReadEventsBatch.new(@repository).call(stream_name, start, count)
+      event_store.read_events(stream_name, start, count)
     end
 
     def read_all_events(stream_name)
-      Actions::ReadAllEvents.new(@repository).call(stream_name)
+      event_store.read_all_events(stream_name)
     end
 
     def read_all_streams
-      Actions::ReadAllStreams.new(@repository).call
+      event_store.read_all_streams
     end
 
     def subscribe(subscriber, event_types)
-      event_broker.add_subscriber(subscriber, event_types)
+      event_store.subscribe(subscriber, event_types)
     end
 
     def subscribe_to_all_events(subscriber)
-      event_broker.add_global_subscriber(subscriber)
+      event_store.subscribe_to_all_events(subscriber)
     end
 
     private
 
-    def event_broker
-      @event_broker ||= PubSub::Broker.new
+    def event_store
+      @event_store ||= RubyEventStore::Facade.new(repository)
     end
   end
 end
