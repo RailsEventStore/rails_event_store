@@ -1,1 +1,0 @@
-bundle exec mutant --include lib --require ruby_event_store --use rspec "RubyEventStore*"
