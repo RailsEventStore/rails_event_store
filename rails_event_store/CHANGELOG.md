@@ -1,5 +1,6 @@
 ### HEAD
 
+* Moved most core features to the separate gem `ruby_event_store`. We left only rails related implementation here.
 * It's now assumed that `event_id` has a unique index in the database (the same is applied to the initial migration generator)
 * Model is no longer validating uniqueness of `event_id` via ActiveRecord
 * Event does not need any data now, it can be created just like `OrderCreated.new` (without any arguments)
