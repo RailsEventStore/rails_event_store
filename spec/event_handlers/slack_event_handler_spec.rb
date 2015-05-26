@@ -2,11 +2,11 @@ require 'spec_helper'
 
 module RailsEventStore
   describe EventHandlers::SlackEventHandler do
-    let(:webhook_url) { "https://hooks.slack.com/example" }
-    let(:repository) { EventInMemoryRepository.new }
-    let(:client) { Client.new(repository) }
+    let(:webhook_url) { 'https://hooks.slack.com/example' }
+    let(:repository)  { EventInMemoryRepository.new }
+    let(:client)      { Client.new(repository) }
 
-    specify "should send request to slack" do
+    specify 'should send request to slack' do
       WebMock.disable_net_connect!
 
       stub_request(:any, webhook_url)
