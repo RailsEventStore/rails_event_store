@@ -3,4 +3,4 @@ rvm:
 - 2.1.5
 before_install: gem install bundler
 gemfile: Gemfile
-script: ./script/run-mutant.sh
+script: bundle exec mutant --include lib --require ruby_event_store --use rspec "RubyEventStore*"
