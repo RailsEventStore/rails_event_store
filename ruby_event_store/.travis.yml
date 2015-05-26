@@ -1,0 +1,6 @@
+language: ruby
+rvm:
+- 2.1.5
+before_install: gem install bundler
+gemfile: Gemfile
+script: ./script/run-mutant.sh
