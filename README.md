@@ -131,7 +131,7 @@ client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
 
 ```ruby
 invoice = InvoiceReadModel.new
-client.subscribe(invoice)
+client.subscribe_to_all_events(invoice)
 ```
 
 #### Resources
