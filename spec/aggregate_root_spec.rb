@@ -8,7 +8,7 @@ class Order
     @status = :draft
   end
 
-  def apply_order_created
+  def apply_order_created(event)
     @status = :created
   end
 

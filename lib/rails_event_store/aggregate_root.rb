@@ -16,7 +16,7 @@ module RailsEventStore
     private
 
     def apply_event(event)
-      public_send("apply_#{StringUtils.underscore(event.event_type)}")
+      public_send("apply_#{StringUtils.underscore(event.event_type)}", event)
     end
 
     def generate_uuid
