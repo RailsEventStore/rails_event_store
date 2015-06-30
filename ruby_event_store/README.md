@@ -6,3 +6,11 @@
 # RubyEventStore
 
 A Ruby implementation of an EventStore. It is an integral part of `rails_event_store` gem.
+
+## About
+
+<img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left" />
+
+This repository is funded and maintained by Arkency. Check out our other [open-source projects](https://github.com/arkency).
+
+You can also [hire us](http://arkency.com) or [read our blog](http://blog.arkency.com).
