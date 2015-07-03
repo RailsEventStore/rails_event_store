@@ -1,3 +1,5 @@
+require 'active_support/inflector'
+
 module RailsEventStore
   module AggregateRoot
     def apply(event)
@@ -16,7 +18,7 @@ module RailsEventStore
     private
 
     def apply_event(event)
-      public_send("apply_#{StringUtils.underscore(event.event_type)}", event)
+      send("apply_#{event.event_type.underscore.gsub('/', '_')}", event)
     end
 
     def generate_uuid
