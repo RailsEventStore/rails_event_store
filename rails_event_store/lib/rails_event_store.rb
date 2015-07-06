@@ -1,4 +1,5 @@
 require 'rails_event_store/event_entity'
+require 'rails_event_store/models/event'
 require 'rails_event_store/generators/migrate_generator'
 require 'rails_event_store/generators/templates/migration_template'
 require 'rails_event_store/version'
