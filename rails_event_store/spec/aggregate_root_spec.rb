@@ -34,12 +34,8 @@ module RailsEventStore
         order = Order.new
         order_created = OrderCreated.new
 
-        expect(order.status).to eq(:draft)
-
         order.apply(order_created)
         expect(order.unpublished_events).to eq([order_created])
-
-        expect(order.status).to eq(:created)
       end
     end
 
@@ -66,8 +62,6 @@ module RailsEventStore
         order = Order.new(order_id)
         aggregate_repository.load(order)
         expect(order.unpublished_events).to be_empty
-
-        expect(order.status).to eq(:created)
       end
 
       it "should initialize default RES client if event_store not provided" do
