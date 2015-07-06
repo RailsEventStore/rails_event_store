@@ -25,5 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rails', '~> 4.2.1'
   spec.add_development_dependency 'webmock', '~> 1.21.0'
   spec.add_dependency 'ruby_event_store'
+  spec.add_dependency 'activesupport', '>= 3.0'
 
 end
