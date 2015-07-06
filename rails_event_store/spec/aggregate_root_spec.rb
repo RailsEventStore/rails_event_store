@@ -3,14 +3,14 @@ require 'spec_helper.rb'
 class Order
   include RailsEventStore::AggregateRoot
 
-  attr_accessor :id, :status
-
   def initialize(id = generate_uuid)
     @id = id
     @status = :draft
   end
 
+  attr_reader :id
   private
+  attr_accessor :status
 
   def apply_order_created(event)
     @status = :created
