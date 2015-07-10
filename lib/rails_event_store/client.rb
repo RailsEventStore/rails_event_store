@@ -1,3 +1,5 @@
+require 'ruby_event_store'
+
 module RailsEventStore
   class Client
 
