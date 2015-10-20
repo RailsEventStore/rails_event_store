@@ -27,7 +27,7 @@ module RailsEventStore
       end
 
       def last_stream_event(stream_name)
-        adapter.where(stream: stream_name).last.map &method(:build_event_entity)
+        build_event_entity adapter.where(stream: stream_name).last
       end
 
       def load_all_events_forward(stream_name)
