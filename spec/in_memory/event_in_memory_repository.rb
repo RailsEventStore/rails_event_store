@@ -43,9 +43,5 @@ module RailsEventStore
       response
     end
 
-    def reset!
-      db = []
-    end
-
   end
 end
