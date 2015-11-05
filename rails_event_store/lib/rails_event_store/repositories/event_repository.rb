@@ -23,7 +23,7 @@ module RailsEventStore
       end
 
       def get_all_events
-        adapter.find(:all, order: 'stream').map &method(:build_event_entity)
+        adapter.order('id ASC').order('stream').all.map &method(:build_event_entity)
       end
 
       def last_stream_event(stream_name)
