@@ -15,9 +15,15 @@ class Order
   def apply_order_created(event)
     @status = :created
   end
+
+  def apply_order_completed(event)
+    @status = :completed
+  end
 end
 
 class OrderCreated < RailsEventStore::Event
+end
+class OrderCompleted < RailsEventStore::Event
 end
 
 module RailsEventStore
@@ -67,6 +73,25 @@ module RailsEventStore
       it "should initialize default RES client if event_store not provided" do
         aggregate_repository = Repositories::AggregateRepository.new
         expect(aggregate_repository.event_store).to be_a(RailsEventStore::Client)
+      end
+
+      it 'should fail when aggregate stream has been modified' do
+        aggregate_repository = Repositories::AggregateRepository.new(event_store)
+        order = Order.new
+        order_created = OrderCreated.new
+        order_id = order.id
+        order.apply(order_created)
+        aggregate_repository.store(order)
+
+        order1 = Order.new(order_id)
+        aggregate_repository.load(order1)
+        order2 = Order.new(order_id)
+        aggregate_repository.load(order2)
+        order1.apply(OrderCompleted.new)
+        order2.apply(OrderCompleted.new)
+        aggregate_repository.store(order1)
+
+        expect { aggregate_repository.store(order2) }.to raise_error(RubyEventStore::WrongExpectedEventVersion)
       end
     end
   end
