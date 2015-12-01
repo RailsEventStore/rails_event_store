@@ -104,7 +104,7 @@ module RailsEventStore
         order2.apply(OrderCompleted.new)
         aggregate_repository.store(order1)
 
-        expect { aggregate_repository.store(order2) }.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+        expect { aggregate_repository.store(order2) }.to raise_error(AggregateRoot::HasBeenChanged)
       end
     end
   end

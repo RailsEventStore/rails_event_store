@@ -2,6 +2,8 @@ require 'active_support/inflector'
 
 module RailsEventStore
   module AggregateRoot
+    HasBeenChanged = Class.new(StandardError)
+
     def apply(event)
       apply_event(event)
       unpublished_events << event
