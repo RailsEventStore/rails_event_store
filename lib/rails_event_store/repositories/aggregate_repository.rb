@@ -7,7 +7,9 @@ module RailsEventStore
 
       def store(aggregate)
         aggregate.unpublished_events.each do |event|
-          event_store.publish_event(event, aggregate.id)
+          expected_version = aggregate.version
+          event_store.publish_event(event, aggregate.id, expected_version)
+          expected_version = event.event_id
         end
       end
 
