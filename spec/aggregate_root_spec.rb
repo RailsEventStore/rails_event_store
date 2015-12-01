@@ -75,6 +75,19 @@ module RailsEventStore
         expect(aggregate_repository.event_store).to be_a(RailsEventStore::Client)
       end
 
+      it 'should allow update with 2 or more event (checking expected version)' do
+        aggregate_repository = Repositories::AggregateRepository.new(event_store)
+        order = Order.new
+        order_id = order.id
+        order.apply(order_created = OrderCreated.new)
+        order.apply(order_completed = OrderCompleted.new)
+        aggregate_repository.store(order)
+
+        reloaded_order = Order.new(order_id)
+        aggregate_repository.load(reloaded_order)
+        expect(reloaded_order.version).to eq(order_completed.event_id)
+      end
+
       it 'should fail when aggregate stream has been modified' do
         aggregate_repository = Repositories::AggregateRepository.new(event_store)
         order = Order.new
