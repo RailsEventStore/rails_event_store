@@ -9,7 +9,6 @@ module RubyEventStore
       def call(stream_name, event, expected_version)
         raise WrongExpectedEventVersion if version_incorrect?(stream_name, expected_version)
         save_event(event, stream_name)
-        event
       end
 
       private
