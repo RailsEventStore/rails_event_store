@@ -1,10 +1,13 @@
 class OrderCreated < RailsEventStore::Event
+  attr_accessor :customer_name
 end
 
 class ProductAdded < RailsEventStore::Event
+  attr_accessor :product_name, :quantity, :price
 end
 
 class PriceChanged < RailsEventStore::Event
+  attr_accessor :product_name, :new_price
 end
 
 class InvoiceReadModel
