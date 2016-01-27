@@ -14,7 +14,9 @@ module RailsEventStore
 
     def create(model)
       model.merge!({id: db.length})
-      db.push(OpenStruct.new(model))
+      event = OpenStruct.new(model)
+      db.push(event)
+      event
     end
 
     def delete(condition)
