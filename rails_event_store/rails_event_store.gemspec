@@ -6,8 +6,8 @@ require 'rails_event_store/version'
 Gem::Specification.new do |spec|
   spec.name          = 'rails_event_store'
   spec.version       = RailsEventStore::VERSION
-  spec.authors       = ['rybex']
-  spec.email         = ['tomek.rybka@gmail.com']
+  spec.authors       = ['rybex', 'mpraglowski']
+  spec.email         = ['tomek.rybka@gmail.com', 'm@praglowski.com']
 
   spec.summary       = %q{Implementation of Event Store in Ruby}
   spec.description   = %q{Implementation of Event Store in Ruby}
@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rails', '~> 4.2.1'
   spec.add_development_dependency 'webmock', '~> 1.21.0'
 
-  spec.add_dependency 'ruby_event_store'
+  spec.add_dependency 'ruby_event_store', '>= 0.2.0'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
 
