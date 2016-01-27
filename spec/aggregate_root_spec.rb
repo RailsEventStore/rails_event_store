@@ -52,10 +52,11 @@ module RailsEventStore
 
         aggregate_repository.store(order)
 
-        expect(event_store_repo.get_all_events.count).to eq(1)
-        expect(event_store_repo.get_all_events.first).to be_event({
+
+        stream = event_store_repo.load_all_events_forward(order.id)
+        expect(stream.count).to eq(1)
+        expect(stream.first).to be_event({
           event_type: 'OrderCreated',
-          stream: order.id,
           data: {}
         })
 
