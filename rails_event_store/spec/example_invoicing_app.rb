@@ -23,13 +23,13 @@ class InvoiceReadModel
 
   def handle_event(event)
     if event.event_type == "ProductAdded"
-      add_new_invoice_item(event.data[:product_name])
-      set_price(event.data[:product_name], event.data[:price])
-      set_quantity(event.data[:product_name], event.data[:quantity])
+      add_new_invoice_item(event.product_name)
+      set_price(event.product_name, event.price)
+      set_quantity(event.product_name, event.quantity)
     end
 
     if event.event_type == "PriceChanged"
-      set_price(event.data[:product_name], event.data[:new_price])
+      set_price(event.product_name, event.new_price)
     end
   end
 
