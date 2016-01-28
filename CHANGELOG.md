@@ -3,6 +3,7 @@
 * Removed EventEntity class
 * All read & returned events are not instances of RailsEventStore::Event class
 * RailsEventStore::Event class allows for easier events creation and access to data attributes
+* AggregateRoot module & repository extracted to new gem (aggregate_root)
 
 ### 0.1.2 (26.05.2015)
 
