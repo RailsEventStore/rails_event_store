@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/arkency/aggregate_root.svg?branch=master)](https://travis-ci.org/arkency/aggregate_root)
+[![Gem Version](https://badge.fury.io/rb/aggregate_root.svg)](https://badge.fury.io/rb/aggregate_root)
+[![Code Climate](https://codeclimate.com/github/arkency/aggregate_root/badges/gpa.svg)](https://codeclimate.com/github/arkency/aggregate_root)
+[![Test Coverage](https://codeclimate.com/github/arkency/aggregate_root/badges/coverage.svg)](https://codeclimate.com/github/arkency/aggregate_root/coverage)
+[![Join the chat at https://gitter.im/arkency/rails_event_store](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/arkency/rails_event_store?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # AggregateRoot
 
 Event sourced (with Rails Event Store) aggregate root implementation.
