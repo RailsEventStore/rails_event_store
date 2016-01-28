@@ -10,6 +10,9 @@ Event sourced (with Rails Event Store) aggregate root implementation.
 gem 'aggregate_root'
 ```
 
+Setup [RailsEventStore](https://github.com/arkency/rails_event_store/) as described in
+Installation section of [readme](https://github.com/arkency/rails_event_store/blob/master/README.md#installation).
+
 ## Usage
 
 To create a new aggregate domain object include `AggregateRoot::Base` module.
