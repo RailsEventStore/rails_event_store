@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rails', '~> 4.2.1'
 
-  spec.add_dependency 'rails_event_store', '>= 0.1.4'
+  spec.add_dependency 'rails_event_store', '>= 0.2.0'
   spec.add_dependency 'activesupport', '>= 3.0'
 end
