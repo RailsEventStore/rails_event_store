@@ -2,6 +2,8 @@ require 'active_support/inflector'
 
 module RailsEventStore
   module AggregateRoot
+    HasBeenChanged = Class.new(StandardError)
+
     def apply(event)
       apply_event(event)
       unpublished_events << event
@@ -9,11 +11,14 @@ module RailsEventStore
 
     def apply_old_event(event)
       apply_event(event)
+      @version = event.event_id
     end
 
     def unpublished_events
       @unpublished_events ||= []
     end
+
+    attr_reader :version
 
     private
 
