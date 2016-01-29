@@ -1,5 +1,7 @@
 ### HEAD
 
+### 0.2.0 (29.01.2016)
+
 * Removed EventEntity class
 * All read & returned events are not instances of RailsEventStore::Event class
 * RailsEventStore::Event class allows for easier events creation and access to data attributes
