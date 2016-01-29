@@ -1,8 +1,9 @@
 RSpec::Matchers.define :be_event do |expected|
   match do |actual|
-    expect(actual.stream).to eq expected[:stream]
     expect(actual.event_type).to eq expected[:event_type]
     expect(actual.data).to eq expected[:data]
-    if expected.key? :event_id then expect(actual.event_id).to eq expected[:event_id] else true end
+    expect(actual.metadata).to eq expected[:metadata] if expected.key?(:metadata)
+    expect(actual.event_id).to eq expected[:event_id] if expected.key?(:event_id)
+    true
   end
 end
