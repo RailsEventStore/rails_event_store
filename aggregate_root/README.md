@@ -105,11 +105,17 @@ and publish them in order of creation to event store.
 
 #### Resources
 
-There're already few blogposts about Rails EventStore. Check them out:
+There're already few blogposts about building an event sourced applications wth [rails_event_store](https://github.com/arkency/rails_event_store) and aggregate_root gems:
 
 * [Why use Event Sourcing](http://blog.arkency.com/2015/03/why-use-event-sourcing/)
 * [The Event Store for Rails developers](http://blog.arkency.com/2015/04/the-event-store-for-rails-developers/)
 * [Fast introduction to Event Sourcing for Ruby programmers](http://blog.arkency.com/2015/03/fast-introduction-to-event-sourcing-for-ruby-programmers/)
+* [Building an Event Sourced application using rails_event_store](http://blog.arkency.com/2015/05/building-an-event-sourced-application-using-rails-event-store/)
+* [Using domain events as success/failure messages](http://blog.arkency.com/2015/05/using-domain-events-as-success-slash-failure-messages/)
+* [Subscribing for events in rails_event_store](http://blog.arkency.com/2015/06/subscribing-for-events-in-rails-event-store/)
+* [Testing an Event Sourced application](http://blog.arkency.com/2015/07/testing-event-sourced-application/)
+* [Testing Event Sourced application - the read side](http://blog.arkency.com/2015/09/testing-event-sourced-application-the-read-side/)
+* [One event to rule them all](http://blog.arkency.com/2016/01/one-event-to-rule-them-all/)
 
 ## About
 
