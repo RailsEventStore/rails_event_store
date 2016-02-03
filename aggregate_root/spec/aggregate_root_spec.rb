@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rails_event_store'
 
 class Order
   include AggregateRoot::Base
@@ -61,9 +62,13 @@ module AggregateRoot
       expect(order.unpublished_events).to be_empty
     end
 
-    it "should initialize default RES client if event_store not provided" do
+    it "should initialize default client if event_store not provided" do
+      AggregateRoot.configure do |config|
+        config.default_event_store = FakeEventStore.new
+      end
+
       aggregate_repository = Repository.new
-      expect(aggregate_repository.event_store).to be_a(RailsEventStore::Client)
+      expect(aggregate_repository.event_store).to be_a(FakeEventStore)
     end
   end
 end
