@@ -110,7 +110,7 @@ client.delete_stream(stream_name)
 
 #### Subscribing to events
 
-To listen on specific events synchronously you have to create subscriber reprezentation. The only requirement is that subscriber class has to implement the 'handle_event(event)' method.
+To listen on specific events synchronously you have to create subscriber representation. The only requirement is that subscriber class has to implement the 'handle_event(event)' method.
 
 ```ruby
 class InvoiceReadModel
