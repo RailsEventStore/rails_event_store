@@ -5,7 +5,7 @@ module RailsEventStore
 
     specify 'initialize proper adapter type' do
       client = Client.new
-      expect(client.repository).to be_a Repositories::EventRepository
+      expect(client.repository).to eq(Repository.backend)
     end
 
   end

@@ -1,7 +1,7 @@
 module RailsEventStore
   class Client
 
-    def initialize(repository = Repositories::EventRepository.new)
+    def initialize(repository = ::RailsEventStore::Repository.backend)
       @repository = repository
     end
     attr_reader :repository

@@ -1,3 +1,5 @@
+require 'active_support/inflector'
+
 module RailsEventStore
   class Event < RubyEventStore::Event
     def initialize(**args)
