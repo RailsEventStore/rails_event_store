@@ -16,7 +16,32 @@ Event sourced (with Rails Event Store) aggregate root implementation.
 gem 'aggregate_root'
 ```
 
-Setup [RailsEventStore](https://github.com/arkency/rails_event_store/) as described in
+## Before use
+
+Choose your weapon now! Ekhm I mean choose your event store client.
+To do so add configuration in environment setup. Example using [RailsEventStore](https://github.com/arkency/rails_event_store/):
+
+```ruby
+AggregateRoot.configure do |config|
+  config.default_event_store = RailsEventStore::Client.new
+end
+```
+
+Remember that this is only a default event store used by `AggregateRoot::Repository` when no event store is given in constructor parameters.
+You could always set any event store client (must match interface) when creating `AggregateRoot::Repository`.
+
+```ruby
+repository = AggregateRoot::Repository.new(FakeEventStore.new)
+# do you work here...
+```
+
+To use [RailsEventStore](https://github.com/arkency/rails_event_store/) add to Gemfile:
+
+```ruby
+gem 'rails_event_store'
+```
+
+Then setup [RailsEventStore](https://github.com/arkency/rails_event_store/) as described in
 Installation section of [readme](https://github.com/arkency/rails_event_store/blob/master/README.md#installation).
 
 ## Usage

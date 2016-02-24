@@ -20,7 +20,7 @@ module AggregateRoot
     attr_accessor :event_store
 
     def default_event_store
-      RailsEventStore::Client.new
+      AggregateRoot.configuration.default_event_store
     end
   end
 end
