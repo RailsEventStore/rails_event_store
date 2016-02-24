@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.2.1 (25.02.2016)
+
+* Fix: Error when trying to #read_all_streams #20
+
 ### 0.2.0 (29.01.2016)
 
 * Removed EventEntity class
