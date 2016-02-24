@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.1.0 (25.02.2016)
+
+* Revert dependency on RailsEventStore #3
+
 ### 0.0.2 (29.01.2016)
 
 * Update RailsEventStore to 0.2.0
