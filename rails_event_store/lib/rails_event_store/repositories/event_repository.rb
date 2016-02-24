@@ -45,6 +45,7 @@ module RailsEventStore
         ::RailsEventStore::Event.new(record.data.merge(
           event_type: record.event_type,
           event_id:   record.event_id,
+          stream:     record.stream,
           metadata:   record.metadata))
       end
 
