@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.2.2 (25.02.2016)
+
+* Restore AggregateRoot in RES, but this time as a dependency on aggregate_root gem
+
 ### 0.2.1 (25.02.2016)
 
 * Fix: Error when trying to #read_all_streams #20
