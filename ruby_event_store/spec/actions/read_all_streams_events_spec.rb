@@ -15,10 +15,9 @@ module RubyEventStore
       prepare_events_in_store('order_1')
       prepare_events_in_store('order_2')
       response = facade.read_all_streams
-      expect(response['order_1'].length).to be 1
-      expect(response['order_1'][0].event_id).to eq '0'
-      expect(response['order_2'].length).to be 1
-      expect(response['order_1'][0].event_id).to eq '0'
+      expect(response.length).to be 2
+      expect(response[0].event_id).to eq '0'
+      expect(response[1].event_id).to eq '0'
     end
 
     private

@@ -7,15 +7,11 @@ module RubyEventStore
       end
 
       def call
-        get_all_events.group_by { |event| event.stream }
+        repository.get_all_events
       end
 
       private
       attr_reader :repository
-
-      def get_all_events
-        repository.get_all_events
-      end
     end
   end
 end
