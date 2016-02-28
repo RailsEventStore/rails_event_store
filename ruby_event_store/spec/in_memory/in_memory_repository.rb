@@ -15,11 +15,11 @@ module RubyEventStore
     end
 
     def delete_stream(stream_name)
-      db.reject! { |event| event.stream == stream_name }
+      db.reject! { |item| item[:stream] == stream_name }
     end
 
     def has_event?(event_id)
-      db.any?{|event| event.event_id == event_id}
+      db.any?{ |item| item[:event].event_id == event_id }
     end
 
     def last_stream_event(stream_name)
@@ -28,16 +28,17 @@ module RubyEventStore
 
     def read_events_forward(stream_name, start_event_id, count)
       source = read_stream_events_forward(stream_name)
-      read_batch(source, start_event_id, count)
+      read_batch(source, start_event_id, count, ->(a,b) { a > b })
     end
 
     def read_events_backward(stream_name, start_event_id, count)
       source = read_stream_events_backward(stream_name)
-      read_batch(source, start_event_id, count)
+      read_batch(source, start_event_id, count, ->(a,b) { a < b })
     end
 
     def read_stream_events_forward(stream_name)
-      db.select { |event| event.stream == stream_name }
+      db.select { |item| item[:stream] == stream_name }
+        .map{ |item| item[:event] }
     end
 
     def read_stream_events_backward(stream_name)
@@ -45,11 +46,11 @@ module RubyEventStore
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_batch(db, start_event_id, count)
+      read_batch(db.map{ |item| item[:event] }, start_event_id, count, ->(a,b) { a > b })
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_batch(db.reverse, start_event_id, count)
+      read_batch(db.map{ |item| item[:event] }.reverse, start_event_id, count, ->(a,b) { a < b })
     end
 
     def reset!
@@ -57,14 +58,19 @@ module RubyEventStore
     end
 
     private
-    def read_batch(source, start_event_id, count)
+    def read_batch(source, start_event_id, count, comparision)
       response = []
+      start_index = index_of(start_event_id) if start_event_id
       source.each do |event|
-        if (start_event_id.nil? || event.id > start_event_id) && response.length < count
+        if (start_event_id.nil? || comparision.(index_of(event.event_id), start_index)) && response.length < count
           response.push(event)
         end
       end
       response
+    end
+
+    def index_of(event_id)
+      db.select { |item| item[:event].event_id == event_id.to_s }.first[:index]
     end
   end
 end
