@@ -51,7 +51,7 @@ module RubyEventStore
 
     def read_all_streams_backward(start = nil, count = PAGE_SIZE)
       ensure_event_exists(start) if start
-      repository.read_all_events_backward(start, count)
+      repository.read_all_streams_backward(start, count)
     end
 
     def subscribe(subscriber, event_types)
