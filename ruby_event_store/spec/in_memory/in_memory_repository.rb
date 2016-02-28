@@ -48,7 +48,7 @@ module RubyEventStore
       read_batch(db, start_event_id, count)
     end
 
-    def read_all_streams_forward(start_event_id, count)
+    def read_all_streams_backward(start_event_id, count)
       read_batch(db.reverse, start_event_id, count)
     end
 
