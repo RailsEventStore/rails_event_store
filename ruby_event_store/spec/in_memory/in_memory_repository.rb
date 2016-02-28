@@ -8,10 +8,6 @@ module RubyEventStore
     end
     attr_reader :db
 
-    def find(condition)
-      db.select { |event| event.event_id == condition[:event_id].to_s }.first
-    end
-
     def create(event, stream_name)
       model = {index: db.length, stream: stream_name, event: event}
       db.push(model)
