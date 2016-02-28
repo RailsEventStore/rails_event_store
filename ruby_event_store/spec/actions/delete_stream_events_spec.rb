@@ -20,12 +20,11 @@ module RubyEventStore
       prepare_events_in_store('test_1')
       prepare_events_in_store('test_2')
       all_events = facade.read_all_streams
-      expect(all_events['test_1'].length).to eq 4
-      expect(all_events['test_2'].length).to eq 4
+      expect(all_events.length).to eq 8
       facade.delete_stream('test_2')
       all_events = facade.read_all_streams
-      expect(all_events['test_1'].length).to eq 4
-      expect(all_events['test_2']).to eq nil
+      expect(all_events.length).to eq 4
+      expect(facade.read_all_events('test_2')).to eq []
     end
 
     private
