@@ -24,7 +24,7 @@ module RubyEventStore
 
     def prepare_events_in_store(stream_name)
       1.times do |index|
-        event = OrderCreated.new({event_id: index})
+        event = OrderCreated.new(event_id: index)
         create_event(event, stream_name)
       end
     end
