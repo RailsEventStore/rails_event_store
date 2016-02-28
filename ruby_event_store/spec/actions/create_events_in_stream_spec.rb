@@ -44,11 +44,11 @@ module RubyEventStore
 
     specify 'create event with optimistic locking' do
       event_id_0 = 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'
-      event = OrderCreated.new({event_id: event_id_0})
+      event = OrderCreated.new(event_id: event_id_0)
       facade.publish_event(event, stream_name)
 
       event_id_1 = '724dd49d-6e20-40e6-bc32-ed75258f886b'
-      event = OrderCreated.new({event_id: event_id_1})
+      event = OrderCreated.new(event_id: event_id_1)
       facade.publish_event(event, stream_name, event_id_0)
     end
   end
