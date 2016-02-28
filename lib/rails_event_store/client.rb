@@ -15,15 +15,15 @@ module RailsEventStore
     end
 
     def read_events(stream_name, start, count)
-      event_store.read_events(stream_name, start, count)
+      event_store.read_events_forward(stream_name, start, count)
     end
 
     def read_all_events(stream_name)
-      event_store.read_all_events(stream_name)
+      event_store.read_stream_events_forward(stream_name)
     end
 
     def read_all_streams
-      event_store.read_all_streams
+      event_store.read_all_streams_forward
     end
 
     def subscribe(subscriber, event_types)
