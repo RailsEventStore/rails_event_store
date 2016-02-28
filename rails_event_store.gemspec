@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'webmock', '~> 1.21.0'
   spec.add_development_dependency 'sqlite3'
 
-  spec.add_dependency 'ruby_event_store', '>= 0.2.0'
+  spec.add_dependency 'ruby_event_store', '>= 0.3.0'
   spec.add_dependency 'aggregate_root', '>= 0.1.0'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
