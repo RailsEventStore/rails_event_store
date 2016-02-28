@@ -10,43 +10,44 @@ module RubyEventStore
 
     specify 'constructor attributes are used as event data' do
       event = Test::TestCreated.new(sample: 123)
-      expect(event.event_type).to eq  'Test::TestCreated'
-      expect(event.event_id).to_not   be_nil
-      expect(event.sample).to         eq(123)
-      expect(event.data).to           eq({sample: 123})
-      expect(event.metadata).to       eq({})
+      expect(event.event_type).to eq          'Test::TestCreated'
+      expect(event.event_id).to_not           be_nil
+      expect(event.sample).to                 eq(123)
+      expect(event.data).to                   eq({sample: 123})
+      expect(event.metadata[:timestamp]).to   be_a Time
     end
 
     specify 'constructor event_id attribute is used as event id' do
       event = Test::TestCreated.new(event_id: 234)
-      expect(event.event_type).to eq  'Test::TestCreated'
-      expect(event.event_id).to       eq("234")
-      expect(event.metadata).to       eq({})
-      expect(event.data).to           eq({})
+      expect(event.event_type).to eq          'Test::TestCreated'
+      expect(event.event_id).to               eq("234")
+      expect(event.data).to                   eq({})
+      expect(event.metadata[:timestamp]).to   be_a Time
     end
 
     specify 'constructor event_type attribute is used as event type' do
       event = Test::TestCreated.new(event_type: 'DifferentTestPublished')
-      expect(event.event_type).to eq  'DifferentTestPublished'
-      expect(event.event_id).to_not   be_nil
-      expect(event.metadata).to       eq({})
-      expect(event.data).to           eq({})
+      expect(event.event_type).to eq          'DifferentTestPublished'
+      expect(event.event_id).to_not           be_nil
+      expect(event.data).to                   eq({})
+      expect(event.metadata[:timestamp]).to   be_a Time
     end
 
     specify 'constructor metadata attribute is used as event metadata (with timestamp changed)' do
       event = Test::TestCreated.new(metadata: {created_by: 'Someone'})
-      expect(event.event_type).to eq  'Test::TestCreated'
-      expect(event.event_id).to_not   be_nil
-      expect(event.metadata).to       eq({created_by: 'Someone'})
-      expect(event.data).to           eq({})
+      expect(event.event_type).to eq          'Test::TestCreated'
+      expect(event.event_id).to_not           be_nil
+      expect(event.data).to                   eq({})
+      expect(event.metadata[:timestamp]).to   be_a Time
+      expect(event.metadata[:created_by]).to  eq('Someone')
     end
 
     specify 'for empty data it initializes instance with default values' do
       event = Test::TestCreated.new
-      expect(event.event_type).to eq  'Test::TestCreated'
-      expect(event.event_id).to_not   be_nil
-      expect(event.metadata).to       eq({})
-      expect(event.data).to           eq({})
+      expect(event.event_type).to eq          'Test::TestCreated'
+      expect(event.event_id).to_not           be_nil
+      expect(event.data).to                   eq({})
+      expect(event.metadata[:timestamp]).to   be_a Time
     end
 
     specify 'UUID should be String' do
@@ -80,7 +81,7 @@ module RubyEventStore
       expect(event.to_h[:event_id]).to eq 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'
       expect(event.to_h[:data]).to eq({ data: 'sample' })
       expect(event.to_h[:metadata][:meta]).to eq('test')
-      expect(event.to_h[:metadata][:published_at]).to be_a Time
+      expect(event.to_h[:metadata][:timestamp]).to be_a Time
     end
 
     specify 'convert to hash with default Time metadata' do
@@ -96,7 +97,7 @@ module RubyEventStore
       event = Test::TestCreated.new(event_data)
       expect(event.to_h[:event_type]).to eq 'OrderCreated'
       expect(event.to_h[:event_id]).to eq 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'
-      expect(event.to_h[:metadata][:published_at]).to eq utc
+      expect(event.to_h[:metadata][:timestamp]).to eq utc
       expect(event.to_h[:data]).to eq({ data: 'sample' })
     end
   end

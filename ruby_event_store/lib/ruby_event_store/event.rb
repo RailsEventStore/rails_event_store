@@ -12,7 +12,7 @@ module RubyEventStore
 
       @event_type = args[:event_type] || event_name
       @event_id   = (args[:event_id]  || generate_id).to_s
-      @metadata   = args[:metadata]   || {}
+      @metadata   = (args[:metadata]  || {}).merge!(timestamp)
       @data       = attributes
     end
     attr_reader :event_type, :event_id, :metadata, :data
@@ -21,7 +21,7 @@ module RubyEventStore
       {
           event_type: event_type,
           event_id:   event_id,
-          metadata:   metadata.merge!(publish_time),
+          metadata:   metadata,
           data:       data
       }
     end
@@ -32,8 +32,8 @@ module RubyEventStore
       args.reject { |k| [:event_type, :event_id, :metadata].include? k }
     end
 
-    def publish_time
-      { published_at: Time.now.utc }
+    def timestamp
+      { timestamp: Time.now.utc }
     end
 
     def generate_id
