@@ -3,17 +3,6 @@ require 'spec_helper'
 module RailsEventStore
   describe Client do
 
-    around(:each) do |example|
-      RailsEventStore::Models::Event.establish_connection(
-        :adapter => "sqlite3",
-        :database => "spec/test.sqlite3"
-      )
-      RailsEventStore::Models::Event.transaction do
-        example.run
-        raise ActiveRecord::Rollback
-      end
-    end
-
     specify 'initialize proper adapter type' do
       client = Client.new
       expect(client.repository).to be_a Repositories::EventRepository
