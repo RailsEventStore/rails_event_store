@@ -16,7 +16,7 @@ module RubyEventStore
       expect { facade.delete_stream('') }.to raise_error(IncorrectStreamData)
     end
 
-    specify 'create successfully delete streams events' do
+    specify 'successfully delete streams of events' do
       prepare_events_in_store('test_1')
       prepare_events_in_store('test_2')
       all_events = facade.read_all_streams_forward
