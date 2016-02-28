@@ -18,9 +18,16 @@ module RubyEventStore
       expect { facade.read_events_backward('', 1, 1) }.to raise_error(IncorrectStreamData)
     end
 
-    specify 'raise exception if event_id doesnt exist' do
+    specify 'raise exception if event_id does not exist' do
       expect { facade.read_events_forward(stream_name, 0, 1) }.to raise_error(EventNotFound)
       expect { facade.read_events_backward(stream_name, 0, 1) }.to raise_error(EventNotFound)
+    end
+
+    specify 'fails when page size is invalid' do
+      expect { facade.read_events_forward(stream_name, nil, 0) }.to raise_error(ArgumentError)
+      expect { facade.read_events_backward(stream_name, nil, 0) }.to raise_error(ArgumentError)
+      expect { facade.read_events_forward(stream_name, nil, -1) }.to raise_error(ArgumentError)
+      expect { facade.read_events_backward(stream_name, nil, -1) }.to raise_error(ArgumentError)
     end
 
     specify 'return all events ordered forward' do

@@ -74,6 +74,14 @@ module RubyEventStore
       expect{ facade.read_all_streams_backward(SecureRandom.uuid, 1) }.to raise_error(EventNotFound)
     end
 
+    specify 'fails when page size is invalid' do
+      facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
+      expect{ facade.read_all_streams_forward(SecureRandom.uuid, 0) }.to raise_error(ArgumentError)
+      expect{ facade.read_all_streams_backward(SecureRandom.uuid, 0) }.to raise_error(ArgumentError)
+      expect{ facade.read_all_streams_forward(SecureRandom.uuid, -1) }.to raise_error(ArgumentError)
+      expect{ facade.read_all_streams_backward(SecureRandom.uuid, -1) }.to raise_error(ArgumentError)
+    end
+
     specify 'default page size used if not specified (forward)' do
       uid = SecureRandom.uuid
       facade.publish_event(OrderCreated.new(order_id: 0))

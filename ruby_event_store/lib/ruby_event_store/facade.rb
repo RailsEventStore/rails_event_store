@@ -24,13 +24,13 @@ module RubyEventStore
 
     def read_events_forward(stream_name, start = nil, count = PAGE_SIZE)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      ensure_event_exists(start) if start
+      ensure_valid_paging(start, count)
       repository.read_events_forward(stream_name, start, count)
     end
 
     def read_events_backward(stream_name, start = nil, count = PAGE_SIZE)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      ensure_event_exists(start) if start
+      ensure_valid_paging(start, count)
       repository.read_events_backward(stream_name, start, count)
     end
 
@@ -45,12 +45,12 @@ module RubyEventStore
     end
 
     def read_all_streams_forward(start = nil, count = PAGE_SIZE)
-      ensure_event_exists(start) if start
+      ensure_valid_paging(start, count)
       repository.read_all_streams_forward(start, count)
     end
 
     def read_all_streams_backward(start = nil, count = PAGE_SIZE)
-      ensure_event_exists(start) if start
+      ensure_valid_paging(start, count)
       repository.read_all_streams_backward(start, count)
     end
 
@@ -74,8 +74,11 @@ module RubyEventStore
       end
     end
 
-    def ensure_event_exists(event_id)
-      raise EventNotFound unless repository.has_event?(event_id.to_s)
+    def ensure_valid_paging(event_id, count)
+      raise ArgumentError unless count.to_i > 0
+      if event_id
+        raise EventNotFound unless repository.has_event?(event_id.to_s)
+      end
     end
 
     def find_last_event_version(stream_name)
