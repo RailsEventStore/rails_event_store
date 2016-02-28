@@ -12,10 +12,9 @@ module RubyEventStore
       db.select { |event| event.event_id == condition[:event_id].to_s }.first
     end
 
-    def create(model)
-      model.merge!({id: db.length})
-      event = OpenStruct.new(model)
-      db.push(event)
+    def create(event, stream_name)
+      model = {index: db.length, stream: stream_name, event: event}
+      db.push(model)
       event
     end
 

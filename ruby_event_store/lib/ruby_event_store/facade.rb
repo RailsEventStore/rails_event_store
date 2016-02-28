@@ -14,7 +14,7 @@ module RubyEventStore
 
     def append_to_stream(stream_name, event_data, expected_version = nil)
       raise WrongExpectedEventVersion if version_incorrect?(stream_name, expected_version)
-      repository.create(event_data.to_h.merge!(stream: stream_name))
+      repository.create(event_data, stream_name)
     end
 
     def delete_stream(stream_name)
