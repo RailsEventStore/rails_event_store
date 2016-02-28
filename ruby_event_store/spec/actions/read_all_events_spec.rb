@@ -19,10 +19,10 @@ module RubyEventStore
     specify 'return all events ordered ascending' do
       prepare_events_in_store
       events = facade.read_stream_events_forward(stream_name)
-      expect(events[0]).to be_event({event_id: '0', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[2]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[3]).to be_event({event_id: '3', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[0]).to be_event({event_id: '0', event_type: 'OrderCreated', data: {}})
+      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', data: {}})
+      expect(events[2]).to be_event({event_id: '2', event_type: 'OrderCreated', data: {}})
+      expect(events[3]).to be_event({event_id: '3', event_type: 'OrderCreated', data: {}})
     end
 
     private

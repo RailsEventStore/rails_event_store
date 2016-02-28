@@ -16,7 +16,7 @@ module RubyEventStore
       event = OrderCreated.new({event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'})
       facade.publish_event(event, stream_name)
       saved_events = facade.read_stream_events_forward(stream_name)
-      expected = {event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd', event_type: 'OrderCreated', stream: stream_name, data: {}}
+      expected = {event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd', event_type: 'OrderCreated', data: {}}
       expect(saved_events[0]).to be_event(expected)
     end
 
@@ -24,7 +24,7 @@ module RubyEventStore
       event = OrderCreated.new
       facade.publish_event(event, stream_name)
       saved_events = facade.read_stream_events_forward(stream_name)
-      expected = {event_type: 'OrderCreated', stream: stream_name, data: {}}
+      expected = {event_type: 'OrderCreated', data: {}}
       expect(saved_events[0]).to be_event(expected)
     end
 
