@@ -14,7 +14,7 @@ module RubyEventStore
     specify 'return all events ordered forward' do
       prepare_events_in_store('order_1')
       prepare_events_in_store('order_2')
-      response = facade.read_all_streams
+      response = facade.read_all_streams_forward
       expect(response.length).to be 2
       expect(response[0].event_id).to eq '0'
       expect(response[1].event_id).to eq '0'

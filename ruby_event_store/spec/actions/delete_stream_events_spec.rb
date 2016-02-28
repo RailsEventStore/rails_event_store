@@ -19,12 +19,12 @@ module RubyEventStore
     specify 'create successfully delete streams events' do
       prepare_events_in_store('test_1')
       prepare_events_in_store('test_2')
-      all_events = facade.read_all_streams
+      all_events = facade.read_all_streams_forward
       expect(all_events.length).to eq 8
       facade.delete_stream('test_2')
-      all_events = facade.read_all_streams
+      all_events = facade.read_all_streams_forward
       expect(all_events.length).to eq 4
-      expect(facade.read_all_events('test_2')).to eq []
+      expect(facade.read_stream_events_forward('test_2')).to eq []
     end
 
     private
