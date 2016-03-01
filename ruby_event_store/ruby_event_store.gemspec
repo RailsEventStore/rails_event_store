@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["rybex", "mpraglowski"]
   spec.email         = ["tomek.rybka@gmail.com", "m@praglowski.com"]
 
-  spec.summary       = %q{Implementation of Event Store in Ruby}
+  spec.summary       = %q{Event Store in Ruby}
   spec.description   = %q{Implementation of Event Store in Ruby}
-  spec.homepage      = ''
+  spec.homepage      = 'https://github.com/arkency/ruby_event_store'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.8"
   spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'rspec', "~> 3.2"
+  spec.add_development_dependency 'pry', "~> 0"
   spec.add_development_dependency 'mutant-rspec', '~> 0.7.9'
 end
