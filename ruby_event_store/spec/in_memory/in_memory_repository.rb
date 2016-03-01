@@ -60,9 +60,9 @@ module RubyEventStore
     private
     def read_batch(source, start_event_id, count, comparision)
       response = []
-      start_index = index_of(start_event_id) if start_event_id
+      start_index = start_event_id.is_a?(Symbol) ? nil : index_of(start_event_id)
       source.each do |event|
-        if (start_event_id.nil? || comparision.(index_of(event.event_id), start_index)) && response.length < count
+        if (start_index.nil? || comparision.(index_of(event.event_id), start_index)) && response.length < count
           response.push(event)
         end
       end

@@ -20,10 +20,10 @@ module RubyEventStore
     specify 'successfully delete streams of events' do
       prepare_events_in_store('test_1')
       prepare_events_in_store('test_2')
-      all_events = facade.read_all_streams_forward(nil, page_size)
+      all_events = facade.read_all_streams_forward(:head, page_size)
       expect(all_events.length).to eq 8
       facade.delete_stream('test_2')
-      all_events = facade.read_all_streams_forward(nil, page_size)
+      all_events = facade.read_all_streams_forward(:head, page_size)
       expect(all_events.length).to eq 4
       expect(facade.read_stream_events_forward('test_2')).to eq []
     end

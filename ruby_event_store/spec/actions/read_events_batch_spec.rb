@@ -23,11 +23,16 @@ module RubyEventStore
       expect { facade.read_events_backward(stream_name, 0, 1) }.to raise_error(EventNotFound)
     end
 
+    specify 'raise exception if event_id is not given or invalid' do
+      expect { facade.read_events_forward(stream_name, nil, 1) }.to raise_error(InvalidPageStart)
+      expect { facade.read_events_backward(stream_name, :invalid, 1) }.to raise_error(InvalidPageStart)
+    end
+
     specify 'fails when page size is invalid' do
-      expect { facade.read_events_forward(stream_name, nil, 0) }.to raise_error(ArgumentError)
-      expect { facade.read_events_backward(stream_name, nil, 0) }.to raise_error(ArgumentError)
-      expect { facade.read_events_forward(stream_name, nil, -1) }.to raise_error(ArgumentError)
-      expect { facade.read_events_backward(stream_name, nil, -1) }.to raise_error(ArgumentError)
+      expect { facade.read_events_forward(stream_name, :head, 0) }.to raise_error(InvalidPageSize)
+      expect { facade.read_events_backward(stream_name, :head, 0) }.to raise_error(InvalidPageSize)
+      expect { facade.read_events_forward(stream_name, :head, -1) }.to raise_error(InvalidPageSize)
+      expect { facade.read_events_backward(stream_name, :head, -1) }.to raise_error(InvalidPageSize)
     end
 
     specify 'return all events ordered forward' do
