@@ -4,7 +4,7 @@ module RubyEventStore
   class InMemoryRepository
 
     def initialize
-      @db = []
+      reset!
     end
     attr_reader :db
 
@@ -15,11 +15,11 @@ module RubyEventStore
     end
 
     def delete_stream(stream_name)
-      db.reject! { |item| item[:stream] == stream_name }
+      db.reject! { |item| item.fetch(:stream) == stream_name }
     end
 
     def has_event?(event_id)
-      db.any?{ |item| item[:event].event_id == event_id }
+      db.any?{ |item| item.fetch(:event).event_id == event_id }
     end
 
     def last_stream_event(stream_name)
@@ -37,8 +37,8 @@ module RubyEventStore
     end
 
     def read_stream_events_forward(stream_name)
-      db.select { |item| item[:stream] == stream_name }
-        .map{ |item| item[:event] }
+      db.select { |item| item.fetch(:stream) == stream_name }
+        .map{ |item| item.fetch(:event) }
     end
 
     def read_stream_events_backward(stream_name)
@@ -46,23 +46,23 @@ module RubyEventStore
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_batch(db.map{ |item| item[:event] }, start_event_id, count, ->(a,b) { a > b })
+      read_batch(db.map{ |item| item.fetch(:event) }, start_event_id, count, ->(a,b) { a > b })
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_batch(db.map{ |item| item[:event] }.reverse, start_event_id, count, ->(a,b) { a < b })
+      read_batch(db.map{ |item| item.fetch(:event) }.reverse, start_event_id, count, ->(a,b) { a < b })
     end
 
     def reset!
-      @db = []
+      @db = Array.new
     end
 
     private
     def read_batch(source, start_event_id, count, comparision)
-      response = []
-      start_index = start_event_id.is_a?(Symbol) ? nil : index_of(start_event_id)
+      response = Array.new
+      start_index = index_of(start_event_id) unless start_event_id.instance_of?(Symbol)
       source.each do |event|
-        if (start_index.nil? || comparision.(index_of(event.event_id), start_index)) && response.length < count
+        if (start_event_id == :head || comparision.(index_of(event.event_id), start_index)) && response.length < count
           response.push(event)
         end
       end
@@ -70,7 +70,7 @@ module RubyEventStore
     end
 
     def index_of(event_id)
-      db.select { |item| item[:event].event_id == event_id.to_s }.first[:index]
+      db.select { |item| item.fetch(:event).event_id == event_id }.first.fetch(:index)
     end
   end
 end
