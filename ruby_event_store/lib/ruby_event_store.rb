@@ -1,8 +1,3 @@
-require 'ruby_event_store/actions/append_event_to_stream'
-require 'ruby_event_store/actions/read_all_events'
-require 'ruby_event_store/actions/read_events_batch'
-require 'ruby_event_store/actions/delete_stream_events'
-require 'ruby_event_store/actions/read_all_streams'
 require 'ruby_event_store/pub_sub/broker'
 require 'ruby_event_store/errors'
 require 'ruby_event_store/constants'

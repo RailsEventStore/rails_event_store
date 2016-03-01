@@ -12,17 +12,28 @@ module RubyEventStore
     end
 
     specify 'raise exception if stream name is incorrect' do
-      expect { facade.read_all_events(nil) }.to raise_error(IncorrectStreamData)
-      expect { facade.read_all_events('') }.to raise_error(IncorrectStreamData)
+      expect { facade.read_stream_events_forward(nil) }.to raise_error(IncorrectStreamData)
+      expect { facade.read_stream_events_forward('') }.to raise_error(IncorrectStreamData)
+      expect { facade.read_stream_events_backward(nil) }.to raise_error(IncorrectStreamData)
+      expect { facade.read_stream_events_backward('') }.to raise_error(IncorrectStreamData)
     end
 
-    specify 'return all events ordered ascending' do
+    specify 'return all events ordered forward' do
       prepare_events_in_store
-      events = facade.read_all_events(stream_name)
-      expect(events[0]).to be_event({event_id: '0', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[2]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[3]).to be_event({event_id: '3', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      events = facade.read_stream_events_forward(stream_name)
+      expect(events[0]).to be_event({event_id: '0', event_type: 'OrderCreated', data: {}})
+      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', data: {}})
+      expect(events[2]).to be_event({event_id: '2', event_type: 'OrderCreated', data: {}})
+      expect(events[3]).to be_event({event_id: '3', event_type: 'OrderCreated', data: {}})
+    end
+
+    specify 'return all events ordered backward' do
+      prepare_events_in_store
+      events = facade.read_stream_events_backward(stream_name)
+      expect(events[0]).to be_event({event_id: '3', event_type: 'OrderCreated', data: {}})
+      expect(events[1]).to be_event({event_id: '2', event_type: 'OrderCreated', data: {}})
+      expect(events[2]).to be_event({event_id: '1', event_type: 'OrderCreated', data: {}})
+      expect(events[3]).to be_event({event_id: '0', event_type: 'OrderCreated', data: {}})
     end
 
     private
