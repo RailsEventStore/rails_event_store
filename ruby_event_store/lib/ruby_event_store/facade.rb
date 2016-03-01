@@ -1,7 +1,5 @@
 module RubyEventStore
   class Facade
-    PAGE_SIZE = 100
-
     def initialize(repository)
       @repository = repository
     end
@@ -22,13 +20,13 @@ module RubyEventStore
       repository.delete_stream(stream_name)
     end
 
-    def read_events_forward(stream_name, start = nil, count = PAGE_SIZE)
+    def read_events_forward(stream_name, start, count)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       ensure_valid_paging(start, count)
       repository.read_events_forward(stream_name, start, count)
     end
 
-    def read_events_backward(stream_name, start = nil, count = PAGE_SIZE)
+    def read_events_backward(stream_name, start, count)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       ensure_valid_paging(start, count)
       repository.read_events_backward(stream_name, start, count)
@@ -44,12 +42,12 @@ module RubyEventStore
       repository.read_stream_events_backward(stream_name)
     end
 
-    def read_all_streams_forward(start = nil, count = PAGE_SIZE)
+    def read_all_streams_forward(start, count)
       ensure_valid_paging(start, count)
       repository.read_all_streams_forward(start, count)
     end
 
-    def read_all_streams_backward(start = nil, count = PAGE_SIZE)
+    def read_all_streams_backward(start, count)
       ensure_valid_paging(start, count)
       repository.read_all_streams_backward(start, count)
     end
