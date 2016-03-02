@@ -7,25 +7,32 @@ module RailsEventStore
     end
     attr_reader :repository, :page_size
 
-    def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
-      event_store.publish_event(event_data, stream_name, expected_version)
+    def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = nil)
+      event_store.publish_event(event, stream_name, expected_version)
+    end
+
+    def appent_to_stream(event, stream_name = GLOBAL_STREAM, expected_version = nil)
+      event_store.appent_to_stream(stream_name, event, expected_version)
     end
 
     def delete_stream(stream_name)
       event_store.delete_stream(stream_name)
     end
 
-    def read_events(stream_name, start = :head, count = page_size)
+    def read_events_forward(stream_name, start = :head, count = page_size)
       event_store.read_events_forward(stream_name, start, count)
     end
+    alias :read_events :read_events_forward
 
-    def read_all_events(stream_name)
+    def read_stream_events_forward(stream_name)
       event_store.read_stream_events_forward(stream_name)
     end
+    alias :read_all_events :read_stream_events_forward
 
-    def read_all_streams(start = :head, count = page_size)
+    def read_all_streams_forward(start = :head, count = page_size)
       event_store.read_all_streams_forward(start, count)
     end
+    alias :read_all_streams :read_all_streams_forward
 
     def subscribe(subscriber, event_types)
       event_store.subscribe(subscriber, event_types)
