@@ -1,5 +1,3 @@
-require 'SecureRandom'
-
 RSpec.shared_examples 'event_repository' do |repository_class|
   TestDomainEvent = Class.new(RubyEventStore::Event)
   subject(:repository)  { repository_class.new }
