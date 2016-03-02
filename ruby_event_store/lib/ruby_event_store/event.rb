@@ -4,16 +4,14 @@ module RubyEventStore
   class Event
 
     def initialize(**args)
-      attributes = attributes(args)
-      singleton_class = (class << self; self; end)
-      attributes.each do |key, value|
-        singleton_class.send(:define_method, key) { value }
+      attributes(args).each do |key, value|
+        singleton_class.__send__(:define_method, key) { value }
       end
 
       @event_type = args[:event_type] || event_name
       @event_id   = (args[:event_id]  || generate_id).to_s
       @metadata   = (args[:metadata]  || {}).merge!(timestamp)
-      @data       = attributes
+      @data       = attributes(args)
     end
     attr_reader :event_type, :event_id, :metadata, :data
 
