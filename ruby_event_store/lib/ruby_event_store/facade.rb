@@ -22,14 +22,14 @@ module RubyEventStore
 
     def read_events_forward(stream_name, start, count)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      start, count = ensure_valid_paging(start, count)
-      repository.read_events_forward(stream_name, start, count)
+      page = Page.new(repository, start, count)
+      repository.read_events_forward(stream_name, page.start, page.count)
     end
 
     def read_events_backward(stream_name, start, count)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      start, count = ensure_valid_paging(start, count)
-      repository.read_events_backward(stream_name, start, count)
+      page = Page.new(repository, start, count)
+      repository.read_events_backward(stream_name, page.start, page.count)
     end
 
     def read_stream_events_forward(stream_name)
@@ -43,13 +43,13 @@ module RubyEventStore
     end
 
     def read_all_streams_forward(start, count)
-      start, count = ensure_valid_paging(start, count)
-      repository.read_all_streams_forward(start, count)
+      page = Page.new(repository, start, count)
+      repository.read_all_streams_forward(page.start, page.count)
     end
 
     def read_all_streams_backward(start, count)
-      start, count = ensure_valid_paging(start, count)
-      repository.read_all_streams_backward(start, count)
+      page = Page.new(repository, start, count)
+      repository.read_all_streams_backward(page.start, page.count)
     end
 
     def subscribe(subscriber, event_types)
@@ -62,6 +62,22 @@ module RubyEventStore
 
     private
 
+    class Page
+      def initialize(repository, start, count)
+        if start.instance_of?(Symbol)
+          raise InvalidPageStart unless [:head].include?(start)
+        else
+          start = start.to_s
+          raise InvalidPageStart if start.empty?
+          raise EventNotFound unless repository.has_event?(start)
+        end
+        raise InvalidPageSize unless count > 0
+        @start = start
+        @count = count
+      end
+      attr_reader :start, :count
+    end
+
     def event_broker
       @event_broker ||= PubSub::Broker.new
     end
@@ -70,18 +86,6 @@ module RubyEventStore
       unless expected_version.nil?
         find_last_event_version(stream_name) != expected_version
       end
-    end
-
-    def ensure_valid_paging(start, count)
-      if start.instance_of?(Symbol)
-        raise InvalidPageStart unless [:head].include?(start)
-      else
-        start = start.to_s
-        raise InvalidPageStart if start.empty?
-        raise EventNotFound unless repository.has_event?(start)
-      end
-      raise InvalidPageSize unless count > 0
-      [start, count]
     end
 
     def find_last_event_version(stream_name)
