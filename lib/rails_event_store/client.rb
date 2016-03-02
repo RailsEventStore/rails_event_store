@@ -1,10 +1,11 @@
 module RailsEventStore
   class Client
 
-    def initialize(repository = Repositories::EventRepository.new)
+    def initialize(repository = Repositories::EventRepository.new, page_size = PAGE_SIZE)
       @repository = repository
+      @page_size = page_size
     end
-    attr_reader :repository
+    attr_reader :repository, :page_size
 
     def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
       event_store.publish_event(event_data, stream_name, expected_version)
@@ -14,7 +15,7 @@ module RailsEventStore
       event_store.delete_stream(stream_name)
     end
 
-    def read_events(stream_name, start, count)
+    def read_events(stream_name, start = :head, count = page_size)
       event_store.read_events_forward(stream_name, start, count)
     end
 
@@ -22,8 +23,8 @@ module RailsEventStore
       event_store.read_stream_events_forward(stream_name)
     end
 
-    def read_all_streams
-      event_store.read_all_streams_forward
+    def read_all_streams(start = :head, count = page_size)
+      event_store.read_all_streams_forward(start, count)
     end
 
     def subscribe(subscriber, event_types)
