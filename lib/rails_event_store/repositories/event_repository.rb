@@ -9,7 +9,8 @@ module RailsEventStore
 
       def create(event, stream_name)
         data = event.to_h.merge!(stream: stream_name)
-        build_event_entity(adapter.create(data))
+        adapter.create(data)
+        event
       end
 
       def delete_stream(stream_name)
@@ -32,7 +33,7 @@ module RailsEventStore
 
       def read_events_forward(stream_name, start_event_id, count)
         stream = adapter.where(stream: stream_name)
-        if start_event_id
+        unless start_event_id.equal?(:head)
           starting_event = adapter.find_by(event_id: start_event_id)
           stream = stream.where('id > ?', starting_event.id)
         end
@@ -43,7 +44,7 @@ module RailsEventStore
 
       def read_events_backward(stream_name, start_event_id, count)
         stream = adapter.where(stream: stream_name)
-        if start_event_id
+        unless start_event_id.equal?(:head)
           starting_event = adapter.find_by(event_id: start_event_id)
           stream = stream.where('id < ?', starting_event.id)
         end
@@ -64,7 +65,7 @@ module RailsEventStore
 
       def read_all_streams_forward(start_event_id, count)
         stream = adapter
-        if start_event_id
+        unless start_event_id.equal?(:head)
           starting_event = adapter.find_by(event_id: start_event_id)
           stream = stream.where('id > ?', starting_event.id)
         end
@@ -75,7 +76,7 @@ module RailsEventStore
 
       def read_all_streams_backward(start_event_id, count)
         stream = adapter
-        if start_event_id
+        unless start_event_id.equal?(:head)
           starting_event = adapter.find_by(event_id: start_event_id)
           stream = stream.where('id < ?', starting_event.id)
         end
