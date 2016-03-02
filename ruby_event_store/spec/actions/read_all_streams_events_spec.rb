@@ -2,16 +2,10 @@ require_relative '../spec_helper'
 
 module RubyEventStore
   describe Facade do
-
-    let(:repository)  { InMemoryRepository.new }
-    let(:facade)      { RubyEventStore::Facade.new(repository) }
     let(:page_size)   { 100 }
 
-    before(:each) do
-      repository.reset!
-    end
-
     specify 'return all events ordered forward' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       facade.publish_event(OrderCreated.new(order_id: 234), 'order_2')
       response = facade.read_all_streams_forward(:head, page_size)
@@ -21,6 +15,7 @@ module RubyEventStore
     end
 
     specify 'return batch of events from the beginging ordered forward' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       facade.publish_event(OrderCreated.new(order_id: 234), 'order_2')
       facade.publish_event(OrderCreated.new(order_id: 345), 'order_3')
@@ -31,6 +26,7 @@ module RubyEventStore
     end
 
     specify 'return batch of events from given event ordered forward' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       uid = SecureRandom.uuid
       facade.publish_event(OrderCreated.new(event_id: uid, order_id: 123), 'order_1')
       facade.publish_event(OrderCreated.new(order_id: 234), 'order_2')
@@ -41,6 +37,7 @@ module RubyEventStore
     end
 
     specify 'return all events ordered backward' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       facade.publish_event(OrderCreated.new(order_id: 234), 'order_1')
       response = facade.read_all_streams_backward(:head, page_size)
@@ -50,6 +47,7 @@ module RubyEventStore
     end
 
     specify 'return batch of events from the end ordered backward' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       facade.publish_event(OrderCreated.new(order_id: 234), 'order_2')
       facade.publish_event(OrderCreated.new(order_id: 345), 'order_3')
@@ -60,6 +58,7 @@ module RubyEventStore
     end
 
     specify 'return batch of events from given event ordered backward' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       uid = SecureRandom.uuid
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       facade.publish_event(OrderCreated.new(event_id: uid, order_id: 234), 'order_2')
@@ -70,12 +69,14 @@ module RubyEventStore
     end
 
     specify 'fails when starting event not exists' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       expect{ facade.read_all_streams_forward(SecureRandom.uuid, 1) }.to raise_error(EventNotFound)
       expect{ facade.read_all_streams_backward(SecureRandom.uuid, 1) }.to raise_error(EventNotFound)
     end
 
     specify 'fails when page size is invalid' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       facade.publish_event(OrderCreated.new(order_id: 123), 'order_1')
       expect{ facade.read_all_streams_forward(:head, 0) }.to raise_error(InvalidPageSize)
       expect{ facade.read_all_streams_backward(:head, 0) }.to raise_error(InvalidPageSize)

@@ -3,16 +3,10 @@ require 'ostruct'
 
 module RubyEventStore
   describe Facade do
-
-    let(:repository)  { InMemoryRepository.new }
-    let(:facade)      { RubyEventStore::Facade.new(repository) }
     let(:stream_name) { 'stream_name' }
 
-    before(:each) do
-      repository.reset!
-    end
-
     specify 'create successfully event' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
       facade.append_to_stream(stream_name, event)
       saved_events = facade.read_stream_events_forward(stream_name)
@@ -21,6 +15,7 @@ module RubyEventStore
     end
 
     specify 'generate guid and create successfully event' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       event = OrderCreated.new
       facade.append_to_stream(stream_name, event)
       saved_events = facade.read_stream_events_forward(stream_name)
@@ -29,12 +24,14 @@ module RubyEventStore
     end
 
     specify 'raise exception if event version incorrect' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       event = OrderCreated.new
       facade.append_to_stream(stream_name, event)
       expect { facade.publish_event(event, stream_name, 'wrong_id') }.to raise_error(WrongExpectedEventVersion)
     end
 
     specify 'create event with optimistic locking' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       event_id_0 = 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'
       event = OrderCreated.new(event_id: event_id_0)
       facade.append_to_stream(stream_name, event)
@@ -45,6 +42,7 @@ module RubyEventStore
     end
 
     specify 'expect no event handler is called' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       handler = double(:event_handler)
       expect(handler).not_to receive(:handle_event)
       event = OrderCreated.new
@@ -56,6 +54,7 @@ module RubyEventStore
     end
 
     specify 'expect publish to call event handlers' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       handler = double(:event_handler)
       expect(handler).to receive(:handle_event)
       event = OrderCreated.new
@@ -67,6 +66,7 @@ module RubyEventStore
     end
 
     specify 'create global event without stream name' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       event = OrderCreated.new
       facade.publish_event(event)
       saved_events = facade.read_stream_events_forward('all')
