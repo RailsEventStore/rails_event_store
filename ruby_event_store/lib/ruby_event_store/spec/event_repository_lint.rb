@@ -14,9 +14,9 @@ RSpec.shared_examples :event_repository do |repository_class|
   it 'created event is stored in given stream' do
     expected_event = {event_type: 'TestDomainEvent', data: {}}
     created = repository.create(TestDomainEvent.new, 'stream')
-    expect(created).to be_event(expected_event)
-    expect(repository.read_all_streams_forward(:head, 1).first).to be_event(expected_event)
-    expect(repository.read_stream_events_forward('stream').first).to be_event(expected_event)
+    expect_to_be_like_event(created, expected_event)
+    expect_to_be_like_event(repository.read_all_streams_forward(:head, 1).first, expected_event)
+    expect_to_be_like_event(repository.read_stream_events_forward('stream').first, expected_event)
     expect(repository.read_stream_events_forward('other_stream')).to be_empty
   end
 
@@ -93,5 +93,13 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_backward(:head, 100).map(&:event_id)).to eq event_ids.reverse
     expect(repository.read_all_streams_backward('5', 4).map(&:event_id)).to eq ['4','3','2','1']
     expect(repository.read_all_streams_backward('5', 100).map(&:event_id)).to eq ['4','3','2','1']
+  end
+
+  private
+
+  def expect_to_be_like_event(actual, expected)
+    expect(actual.event_type).to eq expected[:event_type]
+    expect(actual.data).to eq expected[:data]
+    if expected.key? :event_id then expect(actual.event_id).to eq expected[:event_id] else true end
   end
 end
