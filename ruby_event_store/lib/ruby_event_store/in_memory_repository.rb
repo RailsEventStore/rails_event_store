@@ -8,7 +8,7 @@ module RubyEventStore
     end
 
     def create(event, stream_name)
-      stream = streams[stream_name] || Array.new
+      stream = read_stream_events_forward(stream_name)
       all.push(event)
       stream.push(event)
       streams[stream_name] = stream
@@ -16,9 +16,9 @@ module RubyEventStore
     end
 
     def delete_stream(stream_name)
-      removed = (streams[stream_name] || Array.new).map(&:event_id)
-      @streams.reject!{|stream| stream == stream_name}
-      @all.reject!{|ev| removed.include?(ev.event_id)}
+      removed = read_stream_events_forward(stream_name).map(&:event_id)
+      streams.delete(stream_name)
+      all.delete_if{|ev| removed.include?(ev.event_id)}
     end
 
     def has_event?(event_id)
@@ -59,14 +59,9 @@ module RubyEventStore
     attr_accessor :streams, :all
 
     def read_batch(source, start_event_id, count)
-      response = Array.new
-      start_index = index_of(source, start_event_id) unless start_event_id.instance_of?(Symbol)
-      source.each do |event|
-        if (start_event_id.eql?(:head) || index_of(source, event.event_id) > start_index) && response.length < count
-          response.push(event)
-        end
-      end
-      response
+      return source[0..count-1] if start_event_id.equal?(:head)
+      start_index = index_of(source, start_event_id)
+      source[start_index+1..start_index+count]
     end
 
     def index_of(source, event_id)
