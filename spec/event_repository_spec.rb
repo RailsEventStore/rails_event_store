@@ -1,12 +1,8 @@
 require 'spec_helper'
+require 'ruby_event_store/spec/event_repository_lint'
 
 module RailsEventStore
-  describe Client do
-
-    specify 'initialize proper adapter type' do
-      repository = Repositories::EventRepository.new
-      expect(repository.adapter.model_name.name).to eq 'RailsEventStore::Models::Event'
-    end
-
+  describe Repositories::EventRepository do
+    it_behaves_like :event_repository, Repositories::EventRepository
   end
 end
