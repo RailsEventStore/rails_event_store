@@ -1,6 +1,6 @@
 ### HEAD
 
-### 0.3.0 (02.03.2016)
+### 0.3.0 (03.03.2016)
 
 * Change: read_all_streams won't group_by results by stream name PR #4
 * Change: new way of define attributes of domain event PR #5
