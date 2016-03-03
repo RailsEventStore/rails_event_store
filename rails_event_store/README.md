@@ -38,16 +38,18 @@ Firstly you have to define own event model extending `RailsEventStore::Event` cl
 ```ruby
 class OrderCreated < RailsEventStore::Event
 end
+
+# or
+
+OrderCreated = Class.new(RailsEventStore::Event)
 ```
 
 ```ruby
 stream_name = "order_1"
-event_data = {
-               data: { data: "sample" },
-               event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
-             }
-event = OrderCreated.new(event_data)
-
+event = OrderCreated.new(
+          data: "sample",
+          event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
+        )
 #publishing event for specific stream
 client.publish_event(event, stream_name)
 
@@ -64,23 +66,39 @@ end
 
 ```ruby
 stream_name = "order_1"
-event_data = {
-               data: { data: "sample" },
-               event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
-             }
-event = OrderCreated.new(event_data)
+event = OrderCreated.new(
+          data: "sample",
+          event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
+        )
 expected_version = "850c347f-423a-4158-a5ce-b885396c5b73" #last event_id
 client.publish_event(event, stream_name, expected_version)
 ```
 
-#### Reading stream's events forward in batch
+#### Reading stream's events forward in batch - starting from first event
 
 ```ruby
 stream_name = "order_1"
-start = "850c347f-423a-4158-a5ce-b885396c5b73"
 count = 40
-client.read_all_events(stream_name, start, count)
+client.read_events_forward(stream_name, :head, count)
 ```
+
+In this case `:head` means first event of the stream.
+
+#### Reading stream's events forward in batch - staring from given event
+
+```ruby
+# last_read_event is any domain event read or published by rails_event_store
+
+stream_name = "order_1"
+start = last_read_event.event_id
+count = 40
+client.read_events_forward(stream_name, start, count)
+```
+
+#### Reading stream's events backward in batch
+
+As in examples above, just use `read_events_backward` instead of `read_events_forward`.
+In this case `:head` means last event of the stream.
 
 #### Reading all events from stream forward
 
@@ -88,15 +106,57 @@ This method allows us to load all stream's events ascending.
 
 ```ruby
 stream_name = "order_1"
-client.read_all_events(stream_name)
+client.read_stream_events_forward(stream_name)
+```
+
+#### Reading all events from stream forward
+
+This method allows us to load all stream's events descending.
+
+```ruby
+stream_name = "order_1"
+client.read_stream_events_backward(stream_name)
 ```
 
 #### Reading all events forward
 
 This method allows us to load all stored events ascending.
 
+This will read first 100 domain events stored in event store.
+
 ```ruby
-client.read_all_streams
+client.read_all_streams_forward(:head, 100)
+```
+
+When not specified it reads events starting from `:head` (first domain event
+stored in event store) and reads up to `RailsEventStore::PAGE_SIZE`
+domain events.
+
+```ruby
+client.read_all_streams_forward
+```
+
+You could also read batch of domain events starting from any read or published event.
+
+```ruby
+client.read_all_streams_forward(last_read_event.event_id, 100)
+```
+
+#### Reading all events backward
+
+This method allows us to load all stored events descending.
+
+This will read last 100 domain events stored in event store.
+```ruby
+client.read_all_streams_backward(:head, 100)
+```
+
+When not specified it reads events starting from `:head` (last domain event
+stored in event store) and reads up to `RailsEventStore::PAGE_SIZE`
+domain events.
+
+```ruby
+client.read_all_streams_backward
 ```
 
 #### Deleting stream
