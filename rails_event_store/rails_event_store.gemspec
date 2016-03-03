@@ -20,11 +20,11 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 1.9'
   spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'pry', '~> 0'
-  spec.add_development_dependency 'rspec', '~> 0'
+  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rails', '~> 4.2'
   spec.add_development_dependency 'webmock', '~> 1.21'
-  spec.add_development_dependency 'sqlite3', '~> 0'
+  spec.add_development_dependency 'sqlite3'
 
   spec.add_dependency 'ruby_event_store', '~> 0.3'
   spec.add_dependency 'aggregate_root', '~> 0'
