@@ -1,5 +1,11 @@
 ### HEAD
 
+### 0.3.0 (03.03.2016)
+
+* Update to ruby_event_store 0.3.0 - see ruby_event_store changelog for more details
+* Implement reading forward & backward (aliasold methods to read forward)
+* Implement paging when reading from all streams
+
 ### 0.2.2 (25.02.2016)
 
 * Restore AggregateRoot in RES, but this time as a dependency on aggregate_root gem
