@@ -5,6 +5,4 @@ end
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'ruby_event_store'
-require 'in_memory/in_memory_repository'
-require 'matchers/event_store_matcher'
-require 'helpers/sample_event'
+Dir["./spec/support/**/*.rb"].sort.each { |file| require file }

@@ -1,10 +1,11 @@
 ### HEAD
 
-### 0.3.0 (01.03.2016)
+### 0.3.0 (02.03.2016)
 
 * Change: read_all_streams won't group_by results by stream name PR #4
 * Change: new way of define attributes of domain event PR #5
-* Change: reeading forward and backward, refactored facade interface #6
+* Change: reading forward and backward, refactored facade interface #6
+* Change: in memory event repository is now part of the gem, with shared specification PR #7
 
 ### 0.2.0 (27.01.2016)
 
