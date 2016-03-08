@@ -4,6 +4,10 @@ module RubyEventStore
   describe Facade do
     let(:stream_name) { 'stream_name' }
 
+    before do
+      allow(Time).to receive(:now).and_return(Time.now)
+    end
+
     specify 'raise exception if stream name is incorrect' do
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       expect { facade.read_events_forward(nil, 1, 1) }.to raise_error(IncorrectStreamData)
@@ -36,31 +40,31 @@ module RubyEventStore
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       prepare_events_in_store(facade)
       events = facade.read_events_forward(stream_name, 1, 3)
-      expect(events[0]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[1]).to be_event({event_id: '3', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '3'))
     end
 
     specify 'return specified number of events ordered forward' do
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       prepare_events_in_store(facade)
       events = facade.read_events_forward(stream_name, 1, 1)
-      expect(events[0]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
     end
 
     specify 'return all events ordered backward' do
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       prepare_events_in_store(facade)
       events = facade.read_events_backward(stream_name, 2, 3)
-      expect(events[0]).to be_event({event_id: '1', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[1]).to be_event({event_id: '0', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[0]).to eq(OrderCreated.new(event_id: '1'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '0'))
     end
 
     specify 'return specified number of events ordered backward' do
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       prepare_events_in_store(facade)
       events = facade.read_events_backward(stream_name, 3, 2)
-      expect(events[0]).to be_event({event_id: '2', event_type: 'OrderCreated', stream: stream_name, data: {}})
-      expect(events[1]).to be_event({event_id: '1', event_type: 'OrderCreated', stream: stream_name, data: {}})
+      expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
     end
 
     specify 'fails when starting event not exists' do
