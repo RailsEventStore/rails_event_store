@@ -10,8 +10,9 @@ module RubyEventStore
 
       @event_type = args[:event_type] || event_name
       @event_id   = (args[:event_id]  || generate_id).to_s
-      @metadata   = (args[:metadata]  || {}).merge!(timestamp)
+      @metadata   = args[:metadata]   || {}
       @data       = attributes(args)
+      @metadata[:timestamp] ||= Time.now.utc
     end
     attr_reader :event_type, :event_id, :metadata, :data
 
@@ -24,14 +25,14 @@ module RubyEventStore
       }
     end
 
+    def timestamp
+      metadata[:timestamp]
+    end
+
     private
 
     def attributes(args)
       args.reject { |k| [:event_type, :event_id, :metadata].include? k }
-    end
-
-    def timestamp
-      { timestamp: Time.now.utc }
     end
 
     def generate_id
