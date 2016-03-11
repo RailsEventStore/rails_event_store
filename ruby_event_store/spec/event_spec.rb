@@ -34,11 +34,12 @@ module RubyEventStore
     end
 
     specify 'constructor metadata attribute is used as event metadata (with timestamp changed)' do
-      event = Test::TestCreated.new(metadata: {created_by: 'Someone'})
+      timestamp = Time.utc(2016, 3, 10, 15, 20)
+      event = Test::TestCreated.new(metadata: {created_by: 'Someone', timestamp: timestamp})
       expect(event.event_type).to eq          'Test::TestCreated'
       expect(event.event_id).to_not           be_nil
       expect(event.data).to                   eq({})
-      expect(event.metadata[:timestamp]).to   be_a Time
+      expect(event.timestamp).to              eq(timestamp)
       expect(event.metadata[:created_by]).to  eq('Someone')
     end
 
