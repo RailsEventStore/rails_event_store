@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.3.1 (13.03.2016)
+
+* Update to ruby_event_store 0.3.1 - fix changing timestamp on reads from repository
+
 ### 0.3.0 (03.03.2016)
 
 * Update to ruby_event_store 0.3.0 - see ruby_event_store changelog for more details
