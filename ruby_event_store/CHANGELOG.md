@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.3.1 (13.03.2016)
+
+* Fix Don't overwrite timestamps when reading from repository
+
 ### 0.3.0 (03.03.2016)
 
 * Change: read_all_streams won't group_by results by stream name PR #4
