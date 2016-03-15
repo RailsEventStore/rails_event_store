@@ -11,7 +11,7 @@ module Subscribers
     attr_reader :handled_events
 
     def handle_event(event)
-      @handled_events += 1 if event.event_type == 'OrderCreated' || event.event_type == 'ProductAdded'
+      @handled_events += 1 if event.event_type == OrderCreated || event.event_type == ProductAdded
     end
   end
 end
@@ -43,7 +43,7 @@ module RubyEventStore
 
     specify 'notifies subscribers listening on list of events' do
       subscriber = Subscribers::OrderDenormalizer.new
-      facade.subscribe(subscriber, ['OrderCreated', 'ProductAdded'])
+      facade.subscribe(subscriber, [OrderCreated, ProductAdded])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       facade.publish_event(event_1)

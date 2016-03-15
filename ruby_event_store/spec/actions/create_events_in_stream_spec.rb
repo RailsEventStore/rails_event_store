@@ -10,8 +10,7 @@ module RubyEventStore
       event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
       facade.append_to_stream(stream_name, event)
       saved_events = facade.read_stream_events_forward(stream_name)
-      expected = {event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd', event_type: 'OrderCreated', data: {}}
-      expect(saved_events[0]).to be_event(expected)
+      expect(saved_events[0]).to eq(event)
     end
 
     specify 'generate guid and create successfully event' do
@@ -19,8 +18,7 @@ module RubyEventStore
       event = OrderCreated.new
       facade.append_to_stream(stream_name, event)
       saved_events = facade.read_stream_events_forward(stream_name)
-      expected = {event_type: 'OrderCreated', data: {}}
-      expect(saved_events[0]).to be_event(expected)
+      expect(saved_events[0]).to eq(event)
     end
 
     specify 'raise exception if event version incorrect' do
@@ -49,8 +47,7 @@ module RubyEventStore
       facade.subscribe_to_all_events(handler)
       facade.append_to_stream(stream_name, event)
       saved_events = facade.read_stream_events_forward(stream_name)
-      expected = {event_type: 'OrderCreated', data: {}}
-      expect(saved_events[0]).to be_event(expected)
+      expect(saved_events[0]).to eq(event)
     end
 
     specify 'expect publish to call event handlers' do
@@ -61,8 +58,7 @@ module RubyEventStore
       facade.subscribe_to_all_events(handler)
       facade.publish_event(event, stream_name)
       saved_events = facade.read_stream_events_forward(stream_name)
-      expected = {event_type: 'OrderCreated', data: {}}
-      expect(saved_events[0]).to be_event(expected)
+      expect(saved_events[0]).to eq(event)
     end
 
     specify 'create global event without stream name' do
@@ -70,8 +66,7 @@ module RubyEventStore
       event = OrderCreated.new
       facade.publish_event(event)
       saved_events = facade.read_stream_events_forward('all')
-      expected = {event_type: 'OrderCreated', stream: 'all', data: {}}
-      expect(saved_events[0]).to be_event(expected)
+      expect(saved_events[0]).to eq(event)
     end
   end
 end
