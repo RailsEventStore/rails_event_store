@@ -184,7 +184,7 @@ end
 
 ```ruby
 invoice = InvoiceReadModel.new
-client.subscribe(invoice, ['PriceChanged', 'ProductAdded'])
+client.subscribe(invoice, [PriceChanged, ProductAdded])
 ```
 
 * You can also listen on all incoming events
