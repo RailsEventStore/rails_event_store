@@ -89,12 +89,13 @@ module RailsEventStore
 
       def build_event_entity(record)
         return nil unless record
-        ::RailsEventStore::Event.new(record.data.merge(
-          event_type: record.event_type,
-          event_id:   record.event_id,
-          metadata:   record.metadata))
+        record.event_type.constantize.new(
+          record.data.merge(
+            event_id: record.event_id,
+            metadata: record.metadata
+          )
+        )
       end
-
     end
   end
 end
