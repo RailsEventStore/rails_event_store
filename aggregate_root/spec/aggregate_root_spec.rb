@@ -52,10 +52,7 @@ module AggregateRoot
 
       stream = event_store.read_all_events(order.id)
       expect(stream.count).to eq(1)
-      expect(stream.first).to be_event({
-        event_type: 'OrderCreated',
-        data: {}
-      })
+      expect(stream.first).to eq(order_created)
 
       order = Order.new(order_id)
       aggregate_repository.load(order)

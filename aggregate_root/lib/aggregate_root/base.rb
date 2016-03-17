@@ -21,7 +21,7 @@ module AggregateRoot
     attr_writer :id
 
     def apply_event(event)
-      send("apply_#{event.event_type.underscore.gsub('/', '_')}", event)
+      send("apply_#{event.class.name.underscore.gsub('/', '_')}", event)
     end
 
     def generate_uuid
