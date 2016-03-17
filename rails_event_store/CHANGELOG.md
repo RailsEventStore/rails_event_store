@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.4.1 (17.03.2016)
+
+* Fix: aggregate_root gem aligned with changes in rails_event_store
+
 ### 0.4.0 (17.03.2016)
 
 * Change: Use class names to subscribe events (ruby_event_store update to  0.4.0)
