@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.4.0 (17.03.2016)
+
+* Change: Use class names to subscribe events PR #8
+
 ### 0.3.1 (13.03.2016)
 
 * Fix Don't overwrite timestamps when reading from repository
