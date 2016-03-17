@@ -15,13 +15,8 @@ module RubyEventStore
     end
     attr_reader :event_id, :metadata, :data
 
-    def event_type
-      self.class
-    end
-
     def to_h
       {
-          event_type: event_type.name,
           event_id:   event_id,
           metadata:   metadata,
           data:       data
