@@ -8,7 +8,7 @@ module RailsEventStore
       attr_reader :adapter
 
       def create(event, stream_name)
-        data = event.to_h.merge!(stream: stream_name)
+        data = event.to_h.merge!(stream: stream_name, event_type: event.class.name)
         adapter.create(data)
         event
       end
