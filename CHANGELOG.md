@@ -1,5 +1,10 @@
 ### HEAD
 
+### 0.4.0 (17.03.2016)
+
+* Change: Use class names to subscribe events (ruby_event_store update to  0.4.0)
+* Change: EventRepository now recreate events using orginal classes
+
 ### 0.3.1 (13.03.2016)
 
 * Update to ruby_event_store 0.3.1 - fix changing timestamp on reads from repository
