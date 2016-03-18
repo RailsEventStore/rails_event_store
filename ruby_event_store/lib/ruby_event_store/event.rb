@@ -3,14 +3,14 @@ require 'securerandom'
 module RubyEventStore
   class Event
 
-    def initialize(**args)
-      attributes(args).each do |key, value|
+    def initialize(event_id: SecureRandom.uuid, metadata: {}, **data)
+      data.each do |key, value|
         singleton_class.__send__(:define_method, key) { value }
       end
 
-      @event_id   = (args[:event_id]  || generate_id).to_s
-      @metadata   = args[:metadata]   || {}
-      @data       = attributes(args)
+      @event_id = event_id.to_s
+      @metadata = metadata
+      @data     = data
       @metadata[:timestamp] ||= Time.now.utc
     end
     attr_reader :event_id, :metadata, :data
@@ -32,15 +32,5 @@ module RubyEventStore
     end
 
     alias_method :eql?, :==
-
-    private
-
-    def attributes(args)
-      args.reject { |k| [:event_id, :metadata].include? k }
-    end
-
-    def generate_id
-      SecureRandom.uuid
-    end
   end
 end
