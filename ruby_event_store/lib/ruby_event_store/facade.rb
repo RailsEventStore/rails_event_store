@@ -1,9 +1,10 @@
 module RubyEventStore
   class Facade
-    def initialize(repository)
-      @repository = repository
+    def initialize(repository, event_broker = PubSub::Broker.new)
+      @repository   = repository
+      @event_broker = event_broker
     end
-    attr_reader :repository
+    attr_reader :repository, :event_broker
 
     def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
       event = append_to_stream(stream_name, event_data, expected_version)
@@ -76,10 +77,6 @@ module RubyEventStore
         @count = count
       end
       attr_reader :start, :count
-    end
-
-    def event_broker
-      @event_broker ||= PubSub::Broker.new
     end
 
     def version_incorrect?(stream_name, expected_version)
