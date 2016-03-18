@@ -6,15 +6,15 @@ module RubyEventStore
     end
     attr_reader :repository, :event_broker
 
-    def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
-      event = append_to_stream(stream_name, event_data, expected_version)
+    def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
+      append_to_stream(stream_name, event, expected_version)
       event_broker.notify_subscribers(event)
       :ok
     end
 
-    def append_to_stream(stream_name, event_data, expected_version = nil)
-      raise WrongExpectedEventVersion if version_incorrect?(stream_name, expected_version)
-      repository.create(event_data, stream_name)
+    def append_to_stream(stream_name, event, expected_version = :any)
+      validate_expected_version(stream_name, expected_version)
+      repository.create(event, stream_name)
       :ok
     end
 
@@ -82,14 +82,22 @@ module RubyEventStore
       attr_reader :start, :count
     end
 
-    def version_incorrect?(stream_name, expected_version)
-      unless expected_version.nil?
-        find_last_event_version(stream_name) != expected_version
+    def validate_expected_version(stream_name, expected_version)
+      raise InvalidExpectedVersion if expected_version.nil?
+      case expected_version
+      when :any
+        return
+      when :none
+        return if last_stream_event_id(stream_name).nil?
+      else
+        return if last_stream_event_id(stream_name).equal?(expected_version)
       end
+      raise WrongExpectedEventVersion
     end
 
-    def find_last_event_version(stream_name)
-      repository.last_stream_event(stream_name).event_id
+    def last_stream_event_id(stream_name)
+      last = repository.last_stream_event(stream_name)
+      last.event_id if last
     end
   end
 end
