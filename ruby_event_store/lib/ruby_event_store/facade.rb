@@ -9,16 +9,19 @@ module RubyEventStore
     def publish_event(event_data, stream_name = GLOBAL_STREAM, expected_version = nil)
       event = append_to_stream(stream_name, event_data, expected_version)
       event_broker.notify_subscribers(event)
+      :ok
     end
 
     def append_to_stream(stream_name, event_data, expected_version = nil)
       raise WrongExpectedEventVersion if version_incorrect?(stream_name, expected_version)
       repository.create(event_data, stream_name)
+      :ok
     end
 
     def delete_stream(stream_name)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       repository.delete_stream(stream_name)
+      :ok
     end
 
     def read_events_forward(stream_name, start, count)
