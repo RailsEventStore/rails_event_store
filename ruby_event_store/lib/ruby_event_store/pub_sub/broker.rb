@@ -18,7 +18,7 @@ module RubyEventStore
       end
 
       def notify_subscribers(event)
-        all_subscribers_for(event.event_type).each do |subscriber|
+        all_subscribers_for(event.class).each do |subscriber|
           subscriber.handle_event(event)
         end
       end

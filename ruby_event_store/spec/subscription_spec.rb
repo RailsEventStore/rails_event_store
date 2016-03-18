@@ -11,7 +11,7 @@ module Subscribers
     attr_reader :handled_events
 
     def handle_event(event)
-      @handled_events += 1 if event.event_type == OrderCreated || event.event_type == ProductAdded
+      @handled_events += 1 if event.is_a?(OrderCreated) || event.is_a?(ProductAdded)
     end
   end
 end
