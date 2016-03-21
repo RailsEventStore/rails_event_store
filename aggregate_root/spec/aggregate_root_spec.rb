@@ -39,7 +39,7 @@ module AggregateRoot
   end
 
   describe Repository do
-    let(:event_store) { FakeEventStore.new }
+    let(:event_store) { RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new) }
 
     it "should have ability to store & load aggregate" do
       aggregate_repository = Repository.new(event_store)
@@ -60,12 +60,13 @@ module AggregateRoot
     end
 
     it "should initialize default client if event_store not provided" do
+      fake = double(:fake_event_store)
       AggregateRoot.configure do |config|
-        config.default_event_store = FakeEventStore.new
+        config.default_event_store = fake
       end
 
       aggregate_repository = Repository.new
-      expect(aggregate_repository.event_store).to be_a(FakeEventStore)
+      expect(aggregate_repository.event_store).to eq(fake)
     end
   end
 end

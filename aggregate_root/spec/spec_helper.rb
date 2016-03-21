@@ -5,4 +5,3 @@ end
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'aggregate_root'
-require 'support/fake_event_store'

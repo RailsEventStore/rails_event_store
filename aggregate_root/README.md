@@ -31,7 +31,7 @@ Remember that this is only a default event store used by `AggregateRoot::Reposit
 You could always set any event store client (must match interface) when creating `AggregateRoot::Repository`.
 
 ```ruby
-repository = AggregateRoot::Repository.new(FakeEventStore.new)
+repository = AggregateRoot::Repository.new(YourOwnEventStore.new)
 # do you work here...
 ```
 
