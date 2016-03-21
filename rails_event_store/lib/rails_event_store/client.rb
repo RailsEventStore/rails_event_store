@@ -1,9 +1,12 @@
 module RailsEventStore
   class Client
 
-    def initialize(repository = Repositories::EventRepository.new, page_size = PAGE_SIZE)
+    def initialize(repository: Repositories::EventRepository.new,
+                   event_broker: EventBroker.new,
+                   page_size: PAGE_SIZE)
       @repository = repository
       @page_size = page_size
+      @event_broker = event_broker
     end
 
     def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
@@ -42,10 +45,10 @@ module RailsEventStore
     end
 
     private
-    attr_reader :repository, :page_size
+    attr_reader :repository, :page_size, :event_broker
 
     def event_store
-      @event_store ||= RubyEventStore::Facade.new(repository)
+      @event_store ||= RubyEventStore::Facade.new(repository, event_broker)
     end
   end
 end
