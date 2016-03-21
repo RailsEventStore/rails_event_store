@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.4.2 (21.03.2016)
+
+* Fix: typo fix
+
 ### 0.4.1 (17.03.2016)
 
 * Fix: aggregate_root gem aligned with changes in rails_event_store
