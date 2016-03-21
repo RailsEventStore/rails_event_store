@@ -1,5 +1,9 @@
 ### HEAD
 
+### 0.2.1 (21.03.2016)
+
+* rails_event_store updated to 0.5.0
+
 ### 0.2.0 (17.03.2016)
 
 * rails_event_store updated to 0.4.0
