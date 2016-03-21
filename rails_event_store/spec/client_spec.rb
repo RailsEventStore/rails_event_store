@@ -5,7 +5,7 @@ module RailsEventStore
 
     specify 'initialize proper adapter type' do
       client = Client.new
-      expect(client.repository).to be_a Repositories::EventRepository
+      expect(client.__send__("repository")).to be_a Repositories::EventRepository
     end
 
     specify 'read_all_streams' do
