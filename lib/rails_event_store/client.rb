@@ -5,7 +5,6 @@ module RailsEventStore
       @repository = repository
       @page_size = page_size
     end
-    attr_reader :repository, :page_size
 
     def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
       event_store.publish_event(event, stream_name, expected_version)
@@ -43,6 +42,7 @@ module RailsEventStore
     end
 
     private
+    attr_reader :repository, :page_size
 
     def event_store
       @event_store ||= RubyEventStore::Facade.new(repository)
