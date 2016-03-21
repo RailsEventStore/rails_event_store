@@ -7,11 +7,11 @@ module RailsEventStore
     end
     attr_reader :repository, :page_size
 
-    def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = nil)
+    def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
       event_store.publish_event(event, stream_name, expected_version)
     end
 
-    def append_to_stream(event, stream_name = GLOBAL_STREAM, expected_version = nil)
+    def append_to_stream(event, stream_name = GLOBAL_STREAM, expected_version = :any)
       event_store.append_to_stream(stream_name, event, expected_version)
     end
 
