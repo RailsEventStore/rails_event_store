@@ -1,5 +1,12 @@
 ### HEAD
 
+### 0.5.0 (21.03.2016)
+
+* Change: Event class refactoring to make default values more explicit PR #11
+* Change: No nils, use symbols instead - :any & :none replaced meaningless nil value
+* Change: Let event broker to be given as a dependency
+* Change: Remove Event#event_type - use class instead PR #10
+
 ### 0.4.0 (17.03.2016)
 
 * Change: Use class names to subscribe events PR #8
