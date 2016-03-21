@@ -1,8 +1,15 @@
 ### HEAD
 
-### 0.4.2 (21.03.2016)
+### 0.5.0 (21.03.2016)
 
-* Fix: typo fix
+* Align with cnages in `ruby_event_store` 0.5.0:
+  * Change: Event class refactoring to make default values more explicit
+  * Change: Let event broker to be given as a dependency
+  * Change: No nils, use symbols instead - :any & :none replaced meaningless nil value
+  * Change: Remove Event#event_type - use class instead
+* Fix: Typo fix (appent_to_stream corrected to append_to_stream)
+* Change: Encapsulate internals fo RailsEventStore::Client
+* Change: Hide `ruby_event_store` internals by adding classes in RailsEventStore module
 
 ### 0.4.1 (17.03.2016)
 
