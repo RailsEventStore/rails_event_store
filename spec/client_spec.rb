@@ -8,6 +8,11 @@ module RailsEventStore
       expect(client.__send__("repository")).to be_a Repositories::EventRepository
     end
 
+    specify 'initialize proper event broker type' do
+      client = Client.new
+      expect(client.__send__("event_broker")).to be_a EventBroker
+    end
+
     specify 'read_all_streams' do
       client = Client.new
       expect(client.read_all_streams).to eq([])
