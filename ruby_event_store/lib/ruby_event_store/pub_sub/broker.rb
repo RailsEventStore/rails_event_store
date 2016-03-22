@@ -1,10 +1,12 @@
 module RubyEventStore
   module PubSub
     class Broker
+      DEFAULT_DISPATCHER = ->(subscriber, event) { subscriber.handle_event(event) }
 
-      def initialize
+      def initialize(dispatcher = DEFAULT_DISPATCHER)
         @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
         @global_subscribers = []
+        @dispatcher = dispatcher
       end
 
       def add_subscriber(subscriber, event_types)
@@ -19,12 +21,12 @@ module RubyEventStore
 
       def notify_subscribers(event)
         all_subscribers_for(event.class).each do |subscriber|
-          subscriber.handle_event(event)
+          dispatcher.call(subscriber, event)
         end
       end
 
       private
-      attr_reader :subscribers
+      attr_reader :subscribers, :dispatcher
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?
