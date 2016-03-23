@@ -16,6 +16,18 @@ module Subscribers
   end
 end
 
+class CustomDispatcher
+  attr_reader :dispatched_events
+
+  def initialize
+    @dispatched_events = 0
+  end
+
+  def call(subscriber, event)
+    @dispatched_events += 1
+  end
+end
+
 module RubyEventStore
   describe Facade do
 
@@ -51,5 +63,13 @@ module RubyEventStore
       expect(subscriber.handled_events).to eq 2
     end
 
+    specify 'allows to provide a custom dispatcher' do
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher)
+      facade = RubyEventStore::Facade.new(repository, broker)
+      facade.subscribe(Subscribers::OrderDenormalizer.new, [OrderCreated])
+      facade.publish_event(OrderCreated.new)
+      expect(dispatcher.dispatched_events).to eq(1)
+    end
   end
 end
