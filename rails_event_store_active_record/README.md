@@ -1,39 +1,33 @@
-# RailsEventStoreActiveRecord
+[![Build Status](https://travis-ci.org/arkency/rails_event_store_active_record.svg?branch=master)](https://travis-ci.org/arkency/rails_event_store_active_record)
+[![Gem Version](https://badge.fury.io/rb/rails_event_store_active_record.svg)](http://badge.fury.io/rb/rails_event_store_active_record)
+[![Code Climate](https://codeclimate.com/github/arkency/rails_event_store_active_record/badges/gpa.svg)](https://codeclimate.com/github/arkency/rails_event_store_active_record)
+[![Test Coverage](https://codeclimate.com/github/arkency/rails_event_store_active_record/badges/coverage.svg)](https://codeclimate.com/github/arkency/rails_event_store_active_record)
+[![Join the chat at https://gitter.im/arkency/rails_event_store](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/arkency/rails_event_store?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rails_event_store_active_record`. To experiment with that code, run `bin/console` for an interactive prompt.
+# Events repository
 
-TODO: Delete this and the text above, and describe your gem
+A Active Record based implementation of events repository for [Rails Event Store](http://github.com/arkency/rails_event_store).
+It is a default events repository used by RailsEventStore.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+* Add following line to your application's Gemfile:
 
 ```ruby
 gem 'rails_event_store_active_record'
 ```
 
-And then execute:
+* Use provided task to generate a table to store events in you DB.
 
-    $ bundle
+```ruby
+rails generate rails_event_store_active_record:migrate
+rake db:migrate
+```
 
-Or install it yourself as:
+## About
 
-    $ gem install rails_event_store_active_record
+<img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left" />
 
-## Usage
+Rails Event Store is funded and maintained by Arkency. Check out our other [open-source projects](https://github.com/arkency).
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` to create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/rails_event_store_active_record/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+You can also [hire us](http://arkency.com) or [read our blog](http://blog.arkency.com).

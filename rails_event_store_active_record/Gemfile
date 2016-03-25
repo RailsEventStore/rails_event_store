@@ -1,4 +1,3 @@
 source 'https://rubygems.org'
-
-# Specify your gem's dependencies in rails_event_store_active_record.gemspec
 gemspec
+gem 'codeclimate-test-reporter', group: :test, require: nil
