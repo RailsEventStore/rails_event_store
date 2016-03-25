@@ -6,7 +6,8 @@
 
 # EventStore
 
-A Ruby implementation of an EventStore based on Active Record.
+A Ruby implementation of an EventStore.
+Default storage is events repository based on Active Record (provided by separate gem: [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)).
 
 ## Installation
 
@@ -19,7 +20,7 @@ gem 'rails_event_store'
 * Use provided task to generate a table to store events in you DB.
 
 ```ruby
-rails generate rails_event_store:migrate
+rails generate rails_event_store_active_record:migrate
 rake db:migrate
 ```
 

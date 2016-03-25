@@ -10,11 +10,11 @@ require 'webmock/rspec'
 
 RSpec.configure do |config|
   config.around(:each) do |example|
-    RailsEventStore::Models::Event.establish_connection(
+    RailsEventStoreActiveRecord::Event.establish_connection(
       :adapter => "sqlite3",
       :database => "spec/test.sqlite3"
     )
-    RailsEventStore::Models::Event.transaction do
+    RailsEventStoreActiveRecord::Event.transaction do
       example.run
       raise ActiveRecord::Rollback
     end
