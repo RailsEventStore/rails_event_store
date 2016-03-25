@@ -1,5 +1,7 @@
 ### HEAD
 
+* Change: EventRepository moved to separate gem [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)
+
 ### 0.5.0 (21.03.2016)
 
 * Align with cnages in `ruby_event_store` 0.5.0:
