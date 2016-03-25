@@ -5,7 +5,7 @@ module RailsEventStore
 
     specify 'initialize proper adapter type' do
       client = Client.new
-      expect(client.__send__("repository")).to be_a Repositories::EventRepository
+      expect(client.__send__("repository")).to be_a RailsEventStoreActiveRecord::EventRepository
     end
 
     specify 'initialize proper event broker type' do
