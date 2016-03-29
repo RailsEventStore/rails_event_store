@@ -32,6 +32,38 @@ To communicate with ES you have to create instance of `RailsEventStore::Client` 
 client = RailsEventStore::Client.new
 ```
 
+RailsEventStore::Client use default dependencies:
+
+```ruby
+client = RailsEventStore::Client.new(
+  repository:    RailsEventStoreActiveRecord::EventRepository.new,
+  event_broker:  RailsEventStore::EventBroker.new,
+  page_size:     RailsEventStore::PAGE_SIZE
+)
+```
+
+However you could specify them when creating event store client:
+
+```ruby
+client = RailsEventStore::Client.new(
+  page_size: 1000,
+  repository: YourOwnEventRepository.new,
+  event_broker: YourOwnEventBroker.new
+)
+```
+
+Or you could specify dependencies using configuration:
+
+```ruby
+RailsEventStore.configure do |config|
+  config.page_size        = 1000
+  config.event_repository = YourOwnEventRepository.new
+  config.event_broker     = YourOwnEventBroker.new
+)
+```
+
+Any client created by `RailsEventStore::Client.new` will have dependencies setup from config.
+
 #### Creating new event
 
 Firstly you have to define own event model extending `RailsEventStore::Event` class.
