@@ -1,7 +1,6 @@
 require 'ruby_event_store'
 require 'active_record'
-require 'rails_event_store_active_record/generators/migrate_generator'
-require 'rails_event_store_active_record/generators/templates/migration_template'
+require 'rails_event_store_active_record/generators/migration_generator'
 require 'rails_event_store_active_record/event'
 require 'rails_event_store_active_record/event_repository'
 require 'rails_event_store_active_record/version'
