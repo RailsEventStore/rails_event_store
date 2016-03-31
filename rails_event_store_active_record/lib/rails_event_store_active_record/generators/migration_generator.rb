@@ -1,11 +1,11 @@
 require 'rails/generators'
 
 module RailsEventStoreActiveRecord
-  class MigrateGenerator < Rails::Generators::Base
+  class MigrationGenerator < Rails::Generators::Base
     source_root File.expand_path(File.join(File.dirname(__FILE__), '../generators/templates'))
 
     def create_migration
-      template "migration_template.rb", "db/migrate/#{timestamp}_create_events_table.rb"
+      template "migration_template.rb", "db/migrate/#{timestamp}_create_event_store_events.rb"
     end
 
     private
