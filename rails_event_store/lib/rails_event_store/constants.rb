@@ -1,4 +1,4 @@
 module RailsEventStore
-  GLOBAL_STREAM = RubyEventStore::GLOBAL_STREAM
+  GLOBAL_STREAM = 'all'.freeze
   PAGE_SIZE     = 100.freeze
 end

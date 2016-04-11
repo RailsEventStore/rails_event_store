@@ -1,7 +1,6 @@
 ### HEAD
 
 * Change: EventRepository moved to separate gem [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)
-* Change: allow to setup RailsEventStore client dependencies via configuration
 
 ### 0.5.0 (21.03.2016)
 
