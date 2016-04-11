@@ -1,10 +1,11 @@
-### HEAD
+### 0.6.0 (11.04.2016)
 
 * Change: EventRepository moved to separate gem [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)
+* Change: rails_event_store_active_record updated to version 0.5.1 - allows to use custom event class
 
 ### 0.5.0 (21.03.2016)
 
-* Align with cnages in `ruby_event_store` 0.5.0:
+* Align with changes in `ruby_event_store` 0.5.0:
   * Change: Event class refactoring to make default values more explicit
   * Change: Let event broker to be given as a dependency
   * Change: No nils, use symbols instead - :any & :none replaced meaningless nil value
