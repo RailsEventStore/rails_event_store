@@ -1,10 +1,11 @@
 module RubyEventStore
   class Facade
     def initialize(repository, event_broker = PubSub::Broker.new)
-      @repository   = repository
-      @event_broker = event_broker
+      @repository        = repository
+      @event_broker      = event_broker
+      @projection_engine = ProjectionEngine.new(repository)
     end
-    attr_reader :repository, :event_broker
+    attr_reader :repository, :event_broker, :projection_engine
 
     def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
       append_to_stream(stream_name, event, expected_version)
@@ -62,6 +63,10 @@ module RubyEventStore
 
     def subscribe_to_all_events(subscriber)
       event_broker.add_global_subscriber(subscriber)
+    end
+
+    def run_projection(*args)
+      projection_engine.run_projection(*args)
     end
 
     private
