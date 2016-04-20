@@ -57,5 +57,9 @@ module RubyEventStore
       event_store.publish_event(MoneyDeposited.new(amount: 5), stream_name)
       expect(deposits.current_state).to eq(total: 15)
     end
+
+    specify "using default constructor" do
+      expect { Projection.new("Customer$123") }.to raise_error(NoMethodError, /private method `new'/)
+    end
   end
 end

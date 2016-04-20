@@ -1,5 +1,7 @@
 module RubyEventStore
   class Projection
+    private_class_method :new
+
     def self.from_stream(stream_name)
       new(stream_name)
     end
