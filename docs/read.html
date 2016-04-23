@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Reading from stream | Introduction</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.6.7">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="../docs/delete.html" />
+    
+    
+    <link rel="prev" href="../docs/publish.html" />
+    
+
+        
+    </head>
+    <body>
+        
+        
+    <div class="book"
+        data-level="2.3"
+        data-chapter-title="Reading from stream"
+        data-filepath="docs/read.md"
+        data-basepath=".."
+        data-revision="Sat Apr 23 2016 22:51:05 GMT+0200 (CEST)"
+        data-innerlanguage="">
+    
+
+<div class="book-summary">
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" >
+            
+            <span><b>1.</b> Introduction</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="docs/install.html">
+            
+                
+                    <a href="../docs/install.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Instalation
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" >
+            
+            <span><b>2.</b> Usage</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="docs/usage.html">
+            
+                
+                    <a href="../docs/usage.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        Creating RailsEventStore client
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="docs/publish.html">
+            
+                
+                    <a href="../docs/publish.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.</b>
+                        
+                        Publishing an event
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.3" data-path="docs/read.html">
+            
+                
+                    <a href="../docs/read.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        Reading from stream
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="docs/delete.html">
+            
+                
+                    <a href="../docs/delete.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        Deleting stream
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3" >
+            
+            <span><b>3.</b> Subscribtions</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1" data-path="docs/subscribe.html">
+            
+                
+                    <a href="../docs/subscribe.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.1.</b>
+                        
+                        Subscribing to events
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="docs/app.html">
+            
+                
+                    <a href="../docs/app.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        Building an event sourced application
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="docs/resources.html">
+            
+                
+                    <a href="../docs/resources.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Resources
+                    </a>
+            
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../" >Introduction</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <h1 id="reading-streams-events-forward-in-batch--starting-from-first-event">Reading stream&apos;s events forward in batch - starting from first event</h1>
+<pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
+count = <span class="hljs-number">40</span>
+client.read_events_forward(stream_name, <span class="hljs-symbol">:head</span>, count)
+</code></pre>
+<p>In this case <code>:head</code> means first event of the stream.</p>
+<h1 id="reading-streams-events-forward-in-batch--staring-from-given-event">Reading stream&apos;s events forward in batch - staring from given event</h1>
+<pre><code class="lang-ruby"><span class="hljs-comment"># last_read_event is any domain event read or published by rails_event_store</span>
+
+stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
+start = last_read_event.event_id
+count = <span class="hljs-number">40</span>
+client.read_events_forward(stream_name, start, count)
+</code></pre>
+<h1 id="reading-streams-events-backward-in-batch">Reading stream&apos;s events backward in batch</h1>
+<p>As in examples above, just use <code>read_events_backward</code> instead of <code>read_events_forward</code>.
+In this case <code>:head</code> means last event of the stream.</p>
+<h1 id="reading-all-events-from-stream-forward">Reading all events from stream forward</h1>
+<p>This method allows us to load all stream&apos;s events ascending.</p>
+<pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
+client.read_stream_events_forward(stream_name)
+</code></pre>
+<h1 id="reading-all-events-from-stream-forward">Reading all events from stream forward</h1>
+<p>This method allows us to load all stream&apos;s events descending.</p>
+<pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
+client.read_stream_events_backward(stream_name)
+</code></pre>
+<h1 id="reading-all-events-forward">Reading all events forward</h1>
+<p>This method allows us to load all stored events ascending.</p>
+<p>This will read first 100 domain events stored in event store.</p>
+<pre><code class="lang-ruby">client.read_all_streams_forward(<span class="hljs-symbol">:head</span>, <span class="hljs-number">100</span>)
+</code></pre>
+<p>When not specified it reads events starting from <code>:head</code> (first domain event
+stored in event store) and reads up to <code>RailsEventStore::PAGE_SIZE</code>
+domain events.</p>
+<pre><code class="lang-ruby">client.read_all_streams_forward
+</code></pre>
+<p>You could also read batch of domain events starting from any read or published event.</p>
+<pre><code class="lang-ruby">client.read_all_streams_forward(last_read_event.event_id, <span class="hljs-number">100</span>)
+</code></pre>
+<h1 id="reading-all-events-backward">Reading all events backward</h1>
+<p>This method allows us to load all stored events descending.</p>
+<p>This will read last 100 domain events stored in event store.</p>
+<pre><code class="lang-ruby">client.read_all_streams_backward(<span class="hljs-symbol">:head</span>, <span class="hljs-number">100</span>)
+</code></pre>
+<p>When not specified it reads events starting from <code>:head</code> (last domain event
+stored in event store) and reads up to <code>RailsEventStore::PAGE_SIZE</code>
+domain events.</p>
+<pre><code class="lang-ruby">client.read_all_streams_backward
+</code></pre>
+
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../docs/publish.html" class="navigation navigation-prev " aria-label="Previous page: Publishing an event"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../docs/delete.html" class="navigation navigation-next " aria-label="Next page: Deleting stream"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../gitbook/app.js"></script>
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-github/plugin.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"github":{"url":"https://github.com/arkency/rails_event_store"},"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>
