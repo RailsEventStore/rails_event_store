@@ -41,7 +41,12 @@ module RubyEventStore
 
     specify 'throws exception if subscriber has not handle_event method' do
       subscriber = Subscribers::IncorrectDenormalizer.new
-      expect { facade.subscribe(subscriber, [])}.to raise_error(MethodNotDefined)
+      message = "#handle_event method is not found " +
+                "in Subscribers::IncorrectDenormalizer subscriber." +
+                " Are you sure it is a valid subscriber?"
+
+      expect { facade.subscribe(subscriber, [])}.to raise_error(MethodNotDefined,
+                                                                message)
       expect { facade.subscribe_to_all_events(subscriber)}.to raise_error(MethodNotDefined)
     end
 

@@ -30,7 +30,7 @@ module RubyEventStore
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?
-        raise MethodNotDefined unless subscriber.methods.include? :handle_event
+        ensure_method_defined(subscriber)
       end
 
       def subscribe(subscriber, event_types)
@@ -39,8 +39,18 @@ module RubyEventStore
         end
       end
 
+      def ensure_method_defined(subscriber)
+        unless subscriber.methods.include? :handle_event
+          raise MethodNotDefined.new(method_not_defined_message(subscriber))
+        end
+      end
+
       def all_subscribers_for(event_type)
         subscribers[event_type] + @global_subscribers
+      end
+
+      def method_not_defined_message(subscriber)
+        "#handle_event method is not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
       end
     end
   end
