@@ -1,4 +1,5 @@
 {
+  "title": "RailsEventStore",
   "plugins": [ "github" ],
   "pluginsConfig": {
     "github": {
