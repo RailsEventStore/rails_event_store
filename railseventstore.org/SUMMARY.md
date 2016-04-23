@@ -1,10 +1,9 @@
 # RailsEventStore
 
-* Introduction
-  * [RailsEventStore](README.md)
+[RailsEventStore](README.md)
+* [Basics](docs/basics.md)
   * [Instalation](docs/install.md)
-* Usage
-  * [Creating RailsEventStore client](docs/usage.md)
+* [Usage](docs/usage.md)
   * [Publishing an event](docs/publish.md)
   * [Reading from stream](docs/read.md)
   * [Deleting stream](docs/delete.md)
