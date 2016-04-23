@@ -50,7 +50,7 @@ module RubyEventStore
       end
 
       def method_not_defined_message(subscriber)
-        "#handle_event method is not found in #{subscriber.class.to_s} subscriber. Are you sure it is a valid subscriber?"
+        "#handle_event method is not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
       end
     end
   end
