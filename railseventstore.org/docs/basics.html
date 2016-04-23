@@ -5,9 +5,9 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Introduction | RailsEventStore</title>
+        <title>Basics | RailsEventStore</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="Build StatusGem VersionCode ClimateTest Coverage">
+        <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
         
         
@@ -15,21 +15,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
-        <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
         
-    <link rel="stylesheet" href="gitbook/style.css">
+    <link rel="stylesheet" href="../gitbook/style.css">
     
         
-        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-highlight/website.css">
-        
-    
-        
-        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-search/search.css">
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
         
     
         
-        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-fontsettings/website.css">
         
     
     
@@ -37,8 +37,10 @@
         
     
     
-    <link rel="next" href="./docs/basics.html" />
+    <link rel="next" href="../docs/install.html" />
     
+    
+    <link rel="prev" href="../index.html" />
     
 
         
@@ -47,10 +49,10 @@
         
         
     <div class="book"
-        data-level="0"
-        data-chapter-title="Introduction"
-        data-filepath="README.md"
-        data-basepath="."
+        data-level="1"
+        data-chapter-title="Basics"
+        data-filepath="docs/basics.md"
+        data-basepath=".."
         data-revision="Sun Apr 24 2016 00:27:02 GMT+0200 (CEST)"
         data-innerlanguage="">
     
@@ -67,10 +69,10 @@
 
             
     
-        <li class="chapter active" data-level="0" data-path="index.html">
+        <li class="chapter " data-level="0" data-path="index.html">
             
                 
-                    <a href="./index.html">
+                    <a href="../index.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -80,10 +82,10 @@
             
         </li>
     
-        <li class="chapter " data-level="1" data-path="docs/basics.html">
+        <li class="chapter active" data-level="1" data-path="docs/basics.html">
             
                 
-                    <a href="./docs/basics.html">
+                    <a href="../docs/basics.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -99,7 +101,7 @@
         <li class="chapter " data-level="1.1" data-path="docs/install.html">
             
                 
-                    <a href="./docs/install.html">
+                    <a href="../docs/install.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -119,7 +121,7 @@
         <li class="chapter " data-level="2" data-path="docs/usage.html">
             
                 
-                    <a href="./docs/usage.html">
+                    <a href="../docs/usage.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -135,7 +137,7 @@
         <li class="chapter " data-level="2.1" data-path="docs/publish.html">
             
                 
-                    <a href="./docs/publish.html">
+                    <a href="../docs/publish.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -150,7 +152,7 @@
         <li class="chapter " data-level="2.2" data-path="docs/read.html">
             
                 
-                    <a href="./docs/read.html">
+                    <a href="../docs/read.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -165,7 +167,7 @@
         <li class="chapter " data-level="2.3" data-path="docs/delete.html">
             
                 
-                    <a href="./docs/delete.html">
+                    <a href="../docs/delete.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -193,7 +195,7 @@
         <li class="chapter " data-level="3.1" data-path="docs/subscribe.html">
             
                 
-                    <a href="./docs/subscribe.html">
+                    <a href="../docs/subscribe.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -213,7 +215,7 @@
         <li class="chapter " data-level="4" data-path="docs/app.html">
             
                 
-                    <a href="./docs/app.html">
+                    <a href="../docs/app.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -228,7 +230,7 @@
         <li class="chapter " data-level="5" data-path="docs/resources.html">
             
                 
-                    <a href="./docs/resources.html">
+                    <a href="../docs/resources.html">
                 
                         <i class="fa fa-check"></i>
                         
@@ -263,7 +265,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="./" >RailsEventStore</a>
+        <a href="../" >RailsEventStore</a>
     </h1>
 </div>
 
@@ -273,19 +275,10 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h1 id="railseventstore">RailsEventStore</h1>
-<p><a href="https://travis-ci.org/arkency/ruby_event_store" target="_blank"><img src="https://travis-ci.org/arkency/ruby_event_store.svg?branch=master" alt="Build Status"></a>
-<a href="http://badge.fury.io/rb/ruby_event_store" target="_blank"><img src="https://badge.fury.io/rb/ruby_event_store.svg" alt="Gem Version"></a>
-<a href="https://codeclimate.com/github/arkency/ruby_event_store" target="_blank"><img src="https://codeclimate.com/github/arkency/ruby_event_store/badges/gpa.svg" alt="Code Climate"></a>
-<a href="https://codeclimate.com/github/arkency/ruby_event_store/coverage" target="_blank"><img src="https://codeclimate.com/github/arkency/ruby_event_store/badges/coverage.svg" alt="Test Coverage"></a></p>
-<p>A Ruby implementation of an EventStore.
-Default storage is events repository based on Active Record (provided by separate gem: <a href="http://github.com/arkency/rails_event_store_active_record" target="_blank">rails_event_store_active_record</a>).</p>
-<h1 id="building-the-docs">Building the docs</h1>
-<p>Docs are available as Markdown files inside <code>docs/</code> directory. They are processed by <a href="https://github.com/GitbookIO/gitbook" target="_blank">Gitbook</a> to generate a nicely looking documentation book.</p>
-<h1 id="about">About</h1>
-<p><img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left"></p>
-<p>Rails Event Store is funded and maintained by Arkency. Check out our other <a href="https://github.com/arkency" target="_blank">open-source projects</a>.</p>
-<p>You can also <a href="http://arkency.com" target="_blank">hire us</a> or <a href="http://blog.arkency.com" target="_blank">read our blog</a>.</p>
+                        <p>Rails Event Store is a library for publishing and storing events, which can be further used to build your application state from them.</p>
+<p>This can be a solid foundation for a design approach called <a href="https://www.youtube.com/watch?v=JHGkaShoyNs" target="_blank"><em>event sourcing</em></a>. It has <a href="https://blog.arkency.com/2015/03/why-use-event-sourcing/" target="_blank">many benefits</a> and is an interesting if you happen to struggle with keeping maintainability of your application at a reasonable level.</p>
+<p>The &quot;core&quot; of the solution is <a href="https://github.com/arkency/ruby_event_store" target="_blank">RubyEventStore</a> - separate gem where all concepts are implemented. Ruby Event Store is unopinionated on <em>how</em> events are stored. <a href="https://github.com/arkency/rails_event_store" target="_blank">Rails Event Store</a> and <a href="https://github.com/arkency/rails_event_store_active_record" target="_blank">Rails Event Store Active Record</a> libraries provide persistence layer suitable for Ruby on Rails.</p>
+<p>This documentation serves as a practical guide, as well as a place to describe all basic concepts you need to grasp to benefit from this design choice.</p>
 
                     
                     </section>
@@ -296,33 +289,35 @@ Default storage is events repository based on Active Record (provided by separat
         </div>
 
         
+        <a href="../index.html" class="navigation navigation-prev " aria-label="Previous page: Introduction"><i class="fa fa-angle-left"></i></a>
         
-        <a href="./docs/basics.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Basics"><i class="fa fa-angle-right"></i></a>
+        
+        <a href="../docs/install.html" class="navigation navigation-next " aria-label="Next page: Instalation"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
 
         
-<script src="gitbook/app.js"></script>
+<script src="../gitbook/app.js"></script>
 
     
-    <script src="gitbook/plugins/gitbook-plugin-github/plugin.js"></script>
-    
-
-    
-    <script src="gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    <script src="../gitbook/plugins/gitbook-plugin-github/plugin.js"></script>
     
 
     
-    <script src="gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    <script src="../gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
     
 
     
-    <script src="gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    <script src="../gitbook/plugins/gitbook-plugin-search/search.js"></script>
     
 
     
-    <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    <script src="../gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
 <script>
