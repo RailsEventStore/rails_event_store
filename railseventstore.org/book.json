@@ -1,0 +1,8 @@
+{
+  "plugins": [ "github" ],
+  "pluginsConfig": {
+    "github": {
+      "url": "https://github.com/arkency/rails_event_store"
+    }
+  }
+}
