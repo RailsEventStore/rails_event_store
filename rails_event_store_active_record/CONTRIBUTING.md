@@ -1,4 +1,4 @@
-# Contributing to RailsEventStore
+# Contributing to RailsEventStoreActiveRecord
 
 Any kind of contribution is welcomed. Here is a few guidelines that we need contributors to follow.
 
