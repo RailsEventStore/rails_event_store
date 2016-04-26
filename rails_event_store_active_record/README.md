@@ -9,20 +9,13 @@
 A Active Record based implementation of events repository for [Rails Event Store](http://github.com/arkency/rails_event_store).
 It is a default events repository used by RailsEventStore.
 
-## Installation
+# Documentation
 
-* Add following line to your application's Gemfile:
+All documentation and sample codes are available at [http://railseventstore.arkency.com](http://railseventstore.arkency.com)
 
-```ruby
-gem 'rails_event_store_active_record'
-```
+# Contributing
 
-* Use provided task to generate a table to store events in you DB.
-
-```ruby
-rails generate rails_event_store_active_record:migration
-rake db:migrate
-```
+Check the contribution guide on [CONTRIBUTING.md](https://github.com/arkency/rails_event_store_active_record/blob/master/CONTRIBUTING.md)
 
 ## About
 
