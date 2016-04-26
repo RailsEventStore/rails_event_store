@@ -7,7 +7,7 @@ module RubyEventStore
 
     let(:event_store) { RubyEventStore::Facade.new(InMemoryRepository.new) }
 
-    specify "reduces events" do
+    specify "reduce events from one stream" do
       stream_name = "Customer$123"
       event_store.publish_event(MoneyDeposited.new(amount: 10), stream_name)
       event_store.publish_event(MoneyDeposited.new(amount: 20), stream_name)
@@ -19,6 +19,24 @@ module RubyEventStore
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount }).
         call(event_store)
       expect(account_balance).to eq(total: 25)
+    end
+
+    specify "reduce events from many streams" do
+      event_store.publish_event(MoneyDeposited.new(amount: 10), "Customer$1")
+      event_store.publish_event(MoneyDeposited.new(amount: 20), "Customer$2")
+      event_store.publish_event(MoneyWithdrawn.new(amount: 5),  "Customer$3")
+      account_balance = Projection.
+        from_stream("Customer$1", "Customer$3").
+        init( -> { { total: 0 } }).
+        when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
+        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount }).
+        call(event_store)
+      expect(account_balance).to eq(total: 5)
+    end
+
+    specify "at least one stream must be given" do
+      expect { Projection.from_stream }.
+        to raise_error(ArgumentError, "At least one stream must be given")
     end
 
     specify "empty hash is default inital state" do

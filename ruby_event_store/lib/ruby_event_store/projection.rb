@@ -2,17 +2,18 @@ module RubyEventStore
   class Projection
     private_class_method :new
 
-    def self.from_stream(stream_name)
-      new(stream_name)
+    def self.from_stream(*streams)
+      raise(ArgumentError, "At least one stream must be given") if streams.empty?
+      new(streams)
     end
 
-    def initialize(stream_name)
-      @stream_name = stream_name
-      @handlers    = Hash.new { ->(_, _) {} }
-      @init        = -> { Hash.new }
+    def initialize(streams)
+      @streams  = streams
+      @handlers = Hash.new { ->(_, _) {} }
+      @init     = -> { Hash.new }
     end
 
-    attr_reader :stream_name, :handlers
+    attr_reader :streams, :handlers
 
     def init(handler)
       @init = handler
@@ -41,10 +42,15 @@ module RubyEventStore
     end
 
     def call(event_store)
-      event_store.read_stream_events_forward(stream_name).reduce(initial_state) do |state, event|
-        handlers[event.class].(state, event)
-        state
+      streams.reduce(initial_state) do |state, stream|
+        event_store.read_stream_events_forward(stream).reduce(state, &method(:transition))
       end
+    end
+
+    private
+    def transition(state, event)
+      handlers[event.class].(state, event)
+      state
     end
   end
 end
