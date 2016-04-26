@@ -33,7 +33,7 @@ stream_name = "order_1"
 client.read_stream_events_forward(stream_name)
 ```
 
-# Reading all events from stream forward
+# Reading all events from stream backward
 
 This method allows us to load all stream's events descending.
 
