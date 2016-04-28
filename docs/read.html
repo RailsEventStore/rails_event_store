@@ -53,7 +53,7 @@
         data-chapter-title="Reading from stream"
         data-filepath="docs/read.md"
         data-basepath=".."
-        data-revision="Sun Apr 24 2016 00:27:02 GMT+0200 (CEST)"
+        data-revision="Thu Apr 28 2016 16:03:15 GMT+0200 (CEST)"
         data-innerlanguage="">
     
 
@@ -143,7 +143,7 @@
                         
                             <b>2.1.</b>
                         
-                        Publishing an event
+                        Publishing events
                     </a>
             
             
@@ -297,7 +297,7 @@ In this case <code>:head</code> means last event of the stream.</p>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
 client.read_stream_events_forward(stream_name)
 </code></pre>
-<h1 id="reading-all-events-from-stream-forward">Reading all events from stream forward</h1>
+<h1 id="reading-all-events-from-stream-backward">Reading all events from stream backward</h1>
 <p>This method allows us to load all stream&apos;s events descending.</p>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
 client.read_stream_events_backward(stream_name)
@@ -335,7 +335,7 @@ domain events.</p>
         </div>
 
         
-        <a href="../docs/publish.html" class="navigation navigation-prev " aria-label="Previous page: Publishing an event"><i class="fa fa-angle-left"></i></a>
+        <a href="../docs/publish.html" class="navigation navigation-prev " aria-label="Previous page: Publishing events"><i class="fa fa-angle-left"></i></a>
         
         
         <a href="../docs/delete.html" class="navigation navigation-next " aria-label="Next page: Deleting stream"><i class="fa fa-angle-right"></i></a>
