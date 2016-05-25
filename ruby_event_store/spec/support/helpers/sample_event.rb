@@ -1,5 +1,2 @@
-class OrderCreated < RubyEventStore::Event
-end
-
-class ProductAdded < RubyEventStore::Event
-end
+OrderCreated = Class.new(RubyEventStore::Event)
+ProductAdded = Class.new(RubyEventStore::Event)
