@@ -5,6 +5,7 @@ module RailsEventStore
   Event               = RubyEventStore::Event
   InMemoryRepository  = RubyEventStore::InMemoryRepository
   EventBroker         = RubyEventStore::PubSub::Broker
+  Projection          = RubyEventStore::Projection
 end
 
 require 'rails_event_store/version'
