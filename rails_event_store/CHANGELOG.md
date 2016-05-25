@@ -1,3 +1,7 @@
+### 0.6.1 (25.05.2016)
+
+* Allow to read events backward PR #32 (bugfix)
+
 ### 0.6.0 (11.04.2016)
 
 * Change: EventRepository moved to separate gem [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)
