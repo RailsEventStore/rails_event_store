@@ -1,5 +1,12 @@
 ### HEAD
 
+### 0.6.0 (25.05.2016)
+
+* Ability to provide a custom dispatcher to PubSub::Broker PR #12
+* Add support for projections PR #13
+* Added prettier message for case of missing #handle_event method. PR #14
+* Make file to run all the things PR #15
+
 ### 0.5.0 (21.03.2016)
 
 * Change: Event class refactoring to make default values more explicit PR #11
