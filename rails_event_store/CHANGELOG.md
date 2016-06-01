@@ -1,6 +1,10 @@
+### 0.7.0 (01.06.2016)
+
+* Change: ruby_event_store updated to 0.6.0 (adding basic projections support)
+
 ### 0.6.1 (25.05.2016)
 
-* Allow to read events backward PR #32 (bugfix)
+* Fix: Allow to read events backward PR #32 (bugfix)
 
 ### 0.6.0 (11.04.2016)
 
