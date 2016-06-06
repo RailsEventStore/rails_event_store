@@ -17,7 +17,7 @@ module RubyEventStore
         init( -> { { total: 0 } }).
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount }).
-        call(event_store)
+        run(event_store)
       expect(account_balance).to eq(total: 25)
     end
 
@@ -30,7 +30,7 @@ module RubyEventStore
         init( -> { { total: 0 } }).
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount }).
-        call(event_store)
+        run(event_store)
       expect(account_balance).to eq(total: 5)
     end
 
@@ -117,7 +117,7 @@ module RubyEventStore
         from_stream(stream_name).
         when(MoneyDeposited, ->(state, event) { state[:last_deposit]    = event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:last_withdrawal] = event.amount }).
-        call(event_store)
+        run(event_store)
       expect(stats).to eq(last_deposit: 20, last_withdrawal: 5)
     end
 
@@ -129,7 +129,7 @@ module RubyEventStore
         from_stream(stream_name).
         init( -> { { total: 0 } }).
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
-        call(event_store)
+        run(event_store)
       expect(deposits).to eq(total: 10)
     end
 
