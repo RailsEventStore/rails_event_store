@@ -1,7 +1,28 @@
 module RubyEventStore
   module PubSub
     class Broker
-      DEFAULT_DISPATCHER = ->(subscriber, event) { subscriber.handle_event(event) }
+      class Dispatcher
+        def call(subscriber, event)
+          ensure_method_defined(subscriber)
+          subscriber.methods.include?(:call) ?
+            subscriber.call(event) :
+            subscriber.handle_event(event)
+        end
+
+        private
+        def ensure_method_defined(subscriber)
+          unless subscriber.methods.any?{|method| [:call,:handle_event].include?(method)}
+            raise MethodNotDefined.new(method_not_defined_message(subscriber))
+          end
+        end
+
+        def method_not_defined_message(subscriber)
+          "Neither #call nor #handle_event method found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
+        end
+      end
+      private_constant :Dispatcher
+
+      DEFAULT_DISPATCHER = Dispatcher.new
 
       def initialize(dispatcher = DEFAULT_DISPATCHER)
         @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
@@ -32,7 +53,6 @@ module RubyEventStore
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?
-        ensure_method_defined(subscriber)
       end
 
       def subscribe(subscriber, event_types)
@@ -40,18 +60,8 @@ module RubyEventStore
         ->() {event_types.each{ |type| subscribers[type].delete(subscriber) } }
       end
 
-      def ensure_method_defined(subscriber)
-        unless subscriber.methods.include? :handle_event
-          raise MethodNotDefined.new(method_not_defined_message(subscriber))
-        end
-      end
-
       def all_subscribers_for(event_type)
         subscribers[event_type] + @global_subscribers
-      end
-
-      def method_not_defined_message(subscriber)
-        "#handle_event method is not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
       end
     end
   end
