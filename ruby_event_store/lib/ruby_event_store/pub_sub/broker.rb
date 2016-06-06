@@ -4,9 +4,12 @@ module RubyEventStore
       class Dispatcher
         def call(subscriber, event)
           ensure_method_defined(subscriber)
-          subscriber.methods.include?(:call) ?
-            subscriber.call(event) :
+          if subscriber.methods.include?(:call)
+            subscriber.call(event)
+          else
+            warn "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead."
             subscriber.handle_event(event)
+          end
         end
 
         private
