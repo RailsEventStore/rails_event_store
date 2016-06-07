@@ -179,5 +179,11 @@ module RubyEventStore
       expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
     end
 
+    specify 'deprecation message when no call method in handler' do
+      subscriber = Subscribers::HandlerWithHandleEventMethod.new
+      facade.subscribe_to_all_events(subscriber)
+      expect { facade.publish_event(OrderCreated.new) }.to output(
+        "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead.\n").to_stderr
+    end
   end
 end
