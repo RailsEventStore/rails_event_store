@@ -9,6 +9,8 @@ class CreateEventStoreEvents < ActiveRecord::Migration
       t.datetime    :created_at,  null: false
     end
     add_index :event_store_events, :stream
+    add_index :event_store_events, :created_at
+    add_index :event_store_events, :event_type
     add_index :event_store_events, :event_id, unique: true
   end
 end
