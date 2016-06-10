@@ -1,3 +1,4 @@
+
 module RubyEventStore
   class Projection
     private_class_method :new
@@ -7,7 +8,11 @@ module RubyEventStore
       new(streams)
     end
 
-    def initialize(streams)
+    def self.from_all_streams
+      new
+    end
+
+    def initialize(streams = [])
       @streams  = streams
       @handlers = Hash.new { ->(_, _) {} }
       @init     = -> { Hash.new }
@@ -42,8 +47,12 @@ module RubyEventStore
     end
 
     def call(event_store)
-      streams.reduce(initial_state) do |state, stream|
-        event_store.read_stream_events_forward(stream).reduce(state, &method(:transition))
+      if streams.any?
+        streams.reduce(initial_state) do |state, stream|
+          event_store.read_stream_events_forward(stream).reduce(state, &method(:transition))
+        end
+      else
+        event_store.get_all_events.reduce(initial_state, &method(:transition))
       end
     end
 

@@ -29,6 +29,10 @@ module RubyEventStore
       read_stream_events_forward(stream_name).last
     end
 
+    def get_all_events
+      all
+    end
+
     def read_events_forward(stream_name, start_event_id, count)
       source = read_stream_events_forward(stream_name)
       read_batch(source, start_event_id, count)
