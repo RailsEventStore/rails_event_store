@@ -46,13 +46,13 @@ module RubyEventStore
       handlers.keys
     end
 
-    def call(event_store)
+    def call(event_store, event_id = :head, count = 10)
       if streams.any?
         streams.reduce(initial_state) do |state, stream|
           event_store.read_stream_events_forward(stream).reduce(state, &method(:transition))
         end
       else
-        event_store.get_all_events.reduce(initial_state, &method(:transition))
+        event_store.read_all_streams_forward(event_id, count).reduce(initial_state, &method(:transition))
       end
     end
 

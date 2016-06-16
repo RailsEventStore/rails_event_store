@@ -8,11 +8,13 @@ module RubyEventStore
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       expect(facade.publish_event(TestEvent.new)).to eq(:ok)
     end
+
     specify 'append_to_stream returns :ok when success' do
       stream = SecureRandom.uuid
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       expect(facade.append_to_stream(stream, TestEvent.new)).to eq(:ok)
     end
+
     specify 'delete_stream returns :ok when success' do
       stream = SecureRandom.uuid
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)

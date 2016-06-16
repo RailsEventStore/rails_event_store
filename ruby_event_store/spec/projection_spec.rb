@@ -34,17 +34,45 @@ module RubyEventStore
       expect(account_balance).to eq(total: 5)
     end
 
-    specify "take events from global stream" do
-      event_store.publish_event(MoneyDeposited.new(amount: 10), "Customer$1")
-      event_store.publish_event(MoneyDeposited.new(amount: 20), "Customer$2")
-      event_store.publish_event(MoneyWithdrawn.new(amount: 5),  "Customer$3")
+    specify "take events from all streams" do
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$1")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$2")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$3")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$4")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$5")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$6")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$7")
+      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$8")
+
+      event_store.publish_event(MoneyWithdrawn.new(amount: 1), "Customer$9")
+      event_store.publish_event(MoneyWithdrawn.new(amount: 1), "Customer$10")
+      event_store.publish_event(MoneyWithdrawn.new(amount: 1), "Customer$11")
+
       account_balance = Projection.
         from_all_streams.
         init( -> { { total: 0 } }).
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount }).
-        call(event_store)
-      expect(account_balance).to eq(total: 25)
+        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount })
+
+      expect(account_balance.call(event_store, :head, 9)).to eq(total: 7)
+      expect(account_balance.call(event_store)).to eq(total: 6)
+      expect(account_balance.call(event_store, :head, 11)).to eq(total: 5)
+    end
+
+    specify "reduce events from all streams" do
+      event_store.publish_event(MoneyDeposited.new(amount: 10), "Customer$1")
+      event_store.publish_event(custom_event = MoneyDeposited.new(amount: 20), "Customer$2")
+      event_store.publish_event(MoneyWithdrawn.new(amount: 5), "Customer$3")
+      event_store.publish_event(MoneyDeposited.new(amount: 10), "Customer$4")
+
+      account_balance = Projection.
+        from_all_streams.
+        init( -> { { total: 0 } }).
+        when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
+        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount })
+
+      expect(account_balance.call(event_store, custom_event.event_id, 1)).to eq(total: -5)
+      expect(account_balance.call(event_store, custom_event.event_id, 2)).to eq(total: 5)
     end
 
     specify "at least one stream must be given" do

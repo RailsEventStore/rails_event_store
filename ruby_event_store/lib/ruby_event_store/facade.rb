@@ -24,10 +24,6 @@ module RubyEventStore
       :ok
     end
 
-    def get_all_events
-      repository.get_all_events
-    end
-
     def read_events_forward(stream_name, start, count)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(repository, start, count)
