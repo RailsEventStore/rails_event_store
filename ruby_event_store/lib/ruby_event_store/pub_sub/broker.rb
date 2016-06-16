@@ -36,12 +36,8 @@ module RubyEventStore
       end
 
       def subscribe(subscriber, event_types)
-        unsubs = event_types.map do |type|
-          subscribers[type] << subscriber
-
-          ->() { subscribers[type].delete(subscriber) }
-        end
-        ->() { unsubs.each{|unsub| unsub.()} }
+        event_types.each{ |type| subscribers[type] << subscriber }
+        ->() {event_types.each{ |type| subscribers[type].delete(subscriber) } }
       end
 
       def ensure_method_defined(subscriber)

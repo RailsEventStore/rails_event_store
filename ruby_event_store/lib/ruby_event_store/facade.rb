@@ -56,28 +56,25 @@ module RubyEventStore
       repository.read_all_streams_backward(page.start, page.count)
     end
 
-    def subscribe(subscriber, event_types)
-      unsub = event_broker.add_subscriber(subscriber, event_types)
-      if block_given?
-        yield
-        unsub.()
-        DO_NOTHING
+    def subscribe(subscriber, event_types, &proc)
+      event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
+        handle_subscribe(unsub, &proc)
       end
-      unsub
     end
 
-    def subscribe_to_all_events(subscriber)
-      unsub = event_broker.add_global_subscriber(subscriber)
-      if block_given?
-        yield
-        unsub.()
-        DO_NOTHING
+    def subscribe_to_all_events(subscriber, &proc)
+      event_broker.add_global_subscriber(subscriber).tap do |unsub|
+        handle_subscribe(unsub, &proc)
       end
-      unsub
     end
 
     private
-    DO_NOTHING = -> {}
+    def handle_subscribe(unsub)
+      if block_given?
+        yield
+        unsub.()
+      end
+    end
 
     class Page
       def initialize(repository, start, count)
