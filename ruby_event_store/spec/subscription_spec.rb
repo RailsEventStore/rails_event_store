@@ -76,5 +76,42 @@ module RubyEventStore
       facade.publish_event(OrderCreated.new)
       expect(dispatcher.dispatched_events).to eq(1)
     end
+
+    specify 'lambda is an output of global subscribe methods' do
+      subscriber = Subscribers::OrderDenormalizer.new
+      result = facade.subscribe_to_all_events(subscriber)
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'lambda is an output of subscribe methods' do
+      subscriber = Subscribers::OrderDenormalizer.new
+      result = facade.subscribe(subscriber, [OrderCreated,ProductAdded])
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'dynamic global subscription' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      subscriber = Subscribers::OrderDenormalizer.new
+      result = facade.subscribe_to_all_events(subscriber) do
+        facade.publish_event(event_1)
+      end
+      facade.publish_event(event_2)
+      expect(subscriber.handled_events).to eq(1)
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'dynamic subscription' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      subscriber = Subscribers::OrderDenormalizer.new
+      result = facade.subscribe(subscriber, [OrderCreated, ProductAdded]) do
+        facade.publish_event(event_1)
+      end
+      facade.publish_event(event_2)
+      expect(subscriber.handled_events).to eq(1)
+      expect(result).to respond_to(:call)
+    end
+
   end
 end

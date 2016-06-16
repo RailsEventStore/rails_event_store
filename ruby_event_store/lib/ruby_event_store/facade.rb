@@ -57,14 +57,27 @@ module RubyEventStore
     end
 
     def subscribe(subscriber, event_types)
-      event_broker.add_subscriber(subscriber, event_types)
+      unsub = event_broker.add_subscriber(subscriber, event_types)
+      if block_given?
+        yield
+        unsub.()
+        DO_NOTHING
+      end
+      unsub
     end
 
     def subscribe_to_all_events(subscriber)
-      event_broker.add_global_subscriber(subscriber)
+      unsub = event_broker.add_global_subscriber(subscriber)
+      if block_given?
+        yield
+        unsub.()
+        DO_NOTHING
+      end
+      unsub
     end
 
     private
+    DO_NOTHING = -> {}
 
     class Page
       def initialize(repository, start, count)
