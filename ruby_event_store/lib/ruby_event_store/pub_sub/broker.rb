@@ -17,6 +17,8 @@ module RubyEventStore
       def add_global_subscriber(subscriber)
         verify_subscriber(subscriber)
         @global_subscribers << subscriber
+
+        ->() { @global_subscribers.delete(subscriber) }
       end
 
       def notify_subscribers(event)
@@ -34,9 +36,8 @@ module RubyEventStore
       end
 
       def subscribe(subscriber, event_types)
-        event_types.each do |type|
-          subscribers[type] << subscriber
-        end
+        event_types.each{ |type| subscribers[type] << subscriber }
+        ->() {event_types.each{ |type| subscribers[type].delete(subscriber) } }
       end
 
       def ensure_method_defined(subscriber)
