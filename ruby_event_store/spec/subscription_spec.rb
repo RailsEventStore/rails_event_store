@@ -99,6 +99,7 @@ module RubyEventStore
       facade.publish_event(event_2)
       expect(subscriber.handled_events).to eq(1)
       expect(result).to respond_to(:call)
+      expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
     end
 
     specify 'dynamic subscription' do
@@ -111,6 +112,7 @@ module RubyEventStore
       facade.publish_event(event_2)
       expect(subscriber.handled_events).to eq(1)
       expect(result).to respond_to(:call)
+      expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
     end
 
   end
