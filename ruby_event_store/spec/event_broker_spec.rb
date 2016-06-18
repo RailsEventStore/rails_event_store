@@ -3,6 +3,6 @@ require 'ruby_event_store/spec/event_broker_lint'
 
 module RubyEventStore
   describe PubSub::Broker do
-    it_behaves_like :event_broker, PubSub::Broker.new
+    it_behaves_like :event_broker, PubSub::Broker
   end
 end
