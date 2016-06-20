@@ -38,15 +38,7 @@ module RubyEventStore
       event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$1")
       event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$2")
       event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$3")
-      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$4")
-      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$5")
-      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$6")
-      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$7")
-      event_store.publish_event(MoneyDeposited.new(amount: 1), "Customer$8")
-
-      event_store.publish_event(MoneyWithdrawn.new(amount: 1), "Customer$9")
-      event_store.publish_event(MoneyWithdrawn.new(amount: 1), "Customer$10")
-      event_store.publish_event(MoneyWithdrawn.new(amount: 1), "Customer$11")
+      event_store.publish_event(MoneyWithdrawn.new(amount: 2), "Customer$4")
 
       account_balance = Projection.
         from_all_streams.
@@ -54,9 +46,7 @@ module RubyEventStore
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount })
 
-      expect(account_balance.call(event_store, :head, 9)).to eq(total: 7)
-      expect(account_balance.call(event_store)).to eq(total: 6)
-      expect(account_balance.call(event_store, :head, 11)).to eq(total: 5)
+      expect(account_balance.call(event_store)).to eq(total: 1)
     end
 
     specify "reduce events from all streams" do
