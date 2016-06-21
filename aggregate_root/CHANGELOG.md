@@ -1,4 +1,6 @@
-### HEAD
+### 0.3.0 (21.06.2016)
+
+* Change: Replace RailsEventStore dependency with moer generic RubyEventStore
 
 ### 0.2.1 (21.03.2016)
 
