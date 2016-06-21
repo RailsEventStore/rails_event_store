@@ -1,4 +1,7 @@
-### HEAD
+### 0.7.0 (21.06.2016)
+
+* Change: support for Dynamic subscriptions PR #20
+* Change: Add lint for 3rd party implementations of event broker PR #21
 
 ### 0.6.0 (25.05.2016)
 
