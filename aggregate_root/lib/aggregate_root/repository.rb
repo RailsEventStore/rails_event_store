@@ -11,7 +11,7 @@ module AggregateRoot
     end
 
     def load(aggregate)
-      events = event_store.read_all_events(aggregate.id)
+      events = event_store.read_stream_events_forward(aggregate.id)
       events.each do |event|
         aggregate.apply_old_event(event)
       end

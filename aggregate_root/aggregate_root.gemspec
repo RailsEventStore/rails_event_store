@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rails', '~> 4.2.1'
-  spec.add_development_dependency 'rails_event_store', '~> 0.5.0'
+  spec.add_development_dependency 'ruby_event_store', '~> 0.8.0'
 
   spec.add_dependency 'activesupport', '>= 3.0'
 end

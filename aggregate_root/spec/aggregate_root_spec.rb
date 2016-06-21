@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'rails_event_store'
+require 'ruby_event_store'
 
 class Order
   include AggregateRoot::Base
@@ -17,7 +17,7 @@ class Order
   end
 end
 
-class OrderCreated < RailsEventStore::Event
+class OrderCreated < RubyEventStore::Event
 end
 
 module AggregateRoot
@@ -39,7 +39,7 @@ module AggregateRoot
   end
 
   describe Repository do
-    let(:event_store) { RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Facade.new(RubyEventStore::InMemoryRepository.new) }
 
     it "should have ability to store & load aggregate" do
       aggregate_repository = Repository.new(event_store)
@@ -50,7 +50,7 @@ module AggregateRoot
 
       aggregate_repository.store(order)
 
-      stream = event_store.read_all_events(order.id)
+      stream = event_store.read_stream_events_forward(order.id)
       expect(stream.count).to eq(1)
       expect(stream.first).to eq(order_created)
 
