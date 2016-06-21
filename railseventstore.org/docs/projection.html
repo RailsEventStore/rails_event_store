@@ -1,0 +1,415 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Making projections · RailsEventStore</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.1.1">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="app.html" />
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="basics.html">
+            
+                <a href="basics.html">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="install.html">
+            
+                <a href="install.html">
+            
+                    
+                    Instalation
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="usage.html">
+            
+                <a href="usage.html">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="publish.html">
+            
+                <a href="publish.html">
+            
+                    
+                    Publishing events
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="read.html">
+            
+                <a href="read.html">
+            
+                    
+                    Reading from stream
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="delete.html">
+            
+                <a href="delete.html">
+            
+                    
+                    Deleting stream
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" >
+            
+                <span>
+            
+                    
+                    Subscribtions
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="subscribe.html">
+            
+                <a href="subscribe.html">
+            
+                    
+                    Subscribing to events
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" >
+            
+                <span>
+            
+                    
+                    Projections
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.5.1" data-path="projection.html">
+            
+                <a href="projection.html">
+            
+                    
+                    Making projections
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="app.html">
+            
+                <a href="app.html">
+            
+                    
+                    Building an event sourced application
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="resources.html">
+            
+                <a href="resources.html">
+            
+                    
+                    Resources
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Making projections</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="projection-based-on-single-stream">Projection based on single stream</h1>
+<p>You can create a projection abstract based on single stream.</p>
+<pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;Customer$1&quot;</span>
+
+client.publish_event(MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span>), stream_name)
+client.publish_event(custom_event = MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span>), stream_name)
+client.publish_event(MoneyWithdrawn.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">5</span>), stream_name)
+
+account_balance = <span class="hljs-symbol">RailsEventStore:</span><span class="hljs-symbol">:Projection</span>.
+  from_stream(stream_name).
+  init(-&gt; { { <span class="hljs-symbol">total:</span> <span class="hljs-number">0</span> } }).
+  <span class="hljs-keyword">when</span>(MoneyDeposited, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.amount }).
+  <span class="hljs-keyword">when</span>(MoneyWithdrawn, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.amount })
+
+account_balance.call(client) <span class="hljs-comment"># =&gt; {total: 25}</span>
+</code></pre>
+<p>In order to narrow the results, simply pass <code>event_id</code> to <code>call</code> method.</p>
+<pre><code class="lang-ruby">account_balance.call(client, custom_event.event_id) <span class="hljs-comment"># =&gt; {total: -5}</span>
+</code></pre>
+<h1 id="projection-based-on-multiple-streams">Projection based on multiple streams</h1>
+<pre><code class="lang-ruby">client.publish_event(MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">15</span>), <span class="hljs-string">&quot;Customer$1&quot;</span>)
+client.publish_event(MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">25</span>), <span class="hljs-string">&quot;Customer$2&quot;</span>)
+client.publish_event(custom_event = MoneyWithdrawn.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span>), <span class="hljs-string">&quot;Customer$3&quot;</span>)
+client.publish_event(MoneyWithdrawn.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span>), <span class="hljs-string">&quot;Customer$3&quot;</span>)
+
+account_balance = <span class="hljs-symbol">RailsEventStore:</span><span class="hljs-symbol">:Projection</span>.
+  from_stream(<span class="hljs-string">&quot;Customer$1&quot;</span>, <span class="hljs-string">&quot;Customer$3&quot;</span>).
+  init( -&gt; { { <span class="hljs-symbol">total:</span> <span class="hljs-number">0</span> } }).
+  <span class="hljs-keyword">when</span>(MoneyDeposited, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.amount }).
+  <span class="hljs-keyword">when</span>(MoneyWithdrawn, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.amount })
+
+account_balance.call(client) <span class="hljs-comment"># =&gt; {total: -15}</span>
+</code></pre>
+<p>In order to narrow the results, you have to pass array with <code>event_id</code> for each stream. So, in example below we start from <code>:head</code> for stream <code>Customer$1</code> and <code>custom_event.event_id</code> for <code>Customer$3</code>.</p>
+<pre><code class="lang-ruby">account_balance.call(client, [<span class="hljs-symbol">:head</span>, custom_event.event_id]) <span class="hljs-comment"># =&gt; {total: -5}</span>
+</code></pre>
+<h1 id="projection-based-on-all-streams">Projection based on all streams</h1>
+<pre><code class="lang-ruby">client.publish_event(MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span>), <span class="hljs-string">&quot;Customer$1&quot;</span>)
+client.publish_event(MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span>), <span class="hljs-string">&quot;Customer$2&quot;</span>)
+client.publish_event(custom_event = MoneyDeposited.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span>), <span class="hljs-string">&quot;Customer$3&quot;</span>)
+client.publish_event(MoneyWithdrawn.new(<span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span>), <span class="hljs-string">&quot;Customer$4&quot;</span>)
+
+account_balance = <span class="hljs-symbol">RailsEventStore:</span><span class="hljs-symbol">:Projection</span>.
+  from_all_streams.
+  init( -&gt; { { <span class="hljs-symbol">total:</span> <span class="hljs-number">0</span> } }).
+  <span class="hljs-keyword">when</span>(MoneyDeposited, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.amount }).
+  <span class="hljs-keyword">when</span>(MoneyWithdrawn, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.amount })
+
+account_balance.call(client) <span class="hljs-comment"># =&gt; {total: 10}</span>
+account_balance.call(client, custom_event.event_id) <span class="hljs-comment"># =&gt; {total: -20}</span>
+</code></pre>
+
+                                
+                                </section>
+                            
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                
+                <a href="app.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Building an event sourced application">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Making projections","level":"1.5.1","depth":2,"next":{"title":"Building an event sourced application","level":"1.6","depth":1,"path":"docs/app.md","ref":"docs/app.md","articles":[]},"previous":{"title":"Projections","level":"1.5","depth":1,"ref":"","articles":[{"title":"Making projections","level":"1.5.1","depth":2,"path":"docs/projection.md","ref":"docs/projection.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-search","-lunr","github"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"github":{"url":"https://github.com/arkency/rails_event_store"},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"RailsEventStore","gitbook":"*"},"file":{"path":"docs/projection.md","mtime":"2016-06-21T13:20:50.000Z","type":"markdown"},"gitbook":{"version":"3.1.1","time":"2016-06-21T13:22:57.930Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-github/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
