@@ -1,3 +1,9 @@
+### 0.8.0 (21.06.2016)
+
+* Change: ruby_event_store updated to 0.8.0 (dynamic subscriptions)
+* Change: aggregate_root updated to 0.3.0 (fix circular dependency)
+* Change: remove SlackEventHandler
+
 ### 0.7.0 (01.06.2016)
 
 * Change: ruby_event_store updated to 0.6.0 (adding basic projections support)
