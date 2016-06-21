@@ -9,5 +9,7 @@
   * [Deleting stream](docs/delete.md)
 * Subscribtions
   * [Subscribing to events](docs/subscribe.md)
+* Projections
+  * [Making projections](docs/projection.md)
 * [Building an event sourced application](docs/app.md)
 * [Resources](docs/resources.md)
