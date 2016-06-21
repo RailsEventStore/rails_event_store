@@ -1,3 +1,8 @@
+### 0.6.1 (21.06.2016)
+
+* ruby_event_store updated to 0.7.0
+* add indexes for commonly searched fields: time and type to migration template PR #6
+
 ### 0.6.0 (25.05.2016)
 
 * ruby_event_store updated to 0.6.0
