@@ -1,287 +1,296 @@
+
 <!DOCTYPE HTML>
-<html lang="en" >
-    
+<html lang="" >
     <head>
-        
+        <title>Reading from stream · RailsEventStore</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Reading from stream | RailsEventStore</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.7">
+        <meta name="generator" content="GitBook 3.1.1">
         
         
-        <meta name="HandheldFriendly" content="true"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
-        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
         
+    
     <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
+    
         
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-search/search.css">
+    
         
     
         
-        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-fontsettings/website.css">
-        
     
+        
     
 
         
     
     
-    <link rel="next" href="../docs/delete.html" />
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="delete.html" />
     
     
-    <link rel="prev" href="../docs/publish.html" />
+    <link rel="prev" href="publish.html" />
     
 
-        
     </head>
     <body>
         
+<div class="book">
+    <div class="book-summary">
         
-    <div class="book"
-        data-level="2.2"
-        data-chapter-title="Reading from stream"
-        data-filepath="docs/read.md"
-        data-basepath=".."
-        data-revision="Thu Apr 28 2016 16:03:15 GMT+0200 (CEST)"
-        data-innerlanguage="">
-    
-
-<div class="book-summary">
-    <nav role="navigation">
-        <ul class="summary">
             
             
-            
-            
-
-            
-
-            
-    
-        <li class="chapter " data-level="0" data-path="index.html">
-            
+                <nav role="navigation">
                 
-                    <a href="../index.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                        Introduction
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="1" data-path="docs/basics.html">
-            
-                
-                    <a href="../docs/basics.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>1.</b>
-                        
-                        Basics
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="1.1" data-path="docs/install.html">
-            
-                
-                    <a href="../docs/install.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>1.1.</b>
-                        
-                        Instalation
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="2" data-path="docs/usage.html">
-            
-                
-                    <a href="../docs/usage.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.</b>
-                        
-                        Usage
-                    </a>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="2.1" data-path="docs/publish.html">
-            
-                
-                    <a href="../docs/publish.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.1.</b>
-                        
-                        Publishing events
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter active" data-level="2.2" data-path="docs/read.html">
-            
-                
-                    <a href="../docs/read.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.2.</b>
-                        
-                        Reading from stream
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="2.3" data-path="docs/delete.html">
-            
-                
-                    <a href="../docs/delete.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>2.3.</b>
-                        
-                        Deleting stream
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="3" >
-            
-            <span><b>3.</b> Subscribtions</span>
-            
-            
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="3.1" data-path="docs/subscribe.html">
-            
-                
-                    <a href="../docs/subscribe.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>3.1.</b>
-                        
-                        Subscribing to events
-                    </a>
-            
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="4" data-path="docs/app.html">
-            
-                
-                    <a href="../docs/app.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>4.</b>
-                        
-                        Building an event sourced application
-                    </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="5" data-path="docs/resources.html">
-            
-                
-                    <a href="../docs/resources.html">
-                
-                        <i class="fa fa-check"></i>
-                        
-                            <b>5.</b>
-                        
-                        Resources
-                    </a>
-            
-            
-        </li>
-    
 
 
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
             
-            <li class="divider"></li>
-            <li>
-                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
-                    Published with GitBook
+                <a href="../">
+            
+                    
+                    Introduction
+            
                 </a>
-            </li>
             
-        </ul>
-    </nav>
-</div>
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="basics.html">
+            
+                <a href="basics.html">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="install.html">
+            
+                <a href="install.html">
+            
+                    
+                    Instalation
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="usage.html">
+            
+                <a href="usage.html">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="publish.html">
+            
+                <a href="publish.html">
+            
+                    
+                    Publishing events
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3.2" data-path="read.html">
+            
+                <a href="read.html">
+            
+                    
+                    Reading from stream
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="delete.html">
+            
+                <a href="delete.html">
+            
+                    
+                    Deleting stream
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" >
+            
+                <span>
+            
+                    
+                    Subscribtions
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="subscribe.html">
+            
+                <a href="subscribe.html">
+            
+                    
+                    Subscribing to events
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="app.html">
+            
+                <a href="app.html">
+            
+                    
+                    Building an event sourced application
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="resources.html">
+            
+                <a href="resources.html">
+            
+                    
+                    Resources
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
 
     <div class="book-body">
-        <div class="body-inner">
-            <div class="book-header" role="navigation">
-    <!-- Actions Left -->
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
     
 
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="../" >RailsEventStore</a>
+        <a href=".." >Reading from stream</a>
     </h1>
 </div>
 
-            <div class="page-wrapper" tabindex="-1" role="main">
-                <div class="page-inner">
-                
-                
-                    <section class="normal" id="section-">
-                    
-                        <h1 id="reading-streams-events-forward-in-batch--starting-from-first-event">Reading stream&apos;s events forward in batch - starting from first event</h1>
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="reading-streams-events-forward-in-batch---starting-from-first-event">Reading stream&apos;s events forward in batch - starting from first event</h1>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
 count = <span class="hljs-number">40</span>
 client.read_events_forward(stream_name, <span class="hljs-symbol">:head</span>, count)
 </code></pre>
 <p>In this case <code>:head</code> means first event of the stream.</p>
-<h1 id="reading-streams-events-forward-in-batch--staring-from-given-event">Reading stream&apos;s events forward in batch - staring from given event</h1>
+<h1 id="reading-streams-events-forward-in-batch---staring-from-given-event">Reading stream&apos;s events forward in batch - staring from given event</h1>
 <pre><code class="lang-ruby"><span class="hljs-comment"># last_read_event is any domain event read or published by rails_event_store</span>
 
 stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
@@ -326,54 +335,54 @@ domain events.</p>
 <pre><code class="lang-ruby">client.read_all_streams_backward
 </code></pre>
 
-                    
-                    </section>
+                                
+                                </section>
+                            
+                        </div>
+                    </div>
                 
-                
-                </div>
             </div>
-        </div>
 
-        
-        <a href="../docs/publish.html" class="navigation navigation-prev " aria-label="Previous page: Publishing events"><i class="fa fa-angle-left"></i></a>
-        
-        
-        <a href="../docs/delete.html" class="navigation navigation-next " aria-label="Next page: Deleting stream"><i class="fa fa-angle-right"></i></a>
+            
+                
+                <a href="publish.html" class="navigation navigation-prev " aria-label="Previous page: Publishing events">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="delete.html" class="navigation navigation-next " aria-label="Next page: Deleting stream">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
         
     </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Reading from stream","level":"1.3.2","depth":2,"next":{"title":"Deleting stream","level":"1.3.3","depth":2,"path":"docs/delete.md","ref":"docs/delete.md","articles":[]},"previous":{"title":"Publishing events","level":"1.3.1","depth":2,"path":"docs/publish.md","ref":"docs/publish.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-search","-lunr","github"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"github":{"url":"https://github.com/arkency/rails_event_store"},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"RailsEventStore","gitbook":"*"},"file":{"path":"docs/read.md","mtime":"2016-06-21T11:49:57.000Z","type":"markdown"},"gitbook":{"version":"3.1.1","time":"2016-06-21T12:48:18.555Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
 </div>
 
         
-<script src="../gitbook/app.js"></script>
-
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
     
-    <script src="../gitbook/plugins/gitbook-plugin-github/plugin.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-search/search.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
-    
-
-    
-    <script src="../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
-    
-
-<script>
-require(["gitbook"], function(gitbook) {
-    var config = {"github":{"url":"https://github.com/arkency/rails_event_store"},"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
-    gitbook.start(config);
-});
-</script>
-
         
-    </body>
+        <script src="../gitbook/gitbook-plugin-github/plugin.js"></script>
+        
     
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
 </html>
+

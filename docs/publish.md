@@ -40,3 +40,16 @@ event = OrderCreated.new(
 expected_version = "850c347f-423a-4158-a5ce-b885396c5b73" #last event_id
 client.publish_event(event, stream_name, expected_version)
 ```
+
+# Appending event to stream
+
+In order to skip handlers you can just append event to a stream.
+
+```ruby
+stream_name = "order_1"
+event = OrderCreated.new(
+          data: "sample",
+          event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
+        )
+client.append_to_stream(event, stream_name)
+```
