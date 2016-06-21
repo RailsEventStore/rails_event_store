@@ -43,7 +43,7 @@ client.publish_event(event, stream_name, expected_version)
 
 # Appending event to stream
 
-To prevent execute handlers you can just append event to a stream.
+In order to skip handlers you can just append event to a stream.
 
 ```ruby
 stream_name = "order_1"
