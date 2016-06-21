@@ -6,7 +6,6 @@ end
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rails_event_store'
 require 'example_invoicing_app'
-require 'webmock/rspec'
 
 RSpec.configure do |config|
   config.around(:each) do |example|
@@ -20,5 +19,3 @@ RSpec.configure do |config|
     end
   end
 end
-
-WebMock.allow_net_connect!
