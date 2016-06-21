@@ -1,3 +1,7 @@
+### 0.8.0 (21.06.2016)
+
+* Change: Possibility to create projection based on all events PR #19
+
 ### 0.7.0 (21.06.2016)
 
 * Change: support for Dynamic subscriptions PR #20
