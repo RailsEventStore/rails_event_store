@@ -10,7 +10,8 @@ RSpec.configure do |config|
   config.around(:each) do |example|
     RailsEventStoreActiveRecord::Event.establish_connection(
       :adapter => "sqlite3",
-      :database => "spec/test.sqlite3"
+      :database => "spec/test.sqlite3",
+      :timeout=> 10000
     )
     RailsEventStoreActiveRecord::Event.transaction do
       example.run
