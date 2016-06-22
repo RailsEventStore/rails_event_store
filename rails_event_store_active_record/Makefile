@@ -8,6 +8,10 @@ test: ## Run tests
 	@echo "Running basic tests - beware: this won't guarantee build pass"
 	@bundle exec rspec
 
+mutate: test  ## Run mutation tests
+	@echo "Running mutation tests - only 100% free mutation will be accepted"
+	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RubyEventStore*"
+
 .PHONY: help
 
 help:
