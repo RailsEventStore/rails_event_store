@@ -3,14 +3,14 @@ RSpec.shared_examples :event_broker do |broker_class|
   Test2DomainEvent = Class.new(RubyEventStore::Event)
   Test3DomainEvent = Class.new(RubyEventStore::Event)
 
-  class IncorrectDenormalizer
+  class InvalidTestHandler
   end
   class TestHandler
     def initialize
       @events = []
     end
 
-    def handle_event(event)
+    def call(event)
       @events << event
     end
 
@@ -57,13 +57,22 @@ RSpec.shared_examples :event_broker do |broker_class|
     expect(global_handler.events).to eq([event1,event2,event3])
   end
 
-  it 'raises error when no valid method on handler' do
-    message = "#handle_event method is not found " +
-              "in Subscribers::IncorrectDenormalizer subscriber." +
+  it 'raises error when no valid method on global subscription handler' do
+    message = "Neither #call nor #handle_event method found " +
+              "in InvalidTestHandler subscriber." +
               " Are you sure it is a valid subscriber?"
-    subscriber = Subscribers::IncorrectDenormalizer.new
-    expect { broker.add_subscriber(subscriber, [])}.to raise_error(RubyEventStore::MethodNotDefined, message)
-    expect { broker.add_global_subscriber(subscriber)}.to raise_error(RubyEventStore::MethodNotDefined, message)
+    subscriber = InvalidTestHandler.new
+    broker.add_global_subscriber(subscriber)
+    expect { broker.notify_subscribers(Test1DomainEvent.new) }.to raise_error(RubyEventStore::MethodNotDefined, message)
+  end
+
+  it 'raises error when no valid method on handler' do
+    message = "Neither #call nor #handle_event method found " +
+              "in InvalidTestHandler subscriber." +
+              " Are you sure it is a valid subscriber?"
+    subscriber = InvalidTestHandler.new
+    broker.add_subscriber(subscriber, [Test1DomainEvent])
+    expect { broker.notify_subscribers(Test1DomainEvent.new) }.to raise_error(RubyEventStore::MethodNotDefined, message)
   end
 
   it 'returns lambda as an output of global subscribe methods' do
