@@ -136,7 +136,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher)
       facade = RubyEventStore::Facade.new(repository, broker)
-      facade.subscribe(Subscribers::HandlerWithHandleEventMethod.new, [OrderCreated])
+      facade.subscribe(Subscribers::HandlerWithCallMethod.new, [OrderCreated])
       facade.publish_event(OrderCreated.new)
       expect(dispatcher.dispatched_events).to eq(1)
     end
