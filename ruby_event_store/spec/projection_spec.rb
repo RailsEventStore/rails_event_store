@@ -46,21 +46,21 @@ module RubyEventStore
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount })
 
-      expect(account_balance.call(event_store)).to eq(total: -15)
-      expect(account_balance.call(event_store, :head)).to eq(total: -15)
-      expect(account_balance.call(event_store, [:head, custom_event.event_id], 1)).to eq(total: -5)
+      expect(account_balance.run(event_store)).to eq(total: -15)
+      expect(account_balance.run(event_store, :head)).to eq(total: -15)
+      expect(account_balance.run(event_store, [:head, custom_event.event_id], 1)).to eq(total: -5)
     end
 
     specify "raises proper errors when wrong argument were pass (stream mode)" do
       projection = Projection.from_stream("Customer$1", "Customer$2")
       expect {
-        projection.call(event_store, :last)
+        projection.run(event_store, :last)
       }.to raise_error ArgumentError, 'Start must be an array with event ids or :head'
       expect {
-        projection.call(event_store, 0.7)
+        projection.run(event_store, 0.7)
       }.to raise_error ArgumentError, 'Start must be an array with event ids or :head'
       expect {
-        projection.call(event_store, [SecureRandom.uuid])
+        projection.run(event_store, [SecureRandom.uuid])
       }.to raise_error ArgumentError, 'Start must be an array with event ids or :head'
     end
 
@@ -76,7 +76,7 @@ module RubyEventStore
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount })
 
-      expect(account_balance.call(event_store)).to eq(total: 1)
+      expect(account_balance.run(event_store)).to eq(total: 1)
     end
 
     specify "limit events from all streams" do
@@ -91,20 +91,20 @@ module RubyEventStore
         when(MoneyDeposited, ->(state, event) { state[:total] += event.amount }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.amount })
 
-      expect(account_balance.call(event_store, custom_event.event_id, 1)).to eq(total: -5)
-      expect(account_balance.call(event_store, custom_event.event_id, 2)).to eq(total: 5)
+      expect(account_balance.run(event_store, custom_event.event_id, 1)).to eq(total: -5)
+      expect(account_balance.run(event_store, custom_event.event_id, 2)).to eq(total: 5)
     end
 
     specify "raises proper errors when wrong argument were pass (all streams mode)" do
       projection = Projection.from_all_streams
       expect {
-        projection.call(event_store, :last)
+        projection.run(event_store, :last)
       }.to raise_error ArgumentError, 'Start must be valid event id or :head'
       expect {
-        projection.call(event_store, 0.7)
+        projection.run(event_store, 0.7)
       }.to raise_error ArgumentError, 'Start must be valid event id or :head'
       expect {
-        projection.call(event_store, [SecureRandom.uuid])
+        projection.run(event_store, [SecureRandom.uuid])
       }.to raise_error ArgumentError, 'Start must be valid event id or :head'
     end
 
