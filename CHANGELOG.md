@@ -1,3 +1,9 @@
+### 0.9.0 (24.06.2016)
+
+* Change: ruby_event_store updated to 0.9.0 (Call instead of handle_event)
+* Change: aggregate_root updated to 0.3.1 (licensing info)
+* Fix: Clarify Licensing terms #36 - MIT licence it is from now
+
 ### 0.8.0 (21.06.2016)
 
 * Change: ruby_event_store updated to 0.8.0 (dynamic subscriptions)
