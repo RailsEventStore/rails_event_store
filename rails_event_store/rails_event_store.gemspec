@@ -6,6 +6,7 @@ require 'rails_event_store/version'
 Gem::Specification.new do |spec|
   spec.name          = 'rails_event_store'
   spec.version       = RailsEventStore::VERSION
+  spec.licenses      = ['MIT']
   spec.authors       = ['Arkency']
   spec.email         = ['dev@arkency.com']
 
