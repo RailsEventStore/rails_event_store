@@ -1,3 +1,8 @@
+### 0.6.3 (24.06.2016)
+
+* Change: ruby_event_store updated to 0.9.0 (Call instead of handle_event)
+* Fix: Clarify Licensing information
+
 ### 0.6.2 (21.06.2016)
 
 * ruby_event_store updated to 0.8.0
