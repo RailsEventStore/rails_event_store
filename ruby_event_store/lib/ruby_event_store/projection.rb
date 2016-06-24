@@ -38,7 +38,7 @@ module RubyEventStore
       @current_state ||= initial_state
     end
 
-    def handle_event(event)
+    def call(event)
       handlers[event.class].(current_state, event)
     end
 
@@ -46,7 +46,7 @@ module RubyEventStore
       handlers.keys
     end
 
-    def call(event_store, start = :head, count = PAGE_SIZE)
+    def run(event_store, start = :head, count = PAGE_SIZE)
       if streams.any?
         reduce_from_streams(event_store, start, count)
       else

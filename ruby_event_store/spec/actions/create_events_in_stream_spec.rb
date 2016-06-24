@@ -42,7 +42,7 @@ module RubyEventStore
     specify 'expect no event handler is called' do
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       handler = double(:event_handler)
-      expect(handler).not_to receive(:handle_event)
+      expect(handler).not_to receive(:call)
       event = OrderCreated.new
       facade.subscribe_to_all_events(handler)
       facade.append_to_stream(stream_name, event)
@@ -53,7 +53,7 @@ module RubyEventStore
     specify 'expect publish to call event handlers' do
       facade = RubyEventStore::Facade.new(InMemoryRepository.new)
       handler = double(:event_handler)
-      expect(handler).to receive(:handle_event)
+      expect(handler).to receive(:call)
       event = OrderCreated.new
       facade.subscribe_to_all_events(handler)
       facade.publish_event(event, stream_name)
