@@ -5,6 +5,17 @@ RSpec.shared_examples :event_broker do |broker_class|
 
   class InvalidTestHandler
   end
+  class DeprectatedTestHandler
+    def initialize
+      @events = []
+    end
+
+    def handle_event(event)
+      @events << event
+    end
+
+    attr_reader :events
+  end
   class TestHandler
     def initialize
       @events = []
@@ -39,6 +50,28 @@ RSpec.shared_examples :event_broker do |broker_class|
     handler         = TestHandler.new
     another_handler = TestHandler.new
     global_handler  = TestHandler.new
+
+    broker.add_subscriber(handler, [Test1DomainEvent, Test3DomainEvent])
+    broker.add_subscriber(another_handler, [Test2DomainEvent])
+    broker.add_global_subscriber(global_handler)
+
+    event1 = Test1DomainEvent.new
+    event2 = Test2DomainEvent.new
+    event3 = Test3DomainEvent.new
+
+    [event1, event2, event3].each do |ev|
+      broker.notify_subscribers(ev)
+    end
+
+    expect(handler.events).to eq([event1,event3])
+    expect(another_handler.events).to eq([event2])
+    expect(global_handler.events).to eq([event1,event2,event3])
+  end
+
+  it 'notify subscribed deprecated handlers' do
+    handler         = DeprectatedTestHandler.new
+    another_handler = DeprectatedTestHandler.new
+    global_handler  = DeprectatedTestHandler.new
 
     broker.add_subscriber(handler, [Test1DomainEvent, Test3DomainEvent])
     broker.add_subscriber(another_handler, [Test2DomainEvent])
@@ -121,6 +154,13 @@ RSpec.shared_examples :event_broker do |broker_class|
     broker_with_custom_dispatcher.add_subscriber(handler, [Test1DomainEvent])
     broker_with_custom_dispatcher.notify_subscribers(event1)
     expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])
+  end
+
+  it 'deprecation message when no call method in handler' do
+    subscriber = DeprectatedTestHandler.new
+    broker.add_global_subscriber(subscriber)
+    expect { broker.notify_subscribers(Test1DomainEvent.new) }.to output(
+      "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead.\n").to_stderr
   end
 
 end
