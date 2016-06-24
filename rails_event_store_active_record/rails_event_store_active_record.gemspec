@@ -6,8 +6,9 @@ require 'rails_event_store_active_record/version'
 Gem::Specification.new do |spec|
   spec.name          = 'rails_event_store_active_record'
   spec.version       = RailsEventStoreActiveRecord::VERSION
-  spec.authors       = ['gottfrois', 'mpraglowski']
-  spec.email         = ['tomek.rybka@gmail.com', 'm@praglowski.com']
+  spec.licenses      = ['MIT']
+  spec.authors       = ['Arkency']
+  spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Active Record events repository for Rails Event Store}
   spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store'}
