@@ -3,7 +3,6 @@ rvm:
 - 2.1.10
 - 2.2.5
 - 2.3.1
-- jruby-9.0.5.0
 before_install: gem install bundler
 gemfile: Gemfile
 script: make mutate
