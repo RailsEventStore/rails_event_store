@@ -6,8 +6,8 @@ require 'rails_event_store/version'
 Gem::Specification.new do |spec|
   spec.name          = 'rails_event_store'
   spec.version       = RailsEventStore::VERSION
-  spec.authors       = ['rybex', 'mpraglowski']
-  spec.email         = ['tomek.rybka@gmail.com', 'm@praglowski.com']
+  spec.authors       = ['Arkency']
+  spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Event Store in Ruby}
   spec.description   = %q{Implementation of Event Store in Ruby}
