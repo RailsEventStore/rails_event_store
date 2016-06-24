@@ -1,3 +1,8 @@
+### 0.3.1 (24.06.2016)
+
+* Change: ruby_event_store updated to 0.9.0
+* Fix: Clarify Licensing terms - MIT licence it is from now
+
 ### 0.3.0 (21.06.2016)
 
 * Change: Replace RailsEventStore dependency with moer generic RubyEventStore
