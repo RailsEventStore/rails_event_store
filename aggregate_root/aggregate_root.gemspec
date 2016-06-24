@@ -6,8 +6,9 @@ require 'aggregate_root/version'
 Gem::Specification.new do |spec|
   spec.name          = 'aggregate_root'
   spec.version       = AggregateRoot::VERSION
-  spec.authors       = ['mpraglowski']
-  spec.email         = ['m@praglowski.com']
+  spec.licenses      = ['MIT']
+  spec.authors       = ['Arkency']
+  spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Event sourced (with Rails Event Store) aggregate root implementation}
   spec.description   = %q{Event sourced (with Rails Event Store) aggregate root implementation}
