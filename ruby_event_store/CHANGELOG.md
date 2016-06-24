@@ -1,3 +1,8 @@
+### 0.9.0 (24.06.2016)
+
+* Change: Call instead of handle_event, handle_event stays for now but is deprecated PR #18
+* Fix: Clarify Licensing terms #23 - MIT licence it is from now
+
 ### 0.8.0 (21.06.2016)
 
 * Change: Possibility to create projection based on all events PR #19
