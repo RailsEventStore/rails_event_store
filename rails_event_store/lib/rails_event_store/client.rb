@@ -10,7 +10,9 @@ module RailsEventStore
     end
 
     def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
-      event_store.publish_event(event, stream_name, expected_version)
+      captured_metadata = Thread.current[:rails_event_store] || {}
+      enriched_event = event.class.new(event_id: event.event_id, metadata: captured_metadata.merge(event.metadata), **event.data)
+      event_store.publish_event(enriched_event, stream_name, expected_version)
     end
 
     def append_to_stream(event, stream_name = GLOBAL_STREAM, expected_version = :any)

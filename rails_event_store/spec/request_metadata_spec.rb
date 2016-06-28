@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'action_controller/railtie'
+require 'rails_event_store/railtie'
 require 'rack/test'
 require 'securerandom'
 
@@ -30,7 +31,7 @@ module RailsEventStore
     specify do
       event_store = Client.new
 
-      TestRails.new.(->(env) { event_store.publish_event(DummyEvent.new) })
+      TestRails.new.(->{ event_store.publish_event(DummyEvent.new) })
 
       expect(event_store.read_all_events(GLOBAL_STREAM))
         .to_not(be_empty)
