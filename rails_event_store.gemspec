@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rails', '~> 4.2'
   spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'rack-test'
 
   spec.add_dependency 'ruby_event_store', '~> 0.9.0'
   spec.add_dependency 'rails_event_store_active_record', '~> 0.6.3'
