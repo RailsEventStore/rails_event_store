@@ -10,7 +10,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RubyEventStore*"
+	@bundle exec mutant --include lib --require rails_event_store --use rspec "RailsEventStore*"
 
 .PHONY: help
 
@@ -18,4 +18,3 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 .DEFAULT_GOAL := help
-
