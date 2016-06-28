@@ -1,7 +1,8 @@
 module RailsEventStore
   class Middleware
-    def initialize(app)
+    def initialize(app, request_metadata)
       @app = app
+      @request_metadata = request_metadata
     end
 
     def call(env)
@@ -9,8 +10,7 @@ module RailsEventStore
     end
 
     def _call(env)
-      Thread.current[:rails_event_store] =
-        { remote_ip: ActionDispatch::Request.new(env).remote_ip }
+      Thread.current[:rails_event_store] = @request_metadata.(env)
       @app.call(env)
     ensure
       Thread.current[:rails_event_store] = nil
