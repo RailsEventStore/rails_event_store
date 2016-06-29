@@ -1,3 +1,8 @@
+### 0.10.0
+
+* Change: Rails request details in event metadata PR #39
+* Fix: In-memory sqlite3 with schema load over prebaked filesystem blob in testing  PR #41
+
 ### 0.9.0 (24.06.2016)
 
 * Change: ruby_event_store updated to 0.9.0 (Call instead of handle_event)
