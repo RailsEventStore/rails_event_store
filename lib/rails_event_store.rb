@@ -11,3 +11,4 @@ end
 require 'rails_event_store/version'
 require 'rails_event_store/client'
 require 'rails_event_store/constants'
+require 'rails_event_store/railtie' if defined?(Rails::Railtie)
