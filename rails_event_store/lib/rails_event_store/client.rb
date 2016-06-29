@@ -50,12 +50,12 @@ module RailsEventStore
       event_store.read_all_streams_backward(start, count)
     end
 
-    def subscribe(subscriber, event_types)
-      event_store.subscribe(subscriber, event_types)
+    def subscribe(subscriber, event_types, &proc)
+      event_store.subscribe(subscriber, event_types, &proc)
     end
 
-    def subscribe_to_all_events(subscriber)
-      event_store.subscribe_to_all_events(subscriber)
+    def subscribe_to_all_events(subscriber, &proc)
+      event_store.subscribe_to_all_events(subscriber, &proc)
     end
 
     private
