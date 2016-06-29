@@ -42,14 +42,5 @@ module RailsEventStore
       expect(event.metadata[:remote_ip]).to  eq('127.0.0.1')
       expect(event.metadata[:request_id]).to match(UUID_REGEX)
     end
-
-    specify 'custom config' do
-      event = nil
-
-      TestRails.new(rails_event_store: { request_metadata: ->(env) { { remote_ip: env['REMOTE_ADDR'] } } })
-        .(->{ event = Event.new })
-
-      expect(event.metadata[:remote_ip]).to eq('127.0.0.1')
-    end
   end
 end
