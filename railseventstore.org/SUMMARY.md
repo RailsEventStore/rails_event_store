@@ -7,9 +7,9 @@
   * [Publishing events](docs/publish.md)
   * [Reading from stream](docs/read.md)
   * [Deleting stream](docs/delete.md)
-* Subscribtions
   * [Subscribing to events](docs/subscribe.md)
-* Projections
-  * [Making projections](docs/projection.md)
+* [Projections](docs/projection.md)
 * [Building an event sourced application](docs/app.md)
+* Rails Integration
+  * [Logging request metadata](docs/request_metadata.md)
 * [Resources](docs/resources.md)
