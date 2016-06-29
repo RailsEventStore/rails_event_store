@@ -31,6 +31,7 @@ end
 
 module RailsEventStore
   DummyEvent = Class.new(RailsEventStore::Event)
+  UUID_REGEX = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
 
   RSpec.describe 'request details in event metadata' do
     specify 'no config' do
@@ -38,24 +39,11 @@ module RailsEventStore
 
       TestRails.new.(->{ event_store.publish_event(DummyEvent.new) })
 
-      expect(event_store.read_all_events(GLOBAL_STREAM))
-        .to_not(be_empty)
-      event_store.read_all_events(GLOBAL_STREAM)
-        .map  { |event|    event.metadata }
-        .each { |metadata| expect(metadata.keys).to(include(:remote_ip, :request_id)) }
-    end
-
-    specify 'custom config' do
-      event_store = Client.new
-
-      TestRails.new(rails_event_store: { request_metadata: ->(env) { { remote_ip: env['REMOTE_ADDR'] } } })
-        .(->{ event_store.publish_event(DummyEvent.new) })
-
-      expect(event_store.read_all_events(GLOBAL_STREAM))
-        .to_not(be_empty)
-      event_store.read_all_events(GLOBAL_STREAM)
-        .map  { |event|    event.metadata }
-        .each { |metadata| expect(metadata).to(include(remote_ip: '127.0.0.1')) }
+      expect(event_store.read_all_events(GLOBAL_STREAM)).to_not be_empty
+      event_store.read_all_events(GLOBAL_STREAM).map(&:metadata).each do |metadata|
+          expect(metadata[:remote_ip]).to  eq('127.0.0.1')
+          expect(metadata[:request_id]).to match(UUID_REGEX)
+        end
     end
   end
 end
