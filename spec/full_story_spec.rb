@@ -19,6 +19,14 @@ module RailsEventStore
       assert_invoice_structure(invoice)
     end
 
+    specify 'building a read model based on all events' do
+      client = Client.new
+      invoice = InvoiceReadModel.new
+      client.subscribe_to_all_events(invoice)
+      publish_ordering_events(client)
+      assert_invoice_structure(invoice)
+    end
+
     private
 
     def publish_ordering_events(client)
@@ -67,4 +75,3 @@ module RailsEventStore
     end
   end
 end
-
