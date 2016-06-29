@@ -84,5 +84,49 @@ module RailsEventStore
       expect(client.read_all_streams_backward(:head, 3).map(&:event_id)).to eq(['4', '3', '2'])
       expect(client.read_all_streams_backward('4', 2).map(&:event_id)).to eq(['3', '2'])
     end
+
+    specify 'lambda is an output of global subscribe methods' do
+      subscriber = ->(event) { handled_events << event }
+      client = Client.new
+      result = client.subscribe_to_all_events(subscriber)
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'lambda is an output of subscribe methods' do
+      subscriber = ->(event) { handled_events << event }
+      client = Client.new
+      result = client.subscribe(subscriber, [TestEvent])
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'dynamic global subscription' do
+      handled_events = []
+      event_1 = TestEvent.new
+      event_2 = TestEvent.new
+      subscriber = ->(event) { handled_events << event }
+      client = Client.new
+      result = client.subscribe_to_all_events(subscriber) do
+        client.publish_event(event_1)
+      end
+      client.publish_event(event_2)
+      expect(handled_events).to eq [event_1]
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+    end
+
+    specify 'dynamic subscription' do
+      handled_events = []
+      event_1 = TestEvent.new
+      event_2 = TestEvent.new
+      subscriber = ->(event) { handled_events << event }
+      client = Client.new
+      result = client.subscribe(subscriber, [TestEvent]) do
+        client.publish_event(event_1)
+      end
+      client.publish_event(event_2)
+      expect(handled_events).to eq [event_1]
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+    end
   end
 end
