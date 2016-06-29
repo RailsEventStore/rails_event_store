@@ -11,7 +11,8 @@ Default storage is events repository based on Active Record (provided by separat
 
 # Documentation
 
-All documentation and sample codes are available at [http://railseventstore.arkency.com](http://railseventstore.arkency.com)
+All documentation and sample codes are available at [http://railseventstore.arkency.com](http://railseventstore.arkency.com). If you'd like to contribute by writing or maintaining docs, they're stored in the `gh-pages` branch in this repository.
+
 
 # Contributing
 
