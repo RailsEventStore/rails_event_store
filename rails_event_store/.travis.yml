@@ -3,6 +3,7 @@ rvm:
 - 2.1.5
 before_install: gem install bundler
 gemfile: Gemfile
+script: make mutate
 notifications:
   slack:
     secure: i/GM4u6oCfgdt9ablmOx4ov3Y9bHJjHabXxWXt+GLRlfW5MDdzwEH0QOx2mveVbit+00rKKqZzBAbEQ1yLo4MLLovHyJvCzoluC10u0MRIR7e8ZlCdlww+IL3JmD8E7G1a/fKEMoKwfLrYUXa5K0oAeKpJ3RwP+tTD+g3KxQfIA=
