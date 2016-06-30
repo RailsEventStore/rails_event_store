@@ -1,119 +1,111 @@
-
 <!DOCTYPE HTML>
-<html lang="" >
+<html lang="en" >
+    
     <head>
-        <title>Subscribing to events · RailsEventStore</title>
+        
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Subscribing to events | RailsEventStore</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 3.1.1">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
         
-    
     <link rel="stylesheet" href="../gitbook/style.css">
-
     
-            
-                
-                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
-                
-            
-                
-                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
-                
-            
         
-
-    
-
-    
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
         
     
         
-    
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-fontsettings/website.css">
         
     
-        
-    
-        
-    
-        
     
 
         
     
     
-    <meta name="HandheldFriendly" content="true"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
-    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
-
+    <link rel="next" href="../docs/projection.html" />
     
     
+    <link rel="prev" href="../docs/delete.html" />
+    
 
+        
     </head>
     <body>
         
-<div class="book">
-    <div class="book-summary">
         
+    <div class="book"
+        data-level="2.4"
+        data-chapter-title="Subscribing to events"
+        data-filepath="docs/subscribe.md"
+        data-basepath=".."
+        data-revision="Thu Jun 30 2016 02:30:28 GMT+0200 (CEST)"
+        data-innerlanguage="">
+    
+
+<div class="book-summary">
+    <nav role="navigation">
+        <ul class="summary">
             
             
-                <nav role="navigation">
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
                 
-
-
-<ul class="summary">
-    
-    
-
-    
-
-    
-        
-        
-    
-        <li class="chapter " data-level="1.1" data-path="../">
+                    <a href="../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
             
-                <a href="../">
-            
-                    
-                    Introduction
-            
-                </a>
-            
-
             
         </li>
     
-        <li class="chapter " data-level="1.2" data-path="basics.html">
+        <li class="chapter " data-level="1" data-path="docs/basics.html">
             
-                <a href="basics.html">
+                
+                    <a href="../docs/basics.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Basics
+                    </a>
             
-                    
-                    Basics
-            
-                </a>
-            
-
             
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.2.1" data-path="install.html">
+        <li class="chapter " data-level="1.1" data-path="docs/install.html">
             
-                <a href="install.html">
+                
+                    <a href="../docs/install.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Instalation
+                    </a>
             
-                    
-                    Instalation
-            
-                </a>
-            
-
             
         </li>
     
@@ -122,56 +114,79 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3" data-path="usage.html">
+        <li class="chapter " data-level="2" data-path="docs/usage.html">
             
-                <a href="usage.html">
+                
+                    <a href="../docs/usage.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Usage
+                    </a>
             
-                    
-                    Usage
-            
-                </a>
-            
-
             
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.3.1" data-path="publish.html">
+        <li class="chapter " data-level="2.1" data-path="docs/publish.html">
             
-                <a href="publish.html">
+                
+                    <a href="../docs/publish.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        Publishing events
+                    </a>
             
-                    
-                    Publishing events
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.3.2" data-path="read.html">
-            
-                <a href="read.html">
-            
-                    
-                    Reading from stream
-            
-                </a>
-            
-
             
         </li>
     
-        <li class="chapter " data-level="1.3.3" data-path="delete.html">
+        <li class="chapter " data-level="2.2" data-path="docs/read.html">
             
-                <a href="delete.html">
+                
+                    <a href="../docs/read.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.</b>
+                        
+                        Reading from stream
+                    </a>
             
-                    
-                    Deleting stream
             
-                </a>
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="docs/delete.html">
             
-
+                
+                    <a href="../docs/delete.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        Deleting stream
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.4" data-path="docs/subscribe.html">
+            
+                
+                    <a href="../docs/subscribe.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        Subscribing to events
+                    </a>
+            
             
         </li>
     
@@ -180,30 +195,56 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4" >
+        <li class="chapter " data-level="3" data-path="docs/projection.html">
             
-                <span>
+                
+                    <a href="../docs/projection.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Projections
+                    </a>
             
-                    
-                    Subscribtions
             
-                </span>
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="docs/app.html">
             
-
+                
+                    <a href="../docs/app.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        Building an event sourced application
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" >
+            
+            <span><b>5.</b> Rails Integration</span>
+            
             
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="1.4.1" data-path="subscribe.html">
+        <li class="chapter " data-level="5.1" data-path="docs/request_metadata.html">
             
-                <a href="subscribe.html">
+                
+                    <a href="../docs/request_metadata.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.1.</b>
+                        
+                        Logging request metadata
+                    </a>
             
-                    
-                    Subscribing to events
-            
-                </a>
-            
-
             
         </li>
     
@@ -212,167 +253,186 @@
             
         </li>
     
-        <li class="chapter " data-level="1.5" >
+        <li class="chapter " data-level="6" data-path="docs/resources.html">
             
-                <span>
-            
-                    
-                    Projections
-            
-                </span>
-            
-
-            
-            <ul class="articles">
                 
+                    <a href="../docs/resources.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Resources
+                    </a>
+            
+            
+        </li>
     
-        <li class="chapter " data-level="1.5.1" data-path="projection.html">
+
+
             
-                <a href="projection.html">
-            
-                    
-                    Making projections
-            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
                 </a>
+            </li>
             
-
-            
-        </li>
-    
-
-            </ul>
-            
-        </li>
-    
-        <li class="chapter " data-level="1.6" data-path="app.html">
-            
-                <a href="app.html">
-            
-                    
-                    Building an event sourced application
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.7" data-path="resources.html">
-            
-                <a href="resources.html">
-            
-                    
-                    Resources
-            
-                </a>
-            
-
-            
-        </li>
-    
-
-    
-
-    <li class="divider"></li>
-
-    <li>
-        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
-            Published with GitBook
-        </a>
-    </li>
-</ul>
-
-
-                </nav>
-            
-        
-    </div>
+        </ul>
+    </nav>
+</div>
 
     <div class="book-body">
-        
-            <div class="body-inner">
-                
-                    
-
-<div class="book-header" role="navigation">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
     
 
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Subscribing to events</a>
+        <a href="../" >RailsEventStore</a>
     </h1>
 </div>
 
-
-
-
-                    <div class="page-wrapper" tabindex="-1" role="main">
-                        <div class="page-inner">
-                            
-                                <section class="normal markdown-section">
-                                
-                                <h1 id="subscribing-to-events">Subscribing to events</h1>
-<p>To listen on specific events synchronously you have to create subscriber representation. The only requirement is that subscriber class has to implement the <code>handle_event(event)</code> method.</p>
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <h1 id="subscribing-to-events">Subscribing to events</h1>
+<p>To subscribe to events in Rails Event Store you need to use <code>#subscribe</code> method.</p>
+<h2 id="classic-subscriptions">Classic subscriptions</h2>
+<p>To subscribe to events publication in a classic way, you can use a version of <code>#subscribe</code> which does not accept the block. It accepts two arguments:</p>
+<ul>
+<li><code>subscriber</code> (event handler) - which can be a function-like object. That means it needs to respond to the <code>#call</code> method. This way both normal objects and <code>lambda</code> expressions are supported.</li>
+<li><code>event_types</code> - which is an array of event types. Your subscriber will get notified only when events of types listed here will be published.</li>
+</ul>
+<p>An example usage with the object event handler:</p>
 <pre><code class="lang-ruby"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InvoiceReadModel</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_event</span><span class="hljs-params">(event)</span></span>
-    <span class="hljs-comment">#we deal here with event&apos;s data</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span><span class="hljs-params">(event)</span></span>
+    <span class="hljs-comment"># Process an event here.</span>
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
-</code></pre>
-<ul>
-<li>You can subscribe on specific set of events</li>
-</ul>
-<pre><code class="lang-ruby">invoice = InvoiceReadModel.new
-client.subscribe(invoice, [PriceChanged, ProductAdded])
-</code></pre>
-<ul>
-<li>You can also listen on all incoming events</li>
-</ul>
-<pre><code class="lang-ruby">invoice = InvoiceReadModel.new
-client.subscribe_to_all_events(invoice)
-</code></pre>
 
-                                
-                                </section>
-                            
-                        </div>
-                    </div>
+subscriber = <span class="hljs-constant">InvoiceReadModel</span>.new
+event_store.subscribe(subscriber, [<span class="hljs-constant">InvoiceCreated</span>, <span class="hljs-constant">InvoiceUpdated</span>])
+</code></pre>
+<p>You can use <code>Proc</code> objects or <code>lambda</code>s here:</p>
+<pre><code class="lang-ruby">invoice_read_model_processing = -&gt; (event) { 
+  <span class="hljs-comment"># Process an event here..</span>
+}
+
+send_invoice_email = <span class="hljs-constant">Proc</span>.new <span class="hljs-keyword">do</span> |event|
+  <span class="hljs-comment"># Process an event here.</span>
+<span class="hljs-keyword">end</span>
+
+event_store.subscribe(invoice_read_model_processing, [<span class="hljs-constant">InvoiceCreated</span>, <span class="hljs-constant">InvoiceUpdated</span>])
+event_store.subscribe(send_invoice_email, [<span class="hljs-constant">InvoiceAccepted</span>])
+</code></pre>
+<p>You can also subscribe for all event types at once. It is especially useful for logging or debugging events:</p>
+<pre><code class="lang-ruby"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventsLogger</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span><span class="hljs-params">(logger)</span></span>
+    <span class="hljs-variable">@logger</span> = logger
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span><span class="hljs-params">(event)</span></span>
+    logger.info(<span class="hljs-string">&quot;<span class="hljs-subst">#{event.<span class="hljs-keyword">class</span>.to_s}</span> published. Data: <span class="hljs-subst">#{event.data.inspect}</span>&quot;</span>)
+  <span class="hljs-keyword">end</span>
+
+  private 
+  <span class="hljs-keyword">attr_reader</span> <span class="hljs-symbol">:logger</span>
+<span class="hljs-keyword">end</span>
+
+event_store.subscirbe_to_all_events(<span class="hljs-constant">EventsLogger</span>.new(<span class="hljs-constant">Rails</span>.logger))
+</code></pre>
+<blockquote>
+<p>In early versions of Rails Event Store event handlers (subscribers) needed to have <code>#handle_event</code> method. While it is still supported, it will be removed in future. For your convenience, it now gives a deprecation warning.</p>
+</blockquote>
+<h2 id="dynamic-oneshot-subscriptions">Dynamic (one-shot) subscriptions</h2>
+<p>Rails Event Store supports dynamic, one-shot, anonymous subscriptions for events. One-shot means that after publishing an event in which such subscriber is interested it gets unsubscribed automatically.</p>
+<p>You can achieve such behaviour by passing the block to the <code>#subscribe</code> method. Then it accepts only one argument - <code>event_types</code> which is an array of event types for which subscriber (block) will get invoked.</p>
+<p>This is useful in many use cases, for example it can be used to implement a saga pattern:</p>
+<pre><code class="lang-ruby"><span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">MissingShippingDetails</span></span>
+  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span></span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">from_status</span><span class="hljs-params">(status)</span></span>
+      <span class="hljs-comment"># ...</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AddressNotProvided</span></span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(saga, event)</span></span>
+      <span class="hljs-comment"># ...</span>
+    <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># ...</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MissingShippingDetailsSaga</span> <span class="hljs-inheritance">&lt; <span class="hljs-parent">ActiveRecord::Base</span></span></span>
+  <span class="hljs-keyword">include</span> <span class="hljs-constant">MissingShippingDetails</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">state</span></span>
+    <span class="hljs-variable">@state</span> ||= <span class="hljs-constant">State</span>.from_status(status)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">subscribe</span><span class="hljs-params">(event_store)</span></span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> state.final?
+    event_store.subscribe(state.awaited_events) <span class="hljs-keyword">do</span> |event|
+      <span class="hljs-comment"># Sagas are basically state machines. Try to change the state...</span>
+      <span class="hljs-variable">@state</span> = state.process(<span class="hljs-keyword">self</span>, event)
+      <span class="hljs-variable">@status</span> = <span class="hljs-variable">@state</span>.name
+      <span class="hljs-comment"># ... and resubscribe (maybe state changed, so other events will be awaited)</span>
+      subscribe(event_store)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># ...</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Remember that subscriptions are one-shot. If you want to still pass a block without having one-shot behaviour, you can use classical subscription pattern. Remember blocks are <code>Proc</code>s under the hood!</p>
+
+                    
+                    </section>
                 
+                
+                </div>
             </div>
+        </div>
 
-            
-                
-                
-            
+        
+        <a href="../docs/delete.html" class="navigation navigation-prev " aria-label="Previous page: Deleting stream"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../docs/projection.html" class="navigation navigation-next " aria-label="Next page: Projections"><i class="fa fa-angle-right"></i></a>
         
     </div>
-
-    <script>
-        var gitbook = gitbook || [];
-        gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Subscribing to events","level":"1.4.1","depth":2,"next":{"title":"Projections","level":"1.5","depth":1,"ref":"","articles":[{"title":"Making projections","level":"1.5.1","depth":2,"path":"docs/projection.md","ref":"docs/projection.md","articles":[]}]},"previous":{"title":"Subscribtions","level":"1.4","depth":1,"ref":"","articles":[{"title":"Subscribing to events","level":"1.4.1","depth":2,"path":"docs/subscribe.md","ref":"docs/subscribe.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-search","-lunr","github"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"github":{"url":"https://github.com/arkency/rails_event_store"},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"RailsEventStore","gitbook":"*"},"file":{"path":"docs/subscribe.md","mtime":"2016-06-21T11:53:28.000Z","type":"markdown"},"gitbook":{"version":"3.1.1","time":"2016-06-21T13:22:57.930Z"},"basePath":"..","book":{"language":""}});
-        });
-    </script>
 </div>
 
         
-    <script src="../gitbook/gitbook.js"></script>
-    <script src="../gitbook/theme.js"></script>
+<script src="../gitbook/app.js"></script>
+
     
-        
-        <script src="../gitbook/gitbook-plugin-github/plugin.js"></script>
-        
-    
-        
-        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
-        
-    
-        
-        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
-        
+    <script src="../gitbook/plugins/gitbook-plugin-github/plugin.js"></script>
     
 
+    
+    <script src="../gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"github":{"url":"https://github.com/arkency/rails_event_store"},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    gitbook.start(config);
+});
+</script>
+
+        
     </body>
+    
 </html>
-
