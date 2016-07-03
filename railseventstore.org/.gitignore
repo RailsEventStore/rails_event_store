@@ -1,1 +1,3 @@
 /_book/
+/pkg/
+Gemfile.lock
