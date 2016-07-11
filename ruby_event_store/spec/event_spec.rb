@@ -8,6 +8,16 @@ end
 module RubyEventStore
   describe Event do
 
+    specify 'default values' do
+      event = Test::TestCreated.new
+      expect(event.event_id).to_not           be_nil
+      expect(event.data).to_not               be_nil
+      expect(event.metadata).to_not           be_nil
+      expect(event.data.to_h).to              eq({})
+      expect(event.metadata.to_h).to          eq({})
+      expect(event.timestamp).to              be_nil
+    end
+
     specify 'constructor attributes are used as event data' do
       event = Test::TestCreated.new(data: {sample: 123})
       expect(event.event_id).to_not           be_nil
@@ -99,5 +109,22 @@ module RubyEventStore
       expect(event.to_h).to eq(event_data)
     end
 
+    specify 'only events with the same class, event_id & data are equal' do
+      event_1 = Test::TestCreated.new
+      event_2 = Test::TestCreated.new
+      expect(event_1 == event_2).to be_falsey
+
+      event_1 = Test::TestCreated.new(event_id: 1, data: {test: 123})
+      event_2 = Test::TestDeleted.new(event_id: 1, data: {test: 123})
+      expect(event_1 == event_2).to be_falsey
+
+      event_1 = Test::TestCreated.new(event_id: 1, data: {test: 123})
+      event_2 = Test::TestCreated.new(event_id: 1, data: {test: 234})
+      expect(event_1 == event_2).to be_falsey
+
+      event_1 = Test::TestCreated.new(event_id: 1, data: {test: 123}, metadata: {does: 'not matter'})
+      event_2 = Test::TestCreated.new(event_id: 1, data: {test: 123}, metadata: {really: 'yes'})
+      expect(event_1 == event_2).to be_truthy
+    end
   end
 end
