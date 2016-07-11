@@ -95,5 +95,38 @@ module RubyEventStore
       expect{ facade.publish_event(third_event, stream, first_event.event_id) }.to raise_error(WrongExpectedEventVersion)
       expect(facade.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
+
+    specify 'published event metadata will be enriched by proc execution' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new, metadata_proc: ->{ {request_id: '127.0.0.1'} })
+      event = TestEvent.new
+      facade.publish_event(event)
+      published = facade.read_all_streams_forward(:head, 10)
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.request_id).to eq('127.0.0.1')
+      expect(published.first.metadata.timestamp).to be_a Time
+    end
+
+    specify 'only timestamp set inn metadata when event stored in stream if metadata proc return nil' do
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new, metadata_proc: ->{ nil })
+      event = TestEvent.new
+      facade.append_to_stream(GLOBAL_STREAM, event)
+      published = facade.read_all_streams_forward(:head, 10)
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
+      expect(published.first.metadata.timestamp).to be_a Time
+    end
+
+    specify 'timestamp is utc time' do
+      now = Time.parse('2015-05-04 15:17:11 +0200')
+      utc = Time.parse('2015-05-04 13:17:23 UTC')
+      allow_any_instance_of(Time).to receive(:now).and_return(now)
+      allow_any_instance_of(Time).to receive(:utc).and_return(utc)
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new)
+      event = TestEvent.new
+      facade.publish_event(event)
+      published = facade.read_all_streams_forward(:head, 10)
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.timestamp).to eq(utc)
+    end
   end
 end
