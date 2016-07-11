@@ -28,7 +28,7 @@ module RubyEventStore
 
     specify 'setup event broker dependency' do
       broker = RubyEventStore::PubSub::Broker.new
-      facade = RubyEventStore::Facade.new(InMemoryRepository.new, broker)
+      facade = RubyEventStore::Facade.new(InMemoryRepository.new, event_broker: broker)
       expect(facade.event_broker).to eql(broker)
     end
 

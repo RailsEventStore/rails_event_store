@@ -1,8 +1,11 @@
 module RubyEventStore
   class Facade
-    def initialize(repository, event_broker = PubSub::Broker.new)
-      @repository   = repository
-      @event_broker = event_broker
+    def initialize(repository,
+                   event_broker:  PubSub::Broker.new,
+                   metadata_proc: nil)
+      @repository     = repository
+      @event_broker   = event_broker
+      @metadata_proc  = metadata_proc
     end
     attr_reader :repository, :event_broker
 
@@ -69,6 +72,8 @@ module RubyEventStore
     end
 
     private
+    attr_reader :metadata_proc
+
     def handle_subscribe(unsub)
       if block_given?
         yield
