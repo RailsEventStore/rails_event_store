@@ -15,6 +15,12 @@ module RailsEventStore
       expect(client.__send__("event_broker")).to be_a EventBroker
     end
 
+    specify 'may take custom broker' do
+      CustomEventBroker = Class.new
+      client = Client.new(event_broker: CustomEventBroker.new)
+      expect(client.__send__("event_store").event_broker).to be_a CustomEventBroker
+    end
+
     specify 'read events forward' do
       client = Client.new
       client.publish_event(TestEvent.new(event_id: '1'), 'stream')
