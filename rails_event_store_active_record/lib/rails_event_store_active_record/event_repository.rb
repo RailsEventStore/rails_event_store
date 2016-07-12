@@ -88,10 +88,9 @@ module RailsEventStoreActiveRecord
     def build_event_entity(record)
       return nil unless record
       record.event_type.constantize.new(
-        record.data.merge(
-          event_id: record.event_id,
-          metadata: record.metadata
-        )
+        event_id: record.event_id,
+        metadata: record.metadata,
+        data: record.data
       )
     end
   end
