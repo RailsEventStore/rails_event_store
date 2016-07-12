@@ -3,10 +3,12 @@ module RailsEventStore
 
     def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new,
                    event_broker: EventBroker.new,
+                   lock_obtainer: nil,
                    page_size: PAGE_SIZE)
       @repository = repository
       @page_size = page_size
       @event_broker = event_broker
+      @lock_obtainer = lock_obtainer
     end
 
     def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
@@ -59,10 +61,10 @@ module RailsEventStore
     end
 
     private
-    attr_reader :repository, :page_size, :event_broker
+    attr_reader :repository, :page_size, :event_broker, :lock_obtainer
 
     def event_store
-      @event_store ||= RubyEventStore::Facade.new(repository, event_broker)
+      @event_store ||= RubyEventStore::Facade.new(repository, event_broker, lock_obtainer)
     end
   end
 end
