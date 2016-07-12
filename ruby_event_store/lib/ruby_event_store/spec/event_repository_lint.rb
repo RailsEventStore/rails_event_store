@@ -20,6 +20,20 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward('other_stream')).to be_empty
   end
 
+  it 'data attributes are retrieved' do
+    event = TestDomainEvent.new(data: { order_id: 3 })
+    repository.create(event, 'stream')
+    retrieved_event = repository.read_all_streams_forward(:head, 1).first
+    expect(retrieved_event.data.order_id).to eq(3)
+  end
+
+  it 'metadata attributes are retrieved' do
+    event = TestDomainEvent.new(metadata: { request_id: 3 })
+    repository.create(event, 'stream')
+    retrieved_event = repository.read_all_streams_forward(:head, 1).first
+    expect(retrieved_event.metadata.request_id).to eq(3)
+  end
+
   it 'does not have deleted streams' do
     repository.create(TestDomainEvent.new, 'stream')
     repository.create(TestDomainEvent.new, 'other_stream')
