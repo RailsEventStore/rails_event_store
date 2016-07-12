@@ -24,7 +24,10 @@ module RailsEventStore
     def read_events_forward(stream_name, start = :head, count = page_size)
       event_store.read_events_forward(stream_name, start, count)
     end
-    alias :read_events :read_events_forward
+    def read_events(stream_name, start = :head, count = page_size)
+      warn "[DEPRECATION] `read_events` is deprecated.  Please use `read_events_forward` instead."
+      read_events_forward(stream_name, start, count)
+    end
 
     def read_events_backward(stream_name, start = :head, count = page_size)
       event_store.read_events_backward(stream_name, start, count)
@@ -33,7 +36,10 @@ module RailsEventStore
     def read_stream_events_forward(stream_name)
       event_store.read_stream_events_forward(stream_name)
     end
-    alias :read_all_events :read_stream_events_forward
+    def read_all_events(stream_name)
+      warn "[DEPRECATION] `read_all_events` is deprecated.  Please use `read_stream_events_forward` instead."
+      read_stream_events_forward(stream_name)
+    end
 
     def read_stream_events_backward(stream_name)
       event_store.read_stream_events_backward(stream_name)
@@ -42,7 +48,10 @@ module RailsEventStore
     def read_all_streams_forward(start = :head, count = page_size)
       event_store.read_all_streams_forward(start, count)
     end
-    alias :read_all_streams :read_all_streams_forward
+    def read_all_streams(start = :head, count = page_size)
+      warn "[DEPRECATION] `read_all_streams` is deprecated.  Please use `read_all_streams_forward` instead."
+      read_all_streams_forward(start, count)
+    end
 
     def read_all_streams_backward(start = :head, count = page_size)
       event_store.read_all_streams_backward(start, count)
