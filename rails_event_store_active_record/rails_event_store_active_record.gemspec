@@ -29,5 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ruby_event_store', '~> 0.10.1'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
+  spec.add_development_dependency 'mutant-rspec', '~> 0.8'
 
 end
