@@ -5,8 +5,15 @@ module RailsEventStore
   DummyEvent = Class.new(RailsEventStore::Event)
   UUID_REGEX = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
 
-  RSpec.describe Client do
-    specify 'no config' do
+  RSpec.describe Middleware do
+    specify do
+      event_store = Client.new
+
+      TestRails.new.(->{ event_store.publish_event(DummyEvent.new) })
+      expect(Thread.current[:rails_event_store]).to be_nil
+    end
+
+    specify do
       event_store = Client.new
 
       TestRails.new.(->{ event_store.publish_event(DummyEvent.new) })
@@ -19,3 +26,4 @@ module RailsEventStore
     end
   end
 end
+

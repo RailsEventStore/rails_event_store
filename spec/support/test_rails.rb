@@ -1,3 +1,8 @@
+require 'rack/test'
+require 'action_controller/railtie'
+require 'rails_event_store/railtie'
+require 'securerandom'
+
 class TestRails
   include Rack::Test::Methods
 
