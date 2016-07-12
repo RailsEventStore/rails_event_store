@@ -40,14 +40,14 @@ class CustomDispatcher
 end
 
 module RubyEventStore
-  describe Facade do
+  describe Client do
 
     let(:repository) { InMemoryRepository.new }
-    let(:facade)     { RubyEventStore::Facade.new(repository) }
+    let(:client)     { RubyEventStore::Client.new(repository) }
 
     specify 'throws exception if subscriber is not defined' do
-      expect { facade.subscribe(nil, [])}.to raise_error(SubscriberNotExist)
-      expect { facade.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
+      expect { client.subscribe(nil, [])}.to raise_error(SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
     end
 
     specify 'throws exception if subscriber has not call & handle_event method - handling subscribed events' do
@@ -56,8 +56,8 @@ module RubyEventStore
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
-      facade.subscribe(subscriber, [OrderCreated])
-      expect { facade.publish_event(OrderCreated.new) }.to raise_error(MethodNotDefined,
+      client.subscribe(subscriber, [OrderCreated])
+      expect { client.publish_event(OrderCreated.new) }.to raise_error(MethodNotDefined,
                                                                        message)
     end
 
@@ -67,27 +67,27 @@ module RubyEventStore
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
-      facade.subscribe_to_all_events(subscriber)
-      expect { facade.publish_event(ProductAdded.new) }.to raise_error(MethodNotDefined,
+      client.subscribe_to_all_events(subscriber)
+      expect { client.publish_event(ProductAdded.new) }.to raise_error(MethodNotDefined,
                                                                        message)
     end
 
     context 'with call method' do
       specify 'notifies subscribers listening on all events' do
         subscriber = Subscribers::HandlerWithCallMethod.new
-        facade.subscribe_to_all_events(subscriber)
+        client.subscribe_to_all_events(subscriber)
         event = OrderCreated.new
-        facade.publish_event(event)
+        client.publish_event(event)
         expect(subscriber.handled_events).to eq [event]
       end
 
       specify 'notifies subscribers listening on list of events' do
         subscriber = Subscribers::HandlerWithCallMethod.new
-        facade.subscribe(subscriber, [OrderCreated, ProductAdded])
+        client.subscribe(subscriber, [OrderCreated, ProductAdded])
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
-        facade.publish_event(event_1)
-        facade.publish_event(event_2)
+        client.publish_event(event_1)
+        client.publish_event(event_2)
         expect(subscriber.handled_events).to eq [event_1, event_2]
       end
 
@@ -96,9 +96,9 @@ module RubyEventStore
         subscriber = ->(event) {
           handled_events << event
         }
-        facade.subscribe_to_all_events(subscriber)
+        client.subscribe_to_all_events(subscriber)
         event = OrderCreated.new
-        facade.publish_event(event)
+        client.publish_event(event)
         expect(handled_events).to eq [event]
       end
 
@@ -107,34 +107,34 @@ module RubyEventStore
         subscriber = ->(event) {
           handled_events << event
         }
-        facade.subscribe(subscriber, [OrderCreated, ProductAdded])
+        client.subscribe(subscriber, [OrderCreated, ProductAdded])
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
-        facade.publish_event(event_1)
-        facade.publish_event(event_2)
+        client.publish_event(event_1)
+        client.publish_event(event_2)
         expect(handled_events).to eq [event_1, event_2]
       end
 
       specify 'allows to provide a custom dispatcher' do
         dispatcher = CustomDispatcher.new
         broker = PubSub::Broker.new(dispatcher)
-        facade = RubyEventStore::Facade.new(repository, event_broker: broker)
+        client = RubyEventStore::Client.new(repository, event_broker: broker)
         subscriber = Subscribers::HandlerWithCallMethod.new
-        facade.subscribe(subscriber, [OrderCreated])
+        client.subscribe(subscriber, [OrderCreated])
         event = OrderCreated.new
-        facade.publish_event(event)
+        client.publish_event(event)
         expect(dispatcher.dispatched_events).to eq [{to: subscriber, event: event}]
       end
 
       specify 'lambda is an output of global subscribe methods' do
         subscriber = Subscribers::HandlerWithCallMethod.new
-        result = facade.subscribe_to_all_events(subscriber)
+        result = client.subscribe_to_all_events(subscriber)
         expect(result).to respond_to(:call)
       end
 
       specify 'lambda is an output of subscribe methods' do
         subscriber = Subscribers::HandlerWithCallMethod.new
-        result = facade.subscribe(subscriber, [OrderCreated,ProductAdded])
+        result = client.subscribe(subscriber, [OrderCreated,ProductAdded])
         expect(result).to respond_to(:call)
       end
 
@@ -142,32 +142,32 @@ module RubyEventStore
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         subscriber = Subscribers::HandlerWithCallMethod.new
-        result = facade.subscribe_to_all_events(subscriber) do
-          facade.publish_event(event_1)
+        result = client.subscribe_to_all_events(subscriber) do
+          client.publish_event(event_1)
         end
-        facade.publish_event(event_2)
+        client.publish_event(event_2)
         expect(subscriber.handled_events).to eq [event_1]
         expect(result).to respond_to(:call)
-        expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
       end
 
       specify 'dynamic subscription' do
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         subscriber = Subscribers::HandlerWithCallMethod.new
-        result = facade.subscribe(subscriber, [OrderCreated, ProductAdded]) do
-          facade.publish_event(event_1)
+        result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
+          client.publish_event(event_1)
         end
-        facade.publish_event(event_2)
+        client.publish_event(event_2)
         expect(subscriber.handled_events).to eq [event_1]
         expect(result).to respond_to(:call)
-        expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
       end
 
       specify 'no deprecation message when call method in handler' do
         subscriber = Subscribers::HandlerWithCallMethod.new
-        facade.subscribe_to_all_events(subscriber)
-        expect { facade.publish_event(OrderCreated.new) }.not_to output(
+        client.subscribe_to_all_events(subscriber)
+        expect { client.publish_event(OrderCreated.new) }.not_to output(
           "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead.\n").to_stderr
       end
     end
@@ -175,42 +175,42 @@ module RubyEventStore
     context 'with handle_event method' do
       specify 'notifies subscribers listening on all events' do
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        facade.subscribe_to_all_events(subscriber)
+        client.subscribe_to_all_events(subscriber)
         event = OrderCreated.new
-        facade.publish_event(event)
+        client.publish_event(event)
         expect(subscriber.handled_events).to eq [event]
       end
 
       specify 'notifies subscribers listening on list of events' do
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        facade.subscribe(subscriber, [OrderCreated, ProductAdded])
+        client.subscribe(subscriber, [OrderCreated, ProductAdded])
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
-        facade.publish_event(event_1)
-        facade.publish_event(event_2)
+        client.publish_event(event_1)
+        client.publish_event(event_2)
         expect(subscriber.handled_events).to eq [event_1, event_2]
       end
 
       specify 'allows to provide a custom dispatcher' do
         dispatcher = CustomDispatcher.new
         broker = PubSub::Broker.new(dispatcher)
-        facade = RubyEventStore::Facade.new(repository, event_broker: broker)
+        client = RubyEventStore::Client.new(repository, event_broker: broker)
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        facade.subscribe(subscriber, [OrderCreated])
+        client.subscribe(subscriber, [OrderCreated])
         event = OrderCreated.new
-        facade.publish_event(event)
+        client.publish_event(event)
         expect(dispatcher.dispatched_events).to eq [{to: subscriber, event: event}]
       end
 
       specify 'lambda is an output of global subscribe methods' do
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = facade.subscribe_to_all_events(subscriber)
+        result = client.subscribe_to_all_events(subscriber)
         expect(result).to respond_to(:call)
       end
 
       specify 'lambda is an output of subscribe methods' do
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = facade.subscribe(subscriber, [OrderCreated,ProductAdded])
+        result = client.subscribe(subscriber, [OrderCreated,ProductAdded])
         expect(result).to respond_to(:call)
       end
 
@@ -218,32 +218,32 @@ module RubyEventStore
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = facade.subscribe_to_all_events(subscriber) do
-          facade.publish_event(event_1)
+        result = client.subscribe_to_all_events(subscriber) do
+          client.publish_event(event_1)
         end
-        facade.publish_event(event_2)
+        client.publish_event(event_2)
         expect(subscriber.handled_events).to eq [event_1]
         expect(result).to respond_to(:call)
-        expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
       end
 
       specify 'dynamic subscription' do
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = facade.subscribe(subscriber, [OrderCreated, ProductAdded]) do
-          facade.publish_event(event_1)
+        result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
+          client.publish_event(event_1)
         end
-        facade.publish_event(event_2)
+        client.publish_event(event_2)
         expect(subscriber.handled_events).to eq [event_1]
         expect(result).to respond_to(:call)
-        expect(facade.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
       end
 
       specify 'deprecation message when no call method in handler' do
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        facade.subscribe_to_all_events(subscriber)
-        expect { facade.publish_event(OrderCreated.new) }.to output(
+        client.subscribe_to_all_events(subscriber)
+        expect { client.publish_event(OrderCreated.new) }.to output(
           "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead.\n").to_stderr
       end
     end

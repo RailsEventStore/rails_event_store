@@ -1,5 +1,5 @@
 module RubyEventStore
-  class Facade
+  class Client
     def initialize(repository,
                    event_broker:  PubSub::Broker.new,
                    metadata_proc: nil)
