@@ -4,23 +4,18 @@ module RubyEventStore
       class Dispatcher
         def call(subscriber, event)
           ensure_method_defined(subscriber)
-          if subscriber.respond_to?(:call)
-            subscriber.call(event)
-          else
-            warn "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead."
-            subscriber.handle_event(event)
-          end
+          subscriber.call(event)
         end
 
         private
         def ensure_method_defined(subscriber)
-          unless subscriber.respond_to?(:call) || subscriber.respond_to?(:handle_event)
+          unless subscriber.respond_to?(:call)
             raise MethodNotDefined.new(method_not_defined_message(subscriber))
           end
         end
 
         def method_not_defined_message(subscriber)
-          "Neither #call nor #handle_event method found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
+          "#call method not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
         end
       end
       private_constant :Dispatcher
