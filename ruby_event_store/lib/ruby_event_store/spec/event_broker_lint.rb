@@ -58,7 +58,7 @@ RSpec.shared_examples :event_broker do |broker_class|
   end
 
   it 'raises error when no valid method on handler' do
-    message = "#call method found " +
+    message = "#call method not found " +
               "in InvalidTestHandler subscriber." +
               " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
@@ -67,7 +67,7 @@ RSpec.shared_examples :event_broker do |broker_class|
   end
 
   it 'raises error when no valid method on global handler' do
-    message = "#call method found " +
+    message = "#call method not found " +
               "in InvalidTestHandler subscriber." +
               " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new

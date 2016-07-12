@@ -15,7 +15,7 @@ module RubyEventStore
         end
 
         def method_not_defined_message(subscriber)
-          "#call method found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
+          "#call method not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
         end
       end
       private_constant :Dispatcher

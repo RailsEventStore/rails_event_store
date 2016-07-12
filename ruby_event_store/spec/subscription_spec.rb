@@ -41,7 +41,7 @@ module RubyEventStore
 
     specify 'throws exception if subscriber has not call method - handling subscribed events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "#call method found " +
+      message = "#call method not found " +
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
@@ -52,7 +52,7 @@ module RubyEventStore
 
     specify 'throws exception if subscriber has not call method - handling all events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "#call method found " +
+      message = "#call method not found " +
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
