@@ -11,7 +11,7 @@ module RailsEventStore
 
     def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
       captured_metadata = Thread.current[:rails_event_store] || {}
-      enriched_event = event.class.new(event_id: event.event_id, metadata: captured_metadata.merge(event.metadata), **event.data)
+      enriched_event = event.class.new(event_id: event.event_id, metadata: captured_metadata.merge(event.metadata.to_h), data: event.data.to_h)
       event_store.publish_event(enriched_event, stream_name, expected_version)
     end
 
@@ -62,7 +62,8 @@ module RailsEventStore
     attr_reader :repository, :page_size, :event_broker
 
     def event_store
-      @event_store ||= RubyEventStore::Facade.new(repository, event_broker)
+      @event_store ||= RubyEventStore::Facade.new(repository,
+                                                  event_broker: event_broker)
     end
   end
 end
