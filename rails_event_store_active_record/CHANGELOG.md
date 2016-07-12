@@ -1,3 +1,7 @@
+### 0.6.4 (12.07.2016)
+
+* ruby_event_store updated to 0.10.0
+
 ### 0.6.3 (24.06.2016)
 
 * Change: ruby_event_store updated to 0.9.0 (Call instead of handle_event)
