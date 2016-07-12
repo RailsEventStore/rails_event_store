@@ -33,7 +33,7 @@ module RailsEventStore
   DummyEvent = Class.new(RailsEventStore::Event)
   UUID_REGEX = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
 
-  RSpec.describe 'request details in event metadata' do
+  RSpec.describe Middleware do
     specify 'no config' do
       event_store = Client.new
 
