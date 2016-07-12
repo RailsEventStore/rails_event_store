@@ -1,3 +1,7 @@
+### 0.10.1 (12.07.2016)
+
+* Added few new tests for repositories
+
 ### 0.10.0 (12.07.2016)
 
 * Fix: When using `append_to_stream`, expected version is no longer compared using `equal?` commit bdbe4600073d278cbf1024e8d49801fec768f6a7
