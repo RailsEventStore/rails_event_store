@@ -61,7 +61,7 @@ module RailsEventStore
 
     def event_store
       capture_metadata = ->{ Thread.current[:rails_event_store] }
-      @event_store ||= RubyEventStore::Facade.new(repository,
+      @event_store ||= RubyEventStore::Client.new(repository,
                                                   event_broker: event_broker,
                                                   metadata_proc: capture_metadata)
     end
