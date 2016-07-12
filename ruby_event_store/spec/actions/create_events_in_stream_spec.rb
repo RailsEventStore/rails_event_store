@@ -36,7 +36,7 @@ module RubyEventStore
 
       event_id_1 = '724dd49d-6e20-40e6-bc32-ed75258f886b'
       event = OrderCreated.new(event_id: event_id_1)
-      facade.append_to_stream(stream_name, event, event_id_0)
+      facade.append_to_stream(stream_name, event, 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
     end
 
     specify 'expect no event handler is called' do

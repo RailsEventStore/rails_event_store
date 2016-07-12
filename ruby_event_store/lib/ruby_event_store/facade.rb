@@ -100,7 +100,7 @@ module RubyEventStore
       when :none
         return if last_stream_event_id(stream_name).nil?
       else
-        return if last_stream_event_id(stream_name).equal?(expected_version)
+        return if last_stream_event_id(stream_name).eql?(expected_version)
       end
       raise WrongExpectedEventVersion
     end
