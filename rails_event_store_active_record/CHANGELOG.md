@@ -1,3 +1,8 @@
+### 0.6.5 (12.07.2016)
+
+* ruby_event_store updated to 0.10.1
+* Fix: fixed bug which have made repository unable to load a event with associated data or metadata. Tests for this bug were added in ruby_event_store 0.10.1
+
 ### 0.6.4 (12.07.2016)
 
 * ruby_event_store updated to 0.10.0
