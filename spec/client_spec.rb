@@ -139,7 +139,7 @@ module RailsEventStore
       client = Client.new
       client.append_to_stream(TestEvent.new(event_id: '1'))
 
-      expect(client.read_all_streams_forward.map(&:event_id)).to eq(['1'])
+      expect(client.read_events_forward(GLOBAL_STREAM).map(&:event_id)).to eq(['1'])
     end
 
     specify 'append to stream with expected version' do
