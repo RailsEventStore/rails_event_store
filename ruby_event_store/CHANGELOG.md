@@ -1,4 +1,10 @@
-* Fix: When using `append_to_stream`, expected version is no longer compared using `equal?`
+* Fix: When using `append_to_stream`, expected version is no longer compared using `equal?` commit bdbe4600073d278cbf1024e8d49801fec768f6a7
+* Change: Creating events with data is now done using `data` keyword argument. Previously events were created using the syntax `OrderCreated.new(order_id: 123)`, now it has to be `OrderCreated.new(data: { order_id: 123 })`. PR #24
+* Change: Only events with the same name, event_id and data are equal - metadata is no longer taken into account PR #24
+* Change: `metadata[:timestamp]` is now set when event is appended to the stream, not when it is initialized PR #24
+* Change: Initialization of `RubyEventStore::Facade` is now using keyword arguments PR #24
+* Add support to `metadata_proc` PR #24
+* `ClosedStruct` is now a dependency PR #24
 
 ### 0.9.0 (24.06.2016)
 
