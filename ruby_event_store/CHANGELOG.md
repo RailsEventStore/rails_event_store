@@ -1,3 +1,5 @@
+### 0.10.0 (12.07.2016)
+
 * Fix: When using `append_to_stream`, expected version is no longer compared using `equal?` commit bdbe4600073d278cbf1024e8d49801fec768f6a7
 * Change: Creating events with data is now done using `data` keyword argument. Previously events were created using the syntax `OrderCreated.new(order_id: 123)`, now it has to be `OrderCreated.new(data: { order_id: 123 })`. PR #24
 * Change: Access to `data` attributes in an event is now using `event.data.some_attribute` syntax PR #24
