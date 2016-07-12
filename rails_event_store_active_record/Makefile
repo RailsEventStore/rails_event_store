@@ -10,7 +10,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RubyEventStore*"
+	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" --expected-coverage 615/699
 
 .PHONY: help
 
