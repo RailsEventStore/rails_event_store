@@ -14,7 +14,6 @@ module RailsEventStore
       @app.call(env)
     ensure
       Thread.current[:rails_event_store] = nil
-      body.close if body && body.respond_to?(:close) && $!
     end
   end
 end
