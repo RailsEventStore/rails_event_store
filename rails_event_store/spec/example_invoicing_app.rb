@@ -10,7 +10,7 @@ end
 class InvoiceReadModel
   def initialize(events=[])
     @items = []
-    events.each { |event| handle_event(event) }
+    events.each { |event| call(event) }
   end
 
   def items
@@ -21,7 +21,7 @@ class InvoiceReadModel
     @items.map(&:value).inject(0, :+).to_s
   end
 
-  def handle_event(event)
+  def call(event)
     case event
     when ProductAdded
       add_new_invoice_item(event.data.product_name)
