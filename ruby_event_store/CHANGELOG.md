@@ -1,3 +1,5 @@
+* Fix: When using `append_to_stream`, expected version is no longer compared using `equal?`
+
 ### 0.9.0 (24.06.2016)
 
 * Change: Call instead of handle_event, handle_event stays for now but is deprecated PR #18
