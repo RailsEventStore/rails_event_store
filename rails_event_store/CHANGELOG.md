@@ -1,3 +1,19 @@
+### 0.11.0 (12.07.2016)
+
+* Breaking change in domain event class (Part of PR #48)
+  * no more simple `TestEvent.new(some_attr: 'some value')`
+    use `TestEvent.new(data: { some_attr: 'some value' })` instead
+  * all data & metadata attributes accessible via `data` & `metadata` properties
+    of event class
+  * This will avoid name clashes when defining domain event data,
+    especially important for `event_id`
+* Breaking change: deprecated `handle_event` method removed, use `call` instead
+  * some domain event handlers might need method rename
+* Change: Mark aliased methods as deprecated (soon to be removed)
+* Change: Update RubyEventStore to 0.11.0 PR #48
+  * RubyEventStore::Facade renamed to RubyEventStore::Client
+* Fix: Improve mutation tests coverage PR #47
+
 ### 0.10.0 (30.06.2016)
 
 * Change: Rails request details in event metadata PR #39
