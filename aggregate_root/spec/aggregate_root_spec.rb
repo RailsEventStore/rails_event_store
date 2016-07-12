@@ -39,7 +39,7 @@ module AggregateRoot
   end
 
   describe Repository do
-    let(:event_store) { RubyEventStore::Facade.new(RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new(RubyEventStore::InMemoryRepository.new) }
 
     it "should have ability to store & load aggregate" do
       aggregate_repository = Repository.new(event_store)
