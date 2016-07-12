@@ -118,7 +118,7 @@ module RubyEventStore
       specify 'allows to provide a custom dispatcher' do
         dispatcher = CustomDispatcher.new
         broker = PubSub::Broker.new(dispatcher)
-        facade = RubyEventStore::Facade.new(repository, broker)
+        facade = RubyEventStore::Facade.new(repository, event_broker: broker)
         subscriber = Subscribers::HandlerWithCallMethod.new
         facade.subscribe(subscriber, [OrderCreated])
         event = OrderCreated.new
@@ -194,7 +194,7 @@ module RubyEventStore
       specify 'allows to provide a custom dispatcher' do
         dispatcher = CustomDispatcher.new
         broker = PubSub::Broker.new(dispatcher)
-        facade = RubyEventStore::Facade.new(repository, broker)
+        facade = RubyEventStore::Facade.new(repository, event_broker: broker)
         subscriber = Subscribers::HandlerWithHandleEventMethod.new
         facade.subscribe(subscriber, [OrderCreated])
         event = OrderCreated.new
