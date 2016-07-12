@@ -4,18 +4,7 @@ module Subscribers
   class InvalidHandler
   end
 
-  class HandlerWithHandleEventMethod
-    def initialize
-      @handled_events = []
-    end
-    attr_reader :handled_events
-
-    def handle_event(event)
-      @handled_events << event
-    end
-  end
-
-  class HandlerWithCallMethod
+  class ValidHandler
     def initialize
       @handled_events = []
     end
@@ -50,9 +39,9 @@ module RubyEventStore
       expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
     end
 
-    specify 'throws exception if subscriber has not call & handle_event method - handling subscribed events' do
+    specify 'throws exception if subscriber has not call method - handling subscribed events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "Neither #call nor #handle_event method found " +
+      message = "#call method found " +
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
@@ -61,9 +50,9 @@ module RubyEventStore
                                                                        message)
     end
 
-    specify 'throws exception if subscriber has not call & handle_event method - handling all events' do
+    specify 'throws exception if subscriber has not call method - handling all events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "Neither #call nor #handle_event method found " +
+      message = "#call method found " +
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
@@ -72,180 +61,95 @@ module RubyEventStore
                                                                        message)
     end
 
-    context 'with call method' do
-      specify 'notifies subscribers listening on all events' do
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        client.subscribe_to_all_events(subscriber)
-        event = OrderCreated.new
-        client.publish_event(event)
-        expect(subscriber.handled_events).to eq [event]
-      end
-
-      specify 'notifies subscribers listening on list of events' do
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        client.subscribe(subscriber, [OrderCreated, ProductAdded])
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
-        client.publish_event(event_1)
-        client.publish_event(event_2)
-        expect(subscriber.handled_events).to eq [event_1, event_2]
-      end
-
-      specify 'notifies subscribers listening on all events - with lambda' do
-        handled_events = []
-        subscriber = ->(event) {
-          handled_events << event
-        }
-        client.subscribe_to_all_events(subscriber)
-        event = OrderCreated.new
-        client.publish_event(event)
-        expect(handled_events).to eq [event]
-      end
-
-      specify 'notifies subscribers listening on list of events - with lambda' do
-        handled_events = []
-        subscriber = ->(event) {
-          handled_events << event
-        }
-        client.subscribe(subscriber, [OrderCreated, ProductAdded])
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
-        client.publish_event(event_1)
-        client.publish_event(event_2)
-        expect(handled_events).to eq [event_1, event_2]
-      end
-
-      specify 'allows to provide a custom dispatcher' do
-        dispatcher = CustomDispatcher.new
-        broker = PubSub::Broker.new(dispatcher)
-        client = RubyEventStore::Client.new(repository, event_broker: broker)
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        client.subscribe(subscriber, [OrderCreated])
-        event = OrderCreated.new
-        client.publish_event(event)
-        expect(dispatcher.dispatched_events).to eq [{to: subscriber, event: event}]
-      end
-
-      specify 'lambda is an output of global subscribe methods' do
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        result = client.subscribe_to_all_events(subscriber)
-        expect(result).to respond_to(:call)
-      end
-
-      specify 'lambda is an output of subscribe methods' do
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        result = client.subscribe(subscriber, [OrderCreated,ProductAdded])
-        expect(result).to respond_to(:call)
-      end
-
-      specify 'dynamic global subscription' do
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        result = client.subscribe_to_all_events(subscriber) do
-          client.publish_event(event_1)
-        end
-        client.publish_event(event_2)
-        expect(subscriber.handled_events).to eq [event_1]
-        expect(result).to respond_to(:call)
-        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
-      end
-
-      specify 'dynamic subscription' do
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
-          client.publish_event(event_1)
-        end
-        client.publish_event(event_2)
-        expect(subscriber.handled_events).to eq [event_1]
-        expect(result).to respond_to(:call)
-        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
-      end
-
-      specify 'no deprecation message when call method in handler' do
-        subscriber = Subscribers::HandlerWithCallMethod.new
-        client.subscribe_to_all_events(subscriber)
-        expect { client.publish_event(OrderCreated.new) }.not_to output(
-          "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead.\n").to_stderr
-      end
+    specify 'notifies subscribers listening on all events' do
+      subscriber = Subscribers::ValidHandler.new
+      client.subscribe_to_all_events(subscriber)
+      event = OrderCreated.new
+      client.publish_event(event)
+      expect(subscriber.handled_events).to eq [event]
     end
 
-    context 'with handle_event method' do
-      specify 'notifies subscribers listening on all events' do
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        client.subscribe_to_all_events(subscriber)
-        event = OrderCreated.new
-        client.publish_event(event)
-        expect(subscriber.handled_events).to eq [event]
-      end
+    specify 'notifies subscribers listening on list of events' do
+      subscriber = Subscribers::ValidHandler.new
+      client.subscribe(subscriber, [OrderCreated, ProductAdded])
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      client.publish_event(event_1)
+      client.publish_event(event_2)
+      expect(subscriber.handled_events).to eq [event_1, event_2]
+    end
 
-      specify 'notifies subscribers listening on list of events' do
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        client.subscribe(subscriber, [OrderCreated, ProductAdded])
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
+    specify 'notifies subscribers listening on all events - with lambda' do
+      handled_events = []
+      subscriber = ->(event) {
+        handled_events << event
+      }
+      client.subscribe_to_all_events(subscriber)
+      event = OrderCreated.new
+      client.publish_event(event)
+      expect(handled_events).to eq [event]
+    end
+
+    specify 'notifies subscribers listening on list of events - with lambda' do
+      handled_events = []
+      subscriber = ->(event) {
+        handled_events << event
+      }
+      client.subscribe(subscriber, [OrderCreated, ProductAdded])
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      client.publish_event(event_1)
+      client.publish_event(event_2)
+      expect(handled_events).to eq [event_1, event_2]
+    end
+
+    specify 'allows to provide a custom dispatcher' do
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher)
+      client = RubyEventStore::Client.new(repository, event_broker: broker)
+      subscriber = Subscribers::ValidHandler.new
+      client.subscribe(subscriber, [OrderCreated])
+      event = OrderCreated.new
+      client.publish_event(event)
+      expect(dispatcher.dispatched_events).to eq [{to: subscriber, event: event}]
+    end
+
+    specify 'lambda is an output of global subscribe methods' do
+      subscriber = Subscribers::ValidHandler.new
+      result = client.subscribe_to_all_events(subscriber)
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'lambda is an output of subscribe methods' do
+      subscriber = Subscribers::ValidHandler.new
+      result = client.subscribe(subscriber, [OrderCreated,ProductAdded])
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'dynamic global subscription' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      subscriber = Subscribers::ValidHandler.new
+      result = client.subscribe_to_all_events(subscriber) do
         client.publish_event(event_1)
-        client.publish_event(event_2)
-        expect(subscriber.handled_events).to eq [event_1, event_2]
       end
+      client.publish_event(event_2)
+      expect(subscriber.handled_events).to eq [event_1]
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+    end
 
-      specify 'allows to provide a custom dispatcher' do
-        dispatcher = CustomDispatcher.new
-        broker = PubSub::Broker.new(dispatcher)
-        client = RubyEventStore::Client.new(repository, event_broker: broker)
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        client.subscribe(subscriber, [OrderCreated])
-        event = OrderCreated.new
-        client.publish_event(event)
-        expect(dispatcher.dispatched_events).to eq [{to: subscriber, event: event}]
+    specify 'dynamic subscription' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      subscriber = Subscribers::ValidHandler.new
+      result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
+        client.publish_event(event_1)
       end
-
-      specify 'lambda is an output of global subscribe methods' do
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = client.subscribe_to_all_events(subscriber)
-        expect(result).to respond_to(:call)
-      end
-
-      specify 'lambda is an output of subscribe methods' do
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = client.subscribe(subscriber, [OrderCreated,ProductAdded])
-        expect(result).to respond_to(:call)
-      end
-
-      specify 'dynamic global subscription' do
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = client.subscribe_to_all_events(subscriber) do
-          client.publish_event(event_1)
-        end
-        client.publish_event(event_2)
-        expect(subscriber.handled_events).to eq [event_1]
-        expect(result).to respond_to(:call)
-        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
-      end
-
-      specify 'dynamic subscription' do
-        event_1 = OrderCreated.new
-        event_2 = ProductAdded.new
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
-          client.publish_event(event_1)
-        end
-        client.publish_event(event_2)
-        expect(subscriber.handled_events).to eq [event_1]
-        expect(result).to respond_to(:call)
-        expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
-      end
-
-      specify 'deprecation message when no call method in handler' do
-        subscriber = Subscribers::HandlerWithHandleEventMethod.new
-        client.subscribe_to_all_events(subscriber)
-        expect { client.publish_event(OrderCreated.new) }.to output(
-          "[DEPRECATION] `handle_event` is deprecated.  Please use `call` instead.\n").to_stderr
-      end
+      client.publish_event(event_2)
+      expect(subscriber.handled_events).to eq [event_1]
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
     end
   end
 end
