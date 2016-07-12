@@ -35,10 +35,10 @@ module RailsEventStore
 
     def ordering_events
       [
-          OrderCreated.new(customer_name: 'andrzejkrzywda'),
-          ProductAdded.new(product_name: 'Rails meets ReactJS', quantity: 1, price: 49),
-          ProductAdded.new(product_name: 'Fearless Refactoring', quantity: 1, price: 49),
-          PriceChanged.new(product_name: 'Rails meets ReactJS', new_price: 24)
+          OrderCreated.new(data: { customer_name: 'andrzejkrzywda' }),
+          ProductAdded.new(data: { product_name: 'Rails meets ReactJS', quantity: 1, price: 49 }),
+          ProductAdded.new(data: { product_name: 'Fearless Refactoring', quantity: 1, price: 49 }),
+          PriceChanged.new(data: { product_name: 'Rails meets ReactJS', new_price: 24 })
       ]
     end
 

@@ -41,8 +41,8 @@ module RailsEventStore
 
       expect(event_store.read_all_events(GLOBAL_STREAM)).to_not be_empty
       event_store.read_all_events(GLOBAL_STREAM).map(&:metadata).each do |metadata|
-        expect(metadata[:remote_ip]).to  eq('127.0.0.1')
-        expect(metadata[:request_id]).to match(UUID_REGEX)
+        expect(metadata.remote_ip).to  eq('127.0.0.1')
+        expect(metadata.request_id).to match(UUID_REGEX)
       end
     end
   end
