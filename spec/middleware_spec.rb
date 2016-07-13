@@ -1,28 +1,42 @@
 require 'spec_helper'
-require 'support/test_rails'
+require 'rails_event_store/middleware'
+require 'rack/lint'
 
 module RailsEventStore
-  DummyEvent = Class.new(RailsEventStore::Event)
-  UUID_REGEX = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
-
   RSpec.describe Middleware do
-    specify do
-      event_store = Client.new
+    specify 'lint' do
+      request = ::Rack::MockRequest.new(::Rack::Lint.new(Middleware.new(
+        ->(env) { [200, {}, ['Hello World']] },
+        ->(env) { { kaka: 'dudu' } } )))
 
-      TestRails.new.(->{ event_store.publish_event(DummyEvent.new) })
+      expect { request.get('/') }.to_not raise_error
+    end
+
+    specify do
+      request = ::Rack::MockRequest.new(Middleware.new(
+        ->(env) { [200, {}, ['Hello World']] },
+        ->(env) { { kaka: 'dudu' } } ))
+      request.get('/')
+
       expect(Thread.current[:rails_event_store]).to be_nil
     end
 
     specify do
-      event_store = Client.new
+      request = ::Rack::MockRequest.new(Middleware.new(
+        ->(env) { raise },
+        ->(env) { { kaka: 'dudu' } } ))
 
-      TestRails.new.(->{ event_store.publish_event(DummyEvent.new) })
+      expect { request.get('/') }.to raise_error(RuntimeError)
+      expect(Thread.current[:rails_event_store]).to be_nil
+    end
 
-      expect(event_store.read_all_events(GLOBAL_STREAM)).to_not be_empty
-      event_store.read_all_events(GLOBAL_STREAM).map(&:metadata).each do |metadata|
-        expect(metadata.remote_ip).to  eq('127.0.0.1')
-        expect(metadata.request_id).to match(UUID_REGEX)
-      end
+    specify do
+      request = ::Rack::MockRequest.new(Middleware.new(
+        ->(env) { [200, {}, ['Hello World']] },
+        ->(env) { raise } ))
+
+      expect { request.get('/') }.to raise_error(RuntimeError)
+      expect(Thread.current[:rails_event_store]).to be_nil
     end
   end
 end
