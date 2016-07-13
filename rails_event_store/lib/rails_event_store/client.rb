@@ -24,7 +24,6 @@ module RailsEventStore
     def read_events_forward(stream_name, start = :head, count = page_size)
       event_store.read_events_forward(stream_name, start, count)
     end
-    alias :read_events :read_events_forward
 
     def read_events_backward(stream_name, start = :head, count = page_size)
       event_store.read_events_backward(stream_name, start, count)
@@ -33,7 +32,6 @@ module RailsEventStore
     def read_stream_events_forward(stream_name)
       event_store.read_stream_events_forward(stream_name)
     end
-    alias :read_all_events :read_stream_events_forward
 
     def read_stream_events_backward(stream_name)
       event_store.read_stream_events_backward(stream_name)
@@ -42,7 +40,6 @@ module RailsEventStore
     def read_all_streams_forward(start = :head, count = page_size)
       event_store.read_all_streams_forward(start, count)
     end
-    alias :read_all_streams :read_all_streams_forward
 
     def read_all_streams_backward(start = :head, count = page_size)
       event_store.read_all_streams_backward(start, count)
