@@ -134,5 +134,54 @@ module RailsEventStore
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
     end
+
+    specify 'append event to global stream' do
+      client = Client.new
+      client.append_to_stream(TestEvent.new(event_id: '1'))
+
+      expect(client.read_events_forward(GLOBAL_STREAM).map(&:event_id)).to eq(['1'])
+    end
+
+    specify 'append to stream with expected version' do
+      client = Client.new
+      client.append_to_stream(TestEvent.new(event_id: '1'), 'stream-1')
+      client.append_to_stream(TestEvent.new(event_id: '2'), 'stream-1', '1')
+
+      expect(client.read_all_streams_forward.map(&:event_id)).to eq(['1', '2'])
+    end
+
+    specify 'append to stream with wrong expected version' do
+      client = Client.new
+      client.append_to_stream(TestEvent.new(event_id: '1'), 'stream-1')
+      client.append_to_stream(TestEvent.new(event_id: '2'), 'stream-1')
+      expect do
+        client.append_to_stream(TestEvent.new(event_id: '3'), 'stream-1', '1')
+      end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+    end
+
+    specify 'publish event with expected version' do
+      client = Client.new
+      client.publish_event(TestEvent.new(event_id: '1'), 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '2'), 'stream-1', '1')
+
+      expect(client.read_all_streams_forward.map(&:event_id)).to eq(['1', '2'])
+    end
+
+    specify 'publish event with wrong expected version' do
+      client = Client.new
+      client.publish_event(TestEvent.new(event_id: '1'), 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '2'), 'stream-1')
+      expect do
+        client.publish_event(TestEvent.new(event_id: '3'), 'stream-1', '1')
+      end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+    end
+
+    specify 'delete stream' do
+      client = Client.new
+      client.append_to_stream(TestEvent.new(event_id: '1'), 'stream-1')
+      client.delete_stream('stream-1')
+
+      expect(client.read_all_streams_forward).to eq([])
+    end
   end
 end
