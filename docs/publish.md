@@ -13,10 +13,10 @@ OrderPlaced = Class.new(RailsEventStore::Event)
 
 ```ruby
 stream_name = "order_1"
-event = OrderPlaced.new(
+event = OrderPlaced.new(data: {
           order_data: "sample",
           festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
-        )
+        })
 #publishing event for specific stream
 client.publish_event(event, stream_name)
 
@@ -33,10 +33,10 @@ end
 
 ```ruby
 stream_name = "order_1"
-event = OrderPlaced.new(
+event = OrderPlaced.new(data: {
           order_data: "sample",
           festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
-        )
+        })
 expected_version = "850c347f-423a-4158-a5ce-b885396c5b73" #last event_id
 client.publish_event(event, stream_name, expected_version)
 ```
@@ -47,9 +47,9 @@ In order to skip handlers you can just append event to a stream.
 
 ```ruby
 stream_name = "order_1"
-event = OrderPlaced.new(
+event = OrderPlaced.new(data: {
           order_data: "sample",
           festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
-        )
+        })
 client.append_to_stream(event, stream_name)
 ```
