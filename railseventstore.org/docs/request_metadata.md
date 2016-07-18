@@ -1,4 +1,4 @@
-# Logging request metadata 
+# Logging request metadata
 
 In Rails environment, every event is enhanced with the request metadata provided by `rack` server. This can help with debugging and building an audit log from events for the future use.
 
@@ -13,13 +13,13 @@ This metadata is included **only for published events**. So creating a new event
 
 ```ruby
 event = MyEvent.new(event_data)
-event.metadata # nil, unless you provided your own data called 'metadata'.
+event.metadata # empty, unless you provided your own data called 'metadata'.
 ```
 
 If you publish an event, the special field called `metadata` will get filled in with request details:
 
 ```ruby
-event_store.publish_event(MyEvent.new(foo: 'bar'))
+event_store.publish_event(MyEvent.new(data: {foo: 'bar'}))
 
 my_event = event_store.read_all_events(RailsEventStore::GLOBAL_STREAM).last
 
@@ -52,7 +52,7 @@ require "rails/test_unit/railtie"
 
 Bundler.require(*Rails.groups)
 
-module YourAppName 
+module YourAppName
   class Application < Rails::Application
     config.rails_event_store.request_metadata = -> (env) do
       request = ActionDispatch::Request.new(env)
@@ -66,5 +66,3 @@ end
 ```
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
-
-
