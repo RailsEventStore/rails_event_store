@@ -49,7 +49,7 @@
         data-chapter-title="Publishing events"
         data-filepath="docs/publish.md"
         data-basepath=".."
-        data-revision="Sun Jul 03 2016 13:26:00 GMT+0200 (CEST)"
+        data-revision="Mon Jul 18 2016 22:14:41 GMT+0200 (CEST)"
         data-innerlanguage="">
     
 
@@ -311,10 +311,10 @@
 <span class="hljs-constant">OrderPlaced</span> = <span class="hljs-constant">Class</span>.new(<span class="hljs-constant">RailsEventStore::Event</span>)
 </code></pre>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
-event = <span class="hljs-constant">OrderPlaced</span>.new(
+event = <span class="hljs-constant">OrderPlaced</span>.new(<span class="hljs-symbol">data:</span> {
           <span class="hljs-symbol">order_data:</span> <span class="hljs-string">&quot;sample&quot;</span>,
           <span class="hljs-symbol">festival_id:</span> <span class="hljs-string">&quot;b2d506fd-409d-4ec7-b02f-c6d2295c7edd&quot;</span>
-        )
+        })
 <span class="hljs-comment">#publishing event for specific stream</span>
 client.publish_event(event, stream_name)
 
@@ -326,20 +326,20 @@ client.publish_event(event)
 <span class="hljs-keyword">end</span>
 </code></pre>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
-event = <span class="hljs-constant">OrderPlaced</span>.new(
+event = <span class="hljs-constant">OrderPlaced</span>.new(<span class="hljs-symbol">data:</span> {
           <span class="hljs-symbol">order_data:</span> <span class="hljs-string">&quot;sample&quot;</span>,
           <span class="hljs-symbol">festival_id:</span> <span class="hljs-string">&quot;b2d506fd-409d-4ec7-b02f-c6d2295c7edd&quot;</span>
-        )
+        })
 expected_version = <span class="hljs-string">&quot;850c347f-423a-4158-a5ce-b885396c5b73&quot;</span> <span class="hljs-comment">#last event_id</span>
 client.publish_event(event, stream_name, expected_version)
 </code></pre>
 <h1 id="appending-event-to-stream">Appending event to stream</h1>
 <p>In order to skip handlers you can just append event to a stream.</p>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
-event = <span class="hljs-constant">OrderPlaced</span>.new(
+event = <span class="hljs-constant">OrderPlaced</span>.new(<span class="hljs-symbol">data:</span> {
           <span class="hljs-symbol">order_data:</span> <span class="hljs-string">&quot;sample&quot;</span>,
           <span class="hljs-symbol">festival_id:</span> <span class="hljs-string">&quot;b2d506fd-409d-4ec7-b02f-c6d2295c7edd&quot;</span>
-        )
+        })
 client.append_to_stream(event, stream_name)
 </code></pre>
 

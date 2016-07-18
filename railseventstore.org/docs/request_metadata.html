@@ -49,7 +49,7 @@
         data-chapter-title="Logging request metadata"
         data-filepath="docs/request_metadata.md"
         data-basepath=".."
-        data-revision="Sun Jul 03 2016 13:26:00 GMT+0200 (CEST)"
+        data-revision="Mon Jul 18 2016 22:14:41 GMT+0200 (CEST)"
         data-innerlanguage="">
     
 
@@ -311,10 +311,10 @@
 </ul>
 <p>This metadata is included <strong>only for published events</strong>. So creating a new event instance by hand won&apos;t add metadata to it:</p>
 <pre><code class="lang-ruby">event = <span class="hljs-constant">MyEvent</span>.new(event_data)
-event.metadata <span class="hljs-comment"># nil, unless you provided your own data called &apos;metadata&apos;.</span>
+event.metadata <span class="hljs-comment"># empty, unless you provided your own data called &apos;metadata&apos;.</span>
 </code></pre>
 <p>If you publish an event, the special field called <code>metadata</code> will get filled in with request details:</p>
-<pre><code class="lang-ruby">event_store.publish_event(<span class="hljs-constant">MyEvent</span>.new(<span class="hljs-symbol">foo:</span> <span class="hljs-string">&apos;bar&apos;</span>))
+<pre><code class="lang-ruby">event_store.publish_event(<span class="hljs-constant">MyEvent</span>.new(<span class="hljs-symbol">data:</span> {<span class="hljs-symbol">foo:</span> <span class="hljs-string">&apos;bar&apos;</span>}))
 
 my_event = event_store.read_all_events(<span class="hljs-constant">RailsEventStore::GLOBAL_STREAM</span>).last
 
@@ -340,7 +340,7 @@ my_event.metadata[<span class="hljs-symbol">:request_id</span>] <span class="hlj
 
 <span class="hljs-constant">Bundler</span>.<span class="hljs-keyword">require</span>(*<span class="hljs-constant">Rails</span>.groups)
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">YourAppName</span> </span>
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">YourAppName</span></span>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Application</span> <span class="hljs-inheritance">&lt; <span class="hljs-parent">Rails::Application</span></span></span>
     config.rails_event_store.request_metadata = -&gt; (env) <span class="hljs-keyword">do</span>
       request = <span class="hljs-constant">ActionDispatch::Request</span>.new(env)
