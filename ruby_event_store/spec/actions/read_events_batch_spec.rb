@@ -79,7 +79,7 @@ module RubyEventStore
     def prepare_events_in_store(client)
       4.times do |index|
         event = OrderCreated.new(event_id: index)
-        client.publish_event(event, stream_name)
+        client.publish_event(event, stream_name: stream_name)
       end
     end
   end

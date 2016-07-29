@@ -35,14 +35,14 @@ module RubyEventStore
     specify 'publish fail if expected version is nil' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(InMemoryRepository.new)
-      expect{ client.publish_event(TestEvent.new, stream, nil) }.to raise_error(InvalidExpectedVersion)
+      expect{ client.publish_event(TestEvent.new, stream_name: stream, expected_version: nil) }.to raise_error(InvalidExpectedVersion)
     end
 
     specify 'publish first event, expect any stream state' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(InMemoryRepository.new)
       first_event   = TestEvent.new
-      expect(client.publish_event(first_event, stream)).to eq(:ok)
+      expect(client.publish_event(first_event, stream_name: stream)).to eq(:ok)
       expect(client.read_stream_events_forward(stream)).to eq([first_event])
     end
 
@@ -52,7 +52,7 @@ module RubyEventStore
       first_event   = TestEvent.new
       second_event  = TestEvent.new
       client.append_to_stream(stream, first_event)
-      expect(client.publish_event(second_event, stream)).to eq(:ok)
+      expect(client.publish_event(second_event, stream_name: stream)).to eq(:ok)
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 
@@ -60,7 +60,7 @@ module RubyEventStore
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(InMemoryRepository.new)
       first_event   = TestEvent.new
-      expect(client.publish_event(first_event, stream, :none)).to eq(:ok)
+      expect(client.publish_event(first_event, stream_name: stream, expected_version: :none)).to eq(:ok)
       expect(client.read_stream_events_forward(stream)).to eq([first_event])
     end
 
@@ -70,7 +70,7 @@ module RubyEventStore
       first_event   = TestEvent.new
       second_event  = TestEvent.new
       client.append_to_stream(stream, first_event)
-      expect{ client.publish_event(second_event, stream, :none) }.to raise_error(WrongExpectedEventVersion)
+      expect{ client.publish_event(second_event, stream_name: stream, expected_version: :none) }.to raise_error(WrongExpectedEventVersion)
       expect(client.read_stream_events_forward(stream)).to eq([first_event])
     end
 
@@ -80,7 +80,7 @@ module RubyEventStore
       first_event   = TestEvent.new
       second_event  = TestEvent.new
       client.append_to_stream(stream, first_event)
-      expect(client.publish_event(second_event, stream, first_event.event_id)).to eq(:ok)
+      expect(client.publish_event(second_event, stream_name: stream, expected_version: first_event.event_id)).to eq(:ok)
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 
@@ -92,7 +92,7 @@ module RubyEventStore
       third_event   = TestEvent.new
       client.append_to_stream(stream, first_event)
       client.append_to_stream(stream, second_event)
-      expect{ client.publish_event(third_event, stream, first_event.event_id) }.to raise_error(WrongExpectedEventVersion)
+      expect{ client.publish_event(third_event, stream_name: stream, expected_version: first_event.event_id) }.to raise_error(WrongExpectedEventVersion)
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 
