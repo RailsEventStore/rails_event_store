@@ -105,7 +105,7 @@ module RubyEventStore
 
     specify 'allows to provide a custom dispatcher' do
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher)
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository, event_broker: broker)
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, [OrderCreated])
