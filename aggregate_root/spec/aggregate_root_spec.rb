@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'ruby_event_store'
 
 class Order
-  include AggregateRoot::Base
+  include AggregateRoot::Base.new
 
   def initialize(id = generate_uuid)
     self.id = id
@@ -35,6 +35,14 @@ module AggregateRoot
 
       order.apply(order_created)
       expect(order.unpublished_events).to eq([order_created])
+    end
+
+    it "should receive a method call from default apply strategy" do
+      order = Order.new
+      order_created = OrderCreated.new
+
+      expect(order).to receive(:apply_order_created).with(order_created)
+      order.apply(order_created)
     end
   end
 

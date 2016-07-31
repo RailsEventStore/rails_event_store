@@ -1,31 +1,41 @@
 require 'active_support/inflector'
 
 module AggregateRoot
-  module Base
-    attr_reader :id
-
-    def apply(event)
-      apply_event(event)
-      unpublished_events << event
-    end
-
-    def apply_old_event(event)
-      apply_event(event)
-    end
-
-    def unpublished_events
-      @unpublished_events ||= []
+  class Base < Module
+    def initialize(strategy = AggregateRoot::DefaultApplyStrategy)
+      @strategy = strategy
     end
 
     private
-    attr_writer :id
 
-    def apply_event(event)
-      send("apply_#{event.class.name.underscore.gsub('/', '_')}", event)
+    def included(descendant)
+      super
+      descendant.include Methods
+      descendant.include @strategy
     end
 
-    def generate_uuid
-      SecureRandom.uuid
+    module Methods
+      def apply(event)
+        inject_apply_strategy! event
+        unpublished_events << event
+      end
+
+      def apply_old_event(event)
+        inject_apply_strategy! event
+      end
+
+      def unpublished_events
+        @unpublished_events ||= []
+      end
+
+      attr_reader :id
+
+      private
+      attr_writer :id
+
+      def generate_uuid
+        SecureRandom.uuid
+      end
     end
   end
 end
