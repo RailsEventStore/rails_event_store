@@ -20,6 +20,31 @@ end
 class OrderCreated < RubyEventStore::Event
 end
 
+module OrderApplyStrategy
+  def inject_apply_strategy!(event)
+    {
+      OrderCreated => method(:custom_order_processor)
+    }
+  end
+end
+
+class OrderWithCustomStrategy
+  include AggregateRoot::Base.new(strategy: OrderApplyStrategy)
+
+  def initialize(id = generate_uuid)
+    self.id = id
+    @status = :draft
+  end
+
+  private
+  attr_accessor :status, :other_value
+
+  def custom_order_processor(event)
+    @status = :created
+  end
+end
+
+
 module AggregateRoot
   describe Base do
     it "should be able to generate UUID if user won't provide it's own" do
@@ -75,6 +100,14 @@ module AggregateRoot
 
       aggregate_repository = Repository.new
       expect(aggregate_repository.event_store).to eq(fake)
+    end
+
+    it "should call a method from the custom strategy" do
+      order = OrderWithCustomStrategy.new
+      order_created = OrderCreated.new
+
+      expect(order).to receive(:custom_order_processor).with(order_created)
+      order.apply(order_created)
     end
   end
 end

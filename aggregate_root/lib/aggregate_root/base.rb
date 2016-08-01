@@ -2,7 +2,7 @@ require 'active_support/inflector'
 
 module AggregateRoot
   class Base < Module
-    def initialize(strategy = AggregateRoot::DefaultApplyStrategy)
+    def initialize(strategy: AggregateRoot::DefaultApplyStrategy)
       @strategy = strategy
     end
 
@@ -16,7 +16,7 @@ module AggregateRoot
 
     module Methods
       def apply(event)
-        inject_apply_strategy! event
+        inject_apply_strategy!(event).fetch(event.class).call(event)
         unpublished_events << event
       end
 
