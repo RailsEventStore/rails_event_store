@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'ruby_event_store'
 
 class Order
-  include AggregateRoot::Base.new
+  include AggregateRoot::Base
 
   def initialize(id = generate_uuid)
     self.id = id
@@ -20,20 +20,24 @@ end
 class OrderCreated < RubyEventStore::Event
 end
 
-module OrderApplyStrategy
-  def inject_apply_strategy!(event)
-    {
-      OrderCreated => method(:custom_order_processor)
-    }.fetch(event.class).call(event)
+class CustomOrderApplyStrategy
+  def handle(event, aggregate)
+    case event.class.object_id
+    when OrderCreated.object_id
+      aggregate.method(:custom_order_processor).call(event)
+    else
+      aggregate.method(:process_unhandled_event).call(event)
+    end
   end
 end
 
 class OrderWithCustomStrategy
-  include AggregateRoot::Base.new(strategy: OrderApplyStrategy)
+  include AggregateRoot::Base
 
   def initialize(id = generate_uuid)
     self.id = id
     @status = :draft
+    @apply_strategy = CustomOrderApplyStrategy.new
   end
 
   private
@@ -42,8 +46,10 @@ class OrderWithCustomStrategy
   def custom_order_processor(event)
     @status = :created
   end
-end
 
+  def process_unhandled_event(event)
+  end
+end
 
 module AggregateRoot
   describe Base do

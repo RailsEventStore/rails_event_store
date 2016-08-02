@@ -1,7 +1,8 @@
 module AggregateRoot
-  module DefaultApplyStrategy
-    def inject_apply_strategy!(event)
-      self.send("apply_#{event.class.name.underscore.gsub('/', '_')}", event)
+  class DefaultApplyStrategy
+    def handle(event, aggregate)
+      event_name_processed = event.class.to_s.underscore
+      aggregate.method("apply_#{event_name_processed}".to_sym).call(event)
     end
   end
 end
