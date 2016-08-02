@@ -1,8 +1,11 @@
 language: ruby
 rvm:
-- 2.1.5
+  - 2.1.10
+  - 2.2.5
+  - 2.3.1
 before_install: gem install bundler
 gemfile: Gemfile
+script: make mutate
 env:
 - CODECLIMATE_REPO_TOKEN=3af5c60b54fff033bf0dc1af4f26762647bcf3b78268a94d67ea9530b5b52a61
 notifications:
