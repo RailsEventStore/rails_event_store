@@ -24,7 +24,7 @@ module OrderApplyStrategy
   def inject_apply_strategy!(event)
     {
       OrderCreated => method(:custom_order_processor)
-    }
+    }.fetch(event.class).call(event)
   end
 end
 

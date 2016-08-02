@@ -16,7 +16,7 @@ module AggregateRoot
 
     module Methods
       def apply(event)
-        inject_apply_strategy!(event).fetch(event.class).call(event)
+        inject_apply_strategy! event
         unpublished_events << event
       end
 
