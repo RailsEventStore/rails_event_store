@@ -75,11 +75,29 @@ module AggregateRoot
       expect(order.unpublished_events).to eq([order_created])
     end
 
-    it "should receive a method call from default apply strategy" do
+    it "should initialize default client if event_store not provided" do
+      fake = double(:fake_event_store)
+      AggregateRoot.configure do |config|
+        config.default_event_store = fake
+      end
+
+      aggregate_repository = Repository.new
+      expect(aggregate_repository.event_store).to eq(fake)
+    end
+
+    it "should receive a method call based on a default apply strategy" do
       order = Order.new
       order_created = OrderCreated.new
 
       expect(order).to receive(:apply_order_created).with(order_created)
+      order.apply(order_created)
+    end
+
+    it "should receive a method call based on a custom strategy" do
+      order = OrderWithCustomStrategy.new
+      order_created = OrderCreated.new
+
+      expect(order).to receive(:custom_order_processor).with(order_created)
       order.apply(order_created)
     end
   end
@@ -101,26 +119,25 @@ module AggregateRoot
       expect(stream.first).to eq(order_created)
 
       order = Order.new(order_id)
+      expect(order).to receive(:apply_order_created).with(order_created)
+
       aggregate_repository.load(order)
       expect(order.unpublished_events).to be_empty
     end
 
-    it "should initialize default client if event_store not provided" do
-      fake = double(:fake_event_store)
-      AggregateRoot.configure do |config|
-        config.default_event_store = fake
-      end
-
-      aggregate_repository = Repository.new
-      expect(aggregate_repository.event_store).to eq(fake)
-    end
-
-    it "should call a method from the custom strategy" do
+    it "should recieve a method call on load based on a custom apply strategy" do
+      aggregate_repository = Repository.new(event_store)
       order = OrderWithCustomStrategy.new
       order_created = OrderCreated.new
-
-      expect(order).to receive(:custom_order_processor).with(order_created)
+      order_id = order.id
       order.apply(order_created)
+      aggregate_repository.store(order)
+
+      order = OrderWithCustomStrategy.new(order_id)
+      expect(order).to receive(:custom_order_processor).with(order_created)
+
+      aggregate_repository.load(order)
+      expect(order.unpublished_events).to be_empty
     end
   end
 end
