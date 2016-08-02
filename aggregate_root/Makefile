@@ -10,7 +10,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require aggregate_root --use rspec "AggregateRoot*"
+	@bundle exec mutant --include lib --require aggregate_root --use rspec "AggregateRoot*" --expected-coverage 170/206
 
 .PHONY: help
 
