@@ -2,6 +2,8 @@ require 'active_support/inflector'
 
 module AggregateRoot
   module Base
+    attr_reader :id
+
     def apply(event)
       apply_event(event)
       unpublished_events << event
@@ -15,13 +17,11 @@ module AggregateRoot
       @unpublished_events ||= []
     end
 
-    attr_reader :id
-
     private
     attr_writer :id
 
     def apply_strategy
-      @apply_strategy || AggregateRoot::DefaultApplyStrategy.new
+      DefaultApplyStrategy.new
     end
 
     def apply_event(event)

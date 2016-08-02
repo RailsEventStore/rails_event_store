@@ -12,6 +12,10 @@ class Order
   private
   attr_accessor :status
 
+  def apply_strategy
+    @apply_strategy = AggregateRoot::DefaultApplyStrategy.new
+  end
+
   def apply_order_created(event)
     @status = :created
   end
@@ -37,7 +41,10 @@ class OrderWithCustomStrategy
   def initialize(id = generate_uuid)
     self.id = id
     @status = :draft
-    @apply_strategy = CustomOrderApplyStrategy.new
+  end
+
+  def apply_strategy
+    @apply_strategy ||= CustomOrderApplyStrategy.new
   end
 
   private
