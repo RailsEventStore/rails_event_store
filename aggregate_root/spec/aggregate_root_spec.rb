@@ -91,6 +91,9 @@ module AggregateRoot
 
       expect(order).to receive(:apply_order_created).with(order_created)
       order.apply(order_created)
+
+      expect(order).to receive(:apply_order_created).with(order_created)
+      order.apply_old_event(order_created)
     end
 
     it "should receive a method call based on a custom strategy" do
@@ -99,6 +102,9 @@ module AggregateRoot
 
       expect(order).to receive(:custom_order_processor).with(order_created)
       order.apply(order_created)
+
+      expect(order).to receive(:custom_order_processor).with(order_created)
+      order.apply_old_event(order_created)
     end
   end
 
