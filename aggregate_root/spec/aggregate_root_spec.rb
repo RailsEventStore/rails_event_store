@@ -12,12 +12,50 @@ class Order
   private
   attr_accessor :status
 
+  def apply_strategy
+    @apply_strategy = AggregateRoot::DefaultApplyStrategy.new
+  end
+
   def apply_order_created(event)
     @status = :created
   end
 end
 
 class OrderCreated < RubyEventStore::Event
+end
+
+class CustomOrderApplyStrategy
+  def handle(event, aggregate)
+    case event.class.object_id
+    when OrderCreated.object_id
+      aggregate.method(:custom_order_processor).call(event)
+    else
+      aggregate.method(:process_unhandled_event).call(event)
+    end
+  end
+end
+
+class OrderWithCustomStrategy
+  include AggregateRoot::Base
+
+  def initialize(id = generate_uuid)
+    self.id = id
+    @status = :draft
+  end
+
+  def apply_strategy
+    @apply_strategy ||= CustomOrderApplyStrategy.new
+  end
+
+  private
+  attr_accessor :status, :other_value
+
+  def custom_order_processor(event)
+    @status = :created
+  end
+
+  def process_unhandled_event(event)
+  end
 end
 
 module AggregateRoot
@@ -35,6 +73,38 @@ module AggregateRoot
 
       order.apply(order_created)
       expect(order.unpublished_events).to eq([order_created])
+    end
+
+    it "should initialize default client if event_store not provided" do
+      fake = double(:fake_event_store)
+      AggregateRoot.configure do |config|
+        config.default_event_store = fake
+      end
+
+      aggregate_repository = Repository.new
+      expect(aggregate_repository.event_store).to eq(fake)
+    end
+
+    it "should receive a method call based on a default apply strategy" do
+      order = Order.new
+      order_created = OrderCreated.new
+
+      expect(order).to receive(:apply_order_created).with(order_created)
+      order.apply(order_created)
+
+      expect(order).to receive(:apply_order_created).with(order_created)
+      order.apply_old_event(order_created)
+    end
+
+    it "should receive a method call based on a custom strategy" do
+      order = OrderWithCustomStrategy.new
+      order_created = OrderCreated.new
+
+      expect(order).to receive(:custom_order_processor).with(order_created)
+      order.apply(order_created)
+
+      expect(order).to receive(:custom_order_processor).with(order_created)
+      order.apply_old_event(order_created)
     end
   end
 
@@ -55,18 +125,25 @@ module AggregateRoot
       expect(stream.first).to eq(order_created)
 
       order = Order.new(order_id)
+      expect(order).to receive(:apply_order_created).with(order_created)
+
       aggregate_repository.load(order)
       expect(order.unpublished_events).to be_empty
     end
 
-    it "should initialize default client if event_store not provided" do
-      fake = double(:fake_event_store)
-      AggregateRoot.configure do |config|
-        config.default_event_store = fake
-      end
+    it "should recieve a method call on load based on a custom apply strategy" do
+      aggregate_repository = Repository.new(event_store)
+      order = OrderWithCustomStrategy.new
+      order_created = OrderCreated.new
+      order_id = order.id
+      order.apply(order_created)
+      aggregate_repository.store(order)
 
-      aggregate_repository = Repository.new
-      expect(aggregate_repository.event_store).to eq(fake)
+      order = OrderWithCustomStrategy.new(order_id)
+      expect(order).to receive(:custom_order_processor).with(order_created)
+
+      aggregate_repository.load(order)
+      expect(order.unpublished_events).to be_empty
     end
   end
 end

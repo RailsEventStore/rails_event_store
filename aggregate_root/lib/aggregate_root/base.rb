@@ -20,8 +20,12 @@ module AggregateRoot
     private
     attr_writer :id
 
+    def apply_strategy
+      DefaultApplyStrategy.new
+    end
+
     def apply_event(event)
-      send("apply_#{event.class.name.underscore.gsub('/', '_')}", event)
+      apply_strategy.handle(event, self)
     end
 
     def generate_uuid
