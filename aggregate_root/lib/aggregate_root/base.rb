@@ -25,7 +25,7 @@ module AggregateRoot
     end
 
     def apply_event(event)
-      apply_strategy.handle(event, self)
+      apply_strategy.(self, event)
     end
 
     def generate_uuid

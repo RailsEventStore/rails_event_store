@@ -25,7 +25,7 @@ class OrderCreated < RubyEventStore::Event
 end
 
 class CustomOrderApplyStrategy
-  def handle(event, aggregate)
+  def call(aggregate, event)
     case event.class.object_id
     when OrderCreated.object_id
       aggregate.method(:custom_order_processor).call(event)
