@@ -23,46 +23,46 @@ module RailsEventStore
 
     specify 'read events forward' do
       client = Client.new
-      client.publish_event(TestEvent.new(event_id: '1'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '2'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '3'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '4'), 'other_stream')
-      client.publish_event(TestEvent.new(event_id: '5'), 'stream')
+      client.publish_event(TestEvent.new(event_id: '1'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '4'), stream_name: 'other_stream')
+      client.publish_event(TestEvent.new(event_id: '5'), stream_name: 'stream')
 
       expect(client.read_events_forward('stream').map(&:event_id)).to eq(['1', '2', '3', '5'])
-      expect(client.read_events_forward('stream', :head).map(&:event_id)).to eq(['1', '2', '3', '5'])
-      expect(client.read_events_forward('stream', '1').map(&:event_id)).to eq(['2', '3', '5'])
-      expect(client.read_events_forward('stream', '1', 2).map(&:event_id)).to eq(['2', '3'])
+      expect(client.read_events_forward('stream', start: :head).map(&:event_id)).to eq(['1', '2', '3', '5'])
+      expect(client.read_events_forward('stream', start: '1').map(&:event_id)).to eq(['2', '3', '5'])
+      expect(client.read_events_forward('stream', start: '1', count: 2).map(&:event_id)).to eq(['2', '3'])
     end
 
     specify 'read events backward' do
       client = Client.new
-      client.publish_event(TestEvent.new(event_id: '1'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '2'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '3'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '4'), 'other_stream')
-      client.publish_event(TestEvent.new(event_id: '5'), 'stream')
+      client.publish_event(TestEvent.new(event_id: '1'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '4'), stream_name: 'other_stream')
+      client.publish_event(TestEvent.new(event_id: '5'), stream_name: 'stream')
 
       expect(client.read_events_backward('stream').map(&:event_id)).to eq(['5', '3', '2', '1'])
-      expect(client.read_events_backward('stream', :head).map(&:event_id)).to eq(['5', '3', '2', '1'])
-      expect(client.read_events_backward('stream', '3').map(&:event_id)).to eq(['2', '1'])
-      expect(client.read_events_backward('stream', '3', 1).map(&:event_id)).to eq(['2'])
+      expect(client.read_events_backward('stream', start: :head).map(&:event_id)).to eq(['5', '3', '2', '1'])
+      expect(client.read_events_backward('stream', start: '3').map(&:event_id)).to eq(['2', '1'])
+      expect(client.read_events_backward('stream', start: '3', count: 1).map(&:event_id)).to eq(['2'])
     end
 
     specify 'read all stream events forward' do
       client = Client.new
-      client.publish_event(TestEvent.new(event_id: '1'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '2'), 'other_stream')
-      client.publish_event(TestEvent.new(event_id: '3'), 'stream')
+      client.publish_event(TestEvent.new(event_id: '1'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'other_stream')
+      client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream')
 
       expect(client.read_stream_events_forward('stream').map(&:event_id)).to eq(['1', '3'])
     end
 
     specify 'read all stream events backward' do
       client = Client.new
-      client.publish_event(TestEvent.new(event_id: '1'), 'stream')
-      client.publish_event(TestEvent.new(event_id: '2'), 'other_stream')
-      client.publish_event(TestEvent.new(event_id: '3'), 'stream')
+      client.publish_event(TestEvent.new(event_id: '1'), stream_name: 'stream')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'other_stream')
+      client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream')
 
       expect(client.read_stream_events_backward('stream').map(&:event_id)).to eq(['3', '1'])
     end
@@ -70,25 +70,25 @@ module RailsEventStore
     specify 'read all streams forward' do
       client = Client.new
       client.publish_event(TestEvent.new(event_id: '1'))
-      client.publish_event(TestEvent.new(event_id: '2'), 'stream-1')
-      client.publish_event(TestEvent.new(event_id: '3'), 'stream-2')
-      client.publish_event(TestEvent.new(event_id: '4'), 'stream-2')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream-2')
+      client.publish_event(TestEvent.new(event_id: '4'), stream_name: 'stream-2')
 
       expect(client.read_all_streams_forward.map(&:event_id)).to eq(['1', '2', '3', '4'])
-      expect(client.read_all_streams_forward(:head, 3).map(&:event_id)).to eq(['1', '2', '3'])
-      expect(client.read_all_streams_forward('2', 2).map(&:event_id)).to eq(['3', '4'])
+      expect(client.read_all_streams_forward(start: :head, count: 3).map(&:event_id)).to eq(['1', '2', '3'])
+      expect(client.read_all_streams_forward(start: '2', count: 2).map(&:event_id)).to eq(['3', '4'])
     end
 
     specify 'read all streams backward' do
       client = Client.new
       client.publish_event(TestEvent.new(event_id: '1'))
-      client.publish_event(TestEvent.new(event_id: '2'), 'stream-1')
-      client.publish_event(TestEvent.new(event_id: '3'), 'stream-2')
-      client.publish_event(TestEvent.new(event_id: '4'), 'stream-2')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream-2')
+      client.publish_event(TestEvent.new(event_id: '4'), stream_name: 'stream-2')
 
       expect(client.read_all_streams_backward.map(&:event_id)).to eq(['4', '3', '2', '1'])
-      expect(client.read_all_streams_backward(:head, 3).map(&:event_id)).to eq(['4', '3', '2'])
-      expect(client.read_all_streams_backward('4', 2).map(&:event_id)).to eq(['3', '2'])
+      expect(client.read_all_streams_backward(start: :head, count: 3).map(&:event_id)).to eq(['4', '3', '2'])
+      expect(client.read_all_streams_backward(start: '4', count: 2).map(&:event_id)).to eq(['3', '2'])
     end
 
     specify 'lambda is an output of global subscribe methods' do
@@ -117,7 +117,7 @@ module RailsEventStore
       client.publish_event(event_2)
       expect(handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward(start: :head, count: 10)).to eq([event_1, event_2])
     end
 
     specify 'dynamic subscription' do
@@ -132,7 +132,7 @@ module RailsEventStore
       client.publish_event(event_2)
       expect(handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward(start: :head, count: 10)).to eq([event_1, event_2])
     end
 
     specify 'append event to global stream' do
@@ -144,41 +144,41 @@ module RailsEventStore
 
     specify 'append to stream with expected version' do
       client = Client.new
-      client.append_to_stream(TestEvent.new(event_id: '1'), 'stream-1')
-      client.append_to_stream(TestEvent.new(event_id: '2'), 'stream-1', '1')
+      client.append_to_stream(TestEvent.new(event_id: '1'), stream_name: 'stream-1')
+      client.append_to_stream(TestEvent.new(event_id: '2'), stream_name: 'stream-1', expected_version: '1')
 
       expect(client.read_all_streams_forward.map(&:event_id)).to eq(['1', '2'])
     end
 
     specify 'append to stream with wrong expected version' do
       client = Client.new
-      client.append_to_stream(TestEvent.new(event_id: '1'), 'stream-1')
-      client.append_to_stream(TestEvent.new(event_id: '2'), 'stream-1')
+      client.append_to_stream(TestEvent.new(event_id: '1'), stream_name: 'stream-1')
+      client.append_to_stream(TestEvent.new(event_id: '2'), stream_name: 'stream-1')
       expect do
-        client.append_to_stream(TestEvent.new(event_id: '3'), 'stream-1', '1')
+        client.append_to_stream(TestEvent.new(event_id: '3'), stream_name: 'stream-1', expected_version: '1')
       end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
     end
 
     specify 'publish event with expected version' do
       client = Client.new
-      client.publish_event(TestEvent.new(event_id: '1'), 'stream-1')
-      client.publish_event(TestEvent.new(event_id: '2'), 'stream-1', '1')
+      client.publish_event(TestEvent.new(event_id: '1'), stream_name: 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'stream-1', expected_version: '1')
 
       expect(client.read_all_streams_forward.map(&:event_id)).to eq(['1', '2'])
     end
 
     specify 'publish event with wrong expected version' do
       client = Client.new
-      client.publish_event(TestEvent.new(event_id: '1'), 'stream-1')
-      client.publish_event(TestEvent.new(event_id: '2'), 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '1'), stream_name: 'stream-1')
+      client.publish_event(TestEvent.new(event_id: '2'), stream_name: 'stream-1')
       expect do
-        client.publish_event(TestEvent.new(event_id: '3'), 'stream-1', '1')
+        client.publish_event(TestEvent.new(event_id: '3'), stream_name: 'stream-1', expected_version: '1')
       end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
     end
 
     specify 'delete stream' do
       client = Client.new
-      client.append_to_stream(TestEvent.new(event_id: '1'), 'stream-1')
+      client.append_to_stream(TestEvent.new(event_id: '1'), stream_name: 'stream-1')
       client.delete_stream('stream-1')
 
       expect(client.read_all_streams_forward).to eq([])
