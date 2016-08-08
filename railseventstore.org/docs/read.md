@@ -3,7 +3,7 @@
 ```ruby
 stream_name = "order_1"
 count = 40
-client.read_events_forward(stream_name, :head, count)
+client.read_events_forward(stream_name, start: :head, count: count)
 ```
 
 In this case `:head` means first event of the stream.
@@ -16,7 +16,7 @@ In this case `:head` means first event of the stream.
 stream_name = "order_1"
 start = last_read_event.event_id
 count = 40
-client.read_events_forward(stream_name, start, count)
+client.read_events_forward(stream_name, start: start, count: count)
 ```
 
 # Reading stream's events backward in batch
@@ -49,7 +49,7 @@ This method allows us to load all stored events ascending.
 This will read first 100 domain events stored in event store.
 
 ```ruby
-client.read_all_streams_forward(:head, 100)
+client.read_all_streams_forward(start: :head, count: 100)
 ```
 
 When not specified it reads events starting from `:head` (first domain event
@@ -63,7 +63,7 @@ client.read_all_streams_forward
 You could also read batch of domain events starting from any read or published event.
 
 ```ruby
-client.read_all_streams_forward(last_read_event.event_id, 100)
+client.read_all_streams_forward(start: last_read_event.event_id, count: 100)
 ```
 
 # Reading all events backward
@@ -72,7 +72,7 @@ This method allows us to load all stored events descending.
 
 This will read last 100 domain events stored in event store.
 ```ruby
-client.read_all_streams_backward(:head, 100)
+client.read_all_streams_backward(start: :head, count: 100)
 ```
 
 When not specified it reads events starting from `:head` (last domain event
