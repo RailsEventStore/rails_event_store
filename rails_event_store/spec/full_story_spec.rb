@@ -30,7 +30,7 @@ module RailsEventStore
     private
 
     def publish_ordering_events(client)
-      ordering_events.each { |event| client.publish_event(event, 'order_1') }
+      ordering_events.each { |event| client.publish_event(event, stream_name: 'order_1') }
     end
 
     def ordering_events
