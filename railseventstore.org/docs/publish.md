@@ -18,7 +18,7 @@ event = OrderPlaced.new(data: {
           festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
         })
 #publishing event for specific stream
-client.publish_event(event, stream_name)
+client.publish_event(event, stream_name: stream_name)
 
 #publishing global event. In this case stream_name is 'all'.
 client.publish_event(event)
@@ -38,7 +38,7 @@ event = OrderPlaced.new(data: {
           festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
         })
 expected_version = "850c347f-423a-4158-a5ce-b885396c5b73" #last event_id
-client.publish_event(event, stream_name, expected_version)
+client.publish_event(event, stream_name: stream_name, expected_version: expected_version)
 ```
 
 # Appending event to stream
@@ -51,5 +51,5 @@ event = OrderPlaced.new(data: {
           order_data: "sample",
           festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
         })
-client.append_to_stream(event, stream_name)
+client.append_to_stream(event, stream_name: stream_name)
 ```
