@@ -9,11 +9,11 @@ module RailsEventStore
       @event_broker = event_broker
     end
 
-    def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
+    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
       event_store.publish_event(event, stream_name, expected_version)
     end
 
-    def append_to_stream(event, stream_name = GLOBAL_STREAM, expected_version = :any)
+    def append_to_stream(event, stream_name: GLOBAL_STREAM, expected_version: :any)
       event_store.append_to_stream(stream_name, event, expected_version)
     end
 
@@ -21,11 +21,11 @@ module RailsEventStore
       event_store.delete_stream(stream_name)
     end
 
-    def read_events_forward(stream_name, start = :head, count = page_size)
+    def read_events_forward(stream_name, start: :head, count: page_size)
       event_store.read_events_forward(stream_name, start, count)
     end
 
-    def read_events_backward(stream_name, start = :head, count = page_size)
+    def read_events_backward(stream_name, start: :head, count: page_size)
       event_store.read_events_backward(stream_name, start, count)
     end
 
@@ -37,11 +37,11 @@ module RailsEventStore
       event_store.read_stream_events_backward(stream_name)
     end
 
-    def read_all_streams_forward(start = :head, count = page_size)
+    def read_all_streams_forward(start: :head, count: page_size)
       event_store.read_all_streams_forward(start, count)
     end
 
-    def read_all_streams_backward(start = :head, count = page_size)
+    def read_all_streams_backward(start: :head, count: page_size)
       event_store.read_all_streams_backward(start, count)
     end
 
