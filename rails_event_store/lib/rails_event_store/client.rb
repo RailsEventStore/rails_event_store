@@ -10,11 +10,11 @@ module RailsEventStore
     end
 
     def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      event_store.publish_event(event, stream_name, expected_version)
+      event_store.publish_event(event, stream_name: stream_name, expected_version: expected_version)
     end
 
     def append_to_stream(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      event_store.append_to_stream(stream_name, event, expected_version)
+      event_store.append_to_stream(stream_name, event, expected_version: expected_version)
     end
 
     def delete_stream(stream_name)
