@@ -1,3 +1,7 @@
+### 0.12.0 (10.08.2016)
+
+* Change: all public methods arguments with default values are now keyword arguments
+
 ### 0.11.0 (12.07.2016)
 
 * Change: Call instead of handle_event, handle_event marked as deprecated in PR #18 is now removed PR  #25
