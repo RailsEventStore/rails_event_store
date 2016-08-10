@@ -1,3 +1,7 @@
+### 0.12.0 (10.08.2016)
+
+* Change: Updated Ruby Event Store method calls according to the newer version PR #53
+
 ### 0.11.0 (12.07.2016)
 
 * Breaking change in domain event class (Part of PR #48)
