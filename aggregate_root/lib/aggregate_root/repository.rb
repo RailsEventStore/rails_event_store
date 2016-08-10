@@ -6,7 +6,7 @@ module AggregateRoot
 
     def store(aggregate)
       aggregate.unpublished_events.each do |event|
-        event_store.publish_event(event, aggregate.id)
+        event_store.publish_event(event, stream_name: aggregate.id)
       end
     end
 
