@@ -1,3 +1,7 @@
+### 0.6.7 (10.08.2016)
+
+* ruby_event_store updated to 0.12.0
+
 ### 0.6.6 (12.07.2016)
 
 * ruby_event_store updated to 0.11.0
