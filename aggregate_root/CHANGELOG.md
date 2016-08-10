@@ -1,3 +1,7 @@
+### 0.3.4 (10.08.2016)
+
+* Fix: missing keyword argument name
+
 ### 0.3.3 (10.08.2016)
 
 * Change: ruby_event_store updated to 0.12.0
