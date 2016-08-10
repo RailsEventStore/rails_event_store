@@ -117,7 +117,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     dispatcher  = TestDispatcher.new
     handler     = TestHandler.new
     event1      = Test1DomainEvent.new
-    broker_with_custom_dispatcher = broker_class.new(dispatcher)
+    broker_with_custom_dispatcher = broker_class.new(dispatcher: dispatcher)
     broker_with_custom_dispatcher.add_subscriber(handler, [Test1DomainEvent])
     broker_with_custom_dispatcher.notify_subscribers(event1)
     expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])

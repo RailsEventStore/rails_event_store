@@ -5,14 +5,14 @@ module RubyEventStore
 
     def self.from_stream(*streams)
       raise(ArgumentError, "At least one stream must be given") if streams.empty?
-      new(streams)
+      new(streams: streams)
     end
 
     def self.from_all_streams
       new
     end
 
-    def initialize(streams = [])
+    def initialize(streams: [])
       @streams  = streams
       @handlers = Hash.new { ->(_, _) {} }
       @init     = -> { Hash.new }
@@ -46,7 +46,7 @@ module RubyEventStore
       handlers.keys
     end
 
-    def run(event_store, start = :head, count = PAGE_SIZE)
+    def run(event_store, start: :head, count: PAGE_SIZE)
       if streams.any?
         reduce_from_streams(event_store, start, count)
       else

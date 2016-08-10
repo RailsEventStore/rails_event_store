@@ -9,13 +9,13 @@ module RubyEventStore
     end
     attr_reader :repository, :event_broker
 
-    def publish_event(event, stream_name = GLOBAL_STREAM, expected_version = :any)
-      append_to_stream(stream_name, event, expected_version)
+    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
+      append_to_stream(stream_name, event, expected_version: expected_version)
       event_broker.notify_subscribers(event)
       :ok
     end
 
-    def append_to_stream(stream_name, event, expected_version = :any)
+    def append_to_stream(stream_name, event, expected_version: :any)
       validate_expected_version(stream_name, expected_version)
       enriched_event = enrich_event_metadata(event)
       repository.create(enriched_event, stream_name)
