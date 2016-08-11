@@ -16,6 +16,16 @@ All documentation and sample codes are available at [http://railseventstore.arke
 
 Check the contribution guide on [CONTRIBUTING.md](https://github.com/arkency/ruby_event_store/blob/master/CONTRIBUTING.md)
 
+We're aiming for 100% mutation coverage in this project.
+Read the reasoning:
+
+[Why I want to introduce mutation testing to the rails_event_store gem](http://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/)
+
+[Mutation testing and continuous integration](http://blog.arkency.com/2015/05/mutation-testing-and-continuous-integration/)
+
+In practice, it means that we run `make mutate` as part of the CI process.
+Whenever you fix a bug or add a new feature, we require that the coverage doesn't go down.
+
 ## About
 
 <img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left" />
