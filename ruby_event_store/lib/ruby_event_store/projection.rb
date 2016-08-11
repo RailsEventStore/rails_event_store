@@ -39,7 +39,7 @@ module RubyEventStore
     end
 
     def call(event)
-      handlers[event.class].(current_state, event)
+      handlers.fetch(event.class).(current_state, event)
     end
 
     def handled_events
