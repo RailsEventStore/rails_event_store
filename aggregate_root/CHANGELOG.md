@@ -1,3 +1,7 @@
+### 0.3.5 (11.08.2016)
+
+* Fix an issue when default apply strategy generated a wrong method name #7
+
 ### 0.3.4 (10.08.2016)
 
 * Fix: missing keyword argument name
