@@ -69,15 +69,15 @@ RSpec.shared_examples :event_repository do |repository_class|
       repository.create(TestDomainEvent.new(event_id: id), 'stream')
     end
 
-    expect(repository.read_events_forward('stream', :head, 3).map(&:event_id)).to eq ['1','2','3']
-    expect(repository.read_events_forward('stream', :head, 100).map(&:event_id)).to eq event_ids
-    expect(repository.read_events_forward('stream', '5', 4).map(&:event_id)).to eq ['6','7','8','9']
-    expect(repository.read_events_forward('stream', '5', 100).map(&:event_id)).to eq ['6','7','8','9','10']
+    expect(repository.read_events_forward('stream', :head, 3)).to eq ['1','2','3'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_events_forward('stream', :head, 100)).to eq event_ids.map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_events_forward('stream', '5', 4)).to eq ['6','7','8','9'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_events_forward('stream', '5', 100)).to eq ['6','7','8','9','10'].map{|x| TestDomainEvent.new(event_id: x)}
 
-    expect(repository.read_events_backward('stream', :head, 3).map(&:event_id)).to eq ['10','9','8']
-    expect(repository.read_events_backward('stream', :head, 100).map(&:event_id)).to eq event_ids.reverse
-    expect(repository.read_events_backward('stream', '5', 4).map(&:event_id)).to eq ['4','3','2','1']
-    expect(repository.read_events_backward('stream', '5', 100).map(&:event_id)).to eq ['4','3','2','1']
+    expect(repository.read_events_backward('stream', :head, 3)).to eq ['10','9','8'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_events_backward('stream', :head, 100)).to eq event_ids.reverse.map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_events_backward('stream', '5', 4)).to eq ['4','3','2','1'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_events_backward('stream', '5', 100)).to eq ['4','3','2','1'].map{|x| TestDomainEvent.new(event_id: x)}
   end
 
 
@@ -88,8 +88,8 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.create(TestDomainEvent.new(event_id: '4'), 'other_stream')
     repository.create(TestDomainEvent.new(event_id: '5'), 'other_stream')
 
-    expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq ['1','3']
-    expect(repository.read_stream_events_backward('stream').map(&:event_id)).to eq ['3','1']
+    expect(repository.read_stream_events_forward('stream')).to eq ['1','3'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_stream_events_backward('stream')).to eq ['3','1'].map{|x| TestDomainEvent.new(event_id: x)}
   end
 
   it 'reads batch of events from all streams forward & backward' do
@@ -98,14 +98,14 @@ RSpec.shared_examples :event_repository do |repository_class|
       repository.create(TestDomainEvent.new(event_id: id), SecureRandom.uuid)
     end
 
-    expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq ['1','2','3']
-    expect(repository.read_all_streams_forward(:head, 100).map(&:event_id)).to eq event_ids
-    expect(repository.read_all_streams_forward('5', 4).map(&:event_id)).to eq ['6','7','8','9']
-    expect(repository.read_all_streams_forward('5', 100).map(&:event_id)).to eq ['6','7','8','9','10']
+    expect(repository.read_all_streams_forward(:head, 3)).to eq ['1','2','3'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_all_streams_forward(:head, 100)).to eq event_ids.map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_all_streams_forward('5', 4)).to eq ['6','7','8','9'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_all_streams_forward('5', 100)).to eq ['6','7','8','9','10'].map{|x| TestDomainEvent.new(event_id: x)}
 
-    expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq ['10','9','8']
-    expect(repository.read_all_streams_backward(:head, 100).map(&:event_id)).to eq event_ids.reverse
-    expect(repository.read_all_streams_backward('5', 4).map(&:event_id)).to eq ['4','3','2','1']
-    expect(repository.read_all_streams_backward('5', 100).map(&:event_id)).to eq ['4','3','2','1']
+    expect(repository.read_all_streams_backward(:head, 3)).to eq ['10','9','8'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_all_streams_backward(:head, 100)).to eq event_ids.reverse.map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_all_streams_backward('5', 4)).to eq ['4','3','2','1'].map{|x| TestDomainEvent.new(event_id: x)}
+    expect(repository.read_all_streams_backward('5', 100)).to eq ['4','3','2','1'].map{|x| TestDomainEvent.new(event_id: x)}
   end
 end
