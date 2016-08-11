@@ -10,9 +10,5 @@ module AggregateRoot
 
   class Configuration
     attr_accessor :default_event_store
-
-    def initialize
-      @default_event_store = nil
-    end
   end
 end

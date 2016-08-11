@@ -142,6 +142,24 @@ There're already few blogposts about building an event sourced applications wth 
 * [Testing Event Sourced application - the read side](http://blog.arkency.com/2015/09/testing-event-sourced-application-the-read-side/)
 * [One event to rule them all](http://blog.arkency.com/2016/01/one-event-to-rule-them-all/)
 
+# Contributing
+
+Check the contribution guide on [CONTRIBUTING.md](https://github.com/arkency/aggregate_root/blob/master/CONTRIBUTING.md)
+
+We're aiming for 100% mutation coverage in this project.
+Read the reasoning:
+
+[Why I want to introduce mutation testing to the rails_event_store gem](http://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/)
+
+[Mutation testing and continuous integration](http://blog.arkency.com/2015/05/mutation-testing-and-continuous-integration/)
+
+In practice, it means that we run `make mutate` as part of the CI process. As long as we don't have 100%, there's a hardcoded value we expect from the mutation coverage.
+
+Whenever you fix a bug or add a new feature, we require that the coverage doesn't go down.
+
+However, even if it goes up, you need to go the `Makefile` and apply the new expected coverage. We call this technique "raising the coverage bar". The goal here is to raise the bar so that the better coverage is maintained for later changes. The new value should be the Kills/Mutations number in your last `make mutate` output.
+
+
 ## About
 
 <img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left" />
