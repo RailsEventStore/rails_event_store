@@ -16,18 +16,19 @@ class Order
     @apply_strategy = AggregateRoot::DefaultApplyStrategy.new
   end
 
-  def apply_order_created(event)
+  def apply_events_order_created(event)
     @status = :created
   end
 end
 
-class OrderCreated < RubyEventStore::Event
+module Events
+  OrderCreated = Class.new(RubyEventStore::Event)
 end
 
 class CustomOrderApplyStrategy
   def call(aggregate, event)
     case event.class.object_id
-    when OrderCreated.object_id
+    when Events::OrderCreated.object_id
       aggregate.method(:custom_order_processor).call(event)
     else
       aggregate.method(:process_unhandled_event).call(event)
@@ -69,7 +70,7 @@ module AggregateRoot
 
     it "should have ability to apply event on itself" do
       order = Order.new
-      order_created = OrderCreated.new
+      order_created = Events::OrderCreated.new
 
       order.apply(order_created)
       expect(order.unpublished_events).to eq([order_created])
@@ -87,18 +88,18 @@ module AggregateRoot
 
     it "should receive a method call based on a default apply strategy" do
       order = Order.new
-      order_created = OrderCreated.new
+      order_created = Events::OrderCreated.new
 
-      expect(order).to receive(:apply_order_created).with(order_created)
+      expect(order).to receive(:apply_events_order_created).with(order_created)
       order.apply(order_created)
 
-      expect(order).to receive(:apply_order_created).with(order_created)
+      expect(order).to receive(:apply_events_order_created).with(order_created)
       order.apply_old_event(order_created)
     end
 
     it "should receive a method call based on a custom strategy" do
       order = OrderWithCustomStrategy.new
-      order_created = OrderCreated.new
+      order_created = Events::OrderCreated.new
 
       expect(order).to receive(:custom_order_processor).with(order_created)
       order.apply(order_created)
@@ -114,7 +115,7 @@ module AggregateRoot
     it "should have ability to store & load aggregate" do
       aggregate_repository = Repository.new(event_store)
       order = Order.new
-      order_created = OrderCreated.new
+      order_created = Events::OrderCreated.new
       order_id = order.id
       order.apply(order_created)
 
@@ -125,7 +126,7 @@ module AggregateRoot
       expect(stream.first).to eq(order_created)
 
       order = Order.new(order_id)
-      expect(order).to receive(:apply_order_created).with(order_created)
+      expect(order).to receive(:apply_events_order_created).with(order_created)
 
       aggregate_repository.load(order)
       expect(order.unpublished_events).to be_empty
@@ -134,7 +135,7 @@ module AggregateRoot
     it "should recieve a method call on load based on a custom apply strategy" do
       aggregate_repository = Repository.new(event_store)
       order = OrderWithCustomStrategy.new
-      order_created = OrderCreated.new
+      order_created = Events::OrderCreated.new
       order_id = order.id
       order.apply(order_created)
       aggregate_repository.store(order)
