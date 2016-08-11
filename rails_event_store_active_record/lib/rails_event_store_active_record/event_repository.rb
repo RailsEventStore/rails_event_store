@@ -1,12 +1,12 @@
 module RailsEventStoreActiveRecord
   class EventRepository
-    def initialize(adapter: ::RailsEventStoreActiveRecord::Event)
+    def initialize(adapter: Event)
       @adapter = adapter
     end
     attr_reader :adapter
 
     def create(event, stream_name)
-      data = event.to_h.merge!(stream: stream_name, event_type: event.class.name)
+      data = event.to_h.merge!(stream: stream_name, event_type: event.class)
       adapter.create(data)
       event
     end
@@ -14,7 +14,6 @@ module RailsEventStoreActiveRecord
     def delete_stream(stream_name)
       condition = {stream: stream_name}
       adapter.destroy_all condition
-      nil
     end
 
     def has_event?(event_id)
@@ -25,18 +24,14 @@ module RailsEventStoreActiveRecord
       build_event_entity(adapter.where(stream: stream_name).last)
     end
 
-    def get_all_events
-      adapter.order('id ASC').order('stream').all.map(&method(:build_event_entity))
-    end
-
     def read_events_forward(stream_name, start_event_id, count)
       stream = adapter.where(stream: stream_name)
       unless start_event_id.equal?(:head)
         starting_event = adapter.find_by(event_id: start_event_id)
-        stream = stream.where('id > ?', starting_event.id)
+        stream = stream.where('id > ?', starting_event)
       end
 
-      stream.order('id ASC').limit(count)
+      stream.limit(count)
         .map(&method(:build_event_entity))
     end
 
@@ -44,7 +39,7 @@ module RailsEventStoreActiveRecord
       stream = adapter.where(stream: stream_name)
       unless start_event_id.equal?(:head)
         starting_event = adapter.find_by(event_id: start_event_id)
-        stream = stream.where('id < ?', starting_event.id)
+        stream = stream.where('id < ?', starting_event)
       end
 
       stream.order('id DESC').limit(count)
@@ -52,7 +47,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_stream_events_forward(stream_name)
-      adapter.where(stream: stream_name).order('id ASC')
+      adapter.where(stream: stream_name)
         .map(&method(:build_event_entity))
     end
 
@@ -65,10 +60,10 @@ module RailsEventStoreActiveRecord
       stream = adapter
       unless start_event_id.equal?(:head)
         starting_event = adapter.find_by(event_id: start_event_id)
-        stream = stream.where('id > ?', starting_event.id)
+        stream = stream.where('id > ?', starting_event)
       end
 
-      stream.order('id ASC').limit(count)
+      stream.limit(count)
         .map(&method(:build_event_entity))
     end
 
@@ -76,7 +71,7 @@ module RailsEventStoreActiveRecord
       stream = adapter
       unless start_event_id.equal?(:head)
         starting_event = adapter.find_by(event_id: start_event_id)
-        stream = stream.where('id < ?', starting_event.id)
+        stream = stream.where('id < ?', starting_event)
       end
 
       stream.order('id DESC').limit(count)
