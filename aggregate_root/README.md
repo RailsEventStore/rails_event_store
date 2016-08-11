@@ -153,12 +153,8 @@ Read the reasoning:
 
 [Mutation testing and continuous integration](http://blog.arkency.com/2015/05/mutation-testing-and-continuous-integration/)
 
-In practice, it means that we run `make mutate` as part of the CI process. As long as we don't have 100%, there's a hardcoded value we expect from the mutation coverage.
-
+In practice, it means that we run `make mutate` as part of the CI process.
 Whenever you fix a bug or add a new feature, we require that the coverage doesn't go down.
-
-However, even if it goes up, you need to go the `Makefile` and apply the new expected coverage. We call this technique "raising the coverage bar". The goal here is to raise the bar so that the better coverage is maintained for later changes. The new value should be the Kills/Mutations number in your last `make mutate` output.
-
 
 ## About
 

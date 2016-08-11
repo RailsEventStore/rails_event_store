@@ -19,7 +19,7 @@ Any kind of contribution is welcomed. Here is a few guidelines that we need cont
 * Do your work. Please try to keep your commits small and focussed.
 * Make sure you have added the necessary tests for your changes.
 * Push your changes to a feature branch in your fork of the repository.
-* Submit a pull request to the RailsEventStore repository.
+* Submit a pull request to the AggregateRoot repository.
 
 # Additional Resources
 
