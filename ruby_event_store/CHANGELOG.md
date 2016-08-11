@@ -1,3 +1,7 @@
+### 0.12.1 (11.08.2016)
+
+* Fix: improve EventRepository specification tests (mutation tests)
+
 ### 0.12.0 (10.08.2016)
 
 * Change: all public methods arguments with default values are now keyword arguments
