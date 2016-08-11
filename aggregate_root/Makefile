@@ -10,7 +10,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require aggregate_root --use rspec "AggregateRoot*" --ignore-subject "AggregateRoot::Base#apply" --ignore-subject "AggregateRoot::Base#apply_event" --ignore-subject "AggregateRoot::Base#apply_old_event" --ignore-subject "AggregateRoot::Repository#load" --ignore-subject "AggregateRoot::Configuration#initialize"
+	@bundle exec mutant --include lib --require aggregate_root --use rspec "AggregateRoot*"
 
 .PHONY: help
 
