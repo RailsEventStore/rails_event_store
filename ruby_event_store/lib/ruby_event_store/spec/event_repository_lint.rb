@@ -59,7 +59,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.create(TestDomainEvent.new(event_id: 'event 1'), 'stream')
     repository.create(TestDomainEvent.new(event_id: 'event 2'), 'stream')
 
-    expect(repository.last_stream_event('stream').event_id).to eq('event 2')
+    expect(repository.last_stream_event('stream')).to eq(TestDomainEvent.new(event_id: 'event 2'))
     expect(repository.last_stream_event('other_stream')).to be_nil
   end
 
