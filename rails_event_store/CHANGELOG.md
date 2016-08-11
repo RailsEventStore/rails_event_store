@@ -1,3 +1,7 @@
+### 0.12.1 (11.08.2016)
+
+* Fix: aggregate_root gem updated to 0.3.5 fixing invalid method name generated for events wrapped in namespace
+
 ### 0.12.0 (10.08.2016)
 
 * Change: Updated Ruby Event Store method calls according to the newer version PR #53
