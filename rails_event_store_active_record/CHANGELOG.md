@@ -1,3 +1,8 @@
+### 0.6.8 (11.08.2016)
+
+* ruby_event_store updated to 0.12.1
+* make this gem mutant free - 100% mutation tests coverage
+
 ### 0.6.7 (10.08.2016)
 
 * ruby_event_store updated to 0.12.0
