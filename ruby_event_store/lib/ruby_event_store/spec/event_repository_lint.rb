@@ -65,9 +65,11 @@ RSpec.shared_examples :event_repository do |repository_class|
 
   it 'reads batch of events from stream forward & backward' do
     event_ids = (1..10).to_a.map(&:to_s)
+    repository.create(TestDomainEvent.new(event_id: '21'), 'other_stream')
     event_ids.each do |id|
       repository.create(TestDomainEvent.new(event_id: id), 'stream')
     end
+    repository.create(TestDomainEvent.new(event_id: '22'), 'other_stream')
 
     expect(repository.read_events_forward('stream', :head, 3)).to eq ['1','2','3'].map{|x| TestDomainEvent.new(event_id: x)}
     expect(repository.read_events_forward('stream', :head, 100)).to eq event_ids.map{|x| TestDomainEvent.new(event_id: x)}
