@@ -19,6 +19,11 @@ module AggregateRoot
       expect(aggregate_repository.event_store).to eq(event_store)
     end
 
+    it "by default there is no default event store" do
+      aggregate_repository = Repository.new
+      expect(aggregate_repository.event_store).to be_nil
+    end
+
     it "should have ability to store & load aggregate" do
       aggregate_repository = Repository.new(event_store)
       order = Order.new
