@@ -1,3 +1,4 @@
 /_book/
 /pkg/
+/log/
 Gemfile.lock
