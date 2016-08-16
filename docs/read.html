@@ -49,7 +49,7 @@
         data-chapter-title="Reading from stream"
         data-filepath="docs/read.md"
         data-basepath=".."
-        data-revision="Mon Jul 18 2016 22:14:41 GMT+0200 (CEST)"
+        data-revision="Tue Aug 16 2016 15:32:47 GMT+0200 (CEST)"
         data-innerlanguage="">
     
 
@@ -304,7 +304,7 @@
                         <h1 id="reading-streams-events-forward-in-batch--starting-from-first-event">Reading stream&apos;s events forward in batch - starting from first event</h1>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
 count = <span class="hljs-number">40</span>
-client.read_events_forward(stream_name, <span class="hljs-symbol">:head</span>, count)
+client.read_events_forward(stream_name, <span class="hljs-symbol">start:</span> <span class="hljs-symbol">:head</span>, <span class="hljs-symbol">count:</span> count)
 </code></pre>
 <p>In this case <code>:head</code> means first event of the stream.</p>
 <h1 id="reading-streams-events-forward-in-batch--staring-from-given-event">Reading stream&apos;s events forward in batch - staring from given event</h1>
@@ -313,7 +313,7 @@ client.read_events_forward(stream_name, <span class="hljs-symbol">:head</span>, 
 stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
 start = last_read_event.event_id
 count = <span class="hljs-number">40</span>
-client.read_events_forward(stream_name, start, count)
+client.read_events_forward(stream_name, <span class="hljs-symbol">start:</span> start, <span class="hljs-symbol">count:</span> count)
 </code></pre>
 <h1 id="reading-streams-events-backward-in-batch">Reading stream&apos;s events backward in batch</h1>
 <p>As in examples above, just use <code>read_events_backward</code> instead of <code>read_events_forward</code>.
@@ -331,7 +331,7 @@ client.read_stream_events_backward(stream_name)
 <h1 id="reading-all-events-forward">Reading all events forward</h1>
 <p>This method allows us to load all stored events ascending.</p>
 <p>This will read first 100 domain events stored in event store.</p>
-<pre><code class="lang-ruby">client.read_all_streams_forward(<span class="hljs-symbol">:head</span>, <span class="hljs-number">100</span>)
+<pre><code class="lang-ruby">client.read_all_streams_forward(<span class="hljs-symbol">start:</span> <span class="hljs-symbol">:head</span>, <span class="hljs-symbol">count:</span> <span class="hljs-number">100</span>)
 </code></pre>
 <p>When not specified it reads events starting from <code>:head</code> (first domain event
 stored in event store) and reads up to <code>RailsEventStore::PAGE_SIZE</code>
@@ -339,12 +339,12 @@ domain events.</p>
 <pre><code class="lang-ruby">client.read_all_streams_forward
 </code></pre>
 <p>You could also read batch of domain events starting from any read or published event.</p>
-<pre><code class="lang-ruby">client.read_all_streams_forward(last_read_event.event_id, <span class="hljs-number">100</span>)
+<pre><code class="lang-ruby">client.read_all_streams_forward(<span class="hljs-symbol">start:</span> last_read_event.event_id, <span class="hljs-symbol">count:</span> <span class="hljs-number">100</span>)
 </code></pre>
 <h1 id="reading-all-events-backward">Reading all events backward</h1>
 <p>This method allows us to load all stored events descending.</p>
 <p>This will read last 100 domain events stored in event store.</p>
-<pre><code class="lang-ruby">client.read_all_streams_backward(<span class="hljs-symbol">:head</span>, <span class="hljs-number">100</span>)
+<pre><code class="lang-ruby">client.read_all_streams_backward(<span class="hljs-symbol">start:</span> <span class="hljs-symbol">:head</span>, <span class="hljs-symbol">count:</span> <span class="hljs-number">100</span>)
 </code></pre>
 <p>When not specified it reads events starting from <code>:head</code> (last domain event
 stored in event store) and reads up to <code>RailsEventStore::PAGE_SIZE</code>

@@ -49,7 +49,7 @@
         data-chapter-title="Projections"
         data-filepath="docs/projection.md"
         data-basepath=".."
-        data-revision="Mon Jul 18 2016 22:14:41 GMT+0200 (CEST)"
+        data-revision="Tue Aug 16 2016 15:32:47 GMT+0200 (CEST)"
         data-innerlanguage="">
     
 
@@ -305,9 +305,9 @@
 <p>You can create a projection abstract based on single stream.</p>
 <pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;Customer$1&quot;</span>
 
-client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), stream_name)
-client.publish_event(custom_event = <span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span> }), stream_name)
-client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">5</span> }), stream_name)
+client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-symbol">stream_name:</span> stream_name)
+client.publish_event(custom_event = <span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span> }), <span class="hljs-symbol">stream_name:</span> stream_name)
+client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">5</span> }), <span class="hljs-symbol">stream_name:</span> stream_name)
 
 account_balance = <span class="hljs-constant">RailsEventStore::Projection</span>.
   from_stream(stream_name).
@@ -321,10 +321,10 @@ account_balance.run(client) <span class="hljs-comment"># =&gt; {total: 25}</span
 <pre><code class="lang-ruby">account_balance.run(client, custom_event.event_id) <span class="hljs-comment"># =&gt; {total: -5}</span>
 </code></pre>
 <h1 id="projection-based-on-multiple-streams">Projection based on multiple streams</h1>
-<pre><code class="lang-ruby">client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">15</span> }), <span class="hljs-string">&quot;Customer$1&quot;</span>)
-client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">25</span> }), <span class="hljs-string">&quot;Customer$2&quot;</span>)
-client.publish_event(custom_event = <span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-string">&quot;Customer$3&quot;</span>)
-client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span> }), <span class="hljs-string">&quot;Customer$3&quot;</span>)
+<pre><code class="lang-ruby">client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">15</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$1&quot;</span>)
+client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">25</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$2&quot;</span>)
+client.publish_event(custom_event = <span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$3&quot;</span>)
+client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$3&quot;</span>)
 
 account_balance = <span class="hljs-constant">RailsEventStore::Projection</span>.
   from_stream(<span class="hljs-string">&quot;Customer$1&quot;</span>, <span class="hljs-string">&quot;Customer$3&quot;</span>).
@@ -338,10 +338,10 @@ account_balance.run(client) <span class="hljs-comment"># =&gt; {total: -15}</spa
 <pre><code class="lang-ruby">account_balance.run(client, [<span class="hljs-symbol">:head</span>, custom_event.event_id]) <span class="hljs-comment"># =&gt; {total: -5}</span>
 </code></pre>
 <h1 id="projection-based-on-all-streams">Projection based on all streams</h1>
-<pre><code class="lang-ruby">client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-string">&quot;Customer$1&quot;</span>)
-client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-string">&quot;Customer$2&quot;</span>)
-client.publish_event(custom_event = <span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-string">&quot;Customer$3&quot;</span>)
-client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span> }), <span class="hljs-string">&quot;Customer$4&quot;</span>)
+<pre><code class="lang-ruby">client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$1&quot;</span>)
+client.publish_event(<span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$2&quot;</span>)
+client.publish_event(custom_event = <span class="hljs-constant">MoneyDeposited</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">10</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$3&quot;</span>)
+client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span class="hljs-symbol">data:</span> { <span class="hljs-symbol">amount:</span> <span class="hljs-number">20</span> }), <span class="hljs-symbol">stream_name:</span> <span class="hljs-string">&quot;Customer$4&quot;</span>)
 
 account_balance = <span class="hljs-constant">RailsEventStore::Projection</span>.
   from_all_streams.
