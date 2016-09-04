@@ -54,12 +54,12 @@ module RubyEventStore
       end
 
       def subscribe(subscriber, event_types)
-        event_types.each{ |type| subscribers[type] << subscriber }
-        ->() {event_types.each{ |type| subscribers.fetch(type).delete(subscriber) } }
+        event_types.each{ |type| subscribers[type.name] << subscriber }
+        ->() {event_types.each{ |type| subscribers.fetch(type.name).delete(subscriber) } }
       end
 
       def all_subscribers_for(event_type)
-        subscribers[event_type] + @global_subscribers
+        subscribers[event_type.name] + @global_subscribers
       end
     end
   end
