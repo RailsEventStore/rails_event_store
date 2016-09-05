@@ -49,7 +49,7 @@
         data-chapter-title="Subscribing to events"
         data-filepath="docs/subscribe.md"
         data-basepath=".."
-        data-revision="Tue Aug 16 2016 15:32:47 GMT+0200 (CEST)"
+        data-revision="Mon Sep 05 2016 22:20:05 GMT+0200 (CEST)"
         data-innerlanguage="">
     
 
@@ -320,7 +320,7 @@ subscriber = <span class="hljs-constant">InvoiceReadModel</span>.new
 event_store.subscribe(subscriber, [<span class="hljs-constant">InvoiceCreated</span>, <span class="hljs-constant">InvoiceUpdated</span>])
 </code></pre>
 <p>You can use <code>Proc</code> objects or <code>lambda</code>s here:</p>
-<pre><code class="lang-ruby">invoice_read_model_processing = -&gt; (event) { 
+<pre><code class="lang-ruby">invoice_read_model_processing = -&gt; (event) {
   <span class="hljs-comment"># Process an event here..</span>
 }
 
@@ -341,11 +341,11 @@ event_store.subscribe(send_invoice_email, [<span class="hljs-constant">InvoiceAc
     logger.info(<span class="hljs-string">&quot;<span class="hljs-subst">#{event.<span class="hljs-keyword">class</span>.to_s}</span> published. Data: <span class="hljs-subst">#{event.data.inspect}</span>&quot;</span>)
   <span class="hljs-keyword">end</span>
 
-  private 
+  private
   <span class="hljs-keyword">attr_reader</span> <span class="hljs-symbol">:logger</span>
 <span class="hljs-keyword">end</span>
 
-event_store.subscirbe_to_all_events(<span class="hljs-constant">EventsLogger</span>.new(<span class="hljs-constant">Rails</span>.logger))
+event_store.subscribe_to_all_events(<span class="hljs-constant">EventsLogger</span>.new(<span class="hljs-constant">Rails</span>.logger))
 </code></pre>
 <blockquote>
 <p>In early versions of Rails Event Store event handlers (subscribers) needed to have <code>#handle_event</code> method. While it is still supported, it will be removed in future. For your convenience, it now gives a deprecation warning.</p>
@@ -364,7 +364,7 @@ event_store.subscirbe_to_all_events(<span class="hljs-constant">EventsLogger</sp
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AddressNotProvided</span></span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(saga, event)</span></span>
       <span class="hljs-comment"># ...</span>
-    <span class="hljs-keyword">end</span> 
+    <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># ...</span>
