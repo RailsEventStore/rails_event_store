@@ -25,7 +25,7 @@ event_store.subscribe(subscriber, [InvoiceCreated, InvoiceUpdated])
 You can use `Proc` objects or `lambda`s here:
 
 ```ruby
-invoice_read_model_processing = -> (event) { 
+invoice_read_model_processing = -> (event) {
   # Process an event here..
 }
 
@@ -49,11 +49,11 @@ class EventsLogger
     logger.info("#{event.class.to_s} published. Data: #{event.data.inspect}")
   end
 
-  private 
+  private
   attr_reader :logger
 end
 
-event_store.subscirbe_to_all_events(EventsLogger.new(Rails.logger))
+event_store.subscribe_to_all_events(EventsLogger.new(Rails.logger))
 ```
 
 > In early versions of Rails Event Store event handlers (subscribers) needed to have `#handle_event` method. While it is still supported, it will be removed in future. For your convenience, it now gives a deprecation warning.
@@ -77,7 +77,7 @@ module MissingShippingDetails
   class AddressNotProvided
     def process(saga, event)
       # ...
-    end 
+    end
   end
 
   # ...
@@ -106,4 +106,3 @@ end
 ```
 
 Remember that subscriptions are one-shot. If you want to still pass a block without having one-shot behaviour, you can use classical subscription pattern. Remember blocks are `Proc`s under the hood!
-
