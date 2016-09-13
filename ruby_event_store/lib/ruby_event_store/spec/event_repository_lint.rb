@@ -1,6 +1,6 @@
 RSpec.shared_examples :event_repository do |repository_class|
   TestDomainEvent = Class.new(RubyEventStore::Event)
-  subject(:repository)  { repository_class.new }
+  let(:repository) { subject || repository_class.new }
 
   it 'just created is empty' do
     expect(repository.read_all_streams_forward(:head, 1)).to be_empty
