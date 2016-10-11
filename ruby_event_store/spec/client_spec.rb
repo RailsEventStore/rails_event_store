@@ -102,8 +102,8 @@ module RubyEventStore
       client.publish_event(event)
       published = client.read_all_streams_forward(:head, 10)
       expect(published.size).to eq(1)
-      expect(published.first.metadata.request_id).to eq('127.0.0.1')
-      expect(published.first.metadata.timestamp).to be_a Time
+      expect(published.first.metadata[:request_id]).to eq('127.0.0.1')
+      expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
     specify 'only timestamp set inn metadata when event stored in stream if metadata proc return nil' do
@@ -112,8 +112,8 @@ module RubyEventStore
       client.append_to_stream(GLOBAL_STREAM, event)
       published = client.read_all_streams_forward(:head, 10)
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
-      expect(published.first.metadata.timestamp).to be_a Time
+      expect(published.first.metadata.keys).to eq([:timestamp])
+      expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
     specify 'timestamp is utc time' do
@@ -126,7 +126,7 @@ module RubyEventStore
       client.publish_event(event)
       published = client.read_all_streams_forward(:head, 10)
       expect(published.size).to eq(1)
-      expect(published.first.metadata.timestamp).to eq(utc)
+      expect(published.first.metadata[:timestamp]).to eq(utc)
     end
   end
 end
