@@ -2,7 +2,7 @@ require 'securerandom'
 
 module RubyEventStore
   class Event
-    def initialize(event_id: SecureRandom.uuid, metadata: {}, data: {})
+    def initialize(event_id: SecureRandom.uuid, metadata: nil, data: nil)
       @event_id = event_id.to_s
       @metadata = metadata.to_h
       @data     = data.to_h
