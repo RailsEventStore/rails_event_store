@@ -39,6 +39,7 @@ module RubyEventStore
       event_store.publish_event(MoneyDeposited.new(data: { amount: 25 }), stream_name: "Customer$2")
       event_store.publish_event(custom_event = MoneyWithdrawn.new(data: { amount: 10 }), stream_name: "Customer$3")
       event_store.publish_event(MoneyWithdrawn.new(data: { amount: 20 }), stream_name: "Customer$3")
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$3")
 
       account_balance = Projection.
         from_stream("Customer$1", "Customer$3").
@@ -46,9 +47,10 @@ module RubyEventStore
         when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount]})
 
-      expect(account_balance.run(event_store)).to eq(total: -15)
-      expect(account_balance.run(event_store, start: :head)).to eq(total: -15)
+      expect(account_balance.run(event_store)).to eq(total: -5)
+      expect(account_balance.run(event_store, start: :head)).to eq(total: -5)
       expect(account_balance.run(event_store, start: [:head, custom_event.event_id], count: 1)).to eq(total: -5)
+      expect(account_balance.run(event_store, start: [:head, custom_event.event_id], count: 2)).to eq(total: 5)
     end
 
     specify "raises proper errors when wrong argument were pass (stream mode)" do
