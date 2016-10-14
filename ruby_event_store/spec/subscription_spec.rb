@@ -136,7 +136,7 @@ module RubyEventStore
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward(start: :head, count: 10)).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
 
     specify 'dynamic subscription' do
@@ -149,7 +149,7 @@ module RubyEventStore
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward(start: :head, count: 10)).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
   end
 end

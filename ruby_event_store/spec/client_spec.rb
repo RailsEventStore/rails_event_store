@@ -15,6 +15,13 @@ module RubyEventStore
       expect(client.append_to_stream(TestEvent.new, stream_name: stream)).to eq(:ok)
     end
 
+    specify 'append to default stream when not specified' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      expect(client.append_to_stream(test_event)).to eq(:ok)
+      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
+    end
+
     specify 'delete_stream returns :ok when success' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
@@ -30,6 +37,13 @@ module RubyEventStore
       broker = RubyEventStore::PubSub::Broker.new
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new, event_broker: broker)
       expect(client.send("event_broker")).to eql(broker)
+    end
+
+    specify 'publish to default stream when not specified' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      expect(client.publish_event(test_event)).to eq(:ok)
+      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
     end
 
     specify 'publish fail if expected version is nil' do
@@ -96,11 +110,26 @@ module RubyEventStore
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 
+    specify 'read only up to page size from stream' do
+      stream = SecureRandom.uuid
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      (1..102).each { client.append_to_stream(TestEvent.new, stream_name: stream) }
+      expect(client.read_events_forward(stream, count: 10).size).to eq(10)
+      expect(client.read_events_backward(stream, count: 10).size).to eq(10)
+      expect(client.read_events_forward(stream).size).to eq(PAGE_SIZE)
+      expect(client.read_events_backward(stream).size).to eq(PAGE_SIZE)
+
+      expect(client.read_all_streams_forward(count: 10).size).to eq(10)
+      expect(client.read_all_streams_backward(count: 10).size).to eq(10)
+      expect(client.read_all_streams_forward.size).to eq(PAGE_SIZE)
+      expect(client.read_all_streams_backward.size).to eq(PAGE_SIZE)
+    end
+
     specify 'published event metadata will be enriched by proc execution' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ {request_id: '127.0.0.1'} })
       event = TestEvent.new
       client.publish_event(event)
-      published = client.read_all_streams_forward(start: :head, count: 10)
+      published = client.read_all_streams_forward
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_id]).to eq('127.0.0.1')
       expect(published.first.metadata[:timestamp]).to be_a Time
@@ -109,8 +138,8 @@ module RubyEventStore
     specify 'only timestamp set inn metadata when event stored in stream if metadata proc return nil' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ nil })
       event = TestEvent.new
-      client.append_to_stream(event, stream_name: GLOBAL_STREAM)
-      published = client.read_all_streams_forward(start: :head, count: 10)
+      client.append_to_stream(event)
+      published = client.read_all_streams_forward
       expect(published.size).to eq(1)
       expect(published.first.metadata.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to be_a Time
@@ -124,7 +153,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = TestEvent.new
       client.publish_event(event)
-      published = client.read_all_streams_forward(start: :head, count: 10)
+      published = client.read_all_streams_forward
       expect(published.size).to eq(1)
       expect(published.first.metadata[:timestamp]).to eq(utc)
     end
