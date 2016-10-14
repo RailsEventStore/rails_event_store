@@ -1,3 +1,7 @@
+* Change: Refactor RubyEventStore::Client to have the same methods signatures as RailsEventStore::Client,
+          this will allow to remove most of the code form RailsEventStore::Client without breaking current
+          applications that use RailsEventStore::Client. This change is however a breaking one for RubyEventStore.
+
 ### 0.12.1 (11.08.2016)
 
 * Fix: improve EventRepository specification tests (mutation tests)
