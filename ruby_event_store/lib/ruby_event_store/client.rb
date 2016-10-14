@@ -1,21 +1,22 @@
 module RubyEventStore
   class Client
-    def initialize(repository,
+    def initialize(repository:,
                    event_broker:  PubSub::Broker.new,
+                   page_size: PAGE_SIZE,
                    metadata_proc: nil)
       @repository     = repository
       @event_broker   = event_broker
+      @page_size      = page_size
       @metadata_proc  = metadata_proc
     end
-    attr_reader :repository, :event_broker
 
     def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      append_to_stream(stream_name, event, expected_version: expected_version)
+      append_to_stream(event, stream_name: stream_name, expected_version: expected_version)
       event_broker.notify_subscribers(event)
       :ok
     end
 
-    def append_to_stream(stream_name, event, expected_version: :any)
+    def append_to_stream(event, stream_name: GLOBAL_STREAM, expected_version: :any)
       validate_expected_version(stream_name, expected_version)
       enriched_event = enrich_event_metadata(event)
       repository.create(enriched_event, stream_name)
@@ -28,13 +29,13 @@ module RubyEventStore
       :ok
     end
 
-    def read_events_forward(stream_name, start, count)
+    def read_events_forward(stream_name, start: :head, count: page_size)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(repository, start, count)
       repository.read_events_forward(stream_name, page.start, page.count)
     end
 
-    def read_events_backward(stream_name, start, count)
+    def read_events_backward(stream_name, start: :head, count: page_size)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(repository, start, count)
       repository.read_events_backward(stream_name, page.start, page.count)
@@ -50,12 +51,12 @@ module RubyEventStore
       repository.read_stream_events_backward(stream_name)
     end
 
-    def read_all_streams_forward(start, count)
+    def read_all_streams_forward(start: :head, count: page_size)
       page = Page.new(repository, start, count)
       repository.read_all_streams_forward(page.start, page.count)
     end
 
-    def read_all_streams_backward(start, count)
+    def read_all_streams_backward(start: :head, count: page_size)
       page = Page.new(repository, start, count)
       repository.read_all_streams_backward(page.start, page.count)
     end
@@ -73,7 +74,7 @@ module RubyEventStore
     end
 
     private
-    attr_reader :metadata_proc
+    attr_reader :repository, :page_size, :event_broker, :metadata_proc
 
     def enrich_event_metadata(event)
       metadata = event.metadata

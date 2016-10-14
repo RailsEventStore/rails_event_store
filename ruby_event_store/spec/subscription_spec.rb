@@ -32,7 +32,7 @@ module RubyEventStore
   describe Client do
 
     let(:repository) { InMemoryRepository.new }
-    let(:client)     { RubyEventStore::Client.new(repository) }
+    let(:client)     { RubyEventStore::Client.new(repository: repository) }
 
     specify 'throws exception if subscriber is not defined' do
       expect { client.subscribe(nil, [])}.to raise_error(SubscriberNotExist)
@@ -106,7 +106,7 @@ module RubyEventStore
     specify 'allows to provide a custom dispatcher' do
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, [OrderCreated])
       event = OrderCreated.new
@@ -136,7 +136,7 @@ module RubyEventStore
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward(start: :head, count: 10)).to eq([event_1, event_2])
     end
 
     specify 'dynamic subscription' do
@@ -149,7 +149,7 @@ module RubyEventStore
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward(:head, 10)).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward(start: :head, count: 10)).to eq([event_1, event_2])
     end
   end
 end
