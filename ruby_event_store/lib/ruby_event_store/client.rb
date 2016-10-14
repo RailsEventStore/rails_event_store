@@ -76,11 +76,11 @@ module RubyEventStore
     attr_reader :metadata_proc
 
     def enrich_event_metadata(event)
-      metadata = event.metadata.to_h
+      metadata = event.metadata
       metadata[:timestamp] ||= Time.now.utc
       metadata.merge!(metadata_proc.call || {}) if metadata_proc
 
-      event.class.new(event_id: event.event_id, metadata: metadata, data: event.data.to_h)
+      event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
     end
 
     def handle_subscribe(unsub)

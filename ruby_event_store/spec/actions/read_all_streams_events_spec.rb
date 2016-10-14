@@ -10,8 +10,8 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
       response = client.read_all_streams_forward(:head, page_size)
       expect(response.length).to be 2
-      expect(response[0].data.order_id).to eq 123
-      expect(response[1].data.order_id).to eq 234
+      expect(response[0].data[:order_id]).to eq 123
+      expect(response[1].data[:order_id]).to eq 234
     end
 
     specify 'return batch of events from the beginging ordered forward' do
@@ -21,8 +21,8 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_forward(:head, 2)
       expect(response.length).to be 2
-      expect(response[0].data.order_id).to eq 123
-      expect(response[1].data.order_id).to eq 234
+      expect(response[0].data[:order_id]).to eq 123
+      expect(response[1].data[:order_id]).to eq 234
     end
 
     specify 'return batch of events from given event ordered forward' do
@@ -33,7 +33,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_forward(uid, 1)
       expect(response.length).to be 1
-      expect(response[0].data.order_id).to eq 234
+      expect(response[0].data[:order_id]).to eq 234
     end
 
     specify 'return all events ordered backward' do
@@ -42,8 +42,8 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_1')
       response = client.read_all_streams_backward(:head, page_size)
       expect(response.length).to be 2
-      expect(response[0].data.order_id).to eq 234
-      expect(response[1].data.order_id).to eq 123
+      expect(response[0].data[:order_id]).to eq 234
+      expect(response[1].data[:order_id]).to eq 123
     end
 
     specify 'return batch of events from the end ordered backward' do
@@ -53,8 +53,8 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_backward(:head, 2)
       expect(response.length).to be 2
-      expect(response[0].data.order_id).to eq 345
-      expect(response[1].data.order_id).to eq 234
+      expect(response[0].data[:order_id]).to eq 345
+      expect(response[1].data[:order_id]).to eq 234
     end
 
     specify 'return batch of events from given event ordered backward' do
@@ -65,7 +65,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_backward(uid, 1)
       expect(response.length).to be 1
-      expect(response[0].data.order_id).to eq 123
+      expect(response[0].data[:order_id]).to eq 123
     end
 
     specify 'fails when starting event not exists' do

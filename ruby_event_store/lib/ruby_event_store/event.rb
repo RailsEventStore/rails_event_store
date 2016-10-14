@@ -1,25 +1,24 @@
 require 'securerandom'
-require 'closed_struct'
 
 module RubyEventStore
   class Event
-    def initialize(event_id: SecureRandom.uuid, metadata: {}, data: {})
+    def initialize(event_id: SecureRandom.uuid, metadata: nil, data: nil)
       @event_id = event_id.to_s
-      @metadata = ClosedStruct.new(metadata)
-      @data     = ClosedStruct.new(data)
+      @metadata = metadata.to_h
+      @data     = data.to_h
     end
     attr_reader :event_id, :metadata, :data
 
     def to_h
       {
           event_id:   event_id,
-          metadata:   metadata.to_h,
-          data:       data.to_h
+          metadata:   metadata,
+          data:       data
       }
     end
 
     def timestamp
-      metadata.timestamp rescue nil
+      metadata[:timestamp]
     end
 
     def ==(other_event)

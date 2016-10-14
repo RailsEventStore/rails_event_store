@@ -20,34 +20,34 @@ module RubyEventStore
 
     specify 'constructor attributes are used as event data' do
       event = Test::TestCreated.new(data: {sample: 123})
-      expect(event.event_id).to_not           be_nil
-      expect(event.data.sample).to            eq(123)
-      expect(event.data.to_h).to              eq({sample: 123})
-      expect(event.metadata.to_h).to          eq({})
-      expect(event.timestamp).to              be_nil
+      expect(event.event_id).to_not  be_nil
+      expect(event.data[:sample]).to eq(123)
+      expect(event.data).to          eq({sample: 123})
+      expect(event.metadata).to      eq({})
+      expect(event.timestamp).to     be_nil
     end
 
     specify 'constructor event_id attribute is used as event id' do
       event = Test::TestCreated.new(event_id: 234)
-      expect(event.event_id).to               eq("234")
-      expect(event.data.to_h).to              eq({})
-      expect(event.metadata.to_h).to          eq({})
+      expect(event.event_id).to eq("234")
+      expect(event.data).to     eq({})
+      expect(event.metadata).to eq({})
     end
 
     specify 'constructor metadata attribute is used as event metadata (with timestamp changed)' do
       timestamp = Time.utc(2016, 3, 10, 15, 20)
       event = Test::TestCreated.new(metadata: {created_by: 'Someone', timestamp: timestamp})
-      expect(event.event_id).to_not           be_nil
-      expect(event.data.to_h).to              eq({})
-      expect(event.timestamp).to              eq(timestamp)
-      expect(event.metadata.created_by).to    eq('Someone')
+      expect(event.event_id).to_not          be_nil
+      expect(event.data).to                  eq({})
+      expect(event.timestamp).to             eq(timestamp)
+      expect(event.metadata[:created_by]).to eq('Someone')
     end
 
     specify 'for empty data it initializes instance with default values' do
       event = Test::TestCreated.new
-      expect(event.event_id).to_not           be_nil
-      expect(event.data.to_h).to              eq({})
-      expect(event.metadata.to_h).to          eq({})
+      expect(event.event_id).to_not be_nil
+      expect(event.data).to         eq({})
+      expect(event.metadata).to     eq({})
     end
 
     specify 'UUID should be String' do

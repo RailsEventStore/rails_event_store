@@ -24,14 +24,14 @@ RSpec.shared_examples :event_repository do |repository_class|
     event = TestDomainEvent.new(data: { order_id: 3 })
     repository.create(event, 'stream')
     retrieved_event = repository.read_all_streams_forward(:head, 1).first
-    expect(retrieved_event.data.order_id).to eq(3)
+    expect(retrieved_event.data[:order_id]).to eq(3)
   end
 
   it 'metadata attributes are retrieved' do
     event = TestDomainEvent.new(metadata: { request_id: 3 })
     repository.create(event, 'stream')
     retrieved_event = repository.read_all_streams_forward(:head, 1).first
-    expect(retrieved_event.metadata.request_id).to eq(3)
+    expect(retrieved_event.metadata[:request_id]).to eq(3)
   end
 
   it 'does not have deleted streams' do
