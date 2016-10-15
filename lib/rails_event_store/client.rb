@@ -1,7 +1,7 @@
 module RailsEventStore
   class Client
 
-    def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new,
+    def initialize(repository: EventRepository.new,
                    event_broker: EventBroker.new,
                    page_size: PAGE_SIZE)
       @repository = repository
