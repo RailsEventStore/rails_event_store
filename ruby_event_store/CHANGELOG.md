@@ -1,4 +1,8 @@
-* Change: Refactor RubyEventStore::Client to have the same methods signatures as RailsEventStore::Client,
+### 0.13.0 (15.10.2016)
+
+* Change: Dropped ClosedStruct event (meta)data wrapping PR #34
+          Fix for Issue with ClosedStruct and object_id #33
+* Change: Refactor RubyEventStore::Client to have the same methods signatures as RailsEventStore::Client (PR #35),
           this will allow to remove most of the code form RailsEventStore::Client without breaking current
           applications that use RailsEventStore::Client. This change is however a breaking one for RubyEventStore.
 
