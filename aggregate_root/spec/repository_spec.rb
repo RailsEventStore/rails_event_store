@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module AggregateRoot
   describe Repository do
-    let(:event_store) { RubyEventStore::Client.new(RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
     it "should use default event store when not given" do
       fake = double(:fake_event_store)
