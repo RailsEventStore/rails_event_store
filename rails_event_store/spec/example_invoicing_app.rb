@@ -24,11 +24,11 @@ class InvoiceReadModel
   def call(event)
     case event
     when ProductAdded
-      add_new_invoice_item(event.data.product_name)
-      set_price(event.data.product_name, event.data.price)
-      set_quantity(event.data.product_name, event.data.quantity)
+      add_new_invoice_item(event.data[:product_name])
+      set_price(event.data[:product_name], event.data[:price])
+      set_quantity(event.data[:product_name], event.data[:quantity])
     when PriceChanged
-      set_price(event.data.product_name, event.data.new_price)
+      set_price(event.data[:product_name], event.data[:new_price])
     end
   end
 
