@@ -1,4 +1,4 @@
-### 0.13.0 (18.10.2016)
+### 0.13.0 (21.10.2016)
 
 * Change: ruby_event_store updated to 0.13.0
 * Change: RailsEventStore::Client methods signarures aligned with RubyEventStore::Client
