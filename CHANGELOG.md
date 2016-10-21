@@ -1,3 +1,12 @@
+### 0.13.0 (18.10.2016)
+
+* Change: ruby_event_store updated to 0.13.0
+* Change: RailsEventStore::Client methods signarures aligned with RubyEventStore::Client
+          RailsEventStore::Client is just a specialization of RubyEventStore::Client
+          with sensible defaults. Nothing more. This will ensure both are compatible.
+* Change: No more ClosedStruct in Event class, you need use hashes to access data & metadata.
+          This is a breaking change.
+
 ### 0.12.1 (11.08.2016)
 
 * Fix: aggregate_root gem updated to 0.3.5 fixing invalid method name generated for events wrapped in namespace
