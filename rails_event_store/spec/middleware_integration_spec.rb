@@ -16,7 +16,7 @@ module RailsEventStore
       request.get('/')
 
       event_store.read_events_forward(GLOBAL_STREAM).map(&:metadata).each do |metadata|
-        expect(metadata.server_name).to  eq('example.org')
+        expect(metadata[:server_name]).to  eq('example.org')
       end
     end
   end
