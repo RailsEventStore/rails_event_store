@@ -1,3 +1,8 @@
+### 0.4.0
+
+* Change: redesign whole gem from scratch making it easier to use
+          This is a breaking change!
+
 ### 0.3.6 (18.10.2016)
 
 * Change: ruby_event_store updated to 0.13.0
