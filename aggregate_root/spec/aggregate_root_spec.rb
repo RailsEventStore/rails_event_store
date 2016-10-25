@@ -80,16 +80,16 @@ module AggregateRoot
       order = Order.new
       order_created = Orders::Events::OrderCreated.new
 
-      expect(order).to receive(:apply_orders_events_order_created).with(order_created)
       order.apply(order_created)
+      expect(order.status).to eq :created
     end
 
     it "should receive a method call based on a custom strategy" do
       order = OrderWithCustomStrategy.new
       order_created = Orders::Events::OrderCreated.new
 
-      expect(order).to receive(:custom_created).with(order_created)
       order.apply(order_created)
+      expect(order.status).to eq :created
     end
   end
 end

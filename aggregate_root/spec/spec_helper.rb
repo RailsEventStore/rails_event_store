@@ -32,11 +32,11 @@ class Order
   attr_accessor :status
   private
 
-  def apply_orders_events_order_created(event)
+  def apply_order_created(event)
     @status = :created
   end
 
-  def apply_orders_events_order_expired(event)
+  def apply_order_expired(event)
     @status = :expired
   end
 end
