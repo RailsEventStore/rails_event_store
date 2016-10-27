@@ -3,6 +3,7 @@ require 'ruby_event_store'
 module RailsEventStore
   GLOBAL_STREAM             = RubyEventStore::GLOBAL_STREAM
   PAGE_SIZE                 = RubyEventStore::PAGE_SIZE
+  InMemoryRepository        = RubyEventStore::InMemoryRepository
   Event                     = RubyEventStore::Event
   EventBroker               = RubyEventStore::PubSub::Broker
   Projection                = RubyEventStore::Projection

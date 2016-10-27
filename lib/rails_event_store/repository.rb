@@ -5,10 +5,8 @@ module RailsEventStore
     cattr_reader :adapter
 
     def self.adapter=(adapter)
-      case adapter.to_s
-      when 'in_memory'
-        @@adapter = ::RubyEventStore::InMemoryRepository
-      when String
+      case adapter
+      when String, Symbol
         require "rails_event_store_#{adapter}"
         @@adapter = "::RailsEventStore#{adapter.to_s.classify}::EventRepository".constantize.new
       else
