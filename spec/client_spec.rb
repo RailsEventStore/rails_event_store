@@ -4,7 +4,7 @@ module RailsEventStore
   describe Client do
     specify 'initialize proper adapter type' do
       client = Client.new
-      expect(client.__send__("repository")).to be_a RailsEventStoreActiveRecord::EventRepository
+      expect(client.__send__("repository")).to be_a RailsEventStore::Repository.adapter.class
       expect(client.__send__("page_size")).to eq RailsEventStore::PAGE_SIZE
     end
 
@@ -17,6 +17,12 @@ module RailsEventStore
       CustomEventBroker = Class.new
       client = Client.new(event_broker: CustomEventBroker.new)
       expect(client.__send__("event_broker")).to be_a CustomEventBroker
+    end
+
+    specify 'may take custom repository' do
+      CustomRepository = Class.new
+      client = Client.new(repository: CustomRepository.new)
+      expect(client.__send__("repository")).to be_a CustomRepository
     end
 
     specify 'initialize custom page size' do
