@@ -15,7 +15,7 @@ module AggregateRoot
     events.each do |event|
       apply(event)
     end
-    @unpublished_events = []
+    @unpublished_events = nil
     self
   end
 
@@ -23,7 +23,7 @@ module AggregateRoot
     unpublished_events.each do |event|
       event_store.publish_event(event, stream_name: stream_name)
     end
-    @unpublished_events = []
+    @unpublished_events = nil
   end
 
   private

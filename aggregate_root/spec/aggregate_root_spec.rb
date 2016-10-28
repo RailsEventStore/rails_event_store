@@ -13,6 +13,11 @@ describe AggregateRoot do
     expect(order.expected_events).to eq([order_created])
   end
 
+  it "brand new aggregate does not have any unpublished events" do
+    order = Order.new
+    expect(order.expected_events).to be_empty
+  end
+
   it "should have no unpublished events when loaded" do
     stream = "any-order-stream"
     order_created = Orders::Events::OrderCreated.new
