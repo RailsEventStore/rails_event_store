@@ -1,3 +1,10 @@
+### 0.14.0 (28.10.2016)
+
+* Change: aggregate_root updated to 0.4.0
+          This is a breaking change only if you use aggregate_root gem.
+          Nothing has changed in RailsEventStore however the aggregate_root gem
+          has been redesigned completely.
+
 ### 0.13.0 (21.10.2016)
 
 * Change: ruby_event_store updated to 0.13.0
