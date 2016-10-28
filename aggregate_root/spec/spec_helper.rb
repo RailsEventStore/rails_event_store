@@ -29,6 +29,10 @@ class Order
     @status = :draft
   end
 
+  def expected_events
+    unpublished_events
+  end
+
   attr_accessor :status
   private
 
@@ -59,6 +63,10 @@ class OrderWithCustomStrategy
 
   def apply_strategy
     @apply_strategy ||= CustomOrderApplyStrategy.new
+  end
+
+  def expected_events
+    unpublished_events
   end
 
   attr_accessor :status
