@@ -27,13 +27,7 @@ AggregateRoot.configure do |config|
 end
 ```
 
-Remember that this is only a default event store used by `AggregateRoot::Repository` when no event store is given in constructor parameters.
-You could always set any event store client (must match interface) when creating `AggregateRoot::Repository`.
-
-```ruby
-repository = AggregateRoot::Repository.new(YourOwnEventStore.new)
-# do you work here...
-```
+Remember that this is only a default event store used by `AggregateRoot` module when no event store is given in `load` / `store` methods parameters.
 
 To use [RailsEventStore](https://github.com/arkency/rails_event_store/) add to Gemfile:
 
@@ -51,12 +45,7 @@ It is important to assign `id` at initializer - it will be used as a event store
 
 ```ruby
 class Order
-  include AggregateRoot::Base
-
-  def initialize(id = generate_id)
-    self.id = id
-    # any other code here
-  end
+  include AggregateRoot
 
   # ... more later
 end
@@ -71,12 +60,11 @@ OrderExpired   = Class.new(RailsEventStore::Event)
 
 ```ruby
 class Order
-  include AggregateRoot::Base
+  include AggregateRoot
   HasBeenAlreadySubmitted = Class.new(StandardError)
   HasExpired              = Class.new(StandardError)
 
-  def initialize(id = generate_id)
-    self.id = id
+  def initialize
     self.state = :new
     # any other code here
   end
@@ -84,7 +72,7 @@ class Order
   def submit
     raise HasBeenAlreadySubmitted if state == :submitted
     raise HasExpired if state == :expired
-    apply OrderSubmitted.new(delivery_date: Time.now + 24.hours)
+    apply OrderSubmitted.new(data: {delivery_date: Time.now + 24.hours})
   end
 
   def expire
@@ -107,9 +95,8 @@ end
 #### Loading an aggregate root object from event store
 
 ```ruby
-repository = ArggregateRoot::Repository.new
-order = Order.new(ORDER_ID)
-repository.load(order)
+stream_name = "Order$123"
+order = Order.new.load(stream_name)
 ```
 
 Load gets all domain event stored for the aggregate in event store and apply them
@@ -118,15 +105,15 @@ in order to given aggregate to rebuild aggregate's state.
 #### Storing an aggregate root's changes in event store
 
 ```ruby
-repository = ArggregateRoot::Repository.new
-order = Order.new(ORDER_ID)
-repository.load(order)
+stream_name = "Order$123"
+order = Order.new.load(stream_name)
 order.submit
-repository.store(order)
+order.store
 ```
 
 Store gets all unpublished aggregate's domain events (created by executing a domain logic method like `submit`)
-and publish them in order of creation to event store.
+and publish them in order of creation to event store. If `stream_name` is not specified events will be stored
+in the same stream from which order has been loaded.
 
 #### Resources
 

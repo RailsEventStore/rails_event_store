@@ -18,38 +18,46 @@ end
 module Orders
   module Events
     OrderCreated = Class.new(RubyEventStore::Event)
+    OrderExpired = Class.new(RubyEventStore::Event)
   end
 end
 
 class Order
-  include AggregateRoot::Base
+  include AggregateRoot
 
-  def initialize(id = generate_uuid)
-    self.id = id
+  def initialize
     @status = :draft
   end
 
-  private
-  attr_accessor :status
+  def expected_events
+    unpublished_events
+  end
 
-  def apply_orders_events_order_created(event)
+  attr_accessor :status
+  private
+
+  def apply_order_created(event)
     @status = :created
+  end
+
+  def apply_order_expired(event)
+    @status = :expired
   end
 end
 
 class CustomOrderApplyStrategy
   def call(aggregate, event)
     {
-      Orders::Events::OrderCreated => aggregate.method(:custom_order_processor),
+      Orders::Events::OrderCreated => aggregate.method(:custom_created),
+      Orders::Events::OrderExpired => aggregate.method(:custom_expired),
     }.fetch(event.class, ->(ev) {}).call(event)
   end
 end
 
 class OrderWithCustomStrategy
-  include AggregateRoot::Base
+  include AggregateRoot
 
-  def initialize(id = generate_uuid)
-    self.id = id
+  def initialize
     @status = :draft
   end
 
@@ -57,10 +65,18 @@ class OrderWithCustomStrategy
     @apply_strategy ||= CustomOrderApplyStrategy.new
   end
 
-  private
-  attr_accessor :status, :other_value
+  def expected_events
+    unpublished_events
+  end
 
-  def custom_order_processor(event)
+  attr_accessor :status
+  private
+
+  def custom_created(event)
     @status = :created
+  end
+
+  def custom_expired(event)
+    @status = :expired
   end
 end
