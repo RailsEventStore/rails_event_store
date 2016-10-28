@@ -1,4 +1,4 @@
-### 0.4.0
+### 0.4.0 (28.10.2016)
 
 * Change: redesign whole gem from scratch making it easier to use
           This is a breaking change!
