@@ -130,7 +130,7 @@ and publish them in order of creation to event store.
 
 #### Resources
 
-There're already few blogposts about building an event sourced applications wth [rails_event_store](https://github.com/arkency/rails_event_store) and aggregate_root gems:
+There're already few blog posts about building an event sourced applications with [rails_event_store](https://github.com/arkency/rails_event_store) and aggregate_root gems:
 
 * [Why use Event Sourcing](http://blog.arkency.com/2015/03/why-use-event-sourcing/)
 * [The Event Store for Rails developers](http://blog.arkency.com/2015/04/the-event-store-for-rails-developers/)
