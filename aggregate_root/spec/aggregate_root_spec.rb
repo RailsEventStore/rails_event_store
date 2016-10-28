@@ -8,8 +8,34 @@ module AggregateRoot
       order = Order.new
       order_created = Orders::Events::OrderCreated.new
 
+      expect(order).to receive(:apply_order_created).with(order_created).and_call_original
       order.apply(order_created)
+      expect(order.status).to eq :created
       expect(order.__send__("unpublished_events")).to eq([order_created])
+    end
+
+    it "should have no unpublished events when loaded" do
+      stream = "any-order-stream"
+      order_created = Orders::Events::OrderCreated.new
+      event_store.publish_event(order_created, stream_name: stream)
+
+      order = Order.new.load(stream, event_store: event_store)
+      expect(order.status).to eq :created
+      expect(order.__send__("unpublished_events")).to be_empty
+    end
+
+    it "should publish all unpublished events on store" do
+      stream = "any-order-stream"
+      order_created = Orders::Events::OrderCreated.new
+      order_expired = Orders::Events::OrderExpired.new
+
+      order = Order.new
+      order.apply(order_created)
+      order.apply(order_expired)
+      expect(event_store).to receive(:publish_event).with(order_created, stream_name: stream).and_call_original
+      expect(event_store).to receive(:publish_event).with(order_expired, stream_name: stream).and_call_original
+      order.store(stream, event_store: event_store)
+      expect(order.__send__("unpublished_events")).to be_empty
     end
 
     it "should work with provided event_store" do

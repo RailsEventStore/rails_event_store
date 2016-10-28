@@ -23,6 +23,7 @@ module AggregateRoot
     unpublished_events.each do |event|
       event_store.publish_event(event, stream_name: stream_name)
     end
+    @unpublished_events = []
   end
 
   private
