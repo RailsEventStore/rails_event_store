@@ -1,6 +1,6 @@
 module RailsEventStore
   class Client < RubyEventStore::Client
-    def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new,
+    def initialize(repository: Repository.adapter,
                    event_broker: EventBroker.new,
                    page_size: PAGE_SIZE)
       capture_metadata = ->{ Thread.current[:rails_event_store] }
