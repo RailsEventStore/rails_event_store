@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Basics | RailsEventStore</title>
+        <title>Using custom event reposiroty | RailsEventStore</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="../docs/install.html" />
+    <link rel="next" href="../docs/usage.html" />
     
     
-    <link rel="prev" href="../index.html" />
+    <link rel="prev" href="../docs/install.html" />
     
 
         
@@ -45,9 +45,9 @@
         
         
     <div class="book"
-        data-level="1"
-        data-chapter-title="Basics"
-        data-filepath="docs/basics.md"
+        data-level="1.2"
+        data-chapter-title="Using custom event reposiroty"
+        data-filepath="docs/repository.md"
         data-basepath=".."
         data-revision="Tue Nov 15 2016 18:05:54 GMT+0100 (CET)"
         data-innerlanguage="">
@@ -78,7 +78,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1" data-path="docs/basics.html">
+        <li class="chapter " data-level="1" data-path="docs/basics.html">
             
                 
                     <a href="../docs/basics.html">
@@ -109,7 +109,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2" data-path="docs/repository.html">
+        <li class="chapter active" data-level="1.2" data-path="docs/repository.html">
             
                 
                     <a href="../docs/repository.html">
@@ -316,10 +316,26 @@
                 
                     <section class="normal" id="section-">
                     
-                        <p>Rails Event Store is a library for publishing and storing events, which can be further used to build your application state from them.</p>
-<p>This can be a solid foundation for a design approach called <a href="https://www.youtube.com/watch?v=JHGkaShoyNs" target="_blank"><em>event sourcing</em></a>. It has <a href="https://blog.arkency.com/2015/03/why-use-event-sourcing/" target="_blank">many benefits</a> and is an interesting if you happen to struggle with keeping maintainability of your application at a reasonable level.</p>
-<p>The &quot;core&quot; of the solution is <a href="https://github.com/arkency/ruby_event_store" target="_blank">RubyEventStore</a> - separate gem where all concepts are implemented. Ruby Event Store is unopinionated on <em>how</em> events are stored. <a href="https://github.com/arkency/rails_event_store" target="_blank">Rails Event Store</a> and <a href="https://github.com/arkency/rails_event_store_active_record" target="_blank">Rails Event Store Active Record</a> libraries provide persistence layer suitable for Ruby on Rails.</p>
-<p>This documentation serves as a practical guide, as well as a place to describe all basic concepts you need to grasp to benefit from this design choice.</p>
+                        <h1 id="installation-with-bundler">Installation with Bundler</h1>
+<p>By default RailsEventStore will use the Active Record event repository. If you want to use another event repository without loading unecessary Active Record dependency, you&apos;ll need to do:</p>
+<pre><code class="lang-ruby">gem <span class="hljs-string">&apos;rails_event_store&apos;</span>, <span class="hljs-symbol">require:</span> <span class="hljs-keyword">false</span>
+gem <span class="hljs-string">&apos;your_custom_repository&apos;</span>
+</code></pre>
+<p>After running <code>bundle install</code>, Rails Event Store should be ready to be used.
+See custom repository README to learn how to setup data store.</p>
+<h1 id="require-custom-repository">Require custom repository</h1>
+<p>You need to require manually rails_event_store gem by doing:</p>
+<pre><code class="lang-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&apos;rails_event_store/all&apos;</span>
+</code></pre>
+<p>And then define your custom event repository for RailsEventStore.</p>
+<pre><code class="lang-ruby"><span class="hljs-constant">RailsEventStore</span>.event_repository = <span class="hljs-constant">YourCustomRepository::EventRepository</span>.new
+</code></pre>
+<p>This will be used every time you won&apos;t pass event repository as an argument
+to <code>RailsEventStore::Client</code> initializer.</p>
+<h1 id="custom-event-repositories">Custom event repositories:</h1>
+<ul>
+<li><a href="https://github.com/gottfrois/rails_event_store_mongoid" target="_blank">rails_event_store_mongoid</a> by <a href="https://github.com/gottfrois" target="_blank">Pierre-Louis Gottfrois</a></li>
+</ul>
 
                     
                     </section>
@@ -330,10 +346,10 @@
         </div>
 
         
-        <a href="../index.html" class="navigation navigation-prev " aria-label="Previous page: Introduction"><i class="fa fa-angle-left"></i></a>
+        <a href="../docs/install.html" class="navigation navigation-prev " aria-label="Previous page: Instalation"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../docs/install.html" class="navigation navigation-next " aria-label="Next page: Instalation"><i class="fa fa-angle-right"></i></a>
+        <a href="../docs/usage.html" class="navigation navigation-next " aria-label="Next page: Usage"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
