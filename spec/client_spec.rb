@@ -4,7 +4,7 @@ module RailsEventStore
   describe Client do
     specify 'initialize proper adapter type' do
       client = Client.new
-      expect(client.__send__("repository")).to be_a RailsEventStore::Repository.adapter.class
+      expect(client.__send__("repository")).to be_a RailsEventStore.event_repository.class
       expect(client.__send__("page_size")).to eq RailsEventStore::PAGE_SIZE
     end
 
