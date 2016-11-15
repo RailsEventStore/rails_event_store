@@ -3,6 +3,7 @@
 [RailsEventStore](README.md)
 * [Basics](docs/basics.md)
   * [Instalation](docs/install.md)
+  * [Using custom event reposiroty](docs/repository.md)
 * [Usage](docs/usage.md)
   * [Publishing events](docs/publish.md)
   * [Reading from stream](docs/read.md)
