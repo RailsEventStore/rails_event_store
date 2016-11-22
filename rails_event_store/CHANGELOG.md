@@ -1,3 +1,9 @@
+### 0.14.1 (21.11.2016)
+
+* Change: Allows to set the event repository used. #61
+          Allow to avoid ActiveRecord dependency when not using rails_event_store_active_record's
+          event repository. See documentation for mode details http://railseventstore.arkency.com/docs/repository.html
+
 ### 0.14.0 (28.10.2016)
 
 * Change: aggregate_root updated to 0.4.0
