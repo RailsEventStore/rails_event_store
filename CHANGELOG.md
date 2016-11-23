@@ -1,3 +1,9 @@
+### 0.14.2 (23.11.2016)
+
+* Change: rails_event_store_active_record updated to 0.6.10
+          This time it will really allow to avoid ActiveRecord dependency when not using rails_event_store_active_record's
+          event repository.
+
 ### 0.14.1 (21.11.2016)
 
 * Change: Allows to set the event repository used. #61
