@@ -1,3 +1,7 @@
+### 0.6.10 (23.11.2016)
+
+* Change: requires update to allow void active_record dependency when using RailsEventStore without RailsEventStoreActiveRecord
+
 ### 0.6.9 (18.10.2016)
 
 * ruby_event_store updated to 0.13.0
