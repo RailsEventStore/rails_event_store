@@ -1,3 +1,7 @@
+### 0.14.3 (24.11.2016)
+
+* Fix: Fixes where is initialized event repository #62
+
 ### 0.14.2 (23.11.2016)
 
 * Change: rails_event_store_active_record updated to 0.6.10
