@@ -13,10 +13,21 @@ module RailsEventStore
       expect(client.__send__("event_broker")).to be_a EventBroker
     end
 
+    specify 'initialize proper locker type' do
+      client = Client.new
+      expect(client.__send__("locker")).to be_a Locker
+    end
+
     specify 'may take custom broker' do
       CustomEventBroker = Class.new
       client = Client.new(event_broker: CustomEventBroker.new)
       expect(client.__send__("event_broker")).to be_a CustomEventBroker
+    end
+
+    specify 'may take custom locker' do
+      CustomLocker = Class.new
+      client = Client.new(locker: CustomLocker.new)
+      expect(client.__send__("locker")).to be_a CustomLocker
     end
 
     specify 'may take custom repository' do

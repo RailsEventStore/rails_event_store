@@ -16,6 +16,8 @@ module RailsEventStore
   MethodNotDefined          = RubyEventStore::MethodNotDefined
   InvalidPageStart          = RubyEventStore::InvalidPageStart
   InvalidPageSize           = RubyEventStore::InvalidPageSize
+  CannotObtainLock          = RubyEventStore::CannotObtainLock
+  Locker                    = RubyEventStore::Locker
   GLOBAL_STREAM             = RubyEventStore::GLOBAL_STREAM
   PAGE_SIZE                 = RubyEventStore::PAGE_SIZE
 
