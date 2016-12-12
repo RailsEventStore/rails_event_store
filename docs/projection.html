@@ -49,7 +49,7 @@
         data-chapter-title="Projections"
         data-filepath="docs/projection.md"
         data-basepath=".."
-        data-revision="Tue Nov 15 2016 18:05:54 GMT+0100 (CET)"
+        data-revision="Tue Dec 13 2016 00:19:28 GMT+0100 (CET)"
         data-innerlanguage="">
     
 
@@ -268,14 +268,29 @@
             
         </li>
     
-        <li class="chapter " data-level="6" data-path="docs/resources.html">
+        <li class="chapter " data-level="6" data-path="docs/changelog.html">
+            
+                
+                    <a href="../docs/changelog.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Changelog
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="docs/resources.html">
             
                 
                     <a href="../docs/resources.html">
                 
                         <i class="fa fa-check"></i>
                         
-                            <b>6.</b>
+                            <b>7.</b>
                         
                         Resources
                     </a>
@@ -327,8 +342,8 @@ client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span
 account_balance = <span class="hljs-constant">RailsEventStore::Projection</span>.
   from_stream(stream_name).
   init(-&gt; { { <span class="hljs-symbol">total:</span> <span class="hljs-number">0</span> } }).
-  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyDeposited</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.data.amount }).
-  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyWithdrawn</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.data.amount })
+  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyDeposited</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.data[<span class="hljs-symbol">:amount</span>] }).
+  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyWithdrawn</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.data[<span class="hljs-symbol">:amount</span>] })
 
 account_balance.run(client) <span class="hljs-comment"># =&gt; {total: 25}</span>
 </code></pre>
@@ -344,8 +359,8 @@ client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span
 account_balance = <span class="hljs-constant">RailsEventStore::Projection</span>.
   from_stream(<span class="hljs-string">&quot;Customer$1&quot;</span>, <span class="hljs-string">&quot;Customer$3&quot;</span>).
   init( -&gt; { { <span class="hljs-symbol">total:</span> <span class="hljs-number">0</span> } }).
-  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyDeposited</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.data.amount }).
-  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyWithdrawn</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.data.amount })
+  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyDeposited</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.data[<span class="hljs-symbol">:amount</span>] }).
+  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyWithdrawn</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.data[<span class="hljs-symbol">:amount</span>] })
 
 account_balance.run(client) <span class="hljs-comment"># =&gt; {total: -15}</span>
 </code></pre>
@@ -361,8 +376,8 @@ client.publish_event(<span class="hljs-constant">MoneyWithdrawn</span>.new(<span
 account_balance = <span class="hljs-constant">RailsEventStore::Projection</span>.
   from_all_streams.
   init( -&gt; { { <span class="hljs-symbol">total:</span> <span class="hljs-number">0</span> } }).
-  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyDeposited</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.data.amount }).
-  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyWithdrawn</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.data.amount })
+  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyDeposited</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] += event.data[<span class="hljs-symbol">:amount</span>] }).
+  <span class="hljs-keyword">when</span>(<span class="hljs-constant">MoneyWithdrawn</span>, -&gt;(state, event) { state[<span class="hljs-symbol">:total</span>] -= event.data[<span class="hljs-symbol">:amount</span>] })
 
 account_balance.run(client) <span class="hljs-comment"># =&gt; {total: 10}</span>
 account_balance.run(client, custom_event.event_id) <span class="hljs-comment"># =&gt; {total: -20}</span>

@@ -5,7 +5,7 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Subscribing to events | RailsEventStore</title>
+        <title>Changelog | RailsEventStore</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.6.7">
@@ -33,10 +33,10 @@
         
     
     
-    <link rel="next" href="../docs/projection.html" />
+    <link rel="next" href="../docs/resources.html" />
     
     
-    <link rel="prev" href="../docs/delete.html" />
+    <link rel="prev" href="../docs/request_metadata.html" />
     
 
         
@@ -45,9 +45,9 @@
         
         
     <div class="book"
-        data-level="2.4"
-        data-chapter-title="Subscribing to events"
-        data-filepath="docs/subscribe.md"
+        data-level="6"
+        data-chapter-title="Changelog"
+        data-filepath="docs/changelog.md"
         data-basepath=".."
         data-revision="Tue Dec 13 2016 00:19:28 GMT+0100 (CET)"
         data-innerlanguage="">
@@ -190,7 +190,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="2.4" data-path="docs/subscribe.html">
+        <li class="chapter " data-level="2.4" data-path="docs/subscribe.html">
             
                 
                     <a href="../docs/subscribe.html">
@@ -268,7 +268,7 @@
             
         </li>
     
-        <li class="chapter " data-level="6" data-path="docs/changelog.html">
+        <li class="chapter active" data-level="6" data-path="docs/changelog.html">
             
                 
                     <a href="../docs/changelog.html">
@@ -331,97 +331,97 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h1 id="subscribing-to-events">Subscribing to events</h1>
-<p>To subscribe to events in Rails Event Store you need to use <code>#subscribe</code> method.</p>
-<h2 id="classic-subscriptions">Classic subscriptions</h2>
-<p>To subscribe to events publication in a classic way, you can use a version of <code>#subscribe</code> which does not accept the block. It accepts two arguments:</p>
+                        <h2 id="documentation-changes-history">Documentation changes history</h2>
 <ul>
-<li><code>subscriber</code> (event handler) - which can be a function-like object. That means it needs to respond to the <code>#call</code> method. This way both normal objects and <code>lambda</code> expressions are supported.</li>
-<li><code>event_types</code> - which is an array of event types. Your subscriber will get notified only when events of types listed here will be published.</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.14.3" target="_blank">0.14.3</a><ul>
+<li>No changes in documentation.</li>
 </ul>
-<p>An example usage with the object event handler:</p>
-<pre><code class="lang-ruby"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InvoiceReadModel</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span><span class="hljs-params">(event)</span></span>
-    <span class="hljs-comment"># Process an event here.</span>
-  <span class="hljs-keyword">end</span>
-<span class="hljs-keyword">end</span>
-
-subscriber = <span class="hljs-constant">InvoiceReadModel</span>.new
-event_store.subscribe(subscriber, [<span class="hljs-constant">InvoiceCreated</span>, <span class="hljs-constant">InvoiceUpdated</span>])
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.14.2" target="_blank">0.14.2</a><ul>
+<li>No changes in documentation.</li>
+</ul>
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.14.1" target="_blank">0.14.1</a><ul>
+<li>Introduced: <a href="docs/repository.md">Using custom event reposiroty</a></li>
+</ul>
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.14.0" target="_blank">0.14.0</a><ul>
+<li>No changes in documentation, however <a href="https://github.com/arkency/aggregate_root" target="_blank">aggregate_root gem documentation</a> has significant changes.</li>
+</ul>
+</li>
+<li><p><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.13.0" target="_blank">0.13.0</a></p>
+<ul>
+<li>Access to domain event data (and metadata) changed from:</li>
+</ul>
+<pre><code class="lang-ruby">festival_id = event.data.festival_id
+festival_id = event.metadata.request_id
 </code></pre>
-<p>You can use <code>Proc</code> objects or <code>lambda</code>s here:</p>
-<pre><code class="lang-ruby">invoice_read_model_processing = -&gt; (event) {
-  <span class="hljs-comment"># Process an event here..</span>
-}
-
-send_invoice_email = <span class="hljs-constant">Proc</span>.new <span class="hljs-keyword">do</span> |event|
-  <span class="hljs-comment"># Process an event here.</span>
-<span class="hljs-keyword">end</span>
-
-event_store.subscribe(invoice_read_model_processing, [<span class="hljs-constant">InvoiceCreated</span>, <span class="hljs-constant">InvoiceUpdated</span>])
-event_store.subscribe(send_invoice_email, [<span class="hljs-constant">InvoiceAccepted</span>])
+<p>to:</p>
+<pre><code class="lang-ruby">festival_id = event.data[<span class="hljs-symbol">:festival_id</span>]
+festival_id = event.metadata[<span class="hljs-symbol">:request_id</span>]
 </code></pre>
-<p>You can also subscribe for all event types at once. It is especially useful for logging or debugging events:</p>
-<pre><code class="lang-ruby"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventsLogger</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span><span class="hljs-params">(logger)</span></span>
-    <span class="hljs-variable">@logger</span> = logger
-  <span class="hljs-keyword">end</span>
-
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span><span class="hljs-params">(event)</span></span>
-    logger.info(<span class="hljs-string">&quot;<span class="hljs-subst">#{event.<span class="hljs-keyword">class</span>.to_s}</span> published. Data: <span class="hljs-subst">#{event.data.inspect}</span>&quot;</span>)
-  <span class="hljs-keyword">end</span>
-
-  private
-  <span class="hljs-keyword">attr_reader</span> <span class="hljs-symbol">:logger</span>
-<span class="hljs-keyword">end</span>
-
-event_store.subscribe_to_all_events(<span class="hljs-constant">EventsLogger</span>.new(<span class="hljs-constant">Rails</span>.logger))
+<ul>
+<li>Signatures of methods of <code>RailsEventStore::Client</code> might be changed.</li>
+</ul>
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.12.1" target="_blank">0.12.1</a><ul>
+<li>No changes in documentation.</li>
+</ul>
+</li>
+<li><p><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.12.0" target="_blank">0.12.0</a></p>
+<ul>
+<li>Publishing a domain event changed from:</li>
+</ul>
+<pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
+event = <span class="hljs-constant">OrderPlaced</span>.new(...)
+client.publish_event(event, stream_name)
 </code></pre>
-<blockquote>
-<p>In early versions of Rails Event Store event handlers (subscribers) needed to have <code>#handle_event</code> method. While it is still supported, it will be removed in future. For your convenience, it now gives a deprecation warning.</p>
-</blockquote>
-<h2 id="dynamic-oneshot-subscriptions">Dynamic (one-shot) subscriptions</h2>
-<p>Rails Event Store supports dynamic, one-shot, anonymous subscriptions for events. One-shot means that after publishing an event in which such subscriber is interested it gets unsubscribed automatically.</p>
-<p>You can achieve such behaviour by passing the block to the <code>#subscribe</code> method. Then it accepts only one argument - <code>event_types</code> which is an array of event types for which subscriber (block) will get invoked.</p>
-<p>This is useful in many use cases, for example it can be used to implement a saga pattern:</p>
-<pre><code class="lang-ruby"><span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">MissingShippingDetails</span></span>
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span></span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">from_status</span><span class="hljs-params">(status)</span></span>
-      <span class="hljs-comment"># ...</span>
-    <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">end</span>
-
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AddressNotProvided</span></span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(saga, event)</span></span>
-      <span class="hljs-comment"># ...</span>
-    <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">end</span>
-
-  <span class="hljs-comment"># ...</span>
-<span class="hljs-keyword">end</span>
-
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MissingShippingDetailsSaga</span> <span class="hljs-inheritance">&lt; <span class="hljs-parent">ActiveRecord::Base</span></span></span>
-  <span class="hljs-keyword">include</span> <span class="hljs-constant">MissingShippingDetails</span>
-
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">state</span></span>
-    <span class="hljs-variable">@state</span> ||= <span class="hljs-constant">State</span>.from_status(status)
-  <span class="hljs-keyword">end</span>
-
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">subscribe</span><span class="hljs-params">(event_store)</span></span>
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> state.final?
-    event_store.subscribe(state.awaited_events) <span class="hljs-keyword">do</span> |event|
-      <span class="hljs-comment"># Sagas are basically state machines. Try to change the state...</span>
-      <span class="hljs-variable">@state</span> = state.process(<span class="hljs-keyword">self</span>, event)
-      <span class="hljs-variable">@status</span> = <span class="hljs-variable">@state</span>.name
-      <span class="hljs-comment"># ... and resubscribe (maybe state changed, so other events will be awaited)</span>
-      subscribe(event_store)
-    <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">end</span>
-
-  <span class="hljs-comment"># ...</span>
-<span class="hljs-keyword">end</span>
+<p>to:</p>
+<pre><code class="lang-ruby">stream_name = <span class="hljs-string">&quot;order_1&quot;</span>
+event = <span class="hljs-constant">OrderPlaced</span>.new(...)
+client.publish_event(event, <span class="hljs-symbol">stream_name:</span> stream_name)
 </code></pre>
-<p>Remember that subscriptions are one-shot. If you want to still pass a block without having one-shot behaviour, you can use classical subscription pattern. Remember blocks are <code>Proc</code>s under the hood!</p>
+</li>
+<li><p><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.11.0" target="_blank">0.11.0</a></p>
+<ul>
+<li>Renamed <code>handle_event</code> to <code>call</code> in all event handlers.</li>
+</ul>
+</li>
+<li><p><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.10.0" target="_blank">0.10.0</a></p>
+<ul>
+<li>Creating a domain event changed from:</li>
+</ul>
+<pre><code class="lang-ruby">event = <span class="hljs-constant">OrderPlaced</span>.new(
+            <span class="hljs-symbol">order_data:</span> <span class="hljs-string">&quot;sample&quot;</span>,
+            <span class="hljs-symbol">festival_id:</span> <span class="hljs-string">&quot;b2d506fd-409d-4ec7-b02f-c6d2295c7edd&quot;</span>
+        )
+</code></pre>
+<p>to:</p>
+<pre><code class="lang-ruby">event = <span class="hljs-constant">OrderPlaced</span>.new(<span class="hljs-symbol">data:</span> {
+            <span class="hljs-symbol">order_data:</span> <span class="hljs-string">&quot;sample&quot;</span>,
+            <span class="hljs-symbol">festival_id:</span> <span class="hljs-string">&quot;b2d506fd-409d-4ec7-b02f-c6d2295c7edd&quot;</span>
+    })
+</code></pre>
+<ul>
+<li>Renamed method <code>call</code> to <code>run</code> in projections.</li>
+<li>Introduced: <a href="docs/request_metadata.md">Logging request metadata</a></li>
+<li>Introduced: Dynamic (one-shot) subscriptions (described in <a href="docs/subscribe.md">Subscribing to events</a>)</li>
+</ul>
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.9.0" target="_blank">0.9.0</a><ul>
+<li>No changes in documentation.</li>
+</ul>
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.8.0" target="_blank">0.8.0</a><ul>
+<li>No changes in documentation.</li>
+</ul>
+</li>
+<li><a href="https://github.com/arkency/rails_event_store/releases/tag/v0.7.0" target="_blank">0.7.0</a><ul>
+<li>Introduced: <a href="docs/projection.md">Making projections</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="no-history-of-changes-in-documentation-for-previous-releases">No history of changes in documentation for previous releases.</h4>
 
                     
                     </section>
@@ -432,10 +432,10 @@ event_store.subscribe_to_all_events(<span class="hljs-constant">EventsLogger</sp
         </div>
 
         
-        <a href="../docs/delete.html" class="navigation navigation-prev " aria-label="Previous page: Deleting stream"><i class="fa fa-angle-left"></i></a>
+        <a href="../docs/request_metadata.html" class="navigation navigation-prev " aria-label="Previous page: Logging request metadata"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../docs/projection.html" class="navigation navigation-next " aria-label="Next page: Projections"><i class="fa fa-angle-right"></i></a>
+        <a href="../docs/resources.html" class="navigation navigation-next " aria-label="Next page: Resources"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
