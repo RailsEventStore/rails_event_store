@@ -13,4 +13,5 @@
 * [Building an event sourced application](docs/app.md)
 * Rails Integration
   * [Logging request metadata](docs/request_metadata.md)
+* [Changelog](docs/changelog.md)
 * [Resources](docs/resources.md)
