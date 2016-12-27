@@ -33,3 +33,7 @@ Whenever you fix a bug or add a new feature, we require that the coverage doesn'
 This repository is funded and maintained by Arkency. Check out our other [open-source projects](https://github.com/arkency).
 
 You can also [hire us](http://arkency.com) or [read our blog](http://blog.arkency.com).
+
+Check also our **Rails + Domain Driven Design Workshop** [details](http://arkency.com/ddd-training/)
+Next edition will be held on 12-13th January 2017 (Thursday & Friday) in Wrocław, Poland.
+Workshop will be held in English.
