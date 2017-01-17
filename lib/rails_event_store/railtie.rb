@@ -1,3 +1,4 @@
+require 'rails/railtie'
 require 'rails_event_store/middleware'
 
 module RailsEventStore

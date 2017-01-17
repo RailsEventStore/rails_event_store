@@ -2,6 +2,7 @@ require 'active_support/core_ext/class/attribute_accessors'
 require 'ruby_event_store'
 require 'rails_event_store/client'
 require 'rails_event_store/version'
+require 'rails_event_store/railtie'
 
 module RailsEventStore
   Event                     = RubyEventStore::Event
