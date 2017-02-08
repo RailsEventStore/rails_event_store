@@ -31,7 +31,7 @@ module RailsEventStoreActiveRecord
         stream = stream.where('id > ?', starting_event)
       end
 
-      stream.limit(count)
+      stream.order('id ASC').limit(count)
         .map(&method(:build_event_entity))
     end
 
@@ -47,7 +47,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_stream_events_forward(stream_name)
-      adapter.where(stream: stream_name)
+      adapter.where(stream: stream_name).order('id ASC')
         .map(&method(:build_event_entity))
     end
 
@@ -63,7 +63,7 @@ module RailsEventStoreActiveRecord
         stream = stream.where('id > ?', starting_event)
       end
 
-      stream.limit(count)
+      stream.order('id ASC').limit(count)
         .map(&method(:build_event_entity))
     end
 
