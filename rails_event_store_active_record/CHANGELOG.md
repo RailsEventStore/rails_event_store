@@ -1,3 +1,7 @@
+### 0.6.11 (8.02.2016)
+
+* Fix: Explicit order when querying forward. Leaving it implcit to database engine choice gives different results on different engines.
+
 ### 0.6.10 (23.11.2016)
 
 * Change: requires update to allow void active_record dependency when using RailsEventStore without RailsEventStoreActiveRecord
