@@ -1,3 +1,8 @@
+### 0.14.4 (08.02.2017)
+
+* Change: rails_event_store_active_record updated to 0.6.11
+          Fix: Explicit order when querying forward. Leaving it implcit to database engine choice gives different results on different engines.
+
 ### 0.14.3 (24.11.2016)
 
 * Fix: Fixes where is initialized event repository #62
