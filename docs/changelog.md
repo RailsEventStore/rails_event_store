@@ -5,7 +5,7 @@
 * [0.14.2](https://github.com/arkency/rails_event_store/releases/tag/v0.14.2)
   * No changes in documentation.
 * [0.14.1](https://github.com/arkency/rails_event_store/releases/tag/v0.14.1)
-  * Introduced: [Using custom event reposiroty](docs/repository.md)
+  * Introduced: [Using custom event repository](docs/repository.md)
 * [0.14.0](https://github.com/arkency/rails_event_store/releases/tag/v0.14.0)
   * No changes in documentation, however [aggregate_root gem documentation](https://github.com/arkency/aggregate_root) has significant changes.
 * [0.13.0](https://github.com/arkency/rails_event_store/releases/tag/v0.13.0)
