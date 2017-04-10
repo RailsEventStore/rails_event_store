@@ -5,7 +5,7 @@
 * [0.14.2](https://github.com/arkency/rails_event_store/releases/tag/v0.14.2)
   * No changes in documentation.
 * [0.14.1](https://github.com/arkency/rails_event_store/releases/tag/v0.14.1)
-  * Introduced: [Using custom event repository](docs/repository.md)
+  * Introduced: [Using custom event repository](repository.md)
 * [0.14.0](https://github.com/arkency/rails_event_store/releases/tag/v0.14.0)
   * No changes in documentation, however [aggregate_root gem documentation](https://github.com/arkency/aggregate_root) has significant changes.
 * [0.13.0](https://github.com/arkency/rails_event_store/releases/tag/v0.13.0)
@@ -65,13 +65,13 @@
   ```
 
   * Renamed method `call` to `run` in projections.
-  * Introduced: [Logging request metadata](docs/request_metadata.md)
-  * Introduced: Dynamic (one-shot) subscriptions (described in [Subscribing to events](docs/subscribe.md))
+  * Introduced: [Logging request metadata](request_metadata.md)
+  * Introduced: Dynamic (one-shot) subscriptions (described in [Subscribing to events](subscribe.md))
 * [0.9.0](https://github.com/arkency/rails_event_store/releases/tag/v0.9.0)
   * No changes in documentation.
 * [0.8.0](https://github.com/arkency/rails_event_store/releases/tag/v0.8.0)
   * No changes in documentation.
 * [0.7.0](https://github.com/arkency/rails_event_store/releases/tag/v0.7.0)
-  * Introduced: [Making projections](docs/projection.md)
+  * Introduced: [Making projections](projection.md)
 
 #### No history of changes in documentation for previous releases.
