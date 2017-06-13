@@ -19,6 +19,7 @@ module Orders
   module Events
     OrderCreated = Class.new(RubyEventStore::Event)
     OrderExpired = Class.new(RubyEventStore::Event)
+    SpanishInquisition = Class.new(RubyEventStore::Event)
   end
 end
 
