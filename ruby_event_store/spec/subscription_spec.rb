@@ -151,5 +151,14 @@ module RubyEventStore
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
+
+    specify 'subscribers receive event with enriched metadata' do
+      received_event = nil
+      client.subscribe(->(event) { received_event = event }, [OrderCreated])
+      client.publish_event(OrderCreated.new)
+
+      expect(received_event).to_not be_nil
+      expect(received_event.metadata[:timestamp]).to_not be_nil
+    end
   end
 end
