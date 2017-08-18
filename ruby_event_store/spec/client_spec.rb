@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'time'
 
 module RubyEventStore
   describe Client do
