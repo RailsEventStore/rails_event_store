@@ -3,11 +3,13 @@ module RubyEventStore
     def initialize(repository:,
                    event_broker:  PubSub::Broker.new,
                    page_size: PAGE_SIZE,
-                   metadata_proc: nil)
+                   metadata_proc: nil,
+                   clock: ->{ Time.now.utc })
       @repository     = repository
       @event_broker   = event_broker
       @page_size      = page_size
       @metadata_proc  = metadata_proc
+      @clock          = clock
     end
 
     def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
@@ -74,11 +76,11 @@ module RubyEventStore
     end
 
     private
-    attr_reader :repository, :page_size, :event_broker, :metadata_proc
+    attr_reader :repository, :page_size, :event_broker, :metadata_proc, :clock
 
     def enrich_event_metadata(event)
       metadata = event.metadata
-      metadata[:timestamp] ||= Time.now.utc
+      metadata[:timestamp] ||= clock.()
       metadata.merge!(metadata_proc.call || {}) if metadata_proc
 
       event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
