@@ -153,12 +153,13 @@ module RubyEventStore
     end
 
     specify 'subscribers receive event with enriched metadata' do
+      client = RubyEventStore::Client.new(repository: repository, clock: ->{ Time.at(0) })
       received_event = nil
       client.subscribe(->(event) { received_event = event }, [OrderCreated])
       client.publish_event(OrderCreated.new)
 
       expect(received_event).to_not be_nil
-      expect(received_event.metadata[:timestamp]).to_not be_nil
+      expect(received_event.metadata[:timestamp]).to eq(Time.at(0))
     end
   end
 end
