@@ -13,6 +13,11 @@ module RailsEventStore
       expect(client.__send__("event_broker")).to be_a EventBroker
     end
 
+    specify 'initialize proper dispatcher type' do
+      expect(EventBroker).to receive(:new).with(dispatcher: an_instance_of(Dispatcher))
+      client = Client.new
+    end
+
     specify 'may take custom broker' do
       CustomEventBroker = Class.new
       client = Client.new(event_broker: CustomEventBroker.new)
