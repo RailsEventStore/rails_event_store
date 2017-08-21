@@ -1,3 +1,8 @@
+### 0.14.0 (21.08.2017)
+
+* Change: Add lint for 3rd party implementations of dispatcher
+* Change: Deprecated MethodNotDefined error, use InvalidHandler instead
+
 ### 0.13.0 (15.10.2016)
 
 * Change: Dropped ClosedStruct event (meta)data wrapping PR #34
