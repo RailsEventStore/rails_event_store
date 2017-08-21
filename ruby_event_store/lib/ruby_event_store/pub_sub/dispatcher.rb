@@ -8,7 +8,7 @@ module RubyEventStore
 
       private
       def ensure_method_defined(subscriber)
-        raise MethodNotDefined.new(subscriber) unless subscriber.respond_to?(:call)
+        raise ::RubyEventStore::MethodNotDefined.new(subscriber) unless subscriber.respond_to?(:call)
       end
     end
   end
