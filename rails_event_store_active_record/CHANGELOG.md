@@ -1,3 +1,7 @@
+### 0.6.11 (21.08.2017)
+
+* ruby_event_store updated to 0.14.0
+
 ### 0.6.11 (8.02.2016)
 
 * Fix: Explicit order when querying forward. Leaving it implcit to database engine choice gives different results on different engines.
