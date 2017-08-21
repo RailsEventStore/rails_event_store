@@ -1,14 +1,14 @@
 RSpec.shared_examples :dispatcher do |dispatcher|
   specify "calls subscribed handler" do
-    handler = spy
+    handler = double(:handler)
     event   = instance_double(RubyEventStore::Event)
-    dispatcher.(handler, event)
 
-    expect(handler).to have_received(:call).with(event)
+    expect(handler).to receive(:call).with(event)
+    dispatcher.(handler, event)
   end
 
   specify "error when invalid subscriber passed" do
-    handler = double
+    handler = double(:handler)
     event   = instance_double(RubyEventStore::Event)
 
     expect { dispatcher.(handler, event) }.to raise_error(RubyEventStore::MethodNotDefined,
