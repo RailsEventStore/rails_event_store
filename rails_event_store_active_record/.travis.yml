@@ -1,6 +1,8 @@
 language: ruby
 rvm:
-- 2.1.5
+- 2.2.7
+- 2.3.4
+- 2.4.1
 before_install: gem install bundler
 gemfile: Gemfile
 script: make mutate
