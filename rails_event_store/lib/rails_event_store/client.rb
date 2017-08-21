@@ -9,5 +9,11 @@ module RailsEventStore
             page_size: page_size,
             metadata_proc: capture_metadata)
     end
+
+    def publish_event(event, **kwargs)
+      ActiveSupport::Notifications.instrument("publish_event.rails_event_store", event: event) do
+        super
+      end
+    end
   end
 end
