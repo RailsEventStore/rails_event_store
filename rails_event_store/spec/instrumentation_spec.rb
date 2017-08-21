@@ -4,9 +4,9 @@ require 'ruby_event_store/spec/dispatcher_lint'
 module RailsEventStore
   DummyEvent = Class.new(RailsEventStore::Event)
 
-  RSpec.describe InstrumentedDispatcher do
+  RSpec.describe Dispatcher do
     specify do
-      client  = Client.new(event_broker: EventBroker.new(dispatcher: InstrumentedDispatcher.new))
+      client  = Client.new(event_broker: EventBroker.new(dispatcher: Dispatcher.new))
       event   = DummyEvent.new
       handler = Proc.new { }
       client.subscribe(handler, [DummyEvent])
