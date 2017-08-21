@@ -46,8 +46,7 @@ module RubyEventStore
         " Are you sure it is a valid subscriber?"
 
       client.subscribe(subscriber, [OrderCreated])
-      expect { client.publish_event(OrderCreated.new) }.to raise_error(MethodNotDefined,
-                                                                       message)
+      expect { client.publish_event(OrderCreated.new) }.to raise_error(InvalidHandler, message)
     end
 
     specify 'throws exception if subscriber has not call method - handling all events' do
@@ -57,8 +56,7 @@ module RubyEventStore
         " Are you sure it is a valid subscriber?"
 
       client.subscribe_to_all_events(subscriber)
-      expect { client.publish_event(ProductAdded.new) }.to raise_error(MethodNotDefined,
-                                                                       message)
+      expect { client.publish_event(ProductAdded.new) }.to raise_error(InvalidHandler, message)
     end
 
     specify 'notifies subscribers listening on all events' do

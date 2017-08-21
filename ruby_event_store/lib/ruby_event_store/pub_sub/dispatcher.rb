@@ -2,13 +2,8 @@ module RubyEventStore
   module PubSub
     class Dispatcher
       def call(subscriber, event)
-        ensure_method_defined(subscriber)
+        raise InvalidHandler.new(subscriber) unless subscriber.respond_to?(:call)
         subscriber.call(event)
-      end
-
-      private
-      def ensure_method_defined(subscriber)
-        raise ::RubyEventStore::MethodNotDefined.new(subscriber) unless subscriber.respond_to?(:call)
       end
     end
   end
