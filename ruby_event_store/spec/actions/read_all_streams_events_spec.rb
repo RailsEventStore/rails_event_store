@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 
 module RubyEventStore
-  describe Client do
+  RSpec.describe Client do
     specify 'return all events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')

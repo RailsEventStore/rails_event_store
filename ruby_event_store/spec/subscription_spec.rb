@@ -29,7 +29,7 @@ class CustomDispatcher
 end
 
 module RubyEventStore
-  describe Client do
+  RSpec.describe Client do
 
     let(:repository) { InMemoryRepository.new }
     let(:client)     { RubyEventStore::Client.new(repository: repository) }

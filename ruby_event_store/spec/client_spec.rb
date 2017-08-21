@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'time'
 
 module RubyEventStore
-  describe Client do
+  RSpec.describe Client do
     TestEvent = Class.new(RubyEventStore::Event)
 
     specify 'publish_event returns :ok when success' do

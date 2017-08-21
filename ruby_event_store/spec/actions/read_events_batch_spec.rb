@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 
 module RubyEventStore
-  describe Client do
+  RSpec.describe Client do
     let(:stream_name) { 'stream_name' }
 
     before do

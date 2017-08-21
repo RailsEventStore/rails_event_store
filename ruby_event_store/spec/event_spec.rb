@@ -6,7 +6,7 @@ module Test
 end
 
 module RubyEventStore
-  describe Event do
+  RSpec.describe Event do
 
     specify 'default values' do
       event = Test::TestCreated.new

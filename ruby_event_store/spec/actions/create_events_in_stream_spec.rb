@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 require 'ostruct'
 
 module RubyEventStore
-  describe Client do
+  RSpec.describe Client do
     let(:stream_name) { 'stream_name' }
 
     specify 'create successfully event' do
