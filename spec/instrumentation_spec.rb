@@ -26,4 +26,24 @@ module RailsEventStore
       expect(notifications.size).to eq(1)
     end
   end
+
+  RSpec.describe Client do
+    specify do
+      client = Client.new
+      event  = DummyEvent.new
+
+      notifications = []
+      callback = ->(name, started, finished, unique_id, data) do
+        notifications << unique_id
+
+        expect(data[:event]).to eq(event)
+      end
+
+      ActiveSupport::Notifications.subscribed(callback, "publish_event.rails_event_store") do
+        client.publish_event(event)
+      end
+
+      expect(notifications.size).to eq(1)
+    end
+  end
 end
