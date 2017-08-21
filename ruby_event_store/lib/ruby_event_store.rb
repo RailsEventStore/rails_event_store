@@ -1,3 +1,4 @@
+require 'ruby_event_store/pub_sub/dispatcher'
 require 'ruby_event_store/pub_sub/broker'
 require 'ruby_event_store/in_memory_repository'
 require 'ruby_event_store/projection'
