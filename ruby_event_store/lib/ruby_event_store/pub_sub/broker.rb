@@ -9,11 +9,7 @@ module RubyEventStore
 
         private
         def ensure_method_defined(subscriber)
-          raise MethodNotDefined.new(method_not_defined_message(subscriber)) unless subscriber.respond_to?(:call)
-        end
-
-        def method_not_defined_message(subscriber)
-          "#call method not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?"
+          raise MethodNotDefined.new(subscriber) unless subscriber.respond_to?(:call)
         end
       end
       private_constant :Dispatcher

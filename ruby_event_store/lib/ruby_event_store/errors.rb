@@ -4,7 +4,12 @@ module RubyEventStore
   IncorrectStreamData        = Class.new(StandardError)
   EventNotFound              = Class.new(StandardError)
   SubscriberNotExist         = Class.new(StandardError)
-  MethodNotDefined           = Class.new(StandardError)
   InvalidPageStart           = Class.new(ArgumentError)
   InvalidPageSize            = Class.new(ArgumentError)
+
+  class MethodNotDefined < StandardError
+    def initialize(subscriber)
+      super("#call method not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?")
+    end
+  end
 end
