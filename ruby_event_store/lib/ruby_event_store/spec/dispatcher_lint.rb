@@ -8,11 +8,10 @@ RSpec.shared_examples :dispatcher do |dispatcher|
   end
 
   specify "error when invalid subscriber passed" do
-    handler = Object.new
+    handler = double
     event   = instance_double(RubyEventStore::Event)
 
-    expect {
-      dispatcher.(handler, event)
-    }.to raise_error(RubyEventStore::MethodNotDefined)
+    expect { dispatcher.(handler, event) }.to raise_error(RubyEventStore::MethodNotDefined,
+      "#call method not found in RSpec::Mocks::Double subscriber. Are you sure it is a valid subscriber?")
   end
 end
