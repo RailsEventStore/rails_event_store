@@ -36,12 +36,15 @@ This repository is funded and maintained by Arkency. Check out our other [open-s
 
 You can also [hire us](http://arkency.com) or [read our blog](http://blog.arkency.com).
 
-
 ## Learn more about DDD & Event Sourcing
 
 Check our **Rails + Domain Driven Design Workshop** [more details](http://blog.arkency.com/ddd-training/).
 
 Why You should attend? Robert has explained this in [this blogpost](http://blog.arkency.com/2016/12/why-would-you-even-want-to-listen-about-ddd/).
 
-Next edition will be held on **25-26th May 2017** (Thursday & Friday) in Lviv, Ukraine.
+
+Next edition will be held on **21-22th September 2017** in Berlin, Germany.
+Another edition is also planned for November in London.
+
+You may also consider buying the [Domain-Driven Rails book](http://blog.arkency.com/domain-driven-rails/).
 Workshop will be held in English.
