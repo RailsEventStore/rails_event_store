@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module RailsEventStore
-  describe Client do
+  RSpec.describe Client do
     specify 'initialize proper adapter type' do
       client = Client.new
       expect(client.__send__("repository")).to be_a RailsEventStore.event_repository.class

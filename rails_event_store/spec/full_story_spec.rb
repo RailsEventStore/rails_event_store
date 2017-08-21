@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module RailsEventStore
-  describe Client do
+  RSpec.describe Client do
 
     specify 'restoring a read model from all events' do
       client = Client.new
