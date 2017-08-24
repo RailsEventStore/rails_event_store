@@ -1,3 +1,7 @@
+### 0.6.13 (24.08.2017)
+
+* Fix: Generate migration with version number for Rails versions that support it. Fixes compatibility with Rails 5.1.
+
 ### 0.6.12 (21.08.2017)
 
 * ruby_event_store updated to 0.14.0
