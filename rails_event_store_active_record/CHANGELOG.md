@@ -1,3 +1,7 @@
+### 0.6.14 (unreleased)
+
+* Run tests in random order
+
 ### 0.6.13 (24.08.2017)
 
 * Fix: Generate migration with version number for Rails versions that support it. Fixes compatibility with Rails 5.1.
