@@ -1,4 +1,4 @@
-class CreateEventStoreEvents < ActiveRecord::Migration
+class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
   def change
     create_table(:event_store_events) do |t|
       t.string      :stream,      null: false
