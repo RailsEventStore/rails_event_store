@@ -1,7 +1,7 @@
-### 0.14.4 (08.02.2017)
+### 0.14.4 (18.08.2017)
 
 * Change: rails_event_store_active_record updated to 0.6.11
-          Fix: Explicit order when querying forward. Leaving it implcit to database engine choice gives different results on different engines.
+* Fix: Explicit order when querying forward. Leaving it implcit to database engine choice gives different results on different engines.
 * Fix: Explicitly require railtie to load middleware in Rails to enrich event metadata with request metadata (PR #65)
 
 ### 0.14.3 (24.11.2016)
