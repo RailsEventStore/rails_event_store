@@ -1,6 +1,7 @@
 # RailsEventStore
 
 [RailsEventStore](README.md)
+* [Contributing](docs/contributing.md)
 * [Basics](docs/basics.md)
   * [Installation](docs/install.md)
   * [Using custom event repository](docs/repository.md)
