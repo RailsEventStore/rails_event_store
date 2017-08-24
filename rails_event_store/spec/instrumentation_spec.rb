@@ -46,4 +46,18 @@ module RailsEventStore
       expect(notifications.size).to eq(1)
     end
   end
+
+  RSpec.describe "it works with typical legacy codebase scenarios" do
+    specify do
+      client = Client.new
+      subscriber = ActiveSupport::Notifications.subscribe(/rails_event_store/, ->(*) { raise })
+
+      ActiveRecord::Base.transaction do
+        client.publish_event(DummyEvent.new)
+      end
+
+      ActiveSupport::Notifications.unsubscribe(subscriber)
+      expect(client.read_all_streams_backward).not_to be_empty
+    end
+  end
 end
