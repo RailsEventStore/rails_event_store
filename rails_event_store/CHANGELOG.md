@@ -1,3 +1,7 @@
+### 0.14.5 (24.08.2017)
+
+* Change: ruby_event_store updated to 0.14.0
+
 ### 0.14.4 (18.08.2017)
 
 * Change: rails_event_store_active_record updated to 0.6.11
