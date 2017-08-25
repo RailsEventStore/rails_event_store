@@ -8,6 +8,9 @@ require 'rails_event_store_active_record'
 
 RSpec.configure do |config|
   config.around(:each) do |example|
+    config.order = :random
+    Kernel.srand config.seed
+
     ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
     ActiveRecord::Schema.define do
       self.verbose = false
