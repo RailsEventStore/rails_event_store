@@ -1,0 +1,25 @@
+.site-navigation {
+  font-weight: $font-weight-semibold;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  padding: 0 1rem;
+
+  a {
+    color: $oc-gray-0;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
+
+.site-navigation__site-name {
+  font-weight: $font-weight-bold;
+  margin-right: 1rem;
+  height: 5rem;
+  line-height: 5rem;
+}
+
+.site-navigation__link {
+  margin-left: 1rem;
+}

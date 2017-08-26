@@ -1,0 +1,11 @@
+language: ruby
+before_install: gem install bundler
+gemfile: Gemfile
+script: bundle exec middleman build
+deploy:
+  provider: surge
+  project: "./build/"
+  domain: railseventstore.surge.sh
+  skip_cleanup: true
+env:
+  secure: gT5z24gUTh8wgEMXWxPCHWXenU4r5QTzpTppXKOjiRyZ3WOtsjAZMzjOqkW/dWMRP9l7bVFTQ9K1cFSLWs8HnNnsTH9MmEoJ73LMsECsziV3SiQlT2/PPezP2dmMAwttVa/AVrxd9496IiI9/l82Y/qhBhDjCGcr4RhHK8AUPWQ1xTiO1NDwPS5a9/rGYlaRf0zVBULfOzDI6HwMoMp/F11lA+bmMVsNy4GeeZFMFUz4SByhdfr37njACgCkm69OdnEnwDrt91TtBVko4pMBDTRqTAG+PSkltcmArTOGb/PJqnI2zbFymeBpRkYA46ppgPmlSpVUw+S61ZEpGZ6uNNGxOfPpxE38lqZZ2xuWpxJ7RXdgHDf5DmqEasc8Kmd7yKQhvl0rrTxp+4iqCp6dQPsyS9i+w+L3RfkHerXlh25P5pTFkZmV/N4yZ9fLtk2aKUwZXsqJMRNsMK2D+H8xkKbf9pOlVexvau5O6xI3vZnw2OIp2L2b+cf9p0Fs5Phl/VK+l5Zg3NFDpoPjoRIvfWXW4bMHvHtluGZYOeb+ch5I3DyRZbP2rFlciYqVQGBfARF5+Iq2TGY+X86QDrZ1oYBNu8s/H2ufT5YtcvqmoGU0p/qVYNpf0QQNetVZ8jx53HF4SHDhAXkI0oCHg4GjaRJa8V+OtIbUIwZmM0aq9fs=

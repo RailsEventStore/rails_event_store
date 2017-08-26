@@ -1,0 +1,19 @@
+<% wrap_layout :base do %>
+  <header class="frame__section">
+    <div class="container">
+      <%= partial "partials/site_section", locals: { title: "Documentation" , subtitle: "v0.14.5" } %>
+    </div>
+  </header>
+
+  <main class="frame__body" role="main">
+    <div class="container">
+      <nav class="frame__sidebar">
+        <%= partial "partials/documentation_nav" %>
+      </nav>
+
+      <div class="frame__main">
+        <%= yield %>
+      </div>
+    </div>
+  </main>
+<% end %>

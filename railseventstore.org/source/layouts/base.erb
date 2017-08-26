@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    <title><%= current_page.data.title %></title>
+    <%= stylesheet_link_tag "site" %>
+  </head>
+  <body>
+    <div class="frame">
+      <header class="frame__header">
+        <div class="container">
+          <%= partial "partials/site_navigation" %>
+        </div>
+      </header>
+
+      <%= yield %>
+
+      <header class="frame__footer">
+        <div class="container">
+          <%= partial "partials/site_footer" %>
+        </div>
+      </header>
+    </div>
+    <%= javascript_include_tag "site" %>
+    <%= partial "partials/tracking" %>
+  </body>
+</html>

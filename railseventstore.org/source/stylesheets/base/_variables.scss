@@ -1,0 +1,55 @@
+// Typography
+$sans-serif: $font-stack-system;
+$monospace-font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+  Courier, monospace;
+
+$base-font-family: $sans-serif;
+$header-font-family: $base-font-family;
+
+// Font Sizes
+$base-font-size: 1em;
+$h1-font-size: $base-font-size * 2.2;
+$h2-font-size: $base-font-size * 1.6;
+$h3-font-size: $base-font-size * 1.3;
+$h4-font-size: $base-font-size * 1.25;
+$h5-font-size: $base-font-size * 1.15;
+$h6-font-size: $base-font-size;
+
+// Font Weights
+$font-weight-normal: 400;
+$font-weight-semibold: 500;
+$font-weight-bold: 700;
+
+// Line height
+$base-line-height: 1.5;
+$header-line-height: 1.25;
+
+// Other Sizes
+$base-border-radius: 3px;
+$base-spacing: $base-line-height * 1em;
+$small-spacing: $base-spacing / 2;
+$base-z-index: 0;
+
+// Colors
+$mm-yellow: #fbc547;
+
+// Font Colors
+$base-font-color: $oc-gray-8;
+$header-font-color: $oc-gray-7;
+$base-accent-color: $oc-red-8;
+$secondary-accent-color: $oc-blue-7;
+
+// Link Colors
+$base-link-color: $secondary-accent-color;
+$hover-link-color: darken($base-link-color, 15%);
+$base-button-color: $base-link-color;
+$hover-button-color: $hover-link-color;
+
+// Border color
+$base-border-color: $oc-gray-3;
+$base-border: 1px solid $base-border-color;
+
+// Forms
+$form-box-shadow: inset 0 1px 3px rgba(#000, 0.06);
+$form-box-shadow-focus: $form-box-shadow,
+  0 0 5px adjust-color($base-accent-color, $lightness: -5%, $alpha: -0.3);

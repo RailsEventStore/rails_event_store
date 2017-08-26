@@ -1,0 +1,5 @@
+.container {
+  @include margin(null auto);
+  @include padding(null 1rem);
+  max-width: 64rem;
+}
