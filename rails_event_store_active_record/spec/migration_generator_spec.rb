@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'pp'
-require 'fakefs'
+require 'fakefs/safe'
 
 module RailsEventStoreActiveRecord
   describe MigrationGenerator do
