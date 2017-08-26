@@ -5,7 +5,7 @@ require 'fakefs'
 module RailsEventStoreActiveRecord
   describe MigrationGenerator do
     specify do
-      FakeFS do
+      FakeFS.with_fresh do
         FakeFS::FileSystem.clone(File.expand_path('../../', __FILE__))
         stub_const("Rails::VERSION::STRING", "4.2.8")
 
