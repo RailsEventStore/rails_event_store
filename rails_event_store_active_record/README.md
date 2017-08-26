@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/RailsEventStore/rails_event_store_active_record.svg?branch=master)](https://travis-ci.org/arkency/rails_event_store_active_record)
+[![Build Status](https://travis-ci.org/RailsEventStore/rails_event_store_active_record.svg?branch=master)](https://travis-ci.org/RailsEventStore/rails_event_store_active_record)
 [![Gem Version](https://badge.fury.io/rb/rails_event_store_active_record.svg)](http://badge.fury.io/rb/rails_event_store_active_record)
 [![Code Climate](https://codeclimate.com/github/arkency/rails_event_store_active_record/badges/gpa.svg)](https://codeclimate.com/github/arkency/rails_event_store_active_record)
 [![Test Coverage](https://codeclimate.com/github/arkency/rails_event_store_active_record/badges/coverage.svg)](https://codeclimate.com/github/arkency/rails_event_store_active_record)
