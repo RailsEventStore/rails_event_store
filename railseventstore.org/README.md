@@ -1,18 +1,24 @@
-# RailsEventStore
+# railseventstore.org
 
-[![Build Status](https://travis-ci.org/arkency/ruby_event_store.svg?branch=master)](https://travis-ci.org/arkency/ruby_event_store)
-[![Gem Version](https://badge.fury.io/rb/ruby_event_store.svg)](http://badge.fury.io/rb/ruby_event_store)
-[![Code Climate](https://codeclimate.com/github/arkency/ruby_event_store/badges/gpa.svg)](https://codeclimate.com/github/arkency/ruby_event_store)
-[![Test Coverage](https://codeclimate.com/github/arkency/ruby_event_store/badges/coverage.svg)](https://codeclimate.com/github/arkency/ruby_event_store/coverage)
+Source files for the documentation and website of [Rails Event Store](http://railseventstore.org).
 
-A Ruby implementation of an EventStore.
-Default storage is events repository based on Active Record (provided by separate gem: [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)).
+[![Build Status](https://travis-ci.org/RailsEventStore/railseventstore.org.svg?branch=master)](https://travis-ci.org/RailsEventStore/railseventstore.org)
 
-# Building the docs
 
-Docs are available as Markdown files inside `docs/` directory. They are processed by [Gitbook](https://github.com/GitbookIO/gitbook) to generate a nicely looking documentation book.
+## Serving the docs locally
 
-# About
+Provided you have Ruby installed, you can serve docs locally at `http://localhost:4567`
+
+```
+bundle install
+bundle exec middleman server
+```
+
+## Publishing the docs
+
+Documenation and website is deployed continuously and automatically from `master` branch by Travis-CI.
+
+## About
 
 <img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left" />
 
