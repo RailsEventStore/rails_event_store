@@ -1,4 +1,5 @@
-/_book/
-/pkg/
-/log/
-Gemfile.lock
+.bundle
+.cache
+.DS_Store
+.sass-cache
+/build/

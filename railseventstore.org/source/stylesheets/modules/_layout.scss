@@ -1,0 +1,26 @@
+.wrap-container {
+  @include outer-container;
+  padding: 0 $gutter;
+}
+
+.centered-content {
+  @include fill-parent;
+  @include clearfix;
+  text-align: center;
+}
+
+.main {
+  h1 {
+    margin-top: 0.15em;
+    padding-bottom: 0.35em;
+    margin-bottom: 0.35em;
+  }
+
+  ol {
+    @extend %default-ol;
+  }
+
+  ul {
+    @extend %default-ul;
+  }
+}

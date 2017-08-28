@@ -1,0 +1,43 @@
+$_two-column-breakpoint: $medium-screen;
+$_two-column-gutter: 2rem;
+
+.frame {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.frame__header {
+  background-color: $oc-red-8;
+}
+
+.frame__section {
+  background-color: $oc-gray-8;
+}
+
+.frame__footer {
+  background-color: $oc-gray-0;
+}
+
+.frame__body {
+  @include padding(2rem null);
+  @include clearfix;
+  flex-grow: 1;
+}
+
+.frame__sidebar {
+  @media only screen and (min-width: $_two-column-breakpoint) {
+    float: left;
+    width: calc(25% - (#{$_two-column-gutter} / 2));
+  }
+}
+
+.frame__main {
+  @media only screen and (min-width: $_two-column-breakpoint) {
+    float: left;
+    margin-left: $_two-column-gutter;
+    width: calc(75% - (#{$_two-column-gutter} / 2));
+  }
+}

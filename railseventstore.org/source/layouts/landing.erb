@@ -1,0 +1,13 @@
+<% wrap_layout :base do %>
+  <header class="frame__section">
+    <div class="container">
+      <%= partial "partials/hero" %>
+    </div>
+  </header>
+
+  <main class="frame__body" role="main">
+    <div class="container u-text-padding">
+      <%= yield %>
+    </div>
+  </main>
+<% end %>

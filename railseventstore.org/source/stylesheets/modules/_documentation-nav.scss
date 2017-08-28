@@ -1,0 +1,43 @@
+.toc-block-container {
+  display: none;
+  height: 100vh;
+  overflow: scroll;
+
+  @include media($medium-screen-up) {
+    display: block;
+  }
+}
+
+.toc-block {
+  margin-bottom: 2em;
+}
+
+.docs-section-heading {
+  color: lighten($base-font-color, 25%);
+  font-size: $base-font-size * 0.85;
+  font-weight: $font-weight-bold;
+  letter-spacing: 2px;
+  padding: 0.75em 0.5em;
+  text-transform: uppercase;
+}
+
+.doc-item {
+  &:last-child {
+    border: none;
+  }
+
+  a {
+    color: $base-font-color;
+    display: block;
+    padding: 0.34em 0.5em;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: $oc-red-0;
+    }
+  }
+
+  [aria-current] {
+    font-weight: $font-weight-bold;
+  }
+}

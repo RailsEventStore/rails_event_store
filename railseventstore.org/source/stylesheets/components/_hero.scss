@@ -1,0 +1,13 @@
+.site-hero {
+  padding: 3rem 1rem;
+}
+
+.site-hero__copy {
+  color: $oc-gray-0;
+  margin: 0 0 2rem 0;
+}
+
+.site-hero__cta {
+  @include button-outline($oc-gray-0);
+  font-weight: 600;
+}

@@ -1,0 +1,48 @@
+@mixin button {
+  box-sizing: border-box;
+  border-radius: $base-border-radius;
+  display: inline-block;
+  font-weight: $font-weight-bold;
+  padding: 0.75em 1.25em;
+  text-align: center;
+
+  &:hover {
+    border-radius: $base-border-radius;
+  }
+}
+
+@mixin button-filled($color) {
+  @include button;
+  background-color: $color;
+  color: white;
+
+  &:hover {
+    background-color: darken($color, 10);
+    color: white;
+  }
+}
+
+@mixin button-outline($font-color, $secondary-color:
+transparent) {
+  @include button;
+  background: linear-gradient($secondary-color 50%, $font-color 50%);
+  background-repeat: repeat;
+  background-size: 100% 200%;
+  border: 2px solid $font-color;
+  color: $font-color;
+  transition: all .3s ease-in-out;
+
+  // @if $type == "fill" {
+  //   &:hover {
+  //     background-position: 200% 100%;
+  //     background-color: $font-color;
+  //     border-color: $font-color;
+  //     color: $secondary-color;
+  //   }
+  // } @else if $type == "darken" {
+  &:hover {
+    border-color: darken($font-color, 20);
+    color: darken($font-color, 20);
+  }
+  // }
+}

@@ -1,9 +1,0 @@
-{
-  "title": "RailsEventStore",
-  "plugins": [ "-search", "-lunr", "github" ],
-  "pluginsConfig": {
-    "github": {
-      "url": "https://github.com/RailsEventStore/railseventstore.org"
-    }
-  }
-}
