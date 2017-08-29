@@ -1,0 +1,14 @@
+language: ruby
+rvm:
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
+before_install: gem install bundler
+gemfile: $TARGET/Gemfile
+env:
+  matrix:
+    - "TARGET=aggregate_root"
+    - "TARGET=ruby_event_store"
+    - "TARGET=rails_event_store"
+    - "TARGET=rails_event_store_active_record"
+script: make -C $TARGET mutate
