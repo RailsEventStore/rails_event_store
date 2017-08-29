@@ -11,7 +11,7 @@ module AggregateRoot
 
   def load(stream_name, event_store: default_event_store)
     @loaded_from_stream_name = stream_name
-    events = @loaded_events = event_store.read_stream_events_forward(stream_name)
+    events = event_store.read_stream_events_forward(stream_name)
     events.each do |event|
       apply(event)
     end
@@ -27,7 +27,7 @@ module AggregateRoot
   end
 
   private
-  attr_reader :loaded_from_stream_name, :loaded_events
+  attr_reader :loaded_from_stream_name
 
   def unpublished_events
     @unpublished_events ||= []
