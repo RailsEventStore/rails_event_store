@@ -62,8 +62,7 @@ RSpec.shared_examples :event_broker do |broker_class|
               "in InvalidTestHandler subscriber." +
               " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
-    broker.add_subscriber(subscriber, [Test1DomainEvent])
-    expect { broker.notify_subscribers(Test1DomainEvent.new) }.to raise_error(RubyEventStore::InvalidHandler, message)
+    expect { broker.add_subscriber(subscriber, [Test1DomainEvent]) }.to raise_error(RubyEventStore::InvalidHandler, message)
   end
 
   it 'raises error when no valid method on global handler' do
@@ -71,8 +70,7 @@ RSpec.shared_examples :event_broker do |broker_class|
               "in InvalidTestHandler subscriber." +
               " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
-    broker.add_global_subscriber(subscriber)
-    expect { broker.notify_subscribers(Test1DomainEvent.new) }.to raise_error(RubyEventStore::InvalidHandler, message)
+    expect { broker.add_global_subscriber(subscriber) }.to raise_error(RubyEventStore::InvalidHandler, message)
   end
 
   it 'returns lambda as an output of global subscribe methods' do

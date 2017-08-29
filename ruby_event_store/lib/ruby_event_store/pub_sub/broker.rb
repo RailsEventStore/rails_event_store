@@ -32,6 +32,7 @@ module RubyEventStore
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?
+        raise InvalidHandler.new(subscriber) unless subscriber.respond_to?(:call)
       end
 
       def subscribe(subscriber, event_types)
