@@ -36,10 +36,24 @@ describe AggregateRoot do
     order = Order.new
     order.apply(order_created)
     order.apply(order_expired)
-    expect(event_store).to receive(:publish_event).with(order_created, stream_name: stream).and_call_original
-    expect(event_store).to receive(:publish_event).with(order_expired, stream_name: stream).and_call_original
+    expect(event_store).to receive(:publish_events).with([order_created, order_expired], stream_name: stream, expected_version: -1).and_call_original
     order.store(stream, event_store: event_store)
     expect(order.expected_events).to be_empty
+  end
+
+  it "updates aggregate stream position and uses it in subsequent publish_events call as expected_version" do
+    stream = "any-order-stream"
+    order_created = Orders::Events::OrderCreated.new
+
+    order = Order.new
+    order.apply(order_created)
+    expect(event_store).to receive(:publish_events).with([order_created], stream_name: stream, expected_version: -1).and_call_original
+    order.store(stream, event_store: event_store)
+
+    order_expired = Orders::Events::OrderExpired.new
+    order.apply(order_expired)
+    expect(event_store).to receive(:publish_events).with([order_expired], stream_name: stream, expected_version: 0).and_call_original
+    order.store(stream, event_store: event_store)
   end
 
   it "should work with provided event_store" do
@@ -120,7 +134,7 @@ describe AggregateRoot do
     expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
   end
 
-  it "should ignore missing apply method based on a default apply strategy" do
+  it "should ignore missing apply method based on a default non-strict apply strategy" do
     order = OrderWithNonStrictApplyStrategy.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect{ order.apply(spanish_inquisition) }.to_not raise_error

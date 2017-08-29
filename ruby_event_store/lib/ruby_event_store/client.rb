@@ -12,16 +12,22 @@ module RubyEventStore
       @clock          = clock
     end
 
-    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      append_to_stream(event, stream_name: stream_name, expected_version: expected_version)
-      event_broker.notify_subscribers(event)
+    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
+      events.each do |ev|
+        event_broker.notify_subscribers(ev)
+      end
       :ok
     end
 
-    def append_to_stream(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      validate_expected_version(stream_name, expected_version)
-      enriched_event = enrich_event_metadata(event)
-      repository.create(enriched_event, stream_name)
+    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
+      publish_events([event], stream_name: stream_name, expected_version: expected_version)
+    end
+
+    def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      events = [*events]
+      enriched_events = events.each{|event| enrich_event_metadata(event) }
+      repository.append_to_stream(enriched_events, stream_name, expected_version)
       :ok
     end
 
@@ -109,22 +115,5 @@ module RubyEventStore
       attr_reader :start, :count
     end
 
-    def validate_expected_version(stream_name, expected_version)
-      raise InvalidExpectedVersion if expected_version.nil?
-      case expected_version
-      when :any
-        return
-      when :none
-        return if last_stream_event_id(stream_name).nil?
-      else
-        return if last_stream_event_id(stream_name).eql?(expected_version)
-      end
-      raise WrongExpectedEventVersion
-    end
-
-    def last_stream_event_id(stream_name)
-      last = repository.last_stream_event(stream_name)
-      last.event_id if last
-    end
   end
 end

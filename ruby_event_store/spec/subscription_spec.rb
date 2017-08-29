@@ -157,5 +157,38 @@ module RubyEventStore
       expect(received_event).to_not be_nil
       expect(received_event.metadata[:timestamp]).to eq(Time.at(0))
     end
+
+    specify 'notifies subscriber in the order events were published' do
+      handled_events = []
+      subscriber = ->(event) {
+        handled_events << event
+      }
+      client.subscribe(subscriber, [ProductAdded, OrderCreated])
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      client.publish_events([event_1, event_2])
+      expect(handled_events).to eq [event_1, event_2]
+    end
+
+    specify 'with many subscribers they are called in the order events were published' do
+      handled_events = []
+      subscriber1 = ->(event) {
+        handled_events << event
+        handled_events << :subscriber1
+      }
+      client.subscribe(subscriber1, [ProductAdded, OrderCreated])
+      subscriber2 = ->(event) {
+        handled_events << event
+        handled_events << :subscriber2
+      }
+      client.subscribe(subscriber2, [ProductAdded, OrderCreated])
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      client.publish_events([event_1, event_2])
+      expect(handled_events).to eq [
+        event_1, :subscriber1, event_1, :subscriber2,
+        event_2, :subscriber1, event_2, :subscriber2,
+      ]
+    end
   end
 end

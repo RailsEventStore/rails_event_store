@@ -11,26 +11,30 @@ module AggregateRoot
 
   def load(stream_name, event_store: default_event_store)
     @loaded_from_stream_name = stream_name
-    events = event_store.read_stream_events_forward(stream_name)
+    events = @loaded_events = event_store.read_stream_events_forward(stream_name)
     events.each do |event|
       apply(event)
     end
-    @unpublished_events = nil
+    @version = events.size - 1
+    @unpublished_events = []
     self
   end
 
   def store(stream_name = loaded_from_stream_name, event_store: default_event_store)
-    unpublished_events.each do |event|
-      event_store.publish_event(event, stream_name: stream_name)
-    end
-    @unpublished_events = nil
+    event_store.publish_events(unpublished_events, stream_name: stream_name, expected_version: version)
+    @version += unpublished_events.size
+    @unpublished_events = []
   end
 
   private
-  attr_reader :loaded_from_stream_name
+  attr_reader :loaded_from_stream_name, :loaded_events
 
   def unpublished_events
     @unpublished_events ||= []
+  end
+
+  def version
+    @version ||= -1
   end
 
   def apply_strategy

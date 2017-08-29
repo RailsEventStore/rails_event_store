@@ -23,12 +23,15 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'rails', '~> 4.2'
+  spec.add_development_dependency 'rails', '~> 5.0'
   spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'postgresql'
+  spec.add_development_dependency 'mysql2'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.11'
   spec.add_development_dependency 'fakefs'
 
   spec.add_dependency 'ruby_event_store', '~> 0.14.0'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
+  spec.add_dependency 'activerecord-import'
 end
