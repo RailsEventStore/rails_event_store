@@ -5,7 +5,7 @@ require 'ruby_event_store/spec/event_repository_lint'
 module RailsEventStoreActiveRecord
   describe EventRepository do
     before do
-      ActiveRecord::Base.logger = Logger.new(STDOUT)
+      # ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
     let(:test_race_conditions_auto) { true }
     let(:test_race_conditions_any)  { true }
@@ -26,6 +26,6 @@ module RailsEventStoreActiveRecord
         map(&:position)
       expect(positions).to eq((0..positions.size-1).to_a)
     end
-    
+
   end
 end
