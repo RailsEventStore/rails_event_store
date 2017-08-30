@@ -77,7 +77,7 @@ test: test-aggregate-root test-ruby-event-store test-rails-event-store test-rail
 
 mutate: mutate-aggregate-root mutate-ruby-event-store mutate-rails-event-store mutate-rails-event-store-active-record ## Run all mutation tests
 
-release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root
+release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root ## Make a new release and push to RubyGems
 	@echo Released v$(RES_VERSION)
 
 
