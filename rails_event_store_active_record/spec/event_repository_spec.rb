@@ -26,16 +26,6 @@ module RailsEventStoreActiveRecord
         map(&:position)
       expect(positions).to eq((0..positions.size-1).to_a)
     end
-
-    specify 'initialize with adapter' do
-      repository = EventRepository.new
-      expect(repository.adapter).to eq(Event)
-    end
-
-    specify 'provide own event implementation' do
-      CustomEvent = Class.new(ActiveRecord::Base)
-      repository = EventRepository.new(adapter: CustomEvent)
-      expect(repository.adapter).to eq(CustomEvent)
-    end
+    
   end
 end
