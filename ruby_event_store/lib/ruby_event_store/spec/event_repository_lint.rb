@@ -251,6 +251,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.append_to_stream(TestDomainEvent.new(event_id: just_an_id), 'stream', -1)
 
     expect(repository.has_event?(just_an_id)).to be_truthy
+    expect(repository.has_event?(just_an_id.clone)).to be_truthy
     expect(repository.has_event?('any other id')).to be_falsey
   end
 
