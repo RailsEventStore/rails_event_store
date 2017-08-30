@@ -1,3 +1,5 @@
+Further changes can be tracked at [releases page](https://github.com/RailsEventStore/rails_event_store/releases).
+
 ### 0.14.0 (21.08.2017)
 
 * Change: Add lint for 3rd party implementations of dispatcher
