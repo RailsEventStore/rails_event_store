@@ -25,7 +25,7 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      events = [*events]
+      events = *events
       enriched_events = events.each{|event| enrich_event_metadata(event) }
       repository.append_to_stream(enriched_events, stream_name, expected_version)
       :ok

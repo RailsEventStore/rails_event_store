@@ -11,7 +11,7 @@ module RubyEventStore
 
     def append_to_stream(events, stream_name, expected_version)
       raise InvalidExpectedVersion if expected_version.nil?
-      events = [*events]
+      events = *events
       stream = read_stream_events_forward(stream_name)
       expected_version = case expected_version
         when :none
