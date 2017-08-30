@@ -1,14 +1,41 @@
 language: ruby
-rvm:
-  - 2.2.7
-  - 2.3.4
-  - 2.4.1
+matrix:
+  include:
+  - rvm: 2.4.1
+    env: TARGET=aggregate_root
+  - rvm: 2.4.1
+    env: TARGET=ruby_event_store
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store
+  - rvm: 2.3.4
+    env: TARGET=aggregate_root
+  - rvm: 2.3.4
+    env: TARGET=ruby_event_store
+  - rvm: 2.3.4
+    env: TARGET=rails_event_store
+  - rvm: 2.2.7
+    env: TARGET=aggregate_root
+  - rvm: 2.2.7
+    env: TARGET=ruby_event_store
+  - rvm: 2.2.7
+    env: TARGET=rails_event_store
+  - rvm: 2.2.7
+    env: TARGET=rails_event_store_active_record DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+  - rvm: 2.3.4
+    env: TARGET=rails_event_store_active_record DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store_active_record DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store_active_record DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
+before_script:
+  - psql -c 'create extension pgcrypto;' -U postgres
+  - psql -c 'create database rails_event_store_active_record;' -U postgres
+  - mysql -e 'CREATE DATABASE rails_event_store_active_record;'
 before_install: gem install bundler
 gemfile: $TARGET/Gemfile
-env:
-  matrix:
-    - "TARGET=aggregate_root"
-    - "TARGET=ruby_event_store"
-    - "TARGET=rails_event_store"
-    - "TARGET=rails_event_store_active_record"
 script: make -C $TARGET mutate
+services:
+  - postgresql
+  - mysql
+addons:
+  postgresql: "9.6"
