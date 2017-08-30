@@ -2,11 +2,6 @@ require 'activerecord-import'
 
 module RailsEventStoreActiveRecord
   class EventRepository
-    def initialize(adapter: Event)
-      @adapter = adapter
-    end
-    attr_reader :adapter
-
     def append_to_stream(events, stream_name, expected_version)
       events = [*events]
       expected_version   = case expected_version
@@ -49,8 +44,7 @@ module RailsEventStoreActiveRecord
     end
 
     def delete_stream(stream_name)
-      condition = {stream: stream_name}
-      adapter.destroy_all condition
+      EventInStream.where(stream: stream_name).delete_all
     end
 
     def has_event?(event_id)

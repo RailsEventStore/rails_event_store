@@ -233,17 +233,13 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'does not have deleted streams' do
-    repository.append_to_stream(TestDomainEvent.new, 'stream', -1)
-    repository.append_to_stream(TestDomainEvent.new, 'other_stream', -1)
-
-    expect(repository.read_stream_events_forward('stream').count).to eq 1
-    expect(repository.read_stream_events_forward('other_stream').count).to eq 1
-    expect(repository.read_all_streams_forward(:head, 10).count).to eq 2
+    repository.append_to_stream(e1 = TestDomainEvent.new, 'stream', -1)
+    repository.append_to_stream(e2 = TestDomainEvent.new, 'other_stream', -1)
 
     repository.delete_stream('stream')
     expect(repository.read_stream_events_forward('stream')).to be_empty
-    expect(repository.read_stream_events_forward('other_stream').count).to eq 1
-    expect(repository.read_all_streams_forward(:head, 10).count).to eq 1
+    expect(repository.read_stream_events_forward('other_stream')).to eq([e2])
+    expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
   end
 
   it 'has or has not domain event' do
