@@ -83,7 +83,7 @@ module RubyEventStore
     end
 
     def append(events, expected_version, stream, stream_name)
-      raise WrongExpectedEventVersion unless (stream.size - 1).eql?(expected_version)
+      raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
       events.each do |event|
         all.push(event)
         stream.push(event)

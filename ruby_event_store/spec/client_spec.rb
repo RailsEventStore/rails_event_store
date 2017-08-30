@@ -23,6 +23,13 @@ module RubyEventStore
       expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
     end
 
+    specify 'publish to default stream when not specified' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      expect(client.publish_events([test_event])).to eq(:ok)
+      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
+    end
+
     specify 'delete_stream returns :ok when success' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)

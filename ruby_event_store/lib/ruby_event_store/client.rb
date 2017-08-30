@@ -89,7 +89,7 @@ module RubyEventStore
       metadata[:timestamp] ||= clock.()
       metadata.merge!(metadata_proc.call || {}) if metadata_proc
 
-      event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
+      # event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
     end
 
     def handle_subscribe(unsub)
