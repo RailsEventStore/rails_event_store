@@ -1,3 +1,5 @@
+Further changes can be tracked at [releases page](https://github.com/RailsEventStore/rails_event_store/releases).
+
 ### 0.14.5 (24.08.2017)
 
 * Change: ruby_event_store updated to 0.14.0

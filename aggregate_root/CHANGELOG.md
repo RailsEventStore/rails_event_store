@@ -1,3 +1,5 @@
+Further changes can be tracked at [releases page](https://github.com/RailsEventStore/rails_event_store/releases).
+
 ### 0.4.0 (28.10.2016)
 
 * Change: redesign whole gem from scratch making it easier to use
