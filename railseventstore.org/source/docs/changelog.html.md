@@ -1,5 +1,14 @@
 # Documentation changes
 
+## [0.15.0](https://github.com/arkency/rails_event_store/releases/tag/v0.15.0)
+  * No changes in documentation.
+
+## [0.14.5](https://github.com/arkency/rails_event_store/releases/tag/v0.14.5)
+  * No changes in documentation.
+
+## [0.14.4](https://github.com/arkency/rails_event_store/releases/tag/v0.14.4)
+  * No changes in documentation.
+
 ## [0.14.3](https://github.com/arkency/rails_event_store/releases/tag/v0.14.3)
   * No changes in documentation.
 
