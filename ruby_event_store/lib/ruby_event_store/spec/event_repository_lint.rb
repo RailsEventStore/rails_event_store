@@ -310,4 +310,20 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_backward(events[4].event_id, 4)).to eq(events.first(4).reverse)
     expect(repository.read_all_streams_backward(events[4].event_id, 100)).to eq(events.first(4).reverse)
   end
+
+  it 'reads events different uuid object but same content' do
+    event_ids = [
+      "96c920b1-cdd0-40f4-907c-861b9fff7d02",
+      "56404f79-0ba0-4aa0-8524-dc3436368ca0"
+    ]
+    events = event_ids.map{|id| TestDomainEvent.new(event_id: id) }
+    repository.append_to_stream(events.first, 'stream', -1)
+    repository.append_to_stream(events.last,  'stream',  0)
+
+    expect(repository.read_all_streams_forward("96c920b1-cdd0-40f4-907c-861b9fff7d02", 1)).to eq([events.last])
+    expect(repository.read_all_streams_backward("56404f79-0ba0-4aa0-8524-dc3436368ca0", 1)).to eq([events.first])
+
+    expect(repository.read_events_forward('stream', "96c920b1-cdd0-40f4-907c-861b9fff7d02", 1)).to eq([events.last])
+    expect(repository.read_events_backward('stream', "56404f79-0ba0-4aa0-8524-dc3436368ca0", 1)).to eq([events.first])
+  end
 end

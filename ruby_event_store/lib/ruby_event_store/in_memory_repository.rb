@@ -11,7 +11,7 @@ module RubyEventStore
 
     def append_to_stream(events, stream_name, expected_version)
       raise InvalidExpectedVersion if expected_version.nil?
-      events = *events
+      events = normalize_to_array(events)
       stream = read_stream_events_forward(stream_name)
       expected_version = case expected_version
         when :none
@@ -65,6 +65,10 @@ module RubyEventStore
 
     private
     attr_accessor :streams, :all
+
+    def normalize_to_array(events)
+      return *events
+    end
 
     def append_with_synchronize(events, expected_version, stream, stream_name)
       # expected_version :auto assumes external lock is used

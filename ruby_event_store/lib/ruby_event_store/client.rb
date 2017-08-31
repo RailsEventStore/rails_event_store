@@ -25,7 +25,7 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      events = *events
+      events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
       repository.append_to_stream(events, stream_name, expected_version)
       :ok
@@ -83,6 +83,10 @@ module RubyEventStore
 
     private
     attr_reader :repository, :page_size, :event_broker, :metadata_proc, :clock
+
+    def normalize_to_array(events)
+      return *events
+    end
 
     def enrich_event_metadata(event)
       metadata = event.metadata
