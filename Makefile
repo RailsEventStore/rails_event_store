@@ -51,6 +51,13 @@ git-tag:
 	@git tag -m "Version v$(RES_VERSION)" v$(RES_VERSION)
 	@git push origin master --tags
 
+git-rebase-from-upstream:
+	@git remote remove upstream > /dev/null 2>&1 || true
+	@git remote add upstream git@github.com:RailsEventStore/rails_event_store.git
+	@git fetch upstream master
+	@git rebase upstream/master
+	@git push origin master
+
 set-version:
 	@find . -name version.rb -exec sed -i "" "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
@@ -80,4 +87,12 @@ mutate: mutate-aggregate-root mutate-ruby-event-store mutate-rails-event-store m
 release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root ## Make a new release and push to RubyGems
 	@echo Released v$(RES_VERSION)
 
+UPSTREAM_REV = `git rev-parse upstream/master`
+ORIGIN_REV   = `git rev-parse origin/master`
+CURRENT_REV  = `git rev-parse HEAD`
 
+rebase: git-rebase-from-upstream
+	@echo "Rebased with upstream/master"
+	@echo "  upstream/master at $(UPSTREAM_REV)"
+	@echo "  origin/master   at $(ORIGIN_REV)"
+	@echo "  current branch  at $(CURRENT_REV)"
