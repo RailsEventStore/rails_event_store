@@ -4,8 +4,6 @@ title: Contributing
 
 ## Contributing to RailsEventStore organization repositories
 
-We use [Collective Code Construction Contract (C4)](https://rfc.zeromq.org/spec:42/C4/) process.
-
 Any kind of contribution is welcomed. Here is a few guidelines that we need contributors to follow.
 
 ## Found a bug? Have a question?
