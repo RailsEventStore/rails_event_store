@@ -26,9 +26,7 @@ module RubyEventStore
     end
 
     def delete_stream(stream_name)
-      removed = read_stream_events_forward(stream_name).map(&:event_id)
       streams.delete(stream_name)
-      all.delete_if{|ev| removed.include?(ev.event_id)}
     end
 
     def has_event?(event_id)
