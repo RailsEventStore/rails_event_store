@@ -3,7 +3,7 @@ require 'activerecord-import'
 module RailsEventStoreActiveRecord
   class EventRepository
     def append_to_stream(events, stream_name, expected_version)
-      events = [*events]
+      events = normalize_to_array(events)
       expected_version   = case expected_version
         when nil
           raise RubyEventStore::InvalidExpectedVersion
@@ -120,6 +120,10 @@ module RailsEventStoreActiveRecord
         metadata: record.event.metadata,
         data: record.event.data
       )
+    end
+
+    def normalize_to_array(events)
+      [*events]
     end
   end
 end
