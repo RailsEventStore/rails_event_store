@@ -30,7 +30,7 @@ gem 'rails_event_store'
 ```
 
 Then setup [RailsEventStore](https://github.com/arkency/rails_event_store/) as described in
-Installation section of [readme](https://github.com/arkency/rails_event_store/blob/master/README.md#installation).
+the [docs](https://railseventstore.org/docs/install/)
 
 ## Usage
 
