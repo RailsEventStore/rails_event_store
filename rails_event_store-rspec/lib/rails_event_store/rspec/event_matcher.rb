@@ -1,11 +1,12 @@
 module RailsEventStore
   module RSpec
     class EventMatcher
-      def initialize(_)
+      def initialize(expected)
+        @expected = expected
       end
 
-      def matches?(_)
-        true
+      def matches?(actual)
+        @expected === actual
       end
     end
   end

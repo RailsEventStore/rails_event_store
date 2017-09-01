@@ -3,7 +3,8 @@ require "rails_event_store"
 
 module RailsEventStore
   module RSpec
-     DomainEvent = Class.new(RailsEventStore::Event)
+     FooEvent = Class.new(RailsEventStore::Event)
+     BarEvent = Class.new(RailsEventStore::Event)
 
     ::RSpec.describe EventMatcher do
       def matcher(expected)
@@ -11,7 +12,11 @@ module RailsEventStore
       end
 
       specify do
-        expect(DomainEvent.new).to matcher(DomainEvent)
+        expect(FooEvent.new).to matcher(FooEvent)
+      end
+
+      specify do
+        expect(FooEvent.new).not_to matcher(BarEvent)
       end
     end
   end
