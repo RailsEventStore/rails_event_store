@@ -6,7 +6,22 @@ module RailsEventStore
       end
 
       def matches?(actual)
-        @expected === actual
+        @actual = actual
+        @expected === @actual
+      end
+
+      def failure_message
+        %Q{
+expected: #{@expected}
+     got: #{@actual.class}
+}
+      end
+
+      def failure_message_when_negated
+        %Q{
+expected: not a kind of #{@expected}
+     got: #{@actual.class}
+}
       end
     end
   end
