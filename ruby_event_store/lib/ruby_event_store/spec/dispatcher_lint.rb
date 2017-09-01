@@ -18,10 +18,10 @@ RSpec.shared_examples :dispatcher do |dispatcher|
 
   specify "fails to build proxy when no call method defined on class" do
     message = "#call method not found " +
-      "in Fixnum subscriber." +
+      "in String subscriber." +
       " Are you sure it is a valid subscriber?"
 
-    expect { dispatcher.proxy_for(Fixnum) }.to raise_error(::RubyEventStore::InvalidHandler, message)
+    expect { dispatcher.proxy_for(String) }.to raise_error(::RubyEventStore::InvalidHandler, message)
   end
 
   private
