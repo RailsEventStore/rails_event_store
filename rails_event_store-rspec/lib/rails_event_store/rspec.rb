@@ -1,7 +1,7 @@
 require "rails_event_store/rspec/version"
 
 module RailsEventStore
-  module Rspec
+  module RSpec
     # Your code goes here...
   end
 end
