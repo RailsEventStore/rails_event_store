@@ -49,6 +49,15 @@ expected: not a kind of FooEvent
       specify do
         expect(FooEvent.new(data: { baz: "bar" })).not_to matcher(FooEvent).with_data({ foo: "bar" })
       end
+
+      specify do
+        _matcher = matcher(FooEvent).with_data({ foo: "bar"})
+        _matcher.matches?(FooEvent.new)
+        expect(_matcher.failure_message).to eq(%q{
+expected: FooEvent with data: {:foo=>"bar"}
+     got: FooEvent with data: {}
+})
+      end
     end
   end
 end

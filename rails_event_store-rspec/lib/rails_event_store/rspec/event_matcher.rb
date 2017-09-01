@@ -1,6 +1,35 @@
 module RailsEventStore
   module RSpec
     class EventMatcher
+      class FailureMessage
+        def initialize(expected_klass, actual_klass, expected_data, actual_data)
+          @expected_klass = expected_klass
+          @actual_klass   = actual_klass
+          @expected_data  = expected_data
+          @actual_data    = actual_data
+        end
+
+        def to_s
+          @expected_data ? failure_message_with_data : failure_message
+        end
+
+        private
+
+        def failure_message
+          %Q{
+expected: #{@expected_klass}
+     got: #{@actual_klass}
+}
+        end
+
+        def failure_message_with_data
+          %Q{
+expected: #{@expected_klass} with data: #{@expected_data}
+     got: #{@actual_klass} with data: #{@actual_data}
+}
+        end
+      end
+
       def initialize(expected)
         @expected = expected
       end
@@ -16,10 +45,7 @@ module RailsEventStore
       end
 
       def failure_message
-        %Q{
-expected: #{@expected}
-     got: #{@actual.class}
-}
+        FailureMessage.new(@expected, @actual.class, @expected_data, @actual.data).to_s
       end
 
       def failure_message_when_negated
