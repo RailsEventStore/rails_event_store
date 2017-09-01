@@ -8,7 +8,14 @@ module RailsEventStore
 
     ::RSpec.describe EventMatcher do
       def matcher(expected)
-        EventMatcher.new(expected)
+        EventMatcher.new(expected, differ: colorless_differ)
+      end
+
+      def colorless_differ
+        ::RSpec::Support::Differ.new(
+          :object_preparer => lambda { |object| RSpec::Matchers::Composable.surface_descriptions_in(object) },
+          :color => false
+        )
       end
 
       specify do
@@ -18,6 +25,7 @@ module RailsEventStore
       specify do
         expect(FooEvent.new).not_to matcher(BarEvent)
       end
+
       specify do
         _matcher = matcher(FooEvent)
         _matcher.matches?(BarEvent.new)
@@ -56,6 +64,11 @@ expected: not a kind of FooEvent
         expect(_matcher.failure_message).to eq(%q{
 expected: FooEvent with data: {:foo=>"bar"}
      got: FooEvent with data: {}
+
+Diff:
+@@ -1,2 +1,2 @@
+-{:foo=>"bar"}
++{}
 })
       end
     end
