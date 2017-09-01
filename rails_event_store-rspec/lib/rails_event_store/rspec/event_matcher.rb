@@ -7,7 +7,12 @@ module RailsEventStore
 
       def matches?(actual)
         @actual = actual
-        @expected === @actual
+        [matches_kind, matches_data].all?
+      end
+
+      def with_data(expected_data)
+        @expected_data = expected_data
+        self
       end
 
       def failure_message
@@ -22,6 +27,17 @@ expected: #{@expected}
 expected: not a kind of #{@expected}
      got: #{@actual.class}
 }
+      end
+
+      private
+
+      def matches_kind
+        @expected === @actual
+      end
+
+      def matches_data
+        return true unless @expected_data
+        @expected_data.all? { |k, v| @actual.data[k].eql?(v) }
       end
     end
   end

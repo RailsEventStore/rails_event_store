@@ -37,6 +37,18 @@ expected: not a kind of FooEvent
      got: FooEvent
 })
       end
+
+      specify do
+        expect(FooEvent.new(data: { baz: "bar" })).to matcher(FooEvent).with_data({ baz: "bar" })
+      end
+
+      specify do
+        expect(FooEvent.new(data: { baz: "bar" })).not_to matcher(FooEvent).with_data({ baz: "foo" })
+      end
+
+      specify do
+        expect(FooEvent.new(data: { baz: "bar" })).not_to matcher(FooEvent).with_data({ foo: "bar" })
+      end
     end
   end
 end
