@@ -39,11 +39,16 @@ expected: #{@expected_klass} with data: #{@expected_data}
 
       def matches?(actual)
         @actual = actual
-        [matches_kind, matches_data].all?
+        [matches_kind, matches_data, matches_metadata].all?
       end
 
       def with_data(expected_data)
         @expected_data = expected_data
+        self
+      end
+
+      def with_metadata(expected_metadata)
+        @expected_metadata = expected_metadata
         self
       end
 
@@ -67,6 +72,11 @@ expected: not a kind of #{@expected}
       def matches_data
         return true unless @expected_data
         @expected_data.all? { |k, v| @actual.data[k].eql?(v) }
+      end
+
+      def matches_metadata
+        return true unless @expected_metadata
+        @expected_metadata.all? { |k, v| @actual.metadata[k].eql?(v) }
       end
     end
   end

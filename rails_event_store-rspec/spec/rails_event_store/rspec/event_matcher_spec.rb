@@ -71,6 +71,18 @@ Diff:
 +{}
 })
       end
+
+      specify do
+        expect(FooEvent.new(metadata: { baz: "bar" })).to matcher(FooEvent).with_metadata({ baz: "bar" })
+      end
+
+      specify do
+        expect(FooEvent.new(metadata: { baz: "bar" })).not_to matcher(FooEvent).with_metadata({ baz: "foo" })
+      end
+
+      specify do
+        expect(FooEvent.new(metadata: { baz: "bar" })).not_to matcher(FooEvent).with_metadata({ foo: "bar" })
+      end
     end
   end
 end
