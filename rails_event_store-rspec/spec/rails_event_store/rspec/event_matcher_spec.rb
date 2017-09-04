@@ -65,7 +65,7 @@ expected: not a kind of FooEvent
 expected: FooEvent with data: {:foo=>"bar"}
      got: FooEvent with data: {}
 
-Diff:
+Data diff:
 @@ -1,2 +1,2 @@
 -{:foo=>"bar"}
 +{}
@@ -82,6 +82,39 @@ Diff:
 
       specify do
         expect(FooEvent.new(metadata: { baz: "bar" })).not_to matcher(FooEvent).with_metadata({ foo: "bar" })
+      end
+
+      specify do
+        _matcher = matcher(FooEvent).with_metadata({ foo: "bar"})
+        _matcher.matches?(FooEvent.new)
+        expect(_matcher.failure_message).to eq(%q{
+expected: FooEvent with metadata: {:foo=>"bar"}
+     got: FooEvent with metadata: {}
+
+Metadata diff:
+@@ -1,2 +1,2 @@
+-{:foo=>"bar"}
++{}
+})
+      end
+
+      specify do
+        _matcher = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz"})
+        _matcher.matches?(FooEvent.new)
+        expect(_matcher.failure_message).to eq(%q{
+expected: FooEvent with metadata: {:bar=>"baz"} data: {:foo=>"bar"}
+     got: FooEvent with metadata: {} data: {}
+
+Metadata diff:
+@@ -1,2 +1,2 @@
+-{:bar=>"baz"}
++{}
+
+Data diff:
+@@ -1,2 +1,2 @@
+-{:foo=>"bar"}
++{}
+})
       end
     end
   end

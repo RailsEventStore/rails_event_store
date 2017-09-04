@@ -2,33 +2,90 @@ module RailsEventStore
   module RSpec
     class EventMatcher
       class FailureMessage
-        def initialize(expected_klass, actual_klass, expected_data, actual_data, differ:)
-          @expected_klass = expected_klass
-          @actual_klass   = actual_klass
-          @expected_data  = expected_data
-          @actual_data    = actual_data
-          @differ         = differ
+        class ExpectedLine
+          def initialize(expected_klass, expected_metadata, expected_data)
+            @expected_klass    = expected_klass
+            @expected_metadata = expected_metadata
+            @expected_data     = expected_data
+          end
+
+          def to_s
+            ["\nexpected: ", @expected_klass, with, metadata, data]
+          end
+
+          private
+
+          def with
+            " with" if [@expected_data, @expected_metadata].any?
+          end
+
+          def data
+            [" data: ", @expected_data] if @expected_data
+          end
+
+          def metadata
+            [" metadata: ", @expected_metadata] if @expected_metadata
+          end
+        end
+
+        class ActualLine
+          def initialize(actual_klass, actual_metadata, actual_data, expected_metadata, expected_data)
+            @actual_klass      = actual_klass
+            @actual_metadata   = actual_metadata
+            @actual_data       = actual_data
+            @expected_metadata = expected_metadata
+            @expected_data     = expected_data
+          end
+
+          def to_s
+            ["\n     got: ", @actual_klass, with, metadata, data, "\n"]
+          end
+
+          private
+
+          def with
+            " with" if [@expected_data, @expected_metadata].any?
+          end
+
+          def data
+            [" data: ", @actual_data] if @expected_data
+          end
+
+          def metadata
+            [" metadata: ", @actual_metadata] if @expected_metadata
+          end
+        end
+
+        class Diff
+          def initialize(actual, expected, label, differ:)
+            @actual   = actual
+            @expected = expected
+            @label    = label
+            @differ   = differ
+          end
+
+          def to_s
+            @expected && ["\n#{@label} diff:", @differ.diff_as_string(@actual.to_s, @expected.to_s)]
+          end
+        end
+
+        def initialize(expected_klass, actual_klass, expected_data, actual_data, expected_metadata, actual_metadata, differ:)
+          @expected_klass    = expected_klass
+          @actual_klass      = actual_klass
+          @expected_data     = expected_data
+          @actual_data       = actual_data
+          @expected_metadata = expected_metadata
+          @actual_metadata   = actual_metadata
+          @differ            = differ
         end
 
         def to_s
-          @expected_data ? failure_message_with_data : failure_message
-        end
-
-        private
-
-        def failure_message
-          %Q{
-expected: #{@expected_klass}
-     got: #{@actual_klass}
-}
-        end
-
-        def failure_message_with_data
-          message = %Q{
-expected: #{@expected_klass} with data: #{@expected_data}
-     got: #{@actual_klass} with data: #{@actual_data}
-}
-          message + "\nDiff:" + @differ.diff_as_string(@actual_data.to_s, @expected_data.to_s)
+          [
+            ExpectedLine.new(@expected_klass, @expected_metadata, @expected_data),
+            ActualLine.new(@actual_klass, @actual_metadata, @actual_data, @expected_metadata, @expected_data),
+            Diff.new(@actual_metadata, @expected_metadata, "Metadata", differ: @differ),
+            Diff.new(@actual_data, @expected_data, "Data", differ: @differ)
+          ].map(&:to_s).join
         end
       end
 
@@ -53,7 +110,7 @@ expected: #{@expected_klass} with data: #{@expected_data}
       end
 
       def failure_message
-        FailureMessage.new(@expected, @actual.class, @expected_data, @actual.data, differ: @differ).to_s
+        FailureMessage.new(@expected, @actual.class, @expected_data, @actual.data, @expected_metadata, @actual.metadata, differ: @differ).to_s
       end
 
       def failure_message_when_negated
