@@ -8,7 +8,7 @@ module RailsEventStore
     it_behaves_like :dispatcher, ActiveJobDispatcher.new
 
     around do |example|
-      with_queue_adapter(ActiveJob::Base, :test) do
+      with_queue_adapter(ActiveJob::Base) do
         original_logger = ActiveJob::Base.logger
         ActiveJob::Base.logger = Logger.new(nil) # Silence messages "[ActiveJob] Enqueued ...".
         example.run
@@ -33,6 +33,16 @@ module RailsEventStore
       end
     end
 
+    it "error when ActiveJob::Base is used as handler class" do
+      message = "#call method not found " +
+        "in ActiveJob::Base subscriber." +
+        " Are you sure it is a valid subscriber?"
+
+      expect {
+        ActiveJobDispatcher.new.proxy_for(ActiveJob::Base)
+      }.to raise_error(::RubyEventStore::InvalidHandler, message)
+    end
+
     it "builds async proxy for ActiveJob::Base ancestors" do
       handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
 
@@ -46,50 +56,44 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
-      with_queue_adapter(AsyncHandler, DummyAdapter.new) do
-        handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
+      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
 
-        expect(handler.respond_to?(:call)).to be_truthy
-        expect_to_have_enqueued_job(AsyncHandler) do
-          handler.call(event)
-        end
-        expect(AsyncHandler.received).to be_nil
-        perform_enqueued_jobs(AsyncHandler.queue_adapter)
-        expect(AsyncHandler.received).to eq(yaml)
+      expect(handler.respond_to?(:call)).to be_truthy
+      expect_to_have_enqueued_job(AsyncHandler) do
+        handler.call(event)
       end
+      expect(AsyncHandler.received).to be_nil
+      perform_enqueued_jobs(AsyncHandler.queue_adapter)
+      expect(AsyncHandler.received).to eq(yaml)
     end
 
     it "async proxy for defined adapter enqueue job only after transaction commit" do
-      with_queue_adapter(AsyncHandler, DummyAdapter.new) do
-        handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
+      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
 
-        expect(handler.respond_to?(:call)).to be_truthy
-        expect_to_have_enqueued_job(AsyncHandler) do
-          ActiveRecord::Base.transaction do
-            handler.call(event)
-          end
+      expect(handler.respond_to?(:call)).to be_truthy
+      expect_to_have_enqueued_job(AsyncHandler) do
+        ActiveRecord::Base.transaction do
+          handler.call(event)
         end
-        expect(AsyncHandler.received).to be_nil
-        perform_enqueued_jobs(AsyncHandler.queue_adapter)
-        expect(AsyncHandler.received).to eq(yaml)
       end
+      expect(AsyncHandler.received).to be_nil
+      perform_enqueued_jobs(AsyncHandler.queue_adapter)
+      expect(AsyncHandler.received).to eq(yaml)
     end
 
     it "async proxy for defined adapter do not enqueue job after transaction rollback" do
-      with_queue_adapter(AsyncHandler, DummyAdapter.new) do
-        handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
+      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
 
-        expect_no_enqueued_job(AsyncHandler) do
-          ActiveRecord::Base.transaction do
-            handler.call(event)
-            raise ActiveRecord::Rollback
-          end
+      expect_no_enqueued_job(AsyncHandler) do
+        ActiveRecord::Base.transaction do
+          handler.call(event)
+          raise ActiveRecord::Rollback
         end
-        expect(AsyncHandler.received).to be_nil
       end
+      expect(AsyncHandler.received).to be_nil
     end
 
-    def with_queue_adapter(job, queue_adapter, &proc)
+    def with_queue_adapter(job, queue_adapter = :test, &proc)
       raise unless block_given?
       adapter = job.queue_adapter
       job.queue_adapter = queue_adapter
@@ -104,8 +108,6 @@ module RailsEventStore
     end
 
     def expect_to_have_enqueued_job(job, &proc)
-        #expect {
-        #}.to have_enqueued_job(AsyncHandler)
       raise unless block_given?
       yield
       found = job.queue_adapter.enqueued_jobs.select{|enqueued| enqueued[:job] == job}.count
@@ -119,8 +121,6 @@ module RailsEventStore
     end
 
     private
-    DummyAdapter = Class.new(ActiveJob::QueueAdapters::TestAdapter)
-
     class CallableHandler
       @@received = nil
       def self.reset
