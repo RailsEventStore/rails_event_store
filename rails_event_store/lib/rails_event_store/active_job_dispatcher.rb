@@ -21,32 +21,16 @@ module RailsEventStore
     end
 
     def async_proxy(klass)
-      raise InvalidHandler.new(klass) unless klass.respond_to?(:perform_later)
-      enqueue_now?(klass) ? enqueue_now_proxy(klass) : enqueue_after_commit_proxy(klass)
-    end
-
-    def enqueue_now_proxy(klass)
-      ->(e) { klass.perform_later(YAML.dump(e)) }
-    end
-
-    def enqueue_after_commit_proxy(klass)
       ->(e) {
         if ActiveRecord::Base.connection.transaction_open?
           ActiveRecord::Base.
             connection.
             current_transaction.
-            add_record( AsyncRecord.new(klass, e) )
+            add_record(AsyncRecord.new(klass, e))
         else
           klass.perform_later(YAML.dump(e))
         end
       }
-    end
-
-    def enqueue_now?(klass)
-      %w(
-        ActiveJob::QueueAdapters::InlineAdapter
-        ActiveJob::QueueAdapters::TestAdapter
-      ).include?(klass.queue_adapter.class.to_s)
     end
 
     class AsyncRecord
@@ -55,11 +39,7 @@ module RailsEventStore
         @event = event
       end
 
-      def has_transactional_callbacks?
-        true
-      end
-
-      def committed!(*_, **__)
+      def committed!
         @klass.perform_later(YAML.dump(@event))
       end
     end
