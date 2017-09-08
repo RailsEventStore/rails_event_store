@@ -116,6 +116,25 @@ Data diff:
 +{}
 })
       end
+
+      specify do
+        _matcher = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz"})
+        _matcher.matches?(FooEvent.new(data: { bar: "baz" }, metadata: { baz: "foo" }))
+        expect(_matcher.failure_message).to eq(%q{
+expected: FooEvent with metadata: {:bar=>"baz"} data: {:foo=>"bar"}
+     got: FooEvent with metadata: {:baz=>"foo"} data: {:bar=>"baz"}
+
+Metadata diff:
+@@ -1,2 +1,2 @@
+-{:bar=>"baz"}
++{:baz=>"foo"}
+
+Data diff:
+@@ -1,2 +1,2 @@
+-{:foo=>"bar"}
++{:bar=>"baz"}
+})
+      end
     end
   end
 end
