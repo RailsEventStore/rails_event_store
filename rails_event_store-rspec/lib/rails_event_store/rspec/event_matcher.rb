@@ -1,6 +1,38 @@
 module RailsEventStore
   module RSpec
     class EventMatcher
+      class KindMatcher
+        def initialize(expected)
+          @expected = expected
+        end
+
+        def ==(actual)
+          @expected === actual
+        end
+      end
+
+      class DataMatcher
+        def initialize(expected)
+          @expected = expected
+        end
+
+        def ==(actual)
+          return true unless @expected
+          @expected.all? { |k, v| actual[k].eql?(v) }
+        end
+      end
+
+      class MetadataMatcher
+        def initialize(expected)
+          @expected = expected
+        end
+
+        def ==(actual)
+          return true unless @expected
+          @expected.all? { |k, v| actual[k].eql?(v) }
+        end
+      end
+
       class FailureMessage
         class ExpectedLine
           def initialize(expected_klass, expected_metadata, expected_data)
@@ -123,17 +155,15 @@ expected: not a kind of #{@expected}
       private
 
       def matches_kind
-        @expected === @actual
+        KindMatcher.new(@expected) == @actual
       end
 
       def matches_data
-        return true unless @expected_data
-        @expected_data.all? { |k, v| @actual.data[k].eql?(v) }
+        DataMatcher.new(@expected_data) == @actual.data
       end
 
       def matches_metadata
-        return true unless @expected_metadata
-        @expected_metadata.all? { |k, v| @actual.metadata[k].eql?(v) }
+        MetadataMatcher.new(@expected_metadata) == @actual.metadata
       end
     end
   end
