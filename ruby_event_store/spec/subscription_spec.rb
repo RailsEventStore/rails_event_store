@@ -167,7 +167,7 @@ module RubyEventStore
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
-      expect { client.on([OrderCreated], Subscribers::InvalidHandler) }.to raise_error(InvalidHandler, message)
+      expect { client.subscribe(Subscribers::InvalidHandler, [OrderCreated]) }.to raise_error(InvalidHandler, message)
     end
 
     specify 'throws exception if subscriber klass have not call method - handling all events' do
@@ -175,14 +175,14 @@ module RubyEventStore
         "in Subscribers::InvalidHandler subscriber." +
         " Are you sure it is a valid subscriber?"
 
-      expect { client.on_all_events(Subscribers::InvalidHandler) }.to raise_error(InvalidHandler, message)
+      expect { client.subscribe_to_all_events(Subscribers::InvalidHandler) }.to raise_error(InvalidHandler, message)
     end
 
     specify 'dispatch events to subscribers via proxy' do
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      client.on([OrderCreated], Subscribers::ValidHandler)
+      client.subscribe(Subscribers::ValidHandler, [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
       expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
@@ -192,7 +192,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      client.on_all_events(Subscribers::ValidHandler)
+      client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish_event(event)
       expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
@@ -202,7 +202,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.on_all_events(Subscribers::ValidHandler)
+      result = client.subscribe_to_all_events(Subscribers::ValidHandler)
       expect(result).to respond_to(:call)
     end
 
@@ -210,7 +210,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.on([OrderCreated], Subscribers::ValidHandler)
+      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated])
       expect(result).to respond_to(:call)
     end
 
@@ -220,7 +220,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.on_all_events(Subscribers::ValidHandler) do
+      result = client.subscribe_to_all_events(Subscribers::ValidHandler) do
         client.publish_event(event_1)
       end
       client.publish_event(event_2)
@@ -235,7 +235,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.on([OrderCreated, ProductAdded], Subscribers::ValidHandler) do
+      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated, ProductAdded]) do
         client.publish_event(event_1)
       end
       client.publish_event(event_2)

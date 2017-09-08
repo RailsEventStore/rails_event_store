@@ -63,30 +63,24 @@ module RubyEventStore
       repository.read_all_streams_backward(page.start, page.count)
     end
 
-    def on(event_types, subscriber_klass, &proc)
-      proxy = event_broker.proxy_for(subscriber_klass)
-      subscribe(proxy, event_types, &proc)
-    end
-
-    def on_all_events(subscriber_klass, &proc)
-      proxy = event_broker.proxy_for(subscriber_klass)
-      subscribe_to_all_events(proxy, &proc)
-    end
-
     def subscribe(subscriber, event_types, &proc)
-      event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
+      event_broker.add_subscriber(subscriber_or_proxy(subscriber), event_types).tap do |unsub|
         handle_subscribe(unsub, &proc)
       end
     end
 
     def subscribe_to_all_events(subscriber, &proc)
-      event_broker.add_global_subscriber(subscriber).tap do |unsub|
+      event_broker.add_global_subscriber(subscriber_or_proxy(subscriber)).tap do |unsub|
         handle_subscribe(unsub, &proc)
       end
     end
 
     private
     attr_reader :repository, :page_size, :event_broker, :metadata_proc, :clock
+
+    def subscriber_or_proxy(subscriber)
+      subscriber&.instance_of?(Class) ? event_broker.proxy_for(subscriber) : subscriber
+    end
 
     def enrich_event_metadata(event)
       metadata = event.metadata
