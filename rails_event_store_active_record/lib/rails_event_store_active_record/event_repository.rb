@@ -53,15 +53,19 @@ module RailsEventStoreActiveRecord
 
     def last_stream_event(stream_name)
       build_event_entity(
-        EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC').first
+        preloaded.where(stream: stream_name).order('position DESC, id DESC').first
       )
+    end
+
+    def preloaded
+      EventInStream.preload(:event)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
       stream = EventInStream.where(stream: stream_name)
       unless after_event_id.equal?(:head)
         after_event = stream.find_by!(event_id: after_event_id)
-        stream = stream.where('id > ?', after_event.id)
+        stream = stream.where('id > ?', after_event)
       end
 
       stream.preload(:event).order('position ASC, id ASC').limit(count)
@@ -72,7 +76,7 @@ module RailsEventStoreActiveRecord
       stream = EventInStream.where(stream: stream_name)
       unless before_event_id.equal?(:head)
         before_event = stream.find_by!(event_id: before_event_id)
-        stream = stream.where('id < ?', before_event.id)
+        stream = stream.where('id < ?', before_event)
       end
 
       stream.preload(:event).order('position DESC, id DESC').limit(count)
@@ -80,12 +84,12 @@ module RailsEventStoreActiveRecord
     end
 
     def read_stream_events_forward(stream_name)
-      EventInStream.preload(:event).where(stream: stream_name).order('position ASC, id ASC')
+      preloaded.where(stream: stream_name).order('position ASC, id ASC')
         .map(&method(:build_event_entity))
     end
 
     def read_stream_events_backward(stream_name)
-      EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC')
+      preloaded.where(stream: stream_name).order('position DESC, id DESC')
         .map(&method(:build_event_entity))
     end
 
@@ -93,7 +97,7 @@ module RailsEventStoreActiveRecord
       stream = EventInStream.where(stream: "__global__")
       unless after_event_id.equal?(:head)
         after_event = stream.find_by!(event_id: after_event_id)
-        stream = stream.where('id > ?', after_event.id)
+        stream = stream.where('id > ?', after_event)
       end
 
       stream.preload(:event).order('id ASC').limit(count)
