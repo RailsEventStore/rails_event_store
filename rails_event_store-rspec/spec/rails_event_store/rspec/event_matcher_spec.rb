@@ -135,6 +135,14 @@ Data diff:
 +{:bar=>"baz"}
 })
       end
+
+      specify do
+        expect(FooEvent.new(metadata: { baz: "bar" })).to matcher(FooEvent).with_metadata({ baz: kind_of(String) })
+      end
+
+      specify do
+        expect(FooEvent.new(metadata: { baz: 99 })).not_to matcher(FooEvent).with_metadata({ baz: kind_of(String) })
+      end
     end
   end
 end

@@ -6,7 +6,7 @@ module RailsEventStore
           @expected = expected
         end
 
-        def ==(actual)
+        def matches?(actual)
           @expected === actual
         end
       end
@@ -16,20 +16,9 @@ module RailsEventStore
           @expected = expected
         end
 
-        def ==(actual)
+        def matches?(actual)
           return true unless @expected
-          @expected.all? { |k, v| actual[k].eql?(v) }
-        end
-      end
-
-      class MetadataMatcher
-        def initialize(expected)
-          @expected = expected
-        end
-
-        def ==(actual)
-          return true unless @expected
-          @expected.all? { |k, v| actual[k].eql?(v) }
+          ::RSpec::Matchers::BuiltIn::Match.new(@expected).matches?(actual)
         end
       end
 
@@ -155,15 +144,15 @@ expected: not a kind of #{@expected}
       private
 
       def matches_kind
-        KindMatcher.new(@expected) == @actual
+        KindMatcher.new(@expected).matches?(@actual)
       end
 
       def matches_data
-        DataMatcher.new(@expected_data) == @actual.data
+        DataMatcher.new(@expected_data).matches?(@actual.data)
       end
 
       def matches_metadata
-        MetadataMatcher.new(@expected_metadata) == @actual.metadata
+        DataMatcher.new(@expected_metadata).matches?(@actual.metadata)
       end
     end
   end
