@@ -33,7 +33,6 @@ module RailsEventStoreActiveRecord
           event_id: event.event_id
         ),EventInStream.new(
           stream: "__global__",
-          position: nil,
           event_id: event.event_id
         )]
       end
