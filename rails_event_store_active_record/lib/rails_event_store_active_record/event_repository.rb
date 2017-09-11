@@ -16,7 +16,7 @@ module RailsEventStoreActiveRecord
           expected_version
       end
       in_stream = events.flat_map.with_index do |event, index|
-        position = if expected_version == :any
+        position = if expected_version.equal?(:any)
           nil
         else
           expected_version + index + 1
