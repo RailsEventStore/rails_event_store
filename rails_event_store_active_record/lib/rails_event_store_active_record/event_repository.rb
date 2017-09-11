@@ -53,12 +53,8 @@ module RailsEventStoreActiveRecord
 
     def last_stream_event(stream_name)
       build_event_entity(
-        preloaded.where(stream: stream_name).order('position DESC, id DESC').first
+        EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC').first
       )
-    end
-
-    def preloaded
-      EventInStream.preload(:event)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
@@ -84,12 +80,12 @@ module RailsEventStoreActiveRecord
     end
 
     def read_stream_events_forward(stream_name)
-      preloaded.where(stream: stream_name).order('position ASC, id ASC')
+      EventInStream.preload(:event).where(stream: stream_name).order('position ASC, id ASC')
         .map(&method(:build_event_entity))
     end
 
     def read_stream_events_backward(stream_name)
-      preloaded.where(stream: stream_name).order('position DESC, id DESC')
+      EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC')
         .map(&method(:build_event_entity))
     end
 
