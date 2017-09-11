@@ -89,6 +89,33 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward('stream').to_set).to eq(Set.new([event0, event1, event2, event3]))
   end
 
+  specify ':auto queries for last position in given stream' do
+    repository.append_to_stream([
+      eventA = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      eventB = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      eventC = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'another', :auto)
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    repository.append_to_stream([
+      event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', 1)
+  end
+
+  specify ':auto starts from 0' do
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    expect do
+      repository.append_to_stream([
+        event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      ], 'stream', -1)
+    end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+  end
+
   specify ':auto queries for last position and follows in incremental way' do
     # It is expected that there is higher level lock
     # So this query is safe from race conditions
@@ -100,7 +127,10 @@ RSpec.shared_examples :event_repository do |repository_class|
       event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
       event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
     ], 'stream', :auto)
-    expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1, event2, event3])
+    expect(repository.read_all_streams_forward(:head, 4)).to eq([
+      event0, event1,
+      event2, event3
+    ])
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1, event2, event3])
   end
 
