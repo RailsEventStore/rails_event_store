@@ -12,10 +12,7 @@ module RailsEventStore
       end
 
       def colorless_differ
-        ::RSpec::Support::Differ.new(
-          :object_preparer => lambda { |object| RSpec::Matchers::Composable.surface_descriptions_in(object) },
-          :color => false
-        )
+        ::RSpec::Support::Differ.new(color: false)
       end
 
       specify do
