@@ -131,7 +131,7 @@ module RailsEventStore
       end
 
       def failure_message
-        FailureMessage.new(@expected, @actual.class, @expected_data, @actual.data, @expected_metadata, @actual.metadata, differ: @differ).to_s
+        FailureMessage.new(@expected, @actual.class, @expected_data, @actual.data, @expected_metadata, @actual.metadata, differ: differ).to_s
       end
 
       def failure_message_when_negated
@@ -142,6 +142,8 @@ expected: not a kind of #{@expected}
       end
 
       private
+
+      attr_reader :differ
 
       def matches_kind
         KindMatcher.new(@expected).matches?(@actual)
