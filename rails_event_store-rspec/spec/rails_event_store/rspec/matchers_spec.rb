@@ -13,6 +13,7 @@ module RailsEventStore
       specify { expect(matchers.an_event(BazEvent.new)).to be_an(EventMatcher) }
       specify { expect(matchers.event(BazEvent.new)).to be_an(EventMatcher) }
       specify { expect(BazEvent.new).to matchers.be_an_event(BazEvent) }
+      specify { expect([BazEvent.new]).to include(matchers.an_event(BazEvent)) }
 
       specify "be_an_event default configuration" do
         matcher = matchers.be_an_event(BazEvent.new)

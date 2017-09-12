@@ -110,6 +110,8 @@ module RailsEventStore
         end
       end
 
+      include ::RSpec::Matchers::Composable
+
       def initialize(expected, differ:)
         @differ   = differ
         @expected = expected
