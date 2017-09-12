@@ -56,7 +56,8 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
-      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
+      handler = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+        .proxy_for(AsyncHandler)
 
       expect(handler.respond_to?(:call)).to be_truthy
       expect_to_have_enqueued_job(AsyncHandler) do
@@ -68,7 +69,8 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job only after transaction commit" do
-      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
+      handler = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+        .proxy_for(AsyncHandler)
 
       expect(handler.respond_to?(:call)).to be_truthy
       expect_to_have_enqueued_job(AsyncHandler) do
@@ -82,7 +84,8 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter do not enqueue job after transaction rollback" do
-      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
+      handler = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+        .proxy_for(AsyncHandler)
 
       expect_no_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do

@@ -1,7 +1,44 @@
 require 'active_job'
 
 module RailsEventStore
+  module AsyncProxyStrategy
+    class AfterCommit
+      def call(klass, event)
+        if ActiveRecord::Base.connection.transaction_open?
+          ActiveRecord::Base.
+            connection.
+            current_transaction.
+            add_record(AsyncRecord.new(klass, event))
+        else
+          klass.perform_later(YAML.dump(event))
+        end
+      end
+
+      private
+      class AsyncRecord
+        def initialize(klass, event)
+          @klass = klass
+          @event = event
+        end
+
+        def committed!
+          @klass.perform_later(YAML.dump(@event))
+        end
+      end
+    end
+
+    class Inline
+      def call(klass, event)
+        klass.perform_later(YAML.dump(event))
+      end
+    end
+  end
+
   class ActiveJobDispatcher
+    def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new)
+      @async_proxy_strategy = proxy_strategy
+    end
+
     def call(subscriber, event)
       subscriber.call(event)
     end
@@ -21,27 +58,7 @@ module RailsEventStore
     end
 
     def async_proxy(klass)
-      ->(e) {
-        if ActiveRecord::Base.connection.transaction_open?
-          ActiveRecord::Base.
-            connection.
-            current_transaction.
-            add_record(AsyncRecord.new(klass, e))
-        else
-          klass.perform_later(YAML.dump(e))
-        end
-      }
-    end
-
-    class AsyncRecord
-      def initialize(klass, event)
-        @klass = klass
-        @event = event
-      end
-
-      def committed!
-        @klass.perform_later(YAML.dump(@event))
-      end
+      ->(e) { @async_proxy_strategy.call(klass, e) }
     end
   end
 end
