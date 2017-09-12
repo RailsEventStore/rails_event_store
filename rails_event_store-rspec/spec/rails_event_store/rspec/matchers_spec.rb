@@ -1,10 +1,7 @@
 require "spec_helper"
-require "rails_event_store"
 
 module RailsEventStore
   module RSpec
-    ::BazEvent = Class.new(RailsEventStore::Event)
-
     ::RSpec.describe Matchers do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
 

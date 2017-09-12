@@ -1,4 +1,5 @@
 require "bundler/setup"
+require "rails_event_store"
 require "rails_event_store/rspec"
 
 RSpec.configure do |config|
@@ -13,3 +14,8 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+FooEvent = Class.new(RailsEventStore::Event)
+BarEvent = Class.new(RailsEventStore::Event)
+BazEvent = Class.new(RailsEventStore::Event)
+
