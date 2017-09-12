@@ -79,7 +79,7 @@ module RubyEventStore
     attr_reader :repository, :page_size, :event_broker, :metadata_proc, :clock
 
     def subscriber_or_proxy(subscriber)
-      subscriber&.instance_of?(Class) ? event_broker.proxy_for(subscriber) : subscriber
+      subscriber.instance_of?(Class) ? event_broker.proxy_for(subscriber) : subscriber
     end
 
     def enrich_event_metadata(event)
