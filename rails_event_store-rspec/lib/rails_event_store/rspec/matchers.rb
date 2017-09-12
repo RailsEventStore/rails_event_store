@@ -4,6 +4,9 @@ module RailsEventStore
       def be_an_event(expected)
         EventMatcher.new(expected, differ: differ)
       end
+      alias :be_event :be_an_event
+      alias :an_event :be_an_event
+      alias :event    :be_an_event
 
       private
 
