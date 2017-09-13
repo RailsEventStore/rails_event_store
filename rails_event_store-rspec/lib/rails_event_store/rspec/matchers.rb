@@ -8,6 +8,10 @@ module RailsEventStore
       alias :an_event :be_an_event
       alias :event    :be_an_event
 
+      def have_published(expected)
+        HavePublished.new(expected)
+      end
+
       private
 
       def differ
