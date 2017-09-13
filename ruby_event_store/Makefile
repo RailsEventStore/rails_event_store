@@ -12,6 +12,10 @@ mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
 	@bundle exec mutant --include lib --require ruby_event_store --use rspec --ignore-subject "RubyEventStore.const_missing" "RubyEventStore*" --ignore-subject "RubyEventStore::InMemoryRepository#append_with_synchronize" --ignore-subject "RubyEventStore::InMemoryRepository#normalize_to_array" --ignore-subject "RubyEventStore::Client#normalize_to_array"
 
+release:
+	@rake build
+	@rake release:rubygem_push
+
 .PHONY: help
 
 help:

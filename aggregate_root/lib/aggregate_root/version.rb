@@ -1,3 +1,3 @@
 module AggregateRoot
-  VERSION = '0.4.0'
+  VERSION = "0.15.0"
 end

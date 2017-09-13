@@ -4,6 +4,13 @@ require 'fakefs/safe'
 
 module RailsEventStoreActiveRecord
   describe MigrationGenerator do
+    around(:each) do |example|
+      current_stdout = $stdout
+      $stdout = StringIO.new
+      example.call
+      $stdout = current_stdout
+    end
+
     specify do
       FakeFS.with_fresh do
         FakeFS::FileSystem.clone(File.expand_path('../../', __FILE__))

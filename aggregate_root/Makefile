@@ -12,6 +12,10 @@ mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
 	@bundle exec mutant --include lib --require aggregate_root --use rspec "AggregateRoot*"
 
+release:
+	@rake build
+	@rake release:rubygem_push
+
 .PHONY: help
 
 help:

@@ -1,3 +1,5 @@
+Further changes can be tracked at [releases page](https://github.com/RailsEventStore/rails_event_store/releases).
+
 ### 0.6.14 (unreleased)
 
 * Run tests in random order
