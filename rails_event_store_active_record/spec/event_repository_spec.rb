@@ -38,14 +38,46 @@ module RailsEventStoreActiveRecord
     end
 
     specify "explicit sorting by position rather than accidental" do
+      e1 = Event.create!(
+        id: u1 = SecureRandom.uuid,
+        data: {},
+        metadata: {},
+        event_type: TestDomainEvent.name,
+      )
+      e2 = Event.create!(
+        id: u2 = SecureRandom.uuid,
+        data: {},
+        metadata: {},
+        event_type: TestDomainEvent.name,
+      )
+      e3 = Event.create!(
+        id: u3 = SecureRandom.uuid,
+        data: {},
+        metadata: {},
+        event_type: TestDomainEvent.name,
+      )
+      EventInStream.create!(
+        stream:   "stream",
+        position: 1,
+        event_id: e2.id,
+      )
+      EventInStream.create!(
+        stream:   "stream",
+        position: 0,
+        event_id: e1.id,
+      )
+      EventInStream.create!(
+        stream:   "stream",
+        position: 2,
+        event_id: e3.id,
+      )
+      ActiveRecord::Schema.define do
+        self.verbose = false
+        remove_index :event_store_events_in_streams, [:stream, :position]
+      end
       repository = EventRepository.new
-      repository.append_to_stream([
-        event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
-        event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
-      ], 'stream', :none)
-      RailsEventStoreActiveRecord::EventInStream.update_all("id = -id")
-      expect(repository.read_events_forward('stream', :head, 2)).to eq([event0, event1])
-      expect(repository.read_stream_events_forward('stream')).to eq([event0, event1])
+      expect(repository.read_events_forward('stream', :head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq([u1,u2,u3])
     end
 
     def cleanup_concurrency_test
