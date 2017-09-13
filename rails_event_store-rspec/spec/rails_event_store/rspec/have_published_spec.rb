@@ -61,6 +61,26 @@ module RailsEventStore
         event_store.publish_event(FooEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent)).once
       end
+
+      specify do
+        event_store.publish_event(FooEvent.new, stream_name: "Foo")
+        expect(event_store).to matcher(matchers.an_event(FooEvent))
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new, stream_name: "Foo")
+        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_stream("Foo")
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new, stream_name: "Foo")
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_stream("Baz")
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_stream("Baz")
+      end
     end
   end
 end

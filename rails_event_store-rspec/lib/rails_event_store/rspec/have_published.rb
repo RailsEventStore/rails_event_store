@@ -7,12 +7,18 @@ module RailsEventStore
       end
 
       def matches?(event_store)
-        events = event_store.read_all_streams_backward
+        events = @stream_name ? event_store.read_events_backward(@stream_name)
+                              : event_store.read_all_streams_backward
         @matcher.matches?(events) && matches_count(events, @expected, @count)
       end
 
       def exactly(count)
         @count = count
+        self
+      end
+
+      def in_stream(stream_name)
+        @stream_name = stream_name
         self
       end
 
