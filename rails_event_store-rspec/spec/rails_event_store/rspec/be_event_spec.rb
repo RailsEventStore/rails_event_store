@@ -44,6 +44,10 @@ expected: not a kind of FooEvent
       end
 
       specify do
+        expect(FooEvent.new(data: { baz: "bar", irrelevant: "ignore" })).to matcher(FooEvent).with_data({ baz: "bar" })
+      end
+
+      specify do
         expect(FooEvent.new(data: { baz: "bar" })).not_to matcher(FooEvent).with_data({ baz: "foo" })
       end
 
@@ -67,6 +71,10 @@ Data diff:
 
       specify do
         expect(FooEvent.new(metadata: { baz: "bar" })).to matcher(FooEvent).with_metadata({ baz: "bar" })
+      end
+
+      specify do
+        expect(FooEvent.new(metadata: { baz: "bar", timestamp: Time.now })).to matcher(FooEvent).with_metadata({ baz: "bar" })
       end
 
       specify do
