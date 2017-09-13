@@ -1,9 +1,10 @@
 module RailsEventStore
   module RSpec
     class HavePublished
-      def initialize(expected)
+      def initialize(*expected)
+        raise ArgumentError if expected.empty?
         @expected = expected
-        @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(@expected)
+        @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*@expected)
       end
 
       def matches?(event_store)
@@ -35,7 +36,11 @@ module RailsEventStore
 
       def matches_count(events, expected, count)
         return true unless count
-        events.select { |e| expected === e }.size.equal?(count)
+        raise NotSupported if expected.size > 1
+
+        expected.all? do |event_or_matcher|
+          events.select { |e| event_or_matcher === e }.size.equal?(count)
+        end
       end
     end
   end

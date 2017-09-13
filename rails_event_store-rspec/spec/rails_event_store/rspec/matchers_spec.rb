@@ -23,12 +23,26 @@ module RailsEventStore
       specify { expect(matchers.have_published(matchers.an_event(FooEvent))).to be_an(HavePublished) }
 
       specify do
+        expect(matchers.have_published(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )).to be_an(HavePublished)
+      end
+
+      specify do
         event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
         event_store.publish_event(FooEvent.new)
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent))
       end
 
       specify { expect(matchers.have_applied(matchers.an_event(FooEvent))).to be_an(HaveApplied) }
+
+      specify do
+        expect(matchers.have_applied(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )).to be_an(HaveApplied)
+      end
 
       specify do
         aggregate_root = TestAggregate.new

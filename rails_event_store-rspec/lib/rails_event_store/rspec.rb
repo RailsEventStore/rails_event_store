@@ -1,5 +1,6 @@
 module RailsEventStore
   module RSpec
+    NotSupported = Class.new(StandardError)
   end
 end
 

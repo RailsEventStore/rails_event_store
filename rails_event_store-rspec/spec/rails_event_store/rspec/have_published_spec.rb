@@ -8,8 +8,8 @@ module RailsEventStore
         RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
       end
 
-      def matcher(expected)
-        HavePublished.new(expected)
+      def matcher(*expected)
+        HavePublished.new(*expected)
       end
 
       specify do
@@ -81,6 +81,49 @@ module RailsEventStore
         event_store.publish_event(FooEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_stream("Baz")
       end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(BazEvent.new)
+
+        expect(event_store).to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+
+        expect(event_store).not_to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(BarEvent.new)
+
+        expect(event_store).not_to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(BazEvent.new)
+
+        expect{
+          expect(event_store).to matcher(
+            matchers.an_event(FooEvent),
+            matchers.an_event(BazEvent)
+          ).exactly(2).times
+        }.to raise_error(NotSupported)
+      end
+
+      specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
     end
   end
 end
