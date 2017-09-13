@@ -21,6 +21,24 @@ module RailsEventStore
         event_store.publish_event(BarEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent))
       end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(FooEvent.new)
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).exactly(1)
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(FooEvent.new)
+        expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(2)
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(BazEvent.new)
+        expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(1)
+      end
     end
   end
 end
