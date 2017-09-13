@@ -1,9 +1,5 @@
 # RailsEventStore::RSpec
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rails_event_store/rspec`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,7 +18,31 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Configure your rspec to include matchers in all examples first:
+
+```ruby
+RSpec.configure do |config|
+  config.include ::RailsEventStore::RSpec::Matchers
+end
+```
+
+You can as well choose to have RES matches in particular test file only:
+
+```ruby
+RSpec.describe MySubject do
+  include ::RailsEventStore::RSpec::Matchers
+
+  specify do
+    # matchers available here
+  end
+end
+```
+
+### be_event
+
+### have_published
+
+### have_appplied
 
 ## Development
 
@@ -32,4 +52,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/fidel/rails_event_store-rspec.
+Bug reports and pull requests are welcome on GitHub at https://github.com/RailsEventStore/rails_event_store-rspec.
