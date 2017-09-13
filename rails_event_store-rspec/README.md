@@ -190,7 +190,7 @@ end
 
 ```ruby
 aggregate_root = Order.new
-aggregate_root.submitted
+aggregate_root.submit
 
 expect(aggregate_root).to have_applied(event(OrderSubmitted)).once
 ```
