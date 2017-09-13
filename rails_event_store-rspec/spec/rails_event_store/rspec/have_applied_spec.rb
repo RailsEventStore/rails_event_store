@@ -37,6 +37,28 @@ module RailsEventStore
         aggregate_root.bar
         expect(aggregate_root).to matcher(matchers.an_event(FooEvent)).exactly(1)
       end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.foo
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent)).exactly(2).times
+      end
+
+      specify do
+        aggregate_root.foo
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent)).exactly(1).time
+      end
+
+      specify do
+        aggregate_root.foo
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent)).once
+      end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.foo
+        expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent)).once
+      end
     end
   end
 end

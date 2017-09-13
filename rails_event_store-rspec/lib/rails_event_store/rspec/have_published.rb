@@ -16,6 +16,15 @@ module RailsEventStore
         self
       end
 
+      def times
+        self
+      end
+      alias :time :times
+
+      def once
+        exactly(1)
+      end
+
       private
 
       def matches_count(events, expected, count)
