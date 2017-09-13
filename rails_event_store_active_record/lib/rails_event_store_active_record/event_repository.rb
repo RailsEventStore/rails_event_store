@@ -2,6 +2,8 @@ require 'activerecord-import'
 
 module RailsEventStoreActiveRecord
   class EventRepository
+    POSITION_SHIFT = 1
+
     def append_to_stream(events, stream_name, expected_version)
       events = normalize_to_array(events)
       expected_version   = case expected_version
@@ -19,7 +21,7 @@ module RailsEventStoreActiveRecord
         position = if expected_version.equal?(:any)
           nil
         else
-          expected_version + index + 1
+          expected_version + index + POSITION_SHIFT
         end
         Event.create!(
           id: event.event_id,
