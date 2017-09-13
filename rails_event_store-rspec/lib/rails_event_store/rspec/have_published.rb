@@ -5,8 +5,8 @@ module RailsEventStore
         @matcher = ::RSpec::Matchers::BuiltIn::Include.new(expected)
       end
 
-      def matches?(actual)
-        @matcher.matches?(actual.read_all_streams_backward)
+      def matches?(event_store)
+        @matcher.matches?(event_store.read_all_streams_backward)
       end
     end
   end
