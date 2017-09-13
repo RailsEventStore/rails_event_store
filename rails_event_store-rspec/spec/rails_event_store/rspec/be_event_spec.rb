@@ -144,6 +144,12 @@ Data diff:
       specify do
         expect(FooEvent.new(metadata: { baz: 99 })).not_to matcher(FooEvent).with_metadata({ baz: kind_of(String) })
       end
+
+      specify do
+        expect(FooEvent.new(data: { foo: "bar" }, metadata: { timestamp: Time.now }))
+          .to(matcher(FooEvent).with_data(foo: "bar")
+            .and(matcher(FooEvent).with_metadata(timestamp: kind_of(Time))))
+      end
     end
   end
 end
