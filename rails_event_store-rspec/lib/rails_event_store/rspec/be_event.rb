@@ -1,6 +1,6 @@
 module RailsEventStore
   module RSpec
-    class EventMatcher
+    class BeEvent
       class KindMatcher
         def initialize(expected)
           @expected = expected

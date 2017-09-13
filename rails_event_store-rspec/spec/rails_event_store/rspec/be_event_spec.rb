@@ -2,9 +2,9 @@ require "spec_helper"
 
 module RailsEventStore
   module RSpec
-    ::RSpec.describe EventMatcher do
+    ::RSpec.describe BeEvent do
       def matcher(expected)
-        EventMatcher.new(expected, differ: colorless_differ)
+        BeEvent.new(expected, differ: colorless_differ)
       end
 
       def colorless_differ

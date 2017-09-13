@@ -2,7 +2,7 @@ module RailsEventStore
   module RSpec
     module Matchers
       def be_an_event(expected)
-        EventMatcher.new(expected, differ: differ)
+        BeEvent.new(expected, differ: differ)
       end
       alias :be_event :be_an_event
       alias :an_event :be_an_event
