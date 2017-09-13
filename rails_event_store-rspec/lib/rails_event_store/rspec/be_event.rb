@@ -12,13 +12,15 @@ module RailsEventStore
       end
 
       class DataMatcher
-        def initialize(expected)
+        def initialize(expected, strict:)
+          @strict = strict
           @expected = expected
         end
 
         def matches?(actual)
           return true unless @expected
-          ::RSpec::Matchers::BuiltIn::Include.new(@expected).matches?(actual)
+          matcher = @strict ? ::RSpec::Matchers::BuiltIn::Match : ::RSpec::Matchers::BuiltIn::Include
+          matcher.new(@expected).matches?(actual)
         end
       end
 
@@ -143,6 +145,11 @@ expected: not a kind of #{@expected}
 }
       end
 
+      def strict
+        @strict = true
+        self
+      end
+
       private
 
       attr_reader :differ
@@ -152,11 +159,11 @@ expected: not a kind of #{@expected}
       end
 
       def matches_data
-        DataMatcher.new(@expected_data).matches?(@actual.data)
+        DataMatcher.new(@expected_data, strict: @strict).matches?(@actual.data)
       end
 
       def matches_metadata
-        DataMatcher.new(@expected_metadata).matches?(@actual.metadata)
+        DataMatcher.new(@expected_metadata, strict: @strict).matches?(@actual.metadata)
       end
     end
   end

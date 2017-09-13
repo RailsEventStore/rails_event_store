@@ -150,6 +150,15 @@ Data diff:
           .to(matcher(FooEvent).with_data(foo: "bar")
             .and(matcher(FooEvent).with_metadata(timestamp: kind_of(Time))))
       end
+
+      specify { expect(FooEvent.new(data: { foo: "bar", baz: "bar" })).not_to matcher(FooEvent).with_data(foo: "bar").strict }
+      specify { expect(FooEvent.new(metadata: { foo: "bar", baz: "bar" })).not_to matcher(FooEvent).with_metadata(foo: "bar").strict }
+
+      specify do
+        expect(FooEvent.new(data: { foo: "bar" }, metadata: { timestamp: Time.now, foo: "bar" }))
+          .to(matcher(FooEvent).with_data(foo: "bar").strict
+            .and(matcher(FooEvent).with_metadata(foo: "bar")))
+      end
     end
   end
 end
