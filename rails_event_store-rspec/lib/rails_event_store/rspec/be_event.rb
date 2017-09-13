@@ -18,7 +18,7 @@ module RailsEventStore
 
         def matches?(actual)
           return true unless @expected
-          ::RSpec::Matchers::BuiltIn::Match.new(@expected).matches?(actual)
+          ::RSpec::Matchers::BuiltIn::Include.new(@expected).matches?(actual)
         end
       end
 
