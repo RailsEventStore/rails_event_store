@@ -19,6 +19,24 @@ module RailsEventStore
         aggregate_root.foo
         expect(aggregate_root).not_to matcher(matchers.an_event(BazEvent))
       end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.foo
+        expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent)).exactly(1)
+      end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.foo
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent)).exactly(2)
+      end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.bar
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent)).exactly(1)
+      end
     end
   end
 end

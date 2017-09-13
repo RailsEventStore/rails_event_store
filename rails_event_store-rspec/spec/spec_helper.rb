@@ -27,8 +27,15 @@ class TestAggregate
     apply(FooEvent.new)
   end
 
+  def bar
+    apply(BarEvent.new)
+  end
+
   private
 
   def apply_foo_event(*)
+  end
+
+  def apply_bar_event(*)
   end
 end
