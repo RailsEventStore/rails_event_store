@@ -12,6 +12,10 @@ module RailsEventStore
         HavePublished.new(expected)
       end
 
+      def have_applied(expected)
+        HaveApplied.new(expected)
+      end
+
       private
 
       def differ

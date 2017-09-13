@@ -27,6 +27,14 @@ module RailsEventStore
         event_store.publish_event(FooEvent.new)
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent))
       end
+
+      specify { expect(matchers.have_applied(matchers.an_event(FooEvent))).to be_an(HaveApplied) }
+
+      specify do
+        aggregate_root = TestAggregate.new
+        aggregate_root.foo
+        expect(aggregate_root).to matchers.have_applied(matchers.an_event(FooEvent))
+      end
     end
   end
 end
