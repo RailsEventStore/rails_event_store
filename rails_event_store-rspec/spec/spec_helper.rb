@@ -1,4 +1,5 @@
 require "bundler/setup"
+require "aggregate_root"
 require "rails_event_store"
 require "rails_event_store/rspec"
 
@@ -19,3 +20,15 @@ FooEvent = Class.new(RailsEventStore::Event)
 BarEvent = Class.new(RailsEventStore::Event)
 BazEvent = Class.new(RailsEventStore::Event)
 
+class TestAggregate
+  include AggregateRoot
+
+  def foo
+    apply(FooEvent.new)
+  end
+
+  private
+
+  def apply_foo_event(*)
+  end
+end
