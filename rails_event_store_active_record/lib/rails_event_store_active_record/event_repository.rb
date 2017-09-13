@@ -29,14 +29,14 @@ module RailsEventStoreActiveRecord
           metadata: event.metadata,
           event_type: event.class,
         )
-        [EventInStream.new(
+        [{
           stream:   stream_name,
           position: position,
           event_id: event.event_id
-        ),EventInStream.new(
+        },{
           stream: "__global__",
           event_id: event.event_id
-        )]
+        }]
       end
       EventInStream.import(in_stream)
       self
