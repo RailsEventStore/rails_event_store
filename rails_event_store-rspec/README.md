@@ -194,7 +194,17 @@ aggregate_root.submitted
 
 expect(aggregate_root).to have_applied(event(OrderSubmitted)).once
 ```
+## Code status
 
+[![Build Status](https://travis-ci.org/RailsEventStore/rails_event_store-rspec.svg?branch=master)](https://travis-ci.org/RailsEventStore/rails_event_store-rspec)
+[![Gem Version](https://badge.fury.io/rb/rails_event_store-rspec.svg)](http://badge.fury.io/rb/rails_event_store-rspec)
+
+We're aiming for 100% mutation coverage in this project. This is why:
+
+* [Why I want to introduce mutation testing to the rails_event_store gem](http://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/)
+* [Mutation testing and continuous integration](http://blog.arkency.com/2015/05/mutation-testing-and-continuous-integration/)
+
+Whenever you fix a bug or add a new feature, we require that the coverage doesn't go down.
 
 ## Development
 
