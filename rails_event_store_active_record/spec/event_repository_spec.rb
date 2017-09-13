@@ -80,6 +80,44 @@ module RailsEventStoreActiveRecord
       expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq([u1,u2,u3])
     end
 
+    specify "explicit sorting by position rather than accidental for all events" do
+      e1 = Event.create!(
+        id: u1 = SecureRandom.uuid,
+        data: {},
+        metadata: {},
+        event_type: TestDomainEvent.name,
+      )
+      e2 = Event.create!(
+        id: u2 = SecureRandom.uuid,
+        data: {},
+        metadata: {},
+        event_type: TestDomainEvent.name,
+      )
+      e3 = Event.create!(
+        id: u3 = SecureRandom.uuid,
+        data: {},
+        metadata: {},
+        event_type: TestDomainEvent.name,
+      )
+      EventInStream.create!(
+        stream:   "__global__",
+        position: 1,
+        event_id: e1.id,
+      )
+      EventInStream.create!(
+        stream:   "__global__",
+        position: 0,
+        event_id: e2.id,
+      )
+      EventInStream.create!(
+        stream:   "__global__",
+        position: 2,
+        event_id: e3.id,
+      )
+      repository = EventRepository.new
+      expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end

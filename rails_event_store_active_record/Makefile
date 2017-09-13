@@ -10,7 +10,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#read_events_forward" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#read_all_streams_forward" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#read_stream_events_forward" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#normalize_to_array"
+	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#normalize_to_array"
 
 .PHONY: help
 
