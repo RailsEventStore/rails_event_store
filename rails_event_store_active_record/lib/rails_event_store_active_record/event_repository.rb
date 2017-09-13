@@ -54,7 +54,7 @@ module RailsEventStoreActiveRecord
 
     def last_stream_event(stream_name)
       build_event_entity(
-        EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC').first
+        EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
       )
     end
 
