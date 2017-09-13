@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
+require 'rails_event_store_active_record/event'
 
 module RailsEventStoreActiveRecord
   describe EventRepository do
@@ -36,6 +37,17 @@ module RailsEventStoreActiveRecord
       expect(c6).to eq(2)
     end
 
+    specify "explicit sorting by position rather than accidental" do
+      repository = EventRepository.new
+      repository.append_to_stream([
+        event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+        event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      ], 'stream', :none)
+      RailsEventStoreActiveRecord::EventInStream.update_all("id = -id")
+      expect(repository.read_events_forward('stream', :head, 2)).to eq([event0, event1])
+      expect(repository.read_stream_events_forward('stream')).to eq([event0, event1])
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
@@ -56,15 +68,12 @@ module RailsEventStoreActiveRecord
 
     def count_queries &block
       count = 0
-
-      counter_f = ->(name, started, finished, unique_id, payload) {
+      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
         unless %w[ CACHE SCHEMA ].include?(payload[:name])
           count += 1
         end
       }
-
       ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
-
       count
     end
 
