@@ -5,16 +5,10 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rails_event_store-rspec'
+group :test do
+  gem 'rails_event_store-rspec'
+end
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install rails_event_store-rspec
 
 ## Usage
 
