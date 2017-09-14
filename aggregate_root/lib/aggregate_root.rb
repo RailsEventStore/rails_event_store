@@ -4,9 +4,11 @@ require 'aggregate_root/configuration'
 require 'aggregate_root/default_apply_strategy'
 
 module AggregateRoot
-  def apply(event)
-    apply_strategy.(self, event)
-    unpublished_events << event
+  def apply(*events)
+    events.each do |event|
+      apply_strategy.(self, event)
+      unpublished_events << event
+    end
   end
 
   def load(stream_name, event_store: default_event_store)
