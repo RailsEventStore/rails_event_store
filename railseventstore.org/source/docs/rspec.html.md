@@ -3,16 +3,10 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rails_event_store-rspec'
+group :test do
+  gem 'rails_event_store-rspec'
+end
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install rails_event_store-rspec
 
 ## Matchers usage
 
@@ -132,6 +126,7 @@ expect(event_store).to have_published(an_event(OrderPlaced)).exactly(2).times
 ```
 
 Finally you can make expectation on several events at once.
+
 ```ruby
 expect(event_store).to have_published(
   an_event(OrderPlaced),
