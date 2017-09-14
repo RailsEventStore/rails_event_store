@@ -128,6 +128,7 @@ expect(event_store).to have_published(an_event(OrderPlaced)).exactly(2).times
 ```
 
 Finally you can make expectation on several events at once.
+
 ```ruby
 expect(event_store).to have_published(
   an_event(OrderPlaced),
