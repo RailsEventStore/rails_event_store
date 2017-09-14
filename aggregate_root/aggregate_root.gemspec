@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rails', '~> 4.2.1'
-  spec.add_development_dependency 'ruby_event_store', '= 0.15.0'
+  spec.add_development_dependency 'ruby_event_store', '= 0.16.0'
   spec.add_development_dependency 'mutant', '0.8.12'
   spec.add_development_dependency 'mutant-rspec', '0.8.11'
 
