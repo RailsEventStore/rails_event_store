@@ -133,4 +133,23 @@ describe AggregateRoot do
     order.apply(order_created)
     expect(order.status).to eq :created
   end
+
+  it "should return applied events" do
+    order = Order.new
+    created = Orders::Events::OrderCreated.new
+    expired = Orders::Events::OrderExpired.new
+
+    applied = order.apply(created, expired)
+    expect(applied).to eq([created, expired])
+  end
+
+  it "should return only applied events" do
+    order = Order.new
+    created = Orders::Events::OrderCreated.new
+    order.apply(created)
+
+    expired = Orders::Events::OrderExpired.new
+    applied = order.apply(expired)
+    expect(applied).to eq([expired])
+  end
 end
