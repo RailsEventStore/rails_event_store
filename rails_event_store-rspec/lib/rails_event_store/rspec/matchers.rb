@@ -13,7 +13,7 @@ module RailsEventStore
       end
 
       def have_applied(*expected)
-        HaveApplied.new(*expected)
+        HaveApplied.new(*expected, differ: differ)
       end
 
       private

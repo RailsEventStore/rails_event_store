@@ -7,7 +7,11 @@ module RailsEventStore
       let(:aggregate_root) { TestAggregate.new }
 
       def matcher(*expected)
-        HaveApplied.new(*expected)
+        HaveApplied.new(*expected, differ: colorless_differ)
+      end
+
+      def colorless_differ
+        ::RSpec::Support::Differ.new(color: false)
       end
 
       specify do
@@ -99,6 +103,16 @@ module RailsEventStore
             matchers.an_event(BarEvent)
           ).exactly(2).times
         }.to raise_error(NotSupported)
+      end
+
+      specify { expect{ HaveApplied.new() }.to raise_error(ArgumentError) }
+
+      specify do
+        aggregate_root.foo
+        _matcher = matcher(matchers.an_event(BarEvent))
+        _matcher.matches?(aggregate_root)
+
+        expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
       end
     end
   end

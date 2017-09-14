@@ -1,13 +1,14 @@
 module RailsEventStore
   module RSpec
     class HaveApplied
-      def initialize(expected, *expecteds)
+      def initialize(expected, *expecteds, differ:)
         @expected = [expected, *expecteds]
         @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*@expected)
+        @differ = differ
       end
 
       def matches?(aggregate_root)
-        events = aggregate_root.__send__(:unpublished_events)
+        @events = events = aggregate_root.__send__(:unpublished_events)
         @matcher.matches?(events) && matches_count(events, @expected, @count)
       end
 
@@ -23,6 +24,10 @@ module RailsEventStore
 
       def once
         exactly(1)
+      end
+
+      def failure_message
+        return @differ.diff_as_string(@actual.to_s, @events.to_s)
       end
 
       private
