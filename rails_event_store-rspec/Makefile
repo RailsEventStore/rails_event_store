@@ -12,6 +12,10 @@ mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
 	@bundle exec mutant --include lib --require rails_event_store/rspec --use rspec --ignore-subject "RailsEventStore::RSpec::Matchers#differ" "RailsEventStore::RSpec*"
 
+release:
+	@rake build
+	@rake release:rubygem_push
+
 .PHONY: help
 
 help:
