@@ -39,6 +39,15 @@ test-rails-event-store-active-record:
 mutate-rails-event-store-active-record:
 	@make -C rails_event_store_active_record mutate
 
+install-rails-event-store-rspec:
+	@make -C rails_event_store-rspec install
+
+test-rails-event-store-rspec:
+	@make -C rails_event_store-rspec test
+
+mutate-rails-event-store-rspec:
+	@make -C rails_event_store-rspec mutate
+
 git-check-clean:
 	@git diff --quiet --exit-code
 
@@ -63,6 +72,7 @@ set-version:
 	@find . -name *.gemspec -exec sed -i "" "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('aggregate_root', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@git add -A **/*.gemspec **/version.rb
 	@git ci -m "Version v$(RES_VERSION)"
 
@@ -78,13 +88,16 @@ release-rails-event-store-active-record:
 release-aggregate-root:
 	@make -C aggregate_root release
 
-install: install-aggregate-root install-ruby-event-store install-rails-event-store install-rails-event-store-active-record ## Install all deps
+release-rails-event-store-rspec:
+	@make -C rails_event_store-rspec release
 
-test: test-aggregate-root test-ruby-event-store test-rails-event-store test-rails-event-store-active-record ## Run all specs
+install: install-aggregate-root install-ruby-event-store install-rails-event-store install-rails-event-store-active-record install-rails-event-store-rspec ## Install all deps
 
-mutate: mutate-aggregate-root mutate-ruby-event-store mutate-rails-event-store mutate-rails-event-store-active-record ## Run all mutation tests
+test: test-aggregate-root test-ruby-event-store test-rails-event-store test-rails-event-store-active-record test-rails-event-store-rspec ## Run all specs
 
-release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root ## Make a new release and push to RubyGems
+mutate: mutate-aggregate-root mutate-ruby-event-store mutate-rails-event-store mutate-rails-event-store-active-record mutate-rails-event-store-rspec ## Run all mutation tests
+
+release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root release-rails-event-store-rspec ## Make a new release and push to RubyGems
 	@echo Released v$(RES_VERSION)
 
 UPSTREAM_REV = `git rev-parse upstream/master`
