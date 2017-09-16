@@ -28,12 +28,12 @@ module AggregateRoot
     @unpublished_events = nil
   end
 
-  private
-  attr_reader :loaded_from_stream_name
-
   def unpublished_events
     @unpublished_events ||= []
   end
+
+  private
+  attr_reader :loaded_from_stream_name
 
   def apply_strategy
     DefaultApplyStrategy.new
