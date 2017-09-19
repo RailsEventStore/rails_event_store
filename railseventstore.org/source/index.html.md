@@ -4,4 +4,4 @@ This can be a solid foundation for a design approach called [event sourcing](htt
 
 The "core" of the solution is [RubyEventStore](https://github.com/RailsEventStore/ruby_event_store). Core concepts are implemented in this gem. Ruby Event Store is unopinionated on how events are stored.
 
-[Rails Event Store](https://github.com/RailsEventStore/rails_event_store) and [Rails Event Store Active Record](https://github.com/RailsEventStore/rails_event_store_active_record) libraries provide persistence layer suitable for Ruby on Rails.
+[Rails Event Store](https://github.com/RailsEventStore/rails_event_store) provide persistence layer suitable for Ruby on Rails.
