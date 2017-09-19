@@ -26,3 +26,26 @@ Use provided task to generate a table to store events in your database.
 rails generate rails_event_store_active_record:migration
 rake db:migrate
 ```
+
+## Working with Rails development mode
+
+In Rails development mode when you change a registered class, it is reloaded, and a new class with same name is constructed.
+To keep `RailsEventStore` aware of changes in handler classes, and handler subscriptions use [`to_prepare`](http://api.rubyonrails.org/classes/Rails/Railtie/Configuration.html#method-i-to_prepare) callback.
+It is executed before every code reload in development, and once in production.
+
+```ruby
+# config/environments/*.rb
+
+Rails.application.configure do
+  config.to_prepare do
+    config.event_store = RailsEventStore::Client.new
+  end
+end
+```
+
+Then in your application code you can reference it as:
+
+```ruby
+Rails.application.config.event_store
+```
+
