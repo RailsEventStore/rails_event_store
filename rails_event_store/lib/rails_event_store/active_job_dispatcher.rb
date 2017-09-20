@@ -54,7 +54,7 @@ module RailsEventStore
 
     def sync_proxy(klass)
       raise InvalidHandler.new(klass) unless klass.method_defined?(:call)
-      ->(e) { klass.new.call(e) }
+      klass.new
     end
 
     def async_proxy(klass)
