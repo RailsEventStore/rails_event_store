@@ -10,12 +10,12 @@ describe AggregateRoot do
     expect(order).to receive(:apply_order_created).with(order_created).and_call_original
     order.apply(order_created)
     expect(order.status).to eq :created
-    expect(order.expected_events).to eq([order_created])
+    expect(order.unpublished_events.to_a).to eq([order_created])
   end
 
   it "brand new aggregate does not have any unpublished events" do
     order = Order.new
-    expect(order.expected_events).to be_empty
+    expect(order.unpublished_events.to_a).to be_empty
   end
 
   it "should have no unpublished events when loaded" do
@@ -25,7 +25,7 @@ describe AggregateRoot do
 
     order = Order.new.load(stream, event_store: event_store)
     expect(order.status).to eq :created
-    expect(order.expected_events).to be_empty
+    expect(order.unpublished_events.to_a).to be_empty
   end
 
   it "should publish all unpublished events on store" do
@@ -39,7 +39,7 @@ describe AggregateRoot do
     expect(event_store).to receive(:publish_event).with(order_created, stream_name: stream).and_call_original
     expect(event_store).to receive(:publish_event).with(order_expired, stream_name: stream).and_call_original
     order.store(stream, event_store: event_store)
-    expect(order.expected_events).to be_empty
+    expect(order.unpublished_events.to_a).to be_empty
   end
 
   it "should work with provided event_store" do
@@ -151,5 +151,28 @@ describe AggregateRoot do
     expired = Orders::Events::OrderExpired.new
     applied = order.apply(expired)
     expect(applied).to eq([expired])
+  end
+
+  it "#unpublished_events method is public" do
+    order = Order.new
+    expect(order.unpublished_events.to_a).to eq([])
+
+    created = Orders::Events::OrderCreated.new
+    order.apply(created)
+    expect(order.unpublished_events.to_a).to eq([created])
+
+    expired = Orders::Events::OrderExpired.new
+    order.apply(expired)
+    expect(order.unpublished_events.to_a).to eq([created, expired])
+  end
+
+  it "#unpublished_events method does not allow modifying internal state directly" do
+    order = Order.new
+    expect(order.unpublished_events.respond_to?(:<<)).to eq(false)
+    expect(order.unpublished_events.respond_to?(:clear)).to eq(false)
+    expect(order.unpublished_events.respond_to?(:push)).to eq(false)
+    expect(order.unpublished_events.respond_to?(:shift)).to eq(false)
+    expect(order.unpublished_events.respond_to?(:pop)).to eq(false)
+    expect(order.unpublished_events.respond_to?(:unshift)).to eq(false)
   end
 end

@@ -7,7 +7,7 @@ module AggregateRoot
   def apply(*events)
     events.each do |event|
       apply_strategy.(self, event)
-      unpublished_events << event
+      unpublished << event
     end
   end
 
@@ -28,10 +28,14 @@ module AggregateRoot
     @unpublished_events = nil
   end
 
+  def unpublished_events
+    unpublished.each
+  end
+
   private
   attr_reader :loaded_from_stream_name
 
-  def unpublished_events
+  def unpublished
     @unpublished_events ||= []
   end
 
