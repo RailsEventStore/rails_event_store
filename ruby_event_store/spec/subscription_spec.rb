@@ -24,7 +24,11 @@ class CustomDispatcher
   end
 
   def call(subscriber, event)
-    @dispatched_events << {to: subscriber, event: event}
+    @dispatched_events << {to: subscriber.class, event: event}
+  end
+
+  def proxy_for(klass)
+    ->(e) { klass.new.call(e) }
   end
 end
 
@@ -107,7 +111,7 @@ module RubyEventStore
       client.subscribe(subscriber, [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: subscriber, event: event}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
     end
 
     specify 'lambda is an output of global subscribe methods' do
@@ -156,6 +160,88 @@ module RubyEventStore
 
       expect(received_event).to_not be_nil
       expect(received_event.metadata[:timestamp]).to eq(Time.at(0))
+    end
+
+    specify 'throws exception if subscriber klass does not have call method - handling subscribed events' do
+      message = "#call method not found " +
+        "in Subscribers::InvalidHandler subscriber." +
+        " Are you sure it is a valid subscriber?"
+
+      expect { client.subscribe(Subscribers::InvalidHandler, [OrderCreated]) }.to raise_error(InvalidHandler, message)
+    end
+
+    specify 'throws exception if subscriber klass have not call method - handling all events' do
+      message = "#call method not found " +
+        "in Subscribers::InvalidHandler subscriber." +
+        " Are you sure it is a valid subscriber?"
+
+      expect { client.subscribe_to_all_events(Subscribers::InvalidHandler) }.to raise_error(InvalidHandler, message)
+    end
+
+    specify 'dispatch events to subscribers via proxy' do
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client.subscribe(Subscribers::ValidHandler, [OrderCreated])
+      event = OrderCreated.new
+      client.publish_event(event)
+      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
+    end
+
+    specify 'dispatch all events to subscribers via proxy' do
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client.subscribe_to_all_events(Subscribers::ValidHandler)
+      event = OrderCreated.new
+      client.publish_event(event)
+      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
+    end
+
+    specify 'lambda is an output of global subscribe via proxy' do
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      result = client.subscribe_to_all_events(Subscribers::ValidHandler)
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'lambda is an output of subscribe via proxy' do
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated])
+      expect(result).to respond_to(:call)
+    end
+
+    specify 'dynamic global subscription via proxy' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      result = client.subscribe_to_all_events(Subscribers::ValidHandler) do
+        client.publish_event(event_1)
+      end
+      client.publish_event(event_2)
+      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event_1}]
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
+    end
+
+    specify 'dynamic subscription' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      dispatcher = CustomDispatcher.new
+      broker = PubSub::Broker.new(dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated, ProductAdded]) do
+        client.publish_event(event_1)
+      end
+      client.publish_event(event_2)
+      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event_1}]
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
   end
 end

@@ -8,8 +8,8 @@ module RubyEventStore
   InvalidPageSize            = Class.new(ArgumentError)
 
   class InvalidHandler < StandardError
-    def initialize(subscriber)
-      super("#call method not found in #{subscriber.class} subscriber. Are you sure it is a valid subscriber?")
+    def initialize(subscriber_klass)
+      super("#call method not found in #{subscriber_klass} subscriber. Are you sure it is a valid subscriber?")
     end
   end
 end

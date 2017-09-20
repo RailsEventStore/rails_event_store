@@ -27,12 +27,16 @@ module RubyEventStore
         end
       end
 
+      def proxy_for(klass)
+        dispatcher.proxy_for(klass)
+      end
+
       private
       attr_reader :subscribers, :dispatcher
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?
-        raise InvalidHandler.new(subscriber) unless subscriber.respond_to?(:call)
+        raise InvalidHandler.new(subscriber.class) unless subscriber.respond_to?(:call)
       end
 
       def subscribe(subscriber, event_types)
