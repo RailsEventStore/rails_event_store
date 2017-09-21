@@ -122,8 +122,6 @@ module RailsEventStore
           ).exactly(2).times
         }.to raise_error(NotSupported)
       end
-
-      specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
     end
   end
 end

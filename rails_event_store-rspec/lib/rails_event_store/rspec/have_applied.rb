@@ -1,9 +1,8 @@
 module RailsEventStore
   module RSpec
     class HaveApplied
-      def initialize(*expected)
-        raise ArgumentError if expected.empty?
-        @expected = expected
+      def initialize(expected, *expecteds)
+        @expected = [expected, *expecteds]
         @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*@expected)
       end
 
