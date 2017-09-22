@@ -9,7 +9,11 @@ module RailsEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected)
+        HavePublished.new(*expected, differ: colorless_differ)
+      end
+
+      def colorless_differ
+        ::RSpec::Support::Differ.new(color: false)
       end
 
       specify do
@@ -121,6 +125,15 @@ module RailsEventStore
             matchers.an_event(BazEvent)
           ).exactly(2).times
         }.to raise_error(NotSupported)
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new)
+        _matcher = matcher(matchers.an_event(BarEvent))
+        _matcher.matches?(event_store)
+
+        expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
+        expect(_matcher.failure_message.to_s).to include("BeEvent")
       end
     end
   end

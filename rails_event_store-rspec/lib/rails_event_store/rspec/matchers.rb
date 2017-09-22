@@ -9,7 +9,7 @@ module RailsEventStore
       alias :event    :be_an_event
 
       def have_published(*expected)
-        HavePublished.new(*expected)
+        HavePublished.new(*expected, differ: differ)
       end
 
       def have_applied(*expected)

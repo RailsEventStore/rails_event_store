@@ -20,6 +20,14 @@ module RailsEventStore
         expect(differ.color?).to eq(::RSpec::Matchers.configuration.color?)
       end
 
+      specify "have_published default configuration" do
+        matcher = matchers.have_published(FooEvent)
+        differ  = matcher.__send__(:differ)
+
+        expect(differ).to be_an(::RSpec::Support::Differ)
+        expect(differ.color?).to eq(::RSpec::Matchers.configuration.color?)
+      end
+
       specify { expect(matchers.have_published(matchers.an_event(FooEvent))).to be_an(HavePublished) }
 
       specify do

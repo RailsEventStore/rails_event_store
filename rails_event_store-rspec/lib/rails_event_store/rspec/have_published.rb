@@ -1,15 +1,16 @@
 module RailsEventStore
   module RSpec
     class HavePublished
-      def initialize(expected, *expecteds)
+      def initialize(expected, *expecteds, differ:)
         @expected = [expected, *expecteds]
         @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*@expected)
+        @differ   = differ
       end
 
       def matches?(event_store)
-        events = @stream_name ? event_store.read_events_backward(@stream_name)
+        @events = @stream_name ? event_store.read_events_backward(@stream_name)
                               : event_store.read_all_streams_backward
-        @matcher.matches?(events) && matches_count(events, @expected, @count)
+        @matcher.matches?(@events) && matches_count(@events, @expected, @count)
       end
 
       def exactly(count)
@@ -31,7 +32,13 @@ module RailsEventStore
         exactly(1)
       end
 
+      def failure_message
+        differ.diff_as_string(@expected.to_s, @events.to_s)
+      end
+
       private
+
+      attr_reader :differ
 
       def matches_count(events, expected, count)
         return true unless count
