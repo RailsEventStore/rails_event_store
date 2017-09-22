@@ -113,14 +113,6 @@ module RailsEventStore
         _matcher.matches?(aggregate_root)
 
         expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
-      end
-
-      specify do
-        aggregate_root.foo
-        _matcher = matcher(matchers.an_event(BarEvent))
-        _matcher.matches?(aggregate_root)
-
-        expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
         expect(_matcher.failure_message.to_s).to include("BeEvent")
       end
     end
