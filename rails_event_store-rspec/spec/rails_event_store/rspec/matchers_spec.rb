@@ -35,6 +35,13 @@ module RailsEventStore
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent))
       end
 
+      specify do
+        event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
+        event_store.publish_event(FooEvent.new)
+        event_store.publish_event(BarEvent.new)
+        expect(event_store).to matchers.have_published(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
+      end
+
       specify { expect(matchers.have_applied(matchers.an_event(FooEvent))).to be_an(HaveApplied) }
 
       specify do
@@ -48,6 +55,21 @@ module RailsEventStore
         aggregate_root = TestAggregate.new
         aggregate_root.foo
         expect(aggregate_root).to matchers.have_applied(matchers.an_event(FooEvent))
+      end
+
+      specify "have_applied default configuration" do
+        matcher = matchers.have_applied(FooEvent)
+        differ  = matcher.__send__(:differ)
+
+        expect(differ).to be_an(::RSpec::Support::Differ)
+        expect(differ.color?).to eq(::RSpec::Matchers.configuration.color?)
+      end
+
+      specify do
+        aggregate_root = TestAggregate.new
+        aggregate_root.foo
+        aggregate_root.bar
+        expect(aggregate_root).to matchers.have_applied(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
       end
     end
   end
