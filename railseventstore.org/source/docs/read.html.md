@@ -8,7 +8,7 @@ client.read_events_forward(stream_name, start: :head, count: count)
 
 In this case `:head` means first event of the stream.
 
-## Reading stream's events forward in batch - staring from given event
+## Reading stream's events forward in batch - starting from given event
 
 ```ruby
 # last_read_event is any domain event read or published by rails_event_store
