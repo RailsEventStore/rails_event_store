@@ -48,6 +48,15 @@ test-rails-event-store-rspec:
 mutate-rails-event-store-rspec:
 	@make -C rails_event_store-rspec mutate
 
+install-bounded-context:
+	@make -C bounded_context install
+
+test-bounded-context:
+	@make -C bounded_context test
+
+mutate-bounded-context:
+	@make -C bounded_context mutate
+
 git-check-clean:
 	@git diff --quiet --exit-code
 
@@ -91,13 +100,16 @@ release-aggregate-root:
 release-rails-event-store-rspec:
 	@make -C rails_event_store-rspec release
 
-install: install-aggregate-root install-ruby-event-store install-rails-event-store install-rails-event-store-active-record install-rails-event-store-rspec ## Install all deps
+release-bounded-context:
+	@make -C bounded_context release
 
-test: test-aggregate-root test-ruby-event-store test-rails-event-store test-rails-event-store-active-record test-rails-event-store-rspec ## Run all specs
+install: install-aggregate-root install-ruby-event-store install-rails-event-store install-rails-event-store-active-record install-rails-event-store-rspec install-bounded-context ## Install all deps
 
-mutate: mutate-aggregate-root mutate-ruby-event-store mutate-rails-event-store mutate-rails-event-store-active-record mutate-rails-event-store-rspec ## Run all mutation tests
+test: test-aggregate-root test-ruby-event-store test-rails-event-store test-rails-event-store-active-record test-rails-event-store-rspec test-bounded-context ## Run all specs
 
-release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root release-rails-event-store-rspec ## Make a new release and push to RubyGems
+mutate: mutate-aggregate-root mutate-ruby-event-store mutate-rails-event-store mutate-rails-event-store-active-record mutate-rails-event-store-rspec mutate-bounded-context ## Run all mutation tests
+
+release: git-check-clean git-check-committed set-version git-tag release-rails-event-store release-ruby-event-store release-rails-event-store-active-record release-aggregate-root release-rails-event-store-rspec release-bounded-context ## Make a new release and push to RubyGems
 	@echo Released v$(RES_VERSION)
 
 UPSTREAM_REV = `git rev-parse upstream/master`
