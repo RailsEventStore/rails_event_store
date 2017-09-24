@@ -6,4 +6,5 @@ coverage/
 log/
 pkg/
 tmp/
+bin/
 spec/reports/
