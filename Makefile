@@ -4,11 +4,6 @@ CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  = `cat RES_VERSION`
 GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store_active_record ruby_event_store
 
-.PHONY: help
-
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
@@ -62,4 +57,11 @@ rebase: git-rebase-from-upstream
 	@echo "  upstream/master at $(UPSTREAM_REV)"
 	@echo "  origin/master   at $(ORIGIN_REV)"
 	@echo "  current branch  at $(CURRENT_REV)"
+
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: help
+.DEFAULT_GOAL := help
+
 

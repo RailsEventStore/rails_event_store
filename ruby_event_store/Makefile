@@ -1,8 +1,8 @@
-install-bundler: ## Install gem dependencies
+GEM_VERSION  = `cat ../RES_VERSION`
+
+install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
-
-install: install-bundler ## Prepare current development environment
 
 test: ## Run tests
 	@echo "Running basic tests - beware: this won't guarantee build pass"
@@ -10,16 +10,20 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require ruby_event_store --use rspec --ignore-subject "RubyEventStore.const_missing" "RubyEventStore*"
+	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RubyEventStore*" \
+		--ignore-subject "RubyEventStore.const_missing"
 
-release:
-	@rake build
-	@rake release:rubygem_push
+build:
+	@gem build -V ruby_event_store.gemspec
+	@mkdir -p pkg/
+	@mv ruby_event_store-$(GEM_VERSION).gem pkg/
 
-.PHONY: help
+release: build
+	@gem push pkg/ruby_event_store-$(GEM_VERSION).gem
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: help
 .DEFAULT_GOAL := help
 
