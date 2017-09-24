@@ -44,6 +44,7 @@ set-version:
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('aggregate_root', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed -i "" "s/\('bounded_context', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@git add -A **/*.gemspec **/version.rb
 	@git ci -m "Version v$(RES_VERSION)"
 
