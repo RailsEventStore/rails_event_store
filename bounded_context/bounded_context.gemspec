@@ -27,11 +27,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.16.a"
+  spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "rake", "~> 10.0"
-
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "rails"
-  spec.add_development_dependency "fakefs"
-  spec.add_development_dependency 'mutant-rspec', '~> 0.8.11'
+  spec.add_development_dependency "rspec", "~> 3.6"
+  spec.add_development_dependency "rails", "~> 4.2"
+  spec.add_development_dependency "fakefs", "~> 0.11.2"
+  spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
 end
