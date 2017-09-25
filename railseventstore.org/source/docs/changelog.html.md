@@ -1,5 +1,14 @@
 # Documentation changes
 
+## [0.18.0](https://github.com/arkency/rails_event_store/releases/tag/v0.18.0)
+  * No changes in documentation.
+
+## [0.17.0](https://github.com/arkency/rails_event_store/releases/tag/v0.17.0)
+  * Introduced: [RSpec matchers](/docs/rspec/)
+
+## [0.16.0](https://github.com/arkency/rails_event_store/releases/tag/v0.16.0)
+  * No changes in documentation.
+
 ## [0.15.0](https://github.com/arkency/rails_event_store/releases/tag/v0.15.0)
   * No changes in documentation.
 
@@ -16,7 +25,7 @@
   * No changes in documentation.
 
 ## [0.14.1](https://github.com/arkency/rails_event_store/releases/tag/v0.14.1)
-  * Introduced: [Using custom event repository](repository.md)
+  * Introduced: [Custom repository](/docs/repository/)
 
 ## [0.14.0](https://github.com/arkency/rails_event_store/releases/tag/v0.14.0)
   * No changes in documentation, however [aggregate_root gem documentation](https://github.com/arkency/aggregate_root) has significant changes.
