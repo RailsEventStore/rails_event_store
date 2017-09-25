@@ -14,7 +14,7 @@ All gems developed in RailsEventStore monorepo will be released with the same ve
 
 ## Communicating changes
 
-All changes across RailsEventStore versions should be documented on changelog. For this purpose, since v0.15.0, we use [releases page](https://github.com/RailsEventStore/rails_event_store/). Some gems keep individual changelogs prior to greate monorepo merge — they're not updated anymore.
+All changes across RailsEventStore versions should be documented on changelog. For this purpose, since v0.15.0, we use [releases page](https://github.com/RailsEventStore/rails_event_store/releases). Some gems keep individual changelogs prior to greate monorepo merge — they're not updated anymore.
 
 Changes are easier to scan, when they're described with following types:
 
