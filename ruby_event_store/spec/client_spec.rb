@@ -168,5 +168,11 @@ module RubyEventStore
       expect(published.size).to eq(1)
       expect(published.first.metadata[:timestamp]).to eq(utc)
     end
+
+    specify 'throws exception if subscriber is not defined' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.subscribe(nil, [])}.to raise_error(SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
+    end
   end
 end

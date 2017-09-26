@@ -70,13 +70,13 @@ module RubyEventStore
     end
 
     def subscribe(subscriber, event_types, &proc)
-      event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
+      event_broker.add_subscriber(subscriber_or_proxy(subscriber), event_types).tap do |unsub|
         handle_subscribe(unsub, &proc)
       end
     end
 
     def subscribe_to_all_events(subscriber, &proc)
-      event_broker.add_global_subscriber(subscriber).tap do |unsub|
+      event_broker.add_global_subscriber(subscriber_or_proxy(subscriber)).tap do |unsub|
         handle_subscribe(unsub, &proc)
       end
     end
@@ -86,6 +86,10 @@ module RubyEventStore
 
     def normalize_to_array(events)
       return *events
+    end
+
+    def subscriber_or_proxy(subscriber)
+      subscriber.instance_of?(Class) ? event_broker.proxy_for(subscriber) : subscriber
     end
 
     def enrich_event_metadata(event)
