@@ -18,7 +18,7 @@ RSpec.configure do |config|
       end
       add_index :event_store_events_in_streams, [:stream, :position], unique: true
       add_index :event_store_events_in_streams, [:created_at]
-      # add_index :event_store_events_in_streams, [:stream, :event_uuid], unique: true
+      add_index :event_store_events_in_streams, [:stream, :event_id], unique: true
       # add_index :event_store_events_in_streams, [:event_uuid]
 
       create_table(:event_store_events, id: false, force: true) do |t|

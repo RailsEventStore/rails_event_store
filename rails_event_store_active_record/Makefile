@@ -10,7 +10,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#normalize_to_array"
+	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#normalize_to_array" --ignore-subject "RailsEventStoreActiveRecord::EventRepository#detect_pkey_index_violated"
 
 build:
 	@gem build -V rails_event_store_active_record.gemspec

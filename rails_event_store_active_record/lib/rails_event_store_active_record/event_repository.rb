@@ -38,7 +38,10 @@ module RailsEventStoreActiveRecord
       end
       EventInStream.import(in_stream)
       self
-    rescue ActiveRecord::RecordNotUnique
+    rescue ActiveRecord::RecordNotUnique => e
+      if detect_pkey_index_violated(e)
+        raise RubyEventStore::EventDuplicatedInStream
+      end
       raise RubyEventStore::WrongExpectedEventVersion
     end
 
@@ -111,6 +114,12 @@ module RailsEventStoreActiveRecord
     end
 
     private
+
+    def detect_pkey_index_violated(e)
+      e.message.include?("for key 'PRIMARY'")       ||  # MySQL
+      e.message.include?("event_store_events_pkey") ||  # Postgresql
+      e.message.include?("event_store_events.id")       # Sqlite3
+    end
 
     def build_event_entity(record)
       return nil unless record

@@ -30,7 +30,7 @@ RSpec.configure do |config|
       end
       add_index :event_store_events_in_streams, [:stream, :position], unique: true
       add_index :event_store_events_in_streams, [:created_at]
-      # add_index :event_store_events_in_streams, [:stream, :event_uuid], unique: true
+      add_index :event_store_events_in_streams, [:stream, :event_id], unique: true
       # add_index :event_store_events_in_streams, [:event_uuid]
 
       if ENV['DATABASE_URL'].start_with?("postgres")
