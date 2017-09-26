@@ -88,6 +88,7 @@ module RubyEventStore
       raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
       events.each do |event|
         all.push(event)
+        raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id == event.event_id }
         stream.push(event)
       end
       streams[stream_name] = stream
