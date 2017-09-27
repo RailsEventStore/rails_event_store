@@ -26,6 +26,6 @@ update _ model =
     model
 
 
-view : String -> Html Msg
+view : Model -> Html Msg
 view model =
     h1 [] [ text model ]
