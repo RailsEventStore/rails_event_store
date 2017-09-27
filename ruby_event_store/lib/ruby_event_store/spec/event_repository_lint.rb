@@ -358,10 +358,18 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'does not allow same event twice in a stream' do
-    event = TestDomainEvent.new
-    repository.append_to_stream(event, 'stream', -1)
+    repository.append_to_stream(
+      TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+      'stream',
+      -1
+    )
     expect do
-      repository.append_to_stream(event, 'stream',  0)
+      repository.append_to_stream(
+        TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        'stream',
+        0
+      )
     end.to raise_error(RubyEventStore::EventDuplicatedInStream)
   end
+
 end
