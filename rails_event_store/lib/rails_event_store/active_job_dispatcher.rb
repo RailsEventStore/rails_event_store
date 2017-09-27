@@ -34,31 +34,28 @@ module RailsEventStore
     end
   end
 
-  class ActiveJobDispatcher
+  class ActiveJobDispatcher < RubyEventStore::PubSub::Dispatcher
     def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new)
       @async_proxy_strategy = proxy_strategy
     end
 
     def call(subscriber, event)
-      subscriber.call(event)
+      if async_handler?(subscriber)
+        @async_proxy_strategy.call(subscriber, event)
+      else
+        super
+      end
     end
 
-    def proxy_for(klass)
-      async_handler?(klass) ? async_proxy(klass) : sync_proxy(klass)
+    def verify(subscriber)
+      super unless async_handler?(subscriber)
     end
 
     private
+
     def async_handler?(klass)
       klass < ActiveJob::Base
     end
 
-    def sync_proxy(klass)
-      raise InvalidHandler.new(klass) unless klass.method_defined?(:call)
-      klass.new
-    end
-
-    def async_proxy(klass)
-      ->(e) { @async_proxy_strategy.call(klass, e) }
-    end
   end
 end

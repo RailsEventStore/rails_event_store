@@ -24,11 +24,15 @@ class CustomDispatcher
   end
 
   def call(subscriber, event)
+    subscriber = subscriber.new if Class === subscriber
     @dispatched_events << {to: subscriber.class, event: event}
   end
 
-  def proxy_for(klass)
-    ->(e) { klass.new.call(e) }
+  def verify(subscriber)
+    subscriber = subscriber.new if Class === subscriber
+    subscriber.respond_to?(:call) or raise InvalidHandler.new(subscriber)
+  rescue ArgumentError
+    raise InvalidHandler.new(subscriber)
   end
 end
 
