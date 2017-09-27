@@ -1,0 +1,20 @@
+{
+  "name": "browser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:RailsEventStore/browser.git",
+  "author": "dev@arkency.com",
+  "license": "MIT",
+  "dependencies": {
+    "@webpack-blocks/elm": "^1.0.0-beta",
+    "html-webpack-plugin": "^2.30.1",
+    "webpack": "^3.6.0",
+    "webpack-blocks": "^1.0.0-beta.4",
+    "webpack-dev-server": "^2.9.1"
+  },
+  "scripts": {
+    "start": "NODE_ENV=development node --harmony node_modules/.bin/webpack-dev-server",
+    "build": "NODE_ENV=production node --harmony node_modules/.bin/webpack -p",
+    "postinstall": "elm-package install -y"
+  }
+}
