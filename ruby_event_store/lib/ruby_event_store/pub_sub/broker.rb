@@ -10,11 +10,13 @@ module RubyEventStore
       end
 
       def add_subscriber(subscriber, event_types)
+        subscriber = subscriber_or_proxy(subscriber)
         verify_subscriber(subscriber)
         subscribe(subscriber, event_types)
       end
 
       def add_global_subscriber(subscriber)
+        subscriber = subscriber_or_proxy(subscriber)
         verify_subscriber(subscriber)
         @global_subscribers << subscriber
 
@@ -27,12 +29,16 @@ module RubyEventStore
         end
       end
 
+      private
+      attr_reader :subscribers, :dispatcher
+
+      def subscriber_or_proxy(subscriber)
+        subscriber.instance_of?(Class) ? proxy_for(subscriber) : subscriber
+      end
+
       def proxy_for(klass)
         dispatcher.proxy_for(klass)
       end
-
-      private
-      attr_reader :subscribers, :dispatcher
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?

@@ -121,19 +121,6 @@ RSpec.shared_examples :event_broker do |broker_class|
     expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])
   end
 
-  it "returns callable proxy" do
-    proxy = broker.proxy_for(TestHandler)
-    expect(proxy.respond_to?(:call)).to be_truthy
-  end
-
-  specify "fails to build proxy when no call method defined on class" do
-    message = "#call method not found " +
-      "in InvalidTestHandler subscriber." +
-      " Are you sure it is a valid subscriber?"
-
-    expect { broker.proxy_for(InvalidTestHandler) }.to raise_error(::RubyEventStore::InvalidHandler, message)
-  end
-
   private
   class HandlerClass
     @@received = nil
