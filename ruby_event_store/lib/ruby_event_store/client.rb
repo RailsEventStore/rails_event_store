@@ -12,16 +12,22 @@ module RubyEventStore
       @clock          = clock
     end
 
-    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      append_to_stream(event, stream_name: stream_name, expected_version: expected_version)
-      event_broker.notify_subscribers(event)
+    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
+      events.each do |ev|
+        event_broker.notify_subscribers(ev)
+      end
       :ok
     end
 
-    def append_to_stream(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      validate_expected_version(stream_name, expected_version)
-      enriched_event = enrich_event_metadata(event)
-      repository.create(enriched_event, stream_name)
+    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
+      publish_events([event], stream_name: stream_name, expected_version: expected_version)
+    end
+
+    def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      events = normalize_to_array(events)
+      events.each{|event| enrich_event_metadata(event) }
+      repository.append_to_stream(events, stream_name, expected_version)
       :ok
     end
 
@@ -78,6 +84,10 @@ module RubyEventStore
     private
     attr_reader :repository, :page_size, :event_broker, :metadata_proc, :clock
 
+    def normalize_to_array(events)
+      return *events
+    end
+
     def subscriber_or_proxy(subscriber)
       subscriber.instance_of?(Class) ? event_broker.proxy_for(subscriber) : subscriber
     end
@@ -87,7 +97,7 @@ module RubyEventStore
       metadata[:timestamp] ||= clock.()
       metadata.merge!(metadata_proc.call || {}) if metadata_proc
 
-      event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
+      # event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
     end
 
     def handle_subscribe(unsub)
@@ -113,22 +123,5 @@ module RubyEventStore
       attr_reader :start, :count
     end
 
-    def validate_expected_version(stream_name, expected_version)
-      raise InvalidExpectedVersion if expected_version.nil?
-      case expected_version
-      when :any
-        return
-      when :none
-        return if last_stream_event_id(stream_name).nil?
-      else
-        return if last_stream_event_id(stream_name).eql?(expected_version)
-      end
-      raise WrongExpectedEventVersion
-    end
-
-    def last_stream_event_id(stream_name)
-      last = repository.last_stream_event(stream_name)
-      last.event_id if last
-    end
   end
 end

@@ -23,6 +23,13 @@ module RubyEventStore
       expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
     end
 
+    specify 'publish to default stream when not specified' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      expect(client.publish_events([test_event])).to eq(:ok)
+      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
+    end
+
     specify 'delete_stream returns :ok when success' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
@@ -45,12 +52,6 @@ module RubyEventStore
       test_event = TestEvent.new
       expect(client.publish_event(test_event)).to eq(:ok)
       expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
-    end
-
-    specify 'publish fail if expected version is nil' do
-      stream = SecureRandom.uuid
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect{ client.publish_event(TestEvent.new, stream_name: stream, expected_version: nil) }.to raise_error(InvalidExpectedVersion)
     end
 
     specify 'publish first event, expect any stream state' do
@@ -95,7 +96,7 @@ module RubyEventStore
       first_event   = TestEvent.new
       second_event  = TestEvent.new
       client.append_to_stream(first_event, stream_name: stream)
-      expect(client.publish_event(second_event, stream_name: stream, expected_version: first_event.event_id)).to eq(:ok)
+      expect(client.publish_event(second_event, stream_name: stream, expected_version: 0)).to eq(:ok)
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 
@@ -108,6 +109,15 @@ module RubyEventStore
       client.append_to_stream(first_event, stream_name: stream)
       client.append_to_stream(second_event, stream_name: stream)
       expect{ client.publish_event(third_event, stream_name: stream, expected_version: first_event.event_id) }.to raise_error(WrongExpectedEventVersion)
+      expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
+    end
+
+    specify 'append many events' do
+      stream = SecureRandom.uuid
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      first_event   = TestEvent.new
+      second_event  = TestEvent.new
+      client.append_to_stream([first_event, second_event], stream_name: stream, expected_version: -1)
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 

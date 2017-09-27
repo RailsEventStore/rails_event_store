@@ -1,24 +1,32 @@
 require 'ostruct'
+require 'thread'
 
 module RubyEventStore
   class InMemoryRepository
     def initialize
       @all = Array.new
       @streams = Hash.new
+      @mutex = Mutex.new
     end
 
-    def create(event, stream_name)
+    def append_to_stream(events, stream_name, expected_version)
+      raise InvalidExpectedVersion if expected_version.nil?
+      events = normalize_to_array(events)
       stream = read_stream_events_forward(stream_name)
-      all.push(event)
-      stream.push(event)
-      streams[stream_name] = stream
-      event
+      expected_version = case expected_version
+        when :none
+          -1
+        when :auto, :any
+          stream.size - 1
+        else
+          expected_version
+      end
+      append_with_synchronize(events, expected_version, stream, stream_name)
+      self
     end
 
     def delete_stream(stream_name)
-      removed = read_stream_events_forward(stream_name).map(&:event_id)
       streams.delete(stream_name)
-      all.delete_if{|ev| removed.include?(ev.event_id)}
     end
 
     def has_event?(event_id)
@@ -57,6 +65,34 @@ module RubyEventStore
 
     private
     attr_accessor :streams, :all
+
+    def normalize_to_array(events)
+      return *events
+    end
+
+    def append_with_synchronize(events, expected_version, stream, stream_name)
+      # expected_version :auto assumes external lock is used
+      # which makes reading stream before writing safe.
+      #
+      # To emulate potential concurrency issues of :auto strategy without
+      # such external lock we use Thread.pass to make race
+      # conditions more likely. And we only use mutex.synchronize for writing
+      # not for the whole read+write algorithm.
+      Thread.pass
+      @mutex.synchronize do
+        append(events, expected_version, stream, stream_name)
+      end
+    end
+
+    def append(events, expected_version, stream, stream_name)
+      raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
+      events.each do |event|
+        all.push(event)
+        raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
+        stream.push(event)
+      end
+      streams[stream_name] = stream
+    end
 
     def read_batch(source, start_event_id, count)
       return source[0..count-1] if start_event_id.equal?(:head)

@@ -21,22 +21,20 @@ module RubyEventStore
       expect(saved_events[0]).to eq(event)
     end
 
-    specify 'raise exception if event version incorrect' do
+    specify 'raise exception if expected version incorrect' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = OrderCreated.new
       client.append_to_stream(event, stream_name: stream_name)
-      expect { client.publish_event(event, stream_name: stream_name, expected_version: 'wrong_id') }.to raise_error(WrongExpectedEventVersion)
+      expect { client.publish_event(event, stream_name: stream_name, expected_version: 100) }.to raise_error(WrongExpectedEventVersion)
     end
 
     specify 'create event with optimistic locking' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      event_id_0 = 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'
-      event = OrderCreated.new(event_id: event_id_0)
+      event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
       client.append_to_stream(event, stream_name: stream_name)
 
-      event_id_1 = '724dd49d-6e20-40e6-bc32-ed75258f886b'
-      event = OrderCreated.new(event_id: event_id_1)
-      client.append_to_stream(event, stream_name: stream_name, expected_version: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
+      event = OrderCreated.new(event_id: '724dd49d-6e20-40e6-bc32-ed75258f886b')
+      client.append_to_stream(event, stream_name: stream_name, expected_version: 0)
     end
 
     specify 'expect no event handler is called' do

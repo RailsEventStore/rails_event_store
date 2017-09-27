@@ -17,14 +17,14 @@ module AggregateRoot
     events.each do |event|
       apply(event)
     end
+    @version = events.size - 1
     @unpublished_events = nil
     self
   end
 
   def store(stream_name = loaded_from_stream_name, event_store: default_event_store)
-    unpublished_events.each do |event|
-      event_store.publish_event(event, stream_name: stream_name)
-    end
+    event_store.publish_events(unpublished_events, stream_name: stream_name, expected_version: version)
+    @version += unpublished_events.size
     @unpublished_events = nil
   end
 
@@ -37,6 +37,10 @@ module AggregateRoot
 
   def unpublished
     @unpublished_events ||= []
+  end
+
+  def version
+    @version ||= -1
   end
 
   def apply_strategy

@@ -126,5 +126,39 @@ module RubyEventStore
       event_2 = Test::TestCreated.new(event_id: 1, data: {test: 123}, metadata: {really: 'yes'})
       expect(event_1 == event_2).to be_truthy
     end
+
+    specify "#hash" do
+      expect(Event.new(event_id: "doh").hash).to eq(Event.new(event_id: "doh").hash)
+      expect(Event.new(event_id: "doh").hash).not_to eq(Event.new(event_id: "bye").hash)
+
+      expect(
+        Event.new(event_id: "doh", data: {}).hash
+      ).to eq(Event.new(event_id: "doh", data: {}).hash)
+
+      expect(
+        Event.new(event_id: "doh", data: {}).hash
+      ).not_to eq(Event.new(event_id: "doh", data: {a: 1}).hash)
+
+      klass = Class.new(Event)
+      expect(
+        klass.new(event_id: "doh").hash
+      ).not_to eq(Event.new(event_id: "doh").hash)
+      expect(
+        klass.new(event_id: "doh").hash
+      ).to eq(klass.new(event_id: "doh").hash)
+
+      expect({
+        klass.new(event_id: "doh") => :YAY
+      }[ klass.new(event_id: "doh") ]).to eq(:YAY)
+      expect(Set.new([
+        klass.new(event_id: "doh")
+      ])).to eq(Set.new([klass.new(event_id: "doh")]))
+
+      expect(klass.new(event_id: "doh").hash).not_to eq([
+        klass,
+        "doh",
+        {}
+      ].hash)
+    end
   end
 end

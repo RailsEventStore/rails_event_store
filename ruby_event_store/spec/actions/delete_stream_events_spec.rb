@@ -18,7 +18,7 @@ module RubyEventStore
       expect(all_events.length).to eq 8
       client.delete_stream('test_2')
       all_events = client.read_all_streams_forward
-      expect(all_events.length).to eq 4
+      expect(all_events.length).to eq 8
       expect(client.read_stream_events_forward('test_2')).to eq []
     end
 
