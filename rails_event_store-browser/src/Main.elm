@@ -8,7 +8,7 @@ import Paginate exposing (..)
 
 main : Program Never Model Msg
 main =
-    Html.beginnerProgram { model = model, view = view, update = update }
+    Html.program { init = model, view = view, update = update, subscriptions = subscriptions }
 
 
 type alias Model =
@@ -27,27 +27,34 @@ type Stream
     = Stream String
 
 
-model : Model
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+model : ( Model, Cmd Msg )
 model =
-    { streams =
-        List.range 1 1000
-            |> List.map (\id -> Stream ("Product$" ++ toString id))
-            |> Paginate.fromList 10
-    , searchQuery = ""
-    }
+    ( { streams =
+            List.range 1 1000
+                |> List.map (\id -> Stream ("Product$" ++ toString id))
+                |> Paginate.fromList 10
+      , searchQuery = ""
+      }
+    , Cmd.none
+    )
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Search inputValue ->
-            { model | searchQuery = inputValue }
+            ( { model | searchQuery = inputValue }, Cmd.none )
 
         NextPage ->
-            { model | streams = Paginate.next model.streams }
+            ( { model | streams = Paginate.next model.streams }, Cmd.none )
 
         PreviousPage ->
-            { model | streams = Paginate.prev model.streams }
+            ( { model | streams = Paginate.prev model.streams }, Cmd.none )
 
 
 isMatch : String -> Stream -> Bool
