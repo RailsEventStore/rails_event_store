@@ -5,6 +5,7 @@ import Html.Attributes exposing (placeholder, disabled)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
+import Json.Decode as Decode exposing (map, field, list, string)
 
 
 main : Program Never Model Msg
@@ -22,7 +23,7 @@ type Msg
     = Search String
     | NextPage
     | PreviousPage
-    | StreamList (Result Http.Error String)
+    | StreamList (Result Http.Error (List Stream))
 
 
 type Stream
@@ -36,10 +37,7 @@ subscriptions model =
 
 model : ( Model, Cmd Msg )
 model =
-    ( { streams =
-            List.range 1 1000
-                |> List.map (\id -> Stream ("Product$" ++ toString id))
-                |> Paginate.fromList 10
+    ( { streams = Paginate.fromList 10 []
       , searchQuery = ""
       }
     , getStreams
@@ -59,7 +57,7 @@ update msg model =
             ( { model | streams = Paginate.prev model.streams }, Cmd.none )
 
         StreamList (Ok result) ->
-            ( model, Cmd.none )
+            ( { model | streams = Paginate.fromList 10 result }, Cmd.none )
 
         StreamList (Err msg) ->
             ( model, Cmd.none )
@@ -124,4 +122,10 @@ displayStreams streams =
 
 getStreams : Cmd Msg
 getStreams =
-    Http.send StreamList (Http.getString "/")
+    Http.send StreamList (Http.get "/streams.json" (list streamDecoder))
+
+
+streamDecoder : Decode.Decoder Stream
+streamDecoder =
+    Decode.map Stream
+        (field "name" string)
