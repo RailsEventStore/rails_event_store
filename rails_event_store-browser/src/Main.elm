@@ -4,6 +4,7 @@ import Html exposing (Html, ul, li, text, div, input, button)
 import Html.Attributes exposing (placeholder, disabled)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
+import Http
 
 
 main : Program Never Model Msg
@@ -21,6 +22,7 @@ type Msg
     = Search String
     | NextPage
     | PreviousPage
+    | StreamList (Result Http.Error String)
 
 
 type Stream
@@ -40,7 +42,7 @@ model =
                 |> Paginate.fromList 10
       , searchQuery = ""
       }
-    , Cmd.none
+    , getStreams
     )
 
 
@@ -55,6 +57,12 @@ update msg model =
 
         PreviousPage ->
             ( { model | streams = Paginate.prev model.streams }, Cmd.none )
+
+        StreamList (Ok result) ->
+            ( model, Cmd.none )
+
+        StreamList (Err msg) ->
+            ( model, Cmd.none )
 
 
 isMatch : String -> Stream -> Bool
@@ -112,3 +120,8 @@ displayStream (Stream name) =
 displayStreams : PaginatedList Stream -> Html Msg
 displayStreams streams =
     ul [] (List.map displayStream (Paginate.page streams))
+
+
+getStreams : Cmd Msg
+getStreams =
+    Http.send StreamList (Http.getString "/")
