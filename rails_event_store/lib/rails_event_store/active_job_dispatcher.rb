@@ -54,7 +54,7 @@ module RailsEventStore
     private
 
     def async_handler?(klass)
-      klass < ActiveJob::Base
+      Class === klass && klass < ActiveJob::Base
     end
 
   end
