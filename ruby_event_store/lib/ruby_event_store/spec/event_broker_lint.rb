@@ -23,6 +23,9 @@ RSpec.shared_examples :event_broker do |broker_class|
       @dispatched = []
     end
 
+    def verify(_subscriber)
+    end
+
     def call(subscriber, event)
       @dispatched << {subscriber: subscriber, event: event}
     end
@@ -58,19 +61,17 @@ RSpec.shared_examples :event_broker do |broker_class|
   end
 
   it 'raises error when no valid method on handler' do
-    message = "#call method not found " +
-              "in InvalidTestHandler subscriber." +
-              " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
-    expect { broker.add_subscriber(subscriber, [Test1DomainEvent]) }.to raise_error(RubyEventStore::InvalidHandler, message)
+    expect do
+      broker.add_subscriber(subscriber, [Test1DomainEvent])
+    end.to raise_error(RubyEventStore::InvalidHandler)
   end
 
   it 'raises error when no valid method on global handler' do
-    message = "#call method not found " +
-              "in InvalidTestHandler subscriber." +
-              " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
-    expect { broker.add_global_subscriber(subscriber) }.to raise_error(RubyEventStore::InvalidHandler, message)
+    expect do
+      broker.add_global_subscriber(subscriber)
+    end.to raise_error(RubyEventStore::InvalidHandler)
   end
 
   it 'returns lambda as an output of global subscribe methods' do

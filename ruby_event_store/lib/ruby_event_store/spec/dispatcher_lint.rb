@@ -28,7 +28,7 @@ RSpec.shared_examples :dispatcher do |dispatcher|
   end
 
   private
-  
+
   class HandlerClass
     @@received = nil
     def self.received

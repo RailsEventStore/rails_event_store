@@ -49,20 +49,12 @@ module RubyEventStore
 
     specify 'throws exception if subscriber has not call method - handling subscribed events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe(subscriber, [OrderCreated]) }.to raise_error(InvalidHandler, message)
+      expect { client.subscribe(subscriber, [OrderCreated]) }.to raise_error(InvalidHandler)
     end
 
     specify 'throws exception if subscriber has not call method - handling all events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler, message)
+      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler)
     end
 
     specify 'notifies subscribers listening on all events' do
@@ -167,19 +159,15 @@ module RubyEventStore
     end
 
     specify 'throws exception if subscriber klass does not have call method - handling subscribed events' do
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe(Subscribers::InvalidHandler, [OrderCreated]) }.to raise_error(InvalidHandler, message)
+      expect do
+        client.subscribe(Subscribers::InvalidHandler, [OrderCreated])
+      end.to raise_error(InvalidHandler)
     end
 
     specify 'throws exception if subscriber klass have not call method - handling all events' do
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe_to_all_events(Subscribers::InvalidHandler) }.to raise_error(InvalidHandler, message)
+      expect do
+        client.subscribe_to_all_events(Subscribers::InvalidHandler)
+      end.to raise_error(InvalidHandler)
     end
 
     specify 'dispatch events to subscribers via proxy' do
@@ -189,7 +177,7 @@ module RubyEventStore
       client.subscribe(Subscribers::ValidHandler, [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
     end
 
     specify 'dispatch all events to subscribers via proxy' do
@@ -199,7 +187,7 @@ module RubyEventStore
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
     end
 
     specify 'lambda is an output of global subscribe via proxy' do
@@ -228,7 +216,7 @@ module RubyEventStore
         client.publish_event(event_1)
       end
       client.publish_event(event_2)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event_1}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
@@ -243,7 +231,7 @@ module RubyEventStore
         client.publish_event(event_1)
       end
       client.publish_event(event_2)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event_1}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
