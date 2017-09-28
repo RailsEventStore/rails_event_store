@@ -16,6 +16,7 @@ main =
 type alias Model =
     { streams : PaginatedList Stream
     , searchQuery : String
+    , perPage : Int
     }
 
 
@@ -37,11 +38,16 @@ subscriptions model =
 
 model : ( Model, Cmd Msg )
 model =
-    ( { streams = Paginate.fromList 10 []
-      , searchQuery = ""
-      }
-    , getStreams
-    )
+    let
+        perPage =
+            10
+    in
+        ( { streams = Paginate.fromList perPage []
+          , searchQuery = ""
+          , perPage = perPage
+          }
+        , getStreams
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -57,7 +63,7 @@ update msg model =
             ( { model | streams = Paginate.prev model.streams }, Cmd.none )
 
         StreamList (Ok result) ->
-            ( { model | streams = Paginate.fromList 10 result }, Cmd.none )
+            ( { model | streams = Paginate.fromList model.perPage result }, Cmd.none )
 
         StreamList (Err msg) ->
             ( model, Cmd.none )
