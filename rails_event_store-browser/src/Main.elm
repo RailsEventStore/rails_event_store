@@ -1,8 +1,9 @@
 module Main exposing (..)
 
-import Html exposing (Html, ul, li, text, div, input)
-import Html.Attributes exposing (placeholder)
-import Html.Events exposing (onInput)
+import Html exposing (Html, ul, li, text, div, input, button)
+import Html.Attributes exposing (placeholder, disabled)
+import Html.Events exposing (onInput, onClick)
+import Paginate exposing (..)
 
 
 main : Program Never Model Msg
@@ -11,13 +12,15 @@ main =
 
 
 type alias Model =
-    { streams : List Stream
+    { streams : PaginatedList Stream
     , searchQuery : String
     }
 
 
 type Msg
     = Search String
+    | NextPage
+    | PreviousPage
 
 
 type Stream
@@ -27,9 +30,9 @@ type Stream
 model : Model
 model =
     { streams =
-        [ Stream "Inventory::Product$1"
-        , Stream "Inventory::Product$2"
-        ]
+        List.range 1 1000
+            |> List.map (\id -> Stream ("Product$" ++ toString id))
+            |> Paginate.fromList 10
     , searchQuery = ""
     }
 
@@ -40,6 +43,12 @@ update msg model =
         Search inputValue ->
             { model | searchQuery = inputValue }
 
+        NextPage ->
+            { model | streams = Paginate.next model.streams }
+
+        PreviousPage ->
+            { model | streams = Paginate.prev model.streams }
+
 
 isMatch : String -> Stream -> Bool
 isMatch searchQuery (Stream name) =
@@ -48,19 +57,51 @@ isMatch searchQuery (Stream name) =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ input [ placeholder "Search", onInput Search ] []
-        , ul []
-            (List.map
-                displayStream
-                (List.filter
-                    (isMatch model.searchQuery)
-                    model.streams
-                )
-            )
+    let
+        streams =
+            filteredStreams model
+    in
+        div []
+            [ searchField
+            , prevPage streams
+            , nextPage streams
+            , displayStreams streams
+            ]
+
+
+searchField : Html Msg
+searchField =
+    input [ placeholder "Search", onInput Search ] []
+
+
+prevPage : PaginatedList Stream -> Html Msg
+prevPage streams =
+    button
+        [ onClick PreviousPage
+        , disabled (Paginate.isFirst streams)
         ]
+        [ text "Previous" ]
+
+
+nextPage : PaginatedList Stream -> Html Msg
+nextPage streams =
+    button
+        [ onClick NextPage
+        , disabled (Paginate.isLast streams)
+        ]
+        [ text "Next" ]
+
+
+filteredStreams : Model -> PaginatedList Stream
+filteredStreams model =
+    Paginate.map (List.filter (isMatch model.searchQuery)) model.streams
 
 
 displayStream : Stream -> Html Msg
 displayStream (Stream name) =
     li [] [ text name ]
+
+
+displayStreams : PaginatedList Stream -> Html Msg
+displayStreams streams =
+    ul [] (List.map displayStream (Paginate.page streams))
