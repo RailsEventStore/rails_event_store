@@ -10,7 +10,7 @@ module RubyEventStore
       specify "does not allow silly subscribers" do
         expect do
           Dispatcher.new.verify(:symbol)
-        end.to raise_error(RubyEventStore::InvalidHandler, /^#call method not found in \:symbol/)
+        end.to raise_error(RubyEventStore::InvalidHandler, /:symbol/)
 
         expect do
           Dispatcher.new.verify(Object.new)
@@ -33,7 +33,7 @@ module RubyEventStore
         end
         expect do
           Dispatcher.new.verify(klass)
-        end.to raise_error(RubyEventStore::InvalidHandler, /Class/)
+        end.to raise_error(RubyEventStore::InvalidHandler, /^#call method not found in #<Class/)
       end
     end
 
