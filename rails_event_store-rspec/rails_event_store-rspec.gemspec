@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "mutant-rspec", "~> 0.8.11"
   spec.add_development_dependency "rails", "~> 4.2"
-  spec.add_development_dependency "rails_event_store", "~> 0.17.0"
+  spec.add_development_dependency "rails_event_store", "~> 0.18.0"
 
   spec.add_runtime_dependency "rspec", "~> 3.0"
 end
