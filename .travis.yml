@@ -34,9 +34,9 @@ matrix:
   - rvm: 2.2.7
     env: TARGET=rails_event_store SCRIPT=test
   - rvm: 2.2.7
-    env: TARGET=rails_event_store_active_record SCRIPT=test  DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3::memory:"
   - rvm: 2.3.4
-    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3::memory:"
   - rvm: 2.4.1
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
   - rvm: 2.4.1
