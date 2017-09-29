@@ -33,7 +33,7 @@ module RailsEventStore
       end.not_to raise_error
       expect do
         ActiveJobDispatcher.new.verify(ActiveJob::Base)
-      end.to raise_error(RubyEventStore::InvalidHandler
+      end.to raise_error(RubyEventStore::InvalidHandler)
       expect do
         ActiveJobDispatcher.new.verify(Object.new)
       end.to raise_error(RubyEventStore::InvalidHandler)
