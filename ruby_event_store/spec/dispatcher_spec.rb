@@ -11,6 +11,10 @@ module RubyEventStore
         expect do
           Dispatcher.new.verify(:symbol)
         end.to raise_error(RubyEventStore::InvalidHandler, /\:symbol/)
+
+        expect do
+          Dispatcher.new.verify(Object.new)
+        end.to raise_error(RubyEventStore::InvalidHandler, /Object/)
       end
 
       specify "does not allow class without instance method #call" do
@@ -29,7 +33,7 @@ module RubyEventStore
         end
         expect do
           Dispatcher.new.verify(klass)
-        end.to raise_error(RubyEventStore::InvalidHandler)
+        end.to raise_error(RubyEventStore::InvalidHandler, /Class/)
       end
     end
 
