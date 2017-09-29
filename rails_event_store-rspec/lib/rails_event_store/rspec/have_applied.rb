@@ -8,7 +8,7 @@ module RailsEventStore
       end
 
       def matches?(aggregate_root)
-        @events = aggregate_root.__send__(:unpublished_events)
+        @events = aggregate_root.unpublished_events.to_a
         @matcher.matches?(@events) && matches_count(@events, @expected, @count)
       end
 
