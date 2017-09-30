@@ -8,6 +8,7 @@
   "dependencies": {
     "@webpack-blocks/elm": "^1.0.0-beta",
     "html-webpack-plugin": "^2.30.1",
+    "open-color": "^1.5.1",
     "webpack": "^3.6.0",
     "webpack-blocks": "^1.0.0-beta.4",
     "webpack-dev-server": "^2.9.1"

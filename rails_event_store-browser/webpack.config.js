@@ -8,7 +8,7 @@ const {
   entryPoint,
   setOutput,
   env,
-  css
+  sass
 } = require("webpack-blocks");
 const elm = require("@webpack-blocks/elm");
 
@@ -16,7 +16,7 @@ module.exports = createConfig([
   entryPoint("./src/index.js"),
   setOutput("./build/bundle.js"),
   elm(),
-  css(),
+  sass(),
   addPlugins([
     new HTMLWebpackPlugin({
       title: "Browser"
