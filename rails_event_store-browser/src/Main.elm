@@ -137,10 +137,16 @@ browseStreams model =
     in
         div []
             [ searchField
-            , prevPage streams
-            , nextPage streams
             , displayStreams streams
+            , prevPage streams
+            , currentPage streams
+            , nextPage streams
             ]
+
+
+currentPage : PaginatedList Stream -> Html Msg
+currentPage streams =
+    button [ disabled True ] [ text (toString (Paginate.currentPage streams)) ]
 
 
 searchField : Html Msg
