@@ -1,4 +1,4 @@
-# Subscribing to events
+# Event handlers - Subscribing to events
 
 To subscribe to events in Rails Event Store you need to use `#subscribe` method.
 
@@ -60,49 +60,42 @@ event_store.subscribe_to_all_events(EventsLogger.new(Rails.logger))
 
 ## Dynamic (one-shot) subscriptions
 
-Rails Event Store supports dynamic, one-shot, anonymous subscriptions for events. One-shot means that after publishing an event in which such subscriber is interested it gets unsubscribed automatically.
-
-You can achieve such behaviour by passing the block to the `#subscribe` method. Then it accepts only one argument - `event_types` which is an array of event types for which subscriber (block) will get invoked.
-
-This is useful in many use cases, for example it can be used to implement a saga pattern:
+Rails Event Store supports dynamic, one-shot subscriptions for events. The subscriber gets unsubscribed automatically at the end of the provided block.
 
 ```ruby
-module MissingShippingDetails
-  class State
-    def self.from_status(status)
-      # ...
-    end
+class CountImportResults
+  def initialize()
+    @ok = 0
+    @error = 0
   end
 
-  class AddressNotProvided
-    def process(saga, event)
-      # ...
+  def call(event)
+    case event
+    when ProductImported
+      @ok += 1
+    when ProductImportFailed
+      @error += 1
+    else
+      raise ArgumentError
     end
   end
-
-  # ...
 end
 
-class MissingShippingDetailsSaga < ActiveRecord::Base
-  include MissingShippingDetails
-
-  def state
-    @state ||= State.from_status(status)
-  end
-
-  def subscribe(event_store)
-    return if state.final?
-    event_store.subscribe(state.awaited_events) do |event|
-      # Sagas are basically state machines. Try to change the state...
-      @state = state.process(self, event)
-      @status = @state.name
-      # ... and resubscribe (maybe state changed, so other events will be awaited)
-      subscribe(event_store)
+class Import
+  def run(file)
+    CSV.parse(file) do |row|
+      if row_imported(row)
+        event_store.publish(ProductImported.new(...))
+      else
+        event_store.publish(ProductImportFailed.new(...))
+      end
     end
   end
+end
 
-  # ...
+results = CountImportResults.new
+event_types = [ProductImported, ProductImportFailed]
+event_store.subscribe(results, event_types) do
+  Import.new.run(file)
 end
 ```
-
-Remember that subscriptions are one-shot. If you want to still pass a block without having one-shot behaviour, you can use classical subscription pattern. Remember blocks are `Proc`s under the hood!
