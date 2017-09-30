@@ -236,6 +236,22 @@ module RubyEventStore
       expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
     end
 
+    specify 'dynamic subscription with exception' do
+      event_1 = OrderCreated.new
+      event_2 = OrderCreated.new
+      exception = Class.new(StandardError)
+      begin
+        client.subscribe(h = Subscribers::ValidHandler.new, [OrderCreated]) do
+          client.publish_event(event_1)
+          raise exception
+        end
+      rescue exception
+      end
+      client.publish_event(event_2)
+      expect(h.handled_events).to eq([event_1])
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
+    end
+
     specify 'notifies subscriber in the order events were published' do
       handled_events = []
       subscriber = ->(event) {
