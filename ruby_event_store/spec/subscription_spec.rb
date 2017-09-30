@@ -224,16 +224,16 @@ module RubyEventStore
     specify 'dynamic subscription' do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated, ProductAdded]) do
+      event_3 = ProductAdded.new
+      types = [OrderCreated, ProductAdded]
+      result = client.subscribe(h = Subscribers::ValidHandler.new, types) do
         client.publish_event(event_1)
+        client.publish_event(event_2)
       end
-      client.publish_event(event_2)
-      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
+      client.publish_event(event_3)
+      expect(h.handled_events).to eq([event_1, event_2])
       expect(result).to respond_to(:call)
-      expect(client.read_all_streams_forward).to eq([event_1, event_2])
+      expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
     end
 
     specify 'notifies subscriber in the order events were published' do
