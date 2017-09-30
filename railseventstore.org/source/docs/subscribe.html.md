@@ -54,7 +54,7 @@ end
 event_store.subscribe(SyncHandler.new, [OrderPlaced])
 ```
 
-```
+```ruby
 ActiveRecord::Base.transaction do
   event_store.publish(OrderPlaced.new)
   # sync handlers executed here
@@ -77,7 +77,7 @@ end
 
 ### Fresh handler state
 
-If you subscribe an instance of a class, the same object is going to be called with new events.
+If you subscribe an instance of a class (`SyncHandler.new`), the same object is going to be called with new events.
 
 ```ruby
 class SyncHandler
@@ -101,7 +101,7 @@ event_store.publish_event(OrderPlaced.new)
 
 This can be problematic, especially if you use memoization.
 
-```
+```ruby
 class SyncHandler
   def call(event)
     Rails.logger.warn("Order placed by #{customer_id(event)}")
@@ -116,7 +116,7 @@ class SyncHandler
 end
 ```
 
-because subsequent events would read the same `@customer_id` which was memoized by a previous event. To avoid that problem, you can subscribe a class, and a new instance will be created for every event.
+because subsequent events would read the same `@customer_id` which was memoized by a previous event. To avoid that problem, you can subscribe a class (`SyncHandler`), and a new instance will be created for every event.
 
 ```ruby
 event_store.subscribe(SyncHandler, [OrderPlaced])
@@ -248,7 +248,7 @@ end
 ```
 
 That means when your `ActiveJob` adapter (such as sidekiq or resque)
-is using non-SQL store, your handler might be called before the
+is using non-SQL store, your handler might get called before the
 whole transaction is committed or when the transaction was rolled-back.
 
 ### Scheduling async handlers after commit
