@@ -96,11 +96,12 @@ module RubyEventStore
       # event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
     end
 
-    def handle_subscribe(unsub)
-      if block_given?
-        yield
+    def handle_subscribe(unsub, &proc)
+      begin
+        proc.call
+      ensure
         unsub.()
-      end
+      end if proc
     end
 
     class Page
