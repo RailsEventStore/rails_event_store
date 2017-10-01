@@ -1,30 +1,34 @@
 RSpec.shared_examples :dispatcher do |dispatcher|
-  specify "calls subscribed handler" do
-    handler = double(:handler)
+  specify "calls subscribed instance" do
+    handler = HandlerClass.new
     event   = instance_double(::RubyEventStore::Event)
 
     expect(handler).to receive(:call).with(event)
     dispatcher.(handler, event)
   end
 
-  specify "returns callable proxy" do
+  specify "calls subscribed class" do
     event   = instance_double(::RubyEventStore::Event)
 
-    handler = dispatcher.proxy_for(HandlerClass)
-    expect(handler).to receive(:call).with(event).and_call_original
-    dispatcher.(handler, event)
-    expect(HandlerClass.received).to eq(event)
+    expect(HandlerClass).to receive(:new).and_return( h = HandlerClass.new )
+    expect(h).to receive(:call).with(event)
+    dispatcher.(HandlerClass, event)
   end
 
-  specify "fails to build proxy when no call method defined on class" do
-    message = "#call method not found " +
-      "in String subscriber." +
-      " Are you sure it is a valid subscriber?"
-
-    expect { dispatcher.proxy_for(String) }.to raise_error(::RubyEventStore::InvalidHandler, message)
+  specify "allows callable classes and instances" do
+    expect do
+      dispatcher.verify(HandlerClass)
+    end.not_to raise_error
+    expect do
+      dispatcher.verify(HandlerClass.new)
+    end.not_to raise_error
+    expect do
+      dispatcher.verify(Proc.new{ "yo" })
+    end.not_to raise_error
   end
 
   private
+
   class HandlerClass
     @@received = nil
     def self.received

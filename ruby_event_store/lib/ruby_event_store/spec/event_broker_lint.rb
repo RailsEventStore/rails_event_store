@@ -23,6 +23,9 @@ RSpec.shared_examples :event_broker do |broker_class|
       @dispatched = []
     end
 
+    def verify(_subscriber)
+    end
+
     def call(subscriber, event)
       @dispatched << {subscriber: subscriber, event: event}
     end
@@ -58,19 +61,17 @@ RSpec.shared_examples :event_broker do |broker_class|
   end
 
   it 'raises error when no valid method on handler' do
-    message = "#call method not found " +
-              "in InvalidTestHandler subscriber." +
-              " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
-    expect { broker.add_subscriber(subscriber, [Test1DomainEvent]) }.to raise_error(RubyEventStore::InvalidHandler, message)
+    expect do
+      broker.add_subscriber(subscriber, [Test1DomainEvent])
+    end.to raise_error(RubyEventStore::InvalidHandler)
   end
 
   it 'raises error when no valid method on global handler' do
-    message = "#call method not found " +
-              "in InvalidTestHandler subscriber." +
-              " Are you sure it is a valid subscriber?"
     subscriber = InvalidTestHandler.new
-    expect { broker.add_global_subscriber(subscriber) }.to raise_error(RubyEventStore::InvalidHandler, message)
+    expect do
+      broker.add_global_subscriber(subscriber)
+    end.to raise_error(RubyEventStore::InvalidHandler)
   end
 
   it 'returns lambda as an output of global subscribe methods' do
@@ -119,19 +120,6 @@ RSpec.shared_examples :event_broker do |broker_class|
     broker_with_custom_dispatcher.add_subscriber(handler, [Test1DomainEvent])
     broker_with_custom_dispatcher.notify_subscribers(event1)
     expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])
-  end
-
-  it "returns callable proxy" do
-    proxy = broker.proxy_for(TestHandler)
-    expect(proxy.respond_to?(:call)).to be_truthy
-  end
-
-  specify "fails to build proxy when no call method defined on class" do
-    message = "#call method not found " +
-      "in InvalidTestHandler subscriber." +
-      " Are you sure it is a valid subscriber?"
-
-    expect { broker.proxy_for(InvalidTestHandler) }.to raise_error(::RubyEventStore::InvalidHandler, message)
   end
 
   private

@@ -24,11 +24,15 @@ class CustomDispatcher
   end
 
   def call(subscriber, event)
+    subscriber = subscriber.new if Class === subscriber
     @dispatched_events << {to: subscriber.class, event: event}
   end
 
-  def proxy_for(klass)
-    ->(e) { klass.new.call(e) }
+  def verify(subscriber)
+    subscriber = subscriber.new if Class === subscriber
+    subscriber.respond_to?(:call) or raise InvalidHandler.new(subscriber)
+  rescue ArgumentError
+    raise InvalidHandler.new(subscriber)
   end
 end
 
@@ -45,20 +49,12 @@ module RubyEventStore
 
     specify 'throws exception if subscriber has not call method - handling subscribed events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe(subscriber, [OrderCreated]) }.to raise_error(InvalidHandler, message)
+      expect { client.subscribe(subscriber, [OrderCreated]) }.to raise_error(InvalidHandler)
     end
 
     specify 'throws exception if subscriber has not call method - handling all events' do
       subscriber = Subscribers::InvalidHandler.new
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler, message)
+      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler)
     end
 
     specify 'notifies subscribers listening on all events' do
@@ -163,19 +159,15 @@ module RubyEventStore
     end
 
     specify 'throws exception if subscriber klass does not have call method - handling subscribed events' do
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe(Subscribers::InvalidHandler, [OrderCreated]) }.to raise_error(InvalidHandler, message)
+      expect do
+        client.subscribe(Subscribers::InvalidHandler, [OrderCreated])
+      end.to raise_error(InvalidHandler)
     end
 
     specify 'throws exception if subscriber klass have not call method - handling all events' do
-      message = "#call method not found " +
-        "in Subscribers::InvalidHandler subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect { client.subscribe_to_all_events(Subscribers::InvalidHandler) }.to raise_error(InvalidHandler, message)
+      expect do
+        client.subscribe_to_all_events(Subscribers::InvalidHandler)
+      end.to raise_error(InvalidHandler)
     end
 
     specify 'dispatch events to subscribers via proxy' do
@@ -185,7 +177,7 @@ module RubyEventStore
       client.subscribe(Subscribers::ValidHandler, [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
     end
 
     specify 'dispatch all events to subscribers via proxy' do
@@ -195,7 +187,7 @@ module RubyEventStore
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
     end
 
     specify 'lambda is an output of global subscribe via proxy' do
@@ -224,7 +216,7 @@ module RubyEventStore
         client.publish_event(event_1)
       end
       client.publish_event(event_2)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event_1}]
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
@@ -232,15 +224,31 @@ module RubyEventStore
     specify 'dynamic subscription' do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated, ProductAdded]) do
+      event_3 = ProductAdded.new
+      types = [OrderCreated, ProductAdded]
+      result = client.subscribe(h = Subscribers::ValidHandler.new, types) do
         client.publish_event(event_1)
+        client.publish_event(event_2)
+      end
+      client.publish_event(event_3)
+      expect(h.handled_events).to eq([event_1, event_2])
+      expect(result).to respond_to(:call)
+      expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
+    end
+
+    specify 'dynamic subscription with exception' do
+      event_1 = OrderCreated.new
+      event_2 = OrderCreated.new
+      exception = Class.new(StandardError)
+      begin
+        client.subscribe(h = Subscribers::ValidHandler.new, [OrderCreated]) do
+          client.publish_event(event_1)
+          raise exception
+        end
+      rescue exception
       end
       client.publish_event(event_2)
-      expect(dispatcher.dispatched_events).to eq [{to: Proc, event: event_1}]
-      expect(result).to respond_to(:call)
+      expect(h.handled_events).to eq([event_1])
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
 

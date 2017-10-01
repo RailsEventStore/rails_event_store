@@ -9,10 +9,13 @@ module RailsEventStore
 
     around do |example|
       with_queue_adapter(ActiveJob::Base) do
-        original_logger = ActiveJob::Base.logger
-        ActiveJob::Base.logger = Logger.new(nil) # Silence messages "[ActiveJob] Enqueued ...".
-        example.run
-        ActiveJob::Base.logger = original_logger
+        begin
+          original_logger = ActiveJob::Base.logger
+          ActiveJob::Base.logger = nil
+          example.run
+        ensure
+          ActiveJob::Base.logger = original_logger
+        end
       end
     end
 
@@ -24,31 +27,21 @@ module RailsEventStore
     let!(:event) { RailsEventStore::Event.new }
     let!(:yaml)  { YAML.dump(event) }
 
-    it "builds sync proxy for callable class" do
-      handler = ActiveJobDispatcher.new.proxy_for(CallableHandler)
-      expect(handler.respond_to?(:call)).to be_truthy
-      expect_any_instance_of(CallableHandler).to receive(:call).and_call_original
-      expect_no_enqueued_job do
-        handler.call(event)
-      end
-    end
-
-    it "error when ActiveJob::Base is used as handler class" do
-      message = "#call method not found " +
-        "in ActiveJob::Base subscriber." +
-        " Are you sure it is a valid subscriber?"
-
-      expect {
-        ActiveJobDispatcher.new.proxy_for(ActiveJob::Base)
-      }.to raise_error(::RubyEventStore::InvalidHandler, message)
+    it "verification" do
+      expect do
+        ActiveJobDispatcher.new.verify(AsyncHandler)
+      end.not_to raise_error
+      expect do
+        ActiveJobDispatcher.new.verify(ActiveJob::Base)
+      end.to raise_error(RubyEventStore::InvalidHandler)
+      expect do
+        ActiveJobDispatcher.new.verify(Object.new)
+      end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
     it "builds async proxy for ActiveJob::Base ancestors" do
-      handler = ActiveJobDispatcher.new.proxy_for(AsyncHandler)
-
-      expect(handler.respond_to?(:call)).to be_truthy
       expect_to_have_enqueued_job(AsyncHandler) do
-        handler.call(event)
+        ActiveJobDispatcher.new.call(AsyncHandler, event)
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
@@ -56,12 +49,9 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
-      handler = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-        .proxy_for(AsyncHandler)
-
-      expect(handler.respond_to?(:call)).to be_truthy
+      dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_to_have_enqueued_job(AsyncHandler) do
-        handler.call(event)
+        dispatcher.call(AsyncHandler, event)
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
@@ -69,13 +59,12 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job only after transaction commit" do
-      handler = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-        .proxy_for(AsyncHandler)
-
-      expect(handler.respond_to?(:call)).to be_truthy
+      dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_to_have_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do
-          handler.call(event)
+          expect_no_enqueued_job do
+            dispatcher.call(AsyncHandler, event)
+          end
         end
       end
       expect(AsyncHandler.received).to be_nil
@@ -84,15 +73,14 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter do not enqueue job after transaction rollback" do
-      handler = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-        .proxy_for(AsyncHandler)
-
+      dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_no_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do
-          handler.call(event)
+          dispatcher.call(AsyncHandler, event)
           raise ActiveRecord::Rollback
         end
       end
+      perform_enqueued_jobs(AsyncHandler.queue_adapter)
       expect(AsyncHandler.received).to be_nil
     end
 
