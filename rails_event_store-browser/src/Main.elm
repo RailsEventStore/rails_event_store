@@ -182,7 +182,35 @@ renderPagerButton pageNum isCurrentPage =
 
 pagerView : PaginatedList Stream -> List (Html Msg)
 pagerView streams =
-    pager (\pageNum isCurrentPage -> renderPagerButton pageNum isCurrentPage) streams
+    let
+        currentPage =
+            Paginate.currentPage streams
+
+        pagesAround =
+            5
+
+        overflow =
+            ( List.minimum [ 0, currentPage - 5 ]
+            , List.maximum
+                [ 0
+                , currentPage
+                    + 5
+                    - (Paginate.totalPages streams)
+                ]
+            )
+
+        visiblePages =
+            case overflow of
+                ( Just overflowBefore, Just overflowAfter ) ->
+                    List.range (currentPage - pagesAround - overflowAfter) (currentPage + pagesAround - overflowBefore)
+
+                ( _, _ ) ->
+                    List.range (currentPage - pagesAround) (currentPage + pagesAround)
+    in
+        streams
+            |> pager (,)
+            |> List.filter (\( pageNum, _ ) -> List.member pageNum visiblePages)
+            |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
 
 
 prevPage : PaginatedList Stream -> Html Msg
