@@ -180,8 +180,8 @@ renderPagerButton pageNum isCurrentPage =
         [ text (toString pageNum) ]
 
 
-pagerView : PaginatedList Stream -> List (Html Msg)
-pagerView streams =
+pagerData : PaginatedList Stream -> List ( Int, Bool )
+pagerData streams =
     let
         currentPage =
             Paginate.currentPage streams
@@ -210,7 +210,13 @@ pagerView streams =
         streams
             |> pager (,)
             |> List.filter (\( pageNum, _ ) -> List.member pageNum visiblePages)
-            |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
+
+
+pagerView : PaginatedList Stream -> List (Html Msg)
+pagerView streams =
+    streams
+        |> pagerData
+        |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
 
 
 prevPage : PaginatedList Stream -> Html Msg
