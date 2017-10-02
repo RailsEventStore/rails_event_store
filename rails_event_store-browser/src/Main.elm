@@ -27,6 +27,7 @@ type Msg
     = Search String
     | NextPage
     | PreviousPage
+    | GoToPage Int
     | StreamList (Result Http.Error (List Stream))
     | UrlChange Navigation.Location
 
@@ -73,6 +74,9 @@ update msg model =
 
         PreviousPage ->
             ( { model | streams = Paginate.prev model.streams }, Cmd.none )
+
+        GoToPage pageNum ->
+            ( { model | streams = Paginate.goTo pageNum model.streams }, Cmd.none )
 
         StreamList (Ok result) ->
             ( { model | streams = Paginate.fromList model.perPage result }, Cmd.none )
@@ -139,19 +143,31 @@ browseStreams model =
             [ searchField
             , displayStreams streams
             , prevPage streams
-            , currentPage streams
+            , pagerView streams
             , nextPage streams
             ]
-
-
-currentPage : PaginatedList Stream -> Html Msg
-currentPage streams =
-    button [ disabled True ] [ text (toString (Paginate.currentPage streams)) ]
 
 
 searchField : Html Msg
 searchField =
     input [ placeholder "Search", onInput Search ] []
+
+
+renderPagerButton : Int -> Bool -> Html Msg
+renderPagerButton pageNum isCurrentPage =
+    button
+        [ onClick (GoToPage pageNum)
+        , disabled isCurrentPage
+        ]
+        [ text (toString pageNum) ]
+
+
+pagerView : PaginatedList Stream -> Html Msg
+pagerView streams =
+    div
+        []
+    <|
+        pager (\pageNum isCurrentPage -> renderPagerButton pageNum isCurrentPage) streams
 
 
 prevPage : PaginatedList Stream -> Html Msg
