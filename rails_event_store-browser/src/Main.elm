@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (Html, ul, li, text, div, input, button, h1, a)
-import Html.Attributes exposing (placeholder, disabled, href)
+import Html.Attributes exposing (placeholder, disabled, href, class)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
@@ -142,15 +142,33 @@ browseStreams model =
         div []
             [ searchField
             , displayStreams streams
-            , prevPage streams
-            , pagerView streams
-            , nextPage streams
+            , renderPagination streams
             ]
 
 
 searchField : Html Msg
 searchField =
     input [ placeholder "Search", onInput Search ] []
+
+
+renderPagination : PaginatedList Stream -> Html Msg
+renderPagination streams =
+    let
+        pageListItems =
+            (List.map
+                (\l -> li [] [ l ])
+                (pagerView streams)
+            )
+    in
+        div [ class "pagination" ]
+            [ ul []
+                (List.concat
+                    [ [ li [ class "page-prev" ] [ prevPage streams ] ]
+                    , pageListItems
+                    , [ li [ class "page-next" ] [ nextPage streams ] ]
+                    ]
+                )
+            ]
 
 
 renderPagerButton : Int -> Bool -> Html Msg
@@ -162,12 +180,9 @@ renderPagerButton pageNum isCurrentPage =
         [ text (toString pageNum) ]
 
 
-pagerView : PaginatedList Stream -> Html Msg
+pagerView : PaginatedList Stream -> List (Html Msg)
 pagerView streams =
-    div
-        []
-    <|
-        pager (\pageNum isCurrentPage -> renderPagerButton pageNum isCurrentPage) streams
+    pager (\pageNum isCurrentPage -> renderPagerButton pageNum isCurrentPage) streams
 
 
 prevPage : PaginatedList Stream -> Html Msg
