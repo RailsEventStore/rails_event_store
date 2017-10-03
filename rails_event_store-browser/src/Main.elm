@@ -283,12 +283,23 @@ filteredStreams model =
 
 displayStream : Stream -> Html Msg
 displayStream (Stream name) =
-    li [] [ a [ href ("#streams/" ++ name) ] [ text name ] ]
+    tr []
+        [ td []
+            [ a [ class "results__link", href ("#streams/" ++ name) ] [ text name ]
+            ]
+        ]
 
 
 displayStreams : PaginatedList Stream -> Html Msg
 displayStreams streams =
-    ul [] (List.map displayStream (Paginate.page streams))
+    table []
+        [ thead []
+            [ tr []
+                [ th [] [ text "Stream name" ]
+                ]
+            ]
+        , tbody [] (List.map displayStream (Paginate.page streams))
+        ]
 
 
 getStreams : Cmd Msg
