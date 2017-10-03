@@ -127,7 +127,7 @@ browserFrame model =
     div [ class "frame" ]
         [ header [ class "frame__header" ] [ browserNavigation ]
         , main_ [ class "frame__body" ] [ browserBody model ]
-        , footer [ class "frame__footer" ] []
+        , footer [ class "frame__footer" ] [ browserFooter ]
         ]
 
 
@@ -139,6 +139,17 @@ browserNavigation =
             ]
         , div [ class "navigation__links" ]
             [ a [ href "/", class "navigation__link" ] [ text "Stream Browser" ]
+            ]
+        ]
+
+
+browserFooter : Html Msg
+browserFooter =
+    footer [ class "footer" ]
+        [ div [ class "footer__links" ]
+            [ text "Rails Event Store v0.18.0"
+            , a [ href "http://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
+            , a [ href "http://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
             ]
         ]
 
