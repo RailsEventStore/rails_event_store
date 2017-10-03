@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (Html, ul, li, text, div, input, button, h1, a)
+import Html exposing (..)
 import Html.Attributes exposing (placeholder, disabled, href, class)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
@@ -119,6 +119,32 @@ isMatch searchQuery (Stream name) =
 
 view : Model -> Html Msg
 view model =
+    browserFrame model
+
+
+browserFrame : Model -> Html Msg
+browserFrame model =
+    div [ class "frame" ]
+        [ header [ class "frame__header" ] [ browserNavigation ]
+        , main_ [ class "frame__body" ] [ browserBody model ]
+        , footer [ class "frame__footer" ] []
+        ]
+
+
+browserNavigation : Html Msg
+browserNavigation =
+    nav [ class "navigation" ]
+        [ div [ class "navigation__brand" ]
+            [ a [ href "/", class "navigation__logo" ] [ text "Rails Event Store" ]
+            ]
+        , div [ class "navigation__links" ]
+            [ a [ href "/", class "navigation__link" ] [ text "Stream Browser" ]
+            ]
+        ]
+
+
+browserBody : Model -> Html Msg
+browserBody model =
     case model.page of
         BrowseStreams ->
             browseStreams model

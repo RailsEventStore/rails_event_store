@@ -10,6 +10,9 @@
 @import "base/tables";
 @import "base/typography";
 
+@import "components/frame";
+@import "components/navigation";
+
 .pagination {
   $base-border-color: gainsboro !default;
   $base-border-radius: 3px !default;

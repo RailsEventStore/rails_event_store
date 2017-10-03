@@ -1,0 +1,34 @@
+$navigation-layout: (columns: 3);
+
+.navigation {
+  @include grid-container;
+  height: 5.8rem;
+  border-bottom: 2px solid $brand-color;
+}
+
+.navigation__brand {
+  @include grid-column(1, $navigation-layout);
+  display: flex;
+  height: 100%;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.navigation__links {
+  @include grid-column(2, $navigation-layout);
+  display: flex;
+  height: 100%;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.navigation__link {
+  margin-left: 1rem;
+  text-decoration: none;
+}
+
+.navigation__logo {
+  text-decoration: none;
+  font-weight: 600;
+  color: $base-font-color;
+}
