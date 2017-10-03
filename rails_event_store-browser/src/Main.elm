@@ -226,11 +226,11 @@ pagerData streams =
             5
 
         overflow =
-            ( List.minimum [ 0, currentPage - 5 ]
+            ( List.minimum [ 0, currentPage - pagesAround ]
             , List.maximum
                 [ 0
                 , currentPage
-                    + 5
+                    + pagesAround
                     - (Paginate.totalPages streams)
                 ]
             )
