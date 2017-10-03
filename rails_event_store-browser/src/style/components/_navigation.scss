@@ -2,8 +2,8 @@ $navigation-layout: (columns: 3);
 
 .navigation {
   @include grid-container;
-  height: 5.8rem;
-  border-bottom: 2px solid $brand-color;
+  height: 6rem;
+  background-color: $brand-color;
 }
 
 .navigation__brand {
@@ -24,11 +24,27 @@ $navigation-layout: (columns: 3);
 
 .navigation__link {
   margin-left: 1rem;
+  padding: 0.5rem;
   text-decoration: none;
+  font-weight: bold;
+  font-size: 1.4rem;
+  color: $oc-gray-1;
+
+  &:hover {
+    border-radius: 4px;
+    background-color: darken($brand-color, 10);
+    color: $oc-gray-0;
+  }
+}
+
+.navigation__link--active {
+  border-radius: 4px;
+  background-color: darken($brand-color, 10);
+  color: $oc-gray-0;
 }
 
 .navigation__logo {
   text-decoration: none;
   font-weight: 600;
-  color: $base-font-color;
+  color: $oc-gray-0;
 }
