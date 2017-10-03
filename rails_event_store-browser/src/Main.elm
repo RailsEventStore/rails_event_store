@@ -223,7 +223,7 @@ pagerData streams =
             Paginate.currentPage streams
 
         pagesAround =
-            5
+            2
 
         overflow =
             ( List.minimum [ 0, currentPage - pagesAround ]
