@@ -226,7 +226,7 @@ pagerData streams =
             2
 
         overflow =
-            ( List.minimum [ 0, currentPage - pagesAround ]
+            ( List.minimum [ 0, currentPage - pagesAround - 1 ]
             , List.maximum
                 [ 0
                 , currentPage
