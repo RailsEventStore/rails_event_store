@@ -147,7 +147,7 @@ browserFooter : Html Msg
 browserFooter =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
-            [ text "Rails Event Store v0.18.0"
+            [ text "RailsEventStore v0.18.0"
             , a [ href "http://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
             , a [ href "http://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
             ]
