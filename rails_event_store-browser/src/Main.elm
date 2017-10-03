@@ -176,16 +176,16 @@ browseStreams model =
         streams =
             filteredStreams model
     in
-        div []
-            [ searchField
-            , displayStreams streams
-            , renderPagination streams
+        div [ class "browser" ]
+            [ div [ class "browser__search search" ] [ searchField ]
+            , div [ class "browser__pagination" ] [ renderPagination streams ]
+            , div [ class "browser__results" ] [ displayStreams streams ]
             ]
 
 
 searchField : Html Msg
 searchField =
-    input [ placeholder "Search", onInput Search ] []
+    input [ class "search__input", placeholder "type to start searching", onInput Search ] []
 
 
 renderPagination : PaginatedList Stream -> Html Msg
@@ -197,21 +197,20 @@ renderPagination streams =
                 (pagerView streams)
             )
     in
-        div [ class "pagination" ]
-            [ ul []
-                (List.concat
-                    [ [ li [ class "page-prev" ] [ prevPage streams ] ]
-                    , pageListItems
-                    , [ li [ class "page-next" ] [ nextPage streams ] ]
-                    ]
-                )
-            ]
+        ul [ class "pagination" ]
+            (List.concat
+                [ [ li [] [ prevPage streams ] ]
+                , pageListItems
+                , [ li [] [ nextPage streams ] ]
+                ]
+            )
 
 
 renderPagerButton : Int -> Bool -> Html Msg
 renderPagerButton pageNum isCurrentPage =
     button
         [ onClick (GoToPage pageNum)
+        , class "pagination__page"
         , disabled isCurrentPage
         ]
         [ text (toString pageNum) ]
@@ -260,18 +259,20 @@ prevPage : PaginatedList Stream -> Html Msg
 prevPage streams =
     button
         [ onClick PreviousPage
+        , class "pagination__page pagination__page--previous"
         , disabled (Paginate.isFirst streams)
         ]
-        [ text "Previous" ]
+        [ text "←" ]
 
 
 nextPage : PaginatedList Stream -> Html Msg
 nextPage streams =
     button
         [ onClick NextPage
+        , class "pagination__page pagination__page--next"
         , disabled (Paginate.isLast streams)
         ]
-        [ text "Next" ]
+        [ text "→" ]
 
 
 filteredStreams : Model -> PaginatedList Stream
