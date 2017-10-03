@@ -177,7 +177,8 @@ browseStreams model =
             filteredStreams model
     in
         div [ class "browser" ]
-            [ div [ class "browser__search search" ] [ searchField ]
+            [ h1 [ class "browser__title" ] [ text "Streams" ]
+            , div [ class "browser__search search" ] [ searchField ]
             , div [ class "browser__pagination" ] [ renderPagination streams ]
             , div [ class "browser__results" ] [ displayStreams streams ]
             ]

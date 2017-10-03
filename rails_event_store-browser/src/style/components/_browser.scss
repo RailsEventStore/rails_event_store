@@ -5,6 +5,11 @@ $browser-layout: (columns: 2);
   padding: 2rem 0;
 }
 
+.browser__title {
+  @include grid-column(2, $browser-layout);
+  font-size: 2.2rem;
+}
+
 .browser__search {
   @include grid-column(1, $browser-layout);
 }
