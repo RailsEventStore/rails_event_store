@@ -24,6 +24,12 @@ module RailsEventStore
         def committed!
           @klass.perform_later(YAML.dump(@event))
         end
+
+        def rolledback!
+        end
+
+        def before_committed!
+        end
       end
     end
 
