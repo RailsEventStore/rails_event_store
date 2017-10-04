@@ -54,7 +54,7 @@ Bundler.require(*Rails.groups)
 
 module YourAppName
   class Application < Rails::Application
-    config.rails_event_store.request_metadata = -> (env) do
+    config.x.rails_event_store.request_metadata = -> (env) do
       request = ActionDispatch::Request.new(env)
       { remote_ip:  request.remote_ip,
         request_id: request.uuid,
