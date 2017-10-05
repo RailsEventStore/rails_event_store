@@ -3,6 +3,7 @@ require 'activerecord-import'
 module RailsEventStoreActiveRecord
   class EventRepository
     POSITION_SHIFT = 1
+    GLOBAL_STREAM  = "__global__".freeze
 
     def append_to_stream(events, stream_name, expected_version)
       events = normalize_to_array(events)
@@ -32,7 +33,7 @@ module RailsEventStoreActiveRecord
           position: position,
           event_id: event.event_id
         },{
-          stream: "__global__",
+          stream: GLOBAL_STREAM,
           event_id: event.event_id
         }]
       end
@@ -92,7 +93,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_forward(after_event_id, count)
-      stream = EventInStream.where(stream: "__global__")
+      stream = EventInStream.where(stream: GLOBAL_STREAM)
       unless after_event_id.equal?(:head)
         after_event = stream.find_by!(event_id: after_event_id)
         stream = stream.where('id > ?', after_event)
@@ -103,7 +104,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_backward(before_event_id, count)
-      stream = EventInStream.where(stream: "__global__")
+      stream = EventInStream.where(stream: GLOBAL_STREAM)
       unless before_event_id.equal?(:head)
         before_event = stream.find_by!(event_id: before_event_id)
         stream = stream.where('id < ?', before_event)
