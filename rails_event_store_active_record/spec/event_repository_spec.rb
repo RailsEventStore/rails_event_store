@@ -100,17 +100,17 @@ module RailsEventStoreActiveRecord
         event_type: TestDomainEvent.name,
       )
       EventInStream.create!(
-        stream:   "__global__",
+        stream:   "all",
         position: 1,
         event_id: e1.id,
       )
       EventInStream.create!(
-        stream:   "__global__",
+        stream:   "all",
         position: 0,
         event_id: e2.id,
       )
       EventInStream.create!(
-        stream:   "__global__",
+        stream:   "all",
         position: 2,
         event_id: e3.id,
       )

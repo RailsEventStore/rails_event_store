@@ -3,7 +3,7 @@ require 'activerecord-import'
 module RailsEventStoreActiveRecord
   class EventRepository
     POSITION_SHIFT = 1
-    GLOBAL_STREAM  = "__global__".freeze
+    GLOBAL_STREAM  = "all".freeze
 
     def append_to_stream(events, stream_name, expected_version)
       events = normalize_to_array(events)
