@@ -372,4 +372,13 @@ RSpec.shared_examples :event_repository do |repository_class|
     end.to raise_error(RubyEventStore::EventDuplicatedInStream)
   end
 
+  it 'allows appending to GLOBAL_STREAM explicitly' do
+    repository.append_to_stream(
+      event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e"),
+      ::RubyEventStore::GLOBAL_STREAM,
+      -1
+    )
+
+    expect(repository.read_all_streams_forward(:head, 10)).to eq([event])
+  end
 end

@@ -27,14 +27,16 @@ module RailsEventStoreActiveRecord
           metadata: event.metadata,
           event_type: event.class,
         )
-        [{
-          stream:   stream_name,
-          position: position,
-          event_id: event.event_id
-        },{
+        events = [{
           stream: RubyEventStore::GLOBAL_STREAM,
           event_id: event.event_id
         }]
+        events.unshift({
+          stream:   stream_name,
+          position: position,
+          event_id: event.event_id
+        }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+        events
       end
       EventInStream.import(in_stream)
       self
