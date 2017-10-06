@@ -32,7 +32,7 @@ module RailsEventStoreActiveRecord
           position: position,
           event_id: event.event_id
         },{
-          stream: ::RubyEventStore::GLOBAL_STREAM,
+          stream: RubyEventStore::GLOBAL_STREAM,
           event_id: event.event_id
         }]
       end
@@ -92,7 +92,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_forward(after_event_id, count)
-      stream = EventInStream.where(stream: ::RubyEventStore::GLOBAL_STREAM)
+      stream = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
       unless after_event_id.equal?(:head)
         after_event = stream.find_by!(event_id: after_event_id)
         stream = stream.where('id > ?', after_event)
@@ -103,7 +103,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_backward(before_event_id, count)
-      stream = EventInStream.where(stream: ::RubyEventStore::GLOBAL_STREAM)
+      stream = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
       unless before_event_id.equal?(:head)
         before_event = stream.find_by!(event_id: before_event_id)
         stream = stream.where('id < ?', before_event)
