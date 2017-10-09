@@ -12,7 +12,7 @@ matrix:
   - rvm: 2.4.1
     env: TARGET=rails_event_store SCRIPT=mutate
   - rvm: 2.4.1
-    env: "TARGET=rails_event_store_active_record SCRIPT=mutate DATABASE_URL=sqlite3::memory:"
+    env: 'TARGET=rails_event_store_active_record SCRIPT=mutate DATABASE_URL=sqlite3::memory:'
   - rvm: 2.3.4
     env: TARGET=bounded_context SCRIPT=test
   - rvm: 2.3.4
@@ -42,14 +42,17 @@ matrix:
   - rvm: 2.4.1
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
 before_script:
-  - psql -c 'create extension pgcrypto;' -U postgres
-  - psql -c 'create database rails_event_store_active_record;' -U postgres
-  - mysql -e 'CREATE DATABASE rails_event_store_active_record;'
+- psql -c 'create extension pgcrypto;' -U postgres
+- psql -c 'create database rails_event_store_active_record;' -U postgres
+- mysql -e 'CREATE DATABASE rails_event_store_active_record;'
 before_install: gem install bundler
-gemfile: $TARGET/Gemfile
+gemfile: "$TARGET/Gemfile"
 script: make -C $TARGET $SCRIPT
 services:
-  - postgresql
-  - mysql
+- postgresql
+- mysql
 addons:
-  postgresql: "9.6"
+  postgresql: '9.6'
+notifications:
+  slack:
+    secure: bWHujiF+SFAh6m3aXxtLpsyiSfYGPQAGHwp/nsv8VpXxzON1evYkyJ+Fu+vPjvyFrA8m6N9E/jmzEGOMMvOXT0++SR4Axr7LhsbFdBDhlRBgtkzEV1Iyr96ipaTQ1IwY2R0QnVdFSIbxKtJAtB1BFn4tBxDEfLc44/n0+7SxEY8=
