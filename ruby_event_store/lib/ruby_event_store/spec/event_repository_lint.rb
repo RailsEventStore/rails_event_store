@@ -375,7 +375,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   it 'allows appending to GLOBAL_STREAM explicitly' do
     repository.append_to_stream(
       event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e"),
-      ::RubyEventStore::GLOBAL_STREAM,
+      "all",
       -1
     )
 
