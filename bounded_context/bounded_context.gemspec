@@ -6,8 +6,9 @@ require 'bounded_context/version'
 Gem::Specification.new do |spec|
   spec.name          = 'bounded_context'
   spec.version       = BoundedContext::VERSION
-  spec.authors       = ['Paweł Pacana']
-  spec.email         = ['pawel.pacana@gmail.com']
+  spec.licenses      = ['MIT']
+  spec.authors       = ['Arkency']
+  spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Generate opinionated component structure.}
 
