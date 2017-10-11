@@ -5,6 +5,8 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
 
     def append_to_stream(events, stream_name, expected_version)
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+
       events = normalize_to_array(events)
       expected_version =
         case expected_version
@@ -18,8 +20,6 @@ module RailsEventStoreActiveRecord
         else
           expected_version
         end
-
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
 
       in_stream = events.flat_map.with_index do |event, index|
         position = unless expected_version.equal?(:any)
