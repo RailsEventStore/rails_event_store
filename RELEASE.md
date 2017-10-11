@@ -4,7 +4,7 @@ Maintainer's guide for releasing RailsEventStore and related gems. Hopefully you
 
 ## Versioning policy
 
-We're following [Semnatic Versioning](http://semver.org/#semantic-versioning-200). Reminder that until v1.0.0 is released:
+We're following [Semantic Versioning](http://semver.org/#semantic-versioning-200). Reminder that until v1.0.0 is released:
 
 > Anything may change at any time. The public API should not be considered stable.
 
@@ -14,7 +14,7 @@ All gems developed in RailsEventStore monorepo will be released with the same ve
 
 ## Communicating changes
 
-All changes across RailsEventStore versions should be documented on changelog. For this purpose, since v0.15.0, we use [releases page](https://github.com/RailsEventStore/rails_event_store/releases). Some gems keep individual changelogs prior to greate monorepo merge — they're not updated anymore.
+All changes across RailsEventStore versions should be documented on changelog. For this purpose, since v0.15.0, we use [releases page](https://github.com/RailsEventStore/rails_event_store/releases). Some gems keep individual changelogs prior to the great monorepo merge — they're not updated anymore.
 
 Changes are easier to scan, when they're described with following types:
 
@@ -41,7 +41,7 @@ When describing changes, list all gems involved gems in the release. Explicitly 
   - loop over gems and build gem packages followed by RubyGems push for each
 
   You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
-3. Bump version number in documentation section of [railseventstore.org](https://railseventstore.org). It's good practive to list changes in [documentation](http://railseventstore.org/docs/changelog/).
+3. Bump version number in documentation section of [railseventstore.org](https://railseventstore.org). It's good practice to list changes in [documentation](http://railseventstore.org/docs/changelog/).
 
 #### Opening work on new release soon after
 
