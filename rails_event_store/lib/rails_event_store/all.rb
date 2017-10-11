@@ -19,7 +19,6 @@ module RailsEventStore
   InvalidHandler            = RubyEventStore::InvalidHandler
   InvalidPageStart          = RubyEventStore::InvalidPageStart
   InvalidPageSize           = RubyEventStore::InvalidPageSize
-  GLOBAL_STREAM             = RubyEventStore::GLOBAL_STREAM
   PAGE_SIZE                 = RubyEventStore::PAGE_SIZE
 
   mattr_reader :event_repository

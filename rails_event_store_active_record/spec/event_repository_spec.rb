@@ -30,10 +30,10 @@ module RailsEventStoreActiveRecord
         event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
       ], 'stream', :auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
-      expect(c1).to eq(2)
+      expect(c1).to eq(1)
 
       c2 = count_queries{ repository.read_all_streams_backward(:head, 2) }
-      expect(c2).to eq(2)
+      expect(c2).to eq(1)
 
       c3 = count_queries{ repository.read_stream_events_forward('stream') }
       expect(c3).to eq(2)

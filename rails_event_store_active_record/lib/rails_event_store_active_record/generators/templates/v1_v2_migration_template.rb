@@ -35,12 +35,6 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
         event_id: ev.event_id,
         created_at: ev.created_at,
       )
-      RailsEventStoreActiveRecord::EventInStream.create!(
-        stream: 'all',
-        position: nil,
-        event_id: ev.event_id,
-        created_at: ev.created_at,
-      ) unless ev.stream == 'all'
     end
 
     add_index :event_store_events_in_streams, [:stream, :position], unique: true
@@ -50,22 +44,28 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     remove_index  :event_store_events, :event_type
     remove_column :event_store_events, :stream
     remove_column :event_store_events, :id
+    add_column    :event_store_events, :position, :serial
     rename_column :event_store_events, :event_id, :id
     change_column :event_store_events, :id, "uuid using id::uuid", default: -> { "gen_random_uuid()" } if postgres
     change_column :event_store_events, :id, "string", limit: 36 if mysql || sqlite
+
+    add_index :event_store_events, :position, unique: true
 
     case ActiveRecord::Base.connection.adapter_name
     when "SQLite"
       remove_index  :event_store_events, name: :index_event_store_events_on_id
       rename_table :event_store_events, :old_event_store_events
       create_table(:event_store_events, id: false, force: false) do |t|
-        t.string :id, limit: 36, primary_key: true, null: false
+        t.string :id, limit: 36,    null: false
         t.string      :event_type,  null: false
         t.text        :metadata
         t.text        :data,        null: false
         t.datetime    :created_at,  null: false
+        t.integer     :position,    null: false, primary_key: true
       end
       add_index :event_store_events, :created_at
+      add_index :event_store_events, :position, unique: true
+      add_index :event_store_events, :id, unique: true
       execute <<-SQL
         INSERT INTO event_store_events(id, event_type, metadata, data, created_at)
         SELECT id, event_type, metadata, data, created_at FROM old_event_store_events;

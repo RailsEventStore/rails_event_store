@@ -2,6 +2,8 @@ require 'active_record'
 
 module RailsEventStoreActiveRecord
   class LegacyEventRepository
+    GLOBAL_STREAM = 'all'.freeze
+
     class LegacyEvent < ::ActiveRecord::Base
       self.primary_key = :id
       self.table_name = 'event_store_events'
@@ -10,6 +12,7 @@ module RailsEventStoreActiveRecord
     end
 
     private_constant :LegacyEvent
+    private_constant :GLOBAL_STREAM
 
     def append_to_stream(events, stream_name, expected_version)
       validate_expected_version_is_not_auto(expected_version)
@@ -35,7 +38,7 @@ module RailsEventStoreActiveRecord
     end
 
     def delete_stream(stream_name)
-      LegacyEvent.where({stream: stream_name}).update_all(stream: RubyEventStore::GLOBAL_STREAM)
+      LegacyEvent.where({stream: stream_name}).update_all(stream: GLOBAL_STREAM)
     end
 
     def has_event?(event_id)
@@ -124,7 +127,7 @@ module RailsEventStoreActiveRecord
     end
 
     def validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(GLOBAL_STREAM) && !expected_version.equal?(:any)
     end
 
     def validate_stream_is_empty(stream_name)

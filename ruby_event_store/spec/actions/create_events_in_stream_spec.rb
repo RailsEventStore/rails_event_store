@@ -63,7 +63,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = OrderCreated.new
       client.publish_event(event)
-      saved_events = client.read_stream_events_forward('all')
+      saved_events = client.read_all_streams_forward
       expect(saved_events[0]).to eq(event)
     end
   end
