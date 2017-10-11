@@ -1,7 +1,7 @@
 UPSTREAM_REV = `git rev-parse upstream/master`
 ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
-RES_VERSION  = `cat RES_VERSION`
+RES_VERSION  ?= `cat RES_VERSION`
 GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store_active_record ruby_event_store
 
 $(addprefix install-, $(GEMS)):
@@ -34,6 +34,7 @@ git-rebase-from-upstream:
 	@git push origin master
 
 set-version: git-check-clean git-check-committed
+	@echo $(RES_VERSION) > RES_VERSION
 	@find . -name version.rb -exec sed -i "" "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
@@ -41,7 +42,7 @@ set-version: git-check-clean git-check-committed
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('bounded_context', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@git add -A **/*.gemspec **/version.rb
+	@git add -A **/*.gemspec **/version.rb RES_VERSION
 	@git ci -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
