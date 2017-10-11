@@ -5,8 +5,11 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
 
     def append_to_stream(events, stream_name, expected_version)
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+
       events = normalize_to_array(events)
-      expected_version   = case expected_version
+      expected_version =
+        case expected_version
         when nil
           raise RubyEventStore::InvalidExpectedVersion
         when :none
@@ -16,7 +19,8 @@ module RailsEventStoreActiveRecord
           (eis && eis.position) || -1
         else
           expected_version
-      end
+        end
+
       in_stream = events.flat_map.with_index do |event, index|
         position = unless expected_version.equal?(:any)
           expected_version + index + POSITION_SHIFT
@@ -27,14 +31,16 @@ module RailsEventStoreActiveRecord
           metadata: event.metadata,
           event_type: event.class,
         )
-        [{
+        events = [{
+          stream: RubyEventStore::GLOBAL_STREAM,
+          event_id: event.event_id
+        }]
+        events.unshift({
           stream:   stream_name,
           position: position,
           event_id: event.event_id
-        },{
-          stream: "__global__",
-          event_id: event.event_id
-        }]
+        }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+        events
       end
       EventInStream.import(in_stream)
       self
@@ -92,7 +98,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_forward(after_event_id, count)
-      stream = EventInStream.where(stream: "__global__")
+      stream = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
       unless after_event_id.equal?(:head)
         after_event = stream.find_by!(event_id: after_event_id)
         stream = stream.where('id > ?', after_event)
@@ -103,7 +109,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_backward(before_event_id, count)
-      stream = EventInStream.where(stream: "__global__")
+      stream = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
       unless before_event_id.equal?(:head)
         before_event = stream.find_by!(event_id: before_event_id)
         stream = stream.where('id < ?', before_event)

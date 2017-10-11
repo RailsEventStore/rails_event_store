@@ -372,4 +372,31 @@ RSpec.shared_examples :event_repository do |repository_class|
     end.to raise_error(RubyEventStore::EventDuplicatedInStream)
   end
 
+  it 'allows appending to GLOBAL_STREAM explicitly' do
+    event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
+    repository.append_to_stream(event, "all", :any)
+
+    expect(repository.read_all_streams_forward(:head, 10)).to eq([event])
+  end
+
+  specify 'GLOBAL_STREAM is unordered, one cannot expect specific version number to work' do
+    expect {
+      event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
+      repository.append_to_stream(event, "all", 42)
+    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+  end
+
+  specify 'GLOBAL_STREAM is unordered, one cannot expect :none to work' do
+    expect {
+      event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
+      repository.append_to_stream(event, "all", :none)
+    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+  end
+
+  specify 'GLOBAL_STREAM is unordered, one cannot expect :auto to work' do
+    expect {
+      event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
+      repository.append_to_stream(event, "all", :auto)
+    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+  end
 end
