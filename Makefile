@@ -33,7 +33,7 @@ git-rebase-from-upstream:
 	@git rebase upstream/master
 	@git push origin master
 
-set-version:
+set-version: git-check-clean git-check-committed
 	@find . -name version.rb -exec sed -i "" "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
@@ -50,7 +50,7 @@ test: $(addprefix test-, $(GEMS)) ## Run all specs
 
 mutate: $(addprefix mutate-, $(GEMS)) ## Run all mutation tests
 
-release: git-check-clean git-check-committed set-version git-tag $(addprefix release-, $(GEMS)) ## Make a new release and push to RubyGems
+release: git-check-clean git-check-committed test git-tag $(addprefix release-, $(GEMS)) ## Make a new release and push to RubyGems
 	@echo Released v$(RES_VERSION)
 
 rebase: git-rebase-from-upstream
@@ -64,5 +64,3 @@ help:
 
 .PHONY: help
 .DEFAULT_GOAL := help
-
-
