@@ -45,5 +45,5 @@ When describing changes, list all gems involved gems in the release. Explicitly 
 
 #### Opening work on new release soon after
 
-1. Bump version number in `RES_VERSION`. This will be the next release version. Propagate and commit this version number with `make set-version`.
+1. Bump the version number via `make set-version RES_VERSION=version_number_here`. This will be the next release version.
 2. Draft [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) to start acquiring changelogs with each issue closed, pull-request merge and code committed. It helps much if there's a template ready to be filled.
