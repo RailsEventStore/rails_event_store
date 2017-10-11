@@ -6,7 +6,8 @@ module RailsEventStoreActiveRecord
 
     def append_to_stream(events, stream_name, expected_version)
       events = normalize_to_array(events)
-      expected_version   = case expected_version
+      expected_version =
+        case expected_version
         when nil
           raise RubyEventStore::InvalidExpectedVersion
         when :none
@@ -16,7 +17,10 @@ module RailsEventStoreActiveRecord
           (eis && eis.position) || -1
         else
           expected_version
-      end
+        end
+
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+
       in_stream = events.flat_map.with_index do |event, index|
         position = unless expected_version.equal?(:any)
           expected_version + index + POSITION_SHIFT
