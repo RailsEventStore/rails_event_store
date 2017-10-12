@@ -7,7 +7,7 @@ Source files for the documentation and website of [Rails Event Store](http://rai
 
 ## Serving the docs locally
 
-Provided you have Ruby installed, you can serve docs locally at `http://localhost:4567`
+Provided you have Ruby installed, you can serve the docs locally at `http://localhost:4567`
 
 ```
 bundle install
@@ -16,7 +16,7 @@ bundle exec middleman server
 
 ## Publishing the docs
 
-Documenation and website is deployed continuously and automatically from `master` branch by Travis-CI.
+Documentation and website are deployed continuously and automatically from the `master` branch by Travis-CI.
 
 ## About
 
