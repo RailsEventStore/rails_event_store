@@ -42,7 +42,6 @@ git-rebase-from-upstream:
 
 set-version: git-check-clean git-check-committed
 	@echo $(RES_VERSION) > RES_VERSION
-
 	@find . -name version.rb -exec sed $(SED_OPTS) "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
