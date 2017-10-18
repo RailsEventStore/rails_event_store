@@ -3,12 +3,14 @@ ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= `cat RES_VERSION`
 GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store_active_record ruby_event_store
-NIX_TYPE = `uname -s`
+NIX_TYPE     = $(shell uname -s)
+
 ifeq ($(NIX_TYPE),Linux)
-    SED_OPTS='-i'
+  SED_OPTS = -i
 endif
+
 ifeq ($(NIX_TYPE),Darwin)
-    SED_OPTS='-i ""'
+  SED_OPTS = -i ""
 endif
 
 $(addprefix install-, $(GEMS)):
