@@ -3,6 +3,13 @@ ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= `cat RES_VERSION`
 GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store_active_record ruby_event_store
+NIX_TYPE = `uname -s`
+ifeq ($(NIX_TYPE),Linux)
+    SED_OPTS='-i'
+endif
+ifeq ($(NIX_TYPE),Darwin)
+    SED_OPTS='-i ""'
+endif
 
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
@@ -35,15 +42,16 @@ git-rebase-from-upstream:
 
 set-version: git-check-clean git-check-committed
 	@echo $(RES_VERSION) > RES_VERSION
-	@find . -name version.rb -exec sed -i "" "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
-	@find . -name *.gemspec -exec sed -i "" "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@find . -name *.gemspec -exec sed -i "" "s/\('aggregate_root', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@find . -name *.gemspec -exec sed -i "" "s/\('bounded_context', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@find . -name *.gemspec -exec sed -i "" "s/\('rails_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+
+	@find . -name version.rb -exec sed $(SED_OPTS) "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('aggregate_root', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('bounded_context', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@git add -A **/*.gemspec **/version.rb RES_VERSION
-	@git ci -m "Version v$(RES_VERSION)"
+	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
 
