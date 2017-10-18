@@ -2,12 +2,10 @@ require 'rails/generators' # doh
 require 'rails_event_store_active_record'
 require 'ruby_event_store'
 
-ENV['DATABASE_URL'] ||= "postgres://localhost/rails_event_store_active_record?pool=5"
-
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 ActiveRecord::Schema.define do
-  self.verbose = false
-  create_table(:event_store_events, force: true) do |t|
+  self.verbose = true
+  create_table(:event_store_events, force: false) do |t|
     t.string      :stream,      null: false
     t.string      :event_type,  null: false
     t.string      :event_id,    null: false

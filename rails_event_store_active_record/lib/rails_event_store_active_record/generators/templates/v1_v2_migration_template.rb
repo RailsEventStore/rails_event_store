@@ -9,6 +9,16 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
   def up
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
     enable_extension "pgcrypto" if postgres
+    create_table(:event_store_events_in_streams, force: false) do |t|
+      t.string      :stream,      null: false
+      t.integer     :position,    null: true
+      if postgres
+        t.references :event, null: false, type: :uuid
+      else
+        t.references :event, null: false, type: :string
+      end
+      t.datetime    :created_at,  null: false
+    end
     streams = {}
     RailsEventStoreActiveRecord::Event.find_each do |ev|
       position = nil
@@ -19,15 +29,15 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
       RailsEventStoreActiveRecord::EventInStream.create!(
         stream: ev.stream,
         position: position,
-        event_id: ev.id,
+        event_id: ev.event_id,
         created_at: ev.created_at,
       )
       RailsEventStoreActiveRecord::EventInStream.create!(
-        stream: RubyEventStore::GLOBAL_STREAM,
+        stream: 'all',
         position: nil,
-        event_id: ev.id,
+        event_id: ev.event_id,
         created_at: ev.created_at,
-      )
+      ) unless ev.stream == 'all'
     end
 
     add_index :event_store_events_in_streams, [:stream, :position], unique: true
@@ -37,7 +47,8 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     remove_column :event_store_events, :stream
     remove_column :event_store_events, :id
     rename_column :event_store_events, :event_id, :id
-    change_column :event_store_events, :id, :uuid
+    change_column :event_store_events, :id, "uuid using id::uuid" if postgres
+    execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
   end
 
   def preserve_positions?(stream_name)
