@@ -29,6 +29,10 @@ matrix:
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
   - rvm: 2.4.1
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.1.4
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.0.6
 before_script:
   - psql -c 'create extension pgcrypto;' -U postgres
   - psql -c 'create database rails_event_store_active_record;' -U postgres
