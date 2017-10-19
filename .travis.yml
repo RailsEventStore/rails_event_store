@@ -12,7 +12,7 @@ matrix:
   - rvm: 2.4.1
     env: TARGET=rails_event_store SCRIPT=mutate
   - rvm: 2.4.1
-    env: 'TARGET=rails_event_store_active_record SCRIPT=mutate DATABASE_URL=sqlite3::memory:'
+    env: 'TARGET=rails_event_store_active_record SCRIPT=mutate DATABASE_URL=sqlite3:db.sqlite3'
   - rvm: 2.3.4
     env: TARGET=bounded_context SCRIPT=test
   - rvm: 2.3.4
@@ -34,9 +34,9 @@ matrix:
   - rvm: 2.2.7
     env: TARGET=rails_event_store SCRIPT=test
   - rvm: 2.2.7
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3::memory:"
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
   - rvm: 2.3.4
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3::memory:"
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
   - rvm: 2.4.1
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
   - rvm: 2.4.1

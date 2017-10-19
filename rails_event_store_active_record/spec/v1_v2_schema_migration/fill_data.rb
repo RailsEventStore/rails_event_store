@@ -4,7 +4,7 @@ require 'ruby_event_store'
 require 'logger'
 
 ActiveRecord::Base.logger = Logger.new(STDOUT)
-ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'].gsub("db.sqlite3", "../../db.sqlite3"))
 ActiveRecord::Schema.define do
   self.verbose = true
   create_table(:event_store_events, force: false) do |t|

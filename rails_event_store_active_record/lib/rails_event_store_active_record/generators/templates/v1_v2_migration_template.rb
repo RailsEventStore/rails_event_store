@@ -49,7 +49,14 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     remove_column :event_store_events, :id
     rename_column :event_store_events, :event_id, :id
     change_column :event_store_events, :id, "uuid using id::uuid" if postgres
-    execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
+
+    case ActiveRecord::Base.connection.adapter_name
+    when "SQLite"
+      remove_index :event_store_events, :id
+      add_index :event_store_events, :id, unique: true
+    else
+      execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
+    end
   end
 
   def preserve_positions?(stream_name)
