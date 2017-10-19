@@ -22,6 +22,7 @@ RSpec.describe "v1_v2_migration" do
   MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
+    dump_current_schema
     drop_existing_tables_to_clean_state
     fill_data_using_older_gem
     run_the_migration
@@ -29,6 +30,7 @@ RSpec.describe "v1_v2_migration" do
     verify_all_events_stream
     verify_event_sourced_stream
     verify_technical_stream
+    compare_new_schema
   end
 
   private
@@ -139,5 +141,24 @@ RSpec.describe "v1_v2_migration" do
   def drop_existing_tables_to_clean_state
     ActiveRecord::Migration.drop_table "event_store_events_in_streams"
     ActiveRecord::Migration.drop_table "event_store_events"
+  end
+
+  def dump_current_schema
+    @schema = StringIO.new
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, @schema)
+    @schema.rewind
+    @schema = @schema.read
+  end
+
+  def compare_new_schema
+    schema = StringIO.new
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
+    schema.rewind
+    schema = schema.read
+    puts @schema
+    puts "---"
+    puts schema
+    puts "---"
+    expect(@schema).to eq(schema)
   end
 end
