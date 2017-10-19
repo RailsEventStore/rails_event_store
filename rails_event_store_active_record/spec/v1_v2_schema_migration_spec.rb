@@ -21,8 +21,7 @@ RSpec.describe "v1_v2_migration" do
   migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
   MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
-  specify "try harder" do
-    # ActiveRecord::Base.logger = Logger.new(STDOUT)
+  specify do
     drop_existing_tables_to_clean_state
     fill_data_using_older_gem
     run_the_migration

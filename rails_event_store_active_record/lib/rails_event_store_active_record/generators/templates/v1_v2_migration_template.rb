@@ -20,6 +20,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
       t.datetime    :created_at,  null: false
     end
     streams = {}
+    RailsEventStoreActiveRecord::Event.reset_column_information
     RailsEventStoreActiveRecord::Event.find_each do |ev|
       position = nil
       if preserve_positions?(ev.stream)
