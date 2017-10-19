@@ -1,7 +1,9 @@
 require 'rails/generators' # doh
 require 'rails_event_store_active_record'
 require 'ruby_event_store'
+require 'logger'
 
+ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 ActiveRecord::Schema.define do
   self.verbose = true

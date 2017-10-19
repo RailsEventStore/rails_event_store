@@ -44,6 +44,7 @@ RSpec.describe "v1_v2_migration" do
     process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
     process.environment['DATABASE_URL'] = ENV['DATABASE_URL']
     process.cwd = cwd
+    process.io.stdout = $stdout
     process.start
     begin
       process.poll_for_exit(10)
