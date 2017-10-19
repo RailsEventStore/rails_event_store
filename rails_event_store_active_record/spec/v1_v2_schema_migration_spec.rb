@@ -159,6 +159,6 @@ RSpec.describe "v1_v2_migration" do
     puts "---"
     puts schema
     puts "---"
-    expect(@schema).to eq(schema)
+    expect(schema).to eq(@schema)
   end
 end

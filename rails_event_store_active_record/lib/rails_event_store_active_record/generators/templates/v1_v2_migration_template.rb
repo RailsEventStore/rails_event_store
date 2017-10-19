@@ -8,6 +8,7 @@
 class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
   def up
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
+    mysql    = ActiveRecord::Base.connection.adapter_name == "Mysql2"
     enable_extension "pgcrypto" if postgres
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
@@ -45,17 +46,19 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     add_index :event_store_events_in_streams, [:stream, :event_id], unique: true
     add_index :event_store_events_in_streams, [:created_at]
 
+    remove_index  :event_store_events, :event_type
     remove_column :event_store_events, :stream
     remove_column :event_store_events, :id
     rename_column :event_store_events, :event_id, :id
     change_column :event_store_events, :id, "uuid using id::uuid" if postgres
+    change_column :event_store_events, :id, "string", limit: 36 if mysql
 
     case ActiveRecord::Base.connection.adapter_name
     when "SQLite"
-      remove_index :event_store_events, :id
       add_index :event_store_events, :id, unique: true
     else
       execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
+      remove_index  :event_store_events, name: :index_event_store_events_on_id
     end
   end
 
