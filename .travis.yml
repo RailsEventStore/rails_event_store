@@ -51,7 +51,7 @@ before_script:
 - mysql -e 'CREATE DATABASE rails_event_store_active_record;'
 before_install: gem install bundler
 gemfile: "$TARGET/Gemfile"
-script: make -C $TARGET $SCRIPT
+script: make -C $TARGET install $SCRIPT
 services:
 - postgresql
 - mysql

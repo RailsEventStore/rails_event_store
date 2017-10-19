@@ -3,6 +3,7 @@ GEM_VERSION  = `cat ../RES_VERSION`
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
+	@cd spec/v1_v2_schema_migration/ && bundle install && cd ../../
 
 test: ## Run tests
 	@echo "Running basic tests - beware: this won't guarantee build pass"
