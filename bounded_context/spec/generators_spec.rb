@@ -6,8 +6,12 @@ module BoundedContext
   RSpec.describe Generators do
     RSpec::Matchers.define :match_content do |expected|
       match do |actual|
-        ::RSpec::Matchers::BuiltIn::Match.new(expected).
-          matches?(File.read(File.join(destination_root, actual)))
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected)
+        @matcher.matches?(File.read(File.join(destination_root, actual)))
+      end
+
+      failure_message do
+        @matcher.failure_message
       end
     end
 
