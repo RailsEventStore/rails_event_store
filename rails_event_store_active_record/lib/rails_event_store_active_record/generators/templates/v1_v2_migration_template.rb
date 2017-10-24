@@ -50,7 +50,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     remove_column :event_store_events, :stream
     remove_column :event_store_events, :id
     rename_column :event_store_events, :event_id, :id
-    change_column :event_store_events, :id, "uuid using id::uuid" if postgres
+    change_column :event_store_events, :id, "uuid using id::uuid", default: -> { "gen_random_uuid()" } if postgres
     change_column :event_store_events, :id, "string", limit: 36 if mysql
 
     case ActiveRecord::Base.connection.adapter_name

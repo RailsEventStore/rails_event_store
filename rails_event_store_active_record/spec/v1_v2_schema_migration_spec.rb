@@ -155,10 +155,6 @@ RSpec.describe "v1_v2_migration" do
     ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
     schema.rewind
     schema = schema.read
-    puts @schema
-    puts "---"
-    puts schema
-    puts "---"
     expect(schema).to eq(@schema)
   end
 end
