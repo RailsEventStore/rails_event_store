@@ -34,10 +34,6 @@ module BoundedContext
 
       private
 
-      def bounded_context_namespace
-        name.camelize
-      end
-
       def bounded_context_name
         name.underscore
       end
@@ -51,10 +47,6 @@ module BoundedContext
       end
 
       private
-
-      def bounded_context_namespace
-        name.camelize
-      end
 
       def bounded_context_name
         name.underscore
