@@ -13,6 +13,10 @@ module BoundedContext
         template "bc_spec.rb", "#{bounded_context_name}/spec/#{bounded_context_name}_spec.rb"
       end
 
+      def require_bc_spec
+        template "require_bc_spec.rb", "spec/#{bounded_context_name}_spec.rb"
+      end
+
       private
 
       def bounded_context_namespace

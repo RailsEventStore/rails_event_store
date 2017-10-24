@@ -56,6 +56,7 @@ module BoundedContext
 
       expect_identity_access_spec_helper
       expect_identity_access_bc_spec
+      expect_identity_access_require_bc_spec
     end
 
     specify do
@@ -63,6 +64,7 @@ module BoundedContext
 
       expect_identity_access_spec_helper
       expect_identity_access_bc_spec
+      expect_identity_access_require_bc_spec
     end
 
     specify do
@@ -97,6 +99,17 @@ module BoundedContext
         require_relative 'spec_helper'
 
         RSpec.describe IdentityAccess do
+        end
+      EOF
+    end
+
+    def expect_identity_access_require_bc_spec
+      expect('spec/identity_access_spec.rb').to match_content(<<-'EOF'.strip_heredoc)
+        require 'rails_helper'
+
+        path = Rails.root.join('identity_access/spec')
+        Dir.glob("#{path}/**/*_spec.rb") do |file|
+          require file
         end
       EOF
     end
