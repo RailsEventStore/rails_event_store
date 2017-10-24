@@ -22,6 +22,7 @@ RSpec.describe "v1_v2_migration" do
   MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
+    skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
     dump_current_schema
     drop_existing_tables_to_clean_state
     fill_data_using_older_gem
