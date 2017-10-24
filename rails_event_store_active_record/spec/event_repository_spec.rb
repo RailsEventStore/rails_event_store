@@ -118,6 +118,15 @@ module RailsEventStoreActiveRecord
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
     end
 
+    specify "explicit ORDER BY position" do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams"."stream" = \? ORDER BY position DESC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.append_to_stream([
+          TestDomainEvent.new(event_id: SecureRandom.uuid),
+        ], 'stream', :auto)
+      end
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
@@ -136,7 +145,7 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def count_queries &block
+    def count_queries(&block)
       count = 0
       counter_f = ->(_name, _started, _finished, _unique_id, payload) {
         unless %w[ CACHE SCHEMA ].include?(payload[:name])
@@ -145,6 +154,15 @@ module RailsEventStoreActiveRecord
       }
       ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
       count
+    end
+
+    def expect_query(match, &block)
+      count = 0
+      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
+        count +=1 if match === payload[:sql]
+      }
+      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
+      expect(count).to eq(1)
     end
 
   end
