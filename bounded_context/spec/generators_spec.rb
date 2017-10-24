@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'active_support/core_ext/string/strip'
 
 module BoundedContext
-  RSpec.describe Generator do
+  RSpec.describe "Generators" do
     RSpec::Matchers.define :match_content do |expected|
       match do |actual|
         content = File.read(File.join(destination_root, actual))

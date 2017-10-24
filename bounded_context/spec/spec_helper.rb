@@ -18,7 +18,7 @@ module GeneratorHelper
   end
 
   def run_generator(generator_args)
-    silence_stdout { described_class.start(generator_args, destination_root: destination_root) }
+    silence_stdout { ::BoundedContext::Module.start(generator_args, destination_root: destination_root) }
   end
 end
 
