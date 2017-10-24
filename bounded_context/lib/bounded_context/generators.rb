@@ -2,7 +2,7 @@ require 'rails/generators'
 
 module BoundedContext
   module Generators
-    class Module < Rails::Generators::NamedBase
+    class BoundedContextGenerator < Rails::Generators::NamedBase
       source_root File.expand_path(File.join(File.dirname(__FILE__), 'templates'))
       hook_for :test_framework
 
@@ -25,7 +25,7 @@ module BoundedContext
       end
     end
 
-    class Rspec < Rails::Generators::NamedBase
+    class RspecGenerator < Rails::Generators::NamedBase
       source_root File.expand_path(File.join(File.dirname(__FILE__), 'templates'))
 
       def spec_helper
@@ -39,7 +39,7 @@ module BoundedContext
       end
     end
 
-    class TestUnit < Rails::Generators::NamedBase
+    class TestUnitGenerator < Rails::Generators::NamedBase
       source_root File.expand_path(File.join(File.dirname(__FILE__), 'templates'))
 
       def test_helper

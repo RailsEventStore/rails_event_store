@@ -29,7 +29,7 @@ module GeneratorHelper
   end
 
   def run_generator(generator_args)
-    silence_stdout { ::BoundedContext::Generators::Module.start(generator_args, destination_root: destination_root) }
+    silence_stdout { ::BoundedContext::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root) }
   end
 end
 
