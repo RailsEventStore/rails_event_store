@@ -8,3 +8,4 @@ pkg/
 tmp/
 bin/
 spec/reports/
+rails_event_store_active_record/db.sqlite3
