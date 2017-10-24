@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'active_support/core_ext/string/strip'
-require 'generators/bounded_context/bounded_context/bounded_context_generator'
+require 'generators/bounded_context/bounded_context_generator'
 
 module BoundedContext
   RSpec.describe Generators do
