@@ -58,7 +58,24 @@ module BoundedContext
     end
 
     specify do
+      run_generator %w[IdentityAccess --test_framework=rspec]
+
+      expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative '../lib/identity_access'
+      EOF
+    end
+
+
+    specify do
       run_generator %w[identity_access --test-framework=test_unit]
+
+      expect('identity_access/test/test_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative '../lib/identity_access'
+      EOF
+    end
+
+    specify do
+      run_generator %w[IdentityAccess --test-framework=test_unit]
 
       expect('identity_access/test/test_helper.rb').to match_content(<<-EOF.strip_heredoc)
         require_relative '../lib/identity_access'
