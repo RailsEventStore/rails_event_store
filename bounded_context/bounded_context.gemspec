@@ -23,6 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
   spec.add_development_dependency 'rails', '~> 5.1'
-  spec.add_development_dependency 'fakefs', '~> 0.11.2'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
 end

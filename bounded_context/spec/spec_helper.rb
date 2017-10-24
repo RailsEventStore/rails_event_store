@@ -1,6 +1,4 @@
 require 'bounded_context'
-require 'pp'
-require 'fakefs/safe'
 
 module StdoutHelper
   def silence_stdout(&block)
@@ -13,12 +11,16 @@ end
 module GeneratorHelper
   include StdoutHelper
 
-  def destination_root
+  def dummy_app_root
     File.join(__dir__, 'dummy')
   end
 
+  def tmp_root
+    File.join(__dir__, 'tmp')
+  end
+
   def run_generator(generator_args)
-    silence_stdout { ::BoundedContext::Generators::Module.start(generator_args, destination_root: destination_root) }
+    silence_stdout { ::BoundedContext::Generators::Module.start(generator_args, destination_root: tmp_root) }
   end
 end
 
@@ -26,9 +28,12 @@ RSpec.configure do |config|
   config.include GeneratorHelper
 
   config.around(:each) do |example|
-    FakeFS.with_fresh do
-      FakeFS::FileSystem.clone(File.join(__dir__, '../'))
+    begin
+      FileUtils.mkdir_p(tmp_root)
+      FileUtils.cp_r("#{dummy_app_root}/.", tmp_root)
       example.call
+    ensure
+      FileUtils.rm_rf(tmp_root)
     end
   end
 end
