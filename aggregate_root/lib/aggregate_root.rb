@@ -65,7 +65,8 @@ module AggregateRoot
   end
 
   def apply_strategy
-    DefaultApplyStrategy.new(on_methods: self.class.on_methods)
+    DefaultApplyStrategy.new(on_methods: self.class.on_methods,
+                             strict: AggregateRoot.configuration.strict_apply)
   end
 
   def default_event_store

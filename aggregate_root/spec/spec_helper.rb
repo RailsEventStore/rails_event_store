@@ -51,6 +51,13 @@ class OrderWithNonStrictApplyStrategy
   end
 end
 
+class OrderWithStrictApplyStrategy
+  include AggregateRoot
+  def apply_strategy
+    DefaultApplyStrategy.new
+  end
+end
+
 class CustomOrderApplyStrategy
   def call(aggregate, event)
     {

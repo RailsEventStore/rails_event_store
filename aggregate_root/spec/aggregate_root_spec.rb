@@ -137,6 +137,38 @@ RSpec.describe AggregateRoot do
     expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
   end
 
+  it "should raise error for missing apply method when aggregate with strict apply strategy" do
+    order = OrderWithStrictApplyStrategy.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate OrderWithStrictApplyStrategy")
+  end
+
+  it "should not raise error for missing apply method when aggregate with not strict apply strategy" do
+    order = OrderWithNonStrictApplyStrategy.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect{ order.apply(spanish_inquisition) }.not_to raise_error
+  end
+
+  it "should raise error for missing apply method when default apply strategy in strict apply mode" do
+    AggregateRoot.configure do |config|
+      config.strict_apply = true
+    end
+
+    order = Order.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
+  end
+
+  it "should not raise error for missing apply method when default apply strategy not in strict apply mode" do
+    AggregateRoot.configure do |config|
+      config.strict_apply = false
+    end
+
+    order = Order.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect{ order.apply(spanish_inquisition) }.not_to raise_error
+  end
+
   it "should ignore missing apply method based on a default non-strict apply strategy" do
     order = OrderWithNonStrictApplyStrategy.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
