@@ -5,7 +5,8 @@ module BoundedContext
   RSpec.describe Generator do
     RSpec::Matchers.define :match_content do |expected|
       match do |actual|
-        File.read(File.join(destination_root, actual)).match(expected)
+        content = File.read(File.join(destination_root, actual))
+        content.match(expected)
       end
     end
 
@@ -45,6 +46,22 @@ module BoundedContext
 
       expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
         config.paths.add 'mumbo_jumbo/lib', eager_load: true
+      EOF
+    end
+
+    specify do
+      run_generator %w[identity_access --test_framework=rspec]
+
+      expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative '../lib/identity_access'
+      EOF
+    end
+
+    specify do
+      run_generator %w[identity_access --test-framework=test_unit]
+
+      expect('identity_access/test/test_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative '../lib/identity_access'
       EOF
     end
   end
