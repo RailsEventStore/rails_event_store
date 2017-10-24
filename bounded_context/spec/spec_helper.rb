@@ -1,4 +1,8 @@
 require 'bounded_context'
+require 'securerandom'
+
+TMP_ROOT   = File.join(__dir__, 'tmp')
+DUMMY_ROOT = File.join(__dir__, 'dummy')
 
 module StdoutHelper
   def silence_stdout(&block)
@@ -11,16 +15,21 @@ end
 module GeneratorHelper
   include StdoutHelper
 
-  def dummy_app_root
-    File.join(__dir__, 'dummy')
+  def destination_root
+    @destination_root ||= File.join(TMP_ROOT, SecureRandom.hex)
   end
 
-  def tmp_root
-    File.join(__dir__, 'tmp')
+  def prepare_destination_root
+    FileUtils.mkdir_p(destination_root)
+    FileUtils.cp_r("#{DUMMY_ROOT}/.", destination_root)
+  end
+
+  def nuke_destination_root
+    FileUtils.rm_r(destination_root)
   end
 
   def run_generator(generator_args)
-    silence_stdout { ::BoundedContext::Generators::Module.start(generator_args, destination_root: tmp_root) }
+    silence_stdout { ::BoundedContext::Generators::Module.start(generator_args, destination_root: destination_root) }
   end
 end
 
@@ -28,12 +37,9 @@ RSpec.configure do |config|
   config.include GeneratorHelper
 
   config.around(:each) do |example|
-    begin
-      FileUtils.mkdir_p(tmp_root)
-      FileUtils.cp_r("#{dummy_app_root}/.", tmp_root)
-      example.call
-    ensure
-      FileUtils.rm_rf(tmp_root)
-    end
+    prepare_destination_root
+    example.call
+    nuke_destination_root
   end
 end
+
