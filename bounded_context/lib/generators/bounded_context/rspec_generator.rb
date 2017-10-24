@@ -9,7 +9,15 @@ module BoundedContext
         template "spec_helper.rb", "#{bounded_context_name}/spec/spec_helper.rb"
       end
 
+      def bc_spec
+        template "bc_spec.rb", "#{bounded_context_name}/spec/#{bounded_context_name}_spec.rb"
+      end
+
       private
+
+      def bounded_context_namespace
+        name.camelize
+      end
 
       def bounded_context_name
         name.underscore

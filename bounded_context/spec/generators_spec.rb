@@ -66,6 +66,13 @@ module BoundedContext
         
         require_relative '../lib/identity_access'
       EOF
+
+      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative 'spec_helper'
+
+        RSpec.describe IdentityAccess do
+        end
+      EOF
     end
 
     specify do
@@ -79,6 +86,13 @@ module BoundedContext
         require File.expand_path('../../../spec/rails_helper', __FILE__)
         
         require_relative '../lib/identity_access'
+      EOF
+
+      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative 'spec_helper'
+
+        RSpec.describe IdentityAccess do
+        end
       EOF
     end
 
