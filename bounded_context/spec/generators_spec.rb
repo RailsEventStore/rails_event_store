@@ -22,7 +22,6 @@ module BoundedContext
         module Payments
         end
       EOF
-
       expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
         config.paths.add 'payments/lib', eager_load: true
       EOF
@@ -35,7 +34,6 @@ module BoundedContext
         module Inventory
         end
       EOF
-
       expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
         config.paths.add 'inventory/lib', eager_load: true
       EOF
@@ -48,7 +46,6 @@ module BoundedContext
         module MumboJumbo
         end
       EOF
-
       expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
         config.paths.add 'mumbo_jumbo/lib', eager_load: true
       EOF
@@ -70,19 +67,16 @@ module BoundedContext
 
     specify do
       run_generator %w[identity_access --test-framework=test_unit]
-
       expect_identity_access_test_helper
     end
 
     specify do
       run_generator %w[IdentityAccess --test-framework=test_unit]
-
       expect_identity_access_test_helper
     end
 
     specify do
       system_run_generator %w[IdentityAccess]
-
       expect_identity_access_test_helper
     end
 
