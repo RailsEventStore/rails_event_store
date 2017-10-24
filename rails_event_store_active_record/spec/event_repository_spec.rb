@@ -119,7 +119,7 @@ module RailsEventStoreActiveRecord
     end
 
     specify "explicit ORDER BY position" do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams"."stream" = \? ORDER BY position DESC LIMIT.*/) do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
         repository = EventRepository.new
         repository.append_to_stream([
           TestDomainEvent.new(event_id: SecureRandom.uuid),
