@@ -81,5 +81,13 @@ module BoundedContext
         require_relative '../lib/identity_access'
       EOF
     end
+
+    specify do
+      system_run_generator %w[IdentityAccess]
+
+      expect('identity_access/test/test_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative '../lib/identity_access'
+      EOF
+    end
   end
 end
