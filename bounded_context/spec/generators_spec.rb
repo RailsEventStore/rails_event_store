@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'active_support/core_ext/string/strip'
+require 'rails/generators/bounded_context/bounded_context/bounded_context_generator'
 
 module BoundedContext
   RSpec.describe Generators do
@@ -64,7 +65,6 @@ module BoundedContext
         require_relative '../lib/identity_access'
       EOF
     end
-
 
     specify do
       run_generator %w[identity_access --test-framework=test_unit]
