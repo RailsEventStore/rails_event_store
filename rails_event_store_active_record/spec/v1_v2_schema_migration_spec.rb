@@ -141,6 +141,7 @@ RSpec.describe "v1_v2_migration" do
   def drop_existing_tables_to_clean_state
     ActiveRecord::Migration.drop_table "event_store_events_in_streams"
     ActiveRecord::Migration.drop_table "event_store_events"
+    # ActiveRecord::Migration.drop_table "old_event_store_events"
   end
 
   def dump_current_schema

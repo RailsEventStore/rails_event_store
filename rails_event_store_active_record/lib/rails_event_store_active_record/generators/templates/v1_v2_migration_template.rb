@@ -9,6 +9,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
   def up
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
     mysql    = ActiveRecord::Base.connection.adapter_name == "Mysql2"
+    sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
     enable_extension "pgcrypto" if postgres
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
@@ -51,11 +52,25 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     remove_column :event_store_events, :id
     rename_column :event_store_events, :event_id, :id
     change_column :event_store_events, :id, "uuid using id::uuid", default: -> { "gen_random_uuid()" } if postgres
-    change_column :event_store_events, :id, "string", limit: 36 if mysql
+    change_column :event_store_events, :id, "string", limit: 36 if mysql || sqlite
 
     case ActiveRecord::Base.connection.adapter_name
     when "SQLite"
-      add_index :event_store_events, :id, unique: true
+      remove_index  :event_store_events, name: :index_event_store_events_on_id
+      rename_table :event_store_events, :old_event_store_events
+      create_table(:event_store_events, id: false, force: false) do |t|
+        t.string :id, limit: 36, primary_key: true, null: false
+        t.string      :event_type,  null: false
+        t.text        :metadata
+        t.text        :data,        null: false
+        t.datetime    :created_at,  null: false
+      end
+      add_index :event_store_events, :created_at
+      execute <<-SQL
+        INSERT INTO event_store_events(id, event_type, metadata, data, created_at)
+        SELECT id, event_type, metadata, data, created_at FROM old_event_store_events;
+      SQL
+      drop_table :old_event_store_events
     else
       execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
       remove_index  :event_store_events, name: :index_event_store_events_on_id
