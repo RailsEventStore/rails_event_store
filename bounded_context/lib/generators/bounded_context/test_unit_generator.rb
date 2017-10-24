@@ -1,9 +1,9 @@
 require 'rails/generators'
 
-module TestUnit
+module BoundedContext
   module Generators
-    class BoundedContextGenerator < Rails::Generators::NamedBase
-      source_root File.expand_path(File.join(File.dirname(__FILE__), '../../../templates'))
+    class TestUnitGenerator < Rails::Generators::NamedBase
+      source_root File.expand_path(File.join(File.dirname(__FILE__), '../../templates'))
 
       def test_helper
         template "test_helper.rb", "#{bounded_context_name}/test/test_helper.rb"
