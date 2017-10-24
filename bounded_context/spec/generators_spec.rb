@@ -54,6 +54,12 @@ module BoundedContext
       run_generator %w[identity_access --test_framework=rspec]
 
       expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        ENV['RAILS_ENV'] = 'test'
+
+        $LOAD_PATH.push File.expand_path('../../../spec', __FILE__)
+        require File.expand_path('../../../config/environment', __FILE__)
+        require File.expand_path('../../../spec/rails_helper', __FILE__)
+        
         require_relative '../lib/identity_access'
       EOF
     end
@@ -62,6 +68,12 @@ module BoundedContext
       run_generator %w[IdentityAccess --test_framework=rspec]
 
       expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        ENV['RAILS_ENV'] = 'test'
+
+        $LOAD_PATH.push File.expand_path('../../../spec', __FILE__)
+        require File.expand_path('../../../config/environment', __FILE__)
+        require File.expand_path('../../../spec/rails_helper', __FILE__)
+        
         require_relative '../lib/identity_access'
       EOF
     end
