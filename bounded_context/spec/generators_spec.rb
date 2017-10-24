@@ -15,6 +15,8 @@ module BoundedContext
       end
     end
 
+
+
     specify do
       run_generator %w[payments]
 
@@ -57,43 +59,15 @@ module BoundedContext
     specify do
       run_generator %w[identity_access --test_framework=rspec]
 
-      expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
-        ENV['RAILS_ENV'] = 'test'
-
-        $LOAD_PATH.push File.expand_path('../../../spec', __FILE__)
-        require File.expand_path('../../../config/environment', __FILE__)
-        require File.expand_path('../../../spec/rails_helper', __FILE__)
-        
-        require_relative '../lib/identity_access'
-      EOF
-
-      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<-EOF.strip_heredoc)
-        require_relative 'spec_helper'
-
-        RSpec.describe IdentityAccess do
-        end
-      EOF
+      expect_identity_access_spec_helper
+      expect_identity_access_bc_spec
     end
 
     specify do
       run_generator %w[IdentityAccess --test_framework=rspec]
 
-      expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
-        ENV['RAILS_ENV'] = 'test'
-
-        $LOAD_PATH.push File.expand_path('../../../spec', __FILE__)
-        require File.expand_path('../../../config/environment', __FILE__)
-        require File.expand_path('../../../spec/rails_helper', __FILE__)
-        
-        require_relative '../lib/identity_access'
-      EOF
-
-      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<-EOF.strip_heredoc)
-        require_relative 'spec_helper'
-
-        RSpec.describe IdentityAccess do
-        end
-      EOF
+      expect_identity_access_spec_helper
+      expect_identity_access_bc_spec
     end
 
     specify do
@@ -117,6 +91,27 @@ module BoundedContext
 
       expect('identity_access/test/test_helper.rb').to match_content(<<-EOF.strip_heredoc)
         require_relative '../lib/identity_access'
+      EOF
+    end
+
+    def expect_identity_access_spec_helper
+      expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
+        ENV['RAILS_ENV'] = 'test'
+
+        $LOAD_PATH.push File.expand_path('../../../spec', __FILE__)
+        require File.expand_path('../../../config/environment', __FILE__)
+        require File.expand_path('../../../spec/rails_helper', __FILE__)
+        
+        require_relative '../lib/identity_access'
+      EOF
+    end
+
+    def expect_identity_access_bc_spec
+      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<-EOF.strip_heredoc)
+        require_relative 'spec_helper'
+
+        RSpec.describe IdentityAccess do
+        end
       EOF
     end
   end
