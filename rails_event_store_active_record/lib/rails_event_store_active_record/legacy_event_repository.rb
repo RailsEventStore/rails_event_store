@@ -17,6 +17,8 @@ module RailsEventStoreActiveRecord
         LegacyEvent.create!(data)
       end
       self
+    rescue ActiveRecord::RecordNotUnique => e
+      raise RubyEventStore::EventDuplicatedInStream
     end
 
     def delete_stream(stream_name)
