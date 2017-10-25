@@ -13,6 +13,8 @@ module RailsEventStoreActiveRecord
 
     def append_to_stream(events, stream_name, expected_version)
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+      raise RubyEventStore::InvalidExpectedVersion if expected_version.nil?
+
       [*events].map do |event|
         data = event.to_h.merge!(stream: stream_name, event_type: event.class)
         LegacyEvent.create!(data)
