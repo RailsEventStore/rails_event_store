@@ -36,6 +36,7 @@ RSpec.describe "v1_v2_migration" do
     verify_event_sourced_stream
     verify_technical_stream
     compare_new_schema
+    drop_legacy_database
   end
 
   private
