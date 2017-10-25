@@ -111,7 +111,7 @@ module RailsEventStoreActiveRecord
       when :none, -1
         raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream_name)
       when Integer
-        raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).eql?(expected_version)
+        raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).equal?(expected_version)
       end
     end
 
