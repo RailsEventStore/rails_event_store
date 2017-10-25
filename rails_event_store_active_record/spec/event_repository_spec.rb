@@ -174,6 +174,5 @@ module RailsEventStoreActiveRecord
       ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
       expect(count).to eq(1)
     end
-
   end
 end
