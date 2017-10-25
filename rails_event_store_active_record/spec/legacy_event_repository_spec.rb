@@ -28,5 +28,37 @@ module RailsEventStoreActiveRecord
     def verify_conncurency_assumptions
       expect(ActiveRecord::Base.connection.pool.size).to eq(5)
     end
+
+    specify "read_stream_events_forward explicit ORDER BY id" do
+      expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY id ASC.*/) do
+        repository = LegacyEventRepository.new
+        repository.read_stream_events_forward('stream')
+      end
+    end
+
+    specify "read_events_forward explicit ORDER BY id" do
+      expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
+        repository = LegacyEventRepository.new
+        repository.read_events_forward('stream', :head, 1)
+      end
+    end
+
+    specify "read_all_streams_forward explicit ORDER BY id" do
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY id ASC LIMIT.*/) do
+        repository = LegacyEventRepository.new
+        repository.read_all_streams_forward(:head, 1)
+      end
+    end
+
+    private
+
+    def expect_query(match, &block)
+      count = 0
+      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
+        count +=1 if match === payload[:sql]
+      }
+      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
+      expect(count).to eq(1)
+    end
   end
 end
