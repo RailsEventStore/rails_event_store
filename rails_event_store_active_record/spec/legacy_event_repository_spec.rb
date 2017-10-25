@@ -24,6 +24,17 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    let(:test_race_conditions_auto) { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_race_conditions_any)  { !ENV['DATABASE_URL'].include?("sqlite") }
+
     it_behaves_like :event_repository, LegacyEventRepository
+
+    def cleanup_concurrency_test
+      ActiveRecord::Base.connection_pool.disconnect!
+    end
+
+    def verify_conncurency_assumptions
+      expect(ActiveRecord::Base.connection.pool.size).to eq(5)
+    end
   end
 end

@@ -20,8 +20,7 @@ module RailsEventStoreActiveRecord
     end
 
     def delete_stream(stream_name)
-      condition = {stream: stream_name}
-      LegacyEvent.destroy_all condition
+      LegacyEvent.where({stream: stream_name}).destroy_all
     end
 
     def has_event?(event_id)
