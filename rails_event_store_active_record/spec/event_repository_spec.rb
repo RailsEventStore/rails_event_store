@@ -14,10 +14,11 @@ module RailsEventStoreActiveRecord
       end
       # ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
+
     let(:test_race_conditions_auto) { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_race_conditions_any)  { !ENV['DATABASE_URL'].include?("sqlite") }
+
     it_behaves_like :event_repository, EventRepository
-    it_behaves_like :event_repository, LegacyEventRepository
 
     specify "using preload()" do
       repository = EventRepository.new
