@@ -4,15 +4,17 @@ require 'ruby_event_store/spec/event_repository_lint'
 require 'rails_event_store_active_record/event'
 
 module RailsEventStoreActiveRecord
-  describe EventRepository do
-    before do
-      ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
-      ActiveRecord::Schema.define do
-        self.verbose = false
-        eval(MigrationCode) unless defined?(CreateEventStoreEvents)
-        CreateEventStoreEvents.new.change
+  RSpec.describe EventRepository do
+    include SchemaHelper
+
+    around(:each) do |example|
+      begin
+        establish_database_connection
+        load_database_schema
+        example.run
+      ensure
+        drop_database
       end
-      # ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
 
     let(:test_race_conditions_auto) { !ENV['DATABASE_URL'].include?("sqlite") }
