@@ -14,6 +14,7 @@ module RailsEventStoreActiveRecord
     def append_to_stream(events, stream_name, expected_version)
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
       raise RubyEventStore::InvalidExpectedVersion if expected_version.nil?
+      validate_expected_version(stream_name, expected_version)
 
       [*events].map do |event|
         data = event.to_h.merge!(stream: stream_name, event_type: event.class)
@@ -99,6 +100,24 @@ module RailsEventStoreActiveRecord
         metadata: record.metadata,
         data: record.data
       )
+    end
+
+    def validate_expected_version(stream_name, expected_version)
+      case expected_version
+      when :any
+        return
+      when :auto
+        return
+      when :none
+        raise RubyEventStore::WrongExpectedEventVersion unless last_stream_event_id(stream_name).nil?
+      else
+        return if last_stream_event_id(stream_name).eql?(expected_version)
+      end
+    end
+
+    def last_stream_event_id(stream_name)
+      last = last_stream_event(stream_name)
+      last.event_id if last
     end
   end
 end
