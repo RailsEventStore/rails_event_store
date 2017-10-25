@@ -16,7 +16,7 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::InvalidExpectedVersion if expected_version.nil?
       validate_expected_version(stream_name, expected_version)
 
-      [*events].map do |event|
+      normalize_to_array(events).each do |event|
         data = event.to_h.merge!(stream: stream_name, event_type: event.class)
         LegacyEvent.create!(data)
       end
@@ -92,6 +92,10 @@ module RailsEventStoreActiveRecord
     end
 
     private
+
+    def normalize_to_array(events)
+      [*events]
+    end
 
     def build_event_entity(record)
       return nil unless record
