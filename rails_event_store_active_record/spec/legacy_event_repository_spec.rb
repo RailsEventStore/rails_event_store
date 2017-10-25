@@ -50,6 +50,14 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify do
+      repository = LegacyEventRepository.new
+      expect{
+        repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_1', :none)
+        repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_2', :none)
+      }.to_not raise_error
+    end
+
     private
 
     def expect_query(match, &block)
