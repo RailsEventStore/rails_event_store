@@ -15,13 +15,4 @@ MigrationCode.gsub!("force: false", "force: true")
 
 RSpec.configure do |config|
   config.failure_color = :magenta
-  config.around(:each) do |example|
-    ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
-    ActiveRecord::Schema.define do
-      self.verbose = false
-      eval(MigrationCode) unless defined?(CreateEventStoreEvents)
-      CreateEventStoreEvents.new.change
-    end
-    example.run
-  end
 end

@@ -6,6 +6,12 @@ require 'rails_event_store_active_record/event'
 module RailsEventStoreActiveRecord
   describe EventRepository do
     before do
+      ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+      ActiveRecord::Schema.define do
+        self.verbose = false
+        eval(MigrationCode) unless defined?(CreateEventStoreEvents)
+        CreateEventStoreEvents.new.change
+      end
       # ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
     let(:test_race_conditions_auto) { !ENV['DATABASE_URL'].include?("sqlite") }
