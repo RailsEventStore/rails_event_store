@@ -104,15 +104,15 @@ module RailsEventStoreActiveRecord
 
     def validate_expected_version(stream_name, expected_version)
       case expected_version
-      when :any
-        return
-      when :auto
-        return
-      when :none
+      when :none, -1
         raise RubyEventStore::WrongExpectedEventVersion unless last_stream_event_id(stream_name).nil?
-      else
-        return if last_stream_event_id(stream_name).eql?(expected_version)
+      when Integer
+        raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).eql?(expected_version)
       end
+    end
+
+    def last_stream_version(stream_name)
+      LegacyEvent.where(stream: stream_name).count - 1
     end
 
     def last_stream_event_id(stream_name)
