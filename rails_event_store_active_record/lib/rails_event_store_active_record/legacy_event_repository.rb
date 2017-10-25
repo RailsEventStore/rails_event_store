@@ -108,7 +108,7 @@ module RailsEventStoreActiveRecord
 
     def validate_expected_version(stream_name, expected_version)
       case expected_version
-      when :none, -1
+      when :none
         raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream_name)
       when Integer
         raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).equal?(expected_version)
