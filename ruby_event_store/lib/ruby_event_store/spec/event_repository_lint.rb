@@ -405,4 +405,16 @@ RSpec.shared_examples :event_repository do |repository_class|
       repository.append_to_stream(event, "all", :auto)
     }.to raise_error(RubyEventStore::InvalidExpectedVersion)
   end
+
+  specify "only :none, :any, :auto and Integer allowed as expected_version" do
+    [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
+      expect {
+        repository.append_to_stream(
+          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          'some_stream',
+          invalid_expected_version
+        )
+      }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+  end
 end

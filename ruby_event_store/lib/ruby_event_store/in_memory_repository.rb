@@ -19,8 +19,10 @@ module RubyEventStore
           -1
         when :auto, :any
           stream.size - 1
-        else
+        when Integer
           expected_version
+        else
+          raise InvalidExpectedVersion
       end
       append_with_synchronize(events, expected_version, stream, stream_name)
       self
