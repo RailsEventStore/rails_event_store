@@ -405,14 +405,4 @@ RSpec.shared_examples :event_repository do |repository_class|
       repository.append_to_stream(event, "all", :auto)
     }.to raise_error(RubyEventStore::InvalidExpectedVersion)
   end
-
-  specify "random garbage mode is not supported" do
-    expect{
-      repository.append_to_stream(
-        TestDomainEvent.new(event_id: SecureRandom.uuid),
-        'stream_2',
-        Object.new
-      )
-    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
-  end
 end

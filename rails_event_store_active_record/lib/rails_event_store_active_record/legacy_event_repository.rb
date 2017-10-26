@@ -19,11 +19,8 @@ module RailsEventStoreActiveRecord
       case expected_version
       when :none
         validate_stream_is_empty(stream_name)
-      when :any
       when Integer
         validate_expected_version_number(expected_version, stream_name)
-      else
-        raise RubyEventStore::InvalidExpectedVersion
       end
 
       normalize_to_array(events).each do |event|
