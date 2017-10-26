@@ -27,7 +27,7 @@ module RailsEventStoreActiveRecord
 
       ActiveRecord::Base.transaction(requires_new: true) do
         in_stream =
-          events.flat_map.with_index do |event, index|
+          events.map.with_index do |event, index|
             position = expected_version + index + POSITION_SHIFT unless expected_version.equal?(:any)
 
             Event.create!(

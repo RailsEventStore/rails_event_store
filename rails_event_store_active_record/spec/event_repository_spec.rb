@@ -138,6 +138,56 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify "publishing only to global stream" do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        event = TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        nil,
+        -1
+      )
+      expect(repository.read_all_streams_forward(:head, 1)).to eq([event])
+    end
+
+    specify 'no event in global stream when appending to stream failed, in transaction' do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        event = TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        'stream',
+        :none
+      )
+
+      ActiveRecord::Base.transaction do
+        expect do
+          repository.append_to_stream(
+            TestDomainEvent.new(event_id: "b1b49edb-7636-416f-874a-88f94b859bef"),
+            'stream',
+            :none
+          )
+        end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+        expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+      end
+    end
+
+    specify 'no event in global stream when appending to stream failed' do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        event = TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        'stream',
+        :none
+      )
+
+      expect do
+        repository.append_to_stream(
+          TestDomainEvent.new(event_id: "b1b49edb-7636-416f-874a-88f94b859bef"),
+          'stream',
+          :none
+        )
+      end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+      expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
