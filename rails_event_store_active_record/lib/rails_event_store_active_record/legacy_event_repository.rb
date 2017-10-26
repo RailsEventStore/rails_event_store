@@ -127,10 +127,6 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
     end
 
-    def validate_expected_version_is_present(expected_version)
-      raise RubyEventStore::InvalidExpectedVersion if expected_version.nil?
-    end
-
     def validate_stream_is_empty(stream_name)
       raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream_name)
     end
