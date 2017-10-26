@@ -12,14 +12,14 @@ module RailsEventStoreActiveRecord
     private_constant :LegacyEvent
 
     def append_to_stream(events, stream_name, expected_version)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
-      raise RubyEventStore::InvalidExpectedVersion if expected_version.nil?
+      validate_expected_version_is_present(expected_version)
+      validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
 
       case expected_version
       when :none
-        raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream_name)
+        validate_stream_is_empty(stream_name)
       when Integer
-        raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).equal?(expected_version)
+        validate_expected_version_number(expected_version, stream_name)
       end
 
       normalize_to_array(events).each do |event|
@@ -118,6 +118,22 @@ module RailsEventStoreActiveRecord
 
     def stream_non_empty?(stream_name)
       LegacyEvent.where(stream: stream_name).exists?
+    end
+
+    def validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+    end
+
+    def validate_expected_version_is_present(expected_version)
+      raise RubyEventStore::InvalidExpectedVersion if expected_version.nil?
+    end
+
+    def validate_stream_is_empty(stream_name)
+      raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream_name)
+    end
+
+    def validate_expected_version_number(expected_version, stream_name)
+      raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).equal?(expected_version)
     end
   end
 end
