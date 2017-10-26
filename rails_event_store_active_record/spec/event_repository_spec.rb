@@ -17,8 +17,9 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    let(:test_race_conditions_auto) { !ENV['DATABASE_URL'].include?("sqlite") }
-    let(:test_race_conditions_any)  { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_expected_version_auto) { true }
 
     it_behaves_like :event_repository, EventRepository
 

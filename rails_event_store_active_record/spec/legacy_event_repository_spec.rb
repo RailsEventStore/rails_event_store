@@ -16,8 +16,8 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    let(:test_race_conditions_auto) { false }
-    let(:test_race_conditions_any)  { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_expected_version_auto) { false }
 
     it_behaves_like :event_repository, LegacyEventRepository
 
@@ -27,6 +27,17 @@ module RailsEventStoreActiveRecord
 
     def verify_conncurency_assumptions
       expect(ActiveRecord::Base.connection.pool.size).to eq(5)
+    end
+
+    specify ":auto mode is not supported" do
+      repository = LegacyEventRepository.new
+      expect{
+        repository.append_to_stream(
+          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          'stream_2',
+          :auto
+        )
+      }.to raise_error(RubyEventStore::InvalidExpectedVersion, ":auto mode is not supported by LegacyEventRepository")
     end
 
     specify "read_stream_events_forward explicit ORDER BY id" do

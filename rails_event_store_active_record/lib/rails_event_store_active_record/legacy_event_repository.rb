@@ -13,6 +13,7 @@ module RailsEventStoreActiveRecord
 
     def append_to_stream(events, stream_name, expected_version)
       validate_expected_version_is_present(expected_version)
+      validate_expected_version_is_not_auto(expected_version)
       validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
 
       case expected_version
@@ -135,5 +136,10 @@ module RailsEventStoreActiveRecord
     def validate_expected_version_number(expected_version, stream_name)
       raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).equal?(expected_version)
     end
+
+    def validate_expected_version_is_not_auto(expected_version)
+      raise RubyEventStore::InvalidExpectedVersion, ":auto mode is not supported by LegacyEventRepository" if expected_version.equal?(:auto)
+    end
+
   end
 end
