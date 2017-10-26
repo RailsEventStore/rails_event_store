@@ -16,8 +16,6 @@ module RailsEventStoreActiveRecord
       events = normalize_to_array(events)
       expected_version =
         case expected_version
-        when nil
-          raise RubyEventStore::InvalidExpectedVersion
         when Integer, :any
           expected_version
         when :none

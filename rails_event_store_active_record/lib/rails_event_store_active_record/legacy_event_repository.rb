@@ -12,7 +12,6 @@ module RailsEventStoreActiveRecord
     private_constant :LegacyEvent
 
     def append_to_stream(events, stream_name, expected_version)
-      validate_expected_version_is_present(expected_version)
       validate_expected_version_is_not_auto(expected_version)
       validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
 
