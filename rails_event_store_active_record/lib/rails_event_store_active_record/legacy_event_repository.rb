@@ -16,7 +16,6 @@ module RailsEventStoreActiveRecord
 
     def append_to_stream(events, stream_name, expected_version)
       validate_expected_version_is_not_auto(expected_version)
-      validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
 
       case expected_version
       when :none
@@ -124,10 +123,6 @@ module RailsEventStoreActiveRecord
 
     def stream_non_empty?(stream_name)
       LegacyEvent.where(stream: stream_name).exists?
-    end
-
-    def validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(GLOBAL_STREAM) && !expected_version.equal?(:any)
     end
 
     def validate_stream_is_empty(stream_name)
