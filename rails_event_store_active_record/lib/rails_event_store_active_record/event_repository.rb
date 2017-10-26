@@ -177,6 +177,7 @@ old repository. In order to do so, change configuration accordingly:
     end
 
     def verify_correct_schema_present
+      return unless ActiveRecord::Base.connected?
       legacy_columns  = ["id", "stream", "event_type", "event_id", "metadata", "data", "created_at"]
       current_columns = ActiveRecord::Base.connection.columns("event_store_events").map(&:name)
       raise InvalidDatabaseSchema.new(incorrect_schema_message) if legacy_columns.eql?(current_columns)
