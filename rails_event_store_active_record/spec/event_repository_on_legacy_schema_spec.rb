@@ -11,11 +11,11 @@ module RailsEventStoreActiveRecord
         load_legacy_database_schema
         example.run
       ensure
-        drop_legacy_database
+        drop_legacy_database rescue nil
       end
     end
 
-    specify 'ensure_adapter_cannot_be_used_with_legacy_schema' do
+    specify 'ensure adapter cannot be used with legacy schema' do
       expect { EventRepository.new }.to raise_error do |error|
         expect(error).to be_kind_of(EventRepository::InvalidDatabaseSchema)
         expect(error.message).to eq(<<-MESSAGE.strip_heredoc)
@@ -44,6 +44,16 @@ module RailsEventStoreActiveRecord
 
         MESSAGE
       end
+    end
+
+    specify 'no message when no connection to database' do
+      close_database_connection
+      expect { EventRepository.new }.not_to raise_error
+      establish_database_connection
+    end
+
+    def close_database_connection
+      ActiveRecord::Base.remove_connection
     end
   end
 end
