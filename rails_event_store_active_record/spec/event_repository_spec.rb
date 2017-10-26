@@ -138,6 +138,13 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify "explicit ORDER BY position" do
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY position ASC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_all_streams_forward(:head, 1)
+      end
+    end
+
     specify "publishing only to global stream" do
       repository = EventRepository.new
       repository.append_to_stream(
