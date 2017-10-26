@@ -101,7 +101,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_forward(after_event_id, count)
-      events = Event.all
+      events = Event
       unless after_event_id.equal?(:head)
         after_event = Event.find(after_event_id)
         events = Event.where('position > ?', after_event.position)
@@ -112,7 +112,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read_all_streams_backward(before_event_id, count)
-      events = Event.all
+      events = Event
       unless before_event_id.equal?(:head)
         before_event = Event.find(before_event_id)
         events = Event.where('position < ?', before_event.position)
