@@ -5,9 +5,9 @@ module RubyEventStore
   RSpec.describe InMemoryRepository do
     # There is no way to use in-memory adapter in a
     # lock-free, unlimited concurrency way
-    let(:test_race_conditions_any)  { false }
-
-    let(:test_race_conditions_auto) { true }
+    let(:test_race_conditions_any)   { false }
+    let(:test_race_conditions_auto)  { true }
+    let(:test_expected_version_auto) { true }
 
     it_behaves_like :event_repository, InMemoryRepository
 
