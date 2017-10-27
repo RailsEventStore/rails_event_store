@@ -34,7 +34,7 @@ Consider [hiring us](http://arkency.com/hire-us) and make sure to check out [our
 
 ### Learn more about DDD & Event Sourcing
 
-Check our [Rails + Domain Driven Design Workshop](http://blog.arkency.com/domain-driven-rails-london/).
+Check our [Rails + Domain Driven Design Workshop](http://blog.arkency.com/domain-driven-rails-workshop-london/).
 Why You should attend? Robert has explained this in a [blogpost](http://blog.arkency.com/2016/12/why-would-you-even-want-to-listen-about-ddd/).
 
 
