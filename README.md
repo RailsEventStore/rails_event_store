@@ -1,8 +1,24 @@
 # Rails Event Store
 
-An implementation of an Event Store for Ruby and Rails. Comes with Active Record adapter.
+[Rails Event Store (RES)](http://railseventstore.org/) is a library for publishing, consuming, storing and retrieving events. It's your best companion for going with an event-driven architecture for your Rails application.
 
-This single repository hosts several gems.
+You can use it:
+
+<ul>
+<li>as your <a href="http://railseventstore.org/docs/pubsub/">Publish-Subscribe bus</a></li>
+<li>to decouple core business logic from external concerns in Hexagonal style architectures</li>
+<li>as <a href="http://blog.arkency.com/2016/05/domain-events-over-active-record-callbacks/">an alternative to ActiveRecord callbacks and Observers</a></li>
+<li>as a communication layer between loosely coupled components</li>
+<li>to react to published events synchronously or asynchronously</li>
+<li>to extract side-effects (notifications, metrics etc) from your controllers and services into event handlers</li>
+<li>to build an audit-log</li>
+<li>to create read-models</li>
+<li>to implement event-sourcing</li>
+</ul>
+
+## Documentation
+
+Documentation, tutorials and code samples are available at [https://railseventstore.org](https://railseventstore.org).
 
 ## Code status
 
@@ -16,13 +32,9 @@ We're aiming for 100% mutation coverage in this project. This is why:
 
 Whenever you fix a bug or add a new feature, we require that the coverage doesn't go down.
 
-## Documentation
-
-Documentation and code samples are available at [https://railseventstore.org](https://railseventstore.org). Sources can be found in [another repository](https://github.com/RailsEventStore/railseventstore.org).
-
 ## Contributing
 
-Check the contribution [guide](https://railseventstore.org/contributing/).
+This single repository hosts several gems. Check the contribution [guide](https://railseventstore.org/contributing/). Documentation sources can be found in [another repository](https://github.com/RailsEventStore/railseventstore.org).
 
 ## About
 
