@@ -12,7 +12,7 @@ module RubyEventStore
       @clock          = clock
     end
 
-    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+    def publish_events(events, stream_name: nil, expected_version: :any)
       append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
       events.each do |ev|
         event_broker.notify_subscribers(ev)
@@ -20,11 +20,11 @@ module RubyEventStore
       :ok
     end
 
-    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
+    def publish_event(event, stream_name: nil, expected_version: :any)
       publish_events([event], stream_name: stream_name, expected_version: expected_version)
     end
 
-    def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+    def append_to_stream(events, stream_name: nil, expected_version: :any)
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
       repository.append_to_stream(events, stream_name, expected_version)

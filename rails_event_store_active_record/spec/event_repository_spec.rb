@@ -30,10 +30,10 @@ module RailsEventStoreActiveRecord
         event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
       ], 'stream', :auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
-      expect(c1).to eq(2)
+      expect(c1).to eq(1)
 
       c2 = count_queries{ repository.read_all_streams_backward(:head, 2) }
-      expect(c2).to eq(2)
+      expect(c2).to eq(1)
 
       c3 = count_queries{ repository.read_stream_events_forward('stream') }
       expect(c3).to eq(2)
@@ -136,6 +136,63 @@ module RailsEventStoreActiveRecord
           TestDomainEvent.new(event_id: SecureRandom.uuid),
         ], 'stream', :auto)
       end
+    end
+
+    specify "explicit ORDER BY position" do
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY position ASC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_all_streams_forward(:head, 1)
+      end
+    end
+
+    specify "publishing only to global stream" do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        event = TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        nil,
+        -1
+      )
+      expect(repository.read_all_streams_forward(:head, 1)).to eq([event])
+    end
+
+    specify 'no event in global stream when appending to stream failed, in transaction' do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        event = TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        'stream',
+        :none
+      )
+
+      ActiveRecord::Base.transaction do
+        expect do
+          repository.append_to_stream(
+            TestDomainEvent.new(event_id: "b1b49edb-7636-416f-874a-88f94b859bef"),
+            'stream',
+            :none
+          )
+        end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+        expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+      end
+    end
+
+    specify 'no event in global stream when appending to stream failed' do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        event = TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        'stream',
+        :none
+      )
+
+      expect do
+        repository.append_to_stream(
+          TestDomainEvent.new(event_id: "b1b49edb-7636-416f-874a-88f94b859bef"),
+          'stream',
+          :none
+        )
+      end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+      expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
     end
 
     def cleanup_concurrency_test

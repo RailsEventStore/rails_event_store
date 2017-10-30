@@ -15,7 +15,7 @@ module RailsEventStore
         ->(env) { { server_name: env['SERVER_NAME'] }}))
       request.get('/')
 
-      event_store.read_events_forward(GLOBAL_STREAM).map(&:metadata).each do |metadata|
+      event_store.read_all_streams_forward.map(&:metadata).each do |metadata|
         expect(metadata[:server_name]).to  eq('example.org')
       end
     end
