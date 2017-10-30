@@ -138,6 +138,27 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify "nested transaction - events still not persisted if append failed" do
+      repository = EventRepository.new
+      repository.append_to_stream([
+        event = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      ], 'stream', :none)
+
+      ActiveRecord::Base.transaction do
+        expect do
+          repository.append_to_stream([
+            TestDomainEvent.new(
+              event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
+            ),
+          ], 'stream', :none)
+        end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+        expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+        expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+      end
+      expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+      expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
