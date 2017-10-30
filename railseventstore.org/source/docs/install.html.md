@@ -30,7 +30,7 @@ rake db:migrate
 ## Working with Rails development mode
 
 In Rails development mode when you change a registered class, it is reloaded, and a new class with same name is constructed.
-To keep `RailsEventStore` aware of changes in handler classes, and handler subscriptions use [`to_prepare`](http://api.rubyonrails.org/classes/Rails/Railtie/Configuration.html#method-i-to_prepare) callback.
+To keep `RailsEventStore` aware of changes in event classes, handler classes, and handler subscriptions use [`to_prepare`](http://api.rubyonrails.org/classes/Rails/Railtie/Configuration.html#method-i-to_prepare) callback.
 It is executed before every code reload in development, and once in production.
 
 ```ruby
@@ -43,9 +43,22 @@ Rails.application.configure do
 end
 ```
 
+or
+
+```ruby
+# config/application.rb
+module YourAppName
+  class Application < Rails::Application
+    config.to_prepare do
+      config.event_store = RailsEventStore::Client.new
+    end
+  end
+end
+```
+
 Then in your application code you can reference it as:
 
 ```ruby
-Rails.application.config.event_store
+Rails.configuration.event_store
 ```
 

@@ -75,7 +75,7 @@ class SyncHandler
 end
 ```
 
-### Fresh handler state
+<h3 id="fresh-handler-state">Fresh handler state</h3>
 
 If you subscribe an instance of a class (`SyncHandler.new`), the same object is going to be called with new events.
 
@@ -208,7 +208,7 @@ event_store.subscribe(results, event_types) do
 end
 ```
 
-## Async handlers
+<h2 id="async-handlers">Async handlers</h2>
 
 It's possible to also subscribe async handlers to events. Async handlers are just background jobs implemented with `ActiveJob`. However, you need to configure `RailsEventStore` to use `ActiveJobDispatcher`.
 

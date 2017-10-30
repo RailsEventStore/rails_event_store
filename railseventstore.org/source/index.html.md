@@ -1,7 +1,15 @@
-Rails Event Store is a library for publishing and storing events, which can be further used to build your application state from them.
+Rails Event Store (RES) is a library for publishing, consuming, storing and retrieving events. It's your best companion for going with an event-driven architecture for your Rails application.
 
-This can be a solid foundation for a design approach called [event sourcing](https://www.youtube.com/watch?v=JHGkaShoyNs). It has [many benefits](https://blog.arkency.com/2015/03/why-use-event-sourcing/) and is an interesting if you happen to struggle with keeping maintainability of your application at a reasonable level.
+You can use it:
 
-The "core" of the solution is [RubyEventStore](https://github.com/RailsEventStore/ruby_event_store). Core concepts are implemented in this gem. Ruby Event Store is unopinionated on how events are stored.
-
-[Rails Event Store](https://github.com/RailsEventStore/rails_event_store) provide persistence layer suitable for Ruby on Rails.
+<ul class="default-ul">
+<li>as your <a href="/docs/pubsub/">Publish-Subscribe bus</a></li>
+<li>to decouple core business logic from external concerns in Hexagonal style architectures</li>
+<li>as <a href="http://blog.arkency.com/2016/05/domain-events-over-active-record-callbacks/">an alternative to ActiveRecord callbacks and Observers</a></li>
+<li>as a communication layer between loosely coupled components</li>
+<li>to react to published events synchronously or asynchronously</li>
+<li>to extract side-effects (notifications, metrics etc) from your controllers and services into event handlers</li>
+<li>to build an audit-log</li>
+<li>to create read-models</li>
+<li>to implement event-sourcing</li>
+</ul>
