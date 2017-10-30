@@ -1,4 +1,4 @@
-# Using Rails Event Store as pub-sub message bus
+# Using Rails Event Store as a pub-sub message bus
 
 ## Defining an event
 
