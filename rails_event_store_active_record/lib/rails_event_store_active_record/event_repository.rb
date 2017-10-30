@@ -27,28 +27,30 @@ module RailsEventStoreActiveRecord
           raise RubyEventStore::InvalidExpectedVersion
         end
 
-      in_stream = events.flat_map.with_index do |event, index|
-        position = unless expected_version.equal?(:any)
-          expected_version + index + POSITION_SHIFT
+      ActiveRecord::Base.transaction do
+        in_stream = events.flat_map.with_index do |event, index|
+          position = unless expected_version.equal?(:any)
+            expected_version + index + POSITION_SHIFT
+          end
+          Event.create!(
+            id: event.event_id,
+            data: event.data,
+            metadata: event.metadata,
+            event_type: event.class,
+          )
+          events = [{
+            stream: RubyEventStore::GLOBAL_STREAM,
+            event_id: event.event_id
+          }]
+          events.unshift({
+            stream:   stream_name,
+            position: position,
+            event_id: event.event_id
+          }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+          events
         end
-        Event.create!(
-          id: event.event_id,
-          data: event.data,
-          metadata: event.metadata,
-          event_type: event.class,
-        )
-        events = [{
-          stream: RubyEventStore::GLOBAL_STREAM,
-          event_id: event.event_id
-        }]
-        events.unshift({
-          stream:   stream_name,
-          position: position,
-          event_id: event.event_id
-        }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-        events
+        EventInStream.import(in_stream)
       end
-      EventInStream.import(in_stream)
       self
     rescue ActiveRecord::RecordNotUnique => e
       if detect_pkey_index_violated(e)

@@ -417,4 +417,19 @@ RSpec.shared_examples :event_repository do |repository_class|
       }.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
   end
+
+  specify "events not persisted if append failed" do
+    repository.append_to_stream([
+      TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :none)
+
+    expect do
+      repository.append_to_stream([
+        TestDomainEvent.new(
+          event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
+        ),
+      ], 'stream', :none)
+    end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+    expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+  end
 end
