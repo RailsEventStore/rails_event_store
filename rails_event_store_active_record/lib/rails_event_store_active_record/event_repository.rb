@@ -27,7 +27,7 @@ module RailsEventStoreActiveRecord
           raise RubyEventStore::InvalidExpectedVersion
         end
 
-      ActiveRecord::Base.transaction do
+      ActiveRecord::Base.transaction(requires_new: true) do
         in_stream = events.flat_map.with_index do |event, index|
           position = unless expected_version.equal?(:any)
             expected_version + index + POSITION_SHIFT
