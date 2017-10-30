@@ -2,7 +2,13 @@ require 'activerecord-import'
 
 module RailsEventStoreActiveRecord
   class EventRepository
+    InvalidDatabaseSchema = Class.new(StandardError)
+
     POSITION_SHIFT = 1
+
+    def initialize
+      verify_correct_schema_present
+    end
 
     def append_to_stream(events, stream_name, expected_version)
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
@@ -10,15 +16,15 @@ module RailsEventStoreActiveRecord
       events = normalize_to_array(events)
       expected_version =
         case expected_version
-        when nil
-          raise RubyEventStore::InvalidExpectedVersion
+        when Integer, :any
+          expected_version
         when :none
           -1
         when :auto
           eis = EventInStream.where(stream: stream_name).order("position DESC").first
           (eis && eis.position) || -1
         else
-          expected_version
+          raise RubyEventStore::InvalidExpectedVersion
         end
 
       in_stream = events.flat_map.with_index do |event, index|
@@ -138,6 +144,41 @@ module RailsEventStoreActiveRecord
 
     def normalize_to_array(events)
       [*events]
+    end
+
+    def incorrect_schema_message
+      <<-MESSAGE
+Oh no!
+
+It seems you're using RailsEventStoreActiveRecord::EventRepository
+with incompaible database schema.
+
+We've redesigned database structure in order to fix several concurrency-related
+bugs. This repository is intended to work on that improved data layout.
+
+We've prepared migration that would take you from old schema to new one.
+This migration must be run offline -- take that into consideration:
+
+  rails g rails_event_store_active_record:v1_v2_migration
+  rake db:migrate
+
+
+If you cannot migrate right now -- you can for some time continue using
+old repository. In order to do so, change configuration accordingly:
+
+  config.event_store = RailsEventStore::Client.new(
+                         repository: RailsEventStoreActiveRecord::LegacyEventRepository.new
+                       )
+
+
+      MESSAGE
+    end
+
+    def verify_correct_schema_present
+      return unless ActiveRecord::Base.connected?
+      legacy_columns  = ["id", "stream", "event_type", "event_id", "metadata", "data", "created_at"]
+      current_columns = ActiveRecord::Base.connection.columns("event_store_events").map(&:name)
+      raise InvalidDatabaseSchema.new(incorrect_schema_message) if legacy_columns.eql?(current_columns)
     end
   end
 end

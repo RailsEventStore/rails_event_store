@@ -10,8 +10,7 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name, expected_version)
-      raise InvalidExpectedVersion if expected_version.nil? ||
-        (!expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM))
+      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
       events = normalize_to_array(events)
       stream = read_stream_events_forward(stream_name)
       expected_version = case expected_version
@@ -19,8 +18,10 @@ module RubyEventStore
           -1
         when :auto, :any
           stream.size - 1
-        else
+        when Integer
           expected_version
+        else
+          raise InvalidExpectedVersion
       end
       append_with_synchronize(events, expected_version, stream, stream_name)
       self

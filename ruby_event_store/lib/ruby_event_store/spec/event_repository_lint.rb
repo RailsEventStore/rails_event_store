@@ -90,6 +90,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify ':auto queries for last position in given stream' do
+    skip unless test_expected_version_auto
     repository.append_to_stream([
       eventA = TestDomainEvent.new(event_id: SecureRandom.uuid),
       eventB = TestDomainEvent.new(event_id: SecureRandom.uuid),
@@ -106,6 +107,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify ':auto starts from 0' do
+    skip unless test_expected_version_auto
     repository.append_to_stream([
       event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
     ], 'stream', :auto)
@@ -117,6 +119,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify ':auto queries for last position and follows in incremental way' do
+    skip unless test_expected_version_auto
     # It is expected that there is higher level lock
     # So this query is safe from race conditions
     repository.append_to_stream([
@@ -135,6 +138,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify ':auto is compatible with manual expectation' do
+    skip unless test_expected_version_auto
     repository.append_to_stream([
       event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
       event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
@@ -148,6 +152,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify 'manual is compatible with auto expectation' do
+    skip unless test_expected_version_auto
     repository.append_to_stream([
       event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
       event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
@@ -200,6 +205,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered' do
+    skip unless test_expected_version_auto
     skip unless test_race_conditions_auto
     verify_conncurency_assumptions
     begin
@@ -398,5 +404,17 @@ RSpec.shared_examples :event_repository do |repository_class|
       event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
       repository.append_to_stream(event, "all", :auto)
     }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+  end
+
+  specify "only :none, :any, :auto and Integer allowed as expected_version" do
+    [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
+      expect {
+        repository.append_to_stream(
+          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          'some_stream',
+          invalid_expected_version
+        )
+      }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
   end
 end

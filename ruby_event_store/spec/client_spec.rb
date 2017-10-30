@@ -108,7 +108,7 @@ module RubyEventStore
       third_event   = TestEvent.new
       client.append_to_stream(first_event, stream_name: stream)
       client.append_to_stream(second_event, stream_name: stream)
-      expect{ client.publish_event(third_event, stream_name: stream, expected_version: first_event.event_id) }.to raise_error(WrongExpectedEventVersion)
+      expect{ client.publish_event(third_event, stream_name: stream, expected_version: 0) }.to raise_error(WrongExpectedEventVersion)
       expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
     end
 

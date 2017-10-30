@@ -17,34 +17,32 @@ class EventB2 < RubyEventStore::Event
 end
 
 RSpec.describe "v1_v2_migration" do
+  include SchemaHelper
+
   MigrationRubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/v1_v2_migration_template.rb', __FILE__) )
   migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
   MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
-    load_schema
-    skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-    dump_current_schema
-    drop_existing_tables_to_clean_state
-    fill_data_using_older_gem
-    run_the_migration
-    reset_columns_information
-    verify_all_events_stream
-    verify_event_sourced_stream
-    verify_technical_stream
-    compare_new_schema
+    begin
+      establish_database_connection
+      load_database_schema
+      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
+      dump_current_schema
+      drop_existing_tables_to_clean_state
+      fill_data_using_older_gem
+      run_the_migration
+      reset_columns_information
+      verify_all_events_stream
+      verify_event_sourced_stream
+      verify_technical_stream
+      compare_new_schema
+    ensure
+      drop_legacy_database
+    end
   end
 
   private
-
-  def load_schema
-    ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
-    ActiveRecord::Schema.define do
-      self.verbose = false
-      eval(MigrationCode) unless defined?(CreateEventStoreEvents)
-      CreateEventStoreEvents.new.change
-    end
-  end
 
   def repository
     @repository ||= RailsEventStoreActiveRecord::EventRepository.new
@@ -150,9 +148,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def drop_existing_tables_to_clean_state
-    ActiveRecord::Migration.drop_table "event_store_events_in_streams"
-    ActiveRecord::Migration.drop_table "event_store_events"
-    # ActiveRecord::Migration.drop_table "old_event_store_events"
+    drop_database
   end
 
   def dump_current_schema
