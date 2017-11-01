@@ -16,7 +16,7 @@ end
 module YourAppName
   class Application < Rails::Application
     config.to_prepare do
-      config.event_store = RailsEventStore::Client.new
+      Rails.configuration.event_store = RailsEventStore::Client.new
     end
   end
 end

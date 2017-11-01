@@ -38,7 +38,8 @@ It is executed before every code reload in development, and once in production.
 
 Rails.application.configure do
   config.to_prepare do
-    config.event_store = RailsEventStore::Client.new
+    Rails.configuration.event_store = RailsEventStore::Client.new
+    # add subscribers here
   end
 end
 ```
@@ -50,7 +51,8 @@ or
 module YourAppName
   class Application < Rails::Application
     config.to_prepare do
-      config.event_store = RailsEventStore::Client.new
+      Rails.configuration.event_store = RailsEventStore::Client.new
+      # add subscribers here
     end
   end
 end
