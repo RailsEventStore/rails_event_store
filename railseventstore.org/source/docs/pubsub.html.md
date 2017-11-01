@@ -103,14 +103,14 @@ end
 
 Nicer API was proposed. [Check it out](https://github.com/RailsEventStore/rails_event_store/issues/155).
 
-## Global event handlers (listeners)
+### Global event subscribers (a.k.a. handlers/listeners)
 
 ```ruby
 # config/application.rb
 module YourAppName
   class Application < Rails::Application
     config.to_prepare do
-      config.event_store = event_store = RailsEventStore::Client.new
+      Rails.configuration.event_store = event_store = RailsEventStore::Client.new
       event_store.subscribe(
         OrderNotifier.new,
         [OrderCancelled]

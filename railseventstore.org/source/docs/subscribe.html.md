@@ -1,6 +1,23 @@
 # Event handlers - Subscribing to events
 
-To subscribe a handler to events in Rails Event Store you need to use `#subscribe` method.
+To subscribe a handler to events in Rails Event Store you need to use `#subscribe` method on `RailsEventStore::Client`
+
+Depending on where you decided to keep the configuration that would usually be in `config/application.rb` or `config/initializers/rails_event_store.rb` or one of environment files (`config/environments/*.rb`).
+
+```ruby
+# config/application.rb
+module YourAppName
+  class Application < Rails::Application
+    config.to_prepare do
+      Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+      event_store.subscribe(
+        OrderNotifier.new,
+        [OrderCancelled]
+      )
+    end
+  end
+end
+```
 
 ## Synchronous handlers
 
@@ -33,8 +50,15 @@ send_invoice_email = Proc.new do |event|
   # Process an event here.
 end
 
-event_store.subscribe(invoice_read_model_processing, [InvoiceCreated, InvoiceUpdated])
-event_store.subscribe(send_invoice_email, [InvoiceAccepted])
+event_store.subscribe(
+  invoice_read_model_processing,
+  [InvoiceCreated, InvoiceUpdated]
+)
+
+event_store.subscribe(
+  send_invoice_email,
+  [InvoiceAccepted]
+)
 ```
 
 ### Handling exceptions
@@ -99,7 +123,7 @@ event_store.publish_event(OrderPlaced.new)
 # handler is called again
 ```
 
-This can be problematic, especially if you use memoization.
+This can be problematic, especially if you use memoization (the `@ivar ||= ...` pattern).
 
 ```ruby
 class SyncHandler
@@ -116,23 +140,23 @@ class SyncHandler
 end
 ```
 
-because subsequent events would read the same `@customer_id` which was memoized by a previous event. To avoid that problem, you can subscribe a class (`SyncHandler`), and a new instance will be created for every event.
+because subsequent events would read the same `@customer_id` which was memoized when the handler was processing a previous event. To avoid that problem, you can subscribe a class (`SyncHandler`), and a new instance of that class will be created for every published event.
 
 ```ruby
 event_store.subscribe(SyncHandler, [OrderPlaced])
 ```
 
 ```ruby
-event_store.publish_event(OrderPlaced.new)
-# SyncHandler.new is called (instance A)
+event_store.publish_event(OrderPlaced.new(data: {customer_id: 2}))
+# SyncHandler.new.call is invoked (instance A)
 
-event_store.publish_event(OrderPlaced.new)
-# SyncHandler.new is called (instance B)
+event_store.publish_event(OrderPlaced.new(data: {customer_id: 3}))
+# SyncHandler.new.call is invoked (instance B)
 ```
 
 ### When are sync handlers executed?
 
-Those handlers are executed immediately after events are stored in DB.
+Those handlers are executed immediately after events are stored in the DB.
 
 ```ruby
 ActiveRecord::Base.transction do
@@ -234,7 +258,7 @@ If a subscribed class does not inherit from `ActiveJob::Base` or anything respon
 
 ### When are async handlers scheduled?
 
-Those async handlers are scheduled immediately after events are stored in DB.
+Those async handlers are scheduled immediately after events are stored in the DB.
 
 ```ruby
 ActiveRecord::Base.transction do
