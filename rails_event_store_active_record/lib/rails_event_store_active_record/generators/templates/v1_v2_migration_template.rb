@@ -78,14 +78,14 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
   end
 
   def preserve_positions?(stream_name)
-    # return true if you use given stream for event sourcing
-    # return true if you need to have a deterministic order of events
-    # in that stream
-    # return true if only one thread is supposed to be writing in that stream
+    # http://railseventstore.org/docs/expected_version/
     #
-    # return false if this stream is for purely technical purposes
-    # and multiple threads/processes can be publishing at given time
-    # and you don't care about the exact order when reading from it
+    # return true if you use given stream for event sourcing
+    # return true if you use an Integer or :none as
+    # expected_version when publishing in this stream
+    #
+    # return false if use use :any (the default) as expected_version
+    # when publishing to this stream
     false
   end
 end
