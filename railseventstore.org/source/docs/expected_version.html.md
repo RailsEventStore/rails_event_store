@@ -75,6 +75,7 @@ This mode effectively acts as optimistic locking.
 #### Usage
 
 * good for events sourcing
+  * this is what [`aggregate_root` gem is using](https://github.com/RailsEventStore/rails_event_store/blob/d23640e4bcd54ac2e0f8af60c1ff8633632c0d99/aggregate_root/lib/aggregate_root.rb#L26)
 * good if you need deterministic, exact order of events in a stream even when there are multiple, concurrent events being published.
 
 ## :auto
