@@ -3,6 +3,12 @@
   text-align: center;
 }
 
+.site-footer ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
 .site-footer__link {
   margin: 0 .4rem;
   color: $base-font-color;
