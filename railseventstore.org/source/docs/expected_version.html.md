@@ -1,6 +1,6 @@
 # expected_version option explained
 
-There are 3 values that you can use for providing `expected_version` when publishing an event in a stream.
+There are 3 values that you can use for providing `expected_version` when publishing an event in a stream: `:any`, an Integer, `:auto`.
 
 ## :any
 
