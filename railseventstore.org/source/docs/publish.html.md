@@ -1,6 +1,6 @@
 # Publishing events
 
-## Creating new event
+## Defining an event
 
 Firstly you have to define own event model extending `RailsEventStore::Event` class.
 
@@ -13,7 +13,9 @@ end
 OrderPlaced = Class.new(RailsEventStore::Event)
 ```
 
-Then you can use `publish_event` or `publish_events` method from.
+## Publishing an event
+
+Then you can use `publish_event` or `publish_events` method.
 
 ```ruby
 stream_name = "order_1"
@@ -25,17 +27,11 @@ event = OrderPlaced.new(data: {
 
 #publishing an event for a specific stream
 event_store.publish_event(event, stream_name: stream_name)
-
-#publishing a global event
-event_store.publish_event(event)
 ```
 
-## Creating new event with optimistic locking
+## Publishing an event with optimistic locking
 
-```ruby
-class OrderPlaced < RailsEventStore::Event
-end
-```
+Publishing an event with optimistic locking requires providing explicitly `expected_version` parameter.
 
 ```ruby
 event = OrderPlaced.new(data: {
@@ -52,9 +48,30 @@ event_store.publish_event(
 )
 ```
 
+## expected_version
+
+Providing `expected_version` is optional. The default value is `:any`.
+Allowed values are:
+
+* `:any`:
+* `Integer` such as `-1, 0, 1, 2, 3...`
+* `:auto`
+
+For more information about when should you use which one, read [expected_version explained](/docs/expected_version/)
+
+## No stream
+
+Providing `stream_name` is optional (but recommended).
+
+```ruby
+event_store.publish_event(event)
+```
+
+If you don't provide the `stream_name` you can only read the events with `read_all_streams_forward` and `read_all_streams_backward` method which includes events from all streams.
+
 ## Appending an event to stream
 
-In order to skip handlers you can just append an event to a stream.
+In order to skip handlers you can append an event to a stream. This won't trigger the subscribed listeners.
 
 ```ruby
 event = OrderPlaced.new(data: {
