@@ -45,6 +45,39 @@ matrix:
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.1.4
   - rvm: 2.4.1
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.0.6
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.1
+    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.1.4
+  - rvm: 2.4.1
+    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.0.6
+  - rvm: 2.4.1
+    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.1.4
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.0.6
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.1
+    env: TARGET=aggregate_root SCRIPT=test RAILS_VERSION=5.1.4
+  - rvm: 2.4.1
+    env: TARGET=aggregate_root SCRIPT=test RAILS_VERSION=5.0.6
+  - rvm: 2.4.1
+    env: TARGET=aggregate_root SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.1
+    env: TARGET=ruby_event_store SCRIPT=test RAILS_VERSION=5.1.4
+  - rvm: 2.4.1
+    env: TARGET=ruby_event_store SCRIPT=test RAILS_VERSION=5.0.6
+  - rvm: 2.4.1
+    env: TARGET=ruby_event_store SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.1
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.1.4"
+  - rvm: 2.4.1
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.0.6"
+  - rvm: 2.4.1
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=4.2.10"
+
 before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
 - psql -c 'create database rails_event_store_active_record;' -U postgres
