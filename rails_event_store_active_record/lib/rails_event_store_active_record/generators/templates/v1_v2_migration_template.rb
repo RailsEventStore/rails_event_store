@@ -1,9 +1,12 @@
-# This migration is not intended for live migration
-# It assumes no data is added at that time.
+# This migration is not intended for live data  migration
+# It assumes no data is added at when it is running.
+# So stop your application servers from accepting new requests
+# and processing background jobs before running
+
 # Make sure you have a backup before running on production
 
 # 10_000_000 distinct stream names
-# can cause around 2GB of usage
+# can cause around 2GB of RAM usage
 # make sure you can run this migration on your production system
 class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
   def up
@@ -81,11 +84,14 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     # http://railseventstore.org/docs/expected_version/
     #
     # return true if you use given stream for event sourcing
+    #   (especially with AggregateRoot gem)
     # return true if you use an Integer or :none as
     # expected_version when publishing in this stream
     #
     # return false if use use :any (the default) as expected_version
     # when publishing to this stream
-    false
+
+    raise NotImplementedError
+    # false
   end
 end
