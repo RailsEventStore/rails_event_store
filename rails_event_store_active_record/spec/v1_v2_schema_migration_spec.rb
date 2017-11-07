@@ -51,11 +51,14 @@ RSpec.describe "v1_v2_migration" do
   def fill_data_using_older_gem
     pathname = Pathname.new(__FILE__).dirname
     cwd = pathname.join("v1_v2_schema_migration")
+    FileUtils.rm(cwd.join("Gemfile.lock")) if File.exists?(cwd.join("Gemfile.lock"))
     process = ChildProcess.build("bundle", "exec", "ruby", "fill_data.rb")
     process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
-    process.environment['DATABASE_URL'] = ENV['DATABASE_URL']
+    process.environment['DATABASE_URL']   = ENV['DATABASE_URL']
+    process.environment['RAILS_VERSION']  = ENV['RAILS_VERSION']
     process.cwd = cwd
     process.io.stdout = $stdout
+    process.io.stderr = $stderr
     process.start
     begin
       process.poll_for_exit(10)
