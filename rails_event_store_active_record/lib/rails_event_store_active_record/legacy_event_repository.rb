@@ -11,6 +11,18 @@ module RailsEventStoreActiveRecord
 
     private_constant :LegacyEvent
 
+    def initialize
+      warn <<-MSG
+`RailsEventStoreActiveRecord::LegacyEventRepository` has been deprecated.
+
+Please migrate to new database schema and use `RailsEventStoreActiveRecord::EventRepository`
+instead:
+
+  rails generate rails_event_store_active_record:v1_v2_migration
+
+      MSG
+    end
+
     def append_to_stream(events, stream_name, expected_version)
       validate_expected_version_is_not_auto(expected_version)
       validate_expected_version_is_any_for_global_stream(expected_version, stream_name)

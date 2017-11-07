@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
+require 'active_support/core_ext/string/strip'
 
 module RailsEventStoreActiveRecord
   RSpec.describe LegacyEventRepository do
@@ -67,6 +68,19 @@ module RailsEventStoreActiveRecord
         repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_1', :none)
         repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_2', :none)
       }.to_not raise_error
+    end
+
+    specify do
+      deprecation_warning = <<-MSG.strip_heredoc
+        `RailsEventStoreActiveRecord::LegacyEventRepository` has been deprecated.
+
+        Please migrate to new database schema and use `RailsEventStoreActiveRecord::EventRepository`
+        instead:
+
+          rails generate rails_event_store_active_record:v1_v2_migration
+
+      MSG
+      expect { LegacyEventRepository.new }.to output(deprecation_warning).to_stderr
     end
 
     private
