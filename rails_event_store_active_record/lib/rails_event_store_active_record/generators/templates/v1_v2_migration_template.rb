@@ -10,6 +10,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
     mysql    = ActiveRecord::Base.connection.adapter_name == "Mysql2"
     sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
+    rails_42 = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0")
     enable_extension "pgcrypto" if postgres
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
@@ -65,6 +66,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
         t.text        :data,        null: false
         t.datetime    :created_at,  null: false
       end
+      add_index :event_store_events, :id, unique: true if rails_42
       add_index :event_store_events, :created_at
       execute <<-SQL
         INSERT INTO event_store_events(id, event_type, metadata, data, created_at)
