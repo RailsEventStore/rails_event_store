@@ -1,3 +1,7 @@
 source 'https://rubygems.org'
 gemspec
 gem 'ruby_event_store', path: '../ruby_event_store'
+
+if v = ENV['RAILS_VERSION']
+  gem 'rails', v
+end
