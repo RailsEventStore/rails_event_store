@@ -1,8 +1,9 @@
 require 'bounded_context'
 require 'securerandom'
 
+ENV['RAILS_VERSION'] ||= '5.1.4'
 TMP_ROOT   = File.join(__dir__, 'tmp')
-DUMMY_ROOT = File.join(__dir__, 'dummy')
+DUMMY_ROOT = File.join(__dir__, "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}")
 
 module StdoutHelper
   def silence_stdout(&block)
