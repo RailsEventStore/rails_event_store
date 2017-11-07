@@ -1,6 +1,2 @@
 source 'https://rubygems.org'
 gemspec
-
-if v = ENV['RAILS_VERSION']
-  gem 'rails', v
-end
