@@ -12,11 +12,17 @@ import UrlParser exposing ((</>))
 
 main : Program Never Model Msg
 main =
-    Navigation.program UrlChange { init = model, view = view, update = update, subscriptions = subscriptions }
+    Navigation.program UrlChange
+        { init = model
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 type alias Model =
     { streams : PaginatedList Stream
+    , events : List Event
     , searchQuery : String
     , perPage : Int
     , page : Page
@@ -29,6 +35,7 @@ type Msg
     | PreviousPage
     | GoToPage Int
     | StreamList (Result Http.Error (List Stream))
+    | EventList (Result Http.Error (List Event))
     | UrlChange Navigation.Location
 
 
@@ -43,6 +50,10 @@ type Stream
     = Stream String
 
 
+type Event
+    = Event String
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
@@ -55,6 +66,7 @@ model location =
             10
     in
         ( { streams = Paginate.fromList perPage []
+          , events = []
           , searchQuery = ""
           , perPage = perPage
           , page = BrowseStreams
@@ -84,6 +96,12 @@ update msg model =
         StreamList (Err msg) ->
             ( model, Cmd.none )
 
+        EventList (Ok result) ->
+            ( { model | events = result }, Cmd.none )
+
+        EventList (Err msg) ->
+            ( model, Cmd.none )
+
         UrlChange location ->
             urlUpdate model location
 
@@ -91,6 +109,9 @@ update msg model =
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
     case decode location of
+        Just (BrowseEvents streamId) ->
+            ( { model | page = (BrowseEvents streamId) }, getEvents )
+
         Just page ->
             ( { model | page = page }, Cmd.none )
 
@@ -161,7 +182,7 @@ browserBody model =
             browseStreams model
 
         BrowseEvents streamName ->
-            h1 [] [ text ("Events in " ++ streamName) ]
+            browseEvents model streamName
 
         ShowEvent eventId ->
             h1 [] [ text ("Event " ++ eventId) ]
@@ -182,6 +203,14 @@ browseStreams model =
             , div [ class "browser__pagination" ] [ renderPagination streams ]
             , div [ class "browser__results" ] [ displayStreams streams ]
             ]
+
+
+browseEvents : Model -> String -> Html Msg
+browseEvents model streamName =
+    div [ class "browser" ]
+        [ h1 [ class "browser__title" ] [ text ("Events in " ++ streamName) ]
+        , div [ class "browser__results" ] [ displayEvents model.events ]
+        ]
 
 
 searchField : Html Msg
@@ -302,9 +331,41 @@ displayStreams streams =
         ]
 
 
+displayEvent : Event -> Html Msg
+displayEvent (Event name) =
+    tr []
+        [ td []
+            [ a [ class "results__link", href ("#events/" ++ name) ] [ text name ]
+            ]
+        ]
+
+
+displayEvents : List Event -> Html Msg
+displayEvents events =
+    table []
+        [ thead []
+            [ tr []
+                [ th [] [ text "Event name" ]
+                ]
+            ]
+        , tbody [] (List.map displayEvent events)
+        ]
+
+
 getStreams : Cmd Msg
 getStreams =
     Http.send StreamList (Http.get "/streams.json" (list streamDecoder))
+
+
+getEvents : Cmd Msg
+getEvents =
+    Http.send EventList (Http.get "/events.json" (list eventDecoder))
+
+
+eventDecoder : Decode.Decoder Event
+eventDecoder =
+    Decode.map Event
+        (field "event_type" string)
 
 
 streamDecoder : Decode.Decoder Stream
