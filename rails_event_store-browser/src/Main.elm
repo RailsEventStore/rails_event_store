@@ -5,7 +5,7 @@ import Html.Attributes exposing (placeholder, disabled, href, class)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
-import Json.Decode as Decode exposing (map, field, list, string)
+import Json.Decode as Decode exposing (map, field, list, string, at)
 import Navigation
 import UrlParser exposing ((</>))
 
@@ -51,7 +51,7 @@ type Stream
 
 
 type Event
-    = Event String
+    = Event String String
 
 
 subscriptions : Model -> Sub Msg
@@ -332,10 +332,13 @@ displayStreams streams =
 
 
 displayEvent : Event -> Html Msg
-displayEvent (Event name) =
+displayEvent (Event name createdAt) =
     tr []
         [ td []
             [ a [ class "results__link", href ("#events/" ++ name) ] [ text name ]
+            ]
+        , td []
+            [ text createdAt
             ]
         ]
 
@@ -346,6 +349,7 @@ displayEvents events =
         [ thead []
             [ tr []
                 [ th [] [ text "Event name" ]
+                , th [] [ text "Created at" ]
                 ]
             ]
         , tbody [] (List.map displayEvent events)
@@ -364,8 +368,9 @@ getEvents =
 
 eventDecoder : Decode.Decoder Event
 eventDecoder =
-    Decode.map Event
+    Decode.map2 Event
         (field "event_type" string)
+        (at [ "metadata", "timestamp" ] string)
 
 
 streamDecoder : Decode.Decoder Stream
