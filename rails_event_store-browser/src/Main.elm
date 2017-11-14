@@ -337,7 +337,7 @@ displayEvent (Event name createdAt) =
         [ td []
             [ a [ class "results__link", href ("#events/" ++ name) ] [ text name ]
             ]
-        , td []
+        , td [ class "u-align-right" ]
             [ text createdAt
             ]
         ]
@@ -349,7 +349,7 @@ displayEvents events =
         [ thead []
             [ tr []
                 [ th [] [ text "Event name" ]
-                , th [] [ text "Created at" ]
+                , th [ class "u-align-right" ] [ text "Created at" ]
                 ]
             ]
         , tbody [] (List.map displayEvent events)
