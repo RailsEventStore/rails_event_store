@@ -22,7 +22,7 @@ main =
 
 type alias Model =
     { streams : PaginatedList Stream
-    , events : List Event
+    , events : PaginatedList Event
     , searchQuery : String
     , perPage : Int
     , page : Page
@@ -65,9 +65,12 @@ model location =
         perPage =
             10
 
+        emptyList =
+            Paginate.fromList perPage []
+
         initModel =
-            { streams = Paginate.fromList perPage []
-            , events = []
+            { streams = emptyList
+            , events = emptyList
             , searchQuery = ""
             , perPage = perPage
             , page = NotFound
@@ -83,13 +86,13 @@ update msg model =
             ( { model | searchQuery = inputValue }, Cmd.none )
 
         NextPage ->
-            ( { model | streams = Paginate.next model.streams }, Cmd.none )
+            nextPageUpdate model
 
         PreviousPage ->
-            ( { model | streams = Paginate.prev model.streams }, Cmd.none )
+            prevPageUpdate model
 
         GoToPage pageNum ->
-            ( { model | streams = Paginate.goTo pageNum model.streams }, Cmd.none )
+            goToPageUpdate model pageNum
 
         StreamList (Ok result) ->
             ( { model | streams = Paginate.fromList model.perPage result }, Cmd.none )
@@ -98,13 +101,43 @@ update msg model =
             ( model, Cmd.none )
 
         EventList (Ok result) ->
-            ( { model | events = result }, Cmd.none )
+            ( { model | events = Paginate.fromList model.perPage result }, Cmd.none )
 
         EventList (Err msg) ->
             ( model, Cmd.none )
 
         UrlChange location ->
             urlUpdate model location
+
+
+nextPageUpdate : Model -> ( Model, Cmd Msg )
+nextPageUpdate model =
+    case model.page of
+        BrowseEvents _ ->
+            ( { model | events = Paginate.next model.events }, Cmd.none )
+
+        _ ->
+            ( { model | streams = Paginate.next model.streams }, Cmd.none )
+
+
+prevPageUpdate : Model -> ( Model, Cmd Msg )
+prevPageUpdate model =
+    case model.page of
+        BrowseEvents _ ->
+            ( { model | events = Paginate.prev model.events }, Cmd.none )
+
+        _ ->
+            ( { model | streams = Paginate.next model.streams }, Cmd.none )
+
+
+goToPageUpdate : Model -> Int -> ( Model, Cmd Msg )
+goToPageUpdate model pageNum =
+    case model.page of
+        BrowseEvents _ ->
+            ( { model | events = Paginate.goTo pageNum model.events }, Cmd.none )
+
+        _ ->
+            ( { model | streams = Paginate.goTo pageNum model.streams }, Cmd.none )
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
@@ -218,6 +251,7 @@ browseEvents model streamName =
         div [ class "browser" ]
             [ h1 [ class "browser__title" ] [ text ("Events in " ++ streamName) ]
             , div [ class "browser__search search" ] [ searchField ]
+            , div [ class "browser__pagination" ] [ renderPagination events ]
             , div [ class "browser__results" ] [ displayEvents events ]
             ]
 
@@ -227,20 +261,20 @@ searchField =
     input [ class "search__input", placeholder "type to start searching", onInput Search ] []
 
 
-renderPagination : PaginatedList Stream -> Html Msg
-renderPagination streams =
+renderPagination : PaginatedList a -> Html Msg
+renderPagination items =
     let
         pageListItems =
             (List.map
                 (\l -> li [] [ l ])
-                (pagerView streams)
+                (pagerView items)
             )
     in
         ul [ class "pagination" ]
             (List.concat
-                [ [ li [] [ prevPage streams ] ]
+                [ [ li [] [ prevPage items ] ]
                 , pageListItems
-                , [ li [] [ nextPage streams ] ]
+                , [ li [] [ nextPage items ] ]
                 ]
             )
 
@@ -255,11 +289,11 @@ renderPagerButton pageNum isCurrentPage =
         [ text (toString pageNum) ]
 
 
-pagerData : PaginatedList Stream -> List ( Int, Bool )
-pagerData streams =
+pagerData : PaginatedList a -> List ( Int, Bool )
+pagerData items =
     let
         currentPage =
-            Paginate.currentPage streams
+            Paginate.currentPage items
 
         pagesAround =
             2
@@ -270,7 +304,7 @@ pagerData streams =
                 [ 0
                 , currentPage
                     + pagesAround
-                    - (Paginate.totalPages streams)
+                    - (Paginate.totalPages items)
                 ]
             )
 
@@ -282,34 +316,34 @@ pagerData streams =
                 ( _, _ ) ->
                     List.range (currentPage - pagesAround) (currentPage + pagesAround)
     in
-        streams
+        items
             |> pager (,)
             |> List.filter (\( pageNum, _ ) -> List.member pageNum visiblePages)
 
 
-pagerView : PaginatedList Stream -> List (Html Msg)
-pagerView streams =
-    streams
+pagerView : PaginatedList a -> List (Html Msg)
+pagerView items =
+    items
         |> pagerData
         |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
 
 
-prevPage : PaginatedList Stream -> Html Msg
-prevPage streams =
+prevPage : PaginatedList a -> Html Msg
+prevPage items =
     button
         [ onClick PreviousPage
         , class "pagination__page pagination__page--previous"
-        , disabled (Paginate.isFirst streams)
+        , disabled (Paginate.isFirst items)
         ]
         [ text "←" ]
 
 
-nextPage : PaginatedList Stream -> Html Msg
-nextPage streams =
+nextPage : PaginatedList a -> Html Msg
+nextPage items =
     button
         [ onClick NextPage
         , class "pagination__page pagination__page--next"
-        , disabled (Paginate.isLast streams)
+        , disabled (Paginate.isLast items)
         ]
         [ text "→" ]
 
@@ -319,9 +353,9 @@ filteredStreams model =
     Paginate.map (List.filter (\(Stream name) -> isMatch model.searchQuery name)) model.streams
 
 
-filteredEvents : Model -> List Event
+filteredEvents : Model -> PaginatedList Event
 filteredEvents model =
-    List.filter (\(Event name _) -> isMatch model.searchQuery name) model.events
+    Paginate.map (List.filter (\(Event name _) -> isMatch model.searchQuery name)) model.events
 
 
 displayStream : Stream -> Html Msg
@@ -357,7 +391,7 @@ displayEvent (Event name createdAt) =
         ]
 
 
-displayEvents : List Event -> Html Msg
+displayEvents : PaginatedList Event -> Html Msg
 displayEvents events =
     table []
         [ thead []
@@ -366,7 +400,7 @@ displayEvents events =
                 , th [ class "u-align-right" ] [ text "Created at" ]
                 ]
             ]
-        , tbody [] (List.map displayEvent events)
+        , tbody [] (List.map displayEvent (Paginate.page events))
         ]
 
 
