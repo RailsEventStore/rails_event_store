@@ -64,15 +64,16 @@ model location =
     let
         perPage =
             10
+
+        initModel =
+            { streams = Paginate.fromList perPage []
+            , events = []
+            , searchQuery = ""
+            , perPage = perPage
+            , page = NotFound
+            }
     in
-        ( { streams = Paginate.fromList perPage []
-          , events = []
-          , searchQuery = ""
-          , perPage = perPage
-          , page = BrowseStreams
-          }
-        , getStreams
-        )
+        urlUpdate initModel location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -109,6 +110,9 @@ update msg model =
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
     case decode location of
+        Just BrowseStreams ->
+            ( { model | page = BrowseStreams }, getStreams )
+
         Just (BrowseEvents streamId) ->
             ( { model | page = (BrowseEvents streamId) }, getEvents )
 
