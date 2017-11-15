@@ -157,11 +157,6 @@ isMatch searchQuery name =
 
 view : Model -> Html Msg
 view model =
-    browserFrame model
-
-
-browserFrame : Model -> Html Msg
-browserFrame model =
     div [ class "frame" ]
         [ header [ class "frame__header" ] [ browserNavigation ]
         , main_ [ class "frame__body" ] [ browserBody model ]
