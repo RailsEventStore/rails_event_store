@@ -261,7 +261,7 @@ searchField =
     input [ class "search__input", placeholder "type to start searching", onInput Search ] []
 
 
-renderPagination : PaginatedList a -> Html Msg
+renderPagination : PaginatedList item -> Html Msg
 renderPagination items =
     let
         pageListItems =
@@ -289,7 +289,7 @@ renderPagerButton pageNum isCurrentPage =
         [ text (toString pageNum) ]
 
 
-pagerData : PaginatedList a -> List ( Int, Bool )
+pagerData : PaginatedList item -> List ( Int, Bool )
 pagerData items =
     let
         currentPage =
@@ -321,14 +321,14 @@ pagerData items =
             |> List.filter (\( pageNum, _ ) -> List.member pageNum visiblePages)
 
 
-pagerView : PaginatedList a -> List (Html Msg)
+pagerView : PaginatedList item -> List (Html Msg)
 pagerView items =
     items
         |> pagerData
         |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
 
 
-prevPage : PaginatedList a -> Html Msg
+prevPage : PaginatedList item -> Html Msg
 prevPage items =
     button
         [ onClick PreviousPage
@@ -338,7 +338,7 @@ prevPage items =
         [ text "←" ]
 
 
-nextPage : PaginatedList a -> Html Msg
+nextPage : PaginatedList item -> Html Msg
 nextPage items =
     button
         [ onClick NextPage
