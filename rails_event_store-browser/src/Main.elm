@@ -139,7 +139,7 @@ routeParser =
 
 isMatch : String -> String -> Bool
 isMatch searchQuery name =
-    String.contains searchQuery name
+    String.contains (String.toLower searchQuery) (String.toLower name)
 
 
 view : Model -> Html Msg
