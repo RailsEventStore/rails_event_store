@@ -21,8 +21,8 @@ main =
 
 
 type alias Model =
-    { streams : PaginatedList Stream
-    , events : PaginatedList Event
+    { streams : PaginatedList Item
+    , events : PaginatedList Item
     , searchQuery : String
     , perPage : Int
     , page : Page
@@ -34,8 +34,8 @@ type Msg
     | NextPage
     | PreviousPage
     | GoToPage Int
-    | StreamList (Result Http.Error (List Stream))
-    | EventList (Result Http.Error (List Event))
+    | StreamList (Result Http.Error (List Item))
+    | EventList (Result Http.Error (List Item))
     | UrlChange Navigation.Location
 
 
@@ -46,12 +46,9 @@ type Page
     | NotFound
 
 
-type Stream
+type Item
     = Stream String
-
-
-type Event
-    = Event String String
+    | Event String String
 
 
 subscriptions : Model -> Sub Msg
@@ -86,13 +83,13 @@ update msg model =
             ( { model | searchQuery = inputValue }, Cmd.none )
 
         NextPage ->
-            nextPageUpdate model
+            itemsUpdate model Paginate.next
 
         PreviousPage ->
-            prevPageUpdate model
+            itemsUpdate model Paginate.prev
 
         GoToPage pageNum ->
-            goToPageUpdate model pageNum
+            itemsUpdate model (Paginate.goTo pageNum)
 
         StreamList (Ok result) ->
             ( { model | streams = Paginate.fromList model.perPage result }, Cmd.none )
@@ -110,34 +107,17 @@ update msg model =
             urlUpdate model location
 
 
-nextPageUpdate : Model -> ( Model, Cmd Msg )
-nextPageUpdate model =
+itemsUpdate : Model -> (PaginatedList Item -> PaginatedList Item) -> ( Model, Cmd Msg )
+itemsUpdate model f =
     case model.page of
         BrowseEvents _ ->
-            ( { model | events = Paginate.next model.events }, Cmd.none )
+            ( { model | events = f model.events }, Cmd.none )
+
+        BrowseStreams ->
+            ( { model | streams = f model.streams }, Cmd.none )
 
         _ ->
-            ( { model | streams = Paginate.next model.streams }, Cmd.none )
-
-
-prevPageUpdate : Model -> ( Model, Cmd Msg )
-prevPageUpdate model =
-    case model.page of
-        BrowseEvents _ ->
-            ( { model | events = Paginate.prev model.events }, Cmd.none )
-
-        _ ->
-            ( { model | streams = Paginate.next model.streams }, Cmd.none )
-
-
-goToPageUpdate : Model -> Int -> ( Model, Cmd Msg )
-goToPageUpdate model pageNum =
-    case model.page of
-        BrowseEvents _ ->
-            ( { model | events = Paginate.goTo pageNum model.events }, Cmd.none )
-
-        _ ->
-            ( { model | streams = Paginate.goTo pageNum model.streams }, Cmd.none )
+            ( model, Cmd.none )
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
@@ -216,10 +196,14 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         BrowseStreams ->
-            browseStreams model
+            browseItems
+                "Streams"
+                (filteredItems model.searchQuery model.streams)
 
         BrowseEvents streamName ->
-            browseEvents model streamName
+            browseItems
+                ("Events in " ++ streamName)
+                (filteredItems model.searchQuery model.events)
 
         ShowEvent eventId ->
             h1 [] [ text ("Event " ++ eventId) ]
@@ -228,32 +212,14 @@ browserBody model =
             h1 [] [ text "404" ]
 
 
-browseStreams : Model -> Html Msg
-browseStreams model =
-    let
-        streams =
-            filteredStreams model
-    in
-        div [ class "browser" ]
-            [ h1 [ class "browser__title" ] [ text "Streams" ]
-            , div [ class "browser__search search" ] [ searchField ]
-            , div [ class "browser__pagination" ] [ renderPagination streams ]
-            , div [ class "browser__results" ] [ displayStreams streams ]
-            ]
-
-
-browseEvents : Model -> String -> Html Msg
-browseEvents model streamName =
-    let
-        events =
-            filteredEvents model
-    in
-        div [ class "browser" ]
-            [ h1 [ class "browser__title" ] [ text ("Events in " ++ streamName) ]
-            , div [ class "browser__search search" ] [ searchField ]
-            , div [ class "browser__pagination" ] [ renderPagination events ]
-            , div [ class "browser__results" ] [ displayEvents events ]
-            ]
+browseItems : String -> PaginatedList Item -> Html Msg
+browseItems title items =
+    div [ class "browser" ]
+        [ h1 [ class "browser__title" ] [ text title ]
+        , div [ class "browser__search search" ] [ searchField ]
+        , div [ class "browser__pagination" ] [ renderPagination items ]
+        , div [ class "browser__results" ] [ displayItems (Paginate.page items) ]
+        ]
 
 
 searchField : Html Msg
@@ -348,60 +314,67 @@ nextPage items =
         [ text "→" ]
 
 
-filteredStreams : Model -> PaginatedList Stream
-filteredStreams model =
-    Paginate.map (List.filter (\(Stream name) -> isMatch model.searchQuery name)) model.streams
+filteredItems : String -> PaginatedList Item -> PaginatedList Item
+filteredItems searchQuery items =
+    let
+        predicate item =
+            case item of
+                Stream name ->
+                    isMatch searchQuery name
+
+                Event name _ ->
+                    isMatch searchQuery name
+    in
+        Paginate.map (List.filter predicate) items
 
 
-filteredEvents : Model -> PaginatedList Event
-filteredEvents model =
-    Paginate.map (List.filter (\(Event name _) -> isMatch model.searchQuery name)) model.events
+displayItems : List Item -> Html Msg
+displayItems items =
+    case items of
+        [] ->
+            p [ class "results__empty" ] [ text "No items" ]
 
-
-displayStream : Stream -> Html Msg
-displayStream (Stream name) =
-    tr []
-        [ td []
-            [ a [ class "results__link", href ("#streams/" ++ name) ] [ text name ]
-            ]
-        ]
-
-
-displayStreams : PaginatedList Stream -> Html Msg
-displayStreams streams =
-    table []
-        [ thead []
-            [ tr []
-                [ th [] [ text "Stream name" ]
+        (Stream _) :: _ ->
+            table []
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Stream name" ]
+                        ]
+                    ]
+                , tbody [] (List.map displayItem (items))
                 ]
-            ]
-        , tbody [] (List.map displayStream (Paginate.page streams))
-        ]
 
-
-displayEvent : Event -> Html Msg
-displayEvent (Event name createdAt) =
-    tr []
-        [ td []
-            [ a [ class "results__link", href ("#events/" ++ name) ] [ text name ]
-            ]
-        , td [ class "u-align-right" ]
-            [ text createdAt
-            ]
-        ]
-
-
-displayEvents : PaginatedList Event -> Html Msg
-displayEvents events =
-    table []
-        [ thead []
-            [ tr []
-                [ th [] [ text "Event name" ]
-                , th [ class "u-align-right" ] [ text "Created at" ]
+        (Event _ _) :: _ ->
+            table []
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Event name" ]
+                        , th [ class "u-align-right" ] [ text "Created at" ]
+                        ]
+                    ]
+                , tbody [] (List.map displayItem items)
                 ]
-            ]
-        , tbody [] (List.map displayEvent (Paginate.page events))
-        ]
+
+
+displayItem : Item -> Html Msg
+displayItem item =
+    case item of
+        Event name createdAt ->
+            tr []
+                [ td []
+                    [ a [ class "results__link", href ("#events/" ++ name) ] [ text name ]
+                    ]
+                , td [ class "u-align-right" ]
+                    [ text createdAt
+                    ]
+                ]
+
+        Stream name ->
+            tr []
+                [ td []
+                    [ a [ class "results__link", href ("#streams/" ++ name) ] [ text name ]
+                    ]
+                ]
 
 
 getStreams : Cmd Msg
@@ -414,14 +387,14 @@ getEvents =
     Http.send EventList (Http.get "/events.json" (list eventDecoder))
 
 
-eventDecoder : Decode.Decoder Event
+eventDecoder : Decode.Decoder Item
 eventDecoder =
     Decode.map2 Event
         (field "event_type" string)
         (at [ "metadata", "timestamp" ] string)
 
 
-streamDecoder : Decode.Decoder Stream
+streamDecoder : Decode.Decoder Item
 streamDecoder =
     Decode.map Stream
         (field "name" string)
