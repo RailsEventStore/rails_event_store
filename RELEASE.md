@@ -10,7 +10,7 @@ We're following [Semantic Versioning](http://semver.org/#semantic-versioning-200
 
 We're making our best to describe and communicate breaking changes if such happen.
 
-All gems developed in RailsEventStore monorepo will be released with the same version number, even if changes affected only a subset of gems. This is close to the versioning policy of Rails. We do this for [convenience](http://blog.arkency.com/why-we-follow-rails-repo-structure-in-rails-event-store/) not only of maintainers but also to help triaging issues related to particular version.
+All gems developed in RailsEventStore monorepo will be released with the same version number, even if changes affected only a subset of gems. This is close to the versioning policy of Rails. We do this for [convenience](https://blog.arkency.com/why-we-follow-rails-repo-structure-in-rails-event-store/) not only of maintainers but also to help triaging issues related to particular version.
 
 ## Communicating changes
 
@@ -41,7 +41,7 @@ When describing changes, list all gems involved gems in the release. Explicitly 
   - loop over gems and build gem packages followed by RubyGems push for each
 
   You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
-3. Bump version number in documentation section of [railseventstore.org](https://railseventstore.org). It's good practice to list changes in [documentation](http://railseventstore.org/docs/changelog/).
+3. Bump version number in documentation section of [railseventstore.org](https://railseventstore.org). It's good practice to list changes in [documentation](https://railseventstore.org/docs/changelog/).
 
 #### Opening work on new release soon after
 

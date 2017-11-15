@@ -24,7 +24,7 @@ Further changes can be tracked at [releases page](https://github.com/RailsEventS
 
 * Change: Allows to set the event repository used. #61
           Allow to avoid ActiveRecord dependency when not using rails_event_store_active_record's
-          event repository. See documentation for mode details http://railseventstore.arkency.com/docs/repository.html
+          event repository. See documentation for mode details https://railseventstore.arkency.com/docs/repository.html
 
 ### 0.14.0 (28.10.2016)
 
@@ -94,7 +94,7 @@ Further changes can be tracked at [releases page](https://github.com/RailsEventS
 
 ### 0.6.0 (11.04.2016)
 
-* Change: EventRepository moved to separate gem [rails_event_store_active_record](http://github.com/arkency/rails_event_store_active_record)
+* Change: EventRepository moved to separate gem [rails_event_store_active_record](https://github.com/RailsEventStore/rails_event_store_active_record)
 * Change: rails_event_store_active_record updated to version 0.5.1 - allows to use custom event class
 
 ### 0.5.0 (21.03.2016)

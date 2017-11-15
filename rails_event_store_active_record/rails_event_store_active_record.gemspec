@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Active Record events repository for Rails Event Store}
   spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store'}
-  spec.homepage      = 'https://github.com/arkency/rails_event_store_active_record'
+  spec.homepage      = 'https://github.com/RailsEventStore/rails_event_store_active_record'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'exe'
