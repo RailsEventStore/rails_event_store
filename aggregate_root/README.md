@@ -13,7 +13,7 @@ gem 'aggregate_root'
 ## Before use
 
 Choose your weapon now! Ekhm I mean choose your event store client.
-To do so add configuration in environment setup. Example using [RailsEventStore](https://github.com/arkency/rails_event_store/):
+To do so add configuration in environment setup. Example using [RailsEventStore](https://github.com/RailsEventStore/rails_event_store/):
 
 ```ruby
 AggregateRoot.configure do |config|
@@ -23,13 +23,13 @@ end
 
 Remember that this is only a default event store used by `AggregateRoot` module when no event store is given in `load` / `store` methods parameters.
 
-To use [RailsEventStore](https://github.com/arkency/rails_event_store/) add to Gemfile:
+To use [RailsEventStore](https://github.com/RailsEventStore/rails_event_store/) add to Gemfile:
 
 ```ruby
 gem 'rails_event_store'
 ```
 
-Then setup [RailsEventStore](https://github.com/arkency/rails_event_store/) as described in
+Then setup [RailsEventStore](https://github.com/RailsEventStore/rails_event_store/) as described in
 the [docs](https://railseventstore.org/docs/install/)
 
 ## Usage
@@ -111,14 +111,14 @@ in the same stream from which order has been loaded.
 
 #### Resources
 
-There're already few blog posts about building an event sourced applications with [rails_event_store](https://github.com/arkency/rails_event_store) and aggregate_root gems:
+There're already few blog posts about building an event sourced applications with [rails_event_store](https://github.com/RailsEventStore/rails_event_store) and aggregate_root gems:
 
-* [Why use Event Sourcing](http://blog.arkency.com/2015/03/why-use-event-sourcing/)
-* [The Event Store for Rails developers](http://blog.arkency.com/2015/04/the-event-store-for-rails-developers/)
-* [Fast introduction to Event Sourcing for Ruby programmers](http://blog.arkency.com/2015/03/fast-introduction-to-event-sourcing-for-ruby-programmers/)
-* [Building an Event Sourced application using rails_event_store](http://blog.arkency.com/2015/05/building-an-event-sourced-application-using-rails-event-store/)
-* [Using domain events as success/failure messages](http://blog.arkency.com/2015/05/using-domain-events-as-success-slash-failure-messages/)
-* [Subscribing for events in rails_event_store](http://blog.arkency.com/2015/06/subscribing-for-events-in-rails-event-store/)
-* [Testing an Event Sourced application](http://blog.arkency.com/2015/07/testing-event-sourced-application/)
-* [Testing Event Sourced application - the read side](http://blog.arkency.com/2015/09/testing-event-sourced-application-the-read-side/)
-* [One event to rule them all](http://blog.arkency.com/2016/01/one-event-to-rule-them-all/)
+* [Why use Event Sourcing](https://blog.arkency.com/2015/03/why-use-event-sourcing/)
+* [The Event Store for Rails developers](https://blog.arkency.com/2015/04/the-event-store-for-rails-developers/)
+* [Fast introduction to Event Sourcing for Ruby programmers](https://blog.arkency.com/2015/03/fast-introduction-to-event-sourcing-for-ruby-programmers/)
+* [Building an Event Sourced application using rails_event_store](https://blog.arkency.com/2015/05/building-an-event-sourced-application-using-rails-event-store/)
+* [Using domain events as success/failure messages](https://blog.arkency.com/2015/05/using-domain-events-as-success-slash-failure-messages/)
+* [Subscribing for events in rails_event_store](https://blog.arkency.com/2015/06/subscribing-for-events-in-rails-event-store/)
+* [Testing an Event Sourced application](https://blog.arkency.com/2015/07/testing-event-sourced-application/)
+* [Testing Event Sourced application - the read side](https://blog.arkency.com/2015/09/testing-event-sourced-application-the-read-side/)
+* [One event to rule them all](https://blog.arkency.com/2016/01/one-event-to-rule-them-all/)

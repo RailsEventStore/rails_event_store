@@ -83,7 +83,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
   end
 
   def preserve_positions?(stream_name)
-    # http://railseventstore.org/docs/expected_version/
+    # https://railseventstore.org/docs/expected_version/
     #
     # return true if you use given stream for event sourcing
     #   (especially with AggregateRoot gem)
