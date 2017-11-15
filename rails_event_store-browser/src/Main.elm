@@ -137,8 +137,8 @@ routeParser =
         ]
 
 
-isMatch : String -> Stream -> Bool
-isMatch searchQuery (Stream name) =
+isMatch : String -> String -> Bool
+isMatch searchQuery name =
     String.contains searchQuery name
 
 
@@ -211,10 +211,15 @@ browseStreams model =
 
 browseEvents : Model -> String -> Html Msg
 browseEvents model streamName =
-    div [ class "browser" ]
-        [ h1 [ class "browser__title" ] [ text ("Events in " ++ streamName) ]
-        , div [ class "browser__results" ] [ displayEvents model.events ]
-        ]
+    let
+        events =
+            filteredEvents model
+    in
+        div [ class "browser" ]
+            [ h1 [ class "browser__title" ] [ text ("Events in " ++ streamName) ]
+            , div [ class "browser__search search" ] [ searchField ]
+            , div [ class "browser__results" ] [ displayEvents events ]
+            ]
 
 
 searchField : Html Msg
@@ -311,7 +316,12 @@ nextPage streams =
 
 filteredStreams : Model -> PaginatedList Stream
 filteredStreams model =
-    Paginate.map (List.filter (isMatch model.searchQuery)) model.streams
+    Paginate.map (List.filter (\(Stream name) -> isMatch model.searchQuery name)) model.streams
+
+
+filteredEvents : Model -> List Event
+filteredEvents model =
+    List.filter (\(Event name _) -> isMatch model.searchQuery name) model.events
 
 
 displayStream : Stream -> Html Msg
