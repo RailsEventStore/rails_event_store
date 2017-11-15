@@ -5,7 +5,7 @@ import Html.Attributes exposing (placeholder, disabled, href, class)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
-import Json.Decode as Decode exposing (map, field, list, string, at)
+import Json.Decode as Decode exposing (Decoder, map, field, list, string, at, value)
 import Navigation
 import UrlParser exposing ((</>))
 
@@ -23,6 +23,7 @@ main =
 type alias Model =
     { streams : PaginatedList Item
     , events : PaginatedList Item
+    , event : EventWithDetails
     , searchQuery : String
     , perPage : Int
     , page : Page
@@ -36,6 +37,7 @@ type Msg
     | GoToPage Int
     | StreamList (Result Http.Error (List Item))
     | EventList (Result Http.Error (List Item))
+    | EventDetails (Result Http.Error EventWithDetails)
     | UrlChange Navigation.Location
 
 
@@ -49,6 +51,14 @@ type Page
 type Item
     = Stream String
     | Event String String
+
+
+type alias EventWithDetails =
+    { eventType : String
+    , eventId : String
+    , data : String
+    , metadata : String
+    }
 
 
 subscriptions : Model -> Sub Msg
@@ -68,6 +78,7 @@ model location =
         initModel =
             { streams = emptyList
             , events = emptyList
+            , event = EventWithDetails "" "" "" ""
             , searchQuery = ""
             , perPage = perPage
             , page = NotFound
@@ -103,6 +114,12 @@ update msg model =
         EventList (Err msg) ->
             ( model, Cmd.none )
 
+        EventDetails (Ok result) ->
+            ( { model | event = result }, Cmd.none )
+
+        EventDetails (Err msg) ->
+            ( model, Cmd.none )
+
         UrlChange location ->
             urlUpdate model location
 
@@ -128,6 +145,9 @@ urlUpdate model location =
 
         Just (BrowseEvents streamId) ->
             ( { model | page = (BrowseEvents streamId) }, getEvents )
+
+        Just (ShowEvent eventId) ->
+            ( { model | page = (ShowEvent eventId) }, getEvent eventId )
 
         Just page ->
             ( { model | page = page }, Cmd.none )
@@ -201,10 +221,35 @@ browserBody model =
                 (filteredItems model.searchQuery model.events)
 
         ShowEvent eventId ->
-            h1 [] [ text ("Event " ++ eventId) ]
+            showEvent model
 
         NotFound ->
             h1 [] [ text "404" ]
+
+
+showEvent : Model -> Html Msg
+showEvent model =
+    div [ class "event" ]
+        [ h1 [ class "event__title" ] [ text model.event.eventType ]
+        , div [ class "event__body" ]
+            [ table []
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Event id" ]
+                        , th [] [ text "Metadata" ]
+                        , th [] [ text "Data" ]
+                        ]
+                    ]
+                , tbody []
+                    [ tr []
+                        [ td [] [ text model.event.eventId ]
+                        , td [] [ text model.event.metadata ]
+                        , td [] [ text model.event.data ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
 
 
 browseItems : String -> PaginatedList Item -> Html Msg
@@ -382,6 +427,15 @@ getEvents =
     Http.send EventList (Http.get "/events.json" (list eventDecoder))
 
 
+getEvent : String -> Cmd Msg
+getEvent eventId =
+    let
+        decoder =
+            Decode.andThen eventWithDetailsDecoder rawEventDecoder
+    in
+        Http.send EventDetails (Http.get "/event.json" decoder)
+
+
 eventDecoder : Decode.Decoder Item
 eventDecoder =
     Decode.map2 Event
@@ -393,3 +447,19 @@ streamDecoder : Decode.Decoder Item
 streamDecoder =
     Decode.map Stream
         (field "name" string)
+
+
+rawEventDecoder : Decoder ( Decode.Value, Decode.Value )
+rawEventDecoder =
+    Decode.map2 (,)
+        (field "data" value)
+        (field "metadata" value)
+
+
+eventWithDetailsDecoder : ( Decode.Value, Decode.Value ) -> Decode.Decoder EventWithDetails
+eventWithDetailsDecoder ( data, metadata ) =
+    Decode.map4 EventWithDetails
+        (field "event_type" string)
+        (field "event_id" string)
+        (field "data" (Decode.succeed (toString data)))
+        (field "metadata" (Decode.succeed (toString metadata)))
