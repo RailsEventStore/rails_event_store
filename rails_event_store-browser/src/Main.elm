@@ -5,7 +5,7 @@ import Html.Attributes exposing (placeholder, disabled, href, class)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
-import Json.Decode as Decode exposing (Decoder, map, field, list, string, at, value)
+import Json.Decode as D exposing (Decoder, Value, field, list, string, at, value)
 import Navigation
 import UrlParser exposing ((</>))
 
@@ -431,35 +431,35 @@ getEvent : String -> Cmd Msg
 getEvent eventId =
     let
         decoder =
-            Decode.andThen eventWithDetailsDecoder rawEventDecoder
+            D.andThen eventWithDetailsDecoder rawEventDecoder
     in
         Http.send EventDetails (Http.get "/event.json" decoder)
 
 
-eventDecoder : Decode.Decoder Item
+eventDecoder : Decoder Item
 eventDecoder =
-    Decode.map2 Event
+    D.map2 Event
         (field "event_type" string)
         (at [ "metadata", "timestamp" ] string)
 
 
-streamDecoder : Decode.Decoder Item
+streamDecoder : Decoder Item
 streamDecoder =
-    Decode.map Stream
+    D.map Stream
         (field "name" string)
 
 
-rawEventDecoder : Decoder ( Decode.Value, Decode.Value )
+rawEventDecoder : Decoder ( Value, Value )
 rawEventDecoder =
-    Decode.map2 (,)
+    D.map2 (,)
         (field "data" value)
         (field "metadata" value)
 
 
-eventWithDetailsDecoder : ( Decode.Value, Decode.Value ) -> Decode.Decoder EventWithDetails
+eventWithDetailsDecoder : ( Value, Value ) -> Decoder EventWithDetails
 eventWithDetailsDecoder ( data, metadata ) =
-    Decode.map4 EventWithDetails
+    D.map4 EventWithDetails
         (field "event_type" string)
         (field "event_id" string)
-        (field "data" (Decode.succeed (toString data)))
-        (field "metadata" (Decode.succeed (toString metadata)))
+        (field "data" (D.succeed (toString data)))
+        (field "metadata" (D.succeed (toString metadata)))
