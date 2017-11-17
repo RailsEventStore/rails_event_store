@@ -10,3 +10,6 @@ bin/
 spec/reports/
 spec/tmp/
 rails_event_store_active_record/db.sqlite3
+node_modules/
+elm-stuff/
+build/
