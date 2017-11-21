@@ -7,7 +7,7 @@ module RailsEventStoreActiveRecord
         @events_class_remapping = events_class_remapping
       end
 
-      def build_event(record)
+      def build_event_entity(record)
         return nil unless record
         event_type = events_class_remapping.fetch(record.event.event_type) { record.event.event_type }
         event_type.constantize.new(
