@@ -1,19 +1,10 @@
 module RailsEventStoreActiveRecord
   module Mappers
-    class YAMLWithEventClassRemapping
+    class WithEventClassRemapping < YAML
 
-      def initialize(serializer: ::YAML, events_class_remapping: {})
-        @serializer             = serializer
+      def initialize(events_class_remapping: {})
+        super()
         @events_class_remapping = events_class_remapping
-      end
-
-      def create_event(event)
-        Event.create!(
-          id:         event.event_id,
-          data:       serializer.dump(event.data),
-          metadata:   serializer.dump(event.metadata),
-          event_type: event.class,
-        )
       end
 
       def build_event(record)
@@ -28,7 +19,7 @@ module RailsEventStoreActiveRecord
 
       private
 
-      attr_reader :serializer, :events_class_remapping
+      attr_reader :events_class_remapping
     end
   end
 end
