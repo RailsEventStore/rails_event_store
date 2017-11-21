@@ -8,7 +8,6 @@ module RailsEventStoreActiveRecord
       end
 
       def record_to_event(record)
-        return nil unless record
         event_type = events_class_remapping.fetch(record.event.event_type) { record.event.event_type }
         event_type.constantize.new(
           event_id: record.event.id,
