@@ -33,7 +33,7 @@ module RailsEventStoreActiveRecord
           position = unless expected_version.equal?(:any)
             expected_version + index + POSITION_SHIFT
           end
-          mapper.build_event_record(event).save!
+          mapper.event_to_record(event).save!
           events = [{
             stream: RubyEventStore::GLOBAL_STREAM,
             position: nil,
@@ -136,7 +136,7 @@ module RailsEventStoreActiveRecord
 
     def build_event_entity(record)
       return nil unless record
-      mapper.build_event_entity(record)
+      mapper.record_to_event(record)
     end
 
     def normalize_to_array(events)
