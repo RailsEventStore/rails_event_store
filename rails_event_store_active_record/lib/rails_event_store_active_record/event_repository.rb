@@ -33,7 +33,7 @@ module RailsEventStoreActiveRecord
           position = unless expected_version.equal?(:any)
             expected_version + index + POSITION_SHIFT
           end
-          mapper.event_to_record(event).save!
+          build_event_record(event).save!
           events = [{
             stream: RubyEventStore::GLOBAL_STREAM,
             position: nil,
@@ -67,7 +67,7 @@ module RailsEventStoreActiveRecord
     def last_stream_event(stream_name)
       record = EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
       return nil unless record
-      build_event_entity(record)
+      build_event_instance(record)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
@@ -78,7 +78,7 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('position ASC, id ASC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_events_backward(stream_name, before_event_id, count)
@@ -89,17 +89,17 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('position DESC, id DESC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_stream_events_forward(stream_name)
       EventInStream.preload(:event).where(stream: stream_name).order('position ASC, id ASC')
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_stream_events_backward(stream_name)
       EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC')
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_all_streams_forward(after_event_id, count)
@@ -110,7 +110,7 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('id ASC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_all_streams_backward(before_event_id, count)
@@ -121,7 +121,7 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('id DESC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     private
@@ -134,8 +134,24 @@ module RailsEventStoreActiveRecord
       e.message.include?("event_store_events.id")       # Sqlite3
     end
 
-    def build_event_entity(record)
-      mapper.record_to_event(record)
+    def build_event_record(event)
+      serialized_record = mapper.event_to_serialized_record(event)
+      Event.new(
+        id:         serialized_record.id,
+        data:       serialized_record.data,
+        metadata:   serialized_record.metadata,
+        event_type: serialized_record.event_type
+      )
+    end
+
+    def build_event_instance(record)
+      serialized_record = RubyEventStore::SerializedRecord.new(
+        id:         record.event.id,
+        metadata:   record.event.metadata,
+        data:       record.event.data,
+        event_type: record.event.event_type
+      )
+      mapper.serialized_record_to_event(serialized_record)
     end
 
     def normalize_to_array(events)

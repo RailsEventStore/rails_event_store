@@ -5,20 +5,20 @@ module RailsEventStoreActiveRecord
         @serializer = ::YAML
       end
 
-      def event_to_record(event)
-        Event.new(
+      def event_to_serialized_record(event)
+        RubyEventStore::SerializedRecord.new(
           id:         event.event_id,
-          data:       serializer.dump(event.data),
           metadata:   serializer.dump(event.metadata),
+          data:       serializer.dump(event.data),
           event_type: event.class
         )
       end
 
-      def record_to_event(record)
-        record.event.event_type.constantize.new(
-          event_id: record.event.id,
-          metadata: serializer.load(record.event.metadata),
-          data:     serializer.load(record.event.data)
+      def serialized_record_to_event(record)
+        record.event_type.constantize.new(
+          event_id: record.id,
+          metadata: serializer.load(record.metadata),
+          data:     serializer.load(record.data)
         )
       end
 
