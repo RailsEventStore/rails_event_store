@@ -6,12 +6,12 @@ module RailsEventStoreActiveRecord
       end
 
       def build_event_record(event)
-        Event.new({
+        Event.new(
           id:         event.event_id,
           data:       serializer.dump(event.data),
           metadata:   serializer.dump(event.metadata),
           event_type: event.class
-        })
+        )
       end
 
       def build_event_entity(record)
