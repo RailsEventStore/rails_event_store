@@ -1,8 +1,8 @@
 module RailsEventStoreActiveRecord
   module Mappers
     class YAML
-      def initialize(serializer: nil)
-        @serializer = serializer || ::YAML
+      def initialize
+        @serializer = ::YAML
       end
 
       def build_event_payload(event)
