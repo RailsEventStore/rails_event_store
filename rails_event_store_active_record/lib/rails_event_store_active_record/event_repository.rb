@@ -129,7 +129,7 @@ module RailsEventStoreActiveRecord
     attr_reader :mapper
 
     def detect_pkey_index_violated(e)
-      e.message.include?("for key 'PRIMAR`Y`'")       ||  # MySQL
+      e.message.include?("for key 'PRIMARY'")       ||  # MySQL
       e.message.include?("event_store_events_pkey") ||  # Postgresql
       e.message.include?("event_store_events.id")       # Sqlite3
     end
