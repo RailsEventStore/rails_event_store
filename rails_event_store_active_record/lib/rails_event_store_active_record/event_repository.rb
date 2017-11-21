@@ -6,8 +6,9 @@ module RailsEventStoreActiveRecord
 
     POSITION_SHIFT = 1
 
-    def initialize
+    def initialize(mapper: Mappers::YAML.new)
       verify_correct_schema_present
+      @mapper = mapper
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -32,12 +33,7 @@ module RailsEventStoreActiveRecord
           position = unless expected_version.equal?(:any)
             expected_version + index + POSITION_SHIFT
           end
-          Event.create!(
-            id: event.event_id,
-            data: event.data,
-            metadata: event.metadata,
-            event_type: event.class,
-          )
+          mapper.create_event(event)
           events = [{
             stream: RubyEventStore::GLOBAL_STREAM,
             position: nil,
@@ -130,19 +126,16 @@ module RailsEventStoreActiveRecord
 
     private
 
+    attr_reader :mapper
+
     def detect_pkey_index_violated(e)
-      e.message.include?("for key 'PRIMARY'")       ||  # MySQL
+      e.message.include?("for key 'PRIMAR`Y`'")       ||  # MySQL
       e.message.include?("event_store_events_pkey") ||  # Postgresql
       e.message.include?("event_store_events.id")       # Sqlite3
     end
 
     def build_event_entity(record)
-      return nil unless record
-      record.event.event_type.constantize.new(
-        event_id: record.event.id,
-        metadata: record.event.metadata,
-        data: record.event.data
-      )
+      mapper.build_event(record)
     end
 
     def normalize_to_array(events)
