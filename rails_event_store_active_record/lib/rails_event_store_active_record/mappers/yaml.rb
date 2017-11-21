@@ -5,13 +5,13 @@ module RailsEventStoreActiveRecord
         @serializer = ::YAML
       end
 
-      def build_event_payload(event)
-        {
+      def build_event_record(event)
+        Event.new({
           id:         event.event_id,
           data:       serializer.dump(event.data),
           metadata:   serializer.dump(event.metadata),
-          event_type: event.class,
-        }
+          event_type: event.class
+        })
       end
 
       def build_event_entity(record)
