@@ -65,9 +65,9 @@ module RailsEventStoreActiveRecord
     end
 
     def last_stream_event(stream_name)
-      build_event_entity(
-        EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
-      )
+      record = EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
+      return nil unless record
+      build_event_entity(record)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
@@ -135,7 +135,6 @@ module RailsEventStoreActiveRecord
     end
 
     def build_event_entity(record)
-      return nil unless record
       mapper.record_to_event(record)
     end
 
