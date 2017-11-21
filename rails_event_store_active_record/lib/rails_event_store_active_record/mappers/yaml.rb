@@ -15,7 +15,6 @@ module RailsEventStoreActiveRecord
       end
 
       def build_event_entity(record)
-        return nil unless record
         record.event.event_type.constantize.new(
           event_id: record.event.id,
           metadata: serializer.load(record.event.metadata),

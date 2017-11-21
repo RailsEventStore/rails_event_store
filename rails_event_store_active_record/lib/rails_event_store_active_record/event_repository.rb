@@ -135,6 +135,7 @@ module RailsEventStoreActiveRecord
     end
 
     def build_event_entity(record)
+      return nil unless record
       mapper.build_event_entity(record)
     end
 
