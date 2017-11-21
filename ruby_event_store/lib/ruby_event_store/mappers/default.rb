@@ -1,7 +1,12 @@
+require 'yaml'
+
 module RubyEventStore
   module Mappers
     class Default
-      def initialize(serializer: ::YAML, events_class_remapping: {})
+      WrongSerializer = Class.new(StandardError)
+      def initialize(serializer: YAML, events_class_remapping: {})
+        raise WrongSerializer unless serializer.respond_to?(:dump, :load)
+        raise ArgumentError   unless events_class_remapping.respond_to?(:fetch)
         @serializer = serializer
         @events_class_remapping = events_class_remapping
       end
@@ -17,7 +22,7 @@ module RubyEventStore
 
       def serialized_record_to_event(record)
         event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
-        event_type.constantize.new(
+        RubyEventStore::Constantizer.call(event_type).new(
           event_id: record.id,
           metadata: serializer.load(record.metadata),
           data:     serializer.load(record.data)

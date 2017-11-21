@@ -5,6 +5,7 @@ module RubyEventStore
       @data       = data
       @metadata   = metadata
       @event_type = event_type
+      freeze
     end
 
     attr_reader :id, :data, :metadata, :event_type
