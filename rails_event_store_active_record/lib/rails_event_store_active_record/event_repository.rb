@@ -6,7 +6,7 @@ module RailsEventStoreActiveRecord
 
     POSITION_SHIFT = 1
 
-    def initialize(mapper: Mappers::YAML.new)
+    def initialize(mapper: RubyEventStore::Mappers::Default.new)
       verify_correct_schema_present
       @mapper = mapper
     end
