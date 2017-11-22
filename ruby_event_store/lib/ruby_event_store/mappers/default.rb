@@ -3,10 +3,10 @@ require 'yaml'
 module RubyEventStore
   module Mappers
     class Default
-      WrongSerializer = Class.new(StandardError)
+      ContractMissMatch = Class.new(StandardError)
       def initialize(serializer: YAML, events_class_remapping: {})
-        raise WrongSerializer unless serializer.respond_to?(:dump, :load)
-        raise ArgumentError   unless events_class_remapping.respond_to?(:fetch)
+        raise ContractMissMatch unless serializer.respond_to?(:dump, :load)
+        raise ContractMissMatch unless events_class_remapping.respond_to?(:fetch)
         @serializer = serializer
         @events_class_remapping = events_class_remapping
       end

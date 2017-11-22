@@ -32,13 +32,13 @@ module RubyEventStore
       specify 'when serializer is not following contract' do
         expect do
           described_class.new(serializer: double)
-        end.to raise_error Default::WrongSerializer
+        end.to raise_error Default::ContractMissMatch
       end
 
       specify 'when events_class_remapping is not following contract' do
         expect do
           described_class.new(events_class_remapping: double)
-        end.to raise_error ArgumentError
+        end.to raise_error Default::ContractMissMatch
       end
     end
   end
