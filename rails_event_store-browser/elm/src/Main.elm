@@ -6,6 +6,7 @@ import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
 import Json.Decode as D exposing (Decoder, Value, field, list, string, at, value)
+import Json.Encode exposing (encode)
 import Navigation
 import UrlParser exposing ((</>))
 
@@ -471,5 +472,5 @@ eventWithDetailsDecoder ( data, metadata ) =
     D.map4 EventWithDetails
         (field "event_type" string)
         (field "event_id" string)
-        (field "data" (D.succeed (toString data)))
-        (field "metadata" (D.succeed (toString metadata)))
+        (field "data" (value |> D.map (encode 2)))
+        (field "metadata" (value |> D.map (encode 2)))
