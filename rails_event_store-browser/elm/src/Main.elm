@@ -10,9 +10,9 @@ import Navigation
 import UrlParser exposing ((</>))
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Navigation.program UrlChange
+    Navigation.programWithFlags UrlChange
         { init = model
         , view = view
         , update = update
@@ -27,6 +27,7 @@ type alias Model =
     , searchQuery : String
     , perPage : Int
     , page : Page
+    , flags : Flags
     }
 
 
@@ -61,13 +62,21 @@ type alias EventWithDetails =
     }
 
 
+type alias Flags =
+    { streamListUrl : String
+    , streamUrl : String
+    , eventUrl : String
+    , resVersion : String
+    }
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
 
 
-model : Navigation.Location -> ( Model, Cmd Msg )
-model location =
+model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
+model flags location =
     let
         perPage =
             10
@@ -82,6 +91,7 @@ model location =
             , searchQuery = ""
             , perPage = perPage
             , page = NotFound
+            , flags = flags
             }
     in
         urlUpdate initModel location
@@ -141,13 +151,13 @@ urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
     case decode location of
         Just BrowseStreams ->
-            ( { model | page = BrowseStreams }, getStreams )
+            ( { model | page = BrowseStreams }, getStreams model.flags.streamListUrl )
 
         Just (BrowseEvents streamId) ->
-            ( { model | page = (BrowseEvents streamId) }, getEvents )
+            ( { model | page = (BrowseEvents streamId) }, getEvents model.flags.streamUrl )
 
         Just (ShowEvent eventId) ->
-            ( { model | page = (ShowEvent eventId) }, getEvent eventId )
+            ( { model | page = (ShowEvent eventId) }, getEvent model.flags.eventUrl eventId )
 
         Just page ->
             ( { model | page = page }, Cmd.none )
@@ -180,7 +190,7 @@ view model =
     div [ class "frame" ]
         [ header [ class "frame__header" ] [ browserNavigation ]
         , main_ [ class "frame__body" ] [ browserBody model ]
-        , footer [ class "frame__footer" ] [ browserFooter ]
+        , footer [ class "frame__footer" ] [ browserFooter model ]
         ]
 
 
@@ -196,11 +206,11 @@ browserNavigation =
         ]
 
 
-browserFooter : Html Msg
-browserFooter =
+browserFooter : Model -> Html Msg
+browserFooter model =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
-            [ text "RailsEventStore v0.18.0"
+            [ text ("RailsEventStore v" ++ model.flags.resVersion)
             , a [ href "http://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
             , a [ href "http://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
             ]
@@ -417,23 +427,23 @@ displayItem item =
                 ]
 
 
-getStreams : Cmd Msg
-getStreams =
-    Http.send StreamList (Http.get "/streams.json" (list streamDecoder))
+getStreams : String -> Cmd Msg
+getStreams url =
+    Http.send StreamList (Http.get url (list streamDecoder))
 
 
-getEvents : Cmd Msg
-getEvents =
-    Http.send EventList (Http.get "/events.json" (list eventDecoder))
+getEvents : String -> Cmd Msg
+getEvents url =
+    Http.send EventList (Http.get url (list eventDecoder))
 
 
-getEvent : String -> Cmd Msg
-getEvent eventId =
+getEvent : String -> String -> Cmd Msg
+getEvent url eventId =
     let
         decoder =
             D.andThen eventWithDetailsDecoder rawEventDecoder
     in
-        Http.send EventDetails (Http.get "/event.json" decoder)
+        Http.send EventDetails (Http.get url decoder)
 
 
 eventDecoder : Decoder Item
