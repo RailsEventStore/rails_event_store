@@ -40,6 +40,7 @@ module RailsEventStoreActiveRecord
           )
           events = [{
             stream: RubyEventStore::GLOBAL_STREAM,
+            position: nil,
             event_id: event.event_id
           }]
           events.unshift({
