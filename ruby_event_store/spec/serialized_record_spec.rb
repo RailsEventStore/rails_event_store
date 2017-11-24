@@ -1,9 +1,9 @@
 module RubyEventStore
 
   RSpec.describe SerializedRecord do
-    let(:event_id) { "event_id" }
-    let(:data) { "data" }
-    let(:metadata) { "metadata" }
+    let(:event_id)   { "event_id" }
+    let(:data)       { "data" }
+    let(:metadata)   { "metadata" }
     let(:event_type) { "event_type" }
 
     specify 'constructor accept all arguments and returns frozen instance' do
