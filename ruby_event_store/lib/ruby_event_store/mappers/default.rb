@@ -14,7 +14,7 @@ module RubyEventStore
           event_id:         domain_event.event_id,
           metadata:   serializer.dump(domain_event.metadata),
           data:       serializer.dump(domain_event.data),
-          event_type: domain_event.class
+          event_type: domain_event.class.name
         )
       end
 
