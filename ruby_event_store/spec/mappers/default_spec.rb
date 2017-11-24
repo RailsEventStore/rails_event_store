@@ -10,7 +10,7 @@ module RubyEventStore
       specify '#event_to_serialized_record returns YAML serialized record' do
         record = subject.event_to_serialized_record(domain_event)
         expect(record).to            be_a SerializedRecord
-        expect(record.id).to         eq domain_event.event_id
+        expect(record.event_id).to   eq domain_event.event_id
         expect(record.metadata).to   eq YAML.dump(metadata)
         expect(record.data).to       eq YAML.dump(data)
         expect(record.event_type).to eq SomethingHappened
@@ -18,7 +18,7 @@ module RubyEventStore
 
       specify '#serialized_record_to_event returns event instance' do
         record = SerializedRecord.new(
-          id:         domain_event.event_id,
+          event_id:   domain_event.event_id,
           data:       YAML.dump(data),
           metadata:   YAML.dump(metadata),
           event_type: SomethingHappened.name
@@ -33,7 +33,7 @@ module RubyEventStore
       specify '#serialized_record_to_event its using events class remapping' do
         subject = described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'})
         record = SerializedRecord.new(
-          id:         domain_event.event_id,
+          event_id:   domain_event.event_id,
           data:       YAML.dump(data),
           metadata:   YAML.dump(metadata),
           event_type: "EventNameBeforeRefactor"

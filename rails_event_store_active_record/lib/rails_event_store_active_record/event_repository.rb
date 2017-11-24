@@ -66,8 +66,7 @@ module RailsEventStoreActiveRecord
 
     def last_stream_event(stream_name)
       record = EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
-      return nil unless record
-      build_event_instance(record)
+      record && build_event_instance(record)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
@@ -137,7 +136,7 @@ module RailsEventStoreActiveRecord
     def build_event_record(event)
       serialized_record = mapper.event_to_serialized_record(event)
       Event.new(
-        id:         serialized_record.id,
+        id:         serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type
@@ -146,7 +145,7 @@ module RailsEventStoreActiveRecord
 
     def build_event_instance(record)
       serialized_record = RubyEventStore::SerializedRecord.new(
-        id:         record.event.id,
+        event_id:         record.event.id,
         metadata:   record.event.metadata,
         data:       record.event.data,
         event_type: record.event.event_type
