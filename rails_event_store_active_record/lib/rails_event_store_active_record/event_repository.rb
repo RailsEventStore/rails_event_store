@@ -6,8 +6,9 @@ module RailsEventStoreActiveRecord
 
     POSITION_SHIFT = 1
 
-    def initialize
+    def initialize(mapper: RubyEventStore::Mappers::Default.new)
       verify_correct_schema_present
+      @mapper = mapper
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -32,12 +33,7 @@ module RailsEventStoreActiveRecord
           position = unless expected_version.equal?(:any)
             expected_version + index + POSITION_SHIFT
           end
-          Event.create!(
-            id: event.event_id,
-            data: event.data,
-            metadata: event.metadata,
-            event_type: event.class,
-          )
+          build_event_record(event).save!
           events = [{
             stream: RubyEventStore::GLOBAL_STREAM,
             position: nil,
@@ -69,9 +65,8 @@ module RailsEventStoreActiveRecord
     end
 
     def last_stream_event(stream_name)
-      build_event_entity(
-        EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
-      )
+      record = EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
+      record && build_event_instance(record)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
@@ -82,7 +77,7 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('position ASC, id ASC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_events_backward(stream_name, before_event_id, count)
@@ -93,17 +88,17 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('position DESC, id DESC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_stream_events_forward(stream_name)
       EventInStream.preload(:event).where(stream: stream_name).order('position ASC, id ASC')
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_stream_events_backward(stream_name)
       EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC')
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_all_streams_forward(after_event_id, count)
@@ -114,7 +109,7 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('id ASC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     def read_all_streams_backward(before_event_id, count)
@@ -125,10 +120,12 @@ module RailsEventStoreActiveRecord
       end
 
       stream.preload(:event).order('id DESC').limit(count)
-        .map(&method(:build_event_entity))
+        .map(&method(:build_event_instance))
     end
 
     private
+
+    attr_reader :mapper
 
     def detect_pkey_index_violated(e)
       e.message.include?("for key 'PRIMARY'")       ||  # MySQL
@@ -136,13 +133,24 @@ module RailsEventStoreActiveRecord
       e.message.include?("event_store_events.id")       # Sqlite3
     end
 
-    def build_event_entity(record)
-      return nil unless record
-      record.event.event_type.constantize.new(
-        event_id: record.event.id,
-        metadata: record.event.metadata,
-        data: record.event.data
+    def build_event_record(event)
+      serialized_record = mapper.event_to_serialized_record(event)
+      Event.new(
+        id:         serialized_record.event_id,
+        data:       serialized_record.data,
+        metadata:   serialized_record.metadata,
+        event_type: serialized_record.event_type
       )
+    end
+
+    def build_event_instance(record)
+      serialized_record = RubyEventStore::SerializedRecord.new(
+        event_id:         record.event.id,
+        metadata:   record.event.metadata,
+        data:       record.event.data,
+        event_type: record.event.event_type
+      )
+      mapper.serialized_record_to_event(serialized_record)
     end
 
     def normalize_to_array(events)
