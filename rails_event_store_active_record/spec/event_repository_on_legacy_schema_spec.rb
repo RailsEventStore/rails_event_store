@@ -34,14 +34,6 @@ module RailsEventStoreActiveRecord
               rake db:migrate
 
 
-            If you cannot migrate right now -- you can for some time continue using
-            old repository. In order to do so, change configuration accordingly:
-
-              config.event_store = RailsEventStore::Client.new(
-                                     repository: RailsEventStoreActiveRecord::LegacyEventRepository.new
-                                   )
-
-
         MESSAGE
       end
     end
