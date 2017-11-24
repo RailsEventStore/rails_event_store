@@ -15,7 +15,7 @@ module RubyEventStore
       expect(record.frozen?).to be true
     end
 
-    specify 'constructor raised StringTypesRequired when argument is not a String' do
+    specify 'constructor raised SerializedRecord::StringsRequired when argument is not a String' do
       [["string", 1, 1, 1],
        [1, "string", 1, 1],
        [1, 1, "string", 1],
