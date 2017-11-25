@@ -10,9 +10,10 @@ test: ## Run tests
 	@echo "Running basic tests - beware: this won't guarantee build pass"
 	@bundle exec rspec
 
+mutate: DATABASE_URL ?= sqlite3::memory:
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" \
+	@env DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" \
 	  --ignore-subject "RailsEventStoreActiveRecord::EventRepository#normalize_to_array" \
 	  --ignore-subject "RailsEventStoreActiveRecord::LegacyEventRepository#normalize_to_array" \
 	  --ignore-subject "RailsEventStoreActiveRecord::EventRepository#detect_pkey_index_violated"
@@ -30,4 +31,3 @@ help:
 
 .PHONY: help
 .DEFAULT_GOAL := help
-
