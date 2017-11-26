@@ -25,8 +25,11 @@ module RubyEventStore
       self
     end
 
-    def when(event, handler)
-      @handlers[event] = handler
+    def when(events, handler)
+      Array(events).each do |event|
+        @handlers[event] = handler
+      end
+
       self
     end
 
