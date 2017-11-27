@@ -15,11 +15,15 @@ module AggregateRoot
       end
     end
 
-    private
-    attr_reader :strict
+    def handler_name_by_class(event_class)
+      "apply_#{event_class.name.demodulize.underscore}"
+    end
 
     def handler_name(event)
-      "apply_#{event.class.name.demodulize.underscore}"
+      handler_name_by_class(event.class)
     end
+
+    private
+    attr_reader :strict
   end
 end

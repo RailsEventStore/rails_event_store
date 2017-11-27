@@ -4,6 +4,22 @@ require 'aggregate_root/configuration'
 require 'aggregate_root/default_apply_strategy'
 
 module AggregateRoot
+  module ClassMethods
+    def on(*event_klasses, apply_strategy:  DefaultApplyStrategy.new, &block)
+      event_klasses.each do |event_klass|
+        handler_name = apply_strategy.handler_name_by_class(event_klass)
+        define_method handler_name do |event|
+          instance_exec event, &block
+        end
+        private handler_name
+      end
+    end
+  end
+
+  def self.included(host_class)
+    host_class.extend(ClassMethods)
+  end
+
   def apply(*events)
     events.each do |event|
       apply_strategy.(self, event)

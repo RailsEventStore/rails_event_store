@@ -189,4 +189,28 @@ describe AggregateRoot do
     expect(order.unpublished_events.respond_to?(:pop)).to eq(false)
     expect(order.unpublished_events.respond_to?(:unshift)).to eq(false)
   end
+
+  describe ".on" do
+    it "generates private apply handler method" do
+      check = double
+      expect(check).to receive(:call).with(instance_of(Orders::Events::SpanishInquisition))
+
+      Order.on(Orders::Events::SpanishInquisition) do |event|
+        check.call(event)
+        @status = :spanish_inqusition
+      end
+
+      order = Order.new
+      order.apply(Orders::Events::SpanishInquisition.new)
+      expect(order.status).to          eq :spanish_inqusition
+      expect(order.private_methods).to include :apply_spanish_inquisition
+    end
+  end
+
+  describe '.include' do
+    it 'extend class with AggregateRoot::ClassMethods' do
+      expect(Order).to receive(:extend).with(AggregateRoot::ClassMethods)
+      Order.include(AggregateRoot)
+    end
+  end
 end
