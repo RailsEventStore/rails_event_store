@@ -8,9 +8,7 @@ module AggregateRoot
     def on(*event_klasses, apply_strategy:  DefaultApplyStrategy.new, &block)
       event_klasses.each do |event_klass|
         handler_name = apply_strategy.handler_name_by_class(event_klass)
-        define_method handler_name do |event|
-          instance_exec event, &block
-        end
+        define_method handler_name, &block
         private handler_name
       end
     end
