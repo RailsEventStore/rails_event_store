@@ -24,6 +24,17 @@ In order to narrow the results, simply pass `event_id` to `run` method.
 account_balance.run(client, custom_event.event_id) # => {total: -5}
 ```
 
+You may also subscribe one handler to multiple events by passing an array to `#when` method:
+
+```ruby
+account_cashflow = RailsEventStore::Projection.
+  from_all_streams.
+  init( -> { { total: 0 } }).
+  when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] })
+
+account_cashflow.run(client) # => {total: 35}
+```
+
 ## Projection based on multiple streams
 
 ```ruby
