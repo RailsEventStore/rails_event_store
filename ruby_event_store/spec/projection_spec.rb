@@ -34,25 +34,6 @@ module RubyEventStore
       expect(account_balance).to eq(total: 5)
     end
 
-    specify "limit events from many streams" do
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 15 }), stream_name: "Customer$1")
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 25 }), stream_name: "Customer$2")
-      event_store.publish_event(custom_event = MoneyWithdrawn.new(data: { amount: 10 }), stream_name: "Customer$3")
-      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 20 }), stream_name: "Customer$3")
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$3")
-
-      account_balance = Projection.
-        from_stream("Customer$1", "Customer$3").
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount]})
-
-      expect(account_balance.run(event_store)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: :head)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: [:head, custom_event.event_id], count: 1)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: [:head, custom_event.event_id], count: 2)).to eq(total: 5)
-    end
-
     specify "raises proper errors when wrong argument were pass (stream mode)" do
       projection = Projection.from_stream("Customer$1", "Customer$2")
       expect {
@@ -79,22 +60,6 @@ module RubyEventStore
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
       expect(account_balance.run(event_store)).to eq(total: 1)
-    end
-
-    specify "limit events from all streams" do
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
-      event_store.publish_event(custom_event = MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
-      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 5 }), stream_name: "Customer$3")
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$4")
-
-      account_balance = Projection.
-        from_all_streams.
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
-
-      expect(account_balance.run(event_store, start: custom_event.event_id, count: 1)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: custom_event.event_id, count: 2)).to eq(total: 5)
     end
 
     specify "raises proper errors when wrong argument were pass (all streams mode)" do
