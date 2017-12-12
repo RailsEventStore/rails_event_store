@@ -17,4 +17,6 @@ Gem::Specification.new do |s|
   s.add_dependency "rails", ">= 4.2"
 
   s.add_development_dependency "sqlite3"
+  s.add_development_dependency "rspec", "~> 3.6"
+  s.add_development_dependency "mutant-rspec", "~> 0.8.14"
 end
