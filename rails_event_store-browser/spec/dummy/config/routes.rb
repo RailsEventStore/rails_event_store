@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  mount RailsEventStore::Browser::Engine => "/rails_event_store-browser"
+  mount RailsEventStore::Browser::Engine => "/res"
 end

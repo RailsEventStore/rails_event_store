@@ -1,3 +1,5 @@
+require 'rails'
+
 module RailsEventStore
   module Browser
     class Engine < ::Rails::Engine
