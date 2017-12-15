@@ -13,6 +13,10 @@ module Dummy
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
+
+    config.to_prepare do
+      Rails.configuration.event_store = RailsEventStore::Client.new
+    end
   end
 end
 

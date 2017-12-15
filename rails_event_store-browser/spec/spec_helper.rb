@@ -3,7 +3,19 @@ require "rails_event_store"
 require "rails_event_store/browser"
 
 ENV['RAILS_ENV'] ||= 'test'
+
 require File.expand_path("../dummy/config/environment.rb", __FILE__)
+MigrationCode = File.read(File.expand_path('../../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
+migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
+MigrationCode.gsub!("<%= migration_version %>", migration_version)
+MigrationCode.gsub!("force: false", "force: true")
+
+ActiveRecord::Schema.define do
+  self.verbose = false
+  eval(MigrationCode) unless defined?(CreateEventStoreEvents)
+  CreateEventStoreEvents.new.change
+end
+
 require "rspec/rails"
 
 RSpec.configure do |config|
