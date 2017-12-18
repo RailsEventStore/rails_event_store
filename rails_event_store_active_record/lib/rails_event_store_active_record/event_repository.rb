@@ -123,6 +123,12 @@ module RailsEventStoreActiveRecord
         .map(&method(:build_event_instance))
     end
 
+    def get_all_streams
+      (["all"] + EventInStream.pluck(:stream))
+        .uniq
+        .map { |name| RubyEventStore::Stream.new(name) }
+    end
+
     private
 
     attr_reader :mapper

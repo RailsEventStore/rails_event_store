@@ -65,6 +65,10 @@ module RubyEventStore
       read_batch(all.reverse, start_event_id, count)
     end
 
+    def get_all_streams
+      [Stream.new("all")] + streams.keys.map { |name| Stream.new(name) }
+    end
+
     private
     attr_accessor :streams, :all
 

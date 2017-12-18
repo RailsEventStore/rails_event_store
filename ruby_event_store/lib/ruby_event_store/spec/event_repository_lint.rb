@@ -432,4 +432,14 @@ RSpec.shared_examples :event_repository do |repository_class|
     end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
     expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
   end
+
+  specify "all stream always present" do
+    expect(repository.get_all_streams).to match_array([RubyEventStore::Stream.new("all")])
+  end
+
+  specify "reading all existing stream names" do
+    repository.append_to_stream(TestDomainEvent.new, "test", -1)
+    repository.append_to_stream(TestDomainEvent.new, "test",  0)
+    expect(repository.get_all_streams).to match_array([RubyEventStore::Stream.new("all"), RubyEventStore::Stream.new("test")])
+  end
 end

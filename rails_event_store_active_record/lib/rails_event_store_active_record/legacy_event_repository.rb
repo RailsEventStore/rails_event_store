@@ -112,6 +112,12 @@ instead:
         .map(&method(:build_event_entity))
     end
 
+    def get_all_streams
+      (["all"] + LegacyEvent.pluck(:stream))
+        .uniq
+        .map { |name| RubyEventStore::Stream.new(name) }
+    end
+
     private
 
     def normalize_to_array(events)

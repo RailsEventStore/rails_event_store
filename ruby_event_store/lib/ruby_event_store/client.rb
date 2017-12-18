@@ -69,6 +69,10 @@ module RubyEventStore
       repository.read_all_streams_backward(page.start, page.count)
     end
 
+    def get_all_streams
+      repository.get_all_streams
+    end
+
     def subscribe(subscriber, event_types, &proc)
       event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
         handle_subscribe(unsub, &proc)
