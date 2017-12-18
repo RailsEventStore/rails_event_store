@@ -98,7 +98,7 @@ module RubyEventStore
       events = reader.call(start)
       until(events.empty?)
         state = reduce_events(events, state)
-        start = events.last&.event_id
+        start = events.last && events.last.event_id
         events = start ? reader.call(start) : []
       end
       state
