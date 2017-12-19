@@ -112,6 +112,10 @@ instead:
         .map(&method(:build_event_entity))
     end
 
+    def read_event(event_id)
+      build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound
+    end
+
     def get_all_streams
       (["all"] + LegacyEvent.pluck(:stream))
         .uniq

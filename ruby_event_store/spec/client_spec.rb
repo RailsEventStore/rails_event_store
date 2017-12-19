@@ -181,5 +181,18 @@ module RubyEventStore
 
       expect(client.get_all_streams).to eq([Stream.new('all'), Stream.new('test')])
     end
+
+    specify 'reading particular event' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      client.publish_event(test_event, stream_name: 'test')
+
+      expect(client.read_event(test_event.event_id)).to eq(test_event)
+    end
+
+    specify 'reading non-existent event' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect{client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')}.to raise_error(EventNotFound)
+    end
   end
 end

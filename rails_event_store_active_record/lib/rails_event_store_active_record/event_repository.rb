@@ -123,6 +123,19 @@ module RailsEventStoreActiveRecord
         .map(&method(:build_event_instance))
     end
 
+    def read_event(event_id)
+      event             = Event.find(event_id)
+      serialized_record = RubyEventStore::SerializedRecord.new(
+        event_id:   event.id,
+        metadata:   event.metadata,
+        data:       event.data,
+        event_type: event.event_type
+      )
+      mapper.serialized_record_to_event(serialized_record)
+    rescue ActiveRecord::RecordNotFound
+      raise RubyEventStore::EventNotFound
+    end
+
     def get_all_streams
       (["all"] + EventInStream.pluck(:stream))
         .uniq

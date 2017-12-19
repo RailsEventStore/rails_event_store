@@ -69,6 +69,10 @@ module RubyEventStore
       repository.read_all_streams_backward(page.start, page.count)
     end
 
+    def read_event(event_id)
+      repository.read_event(event_id)
+    end
+
     def get_all_streams
       repository.get_all_streams
     end

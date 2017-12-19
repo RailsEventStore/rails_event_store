@@ -65,6 +65,10 @@ module RubyEventStore
       read_batch(all.reverse, start_event_id, count)
     end
 
+    def read_event(event_id)
+      all.find { |e| event_id.equal?(e.event_id) } or raise EventNotFound
+    end
+
     def get_all_streams
       [Stream.new("all")] + streams.keys.map { |name| Stream.new(name) }
     end

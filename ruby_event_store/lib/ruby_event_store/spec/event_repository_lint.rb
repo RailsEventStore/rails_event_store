@@ -442,4 +442,16 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.append_to_stream(TestDomainEvent.new, "test",  0)
     expect(repository.get_all_streams).to match_array([RubyEventStore::Stream.new("all"), RubyEventStore::Stream.new("test")])
   end
+
+  specify 'reading particular event' do
+    test_event = TestDomainEvent.new
+    repository.append_to_stream(TestDomainEvent.new, "test", -1)
+    repository.append_to_stream(test_event, "test", 0)
+
+    expect(repository.read_event(test_event.event_id)).to eq(test_event)
+  end
+
+  specify 'reading non-existent event' do
+    expect{repository.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')}.to raise_error(RubyEventStore::EventNotFound)
+  end
 end
