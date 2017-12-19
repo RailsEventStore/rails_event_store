@@ -6,11 +6,15 @@ module RailsEventStore
       end
 
       def show
-        events = event_store.read_stream_events_backward(params[:id])
+        events = event_store.read_stream_events_backward(stream_name)
         render json: events.map { |e| serialize_event(e) }
       end
 
       private
+
+      def stream_name
+        params[:id]
+      end
 
       def serialize_stream(stream)
         { name: stream.name }
