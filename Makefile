@@ -2,7 +2,7 @@ UPSTREAM_REV = `git rev-parse upstream/master`
 ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= `cat RES_VERSION`
-GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store_active_record ruby_event_store
+GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store-browser rails_event_store_active_record ruby_event_store
 NIX_TYPE     = $(shell uname -s)
 
 ifeq ($(NIX_TYPE),Linux)
