@@ -64,9 +64,9 @@ type alias EventWithDetails =
 
 
 type alias Flags =
-    { streamListUrl : String
-    , streamUrl : String
-    , eventUrl : String
+    { rootUrl : String
+    , streamsUrl : String
+    , eventsUrl : String
     , resVersion : String
     }
 
@@ -152,13 +152,13 @@ urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
     case decode location of
         Just BrowseStreams ->
-            ( { model | page = BrowseStreams }, getStreams model.flags.streamListUrl )
+            ( { model | page = BrowseStreams }, getStreams model.flags.streamsUrl )
 
         Just (BrowseEvents streamId) ->
-            ( { model | page = (BrowseEvents streamId) }, getEvents model.flags.streamUrl )
+            ( { model | page = (BrowseEvents streamId) }, getEvents model.flags.streamsUrl streamId )
 
         Just (ShowEvent eventId) ->
-            ( { model | page = (ShowEvent eventId) }, getEvent model.flags.eventUrl eventId )
+            ( { model | page = (ShowEvent eventId) }, getEvent model.flags.eventsUrl eventId )
 
         Just page ->
             ( { model | page = page }, Cmd.none )
@@ -189,20 +189,20 @@ isMatch searchQuery name =
 view : Model -> Html Msg
 view model =
     div [ class "frame" ]
-        [ header [ class "frame__header" ] [ browserNavigation ]
+        [ header [ class "frame__header" ] [ browserNavigation model ]
         , main_ [ class "frame__body" ] [ browserBody model ]
         , footer [ class "frame__footer" ] [ browserFooter model ]
         ]
 
 
-browserNavigation : Html Msg
-browserNavigation =
+browserNavigation : Model -> Html Msg
+browserNavigation model =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
-            [ a [ href "/", class "navigation__logo" ] [ text "Rails Event Store" ]
+            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Rails Event Store" ]
             ]
         , div [ class "navigation__links" ]
-            [ a [ href "/", class "navigation__link" ] [ text "Stream Browser" ]
+            [ a [ href model.flags.rootUrl, class "navigation__link" ] [ text "Stream Browser" ]
             ]
         ]
 
@@ -433,9 +433,9 @@ getStreams url =
     Http.send StreamList (Http.get url (list streamDecoder))
 
 
-getEvents : String -> Cmd Msg
-getEvents url =
-    Http.send EventList (Http.get url (list eventDecoder))
+getEvents : String -> String -> Cmd Msg
+getEvents url streamName =
+    Http.send EventList (Http.get (url ++ "/" ++ streamName) (list eventDecoder))
 
 
 getEvent : String -> String -> Cmd Msg
@@ -444,7 +444,7 @@ getEvent url eventId =
         decoder =
             D.andThen eventWithDetailsDecoder rawEventDecoder
     in
-        Http.send EventDetails (Http.get url decoder)
+        Http.send EventDetails (Http.get (url ++ "/" ++ eventId) decoder)
 
 
 eventDecoder : Decoder Item

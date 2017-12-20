@@ -11,19 +11,36 @@ const {
   sass
 } = require("webpack-blocks");
 const elm = require("@webpack-blocks/elm");
+const path = require("path");
 
 module.exports = createConfig([
   entryPoint("./src/index.js"),
-  setOutput("./build/bundle.js"),
+  setOutput("../app/assets/javascripts/rails_event_store/browser/bundle.js"),
   elm(),
   sass(),
-  addPlugins([
-    new HTMLWebpackPlugin({
-      title: "Browser"
-    })
-  ]),
   defineConstants({
     "process.env.NODE_ENV": process.env.NODE_ENV
   }),
-  env("development", [devServer({ contentBase: "./src" })])
+  env("development", [
+    devServer({
+      contentBase: "./src",
+      before: app => {
+        app.get("/streams", (req, res) =>
+          res.sendFile(path.resolve("./src/streams.json"))
+        );
+        app.get("/streams/*", (req, res) =>
+          res.sendFile(path.resolve("./src/events.json"))
+        );
+        app.get("/events/*", (req, res) =>
+          res.sendFile(path.resolve("./src/event.json"))
+        );
+      }
+    }),
+    addPlugins([
+      new HTMLWebpackPlugin({
+        template: "src/index.html",
+        inject: false
+      })
+    ])
+  ])
 ]);

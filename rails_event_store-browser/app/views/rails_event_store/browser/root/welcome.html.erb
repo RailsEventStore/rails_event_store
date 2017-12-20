@@ -7,5 +7,13 @@
   </head>
   <body>
     <%= javascript_include_tag "rails_event_store/browser/application" %>
+    <script type="text/javascript">
+      RailsEventStore.Browser.Main.fullscreen({
+        rootUrl:    "<%= root_path %>",
+        eventsUrl:  "<%= events_path %>",
+        streamsUrl: "<%= streams_path %>",
+        resVersion: "<%= RailsEventStore::VERSION %>"
+      });
+    </script>
   </body>
 </html>
