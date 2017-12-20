@@ -2,11 +2,11 @@ module RailsEventStore
   module Browser
     class StreamsController < ApplicationController
       def index
-        render json: event_store.get_all_streams.map { |s| serialize_stream(s) }
+        render json: Rails.configuration.event_store.get_all_streams.map { |s| serialize_stream(s) }
       end
 
       def show
-        events = event_store.read_stream_events_backward(stream_name)
+        events = Rails.configuration.event_store.read_stream_events_backward(stream_name)
         render json: events.map { |e| serialize_event(e) }
       end
 
@@ -27,10 +27,6 @@ module RailsEventStore
           data: event.data,
           metadata: event.metadata
         }
-      end
-
-      def event_store
-        Rails.configuration.event_store
       end
     end
   end

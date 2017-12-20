@@ -2,7 +2,7 @@ module RailsEventStore
   module Browser
     class EventsController < ApplicationController
       def show
-        render json: serialize_event(event_store.read_event(event_id))
+        render json: serialize_event(Rails.configuration.event_store.read_event(event_id))
       end
 
       private
@@ -18,10 +18,6 @@ module RailsEventStore
           data: event.data,
           metadata: event.metadata
         }
-      end
-
-      def event_store
-        Rails.configuration.event_store
       end
     end
   end

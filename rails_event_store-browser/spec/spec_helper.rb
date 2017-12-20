@@ -10,13 +10,17 @@ migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Versi
 MigrationCode.gsub!("<%= migration_version %>", migration_version)
 MigrationCode.gsub!("force: false", "force: true")
 
-ActiveRecord::Schema.define do
-  self.verbose = false
-  eval(MigrationCode) unless defined?(CreateEventStoreEvents)
-  CreateEventStoreEvents.new.change
-end
-
 require "rspec/rails"
+
+module SchemaHelper
+  def load_database_schema
+    ActiveRecord::Schema.define do
+      self.verbose = false
+      eval(MigrationCode) unless defined?(CreateEventStoreEvents)
+      CreateEventStoreEvents.new.change
+    end
+  end
+end
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = ".rspec_status"
