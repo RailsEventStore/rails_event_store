@@ -8,7 +8,7 @@ module RailsEventStore
       private
 
       def event_id
-        params[:id]
+        params.fetch(:id)
       end
 
       def serialize_event(event)
