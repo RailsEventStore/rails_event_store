@@ -3,6 +3,8 @@ GEM_VERSION  = `cat ../RES_VERSION`
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
+	@echo "Installing npm dependencies"
+	@cd elm; yarn install
 
 test: ## Run tests
 	@echo "Running basic tests - beware: this won't guarantee build pass"
@@ -13,6 +15,7 @@ mutate: test  ## Run mutation tests
 	@bundle exec mutant --include lib --require rails_event_store/browser --require ./spec/dummy/config/environment --use rspec "RailsEventStore::Browser*"
 
 build:
+	@cd elm; yarn build; cd -
 	@gem build -V rails_event_store-browser.gemspec
 	@mkdir -p pkg/
 	@mv rails_event_store-browser-$(GEM_VERSION).gem pkg/
