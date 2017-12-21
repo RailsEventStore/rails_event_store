@@ -52,7 +52,7 @@ type Page
 
 type Item
     = Stream String
-    | Event String String
+    | Event String String String
 
 
 type alias EventWithDetails =
@@ -373,7 +373,7 @@ filteredItems searchQuery items =
                 Stream name ->
                     isMatch searchQuery name
 
-                Event name _ ->
+                Event name _ _ ->
                     isMatch searchQuery name
     in
         Paginate.map (List.filter predicate) items
@@ -395,7 +395,7 @@ displayItems items =
                 , tbody [] (List.map displayItem (items))
                 ]
 
-        (Event _ _) :: _ ->
+        (Event _ _ _) :: _ ->
             table []
                 [ thead []
                     [ tr []
@@ -410,10 +410,10 @@ displayItems items =
 displayItem : Item -> Html Msg
 displayItem item =
     case item of
-        Event name createdAt ->
+        Event name createdAt eventId ->
             tr []
                 [ td []
-                    [ a [ class "results__link", href ("#events/" ++ name) ] [ text name ]
+                    [ a [ class "results__link", href ("#events/" ++ eventId) ] [ text name ]
                     ]
                 , td [ class "u-align-right" ]
                     [ text createdAt
@@ -449,9 +449,10 @@ getEvent url eventId =
 
 eventDecoder : Decoder Item
 eventDecoder =
-    D.map2 Event
+    D.map3 Event
         (field "event_type" string)
         (at [ "metadata", "timestamp" ] string)
+        (field "event_id" string)
 
 
 streamDecoder : Decoder Item
