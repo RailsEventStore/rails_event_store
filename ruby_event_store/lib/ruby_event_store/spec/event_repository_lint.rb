@@ -6,9 +6,17 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_forward(:head, 1)).to be_empty
   end
 
-  specify 'publish fail if expected version is nil' do
+  specify 'append_to_stream fail if expected version is nil' do
     expect do
       repository.append_to_stream(event = TestDomainEvent.new, 'stream', nil)
+    end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+  end
+
+  specify 'link_to_stream fail if expected version is nil' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream(event = TestDomainEvent.new, 'stream', :any)
+    expect do
+      repository.link_to_stream(event.event_id, 'stream', nil)
     end.to raise_error(RubyEventStore::InvalidExpectedVersion)
   end
 
@@ -18,11 +26,33 @@ RSpec.shared_examples :event_repository do |repository_class|
       append_to_stream(event = TestDomainEvent.new, 'stream', 0)
   end
 
-  specify 'adds initial event to a new stream' do
+  specify 'link_to_stream returns self' do
+    skip unless test_link_events_to_stream
+    event0 = TestDomainEvent.new
+    event1 = TestDomainEvent.new
+    repository.
+      append_to_stream([event0, event1], 'stream0', -1).
+      link_to_stream(event0.event_id, 'flow', -1).
+      link_to_stream(event1.event_id, 'flow', 0)
+  end
+
+  specify 'adds an initial event to a new stream' do
     repository.append_to_stream(event = TestDomainEvent.new, 'stream', :none)
     expect(repository.read_all_streams_forward(:head, 1).first).to eq(event)
     expect(repository.read_stream_events_forward('stream').first).to eq(event)
     expect(repository.read_stream_events_forward('other_stream')).to be_empty
+  end
+
+  specify 'links an initial event to a new stream' do
+    skip unless test_link_events_to_stream
+    repository.
+      append_to_stream(event = TestDomainEvent.new, 'stream', :none).
+      link_to_stream(event.event_id, 'flow', :none)
+
+    expect(repository.read_all_streams_forward(:head, 1).first).to eq(event)
+    expect(repository.read_stream_events_forward('stream').first).to eq(event)
+    expect(repository.read_stream_events_forward('flow')).to eq([event])
+    expect(repository.read_stream_events_forward('other')).to be_empty
   end
 
   specify 'adds multiple initial events to a new stream' do
@@ -32,6 +62,19 @@ RSpec.shared_examples :event_repository do |repository_class|
     ], 'stream', :none)
     expect(repository.read_all_streams_forward(:head, 2)).to eq([event0, event1])
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1])
+  end
+
+  specify 'links multiple initial events to a new stream' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :none).link_to_stream([
+      event0.event_id,
+      event1.event_id,
+    ], 'flow', :none)
+    expect(repository.read_all_streams_forward(:head, 2)).to eq([event0, event1])
+    expect(repository.read_stream_events_forward('flow')).to eq([event0, event1])
   end
 
   specify 'correct expected version on second write' do
@@ -45,6 +88,22 @@ RSpec.shared_examples :event_repository do |repository_class|
     ], 'stream', 1)
     expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1, event2, event3])
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1, event2, event3])
+  end
+
+  specify 'correct expected version on second link' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :none).append_to_stream([
+      event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'flow', :none).link_to_stream([
+      event0.event_id,
+      event1.event_id,
+    ], 'flow', 1)
+    expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1, event2, event3])
+    expect(repository.read_stream_events_forward('flow')).to eq([event2, event3, event0, event1])
   end
 
   specify 'incorrect expected version on second write' do
@@ -63,6 +122,27 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1])
   end
 
+  specify 'incorrect expected version on second link' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :none)
+    repository.append_to_stream([
+      event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'other', 0)
+    expect do
+      repository.link_to_stream([
+        event2.event_id,
+        event3.event_id,
+      ], 'stream', 0)
+    end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+    expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1, event2, event3])
+    expect(repository.read_stream_events_forward('stream')).to eq([event0, event1])
+  end
+
   specify ':none on first and subsequent write' do
     repository.append_to_stream([
       eventA = TestDomainEvent.new(event_id: SecureRandom.uuid),
@@ -76,6 +156,22 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward('stream')).to eq([eventA])
   end
 
+  specify ':none on first and subsequent link' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      eventA = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      eventB = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :none)
+
+    repository.link_to_stream([eventA.event_id], 'flow', :none)
+    expect do
+      repository.link_to_stream([eventB.event_id], 'flow', :none)
+    end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+    expect(repository.read_all_streams_forward(:head, 1)).to eq([eventA])
+    expect(repository.read_stream_events_forward('flow')).to eq([eventA])
+  end
+
   specify ':any allows stream with best-effort order and no guarantee' do
     repository.append_to_stream([
       event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
@@ -87,6 +183,26 @@ RSpec.shared_examples :event_repository do |repository_class|
     ], 'stream', :any)
     expect(repository.read_all_streams_forward(:head, 4).to_set).to eq(Set.new([event0, event1, event2, event3]))
     expect(repository.read_stream_events_forward('stream').to_set).to eq(Set.new([event0, event1, event2, event3]))
+  end
+
+  specify ':any allows linking in stream with best-effort order and no guarantee' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :any)
+
+    repository.link_to_stream([
+      event0.event_id, event1.event_id,
+    ], 'flow', :any)
+    repository.link_to_stream([
+      event2.event_id, event3.event_id,
+    ], 'flow', :any)
+
+    expect(repository.read_all_streams_forward(:head, 4).to_set).to eq(Set.new([event0, event1, event2, event3]))
+    expect(repository.read_stream_events_forward('flow').to_set).to eq(Set.new([event0, event1, event2, event3]))
   end
 
   specify ':auto queries for last position in given stream' do
@@ -106,10 +222,45 @@ RSpec.shared_examples :event_repository do |repository_class|
     ], 'stream', 1)
   end
 
+  specify ':auto queries for last position in given stream when linking' do
+    skip unless test_expected_version_auto
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      eventA = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      eventB = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      eventC = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'another', :auto)
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    repository.link_to_stream([
+      eventA.event_id,
+      eventB.event_id,
+      eventC.event_id,
+    ], 'stream', 1)
+  end
+
   specify ':auto starts from 0' do
     skip unless test_expected_version_auto
     repository.append_to_stream([
       event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    expect do
+      repository.append_to_stream([
+        event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      ], 'stream', -1)
+    end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+  end
+
+  specify ':auto linking starts from 0' do
+    skip unless test_expected_version_auto
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'whatever', :auto)
+    repository.link_to_stream([
+      event0.event_id,
     ], 'stream', :auto)
     expect do
       repository.append_to_stream([

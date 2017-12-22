@@ -12,48 +12,16 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(events, stream_name, expected_version)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
-
-      events = normalize_to_array(events)
-      expected_version =
-        case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream_name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
-        end
-
-      ActiveRecord::Base.transaction(requires_new: true) do
-        in_stream = events.flat_map.with_index do |event, index|
-          position = unless expected_version.equal?(:any)
-            expected_version + index + POSITION_SHIFT
-          end
-          build_event_record(event).save!
-          events = [{
-            stream: RubyEventStore::GLOBAL_STREAM,
-            position: nil,
-            event_id: event.event_id
-          }]
-          events.unshift({
-            stream:   stream_name,
-            position: position,
-            event_id: event.event_id
-          }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-          events
-        end
-        EventInStream.import(in_stream)
+      add_to_stream(events, stream_name, expected_version, true) do |event|
+        build_event_record(event).save!
+        event.event_id
       end
-      self
-    rescue ActiveRecord::RecordNotUnique => e
-      if detect_pkey_index_violated(e)
-        raise RubyEventStore::EventDuplicatedInStream
+    end
+
+    def link_to_stream(event_ids, stream_name, expected_version)
+      add_to_stream(event_ids, stream_name, expected_version, false) do |event_id|
+        event_id
       end
-      raise RubyEventStore::WrongExpectedEventVersion
     end
 
     def delete_stream(stream_name)
@@ -145,6 +113,52 @@ module RailsEventStoreActiveRecord
     private
 
     attr_reader :mapper
+
+    def add_to_stream(collection, stream_name, expected_version, include_global, &to_event_id)
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+
+      collection = normalize_to_array(collection)
+      expected_version =
+        case expected_version
+        when Integer, :any
+          expected_version
+        when :none
+          -1
+        when :auto
+          eis = EventInStream.where(stream: stream_name).order("position DESC").first
+          (eis && eis.position) || -1
+        else
+          raise RubyEventStore::InvalidExpectedVersion
+        end
+
+      ActiveRecord::Base.transaction(requires_new: true) do
+        in_stream = collection.flat_map.with_index do |element, index|
+          position = unless expected_version.equal?(:any)
+            expected_version + index + POSITION_SHIFT
+          end
+          event_id = to_event_id.call(element)
+          collection = []
+          collection.unshift({
+            stream: RubyEventStore::GLOBAL_STREAM,
+            position: nil,
+            event_id: event_id
+          }) if include_global
+          collection.unshift({
+            stream:   stream_name,
+            position: position,
+            event_id: event_id
+          }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+          collection
+        end
+        EventInStream.import(in_stream)
+      end
+      self
+    rescue ActiveRecord::RecordNotUnique => e
+      if detect_pkey_index_violated(e)
+        raise RubyEventStore::EventDuplicatedInStream
+      end
+      raise RubyEventStore::WrongExpectedEventVersion
+    end
 
     def detect_pkey_index_violated(e)
       e.message.include?("for key 'PRIMARY'")       ||  # MySQL
