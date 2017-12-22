@@ -1,9 +1,14 @@
 require_relative 'boot'
 
-require 'rails/all'
+require 'active_record/railtie'
+require 'action_controller/railtie'
+require 'action_view/railtie'
+require 'action_mailer/railtie'
+require 'active_job/railtie'
+require 'action_cable/engine'
 
 Bundler.require(*Rails.groups)
-require "rails_event_store/browser"
+require 'rails_event_store/browser'
 
 module Dummy
   class Application < Rails::Application

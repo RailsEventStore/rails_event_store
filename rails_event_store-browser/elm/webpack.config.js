@@ -15,7 +15,7 @@ const path = require("path");
 
 module.exports = createConfig([
   entryPoint("./src/index.js"),
-  setOutput("../app/assets/javascripts/rails_event_store/browser/bundle.js"),
+  setOutput("../public/rails_event_store_browser.js"),
   elm(),
   sass(),
   defineConstants({
