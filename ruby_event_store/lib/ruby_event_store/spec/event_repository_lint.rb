@@ -288,6 +288,28 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1, event2, event3])
   end
 
+  specify ':auto queries for last position and follows in incremental way when linking' do
+    skip unless test_expected_version_auto
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    repository.link_to_stream([
+      event0.event_id, event1.event_id,
+    ], 'flow', :auto)
+    repository.link_to_stream([
+      event2.event_id, event3.event_id,
+    ], 'flow', :auto)
+    expect(repository.read_all_streams_forward(:head, 4)).to eq([
+      event0, event1,
+      event2, event3
+    ])
+    expect(repository.read_stream_events_forward('flow')).to eq([event0, event1, event2, event3])
+  end
+
   specify ':auto is compatible with manual expectation' do
     skip unless test_expected_version_auto
     repository.append_to_stream([
@@ -302,6 +324,23 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1, event2, event3])
   end
 
+  specify ':auto is compatible with manual expectation when linking' do
+    skip unless test_expected_version_auto
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    repository.link_to_stream([
+      event0.event_id,
+    ], 'flow', :auto)
+    repository.link_to_stream([
+      event1.event_id,
+    ], 'flow', 0)
+    expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1,])
+    expect(repository.read_stream_events_forward('flow')).to eq([event0, event1,])
+  end
+
   specify 'manual is compatible with auto expectation' do
     skip unless test_expected_version_auto
     repository.append_to_stream([
@@ -314,6 +353,23 @@ RSpec.shared_examples :event_repository do |repository_class|
     ], 'stream', :auto)
     expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1, event2, event3])
     expect(repository.read_stream_events_forward('stream')).to eq([event0, event1, event2, event3])
+  end
+
+  specify 'manual is compatible with auto expectation when linking' do
+    skip unless test_expected_version_auto
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+      event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+      event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+    ], 'stream', :auto)
+    repository.link_to_stream([
+      event0.event_id,
+    ], 'flow', :none)
+    repository.link_to_stream([
+      event1.event_id,
+    ], 'flow', :auto)
+    expect(repository.read_all_streams_forward(:head, 4)).to eq([event0, event1])
+    expect(repository.read_stream_events_forward('flow')).to eq([event0, event1])
   end
 
   specify 'unlimited concurrency for :any - everything should succeed' do
@@ -345,6 +401,53 @@ RSpec.shared_examples :event_repository do |repository_class|
       expect(fail_occurred).to eq(false)
       expect(repository.read_stream_events_forward('stream').size).to eq(400)
       events_in_stream = repository.read_stream_events_forward('stream')
+      expect(events_in_stream.size).to eq(400)
+      events0 = events_in_stream.select do |ev|
+        ev.event_id.start_with?("0-")
+      end
+      expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
+    ensure
+      cleanup_concurrency_test
+    end
+  end
+
+  specify 'unlimited concurrency for :any - everything should succeed when linking' do
+    skip unless test_race_conditions_any
+    skip unless test_link_events_to_stream
+    verify_conncurency_assumptions
+    begin
+      concurrency_level = 4
+
+      fail_occurred = false
+      wait_for_it  = true
+
+      concurrency_level.times.map do |i|
+        100.times do |j|
+          eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
+          repository.append_to_stream([
+            TestDomainEvent.new(event_id: eid),
+          ], 'stream', :any)
+        end
+      end
+
+      threads = concurrency_level.times.map do |i|
+        Thread.new do
+          true while wait_for_it
+          begin
+            100.times do |j|
+              eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
+              repository.link_to_stream(eid, 'flow', :any)
+            end
+          rescue RubyEventStore::WrongExpectedEventVersion
+            fail_occurred = true
+          end
+        end
+      end
+      wait_for_it = false
+      threads.each(&:join)
+      expect(fail_occurred).to eq(false)
+      expect(repository.read_stream_events_forward('flow').size).to eq(400)
+      events_in_stream = repository.read_stream_events_forward('flow')
       expect(events_in_stream.size).to eq(400)
       events0 = events_in_stream.select do |ev|
         ev.event_id.start_with?("0-")
@@ -397,6 +500,57 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
+  specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered' do
+    skip unless test_expected_version_auto
+    skip unless test_race_conditions_auto
+    skip unless test_link_events_to_stream
+
+    verify_conncurency_assumptions
+    begin
+      concurrency_level = 4
+
+      concurrency_level.times.map do |i|
+        100.times do |j|
+          eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
+          repository.append_to_stream([
+            TestDomainEvent.new(event_id: eid),
+          ], 'whatever', :any)
+        end
+      end
+
+      fail_occurred = 0
+      wait_for_it  = true
+
+      threads = concurrency_level.times.map do |i|
+        Thread.new do
+          true while wait_for_it
+          100.times do |j|
+            begin
+              eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
+              repository.link_to_stream(eid, 'stream', :auto)
+              sleep(rand(concurrency_level) / 1000.0)
+            rescue RubyEventStore::WrongExpectedEventVersion
+              fail_occurred +=1
+            end
+          end
+        end
+      end
+      wait_for_it = false
+      threads.each(&:join)
+      expect(fail_occurred).to be > 0
+      events_in_stream = repository.read_stream_events_forward('stream')
+      expect(events_in_stream.size).to be < 400
+      expect(events_in_stream.size).to be >= 100
+      events0 = events_in_stream.select do |ev|
+        ev.event_id.start_with?("0-")
+      end
+      expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
+      additional_limited_concurrency_for_auto_check
+    ensure
+      cleanup_concurrency_test
+    end
+  end
+
   it 'appended event is stored in given stream' do
     expected_event = TestDomainEvent.new(data: {})
     repository.append_to_stream(expected_event, 'stream', :any)
@@ -419,6 +573,21 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(retrieved_event.metadata[:request_id]).to eq(3)
   end
 
+  it 'data and metadata attributes are retrieved when linking' do
+    skip unless test_link_events_to_stream
+    event = TestDomainEvent.new(
+      data: { order_id: 3 },
+      metadata: { request_id: 4 }
+    )
+    repository.
+      append_to_stream(event, 'stream', :any).
+      link_to_stream(event.event_id, 'flow', :any)
+    retrieved_event = repository.read_stream_events_forward('flow').first
+    expect(retrieved_event.metadata[:request_id]).to eq(4)
+    expect(retrieved_event.data[:order_id]).to eq(3)
+    expect(event).to eq(retrieved_event)
+  end
+
   it 'does not have deleted streams' do
     repository.append_to_stream(e1 = TestDomainEvent.new, 'stream', -1)
     repository.append_to_stream(e2 = TestDomainEvent.new, 'other_stream', -1)
@@ -429,6 +598,17 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
   end
 
+  it 'does not have deleted streams with linked events' do
+    skip unless test_link_events_to_stream
+    repository.
+      append_to_stream(e1 = TestDomainEvent.new, 'stream', -1).
+      link_to_stream(e1.event_id, 'flow', -1)
+
+    repository.delete_stream('flow')
+    expect(repository.read_stream_events_forward('flow')).to be_empty
+    expect(repository.read_all_streams_forward(:head, 10)).to eq([e1])
+  end
+
   it 'has or has not domain event' do
     just_an_id = 'd5c134c2-db65-4e87-b6ea-d196f8f1a292'
     repository.append_to_stream(TestDomainEvent.new(event_id: just_an_id), 'stream', -1)
@@ -436,6 +616,10 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.has_event?(just_an_id)).to be_truthy
     expect(repository.has_event?(just_an_id.clone)).to be_truthy
     expect(repository.has_event?('any other id')).to be_falsey
+
+    repository.delete_stream('stream')
+    expect(repository.has_event?(just_an_id)).to be_truthy
+    expect(repository.has_event?(just_an_id.clone)).to be_truthy
   end
 
   it 'knows last event in stream' do
@@ -444,6 +628,18 @@ RSpec.shared_examples :event_repository do |repository_class|
 
     expect(repository.last_stream_event('stream')).to eq(TestDomainEvent.new(event_id: '00000000-0000-0000-0000-000000000002'))
     expect(repository.last_stream_event('other_stream')).to be_nil
+  end
+
+  it 'knows last event in stream when linked' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+        e0 = TestDomainEvent.new(event_id: '00000000-0000-0000-0000-000000000001'),
+        e1 = TestDomainEvent.new(event_id: '00000000-0000-0000-0000-000000000002'),
+      ],
+      'stream',
+      -1
+    ).link_to_stream([e1.event_id, e0.event_id], 'flow', -1)
+    expect(repository.last_stream_event('flow')).to eq(e0)
   end
 
   it 'reads batch of events from stream forward & backward' do
