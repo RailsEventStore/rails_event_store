@@ -7,6 +7,7 @@ module RubyEventStore
   InvalidPageStart           = Class.new(ArgumentError)
   InvalidPageSize            = Class.new(ArgumentError)
   EventDuplicatedInStream    = Class.new(StandardError)
+  NotSupported               = Class.new(StandardError)
 
   class InvalidHandler < StandardError
     def initialize(object)

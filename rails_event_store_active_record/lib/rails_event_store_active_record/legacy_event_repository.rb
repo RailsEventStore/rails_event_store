@@ -46,6 +46,10 @@ instead:
       raise RubyEventStore::EventDuplicatedInStream
     end
 
+    def link_to_stream(_event_ids, _stream_name, _expected_version)
+      raise RubyEventStore::NotSupported
+    end
+
     def delete_stream(stream_name)
       LegacyEvent.where({stream: stream_name}).update_all(stream: RubyEventStore::GLOBAL_STREAM)
     end
