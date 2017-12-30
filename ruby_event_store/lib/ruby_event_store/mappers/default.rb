@@ -18,6 +18,10 @@ module RubyEventStore
         )
       end
 
+      def fetch
+
+      end
+
       def serialized_record_to_event(record)
         event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
         ActiveSupport::Inflector.constantize(event_type).new(

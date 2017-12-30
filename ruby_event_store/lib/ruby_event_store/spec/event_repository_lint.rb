@@ -662,18 +662,60 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_events_backward('stream', events[4].event_id, 100)).to eq(events.first(4).reverse)
   end
 
+  it 'reads batch of linked events from stream forward & backward' do
+    skip unless test_link_events_to_stream
+    event_ids = ["96c920b1-cdd0-40f4-907c-861b9fff7d02", "56404f79-0ba0-4aa0-8524-dc3436368ca0", "6a54dd21-f9d8-4857-a195-f5588d9e406c", "0e50a9cd-f981-4e39-93d5-697fc7285b98", "d85589bc-b993-41d4-812f-fc631d9185d5", "96bdacda-77dd-4d7d-973d-cbdaa5842855", "94688199-e6b7-4180-bf8e-825b6808e6cc", "68fab040-741e-4bc2-9cca-5b8855b0ca19", "ab60114c-011d-4d58-ab31-7ba65d99975e", "868cac42-3d19-4b39-84e8-cd32d65c2445"]
+    events = event_ids.map{|id| TestDomainEvent.new(event_id: id) }
+    repository.append_to_stream(TestDomainEvent.new, 'other_stream', -1)
+    events.each.with_index do |event, index|
+      repository.
+        append_to_stream(event, 'stream', index - 1).
+        link_to_stream(event.event_id, 'flow', index - 1)
+    end
+    repository.append_to_stream(TestDomainEvent.new, 'other_stream', 0)
+
+    expect(repository.read_events_forward('flow', :head, 3)).to eq(events.first(3))
+    expect(repository.read_events_forward('flow', :head, 100)).to eq(events)
+    expect(repository.read_events_forward('flow', events[4].event_id, 4)).to eq(events[5..8])
+    expect(repository.read_events_forward('flow', events[4].event_id, 100)).to eq(events[5..9])
+
+    expect(repository.read_events_backward('flow', :head, 3)).to eq(events.last(3).reverse)
+    expect(repository.read_events_backward('flow', :head, 100)).to eq(events.reverse)
+    expect(repository.read_events_backward('flow', events[4].event_id, 4)).to eq(events.first(4).reverse)
+    expect(repository.read_events_backward('flow', events[4].event_id, 100)).to eq(events.first(4).reverse)
+  end
 
   it 'reads all stream events forward & backward' do
     s1 = 'stream'
     s2 = 'other_stream'
-    repository.append_to_stream(a = TestDomainEvent.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, -1)
-    repository.append_to_stream(b = TestDomainEvent.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s2, -1)
-    repository.append_to_stream(c = TestDomainEvent.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, 0)
-    repository.append_to_stream(d = TestDomainEvent.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s2, 0)
-    repository.append_to_stream(e = TestDomainEvent.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s2, 1)
+    repository.
+      append_to_stream(a = TestDomainEvent.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, -1).
+      append_to_stream(b = TestDomainEvent.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s2, -1).
+      append_to_stream(c = TestDomainEvent.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, 0).
+      append_to_stream(d = TestDomainEvent.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s2, 0).
+      append_to_stream(e = TestDomainEvent.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s2, 1)
 
     expect(repository.read_stream_events_forward(s1)).to eq [a,c]
     expect(repository.read_stream_events_backward(s1)).to eq [c,a]
+  end
+
+  it 'reads all stream linked events forward & backward' do
+    skip unless test_link_events_to_stream
+    s1, fs1, fs2 = 'stream', 'flow', 'other_flow'
+    repository.
+      append_to_stream(a = TestDomainEvent.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, -1).
+      append_to_stream(b = TestDomainEvent.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s1, 0).
+      append_to_stream(c = TestDomainEvent.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, 1).
+      append_to_stream(d = TestDomainEvent.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s1, 2).
+      append_to_stream(e = TestDomainEvent.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s1, 3).
+      link_to_stream('7010d298-ab69-4bb1-9251-f3466b5d1282', fs1, -1).
+      link_to_stream('34f88aca-aaba-4ca0-9256-8017b47528c5', fs2, -1).
+      link_to_stream('8e61c864-ceae-4684-8726-97c34eb8fc4f', fs1, 0).
+      link_to_stream('30963ed9-6349-450b-ac9b-8ea50115b3bd', fs2, 0).
+      link_to_stream('5bdc58b7-e8a7-4621-afd6-ccb828d72457', fs2, 1)
+
+    expect(repository.read_stream_events_forward(fs1)).to eq [a,c]
+    expect(repository.read_stream_events_backward(fs1)).to eq [c,a]
   end
 
   it 'reads batch of events from all streams forward & backward' do
@@ -681,6 +723,27 @@ RSpec.shared_examples :event_repository do |repository_class|
     events = event_ids.map{|id| TestDomainEvent.new(event_id: id) }
     events.each do |ev|
       repository.append_to_stream(ev, SecureRandom.uuid, -1)
+    end
+
+    expect(repository.read_all_streams_forward(:head, 3)).to eq(events.first(3))
+    expect(repository.read_all_streams_forward(:head, 100)).to eq(events)
+    expect(repository.read_all_streams_forward(events[4].event_id, 4)).to eq(events[5..8])
+    expect(repository.read_all_streams_forward(events[4].event_id, 100)).to eq(events[5..9])
+
+    expect(repository.read_all_streams_backward(:head, 3)).to eq(events.last(3).reverse)
+    expect(repository.read_all_streams_backward(:head, 100)).to eq(events.reverse)
+    expect(repository.read_all_streams_backward(events[4].event_id, 4)).to eq(events.first(4).reverse)
+    expect(repository.read_all_streams_backward(events[4].event_id, 100)).to eq(events.first(4).reverse)
+  end
+
+  it 'linked events do not affect reading from all streams - no duplicates' do
+    skip unless test_link_events_to_stream
+    event_ids = ["96c920b1-cdd0-40f4-907c-861b9fff7d02", "56404f79-0ba0-4aa0-8524-dc3436368ca0", "6a54dd21-f9d8-4857-a195-f5588d9e406c", "0e50a9cd-f981-4e39-93d5-697fc7285b98", "d85589bc-b993-41d4-812f-fc631d9185d5", "96bdacda-77dd-4d7d-973d-cbdaa5842855", "94688199-e6b7-4180-bf8e-825b6808e6cc", "68fab040-741e-4bc2-9cca-5b8855b0ca19", "ab60114c-011d-4d58-ab31-7ba65d99975e", "868cac42-3d19-4b39-84e8-cd32d65c2445"]
+    events = event_ids.map{|id| TestDomainEvent.new(event_id: id) }
+    events.each do |ev|
+      repository.
+        append_to_stream(ev, SecureRandom.uuid, -1).
+        link_to_stream(ev.event_id, SecureRandom.uuid, -1)
     end
 
     expect(repository.read_all_streams_forward(:head, 3)).to eq(events.first(3))
@@ -724,6 +787,24 @@ RSpec.shared_examples :event_repository do |repository_class|
       )
     end.to raise_error(RubyEventStore::EventDuplicatedInStream)
   end
+
+  it 'does not allow linking same event twice in a stream' do
+    skip unless test_link_events_to_stream
+    repository.append_to_stream([
+        TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        TestDomainEvent.new(event_id: "4a216155-8829-49d9-b30e-4810fff3fecc"),
+      ], 'stream',
+      -1
+    ).link_to_stream("a1b49edb-7636-416f-874a-88f94b859bef", 'flow', -1)
+    expect do
+      repository.link_to_stream(
+        "4a216155-8829-49d9-b30e-4810fff3fecc",
+        'flow',
+        0
+      )
+    end.to raise_error(RubyEventStore::EventDuplicatedInStream)
+  end
+
 
   it 'allows appending to GLOBAL_STREAM explicitly' do
     event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
