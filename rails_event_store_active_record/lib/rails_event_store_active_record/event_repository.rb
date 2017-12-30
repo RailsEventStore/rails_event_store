@@ -19,7 +19,7 @@ module RailsEventStoreActiveRecord
     end
 
     def link_to_stream(event_ids, stream_name, expected_version)
-      add_to_stream(event_ids, stream_name, expected_version, false) do |event_id|
+      add_to_stream(event_ids, stream_name, expected_version, nil) do |event_id|
         event_id
       end
     end
