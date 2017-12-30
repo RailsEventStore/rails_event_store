@@ -792,19 +792,13 @@ RSpec.shared_examples :event_repository do |repository_class|
     skip unless test_link_events_to_stream
     repository.append_to_stream([
         TestDomainEvent.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
-        TestDomainEvent.new(event_id: "4a216155-8829-49d9-b30e-4810fff3fecc"),
       ], 'stream',
       -1
     ).link_to_stream("a1b49edb-7636-416f-874a-88f94b859bef", 'flow', -1)
     expect do
-      repository.link_to_stream(
-        "4a216155-8829-49d9-b30e-4810fff3fecc",
-        'flow',
-        0
-      )
+      repository.link_to_stream("a1b49edb-7636-416f-874a-88f94b859bef", 'flow', 0)
     end.to raise_error(RubyEventStore::EventDuplicatedInStream)
   end
-
 
   it 'allows appending to GLOBAL_STREAM explicitly' do
     event = TestDomainEvent.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
@@ -842,6 +836,20 @@ RSpec.shared_examples :event_repository do |repository_class|
           'some_stream',
           invalid_expected_version
         )
+      }.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+  end
+
+  specify "only :none, :any, :auto and Integer allowed as expected_version when linking" do
+    skip unless test_link_events_to_stream
+    [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
+      repository.append_to_stream(
+        TestDomainEvent.new(event_id: evid = SecureRandom.uuid),
+        SecureRandom.uuid,
+        -1
+      )
+      expect {
+        repository.link_to_stream(evid, SecureRandom.uuid, invalid_expected_version)
       }.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
   end
