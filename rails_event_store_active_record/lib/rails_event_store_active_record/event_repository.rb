@@ -161,12 +161,14 @@ module RailsEventStoreActiveRecord
     end
 
     def detect_pkey_index_violated(e)
-      e.message.include?("for key 'PRIMARY'")       ||  # MySQL
-      e.message.include?("event_store_events_pkey") ||  # Postgresql
-      e.message.include?("event_store_events.id")   ||  # Sqlite3
+      m = e.message
+      m.include?("for key 'PRIMARY'")       ||  # MySQL
+      m.include?("event_store_events_pkey") ||  # Postgresql
+      m.include?("event_store_events.id")   ||  # Sqlite3
 
-      e.message.include?("Key (stream, event_id)")  ||  # Postgresql
-      e.message.include?("event_store_events_in_streams.stream, event_store_events_in_streams.event_id")  ## Sqlite3
+      m.include?("for key 'index_event_store_events_in_streams_on_stream_and_event_id'")        || # Mysql
+      m.include?("Key (stream, event_id)")                                                      || # Postgresql
+      m.include?("event_store_events_in_streams.stream, event_store_events_in_streams.event_id")   # Sqlite3
     end
 
     def build_event_record(event)
