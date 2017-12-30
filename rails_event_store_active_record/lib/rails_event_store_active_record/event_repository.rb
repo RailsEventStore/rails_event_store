@@ -165,6 +165,7 @@ module RailsEventStoreActiveRecord
       e.message.include?("event_store_events_pkey") ||  # Postgresql
       e.message.include?("event_store_events.id")   ||  # Sqlite3
 
+      e.message.include?("Key (stream, event_id)")  ||  # Postgresql
       e.message.include?("event_store_events_in_streams.stream, event_store_events_in_streams.event_id")  ## Sqlite3
     end
 
