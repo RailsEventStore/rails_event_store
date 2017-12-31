@@ -121,24 +121,11 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
 
       collection = normalize_to_array(collection)
-      expected_version =
-        case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream_name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
-        end
+      expected_version = normalize_expected_version(expected_version, stream_name)
 
       ActiveRecord::Base.transaction(requires_new: true) do
         in_stream = collection.flat_map.with_index do |element, index|
-          position = unless expected_version.equal?(:any)
-            expected_version + index + POSITION_SHIFT
-          end
+          position = compute_position(expected_version, index)
           event_id = to_event_id.call(element)
           collection = []
           collection.unshift({
@@ -157,10 +144,34 @@ module RailsEventStoreActiveRecord
       end
       self
     rescue ActiveRecord::RecordNotUnique => e
+      raise_error(e)
+    end
+
+    def raise_error(e)
       if detect_pkey_index_violated(e)
         raise RubyEventStore::EventDuplicatedInStream
       end
       raise RubyEventStore::WrongExpectedEventVersion
+    end
+
+    def compute_position(expected_version, index)
+      unless expected_version.equal?(:any)
+        expected_version + index + POSITION_SHIFT
+      end
+    end
+
+    def normalize_expected_version(expected_version, stream_name)
+      case expected_version
+        when Integer, :any
+          expected_version
+        when :none
+          -1
+        when :auto
+          eis = EventInStream.where(stream: stream_name).order("position DESC").first
+          (eis && eis.position) || -1
+        else
+          raise RubyEventStore::InvalidExpectedVersion
+      end
     end
 
     def detect_pkey_index_violated(e)
