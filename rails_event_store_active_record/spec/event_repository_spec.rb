@@ -160,6 +160,15 @@ module RailsEventStoreActiveRecord
       expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
     end
 
+    specify "limited query when looking for unexisting events during linking" do
+      repository = EventRepository.new
+      expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
+        expect do
+          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", -1)
+        end.to raise_error(RubyEventStore::EventNotFound)
+      end
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
