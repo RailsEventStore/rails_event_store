@@ -131,7 +131,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.append_to_stream([
       event2 = TestDomainEvent.new(event_id: SecureRandom.uuid),
       event3 = TestDomainEvent.new(event_id: SecureRandom.uuid),
-    ], 'other', 0)
+    ], 'other', -1)
     expect do
       repository.link_to_stream([
         event2.event_id,
