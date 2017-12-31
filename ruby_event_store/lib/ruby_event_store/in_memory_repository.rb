@@ -97,8 +97,9 @@ module RubyEventStore
     def append(events, expected_version, stream, stream_name)
       raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
       events.each do |event|
-        all.push(event)
         raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
+        raise EventDuplicatedInStream if all.any?{|ev| ev.event_id.eql?(event.event_id) }
+        all.push(event)
         stream.push(event)
       end
       streams[stream_name] = stream
