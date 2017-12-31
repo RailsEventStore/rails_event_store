@@ -19,6 +19,9 @@ module RailsEventStoreActiveRecord
     end
 
     def link_to_stream(event_ids, stream_name, expected_version)
+      (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
+        raise RubyEventStore::EventNotFound.new(id)
+      end
       add_to_stream(event_ids, stream_name, expected_version, nil) do |event_id|
         event_id
       end
@@ -101,7 +104,7 @@ module RailsEventStoreActiveRecord
       )
       mapper.serialized_record_to_event(serialized_record)
     rescue ActiveRecord::RecordNotFound
-      raise RubyEventStore::EventNotFound
+      raise RubyEventStore::EventNotFound.new(event_id)
     end
 
     def get_all_streams

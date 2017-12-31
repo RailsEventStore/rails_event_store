@@ -119,7 +119,7 @@ module RubyEventStore
         else
           start = start.to_s
           raise InvalidPageStart if start.empty?
-          raise EventNotFound unless repository.has_event?(start)
+          raise EventNotFound.new(start) unless repository.has_event?(start)
         end
         raise InvalidPageSize unless count > 0
         @start = start

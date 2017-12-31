@@ -18,8 +18,8 @@ module RubyEventStore
 
     specify 'raise exception if event_id does not exist' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_events_forward(stream_name, start: 0) }.to raise_error(EventNotFound)
-      expect { client.read_events_backward(stream_name, start: 0) }.to raise_error(EventNotFound)
+      expect { client.read_events_forward(stream_name, start: 0) }.to raise_error(EventNotFound, /Event not found: 0/)
+      expect { client.read_events_backward(stream_name, start: 0) }.to raise_error(EventNotFound, /0/)
     end
 
     specify 'raise exception if event_id is not given or invalid' do

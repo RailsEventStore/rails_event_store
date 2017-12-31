@@ -117,7 +117,7 @@ instead:
     end
 
     def read_event(event_id)
-      build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound
+      build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
 
     def get_all_streams

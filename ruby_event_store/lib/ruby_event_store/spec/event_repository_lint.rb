@@ -904,6 +904,24 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify 'reading non-existent event' do
-    expect{repository.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')}.to raise_error(RubyEventStore::EventNotFound)
+    expect do
+      repository.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')
+    end.to raise_error do |err|
+      expect(err).to be_a(RubyEventStore::EventNotFound)
+      expect(err.event_id).to eq('72922e65-1b32-4e97-8023-03ae81dd3a27')
+      expect(err.message).to eq('Event not found: 72922e65-1b32-4e97-8023-03ae81dd3a27')
+    end
   end
+
+  specify 'linking non-existent event' do
+    skip unless test_link_events_to_stream
+    expect do
+      repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", -1)
+    end.to raise_error do |err|
+      expect(err).to be_a(RubyEventStore::EventNotFound)
+      expect(err.event_id).to eq('72922e65-1b32-4e97-8023-03ae81dd3a27')
+      expect(err.message).to eq('Event not found: 72922e65-1b32-4e97-8023-03ae81dd3a27')
+    end
+  end
+
 end
