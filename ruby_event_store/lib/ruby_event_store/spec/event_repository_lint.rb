@@ -895,11 +895,12 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify 'reading particular event' do
-    test_event = TestDomainEvent.new
-    repository.append_to_stream(TestDomainEvent.new, "test", -1)
-    repository.append_to_stream(test_event, "test", 0)
+    test_event = TestDomainEvent.new(event_id: "941cd8f5-b3f9-47af-b4e4-07f8cea37467")
+    repository.
+      append_to_stream(TestDomainEvent.new, "test", -1).
+      append_to_stream(test_event, "test", 0)
 
-    expect(repository.read_event(test_event.event_id)).to eq(test_event)
+    expect(repository.read_event("941cd8f5-b3f9-47af-b4e4-07f8cea37467")).to eq(test_event)
   end
 
   specify 'reading non-existent event' do

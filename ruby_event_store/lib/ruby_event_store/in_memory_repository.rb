@@ -66,7 +66,7 @@ module RubyEventStore
     end
 
     def read_event(event_id)
-      all.find { |e| event_id.equal?(e.event_id) } or raise EventNotFound
+      all.find { |e| event_id.eql?(e.event_id) } or raise EventNotFound
     end
 
     def get_all_streams
