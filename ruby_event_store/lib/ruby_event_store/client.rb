@@ -31,6 +31,11 @@ module RubyEventStore
       :ok
     end
 
+    def link_to_stream(event_ids, stream_name:, expected_version: :any)
+      repository.link_to_stream(event_ids, stream_name, expected_version)
+      self
+    end
+
     def delete_stream(stream_name)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       repository.delete_stream(stream_name)
