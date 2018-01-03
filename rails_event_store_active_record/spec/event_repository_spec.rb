@@ -20,6 +20,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_expected_version_auto) { true }
+    let(:test_link_events_to_stream) { true }
 
     it_behaves_like :event_repository, EventRepository
 
@@ -157,6 +158,15 @@ module RailsEventStoreActiveRecord
       end
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
       expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+    end
+
+    specify "limited query when looking for unexisting events during linking" do
+      repository = EventRepository.new
+      expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
+        expect do
+          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", -1)
+        end.to raise_error(RubyEventStore::EventNotFound)
+      end
     end
 
     def cleanup_concurrency_test

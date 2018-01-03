@@ -10,21 +10,12 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name, expected_version)
-      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
-      events = normalize_to_array(events)
-      stream = read_stream_events_forward(stream_name)
-      expected_version = case expected_version
-        when :none
-          -1
-        when :auto, :any
-          stream.size - 1
-        when Integer
-          expected_version
-        else
-          raise InvalidExpectedVersion
-      end
-      append_with_synchronize(events, expected_version, stream, stream_name)
-      self
+      add_to_stream(events, expected_version, stream_name, true)
+    end
+
+    def link_to_stream(event_ids, stream_name, expected_version)
+      events = normalize_to_array(event_ids).map{|eid| read_event(eid) }
+      add_to_stream(events, expected_version, stream_name, nil)
     end
 
     def delete_stream(stream_name)
@@ -66,7 +57,7 @@ module RubyEventStore
     end
 
     def read_event(event_id)
-      all.find { |e| event_id.equal?(e.event_id) } or raise EventNotFound
+      all.find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
     end
 
     def get_all_streams
@@ -80,7 +71,24 @@ module RubyEventStore
       return *events
     end
 
-    def append_with_synchronize(events, expected_version, stream, stream_name)
+    def add_to_stream(events, expected_version, stream_name, include_global)
+      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
+      events = normalize_to_array(events)
+      stream = read_stream_events_forward(stream_name)
+      expected_version = case expected_version
+        when :none
+          -1
+        when :auto, :any
+          stream.size - 1
+        when Integer
+          expected_version
+        else
+         raise InvalidExpectedVersion
+      end
+      append_with_synchronize(events, expected_version, stream, stream_name, include_global)
+    end
+
+    def append_with_synchronize(events, expected_version, stream, stream_name, include_global)
       # expected_version :auto assumes external lock is used
       # which makes reading stream before writing safe.
       #
@@ -90,18 +98,22 @@ module RubyEventStore
       # not for the whole read+write algorithm.
       Thread.pass
       @mutex.synchronize do
-        append(events, expected_version, stream, stream_name)
+        append(events, expected_version, stream, stream_name, include_global)
       end
     end
 
-    def append(events, expected_version, stream, stream_name)
+    def append(events, expected_version, stream, stream_name, include_global)
       raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
       events.each do |event|
-        all.push(event)
         raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
+        if include_global
+          raise EventDuplicatedInStream if all.any?{|ev| ev.event_id.eql?(event.event_id) }
+          all.push(event)
+        end
         stream.push(event)
       end
       streams[stream_name] = stream
+      self
     end
 
     def read_batch(source, start_event_id, count)

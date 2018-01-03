@@ -12,48 +12,19 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(events, stream_name, expected_version)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
-
-      events = normalize_to_array(events)
-      expected_version =
-        case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream_name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
-        end
-
-      ActiveRecord::Base.transaction(requires_new: true) do
-        in_stream = events.flat_map.with_index do |event, index|
-          position = unless expected_version.equal?(:any)
-            expected_version + index + POSITION_SHIFT
-          end
-          build_event_record(event).save!
-          events = [{
-            stream: RubyEventStore::GLOBAL_STREAM,
-            position: nil,
-            event_id: event.event_id
-          }]
-          events.unshift({
-            stream:   stream_name,
-            position: position,
-            event_id: event.event_id
-          }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-          events
-        end
-        EventInStream.import(in_stream)
+      add_to_stream(events, stream_name, expected_version, true) do |event|
+        build_event_record(event).save!
+        event.event_id
       end
-      self
-    rescue ActiveRecord::RecordNotUnique => e
-      if detect_pkey_index_violated(e)
-        raise RubyEventStore::EventDuplicatedInStream
+    end
+
+    def link_to_stream(event_ids, stream_name, expected_version)
+      (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
+        raise RubyEventStore::EventNotFound.new(id)
       end
-      raise RubyEventStore::WrongExpectedEventVersion
+      add_to_stream(event_ids, stream_name, expected_version, nil) do |event_id|
+        event_id
+      end
     end
 
     def delete_stream(stream_name)
@@ -133,7 +104,7 @@ module RailsEventStoreActiveRecord
       )
       mapper.serialized_record_to_event(serialized_record)
     rescue ActiveRecord::RecordNotFound
-      raise RubyEventStore::EventNotFound
+      raise RubyEventStore::EventNotFound.new(event_id)
     end
 
     def get_all_streams
@@ -146,10 +117,80 @@ module RailsEventStoreActiveRecord
 
     attr_reader :mapper
 
-    def detect_pkey_index_violated(e)
-      e.message.include?("for key 'PRIMARY'")       ||  # MySQL
-      e.message.include?("event_store_events_pkey") ||  # Postgresql
-      e.message.include?("event_store_events.id")       # Sqlite3
+    def add_to_stream(collection, stream_name, expected_version, include_global, &to_event_id)
+      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+
+      collection = normalize_to_array(collection)
+      expected_version = normalize_expected_version(expected_version, stream_name)
+
+      ActiveRecord::Base.transaction(requires_new: true) do
+        in_stream = collection.flat_map.with_index do |element, index|
+          position = compute_position(expected_version, index)
+          event_id = to_event_id.call(element)
+          collection = []
+          collection.unshift({
+            stream: RubyEventStore::GLOBAL_STREAM,
+            position: nil,
+            event_id: event_id
+          }) if include_global
+          collection.unshift({
+            stream:   stream_name,
+            position: position,
+            event_id: event_id
+          }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+          collection
+        end
+        EventInStream.import(in_stream)
+      end
+      self
+    rescue ActiveRecord::RecordNotUnique => e
+      raise_error(e)
+    end
+
+    def raise_error(e)
+      if detect_index_violated(e)
+        raise RubyEventStore::EventDuplicatedInStream
+      end
+      raise RubyEventStore::WrongExpectedEventVersion
+    end
+
+    def compute_position(expected_version, index)
+      unless expected_version.equal?(:any)
+        expected_version + index + POSITION_SHIFT
+      end
+    end
+
+    def normalize_expected_version(expected_version, stream_name)
+      case expected_version
+        when Integer, :any
+          expected_version
+        when :none
+          -1
+        when :auto
+          eis = EventInStream.where(stream: stream_name).order("position DESC").first
+          (eis && eis.position) || -1
+        else
+          raise RubyEventStore::InvalidExpectedVersion
+      end
+    end
+
+    MYSQL_PKEY_ERROR    = "for key 'PRIMARY'"
+    POSTGRES_PKEY_ERROR = "event_store_events_pkey"
+    SQLITE3_PKEY_ERROR  = "event_store_events.id"
+
+    MYSQL_INDEX_ERROR    = "for key 'index_event_store_events_in_streams_on_stream_and_event_id'"
+    POSTGRES_INDEX_ERROR = "Key (stream, event_id)"
+    SQLITE3_INDEX_ERROR  = "event_store_events_in_streams.stream, event_store_events_in_streams.event_id"
+
+    def detect_index_violated(e)
+      m = e.message
+      m.include?(MYSQL_PKEY_ERROR)     ||
+      m.include?(POSTGRES_PKEY_ERROR)  ||
+      m.include?(SQLITE3_PKEY_ERROR)   ||
+
+      m.include?(MYSQL_INDEX_ERROR)    ||
+      m.include?(POSTGRES_INDEX_ERROR) ||
+      m.include?(SQLITE3_INDEX_ERROR)
     end
 
     def build_event_record(event)

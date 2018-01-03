@@ -194,5 +194,25 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       expect{client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')}.to raise_error(EventNotFound)
     end
+
+    specify 'link events' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      first_event   = TestEvent.new
+      second_event  = TestEvent.new
+      client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
+      client.append_to_stream([first_event, second_event], stream_name: 'stream')
+      client.link_to_stream(
+        [first_event.event_id, second_event.event_id],
+        stream_name: 'flow',
+        expected_version: -1
+      ).link_to_stream(
+        [first_event.event_id],
+        stream_name: 'cars',
+      )
+      expect(client.read_stream_events_forward('flow')).to eq([first_event, second_event])
+      expect(client.read_stream_events_forward('cars')).to eq([first_event])
+      expect(subscriber.handled_events).to be_empty
+    end
+
   end
 end
