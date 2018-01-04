@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=development node --harmony node_modules/.bin/webpack-dev-server",
-    "build": "NODE_ENV=production node --harmony node_modules/.bin/webpack -p",
+    "build": "NODE_ENV=production node --harmony node_modules/.bin/webpack -p --bail",
     "postinstall": "elm-package install -y"
   }
 }
