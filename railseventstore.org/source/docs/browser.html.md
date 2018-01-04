@@ -2,7 +2,7 @@
 
 Browser is a web interface that allows you to inspect existing streams and their contents. You can use it for debugging purpose as well as a built-in audit log frontend.
 
-![RES Browser](http://localhost:4567/images/localhost_3000_res_.png)
+![RES Browser](/images/localhost_3000_res_.png)
 
 ## Adding browser to the project
 
