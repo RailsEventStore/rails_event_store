@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Web interface for RailsEventStore'
   s.license     = 'MIT'
 
-  s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
+  s.files = Dir['{app,config,db,lib,public}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
 
   s.add_dependency 'rails', '>= 4.2'
   s.add_dependency 'rails_event_store', '= 0.22.0'
