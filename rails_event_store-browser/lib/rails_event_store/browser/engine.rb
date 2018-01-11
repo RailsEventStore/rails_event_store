@@ -6,7 +6,6 @@ module RailsEventStore
       isolate_namespace RailsEventStore::Browser
 
       initializer "static assets" do |app|
-        puts "#{root}/public"
         app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
       end
     end
