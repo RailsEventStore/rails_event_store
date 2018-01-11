@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.6'
   spec.add_development_dependency 'rails', '~> 5.1'
   spec.add_development_dependency 'sqlite3'
-  spec.add_development_dependency 'postgresql'
+  spec.add_development_dependency 'pg'
   spec.add_development_dependency 'mysql2'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
   spec.add_development_dependency 'fakefs', '~> 0.11.2'
