@@ -4,7 +4,9 @@ require "rails_event_store/browser"
 
 ENV['RAILS_ENV'] ||= 'test'
 
-require File.expand_path("../dummy/config/environment.rb", __FILE__)
+dummy_app_name = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
+require "#{File.join(__dir__, dummy_app_name)}/config/environment.rb"
+
 MigrationCode = File.read(File.expand_path('../../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
 migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
 MigrationCode.gsub!("<%= migration_version %>", migration_version)
@@ -44,5 +46,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.use_transactional_fixtures = true
+  config.before(:each) do |example|
+    config.use_transactional_fixtures = !example.metadata[:js]
+  end
 end

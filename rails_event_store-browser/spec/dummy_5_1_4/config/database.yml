@@ -1,0 +1,11 @@
+default: &default
+  database: ':memory:'
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
