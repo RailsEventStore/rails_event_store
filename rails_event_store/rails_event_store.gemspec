@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ruby_event_store', '= 0.22.1'
   spec.add_dependency 'rails_event_store_active_record', '= 0.22.1'
   spec.add_dependency 'aggregate_root', '= 0.22.1'
+  spec.add_dependency 'bounded_context', '= 0.22.1'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
   spec.add_dependency 'activejob', '>= 3.0'
