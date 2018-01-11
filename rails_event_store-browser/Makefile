@@ -12,7 +12,7 @@ test: ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require rails_event_store/browser --require ./spec/dummy/config/environment --use rspec "RailsEventStore::Browser*"
+	@bundle exec mutant --include lib --require rails_event_store/browser --require ./spec/dummy_5_1_4/config/environment --use rspec "RailsEventStore::Browser*"
 
 build:
 	@cd elm; yarn build; cd -
