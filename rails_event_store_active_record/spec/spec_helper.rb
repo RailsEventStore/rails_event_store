@@ -42,6 +42,7 @@ module SchemaHelper
 
   def drop_legacy_database
     ActiveRecord::Migration.drop_table("event_store_events")
+  rescue ActiveRecord::StatementInvalid
   end
 
   def drop_database
