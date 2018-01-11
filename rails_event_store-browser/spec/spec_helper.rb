@@ -2,8 +2,8 @@ require "bundler/setup"
 require "rails_event_store"
 require "rails_event_store/browser"
 
-ENV['RAILS_ENV'] ||= 'test'
-
+ENV['RAILS_ENV']     ||= 'test'
+ENV['RAILS_VERSION'] ||= '5.1.4'
 dummy_app_name = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
 require "#{File.join(__dir__, dummy_app_name)}/config/environment.rb"
 
