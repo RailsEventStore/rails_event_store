@@ -1,5 +1,6 @@
 default: &default
-  database: ':memory:'
+  database: db.sqlite3
+  adapter: sqlite3
 
 development:
   <<: *default
