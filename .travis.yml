@@ -2,6 +2,8 @@ language: ruby
 matrix:
   include:
   - rvm: 2.4.1
+    env: TARGET=rails_event_store-browser SCRIPT=mutate
+  - rvm: 2.4.1
     env: TARGET=bounded_context SCRIPT=mutate
   - rvm: 2.4.1
     env: TARGET=rails_event_store-rspec SCRIPT=mutate
@@ -14,6 +16,8 @@ matrix:
   - rvm: 2.4.1
     env: 'TARGET=rails_event_store_active_record SCRIPT=mutate DATABASE_URL=sqlite3::memory:'
   - rvm: 2.3.4
+    env: TARGET=rails_event_store-browser SCRIPT=test
+  - rvm: 2.3.4
     env: TARGET=bounded_context SCRIPT=test
   - rvm: 2.3.4
     env: TARGET=rails_event_store-rspec SCRIPT=test
@@ -23,6 +27,8 @@ matrix:
     env: TARGET=ruby_event_store SCRIPT=test
   - rvm: 2.3.4
     env: TARGET=rails_event_store SCRIPT=test
+  - rvm: 2.2.7
+    env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.2.7
     env: TARGET=bounded_context SCRIPT=test
   - rvm: 2.2.7
@@ -45,6 +51,8 @@ matrix:
     env: TARGET=aggregate_root SCRIPT=test
   - rvm: 2.4.1
     env: TARGET=ruby_event_store SCRIPT=test
+  - rvm: 2.4.1
+    env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.4.1
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.1.4
   - rvm: 2.4.1
