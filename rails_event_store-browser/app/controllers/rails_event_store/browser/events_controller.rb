@@ -2,7 +2,8 @@ module RailsEventStore
   module Browser
     class EventsController < ApplicationController
       def show
-        render json: serialize_event(Rails.configuration.event_store.read_event(event_id))
+        event = Rails.configuration.event_store.read_event(event_id)
+        render json: { data: serialize_event(event) }, content_type: 'application/vnd.api+json'
       end
 
       private
@@ -13,10 +14,13 @@ module RailsEventStore
 
       def serialize_event(event)
         {
-          event_id: event.event_id,
-          event_type: event.class.to_s,
-          data: event.data,
-          metadata: event.metadata
+          id: event.event_id,
+          type: "events",
+          attributes: {
+            event_type: event.class.to_s,
+            data: event.data,
+            metadata: event.metadata
+          }
         }
       end
     end
