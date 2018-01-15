@@ -430,12 +430,14 @@ displayItem item =
 
 getStreams : String -> Cmd Msg
 getStreams url =
-    Http.send StreamList (Http.get url (list streamDecoder))
+    Http.get url (list streamDecoder)
+        |> Http.send StreamList
 
 
 getEvents : String -> String -> Cmd Msg
 getEvents url streamName =
-    Http.send EventList (Http.get (url ++ "/" ++ streamName) (list eventDecoder))
+    Http.get (url ++ "/" ++ streamName) (list eventDecoder)
+        |> Http.send EventList
 
 
 getEvent : String -> String -> Cmd Msg
@@ -444,7 +446,8 @@ getEvent url eventId =
         decoder =
             D.andThen eventWithDetailsDecoder rawEventDecoder
     in
-        Http.send EventDetails (Http.get (url ++ "/" ++ eventId) decoder)
+        Http.get (url ++ "/" ++ eventId) decoder
+            |> Http.send EventDetails
 
 
 eventDecoder : Decoder Item
