@@ -443,44 +443,52 @@ getEvents url streamName =
 
 getEvent : String -> String -> Cmd Msg
 getEvent url eventId =
-    Http.get (url ++ "/" ++ eventId) eventDecoder
+    Http.get (url ++ "/" ++ eventId) eventWithDetailsDecoder
         |> Http.send EventDetails
 
 
 eventsDecoder : Decoder (List Item)
 eventsDecoder =
-    list
-        (decode Event
-            |> required "event_type" string
-            |> requiredAt [ "metadata", "timestamp" ] string
-            |> required "event_id" string
-        )
+    let
+        eventDecoder =
+            decode Event
+                |> requiredAt [ "attributes", "event_type" ] string
+                |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+                |> required "id" string
+    in
+        eventDecoder
+            |> list
+            |> field "data"
 
 
 streamsDecoder : Decoder (List Item)
 streamsDecoder =
-    list
-        (decode Stream
-            |> required "name" string
-        )
-
-
-eventDecoder : Decoder EventWithDetails
-eventDecoder =
-    Json.Decode.andThen eventWithDetailsDecoder rawEventDecoder
+    let
+        streamDecoder =
+            decode Stream
+                |> required "id" string
+    in
+        streamDecoder
+            |> list
+            |> field "data"
 
 
 rawEventDecoder : Decoder ( Value, Value )
 rawEventDecoder =
     decode (,)
-        |> required "data" value
-        |> required "metadata" value
+        |> requiredAt [ "data", "attributes", "data" ] value
+        |> requiredAt [ "data", "attributes", "metadata" ] value
 
 
-eventWithDetailsDecoder : ( Value, Value ) -> Decoder EventWithDetails
-eventWithDetailsDecoder ( data, metadata ) =
-    decode EventWithDetails
-        |> required "event_type" string
-        |> required "event_id" string
-        |> required "data" (value |> Json.Decode.map (encode 2))
-        |> required "metadata" (value |> Json.Decode.map (encode 2))
+eventWithDetailsDecoder : Decoder EventWithDetails
+eventWithDetailsDecoder =
+    let
+        eventDecoder =
+            decode EventWithDetails
+                |> requiredAt [ "data", "attributes", "event_type" ] string
+                |> requiredAt [ "data", "id" ] string
+                |> requiredAt [ "data", "attributes", "data" ] (value |> Json.Decode.map (encode 2))
+                |> requiredAt [ "data", "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
+    in
+        rawEventDecoder
+            |> Json.Decode.andThen (\_ -> eventDecoder)

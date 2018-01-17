@@ -14,11 +14,14 @@ suite =
                 let
                     input =
                         """
-                        [
-                          {
-                            "name": "all"
-                          }
-                        ]
+                        {
+                          "data": [
+                            {
+                              "id": "all",
+                              "type": "streams"
+                            }
+                          ]
+                        }
                         """
 
                     output =
@@ -30,20 +33,25 @@ suite =
                 let
                     input =
                         """
-                        [
-                          {
-                            "event_id": "664ada1e-2f01-4ed0-9c16-63dbc82269d2",
-                            "event_type": "DummyEvent",
-                            "data": {
-                              "foo": 1,
-                              "bar": 2.0,
-                              "baz": "3"
-                            },
-                            "metadata": {
-                              "timestamp": "2017-12-20T23:49:45.273Z"
+                        {
+                          "data": [
+                            {
+                              "id": "664ada1e-2f01-4ed0-9c16-63dbc82269d2",
+                              "type": "events",
+                              "attributes": {
+                                "event_type": "DummyEvent",
+                                "data": {
+                                  "foo": 1,
+                                  "bar": 2.0,
+                                  "baz": "3"
+                                },
+                                "metadata": {
+                                  "timestamp": "2017-12-20T23:49:45.273Z"
+                                }
+                              }
                             }
-                          }
-                        ]
+                          ]
+                        }
                         """
 
                     output =
@@ -56,21 +64,26 @@ suite =
                     input =
                         """
                         {
-                          "event_id": "664ada1e-2f01-4ed0-9c16-63dbc82269d2",
-                          "event_type": "DummyEvent",
                           "data": {
-                            "foo": 1,
-                            "bar": 3.4,
-                            "baz": "3"
-                          },
-                          "metadata": {
-                            "timestamp": "2017-12-20T23:49:45.273Z"
+                            "id": "664ada1e-2f01-4ed0-9c16-63dbc82269d2",
+                            "type": "events",
+                            "attributes": {
+                              "event_type": "DummyEvent",
+                              "data": {
+                                "foo": 1,
+                                "bar": 3.4,
+                                "baz": "3"
+                              },
+                              "metadata": {
+                                "timestamp": "2017-12-20T23:49:45.273Z"
+                              }
+                            }
                           }
                         }
                         """
 
                     output =
-                        Json.Decode.decodeString eventDecoder input
+                        Json.Decode.decodeString eventWithDetailsDecoder input
                 in
                     Expect.equal output
                         (Ok
