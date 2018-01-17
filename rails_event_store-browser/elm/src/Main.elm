@@ -5,7 +5,8 @@ import Html.Attributes exposing (placeholder, disabled, href, class)
 import Html.Events exposing (onInput, onClick)
 import Paginate exposing (..)
 import Http
-import Json.Decode as D exposing (Decoder, Value, field, list, string, at, value)
+import Json.Decode exposing (Decoder, Value, field, list, string, at, value)
+import Json.Decode.Pipeline exposing (decode, required, requiredAt)
 import Json.Encode exposing (encode)
 import Navigation
 import UrlParser exposing ((</>))
@@ -150,7 +151,7 @@ itemsUpdate model f =
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
-    case decode location of
+    case decodeLocation location of
         Just BrowseStreams ->
             ( { model | page = BrowseStreams }, getStreams model.flags.streamsUrl )
 
@@ -167,8 +168,8 @@ urlUpdate model location =
             ( { model | page = NotFound }, Cmd.none )
 
 
-decode : Navigation.Location -> Maybe Page
-decode location =
+decodeLocation : Navigation.Location -> Maybe Page
+decodeLocation location =
     UrlParser.parseHash routeParser location
 
 
@@ -444,7 +445,7 @@ getEvent : String -> String -> Cmd Msg
 getEvent url eventId =
     let
         decoder =
-            D.andThen eventWithDetailsDecoder rawEventDecoder
+            Json.Decode.andThen eventWithDetailsDecoder rawEventDecoder
     in
         Http.get (url ++ "/" ++ eventId) decoder
             |> Http.send EventDetails
@@ -452,29 +453,29 @@ getEvent url eventId =
 
 eventDecoder : Decoder Item
 eventDecoder =
-    D.map3 Event
-        (field "event_type" string)
-        (at [ "metadata", "timestamp" ] string)
-        (field "event_id" string)
+    decode Event
+        |> required "event_type" string
+        |> requiredAt [ "metadata", "timestamp" ] string
+        |> required "event_id" string
 
 
 streamDecoder : Decoder Item
 streamDecoder =
-    D.map Stream
-        (field "name" string)
+    decode Stream
+        |> required "name" string
 
 
 rawEventDecoder : Decoder ( Value, Value )
 rawEventDecoder =
-    D.map2 (,)
-        (field "data" value)
-        (field "metadata" value)
+    decode (,)
+        |> required "data" value
+        |> required "metadata" value
 
 
 eventWithDetailsDecoder : ( Value, Value ) -> Decoder EventWithDetails
 eventWithDetailsDecoder ( data, metadata ) =
-    D.map4 EventWithDetails
-        (field "event_type" string)
-        (field "event_id" string)
-        (field "data" (value |> D.map (encode 2)))
-        (field "metadata" (value |> D.map (encode 2)))
+    decode EventWithDetails
+        |> required "event_type" string
+        |> required "event_id" string
+        |> required "data" (value |> Json.Decode.map (encode 2))
+        |> required "metadata" (value |> Json.Decode.map (encode 2))
