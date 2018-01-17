@@ -21,11 +21,8 @@ suite =
                         ]
                         """
 
-                    decoder =
-                        list streamDecoder
-
                     output =
-                        Json.Decode.decodeString decoder input
+                        Json.Decode.decodeString streamsDecoder input
                 in
                     Expect.equal output (Ok ([ Stream "all" ]))
         , test "events decoder" <|
@@ -49,11 +46,8 @@ suite =
                         ]
                         """
 
-                    decoder =
-                        list eventDecoder
-
                     output =
-                        Json.Decode.decodeString decoder input
+                        Json.Decode.decodeString eventsDecoder input
                 in
                     Expect.equal output (Ok ([ Event "DummyEvent" "2017-12-20T23:49:45.273Z" "664ada1e-2f01-4ed0-9c16-63dbc82269d2" ]))
         , test "detailed event decoder" <|
@@ -76,9 +70,7 @@ suite =
                         """
 
                     output =
-                        Json.Decode.decodeString
-                            (Json.Decode.andThen eventWithDetailsDecoder rawEventDecoder)
-                            input
+                        Json.Decode.decodeString eventDecoder input
                 in
                     Expect.equal output
                         (Ok

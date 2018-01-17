@@ -431,38 +431,43 @@ displayItem item =
 
 getStreams : String -> Cmd Msg
 getStreams url =
-    Http.get url (list streamDecoder)
+    Http.get url streamsDecoder
         |> Http.send StreamList
 
 
 getEvents : String -> String -> Cmd Msg
 getEvents url streamName =
-    Http.get (url ++ "/" ++ streamName) (list eventDecoder)
+    Http.get (url ++ "/" ++ streamName) eventsDecoder
         |> Http.send EventList
 
 
 getEvent : String -> String -> Cmd Msg
 getEvent url eventId =
-    let
-        decoder =
-            Json.Decode.andThen eventWithDetailsDecoder rawEventDecoder
-    in
-        Http.get (url ++ "/" ++ eventId) decoder
-            |> Http.send EventDetails
+    Http.get (url ++ "/" ++ eventId) eventDecoder
+        |> Http.send EventDetails
 
 
-eventDecoder : Decoder Item
+eventsDecoder : Decoder (List Item)
+eventsDecoder =
+    list
+        (decode Event
+            |> required "event_type" string
+            |> requiredAt [ "metadata", "timestamp" ] string
+            |> required "event_id" string
+        )
+
+
+streamsDecoder : Decoder (List Item)
+streamsDecoder =
+    list
+        (decode Stream
+            |> required "name" string
+        )
+
+
+eventDecoder : Decoder EventWithDetails
 eventDecoder =
-    decode Event
-        |> required "event_type" string
-        |> requiredAt [ "metadata", "timestamp" ] string
-        |> required "event_id" string
-
-
-streamDecoder : Decoder Item
-streamDecoder =
-    decode Stream
-        |> required "name" string
+    Json.Decode.andThen eventWithDetailsDecoder rawEventDecoder
 
 
 rawEventDecoder : Decoder ( Value, Value )
