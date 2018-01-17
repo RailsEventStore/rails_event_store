@@ -90,7 +90,12 @@ module RailsEventStore
 
     def get(url, headers: {}, params: {})
       headers['Content-Type'] = 'application/vnd.api+json'
-      super(url, headers: headers, params: params)
+
+      if Gem::Version.new(Rails::VERSION::STRING) < Gem::Version.new("5.0.0")
+        super(url, params, headers)
+      else
+        super(url, headers: headers, params: params)
+      end
     end
 
     def app
