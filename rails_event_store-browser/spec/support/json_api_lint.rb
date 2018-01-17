@@ -1,9 +1,10 @@
 require 'json-schema'
+require 'active_support/core_ext/string/strip'
 
 class JsonApiLint
   class InvalidContentType < StandardError
     def initialize(content_type)
-      super(<<~EOS)
+      super(<<-EOS.strip_heredoc)
           expected: Content-Type: application/vnd.api+json
           got:      Content-Type: #{content_type}
       EOS
