@@ -30,6 +30,8 @@ class JsonApiLint
     validate_response(response)
 
     response
+  ensure
+    body.close if body.respond_to?(:close)
   end
 
   private
