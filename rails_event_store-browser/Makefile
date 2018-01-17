@@ -6,17 +6,25 @@ install: ## Install gem dependencies
 	@echo "Installing npm dependencies"
 	@cd elm; yarn install
 
-test: ## Run tests
-	@echo "Running basic tests - beware: this won't guarantee build pass"
-	@bundle exec rspec
+test-backend:
+	@bundle exec rspec spec/api_spec.rb
+
+test-frontend:
 	@cd elm; yarn test; cd -
+
+test-integration: build-frontend
+	@bundle exec rspec spec/ui_spec.rb
+
+test: test-frontend test-backend test-integration ## Run tests
 
 mutate: test  ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
 	@bundle exec mutant --include lib --require rails_event_store/browser --require ./spec/dummy_5_1_4/config/environment --use rspec "RailsEventStore::Browser*"
 
-build:
+build-frontend:
 	@cd elm; yarn build; cd -
+
+build: build-frontend
 	@gem build -V rails_event_store-browser.gemspec
 	@mkdir -p pkg/
 	@mv rails_event_store-browser-$(GEM_VERSION).gem pkg/
