@@ -1,5 +1,6 @@
 module RailsEventStore
   module Browser
+    PAGE_SIZE = 20
   end
 end
 

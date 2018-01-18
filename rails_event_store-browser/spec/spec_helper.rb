@@ -40,4 +40,8 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     config.use_transactional_fixtures = !example.metadata[:js]
   end
+
+  config.around(:each) do |example|
+    Timeout.timeout(5, &example)
+  end
 end
