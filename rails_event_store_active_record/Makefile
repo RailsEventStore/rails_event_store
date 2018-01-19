@@ -15,7 +15,7 @@ mutate: test  ## Run mutation tests
 	@bundle exec mutant --include lib --require ruby_event_store --use rspec "RailsEventStoreActiveRecord*" \
 	  --ignore-subject "RailsEventStoreActiveRecord::EventRepository#normalize_to_array" \
 	  --ignore-subject "RailsEventStoreActiveRecord::LegacyEventRepository#normalize_to_array" \
-	  --ignore-subject "RailsEventStoreActiveRecord::EventRepository#detect_index_violated"
+	  --ignore-subject "RailsEventStoreActiveRecord::IndexViolationDetector#detect"
 
 build:
 	@gem build -V rails_event_store_active_record.gemspec

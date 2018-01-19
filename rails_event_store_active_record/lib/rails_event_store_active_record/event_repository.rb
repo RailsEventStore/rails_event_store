@@ -106,7 +106,7 @@ module RailsEventStoreActiveRecord
     end
 
     def raise_error(e)
-      if detect_index_violated(e)
+      if detect_index_violated(e.message)
         raise RubyEventStore::EventDuplicatedInStream
       end
       raise RubyEventStore::WrongExpectedEventVersion
@@ -132,23 +132,8 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    MYSQL_PKEY_ERROR    = "for key 'PRIMARY'"
-    POSTGRES_PKEY_ERROR = "event_store_events_pkey"
-    SQLITE3_PKEY_ERROR  = "event_store_events.id"
-
-    MYSQL_INDEX_ERROR    = "for key 'index_event_store_events_in_streams_on_stream_and_event_id'"
-    POSTGRES_INDEX_ERROR = "Key (stream, event_id)"
-    SQLITE3_INDEX_ERROR  = "event_store_events_in_streams.stream, event_store_events_in_streams.event_id"
-
-    def detect_index_violated(e)
-      m = e.message
-      m.include?(MYSQL_PKEY_ERROR)     ||
-      m.include?(POSTGRES_PKEY_ERROR)  ||
-      m.include?(SQLITE3_PKEY_ERROR)   ||
-
-      m.include?(MYSQL_INDEX_ERROR)    ||
-      m.include?(POSTGRES_INDEX_ERROR) ||
-      m.include?(SQLITE3_INDEX_ERROR)
+    def detect_index_violated(message)
+      IndexViolationDetector.new.detect(message)
     end
 
     def build_event_record(event)
@@ -169,4 +154,5 @@ module RailsEventStoreActiveRecord
       CorrectSchemaVerifier.new.verify
     end
   end
+
 end
