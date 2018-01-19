@@ -147,7 +147,8 @@ module RailsEventStoreActiveRecord
     end
 
     def normalize_to_array(events)
-      [*events]
+      return events if events.is_a?(Enumerable)
+      [events]
     end
 
     def verify_correct_schema_present

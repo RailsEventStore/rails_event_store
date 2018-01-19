@@ -129,7 +129,8 @@ instead:
     private
 
     def normalize_to_array(events)
-      [*events]
+      return events if events.is_a?(Enumerable)
+      [events]
     end
 
     def build_event_entity(record)
