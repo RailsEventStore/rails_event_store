@@ -12,7 +12,7 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(events, stream_name, expected_version)
-      add_to_stream(events, stream_name, expected_version, true) do |event|
+      add_to_stream(normalize_to_array(events), stream_name, expected_version, true) do |event|
         build_event_record(event).save!
         event.event_id
       end
@@ -22,7 +22,7 @@ module RailsEventStoreActiveRecord
       (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
-      add_to_stream(event_ids, stream_name, expected_version, nil) do |event_id|
+      add_to_stream(normalize_to_array(event_ids), stream_name, expected_version, nil) do |event_id|
         event_id
       end
     end
@@ -78,7 +78,6 @@ module RailsEventStoreActiveRecord
     def add_to_stream(collection, stream_name, expected_version, include_global, &to_event_id)
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
 
-      collection = normalize_to_array(collection)
       expected_version = normalize_expected_version(expected_version, stream_name)
 
       ActiveRecord::Base.transaction(requires_new: true) do
