@@ -17,7 +17,7 @@ test-integration: build-frontend
 
 test: test-frontend test-backend test-integration ## Run tests
 
-mutate: test  ## Run mutation tests
+mutate: ## Run mutation tests
 	@echo "Running mutation tests - only 100% free mutation will be accepted"
 	@bundle exec mutant --include lib --require rails_event_store/browser --require ./spec/dummy_5_1_4/config/environment --use rspec "RailsEventStore::Browser*"
 
