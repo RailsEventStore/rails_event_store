@@ -3,7 +3,7 @@ require 'spec_helper'
 FooBarEvent = Class.new(::RailsEventStore::Event)
 
 module RailsEventStore
-  RSpec.describe Browser, type: :feature, js: true do
+  RSpec.describe "MAKE SURE MUTANT DOES NOT PICK THIS TEST", type: :feature, js: true do
     include SchemaHelper
 
     before { load_database_schema }
