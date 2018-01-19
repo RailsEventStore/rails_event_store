@@ -60,4 +60,6 @@ old repository. In order to do so, change configuration accordingly:
       MESSAGE
     end
   end
+
+  private_constant(:CorrectSchemaVerifier)
 end
