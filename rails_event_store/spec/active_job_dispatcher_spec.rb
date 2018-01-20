@@ -84,8 +84,8 @@ module RailsEventStore
       expect(AsyncHandler.received).to be_nil
     end
 
-    it "async proxy for defined adapter do not enqueue job after transaction rollback (with raises)" do
-      expect(ActiveRecord::Base.raise_in_transactional_callbacks).to eq(false)
+    it "async proxy for defined adapter does not enqueue job after transaction rollback (with raises)" do
+      was = ActiveRecord::Base.raise_in_transactional_callbacks
       begin
         ActiveRecord::Base.raise_in_transactional_callbacks = true
 
@@ -99,7 +99,7 @@ module RailsEventStore
         perform_enqueued_jobs(AsyncHandler.queue_adapter)
         expect(AsyncHandler.received).to be_nil
       ensure
-        ActiveRecord::Base.raise_in_transactional_callbacks = false
+        ActiveRecord::Base.raise_in_transactional_callbacks = was
       end
     end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
 
