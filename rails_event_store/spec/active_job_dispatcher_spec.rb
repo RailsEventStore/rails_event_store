@@ -84,6 +84,38 @@ module RailsEventStore
       expect(AsyncHandler.received).to be_nil
     end
 
+    it "async proxy for defined adapter enqueue job only after top-level transaction (nested is not new) commit" do
+      dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+      expect_to_have_enqueued_job(AsyncHandler) do
+        ActiveRecord::Base.transaction do
+          expect_no_enqueued_job do
+            ActiveRecord::Base.transaction(requires_new: false) do
+              dispatcher.call(AsyncHandler, event)
+            end
+          end
+        end
+      end
+      expect(AsyncHandler.received).to be_nil
+      perform_enqueued_jobs(AsyncHandler.queue_adapter)
+      expect(AsyncHandler.received).to eq(yaml)
+    end
+
+    it "async proxy for defined adapter enqueue job only after top-level transaction commit" do
+      dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+      expect_to_have_enqueued_job(AsyncHandler) do
+        ActiveRecord::Base.transaction do
+          expect_no_enqueued_job do
+            ActiveRecord::Base.transaction(requires_new: true) do
+              dispatcher.call(AsyncHandler, event)
+            end
+          end
+        end
+      end
+      expect(AsyncHandler.received).to be_nil
+      perform_enqueued_jobs(AsyncHandler.queue_adapter)
+      expect(AsyncHandler.received).to eq(yaml)
+    end
+
     def with_queue_adapter(job, queue_adapter = :test, &proc)
       raise unless block_given?
       adapter = job.queue_adapter

@@ -30,6 +30,10 @@ module RailsEventStore
 
         def before_committed!
         end
+
+        def add_to_transaction
+          AfterCommit.new.call(@klass, @event)
+        end
       end
     end
 
