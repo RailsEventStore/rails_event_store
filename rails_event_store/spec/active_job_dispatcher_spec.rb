@@ -84,6 +84,25 @@ module RailsEventStore
       expect(AsyncHandler.received).to be_nil
     end
 
+    it "async proxy for defined adapter do not enqueue job after transaction rollback (with raises)" do
+      expect(ActiveRecord::Base.raise_in_transactional_callbacks).to eq(false)
+      begin
+        ActiveRecord::Base.raise_in_transactional_callbacks = true
+
+        dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+        expect_no_enqueued_job(AsyncHandler) do
+          ActiveRecord::Base.transaction do
+            dispatcher.call(AsyncHandler, event)
+            raise ActiveRecord::Rollback
+          end
+        end
+        perform_enqueued_jobs(AsyncHandler.queue_adapter)
+        expect(AsyncHandler.received).to be_nil
+      ensure
+        ActiveRecord::Base.raise_in_transactional_callbacks = false
+      end
+    end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
     it "async proxy for defined adapter enqueue job only after top-level transaction (nested is not new) commit" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_to_have_enqueued_job(AsyncHandler) do
