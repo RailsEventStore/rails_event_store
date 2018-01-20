@@ -135,6 +135,22 @@ module RailsEventStore
       expect(AsyncHandler.received).to eq(yaml)
     end
 
+    it "async proxy for defined adapter do not enqueue job after nested transaction rollback" do
+      dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
+      expect_no_enqueued_job(AsyncHandler) do
+        ActiveRecord::Base.transaction do
+          expect_no_enqueued_job do
+            ActiveRecord::Base.transaction(requires_new: true) do
+              dispatcher.call(AsyncHandler, event)
+              raise ActiveRecord::Rollback
+            end
+          end
+        end
+      end
+      perform_enqueued_jobs(AsyncHandler.queue_adapter)
+      expect(AsyncHandler.received).to be_nil
+    end
+
     def with_queue_adapter(job, queue_adapter = :test, &proc)
       raise unless block_given?
       adapter = job.queue_adapter
