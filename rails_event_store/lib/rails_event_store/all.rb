@@ -3,6 +3,7 @@ require 'ruby_event_store'
 require 'rails_event_store/client'
 require 'rails_event_store/version'
 require 'rails_event_store/railtie'
+require 'rails_event_store/dispatcher'
 require 'rails_event_store/deprecations'
 require 'rails_event_store/active_job_dispatcher'
 
