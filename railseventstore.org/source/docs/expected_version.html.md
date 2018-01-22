@@ -35,7 +35,7 @@ You start by publishing the first event in a stream with `expected_version` bein
 event_store.publish_event(
   event0,
   stream_name: "Order-1",
-  expected_version: -1,   # or :none which is a synonim
+  expected_version: -1,   # or :none which is a synonym
                           # for -1
 )
 ```
