@@ -70,7 +70,7 @@ This mode effectively acts as optimistic locking.
 
 * When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to the same correct number, only one of those writes will succeed.
 * When a single thread (or process) writes events A, B to a stream, it is guaranteed you will retrieve events A,B in that exact order when reading from a stream.
-* Succeeds when there were no other successful concurrent writes, rises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
+* Succeeds when there were no other successful concurrent writes, raises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
 
 #### Usage
 
@@ -109,7 +109,7 @@ The guarantees mentioned below assume there is no application specific lock.
 
 * When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to the same correct number, only one of those writes will succeed.
 * When a single thread (or process) writes events A, B to a stream, it is guaranteed you will retrieve events A,B in that exact order when reading from a stream.
-* Succeeds when there were no other successful concurrent writes, rises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
+* Succeeds when there were no other successful concurrent writes, raises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
 
 #### Usage
 
