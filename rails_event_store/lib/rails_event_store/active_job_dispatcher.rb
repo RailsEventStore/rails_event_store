@@ -25,10 +25,14 @@ module RailsEventStore
           @klass.perform_later(YAML.dump(@event))
         end
 
-        def rolledback!(**_)
+        def rolledback!(*)
         end
 
         def before_committed!
+        end
+
+        def add_to_transaction
+          AfterCommit.new.call(@klass, @event)
         end
       end
     end
