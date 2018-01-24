@@ -33,7 +33,7 @@ When describing changes, list all gems involved gems in the release. Explicitly 
 
 #### Documenting, tagging and RubyGems push
 
-1. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v0.17.0...master) since last release to HEAD of master branch.
+1. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v0.24.0...master) since last release to HEAD of master branch.
 2. Hit `make release` from top-level of repository. This will:
   - check of any uncommitted changes
   - run unit tests for all involved gems
@@ -41,7 +41,7 @@ When describing changes, list all gems involved gems in the release. Explicitly 
   - loop over gems and build gem packages followed by RubyGems push for each
 
   You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
-  
+
 3. Bump version number in documentation section of [railseventstore.org](https://railseventstore.org). It's good practice to list changes in [documentation](https://railseventstore.org/docs/changelog/).
 
 #### Opening work on new release soon after
