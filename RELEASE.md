@@ -27,11 +27,15 @@ Changes are easier to scan, when they're described with following types:
 
 Use them following to the full description of introduced change.
 
-When describing changes, list all gems involved gems in the release. Explicitly mention no changes if there were none. When in doubt, check this [example](https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.18.0)
+When describing changes, list all gems involved gems in the release. Explicitly mention no changes if there were none:
+
+* no changes
+
+When in doubt, check this [example](https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.18.0)
 
 ## Release steps
 
-1. Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) if that hasn't happened already but don't publish it yet. Leave "Tag version" empty by now.
+1. Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) if that hasn't happened already but don't publish it yet. Leave _Tag version_ field empty by now.
 2. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v0.24.0...master) since last release to HEAD of master branch (you may need to modify URL for correct versions to compare).
 3. Bump the version number for all gems and dependencies via `make set-version RES_VERSION=version_number_here`.
 4. Hit `make release` from top-level of repository. This will:
@@ -43,15 +47,15 @@ When describing changes, list all gems involved gems in the release. Explicitly 
 
     You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
 
-5. Go back to [releases](https://github.com/RailsEventStore/rails_event_store/releases/), link to appropriate git tag in "Tag version" field. Set title corresponding to version number and publish this release entry.
+5. Go back to [releases](https://github.com/RailsEventStore/rails_event_store/releases/), link to appropriate git tag in _Tag version_ field. Set title corresponding to version number and publish this release entry.
 6. Lastly, bump version number in documentation section of [railseventstore.org](https://railseventstore.org).
 
-#### Opening work on new release soon after
+### Opening work on new release soon after
 
-1. Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) to start acquiring changelogs with each issue closed, pull-request merge and code committed. It helps much if there's a template ready to be filled.
+Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) to start acquiring changelogs with each issue closed, pull-request merge and code committed. It helps much if there's a template ready to be filled.
 
 
-#### Troubleshooting when something went wrong during release
+### Troubleshooting when something went wrong during release
 
 - no RubyGems credentials
 
