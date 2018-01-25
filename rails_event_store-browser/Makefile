@@ -1,4 +1,9 @@
-GEM_VERSION  = `cat ../RES_VERSION`
+GEM_VERSION = $(shell cat ../RES_VERSION)
+GEM_NAME    = rails_event_store-browser
+REQUIRE     = rails_event_store/browser
+SUBJECT     ?= RailsEventStore::Browser*
+DUMMY_RAILS = ./spec/dummy_5_1_4/config/environment
+JS_BUNDLE   = public/rails_event_store_browser.js
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
@@ -6,31 +11,32 @@ install: ## Install gem dependencies
 	@echo "Installing npm dependencies"
 	@cd elm; yarn install
 
-test-backend:
-	@bundle exec rspec spec/api_spec.rb
-
-test-frontend:
+test: $(JS_BUNDLE) ## Run unit tests
+	@echo "Running unit and integration tests"
 	@cd elm; yarn test; cd -
-
-test-integration: build-frontend
-	@bundle exec rspec spec/ui_spec.rb
-
-test: test-frontend test-backend test-integration ## Run tests
+	@bundle exec rspec
 
 mutate: ## Run mutation tests
-	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require rails_event_store/browser --require ./spec/dummy_5_1_4/config/environment --use rspec "RailsEventStore::Browser*"
+	@echo "Running mutation tests"
+	@bundle exec mutant --include lib --require $(DUMMY_RAILS) --require $(REQUIRE) --use rspec "$(SUBJECT)"
 
-build-frontend:
-	@cd elm; yarn build; cd -
+$(JS_BUNDLE):
+	@echo "Building browser frontend"
+	@cd elm; yarn build
 
-build: build-frontend
-	@gem build -V rails_event_store-browser.gemspec
+build: $(JS_BUNDLE)
+	@echo "Building gem package"
+	@gem build -V $(GEM_NAME).gemspec
 	@mkdir -p pkg/
-	@mv rails_event_store-browser-$(GEM_VERSION).gem pkg/
+	@mv $(GEM_NAME)-$(GEM_VERSION).gem pkg/
 
-release: build
-	@gem push pkg/rails_event_store-browser-$(GEM_VERSION).gem
+push: $(JS_BUNDLE)
+	@echo "Pushing package to RubyGems"
+	@gem push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+
+clean:
+	@echo "Removing previously built package and bundle"
+	-rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem $(JS_BUNDLE)
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
