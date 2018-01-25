@@ -1,8 +1,8 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store-browser
-REQUIRE     = rails_event_store/browser
+REQUIRE     = rails_event_store/browser ./spec/dummy_5_1_4/config/environment
+IGNORE      =
 SUBJECT     ?= RailsEventStore::Browser*
-DUMMY_RAILS = ./spec/dummy_5_1_4/config/environment
 JS_BUNDLE   = public/rails_event_store_browser.js
 
 install: ## Install gem dependencies
@@ -18,7 +18,10 @@ test: $(JS_BUNDLE) ## Run unit tests
 
 mutate: ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib --require $(DUMMY_RAILS) --require $(REQUIRE) --use rspec "$(SUBJECT)"
+	@bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE))
+		--use rspec "$(SUBJECT)"
 
 $(JS_BUNDLE):
 	@echo "Building browser frontend"

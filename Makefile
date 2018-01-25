@@ -6,7 +6,6 @@ NIX_TYPE     =  $(shell uname -s)
 GEMS         = aggregate_root bounded_context ruby_event_store rails_event_store \
 	           rails_event_store_active_record rails_event_store-browser rails_event_store-rspec
 
-
 ifeq ($(NIX_TYPE),Linux)
   SED_OPTS = -i
 endif

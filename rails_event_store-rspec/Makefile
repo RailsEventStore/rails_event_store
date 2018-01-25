@@ -1,6 +1,7 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store-rspec
 REQUIRE     = rails_event_store/rspec
+IGNORE      =
 SUBJECT     ?= RailsEventStore::RSpec*
 
 install: ## Install gem dependencies
@@ -11,10 +12,12 @@ test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec
 
-mutate: test  ## Run mutation tests
+mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib --require $(REQUIRE) --use rspec "$(SUBJECT)" \
-		--ignore-subject "RailsEventStore::RSpec::Matchers#differ"
+	@bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--use rspec "$(SUBJECT)"
 
 build:
 	@echo "Building gem package"

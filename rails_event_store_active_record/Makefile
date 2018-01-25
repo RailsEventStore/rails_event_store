@@ -1,6 +1,7 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store_active_record
 REQUIRE     = $(GEM_NAME)
+IGNORE      =
 SUBJECT     ?= RailsEventStoreActiveRecord*
 
 install: ## Install gem dependencies
@@ -13,10 +14,12 @@ test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec
 
-mutate: test  ## Run mutation tests
+mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib --require $(REQUIRE) --use rspec "$(SUBJECT)" \
-		--ignore-subject "RailsEventStoreActiveRecord::IndexViolationDetector#detect"
+	@bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--use rspec "$(SUBJECT)"
 
 build:
 	@echo "Building gem package"

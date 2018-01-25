@@ -1,6 +1,13 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = ruby_event_store
 REQUIRE     = $(GEM_NAME)
+IGNORE      = RubyEventStore.const_missing \
+              RubyEventStore::InMemoryRepository\#append_with_synchronize \
+              RubyEventStore::InMemoryRepository\#normalize_to_array \
+              RubyEventStore::Client\#normalize_to_array \
+              RubyEventStore::SerializedRecord \
+              RubyEventStore::Projection\#read_events_from_stream \
+              RubyEventStore::Projection\#read_events_from_all_streams
 SUBJECT     ?= RubyEventStore*
 
 install: ## Install gem dependencies
@@ -11,16 +18,12 @@ test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec
 
-mutate: test  ## Run mutation tests
+mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib --require $(REQUIRE) --use rspec "$(SUBJECT)" \
-		--ignore-subject "RubyEventStore.const_missing" \
-		--ignore-subject "RubyEventStore::InMemoryRepository#append_with_synchronize" \
-		--ignore-subject "RubyEventStore::InMemoryRepository#normalize_to_array" \
-		--ignore-subject "RubyEventStore::Client#normalize_to_array" \
-		--ignore-subject "RubyEventStore::SerializedRecord" \
-		--ignore-subject "RubyEventStore::Projection#read_events_from_stream" \
-		--ignore-subject "RubyEventStore::Projection#read_events_from_all_streams"
+	@bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--use rspec "$(SUBJECT)"
 
 build:
 	@echo "Building gem package"

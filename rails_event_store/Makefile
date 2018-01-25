@@ -1,7 +1,10 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
-GEM_NAME    = "rails_event_store"
+GEM_NAME    = rails_event_store
 REQUIRE     = $(GEM_NAME)
-SUBJECT     ?= "RailsEventStore*"
+IGNORE      = RailsEventStore.const_missing \
+              RailsEventStore::AsyncProxyStrategy::AfterCommit::AsyncRecord\#rolledback! \
+              RailsEventStore::AsyncProxyStrategy::AfterCommit::AsyncRecord\#before_committed!
+SUBJECT     ?= RailsEventStore*
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
@@ -11,12 +14,12 @@ test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec
 
-mutate: test  ## Run mutation tests
-	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require $(REQUIRE) --use rspec "$(SUBJECT)" \
-		--ignore-subject "RailsEventStore.const_missing" \
-		--ignore-subject "RailsEventStore::AsyncProxyStrategy::AfterCommit::AsyncRecord#rolledback!" \
-		--ignore-subject "RailsEventStore::AsyncProxyStrategy::AfterCommit::AsyncRecord#before_committed!" \
+mutate: test ## Run mutation tests
+	@echo "Running mutation tests"
+	@bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--use rspec "$(SUBJECT)"
 
 build:
 	@echo "Building gem package"
