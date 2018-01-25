@@ -1,7 +1,7 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store_active_record
 REQUIRE     = $(GEM_NAME)
-IGNORE      =
+IGNORE      = RailsEventStoreActiveRecord::IndexViolationDetector\#detect
 SUBJECT     ?= RailsEventStoreActiveRecord*
 
 install: ## Install gem dependencies
