@@ -1,5 +1,6 @@
 .bundle/
 .yardoc
+.rspec_status
 Gemfile.lock
 _yardoc/
 coverage/
@@ -13,3 +14,4 @@ db.sqlite3
 node_modules/
 elm-stuff/
 build/
+public/rails_event_store_browser.js
