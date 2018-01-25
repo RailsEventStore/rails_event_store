@@ -1,4 +1,3 @@
-require "bundler/setup"
 require "aggregate_root"
 require "rails_event_store"
 require "rails_event_store/rspec"

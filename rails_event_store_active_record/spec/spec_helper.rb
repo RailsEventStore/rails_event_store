@@ -1,4 +1,3 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rails_event_store_active_record'
 
 ENV['DATABASE_URL']  ||= "postgres://localhost/rails_event_store_active_record?pool=5"

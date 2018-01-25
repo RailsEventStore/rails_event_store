@@ -1,4 +1,3 @@
-require "bundler/setup"
 require "rails_event_store"
 require "rails_event_store/browser"
 
