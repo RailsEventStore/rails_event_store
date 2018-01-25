@@ -71,3 +71,8 @@ Rails.application.routes.draw do
   mount browser, at: "/res"
 end
 ```
+
+## Assumptions
+
+* You don’t need pagination (just not yet implemented in this iteration, beware large streams)
+* You have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](http://railseventstore.org/docs/install/))
