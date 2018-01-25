@@ -1,5 +1,6 @@
-require 'aggregate_root'
-require 'ruby_event_store'
+require "aggregate_root"
+require "ruby_event_store"
+require "support/defaults"
 
 RSpec.configure do |spec|
   spec.before(:each) do

@@ -1,5 +1,6 @@
-require 'bounded_context'
-require 'securerandom'
+require "bounded_context"
+require "securerandom"
+require "support/defaults"
 
 ENV['RAILS_VERSION'] ||= '5.1.4'
 DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"

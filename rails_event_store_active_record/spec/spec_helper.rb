@@ -1,4 +1,5 @@
-require 'rails_event_store_active_record'
+require "rails_event_store_active_record"
+require "support/defaults"
 
 ENV['DATABASE_URL']  ||= "postgres://localhost/rails_event_store_active_record?pool=5"
 ENV['RAILS_VERSION'] ||= '5.1.4'
