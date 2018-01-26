@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe AggregateRoot do
+describe AggregateRoot do
   let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
   it "should have ability to apply event on itself" do

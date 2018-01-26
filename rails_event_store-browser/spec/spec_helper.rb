@@ -1,6 +1,5 @@
 require "rails_event_store"
 require "rails_event_store/browser"
-require "support/defaults"
 
 ENV['RAILS_ENV']     ||= 'test'
 ENV['RAILS_VERSION'] ||= '5.1.4'
@@ -35,6 +34,17 @@ module SchemaHelper
 end
 
 RSpec.configure do |config|
+  config.example_status_persistence_file_path = ".rspec_status"
+
+  config.disable_monkey_patching!
+
+  config.order = :random
+  Kernel.srand config.seed
+
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
+
   config.before(:each) do |example|
     config.use_transactional_fixtures = !example.metadata[:js]
   end
