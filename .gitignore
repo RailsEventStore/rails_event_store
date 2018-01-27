@@ -14,4 +14,4 @@ db.sqlite3
 node_modules/
 elm-stuff/
 build/
-public/rails_event_store_browser.js
+rails_event_store_browser.js
