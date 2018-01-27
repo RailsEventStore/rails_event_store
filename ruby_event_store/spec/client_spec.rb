@@ -36,17 +36,6 @@ module RubyEventStore
       expect(client.delete_stream(stream)).to eq(:ok)
     end
 
-    specify 'PubSub::Broker is a default event broker' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect(client.send("event_broker")).to be_a(RubyEventStore::PubSub::Broker)
-    end
-
-    specify 'setup event broker dependency' do
-      broker = RubyEventStore::PubSub::Broker.new
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new, event_broker: broker)
-      expect(client.send("event_broker")).to eql(broker)
-    end
-
     specify 'publish to default stream when not specified' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new

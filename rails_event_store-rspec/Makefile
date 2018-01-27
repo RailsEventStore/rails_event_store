@@ -1,7 +1,10 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store-rspec
 REQUIRE     = rails_event_store/rspec
-IGNORE      = RailsEventStore::RSpec::Matchers\#differ
+IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
+              RailsEventStore::RSpec::Matchers\#have_published \
+              RailsEventStore::RSpec::Matchers\#have_applied \
+              RailsEventStore::RSpec::Matchers\#be_an_event
 SUBJECT     ?= RailsEventStore::RSpec*
 
 install: ## Install gem dependencies

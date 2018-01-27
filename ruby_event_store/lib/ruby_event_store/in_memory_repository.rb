@@ -19,11 +19,11 @@ module RubyEventStore
     end
 
     def delete_stream(stream_name)
-      streams.delete(stream_name)
+      @streams.delete(stream_name)
     end
 
     def has_event?(event_id)
-      all.any?{ |item| item.event_id.eql?(event_id) }
+      @all.any?{ |item| item.event_id.eql?(event_id) }
     end
 
     def last_stream_event(stream_name)
@@ -41,7 +41,7 @@ module RubyEventStore
     end
 
     def read_stream_events_forward(stream_name)
-      streams[stream_name] || Array.new
+      @streams[stream_name] || Array.new
     end
 
     def read_stream_events_backward(stream_name)
@@ -49,23 +49,22 @@ module RubyEventStore
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_batch(all, start_event_id, count)
+      read_batch(@all, start_event_id, count)
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_batch(all.reverse, start_event_id, count)
+      read_batch(@all.reverse, start_event_id, count)
     end
 
     def read_event(event_id)
-      all.find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
+      @all.find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
     end
 
     def get_all_streams
-      [Stream.new("all")] + streams.keys.map { |name| Stream.new(name) }
+      [Stream.new("all")] + @streams.keys.map { |name| Stream.new(name) }
     end
 
     private
-    attr_accessor :streams, :all
 
     def normalize_to_array(events)
       return *events
@@ -107,12 +106,12 @@ module RubyEventStore
       events.each do |event|
         raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
         if include_global
-          raise EventDuplicatedInStream if all.any?{|ev| ev.event_id.eql?(event.event_id) }
-          all.push(event)
+          raise EventDuplicatedInStream if @all.any?{|ev| ev.event_id.eql?(event.event_id) }
+          @all.push(event)
         end
         stream.push(event)
       end
-      streams[stream_name] = stream
+      @streams[stream_name] = stream
       self
     end
 
