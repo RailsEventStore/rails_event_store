@@ -20,7 +20,7 @@ mutate: ## Run mutation tests
 	@echo "Running mutation tests"
 	@bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
-		$(addprefix --ignore-subject ,$(IGNORE))
+		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
 $(JS_BUNDLE):
