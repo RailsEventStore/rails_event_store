@@ -22,6 +22,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'mutant-rspec', '~> 0.8.14'
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'selenium-webdriver'
-  s.add_development_dependency 'chromedriver-helper'
   s.add_development_dependency 'json-schema'
 end

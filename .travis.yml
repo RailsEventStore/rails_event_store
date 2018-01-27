@@ -100,7 +100,12 @@ before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
 - psql -c 'create database rails_event_store_active_record;' -U postgres
 - mysql -e 'CREATE DATABASE rails_event_store_active_record;'
-before_install: gem install bundler
+before_install:
+- gem install bundler
+- wget -N http://chromedriver.storage.googleapis.com/2.35/chromedriver_linux64.zip -P /tmp
+- unzip /tmp/chromedriver_linux64.zip -d /tmp
+- chmod +x /tmp/chromedriver
+- sudo mv /tmp/chromedriver /usr/local/bin/chromedriver
 gemfile: "$TARGET/Gemfile"
 script: make -C $TARGET install $SCRIPT
 services:
