@@ -3,6 +3,8 @@ require "rails_event_store/browser"
 
 ENV['RAILS_ENV']     ||= 'test'
 ENV['RAILS_VERSION'] ||= '5.1.4'
+ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
+
 dummy_app_name = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
 require "#{File.join(__dir__, dummy_app_name)}/config/environment.rb"
 

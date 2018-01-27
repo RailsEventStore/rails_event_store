@@ -3,12 +3,14 @@ require 'spec_helper'
 FooBarEvent = Class.new(::RailsEventStore::Event)
 
 module RailsEventStore
-  RSpec.describe "MAKE SURE MUTANT DOES NOT PICK THIS TEST", type: :feature, js: true do
+  RSpec.describe Browser, type: :feature, js: true do
     include SchemaHelper
 
     before { load_database_schema }
 
     specify do
+      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
+
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
       event_store.publish_event(foo_bar_event, stream_name: 'baz')
 
