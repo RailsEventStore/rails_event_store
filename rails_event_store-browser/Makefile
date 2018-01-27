@@ -1,9 +1,10 @@
-GEM_VERSION = $(shell cat ../RES_VERSION)
-GEM_NAME    = rails_event_store-browser
-REQUIRE     = rails_event_store/browser ./spec/dummy_5_1_4/config/environment
-IGNORE      =
-SUBJECT     ?= RailsEventStore::Browser*
-JS_BUNDLE   = public/rails_event_store_browser.js
+GEM_VERSION  = $(shell cat ../RES_VERSION)
+GEM_NAME     = rails_event_store-browser
+REQUIRE      = rails_event_store/browser ./spec/dummy_5_1_4/config/environment
+IGNORE       =
+SUBJECT      ?= RailsEventStore::Browser*
+DATABASE_URL ?= sqlite3::memory:
+JS_BUNDLE    = public/rails_event_store_browser.js
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
@@ -16,9 +17,9 @@ test: $(JS_BUNDLE) ## Run unit tests
 	@cd elm; yarn test; cd -
 	@bundle exec rspec
 
-mutate: ## Run mutation tests
+mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"

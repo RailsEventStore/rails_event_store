@@ -1,8 +1,9 @@
-GEM_VERSION = $(shell cat ../RES_VERSION)
-GEM_NAME    = rails_event_store_active_record
-REQUIRE     = $(GEM_NAME)
-IGNORE      = RailsEventStoreActiveRecord::IndexViolationDetector\#detect
-SUBJECT     ?= RailsEventStoreActiveRecord*
+GEM_VERSION  = $(shell cat ../RES_VERSION)
+GEM_NAME     = rails_event_store_active_record
+REQUIRE      = $(GEM_NAME)
+IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector\#detect
+SUBJECT      ?= RailsEventStoreActiveRecord*
+DATABASE_URL ?= sqlite3::memory:
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
@@ -16,7 +17,7 @@ test: ## Run unit tests
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"

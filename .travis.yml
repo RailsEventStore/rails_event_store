@@ -2,7 +2,7 @@ language: ruby
 matrix:
   include:
   - rvm: 2.4.1
-    env: 'TARGET=rails_event_store-browser SCRIPT=mutate DATABASE_URL=sqlite3::memory:'
+    env: TARGET=rails_event_store-browser SCRIPT=mutate
   - rvm: 2.4.1
     env: TARGET=bounded_context SCRIPT=mutate
   - rvm: 2.4.1
@@ -14,7 +14,7 @@ matrix:
   - rvm: 2.4.1
     env: TARGET=rails_event_store SCRIPT=mutate
   - rvm: 2.4.1
-    env: 'TARGET=rails_event_store_active_record SCRIPT=mutate DATABASE_URL=sqlite3::memory:'
+    env: TARGET=rails_event_store_active_record SCRIPT=mutate
   - rvm: 2.3.4
     env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.3.4
