@@ -10,11 +10,11 @@ install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 	@echo "Installing npm dependencies"
-	@cd elm; yarn install
+	@cd elm; npm install
 
 test: $(JS_BUNDLE) ## Run unit tests
 	@echo "Running unit and integration tests"
-	@cd elm; yarn test; cd -
+	@cd elm; npm run test; cd -
 	@bundle exec rspec
 
 mutate: test ## Run mutation tests
@@ -26,7 +26,7 @@ mutate: test ## Run mutation tests
 
 $(JS_BUNDLE):
 	@echo "Building browser frontend"
-	@cd elm; yarn build
+	@cd elm; npm run build
 
 build: $(JS_BUNDLE)
 	@echo "Building gem package"
