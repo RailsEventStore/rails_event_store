@@ -1,4 +1,5 @@
 require 'rails'
+require 'active_support/core_ext/string/filters'
 
 module RailsEventStore
   module Browser
