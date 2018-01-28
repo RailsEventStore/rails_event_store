@@ -146,13 +146,14 @@ module RubyEventStore
     end
 
     specify 'timestamp is utc time' do
-      now    = Time.parse('2015-05-04 15:17:11 +0200')
-      utc    = Time.parse('2015-05-04 13:17:11 UTC')
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new, clock: ->{ now })
-
-      client.publish_event(TestEvent.new)
+      now = Time.parse('2015-05-04 15:17:11 +0200')
+      utc = Time.parse('2015-05-04 13:17:23 UTC')
+      allow_any_instance_of(Time).to receive(:now).and_return(now)
+      allow_any_instance_of(Time).to receive(:utc).and_return(utc)
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event = TestEvent.new
+      client.publish_event(event)
       published = client.read_all_streams_forward
-
       expect(published.size).to eq(1)
       expect(published.first.metadata[:timestamp]).to eq(utc)
     end
@@ -201,5 +202,6 @@ module RubyEventStore
       expect(client.read_stream_events_forward('cars')).to eq([first_event])
       expect(subscriber.handled_events).to be_empty
     end
+
   end
 end
