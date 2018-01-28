@@ -3,10 +3,12 @@ require 'rails_event_store_active_record'
 require 'ruby_event_store'
 require 'logger'
 
-ActiveRecord::Base.logger = Logger.new(STDOUT)
+$verbose = ENV.has_key?('VERBOSE') ? true : false
+
+ActiveRecord::Base.logger = Logger.new(STDOUT) if $verbose
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'].gsub("db.sqlite3", "../../db.sqlite3"))
 ActiveRecord::Schema.define do
-  self.verbose = true
+  self.verbose = $verbose
   create_table(:event_store_events, force: false) do |t|
     t.string      :stream,      null: false
     t.string      :event_type,  null: false
@@ -92,4 +94,4 @@ client.append_to_stream(EventB2.new(data: {
   stream_name: "WroclawBuyers",
 )
 
-puts "filled"
+puts "filled" if $verbose
