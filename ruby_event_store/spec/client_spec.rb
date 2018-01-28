@@ -148,7 +148,7 @@ module RubyEventStore
     specify 'timestamp is utc time' do
       now = Time.parse('2015-05-04 15:17:11 +0200')
       utc = Time.parse('2015-05-04 13:17:23 UTC')
-      allow_any_instance_of(Time).to receive(:now).and_return(now)
+      allow(Time).to receive(:now).and_return(now)
       allow_any_instance_of(Time).to receive(:utc).and_return(utc)
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = TestEvent.new
