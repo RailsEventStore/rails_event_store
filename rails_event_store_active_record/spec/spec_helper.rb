@@ -1,4 +1,5 @@
 require 'rails_event_store_active_record'
+require 'support/rspec_defaults'
 
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 ENV['RAILS_VERSION'] ||= '5.1.4'
