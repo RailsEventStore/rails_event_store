@@ -116,4 +116,3 @@ addons:
 notifications:
   slack:
     secure: bWHujiF+SFAh6m3aXxtLpsyiSfYGPQAGHwp/nsv8VpXxzON1evYkyJ+Fu+vPjvyFrA8m6N9E/jmzEGOMMvOXT0++SR4Axr7LhsbFdBDhlRBgtkzEV1Iyr96ipaTQ1IwY2R0QnVdFSIbxKtJAtB1BFn4tBxDEfLc44/n0+7SxEY8=
-cache: bundler
