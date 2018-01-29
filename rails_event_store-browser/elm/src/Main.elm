@@ -2,9 +2,10 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (placeholder, disabled, href, class)
+import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, Value, field, list, string, at, value)
-import Json.Decode.Pipeline exposing (decode, required, requiredAt)
+import Json.Decode exposing (Decoder, Value, field, list, string, at, value, maybe, oneOf)
+import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional)
 import Json.Encode exposing (encode)
 import Navigation
 import UrlParser exposing ((</>))
@@ -21,7 +22,7 @@ main =
 
 
 type alias Model =
-    { items : List Item
+    { items : PaginatedList Item
     , event : Maybe Event
     , page : Page
     , flags : Flags
@@ -29,10 +30,10 @@ type alias Model =
 
 
 type Msg
-    = GetStreams (Result Http.Error (List Stream))
-    | GetEvents (Result Http.Error (List Event))
+    = GetItems (Result Http.Error (PaginatedList Item))
     | GetEvent (Result Http.Error Event)
     | ChangeUrl Navigation.Location
+    | GoToPage PaginationLink
 
 
 type Page
@@ -61,6 +62,24 @@ type alias Stream =
     }
 
 
+type alias PaginationLink =
+    String
+
+
+type alias PaginationLinks =
+    { next : Maybe PaginationLink
+    , prev : Maybe PaginationLink
+    , first : Maybe PaginationLink
+    , last : Maybe PaginationLink
+    }
+
+
+type alias PaginatedList a =
+    { items : List a
+    , links : PaginationLinks
+    }
+
+
 type alias Flags =
     { rootUrl : String
     , streamsUrl : String
@@ -77,8 +96,15 @@ subscriptions model =
 model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
 model flags location =
     let
+        initLinks =
+            { prev = Nothing
+            , next = Nothing
+            , first = Nothing
+            , last = Nothing
+            }
+
         initModel =
-            { items = []
+            { items = PaginatedList [] initLinks
             , page = NotFound
             , event = Nothing
             , flags = flags
@@ -90,16 +116,10 @@ model flags location =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GetStreams (Ok result) ->
-            ( { model | items = List.map StreamItem result }, Cmd.none )
+        GetItems (Ok result) ->
+            ( { model | items = result }, Cmd.none )
 
-        GetStreams (Err msg) ->
-            ( model, Cmd.none )
-
-        GetEvents (Ok result) ->
-            ( { model | items = List.map EventItem result }, Cmd.none )
-
-        GetEvents (Err msg) ->
+        GetItems (Err msg) ->
             ( model, Cmd.none )
 
         GetEvent (Ok result) ->
@@ -111,29 +131,41 @@ update msg model =
         ChangeUrl location ->
             urlUpdate model location
 
+        GoToPage paginationLink ->
+            ( model, getItems paginationLink )
+
+
+eventUrl : Model -> String -> String
+eventUrl model id =
+    model.flags.eventsUrl ++ "/" ++ id
+
+
+streamUrl : Model -> String -> String
+streamUrl model name =
+    model.flags.streamsUrl ++ "/" ++ name
+
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
-    case decodeLocation location of
-        Just BrowseStreams ->
-            ( { model | page = BrowseStreams }, getStreams model.flags.streamsUrl )
+    let
+        decodeLocation location =
+            UrlParser.parseHash routeParser location
+    in
+        case decodeLocation location of
+            Just BrowseStreams ->
+                ( { model | page = BrowseStreams }, getItems model.flags.streamsUrl )
 
-        Just (BrowseEvents streamId) ->
-            ( { model | page = (BrowseEvents streamId) }, getEvents model.flags.streamsUrl streamId )
+            Just (BrowseEvents streamId) ->
+                ( { model | page = (BrowseEvents streamId) }, getItems (streamUrl model streamId) )
 
-        Just (ShowEvent eventId) ->
-            ( { model | page = (ShowEvent eventId) }, getEvent model.flags.eventsUrl eventId )
+            Just (ShowEvent eventId) ->
+                ( { model | page = (ShowEvent eventId) }, getEvent (eventUrl model eventId) )
 
-        Just page ->
-            ( { model | page = page }, Cmd.none )
+            Just page ->
+                ( { model | page = page }, Cmd.none )
 
-        Nothing ->
-            ( { model | page = NotFound }, Cmd.none )
-
-
-decodeLocation : Navigation.Location -> Maybe Page
-decodeLocation location =
-    UrlParser.parseHash routeParser location
+            Nothing ->
+                ( { model | page = NotFound }, Cmd.none )
 
 
 routeParser : UrlParser.Parser (Page -> a) a
@@ -223,13 +255,73 @@ showEvent event =
             div [ class "event" ] []
 
 
-browseItems : String -> List Item -> Html Msg
-browseItems title items =
+browseItems : String -> PaginatedList Item -> Html Msg
+browseItems title { links, items } =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
-        , div [ class "browser__pagination" ] []
+        , div [ class "browser__pagination" ] [ displayPagination links ]
         , div [ class "browser__results" ] [ renderResults items ]
         ]
+
+
+displayPagination : PaginationLinks -> Html Msg
+displayPagination { first, last, next, prev } =
+    ul [ class "pagination" ]
+        [ paginationItem firstPageButton first
+        , paginationItem lastPageButton last
+        , paginationItem nextPageButton next
+        , paginationItem prevPageButton prev
+        ]
+
+
+paginationItem : (PaginationLink -> Html Msg) -> Maybe PaginationLink -> Html Msg
+paginationItem button link =
+    case link of
+        Just url ->
+            li [] [ button url ]
+
+        Nothing ->
+            li [] []
+
+
+nextPageButton : PaginationLink -> Html Msg
+nextPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--next"
+        ]
+        [ text "next" ]
+
+
+prevPageButton : PaginationLink -> Html Msg
+prevPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--prev"
+        ]
+        [ text "previous" ]
+
+
+lastPageButton : PaginationLink -> Html Msg
+lastPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--last"
+        ]
+        [ text "last" ]
+
+
+firstPageButton : PaginationLink -> Html Msg
+firstPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--first"
+        ]
+        [ text "first" ]
 
 
 renderResults : List Item -> Html Msg
@@ -291,41 +383,39 @@ itemRow item =
                 ]
 
 
-getStreams : String -> Cmd Msg
-getStreams url =
-    Http.get url streamsDecoder
-        |> Http.send GetStreams
-
-
-getEvents : String -> String -> Cmd Msg
-getEvents url streamName =
-    Http.get (url ++ "/" ++ streamName) eventsDecoder
-        |> Http.send GetEvents
-
-
-getEvent : String -> String -> Cmd Msg
-getEvent url eventId =
-    Http.get (url ++ "/" ++ eventId) eventDecoder
+getEvent : String -> Cmd Msg
+getEvent url =
+    Http.get url eventDecoder
         |> Http.send GetEvent
 
 
-eventsDecoder : Decoder (List Event)
-eventsDecoder =
-    eventDecoder_
-        |> list
-        |> field "data"
+getItems : String -> Cmd Msg
+getItems url =
+    Http.get url itemsDecoder
+        |> Http.send GetItems
 
 
-streamsDecoder : Decoder (List Stream)
-streamsDecoder =
+itemsDecoder : Decoder (PaginatedList Item)
+itemsDecoder =
     let
-        streamDecoder =
-            decode Stream
-                |> required "id" string
+        eventItemDecoder =
+            Json.Decode.map EventItem eventDecoder_
+
+        streamItemDecoder =
+            Json.Decode.map StreamItem streamDecoder_
     in
-        streamDecoder
-            |> list
-            |> field "data"
+        decode PaginatedList
+            |> required "data" (list (oneOf [ eventItemDecoder, streamItemDecoder ]))
+            |> required "links" linksDecoder
+
+
+linksDecoder : Decoder PaginationLinks
+linksDecoder =
+    decode PaginationLinks
+        |> optional "next" (maybe string) Nothing
+        |> optional "prev" (maybe string) Nothing
+        |> optional "first" (maybe string) Nothing
+        |> optional "last" (maybe string) Nothing
 
 
 eventDecoder : Decoder Event
@@ -334,21 +424,17 @@ eventDecoder =
         |> field "data"
 
 
+streamDecoder_ : Decoder Stream
+streamDecoder_ =
+    decode Stream
+        |> required "id" string
+
+
 eventDecoder_ : Decoder Event
 eventDecoder_ =
-    let
-        rawEventDecoder =
-            decode (,)
-                |> requiredAt [ "attributes", "data" ] value
-                |> requiredAt [ "attributes", "metadata" ] value
-
-        eventDecoder =
-            decode Event
-                |> requiredAt [ "attributes", "event_type" ] string
-                |> requiredAt [ "id" ] string
-                |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-                |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-                |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
-    in
-        rawEventDecoder
-            |> Json.Decode.andThen (\_ -> eventDecoder)
+    decode Event
+        |> requiredAt [ "attributes", "event_type" ] string
+        |> requiredAt [ "id" ] string
+        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
+        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))

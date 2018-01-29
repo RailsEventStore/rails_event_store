@@ -15,6 +15,10 @@ suite =
                     input =
                         """
                         {
+                          "links": {
+                            "last": "/streams/head/forward/20",
+                            "next": "/streams/all/backward/20"
+                          },
                           "data": [
                             {
                               "id": "all",
@@ -25,15 +29,30 @@ suite =
                         """
 
                     output =
-                        Json.Decode.decodeString streamsDecoder input
+                        Json.Decode.decodeString itemsDecoder input
                 in
-                    Expect.equal output (Ok ([ Stream "all" ]))
+                    Expect.equal output
+                        (Ok
+                            ({ items = [ StreamItem (Stream "all") ]
+                             , links =
+                                { prev = Nothing
+                                , next = Just "/streams/all/backward/20"
+                                , first = Nothing
+                                , last = Just "/streams/head/forward/20"
+                                }
+                             }
+                            )
+                        )
         , test "events decoder" <|
             \_ ->
                 let
                     input =
                         """
                         {
+                          "links": {
+                            "last": "/streams/all/head/forward/20",
+                            "next": "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
+                          },
                           "data": [
                             {
                               "id": "664ada1e-2f01-4ed0-9c16-63dbc82269d2",
@@ -55,20 +74,29 @@ suite =
                         """
 
                     output =
-                        Json.Decode.decodeString eventsDecoder input
+                        Json.Decode.decodeString itemsDecoder input
                 in
                     Expect.equal output
                         (Ok
-                            ([ { eventType = "DummyEvent"
-                               , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
-                               , createdAt = "2017-12-20T23:49:45.273Z"
-                               , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
-                               , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
-                               }
-                             ]
+                            ({ items =
+                                [ EventItem
+                                    { eventType = "DummyEvent"
+                                    , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
+                                    , createdAt = "2017-12-20T23:49:45.273Z"
+                                    , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
+                                    , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                                    }
+                                ]
+                             , links =
+                                { next = Just "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
+                                , prev = Nothing
+                                , first = Nothing
+                                , last = Just "/streams/all/head/forward/20"
+                                }
+                             }
                             )
                         )
-        , test "detailed event decoder" <|
+        , test "event decoder" <|
             \_ ->
                 let
                     input =
