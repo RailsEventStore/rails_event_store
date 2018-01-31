@@ -2,8 +2,6 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (placeholder, disabled, href, class)
-import Html.Events exposing (onInput, onClick)
-import Paginate exposing (..)
 import Http
 import Json.Decode exposing (Decoder, Value, field, list, string, at, value)
 import Json.Decode.Pipeline exposing (decode, required, requiredAt)
@@ -23,20 +21,16 @@ main =
 
 
 type alias Model =
-    { streams : PaginatedList Item
-    , events : PaginatedList Item
+    { streams : List Item
+    , events : List Item
     , event : EventWithDetails
-    , perPage : Int
     , page : Page
     , flags : Flags
     }
 
 
 type Msg
-    = NextPage
-    | PreviousPage
-    | GoToPage Int
-    | StreamList (Result Http.Error (List Item))
+    = StreamList (Result Http.Error (List Item))
     | EventList (Result Http.Error (List Item))
     | EventDetails (Result Http.Error EventWithDetails)
     | UrlChange Navigation.Location
@@ -78,17 +72,10 @@ subscriptions model =
 model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
 model flags location =
     let
-        perPage =
-            10
-
-        emptyList =
-            Paginate.fromList perPage []
-
         initModel =
-            { streams = emptyList
-            , events = emptyList
+            { streams = []
+            , events = []
             , event = EventWithDetails "" "" "" ""
-            , perPage = perPage
             , page = NotFound
             , flags = flags
             }
@@ -99,23 +86,14 @@ model flags location =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NextPage ->
-            itemsUpdate model Paginate.next
-
-        PreviousPage ->
-            itemsUpdate model Paginate.prev
-
-        GoToPage pageNum ->
-            itemsUpdate model (Paginate.goTo pageNum)
-
         StreamList (Ok result) ->
-            ( { model | streams = Paginate.fromList model.perPage result }, Cmd.none )
+            ( { model | streams = result }, Cmd.none )
 
         StreamList (Err msg) ->
             ( model, Cmd.none )
 
         EventList (Ok result) ->
-            ( { model | events = Paginate.fromList model.perPage result }, Cmd.none )
+            ( { model | events = result }, Cmd.none )
 
         EventList (Err msg) ->
             ( model, Cmd.none )
@@ -128,19 +106,6 @@ update msg model =
 
         UrlChange location ->
             urlUpdate model location
-
-
-itemsUpdate : Model -> (PaginatedList Item -> PaginatedList Item) -> ( Model, Cmd Msg )
-itemsUpdate model f =
-    case model.page of
-        BrowseEvents _ ->
-            ( { model | events = f model.events }, Cmd.none )
-
-        BrowseStreams ->
-            ( { model | streams = f model.streams }, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
@@ -253,100 +218,13 @@ showEvent model =
         ]
 
 
-browseItems : String -> PaginatedList Item -> Html Msg
+browseItems : String -> List Item -> Html Msg
 browseItems title items =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
-        , div [ class "browser__pagination" ] [ renderPagination items ]
-        , div [ class "browser__results" ] [ displayItems (Paginate.page items) ]
+        , div [ class "browser__pagination" ] []
+        , div [ class "browser__results" ] [ displayItems items ]
         ]
-
-
-renderPagination : PaginatedList item -> Html Msg
-renderPagination items =
-    let
-        pageListItems =
-            (List.map
-                (\l -> li [] [ l ])
-                (pagerView items)
-            )
-    in
-        ul [ class "pagination" ]
-            (List.concat
-                [ [ li [] [ prevPage items ] ]
-                , pageListItems
-                , [ li [] [ nextPage items ] ]
-                ]
-            )
-
-
-renderPagerButton : Int -> Bool -> Html Msg
-renderPagerButton pageNum isCurrentPage =
-    button
-        [ onClick (GoToPage pageNum)
-        , class "pagination__page"
-        , disabled isCurrentPage
-        ]
-        [ text (toString pageNum) ]
-
-
-pagerData : PaginatedList item -> List ( Int, Bool )
-pagerData items =
-    let
-        currentPage =
-            Paginate.currentPage items
-
-        pagesAround =
-            2
-
-        overflow =
-            ( List.minimum [ 0, currentPage - pagesAround - 1 ]
-            , List.maximum
-                [ 0
-                , currentPage
-                    + pagesAround
-                    - (Paginate.totalPages items)
-                ]
-            )
-
-        visiblePages =
-            case overflow of
-                ( Just overflowBefore, Just overflowAfter ) ->
-                    List.range (currentPage - pagesAround - overflowAfter) (currentPage + pagesAround - overflowBefore)
-
-                ( _, _ ) ->
-                    List.range (currentPage - pagesAround) (currentPage + pagesAround)
-    in
-        items
-            |> pager (,)
-            |> List.filter (\( pageNum, _ ) -> List.member pageNum visiblePages)
-
-
-pagerView : PaginatedList item -> List (Html Msg)
-pagerView items =
-    items
-        |> pagerData
-        |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
-
-
-prevPage : PaginatedList item -> Html Msg
-prevPage items =
-    button
-        [ onClick PreviousPage
-        , class "pagination__page pagination__page--previous"
-        , disabled (Paginate.isFirst items)
-        ]
-        [ text "←" ]
-
-
-nextPage : PaginatedList item -> Html Msg
-nextPage items =
-    button
-        [ onClick NextPage
-        , class "pagination__page pagination__page--next"
-        , disabled (Paginate.isLast items)
-        ]
-        [ text "→" ]
 
 
 displayItems : List Item -> Html Msg
