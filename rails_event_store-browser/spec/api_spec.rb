@@ -16,6 +16,140 @@ module RailsEventStore
 
       expect(response).to have_http_status(200)
       expect(parsed_body["data"]).to match_array([all_stream_resource, dummy_stream_resource])
+      expect(parsed_body["links"]).to eq({})
+    end
+
+    specify "first page, newest streams descending" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      get "/res/streams"
+
+      expect(parsed_body["links"]).to eq({
+        "last" => "http://www.example.com/res/streams/head/forward/20",
+        "next" => "http://www.example.com/res/streams/#{first_page.last}/backward/20"
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+
+    specify "first page, newest streams descending" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      get "/res/streams/head/backward/20"
+
+      expect(parsed_body["links"]).to eq({
+        "last" => "http://www.example.com/res/streams/head/forward/20",
+        "next" => "http://www.example.com/res/streams/#{first_page.last}/backward/20"
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+
+    specify "first page, newest streams descending" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      last_page  = streams.reverse.drop(20)
+      get "/res/streams/#{last_page.first}/forward/20"
+
+      expect(parsed_body["links"]).to eq({
+        "last" => "http://www.example.com/res/streams/head/forward/20",
+        "next" => "http://www.example.com/res/streams/#{first_page.last}/backward/20"
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+
+    specify "last page, oldest events descending" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      last_page  = streams.reverse.drop(20)
+      get "/res/streams/#{first_page.last}/backward/20"
+
+      expect(parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/res/streams/head/backward/20",
+        "prev"  => "http://www.example.com/res/streams/#{last_page.first}/forward/20" ,
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+
+    specify "last page, oldest events descending" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      last_page  = streams.reverse.drop(20)
+      get "/res/streams/head/forward/20"
+
+      expect(parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/res/streams/head/backward/20",
+        "prev"  => "http://www.example.com/res/streams/#{last_page.first}/forward/20" ,
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+
+    specify "non-edge page" do
+      streams = 40.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      next_page  = streams.reverse.drop(20)
+      get "/res/streams/#{first_page.last}/backward/20"
+
+      expect(parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/res/streams/head/backward/20",
+        "last"  => "http://www.example.com/res/streams/head/forward/20",
+        "next"  => "http://www.example.com/res/streams/#{next_page.last}/backward/20",
+        "prev"  => "http://www.example.com/res/streams/#{next_page.first}/forward/20"
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+    
+    specify do
+      streams = 20.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      current_page = streams.reverse.drop(1) + ["all"]
+      get "/res/streams/head/forward/20"
+
+      expect(parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/res/streams/head/backward/20",
+        "prev"  => "http://www.example.com/res/streams/#{current_page.first}/forward/20"
+      })
+      expect(parsed_body["data"].size).to eq(20)
+    end
+
+    specify "custom page size" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(5)
+      next_page  = streams.reverse.drop(5).take(5)
+      get "/res/streams/#{first_page.last}/backward/5"
+
+      expect(parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/res/streams/head/backward/5",
+        "last"  => "http://www.example.com/res/streams/head/forward/5",
+        "next"  => "http://www.example.com/res/streams/#{next_page.last}/backward/5",
+        "prev"  => "http://www.example.com/res/streams/#{next_page.first}/forward/5"
+      })
+      expect(parsed_body["data"].size).to eq(5)
+    end
+
+    specify "out of bounds beyond oldest" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      last_page = streams.reverse.drop(20) + ["all"]
+      get "/res/streams/#{last_page.last}/backward/20"
+
+      expect(parsed_body["links"]).to eq({})
+      expect(parsed_body["data"].size).to eq(0)
+    end
+
+    specify "out of bounds beyond newest" do
+      streams = 39.times.map { |i| "stream_#{i}" }
+      streams.each { |stream_name| event_store.publish_event(DummyEvent.new, stream_name: stream_name) }
+      first_page = streams.reverse.take(20)
+      get "/res/streams/#{first_page.first}/forward/20"
+
+      expect(parsed_body["links"]).to eq({})
+      expect(parsed_body["data"].size).to eq(0)
     end
 
     specify do

@@ -82,7 +82,7 @@ module RailsEventStoreActiveRecord
     end
 
     def get_all_streams
-      (["all"] + EventInStream.pluck(:stream))
+      (["all"] + EventInStream.order(:id).pluck(:stream))
         .uniq
         .map { |name| RubyEventStore::Stream.new(name) }
     end
