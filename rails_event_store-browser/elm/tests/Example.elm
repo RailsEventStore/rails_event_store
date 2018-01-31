@@ -57,7 +57,17 @@ suite =
                     output =
                         Json.Decode.decodeString eventsDecoder input
                 in
-                    Expect.equal output (Ok ([ Event "DummyEvent" "2017-12-20T23:49:45.273Z" "664ada1e-2f01-4ed0-9c16-63dbc82269d2" ]))
+                    Expect.equal output
+                        (Ok
+                            ([ { eventType = "DummyEvent"
+                               , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
+                               , createdAt = "2017-12-20T23:49:45.273Z"
+                               , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
+                               , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                               }
+                             ]
+                            )
+                        )
         , test "detailed event decoder" <|
             \_ ->
                 let
@@ -83,14 +93,15 @@ suite =
                         """
 
                     output =
-                        Json.Decode.decodeString eventWithDetailsDecoder input
+                        Json.Decode.decodeString eventDecoder input
                 in
                     Expect.equal output
                         (Ok
                             { eventType = "DummyEvent"
                             , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
-                            , data = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
-                            , metadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                            , createdAt = "2017-12-20T23:49:45.273Z"
+                            , rawData = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
+                            , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                             }
                         )
         ]

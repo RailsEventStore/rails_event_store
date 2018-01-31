@@ -12,7 +12,7 @@ import UrlParser exposing ((</>))
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags UrlChange
+    Navigation.programWithFlags ChangeUrl
         { init = model
         , view = view
         , update = update
@@ -21,19 +21,18 @@ main =
 
 
 type alias Model =
-    { streams : List Item
-    , events : List Item
-    , event : EventWithDetails
+    { items : List Item
+    , event : Maybe Event
     , page : Page
     , flags : Flags
     }
 
 
 type Msg
-    = StreamList (Result Http.Error (List Item))
-    | EventList (Result Http.Error (List Item))
-    | EventDetails (Result Http.Error EventWithDetails)
-    | UrlChange Navigation.Location
+    = GetStreams (Result Http.Error (List Stream))
+    | GetEvents (Result Http.Error (List Event))
+    | GetEvent (Result Http.Error Event)
+    | ChangeUrl Navigation.Location
 
 
 type Page
@@ -44,15 +43,21 @@ type Page
 
 
 type Item
-    = Stream String
-    | Event String String String
+    = StreamItem Stream
+    | EventItem Event
 
 
-type alias EventWithDetails =
+type alias Event =
     { eventType : String
     , eventId : String
-    , data : String
-    , metadata : String
+    , createdAt : String
+    , rawData : String
+    , rawMetadata : String
+    }
+
+
+type alias Stream =
+    { name : String
     }
 
 
@@ -73,10 +78,9 @@ model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
 model flags location =
     let
         initModel =
-            { streams = []
-            , events = []
-            , event = EventWithDetails "" "" "" ""
+            { items = []
             , page = NotFound
+            , event = Nothing
             , flags = flags
             }
     in
@@ -86,25 +90,25 @@ model flags location =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        StreamList (Ok result) ->
-            ( { model | streams = result }, Cmd.none )
+        GetStreams (Ok result) ->
+            ( { model | items = List.map StreamItem result }, Cmd.none )
 
-        StreamList (Err msg) ->
+        GetStreams (Err msg) ->
             ( model, Cmd.none )
 
-        EventList (Ok result) ->
-            ( { model | events = result }, Cmd.none )
+        GetEvents (Ok result) ->
+            ( { model | items = List.map EventItem result }, Cmd.none )
 
-        EventList (Err msg) ->
+        GetEvents (Err msg) ->
             ( model, Cmd.none )
 
-        EventDetails (Ok result) ->
-            ( { model | event = result }, Cmd.none )
+        GetEvent (Ok result) ->
+            ( { model | event = Just result }, Cmd.none )
 
-        EventDetails (Err msg) ->
+        GetEvent (Err msg) ->
             ( model, Cmd.none )
 
-        UrlChange location ->
+        ChangeUrl location ->
             urlUpdate model location
 
 
@@ -177,45 +181,46 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         BrowseStreams ->
-            browseItems
-                "Streams"
-                model.streams
+            browseItems "Streams" model.items
 
         BrowseEvents streamName ->
-            browseItems
-                ("Events in " ++ streamName)
-                model.events
+            browseItems ("Events in " ++ streamName) model.items
 
         ShowEvent eventId ->
-            showEvent model
+            showEvent model.event
 
         NotFound ->
             h1 [] [ text "404" ]
 
 
-showEvent : Model -> Html Msg
-showEvent model =
-    div [ class "event" ]
-        [ h1 [ class "event__title" ] [ text model.event.eventType ]
-        , div [ class "event__body" ]
-            [ table []
-                [ thead []
-                    [ tr []
-                        [ th [] [ text "Event id" ]
-                        , th [] [ text "Metadata" ]
-                        , th [] [ text "Data" ]
-                        ]
-                    ]
-                , tbody []
-                    [ tr []
-                        [ td [] [ text model.event.eventId ]
-                        , td [] [ text model.event.metadata ]
-                        , td [] [ text model.event.data ]
+showEvent : Maybe Event -> Html Msg
+showEvent event =
+    case event of
+        Just event ->
+            div [ class "event" ]
+                [ h1 [ class "event__title" ] [ text event.eventType ]
+                , div [ class "event__body" ]
+                    [ table []
+                        [ thead []
+                            [ tr []
+                                [ th [] [ text "Event id" ]
+                                , th [] [ text "Raw Data" ]
+                                , th [] [ text "Raw Metadata" ]
+                                ]
+                            ]
+                        , tbody []
+                            [ tr []
+                                [ td [] [ text event.eventId ]
+                                , td [] [ pre [] [ text event.rawData ] ]
+                                , td [] [ pre [] [ text event.rawMetadata ] ]
+                                ]
+                            ]
                         ]
                     ]
                 ]
-            ]
-        ]
+
+        Nothing ->
+            div [ class "event" ] []
 
 
 browseItems : String -> List Item -> Html Msg
@@ -223,27 +228,27 @@ browseItems title items =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
         , div [ class "browser__pagination" ] []
-        , div [ class "browser__results" ] [ displayItems items ]
+        , div [ class "browser__results" ] [ renderResults items ]
         ]
 
 
-displayItems : List Item -> Html Msg
-displayItems items =
+renderResults : List Item -> Html Msg
+renderResults items =
     case items of
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
 
-        (Stream _) :: _ ->
+        (StreamItem _) :: _ ->
             table []
                 [ thead []
                     [ tr []
                         [ th [] [ text "Stream name" ]
                         ]
                     ]
-                , tbody [] (List.map displayItem (items))
+                , tbody [] (List.map itemRow (items))
                 ]
 
-        (Event _ _ _) :: _ ->
+        (EventItem _) :: _ ->
             table []
                 [ thead []
                     [ tr []
@@ -251,27 +256,35 @@ displayItems items =
                         , th [ class "u-align-right" ] [ text "Created at" ]
                         ]
                     ]
-                , tbody [] (List.map displayItem items)
+                , tbody [] (List.map itemRow items)
                 ]
 
 
-displayItem : Item -> Html Msg
-displayItem item =
+itemRow : Item -> Html Msg
+itemRow item =
     case item of
-        Event name createdAt eventId ->
+        EventItem { eventType, createdAt, eventId } ->
             tr []
                 [ td []
-                    [ a [ class "results__link", href ("#events/" ++ eventId) ] [ text name ]
+                    [ a
+                        [ class "results__link"
+                        , href ("#events/" ++ eventId)
+                        ]
+                        [ text eventType ]
                     ]
                 , td [ class "u-align-right" ]
                     [ text createdAt
                     ]
                 ]
 
-        Stream name ->
+        StreamItem { name } ->
             tr []
                 [ td []
-                    [ a [ class "results__link", href ("#streams/" ++ name) ] [ text name ]
+                    [ a
+                        [ class "results__link"
+                        , href ("#streams/" ++ name)
+                        ]
+                        [ text name ]
                     ]
                 ]
 
@@ -279,36 +292,29 @@ displayItem item =
 getStreams : String -> Cmd Msg
 getStreams url =
     Http.get url streamsDecoder
-        |> Http.send StreamList
+        |> Http.send GetStreams
 
 
 getEvents : String -> String -> Cmd Msg
 getEvents url streamName =
     Http.get (url ++ "/" ++ streamName) eventsDecoder
-        |> Http.send EventList
+        |> Http.send GetEvents
 
 
 getEvent : String -> String -> Cmd Msg
 getEvent url eventId =
-    Http.get (url ++ "/" ++ eventId) eventWithDetailsDecoder
-        |> Http.send EventDetails
+    Http.get (url ++ "/" ++ eventId) eventDecoder
+        |> Http.send GetEvent
 
 
-eventsDecoder : Decoder (List Item)
+eventsDecoder : Decoder (List Event)
 eventsDecoder =
-    let
-        eventDecoder =
-            decode Event
-                |> requiredAt [ "attributes", "event_type" ] string
-                |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-                |> required "id" string
-    in
-        eventDecoder
-            |> list
-            |> field "data"
+    eventDecoder_
+        |> list
+        |> field "data"
 
 
-streamsDecoder : Decoder (List Item)
+streamsDecoder : Decoder (List Stream)
 streamsDecoder =
     let
         streamDecoder =
@@ -320,22 +326,27 @@ streamsDecoder =
             |> field "data"
 
 
-rawEventDecoder : Decoder ( Value, Value )
-rawEventDecoder =
-    decode (,)
-        |> requiredAt [ "data", "attributes", "data" ] value
-        |> requiredAt [ "data", "attributes", "metadata" ] value
+eventDecoder : Decoder Event
+eventDecoder =
+    eventDecoder_
+        |> field "data"
 
 
-eventWithDetailsDecoder : Decoder EventWithDetails
-eventWithDetailsDecoder =
+eventDecoder_ : Decoder Event
+eventDecoder_ =
     let
+        rawEventDecoder =
+            decode (,)
+                |> requiredAt [ "attributes", "data" ] value
+                |> requiredAt [ "attributes", "metadata" ] value
+
         eventDecoder =
-            decode EventWithDetails
-                |> requiredAt [ "data", "attributes", "event_type" ] string
-                |> requiredAt [ "data", "id" ] string
-                |> requiredAt [ "data", "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-                |> requiredAt [ "data", "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
+            decode Event
+                |> requiredAt [ "attributes", "event_type" ] string
+                |> requiredAt [ "id" ] string
+                |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+                |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
+                |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
     in
         rawEventDecoder
             |> Json.Decode.andThen (\_ -> eventDecoder)
