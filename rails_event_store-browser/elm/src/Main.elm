@@ -253,6 +253,7 @@ renderResults items =
                 [ thead []
                     [ tr []
                         [ th [] [ text "Event name" ]
+                        , th [] [ text "Event id" ]
                         , th [ class "u-align-right" ] [ text "Created at" ]
                         ]
                     ]
@@ -272,6 +273,7 @@ itemRow item =
                         ]
                         [ text eventType ]
                     ]
+                , td [] [ text eventId ]
                 , td [ class "u-align-right" ]
                     [ text createdAt
                     ]
