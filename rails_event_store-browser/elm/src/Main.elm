@@ -26,7 +26,6 @@ type alias Model =
     { streams : PaginatedList Item
     , events : PaginatedList Item
     , event : EventWithDetails
-    , searchQuery : String
     , perPage : Int
     , page : Page
     , flags : Flags
@@ -34,8 +33,7 @@ type alias Model =
 
 
 type Msg
-    = Search String
-    | NextPage
+    = NextPage
     | PreviousPage
     | GoToPage Int
     | StreamList (Result Http.Error (List Item))
@@ -90,7 +88,6 @@ model flags location =
             { streams = emptyList
             , events = emptyList
             , event = EventWithDetails "" "" "" ""
-            , searchQuery = ""
             , perPage = perPage
             , page = NotFound
             , flags = flags
@@ -102,9 +99,6 @@ model flags location =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Search inputValue ->
-            ( { model | searchQuery = inputValue }, Cmd.none )
-
         NextPage ->
             itemsUpdate model Paginate.next
 
@@ -182,11 +176,6 @@ routeParser =
         ]
 
 
-isMatch : String -> String -> Bool
-isMatch searchQuery name =
-    String.contains (String.toLower searchQuery) (String.toLower name)
-
-
 view : Model -> Html Msg
 view model =
     div [ class "frame" ]
@@ -225,12 +214,12 @@ browserBody model =
         BrowseStreams ->
             browseItems
                 "Streams"
-                (filteredItems model.searchQuery model.streams)
+                model.streams
 
         BrowseEvents streamName ->
             browseItems
                 ("Events in " ++ streamName)
-                (filteredItems model.searchQuery model.events)
+                model.events
 
         ShowEvent eventId ->
             showEvent model
@@ -268,15 +257,9 @@ browseItems : String -> PaginatedList Item -> Html Msg
 browseItems title items =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
-        , div [ class "browser__search search" ] [ searchField ]
         , div [ class "browser__pagination" ] [ renderPagination items ]
         , div [ class "browser__results" ] [ displayItems (Paginate.page items) ]
         ]
-
-
-searchField : Html Msg
-searchField =
-    input [ class "search__input", placeholder "type to start searching", onInput Search ] []
 
 
 renderPagination : PaginatedList item -> Html Msg
@@ -364,20 +347,6 @@ nextPage items =
         , disabled (Paginate.isLast items)
         ]
         [ text "→" ]
-
-
-filteredItems : String -> PaginatedList Item -> PaginatedList Item
-filteredItems searchQuery items =
-    let
-        predicate item =
-            case item of
-                Stream name ->
-                    isMatch searchQuery name
-
-                Event name _ _ ->
-                    isMatch searchQuery name
-    in
-        Paginate.map (List.filter predicate) items
 
 
 displayItems : List Item -> Html Msg
