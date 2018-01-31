@@ -169,6 +169,13 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify "explicit order when fetching list of streams" do
+      repository = EventRepository.new
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY.*id.*ASC.*/) do
+        repository.get_all_streams
+      end
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
