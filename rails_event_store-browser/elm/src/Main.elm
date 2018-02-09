@@ -135,9 +135,9 @@ update msg model =
             ( model, getItems paginationLink )
 
 
-eventUrl : Model -> String -> String
-eventUrl model id =
-    model.flags.eventsUrl ++ "/" ++ id
+eventUrl : String -> String -> String
+eventUrl eventsUrl id =
+    eventsUrl ++ "/" ++ id
 
 
 streamUrl : String -> String -> String
@@ -159,7 +159,7 @@ urlUpdate model location =
                 ( { model | page = (BrowseEvents streamId) }, getItems (streamUrl model.flags.streamsUrl streamId) )
 
             Just (ShowEvent eventId) ->
-                ( { model | page = (ShowEvent eventId) }, getEvent (eventUrl model eventId) )
+                ( { model | page = (ShowEvent eventId) }, getEvent (eventUrl model.flags.eventsUrl eventId) )
 
             Just page ->
                 ( { model | page = page }, Cmd.none )
