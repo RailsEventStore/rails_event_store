@@ -140,9 +140,9 @@ eventUrl model id =
     model.flags.eventsUrl ++ "/" ++ id
 
 
-streamUrl : Model -> String -> String
-streamUrl model name =
-    model.flags.streamsUrl ++ "/" ++ name
+streamUrl : String -> String -> String
+streamUrl baseUrl name =
+    baseUrl ++ "/" ++ (Http.encodeUri name)
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
@@ -156,7 +156,7 @@ urlUpdate model location =
                 ( { model | page = BrowseStreams }, getItems model.flags.streamsUrl )
 
             Just (BrowseEvents streamId) ->
-                ( { model | page = (BrowseEvents streamId) }, getItems (streamUrl model streamId) )
+                ( { model | page = (BrowseEvents streamId) }, getItems (streamUrl model.flags.streamsUrl streamId) )
 
             Just (ShowEvent eventId) ->
                 ( { model | page = (ShowEvent eventId) }, getEvent (eventUrl model eventId) )
