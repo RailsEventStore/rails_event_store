@@ -20,6 +20,8 @@ Rails.application.routes.draw do
 end
 ```
 
+It is assumed that you have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](http://railseventstore.org/docs/install/)).
+
 ## Usage in production
 
 In a production environment you'll likely want to protect access to the browser. You can use the constraints feature of routing (in the `config/routes.rb` file) to accomplish this:
@@ -72,6 +74,3 @@ Rails.application.routes.draw do
 end
 ```
 
-## Assumptions
-
-* You have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](http://railseventstore.org/docs/install/))
