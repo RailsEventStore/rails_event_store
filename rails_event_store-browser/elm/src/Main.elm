@@ -211,7 +211,16 @@ browserBody model =
             browseItems "Streams" model.items
 
         BrowseEvents streamName ->
-            browseItems ("Events in " ++ streamName) model.items
+            let
+                name =
+                    Http.decodeUri streamName
+            in
+                case name of
+                    Just name_ ->
+                        browseItems ("Events in " ++ name_) model.items
+
+                    Nothing ->
+                        browseItems ("Events") model.items
 
         ShowEvent eventId ->
             showEvent model.event
@@ -356,7 +365,7 @@ itemRow item =
                 [ td []
                     [ a
                         [ class "results__link"
-                        , href ("#events/" ++ eventId)
+                        , href ("#events/" ++ (Http.encodeUri eventId))
                         ]
                         [ text eventType ]
                     ]
@@ -371,7 +380,7 @@ itemRow item =
                 [ td []
                     [ a
                         [ class "results__link"
-                        , href ("#streams/" ++ name)
+                        , href ("#streams/" ++ (Http.encodeUri name))
                         ]
                         [ text name ]
                     ]
