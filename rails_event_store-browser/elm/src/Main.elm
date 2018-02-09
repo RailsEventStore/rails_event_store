@@ -137,7 +137,7 @@ update msg model =
 
 eventUrl : String -> String -> String
 eventUrl eventsUrl id =
-    eventsUrl ++ "/" ++ id
+    eventsUrl ++ "/" ++ (Http.encodeUri id)
 
 
 streamUrl : String -> String -> String

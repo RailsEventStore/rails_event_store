@@ -101,6 +101,11 @@ suite =
                 Expect.equal
                     (streamUrl "https://example.org" "resource/uuid")
                     "https://example.org/resource%2Fuuid"
+        , test "handles slashes properly in event name" <|
+            \_ ->
+                Expect.equal
+                    (eventUrl "https://example.org" "resource/uuid")
+                    "https://example.org/resource%2Fuuid"
         , test "event decoder" <|
             \_ ->
                 let
