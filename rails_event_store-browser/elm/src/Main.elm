@@ -135,14 +135,9 @@ update msg model =
             ( model, getItems paginationLink )
 
 
-eventUrl : String -> String -> String
-eventUrl eventsUrl id =
-    eventsUrl ++ "/" ++ (Http.encodeUri id)
-
-
-streamUrl : String -> String -> String
-streamUrl baseUrl name =
-    baseUrl ++ "/" ++ (Http.encodeUri name)
+buildUrl : String -> String -> String
+buildUrl baseUrl id =
+    baseUrl ++ "/" ++ (Http.encodeUri id)
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
@@ -156,10 +151,10 @@ urlUpdate model location =
                 ( { model | page = BrowseStreams }, getItems model.flags.streamsUrl )
 
             Just (BrowseEvents streamId) ->
-                ( { model | page = (BrowseEvents streamId) }, getItems (streamUrl model.flags.streamsUrl streamId) )
+                ( { model | page = (BrowseEvents streamId) }, getItems (buildUrl model.flags.streamsUrl streamId) )
 
             Just (ShowEvent eventId) ->
-                ( { model | page = (ShowEvent eventId) }, getEvent (eventUrl model.flags.eventsUrl eventId) )
+                ( { model | page = (ShowEvent eventId) }, getEvent (buildUrl model.flags.eventsUrl eventId) )
 
             Just page ->
                 ( { model | page = page }, Cmd.none )
