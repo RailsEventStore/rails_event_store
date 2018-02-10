@@ -150,11 +150,21 @@ urlUpdate model location =
             Just BrowseStreams ->
                 ( { model | page = BrowseStreams }, getItems model.flags.streamsUrl )
 
-            Just (BrowseEvents streamId) ->
-                ( { model | page = (BrowseEvents streamId) }, getItems (buildUrl model.flags.streamsUrl streamId) )
+            Just (BrowseEvents encodedStreamId) ->
+                case (Http.decodeUri encodedStreamId) of
+                    Just streamId ->
+                        ( { model | page = (BrowseEvents streamId) }, getItems (buildUrl model.flags.streamsUrl streamId) )
 
-            Just (ShowEvent eventId) ->
-                ( { model | page = (ShowEvent eventId) }, getEvent (buildUrl model.flags.eventsUrl eventId) )
+                    Nothing ->
+                        ( { model | page = NotFound }, Cmd.none )
+
+            Just (ShowEvent encodedEventId) ->
+                case (Http.decodeUri encodedEventId) of
+                    Just eventId ->
+                        ( { model | page = (ShowEvent eventId) }, getEvent (buildUrl model.flags.eventsUrl eventId) )
+
+                    Nothing ->
+                        ( { model | page = NotFound }, Cmd.none )
 
             Just page ->
                 ( { model | page = page }, Cmd.none )
@@ -211,16 +221,7 @@ browserBody model =
             browseItems "Streams" model.items
 
         BrowseEvents streamName ->
-            let
-                name =
-                    Http.decodeUri streamName
-            in
-                case name of
-                    Just name_ ->
-                        browseItems ("Events in " ++ name_) model.items
-
-                    Nothing ->
-                        browseItems ("Events") model.items
+            browseItems ("Events in " ++ streamName) model.items
 
         ShowEvent eventId ->
             showEvent model.event
@@ -365,7 +366,7 @@ itemRow item =
                 [ td []
                     [ a
                         [ class "results__link"
-                        , href ("#events/" ++ (Http.encodeUri eventId))
+                        , href (buildUrl "#events" eventId)
                         ]
                         [ text eventType ]
                     ]
@@ -380,7 +381,7 @@ itemRow item =
                 [ td []
                     [ a
                         [ class "results__link"
-                        , href ("#streams/" ++ (Http.encodeUri name))
+                        , href (buildUrl "#streams" name)
                         ]
                         [ text name ]
                     ]
