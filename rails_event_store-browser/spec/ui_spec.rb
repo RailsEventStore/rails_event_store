@@ -12,14 +12,14 @@ module RailsEventStore
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
 
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
-      event_store.publish_event(foo_bar_event, stream_name: 'foo/bar/baz')
+      event_store.publish_event(foo_bar_event, stream_name: 'foo/bar.xml')
 
       visit('/res')
       within('.browser__results') do
-        click_on 'foo/bar/baz'
+        click_on 'foo/bar.xml'
       end
 
-      expect(page).to have_content("Events in foo/bar/baz")
+      expect(page).to have_content("Events in foo/bar.xml")
 
       within('.browser__results') do
         click_on 'FooBarEvent'
