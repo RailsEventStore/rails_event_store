@@ -74,7 +74,7 @@ push: $(addprefix push-, $(GEMS)) ## Push all gem packages to RubyGems
 
 clean: $(addprefix clean-, $(GEMS)) ## Remove all previously built packages
 
-release: git-check-clean git-check-committed test git-tag clean build push ## Make a new release on RubyGems
+release: git-check-clean git-check-committed install test git-tag clean build push ## Make a new release on RubyGems
 	@echo Released v$(RES_VERSION)
 
 rebase: git-rebase-from-upstream
