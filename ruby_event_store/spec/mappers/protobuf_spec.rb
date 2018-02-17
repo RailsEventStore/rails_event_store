@@ -36,7 +36,16 @@ module RubyEventStore
         expect(event.order_id).to     eq("K3THNX9")
       end
 
-      specify '#serialized_record_to_event its using events class remapping' do
+      specify '#event_to_serialized_record can define getter for event_id' do
+        subject = described_class.new(
+          event_id_getter: :order_id,
+        )
+        record = subject.event_to_serialized_record(domain_event)
+        expect(record.event_id).to   eq("K3THNX9")
+        expect(record.data).to       eq(proto)
+      end
+
+      specify '#serialized_record_to_event is using events class remapping' do
         subject = described_class.new(
           events_class_remapping: {'EventNameBeforeRefactor' => "ResTesting::OrderCreated"}
         )
