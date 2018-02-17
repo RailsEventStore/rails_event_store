@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'time'
+require_relative 'mappers/events_pb.rb'
 
 module RubyEventStore
   RSpec.describe Client do
@@ -212,6 +213,18 @@ module RubyEventStore
       expect(client.read_stream_events_forward('flow')).to eq([first_event, second_event])
       expect(client.read_stream_events_forward('cars')).to eq([first_event])
       expect(subscriber.handled_events).to be_empty
+    end
+
+    specify 'can handle protobuf event class instead of RubyEventStore::Event' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event = ResTesting::OrderCreated.new(
+        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        customer_id: 123,
+        order_id: "K3THNX9",
+      )
+      client.publish_event(event, stream_name: 'test')
+      expect(client.read_event(event.event_id)).to eq(event)
+      expect(client.read_stream_events_forward('test')).to eq([event])
     end
 
   end
