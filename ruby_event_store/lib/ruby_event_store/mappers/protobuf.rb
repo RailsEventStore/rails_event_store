@@ -2,7 +2,6 @@ module RubyEventStore
   module Mappers
     class Protobuf
       def initialize(event_id_getter: :event_id, events_class_remapping: {})
-        require 'google/protobuf'
         @event_id_getter = event_id_getter
         @events_class_remapping = events_class_remapping
       end
