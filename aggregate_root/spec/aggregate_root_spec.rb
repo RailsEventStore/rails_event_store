@@ -7,7 +7,7 @@ describe AggregateRoot do
     order = Order.new
     order_created = Orders::Events::OrderCreated.new
 
-    expect(order).to receive(:apply_order_created).with(order_created).and_call_original
+    expect(order).to receive(:"on_Orders::Events::OrderCreated").with(order_created).and_call_original
     order.apply(order_created)
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to eq([order_created])
@@ -192,18 +192,20 @@ describe AggregateRoot do
 
   describe ".on" do
     it "generates private apply handler method" do
-      check = double
-      expect(check).to receive(:call).with(instance_of(Orders::Events::SpanishInquisition))
+      order = OrderWithOns.new
+      order.apply(Orders::Events::OrderCreated.new)
+      expect(order.status).to eq(:created)
+      order.apply(Orders::Events::OrderExpired.new)
+      expect(order.status).to eq(:expired)
 
-      Order.on(Orders::Events::SpanishInquisition) do |event|
-        check.call(event)
-        @status = :spanish_inqusition
-      end
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderCreated")
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderExpired")
 
-      order = Order.new
-      order.apply(Orders::Events::SpanishInquisition.new)
-      expect(order.status).to          eq :spanish_inqusition
-      expect(order.private_methods).to include :apply_spanish_inquisition
+      order = InheritedOrderWithOns.new
+      order.apply(Orders::Events::OrderCreated.new)
+      expect(order.status).to eq(:created_inherited)
+      order.apply(Orders::Events::OrderExpired.new)
+      expect(order.status).to eq(:expired)
     end
   end
 

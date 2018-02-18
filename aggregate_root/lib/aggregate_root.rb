@@ -5,12 +5,22 @@ require 'aggregate_root/default_apply_strategy'
 
 module AggregateRoot
   module ClassMethods
-    def on(*event_klasses, apply_strategy:  DefaultApplyStrategy.new, &block)
+    def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
-        handler_name = apply_strategy.handler_name_by_class(event_klass)
-        define_method handler_name, &block
-        private handler_name
+        handler_name = "on_#{event_klass.name}"
+        define_method(handler_name, &block)
+        @on_methods ||= {}
+        @on_methods[event_klass]=handler_name
+        private(handler_name)
       end
+    end
+
+    def on_methods
+      ancestors.
+        reverse.
+        select{|k| k.instance_variables.include?(:@on_methods)}.
+        map{|k| k.instance_variable_get(:@on_methods) }.
+        inject({}, &:merge)
     end
   end
 
@@ -58,7 +68,7 @@ module AggregateRoot
   end
 
   def apply_strategy
-    DefaultApplyStrategy.new
+    DefaultApplyStrategy.new(on_methods: self.class.on_methods)
   end
 
   def default_event_store

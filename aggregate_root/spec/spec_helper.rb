@@ -76,3 +76,27 @@ class OrderWithCustomStrategy
     @status = :expired
   end
 end
+
+class OrderWithOns
+  include AggregateRoot
+  include Orders::Events
+
+  on OrderCreated do |_ev|
+    @status = :created
+  end
+
+  on OrderExpired do |_ev|
+    @status = :expired
+  end
+
+  attr_accessor :status
+end
+
+class InheritedOrderWithOns < OrderWithOns
+  include AggregateRoot
+  include Orders::Events
+
+  on OrderCreated do |_ev|
+    @status = :created_inherited
+  end
+end

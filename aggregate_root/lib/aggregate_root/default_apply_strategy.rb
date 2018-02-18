@@ -2,8 +2,9 @@ module AggregateRoot
   MissingHandler = Class.new(StandardError)
 
   class DefaultApplyStrategy
-    def initialize(strict: true)
+    def initialize(strict: true, on_methods: {})
       @strict = strict
+      @on_methods = on_methods
     end
 
     def call(aggregate, event)
@@ -20,10 +21,10 @@ module AggregateRoot
     end
 
     def handler_name(event)
-      handler_name_by_class(event.class)
+      on_methods.fetch(event.class){ handler_name_by_class(event.class) }
     end
 
     private
-    attr_reader :strict
+    attr_reader :strict, :on_methods
   end
 end
