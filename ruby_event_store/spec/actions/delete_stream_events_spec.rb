@@ -5,13 +5,13 @@ module RubyEventStore
     let(:stream_name) { 'stream_name' }
 
     specify 'raise exception if stream name is incorrect' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       expect { client.delete_stream(nil) }.to raise_error(IncorrectStreamData)
       expect { client.delete_stream('') }.to raise_error(IncorrectStreamData)
     end
 
     specify 'successfully delete streams of events' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       prepare_events_in_store(client, 'test_1')
       prepare_events_in_store(client, 'test_2')
       all_events = client.read_all_streams_forward

@@ -9,7 +9,7 @@ module RubyEventStore
     end
 
     specify 'raise exception if stream name is incorrect' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       expect { client.read_stream_events_forward(nil) }.to raise_error(IncorrectStreamData)
       expect { client.read_stream_events_forward('') }.to raise_error(IncorrectStreamData)
       expect { client.read_stream_events_backward(nil) }.to raise_error(IncorrectStreamData)
@@ -17,7 +17,7 @@ module RubyEventStore
     end
 
     specify 'return all events ordered forward' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       prepare_events_in_store(client)
       events = client.read_stream_events_forward(stream_name)
       expect(events[0]).to eq(OrderCreated.new(event_id: '0'))
@@ -27,7 +27,7 @@ module RubyEventStore
     end
 
     specify 'return all events ordered backward' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       prepare_events_in_store(client)
       events = client.read_stream_events_backward(stream_name)
       expect(events[0]).to eq(OrderCreated.new(event_id: '3'))

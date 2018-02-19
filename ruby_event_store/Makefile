@@ -2,8 +2,8 @@ GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = ruby_event_store
 REQUIRE     = $(GEM_NAME)
 IGNORE      = RubyEventStore.const_missing \
-              RubyEventStore::InMemoryRepository\#append_with_synchronize \
-              RubyEventStore::InMemoryRepository\#normalize_to_array \
+              RubyEventStore::Repositories::InMemory\#append_with_synchronize \
+              RubyEventStore::Repositories::InMemory\#normalize_to_array \
               RubyEventStore::Client\#normalize_to_array \
               RubyEventStore::SerializedRecord \
               RubyEventStore::Projection\#read_events_from_stream \
