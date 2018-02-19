@@ -27,12 +27,10 @@ module RailsEventStore
       end
 
       def failure_message
-        differ.diff_as_string(@expected.to_s, @events.to_s)
+        @differ.diff_as_string(@expected.to_s, @events.to_s)
       end
 
       private
-
-      attr_reader :differ
 
       def matches_count(events, expected, count)
         return true unless count

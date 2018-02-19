@@ -1,5 +1,6 @@
+TestDomainEvent = Class.new(RubyEventStore::Event)
+
 RSpec.shared_examples :event_repository do |repository_class|
-  TestDomainEvent = Class.new(RubyEventStore::Event)
   let(:repository) { subject || repository_class.new }
 
   it 'just created is empty' do

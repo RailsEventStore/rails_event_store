@@ -2,11 +2,10 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (placeholder, disabled, href, class)
-import Html.Events exposing (onInput, onClick)
-import Paginate exposing (..)
+import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, Value, field, list, string, at, value)
-import Json.Decode.Pipeline exposing (decode, required, requiredAt)
+import Json.Decode exposing (Decoder, Value, field, list, string, at, value, maybe, oneOf)
+import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional)
 import Json.Encode exposing (encode)
 import Navigation
 import UrlParser exposing ((</>))
@@ -14,7 +13,7 @@ import UrlParser exposing ((</>))
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags UrlChange
+    Navigation.programWithFlags ChangeUrl
         { init = model
         , view = view
         , update = update
@@ -23,25 +22,18 @@ main =
 
 
 type alias Model =
-    { streams : PaginatedList Item
-    , events : PaginatedList Item
-    , event : EventWithDetails
-    , searchQuery : String
-    , perPage : Int
+    { items : PaginatedList Item
+    , event : Maybe Event
     , page : Page
     , flags : Flags
     }
 
 
 type Msg
-    = Search String
-    | NextPage
-    | PreviousPage
-    | GoToPage Int
-    | StreamList (Result Http.Error (List Item))
-    | EventList (Result Http.Error (List Item))
-    | EventDetails (Result Http.Error EventWithDetails)
-    | UrlChange Navigation.Location
+    = GetItems (Result Http.Error (PaginatedList Item))
+    | GetEvent (Result Http.Error Event)
+    | ChangeUrl Navigation.Location
+    | GoToPage PaginationLink
 
 
 type Page
@@ -52,15 +44,39 @@ type Page
 
 
 type Item
-    = Stream String
-    | Event String String String
+    = StreamItem Stream
+    | EventItem Event
 
 
-type alias EventWithDetails =
+type alias Event =
     { eventType : String
     , eventId : String
-    , data : String
-    , metadata : String
+    , createdAt : String
+    , rawData : String
+    , rawMetadata : String
+    }
+
+
+type alias Stream =
+    { name : String
+    }
+
+
+type alias PaginationLink =
+    String
+
+
+type alias PaginationLinks =
+    { next : Maybe PaginationLink
+    , prev : Maybe PaginationLink
+    , first : Maybe PaginationLink
+    , last : Maybe PaginationLink
+    }
+
+
+type alias PaginatedList a =
+    { items : List a
+    , links : PaginationLinks
     }
 
 
@@ -80,19 +96,17 @@ subscriptions model =
 model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
 model flags location =
     let
-        perPage =
-            10
-
-        emptyList =
-            Paginate.fromList perPage []
+        initLinks =
+            { prev = Nothing
+            , next = Nothing
+            , first = Nothing
+            , last = Nothing
+            }
 
         initModel =
-            { streams = emptyList
-            , events = emptyList
-            , event = EventWithDetails "" "" "" ""
-            , searchQuery = ""
-            , perPage = perPage
+            { items = PaginatedList [] initLinks
             , page = NotFound
+            , event = Nothing
             , flags = flags
             }
     in
@@ -102,75 +116,61 @@ model flags location =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Search inputValue ->
-            ( { model | searchQuery = inputValue }, Cmd.none )
+        GetItems (Ok result) ->
+            ( { model | items = result }, Cmd.none )
 
-        NextPage ->
-            itemsUpdate model Paginate.next
-
-        PreviousPage ->
-            itemsUpdate model Paginate.prev
-
-        GoToPage pageNum ->
-            itemsUpdate model (Paginate.goTo pageNum)
-
-        StreamList (Ok result) ->
-            ( { model | streams = Paginate.fromList model.perPage result }, Cmd.none )
-
-        StreamList (Err msg) ->
+        GetItems (Err msg) ->
             ( model, Cmd.none )
 
-        EventList (Ok result) ->
-            ( { model | events = Paginate.fromList model.perPage result }, Cmd.none )
+        GetEvent (Ok result) ->
+            ( { model | event = Just result }, Cmd.none )
 
-        EventList (Err msg) ->
+        GetEvent (Err msg) ->
             ( model, Cmd.none )
 
-        EventDetails (Ok result) ->
-            ( { model | event = result }, Cmd.none )
-
-        EventDetails (Err msg) ->
-            ( model, Cmd.none )
-
-        UrlChange location ->
+        ChangeUrl location ->
             urlUpdate model location
 
+        GoToPage paginationLink ->
+            ( model, getItems paginationLink )
 
-itemsUpdate : Model -> (PaginatedList Item -> PaginatedList Item) -> ( Model, Cmd Msg )
-itemsUpdate model f =
-    case model.page of
-        BrowseEvents _ ->
-            ( { model | events = f model.events }, Cmd.none )
 
-        BrowseStreams ->
-            ( { model | streams = f model.streams }, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
+buildUrl : String -> String -> String
+buildUrl baseUrl id =
+    baseUrl ++ "/" ++ (Http.encodeUri id)
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
-    case decodeLocation location of
-        Just BrowseStreams ->
-            ( { model | page = BrowseStreams }, getStreams model.flags.streamsUrl )
+    let
+        decodeLocation location =
+            UrlParser.parseHash routeParser location
+    in
+        case decodeLocation location of
+            Just BrowseStreams ->
+                ( { model | page = BrowseStreams }, getItems model.flags.streamsUrl )
 
-        Just (BrowseEvents streamId) ->
-            ( { model | page = (BrowseEvents streamId) }, getEvents model.flags.streamsUrl streamId )
+            Just (BrowseEvents encodedStreamId) ->
+                case (Http.decodeUri encodedStreamId) of
+                    Just streamId ->
+                        ( { model | page = (BrowseEvents streamId) }, getItems (buildUrl model.flags.streamsUrl streamId) )
 
-        Just (ShowEvent eventId) ->
-            ( { model | page = (ShowEvent eventId) }, getEvent model.flags.eventsUrl eventId )
+                    Nothing ->
+                        ( { model | page = NotFound }, Cmd.none )
 
-        Just page ->
-            ( { model | page = page }, Cmd.none )
+            Just (ShowEvent encodedEventId) ->
+                case (Http.decodeUri encodedEventId) of
+                    Just eventId ->
+                        ( { model | page = (ShowEvent eventId) }, getEvent (buildUrl model.flags.eventsUrl eventId) )
 
-        Nothing ->
-            ( { model | page = NotFound }, Cmd.none )
+                    Nothing ->
+                        ( { model | page = NotFound }, Cmd.none )
 
+            Just page ->
+                ( { model | page = page }, Cmd.none )
 
-decodeLocation : Navigation.Location -> Maybe Page
-decodeLocation location =
-    UrlParser.parseHash routeParser location
+            Nothing ->
+                ( { model | page = NotFound }, Cmd.none )
 
 
 routeParser : UrlParser.Parser (Page -> a) a
@@ -180,11 +180,6 @@ routeParser =
         , UrlParser.map BrowseEvents (UrlParser.s "streams" </> UrlParser.string)
         , UrlParser.map ShowEvent (UrlParser.s "events" </> UrlParser.string)
         ]
-
-
-isMatch : String -> String -> Bool
-isMatch searchQuery name =
-    String.contains (String.toLower searchQuery) (String.toLower name)
 
 
 view : Model -> Html Msg
@@ -223,272 +218,228 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         BrowseStreams ->
-            browseItems
-                "Streams"
-                (filteredItems model.searchQuery model.streams)
+            browseItems "Streams" model.items
 
         BrowseEvents streamName ->
-            browseItems
-                ("Events in " ++ streamName)
-                (filteredItems model.searchQuery model.events)
+            browseItems ("Events in " ++ streamName) model.items
 
         ShowEvent eventId ->
-            showEvent model
+            showEvent model.event
 
         NotFound ->
             h1 [] [ text "404" ]
 
 
-showEvent : Model -> Html Msg
-showEvent model =
-    div [ class "event" ]
-        [ h1 [ class "event__title" ] [ text model.event.eventType ]
-        , div [ class "event__body" ]
-            [ table []
-                [ thead []
-                    [ tr []
-                        [ th [] [ text "Event id" ]
-                        , th [] [ text "Metadata" ]
-                        , th [] [ text "Data" ]
-                        ]
-                    ]
-                , tbody []
-                    [ tr []
-                        [ td [] [ text model.event.eventId ]
-                        , td [] [ text model.event.metadata ]
-                        , td [] [ text model.event.data ]
+showEvent : Maybe Event -> Html Msg
+showEvent event =
+    case event of
+        Just event ->
+            div [ class "event" ]
+                [ h1 [ class "event__title" ] [ text event.eventType ]
+                , div [ class "event__body" ]
+                    [ table []
+                        [ thead []
+                            [ tr []
+                                [ th [] [ text "Event id" ]
+                                , th [] [ text "Raw Data" ]
+                                , th [] [ text "Raw Metadata" ]
+                                ]
+                            ]
+                        , tbody []
+                            [ tr []
+                                [ td [] [ text event.eventId ]
+                                , td [] [ pre [] [ text event.rawData ] ]
+                                , td [] [ pre [] [ text event.rawMetadata ] ]
+                                ]
+                            ]
                         ]
                     ]
                 ]
-            ]
-        ]
+
+        Nothing ->
+            div [ class "event" ] []
 
 
 browseItems : String -> PaginatedList Item -> Html Msg
-browseItems title items =
+browseItems title { links, items } =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
-        , div [ class "browser__search search" ] [ searchField ]
-        , div [ class "browser__pagination" ] [ renderPagination items ]
-        , div [ class "browser__results" ] [ displayItems (Paginate.page items) ]
+        , div [ class "browser__pagination" ] [ displayPagination links ]
+        , div [ class "browser__results" ] [ renderResults items ]
         ]
 
 
-searchField : Html Msg
-searchField =
-    input [ class "search__input", placeholder "type to start searching", onInput Search ] []
-
-
-renderPagination : PaginatedList item -> Html Msg
-renderPagination items =
-    let
-        pageListItems =
-            (List.map
-                (\l -> li [] [ l ])
-                (pagerView items)
-            )
-    in
-        ul [ class "pagination" ]
-            (List.concat
-                [ [ li [] [ prevPage items ] ]
-                , pageListItems
-                , [ li [] [ nextPage items ] ]
-                ]
-            )
-
-
-renderPagerButton : Int -> Bool -> Html Msg
-renderPagerButton pageNum isCurrentPage =
-    button
-        [ onClick (GoToPage pageNum)
-        , class "pagination__page"
-        , disabled isCurrentPage
+displayPagination : PaginationLinks -> Html Msg
+displayPagination { first, last, next, prev } =
+    ul [ class "pagination" ]
+        [ paginationItem firstPageButton first
+        , paginationItem lastPageButton last
+        , paginationItem nextPageButton next
+        , paginationItem prevPageButton prev
         ]
-        [ text (toString pageNum) ]
 
 
-pagerData : PaginatedList item -> List ( Int, Bool )
-pagerData items =
-    let
-        currentPage =
-            Paginate.currentPage items
+paginationItem : (PaginationLink -> Html Msg) -> Maybe PaginationLink -> Html Msg
+paginationItem button link =
+    case link of
+        Just url ->
+            li [] [ button url ]
 
-        pagesAround =
-            2
-
-        overflow =
-            ( List.minimum [ 0, currentPage - pagesAround - 1 ]
-            , List.maximum
-                [ 0
-                , currentPage
-                    + pagesAround
-                    - (Paginate.totalPages items)
-                ]
-            )
-
-        visiblePages =
-            case overflow of
-                ( Just overflowBefore, Just overflowAfter ) ->
-                    List.range (currentPage - pagesAround - overflowAfter) (currentPage + pagesAround - overflowBefore)
-
-                ( _, _ ) ->
-                    List.range (currentPage - pagesAround) (currentPage + pagesAround)
-    in
-        items
-            |> pager (,)
-            |> List.filter (\( pageNum, _ ) -> List.member pageNum visiblePages)
+        Nothing ->
+            li [] []
 
 
-pagerView : PaginatedList item -> List (Html Msg)
-pagerView items =
-    items
-        |> pagerData
-        |> List.map (\( pageNum, isCurrentPage ) -> renderPagerButton pageNum isCurrentPage)
-
-
-prevPage : PaginatedList item -> Html Msg
-prevPage items =
+nextPageButton : PaginationLink -> Html Msg
+nextPageButton url =
     button
-        [ onClick PreviousPage
-        , class "pagination__page pagination__page--previous"
-        , disabled (Paginate.isFirst items)
-        ]
-        [ text "←" ]
-
-
-nextPage : PaginatedList item -> Html Msg
-nextPage items =
-    button
-        [ onClick NextPage
+        [ href url
+        , onClick (GoToPage url)
         , class "pagination__page pagination__page--next"
-        , disabled (Paginate.isLast items)
         ]
-        [ text "→" ]
+        [ text "next" ]
 
 
-filteredItems : String -> PaginatedList Item -> PaginatedList Item
-filteredItems searchQuery items =
-    let
-        predicate item =
-            case item of
-                Stream name ->
-                    isMatch searchQuery name
-
-                Event name _ _ ->
-                    isMatch searchQuery name
-    in
-        Paginate.map (List.filter predicate) items
+prevPageButton : PaginationLink -> Html Msg
+prevPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--prev"
+        ]
+        [ text "previous" ]
 
 
-displayItems : List Item -> Html Msg
-displayItems items =
+lastPageButton : PaginationLink -> Html Msg
+lastPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--last"
+        ]
+        [ text "last" ]
+
+
+firstPageButton : PaginationLink -> Html Msg
+firstPageButton url =
+    button
+        [ href url
+        , onClick (GoToPage url)
+        , class "pagination__page pagination__page--first"
+        ]
+        [ text "first" ]
+
+
+renderResults : List Item -> Html Msg
+renderResults items =
     case items of
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
 
-        (Stream _) :: _ ->
+        (StreamItem _) :: _ ->
             table []
                 [ thead []
                     [ tr []
                         [ th [] [ text "Stream name" ]
                         ]
                     ]
-                , tbody [] (List.map displayItem (items))
+                , tbody [] (List.map itemRow (items))
                 ]
 
-        (Event _ _ _) :: _ ->
+        (EventItem _) :: _ ->
             table []
                 [ thead []
                     [ tr []
                         [ th [] [ text "Event name" ]
+                        , th [] [ text "Event id" ]
                         , th [ class "u-align-right" ] [ text "Created at" ]
                         ]
                     ]
-                , tbody [] (List.map displayItem items)
+                , tbody [] (List.map itemRow items)
                 ]
 
 
-displayItem : Item -> Html Msg
-displayItem item =
+itemRow : Item -> Html Msg
+itemRow item =
     case item of
-        Event name createdAt eventId ->
+        EventItem { eventType, createdAt, eventId } ->
             tr []
                 [ td []
-                    [ a [ class "results__link", href ("#events/" ++ eventId) ] [ text name ]
+                    [ a
+                        [ class "results__link"
+                        , href (buildUrl "#events" eventId)
+                        ]
+                        [ text eventType ]
                     ]
+                , td [] [ text eventId ]
                 , td [ class "u-align-right" ]
                     [ text createdAt
                     ]
                 ]
 
-        Stream name ->
+        StreamItem { name } ->
             tr []
                 [ td []
-                    [ a [ class "results__link", href ("#streams/" ++ name) ] [ text name ]
+                    [ a
+                        [ class "results__link"
+                        , href (buildUrl "#streams" name)
+                        ]
+                        [ text name ]
                     ]
                 ]
 
 
-getStreams : String -> Cmd Msg
-getStreams url =
-    Http.get url streamsDecoder
-        |> Http.send StreamList
+getEvent : String -> Cmd Msg
+getEvent url =
+    Http.get url eventDecoder
+        |> Http.send GetEvent
 
 
-getEvents : String -> String -> Cmd Msg
-getEvents url streamName =
-    Http.get (url ++ "/" ++ streamName) eventsDecoder
-        |> Http.send EventList
+getItems : String -> Cmd Msg
+getItems url =
+    Http.get url itemsDecoder
+        |> Http.send GetItems
 
 
-getEvent : String -> String -> Cmd Msg
-getEvent url eventId =
-    Http.get (url ++ "/" ++ eventId) eventWithDetailsDecoder
-        |> Http.send EventDetails
-
-
-eventsDecoder : Decoder (List Item)
-eventsDecoder =
+itemsDecoder : Decoder (PaginatedList Item)
+itemsDecoder =
     let
-        eventDecoder =
-            decode Event
-                |> requiredAt [ "attributes", "event_type" ] string
-                |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-                |> required "id" string
+        eventItemDecoder =
+            Json.Decode.map EventItem eventDecoder_
+
+        streamItemDecoder =
+            Json.Decode.map StreamItem streamDecoder_
     in
-        eventDecoder
-            |> list
-            |> field "data"
+        decode PaginatedList
+            |> required "data" (list (oneOf [ eventItemDecoder, streamItemDecoder ]))
+            |> required "links" linksDecoder
 
 
-streamsDecoder : Decoder (List Item)
-streamsDecoder =
-    let
-        streamDecoder =
-            decode Stream
-                |> required "id" string
-    in
-        streamDecoder
-            |> list
-            |> field "data"
+linksDecoder : Decoder PaginationLinks
+linksDecoder =
+    decode PaginationLinks
+        |> optional "next" (maybe string) Nothing
+        |> optional "prev" (maybe string) Nothing
+        |> optional "first" (maybe string) Nothing
+        |> optional "last" (maybe string) Nothing
 
 
-rawEventDecoder : Decoder ( Value, Value )
-rawEventDecoder =
-    decode (,)
-        |> requiredAt [ "data", "attributes", "data" ] value
-        |> requiredAt [ "data", "attributes", "metadata" ] value
+eventDecoder : Decoder Event
+eventDecoder =
+    eventDecoder_
+        |> field "data"
 
 
-eventWithDetailsDecoder : Decoder EventWithDetails
-eventWithDetailsDecoder =
-    let
-        eventDecoder =
-            decode EventWithDetails
-                |> requiredAt [ "data", "attributes", "event_type" ] string
-                |> requiredAt [ "data", "id" ] string
-                |> requiredAt [ "data", "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-                |> requiredAt [ "data", "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
-    in
-        rawEventDecoder
-            |> Json.Decode.andThen (\_ -> eventDecoder)
+streamDecoder_ : Decoder Stream
+streamDecoder_ =
+    decode Stream
+        |> required "id" string
+
+
+eventDecoder_ : Decoder Event
+eventDecoder_ =
+    decode Event
+        |> requiredAt [ "attributes", "event_type" ] string
+        |> requiredAt [ "id" ] string
+        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
+        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))

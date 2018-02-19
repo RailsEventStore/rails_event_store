@@ -1,0 +1,28 @@
+{
+  "links": {
+    "last": "/streams/head/forward/20",
+    "next": "/streams/Caterer_8/backward/20"
+  },
+  "data": [
+    { "id": "all", "type": "streams" },
+    { "id": "menu_search/funny.name", "type": "streams" },
+    { "id": "Order$419", "type": "streams" },
+    { "id": "Order$424", "type": "streams" },
+    { "id": "Caterer$46", "type": "streams" },
+    { "id": "Caterer$135", "type": "streams" },
+    { "id": "Order$468", "type": "streams" },
+    { "id": "Order$427", "type": "streams" },
+    { "id": "Order$494", "type": "streams" },
+    { "id": "Order$496", "type": "streams" },
+    { "id": "Order$564", "type": "streams" },
+    { "id": "Order$589", "type": "streams" },
+    { "id": "Caterer$10", "type": "streams" },
+    { "id": "Caterer$11", "type": "streams" },
+    { "id": "Caterer$39", "type": "streams" },
+    { "id": "Caterer$165", "type": "streams" },
+    { "id": "Caterer$244", "type": "streams" },
+    { "id": "Caterer$231", "type": "streams" },
+    { "id": "Caterer$166", "type": "streams" },
+    { "id": "Caterer_8", "type": "streams" }
+  ]
+}

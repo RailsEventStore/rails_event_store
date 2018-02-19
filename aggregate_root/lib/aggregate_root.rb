@@ -22,7 +22,7 @@ module AggregateRoot
     self
   end
 
-  def store(stream_name = loaded_from_stream_name, event_store: default_event_store)
+  def store(stream_name = @loaded_from_stream_name, event_store: default_event_store)
     event_store.publish_events(unpublished_events, stream_name: stream_name, expected_version: version)
     @version += unpublished_events.size
     @unpublished_events = nil
@@ -33,7 +33,6 @@ module AggregateRoot
   end
 
   private
-  attr_reader :loaded_from_stream_name
 
   def unpublished
     @unpublished_events ||= []

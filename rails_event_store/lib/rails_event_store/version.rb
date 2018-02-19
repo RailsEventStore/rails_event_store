@@ -1,3 +1,3 @@
 module RailsEventStore
-  VERSION = "0.23.0"
+  VERSION = "0.25.2"
 end

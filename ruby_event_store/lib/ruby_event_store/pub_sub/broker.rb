@@ -23,25 +23,24 @@ module RubyEventStore
 
       def notify_subscribers(event)
         all_subscribers_for(event.class).each do |subscriber|
-          dispatcher.call(subscriber, event)
+          @dispatcher.call(subscriber, event)
         end
       end
 
       private
-      attr_reader :subscribers, :dispatcher
 
       def verify_subscriber(subscriber)
         raise SubscriberNotExist if subscriber.nil?
-        dispatcher.verify(subscriber)
+        @dispatcher.verify(subscriber)
       end
 
       def subscribe(subscriber, event_types)
-        event_types.each{ |type| subscribers[type.name] << subscriber }
-        ->() {event_types.each{ |type| subscribers.fetch(type.name).delete(subscriber) } }
+        event_types.each{ |type| @subscribers[type.name] << subscriber }
+        ->() {event_types.each{ |type| @subscribers.fetch(type.name).delete(subscriber) } }
       end
 
       def all_subscribers_for(event_type)
-        subscribers[event_type.name] + @global_subscribers
+        @subscribers[event_type.name] + @global_subscribers
       end
     end
   end

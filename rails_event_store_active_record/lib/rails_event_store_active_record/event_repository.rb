@@ -73,8 +73,6 @@ module RailsEventStoreActiveRecord
 
     private
 
-    attr_reader :mapper
-
     def add_to_stream(collection, stream_name, expected_version, include_global, &to_event_id)
       raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
 
@@ -136,7 +134,7 @@ module RailsEventStoreActiveRecord
     end
 
     def build_event_record(event)
-      serialized_record = mapper.event_to_serialized_record(event)
+      serialized_record = @mapper.event_to_serialized_record(event)
       Event.new(
         id:         serialized_record.event_id,
         data:       serialized_record.data,

@@ -1,9 +1,11 @@
-require "bundler/setup"
 require "rails_event_store"
 require "rails_event_store/browser"
+require "support/rspec_defaults"
 
 ENV['RAILS_ENV']     ||= 'test'
 ENV['RAILS_VERSION'] ||= '5.1.4'
+ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
+
 dummy_app_name = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
 require "#{File.join(__dir__, dummy_app_name)}/config/environment.rb"
 
@@ -35,18 +37,11 @@ module SchemaHelper
 end
 
 RSpec.configure do |config|
-  config.example_status_persistence_file_path = ".rspec_status"
-
-  config.disable_monkey_patching!
-
-  config.order = :random
-  Kernel.srand config.seed
-
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-  end
-
   config.before(:each) do |example|
     config.use_transactional_fixtures = !example.metadata[:js]
+  end
+
+  config.around(:each) do |example|
+    Timeout.timeout(5, &example)
   end
 end

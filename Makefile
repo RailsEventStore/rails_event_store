@@ -1,9 +1,10 @@
 UPSTREAM_REV = `git rev-parse upstream/master`
 ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
-RES_VERSION  ?= `cat RES_VERSION`
-GEMS         = aggregate_root bounded_context rails_event_store rails_event_store-rspec rails_event_store-browser rails_event_store_active_record ruby_event_store
-NIX_TYPE     = $(shell uname -s)
+RES_VERSION  ?= $(shell cat RES_VERSION)
+NIX_TYPE     =  $(shell uname -s)
+GEMS         = aggregate_root bounded_context ruby_event_store rails_event_store \
+	           rails_event_store_active_record rails_event_store-browser rails_event_store-rspec
 
 ifeq ($(NIX_TYPE),Linux)
   SED_OPTS = -i
@@ -22,8 +23,14 @@ $(addprefix test-, $(GEMS)):
 $(addprefix mutate-, $(GEMS)):
 	@make -C $(subst mutate-,,$@) mutate
 
-$(addprefix release-, $(GEMS)):
-	@make -C $(subst release-,,$@) release
+$(addprefix build-, $(GEMS)):
+	@make -C $(subst build-,,$@) build
+
+$(addprefix push-, $(GEMS)):
+	@make -C $(subst push-,,$@) push
+
+$(addprefix clean-, $(GEMS)):
+	@make -C $(subst clean-,,$@) clean
 
 git-check-clean:
 	@git diff --quiet --exit-code
@@ -57,11 +64,17 @@ set-version: git-check-clean git-check-committed
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
 
-test: $(addprefix test-, $(GEMS)) ## Run all specs
+test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
 mutate: $(addprefix mutate-, $(GEMS)) ## Run all mutation tests
 
-release: git-check-clean git-check-committed test git-tag $(addprefix release-, $(GEMS)) ## Make a new release and push to RubyGems
+build: $(addprefix build-, $(GEMS)) ## Build all gem packages
+
+push: $(addprefix push-, $(GEMS)) ## Push all gem packages to RubyGems
+
+clean: $(addprefix clean-, $(GEMS)) ## Remove all previously built packages
+
+release: git-check-clean git-check-committed install test git-tag clean build push ## Make a new release on RubyGems
 	@echo Released v$(RES_VERSION)
 
 rebase: git-rebase-from-upstream

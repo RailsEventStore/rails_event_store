@@ -12,22 +12,6 @@ module RailsEventStore
       specify { expect(FooEvent.new).to matchers.be_an_event(FooEvent) }
       specify { expect([FooEvent.new]).to include(matchers.an_event(FooEvent)) }
 
-      specify "be_an_event default configuration" do
-        matcher = matchers.be_an_event(FooEvent.new)
-        differ  = matcher.__send__(:differ)
-
-        expect(differ).to be_an(::RSpec::Support::Differ)
-        expect(differ.color?).to eq(::RSpec::Matchers.configuration.color?)
-      end
-
-      specify "have_published default configuration" do
-        matcher = matchers.have_published(FooEvent)
-        differ  = matcher.__send__(:differ)
-
-        expect(differ).to be_an(::RSpec::Support::Differ)
-        expect(differ.color?).to eq(::RSpec::Matchers.configuration.color?)
-      end
-
       specify { expect(matchers.have_published(matchers.an_event(FooEvent))).to be_an(HavePublished) }
 
       specify do
@@ -63,14 +47,6 @@ module RailsEventStore
         aggregate_root = TestAggregate.new
         aggregate_root.foo
         expect(aggregate_root).to matchers.have_applied(matchers.an_event(FooEvent))
-      end
-
-      specify "have_applied default configuration" do
-        matcher = matchers.have_applied(FooEvent)
-        differ  = matcher.__send__(:differ)
-
-        expect(differ).to be_an(::RSpec::Support::Differ)
-        expect(differ.color?).to eq(::RSpec::Matchers.configuration.color?)
       end
 
       specify do

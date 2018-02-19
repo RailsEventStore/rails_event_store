@@ -1,7 +1,9 @@
 require 'bounded_context'
 require 'securerandom'
+require 'support/rspec_defaults'
+require 'rails'
 
-ENV['RAILS_VERSION'] ||= '5.1.4'
+ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
 TMP_ROOT   = File.join(__dir__, 'tmp')
 DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)

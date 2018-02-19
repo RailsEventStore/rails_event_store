@@ -27,24 +27,40 @@ Changes are easier to scan, when they're described with following types:
 
 Use them following to the full description of introduced change.
 
-When describing changes, list all gems involved gems in the release. Explicitly mention no changes if there were none. When in doubt, check this [example](https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.18.0)
+When describing changes, list all gems involved gems in the release. Explicitly mention no changes if there were none:
+
+* no changes
+
+When in doubt, check this [example](https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.18.0)
 
 ## Release steps
 
-#### Documenting, tagging and RubyGems push
-
-1. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v0.17.0...master) since last release to HEAD of master branch.
-2. Hit `make release` from top-level of repository. This will:
+1. Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) if that hasn't happened already but don't publish it yet. Leave _Tag version_ field empty by now.
+2. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v0.24.0...master) since last release to HEAD of master branch (you may need to modify URL for correct versions to compare).
+3. Bump the version number for all gems and dependencies via `make set-version RES_VERSION=version_number_here`.
+4. Hit `make release` from top-level of repository. This will:
   - check of any uncommitted changes
   - run unit tests for all involved gems
-  - tag last commit with version number, ending in a push to remote
-  - loop over gems and build gem packages followed by RubyGems push for each
+  - tag last commit with version number, ending with a push to to the remote
+  - build all gem packages
+  - push built gem packages to RubyGems
 
-  You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
-  
-3. Bump version number in documentation section of [railseventstore.org](https://railseventstore.org). It's good practice to list changes in [documentation](https://railseventstore.org/docs/changelog/).
+    You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
 
-#### Opening work on new release soon after
+5. Go back to [releases](https://github.com/RailsEventStore/rails_event_store/releases/), link to appropriate git tag in _Tag version_ field. Set title corresponding to version number and publish this release entry.
+6. Lastly, bump version number in documentation section of [railseventstore.org](https://railseventstore.org).
 
-1. Bump the version number via `make set-version RES_VERSION=version_number_here`. This will be the next release version.
-2. Draft [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) to start acquiring changelogs with each issue closed, pull-request merge and code committed. It helps much if there's a template ready to be filled.
+### Opening work on new release soon after
+
+Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new) to start acquiring changelogs with each issue closed, pull-request merge and code committed. It helps much if there's a template ready to be filled.
+
+
+### Troubleshooting when something went wrong during release
+
+- no RubyGems credentials
+
+  Assuming you've by now obtained the missing credentials and signed in (`gem signin`) you can resume broken `make release` by executing last step of it explicitly, that is `make push`.
+
+- not owning all involved gems on RubyGems
+
+  Ask gem owners to add your email via `gem owner GEM_NAME -a YOUR_EMAIL`. Then proceed like above.
