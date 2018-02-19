@@ -24,6 +24,7 @@ Documentation, tutorials and code samples are available at [https://railseventst
 
 [![Build Status](https://travis-ci.org/RailsEventStore/rails_event_store.svg?branch=master)](https://travis-ci.org/RailsEventStore/rails_event_store)
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
+[![Open Source Helpers](https://www.codetriage.com/arkency/rails_event_store/badges/users.svg)](https://www.codetriage.com/arkency/rails_event_store)
 
 We're aiming for 100% mutation coverage in this project. This is why:
 
