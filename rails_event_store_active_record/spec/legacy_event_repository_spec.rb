@@ -25,6 +25,7 @@ module RailsEventStoreActiveRecord
 
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_expected_version_auto) { false }
+    let(:test_link_events_to_stream) { false }
 
     it_behaves_like :event_repository, LegacyEventRepository
 
@@ -74,6 +75,13 @@ module RailsEventStoreActiveRecord
         repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_1', :none)
         repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_2', :none)
       }.to_not raise_error
+    end
+
+    specify do
+      repository = LegacyEventRepository.new
+      expect{
+        repository.link_to_stream(SecureRandom.uuid, 'stream_2', :none)
+      }.to raise_error(RubyEventStore::NotSupported)
     end
 
     private

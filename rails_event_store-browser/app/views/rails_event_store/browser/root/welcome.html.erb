@@ -2,10 +2,17 @@
 <html>
   <head>
     <title>RailsEventStore::Browser</title>
-    <%= stylesheet_link_tag "rails_event_store/browser/application", media: "all" %>
     <%= csrf_meta_tags %>
   </head>
   <body>
-    <%= javascript_include_tag "rails_event_store/browser/application" %>
+    <%= javascript_include_tag "/rails_event_store_browser.js" %>
+    <script type="text/javascript">
+      RailsEventStore.Browser.Main.fullscreen({
+        rootUrl:    "<%= root_path %>",
+        eventsUrl:  "<%= events_path %>",
+        streamsUrl: "<%= streams_path %>",
+        resVersion: "<%= RailsEventStore::VERSION %>"
+      });
+    </script>
   </body>
 </html>

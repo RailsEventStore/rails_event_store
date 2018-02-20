@@ -1,24 +1,37 @@
-GEM_VERSION  = `cat ../RES_VERSION`
+GEM_VERSION = $(shell cat ../RES_VERSION)
+GEM_NAME    = aggregate_root
+REQUIRE     = $(GEM_NAME)
+IGNORE      =
+SUBJECT     ?= AggregateRoot*
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 
-test: ## Run tests
-	@echo "Running basic tests - beware: this won't guarantee build pass"
+test: ## Run unit tests
+	@echo "Running unit tests"
 	@bundle exec rspec
 
-mutate: test  ## Run mutation tests
-	@echo "Running mutation tests - only 100% free mutation will be accepted"
-	@bundle exec mutant --include lib --require aggregate_root --use rspec "AggregateRoot*"
+mutate: test ## Run mutation tests
+	@echo "Running mutation tests"
+	@bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--use rspec "$(SUBJECT)"
 
 build:
-	@gem build -V aggregate_root.gemspec
+	@echo "Building gem package"
+	@gem build -V $(GEM_NAME).gemspec
 	@mkdir -p pkg/
-	@mv aggregate_root-$(GEM_VERSION).gem pkg/
+	@mv $(GEM_NAME)-$(GEM_VERSION).gem pkg/
 
-release: build
-	@gem push pkg/aggregate_root-$(GEM_VERSION).gem
+push:
+	@echo "Pushing package to RubyGems"
+	@gem push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+
+clean:
+	@echo "Removing previously built package"
+	-rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

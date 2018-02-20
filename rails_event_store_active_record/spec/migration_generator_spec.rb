@@ -3,7 +3,7 @@ require 'pp'
 require 'fakefs/safe'
 
 module RailsEventStoreActiveRecord
-  describe MigrationGenerator do
+  RSpec.describe MigrationGenerator do
     around(:each) do |example|
       current_stdout = $stdout
       $stdout = StringIO.new

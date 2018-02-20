@@ -5,6 +5,10 @@ module RubyEventStore
     MoneyDeposited = Class.new(RubyEventStore::Event)
     MoneyWithdrawn = Class.new(RubyEventStore::Event)
 
+    around(:each) do |example|
+      Timeout.timeout(5, &example)
+    end
+
     let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
 
     specify "reduce events from one stream" do
@@ -34,25 +38,6 @@ module RubyEventStore
       expect(account_balance).to eq(total: 5)
     end
 
-    specify "limit events from many streams" do
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 15 }), stream_name: "Customer$1")
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 25 }), stream_name: "Customer$2")
-      event_store.publish_event(custom_event = MoneyWithdrawn.new(data: { amount: 10 }), stream_name: "Customer$3")
-      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 20 }), stream_name: "Customer$3")
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$3")
-
-      account_balance = Projection.
-        from_stream("Customer$1", "Customer$3").
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount]})
-
-      expect(account_balance.run(event_store)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: :head)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: [:head, custom_event.event_id], count: 1)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: [:head, custom_event.event_id], count: 2)).to eq(total: 5)
-    end
-
     specify "raises proper errors when wrong argument were pass (stream mode)" do
       projection = Projection.from_stream("Customer$1", "Customer$2")
       expect {
@@ -79,22 +64,6 @@ module RubyEventStore
         when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
       expect(account_balance.run(event_store)).to eq(total: 1)
-    end
-
-    specify "limit events from all streams" do
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
-      event_store.publish_event(custom_event = MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
-      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 5 }), stream_name: "Customer$3")
-      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$4")
-
-      account_balance = Projection.
-        from_all_streams.
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
-
-      expect(account_balance.run(event_store, start: custom_event.event_id, count: 1)).to eq(total: -5)
-      expect(account_balance.run(event_store, start: custom_event.event_id, count: 2)).to eq(total: 5)
     end
 
     specify "raises proper errors when wrong argument were pass (all streams mode)" do
@@ -135,6 +104,18 @@ module RubyEventStore
       expect(deposits).to eq(total: 10)
     end
 
+    specify "subsrcibe one handler to many events" do
+      stream_name = "Customer$123"
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
+      cashflow = Projection.
+        from_stream(stream_name).
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] }).
+        run(event_store)
+      expect(cashflow).to eq(total: 12)
+    end
+
     specify "subscribe to events" do
       stream_name = "Customer$123"
       deposits = Projection.
@@ -154,6 +135,68 @@ module RubyEventStore
     specify "at least one stream must be given" do
       expect { Projection.from_stream }.
         to raise_error(ArgumentError, "At least one stream must be given")
+    end
+
+    specify "all events from the stream must be read (starting from begining of the stream)" do
+      stream_name = "Customer$123"
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 4 }), stream_name: stream_name)
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: stream_name)
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 5 }), stream_name: stream_name)
+      balance = Projection.
+        from_stream(stream_name).
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, start: :head, count: 2)
+      expect(balance).to eq(total: 14)
+    end
+
+    specify "all events from the stream must be read (starting from given event)" do
+      stream_name = "Customer$123"
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
+      event_store.publish_event(starting = MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 4 }), stream_name: stream_name)
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: stream_name)
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 5 }), stream_name: stream_name)
+      balance = Projection.
+        from_stream(stream_name).
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, start: [starting.event_id], count: 2)
+      expect(balance).to eq(total: 6)
+    end
+
+    specify "all events from all streams must be read (starting from begining of each stream)" do
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$123")
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: "Customer$123")
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$234")
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$234")
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$345")
+      balance = Projection.
+        from_all_streams.
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, start: :head, count: 2)
+      expect(balance).to eq(total: 14)
+    end
+
+    specify "all events from all streams must be read (starting from given event)" do
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$123")
+      event_store.publish_event(starting = MoneyWithdrawn.new(data: { amount: 2 }), stream_name: "Customer$123")
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$234")
+      event_store.publish_event(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$234")
+      event_store.publish_event(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$345")
+      balance = Projection.
+        from_all_streams.
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, start: starting.event_id, count: 2)
+      expect(balance).to eq(total: 6)
     end
   end
 end

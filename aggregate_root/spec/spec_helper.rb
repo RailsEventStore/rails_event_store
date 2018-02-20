@@ -1,6 +1,6 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'aggregate_root'
 require 'ruby_event_store'
+require 'support/rspec_defaults'
 
 RSpec.configure do |spec|
   spec.before(:each) do

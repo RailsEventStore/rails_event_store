@@ -12,9 +12,11 @@ module AggregateRoot
       if aggregate.respond_to?(name, true)
         aggregate.method(name).call(event)
       else
-        raise MissingHandler.new("Missing handler method #{name} on aggregate #{aggregate.class}") if strict
+        raise MissingHandler.new("Missing handler method #{name} on aggregate #{aggregate.class}") if @strict
       end
     end
+
+    private
 
     def handler_name_by_class(event_class)
       "apply_#{event_class.name.demodulize.underscore}"

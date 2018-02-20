@@ -36,17 +36,6 @@ module RubyEventStore
       expect(client.delete_stream(stream)).to eq(:ok)
     end
 
-    specify 'PubSub::Broker is a default event broker' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect(client.send("event_broker")).to be_a(RubyEventStore::PubSub::Broker)
-    end
-
-    specify 'setup event broker dependency' do
-      broker = RubyEventStore::PubSub::Broker.new
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new, event_broker: broker)
-      expect(client.send("event_broker")).to eql(broker)
-    end
-
     specify 'publish to default stream when not specified' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
@@ -159,7 +148,7 @@ module RubyEventStore
     specify 'timestamp is utc time' do
       now = Time.parse('2015-05-04 15:17:11 +0200')
       utc = Time.parse('2015-05-04 13:17:23 UTC')
-      allow_any_instance_of(Time).to receive(:now).and_return(now)
+      allow(Time).to receive(:now).and_return(now)
       allow_any_instance_of(Time).to receive(:utc).and_return(utc)
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = TestEvent.new
@@ -174,5 +163,45 @@ module RubyEventStore
       expect { client.subscribe(nil, [])}.to raise_error(SubscriberNotExist)
       expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
     end
+
+    specify 'reading all existing stream names' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(TestEvent.new, stream_name: 'test')
+
+      expect(client.get_all_streams).to eq([Stream.new('all'), Stream.new('test')])
+    end
+
+    specify 'reading particular event' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      client.publish_event(test_event, stream_name: 'test')
+
+      expect(client.read_event(test_event.event_id)).to eq(test_event)
+    end
+
+    specify 'reading non-existent event' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect{client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')}.to raise_error(EventNotFound)
+    end
+
+    specify 'link events' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      first_event   = TestEvent.new
+      second_event  = TestEvent.new
+      client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
+      client.append_to_stream([first_event, second_event], stream_name: 'stream')
+      client.link_to_stream(
+        [first_event.event_id, second_event.event_id],
+        stream_name: 'flow',
+        expected_version: -1
+      ).link_to_stream(
+        [first_event.event_id],
+        stream_name: 'cars',
+      )
+      expect(client.read_stream_events_forward('flow')).to eq([first_event, second_event])
+      expect(client.read_stream_events_forward('cars')).to eq([first_event])
+      expect(subscriber.handled_events).to be_empty
+    end
+
   end
 end

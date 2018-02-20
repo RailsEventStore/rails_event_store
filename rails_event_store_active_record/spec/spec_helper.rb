@@ -1,8 +1,9 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rails_event_store_active_record'
+require 'support/rspec_defaults'
+require 'rails'
 
-ENV['DATABASE_URL']  ||= "postgres://localhost/rails_event_store_active_record?pool=5"
-ENV['RAILS_VERSION'] ||= '5.1.4'
+ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
+ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 
 MigrationCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
 migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
@@ -42,6 +43,7 @@ module SchemaHelper
 
   def drop_legacy_database
     ActiveRecord::Migration.drop_table("event_store_events")
+  rescue ActiveRecord::StatementInvalid
   end
 
   def drop_database

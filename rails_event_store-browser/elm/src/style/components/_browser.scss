@@ -10,12 +10,8 @@ $browser-layout: (columns: 2);
   font-size: 2.2rem;
 }
 
-.browser__search {
-  @include grid-column(1, $browser-layout);
-}
-
 .browser__pagination {
-  @include grid-column(1, $browser-layout);
+  @include grid-column(2, $browser-layout);
 }
 
 .browser__results {

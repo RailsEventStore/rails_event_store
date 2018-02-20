@@ -1,0 +1,189 @@
+{
+  "links": {
+    "first": "/streams/dummy/head/backward/20",
+    "prev": "/streams/dummy/5cc3a5e1-b8ef-43fc-a5d9-63c7e75fb4ab/forward/20"
+  },
+  "data": [
+    {
+      "id": "5cc3a5e1-b8ef-43fc-a5d9-63c7e75fb4ab",
+      "type": "events",
+      "attributes": {
+        "event_type": "ChangeMenuOfferRequirements",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "d6852f79-fc60-40f6-816e-49cddd820321",
+      "type": "events",
+      "attributes": {
+        "event_type": "RedistributeOfferFoodItems",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "5a562a0f-a682-464e-a33d-57b93199a9fe",
+      "type": "events",
+      "attributes": {
+        "event_type": "MenuOfferAcceptedForOrder",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "f1052621-78c8-421d-9cac-7bb2a1dfa076",
+      "type": "events",
+      "attributes": {
+        "event_type": "MenuOfferRevertedForOrder",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "38d51610-7dc0-43c3-8377-d1d3e8466ac4",
+      "type": "events",
+      "attributes": {
+        "event_type": "MenuOfferIsPendingForOrder",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+
+    {
+      "id": "8ed7eaa4-9c65-42f4-8370-adb652ba4c44",
+      "type": "events",
+      "attributes": {
+        "event_type": "GuaranteedDealReserved",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "61d27914-dace-4b0b-a3f6-fae2f23b2c0a",
+      "type": "events",
+      "attributes": {
+        "event_type": "GuaranteedDealReleased",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "94d4f838-ac3b-4fe1-a783-ec466d71c393",
+      "type": "events",
+      "attributes": {
+        "event_type": "GuaranteedDealReservationExpired",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "14b2f73a-c067-49d9-b15d-5e700c91235c",
+      "type": "events",
+      "attributes": {
+        "event_type": "CustomerConfirmedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "2904c4e5-956d-4a50-b5d8-61b8dfee6186",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererConfirmedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "cfff97bd-1cc1-4f81-a0d4-82f07f314013",
+      "type": "events",
+      "attributes": {
+        "event_type": "CustomerDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "8b28eefd-71dc-48f1-bab6-e323d40e4701",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "a904c4e5-956d-4a50-b5d8-61b8dfee6186",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererConfirmedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "dfff97bd-1cc1-4f81-a0d4-82f07f314013",
+      "type": "events",
+      "attributes": {
+        "event_type": "CustomerDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "bb28eefd-71dc-48f1-bab6-e323d40e4701",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "9fff97bd-1cc1-4f81-a0d4-82f07f314013",
+      "type": "events",
+      "attributes": {
+        "event_type": "CustomerDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "ab28eefd-71dc-48f1-bab6-e323d40e4701",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "9904c4e5-956d-4a50-b5d8-61b8dfee6186",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererConfirmedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "ffff97bd-1cc1-4f81-a0d4-82f07f314013",
+      "type": "events",
+      "attributes": {
+        "event_type": "CustomerDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    },
+    {
+      "id": "0b28eefd-71dc-48f1-bab6-e323d40e4701",
+      "type": "events",
+      "attributes": {
+        "event_type": "CatererDeclinedMenuOffer",
+        "data": {},
+        "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      }
+    }
+  ]
+}

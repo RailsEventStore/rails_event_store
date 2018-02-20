@@ -49,9 +49,6 @@ Consider [hiring us](https://arkency.com/hire-us) and make sure to check out [ou
 Check our [Rails + Domain Driven Design Workshop](https://blog.arkency.com/domain-driven-rails-workshop-london/).
 Why You should attend? Robert has explained this in a [blogpost](https://blog.arkency.com/2016/12/why-would-you-even-want-to-listen-about-ddd/).
 
-
-Next edition will be held on **16-17th November 2017** in **London, UK**. Workshop will be held in English.
-
 ### Read about Domain Driven Rails
 
 You may also consider buying the [Domain-Driven Rails book](https://blog.arkency.com/domain-driven-rails/).

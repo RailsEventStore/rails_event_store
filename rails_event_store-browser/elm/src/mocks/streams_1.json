@@ -1,0 +1,28 @@
+{
+  "links": {
+    "first": "/streams/head/backward/20",
+    "prev": "/streams/Caterer_96/forward/20"
+  },
+  "data": [
+    { "id": "Caterer_96", "type": "streams" },
+    { "id": "Caterer$238", "type": "streams" },
+    { "id": "Caterer$242", "type": "streams" },
+    { "id": "Order$429", "type": "streams" },
+    { "id": "Order$430", "type": "streams" },
+    { "id": "Order$435", "type": "streams" },
+    { "id": "Order$432", "type": "streams" },
+    { "id": "Order$433", "type": "streams" },
+    { "id": "Caterer$232", "type": "streams" },
+    { "id": "Order$438", "type": "streams" },
+    { "id": "Caterer$240", "type": "streams" },
+    { "id": "Caterer$153", "type": "streams" },
+    { "id": "Caterer$34", "type": "streams" },
+    { "id": "Order$439", "type": "streams" },
+    { "id": "Order$444", "type": "streams" },
+    { "id": "Order$440", "type": "streams" },
+    { "id": "Order$443", "type": "streams" },
+    { "id": "Order$442", "type": "streams" },
+    { "id": "Order$578", "type": "streams" },
+    { "id": "Caterer$185", "type": "streams" }
+  ]
+}
