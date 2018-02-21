@@ -29,7 +29,7 @@ class Order
   attr_accessor :status
   private
 
-  on OrderCreated do |_event|
+  def apply_order_created(_event)
     @status = :created
   end
 
@@ -74,29 +74,5 @@ class OrderWithCustomStrategy
 
   def custom_expired(event)
     @status = :expired
-  end
-end
-
-class OrderWithOns
-  include AggregateRoot
-  include Orders::Events
-
-  on OrderCreated do |_ev|
-    @status = :created
-  end
-
-  on OrderExpired do |_ev|
-    @status = :expired
-  end
-
-  attr_accessor :status
-end
-
-class InheritedOrderWithOns < OrderWithOns
-  include AggregateRoot
-  include Orders::Events
-
-  on OrderCreated do |_ev|
-    @status = :created_inherited
   end
 end
