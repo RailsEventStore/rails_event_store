@@ -122,6 +122,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])
   end
 
+
   private
   class HandlerClass
     @@received = nil
