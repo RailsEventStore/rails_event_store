@@ -1,6 +1,3 @@
-require 'concurrent'
-require 'immutable'
-
 module RubyEventStore
   class Client
     def initialize(repository:,
@@ -9,7 +6,7 @@ module RubyEventStore
                    metadata_proc: nil,
                    clock: ->{ Time.now.utc })
       @repository     = repository
-      @event_broker   = Concurrent::ThreadLocalVar.new(Immutable::Deque[event_broker])
+      @event_broker   = event_broker
       @page_size      = page_size
       @metadata_proc  = metadata_proc
       @clock          = clock
@@ -18,7 +15,7 @@ module RubyEventStore
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
       events.each do |ev|
-        event_broker.notify_subscribers(ev)
+        @event_broker.notify_subscribers(ev)
       end
       :ok
     end
@@ -86,13 +83,13 @@ module RubyEventStore
     end
 
     def subscribe(subscriber, event_types, &proc)
-      event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
+      @event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
         handle_subscribe(unsub, &proc)
       end
     end
 
     def subscribe_to_all_events(subscriber, &proc)
-      event_broker.add_global_subscriber(subscriber).tap do |unsub|
+      @event_broker.add_global_subscriber(subscriber).tap do |unsub|
         handle_subscribe(unsub, &proc)
       end
     end
@@ -101,25 +98,38 @@ module RubyEventStore
       def initialize(block, event_broker)
         @block = block
         @event_broker = event_broker
-        @global_subscriber = []
-        @subscribers = []
+        @global_subscribers = []
+        @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
       end
 
       def subscribe_to_all_events(*handlers, &handler2)
         handlers << handler2 if handler2
-        @global_subscriber += handlers
+        @global_subscribers += handlers
+        self
+      end
+
+      def subscribe(handler=nil, to:, &handler2)
+        raise ArgumentError if handler && handler2
+        @subscribers[handler || handler2] += normalize_to_array(to)
         self
       end
 
       def call
-        old = @event_broker.value
-        @event_broker.value = old.push(new = old.last.dup)
-        @global_subscriber.each do |s|
-          new.add_global_subscriber(s)
+        unsubs = @global_subscribers.map do |s|
+          @event_broker.add_thread_global_subscriber(s)
+        end
+        unsubs += @subscribers.map do |handler, types|
+          @event_broker.add_thread_subscriber(handler, types)
         end
         @block.call
       ensure
-        @event_broker.value = old
+        unsubs.each(&:call)
+      end
+
+      private
+
+      def normalize_to_array(objs)
+        return *objs
       end
     end
 
@@ -129,10 +139,6 @@ module RubyEventStore
     end
 
     private
-
-    def event_broker
-      @event_broker.value.last
-    end
 
     def normalize_to_array(events)
       return *events

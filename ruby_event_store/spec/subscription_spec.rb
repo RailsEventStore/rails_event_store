@@ -295,44 +295,77 @@ module RubyEventStore
 
         result = client.within do
           client.publish_event(event_1)
+          :yo
         end.subscribe_to_all_events(Subscribers::ValidHandler).call
 
         client.publish_event(event_2)
 
         expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
         expect(client.read_all_streams_forward).to eq([event_1, event_2])
+        expect(result).to eq(:yo)
       end
 
-      # specify 'dynamic subscription' do
-      #   event_1 = OrderCreated.new
-      #   event_2 = ProductAdded.new
-      #   event_3 = ProductAdded.new
-      #   types = [OrderCreated, ProductAdded]
-      #   result = client.subscribe(h = Subscribers::ValidHandler.new, types) do
-      #     client.publish_event(event_1)
-      #     client.publish_event(event_2)
-      #   end
-      #   client.publish_event(event_3)
-      #   expect(h.handled_events).to eq([event_1, event_2])
-      #   expect(result).to respond_to(:call)
-      #   expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
-      # end
-      #
-      # specify 'dynamic subscription with exception' do
-      #   event_1 = OrderCreated.new
-      #   event_2 = OrderCreated.new
-      #   exception = Class.new(StandardError)
-      #   begin
-      #     client.subscribe(h = Subscribers::ValidHandler.new, [OrderCreated]) do
-      #       client.publish_event(event_1)
-      #       raise exception
-      #     end
-      #   rescue exception
-      #   end
-      #   client.publish_event(event_2)
-      #   expect(h.handled_events).to eq([event_1])
-      #   expect(client.read_all_streams_forward).to eq([event_1, event_2])
-      # end
+      specify 'dynamic subscription' do
+        event_1 = OrderCreated.new
+        event_2 = ProductAdded.new
+        event_3 = ProductAdded.new
+        types = [OrderCreated, ProductAdded]
+        result = client.within do
+          client.publish_event(event_1)
+          client.publish_event(event_2)
+          :result
+        end.subscribe(h = Subscribers::ValidHandler.new, to: types).call
+
+        client.publish_event(event_3)
+        expect(h.handled_events).to eq([event_1, event_2])
+        expect(result).to eq(:result)
+        expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
+      end
+
+      specify 'dynamic subscription with exception' do
+        event_1 = OrderCreated.new
+        event_2 = OrderCreated.new
+        exception = Class.new(StandardError)
+        begin
+          client.within do
+            client.publish_event(event_1)
+            raise exception
+          end.subscribe(h = Subscribers::ValidHandler.new, to: OrderCreated).call
+        rescue exception
+        end
+        client.publish_event(event_2)
+        expect(h.handled_events).to eq([event_1])
+        expect(client.read_all_streams_forward).to eq([event_1, event_2])
+      end
+
+      specify 'chained subscriptions' do
+        event_1 = OrderCreated.new
+        event_2 = ProductAdded.new
+        event_3 = ProductAdded.new
+        h1,h2,h3,h4 = 4.times.map{Subscribers::ValidHandler.new}
+        result = client.within do
+          client.publish_event(event_1)
+          client.publish_event(event_2)
+          :result
+        end.
+        subscribe(h1, to: OrderCreated).
+        subscribe_to_all_events(h2).
+        subscribe(to: [ProductAdded]) do |ev|
+          h3.call(ev)
+        end.
+        subscribe_to_all_events do |ev|
+          h4.call(ev)
+        end.
+        call
+
+        client.publish_event(event_3)
+        expect(h1.handled_events).to eq([event_1])
+        expect(h3.handled_events).to eq([event_2])
+        expect(h2.handled_events).to eq([event_1, event_2])
+        expect(h4.handled_events).to eq([event_1, event_2])
+        expect(result).to eq(:result)
+        expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
+      end
 
     end
   end
