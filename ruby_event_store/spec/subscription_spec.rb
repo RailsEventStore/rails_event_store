@@ -391,7 +391,7 @@ module RubyEventStore
 
         expect(h4.handled_events.count).to eq(big_number)
         expect(h4.handled_events.map(&:class).uniq).to eq([ProductAdded])
-      end
+      end unless ENV['MUTATING'] == 'true'
 
     end
   end

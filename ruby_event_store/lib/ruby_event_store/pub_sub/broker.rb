@@ -17,14 +17,6 @@ module RubyEventStore
         @dispatcher = dispatcher
       end
 
-      def dup
-        self.class.new(dispatcher: @dispatcher).tap do |broker|
-          hash = @subscribers.dup
-          broker.instance_variable_set(:@subscribers, hash.update(hash){|k,v| v.dup })
-          broker.instance_variable_set(:@global_subscribers, @global_subscribers.dup)
-        end
-      end
-
       def add_subscriber(subscriber, event_types)
         verify_subscriber(subscriber)
         subscribe(subscriber, event_types)

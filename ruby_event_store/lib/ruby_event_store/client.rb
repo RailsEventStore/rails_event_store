@@ -99,7 +99,7 @@ module RubyEventStore
         @block = block
         @event_broker = event_broker
         @global_subscribers = []
-        @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
+        @subscribers = Hash.new {[]}
       end
 
       def subscribe_to_all_events(*handlers, &handler2)
