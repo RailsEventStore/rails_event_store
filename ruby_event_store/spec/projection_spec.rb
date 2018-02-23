@@ -9,7 +9,7 @@ module RubyEventStore
       Timeout.timeout(5, &example)
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new(repository: Repositories::InMemory.new) }
 
     specify "reduce events from one stream" do
       stream_name = "Customer$123"

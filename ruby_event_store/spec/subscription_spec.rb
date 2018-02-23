@@ -1,45 +1,11 @@
 require 'spec_helper'
-
-module Subscribers
-  class InvalidHandler
-  end
-
-  class ValidHandler
-    def initialize
-      @handled_events = []
-    end
-    attr_reader :handled_events
-
-    def call(event)
-      @handled_events << event
-    end
-  end
-end
-
-class CustomDispatcher
-  attr_reader :dispatched_events
-
-  def initialize
-    @dispatched_events = []
-  end
-
-  def call(subscriber, event)
-    subscriber = subscriber.new if Class === subscriber
-    @dispatched_events << {to: subscriber.class, event: event}
-  end
-
-  def verify(subscriber)
-    subscriber = subscriber.new if Class === subscriber
-    subscriber.respond_to?(:call) or raise InvalidHandler.new(subscriber)
-  rescue ArgumentError
-    raise InvalidHandler.new(subscriber)
-  end
-end
+require 'support/mocked_subscribers'
+require 'support/mocked_dispatcher'
 
 module RubyEventStore
   RSpec.describe Client do
 
-    let(:repository) { InMemoryRepository.new }
+    let(:repository) { Repositories::InMemory.new }
     let(:client)     { RubyEventStore::Client.new(repository: repository) }
 
     specify 'throws exception if subscriber is not defined' do

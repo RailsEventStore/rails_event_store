@@ -6,7 +6,7 @@ module RubyEventStore
     let(:stream_name) { 'stream_name' }
 
     specify 'create successfully event' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
       client.append_to_stream(event, stream_name: stream_name)
       saved_events = client.read_stream_events_forward(stream_name)
@@ -14,7 +14,7 @@ module RubyEventStore
     end
 
     specify 'generate guid and create successfully event' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       event = OrderCreated.new
       client.append_to_stream(event, stream_name: stream_name)
       saved_events = client.read_stream_events_forward(stream_name)
@@ -22,14 +22,14 @@ module RubyEventStore
     end
 
     specify 'raise exception if expected version incorrect' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       event = OrderCreated.new
       client.append_to_stream(event, stream_name: stream_name)
       expect { client.publish_event(event, stream_name: stream_name, expected_version: 100) }.to raise_error(WrongExpectedEventVersion)
     end
 
     specify 'create event with optimistic locking' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
       client.append_to_stream(event, stream_name: stream_name)
 
@@ -38,7 +38,7 @@ module RubyEventStore
     end
 
     specify 'expect no event handler is called' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       handler = double(:event_handler)
       expect(handler).not_to receive(:call)
       event = OrderCreated.new
@@ -49,7 +49,7 @@ module RubyEventStore
     end
 
     specify 'expect publish to call event handlers' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       handler = double(:event_handler)
       expect(handler).to receive(:call)
       event = OrderCreated.new
@@ -60,7 +60,7 @@ module RubyEventStore
     end
 
     specify 'create global event without stream name' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(repository: Repositories::InMemory.new)
       event = OrderCreated.new
       client.publish_event(event)
       saved_events = client.read_stream_events_forward('all')

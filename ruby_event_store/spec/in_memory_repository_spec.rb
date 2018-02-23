@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'ruby_event_store/spec/event_repository_lint'
 
 module RubyEventStore
-  RSpec.describe InMemoryRepository do
+  RSpec.describe Repositories::InMemory do
     # There is no way to use in-memory adapter in a
     # lock-free, unlimited concurrency way
     let(:test_race_conditions_any)   { false }
@@ -10,10 +10,10 @@ module RubyEventStore
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
 
-    it_behaves_like :event_repository, InMemoryRepository
+    it_behaves_like :event_repository, Repositories::InMemory
 
     it 'does not allow same event twice in a stream - checks stream events before checking all events' do
-      repository = InMemoryRepository.new
+      repository = Repositories::InMemory.new
       repository.append_to_stream(
         TestDomainEvent.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
         'other',
