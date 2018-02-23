@@ -367,6 +367,32 @@ module RubyEventStore
         expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
       end
 
+      specify "temporary subscriptions don't affect other threads" do
+        h1,h2,h3,h4 = 4.times.map{Subscribers::ValidHandler.new}
+        big_number = 2_000
+        thread = Thread.new do
+          client.within do
+            big_number.times{ client.publish_event(ProductAdded.new) }
+          end.subscribe_to_all_events(h3).subscribe(h4, to: ProductAdded).call
+        end
+        client.within do
+          big_number.times{ client.publish_event(OrderCreated.new) }
+        end.subscribe_to_all_events(h1).subscribe(h2, to: OrderCreated).call
+        thread.join
+
+        expect(h1.handled_events.count).to eq(big_number)
+        expect(h1.handled_events.map(&:class).uniq).to eq([OrderCreated])
+
+        expect(h2.handled_events.count).to eq(big_number)
+        expect(h2.handled_events.map(&:class).uniq).to eq([OrderCreated])
+
+        expect(h3.handled_events.count).to eq(big_number)
+        expect(h3.handled_events.map(&:class).uniq).to eq([ProductAdded])
+
+        expect(h4.handled_events.count).to eq(big_number)
+        expect(h4.handled_events.map(&:class).uniq).to eq([ProductAdded])
+      end
+
     end
   end
 end
