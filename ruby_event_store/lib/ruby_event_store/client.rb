@@ -82,9 +82,31 @@ module RubyEventStore
       @repository.get_all_streams
     end
 
-    def subscribe(subscriber, event_types, &proc)
-      @event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
-        handle_subscribe(unsub, &proc)
+
+    DEPRECATED_WITHIN = "subscribe(subscriber, event_types, &task) has been deprecated. Use within(&task).subscribe(subscriber, to: event_types).call instead"
+    DEPRECATED_TO = "subscribe(subscriber, event_types) has been deprecated. Use subscribe(subscriber, to: event_types) instead"
+    # OLD:
+    #  subscribe(subscriber, event_types, &within)
+    #  subscribe(subscriber, event_types)
+    # NEW:
+    #  subscribe(subscriber, to:)
+    #  subscribe(to:, &subscriber)
+    def subscribe(subscriber = nil, event_types = nil, to: nil, &proc)
+      if to
+        raise ArgumentError if subscriber && proc
+        raise SubscriberNotExist unless subscriber || proc
+        raise ArgumentError if event_types
+        subscriber ||= proc
+        @event_broker.add_global_subscriber(subscriber)
+      else
+        if proc
+          warn(DEPRECATED_WITHIN)
+          within(&proc).subscribe(subscriber, to: event_types).call
+          -> {}
+        else
+          warn(DEPRECATED_TO)
+          subscribe(subscriber, to: event_types)
+        end
       end
     end
 
