@@ -236,10 +236,11 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
       result = client.within do
         client.publish_event(event_1)
+        :elo
       end.subscribe_to_all_events(Subscribers::ValidHandler).call
       client.publish_event(event_2)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
-      expect(result).to respond_to(:call)
+      expect(result).to eq(:elo)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
 
