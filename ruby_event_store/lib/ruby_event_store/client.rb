@@ -97,7 +97,7 @@ module RubyEventStore
         raise SubscriberNotExist unless subscriber || proc
         raise ArgumentError if event_types
         subscriber ||= proc
-        @event_broker.add_global_subscriber(subscriber)
+        @event_broker.add_subscriber(subscriber, event_types)
       else
         if proc
           warn(DEPRECATED_WITHIN)
