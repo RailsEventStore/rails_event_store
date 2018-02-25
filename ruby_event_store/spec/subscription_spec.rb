@@ -39,6 +39,16 @@ end
 module RubyEventStore
   RSpec.describe Client do
 
+    def silence_stderr
+      $stderr = StringIO.new
+      yield
+      $stderr = STDERR
+    end
+
+    around(:each) do |example|
+      silence_stderr { example.run }
+    end
+
     let(:repository) { InMemoryRepository.new }
     let(:client)     { RubyEventStore::Client.new(repository: repository) }
 
@@ -86,6 +96,21 @@ module RubyEventStore
       expect(handled_events).to eq [event]
     end
 
+
+    specify 'notifies subscribers listening on all events - with proc (v2 API)' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      subscriber = Subscribers::ValidHandler.new
+      unsub = client.subscribe_to_all_events do |ev|
+        subscriber.call(ev)
+      end
+      client.publish_event(event_1)
+      unsub.()
+      client.publish_event(event_2)
+      expect(subscriber.handled_events).to eq [event_1]
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
+    end
+
     specify 'notifies subscribers listening on list of events - with lambda' do
       handled_events = []
       subscriber = ->(event) {
@@ -110,29 +135,26 @@ module RubyEventStore
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
     end
 
-    specify 'lambda is an output of global subscribe methods' do
-      subscriber = Subscribers::ValidHandler.new
-      result = client.subscribe_to_all_events(subscriber)
-      expect(result).to respond_to(:call)
-    end
-
     specify 'lambda is an output of subscribe methods' do
       subscriber = Subscribers::ValidHandler.new
       result = client.subscribe(subscriber, [OrderCreated,ProductAdded])
       expect(result).to respond_to(:call)
     end
 
-    specify 'dynamic global subscription' do
+    specify 'dynamic global subscription (deprecated)' do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
-      result = client.subscribe_to_all_events(subscriber) do
-        client.publish_event(event_1)
-      end
+      result = nil
+      expect do
+        result = client.subscribe_to_all_events(subscriber) do
+          client.publish_event(event_1)
+        end
+      end.to output("#{Client::DEPRECATED_ALL_WITHIN}\n").to_stderr
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
-      expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
+      result.call()
     end
 
     specify 'dynamic subscription' do
@@ -212,9 +234,9 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.subscribe_to_all_events(Subscribers::ValidHandler) do
+      result = client.within do
         client.publish_event(event_1)
-      end
+      end.subscribe_to_all_events(Subscribers::ValidHandler).call
       client.publish_event(event_2)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
       expect(result).to respond_to(:call)
