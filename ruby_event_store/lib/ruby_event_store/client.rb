@@ -189,14 +189,6 @@ module RubyEventStore
       # event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
     end
 
-    def handle_subscribe(unsub, &proc)
-      begin
-        proc.call
-      ensure
-        unsub.()
-      end if proc
-    end
-
     class Page
       def initialize(repository, start, count)
         if start.instance_of?(Symbol)
