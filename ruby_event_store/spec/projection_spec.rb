@@ -122,7 +122,7 @@ module RubyEventStore
         from_stream(stream_name).
         init( -> { { total: 0 } }).
         when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
-      event_store.subscribe(deposits, deposits.handled_events)
+      event_store.subscribe(deposits, to: deposits.handled_events)
       event_store.publish_event(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
       event_store.publish_event(MoneyDeposited.new(data: { amount: 5 }), stream_name: stream_name)
       expect(deposits.current_state).to eq(total: 15)

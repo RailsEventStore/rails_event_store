@@ -160,7 +160,7 @@ module RubyEventStore
 
     specify 'throws exception if subscriber is not defined' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.subscribe(nil, [])}.to raise_error(SubscriberNotExist)
+      expect { client.subscribe(nil, to: [])}.to raise_error(SubscriberNotExist)
       expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
     end
 

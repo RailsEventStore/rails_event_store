@@ -42,6 +42,7 @@ module RubyEventStore
     def silence_stderr
       $stderr = StringIO.new
       yield
+    ensure
       $stderr = STDERR
     end
 
@@ -59,7 +60,7 @@ module RubyEventStore
 
     specify 'throws exception if subscriber has not call method - handling subscribed events' do
       subscriber = Subscribers::InvalidHandler.new
-      expect { client.subscribe(subscriber, [OrderCreated]) }.to raise_error(InvalidHandler)
+      expect { client.subscribe(subscriber, to: [OrderCreated]) }.to raise_error(InvalidHandler)
     end
 
     specify 'throws exception if subscriber has not call method - handling all events' do
@@ -75,9 +76,21 @@ module RubyEventStore
       expect(subscriber.handled_events).to eq [event]
     end
 
+    specify 'notifies subscribers listening on list of events (deprecated)' do
+      subscriber = Subscribers::ValidHandler.new
+      expect do
+        client.subscribe(subscriber, [OrderCreated, ProductAdded])
+      end.to output("#{Client::DEPRECATED_TO}\n").to_stderr
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      client.publish_event(event_1)
+      client.publish_event(event_2)
+      expect(subscriber.handled_events).to eq [event_1, event_2]
+    end
+
     specify 'notifies subscribers listening on list of events' do
       subscriber = Subscribers::ValidHandler.new
-      client.subscribe(subscriber, [OrderCreated, ProductAdded])
+      client.subscribe(subscriber, to: [OrderCreated, ProductAdded])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       client.publish_event(event_1)
@@ -95,7 +108,6 @@ module RubyEventStore
       client.publish_event(event)
       expect(handled_events).to eq [event]
     end
-
 
     specify 'notifies subscribers listening on all events - with proc (v2 API)' do
       event_1 = OrderCreated.new
@@ -116,7 +128,19 @@ module RubyEventStore
       subscriber = ->(event) {
         handled_events << event
       }
-      client.subscribe(subscriber, [OrderCreated, ProductAdded])
+      client.subscribe(subscriber, to: [OrderCreated, ProductAdded])
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      client.publish_event(event_1)
+      client.publish_event(event_2)
+      expect(handled_events).to eq [event_1, event_2]
+    end
+
+    specify 'notifies subscribers listening on list of events - with proc (v2)' do
+      handled_events = []
+      client.subscribe(to: [OrderCreated, ProductAdded]) do |event|
+        handled_events << event
+      end
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       client.publish_event(event_1)
@@ -129,7 +153,7 @@ module RubyEventStore
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
       subscriber = Subscribers::ValidHandler.new
-      client.subscribe(subscriber, [OrderCreated])
+      client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
@@ -157,23 +181,40 @@ module RubyEventStore
       result.call()
     end
 
-    specify 'dynamic subscription' do
+    specify 'dynamic subscription (deprecated)' do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
-      result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
-        client.publish_event(event_1)
-      end
+      result = nil
+      expect do
+        result = client.subscribe(subscriber, [OrderCreated, ProductAdded]) do
+          client.publish_event(event_1)
+        end
+      end.to output("#{Client::DEPRECATED_WITHIN}\n").to_stderr
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
 
+    specify 'dynamic subscription' do
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      subscriber = Subscribers::ValidHandler.new
+      client.within do
+        client.publish_event(event_1)
+      end.subscribe(subscriber, to: [OrderCreated, ProductAdded]).call
+      client.publish_event(event_2)
+      expect(subscriber.handled_events).to eq [event_1]
+      expect(client.read_all_streams_forward).to eq([event_1, event_2])
+    end
+
     specify 'subscribers receive event with enriched metadata' do
       client = RubyEventStore::Client.new(repository: repository, clock: ->{ Time.at(0) })
       received_event = nil
-      client.subscribe(->(event) { received_event = event }, [OrderCreated])
+      client.subscribe(to: [OrderCreated]) do |event|
+        received_event = event
+      end
       client.publish_event(OrderCreated.new)
 
       expect(received_event).to_not be_nil
@@ -182,7 +223,7 @@ module RubyEventStore
 
     specify 'throws exception if subscriber klass does not have call method - handling subscribed events' do
       expect do
-        client.subscribe(Subscribers::InvalidHandler, [OrderCreated])
+        client.subscribe(Subscribers::InvalidHandler, to: [OrderCreated])
       end.to raise_error(InvalidHandler)
     end
 
@@ -196,7 +237,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      client.subscribe(Subscribers::ValidHandler, [OrderCreated])
+      client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
@@ -224,7 +265,7 @@ module RubyEventStore
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
-      result = client.subscribe(Subscribers::ValidHandler, [OrderCreated])
+      result = client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       expect(result).to respond_to(:call)
     end
 
@@ -244,32 +285,38 @@ module RubyEventStore
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
 
-    specify 'dynamic subscription' do
+    specify 'dynamic subscription (deprecated)' do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       event_3 = ProductAdded.new
       types = [OrderCreated, ProductAdded]
-      result = client.subscribe(h = Subscribers::ValidHandler.new, types) do
-        client.publish_event(event_1)
-        client.publish_event(event_2)
-      end
+      result = h = nil
+      expect do
+        result = client.subscribe(h = Subscribers::ValidHandler.new, types) do
+          client.publish_event(event_1)
+          client.publish_event(event_2)
+        end
+      end.to output("#{Client::DEPRECATED_WITHIN}\n").to_stderr
       client.publish_event(event_3)
       expect(h.handled_events).to eq([event_1, event_2])
       expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
     end
 
-    specify 'dynamic subscription with exception' do
+    specify 'dynamic subscription with exception (deprecated)' do
       event_1 = OrderCreated.new
       event_2 = OrderCreated.new
       exception = Class.new(StandardError)
-      begin
-        client.subscribe(h = Subscribers::ValidHandler.new, [OrderCreated]) do
-          client.publish_event(event_1)
-          raise exception
+      h = nil
+      expect do
+        begin
+          client.subscribe(h = Subscribers::ValidHandler.new, [OrderCreated]) do
+            client.publish_event(event_1)
+            raise exception
+          end
+        rescue exception
         end
-      rescue exception
-      end
+      end.to output("#{Client::DEPRECATED_WITHIN}\n").to_stderr
       client.publish_event(event_2)
       expect(h.handled_events).to eq([event_1])
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
@@ -280,7 +327,7 @@ module RubyEventStore
       subscriber = ->(event) {
         handled_events << event
       }
-      client.subscribe(subscriber, [ProductAdded, OrderCreated])
+      client.subscribe(subscriber, to: [ProductAdded, OrderCreated])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       client.publish_events([event_1, event_2])
@@ -293,12 +340,12 @@ module RubyEventStore
         handled_events << event
         handled_events << :subscriber1
       }
-      client.subscribe(subscriber1, [ProductAdded, OrderCreated])
+      client.subscribe(subscriber1, to: [ProductAdded, OrderCreated])
       subscriber2 = ->(event) {
         handled_events << event
         handled_events << :subscriber2
       }
-      client.subscribe(subscriber2, [ProductAdded, OrderCreated])
+      client.subscribe(subscriber2, to: [ProductAdded, OrderCreated])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       client.publish_events([event_1, event_2])
