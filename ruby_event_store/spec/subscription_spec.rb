@@ -193,8 +193,8 @@ module RubyEventStore
       end.to output("#{Client::DEPRECATED_WITHIN}\n").to_stderr
       client.publish_event(event_2)
       expect(subscriber.handled_events).to eq [event_1]
-      expect(result).to respond_to(:call)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
+      result.()
     end
 
     specify 'dynamic subscription' do
@@ -353,6 +353,20 @@ module RubyEventStore
         event_1, :subscriber1, event_1, :subscriber2,
         event_2, :subscriber1, event_2, :subscriber2,
       ]
+    end
+
+    specify "subscribe unallowed calls" do
+      expect do
+        client.subscribe(subscriber = ->(){}, to: [], ){}
+      end.to raise_error(ArgumentError, "subscriber must be first argument or block, cannot be both")
+
+      expect do
+        client.subscribe(to: [])
+      end.to raise_error(RubyEventStore::SubscriberNotExist, "subscriber must be first argument or block")
+
+      expect do
+        client.subscribe(-> (){}, [], to: [])
+      end.to raise_error(ArgumentError, "list of event types must be second argument or named argument to: , it cannot be both")
     end
 
     context "dynamic subscribe v2" do

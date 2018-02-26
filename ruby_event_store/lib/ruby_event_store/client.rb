@@ -93,9 +93,9 @@ module RubyEventStore
     #  subscribe(to:, &subscriber)
     def subscribe(subscriber = nil, event_types = nil, to: nil, &proc)
       if to
-        raise ArgumentError if subscriber && proc
-        raise SubscriberNotExist unless subscriber || proc
-        raise ArgumentError if event_types
+        raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
+        raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
+        raise ArgumentError, "list of event types must be second argument or named argument to: , it cannot be both" if event_types
         subscriber ||= proc
         @event_broker.add_subscriber(subscriber, to)
       else
