@@ -406,6 +406,30 @@ module RubyEventStore
         expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
       end
 
+      specify 'nested dynamic subscription' do
+        e1 = e2 = e3 = e4 = e5 = e6 = e7 = e8 = nil
+        h1 = h2 = nil
+        result = client.within do
+          client.publish_event(e1 = ProductAdded.new)
+          client.publish_event(e2 = OrderCreated.new)
+          client.within do
+            client.publish_event(e3 = ProductAdded.new)
+            client.publish_event(e4 = OrderCreated.new)
+            :result1
+          end.subscribe(h2 = Subscribers::ValidHandler.new, to: [OrderCreated]).call
+          client.publish_event(e5 = ProductAdded.new)
+          client.publish_event(e6 = OrderCreated.new)
+          :result2
+        end.subscribe(h1 = Subscribers::ValidHandler.new, to: [ProductAdded]).call
+        client.publish_event(e7 = ProductAdded.new)
+        client.publish_event(e8 = OrderCreated.new)
+
+        expect(h1.handled_events).to eq([e1,e3,e5])
+        expect(h2.handled_events).to eq([e4])
+        expect(result).to eq(:result2)
+        expect(client.read_all_streams_forward).to eq([e1,e2,e3,e4,e5,e6,e7,e8])
+      end
+
       specify 'dynamic subscription with exception' do
         event_1 = OrderCreated.new
         event_2 = OrderCreated.new
