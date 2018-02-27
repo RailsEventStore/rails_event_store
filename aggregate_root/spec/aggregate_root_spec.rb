@@ -207,8 +207,6 @@ RSpec.describe AggregateRoot do
       end
 
       inherited_order_with_ons = Class.new(order_with_ons) do
-        include AggregateRoot
-
         on Orders::Events::OrderCreated do |_ev|
           @status = :created_inherited
         end
@@ -228,6 +226,43 @@ RSpec.describe AggregateRoot do
       expect(order.status).to eq(:created_inherited)
       order.apply(Orders::Events::OrderExpired.new)
       expect(order.status).to eq(:expired)
+    end
+
+    it "handles super() with inheritance" do
+      order_with_ons = Class.new do
+        include AggregateRoot
+
+        on Orders::Events::OrderCreated do |_ev|
+          @status ||= []
+          @status << :base_created
+        end
+
+        on Orders::Events::OrderExpired do |_ev|
+          @status ||= []
+          @status << :base_expired
+        end
+
+        attr_accessor :status
+      end
+
+      inherited_order_with_ons = Class.new(order_with_ons) do
+        on Orders::Events::OrderCreated do |ev|
+          super(ev)
+          @status << :inherited_created
+        end
+
+        on Orders::Events::OrderExpired do |ev|
+          @status.clear
+          super(ev)
+          @status << :inherited_expired
+        end
+      end
+
+      order = inherited_order_with_ons.new
+      order.apply(Orders::Events::OrderCreated.new)
+      expect(order.status).to eq([:base_created, :inherited_created])
+      order.apply(Orders::Events::OrderExpired.new)
+      expect(order.status).to eq([:base_expired, :inherited_expired])
     end
 
     it "does not support anonymous events" do
