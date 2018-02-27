@@ -82,16 +82,97 @@ module RubyEventStore
       @repository.get_all_streams
     end
 
-    def subscribe(subscriber, event_types, &proc)
-      @event_broker.add_subscriber(subscriber, event_types).tap do |unsub|
-        handle_subscribe(unsub, &proc)
+
+    DEPRECATED_WITHIN = "subscribe(subscriber, event_types, &task) has been deprecated. Use within(&task).subscribe(subscriber, to: event_types).call instead"
+    DEPRECATED_TO = "subscribe(subscriber, event_types) has been deprecated. Use subscribe(subscriber, to: event_types) instead"
+    # OLD:
+    #  subscribe(subscriber, event_types, &within)
+    #  subscribe(subscriber, event_types)
+    # NEW:
+    #  subscribe(subscriber, to:)
+    #  subscribe(to:, &subscriber)
+    def subscribe(subscriber = nil, event_types = nil, to: nil, &proc)
+      if to
+        raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
+        raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
+        raise ArgumentError, "list of event types must be second argument or named argument to: , it cannot be both" if event_types
+        subscriber ||= proc
+        @event_broker.add_subscriber(subscriber, to)
+      else
+        if proc
+          warn(DEPRECATED_WITHIN)
+          within(&proc).subscribe(subscriber, to: event_types).call
+          -> {}
+        else
+          warn(DEPRECATED_TO)
+          subscribe(subscriber, to: event_types)
+        end
       end
     end
 
-    def subscribe_to_all_events(subscriber, &proc)
-      @event_broker.add_global_subscriber(subscriber).tap do |unsub|
-        handle_subscribe(unsub, &proc)
+    DEPRECATED_ALL_WITHIN = "subscribe_to_all_events(subscriber, &task) has been deprecated. Use within(&task).subscribe_to_all_events(subscriber).call instead."
+    # OLD:
+    #  subscribe_to_all_events(subscriber, &within)
+    #  subscribe_to_all_events(subscriber)
+    # NEW:
+    #  subscribe_to_all_events(subscriber)
+    #  subscribe_to_all_events(&subscriber)
+    def subscribe_to_all_events(subscriber = nil, &proc)
+      if subscriber
+        if proc
+          warn(DEPRECATED_ALL_WITHIN)
+          within(&proc).subscribe_to_all_events(subscriber).call
+          -> {}
+        else
+          @event_broker.add_global_subscriber(subscriber)
+        end
+      else
+        @event_broker.add_global_subscriber(proc)
       end
+    end
+
+    class Within
+      def initialize(block, event_broker)
+        @block = block
+        @event_broker = event_broker
+        @global_subscribers = []
+        @subscribers = Hash.new {[]}
+      end
+
+      def subscribe_to_all_events(*handlers, &handler2)
+        handlers << handler2 if handler2
+        @global_subscribers += handlers
+        self
+      end
+
+      def subscribe(handler=nil, to:, &handler2)
+        raise ArgumentError if handler && handler2
+        @subscribers[handler || handler2] += normalize_to_array(to)
+        self
+      end
+
+      def call
+        unsubs = @global_subscribers.map do |s|
+          @event_broker.add_thread_global_subscriber(s)
+        end
+        unsubs += @subscribers.map do |handler, types|
+          @event_broker.add_thread_subscriber(handler, types)
+        end
+        @block.call
+      ensure
+        unsubs.each(&:call)
+      end
+
+      private
+
+      def normalize_to_array(objs)
+        return *objs
+      end
+    end
+
+    def within(&block)
+      raise ArgumentError if block.nil?
+      Within.new(block, @event_broker)
     end
 
     private
@@ -106,14 +187,6 @@ module RubyEventStore
       metadata.merge!(@metadata_proc.call || {}) if @metadata_proc
 
       # event.class.new(event_id: event.event_id, metadata: metadata, data: event.data)
-    end
-
-    def handle_subscribe(unsub, &proc)
-      begin
-        proc.call
-      ensure
-        unsub.()
-      end if proc
     end
 
     class Page
