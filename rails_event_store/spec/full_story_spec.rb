@@ -14,7 +14,7 @@ module RailsEventStore
     specify 'building a read model runtime - pub_sub' do
       client = Client.new
       invoice = InvoiceReadModel.new
-      client.subscribe(invoice, [PriceChanged, ProductAdded])
+      client.subscribe(invoice, to: [PriceChanged, ProductAdded])
       publish_ordering_events(client)
       assert_invoice_structure(invoice)
     end

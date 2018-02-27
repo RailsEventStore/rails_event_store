@@ -5,6 +5,7 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::InMemoryRepository\#normalize_to_array \
               RubyEventStore::Client\#normalize_to_array \
+              RubyEventStore::Client::Within\#normalize_to_array \
               RubyEventStore::SerializedRecord \
               RubyEventStore::Projection\#read_events_from_stream \
               RubyEventStore::Projection\#read_events_from_all_streams
@@ -20,7 +21,7 @@ test: ## Run unit tests
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib \
+	@MUTATING=true bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
