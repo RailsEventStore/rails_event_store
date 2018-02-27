@@ -7,7 +7,7 @@ RSpec.describe AggregateRoot do
     order = Order.new
     order_created = Orders::Events::OrderCreated.new
 
-    expect(order).to receive(:apply_order_created).with(order_created).and_call_original
+    expect(order).to receive(:"apply_order_created").with(order_created).and_call_original
     order.apply(order_created)
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to eq([order_created])
@@ -189,4 +189,100 @@ RSpec.describe AggregateRoot do
     expect(order.unpublished_events.respond_to?(:pop)).to eq(false)
     expect(order.unpublished_events.respond_to?(:unshift)).to eq(false)
   end
+
+  describe ".on" do
+    it "generates private apply handler method" do
+      order_with_ons = Class.new do
+        include AggregateRoot
+
+        on Orders::Events::OrderCreated do |_ev|
+          @status = :created
+        end
+
+        on Orders::Events::OrderExpired do |_ev|
+          @status = :expired
+        end
+
+        attr_accessor :status
+      end
+
+      inherited_order_with_ons = Class.new(order_with_ons) do
+        on Orders::Events::OrderCreated do |_ev|
+          @status = :created_inherited
+        end
+      end
+
+      order = order_with_ons.new
+      order.apply(Orders::Events::OrderCreated.new)
+      expect(order.status).to eq(:created)
+      order.apply(Orders::Events::OrderExpired.new)
+      expect(order.status).to eq(:expired)
+
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderCreated")
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderExpired")
+
+      order = inherited_order_with_ons.new
+      order.apply(Orders::Events::OrderCreated.new)
+      expect(order.status).to eq(:created_inherited)
+      order.apply(Orders::Events::OrderExpired.new)
+      expect(order.status).to eq(:expired)
+    end
+
+    it "handles super() with inheritance" do
+      order_with_ons = Class.new do
+        include AggregateRoot
+
+        on Orders::Events::OrderCreated do |_ev|
+          @status ||= []
+          @status << :base_created
+        end
+
+        on Orders::Events::OrderExpired do |_ev|
+          @status ||= []
+          @status << :base_expired
+        end
+
+        attr_accessor :status
+      end
+
+      inherited_order_with_ons = Class.new(order_with_ons) do
+        on Orders::Events::OrderCreated do |ev|
+          super(ev)
+          @status << :inherited_created
+        end
+
+        on Orders::Events::OrderExpired do |ev|
+          @status.clear
+          super(ev)
+          @status << :inherited_expired
+        end
+      end
+
+      order = inherited_order_with_ons.new
+      order.apply(Orders::Events::OrderCreated.new)
+      expect(order.status).to eq([:base_created, :inherited_created])
+      order.apply(Orders::Events::OrderExpired.new)
+      expect(order.status).to eq([:base_expired, :inherited_expired])
+    end
+
+    it "does not support anonymous events" do
+      expect do
+        Class.new do
+          include AggregateRoot
+
+          on(Class.new) do |_ev|
+          end
+        end
+      end.to raise_error(ArgumentError, "Anonymous class is missing name")
+    end
+
+  end
+
+  describe '.include' do
+    it 'extend class with AggregateRoot::ClassMethods' do
+      expect(Order).to receive(:extend).with(AggregateRoot::ClassMethods)
+      Order.include(AggregateRoot)
+    end
+  end
+
 end
