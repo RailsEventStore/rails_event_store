@@ -10,10 +10,7 @@ module YourAppName
   class Application < Rails::Application
     config.to_prepare do
       Rails.configuration.event_store = event_store = RailsEventStore::Client.new
-      event_store.subscribe(
-        OrderNotifier.new,
-        [OrderCancelled]
-      )
+      event_store.subscribe(OrderNotifier.new, to: [OrderCancelled])
     end
   end
 end
@@ -23,8 +20,8 @@ end
 
 To subscribe to events publication, you can use `#subscribe` method. It accepts two arguments:
 
-* `subscriber` (event handler) - which can be a function-like object. That means it needs to respond to the `#call` method. This way both normal objects and `lambda` expressions are supported.
-* `event_types` - which is an array of event types. Your subscriber will get notified only when events of types listed here will be published.
+* `subscriber` (an event handler) - which can be a function-like object. That means it needs to respond to the `#call` method. This way both normal objects and `lambda` expressions are supported. A block of code can also be passed as a subscriber (`&subscriber`)
+* `to:` - which is an array of event types. Your subscriber gets notified only when events of types listed here are be published.
 
 An example usage with the object event handler:
 
@@ -36,29 +33,31 @@ class InvoiceReadModel
 end
 
 subscriber = InvoiceReadModel.new
-event_store.subscribe(subscriber, [InvoiceCreated, InvoiceUpdated])
+event_store.subscribe(subscriber, to: [InvoiceCreated, InvoiceUpdated])
 ```
 
-You can use `Proc` objects or `lambda`s here:
+You can use `Proc` objects or `lambda`s in 3 ways:
 
 ```ruby
-invoice_read_model_processing = -> (event) {
-  # Process an event here..
+event_store.subscribe(to: [InvoicePrinted]) do |event|
+  # Process an event here...
+end
+````
+
+```ruby
+invoice_read_model = -> (event) {
+  # Process an event here...
 }
 
+event_store.subscribe(invoice_read_model, to: [InvoiceCreated, InvoiceUpdated])
+```
+
+```ruby
 send_invoice_email = Proc.new do |event|
-  # Process an event here.
+  # Process an event here...
 end
 
-event_store.subscribe(
-  invoice_read_model_processing,
-  [InvoiceCreated, InvoiceUpdated]
-)
-
-event_store.subscribe(
-  send_invoice_email,
-  [InvoiceAccepted]
-)
+event_store.subscribe(send_invoice_email,to: [InvoiceAccepted])
 ```
 
 ### Handling exceptions
@@ -75,7 +74,7 @@ end
 ```
 
 ```ruby
-event_store.subscribe(SyncHandler.new, [OrderPlaced])
+event_store.subscribe(SyncHandler.new, to: [OrderPlaced])
 ```
 
 ```ruby
@@ -112,7 +111,7 @@ end
 
 ```ruby
 handler = SyncHandler.new
-event_store.subscribe(handler, [OrderPlaced])
+event_store.subscribe(handler, to: [OrderPlaced])
 ```
 
 ```ruby
@@ -143,7 +142,7 @@ end
 because subsequent events would read the same `@customer_id` which was memoized when the handler was processing a previous event. To avoid that problem, you can subscribe a class (`SyncHandler`), and a new instance of that class will be created for every published event.
 
 ```ruby
-event_store.subscribe(SyncHandler, [OrderPlaced])
+event_store.subscribe(SyncHandler, to: [OrderPlaced])
 ```
 
 ```ruby
@@ -171,7 +170,7 @@ end
 
 ## Subscribe for all event types
 
-You can also subscribe for all event types at once. It is especially useful for logging or debugging events:
+You can also subscribe for all event types at once. It is especially useful for logging or debugging events. Use `subscribe_to_all_events(subsriber1, to:, &subscriber2)` method for that.
 
 ```ruby
 class EventsLogger
@@ -188,11 +187,14 @@ class EventsLogger
 end
 
 event_store.subscribe_to_all_events(EventsLogger.new(Rails.logger))
+event_store.subscribe_to_all_events do |event|
+  puts event.inspect
+end
 ```
 
-## Dynamic (one-shot) subscriptions
+## Temporary subscriptions
 
-Rails Event Store supports dynamic, one-shot subscriptions for events. The subscriber gets unsubscribed automatically at the end of the provided block.
+Rails Event Store supports temporary (dynamic, one-shot) subscriptions for events. The subscriber gets unsubscribed automatically at the end of the provided block.
 
 ```ruby
 class CountImportResults
@@ -227,10 +229,38 @@ end
 
 results = CountImportResults.new
 event_types = [ProductImported, ProductImportFailed]
-event_store.subscribe(results, event_types) do
+event_store.within do
   Import.new.run(file)
+end.subscribe(results, to: event_types).call
+```
+
+This can be useful also in controllers:
+
+```ruby
+class OperationsController < ApplicationController
+  def create
+    event_store.within do
+      Operation.new.run(file)
+    end.subscribe(to: [OperationSucceeded]) do
+      redirect_to results_index_path
+    end.subscribe(to: [OperationFailed]) do
+      render :new
+    end.call
+  end
 end
 ```
+
+Temporarily subscribing to all events is also supported.
+
+```ruby
+event_store.within do
+  Import.new.run(file)
+end.subscribe_to_all_events(EventsLogger).subscribe_to_all_events do |event|
+  puts event.inspect
+end.call
+``` 
+
+You start the temporary subscription by providing a block `within` which the subscriptions will be active. Then you can chain `subscribe` and `subscribe_to_all_events` as many times as you want to register temporary subscribers. When you are ready call `call` to evaluate the provided block with the temporary subscriptions.
 
 <h2 id="async-handlers">Async handlers</h2>
 
@@ -251,7 +281,7 @@ event_store = RailsEventStore::Client.new(
   )
 )
 
-event_store.subscribe(SendOrderEmail, [OrderPlaced])
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 ```
 
 If a subscribed class does not inherit from `ActiveJob::Base` or anything responding to `#call` method is provided as first argument, it will be considered a synchronous handler.
@@ -296,7 +326,7 @@ event_store = RailsEventStore::Client.new(
   )
 )
 
-event_store.subscribe(SendOrderEmail, [OrderPlaced])
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 ```
 
 ```ruby
