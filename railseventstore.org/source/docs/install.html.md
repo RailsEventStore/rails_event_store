@@ -23,6 +23,7 @@ After requiring `rubygems` in your project you should be ready to use Rails Even
 Use provided task to generate a table to store events in your database.
 
 ```bash
+spring stop # if you use spring
 rails generate rails_event_store_active_record:migration
 rake db:migrate
 ```
