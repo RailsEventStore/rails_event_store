@@ -100,7 +100,7 @@ class Order
 
   on OrderSubmitted do |event|
     @state = :submitted
-    @delivery_date = evet.data.fetch(:delivery_date)
+    @delivery_date = event.data.fetch(:delivery_date)
   end
 
   on OrderExpired do |event|
