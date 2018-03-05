@@ -1,7 +1,8 @@
 require "bundler/setup"
+require "ruby_event_store"
+require "rails_event_store_active_record"
 require "postgresql_queue"
 
-require 'rails_event_store_active_record'
 # require 'rails'
 
 ENV['DATABASE_URL']  ||= "postgres://localhost/rails_event_store_active_record?pool=5"
