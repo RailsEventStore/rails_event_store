@@ -6,12 +6,12 @@ require "postgresql_queue/version"
 Gem::Specification.new do |spec|
   spec.name          = "postgresql_queue"
   spec.version       = PostgresqlQueue::VERSION
-  spec.authors       = ["Robert Pankowecki"]
-  spec.email         = ["robert.pankowecki@gmail.com"]
+  spec.authors       = ["Robert Pankowecki", "Arkency"]
+  spec.email         = ["robert.pankowecki@gmail.com", "dev@arkency.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Expose events from rails_event_store as queue for consumers iterating over global stream}
+  spec.description   = %q{Expose events from rails_event_store as queue for consumers iterating over global stream }
+  spec.homepage      = "https://blog.arkency.com"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
@@ -28,6 +28,10 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "rails_event_store_active_record", ["~> 0.25.2", "< 0.27"]
+  spec.add_dependency "pg", [">= 0.21", "< 2"]
+  spec.add_dependency "rails", ["~> 5.0", "< 6"] # rails_event_store_active_record uses rails/generators :(
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"

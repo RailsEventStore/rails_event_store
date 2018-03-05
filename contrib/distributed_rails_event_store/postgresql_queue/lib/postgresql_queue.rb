@@ -1,5 +1,9 @@
 require "postgresql_queue/version"
 
 module PostgresqlQueue
-  # Your code goes here...
+  def initialize(res)
+    @res = res
+  end
+
+
 end
