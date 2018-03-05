@@ -35,4 +35,28 @@ RSpec.describe PostgresqlQueue do
     expect(q.events(after_event_id: ev.event_id)).to eq([])
   end
 
+  specify "does not expose un-committed event" do
+    exchanger = Concurrent::Exchanger.new
+    timeout = 3
+    res.publish_event(ev = MyEvent.new(data: {
+      one: 1,
+    }))
+    ev2 = nil
+    t = Thread.new do
+      ActiveRecord::Base.transaction do
+        res.publish_event(ev2 = MyEvent.new(data: {
+          two: 2,
+        }))
+        exchanger.exchange!('published1', timeout)
+        exchanger.exchange!('done1', timeout)
+      end
+    end
+    exchanger.exchange!('published2', timeout)
+    expect(q.events(after_event_id: nil)).to eq([ev])
+    expect(q.events(after_event_id: ev.event_id)).to eq([])
+    exchanger.exchange!('done2', timeout)
+    t.join(timeout)
+    expect(q.events(after_event_id: nil)).to eq([ev, ev2])
+    expect(q.events(after_event_id: ev.event_id)).to eq([ev2])
+  end
 end
