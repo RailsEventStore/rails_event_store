@@ -13,9 +13,11 @@ module PostgresqlQueue
         where(stream: RubyEventStore::GLOBAL_STREAM).
         where(event_id: events.map(&:event_id)).
         order("id ASC").
-        select("id, event_id, xmin").to_sql
+        select("id, event_id, xmin, xmax").to_sql
       results = ActiveRecord::Base.connection.execute(sql).each.to_a
+      puts results
       txid_snapshot_xmin = Integer(get_xmin)
+      puts txid_snapshot_xmin
 
       event_ids = results.select do |tuple|
         tuple["xmin"].to_i < txid_snapshot_xmin
