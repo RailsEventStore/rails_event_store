@@ -64,9 +64,9 @@ cancel_order = CancelOrder.new
 event_store  = Rails.configuration.event_store
 listener     = OrderNotifier.new
 
-event_store.subscribe(listener, [OrderCancelled]) do
+event_store.within do 
   cancel_order.call(order_id, user_id)
-end
+end.subscribe(listener, to: [OrderCancelled]).call
 ```
 
 The listener would need to implement the `call` method. If it needs to handle more than one event, it can distinguish them based on their class.
@@ -91,17 +91,12 @@ end
 cancel_order = CancelOrder.new
 event_store  = Rails.configuration.event_store
 
-event_store.subscribe(
-    -> (event) {
-      Rails.logger.warn(event.inspect)
-    },
-    [OrderCancelled]
-  ) do
+event_store.within do
   cancel_order.call(order_id, user_id)
-end
+end.subscribe(to: [OrderCancelled]) do |event|
+  Rails.logger.warn(event.inspect)
+end.call
 ```
-
-Nicer API was proposed. [Check it out](https://github.com/RailsEventStore/rails_event_store/issues/155).
 
 ### Global event subscribers (a.k.a. handlers/listeners)
 
@@ -111,10 +106,7 @@ module YourAppName
   class Application < Rails::Application
     config.to_prepare do
       Rails.configuration.event_store = event_store = RailsEventStore::Client.new
-      event_store.subscribe(
-        OrderNotifier.new,
-        [OrderCancelled]
-      )
+      event_store.subscribe(OrderNotifier.new, to: [OrderCancelled])
     end
   end
 end
