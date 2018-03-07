@@ -10,13 +10,13 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def rails_version
-      Rails::VERSION::STRING
+    def active_record_version
+      Gem::Version.new(ActiveRecord::VERSION::STRING)
     end
 
     def migration_version
-      return nil if Gem::Version.new(rails_version) < Gem::Version.new("5.0.0")
-      "[4.2]"
+      return nil if active_record_version < Gem::Version.new("5.0.0")
+      "[#{active_record_version.to_s.sub(/\A(\d+\.\d+)\.\d+\z/, '\1')}]"
     end
 
     def timestamp

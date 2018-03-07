@@ -20,7 +20,8 @@ RSpec.describe "v1_v2_migration" do
   include SchemaHelper
 
   MigrationRubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/v1_v2_migration_template.rb', __FILE__) )
-  migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
+  active_record_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
+  migration_version = active_record_version < Gem::Version.new("5.0.0") ? "" : "[#{active_record_version.to_s.sub(/\A(\d+\.\d+)\.\d+\z/, '\1')}]"
   MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
