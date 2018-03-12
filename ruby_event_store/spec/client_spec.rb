@@ -43,6 +43,16 @@ module RubyEventStore
       expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
     end
 
+    specify 'publish to multiple streams' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      test_event = TestEvent.new
+      stream_names = [SecureRandom.uuid, SecureRandom.uuid]
+      expect(client.publish_event(test_event, stream_name: stream_names)).to eq(:ok)
+      stream_names.each do |stream_name|
+        expect(client.read_stream_events_forward(stream_name)).to eq([test_event])
+      end
+    end
+
     specify 'publish first event, expect any stream state' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
