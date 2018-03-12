@@ -26,6 +26,11 @@ module RubyEventStore
           data:     @serializer.load(record.data)
         )
       end
+
+      def add_metadata(event, key, value)
+        event.metadata[key.to_sym] = value
+      end
+
     end
   end
 end

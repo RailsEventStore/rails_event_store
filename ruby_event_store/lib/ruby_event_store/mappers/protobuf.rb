@@ -20,6 +20,13 @@ module RubyEventStore
         ActiveSupport::Inflector.constantize(event_type).decode(record.data)
       end
 
+      def add_metadata(event, key, value)
+        setter = "#{key}="
+        if event.respond_to?(setter)
+          event.public_send(setter, value)
+        end
+      end
+
       private
 
       attr_reader :event_id_getter, :events_class_remapping

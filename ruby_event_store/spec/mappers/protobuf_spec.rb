@@ -1,3 +1,4 @@
+require 'spec_helper'
 require_relative 'events_pb.rb'
 
 module RubyEventStore
@@ -57,6 +58,16 @@ module RubyEventStore
         )
         event = subject.serialized_record_to_event(record)
         expect(event).to eq(domain_event)
+      end
+
+      specify '#add_metadata' do
+        event = ResTesting::OrderCreated.new
+        subject.add_metadata(event, :customer_id, 123)
+        expect(event.customer_id).to eq(123)
+
+        expect do
+          subject.add_metadata(event, :nonexisting, 123)
+        end.not_to raise_error
       end
 
     end

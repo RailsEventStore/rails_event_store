@@ -21,6 +21,8 @@ instead:
   rails generate rails_event_store_active_record:v1_v2_migration
 
       MSG
+
+      @mapper = RubyEventStore::Mappers::Default.new
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -124,6 +126,10 @@ instead:
       (["all"] + LegacyEvent.pluck(:stream))
         .uniq
         .map { |name| RubyEventStore::Stream.new(name) }
+    end
+
+    def add_metadata(event, key, value)
+      @mapper.add_metadata(event, key, value)
     end
 
     private

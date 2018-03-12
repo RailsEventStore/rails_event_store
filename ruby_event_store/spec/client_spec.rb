@@ -205,7 +205,11 @@ module RubyEventStore
     end
 
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new(
+        repository: InMemoryRepository.new(
+          mapper: RubyEventStore::Mappers::Protobuf.new
+        )
+      )
       event = ResTesting::OrderCreated.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         customer_id: 123,
