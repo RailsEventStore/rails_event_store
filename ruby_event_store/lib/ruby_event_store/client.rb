@@ -27,7 +27,9 @@ module RubyEventStore
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
-      @repository.append_to_stream(events, stream_name, expected_version)
+      first_stream, *other_streams = normalize_to_array(stream_name)
+      @repository.append_to_stream(events, first_stream, expected_version)
+      other_streams.each { |stream| link_to_stream(map_to_event_ids(events), stream_name: stream) }
       :ok
     end
 
@@ -188,6 +190,10 @@ module RubyEventStore
       metadata.each do |key, value|
         @repository.add_metadata(event, key, value)
       end
+    end
+
+    def map_to_event_ids(events)
+      normalize_to_array(events).map { |e| e.event_id }
     end
 
     class Page
