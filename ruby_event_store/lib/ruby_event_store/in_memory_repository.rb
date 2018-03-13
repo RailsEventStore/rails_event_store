@@ -3,10 +3,12 @@ require 'thread'
 
 module RubyEventStore
   class InMemoryRepository
-    def initialize
+
+    def initialize(mapper: Mappers::Default.new)
       @all = Array.new
       @streams = Hash.new
       @mutex = Mutex.new
+      @mapper = mapper
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -62,6 +64,10 @@ module RubyEventStore
 
     def get_all_streams
       [Stream.new("all")] + @streams.keys.map { |name| Stream.new(name) }
+    end
+
+    def add_metadata(event, key, value)
+      @mapper.add_metadata(event, key, value)
     end
 
     private

@@ -3,7 +3,9 @@ require 'spec_helper'
 module RubyEventStore
   RSpec.describe 'no warnings' do
     specify do
-      expect(ruby_event_store_warnings).to eq([])
+      expect(ruby_event_store_warnings.reject do |w|
+        w.to_s =~ /protobuf.rb.*warning: private attribute/
+      end).to eq([])
     end
 
     def ruby_event_store_warnings

@@ -84,6 +84,13 @@ module RailsEventStoreActiveRecord
       }.to raise_error(RubyEventStore::NotSupported)
     end
 
+    specify 'add_metadata default mapper' do
+      event = TestDomainEvent.new
+      repository = LegacyEventRepository.new
+      repository.add_metadata(event, :yo, 1)
+      expect(event.metadata.fetch(:yo)).to eq(1)
+    end
+
     private
 
     def expect_query(match, &block)

@@ -1,0 +1,8 @@
+syntax = "proto3";
+package res_testing;
+
+message OrderCreated {
+  string event_id = 1;
+  string order_id = 2;
+  int32 customer_id = 3;
+}
