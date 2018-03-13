@@ -1,5 +1,5 @@
 module RailsEventStore
   module RSpec
-    VERSION = "0.25.2"
+    VERSION = "0.26.0"
   end
 end

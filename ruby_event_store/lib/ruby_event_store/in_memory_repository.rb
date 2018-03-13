@@ -79,21 +79,20 @@ module RubyEventStore
     def add_to_stream(events, expected_version, stream_name, include_global)
       raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
       events = normalize_to_array(events)
-      stream = read_stream_events_forward(stream_name)
       expected_version = case expected_version
         when :none
           -1
-        when :auto, :any
-          stream.size - 1
-        when Integer
+        when :auto
+          read_stream_events_forward(stream_name).size - 1
+        when Integer, :any
           expected_version
         else
          raise InvalidExpectedVersion
       end
-      append_with_synchronize(events, expected_version, stream, stream_name, include_global)
+      append_with_synchronize(events, expected_version, stream_name, include_global)
     end
 
-    def append_with_synchronize(events, expected_version, stream, stream_name, include_global)
+    def append_with_synchronize(events, expected_version, stream_name, include_global)
       # expected_version :auto assumes external lock is used
       # which makes reading stream before writing safe.
       #
@@ -103,11 +102,15 @@ module RubyEventStore
       # not for the whole read+write algorithm.
       Thread.pass
       @mutex.synchronize do
-        append(events, expected_version, stream, stream_name, include_global)
+        if expected_version == :any
+          expected_version = read_stream_events_forward(stream_name).size - 1
+        end
+        append(events, expected_version, stream_name, include_global)
       end
     end
 
-    def append(events, expected_version, stream, stream_name, include_global)
+    def append(events, expected_version, stream_name, include_global)
+      stream = read_stream_events_forward(stream_name)
       raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
       events.each do |event|
         raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }

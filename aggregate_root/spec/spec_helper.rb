@@ -20,6 +20,7 @@ end
 
 class Order
   include AggregateRoot
+  include Orders::Events
 
   def initialize
     @status = :draft
@@ -28,11 +29,11 @@ class Order
   attr_accessor :status
   private
 
-  def apply_order_created(event)
+  def apply_order_created(_event)
     @status = :created
   end
 
-  def apply_order_expired(event)
+  def apply_order_expired(_event)
     @status = :expired
   end
 end
