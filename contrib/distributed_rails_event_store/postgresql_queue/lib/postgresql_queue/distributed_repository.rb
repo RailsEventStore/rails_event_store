@@ -1,3 +1,5 @@
+require 'rails_event_store_active_record'
+
 class DistributedRepository < RailsEventStoreActiveRecord::EventRepository
   def custom_lock(_collection, _include_global, _to_global)
     ary = super

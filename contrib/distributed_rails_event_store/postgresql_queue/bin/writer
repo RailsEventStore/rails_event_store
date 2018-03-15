@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "postgresql_queue"
+
+require 'rspec'
+require_relative '../spec/spec_helper.rb'
+
+include SchemaHelper
+establish_database_connection
+load_database_schema if ENV['FIRST']
+
+client = RubyEventStore::Client.new(repository: DistributedRepository.new)
+
+class MyEvent < RubyEventStore::Event
+end
+
+1.step do |ite|
+  size = rand(23)
+  sleep_before = [true, false, false, false].sample
+  sleep_after = [true, false, false, false].sample
+  batches = [1,1,1,1,2,3,4].sample
+  stream_name = ['all', 'something', 'else'].sample
+  transactionaly = [
+    -> (&proc) { ActiveRecord::Base.transaction(&proc) },
+    -> (&proc) { proc.call },
+  ].sample
+
+  transactionaly.call do
+    batches.times do |b|
+      sleep(rand(3)) if sleep_before
+      events = size.times.map{|nr| MyEvent.new(data: {ite: ite, batch: b, nr: nr}) }
+      case stream_name
+        when 'all', 'something'
+          client.publish_events(events, stream_name: stream_name, expected_version: :any)
+        when 'else'
+          client.publish_events(events, stream_name: SecureRandom.hex, expected_version: :auto)
+      end
+      puts events.map{|e| e.data.merge({event_id: e.event_id}) }
+      sleep(rand(3)) if sleep_after
+    end
+  end
+end
