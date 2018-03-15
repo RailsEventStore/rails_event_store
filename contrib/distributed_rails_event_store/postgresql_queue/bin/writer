@@ -16,7 +16,7 @@ class MyEvent < RubyEventStore::Event
 end
 
 1.step do |ite|
-  size = rand(23)
+  size = rand(3) + 1
   sleep_before = [true, false, false, false].sample
   sleep_after = [true, false, false, false].sample
   batches = [1,1,1,1,2,3,4].sample
