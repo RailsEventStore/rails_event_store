@@ -28,16 +28,16 @@ end
 
   transactionaly.call do
     batches.times do |b|
-      sleep(rand(3)) if sleep_before
-      events = size.times.map{|nr| MyEvent.new(data: {ite: ite, batch: b, nr: nr}) }
+      # sleep(rand) if sleep_before
+      events = size.times.map{|nr| MyEvent.new(data: {i: ite, b: b, n: nr}) }
       case stream_name
         when 'all', 'something'
           client.publish_events(events, stream_name: stream_name, expected_version: :any)
         when 'else'
           client.publish_events(events, stream_name: SecureRandom.hex, expected_version: :auto)
       end
-      puts events.map{|e| e.data.merge({event_id: e.event_id}) }
-      sleep(rand(3)) if sleep_after
+      puts events.map{|e| e.data.merge({id: e.event_id[0..7]}) }
+      # sleep(rand) if sleep_after
     end
   end
 end
