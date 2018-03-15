@@ -22,6 +22,8 @@ module SchemaHelper
   end
 
   def load_database_schema
+    # ActiveRecord::Base.logger = Logger.new(STDOUT)
+    # return
     ActiveRecord::Schema.define do
       self.verbose = false
       eval(MigrationCode) unless defined?(CreateEventStoreEvents)

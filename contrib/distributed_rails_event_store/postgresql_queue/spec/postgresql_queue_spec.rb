@@ -1,6 +1,8 @@
-class MyEvent < RubyEventStore::Event
+require 'pry'
 
+class MyEvent < RubyEventStore::Event
 end
+
 
 RSpec.describe PostgresqlQueue do
   include SchemaHelper
@@ -16,7 +18,7 @@ RSpec.describe PostgresqlQueue do
   end
 
   let(:res) do
-    RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
+    RubyEventStore::Client.new(repository: DistributedRepository.new)
   end
 
   subject(:q) do
@@ -60,6 +62,8 @@ RSpec.describe PostgresqlQueue do
     expect(q.events(after_event_id: ev.event_id)).to eq([ev2])
   end
 
+  # Thread1: [1]     [3]
+  # Thread2:     [2          ]
   specify "does not expose committed event after previous un-committed" do
     exchanger = Concurrent::Exchanger.new
     timeout = 3
@@ -92,7 +96,6 @@ RSpec.describe PostgresqlQueue do
   # Thread1: [1] [2,      4]
   # Thread2:          [3,     ]
   specify "does not expose committed event (4) after gap (3) if gap-event uncommitted" do
-    # ActiveRecord::Base.logger = Logger.new(STDOUT)
     exchanger = Concurrent::Exchanger.new
     timeout = 5
     ev3 = ev2 = ev4 = nil
@@ -120,3 +123,55 @@ RSpec.describe PostgresqlQueue do
     expect(q.events(after_event_id: ev1.event_id)).to eq([ev2, ev3, ev4])
   end
 end
+
+# Thread1: [1] [       3,     5]
+# Thread2:        [2,      4,    6]
+#
+#
+# Thread1: [1] [       3,     5           ]
+# Thread2:        [2,      4,    6]   X
+#
+#
+
+# Thread1: [1]                          X
+# Thread2:        [2L,     3G,     4S]
+#
+# Thread1: [1]         [3L,     5G,      7S]
+# Thread2:        [2L,     4G,     6S] X
+
+# Thread1: [1]                 [4L,     6G,   7S]
+# Thread2:        [2L,     3G,     5S] X
+
+# co z GAPami które się wydarzają pomiędzy insertami jednej transakcji
+# a insertami drugiej transakcji? albo lock-sequencem drugiej transakcji?
+
+# assumption: 1st GAP i meet must be from
+# * my own transaction lock-seq which is already committed (otherwise I would not see higher numbers)
+# * another uncommitted transaction
+#
+# Question: Can it be from something else?
+
+
+# Thread1: [1]                 [4          L,     6G,   7S]
+# Thread2:        [2L,     3G,     5S] X
+#
+#
+# Co gdybym wszystkie numery sekwencji brał w krótkim locku?
+#   wtedy nie zserializowałem zapisów ale zserializowałem branie numerów
+#   lock(global)
+#     SELECT
+#       currval() as c                      32
+#       setval(currval()+N)                 42 (uzyjemy 33..42)
+#       pg_advisory_xact_lock(c+1=33),
+#   unlock(global)
+
+
+# Thread1: [1]                 [4L56,       6G,   7S]
+# Thread2:        [2L35,     3G,     5S] X
+#
+
+# wtedy czesc sekwencji z jednej transakcji ma rosnace numery
+# pierwszy gap ma zrealeasowany lock, nastepne gapy nie mają locka.
+#
+# jesli inna transakcja tez cos pobrała zanim ta sie skonczyla
+# to jej pierwszy numer ma locka.
