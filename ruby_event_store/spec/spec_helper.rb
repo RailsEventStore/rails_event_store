@@ -5,6 +5,14 @@ require 'pry'
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
 
+
+RSpec.configure do |config|
+  config.around(:each) do |example|
+    Timeout.timeout(5, &example)
+  end
+end
+
+
 module Subscribers
   class InvalidHandler
   end
