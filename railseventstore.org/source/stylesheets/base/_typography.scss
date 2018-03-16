@@ -1,3 +1,7 @@
+html {
+  font-size: 62.5%;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
   color: $base-font-color;
@@ -88,7 +92,7 @@ code {
   background-color: rgba(#000, 0.03);
   border-radius: $base-border-radius;
   font-family: $monospace-font-family;
-  font-size: 0.875rem;
+  font-size: 0.875em;
 
   :not(pre) > & {
     margin: 0 0.125em;

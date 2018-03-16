@@ -1,13 +1,29 @@
 .site-hero {
-  padding: 3rem 1rem;
+  text-align: center;
+  min-height: 42rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 0;
+}
+
+.site-hero__title {
+  color: $oc-gray-0;
+  margin: 5rem auto auto auto;
+
+  font-size: 5rem;
+  font-weight: $font-weight-bold;
+  color: $oc-red-8;
 }
 
 .site-hero__copy {
   color: $oc-gray-0;
-  margin: 0 0 2rem 0;
+  font-size: 2.5rem;
+  line-height: 3rem;
 }
 
 .site-hero__cta {
-  @include button-outline($oc-gray-0);
+  @include button-filled($oc-red-8);
   font-weight: 600;
+  font-size: 2rem;
+  margin: 3rem auto;
 }
