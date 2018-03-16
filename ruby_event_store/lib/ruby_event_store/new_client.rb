@@ -14,6 +14,10 @@ module RubyEventStore
       @old_client.publish_events(*args, **kwargs)
     end
 
+    def publish_event(*args, **kwargs)
+      @old_client.publish_event(*args, **kwargs)
+    end
+
     private
 
     def read
