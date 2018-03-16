@@ -4,8 +4,11 @@ module RubyEventStore
   RSpec.describe Client do
     let(:stream_name) { 'stream_name' }
 
-    specify 'raise exception if stream name is incorrect' do
+    before do
       allow(Time).to receive(:now).and_return(Time.now)
+    end
+
+    specify 'raise exception if stream name is incorrect' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       expect { client.read_stream_events_forward(nil) }.to raise_error(IncorrectStreamData)
       expect { client.read_stream_events_forward('') }.to raise_error(IncorrectStreamData)
@@ -14,7 +17,6 @@ module RubyEventStore
     end
 
     specify 'return all events ordered forward' do
-      allow(Time).to receive(:now).and_return(Time.now)
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       prepare_events_in_store(client)
       events = client.read_stream_events_forward(stream_name)
@@ -25,7 +27,6 @@ module RubyEventStore
     end
 
     specify 'return all events ordered backward' do
-      allow(Time).to receive(:now).and_return(Time.now)
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       prepare_events_in_store(client)
       events = client.read_stream_events_backward(stream_name)
