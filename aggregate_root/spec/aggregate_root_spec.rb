@@ -14,6 +14,17 @@ RSpec.describe AggregateRoot do
     end
   end
 
+  def with_event_store(store, &block)
+    current_instance = AggregateRoot.configuration.default_event_store
+    AggregateRoot.configure do |config|
+      config.default_event_store = store
+    end
+    block.call
+    AggregateRoot.configure do |config|
+      config.default_event_store = current_instance
+    end
+  end
+
   it "should have ability to apply event on itself" do
     order = Order.new
     order_created = Orders::Events::OrderCreated.new
@@ -71,67 +82,61 @@ RSpec.describe AggregateRoot do
   end
 
   it "should work with provided event_store" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = double(:some_other_event_store)
+    with_event_store(double(:some_other_event_store)) do
+      stream = "any-order-stream"
+      order = Order.new.load(stream, event_store: event_store)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      order.store(stream, event_store: event_store)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+
+      restored_order = Order.new.load(stream, event_store: event_store)
+      expect(restored_order.status).to eq :created
+      order_expired = Orders::Events::OrderExpired.new
+      restored_order.apply(order_expired)
+      restored_order.store(stream, event_store: event_store)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
+
+      restored_again_order = Order.new.load(stream, event_store: event_store)
+      expect(restored_again_order.status).to eq :expired
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream, event_store: event_store)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store(stream, event_store: event_store)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
-
-    restored_order = Order.new.load(stream, event_store: event_store)
-    expect(restored_order.status).to eq :created
-    order_expired = Orders::Events::OrderExpired.new
-    restored_order.apply(order_expired)
-    restored_order.store(stream, event_store: event_store)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
-
-    restored_again_order = Order.new.load(stream, event_store: event_store)
-    expect(restored_again_order.status).to eq :expired
   end
 
   it "should use default client if event_store not provided" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = event_store
+    with_event_store(event_store) do
+      stream = "any-order-stream"
+      order = Order.new.load(stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      order.store(stream)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+
+      restored_order = Order.new.load(stream)
+      expect(restored_order.status).to eq :created
+      order_expired = Orders::Events::OrderExpired.new
+      restored_order.apply(order_expired)
+      restored_order.store(stream)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
+
+      restored_again_order = Order.new.load(stream)
+      expect(restored_again_order.status).to eq :expired
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store(stream)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
-
-    restored_order = Order.new.load(stream)
-    expect(restored_order.status).to eq :created
-    order_expired = Orders::Events::OrderExpired.new
-    restored_order.apply(order_expired)
-    restored_order.store(stream)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
-
-    restored_again_order = Order.new.load(stream)
-    expect(restored_again_order.status).to eq :expired
   end
 
   it "if loaded from some stream should store to the same stream is no other stream specified" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = event_store
+    with_event_store(event_store) do
+      stream = "any-order-stream"
+      order = Order.new.load(stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      order.store
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
   end
 
   it "should receive a method call based on a default apply strategy" do
