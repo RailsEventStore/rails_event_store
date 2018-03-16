@@ -1,5 +1,11 @@
+require "forwardable"
+
 module RubyEventStore
   class NewClient
+
+    extend Forwardable
+
+    def_delegators :@old_client, :publish_event, :publish_events
 
     def initialize(repository:)
       @repository = repository
@@ -8,14 +14,6 @@ module RubyEventStore
 
     def read_stream_events_forward(stream_name)
       @old_client.send(:deserialized_events, read.stream(stream_name).forward.each)
-    end
-
-    def publish_events(*args, **kwargs)
-      @old_client.publish_events(*args, **kwargs)
-    end
-
-    def publish_event(*args, **kwargs)
-      @old_client.publish_event(*args, **kwargs)
     end
 
     private
