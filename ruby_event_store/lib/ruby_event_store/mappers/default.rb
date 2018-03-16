@@ -31,9 +31,6 @@ module RubyEventStore
         event.metadata[key.to_sym] = value
       end
 
-      def get_metadata(event, key)
-        event.metadata[key.to_sym]
-      end
     end
   end
 end

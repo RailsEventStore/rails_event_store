@@ -27,10 +27,6 @@ module RubyEventStore
         end
       end
 
-      def get_metadata(event, key)
-        event[key.to_s]
-      end
-
       private
 
       attr_reader :event_id_getter, :events_class_remapping

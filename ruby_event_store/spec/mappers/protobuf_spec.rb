@@ -70,21 +70,6 @@ module RubyEventStore
         end.not_to raise_error
       end
 
-      specify '#get_metadata' do
-        event = ResTesting::OrderCreated.new(customer_id: 1)
-        expect(subject.get_metadata(event, :customer_id)).to eq(1)
-        expect(subject.get_metadata(event, 'customer_id')).to eq(1)
-
-        expect(subject.get_metadata(event, :order_id)).to eq("")
-        subject.add_metadata(event, :order_id, "O1")
-        expect(subject.get_metadata(event, :order_id)).to eq("O1")
-
-        expect do
-          subject.get_metadata(event, :nonexisting)
-          subject.get_metadata(event, 'nonexisting')
-        end.not_to raise_error
-      end
-
     end
   end
 end
