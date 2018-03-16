@@ -18,7 +18,13 @@ module PostgresqlQueue
       ).where(event_id: [first_event.event_id, last_event.event_id]).
         order("id ASC").pluck(:id)
       eisid_first, eisid_last = eisids.first, eisids.last
+      eisid_first -=1
+      eisid_last+=1
 
+      # FIXME!
+      # We should get all EventInStream between after..eisid_last
+      # instead of eisid_first..eisid_last because there can be
+      # another IDs there from other streams and linked events!
       eis = RailsEventStoreActiveRecord::EventInStream.
         where("id >= #{eisid_first} AND id <= #{eisid_last}").
         order("id ASC").to_a
