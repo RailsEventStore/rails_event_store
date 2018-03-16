@@ -51,6 +51,15 @@ module RubyEventStore
         expect(domain_event.metadata.fetch(:lo)).to eq(456)
       end
 
+      specify '#get_metadata' do
+        expect(subject.get_metadata(domain_event, :some_meta)).to eq(1)
+        expect(subject.get_metadata(domain_event, 'some_meta')).to eq(1)
+
+        expect(subject.get_metadata(domain_event, :yo)).to eq(nil)
+        subject.add_metadata(domain_event, :yo, 123)
+        expect(subject.get_metadata(domain_event, :yo)).to eq(123)
+      end
+
       context 'when custom serializer is provided' do
         class ExampleYamlSerializer
           def self.load(value)
