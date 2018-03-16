@@ -3,6 +3,17 @@ require 'spec_helper'
 RSpec.describe AggregateRoot do
   let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
+  def with_strict_mode(enabled, &block)
+    current_mode = AggregateRoot.configuration.strict_apply
+    AggregateRoot.configure do |config|
+      config.strict_apply = enabled
+    end
+    block.call
+    AggregateRoot.configure do |config|
+      config.strict_apply = current_mode
+    end
+  end
+
   it "should have ability to apply event on itself" do
     order = Order.new
     order_created = Orders::Events::OrderCreated.new
@@ -150,23 +161,19 @@ RSpec.describe AggregateRoot do
   end
 
   it "should raise error for missing apply method when default apply strategy in strict apply mode" do
-    AggregateRoot.configure do |config|
-      config.strict_apply = true
+    with_strict_mode(true) do
+      order = Order.new
+      spanish_inquisition = Orders::Events::SpanishInquisition.new
+      expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
     end
-
-    order = Order.new
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
   end
 
   it "should not raise error for missing apply method when default apply strategy not in strict apply mode" do
-    AggregateRoot.configure do |config|
-      config.strict_apply = false
+    with_strict_mode(false) do
+      order = Order.new
+      spanish_inquisition = Orders::Events::SpanishInquisition.new
+      expect{ order.apply(spanish_inquisition) }.not_to raise_error
     end
-
-    order = Order.new
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect{ order.apply(spanish_inquisition) }.not_to raise_error
   end
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
