@@ -57,7 +57,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
 end
 
 module MyApp
-  OrderPlaced = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderCreated").msgclass
+  OrderPlaced = Google::Protobuf::DescriptorPool.generated_pool.lookup("my_app.OrderPlaced").msgclass
 end
 
 ```
