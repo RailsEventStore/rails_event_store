@@ -11,23 +11,7 @@ module PostgresqlQueue
       after_event_id ||= :head
       events = @res.read_all_streams_forward(start: after_event_id, count: 100)
       return [] if events.empty?
-      first_event, last_event = events.first, events.last
 
-      eisids = ::RailsEventStoreActiveRecord::EventInStream.where(
-        stream: RubyEventStore::GLOBAL_STREAM
-      ).where(event_id: [first_event.event_id, last_event.event_id]).
-        order("id ASC").pluck(:id)
-      eisid_first, eisid_last = eisids.first, eisids.last
-      eisid_first -=1
-      eisid_last+=1
-
-      # FIXME!
-      # We should get all EventInStream between after..eisid_last
-      # instead of eisid_first..eisid_last because there can be
-      # another IDs there from other streams and linked events!
-      eis = RailsEventStoreActiveRecord::EventInStream.
-        where("id >= #{eisid_first} AND id <= #{eisid_last}").
-        order("id ASC").to_a
       after = if after_event_id == :head
         0
       else
@@ -37,7 +21,16 @@ module PostgresqlQueue
       end
       last_approved = after
       after += 1
-      last  = eisid_last
+
+      before = ::RailsEventStoreActiveRecord::EventInStream.where(
+        stream: RubyEventStore::GLOBAL_STREAM
+      ).where(event_id: events.last.event_id).first!.id
+
+      eis = RailsEventStoreActiveRecord::EventInStream.
+        where("id >= #{after} AND id <= #{before}").
+        order("id ASC").to_a
+
+      last  = before
 
       allowed_event_ids = []
       (after..last).each do |id|

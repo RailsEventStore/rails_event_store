@@ -2,12 +2,7 @@ source "https://rubygems.org"
 
 git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
-# Specify your gem's dependencies in postgresql_queue.gemspec
 gemspec
 gem 'pry'
 root = "/Users/rupert/develop/rails_event_store"
-# gem 'rails_event_store',                path: "#{root}/rails_event_store"
-# gem 'ruby_event_store',                path: "#{root}/ruby_event_store"
 gem 'rails_event_store_active_record', path: "#{root}/rails_event_store_active_record"
-# gem 'aggregate_root',                  path: "#{root}/aggregate_root"
-# gem 'bounded_context',                 path: "#{root}/bounded_context"

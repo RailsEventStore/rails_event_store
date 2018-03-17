@@ -1,9 +1,8 @@
 require 'rails_event_store_active_record'
 
 class DistributedRepository < RailsEventStoreActiveRecord::EventRepository
-  def custom_lock(_collection, _include_global, _to_global)
-    ary = super
-    size = ary.size
+  def fill_ids(in_stream)
+    size = in_stream.size
     s = <<-SQL
       SELECT
         clock_timestamp() as t1,
@@ -25,6 +24,8 @@ class DistributedRepository < RailsEventStoreActiveRecord::EventRepository
     range = result.fetch("c1")..result.fetch("setval")
     ary2 = range.to_a
     ary2.size == size or raise "err2"
-    return ary2
+    ary2.each.with_index do |id, index|
+      in_stream[index][:id] = id
+    end
   end
 end
