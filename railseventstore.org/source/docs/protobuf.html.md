@@ -57,7 +57,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
 end
 
 module MyApp
-  OrderPlaced = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderCreated").msgclass
+  OrderPlaced = Google::Protobuf::DescriptorPool.generated_pool.lookup("my_app.OrderPlaced").msgclass
 end
 
 ```
@@ -81,7 +81,7 @@ message OrderPlaced {
   string order_id = 2;
   int32 customer_id = 3;
   
-  string rempote_ip = 4;
+  string remote_ip = 4;
 }
 ```
 
