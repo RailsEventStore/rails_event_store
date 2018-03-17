@@ -1,4 +1,3 @@
-require 'active_support/core_ext/class/attribute_accessors'
 require 'ruby_event_store'
 require 'rails_event_store/active_job_dispatcher'
 require 'rails_event_store/client'
@@ -21,11 +20,4 @@ module RailsEventStore
   InvalidPageSize           = RubyEventStore::InvalidPageSize
   GLOBAL_STREAM             = RubyEventStore::GLOBAL_STREAM
   PAGE_SIZE                 = RubyEventStore::PAGE_SIZE
-
-  mattr_reader :event_repository
-
-  def self.event_repository=(event_repository)
-    raise ArgumentError unless event_repository
-    @@event_repository = event_repository
-  end
 end
