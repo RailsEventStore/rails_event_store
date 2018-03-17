@@ -1,33 +1,29 @@
 ## Installation with Bundler
 
-By default RailsEventStore will use the Active Record event repository. If you want to use another event repository without loading unecessary Active Record dependency, you'll need to do:
+By default RailsEventStore will use the ActiveRecord event repository. If you want to use another event repository without loading unnecessary ActiveRecord dependency, you'll need to do:
 
 ```ruby
-gem 'rails_event_store', require: false
+gem 'rails_event_store', require: 'rails_event_store/all'
 gem 'your_custom_repository'
 ```
 
 After running `bundle install`, Rails Event Store should be ready to be used.
-See custom repository README to learn how to setup data store.
+See custom repository README to learn how to setup its data store.
 
-## Require custom repository
-
-You need to require manually rails_event_store gem by doing:
+## Configure custom repository
 
 ```ruby
-require 'rails_event_store/all'
+Rails.application.configure do
+  config.to_prepare do
+    Rails.configuration.event_store = RailsEventStore::Client.new(
+      repository: YourCustomRepository.new
+    )
+  end
+end
 ```
 
-And then define your custom event repository for RailsEventStore.
+## Community event repositories
 
-```ruby
-RailsEventStore.event_repository = YourCustomRepository::EventRepository.new
-```
+Those repositories were written by community members and are not guaranteed to be up to date with latest Rails event store.
 
-This will be used every time you won't pass event repository as an argument
-to `RailsEventStore::Client` initializer.
-
-
-## Custom event repositories
-
-- [rails\_event\_store\_mongoid](https://github.com/gottfrois/rails_event_store_mongoid) by [Pierre-Louis Gottfrois](https://github.com/gottfrois)
+* [rails\_event\_store\_mongoid](https://github.com/gottfrois/rails_event_store_mongoid) by [Pierre-Louis Gottfrois](https://github.com/gottfrois)
