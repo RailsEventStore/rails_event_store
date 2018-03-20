@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 module RubyEventStore
 
   RSpec.describe SerializedRecord do

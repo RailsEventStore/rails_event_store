@@ -152,18 +152,26 @@ module RubyEventStore
       end
 
       def call
-        unsubs = @global_subscribers.map do |s|
-          @event_broker.add_thread_global_subscriber(s)
-        end
-        unsubs += @subscribers.map do |handler, types|
-          @event_broker.add_thread_subscriber(handler, types)
-        end
+        unsubs  = add_thread_global_subscribers
+        unsubs += add_thread_subscribers
         @block.call
       ensure
         unsubs.each(&:call)
       end
 
       private
+      
+      def add_thread_subscribers
+        @subscribers.map do |handler, types|
+          @event_broker.add_thread_subscriber(handler, types)
+        end
+      end
+
+      def add_thread_global_subscribers
+        @global_subscribers.map do |s|
+          @event_broker.add_thread_global_subscriber(s)
+        end
+      end
 
       def normalize_to_array(objs)
         return *objs
