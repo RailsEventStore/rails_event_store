@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 SomethingHappened = Class.new(RubyEventStore::Event)
 
 module RubyEventStore
