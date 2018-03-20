@@ -4,5 +4,6 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 gemspec
 gem 'pry'
-root = "/Users/rupert/develop/rails_event_store"
-gem 'rails_event_store_active_record', path: "#{root}/rails_event_store_active_record"
+gem 'rails_event_store_active_record',
+    github: "RailsEventStore/rails_event_store",
+    branch: "fill_ids"
