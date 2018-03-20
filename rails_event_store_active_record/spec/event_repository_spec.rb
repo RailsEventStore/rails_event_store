@@ -191,6 +191,43 @@ module RailsEventStoreActiveRecord
       expect(event.customer_id).to eq(123)
     end
 
+    class FillInRepository < EventRepository
+      def fill_ids(in_stream)
+        in_stream.each.with_index.map do |is, index|
+          is[:id] = index + 987_654_321
+          is[:id] += 3 if is[:stream] == "whoo"
+        end
+      end
+    end
+
+    specify 'fill_ids in append_to_stream' do
+      event = TestDomainEvent.new
+      repository = FillInRepository.new
+      repository.append_to_stream([event], "stream", :any)
+
+      expect(EventInStream.find(987_654_321).stream).to eq("stream")
+      expect(EventInStream.find(987_654_322).stream).to eq(RubyEventStore::GLOBAL_STREAM)
+    end
+
+    specify 'fill_ids in append_to_stream global' do
+      event = TestDomainEvent.new
+      repository = FillInRepository.new
+      repository.append_to_stream([event], RubyEventStore::GLOBAL_STREAM, :any)
+
+      expect(EventInStream.find(987_654_321).stream).to eq(RubyEventStore::GLOBAL_STREAM)
+    end
+
+    specify 'fill_ids in link_to_stream' do
+      event = TestDomainEvent.new
+      repository = FillInRepository.new
+      repository.append_to_stream([event], "stream", :any)
+      repository.link_to_stream([event.event_id], "whoo", :any)
+
+      expect(EventInStream.find(987_654_321).stream).to eq("stream")
+      expect(EventInStream.find(987_654_322).stream).to eq(RubyEventStore::GLOBAL_STREAM)
+      expect(EventInStream.find(987_654_324).stream).to eq("whoo")
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
