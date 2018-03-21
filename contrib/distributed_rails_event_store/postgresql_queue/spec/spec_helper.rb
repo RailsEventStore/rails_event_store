@@ -18,6 +18,12 @@ MigrationCode.gsub!("force: false", "force: true")
 
 module SchemaHelper
   def establish_database_connection
+    # ActiveRecord::Connection.clear_active_connections!
+    # ActiveRecord::Connection.clear_all_connections!()
+    ch = ActiveRecord::Base.connection_handler
+    ch.connection_pools.each do | pool |
+      pool.disconnect!
+    end
     ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
   end
 
@@ -41,10 +47,9 @@ RSpec.configure do |config|
   config.failure_color = :magenta
 end
 
-
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  # config.example_status_persistence_file_path = ".rspec_status"
 
   config.disable_monkey_patching!
 

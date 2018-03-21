@@ -1,13 +1,14 @@
+require 'spec_helper'
 require 'pry'
+require 'logger'
 
 class MyEvent < RubyEventStore::Event
 end
 
-
-RSpec.describe PostgresqlQueue do
+RSpec.describe PostgresqlQueue::Reader do
   include SchemaHelper
 
-  around(:each) do |example|
+  around(:all) do |example|
     begin
       establish_database_connection
       load_database_schema
@@ -15,6 +16,13 @@ RSpec.describe PostgresqlQueue do
     ensure
       drop_database
     end
+  end
+
+
+  before(:each) do
+    establish_database_connection
+    ActiveRecord::Base.connection.execute("TRUNCATE event_store_events")
+    ActiveRecord::Base.connection.execute("TRUNCATE event_store_events_in_streams")
   end
 
   let(:res) do
@@ -26,6 +34,7 @@ RSpec.describe PostgresqlQueue do
   end
 
   it "has a version number" do
+    puts "YO"
     expect(PostgresqlQueue::VERSION).not_to be nil
   end
 
@@ -123,6 +132,9 @@ RSpec.describe PostgresqlQueue do
     expect(q.events(after_event_id: ev1.event_id)).to eq([ev2, ev3, ev4])
   end
 end
+
+
+
 
 # Thread1: [1] [       3,     5]
 # Thread2:        [2,      4,    6]
