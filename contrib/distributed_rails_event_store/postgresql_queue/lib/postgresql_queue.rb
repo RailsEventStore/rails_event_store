@@ -12,13 +12,7 @@ module PostgresqlQueue
       events = @res.read_all_streams_forward(start: after_event_id, count: 100)
       return [] if events.empty?
 
-      after = if after_event_id == :head
-        0
-      else
-        ::RailsEventStoreActiveRecord::EventInStream.where(
-          stream: RubyEventStore::GLOBAL_STREAM
-        ).where(event_id: after_event_id).first!.id
-      end
+      after = find_event_in_stream_id_by_event_id(after_event_id)
       last_approved = after
       after += 1
 
@@ -57,6 +51,16 @@ module PostgresqlQueue
     end
 
     private
+
+    def find_event_in_stream_id_by_event_id(event_id)
+      if event_id == :head
+        0
+      else
+        ::RailsEventStoreActiveRecord::EventInStream.where(
+          stream: RubyEventStore::GLOBAL_STREAM
+        ).where(event_id: event_id).first!.id
+      end
+    end
 
     def id_locked?(id)
       s = <<-SQL
