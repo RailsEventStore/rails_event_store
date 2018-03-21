@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'active_support/core_ext/string/strip'
 require 'generators/bounded_context/bounded_context_generator'
 
 module BoundedContext
@@ -18,11 +17,11 @@ module BoundedContext
     specify do
       run_generator %w[payments]
 
-      expect('payments/lib/payments.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('payments/lib/payments.rb').to match_content(<<~EOF)
         module Payments
         end
       EOF
-      expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('config/application.rb').to match_content(<<~EOF)
         config.paths.add 'payments/lib', eager_load: true
       EOF
     end
@@ -30,11 +29,11 @@ module BoundedContext
     specify do
       run_generator %w[Inventory]
 
-      expect('inventory/lib/inventory.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('inventory/lib/inventory.rb').to match_content(<<~EOF)
         module Inventory
         end
       EOF
-      expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('config/application.rb').to match_content(<<~EOF)
         config.paths.add 'inventory/lib', eager_load: true
       EOF
     end
@@ -42,11 +41,11 @@ module BoundedContext
     specify do
       run_generator %w[mumbo_jumbo]
 
-      expect('mumbo_jumbo/lib/mumbo_jumbo.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('mumbo_jumbo/lib/mumbo_jumbo.rb').to match_content(<<~EOF)
         module MumboJumbo
         end
       EOF
-      expect('config/application.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('config/application.rb').to match_content(<<~EOF)
         config.paths.add 'mumbo_jumbo/lib', eager_load: true
       EOF
     end
@@ -83,19 +82,19 @@ module BoundedContext
     end
 
     def expect_identity_access_spec_helper
-      expect('identity_access/spec/spec_helper.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('identity_access/spec/spec_helper.rb').to match_content(<<~EOF)
         ENV['RAILS_ENV'] = 'test'
 
         $LOAD_PATH.push File.expand_path('../../../spec', __FILE__)
         require File.expand_path('../../../config/environment', __FILE__)
         require File.expand_path('../../../spec/rails_helper', __FILE__)
-        
+
         require_relative '../lib/identity_access'
       EOF
     end
 
     def expect_identity_access_bc_spec
-      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('identity_access/spec/identity_access_spec.rb').to match_content(<<~EOF)
         require_relative 'spec_helper'
 
         RSpec.describe IdentityAccess do
@@ -104,7 +103,7 @@ module BoundedContext
     end
 
     def expect_identity_access_require_bc_spec
-      expect('spec/identity_access_spec.rb').to match_content(<<-'EOF'.strip_heredoc)
+      expect('spec/identity_access_spec.rb').to match_content(<<~'EOF')
         require 'rails_helper'
 
         path = Rails.root.join('identity_access/spec')
@@ -115,7 +114,7 @@ module BoundedContext
     end
 
     def expect_identity_access_test_helper
-      expect('identity_access/test/test_helper.rb').to match_content(<<-EOF.strip_heredoc)
+      expect('identity_access/test/test_helper.rb').to match_content(<<~EOF)
         require_relative '../lib/identity_access'
       EOF
     end
