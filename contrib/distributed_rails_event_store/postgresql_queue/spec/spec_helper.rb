@@ -3,6 +3,7 @@ require "ruby_event_store"
 require "rails_event_store_active_record"
 require "postgresql_queue"
 require "concurrent"
+require "pg"
 
 # require 'rails'
 

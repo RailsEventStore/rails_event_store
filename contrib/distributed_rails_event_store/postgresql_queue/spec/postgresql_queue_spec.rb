@@ -34,7 +34,6 @@ RSpec.describe PostgresqlQueue::Reader do
   end
 
   it "has a version number" do
-    puts "YO"
     expect(PostgresqlQueue::VERSION).not_to be nil
   end
 
