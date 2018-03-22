@@ -20,6 +20,7 @@ RSpec.describe RailsEventStoreActiveRecord do
   end
 
   specify "can be used without rails", mutate: false do
+    skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
     pathname = Pathname.new(__FILE__).dirname
     cwd = pathname.join("without_rails")
     FileUtils.rm(cwd.join("Gemfile.lock")) if File.exists?(cwd.join("Gemfile.lock"))
@@ -27,6 +28,7 @@ RSpec.describe RailsEventStoreActiveRecord do
     process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
     process.environment['DATABASE_URL']   = ENV['DATABASE_URL']
     process.environment['RAILS_VERSION']  = ENV['RAILS_VERSION']
+    process.environment['VERBOSE'] = 'true'
     process.cwd = cwd
     process.io.stdout = $stdout
     process.io.stderr = $stderr

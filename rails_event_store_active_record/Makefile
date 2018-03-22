@@ -23,6 +23,14 @@ mutate: test ## Run mutation tests
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
+mutate-fast: ## Run mutation tests with --fail-fast
+	@echo "Running mutation tests with --fail-fast"
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--fail-fast \
+		--use rspec "$(SUBJECT)"
+
 build:
 	@echo "Building gem package"
 	@gem build -V $(GEM_NAME).gemspec
