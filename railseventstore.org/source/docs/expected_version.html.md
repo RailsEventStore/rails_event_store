@@ -60,7 +60,7 @@ event_store.publish_event(
 )
 ```
 
-In other words when you say `expected_version: 2` that means: _When I publish those events I expect the last event in the stream to be exactly at the position `2`. So you expect exactly 3 events to be in that stream at positions `0, 1, 2`. Not less, not more.
+In other words when you say `expected_version: 2` that means: _When I publish those events I expect the last event in the stream to be exactly at the position `2`._ So you expect exactly 3 events to be in that stream at positions `0, 1, 2`. Not less, not more.
 
 If the `expected_version` does not match and another thread (or process) wrote different events in the meantime your write will fail with `RubyEventStore::WrongExpectedEventVersion` exception. This exception is thrown before any handlers are invoked.
 
@@ -103,11 +103,11 @@ application_lock("Order-1") do
 end
 ```
 
-The guarantees mentioned below assume there is no application specific lock.
+The guarantees mentioned below **assume there is no application specific lock.**
 
 #### Guarantees
 
-* When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to the same correct number, only one of those writes will succeed.
+* When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to the same correct number, at least one of those writes will succeed.
 * When a single thread (or process) writes events A, B to a stream, it is guaranteed you will retrieve events A,B in that exact order when reading from a stream.
 * Succeeds when there were no other successful concurrent writes, raises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
 
