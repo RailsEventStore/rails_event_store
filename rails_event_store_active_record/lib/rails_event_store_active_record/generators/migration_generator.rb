@@ -1,4 +1,7 @@
-require 'rails/generators'
+begin
+  require 'rails/generators'
+rescue LoadError
+end
 
 module RailsEventStoreActiveRecord
   class MigrationGenerator < Rails::Generators::Base
@@ -23,4 +26,4 @@ module RailsEventStoreActiveRecord
       Time.now.strftime("%Y%m%d%H%M%S")
     end
   end
-end
+end if defined?(Rails::Generators::Base)

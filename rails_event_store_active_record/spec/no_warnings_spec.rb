@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-module RubyEventStore
-  RSpec.describe 'no warnings' do
+module RailsEventStoreActiveRecord
+  RSpec.describe 'no warnings', mutate: false do
     specify do
       expect(rails_event_store_active_record_warnings).to eq([])
     end
