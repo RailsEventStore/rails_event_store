@@ -1,0 +1,22 @@
+.site-footer {
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.site-footer ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-footer__link {
+  margin: 0 .4rem;
+  color: $base-font-color;
+  text-decoration: underline;
+  text-decoration-skip: ink;
+
+  &:hover {
+    color: $base-font-color;
+    opacity: 0.75;
+  }
+}
