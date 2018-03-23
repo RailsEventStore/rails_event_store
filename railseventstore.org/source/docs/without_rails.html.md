@@ -10,12 +10,8 @@ Add to your `Gemfile`
 source 'https://rubygems.org'
 
 gem 'activerecord'
-gem 'ruby_event_store', 
-  github: "RailsEventStore/rails_event_store",
-  branch: "repo_without_rails"
-gem 'rails_event_store_active_record', 
-  github: "RailsEventStore/rails_event_store", 
-  branch: "repo_without_rails"
+gem 'ruby_event_store', github: "RailsEventStore/rails_event_store"
+gem 'rails_event_store_active_record', github: "RailsEventStore/rails_event_store"
 
 # And one of:
 gem 'sqlite3'
