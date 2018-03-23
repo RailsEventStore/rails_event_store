@@ -55,7 +55,7 @@ RSpec.describe PostgresqlQueue::Reader do
     expect(q.events(after_event_id: nil)).to eq(events[0..99])
   end
 
-  specify "does not read too much unnecessarily" do
+  specify "does not read too much Events unnecessarily" do
     res.publish_events(events = 10.times.map{MyEvent.new})
 
     allow(MyEvent).to receive(:new).and_call_original
@@ -63,6 +63,14 @@ RSpec.describe PostgresqlQueue::Reader do
     expect(MyEvent).to have_received(:new).exactly(3).times
   end
 
+  specify "does not read too much EventInStream unnecessarily" do
+    res.publish_events(events = 50.times.map{MyEvent.new})
+
+    allow(RailsEventStoreActiveRecord::EventInStream).to receive(:allocate).and_call_original
+    q.events(after_event_id: events[5].event_id, count: 10)
+    expect(RailsEventStoreActiveRecord::EventInStream).to have_received(:allocate).at_least(1).times
+    expect(RailsEventStoreActiveRecord::EventInStream).to have_received(:allocate).at_most(2*10+3).times
+  end
 
   specify "does not expose un-committed event" do
     exchanger = Concurrent::Exchanger.new

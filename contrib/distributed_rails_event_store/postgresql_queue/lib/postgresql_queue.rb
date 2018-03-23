@@ -15,7 +15,7 @@ module PostgresqlQueue
       last_approved = after
       after += 1
 
-      before = ::RailsEventStoreActiveRecord::EventInStream.where(
+      before = RailsEventStoreActiveRecord::EventInStream.where(
         stream: RubyEventStore::GLOBAL_STREAM
       ).where(event_id: events.last.event_id).first!.id
 
