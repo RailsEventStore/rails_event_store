@@ -1,6 +1,8 @@
 .bundle/
 .yardoc
 .rspec_status
+.sass-cache/
+.cache/
 Gemfile.lock
 _yardoc/
 coverage/

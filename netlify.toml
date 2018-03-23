@@ -1,0 +1,4 @@
+[build]
+  base = "railseventstore.org/"
+  command = "middleman build"
+  publish = "railseventstore.org/build/"
