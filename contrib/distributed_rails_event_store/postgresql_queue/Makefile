@@ -21,6 +21,15 @@ mutate: ## Run mutation tests
 		--jobs 1 \
 		--use rspec "$(SUBJECT)"
 
+mutate-fast: ## Run mutation tests
+	@echo "Running mutation tests"
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--jobs 1 \
+		--fail-fast \
+		--use rspec "$(SUBJECT)"
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 

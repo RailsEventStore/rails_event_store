@@ -7,9 +7,8 @@ module PostgresqlQueue
       @res = res
     end
 
-    def events(after_event_id: :head)
-      after_event_id ||= :head
-      events = @res.read_all_streams_forward(start: after_event_id, count: 100)
+    def events(after_event_id:, count: 100)
+      events = @res.read_all_streams_forward(start: after_event_id || :head, count: count)
       return [] if events.empty?
 
       after = find_event_in_stream_id_by_event_id(after_event_id)
@@ -53,7 +52,7 @@ module PostgresqlQueue
     private
 
     def find_event_in_stream_id_by_event_id(event_id)
-      if event_id == :head
+      if event_id.nil?
         0
       else
         ::RailsEventStoreActiveRecord::EventInStream.where(

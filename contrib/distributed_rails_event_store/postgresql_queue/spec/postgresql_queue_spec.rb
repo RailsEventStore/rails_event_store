@@ -45,6 +45,25 @@ RSpec.describe PostgresqlQueue::Reader do
     expect(q.events(after_event_id: ev.event_id)).to eq([])
   end
 
+  specify "exposes max count events" do
+    res.publish_events(events = 10.times.map{MyEvent.new})
+    expect(q.events(after_event_id: nil, count: 2 )).to eq(events[0..1])
+  end
+
+  specify "exposes 100 events by default" do
+    res.publish_events(events = 105.times.map{MyEvent.new})
+    expect(q.events(after_event_id: nil)).to eq(events[0..99])
+  end
+
+  specify "does not read too much unnecessarily" do
+    res.publish_events(events = 10.times.map{MyEvent.new})
+
+    allow(MyEvent).to receive(:new).and_call_original
+    expect(q.events(after_event_id: events[5].event_id, count: 3 )).to eq(events[6..8])
+    expect(MyEvent).to have_received(:new).exactly(3).times
+  end
+
+
   specify "does not expose un-committed event" do
     exchanger = Concurrent::Exchanger.new
     timeout = 3
