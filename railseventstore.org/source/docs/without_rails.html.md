@@ -1,4 +1,4 @@
-# Using Ruby Event Store without Rails [EDGE Feature]
+# Using Ruby Event Store without Rails [edge feature]
 
 This edge feature is not yet available in a released gem version.
 

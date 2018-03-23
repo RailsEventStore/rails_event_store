@@ -1,4 +1,4 @@
-# Using Rails Event Store with Protobuf [EDGE Feature]
+# Using Rails Event Store with Protobuf [edge feature]
 
 Using RES with Protobuf or another binary serialization protocol might be a good idea if you want to share your events' data with another applications and micro-services.
 
