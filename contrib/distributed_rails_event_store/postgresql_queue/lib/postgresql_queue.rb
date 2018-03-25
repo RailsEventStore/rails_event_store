@@ -7,14 +7,14 @@ module PostgresqlQueue
       @res = res
     end
 
-    def events(after_event_id:, count: 100)
+    def events(after_event_id:, count: 100, iterated_stream: RubyEventStore::GLOBAL_STREAM)
       events = @res.read_all_streams_forward(start: after_event_id || :head, count: count)
       return [] if events.empty?
 
-      after = find_event_in_stream_id_by_event_id(after_event_id)
+      after = find_event_in_stream_id_by_event_id(event_id: after_event_id, stream: iterated_stream)
       last_approved = after
       after += 1
-      before = find_event_in_stream_id_by_event_id(events.last.event_id)
+      before = find_event_in_stream_id_by_event_id(event_id: events.last.event_id, stream: iterated_stream)
 
       eis = RailsEventStoreActiveRecord::EventInStream.
         where("id >= #{after} AND id <= #{before}").
@@ -25,7 +25,7 @@ module PostgresqlQueue
       allowed_event_ids = []
       (after..last).each do |id|
         if id == last_approved+1 && found = eis.find{|event_in_stream| event_in_stream.id == id }
-          if found.stream == RubyEventStore::GLOBAL_STREAM
+          if found.stream == iterated_stream
             allowed_event_ids << found.event_id
           end
           last_approved = id
@@ -48,12 +48,12 @@ module PostgresqlQueue
 
     private
 
-    def find_event_in_stream_id_by_event_id(event_id)
+    def find_event_in_stream_id_by_event_id(event_id:, stream:)
       if event_id.nil?
         0
       else
         ::RailsEventStoreActiveRecord::EventInStream.where(
-          stream: RubyEventStore::GLOBAL_STREAM
+          stream: stream
         ).where(event_id: event_id).first!.id
       end
     end

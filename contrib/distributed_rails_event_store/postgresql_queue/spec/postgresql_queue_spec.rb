@@ -68,8 +68,22 @@ RSpec.describe PostgresqlQueue::Reader do
 
     allow(RailsEventStoreActiveRecord::EventInStream).to receive(:allocate).and_call_original
     q.events(after_event_id: events[5].event_id, count: 10)
-    expect(RailsEventStoreActiveRecord::EventInStream).to have_received(:allocate).at_least(1).times
-    expect(RailsEventStoreActiveRecord::EventInStream).to have_received(:allocate).at_most(2*10+3).times
+    expect(RailsEventStoreActiveRecord::EventInStream).to have_received(:allocate).exactly(2*10+3).times
+  end
+
+  specify "does not read EventInStream from linked stream" do
+    res.publish_events(events = 50.times.map{MyEvent.new})
+    res.link_to_stream(events[5].event_id, stream_name: "elo")
+
+    allow(RailsEventStoreActiveRecord::EventInStream).to receive(:allocate).and_call_original
+    q.events(after_event_id: events[5].event_id, count: 10)
+    expect(RailsEventStoreActiveRecord::EventInStream).to have_received(:allocate).exactly(2*10+3).times
+  end
+
+  specify "handles non global stream" do
+    res.publish_events(events = 50.times.map{MyEvent.new}, stream_name: "whoa")
+    expect(q.events(after_event_id: nil, count: 5 )).to eq(events[0..4])
+    expect(q.events(after_event_id: events[4].event_id, count: 5 )).to eq(events[5..9])
   end
 
   specify "does not expose un-committed event" do
