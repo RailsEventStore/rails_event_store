@@ -86,6 +86,15 @@ RSpec.describe PostgresqlQueue::Reader do
     expect(q.events(after_event_id: events[4].event_id, count: 5 )).to eq(events[5..9])
   end
 
+  specify "explicit id ASC query" do
+    res.publish_event(ev = MyEvent.new(data: {
+      one: 1,
+    }))
+    expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*id.*>=.*AND.*id.*<=.*ORDER BY id ASC.*/) do
+      expect(q.events(after_event_id: nil)).to eq([ev])
+    end
+  end
+
   specify "does not expose un-committed event" do
     exchanger = Concurrent::Exchanger.new
     timeout = 3
@@ -170,6 +179,17 @@ RSpec.describe PostgresqlQueue::Reader do
     t.join(timeout)
     expect(q.events(after_event_id: nil)).to eq([ev1, ev2, ev3, ev4])
     expect(q.events(after_event_id: ev1.event_id)).to eq([ev2, ev3, ev4])
+  end
+
+  private
+
+  def expect_query(match, &block)
+    count = 0
+    counter_f = ->(_name, _started, _finished, _unique_id, payload) {
+      count +=1 if match === payload[:sql]
+    }
+    ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
+    expect(count).to eq(1)
   end
 end
 

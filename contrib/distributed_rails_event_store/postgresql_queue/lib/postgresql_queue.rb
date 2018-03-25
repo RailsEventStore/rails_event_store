@@ -18,7 +18,7 @@ module PostgresqlQueue
 
       eis = RailsEventStoreActiveRecord::EventInStream.
         where("id >= #{after} AND id <= #{before}").
-        order("id ASC").to_a
+        order("id ASC")
 
       last  = before
 
