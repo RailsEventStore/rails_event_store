@@ -1,3 +1,5 @@
+# Benefits
+
 Rails Event Store (RES) is a library for publishing, consuming, storing and retrieving events. It's your best companion for going with an event-driven architecture for your Rails application.
 
 You can use it:
