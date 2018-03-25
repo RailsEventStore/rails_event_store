@@ -14,10 +14,7 @@ module PostgresqlQueue
       after = find_event_in_stream_id_by_event_id(after_event_id)
       last_approved = after
       after += 1
-
-      before = RailsEventStoreActiveRecord::EventInStream.where(
-        stream: RubyEventStore::GLOBAL_STREAM
-      ).where(event_id: events.last.event_id).first!.id
+      before = find_event_in_stream_id_by_event_id(events.last.event_id)
 
       eis = RailsEventStoreActiveRecord::EventInStream.
         where("id >= #{after} AND id <= #{before}").
