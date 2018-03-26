@@ -2,7 +2,7 @@
   -webkit-overflow-scrolling: touch;
   overflow-x: auto;
   padding: 0 1rem;
-  font-size: 2rem;
+  font-size: 1.8rem;
 
   @include media($mobile) {
     flex-direction: column;
@@ -32,4 +32,11 @@
 
 .site-navigation__link:first-child {
   margin-left: 0;
+}
+
+.site-navigation__link--external {
+  color: $oc-gray-2;
+  font-size: 1.6rem;
+  padding-top: 0.4rem;
+  line-height: 2rem;
 }
