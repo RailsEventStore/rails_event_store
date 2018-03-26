@@ -1,5 +1,5 @@
 ---
-title: Contributing
+title: Community
 ---
 
 ## Contributing to RailsEventStore organization repositories

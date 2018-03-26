@@ -1,5 +1,5 @@
 ---
-title: Support
+title: Commercial Support
 ---
 
 ## Consulting
@@ -10,7 +10,6 @@ Rails Event Store is funded and maintained by [Arkency](https://arkency.com). Co
 
 Check our [Rails + Domain Driven Design Workshop](http://blog.arkency.com/domain-driven-rails-workshop-london/).
 Why You should attend? Robert has explained this in a [blogpost](http://blog.arkency.com/2016/12/why-would-you-even-want-to-listen-about-ddd/).
-
 
 Next edition will be held on **16-17th November 2017** in **London, UK**. Workshop will be held in English.
 
