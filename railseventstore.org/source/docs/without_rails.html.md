@@ -1,6 +1,4 @@
-# Using Ruby Event Store without Rails [edge feature]
-
-This edge feature is not yet available in a released gem version.
+# Using Ruby Event Store without Rails
 
 ## Installation
 
@@ -10,8 +8,8 @@ Add to your `Gemfile`
 source 'https://rubygems.org'
 
 gem 'activerecord'
-gem 'ruby_event_store', github: "RailsEventStore/rails_event_store"
-gem 'rails_event_store_active_record', github: "RailsEventStore/rails_event_store"
+gem 'ruby_event_store'
+gem 'rails_event_store_active_record'
 
 # And one of:
 gem 'sqlite3'
