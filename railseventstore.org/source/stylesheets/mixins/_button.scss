@@ -14,9 +14,11 @@
 @mixin button-filled($color) {
   @include button;
   background-color: $color;
+  border: 2px solid $color;
   color: white;
 
   &:hover {
+    border-color: darken($color, 10);
     background-color: darken($color, 10);
     color: white;
   }
@@ -30,19 +32,10 @@ transparent) {
   background-size: 100% 200%;
   border: 2px solid $font-color;
   color: $font-color;
-  transition: all .3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 
-  // @if $type == "fill" {
-  //   &:hover {
-  //     background-position: 200% 100%;
-  //     background-color: $font-color;
-  //     border-color: $font-color;
-  //     color: $secondary-color;
-  //   }
-  // } @else if $type == "darken" {
   &:hover {
     border-color: darken($font-color, 20);
     color: darken($font-color, 20);
   }
-  // }
 }

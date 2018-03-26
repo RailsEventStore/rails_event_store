@@ -27,3 +27,15 @@
   font-size: 2rem;
   margin: 3rem auto;
 }
+
+.site-hero__cta--secondary {
+  background: transparent;
+  border: 2px solid $oc-gray-7;
+  color: $oc-gray-0;
+
+  &:hover {
+    background: transparent;
+    border: 2px solid $oc-red-8;
+    color: $oc-red-8;
+  }
+}
