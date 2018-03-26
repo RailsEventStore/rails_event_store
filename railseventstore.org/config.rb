@@ -6,6 +6,7 @@ end
 
 set :markdown, tables: true, autolink: true, gh_blockcode: true, fenced_code_blocks: true, with_toc_data: false
 set :markdown_engine, :redcarpet
+set :res_version, File.read('../RES_VERSION')
 
 page "/", layout: "landing"
 page "/docs/*", layout: "documentation"
