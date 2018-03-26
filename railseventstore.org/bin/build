@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./bin/contributors
+./bin/middleman build
