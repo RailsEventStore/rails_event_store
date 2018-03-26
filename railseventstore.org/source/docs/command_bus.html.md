@@ -1,7 +1,5 @@
-# Command Bus [edge feature]
+# Command Bus
               
-This edge feature is not yet available in a released gem version.
-
 _Command Pattern - decoupling what is done from who does it._
 
 ## Installation
