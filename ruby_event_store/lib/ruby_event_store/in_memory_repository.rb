@@ -3,6 +3,7 @@ require 'thread'
 
 module RubyEventStore
   class InMemoryRepository
+    include Repository
 
     def initialize(mapper: Mappers::Default.new)
       @all = Array.new
@@ -11,13 +12,9 @@ module RubyEventStore
       @mapper = mapper
     end
 
-    def append_to_stream(events, stream_name, expected_version)
-      add_to_stream(events, expected_version, stream_name, true)
-    end
-
     def link_to_stream(event_ids, stream_name, expected_version)
-      events = normalize_to_array(event_ids).map{|eid| read_event(eid) }
-      add_to_stream(events, expected_version, stream_name, nil)
+      events = normalize_to_array(event_ids).map(&method(:read_event))
+      add_to_stream(events, stream_name, expected_version, nil)
     end
 
     def delete_stream(stream_name)
@@ -72,27 +69,7 @@ module RubyEventStore
 
     private
 
-    def normalize_to_array(events)
-      return *events
-    end
-
-    def add_to_stream(events, expected_version, stream_name, include_global)
-      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
-      events = normalize_to_array(events)
-      expected_version = case expected_version
-        when :none
-          -1
-        when :auto
-          read_stream_events_forward(stream_name).size - 1
-        when Integer, :any
-          expected_version
-        else
-         raise InvalidExpectedVersion
-      end
-      append_with_synchronize(events, expected_version, stream_name, include_global)
-    end
-
-    def append_with_synchronize(events, expected_version, stream_name, include_global)
+    def append(events, stream_name, expected_version, include_global)
       # expected_version :auto assumes external lock is used
       # which makes reading stream before writing safe.
       #
@@ -102,26 +79,25 @@ module RubyEventStore
       # not for the whole read+write algorithm.
       Thread.pass
       @mutex.synchronize do
-        if expected_version == :any
-          expected_version = read_stream_events_forward(stream_name).size - 1
+        last_position = last_position_for(stream_name)
+        expected_version = last_position if expected_version == :any
+        stream = read_stream_events_forward(stream_name)
+        raise WrongExpectedEventVersion unless last_position.equal?(expected_version)
+        events.each do |event|
+          raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
+          if include_global
+            raise EventDuplicatedInStream if @all.any?{|ev| ev.event_id.eql?(event.event_id) }
+            @all.push(event)
+          end
+          stream.push(event)
         end
-        append(events, expected_version, stream_name, include_global)
+        @streams[stream_name] = stream
       end
+      self
     end
 
-    def append(events, expected_version, stream_name, include_global)
-      stream = read_stream_events_forward(stream_name)
-      raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
-      events.each do |event|
-        raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
-        if include_global
-          raise EventDuplicatedInStream if @all.any?{|ev| ev.event_id.eql?(event.event_id) }
-          @all.push(event)
-        end
-        stream.push(event)
-      end
-      @streams[stream_name] = stream
-      self
+    def last_position_for(stream_name)
+      read_stream_events_forward(stream_name).size - POSITION_SHIFT
     end
 
     def read_batch(source, start_event_id, count)
