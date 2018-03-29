@@ -7,6 +7,7 @@ require 'rails_event_store/deprecations'
 
 module RailsEventStore
   Event                     = RubyEventStore::Event
+  Repository                = RubyEventStore::Repository
   InMemoryRepository        = RubyEventStore::InMemoryRepository
   EventBroker               = RubyEventStore::PubSub::Broker
   Projection                = RubyEventStore::Projection
