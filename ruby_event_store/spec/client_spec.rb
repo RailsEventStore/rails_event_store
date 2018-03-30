@@ -219,5 +219,221 @@ module RubyEventStore
       expect(client.read_stream_events_forward('test')).to eq([event])
     end
 
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_events_forward(nil) }.to raise_error(IncorrectStreamData)
+      expect { client.read_events_forward('') }.to raise_error(IncorrectStreamData)
+      expect { client.read_events_backward(nil) }.to raise_error(IncorrectStreamData)
+      expect { client.read_events_backward('') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'raise exception if event_id does not exist' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_events_forward('stream_name', start: 0) }.to raise_error(EventNotFound, /Event not found: 0/)
+      expect { client.read_events_backward('stream_name', start: 0) }.to raise_error(EventNotFound, /0/)
+    end
+
+    specify 'raise exception if event_id is not given or invalid' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_events_forward('stream_name', start: nil) }.to raise_error(InvalidPageStart)
+      expect { client.read_events_backward('stream_name', start: :invalid) }.to raise_error(InvalidPageStart)
+    end
+
+    specify 'fails when page size is invalid' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_events_forward('stream_name', count: 0) }.to raise_error(InvalidPageSize)
+      expect { client.read_events_backward('stream_name', count: 0) }.to raise_error(InvalidPageSize)
+      expect { client.read_events_forward('stream_name', count: -1) }.to raise_error(InvalidPageSize)
+      expect { client.read_events_backward('stream_name', count: -1) }.to raise_error(InvalidPageSize)
+    end
+
+    specify 'return all events ordered forward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      events = client.read_events_forward('stream_name', start: 1, count: 3)
+      expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '3'))
+    end
+
+    specify 'return specified number of events ordered forward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      events = client.read_events_forward('stream_name', start: 1, count: 1)
+      expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
+    end
+
+    specify 'return all events ordered backward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      events = client.read_events_backward('stream_name', start: 2, count: 3)
+      expect(events[0]).to eq(OrderCreated.new(event_id: '1'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '0'))
+    end
+
+    specify 'return specified number of events ordered backward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      events = client.read_events_backward('stream_name', start: 3, count: 2)
+      expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
+    end
+
+    specify 'fails when starting event not exists' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      expect{ client.read_events_forward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+      expect{ client.read_events_backward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+    end
+
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.delete_stream(nil) }.to raise_error(IncorrectStreamData)
+      expect { client.delete_stream('') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'successfully delete streams of events' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        client.publish_event(OrderCreated.new, stream_name: 'test_1')
+      end
+      4.times do |index|
+        client.publish_event(OrderCreated.new, stream_name: 'test_2')
+      end
+      all_events = client.read_all_streams_forward
+      expect(all_events.length).to eq 8
+      client.delete_stream('test_2')
+      all_events = client.read_all_streams_forward
+      expect(all_events.length).to eq 8
+      expect(client.read_stream_events_forward('test_2')).to eq []
+    end
+
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_stream_events_forward(nil) }.to raise_error(IncorrectStreamData)
+      expect { client.read_stream_events_forward('') }.to raise_error(IncorrectStreamData)
+      expect { client.read_stream_events_backward(nil) }.to raise_error(IncorrectStreamData)
+      expect { client.read_stream_events_backward('') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'return all events ordered forward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      events = client.read_stream_events_forward('stream_name')
+      expect(events[0]).to eq(OrderCreated.new(event_id: '0'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
+      expect(events[2]).to eq(OrderCreated.new(event_id: '2'))
+      expect(events[3]).to eq(OrderCreated.new(event_id: '3'))
+    end
+
+    specify 'return all events ordered backward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
+      events = client.read_stream_events_backward('stream_name')
+      expect(events[0]).to eq(OrderCreated.new(event_id: '3'))
+      expect(events[1]).to eq(OrderCreated.new(event_id: '2'))
+      expect(events[2]).to eq(OrderCreated.new(event_id: '1'))
+      expect(events[3]).to eq(OrderCreated.new(event_id: '0'))
+    end
+
+    specify 'return all events ordered forward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      response = client.read_all_streams_forward
+      expect(response.length).to be 2
+      expect(response[0].data[:order_id]).to eq 123
+      expect(response[1].data[:order_id]).to eq 234
+    end
+
+    specify 'return batch of events from the beginging ordered forward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
+      response = client.read_all_streams_forward(start: :head, count: 2)
+      expect(response.length).to be 2
+      expect(response[0].data[:order_id]).to eq 123
+      expect(response[1].data[:order_id]).to eq 234
+    end
+
+    specify 'return batch of events from given event ordered forward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      uid = SecureRandom.uuid
+      client.publish_event(OrderCreated.new(event_id: uid, data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
+      response = client.read_all_streams_forward(start: uid, count: 1)
+      expect(response.length).to be 1
+      expect(response[0].data[:order_id]).to eq 234
+    end
+
+    specify 'return all events ordered backward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_1')
+      response = client.read_all_streams_backward
+      expect(response.length).to be 2
+      expect(response[0].data[:order_id]).to eq 234
+      expect(response[1].data[:order_id]).to eq 123
+    end
+
+    specify 'return batch of events from the end ordered backward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
+      response = client.read_all_streams_backward(start: :head, count: 2)
+      expect(response.length).to be 2
+      expect(response[0].data[:order_id]).to eq 345
+      expect(response[1].data[:order_id]).to eq 234
+    end
+
+    specify 'return batch of events from given event ordered backward' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      uid = SecureRandom.uuid
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(event_id: uid, data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
+      response = client.read_all_streams_backward(start: uid, count: 1)
+      expect(response.length).to be 1
+      expect(response[0].data[:order_id]).to eq 123
+    end
+
+    specify 'fails when starting event not exists' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      expect{ client.read_all_streams_forward(start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+      expect{ client.read_all_streams_backward(start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+    end
+
+    specify 'fails when page size is invalid' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      expect{ client.read_all_streams_forward(count: 0) }.to raise_error(InvalidPageSize)
+      expect{ client.read_all_streams_backward(count: 0) }.to raise_error(InvalidPageSize)
+      expect{ client.read_all_streams_forward(count: -1) }.to raise_error(InvalidPageSize)
+      expect{ client.read_all_streams_backward(count: -1) }.to raise_error(InvalidPageSize)
+    end
   end
 end
