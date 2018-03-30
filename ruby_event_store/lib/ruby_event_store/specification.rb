@@ -48,11 +48,5 @@ module RubyEventStore
     def each
       @repository.read(self)
     end
-
-    private
-
-    def non_head_symbol(symbol)
-      !((Symbol === symbol) || [:head].include?(start))
-    end
   end
 end
