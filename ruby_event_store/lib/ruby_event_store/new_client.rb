@@ -48,15 +48,17 @@ module RubyEventStore
       end
 
       def forward
+        @direction = :forward
         self
       end
 
       def each
-        @repository.read_events_forward(Stream.new(@stream_name), :head, PAGE_SIZE)
+        case @direction
+        when :forward
+          @repository.read_events_forward(Stream.new(@stream_name), :head, PAGE_SIZE).each
+        end
       end
-
     end
-
   end
 end
 
