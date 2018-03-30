@@ -69,8 +69,13 @@ module RailsEventStoreActiveRecord
       @repo_reader.read_event(event_id)
     end
 
-    def read(_)
-      [].each
+    def read(specification)
+      case specification.direction
+      when :forward
+        read_stream_events_forward(RubyEventStore::Stream.new(specification.stream_name))
+      when :backward
+        read_stream_events_backward(RubyEventStore::Stream.new(specification.stream_name))
+      end.each
     end
 
     private
