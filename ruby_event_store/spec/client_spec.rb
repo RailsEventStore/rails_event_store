@@ -361,7 +361,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
       response = client.read_all_streams_forward
-      expect(response.length).to be 2
+      expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
       expect(response[1].data[:order_id]).to eq 234
     end
@@ -372,7 +372,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_forward(start: :head, count: 2)
-      expect(response.length).to be 2
+      expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
       expect(response[1].data[:order_id]).to eq 234
     end
@@ -384,7 +384,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_forward(start: uid, count: 1)
-      expect(response.length).to be 1
+      expect(response.length).to eq 1
       expect(response[0].data[:order_id]).to eq 234
     end
 
@@ -393,7 +393,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_1')
       response = client.read_all_streams_backward
-      expect(response.length).to be 2
+      expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 234
       expect(response[1].data[:order_id]).to eq 123
     end
@@ -404,7 +404,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_backward(start: :head, count: 2)
-      expect(response.length).to be 2
+      expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 345
       expect(response[1].data[:order_id]).to eq 234
     end
@@ -416,7 +416,7 @@ module RubyEventStore
       client.publish_event(OrderCreated.new(event_id: uid, data: { order_id: 234 }), stream_name: 'order_2')
       client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read_all_streams_backward(start: uid, count: 1)
-      expect(response.length).to be 1
+      expect(response.length).to eq 1
       expect(response[0].data[:order_id]).to eq 123
     end
 
