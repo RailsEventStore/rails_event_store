@@ -11,9 +11,9 @@ Gem::Specification.new do |s|
   s.email       = ['dev@arkency.com']
   s.summary     = 'Web interface for RailsEventStore'
   s.license     = 'MIT'
-  spec.homepage      = 'http://railseventstore.org'
+  spec.homepage      = 'https://railseventstore.org'
   spec.metadata    = {
-    "homepage_uri" => "http://railseventstore.org/",
+    "homepage_uri" => "https://railseventstore.org/",
     "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
     "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",

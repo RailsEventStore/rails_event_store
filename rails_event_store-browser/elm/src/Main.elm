@@ -208,8 +208,8 @@ browserFooter model =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
             [ text ("RailsEventStore v" ++ model.flags.resVersion)
-            , a [ href "http://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
-            , a [ href "http://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
+            , a [ href "https://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
+            , a [ href "https://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
             ]
         ]
 

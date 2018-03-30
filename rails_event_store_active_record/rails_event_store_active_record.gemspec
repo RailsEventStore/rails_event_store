@@ -12,9 +12,9 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Active Record events repository for Rails Event Store}
   spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store'}
-  spec.homepage      = 'http://railseventstore.org'
+  spec.homepage      = 'https://railseventstore.org'
   spec.metadata    = {
-    "homepage_uri" => "http://railseventstore.org/",
+    "homepage_uri" => "https://railseventstore.org/",
     "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
     "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",

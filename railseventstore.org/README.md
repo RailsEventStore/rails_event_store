@@ -1,6 +1,6 @@
 # railseventstore.org
 
-Source files for the documentation and website of [Rails Event Store](http://railseventstore.org).
+Source files for the documentation and website of [Rails Event Store](https://railseventstore.org).
 
 [![Build Status](https://travis-ci.org/RailsEventStore/railseventstore.org.svg?branch=master)](https://travis-ci.org/RailsEventStore/railseventstore.org)
 
