@@ -1,11 +1,21 @@
 module RubyEventStore
   class Specification
+    attr_reader :direction, :start, :count, :stream_name
+
     def initialize(repository)
-      @repository = repository
+      @repository  = repository
+      @direction   = :forward
+      @start       = :head
+      @stream_name = GLOBAL_STREAM
     end
 
     def stream(stream_name)
       @stream_name = Stream.new(stream_name).name
+      self
+    end
+
+    def from(start)
+      @start = start
       self
     end
 
@@ -20,12 +30,7 @@ module RubyEventStore
     end
 
     def each
-      case @direction
-      when :forward
-        @repository.read_events_forward(Stream.new(@stream_name), :head, PAGE_SIZE).each
-      when :backward
-        @repository.read_events_backward(Stream.new(@stream_name), :head, PAGE_SIZE).each
-      end
+      @repository.read(self)
     end
   end
 end

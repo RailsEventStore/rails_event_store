@@ -59,8 +59,13 @@ module RubyEventStore
       global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
     end
 
-    def read(_)
-      [].each
+    def read(specification)
+      case specification.direction
+      when :forward
+        read_stream_events_forward(Stream.new(specification.stream_name))
+      when :backward
+        read_stream_events_backward(Stream.new(specification.stream_name))
+      end.each
     end
 
     private
