@@ -12,7 +12,13 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Event Store in Ruby}
   spec.description   = %q{Implementation of Event Store in Ruby}
-  spec.homepage      = 'https://github.com/RailsEventStore/rails_event_store'
+  spec.homepage      = 'https://railseventstore.org'
+  spec.metadata    = {
+    "homepage_uri" => "https://railseventstore.org/",
+    "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
+    "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
+    "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
+  }
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'exe'

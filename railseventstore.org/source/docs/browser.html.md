@@ -20,7 +20,7 @@ Rails.application.routes.draw do
 end
 ```
 
-It is assumed that you have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](http://railseventstore.org/docs/install/)).
+It is assumed that you have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](https://railseventstore.org/docs/install/)).
 
 ## Usage in production
 
