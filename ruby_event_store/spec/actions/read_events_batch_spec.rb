@@ -4,10 +4,6 @@ module RubyEventStore
   RSpec.describe Client do
     let(:stream_name) { 'stream_name' }
 
-    before do
-      allow(Time).to receive(:now).and_return(Time.now)
-    end
-
     specify 'raise exception if stream name is incorrect' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       expect { client.read_events_forward(nil) }.to raise_error(IncorrectStreamData)
