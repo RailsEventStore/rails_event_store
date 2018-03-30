@@ -2,7 +2,6 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Client do
-    let(:stream_name) { 'stream_name' }
 
     specify 'raise exception if stream name is incorrect' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
