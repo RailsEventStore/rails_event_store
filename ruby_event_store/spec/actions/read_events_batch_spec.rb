@@ -33,7 +33,10 @@ module RubyEventStore
 
     specify 'return all events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      prepare_events_in_store(client)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
       events = client.read_events_forward('stream_name', start: 1, count: 3)
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '3'))
@@ -41,14 +44,20 @@ module RubyEventStore
 
     specify 'return specified number of events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      prepare_events_in_store(client)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
       events = client.read_events_forward('stream_name', start: 1, count: 1)
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
     end
 
     specify 'return all events ordered backward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      prepare_events_in_store(client)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
       events = client.read_events_backward('stream_name', start: 2, count: 3)
       expect(events[0]).to eq(OrderCreated.new(event_id: '1'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '0'))
@@ -56,7 +65,10 @@ module RubyEventStore
 
     specify 'return specified number of events ordered backward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      prepare_events_in_store(client)
+      4.times do |index|
+        event = OrderCreated.new(event_id: index)
+        client.publish_event(event, stream_name: 'stream_name')
+      end
       events = client.read_events_backward('stream_name', start: 3, count: 2)
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
@@ -64,18 +76,13 @@ module RubyEventStore
 
     specify 'fails when starting event not exists' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      prepare_events_in_store(client)
-      expect{ client.read_events_forward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
-      expect{ client.read_events_backward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
-    end
-
-    private
-
-    def prepare_events_in_store(client)
       4.times do |index|
         event = OrderCreated.new(event_id: index)
         client.publish_event(event, stream_name: 'stream_name')
       end
+      expect{ client.read_events_forward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+      expect{ client.read_events_backward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
     end
+
   end
 end
