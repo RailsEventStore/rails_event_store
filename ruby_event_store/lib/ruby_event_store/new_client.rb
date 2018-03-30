@@ -13,7 +13,6 @@ module RubyEventStore
       :delete_stream,
       :read_events_forward,
       :read_events_backward,
-      :read_stream_events_backward,
       :read_all_streams_forward,
       :read_all_streams_backward,
       :read_event,
@@ -28,6 +27,10 @@ module RubyEventStore
 
     def read_stream_events_forward(stream_name)
       @old_client.send(:deserialized_events, read.stream(stream_name).forward.each)
+    end
+
+    def read_stream_events_backward(stream_name)
+      read.stream(stream_name).backward.each.to_a
     end
 
     private
@@ -52,10 +55,17 @@ module RubyEventStore
         self
       end
 
+      def backward
+        @direction = :backward
+        self
+      end
+
       def each
         case @direction
         when :forward
           @repository.read_events_forward(Stream.new(@stream_name), :head, PAGE_SIZE).each
+        when :backward
+          @repository.read_events_backward(Stream.new(@stream_name), :head, PAGE_SIZE).each
         end
       end
     end
