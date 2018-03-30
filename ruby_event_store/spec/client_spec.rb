@@ -229,8 +229,8 @@ module RubyEventStore
 
     specify 'raise exception if event_id does not exist' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_events_forward('stream_name', start: 0) }.to raise_error(EventNotFound, /Event not found: 0/)
-      expect { client.read_events_backward('stream_name', start: 0) }.to raise_error(EventNotFound, /0/)
+      expect { client.read_events_forward('stream_name', start: '0') }.to raise_error(EventNotFound, /Event not found: 0/)
+      expect { client.read_events_backward('stream_name', start: '0') }.to raise_error(EventNotFound, /0/)
     end
 
     specify 'raise exception if event_id is not given or invalid' do
@@ -274,7 +274,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_backward('stream_name', start: 2, count: 3)
+      events = client.read_events_backward('stream_name', start: '2', count: 3)
       expect(events[0]).to eq(OrderCreated.new(event_id: '1'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '0'))
     end
@@ -285,7 +285,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_backward('stream_name', start: 3, count: 2)
+      events = client.read_events_backward('stream_name', start: '3', count: 2)
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
     end
