@@ -44,13 +44,11 @@ module RubyEventStore
     end
 
     def read_events_forward(stream_name, start: :head, count: page_size)
-      page = Page.new(repository, start, count)
-      deserialized_events(repository.read_events_forward(Stream.new(stream_name), page.start, page.count))
+      deserialized_events(read.stream(stream_name).limit(count).from(start).each)
     end
 
     def read_events_backward(stream_name, start: :head, count: page_size)
-      page = Page.new(repository, start, count)
-      deserialized_events(repository.read_events_backward(Stream.new(stream_name), page.start, page.count))
+      deserialized_events(read.stream(stream_name).limit(count).from(start).backward.each)
     end
 
     def read_stream_events_forward(stream_name)
