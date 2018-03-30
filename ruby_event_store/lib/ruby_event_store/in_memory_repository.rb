@@ -32,27 +32,27 @@ module RubyEventStore
     end
 
     def read_events_forward(stream, start_event_id, count)
-      read_batch(stream_of(stream.name), start_event_id, count)
+      read(Specification.new(self).stream(stream.name).from(start_event_id).limit(count)).each.to_a
     end
 
     def read_events_backward(stream, start_event_id, count)
-      read_batch(stream_of(stream.name).reverse, start_event_id, count)
+      read(Specification.new(self).stream(stream.name).from(start_event_id).limit(count).backward).each.to_a
     end
 
     def read_stream_events_forward(stream)
-      stream_of(stream.name)
+      read(Specification.new(self).stream(stream.name)).each.to_a
     end
 
     def read_stream_events_backward(stream)
-      stream_of(stream.name).reverse
+      read(Specification.new(self).stream(stream.name).backward).each.to_a
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_batch(global, start_event_id, count)
+      read(Specification.new(self).from(start_event_id).limit(count)).each.to_a
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_batch(global.reverse, start_event_id, count)
+      read(Specification.new(self).from(start_event_id).limit(count).backward).each.to_a
     end
 
     def read_event(event_id)
@@ -60,7 +60,7 @@ module RubyEventStore
     end
 
     def read(specification)
-      events = Array(@streams[specification.stream_name])
+      events = specification.stream_name.eql?(GLOBAL_STREAM) ? global : stream_of(specification.stream_name)
       events = events.reverse if specification.direction == :backward
       events = read_batch(events, specification.start, specification.count) unless specification.count == Specification::NO_LIMIT
       events.each
