@@ -60,12 +60,10 @@ module RubyEventStore
     end
 
     def read(specification)
-      case specification.direction
-      when :forward
-        read_stream_events_forward(Stream.new(specification.stream_name))
-      when :backward
-        read_stream_events_backward(Stream.new(specification.stream_name))
-      end.each
+      events = Array(@streams[specification.stream_name])
+      events = events.reverse if specification.direction == :backward
+      events = read_batch(events, specification.start, specification.count) unless specification.count == Specification::NO_LIMIT
+      events.each
     end
 
     private
