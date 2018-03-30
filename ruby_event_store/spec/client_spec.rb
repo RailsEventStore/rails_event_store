@@ -250,10 +250,10 @@ module RubyEventStore
     specify 'return all events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       4.times do |index|
-        event = OrderCreated.new(event_id: index)
+        event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_forward('stream_name', start: 1, count: 3)
+      events = client.read_events_forward('stream_name', start: '1', count: 3)
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '3'))
     end
@@ -261,10 +261,10 @@ module RubyEventStore
     specify 'return specified number of events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       4.times do |index|
-        event = OrderCreated.new(event_id: index)
+        event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_forward('stream_name', start: 1, count: 1)
+      events = client.read_events_forward('stream_name', start: '1', count: 1)
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
     end
 
@@ -333,7 +333,7 @@ module RubyEventStore
     specify 'return all events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       4.times do |index|
-        event = OrderCreated.new(event_id: index)
+        event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
       events = client.read_stream_events_forward('stream_name')
@@ -346,7 +346,7 @@ module RubyEventStore
     specify 'return all events ordered backward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       4.times do |index|
-        event = OrderCreated.new(event_id: index)
+        event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
       events = client.read_stream_events_backward('stream_name')
