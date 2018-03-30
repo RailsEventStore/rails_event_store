@@ -120,6 +120,10 @@ instead:
       build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
 
+    def read(_)
+      [].each
+    end
+
     private
 
     def normalize_to_array(events)

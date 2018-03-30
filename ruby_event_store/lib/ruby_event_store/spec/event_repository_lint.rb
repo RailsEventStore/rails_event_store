@@ -907,4 +907,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
+  specify 'calling read returns enumerator' do
+    expect(repository.read(RubyEventStore::Specification.new(repository))).to be_kind_of(Enumerator)
+  end
 end
