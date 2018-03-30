@@ -54,11 +54,11 @@ module RubyEventStore
     end
 
     def read_stream_events_forward(stream_name)
-      deserialized_events(repository.read_stream_events_forward(Stream.new(stream_name)))
+      deserialized_events(read.stream(stream_name).each)
     end
 
     def read_stream_events_backward(stream_name)
-      deserialized_events(repository.read_stream_events_backward(Stream.new(stream_name)))
+      deserialized_events(read.stream(stream_name).backward.each)
     end
 
     def read_all_streams_forward(start: :head, count: page_size)
@@ -152,7 +152,7 @@ module RubyEventStore
       end
 
       private
-      
+
       def add_thread_subscribers
         @subscribers.map do |handler, types|
           @event_broker.add_thread_subscriber(handler, types)
@@ -191,6 +191,10 @@ module RubyEventStore
 
     def deserialize_event(sev)
       mapper.serialized_record_to_event(sev)
+    end
+
+    def read
+      Specification.new(@repository)
     end
 
     def normalize_to_array(events)
