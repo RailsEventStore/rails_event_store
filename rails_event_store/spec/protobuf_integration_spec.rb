@@ -7,7 +7,7 @@ module RailsEventStore
       client = Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
       ))
-      client.subscribe(->(ev){@ev = ev}, [ResTesting::OrderCreated])
+      client.subscribe(->(ev){@ev = ev}, [ResTesting::OrderCreated.descriptor.name])
       event = RubyEventStore::Proto.new(
         data: ResTesting::OrderCreated.new(
           customer_id: 123,

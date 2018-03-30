@@ -7,7 +7,7 @@ module RubyEventStore
     end
 
     def type
-      data.class.name
+      data.class.descriptor.name
     end
   end
 
@@ -29,7 +29,7 @@ module RubyEventStore
 
       def serialized_record_to_event(record)
         event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
-        data = Object.const_get(event_type).decode(record.data)
+        data = Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(record.data)
         Proto.new(
           event_id: record.event_id,
           data: data,
