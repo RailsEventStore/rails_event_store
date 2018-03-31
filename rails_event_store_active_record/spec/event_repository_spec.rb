@@ -152,14 +152,14 @@ module RailsEventStoreActiveRecord
     end
 
     specify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*id.* ASC LIMIT.*/) do
         repository = EventRepository.new
         repository.read_all_streams_forward(:head, 3)
       end
     end
 
     specify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*id.* DESC LIMIT.*/) do
         repository = EventRepository.new
         repository.read_all_streams_backward(:head, 3)
       end

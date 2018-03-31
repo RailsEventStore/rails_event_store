@@ -10,68 +10,8 @@ module RailsEventStoreActiveRecord
       record && build_event_instance(record)
     end
 
-    def read_events_forward(stream, after_event_id, count)
-      events = EventInStream.where(stream: stream.name)
-      unless after_event_id.equal?(:head)
-        after_event = events.find_by!(event_id: after_event_id)
-        events = events.where('id > ?', after_event)
-      end
-
-      events.preload(:event).order('position ASC, id ASC').limit(count)
-        .map(&method(:build_event_instance))
-    end
-
-    def read_events_backward(stream, before_event_id, count)
-      events = EventInStream.where(stream: stream.name)
-      unless before_event_id.equal?(:head)
-        before_event = events.find_by!(event_id: before_event_id)
-        events = events.where('id < ?', before_event)
-      end
-
-      events.preload(:event).order('position DESC, id DESC').limit(count)
-        .map(&method(:build_event_instance))
-    end
-
-    def read_stream_events_forward(stream)
-      EventInStream
-        .preload(:event)
-        .where(stream: stream.name)
-        .order('position ASC, id ASC')
-        .map(&method(:build_event_instance))
-    end
-
-    def read_stream_events_backward(stream)
-      EventInStream
-        .preload(:event)
-        .where(stream: stream.name)
-        .order('position DESC, id DESC')
-        .map(&method(:build_event_instance))
-    end
-
-    def read_all_streams_forward(after_event_id, count)
-      events = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
-      unless after_event_id.equal?(:head)
-        after_event = events.find_by!(event_id: after_event_id)
-        events = events.where('id > ?', after_event)
-      end
-
-      events.preload(:event).order('id ASC').limit(count)
-        .map(&method(:build_event_instance))
-    end
-
-    def read_all_streams_backward(before_event_id, count)
-      events = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
-      unless before_event_id.equal?(:head)
-        before_event = events.find_by!(event_id: before_event_id)
-        events = events.where('id < ?', before_event)
-      end
-
-      events.preload(:event).order('id DESC').limit(count)
-        .map(&method(:build_event_instance))
-    end
-
     def read_event(event_id)
-      event             = Event.find(event_id)
+      event = Event.find(event_id)
       RubyEventStore::SerializedRecord.new(
         event_id:   event.id,
         metadata:   event.metadata,
@@ -82,7 +22,40 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::EventNotFound.new(event_id)
     end
 
+    def read(specification)
+      order = sort_order(specification.direction)
+      stream =
+        EventInStream
+          .preload(:event)
+          .where(stream: specification.stream_name)
+      stream = stream.limit(specification.count) unless specification.count.equal?(RubyEventStore::Specification::NO_LIMIT)
+      stream = stream.where(start_condition(specification)) unless specification.start.equal?(:head)
+      stream = stream.order(position: order) unless specification.stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream = stream.order(id: order)
+
+      Enumerator.new do |y|
+        stream.each do |event_record|
+          y << build_event_instance(event_record)
+        end
+      end
+    end
+
     private
+
+    def start_condition(specification)
+      event_record =
+        EventInStream.find_by!(event_id: specification.start, stream: specification.stream_name)
+      case specification.direction
+      when :forward
+        ['id > ?', event_record]
+      else
+        ['id < ?', event_record]
+      end
+    end
+
+    def sort_order(direction)
+      { forward: 'ASC', backward: 'DESC' }.fetch(direction)
+    end
 
     def build_event_instance(record)
       RubyEventStore::SerializedRecord.new(
