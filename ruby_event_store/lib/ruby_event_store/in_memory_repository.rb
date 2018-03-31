@@ -32,27 +32,54 @@ module RubyEventStore
     end
 
     def read_events_forward(stream, start_event_id, count)
-      read(Specification.new(self).stream(stream.name).from(start_event_id).limit(count)).to_a
+      Specification.new(self)
+        .stream(stream.name)
+        .from(start_event_id)
+        .limit(count)
+        .each
+        .to_a
     end
 
     def read_events_backward(stream, start_event_id, count)
-      read(Specification.new(self).stream(stream.name).from(start_event_id).limit(count).backward).to_a
+      Specification.new(self)
+        .stream(stream.name)
+        .from(start_event_id)
+        .limit(count)
+        .backward
+        .each
+        .to_a
     end
 
     def read_stream_events_forward(stream)
-      read(Specification.new(self).stream(stream.name)).to_a
+      Specification.new(self)
+        .stream(stream.name)
+        .each
+        .to_a
     end
 
     def read_stream_events_backward(stream)
-      read(Specification.new(self).stream(stream.name).backward).to_a
+      Specification.new(self)
+        .stream(stream.name)
+        .backward
+        .each
+        .to_a
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read(Specification.new(self).from(start_event_id).limit(count)).to_a
+      Specification.new(self)
+        .from(start_event_id)
+        .limit(count)
+        .each
+        .to_a
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read(Specification.new(self).from(start_event_id).limit(count).backward).to_a
+      Specification.new(self)
+        .from(start_event_id)
+        .limit(count)
+        .backward
+        .each
+        .to_a
     end
 
     def read_event(event_id)
