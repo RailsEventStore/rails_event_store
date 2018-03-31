@@ -18,7 +18,7 @@ module RubyEventStore
 
     specify { expect{specification.limit(0)}.to raise_error(InvalidPageSize) }
 
-    specify { expect(specification.limit(5)).to have(:count, 5) }
+    specify { expect(specification.limit(1)).to have(:count, 1) }
 
     specify { expect(specification.forward).to have(:direction, :forward) }
 
