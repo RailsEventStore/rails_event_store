@@ -22,16 +22,12 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::EventNotFound.new(event_id)
     end
 
-    def read(specification)
-      order = sort_order(specification.direction)
-      stream =
-        EventInStream
-          .preload(:event)
-          .where(stream: specification.stream.name)
-      stream = stream.limit(specification.count) unless specification.count.equal?(RubyEventStore::Specification::NO_LIMIT)
-      stream = stream.where(start_condition(specification)) unless specification.start.equal?(:head)
-      stream = stream.order(position: order) unless specification.stream.global?
-      stream = stream.order(id: order)
+    def read(spec)
+      stream = EventInStream.preload(:event).where(stream: spec.stream.name)
+      stream = stream.limit(spec.count) if spec.limit?
+      stream = stream.where(start_condition(spec)) unless spec.head?
+      stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
+      stream = stream.order(id: order(spec.direction))
 
       Enumerator.new do |y|
         stream.each do |event_record|
@@ -53,7 +49,7 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    def sort_order(direction)
+    def order(direction)
       { forward: 'ASC', backward: 'DESC' }.fetch(direction)
     end
 

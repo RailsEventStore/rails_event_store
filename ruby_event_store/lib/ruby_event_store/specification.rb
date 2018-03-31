@@ -1,7 +1,29 @@
 module RubyEventStore
   class Specification
     NO_LIMIT = Object.new.freeze
-    Result = Struct.new(:direction, :start, :count, :stream)
+
+    class Result < Struct.new(:direction, :start, :count, :stream)
+      def limit?
+        !count.equal?(NO_LIMIT)
+      end
+
+      def global_stream?
+        stream.global?
+      end
+
+      def head?
+        start.equal?(:head)
+      end
+
+      def forward?
+        direction.equal?(:forward)
+      end
+
+      def backward?
+        !forward?
+      end
+    end
+    private_constant :Result
 
     attr_reader :result
 

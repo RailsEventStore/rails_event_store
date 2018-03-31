@@ -32,7 +32,7 @@ module RubyEventStore
 
     specify { expect(specification.stream('stream')).to have_result(:stream, Stream.new('stream')) }
 
-    specify { expect(specification.stream('all')).to have_result(:stream_name, GLOBAL_STREAM) }
+    specify { expect(specification.stream('all')).to have_result(:stream, Stream.new(GLOBAL_STREAM)) }
 
     specify { expect(specification.from(:head)).to have_result(:start, :head) }
 
@@ -55,6 +55,41 @@ module RubyEventStore
 
       expect(specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df'))
         .to(have_result(:start, '567ef3dd-dd28-4e05-9734-9353cd8653df'))
+    end
+
+    specify { expect(specification.stream('all')).to have_result(:global_stream?, true) }
+
+    specify { expect(specification.stream('nope')).to have_result(:global_stream?, false) }
+
+    specify { expect(specification).to have_result(:global_stream?, true) }
+
+    specify { expect(specification).to have_result(:limit?, false) }
+
+    specify { expect(specification.limit(100)).to have_result(:limit?, true) }
+
+    specify { expect(specification).to have_result(:forward?, true) }
+
+    specify { expect(specification).to have_result(:backward?, false) }
+
+    specify { expect(specification.forward).to have_result(:forward?, true) }
+
+    specify { expect(specification.forward).to have_result(:backward?, false) }
+
+    specify { expect(specification.backward).to have_result(:forward?, false) }
+
+    specify { expect(specification.backward).to have_result(:backward?, true) }
+
+    specify { expect(specification).to have_result(:head?, true) }
+
+    specify { expect(specification.from(:head)).to have_result(:head?, true) }
+
+    specify do
+      repository = InMemoryRepository.new
+      test_event = TestEvent.new(event_id: '567ef3dd-dd28-4e05-9734-9353cd8653df')
+      specification = Specification.new(repository)
+      repository.append_to_stream([test_event], Stream.new("fancy_stream"), ExpectedVersion.new(-1))
+
+      expect(specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df')).to have_result(:head?, false)
     end
 
     RSpec::Matchers.define :have_result do |attribute, expected|

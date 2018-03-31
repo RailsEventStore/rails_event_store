@@ -116,12 +116,12 @@ instead:
     def read_event(event_id)
       build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
-    
-    def read(specification)
-      stream = LegacyEvent.order(id: sort_order(specification.direction))
-      stream = stream.limit(specification.count) unless specification.count.equal?(RubyEventStore::Specification::NO_LIMIT)
-      stream = stream.where(start_condition(specification)) unless specification.start.equal?(:head)
-      stream = stream.where(stream: specification.stream.name) unless specification.stream.global?
+
+    def read(spec)
+      stream = LegacyEvent.order(id: order(spec.direction))
+      stream = stream.limit(spec.count) if spec.limit?
+      stream = stream.where(start_condition(spec)) unless spec.head?
+      stream = stream.where(stream: spec.stream.name) unless spec.global_stream?
 
       Enumerator.new do |y|
         stream.each do |event_record|
@@ -143,7 +143,7 @@ instead:
       end
     end
 
-    def sort_order(direction)
+    def order(direction)
       { forward: 'ASC', backward: 'DESC' }.fetch(direction)
     end
 
