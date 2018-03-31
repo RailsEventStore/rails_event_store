@@ -32,6 +32,8 @@ module RubyEventStore
 
     specify { expect(specification.stream('stream')).to have_result(:stream, Stream.new('stream')) }
 
+    specify { expect(specification.stream('all')).to have_result(:stream_name, GLOBAL_STREAM) }
+
     specify { expect(specification.from(:head)).to have_result(:start, :head) }
 
     specify { expect{specification.from(nil)}.to raise_error(InvalidPageStart) }
