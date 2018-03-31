@@ -206,21 +206,5 @@ module RubyEventStore
     end
 
     attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
-
-    class Page
-      def initialize(repository, start, count)
-        if start.instance_of?(Symbol)
-          raise InvalidPageStart unless [:head].include?(start)
-        else
-          start = start.to_s
-          raise InvalidPageStart if start.empty?
-          raise EventNotFound.new(start) unless repository.has_event?(start)
-        end
-        raise InvalidPageSize unless count > 0
-        @start = start
-        @count = count
-      end
-      attr_reader :start, :count
-    end
   end
 end
