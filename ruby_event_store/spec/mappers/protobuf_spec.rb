@@ -2,6 +2,24 @@ require 'spec_helper'
 require_relative 'events_pb.rb'
 
 module RubyEventStore
+  RSpec.describe Proto do
+    specify 'yaml serialization' do
+      event = RubyEventStore::Proto.new(
+        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data: ResTesting::OrderCreated.new(
+          customer_id: 123,
+          order_id: "K3THNX9",
+        ),
+        metadata: {
+          time: Time.new(2018, 12, 13, 11 ),
+        }
+      )
+      copy = YAML.load(YAML.dump(event))
+      expect(copy).to eq(event)
+      expect(copy.metadata).to eq(event.metadata)
+    end
+  end
+
   module Mappers
     RSpec.describe Protobuf do
       let(:event_id)     { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }

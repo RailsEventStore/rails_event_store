@@ -9,6 +9,25 @@ module RubyEventStore
     def type
       data.class.descriptor.name
     end
+
+    def encode_with(coder)
+      coder['event_id'] = @event_id
+      coder['metadata'] = @metadata
+      coder['data.proto'] = @data.class.encode(@data)
+      coder['data.type'] = type
+    end
+
+    def init_with(coder)
+      @event_id = coder['event_id']
+      @metadata = coder['metadata']
+      @data = pool.lookup(coder['data.type']).msgclass.decode(coder['data.proto'])
+    end
+
+    private
+
+    def pool
+      Google::Protobuf::DescriptorPool.generated_pool
+    end
   end
 
   module Mappers
