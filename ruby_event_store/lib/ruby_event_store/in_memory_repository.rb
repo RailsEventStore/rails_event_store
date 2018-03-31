@@ -42,10 +42,12 @@ module RubyEventStore
     end
 
     def read_stream_events_forward(stream_name)
+      return @all if stream_name.eql?(GLOBAL_STREAM)
       @streams[stream_name] || Array.new
     end
 
     def read_stream_events_backward(stream_name)
+      return @all if stream_name.eql?(GLOBAL_STREAM)
       read_stream_events_forward(stream_name).reverse
     end
 
@@ -113,7 +115,7 @@ module RubyEventStore
           raise EventDuplicatedInStream if @all.any?{|ev| ev.event_id.eql?(event.event_id) }
           @all.push(event)
         end
-        stream.push(event)
+        stream.push(event) unless stream_name.eql?(GLOBAL_STREAM)
       end
       @streams[stream_name] = stream
       self
