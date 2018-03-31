@@ -41,6 +41,11 @@ module RubyEventStore
     specify { expect{specification.from(:dummy)}.to raise_error(InvalidPageStart) }
 
     specify do
+      expect{specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df')}
+        .to(raise_error(EventNotFound, /567ef3dd-dd28-4e05-9734-9353cd8653df/))
+    end
+
+    specify do
       repository = InMemoryRepository.new
       test_event = TestEvent.new(event_id: '567ef3dd-dd28-4e05-9734-9353cd8653df')
       specification = Specification.new(repository)
