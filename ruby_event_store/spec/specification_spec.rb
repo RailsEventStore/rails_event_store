@@ -4,29 +4,57 @@ module RubyEventStore
   RSpec.describe Specification do
     let(:specification) { Specification.new(InMemoryRepository.new) }
 
-    specify { expect(specification.direction).to eq(:forward) }
-    specify { expect(specification.start).to eq(:head) }
-    specify { expect(specification.count).to eq(Specification::NO_LIMIT) }
-    specify { expect{specification.limit(nil).count}.to raise_error(InvalidPageSize) }
-    specify { expect(specification.limit(5).count).to eq(5) }
-    specify { expect{specification.limit(0).count}.to raise_error(InvalidPageSize) }
-    specify { expect(specification.stream_name).to eq(GLOBAL_STREAM) }
-    specify { expect(specification.forward.direction).to eq(:forward) }
-    specify { expect(specification.backward.direction).to eq(:backward) }
-    specify { expect(specification.backward.forward.direction).to eq(:forward) }
-    specify { expect{specification.stream(nil)}.to raise_error(IncorrectStreamData) }
-    specify { expect{specification.stream('')}.to raise_error(IncorrectStreamData) }
-    specify { expect(specification.stream('stream').stream_name).to eq('stream') }
     specify { expect(specification.each).to be_kind_of(Enumerator) }
-    specify { expect(specification.from(:head).start).to eq(:head) }
+
+    specify { expect(specification).to have(:direction, :forward) }
+
+    specify { expect(specification).to have(:start, :head) }
+
+    specify { expect(specification).to have(:count, Specification::NO_LIMIT) }
+
+    specify { expect(specification).to have(:stream_name, GLOBAL_STREAM) }
+
+    specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
+
+    specify { expect{specification.limit(0)}.to raise_error(InvalidPageSize) }
+
+    specify { expect(specification.limit(5)).to have(:count, 5) }
+
+    specify { expect(specification.forward).to have(:direction, :forward) }
+
+    specify { expect(specification.backward).to have(:direction, :backward) }
+
+    specify { expect(specification.backward.forward).to have(:direction, :forward) }
+
+    specify { expect{specification.stream(nil)}.to raise_error(IncorrectStreamData) }
+
+    specify { expect{specification.stream('')}.to raise_error(IncorrectStreamData) }
+
+    specify { expect(specification.stream('stream')).to have(:stream_name, 'stream') }
+
+    specify { expect(specification.from(:head)).to have(:start, :head) }
+
     specify { expect{specification.from(nil)}.to raise_error(InvalidPageStart) }
+
     specify { expect{specification.from('')}.to raise_error(InvalidPageStart) }
+
     specify { expect{specification.from(:dummy)}.to raise_error(InvalidPageStart) }
+
     specify do
       repository = InMemoryRepository.new
-      repository.append_to_stream([TestEvent.new(event_id: '567ef3dd-dd28-4e05-9734-9353cd8653df')], Stream.new("fancy_stream"), ExpectedVersion.new(-1))
+      test_event = TestEvent.new(event_id: '567ef3dd-dd28-4e05-9734-9353cd8653df')
       specification = Specification.new(repository)
-      expect(specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df').start).to eq('567ef3dd-dd28-4e05-9734-9353cd8653df')
+      repository.append_to_stream([test_event], Stream.new("fancy_stream"), ExpectedVersion.new(-1))
+
+      expect(specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df'))
+        .to(have(:start, '567ef3dd-dd28-4e05-9734-9353cd8653df'))
+    end
+
+    RSpec::Matchers.define :have do |attribute, expected|
+      match do |specification|
+        @actual = specification.public_send(attribute)
+        values_match?(expected, @actual)
+      end
     end
   end
 end
