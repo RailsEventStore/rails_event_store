@@ -57,74 +57,96 @@ instead:
     def read_events_forward(stream, start_event_id, count)
       raise ReservedInternalName if stream.name.eql?("all")
 
-      events = LegacyEvent.where(stream: stream.name)
-      unless start_event_id.equal?(:head)
-        starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        events = events.where('id > ?', starting_event)
-      end
-
-      events.order('id ASC').limit(count)
-        .map(&method(:build_event_entity))
+      RubyEventStore::Specification.new(self)
+        .stream(stream.name)
+        .from(start_event_id)
+        .limit(count)
+        .each
+        .to_a
     end
 
     def read_events_backward(stream, start_event_id, count)
       raise ReservedInternalName if stream.name.eql?("all")
 
-      events = LegacyEvent.where(stream: stream.name)
-      unless start_event_id.equal?(:head)
-        starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        events = events.where('id < ?', starting_event)
-      end
-
-      events.order('id DESC').limit(count)
-        .map(&method(:build_event_entity))
+      RubyEventStore::Specification.new(self)
+        .stream(stream.name)
+        .from(start_event_id)
+        .limit(count)
+        .backward
+        .each
+        .to_a
     end
 
     def read_stream_events_forward(stream)
       raise ReservedInternalName if stream.name.eql?("all")
 
-      LegacyEvent.where(stream: stream.name).order('id ASC')
-        .map(&method(:build_event_entity))
+      RubyEventStore::Specification.new(self)
+        .stream(stream.name)
+        .each
+        .to_a
     end
 
     def read_stream_events_backward(stream)
       raise ReservedInternalName if stream.name.eql?("all")
 
-      LegacyEvent.where(stream: stream.name).order('id DESC')
-        .map(&method(:build_event_entity))
+      RubyEventStore::Specification.new(self)
+        .stream(stream.name)
+        .backward
+        .each
+        .to_a
     end
 
     def read_all_streams_forward(start_event_id, count)
-      events = LegacyEvent
-      unless start_event_id.equal?(:head)
-        starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        events = events.where('id > ?', starting_event)
-      end
-
-      events.order('id ASC').limit(count)
-        .map(&method(:build_event_entity))
+      RubyEventStore::Specification.new(self)
+        .from(start_event_id)
+        .limit(count)
+        .each
+        .to_a
     end
 
     def read_all_streams_backward(start_event_id, count)
-      events = LegacyEvent
-      unless start_event_id.equal?(:head)
-        starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        events = events.where('id < ?', starting_event)
-      end
-
-      events.order('id DESC').limit(count)
-        .map(&method(:build_event_entity))
+      RubyEventStore::Specification.new(self)
+        .from(start_event_id)
+        .limit(count)
+        .backward
+        .each
+        .to_a
     end
 
     def read_event(event_id)
       build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
+    
+    def read(specification)
+      stream = LegacyEvent.order(id: sort_order(specification.direction))
+      stream = stream.limit(specification.count) unless specification.count.equal?(RubyEventStore::Specification::NO_LIMIT)
+      stream = stream.where(start_condition(specification)) unless specification.start.equal?(:head)
+      stream = stream.where(stream: specification.stream_name.name) unless specification.stream_name.global?
 
-    def read(_)
-      [].each
+      Enumerator.new do |y|
+        stream.each do |event_record|
+          y << build_event_entity(event_record)
+        end
+      end
     end
 
     private
+
+    def start_condition(specification)
+      event_record =
+        LegacyEvent.find_by!(event_id: specification.start)
+      case specification.direction
+      when :forward
+        ['id > ?', event_record]
+      else
+        ['id < ?', event_record]
+      end
+    end
+
+    def sort_order(direction)
+      { forward: 'ASC', backward: 'DESC' }.fetch(direction)
+    end
+
 
     def normalize_to_array(events)
       return events if events.is_a?(Enumerable)
