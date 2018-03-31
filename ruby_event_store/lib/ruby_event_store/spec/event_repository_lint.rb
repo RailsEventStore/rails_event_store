@@ -837,6 +837,14 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_forward(:head, 10)).to eq([event])
   end
 
+  it 'allows reading from GLOBAL_STREAM explicitly' do
+    skip unless test_non_legacy_all_stream
+    event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
+    repository.append_to_stream(event, "any", :any)
+
+    expect(repository.read_events_forward("all", :head, 10)).to eq([event])
+  end
+
   specify 'GLOBAL_STREAM is unordered, one cannot expect specific version number to work' do
     expect {
       event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
