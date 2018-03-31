@@ -121,7 +121,7 @@ instead:
       stream = LegacyEvent.order(id: sort_order(specification.direction))
       stream = stream.limit(specification.count) unless specification.count.equal?(RubyEventStore::Specification::NO_LIMIT)
       stream = stream.where(start_condition(specification)) unless specification.start.equal?(:head)
-      stream = stream.where(stream: specification.stream_name.name) unless specification.stream_name.global?
+      stream = stream.where(stream: specification.stream.name) unless specification.stream.global?
 
       Enumerator.new do |y|
         stream.each do |event_record|

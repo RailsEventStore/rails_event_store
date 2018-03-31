@@ -27,10 +27,10 @@ module RailsEventStoreActiveRecord
       stream =
         EventInStream
           .preload(:event)
-          .where(stream: specification.stream_name)
+          .where(stream: specification.stream.name)
       stream = stream.limit(specification.count) unless specification.count.equal?(RubyEventStore::Specification::NO_LIMIT)
       stream = stream.where(start_condition(specification)) unless specification.start.equal?(:head)
-      stream = stream.order(position: order) unless specification.stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream = stream.order(position: order) unless specification.stream.global?
       stream = stream.order(id: order)
 
       Enumerator.new do |y|
@@ -44,7 +44,7 @@ module RailsEventStoreActiveRecord
 
     def start_condition(specification)
       event_record =
-        EventInStream.find_by!(event_id: specification.start, stream: specification.stream_name)
+        EventInStream.find_by!(event_id: specification.start, stream: specification.stream.name)
       case specification.direction
       when :forward
         ['id > ?', event_record]

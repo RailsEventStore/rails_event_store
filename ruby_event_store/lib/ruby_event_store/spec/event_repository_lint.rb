@@ -906,9 +906,9 @@ RSpec.shared_examples :event_repository do |repository_class|
       expect(err.message).to eq('Event not found: 72922e65-1b32-4e97-8023-03ae81dd3a27')
     end
   end
-
-  specify 'calling read returns enumerator' do
+  
+  specify 'read returns enumerator' do
     specification = RubyEventStore::Specification.new(repository)
-    expect(repository.read(specification)).to be_kind_of(Enumerator)
+    expect(repository.read(specification.result)).to be_kind_of(Enumerator)
   end
 end

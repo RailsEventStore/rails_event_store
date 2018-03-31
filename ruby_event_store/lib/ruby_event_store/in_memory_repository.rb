@@ -87,7 +87,7 @@ module RubyEventStore
     end
 
     def read(specification)
-      events = specification.stream_name.eql?(GLOBAL_STREAM) ? global : stream_of(specification.stream_name)
+      events = specification.stream.global? ? global : stream_of(specification.stream.name)
       events = events.reverse if specification.direction.equal?(:backward)
       events = read_batch(events, specification.start, specification.count) unless specification.count.equal?(Specification::NO_LIMIT)
       events.each

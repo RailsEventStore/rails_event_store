@@ -1,19 +1,17 @@
 module RubyEventStore
   class Specification
     NO_LIMIT = Object.new.freeze
+    Result = Struct.new(:direction, :start, :count, :stream)
 
-    attr_reader :direction, :start, :count, :stream_name
+    attr_reader :result
 
     def initialize(repository)
       @repository  = repository
-      @direction   = :forward
-      @start       = :head
-      @stream_name = GLOBAL_STREAM
-      @count       = NO_LIMIT
+      @result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM))
     end
 
     def stream(stream_name)
-      @stream_name = Stream.new(stream_name).name
+      result.stream = Stream.new(stream_name)
       self
     end
 
@@ -25,28 +23,28 @@ module RubyEventStore
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless @repository.has_event?(start)
       end
-      @start = start
+      result.start = start
       self
     end
 
     def forward
-      @direction = :forward
+      result.direction = :forward
       self
     end
 
     def backward
-      @direction = :backward
+      result.direction = :backward
       self
     end
 
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      @count = count
+      result.count = count
       self
     end
 
     def each
-      @repository.read(self)
+      @repository.read(result)
     end
   end
 end
