@@ -18,6 +18,16 @@ module RubyEventStore
       expect(copy).to eq(event)
       expect(copy.metadata).to eq(event.metadata)
     end
+
+    specify 'type' do
+      event = RubyEventStore::Proto.new(
+        data: ResTesting::OrderCreated.new(
+          customer_id: 123,
+          order_id: "K3THNX9",
+        ),
+      )
+      expect(event.type).to eq("res_testing.OrderCreated")
+    end
   end
 
   module Mappers
