@@ -23,6 +23,12 @@ module RubyEventStore
       @data = pool.lookup(coder['data.type']).msgclass.decode(coder['data.proto'])
     end
 
+    def ==(other_event)
+      other_event.instance_of?(self.class) &&
+        other_event.event_id.eql?(event_id) &&
+        other_event.data == data # https://github.com/google/protobuf/issues/4455
+    end
+
     private
 
     def pool

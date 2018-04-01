@@ -29,7 +29,7 @@ module RubyEventStore
     def ==(other_event)
       other_event.instance_of?(self.class) &&
         other_event.event_id.eql?(event_id) &&
-        other_event.data == data
+        other_event.data.eql?(data)
     end
 
     BIG_VALUE = 0b111111100100000010010010110011101011000101010101001100100110000

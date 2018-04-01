@@ -1,6 +1,7 @@
 require 'ruby_event_store'
 require 'support/rspec_defaults'
 require 'pry'
+require_relative 'mappers/events_pb.rb'
 
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
