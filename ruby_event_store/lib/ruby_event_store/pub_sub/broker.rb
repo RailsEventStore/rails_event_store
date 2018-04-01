@@ -61,10 +61,10 @@ module RubyEventStore
       end
 
       def all_subscribers_for(event_type)
-        @subscribers[event_type.to_s] +
+        @subscribers[event_type] +
         @global_subscribers +
         @thread_global_subscribers.value +
-        @thread_subscribers.value[event_type.to_s]
+        @thread_subscribers.value[event_type]
       end
     end
   end

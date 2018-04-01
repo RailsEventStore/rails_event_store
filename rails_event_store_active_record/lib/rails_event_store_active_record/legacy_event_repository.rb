@@ -21,8 +21,6 @@ instead:
   rails generate rails_event_store_active_record:v1_v2_migration
 
       MSG
-
-      @mapper = RubyEventStore::Mappers::Default.new
     end
 
     def append_to_stream(events, stream_name, expected_version)

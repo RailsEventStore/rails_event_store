@@ -1,7 +1,7 @@
 module RubyEventStore
   class Proto < RubyEventStore::Event
-    def initialize(event_id: SecureRandom.uuid, metadata: {}, data: nil)
-      @event_id = event_id.to_s
+    def initialize(event_id: SecureRandom.uuid, metadata: {}, data:)
+      @event_id = event_id
       @metadata = metadata
       @data     = data
     end
@@ -11,10 +11,10 @@ module RubyEventStore
     end
 
     def encode_with(coder)
-      coder['event_id'] = @event_id
-      coder['metadata'] = @metadata
-      coder['data.proto'] = @data.class.encode(@data)
-      coder['data.type'] = type
+      coder['event_id']   = event_id
+      coder['metadata']   = metadata
+      coder['data.proto'] = data.class.encode(data)
+      coder['data.type']  = type
     end
 
     def init_with(coder)

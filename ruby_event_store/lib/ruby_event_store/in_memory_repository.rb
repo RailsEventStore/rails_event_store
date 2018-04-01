@@ -4,11 +4,10 @@ require 'thread'
 module RubyEventStore
   class InMemoryRepository
 
-    def initialize(mapper: Mappers::Default.new)
+    def initialize
       @all = Array.new
       @streams = Hash.new
       @mutex = Mutex.new
-      @mapper = mapper
     end
 
     def append_to_stream(events, stream_name, expected_version)
