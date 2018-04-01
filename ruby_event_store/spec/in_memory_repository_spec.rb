@@ -33,20 +33,6 @@ module RubyEventStore
       end.to raise_error(RubyEventStore::EventDuplicatedInStream)
     end
 
-    specify 'add_metadata default mapper' do
-      repository = InMemoryRepository.new
-      event = TestDomainEvent.new
-      repository.add_metadata(event, :yo, 1)
-      expect(event.metadata.fetch(:yo)).to eq(1)
-    end
-
-    specify 'add_metadata protobuf mapper' do
-      event = ResTesting::OrderCreated.new
-      repository = InMemoryRepository.new(mapper: RubyEventStore::Mappers::Protobuf.new)
-      repository.add_metadata(event, :customer_id, 123)
-      expect(event.customer_id).to eq(123)
-    end
-
     def verify_conncurency_assumptions
     end
 

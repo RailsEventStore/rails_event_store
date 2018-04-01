@@ -925,7 +925,4 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
-  specify 'add_metadata' do
-    expect(repository).to respond_to(:add_metadata)
-  end
 end

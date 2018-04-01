@@ -40,7 +40,9 @@ instead:
       end
 
       normalize_to_array(events).each do |event|
-        data = event.to_h.merge!(stream: stream_name, event_type: event.class)
+        data = event.to_h
+        data.delete(:type)
+        data.merge!(stream: stream_name, event_type: event.class)
         LegacyEvent.create!(data)
       end
       self
@@ -126,10 +128,6 @@ instead:
       (["all"] + LegacyEvent.pluck(:stream))
         .uniq
         .map { |name| RubyEventStore::Stream.new(name) }
-    end
-
-    def add_metadata(event, key, value)
-      @mapper.add_metadata(event, key, value)
     end
 
     private

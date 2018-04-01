@@ -190,12 +190,9 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      metadata = {}
+      metadata = event.metadata
       metadata[:timestamp] ||= @clock.()
       metadata.merge!(@metadata_proc.call || {}) if @metadata_proc
-      metadata.each do |key, value|
-        @repository.add_metadata(event, key, value)
-      end
     end
 
     class Page

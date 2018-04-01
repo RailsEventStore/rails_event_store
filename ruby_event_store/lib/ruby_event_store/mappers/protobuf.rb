@@ -1,8 +1,8 @@
 module RubyEventStore
   class Proto < RubyEventStore::Event
-    def initialize(event_id: SecureRandom.uuid, metadata: nil, data: nil)
+    def initialize(event_id: SecureRandom.uuid, metadata: {}, data: nil)
       @event_id = event_id.to_s
-      @metadata = metadata.to_h
+      @metadata = metadata
       @data     = data
     end
 
@@ -32,8 +32,7 @@ module RubyEventStore
 
   module Mappers
     class Protobuf
-      def initialize(event_id_getter: :event_id, events_class_remapping: {})
-        @event_id_getter = event_id_getter
+      def initialize(events_class_remapping: {})
         @events_class_remapping = events_class_remapping
       end
 
@@ -54,13 +53,6 @@ module RubyEventStore
           data: data,
           metadata: YAML.load(record.metadata)
         )
-      end
-
-      def add_metadata(event, key, value)
-        setter = "#{key}="
-        if event.respond_to?(setter)
-          event.public_send(setter, value)
-        end
       end
 
       private

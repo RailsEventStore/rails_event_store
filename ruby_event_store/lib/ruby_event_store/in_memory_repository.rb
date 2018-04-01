@@ -66,10 +66,6 @@ module RubyEventStore
       [Stream.new("all")] + @streams.keys.map { |name| Stream.new(name) }
     end
 
-    def add_metadata(event, key, value)
-      @mapper.add_metadata(event, key, value)
-    end
-
     private
 
     def normalize_to_array(events)

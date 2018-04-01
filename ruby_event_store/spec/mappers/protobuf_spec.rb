@@ -24,68 +24,54 @@ module RubyEventStore
     RSpec.describe Protobuf do
       let(:event_id)     { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }
       let(:domain_event) do
-        ResTesting::OrderCreated.new(
-          event_id: event_id,
-          customer_id: 123,
-          order_id: "K3THNX9",
+        RubyEventStore::Proto.new(
+          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+          data: ResTesting::OrderCreated.new(
+            customer_id: 123,
+            order_id: "K3THNX9",
+          ),
+          metadata: {
+            time: Time.new(2018, 12, 13, 11 ),
+          }
         )
       end
-      let(:proto) { "\n$f90b8848-e478-47fe-9b4a-9f2a1d53622b\x12\aK3THNX9\x18{" }
+      let(:proto) { "\n\aK3THNX9\x10{" }
 
       specify '#event_to_serialized_record returns proto serialized record' do
         record = subject.event_to_serialized_record(domain_event)
         expect(record).to            be_a(SerializedRecord)
         expect(record.event_id).to   eq(event_id)
         expect(record.data).to       eq(proto)
-        expect(record.metadata).to   eq("")
-        expect(record.event_type).to eq("ResTesting::OrderCreated")
+        expect(record.metadata).to   eq("---\n:time: 2018-12-13 11:00:00.000000000 +01:00\n")
+        expect(record.event_type).to eq("res_testing.OrderCreated")
       end
 
       specify '#serialized_record_to_event returns event instance' do
         record = SerializedRecord.new(
           event_id:   event_id,
           data:       proto,
-          metadata:   "",
-          event_type: "ResTesting::OrderCreated"
+          metadata:   "---\n:metadata:\n  :time: 2018-12-13 11:00:00.000000000 +01:00\n",
+          event_type: "res_testing.OrderCreated"
         )
         event = subject.serialized_record_to_event(record)
         expect(event).to              eq(domain_event)
         expect(event.event_id).to     eq(event_id)
-        expect(event.customer_id).to  eq(123)
-        expect(event.order_id).to     eq("K3THNX9")
-      end
-
-      specify '#event_to_serialized_record can define getter for event_id' do
-        subject = described_class.new(
-          event_id_getter: :order_id,
-        )
-        record = subject.event_to_serialized_record(domain_event)
-        expect(record.event_id).to   eq("K3THNX9")
-        expect(record.data).to       eq(proto)
+        expect(event.data.customer_id).to  eq(123)
+        expect(event.data.order_id).to     eq("K3THNX9")
       end
 
       specify '#serialized_record_to_event is using events class remapping' do
         subject = described_class.new(
-          events_class_remapping: {'EventNameBeforeRefactor' => "ResTesting::OrderCreated"}
+          events_class_remapping: {'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated"}
         )
         record = SerializedRecord.new(
           event_id:   event_id,
           data:       proto,
           metadata:   "",
-          event_type: "EventNameBeforeRefactor",
+          event_type: "res_testing.OrderCreatedBeforeRefactor",
         )
         event = subject.serialized_record_to_event(record)
         expect(event).to eq(domain_event)
-      end
-
-      specify '#add_metadata' do
-        event = ResTesting::OrderCreated.new
-        subject.add_metadata(event, :customer_id, 123)
-        expect(event.customer_id).to eq(123)
-
-        expect do
-          subject.add_metadata(event, :nonexisting, 123)
-        end.not_to raise_error
       end
 
     end

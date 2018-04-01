@@ -177,20 +177,6 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    specify 'add_metadata default mapper' do
-      event = TestDomainEvent.new
-      repository = EventRepository.new
-      repository.add_metadata(event, :yo, 1)
-      expect(event.metadata.fetch(:yo)).to eq(1)
-    end
-
-    specify 'add_metadata protobuf mapper' do
-      event = ResTesting::OrderCreated.new
-      repository = EventRepository.new(mapper: RubyEventStore::Mappers::Protobuf.new)
-      repository.add_metadata(event, :customer_id, 123)
-      expect(event.customer_id).to eq(123)
-    end
-
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
