@@ -21,7 +21,8 @@ module RailsEventStoreActiveRecord
         stream = stream.where('id > ?', after_event)
       end
 
-      stream.preload(:event).order('position ASC, id ASC').limit(count)
+      stream = stream.order('position ASC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream.preload(:event).order('id ASC').limit(count)
         .map(&method(:build_event_instance))
     end
 
@@ -37,8 +38,10 @@ module RailsEventStoreActiveRecord
     end
 
     def read_stream_events_forward(stream_name)
-      EventInStream.preload(:event).where(stream: stream_name).order('position ASC, id ASC')
-        .map(&method(:build_event_instance))
+      stream = EventInStream.preload(:event).where(stream: stream_name)
+      stream = stream.order('position ASC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream = stream.order('id ASC')
+      stream.map(&method(:build_event_instance))
     end
 
     def read_stream_events_backward(stream_name)
