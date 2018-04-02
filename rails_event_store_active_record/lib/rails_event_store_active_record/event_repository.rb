@@ -70,10 +70,6 @@ module RailsEventStoreActiveRecord
       @repo_reader.get_all_streams
     end
 
-    def add_metadata(event, key, value)
-      @mapper.add_metadata(event, key, value)
-    end
-
     private
 
     def add_to_stream(collection, stream_name, expected_version, include_global, &to_event_id)

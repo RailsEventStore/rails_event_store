@@ -582,10 +582,10 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'metadata attributes are retrieved' do
-    event = SRecord.new(metadata: { request_id: 3 })
+    event = SRecord.new(metadata: "{ request_id: 3 }")
     repository.append_to_stream(event, 'stream', :any)
     retrieved_event = repository.read_all_streams_forward(:head, 1).first
-    expect(retrieved_event.metadata[:request_id]).to eq(3)
+    expect(retrieved_event.metadata).to eq("{ request_id: 3 }")
   end
 
   it 'data and metadata attributes are retrieved when linking' do
@@ -638,10 +638,10 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'knows last event in stream' do
-    repository.append_to_stream(SRecord.new(event_id: '00000000-0000-0000-0000-000000000001'), 'stream', -1)
-    repository.append_to_stream(SRecord.new(event_id: '00000000-0000-0000-0000-000000000002'), 'stream', 0)
+    repository.append_to_stream(a =SRecord.new(event_id: '00000000-0000-0000-0000-000000000001'), 'stream', -1)
+    repository.append_to_stream(b = SRecord.new(event_id: '00000000-0000-0000-0000-000000000002'), 'stream', 0)
 
-    expect(repository.last_stream_event('stream')).to eq(SRecord.new(event_id: '00000000-0000-0000-0000-000000000002'))
+    expect(repository.last_stream_event('stream')).to eq(b)
     expect(repository.last_stream_event('other_stream')).to be_nil
   end
 
@@ -939,7 +939,4 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
-  specify 'add_metadata' do
-    expect(repository).to respond_to(:add_metadata)
-  end
 end
