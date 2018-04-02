@@ -91,6 +91,9 @@ module RailsEventStoreActiveRecord
       repository = EventRepository.new
       expect(repository.read_events_forward('stream', :head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq([u1,u2,u3])
+
+      expect(repository.read_events_backward('stream', :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward('stream').map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "explicit sorting by position rather than accidental for all events" do
