@@ -128,9 +128,14 @@ module RailsEventStoreActiveRecord
         event_id: e3.id,
       )
       repository = EventRepository.new
+
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_events_forward("all", :head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_stream_events_forward("all").map(&:event_id)).to eq([u1,u2,u3])
+
+      expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_events_backward("all", :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward("all").map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "explicit ORDER BY position" do
