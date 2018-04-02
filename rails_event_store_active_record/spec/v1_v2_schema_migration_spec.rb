@@ -4,16 +4,9 @@ require 'childprocess'
 require 'active_record'
 require 'logger'
 require 'ruby_event_store'
+require 'ruby_event_store/spec/event_repository_lint'
 
-class EventAll < RubyEventStore::Event
-end
-class EventA1 < RubyEventStore::Event
-end
 class EventA2 < RubyEventStore::Event
-end
-class EventB1 < RubyEventStore::Event
-end
-class EventB2 < RubyEventStore::Event
 end
 
 RSpec.describe "v1_v2_migration" do
@@ -119,16 +112,12 @@ RSpec.describe "v1_v2_migration" do
       map(&:position)
     expect(positions).to eq([0, 1, 2])
     expect do
-      repository.append_to_stream(EventA2.new(data: {
-        v2: true,
-      }, event_id: "7c485b58-2d6a-4017-a174-8ab41ea4a4dd"),
+      repository.append_to_stream(SRecord.new(event_id: "7c485b58-2d6a-4017-a174-8ab41ea4a4dd"),
         "Order-1",
         1
       )
     end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
-    repository.append_to_stream(EventA2.new(data: {
-      v2: true,
-    }, event_id: "3cf767d5-16ad-43a7-8d65-bb5575b301f2"),
+    repository.append_to_stream(SRecord.new(event_id: "3cf767d5-16ad-43a7-8d65-bb5575b301f2"),
       "Order-1",
       2
     )

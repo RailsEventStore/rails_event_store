@@ -31,6 +31,15 @@ module RubyEventStore
         other.event_type.eql?(event_type)
     end
 
+    def to_h
+      {
+        event_id: event_id,
+        data: data,
+        metadata: metadata,
+        event_type: event_type,
+      }
+    end
+
     alias_method :eql?, :==
   end
 end
