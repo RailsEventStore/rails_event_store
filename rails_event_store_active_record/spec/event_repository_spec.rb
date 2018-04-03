@@ -96,7 +96,7 @@ module RailsEventStoreActiveRecord
       expect(repository.read_stream_events_backward('stream').map(&:event_id)).to eq([u3,u2,u1])
     end
 
-    specify "explicit sorting by position rather than accidental for all events" do
+    specify "explicit sorting by id rather than accidental for all events" do
       e1 = Event.create!(
         id: u1 = SecureRandom.uuid,
         data: {},
@@ -159,6 +159,27 @@ module RailsEventStoreActiveRecord
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC.*/) do
         repository = EventRepository.new
         repository.read_stream_events_forward("all")
+      end
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_all_streams_backward(:head, 3)
+      end
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_events_backward("all", :head, 3)
+      end
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC.*/) do
+        repository = EventRepository.new
+        repository.read_stream_events_backward("all")
       end
     end
 
