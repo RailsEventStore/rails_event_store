@@ -91,6 +91,9 @@ module RailsEventStoreActiveRecord
       repository = EventRepository.new
       expect(repository.read_events_forward('stream', :head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq([u1,u2,u3])
+
+      expect(repository.read_events_backward('stream', :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward('stream').map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "explicit sorting by position rather than accidental for all events" do
@@ -128,7 +131,35 @@ module RailsEventStoreActiveRecord
         event_id: e3.id,
       )
       repository = EventRepository.new
+
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_events_forward("all", :head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_stream_events_forward("all").map(&:event_id)).to eq([u1,u2,u3])
+
+      expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_events_backward("all", :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward("all").map(&:event_id)).to eq([u3,u2,u1])
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_all_streams_forward(:head, 3)
+      end
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_events_forward("all", :head, 3)
+      end
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC.*/) do
+        repository = EventRepository.new
+        repository.read_stream_events_forward("all")
+      end
     end
 
     specify "explicit ORDER BY position" do
