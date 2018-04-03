@@ -40,30 +40,18 @@ module RubyEventStoreRomSql
           raise RubyEventStore::EventNotFound.new(event_id)
         end
   
-        def forward(stream_name, after: :head, limit: nil)
-          stream = forward_for(stream_name)
-  
-          unless after.equal?(:head)
-            stream = stream.where(event_streams[:id] > fetch_id_for(stream_name, after))
-          end
+        def read(direction, stream_name, from: :head, limit: nil)
+          order, operator = direction == :backward ? [:desc, :<] : [:asc, :>]
 
-          stream = stream.limit(limit) if limit
-          stream.map_with(:serialized_record_mapper).to_a
-        end
-  
-        def backward(stream_name, before: :head, limit: nil)
-          stream = backward_for(stream_name)
+          stream = events_for(stream_name, order)
           
-          unless before.equal?(:head)
-            stream = stream.where(event_streams[:id] < fetch_id_for(stream_name, before))
+          unless from.equal?(:head)
+            conditions = event_streams[:id].__send__(operator, fetch_id_for(stream_name, from))
+            stream = stream.where(conditions)
           end
 
           stream = stream.limit(limit) if limit
           stream.map_with(:serialized_record_mapper).to_a
-        end
-  
-        def last_event_for(stream_name)
-          backward_for(stream_name).map_with(:serialized_record_mapper).first
         end
   
         def last_position_for(stream_name)
@@ -80,18 +68,6 @@ module RubyEventStoreRomSql
   
       private
 
-        def fetch_id_for(stream_name, event_id)
-          event_streams.where(stream: stream_name, event_id: event_id).limit(1).pluck(:id).first
-        end
-  
-        def forward_for(stream_name)
-          events_for(stream_name, :asc)
-        end
-  
-        def backward_for(stream_name)
-          events_for(stream_name, :desc)
-        end
-
         def events_for(stream_name, direction)
           order_columns = %i[position id]
           order_columns.delete(:position) if stream_name == RubyEventStore::GLOBAL_STREAM
@@ -100,6 +76,10 @@ module RubyEventStoreRomSql
             .join(event_streams, event_id: :id)
             .where(event_streams[:stream].in(stream_name))
             .order { |r| order_columns.map { |c| r[:event_streams][c].__send__(direction) } }
+        end
+
+        def fetch_id_for(stream_name, event_id)
+          event_streams.where(stream: stream_name, event_id: event_id).limit(1).pluck(:id).first
         end
       end
     end
