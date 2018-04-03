@@ -1,0 +1,28 @@
+require "bundler/gem_tasks"
+require "rspec/core/rake_task"
+
+RSpec::Core::RakeTask.new(:spec)
+task default: [:ci]
+
+desc "Run CI tasks"
+task ci: [:spec]
+
+begin
+  require "rubocop/rake_task"
+
+  Rake::Task[:default].enhance [:rubocop]
+
+  RuboCop::RakeTask.new do |task|
+    task.options << "--display-cop-names"
+  end
+rescue LoadError
+end
+
+require 'rom/sql/rake_task'
+require 'ruby_event_store_rom_sql/rom'
+
+desc 'Setup ROM'
+task 'db:setup' do
+  ROM::SQL::RakeSupport.env = RubyEventStoreRomSql::ROM.configure
+end
+
