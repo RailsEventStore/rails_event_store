@@ -26,17 +26,9 @@ module RubyEventStoreRomSql
         ### Reader interface
   
         def get_all_streams
-          (%w[all] + event_streams.select(:stream).distinct.pluck(:stream))
+          ([RubyEventStore::GLOBAL_STREAM] + event_streams.select(:stream).distinct.pluck(:stream))
             .uniq
             .map(&RubyEventStore::Stream.method(:new))
-        end
-  
-        def last_position_for(stream_name)
-          event_streams.where(stream: stream_name).max(:position)
-        end
-  
-        def delete_events_for(stream_name)
-          event_streams.where(stream: stream_name).command(:delete).call
         end
       end
     end

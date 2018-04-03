@@ -26,7 +26,7 @@ module RubyEventStoreRomSql
     end
 
     def delete_stream(stream_name)
-      @event_streams.delete_events_for(stream_name)
+      @events.delete_events_for(stream_name)
     end
 
     def has_event?(event_id)
@@ -125,7 +125,7 @@ module RubyEventStoreRomSql
       when :none
         POSITION_DEFAULT
       when :auto
-        @event_streams.last_position_for(stream_name) || POSITION_DEFAULT
+        @events.last_position_for(stream_name) || POSITION_DEFAULT
       else
         raise RubyEventStore::InvalidExpectedVersion
       end
