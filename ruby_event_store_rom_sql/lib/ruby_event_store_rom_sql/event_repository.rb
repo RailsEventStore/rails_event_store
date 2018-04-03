@@ -10,7 +10,7 @@ module RubyEventStoreRomSql
       @events.create(
         Array(events).map(&method(:map_to_serialized_record)),
         stream_name: stream_name,
-        expected_version: expected_version
+        expected_version: ExpectedVersion.new(expected_version)
       )
 
       self
@@ -19,7 +19,7 @@ module RubyEventStoreRomSql
     end
 
     def link_to_stream(event_ids, stream_name, expected_version)
-      @events.link(normalize_to_array(event_ids), stream_name, expected_version)
+      @events.link(normalize_to_array(event_ids), stream_name, ExpectedVersion.new(expected_version))
 
       self
     rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => ex

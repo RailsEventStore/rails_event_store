@@ -17,7 +17,6 @@ module RubyEventStoreRomSql
         end
 
         POSITION_SHIFT = 1.freeze
-        POSITION_DEFAULT = -1.freeze
         GLOBAL_STREAM = ::RubyEventStore::GLOBAL_STREAM
 
         # relations :event_streams
@@ -26,7 +25,7 @@ module RubyEventStoreRomSql
 
         ### Writer interface
 
-        def create(serialized_records, stream_name: nil, expected_version: :any)
+        def create(serialized_records, stream_name: nil, expected_version: ExpectedVersion.any)
           events.transaction(savepoint: true) do
             events.changeset(CreateEventsChangeset, serialized_records).commit.tap do
               if stream_name
@@ -44,16 +43,20 @@ module RubyEventStoreRomSql
         def link(event_ids, stream_name, expected_version, global_stream: false)
           event_ids = [event_ids].flatten
 
-          assert_valid_expected_version!(stream_name, expected_version)
-          assert_valid_event_ids!(event_ids)
+          (event_ids - events.where(id: event_ids).pluck(:id)).each do |id|
+            raise RubyEventStore::EventNotFound.new(id)
+          end
 
-          expected_version = normalize_expected_version(expected_version, stream_name)
+          resolved_version = expected_version.resolve_for(stream_name) do
+            event_streams.where(stream: stream_name).max(:position)
+          end
+          
           tuples = []
 
           event_ids.each_with_index do |event_id, index|
             tuples << {
               stream:   stream_name,
-              position: compute_position(expected_version, index),
+              position: compute_position(resolved_version, index),
               event_id: event_id
             } unless stream_name.eql?(GLOBAL_STREAM)
   
@@ -111,37 +114,8 @@ module RubyEventStoreRomSql
           event_streams.where(stream: stream_name, event_id: event_id).limit(1).pluck(:id).first
         end
 
-        def compute_position(expected_version, offset)
-          unless expected_version.equal?(:any)
-            expected_version + offset + POSITION_SHIFT
-          end
-        end
-
-        def normalize_expected_version(expected_version, stream_name)
-          case expected_version
-          when Integer, :any
-            expected_version
-          when :none
-            POSITION_DEFAULT
-          when :auto
-            event_streams.where(stream: stream_name).max(:position)|| POSITION_DEFAULT
-          else
-            raise RubyEventStore::InvalidExpectedVersion
-          end.tap do
-            assert_valid_expected_version!(stream_name, expected_version)
-          end
-        end
-
-        def assert_valid_expected_version!(stream_name, expected_version)
-          if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
-            raise RubyEventStore::InvalidExpectedVersion
-          end
-        end
-
-        def assert_valid_event_ids!(event_ids)
-          (event_ids - events.where(id: event_ids).pluck(:id)).each do |id|
-            raise RubyEventStore::EventNotFound.new(id)
-          end
+        def compute_position(version, offset)
+          version + offset + POSITION_SHIFT if version
         end
       end
     end
