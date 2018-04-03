@@ -30,6 +30,48 @@ module RubyEventStore
       end
     end
 
+    specify "in-equality" do
+      [
+        ["a", "a", "a", "a"],
+        ["a", "b", "a", "a"],
+        ["a", "a", "b", "a"],
+        ["a", "a", "a", "b"],
+      ].permutation(2).each do |one, two|
+        a = SerializedRecord.new(event_id: one[0], data: one[1], metadata: one[2], event_type: one[3])
+        b = SerializedRecord.new(event_id: two[0], data: two[1], metadata: two[2], event_type: two[3])
+        expect(a).not_to eq(b)
+        expect(a).not_to eql(b)
+        expect(a.hash).not_to eq(b.hash)
+        h = {a => :val}
+        expect(h[b]).to be_nil
+      end
+    end
+
+    specify "equality" do
+      a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      b = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      expect(a).to eq(b)
+      expect(a).to eql(b)
+      expect(a.hash).to eql(b.hash)
+      h = {a => :val}
+      expect(h[b]).to eq(:val)
+    end
+
+    specify "hash" do
+      a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      expect(a.hash).not_to eq([SerializedRecord, "a", "b", "c", "d"].hash)
+    end
+
+    specify "to_h" do
+      a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      expect(a.to_h).to eq({
+        event_id: "a",
+        data: "b",
+        metadata: "c",
+        event_type: "d",
+      })
+    end
+
     specify 'constructor raised when required args are missing' do
       expect do
         described_class.new

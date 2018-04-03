@@ -133,7 +133,6 @@ module RailsEventStoreActiveRecord
     end
 
     def build_event_record(serialized_record)
-      # serialized_record = @mapper.event_to_serialized_record(event)
       Event.new(
         id:         serialized_record.event_id,
         data:       serialized_record.data,
