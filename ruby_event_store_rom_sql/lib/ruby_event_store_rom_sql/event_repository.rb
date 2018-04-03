@@ -66,7 +66,7 @@ module RubyEventStoreRomSql
     end
 
     def get_all_streams
-      @event_streams.get_all_streams
+      @event_streams.all
     end
 
     def add_metadata(event, key, value)

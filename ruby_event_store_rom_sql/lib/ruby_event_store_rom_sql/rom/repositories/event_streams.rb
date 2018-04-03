@@ -6,26 +6,23 @@ module RubyEventStoreRomSql
 
         ### Writer interface
 
-        def create(stream_name, event_id, position: nil, created_at: Time.now.utc)
+        def create(stream_name, event_id, position: nil)
           event_streams.changeset(:create, {
             stream: stream_name,
             event_id: event_id,
-            position: position,
-            created_at: created_at
+            position: position
           }).commit
         end
   
         # TODO: Replace with Sequel::Dataset#import(columns, values, opts) ?
         # See: http://www.rubydoc.info/github/jeremyevans/sequel/Sequel%2FDataset%3Aimport
-        def import(tuples, created_at: Time.now.utc)
-          tuples.each { |tuple| tuple[:created_at] ||= created_at }
-
+        def import(tuples)
           event_streams.changeset(:create, tuples).commit
         end
   
         ### Reader interface
   
-        def get_all_streams
+        def all
           ([RubyEventStore::GLOBAL_STREAM] + event_streams.select(:stream).distinct.pluck(:stream))
             .uniq
             .map(&RubyEventStore::Stream.method(:new))
