@@ -30,7 +30,7 @@ module RubyEventStoreRomSql
   
         ### Reader interface
   
-        def has_event?(event_id)
+        def exist?(event_id)
           events.where(id: event_id).exist?
         end
   
@@ -40,29 +40,29 @@ module RubyEventStoreRomSql
           raise RubyEventStore::EventNotFound.new(event_id)
         end
   
-        def read_events_forward(stream_name, after: :head, limit: nil)
+        def forward(stream_name, after: :head, limit: nil)
           stream = forward_for(stream_name)
   
           unless after.equal?(:head)
-            stream = stream.where(event_streams[:id] > fetch_stream_id_for(stream_name, after))
+            stream = stream.where(event_streams[:id] > fetch_id_for(stream_name, after))
           end
 
           stream = stream.limit(limit) if limit
           stream.map_with(:serialized_record_mapper).to_a
         end
   
-        def read_events_backward(stream_name, before: :head, limit: nil)
+        def backward(stream_name, before: :head, limit: nil)
           stream = backward_for(stream_name)
           
           unless before.equal?(:head)
-            stream = stream.where(event_streams[:id] < fetch_stream_id_for(stream_name, before))
+            stream = stream.where(event_streams[:id] < fetch_id_for(stream_name, before))
           end
 
           stream = stream.limit(limit) if limit
           stream.map_with(:serialized_record_mapper).to_a
         end
   
-        def last_stream_event(stream_name)
+        def last_event_for(stream_name)
           backward_for(stream_name).map_with(:serialized_record_mapper).first
         end
   
@@ -70,17 +70,17 @@ module RubyEventStoreRomSql
           event_streams.where(stream: stream_name).max(:position)
         end
   
+        def delete_stream(stream_name)
+          event_streams.where(stream: stream_name).command(:delete).call
+        end
+  
         def detect_invalid_event_ids(event_ids)
           event_ids - events.where(id: event_ids).pluck(:id)
         end
   
-        def delete_events_for(stream_name)
-          event_streams.where(stream: stream_name).command(:delete).call
-        end
-  
       private
 
-        def fetch_stream_id_for(stream_name, event_id)
+        def fetch_id_for(stream_name, event_id)
           event_streams.where(stream: stream_name, event_id: event_id).limit(1).pluck(:id).first
         end
   

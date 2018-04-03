@@ -26,31 +26,31 @@ module RubyEventStoreRomSql
     end
 
     def delete_stream(stream_name)
-      @events.delete_events_for(stream_name)
+      @events.delete_stream(stream_name)
     end
 
     def has_event?(event_id)
-      @events.has_event?(event_id)
+      @events.exist?(event_id)
     end
 
     def last_stream_event(stream_name)
-      map_to_event @events.last_stream_event(stream_name)
+      map_to_event @events.last_event_for(stream_name)
     end
 
     def read_events_forward(stream_name, after_event_id, count)
-       @events.read_events_forward(stream_name, after: after_event_id, limit: count).map(&method(:map_to_event))
+       @events.forward(stream_name, after: after_event_id, limit: count).map(&method(:map_to_event))
     end
 
     def read_events_backward(stream_name, before_event_id, count)
-      @events.read_events_backward(stream_name, before: before_event_id, limit: count).map(&method(:map_to_event))
+      @events.backward(stream_name, before: before_event_id, limit: count).map(&method(:map_to_event))
     end
 
     def read_stream_events_forward(stream_name)
-      @events.read_events_forward(stream_name).map(&method(:map_to_event))
+      @events.forward(stream_name).map(&method(:map_to_event))
     end
 
     def read_stream_events_backward(stream_name)
-      @events.read_events_backward(stream_name).map(&method(:map_to_event))
+      @events.backward(stream_name).map(&method(:map_to_event))
     end
 
     def read_all_streams_forward(after_event_id, count)
