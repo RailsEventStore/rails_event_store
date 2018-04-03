@@ -28,8 +28,8 @@ module RailsEventStoreActiveRecord
     specify "using preload()" do
       repository = EventRepository.new
       repository.append_to_stream([
-        event0 = TestDomainEvent.new(event_id: SecureRandom.uuid),
-        event1 = TestDomainEvent.new(event_id: SecureRandom.uuid),
+        event0 = SRecord.new,
+        event1 = SRecord.new,
       ], 'stream', :auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
       expect(c1).to eq(2)
@@ -55,19 +55,19 @@ module RailsEventStoreActiveRecord
         id: u1 = SecureRandom.uuid,
         data: {},
         metadata: {},
-        event_type: TestDomainEvent.name,
+        event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
         id: u2 = SecureRandom.uuid,
         data: {},
         metadata: {},
-        event_type: TestDomainEvent.name,
+        event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
         id: u3 = SecureRandom.uuid,
         data: {},
         metadata: {},
-        event_type: TestDomainEvent.name,
+        event_type: "TestDomainEvent",
       )
       EventInStream.create!(
         stream:   "stream",
@@ -101,19 +101,19 @@ module RailsEventStoreActiveRecord
         id: u1 = SecureRandom.uuid,
         data: {},
         metadata: {},
-        event_type: TestDomainEvent.name,
+        event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
         id: u2 = SecureRandom.uuid,
         data: {},
         metadata: {},
-        event_type: TestDomainEvent.name,
+        event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
         id: u3 = SecureRandom.uuid,
         data: {},
         metadata: {},
-        event_type: TestDomainEvent.name,
+        event_type: "TestDomainEvent",
       )
       EventInStream.create!(
         stream:   "all",
@@ -187,7 +187,7 @@ module RailsEventStoreActiveRecord
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
         repository = EventRepository.new
         repository.append_to_stream([
-          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          SRecord.new,
         ], 'stream', :auto)
       end
     end
@@ -195,13 +195,13 @@ module RailsEventStoreActiveRecord
     specify "nested transaction - events still not persisted if append failed" do
       repository = EventRepository.new
       repository.append_to_stream([
-        event = TestDomainEvent.new(event_id: SecureRandom.uuid),
+        event = SRecord.new(event_id: SecureRandom.uuid),
       ], 'stream', :none)
 
       ActiveRecord::Base.transaction do
         expect do
           repository.append_to_stream([
-            TestDomainEvent.new(
+            SRecord.new(
               event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
             ),
           ], 'stream', :none)
@@ -227,20 +227,6 @@ module RailsEventStoreActiveRecord
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY.*id.*ASC.*/) do
         repository.get_all_streams
       end
-    end
-
-    specify 'add_metadata default mapper' do
-      event = TestDomainEvent.new
-      repository = EventRepository.new
-      repository.add_metadata(event, :yo, 1)
-      expect(event.metadata.fetch(:yo)).to eq(1)
-    end
-
-    specify 'add_metadata protobuf mapper' do
-      event = ResTesting::OrderCreated.new
-      repository = EventRepository.new(mapper: RubyEventStore::Mappers::Protobuf.new)
-      repository.add_metadata(event, :customer_id, 123)
-      expect(event.customer_id).to eq(123)
     end
 
     def cleanup_concurrency_test

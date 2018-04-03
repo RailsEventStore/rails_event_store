@@ -21,8 +21,6 @@ instead:
   rails generate rails_event_store_active_record:v1_v2_migration
 
       MSG
-
-      @mapper = RubyEventStore::Mappers::Default.new
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -40,7 +38,7 @@ instead:
       end
 
       normalize_to_array(events).each do |event|
-        data = event.to_h.merge!(stream: stream_name, event_type: event.class)
+        data = event.to_h.merge!(stream: stream_name)
         LegacyEvent.create!(data)
       end
       self
@@ -128,10 +126,6 @@ instead:
         .map { |name| RubyEventStore::Stream.new(name) }
     end
 
-    def add_metadata(event, key, value)
-      @mapper.add_metadata(event, key, value)
-    end
-
     private
 
     def normalize_to_array(events)
@@ -141,10 +135,11 @@ instead:
 
     def build_event_entity(record)
       return nil unless record
-      record.event_type.constantize.new(
+      RubyEventStore::SerializedRecord.new(
         event_id: record.event_id,
         metadata: record.metadata,
-        data: record.data
+        data: record.data,
+        event_type: record.event_type,
       )
     end
 

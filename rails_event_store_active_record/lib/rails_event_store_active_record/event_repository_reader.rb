@@ -1,10 +1,6 @@
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
 
-    def initialize(mapper)
-      @mapper = mapper
-    end
-
     def has_event?(event_id)
       Event.exists?(id: event_id)
     end
@@ -76,13 +72,12 @@ module RailsEventStoreActiveRecord
 
     def read_event(event_id)
       event             = Event.find(event_id)
-      serialized_record = RubyEventStore::SerializedRecord.new(
+      RubyEventStore::SerializedRecord.new(
         event_id:   event.id,
         metadata:   event.metadata,
         data:       event.data,
         event_type: event.event_type
       )
-      @mapper.serialized_record_to_event(serialized_record)
     rescue ActiveRecord::RecordNotFound
       raise RubyEventStore::EventNotFound.new(event_id)
     end
@@ -96,13 +91,12 @@ module RailsEventStoreActiveRecord
     private
 
     def build_event_instance(record)
-      serialized_record = RubyEventStore::SerializedRecord.new(
-        event_id:         record.event.id,
+      RubyEventStore::SerializedRecord.new(
+        event_id:   record.event.id,
         metadata:   record.event.metadata,
         data:       record.event.data,
         event_type: record.event.event_type
       )
-      @mapper.serialized_record_to_event(serialized_record)
     end
   end
 

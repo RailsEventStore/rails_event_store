@@ -1,11 +1,13 @@
 module RubyEventStore
   class Client
     def initialize(repository:,
+                   mapper: Mappers::Default.new,
                    event_broker:  PubSub::Broker.new,
                    page_size: PAGE_SIZE,
                    metadata_proc: nil,
                    clock: ->{ Time.now.utc })
       @repository     = repository
+      @mapper         = mapper
       @event_broker   = event_broker
       @page_size      = page_size
       @metadata_proc  = metadata_proc
@@ -28,7 +30,7 @@ module RubyEventStore
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
-      @repository.append_to_stream(events, stream_name, expected_version)
+      @repository.append_to_stream(serialized_events(events), stream_name, expected_version)
       :ok
     end
 
@@ -46,37 +48,37 @@ module RubyEventStore
     def read_events_forward(stream_name, start: :head, count: @page_size)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(@repository, start, count)
-      @repository.read_events_forward(stream_name, page.start, page.count)
+      deserialized_events(@repository.read_events_forward(stream_name, page.start, page.count))
     end
 
     def read_events_backward(stream_name, start: :head, count: @page_size)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(@repository, start, count)
-      @repository.read_events_backward(stream_name, page.start, page.count)
+      deserialized_events(@repository.read_events_backward(stream_name, page.start, page.count))
     end
 
     def read_stream_events_forward(stream_name)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      @repository.read_stream_events_forward(stream_name)
+      deserialized_events(@repository.read_stream_events_forward(stream_name))
     end
 
     def read_stream_events_backward(stream_name)
       raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      @repository.read_stream_events_backward(stream_name)
+      deserialized_events(@repository.read_stream_events_backward(stream_name))
     end
 
     def read_all_streams_forward(start: :head, count: @page_size)
       page = Page.new(@repository, start, count)
-      @repository.read_all_streams_forward(page.start, page.count)
+      deserialized_events(@repository.read_all_streams_forward(page.start, page.count))
     end
 
     def read_all_streams_backward(start: :head, count: @page_size)
       page = Page.new(@repository, start, count)
-      @repository.read_all_streams_backward(page.start, page.count)
+      deserialized_events(@repository.read_all_streams_backward(page.start, page.count))
     end
 
     def read_event(event_id)
-      @repository.read_event(event_id)
+      deserialize_event(@repository.read_event(event_id))
     end
 
     def get_all_streams
@@ -186,6 +188,22 @@ module RubyEventStore
 
     private
 
+    def serialized_events(events)
+      events.map do |ev|
+        @mapper.event_to_serialized_record(ev)
+      end
+    end
+
+    def deserialized_events(serialized_events)
+      serialized_events.map do |sev|
+        deserialize_event(sev)
+      end
+    end
+
+    def deserialize_event(sev)
+      @mapper.serialized_record_to_event(sev)
+    end
+
     def normalize_to_array(events)
       return *events
     end
@@ -195,7 +213,7 @@ module RubyEventStore
       metadata[:timestamp] ||= @clock.()
       metadata.merge!(@metadata_proc.call || {}) if @metadata_proc
       metadata.each do |key, value|
-        @repository.add_metadata(event, key, value)
+        @mapper.add_metadata(event, key, value)
       end
     end
 

@@ -41,7 +41,7 @@ module RailsEventStoreActiveRecord
       repository = LegacyEventRepository.new
       expect{
         repository.append_to_stream(
-          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          SRecord.new(event_id: SecureRandom.uuid),
           'stream_2',
           :auto
         )
@@ -72,8 +72,8 @@ module RailsEventStoreActiveRecord
     specify do
       repository = LegacyEventRepository.new
       expect{
-        repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_1', :none)
-        repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_2', :none)
+        repository.append_to_stream(SRecord.new, 'stream_1', :none)
+        repository.append_to_stream(SRecord.new, 'stream_2', :none)
       }.to_not raise_error
     end
 
@@ -82,13 +82,6 @@ module RailsEventStoreActiveRecord
       expect{
         repository.link_to_stream(SecureRandom.uuid, 'stream_2', :none)
       }.to raise_error(RubyEventStore::NotSupported)
-    end
-
-    specify 'add_metadata default mapper' do
-      event = TestDomainEvent.new
-      repository = LegacyEventRepository.new
-      repository.add_metadata(event, :yo, 1)
-      expect(event.metadata.fetch(:yo)).to eq(1)
     end
 
     private
