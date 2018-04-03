@@ -1,5 +1,8 @@
 module RubyEventStoreRomSql
   module ROM
+    TupleNotFound = Class.new(::ROM::TupleCountMismatchError) do
+      attr_accessor :tuple_id, :relation
+    end
   end
 end
 

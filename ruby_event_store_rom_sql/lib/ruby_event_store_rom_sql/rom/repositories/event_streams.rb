@@ -14,12 +14,6 @@ module RubyEventStoreRomSql
           }).commit
         end
   
-        # TODO: Replace with Sequel::Dataset#import(columns, values, opts) ?
-        # See: http://www.rubydoc.info/github/jeremyevans/sequel/Sequel%2FDataset%3Aimport
-        def import(tuples)
-          event_streams.changeset(:create, tuples).commit
-        end
-  
         ### Reader interface
   
         def all

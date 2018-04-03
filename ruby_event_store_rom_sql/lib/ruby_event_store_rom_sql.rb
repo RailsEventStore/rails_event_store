@@ -1,4 +1,4 @@
-require 'ruby_event_store/serialized_record'
+require 'ruby_event_store'
 require 'ruby_event_store_rom_sql/event_repository'
 require 'ruby_event_store_rom_sql/index_violation_detector'
 require 'ruby_event_store_rom_sql/version'

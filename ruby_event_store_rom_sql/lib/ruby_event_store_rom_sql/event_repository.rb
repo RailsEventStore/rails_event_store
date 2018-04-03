@@ -1,8 +1,5 @@
 module RubyEventStoreRomSql
   class EventRepository
-    POSITION_SHIFT = 1.freeze
-    POSITION_DEFAULT = -1.freeze
-
     def initialize(rom: RubyEventStoreRomSql.env, mapper: RubyEventStore::Mappers::Default.new)
       @events        = ROM::Repositories::Events.new(rom)
       @event_streams = ROM::Repositories::EventStreams.new(rom)
@@ -10,19 +7,23 @@ module RubyEventStoreRomSql
     end
 
     def append_to_stream(events, stream_name, expected_version)
-      add_to_stream(events, stream_name, expected_version, true) do |event|
-        @events.create(map_to_serialized_record(event))
-        event.event_id
-      end
+      @events.create(
+        Array(events).map(&method(:map_to_serialized_record)),
+        stream_name: stream_name,
+        expected_version: expected_version
+      )
+
+      self
+    rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => ex
+      raise_error(ex)
     end
 
     def link_to_stream(event_ids, stream_name, expected_version)
-      @events.detect_invalid_event_ids(normalize_to_array(event_ids)).each do |id|
-        raise RubyEventStore::EventNotFound.new(id)
-      end
-      add_to_stream(normalize_to_array(event_ids), stream_name, expected_version, nil) do |event_id|
-        event_id
-      end
+      @events.link(normalize_to_array(event_ids), stream_name, expected_version)
+
+      self
+    rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => ex
+      raise_error(ex)
     end
 
     def delete_stream(stream_name)
@@ -63,6 +64,8 @@ module RubyEventStoreRomSql
 
     def read_event(event_id)
       map_to_event @events.fetch(event_id)
+    rescue ::ROM::TupleCountMismatchError
+      raise RubyEventStore::EventNotFound.new(event_id)
     end
 
     def get_all_streams
@@ -75,60 +78,9 @@ module RubyEventStoreRomSql
 
     private
 
-    def add_to_stream(event_ids, stream_name, expected_version, include_global, &to_event_id)
-      raise RubyEventStore::InvalidExpectedVersion if !expected_version.equal?(:any) &&
-                                                      stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-
-      event_ids = normalize_to_array(event_ids)
-      expected_version = normalize_expected_version(expected_version, stream_name)
-
-      # TODO: Move this into repository (don't expose db internals)!!
-      @event_streams.event_streams.transaction(savepoint: true) do
-        in_stream = event_ids.flat_map.with_index do |event_id, index|
-          position = compute_position(expected_version, index)
-          event_id = to_event_id.call(event_id)
-
-          collection = []
-          collection.unshift(
-            stream: RubyEventStore::GLOBAL_STREAM,
-            # position: nil,
-            event_id: event_id
-          ) if include_global
-
-          collection.unshift(
-            stream:   stream_name,
-            position: position,
-            event_id: event_id
-          ) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-
-          collection
-        end
-
-        @event_streams.import(in_stream)
-      end
-      self
-    rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => e
-      raise RubyEventStore::EventDuplicatedInStream if detect_index_violated(e.message)
+    def raise_error(ex)
+      raise RubyEventStore::EventDuplicatedInStream if detect_index_violated(ex.message)
       raise RubyEventStore::WrongExpectedEventVersion
-    end
-
-    def compute_position(expected_version, offset)
-      unless expected_version.equal?(:any)
-        expected_version + offset + POSITION_SHIFT
-      end
-    end
-
-    def normalize_expected_version(expected_version, stream_name)
-      case expected_version
-      when Integer, :any
-        expected_version
-      when :none
-        POSITION_DEFAULT
-      when :auto
-        @events.last_position_for(stream_name) || POSITION_DEFAULT
-      else
-        raise RubyEventStore::InvalidExpectedVersion
-      end
     end
 
     def detect_index_violated(message)
