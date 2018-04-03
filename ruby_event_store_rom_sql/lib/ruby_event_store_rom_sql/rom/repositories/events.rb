@@ -1,17 +1,31 @@
 module RubyEventStoreRomSql
   module ROM
     module Repositories
-      class EventsRepository < ::ROM::Repository[:events]
-        SERIALIZED_RECORD_KEYS = %i[event_id data metadata event_type].freeze
+      class Events < ::ROM::Repository[:events]
+        class CreateEventsChangeset < ::ROM::Changeset::Create
+          map do |tuple|
+            # Convert RubyEventStore::SerializedRecord to Hash
+            %i[event_id data metadata event_type].each_with_object({}) do |key, hash|
+              hash[key] = tuple.__send__(key)
+            end
+          end
+
+          map do
+            rename_keys event_id: :id
+            accept_keys %i[id data metadata event_type]
+          end
+        end
 
         # relations :event_streams
         # commands :create
-        struct_namespace Entities
+        # struct_namespace Entities
 
         ### Writer interface
 
-        def create(*tuples)
-          events.changeset(:create, map_to_hash(tuples.flatten)).commit
+        def create(*serialized_records)
+          # mapper = mappers[:serialized_record_to_hash]
+          # events.changeset(:create, serialized_records).commit
+          events.changeset(CreateEventsChangeset, serialized_records).commit
         end
   
         ### Reader interface
@@ -21,7 +35,7 @@ module RubyEventStoreRomSql
         end
   
         def fetch(event_id)
-          map_to_serialized_record events.fetch(event_id)
+          events.where(id: event_id).map_with(:serialized_record_mapper).one!
         rescue ::ROM::TupleCountMismatchError
           raise RubyEventStore::EventNotFound.new(event_id)
         end
@@ -34,7 +48,7 @@ module RubyEventStoreRomSql
           end
 
           stream = stream.limit(limit) if limit
-          stream.map(&method(:map_to_serialized_record))
+          stream.map_with(:serialized_record_mapper).to_a
         end
   
         def read_events_backward(stream_name, before: :head, limit: nil)
@@ -45,11 +59,11 @@ module RubyEventStoreRomSql
           end
 
           stream = stream.limit(limit) if limit
-          stream.map(&method(:map_to_serialized_record))
+          stream.map_with(:serialized_record_mapper).to_a
         end
   
         def last_stream_event(stream_name)
-          map_to_serialized_record backward_for(stream_name).first
+          backward_for(stream_name).map_with(:serialized_record_mapper).first
         end
   
         def detect_invalid_event_ids(event_ids)
@@ -78,34 +92,6 @@ module RubyEventStoreRomSql
             .join(event_streams, event_id: :id)
             .where(event_streams[:stream].in(stream_name))
             .order { |r| order_columns.map { |c| r[:event_streams][c].__send__(direction) } }
-        end
-
-        def map_to_hash(tuples)
-          hashes = Array(tuples).map do |tuple|
-            case tuple
-            when RubyEventStore::SerializedRecord
-              SERIALIZED_RECORD_KEYS.each_with_object({}) do |key, hash|
-                hash[key] = tuple.__send__(key)
-              end.tap do |hash|
-                # Fix for changeset not mapping back to original column
-                hash[:id] = hash.delete(:event_id)
-              end
-            else
-              tuple
-            end
-          end
-
-          tuples.is_a?(Array) ? hashes : hashes.first
-        end
-
-        def map_to_serialized_record(record)
-          hash = record.to_h
-          hash[:event_id] = hash.delete(:id)
-
-          kwargs = hash.select { |key, _| SERIALIZED_RECORD_KEYS.include?(key) }
-          RubyEventStore::SerializedRecord.new(**kwargs)
-        rescue ArgumentError => ex
-          raise unless ex.message =~ /missing keyword/
         end
       end
     end

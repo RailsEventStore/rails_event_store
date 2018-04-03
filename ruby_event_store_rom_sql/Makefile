@@ -17,7 +17,7 @@ test: ## Run unit tests
 
 test-fast: ## Run unit tests with --fail-fast
 	@echo "Running unit tests with --fail-fast"
-	@bundle exec rspec --fail-fast --order defined
+	@bundle exec rspec --fail-fast --order defined --backtrace
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"

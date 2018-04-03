@@ -1,9 +1,11 @@
+require 'ruby_event_store/serialized_record'
 require 'ruby_event_store_rom_sql/event_repository'
 require 'ruby_event_store_rom_sql/index_violation_detector'
 require 'ruby_event_store_rom_sql/version'
 require 'rom/sql'
-require 'rom-repository'
 require 'rom-changeset'
+require 'rom-mapper'
+require 'rom-repository'
 
 module RubyEventStoreRomSql
   class << self
@@ -33,6 +35,8 @@ module RubyEventStoreRomSql
 
       config.register_relation(ROM::Relations::Events)
       config.register_relation(ROM::Relations::EventStreams)
+
+      config.register_mapper(ROM::Mappers::SerializedRecord)
     end
 
     def run_migrations_for(gateway)

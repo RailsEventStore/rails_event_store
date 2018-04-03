@@ -1,8 +1,8 @@
 module RubyEventStoreRomSql
   module ROM
     module Repositories
-      class EventStreamsRepository < ::ROM::Repository[:event_streams]
-        struct_namespace Entities
+      class EventStreams < ::ROM::Repository[:event_streams]
+        # struct_namespace Entities
 
         ### Writer interface
 

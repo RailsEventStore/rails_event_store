@@ -4,8 +4,8 @@ module RubyEventStoreRomSql
     POSITION_DEFAULT = -1.freeze
 
     def initialize(rom: RubyEventStoreRomSql.env, mapper: RubyEventStore::Mappers::Default.new)
-      @events        = ROM::Repositories::EventsRepository.new(rom)
-      @event_streams = ROM::Repositories::EventStreamsRepository.new(rom)
+      @events        = ROM::Repositories::Events.new(rom)
+      @event_streams = ROM::Repositories::EventStreams.new(rom)
       @mapper        = mapper
     end
 

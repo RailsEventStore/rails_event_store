@@ -9,15 +9,15 @@ end
 
 ENV['DATABASE_URL']  ||= 'sqlite:db.sqlite3'
 
-config = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
+rom = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 # # See: https://github.com/rom-rb/rom-sql/blob/master/spec/unit/relation/instrument_spec.rb
-# config.plugin(:sql, relations: :instrumentation) do |c|
+# rom.plugin(:sql, relations: :instrumentation) do |c|
 #   c.notifications = Instrumenter
 # end
 
-config.default.run_migrations
+rom.default.run_migrations
 
-RubyEventStoreRomSql.env = RubyEventStoreRomSql.setup(config)
+RubyEventStoreRomSql.env = RubyEventStoreRomSql.setup(rom)
 
 module SchemaHelper
   def rom
@@ -32,7 +32,7 @@ module SchemaHelper
   end
 
   def load_database_schema
-    RubyEventStoreRomSql.run_migrations_for(rom_db)
+    rom_db.run_migrations
   end
 
   def drop_database

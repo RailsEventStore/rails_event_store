@@ -69,8 +69,8 @@ module RubyEventStoreRomSql
       ]
       
       mapper = RubyEventStore::Mappers::Default.new
-      events_writer = ROM::Repositories::EventsRepository.new(rom).method(:create)
-      event_streams_writer = ROM::Repositories::EventStreamsRepository.new(rom).method(:create)
+      events_writer = ROM::Repositories::Events.new(rom).method(:create)
+      event_streams_writer = ROM::Repositories::EventStreams.new(rom).method(:create)
 
       events.each_with_index do |event, index|
         serialized_event = mapper.event_to_serialized_record(event)
@@ -110,8 +110,8 @@ module RubyEventStoreRomSql
       ]
       
       mapper = RubyEventStore::Mappers::Default.new
-      events_writer = ROM::Repositories::EventsRepository.new(rom).method(:create)
-      event_streams_writer = ROM::Repositories::EventStreamsRepository.new(rom).method(:create)
+      events_writer = ROM::Repositories::Events.new(rom).method(:create)
+      event_streams_writer = ROM::Repositories::EventStreams.new(rom).method(:create)
 
       events.each_with_index do |event, index|
         serialized_event = mapper.event_to_serialized_record(event)

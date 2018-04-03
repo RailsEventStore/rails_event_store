@@ -18,8 +18,8 @@ module RubyEventStoreRomSql
           end
         end
   
-        struct_namespace Entities
-        auto_struct true
+        # struct_namespace Entities
+        # auto_struct true
       end
     end
   end
