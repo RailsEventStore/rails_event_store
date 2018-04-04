@@ -1,6 +1,6 @@
 require 'rom/transformer'
 
-module RubyEventStoreRomSql
+module RubyEventStore
   module ROM
     module Mappers
       class SerializedRecord < ::ROM::Transformer

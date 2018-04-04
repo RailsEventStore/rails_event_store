@@ -1,4 +1,4 @@
-module RubyEventStoreRomSql
+module RubyEventStore
   class IndexViolationDetector
 
     MYSQL_PKEY_ERROR    = "for key 'PRIMARY'"

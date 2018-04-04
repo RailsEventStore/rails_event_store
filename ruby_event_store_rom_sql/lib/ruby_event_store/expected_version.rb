@@ -1,4 +1,4 @@
-module RubyEventStoreRomSql
+module RubyEventStore
   class ExpectedVersion
     POSITION_DEFAULT = -1.freeze
     NOT_RESOLVED = Object.new.freeze

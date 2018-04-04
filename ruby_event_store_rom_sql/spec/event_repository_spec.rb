@@ -3,7 +3,7 @@ require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
 require_relative '../../ruby_event_store/spec/mappers/events_pb.rb'
 
-module RubyEventStoreRomSql
+module RubyEventStore::ROM
   RSpec.describe EventRepository do
     include SchemaHelper
 
@@ -72,8 +72,8 @@ module RubyEventStoreRomSql
         )
       ]
       
-      events_writer = ROM::Repositories::Events.new(rom).method(:create)
-      event_streams_writer = ROM::Repositories::EventStreams.new(rom).method(:create)
+      events_writer = Repositories::Events.new(rom).method(:create)
+      event_streams_writer = Repositories::EventStreams.new(rom).method(:create)
 
       events.each do |event|
         events_writer.(event)
@@ -117,8 +117,8 @@ module RubyEventStoreRomSql
         )
       ]
       
-      events_writer = ROM::Repositories::Events.new(rom).method(:create)
-      event_streams_writer = ROM::Repositories::EventStreams.new(rom).method(:create)
+      events_writer = Repositories::Events.new(rom).method(:create)
+      event_streams_writer = Repositories::EventStreams.new(rom).method(:create)
 
       events.each do |event|
         events_writer.(event)
@@ -246,7 +246,7 @@ module RubyEventStoreRomSql
 
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
-      positions = RubyEventStoreRomSql::EventInStream.
+      positions = rom_db.relations[:event_streams].
         where(stream: "stream").
         order("position ASC").
         map(&:position)

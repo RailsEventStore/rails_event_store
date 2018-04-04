@@ -1,18 +1,18 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'ruby_event_store_rom_sql/version'
+require 'ruby_event_store/rom/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'ruby_event_store_rom_sql'
-  spec.version       = RubyEventStoreRomSql::VERSION
+  spec.version       = RubyEventStore::ROM::VERSION
   spec.licenses      = ['MIT']
   spec.authors       = ['Joel Van Horn']
   spec.email         = ['joel@joelvanhorn.com']
 
   spec.summary       = %q{ROM events repository for Ruby Event Store}
   spec.description   = %q{Implementation of events repository based on ROM for Ruby Event Store'}
-  spec.homepage      = 'https://github.com/RailsEventStore/ruby_event_store_rom_sql'
+  spec.homepage      = 'https://github.com/joelvh/rails_event_store'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'exe'

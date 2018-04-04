@@ -1,6 +1,6 @@
 require 'securerandom'
 
-module RubyEventStoreRomSql
+module RubyEventStore
   module ROM
     module Relations
       class EventStreams < ::ROM::Relation[:sql]

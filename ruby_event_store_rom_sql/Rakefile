@@ -19,10 +19,10 @@ rescue LoadError
 end
 
 require 'rom/sql/rake_task'
-require 'ruby_event_store_rom_sql/rom'
+require 'ruby_event_store/rom'
 
 desc 'Setup ROM'
 task 'db:setup' do
-  ROM::SQL::RakeSupport.env = RubyEventStoreRomSql::ROM.configure
+  ROM::SQL::RakeSupport.env = RubyEventStore::ROM.setup(ENV['DATABASE_URL'])
 end
 

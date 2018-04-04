@@ -1,8 +1,8 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store_rom_sql
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RubyEventStoreRomSql::IndexViolationDetector\#detect
-SUBJECT      ?= RubyEventStoreRomSql*
+IGNORE       = RubyEventStore::IndexViolationDetector\#detect
+SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 
 install: ## Install gem dependencies

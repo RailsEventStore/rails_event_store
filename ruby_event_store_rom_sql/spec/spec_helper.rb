@@ -1,4 +1,4 @@
-require 'ruby_event_store_rom_sql'
+require 'ruby_event_store/rom'
 require 'support/rspec_defaults'
 
 begin
@@ -17,11 +17,11 @@ rom = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 
 rom.default.run_migrations
 
-RubyEventStoreRomSql.env = RubyEventStoreRomSql.setup(rom)
+RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom)
 
 module SchemaHelper
   def rom
-    RubyEventStoreRomSql.env
+    RubyEventStore::ROM.env
   end
 
   def rom_db

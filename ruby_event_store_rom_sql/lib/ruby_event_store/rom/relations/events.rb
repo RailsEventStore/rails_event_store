@@ -1,6 +1,6 @@
 require 'yaml'
 
-module RubyEventStoreRomSql
+module RubyEventStore
   module ROM
     module Relations
       class Events < ::ROM::Relation[:sql]

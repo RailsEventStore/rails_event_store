@@ -1,4 +1,4 @@
-module RubyEventStoreRomSql
+module RubyEventStore
   module ROM
     module Repositories
       class EventStreams < ::ROM::Repository[:event_streams]
