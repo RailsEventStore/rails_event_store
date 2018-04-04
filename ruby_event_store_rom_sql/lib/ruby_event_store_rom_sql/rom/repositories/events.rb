@@ -3,12 +3,8 @@ module RubyEventStoreRomSql
     module Repositories
       class Events < ::ROM::Repository[:events]
         class CreateEventsChangeset < ::ROM::Changeset::Create
-          map do |tuple|
-            # Convert RubyEventStore::SerializedRecord to Hash
-            %i[event_id data metadata event_type].each_with_object({}) do |key, hash|
-              hash[key] = tuple.__send__(key)
-            end
-          end
+          # Convert to Hash
+          map(&:to_h)
 
           map do
             rename_keys event_id: :id

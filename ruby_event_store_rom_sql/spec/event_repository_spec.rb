@@ -24,11 +24,12 @@ module RubyEventStoreRomSql
 
     it_behaves_like :event_repository, EventRepository
 
+    # TODO: Port from AR to ROM
     xspecify "using preload()" do
       repository = EventRepository.new
       repository.append_to_stream([
-        TestDomainEvent.new(event_id: SecureRandom.uuid),
-        TestDomainEvent.new(event_id: SecureRandom.uuid),
+        SRecord.new,
+        SRecord.new,
       ], 'stream', :auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
       expect(c1).to eq(2)
@@ -51,30 +52,31 @@ module RubyEventStoreRomSql
 
     specify "explicit sorting by position rather than accidental" do
       events = [
-        TestDomainEvent.new(
+        SRecord.new(
           event_id: u1 = SecureRandom.uuid,
-          data: {},
-          metadata: {}
+          data: YAML.dump({}),
+          metadata: YAML.dump({}),
+          event_type: "TestDomainEvent"
         ),
-        TestDomainEvent.new(
+        SRecord.new(
           event_id: u2 = SecureRandom.uuid,
-          data: {},
-          metadata: {}
+          data: YAML.dump({}),
+          metadata: YAML.dump({}),
+          event_type: "TestDomainEvent"
         ),
-        TestDomainEvent.new(
+        SRecord.new(
           event_id: u3 = SecureRandom.uuid,
-          data: {},
-          metadata: {}
+          data: YAML.dump({}),
+          metadata: YAML.dump({}),
+          event_type: "TestDomainEvent"
         )
       ]
       
-      mapper = RubyEventStore::Mappers::Default.new
       events_writer = ROM::Repositories::Events.new(rom).method(:create)
       event_streams_writer = ROM::Repositories::EventStreams.new(rom).method(:create)
 
-      events.each_with_index do |event, index|
-        serialized_event = mapper.event_to_serialized_record(event)
-        events_writer.(serialized_event)
+      events.each do |event|
+        events_writer.(event)
       end
       
       event_streams_writer.("stream", events[1].event_id, position: 1)
@@ -88,34 +90,38 @@ module RubyEventStoreRomSql
       repository = EventRepository.new
       expect(repository.read_events_forward('stream', :head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq([u1,u2,u3])
+
+      expect(repository.read_events_backward('stream', :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward('stream').map(&:event_id)).to eq([u3,u2,u1])
     end
 
-    specify "explicit sorting by position rather than accidental for all events" do
+    specify "explicit sorting by id rather than accidental for all events" do
       events = [
-        TestDomainEvent.new(
+        SRecord.new(
           event_id: u1 = SecureRandom.uuid,
-          data: {},
-          metadata: {}
+          data: YAML.dump({}),
+          metadata: YAML.dump({}),
+          event_type: "TestDomainEvent"
         ),
-        TestDomainEvent.new(
+        SRecord.new(
           event_id: u2 = SecureRandom.uuid,
-          data: {},
-          metadata: {}
+          data: YAML.dump({}),
+          metadata: YAML.dump({}),
+          event_type: "TestDomainEvent"
         ),
-        TestDomainEvent.new(
+        SRecord.new(
           event_id: u3 = SecureRandom.uuid,
-          data: {},
-          metadata: {}
+          data: YAML.dump({}),
+          metadata: YAML.dump({}),
+          event_type: "TestDomainEvent"
         )
       ]
       
-      mapper = RubyEventStore::Mappers::Default.new
       events_writer = ROM::Repositories::Events.new(rom).method(:create)
       event_streams_writer = ROM::Repositories::EventStreams.new(rom).method(:create)
 
-      events.each_with_index do |event, index|
-        serialized_event = mapper.event_to_serialized_record(event)
-        events_writer.(serialized_event)
+      events.each do |event|
+        events_writer.(event)
       end
 
       event_streams_writer.(RubyEventStore::GLOBAL_STREAM, events[0].event_id, position: 1)
@@ -123,14 +129,70 @@ module RubyEventStoreRomSql
       event_streams_writer.(RubyEventStore::GLOBAL_STREAM, events[2].event_id, position: 2)
       
       repository = EventRepository.new
+
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_events_forward("all", :head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_stream_events_forward("all").map(&:event_id)).to eq([u1,u2,u3])
+
+      expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_events_backward("all", :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward("all").map(&:event_id)).to eq([u3,u2,u1])
     end
 
+    # TODO: Port from AR to ROM
+    xspecify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_all_streams_forward(:head, 3)
+      end
+    end
+
+    # TODO: Port from AR to ROM
+    xspecify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_events_forward("all", :head, 3)
+      end
+    end
+
+    # TODO: Port from AR to ROM
+    xspecify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC.*/) do
+        repository = EventRepository.new
+        repository.read_stream_events_forward("all")
+      end
+    end
+
+    # TODO: Port from AR to ROM
+    xspecify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_all_streams_backward(:head, 3)
+      end
+    end
+
+    # TODO: Port from AR to ROM
+    xspecify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
+        repository = EventRepository.new
+        repository.read_events_backward("all", :head, 3)
+      end
+    end
+
+    # TODO: Port from AR to ROM
+    xspecify do
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC.*/) do
+        repository = EventRepository.new
+        repository.read_stream_events_backward("all")
+      end
+    end
+
+    # TODO: Port from AR to ROM
     xspecify "explicit ORDER BY position" do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
         repository = EventRepository.new
         repository.append_to_stream([
-          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          SRecord.new,
         ], 'stream', :auto)
       end
     end
@@ -138,13 +200,13 @@ module RubyEventStoreRomSql
     specify "nested transaction - events still not persisted if append failed" do
       repository = EventRepository.new
       repository.append_to_stream([
-        event = TestDomainEvent.new(event_id: SecureRandom.uuid),
+        event = SRecord.new(event_id: SecureRandom.uuid),
       ], 'stream', :none)
 
       rom_db.transaction do
         expect do
           repository.append_to_stream([
-            TestDomainEvent.new(
+            SRecord.new(
               event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
             ),
           ], 'stream', :none)
@@ -156,6 +218,7 @@ module RubyEventStoreRomSql
       expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
     end
 
+    # TODO: Port from AR to ROM
     xspecify "limited query when looking for unexisting events during linking" do
       repository = EventRepository.new
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
@@ -165,25 +228,12 @@ module RubyEventStoreRomSql
       end
     end
 
+    # TODO: Port from AR to ROM
     xspecify "explicit order when fetching list of streams" do
       repository = EventRepository.new
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY.*id.*ASC.*/) do
         repository.get_all_streams
       end
-    end
-
-    specify 'add_metadata default mapper' do
-      event = TestDomainEvent.new
-      repository = EventRepository.new
-      repository.add_metadata(event, :yo, 1)
-      expect(event.metadata.fetch(:yo)).to eq(1)
-    end
-
-    specify 'add_metadata protobuf mapper' do
-      event = ResTesting::OrderCreated.new
-      repository = EventRepository.new(mapper: RubyEventStore::Mappers::Protobuf.new)
-      repository.add_metadata(event, :customer_id, 123)
-      expect(event.customer_id).to eq(123)
     end
 
     def cleanup_concurrency_test
@@ -194,6 +244,7 @@ module RubyEventStoreRomSql
       expect(rom_db.connection.pool.size).to eq(5)
     end
 
+    # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
       positions = RubyEventStoreRomSql::EventInStream.
         where(stream: "stream").
