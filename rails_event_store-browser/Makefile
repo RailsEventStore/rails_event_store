@@ -1,6 +1,6 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = rails_event_store-browser
-REQUIRE      = rails_event_store/browser ./spec/dummy_5_1_4/config/environment
+REQUIRE      = rails_event_store/browser ./spec/dummy_5_2_0_rc2/config/environment
 IGNORE       =
 SUBJECT      ?= RailsEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
