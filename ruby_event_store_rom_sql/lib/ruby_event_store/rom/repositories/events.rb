@@ -13,7 +13,6 @@ module RubyEventStore
         end
 
         POSITION_SHIFT = 1.freeze
-        GLOBAL_STREAM = ::RubyEventStore::GLOBAL_STREAM
 
         # relations :event_streams
         # commands :create
@@ -36,11 +35,9 @@ module RubyEventStore
           end
         end
 
-        def link(event_ids, stream_name, expected_version, global_stream: false)
-          event_ids = [event_ids].flatten
-
-          (event_ids - events.where(id: event_ids).pluck(:id)).each do |id|
-            raise RubyEventStore::EventNotFound.new(id)
+        def link(event_ids, stream_name, expected_version, global_stream: nil)
+          (event_ids - events.where(id: event_ids).select(:id).pluck(:id)).each do |id|
+            raise EventNotFound.new(id)
           end
 
           resolved_version = expected_version.resolve_for(stream_name) do
@@ -76,15 +73,17 @@ module RubyEventStore
         end
   
         def read(direction, stream_name, from: :head, limit: nil)
-          order, operator = direction == :backward ? [:desc, :<] : [:asc, :>]
+          order, operator = {
+            forward:  [:asc, :>],
+            backward: [:desc, :<]
+          }[direction]
 
-          stream = events_for(stream_name, order)
-          stream = stream.limit(limit) if limit
-          
-          unless from.equal?(:head)
-            conditions = event_streams[:id].__send__(operator, fetch_id_for(stream_name, from))
-            stream = stream.where(conditions)
-          end
+          raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
+
+          stream = events_for(stream_name, order).limit(limit)
+          stream = stream.where(
+                    event_streams[:id].public_send(operator, fetch_id_for(stream_name, from))
+                  ) unless from.equal?(:head)
 
           stream.to_a
         end
@@ -93,17 +92,17 @@ module RubyEventStore
 
         def events_for(stream_name, direction)
           order_columns = %i[position id]
-          order_columns.delete(:position) if stream_name == GLOBAL_STREAM
+          order_columns.delete(:position) if stream_name.eql?(GLOBAL_STREAM)
 
           events
-            .join(event_streams, event_id: :id)
+            .join(event_streams)
             .where(event_streams[:stream].in(stream_name))
-            .order { |r| order_columns.map { |c| r[:event_streams][c].__send__(direction) } }
+            .order { |r| order_columns.map { |c| r[:event_streams][c].public_send(direction) } }
             .map_with(:serialized_record_mapper)
         end
 
         def fetch_id_for(stream_name, event_id)
-          event_streams.where(stream: stream_name, event_id: event_id).limit(1).pluck(:id).first
+          event_streams.where(stream: stream_name, event_id: event_id).select(:id).pluck(:id).first
         end
 
         def compute_position(version, offset)

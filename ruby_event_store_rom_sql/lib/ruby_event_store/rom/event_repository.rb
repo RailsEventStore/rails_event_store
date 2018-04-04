@@ -2,8 +2,8 @@ module RubyEventStore
   module ROM
     class EventRepository
       def initialize(rom: ROM.env)
-        @events        = ROM::Repositories::Events.new(rom)
-        @event_streams = ROM::Repositories::EventStreams.new(rom)
+        @events        = Repositories::Events.new(rom)
+        @event_streams = Repositories::EventStreams.new(rom)
       end
 
       def append_to_stream(events, stream_name, expected_version)
@@ -55,17 +55,17 @@ module RubyEventStore
       end
 
       def read_all_streams_forward(after_event_id, count)
-        read_events_forward(RubyEventStore::GLOBAL_STREAM, after_event_id, count)
+        read_events_forward(GLOBAL_STREAM, after_event_id, count)
       end
 
       def read_all_streams_backward(before_event_id, count)
-        read_events_backward(RubyEventStore::GLOBAL_STREAM, before_event_id, count)
+        read_events_backward(GLOBAL_STREAM, before_event_id, count)
       end
 
       def read_event(event_id)
         @events.fetch(event_id)
       rescue ::ROM::TupleCountMismatchError
-        raise RubyEventStore::EventNotFound.new(event_id)
+        raise EventNotFound.new(event_id)
       end
 
       def get_all_streams
@@ -75,8 +75,8 @@ module RubyEventStore
       private
 
       def raise_error(ex)
-        raise RubyEventStore::EventDuplicatedInStream if detect_index_violated(ex.message)
-        raise RubyEventStore::WrongExpectedEventVersion
+        raise EventDuplicatedInStream if detect_index_violated(ex.message)
+        raise WrongExpectedEventVersion
       end
 
       def detect_index_violated(message)

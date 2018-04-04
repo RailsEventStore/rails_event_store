@@ -21,9 +21,9 @@ module RubyEventStore
         ### Reader interface
   
         def all
-          ([RubyEventStore::GLOBAL_STREAM] + event_streams.select(:stream).distinct.pluck(:stream))
+          ([GLOBAL_STREAM] + event_streams.distinct.select(:stream).pluck(:stream))
             .uniq
-            .map(&RubyEventStore::Stream.method(:new))
+            .map(&Stream.method(:new))
         end
       end
     end
