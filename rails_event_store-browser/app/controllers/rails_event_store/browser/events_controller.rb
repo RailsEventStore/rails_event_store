@@ -19,7 +19,7 @@ module RailsEventStore
           attributes: {
             event_type: event.class.to_s,
             data: event.data,
-            metadata: event.metadata
+            metadata: event.metadata.to_h
           }
         }
       end

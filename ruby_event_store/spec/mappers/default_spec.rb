@@ -30,7 +30,7 @@ module RubyEventStore
         expect(event).to              eq(domain_event)
         expect(event.event_id).to     eq domain_event.event_id
         expect(event.data).to         eq(data)
-        expect(event.metadata).to     eq(metadata)
+        expect(event.metadata.to_h).to     eq(metadata)
       end
 
       specify '#serialized_record_to_event its using events class remapping' do
@@ -47,10 +47,10 @@ module RubyEventStore
 
       specify '#add_metadata' do
         subject.add_metadata(domain_event, :yo, 123)
-        expect(domain_event.metadata.fetch(:yo)).to eq(123)
+        expect(domain_event.metadata[:yo]).to eq(123)
 
         subject.add_metadata(domain_event, 'lo', 456)
-        expect(domain_event.metadata.fetch(:lo)).to eq(456)
+        expect(domain_event.metadata[:lo]).to eq(456)
       end
 
       context 'when custom serializer is provided' do
@@ -97,7 +97,7 @@ module RubyEventStore
           expect(event).to              eq(domain_event)
           expect(event.event_id).to     eq domain_event.event_id
           expect(event.data).to         eq(data)
-          expect(event.metadata).to     eq(metadata)
+          expect(event.metadata.to_h).to     eq(metadata)
         end
       end
     end
