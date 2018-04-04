@@ -27,7 +27,7 @@ module RubyEventStore
       end
 
       def delete_stream(stream_name)
-        @events.delete_stream(stream_name)
+        @event_streams.delete(stream_name)
       end
 
       def has_event?(event_id)

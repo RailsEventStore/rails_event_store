@@ -14,6 +14,10 @@ module RubyEventStore
           }).commit
         end
   
+        def delete(stream_name)
+          event_streams.where(stream: stream_name).command(:delete).call
+        end
+  
         ### Reader interface
   
         def all

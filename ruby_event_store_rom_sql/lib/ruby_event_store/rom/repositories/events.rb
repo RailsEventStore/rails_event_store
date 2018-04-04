@@ -89,10 +89,6 @@ module RubyEventStore
           stream.to_a
         end
   
-        def delete_stream(stream_name)
-          event_streams.where(stream: stream_name).command(:delete).call
-        end
-  
       private
 
         def events_for(stream_name, direction)
