@@ -5,9 +5,9 @@ module RubyEventStore
   class InMemoryRepository
 
     def initialize
-      @all = Array.new
       @streams = Hash.new
       @mutex = Mutex.new
+      @streams[GLOBAL_STREAM] = Array.new
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -24,7 +24,7 @@ module RubyEventStore
     end
 
     def has_event?(event_id)
-      @all.any?{ |item| item.event_id.eql?(event_id) }
+      @streams.fetch(GLOBAL_STREAM).any? { |item| item.event_id.eql?(event_id) }
     end
 
     def last_stream_event(stream_name)
@@ -42,7 +42,7 @@ module RubyEventStore
     end
 
     def read_stream_events_forward(stream_name)
-      @streams[stream_name] || Array.new
+      @streams.fetch(stream_name, Array.new)
     end
 
     def read_stream_events_backward(stream_name)
@@ -50,19 +50,19 @@ module RubyEventStore
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_batch(@all, start_event_id, count)
+      read_events_forward(GLOBAL_STREAM, start_event_id, count)
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_batch(@all.reverse, start_event_id, count)
+      read_events_backward(GLOBAL_STREAM, start_event_id, count)
     end
 
     def read_event(event_id)
-      @all.find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
+      @streams.fetch(GLOBAL_STREAM).find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
     end
 
     def get_all_streams
-      [Stream.new("all")] + @streams.keys.map { |name| Stream.new(name) }
+      @streams.keys.map { |name| Stream.new(name) }
     end
 
     private
@@ -110,10 +110,11 @@ module RubyEventStore
       events.each do |event|
         raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
         if include_global
-          raise EventDuplicatedInStream if @all.any?{|ev| ev.event_id.eql?(event.event_id) }
-          @all.push(event)
+          global_stream = read_stream_events_forward(GLOBAL_STREAM)
+          raise EventDuplicatedInStream if global_stream.any? { |ev| ev.event_id.eql?(event.event_id) }
+          global_stream.push(event)
         end
-        stream.push(event)
+        stream.push(event) unless stream_name.eql?(GLOBAL_STREAM)
       end
       @streams[stream_name] = stream
       self
