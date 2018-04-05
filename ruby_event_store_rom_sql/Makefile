@@ -8,8 +8,6 @@ DATABASE_URL ?= sqlite::memory:
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
-	@echo "Installing v1_v2_schema_migration gem dependencies"
-	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
 
 test: ## Run unit tests
 	@echo "Running unit tests"
