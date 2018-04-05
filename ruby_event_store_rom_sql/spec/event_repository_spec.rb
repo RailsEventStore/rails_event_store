@@ -125,9 +125,9 @@ module RubyEventStore::ROM
         events_writer.(event)
       end
 
-      event_streams_writer.(RubyEventStore::GLOBAL_STREAM, events[0].event_id, position: 1)
-      event_streams_writer.(RubyEventStore::GLOBAL_STREAM, events[1].event_id, position: 0)
-      event_streams_writer.(RubyEventStore::GLOBAL_STREAM, events[2].event_id, position: 2)
+      event_streams_writer.("all", events[0].event_id, position: 1)
+      event_streams_writer.("all", events[1].event_id, position: 0)
+      event_streams_writer.("all", events[2].event_id, position: 2)
       
       repository = EventRepository.new
 
