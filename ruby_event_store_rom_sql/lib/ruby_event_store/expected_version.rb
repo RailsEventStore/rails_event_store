@@ -13,10 +13,7 @@ module RubyEventStore
       @expected = expected
 
       # validate
-      case expected
-      when Integer, :any, :none, :auto
-      else raise RubyEventStore::InvalidExpectedVersion
-      end
+      invalid_version! unless [Integer, :any, :none, :auto].any? { |i| i === expected }
     end
 
     def any?
@@ -28,7 +25,7 @@ module RubyEventStore
     end
 
     def allowed?(stream_name)
-      @expected.equal?(:any) || !stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      @expected.equal?(:any) || !stream_name.eql?(GLOBAL_STREAM)
     end
 
     def resolve_for(stream_name, &resolver)
@@ -51,7 +48,7 @@ module RubyEventStore
   protected
 
     def invalid_version!
-      raise RubyEventStore::InvalidExpectedVersion
+      raise InvalidExpectedVersion
     end
   end
 end
