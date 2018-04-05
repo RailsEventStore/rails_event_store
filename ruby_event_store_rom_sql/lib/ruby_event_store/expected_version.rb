@@ -3,8 +3,10 @@ module RubyEventStore
     POSITION_DEFAULT = -1.freeze
     NOT_RESOLVED = Object.new.freeze
 
-    def self.any
-      new(:any)
+    class << self
+      %i[any none auto].each do |name|
+        define_method(name) { new(name) }
+      end
     end
 
     attr_reader :expected
