@@ -11,17 +11,13 @@ gem 'google-protobuf'
 gem 'rails_event_store'
 ```
 
-This edge feature is not yet available in a released gem version.
-
 ## Configure protobuf mapper
 
 ```ruby
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(
-        mapper: RubyEventStore::Mappers::Protobuf.new
-      )
+      mapper: RubyEventStore::Mappers::Protobuf.new
     )
   end
 end
