@@ -344,6 +344,12 @@ module RubyEventStore
       expect { client.append_to_stream(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
     end
 
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(IncorrectStreamData)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: '', expected_version: -1) }.to raise_error(IncorrectStreamData)
+    end
+
     specify 'return all events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       4.times do |index|

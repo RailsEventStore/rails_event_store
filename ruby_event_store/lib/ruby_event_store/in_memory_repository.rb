@@ -86,8 +86,8 @@ module RubyEventStore
       global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
     end
 
-    def read(specification)
-      events = specification.global_stream? ? global : stream_of(specification.stream.name)
+    def read(spec)
+      events = spec.global_stream? ? global : stream_of(spec.stream.name)
       events = events.reverse if spec.backward?
       events = read_batch(events, spec.start, spec.count) if spec.limit?
       events.each
@@ -132,6 +132,7 @@ module RubyEventStore
     def append(events, resolved_version, stream, include_global)
       stream_events = stream_of(stream.name)
       raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
+
       events.each do |event|
         raise EventDuplicatedInStream if stream_events.any? {|ev| ev.event_id.eql?(event.event_id)}
         if include_global
