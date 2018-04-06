@@ -41,25 +41,25 @@ RSpec.describe PostgresqlQueue::Reader do
     res.publish_event(ev = MyEvent.new(data: {
       one: 1,
     }))
-    expect(q.events(after_event_id: nil)).to eq([ev])
-    expect(q.events(after_event_id: ev.event_id)).to eq([])
+    expect(q.events(after_event_id: nil)).to eqs([ev])
+    expect(q.events(after_event_id: ev.event_id)).to eqs([])
   end
 
   specify "exposes max count events" do
     res.publish_events(events = 10.times.map{MyEvent.new})
-    expect(q.events(after_event_id: nil, count: 2 )).to eq(events[0..1])
+    expect(q.events(after_event_id: nil, count: 2 )).to eqs(events[0..1])
   end
 
   specify "exposes 100 events by default" do
     res.publish_events(events = 105.times.map{MyEvent.new})
-    expect(q.events(after_event_id: nil)).to eq(events[0..99])
+    expect(q.events(after_event_id: nil)).to eqs(events[0..99])
   end
 
   specify "does not read too much Events unnecessarily" do
     res.publish_events(events = 10.times.map{MyEvent.new})
 
     allow(MyEvent).to receive(:new).and_call_original
-    expect(q.events(after_event_id: events[5].event_id, count: 3 )).to eq(events[6..8])
+    expect(q.events(after_event_id: events[5].event_id, count: 3 )).to eqs(events[6..8])
     expect(MyEvent).to have_received(:new).exactly(3).times
   end
 
@@ -82,8 +82,8 @@ RSpec.describe PostgresqlQueue::Reader do
 
   specify "handles non global stream" do
     res.publish_events(events = 50.times.map{MyEvent.new}, stream_name: "whoa")
-    expect(q.events(after_event_id: nil, count: 5 )).to eq(events[0..4])
-    expect(q.events(after_event_id: events[4].event_id, count: 5 )).to eq(events[5..9])
+    expect(q.events(after_event_id: nil, count: 5 )).to eqs(events[0..4])
+    expect(q.events(after_event_id: events[4].event_id, count: 5 )).to eqs(events[5..9])
   end
 
   specify "explicit id ASC query" do
@@ -91,7 +91,7 @@ RSpec.describe PostgresqlQueue::Reader do
       one: 1,
     }))
     expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*id.*>=.*AND.*id.*<=.*ORDER BY id ASC.*/) do
-      expect(q.events(after_event_id: nil)).to eq([ev])
+      expect(q.events(after_event_id: nil)).to eqs([ev])
     end
   end
 
@@ -112,12 +112,12 @@ RSpec.describe PostgresqlQueue::Reader do
       end
     end
     exchanger.exchange!('published2', timeout)
-    expect(q.events(after_event_id: nil)).to eq([ev])
-    expect(q.events(after_event_id: ev.event_id)).to eq([])
+    expect(q.events(after_event_id: nil)).to eqs([ev])
+    expect(q.events(after_event_id: ev.event_id)).to eqs([])
     exchanger.exchange!('done2', timeout)
     t.join(timeout)
-    expect(q.events(after_event_id: nil)).to eq([ev, ev2])
-    expect(q.events(after_event_id: ev.event_id)).to eq([ev2])
+    expect(q.events(after_event_id: nil)).to eqs([ev, ev2])
+    expect(q.events(after_event_id: ev.event_id)).to eqs([ev2])
   end
 
   # Thread1: [1]     [3]
@@ -142,12 +142,12 @@ RSpec.describe PostgresqlQueue::Reader do
     res.publish_event(ev3 = MyEvent.new(data: {
       three: 3,
     }))
-    expect(q.events(after_event_id: nil)).to eq([ev])
-    expect(q.events(after_event_id: ev.event_id)).to eq([])
+    expect(q.events(after_event_id: nil)).to eqs([ev])
+    expect(q.events(after_event_id: ev.event_id)).to eqs([])
     exchanger.exchange!('done2', timeout)
     t.join(timeout)
-    expect(q.events(after_event_id: nil)).to eq([ev, ev2, ev3])
-    expect(q.events(after_event_id: ev.event_id)).to eq([ev2, ev3])
+    expect(q.events(after_event_id: nil)).to eqs([ev, ev2, ev3])
+    expect(q.events(after_event_id: ev.event_id)).to eqs([ev2, ev3])
   end
 
 
@@ -172,13 +172,13 @@ RSpec.describe PostgresqlQueue::Reader do
       exchanger.exchange!('published3', timeout)
       res.publish_event(ev4 = MyEvent.new(data: {four: 4},event_id: "44444444-4444-4444-4444-444444444444"))
     end
-    expect(q.events(after_event_id: nil)).to eq([ev1,ev2])
-    expect(q.events(after_event_id: ev1.event_id)).to eq([ev2])
-    expect(q.events(after_event_id: ev2.event_id)).to eq([])
+    expect(q.events(after_event_id: nil)).to eqs([ev1,ev2])
+    expect(q.events(after_event_id: ev1.event_id)).to eqs([ev2])
+    expect(q.events(after_event_id: ev2.event_id)).to eqs([])
     exchanger.exchange!('published4', timeout)
     t.join(timeout)
-    expect(q.events(after_event_id: nil)).to eq([ev1, ev2, ev3, ev4])
-    expect(q.events(after_event_id: ev1.event_id)).to eq([ev2, ev3, ev4])
+    expect(q.events(after_event_id: nil)).to eqs([ev1, ev2, ev3, ev4])
+    expect(q.events(after_event_id: ev1.event_id)).to eqs([ev2, ev3, ev4])
   end
 
   private
@@ -190,6 +190,13 @@ RSpec.describe PostgresqlQueue::Reader do
     }
     ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
     expect(count).to eq(1)
+  end
+
+  RSpec::Matchers.define :eqs do |expected|
+    match do |provided|
+      @actual = provided.map(&:event_id)
+      values_match?(expected.map(&:event_id), @actual)
+    end
   end
 end
 
