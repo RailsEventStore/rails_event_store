@@ -10,48 +10,48 @@ module RailsEventStoreActiveRecord
       @repo_reader = EventRepositoryReader.new
     end
 
-    def append_to_stream(events, stream_name, expected_version)
-      add_to_stream(normalize_to_array(events), stream_name, expected_version, true) do |event|
+    def append_to_stream(events, stream, expected_version)
+      add_to_stream(normalize_to_array(events), stream, expected_version, true) do |event|
         build_event_record(event).save!
         event.event_id
       end
     end
 
-    def link_to_stream(event_ids, stream_name, expected_version)
+    def link_to_stream(event_ids, stream, expected_version)
       (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
-      add_to_stream(normalize_to_array(event_ids), stream_name, expected_version, nil) do |event_id|
+      add_to_stream(normalize_to_array(event_ids), stream, expected_version, nil) do |event_id|
         event_id
       end
     end
 
-    def delete_stream(stream_name)
-      EventInStream.where(stream: stream_name).delete_all
+    def delete_stream(stream)
+      EventInStream.where(stream: stream.name).delete_all
     end
 
     def has_event?(event_id)
       @repo_reader.has_event?(event_id)
     end
 
-    def last_stream_event(stream_name)
-      @repo_reader.last_stream_event(stream_name)
+    def last_stream_event(stream)
+      @repo_reader.last_stream_event(stream)
     end
 
-    def read_events_forward(stream_name, after_event_id, count)
-      @repo_reader.read_events_forward(stream_name, after_event_id, count)
+    def read_events_forward(stream, after_event_id, count)
+      @repo_reader.read_events_forward(stream, after_event_id, count)
     end
 
-    def read_events_backward(stream_name, before_event_id, count)
-      @repo_reader.read_events_backward(stream_name, before_event_id, count)
+    def read_events_backward(stream, before_event_id, count)
+      @repo_reader.read_events_backward(stream, before_event_id, count)
     end
 
-    def read_stream_events_forward(stream_name)
-      @repo_reader.read_stream_events_forward(stream_name)
+    def read_stream_events_forward(stream)
+      @repo_reader.read_stream_events_forward(stream)
     end
 
-    def read_stream_events_backward(stream_name)
-      @repo_reader.read_stream_events_backward(stream_name)
+    def read_stream_events_backward(stream)
+      @repo_reader.read_stream_events_backward(stream)
     end
 
     def read_all_streams_forward(after_event_id, count)
@@ -72,10 +72,10 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def add_to_stream(collection, stream_name, expected_version, include_global, &to_event_id)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+    def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
+      raise RubyEventStore::InvalidExpectedVersion if stream.name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
 
-      expected_version = normalize_expected_version(expected_version, stream_name)
+      expected_version = normalize_expected_version(expected_version, stream)
 
       ActiveRecord::Base.transaction(requires_new: true) do
         in_stream = collection.flat_map.with_index do |element, index|
@@ -88,10 +88,10 @@ module RailsEventStoreActiveRecord
             event_id: event_id
           }) if include_global
           collection.unshift({
-            stream:   stream_name,
+            stream:   stream.name,
             position: position,
             event_id: event_id
-          }) unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+          }) unless stream.name.eql?(RubyEventStore::GLOBAL_STREAM)
           collection
         end
         EventInStream.import(in_stream)
@@ -114,14 +114,14 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    def normalize_expected_version(expected_version, stream_name)
+    def normalize_expected_version(expected_version, stream)
       case expected_version
         when Integer, :any
           expected_version
         when :none
           -1
         when :auto
-          eis = EventInStream.where(stream: stream_name).order("position DESC").first
+          eis = EventInStream.where(stream: stream.name).order("position DESC").first
           (eis && eis.position) || -1
         else
           raise RubyEventStore::InvalidExpectedVersion

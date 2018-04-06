@@ -23,22 +23,22 @@ instead:
       MSG
     end
 
-    def append_to_stream(events, stream_name, expected_version)
+    def append_to_stream(events, stream, expected_version)
       validate_expected_version_is_not_auto(expected_version)
-      validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
+      validate_expected_version_is_any_for_global_stream(expected_version, stream)
 
       case expected_version
       when :none
-        validate_stream_is_empty(stream_name)
+        validate_stream_is_empty(stream)
       when :any
       when Integer
-        validate_expected_version_number(expected_version, stream_name)
+        validate_expected_version_number(expected_version, stream)
       else
         raise RubyEventStore::InvalidExpectedVersion
       end
 
       normalize_to_array(events).each do |event|
-        data = event.to_h.merge!(stream: stream_name)
+        data = event.to_h.merge!(stream: stream.name)
         LegacyEvent.create!(data)
       end
       self
@@ -46,73 +46,73 @@ instead:
       raise RubyEventStore::EventDuplicatedInStream
     end
 
-    def link_to_stream(_event_ids, _stream_name, _expected_version)
+    def link_to_stream(_event_ids, _stream, _expected_version)
       raise RubyEventStore::NotSupported
     end
 
-    def delete_stream(stream_name)
-      LegacyEvent.where({stream: stream_name}).update_all(stream: RubyEventStore::GLOBAL_STREAM)
+    def delete_stream(stream)
+      LegacyEvent.where({stream: stream.name}).update_all(stream: RubyEventStore::GLOBAL_STREAM)
     end
 
     def has_event?(event_id)
       LegacyEvent.exists?(event_id: event_id)
     end
 
-    def last_stream_event(stream_name)
-      build_event_entity(LegacyEvent.where(stream: stream_name).last)
+    def last_stream_event(stream)
+      build_event_entity(LegacyEvent.where(stream: stream.name).last)
     end
 
-    def read_events_forward(stream_name, start_event_id, count)
-      stream = LegacyEvent.where(stream: stream_name)
+    def read_events_forward(stream, start_event_id, count)
+      events = LegacyEvent.where(stream: stream.name)
       unless start_event_id.equal?(:head)
         starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        stream = stream.where('id > ?', starting_event)
+        events = events.where('id > ?', starting_event)
       end
 
-      stream.order('id ASC').limit(count)
+      events.order('id ASC').limit(count)
         .map(&method(:build_event_entity))
     end
 
-    def read_events_backward(stream_name, start_event_id, count)
-      stream = LegacyEvent.where(stream: stream_name)
+    def read_events_backward(stream, start_event_id, count)
+      events = LegacyEvent.where(stream: stream.name)
       unless start_event_id.equal?(:head)
         starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        stream = stream.where('id < ?', starting_event)
+        events = events.where('id < ?', starting_event)
       end
 
-      stream.order('id DESC').limit(count)
+      events.order('id DESC').limit(count)
         .map(&method(:build_event_entity))
     end
 
-    def read_stream_events_forward(stream_name)
-      LegacyEvent.where(stream: stream_name).order('id ASC')
+    def read_stream_events_forward(stream)
+      LegacyEvent.where(stream: stream.name).order('id ASC')
         .map(&method(:build_event_entity))
     end
 
-    def read_stream_events_backward(stream_name)
-      LegacyEvent.where(stream: stream_name).order('id DESC')
+    def read_stream_events_backward(stream)
+      LegacyEvent.where(stream: stream.name).order('id DESC')
         .map(&method(:build_event_entity))
     end
 
     def read_all_streams_forward(start_event_id, count)
-      stream = LegacyEvent
+      events = LegacyEvent
       unless start_event_id.equal?(:head)
         starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        stream = stream.where('id > ?', starting_event)
+        events = events.where('id > ?', starting_event)
       end
 
-      stream.order('id ASC').limit(count)
+      events.order('id ASC').limit(count)
         .map(&method(:build_event_entity))
     end
 
     def read_all_streams_backward(start_event_id, count)
-      stream = LegacyEvent
+      events = LegacyEvent
       unless start_event_id.equal?(:head)
         starting_event = LegacyEvent.find_by(event_id: start_event_id)
-        stream = stream.where('id < ?', starting_event)
+        events = events.where('id < ?', starting_event)
       end
 
-      stream.order('id DESC').limit(count)
+      events.order('id DESC').limit(count)
         .map(&method(:build_event_entity))
     end
 
@@ -143,24 +143,24 @@ instead:
       )
     end
 
-    def last_stream_version(stream_name)
-      LegacyEvent.where(stream: stream_name).count - 1
+    def last_stream_version(stream)
+      LegacyEvent.where(stream: stream.name).count - 1
     end
 
-    def stream_non_empty?(stream_name)
-      LegacyEvent.where(stream: stream_name).exists?
+    def stream_non_empty?(stream)
+      LegacyEvent.where(stream: stream.name).exists?
     end
 
-    def validate_expected_version_is_any_for_global_stream(expected_version, stream_name)
-      raise RubyEventStore::InvalidExpectedVersion if stream_name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+    def validate_expected_version_is_any_for_global_stream(expected_version, stream)
+      raise RubyEventStore::InvalidExpectedVersion if stream.name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
     end
 
-    def validate_stream_is_empty(stream_name)
-      raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream_name)
+    def validate_stream_is_empty(stream)
+      raise RubyEventStore::WrongExpectedEventVersion if stream_non_empty?(stream)
     end
 
-    def validate_expected_version_number(expected_version, stream_name)
-      raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream_name).equal?(expected_version)
+    def validate_expected_version_number(expected_version, stream)
+      raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream).equal?(expected_version)
     end
 
     def validate_expected_version_is_not_auto(expected_version)
