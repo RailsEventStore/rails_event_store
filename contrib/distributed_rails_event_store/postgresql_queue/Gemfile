@@ -7,3 +7,9 @@ gem 'pry'
 gem 'rails_event_store_active_record',
     github: "RailsEventStore/rails_event_store",
     branch: "fill_ids"
+gem 'ruby_event_store',
+    github: "RailsEventStore/rails_event_store",
+    branch: "fill_ids"
+gem 'rails_event_store',
+    github: "RailsEventStore/rails_event_store",
+    branch: "fill_ids"
