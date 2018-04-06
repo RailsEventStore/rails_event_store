@@ -2,10 +2,9 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Stream do
-    specify do
-      stream = Stream.new("some_stream")
-      expect(stream.name).to eq("some_stream")
-    end
+    specify { expect(Stream.new("some_stream").name).to eq("some_stream") }
+    specify { expect{Stream.new('')}.to raise_error(IncorrectStreamData) }
+    specify { expect{Stream.new(nil)}.to raise_error(IncorrectStreamData) }
 
     specify "in-equality" do
       %w(

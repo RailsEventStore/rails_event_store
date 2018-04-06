@@ -1,6 +1,7 @@
 module RubyEventStore
   class Stream
     def initialize(name)
+      raise IncorrectStreamData if name.nil? || name.empty?
       @name = name
     end
 

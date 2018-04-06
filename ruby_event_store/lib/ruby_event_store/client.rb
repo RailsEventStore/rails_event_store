@@ -27,44 +27,38 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
-      @repository.append_to_stream(serialized_events(events), stream_name, expected_version)
+      @repository.append_to_stream(serialized_events(events), Stream.new(stream_name).name, expected_version)
       :ok
     end
 
     def link_to_stream(event_ids, stream_name:, expected_version: :any)
-      @repository.link_to_stream(event_ids, stream_name, expected_version)
+      @repository.link_to_stream(event_ids, Stream.new(stream_name).name, expected_version)
       self
     end
 
     def delete_stream(stream_name)
-      raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      @repository.delete_stream(stream_name)
+      @repository.delete_stream(Stream.new(stream_name).name)
       :ok
     end
 
     def read_events_forward(stream_name, start: :head, count: @page_size)
-      raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(@repository, start, count)
-      deserialized_events(@repository.read_events_forward(stream_name, page.start, page.count))
+      deserialized_events(@repository.read_events_forward(Stream.new(stream_name).name, page.start, page.count))
     end
 
     def read_events_backward(stream_name, start: :head, count: @page_size)
-      raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
       page = Page.new(@repository, start, count)
-      deserialized_events(@repository.read_events_backward(stream_name, page.start, page.count))
+      deserialized_events(@repository.read_events_backward(Stream.new(stream_name).name, page.start, page.count))
     end
 
     def read_stream_events_forward(stream_name)
-      raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      deserialized_events(@repository.read_stream_events_forward(stream_name))
+      deserialized_events(@repository.read_stream_events_forward(Stream.new(stream_name).name))
     end
 
     def read_stream_events_backward(stream_name)
-      raise IncorrectStreamData if stream_name.nil? || stream_name.empty?
-      deserialized_events(@repository.read_stream_events_backward(stream_name))
+      deserialized_events(@repository.read_stream_events_backward(Stream.new(stream_name).name))
     end
 
     def read_all_streams_forward(start: :head, count: @page_size)
