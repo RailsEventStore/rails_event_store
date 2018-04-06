@@ -73,7 +73,7 @@ module RailsEventStoreActiveRecord
     private
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
-      raise RubyEventStore::InvalidExpectedVersion if stream.name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+      raise RubyEventStore::InvalidExpectedVersion if stream.global? && !expected_version.equal?(:any)
 
       expected_version = normalize_expected_version(expected_version, stream)
 
@@ -91,7 +91,7 @@ module RailsEventStoreActiveRecord
             stream:   stream.name,
             position: position,
             event_id: event_id
-          }) unless stream.name.eql?(RubyEventStore::GLOBAL_STREAM)
+          }) unless stream.global?
           collection
         end
         EventInStream.import(in_stream)

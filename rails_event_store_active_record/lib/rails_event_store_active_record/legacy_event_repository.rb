@@ -152,7 +152,7 @@ instead:
     end
 
     def validate_expected_version_is_any_for_global_stream(expected_version, stream)
-      raise RubyEventStore::InvalidExpectedVersion if stream.name.eql?(RubyEventStore::GLOBAL_STREAM) && !expected_version.equal?(:any)
+      raise RubyEventStore::InvalidExpectedVersion if stream.global? && !expected_version.equal?(:any)
     end
 
     def validate_stream_is_empty(stream)
