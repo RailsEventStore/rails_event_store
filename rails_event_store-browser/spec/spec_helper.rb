@@ -3,7 +3,7 @@ require "rails_event_store/browser"
 require "support/rspec_defaults"
 
 ENV['RAILS_ENV']     ||= 'test'
-ENV['RAILS_VERSION'] ||= '5.1.4'
+ENV['RAILS_VERSION'] ||= '5.2.0.rc2'
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 
 dummy_app_name = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
