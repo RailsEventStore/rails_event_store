@@ -1,0 +1,8 @@
+Description:
+    Installs additional Dres Rails resources.
+
+Example:
+    rails generate dres_rails:install
+
+    This will create:
+        what/will/it/create

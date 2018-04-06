@@ -1,0 +1,40 @@
+# frozen_string_literal: true
+
+$LOAD_PATH.append File.expand_path("lib", __dir__)
+require "dres_rails/identity"
+
+Gem::Specification.new do |spec|
+  spec.name = DresRails::Identity.name
+  spec.version = DresRails::Identity.version
+  spec.platform = Gem::Platform::RUBY
+  spec.authors = ["Robert Pankowecki"]
+  spec.email = ["dev@arkency.com"]
+  spec.homepage = ""
+  spec.summary = ""
+  spec.license = "MIT"
+
+  # spec.metadata = {
+  #   "source_code_uri" => "lol",
+  #   "changelog_uri" => "/blob/master/CHANGES.md",
+  #   "bug_tracker_uri" => "/issues"
+  # }
+
+
+  spec.required_ruby_version = "~> 2.3"
+
+  spec.add_dependency "rails", "~> 5.1"
+  spec.add_dependency "postgresql_queue"
+
+  spec.add_development_dependency "bundler-audit", "~> 0.6"
+  spec.add_development_dependency "gemsmith", "~> 12.0"
+  spec.add_development_dependency "git-cop", "~> 2.2"
+  spec.add_development_dependency "pry", "~> 0.10"
+  spec.add_development_dependency "pry-byebug", "~> 3.5"
+  spec.add_development_dependency "rake", "~> 12.3"
+  spec.add_development_dependency "rspec-rails", "~> 3.7"
+  spec.add_development_dependency "capybara", "~> 3.0"
+
+  spec.files = Dir["app/**/*", "bin/**/*", "config/**/*", "lib/**/*", "vendor/**/*"]
+  spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
+  spec.require_paths = ["lib"]
+end

@@ -1,0 +1,7 @@
+*.gem
+.bundle
+.rubocop-http*
+pkg/*
+Gemfile.lock
+tmp
+spec/dummy/log/test.log
