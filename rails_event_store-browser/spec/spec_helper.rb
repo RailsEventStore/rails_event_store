@@ -1,6 +1,7 @@
 require "rails_event_store"
 require "rails_event_store/browser"
 require "support/rspec_defaults"
+require "support/mutant_timeout"
 
 ENV['RAILS_ENV']     ||= 'test'
 ENV['RAILS_VERSION'] ||= '5.2.0.rc2'
@@ -39,9 +40,5 @@ end
 RSpec.configure do |config|
   config.before(:each) do |example|
     config.use_transactional_fixtures = !example.metadata[:js]
-  end
-
-  config.around(:each) do |example|
-    Timeout.timeout(5, &example)
   end
 end

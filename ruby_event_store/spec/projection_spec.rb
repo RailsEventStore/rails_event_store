@@ -5,10 +5,6 @@ module RubyEventStore
     MoneyDeposited = Class.new(RubyEventStore::Event)
     MoneyWithdrawn = Class.new(RubyEventStore::Event)
 
-    around(:each) do |example|
-      Timeout.timeout(5, &example)
-    end
-
     let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
 
     specify "reduce events from one stream" do
