@@ -70,6 +70,19 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify 'delete stream moves events back to all' do
+      repository = LegacyEventRepository.new
+      repository.append_to_stream(e1 = SRecord.new, 'stream', -1)
+      repository.append_to_stream(e2 = SRecord.new, 'other_stream', -1)
+
+      repository.delete_stream('stream')
+      expect(repository.read_stream_events_forward('stream')).to be_empty
+      expect(repository.read_stream_events_forward('other_stream')).to eq([e2])
+
+      expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
+      expect(repository.read_stream_events_forward('all')).to eq([e1])
+    end
+
     specify do
       repository = LegacyEventRepository.new
       expect{
