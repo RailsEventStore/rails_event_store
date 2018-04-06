@@ -460,28 +460,34 @@ module RubyEventStore
       end
 
       specify "temporary subscriptions don't affect other threads" do
+        exchanger = Concurrent::Exchanger.new
+        timeout = 3
         h1,h2,h3,h4 = 4.times.map{Subscribers::ValidHandler.new}
-        big_number = 2_000
+        events_count = 20
         thread = Thread.new do
           client.within do
-            big_number.times{ client.publish_event(ProductAdded.new) }
+            exchanger.exchange!('love_marta', timeout)
+            events_count.times{ client.publish_event(ProductAdded.new) }
+            exchanger.exchange!('love_robert', timeout)
           end.subscribe_to_all_events(h3).subscribe(h4, to: ProductAdded).call
         end
         client.within do
-          big_number.times{ client.publish_event(OrderCreated.new) }
+          exchanger.exchange!('love_marta', timeout)
+          events_count.times{ client.publish_event(OrderCreated.new) }
+          exchanger.exchange!('love_robert', timeout)
         end.subscribe_to_all_events(h1).subscribe(h2, to: OrderCreated).call
         thread.join
 
-        expect(h1.handled_events.count).to eq(big_number)
+        expect(h1.handled_events.count).to eq(events_count)
         expect(h1.handled_events.map(&:class).uniq).to eq([OrderCreated])
 
-        expect(h2.handled_events.count).to eq(big_number)
+        expect(h2.handled_events.count).to eq(events_count)
         expect(h2.handled_events.map(&:class).uniq).to eq([OrderCreated])
 
-        expect(h3.handled_events.count).to eq(big_number)
+        expect(h3.handled_events.count).to eq(events_count)
         expect(h3.handled_events.map(&:class).uniq).to eq([ProductAdded])
 
-        expect(h4.handled_events.count).to eq(big_number)
+        expect(h4.handled_events.count).to eq(events_count)
         expect(h4.handled_events.map(&:class).uniq).to eq([ProductAdded])
       end unless ENV['MUTATING'] == 'true'
 

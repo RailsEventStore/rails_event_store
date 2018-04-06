@@ -48,7 +48,6 @@ When in doubt, check this [example](https://github.com/RailsEventStore/rails_eve
     You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
 
 5. Go back to [releases](https://github.com/RailsEventStore/rails_event_store/releases/), link to appropriate git tag in _Tag version_ field. Set title corresponding to version number and publish this release entry.
-6. Lastly, bump version number in documentation section of [railseventstore.org](https://railseventstore.org).
 
 ### Opening work on new release soon after
 

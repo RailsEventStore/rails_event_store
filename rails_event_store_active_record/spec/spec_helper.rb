@@ -1,5 +1,6 @@
 require 'rails_event_store_active_record'
 require 'support/rspec_defaults'
+require 'support/mutant_timeout'
 require 'rails'
 
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'

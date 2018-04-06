@@ -1,0 +1,26 @@
+<% wrap_layout :base do %>
+  <header class="frame__section">
+    <div class="container">
+      <%= partial "partials/hero" %>
+    </div>
+  </header>
+
+  <main class="frame__body" role="main">
+    <div class="container u-text-padding">
+      <%= yield %>
+
+      <div class="contributors">
+        <h1 class="contributors__title">Contributors</h2>
+        <ul class="contributors__list">
+          <% data.contributors.each do |contributor| %>
+            <li class="contributors__contributor">
+              <a href="<%= contributor.html_url %>">
+                <img class="contributor__avatar" src="<%= contributor.avatar_url %>" />
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </main>
+<% end %>

@@ -4,9 +4,10 @@ require_relative '../../ruby_event_store/spec/mappers/events_pb'
 module RailsEventStore
   RSpec.describe Client do
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
-      client = Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new(
+      client = Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
-      ))
+        repository: RailsEventStoreActiveRecord::EventRepository.new,
+      )
       client.subscribe(->(ev){@ev = ev}, [ResTesting::OrderCreated])
       event = ResTesting::OrderCreated.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",

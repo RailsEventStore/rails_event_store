@@ -1,5 +1,4 @@
 require 'yaml'
-require 'active_support'
 
 module RubyEventStore
   module Mappers
@@ -20,7 +19,7 @@ module RubyEventStore
 
       def serialized_record_to_event(record)
         event_type = @events_class_remapping.fetch(record.event_type) { record.event_type }
-        ActiveSupport::Inflector.constantize(event_type).new(
+        Object.const_get(event_type).new(
           event_id: record.event_id,
           metadata: @serializer.load(record.metadata),
           data:     @serializer.load(record.data)

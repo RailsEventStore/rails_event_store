@@ -9,7 +9,11 @@ class TestRails
   attr_reader :app
 
   def initialize(test_config = {})
-    @app = Class.new(::Rails::Application)
+    @app = Class.new(::Rails::Application) do
+      def self.name
+        "TestRails::Application"
+      end
+    end
     @test_config = test_config
   end
 

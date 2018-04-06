@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'active_support/core_ext/string/strip'
 
 module RailsEventStoreActiveRecord
   RSpec.describe EventRepository do
@@ -18,7 +17,7 @@ module RailsEventStoreActiveRecord
     specify 'ensure adapter cannot be used with legacy schema' do
       expect { EventRepository.new }.to raise_error do |error|
         expect(error).to be_kind_of(EventRepository::InvalidDatabaseSchema)
-        expect(error.message).to eq(<<-MESSAGE.strip_heredoc)
+        expect(error.message).to eq(<<~MESSAGE)
             Oh no!
 
             It seems you're using RailsEventStoreActiveRecord::EventRepository

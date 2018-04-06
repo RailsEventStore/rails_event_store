@@ -1,0 +1,42 @@
+.site-navigation {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  padding: 0 1rem;
+  font-size: 1.8rem;
+
+  @include media($mobile) {
+    flex-direction: column;
+    align-items: flex-start !important;
+    padding: 0 1rem 2rem 1rem;
+  }
+
+  a {
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
+
+.site-navigation__site-name {
+  font-weight: $font-weight-bold;
+  margin-right: 1rem;
+  line-height: 6rem;
+  color: $oc-red-8;
+  font-size: 2rem;
+}
+
+.site-navigation__link {
+  margin-left: 1rem;
+  color: $oc-gray-5;
+}
+
+.site-navigation__link:first-child {
+  margin-left: 0;
+}
+
+.site-navigation__link--external {
+  color: $oc-gray-2;
+  font-size: 1.6rem;
+  padding-top: 0.4rem;
+  line-height: 2rem;
+}

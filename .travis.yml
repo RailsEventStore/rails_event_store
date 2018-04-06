@@ -27,18 +27,6 @@ matrix:
     env: TARGET=ruby_event_store SCRIPT=test
   - rvm: 2.3.6
     env: TARGET=rails_event_store SCRIPT=test
-  - rvm: 2.2.9
-    env: TARGET=rails_event_store-browser SCRIPT=test
-  - rvm: 2.2.9
-    env: TARGET=bounded_context SCRIPT=test
-  - rvm: 2.2.9
-    env: TARGET=rails_event_store-rspec SCRIPT=test
-  - rvm: 2.2.9
-    env: TARGET=aggregate_root SCRIPT=test
-  - rvm: 2.2.9
-    env: TARGET=ruby_event_store SCRIPT=test
-  - rvm: 2.2.9
-    env: TARGET=rails_event_store SCRIPT=test
   - rvm: 2.5.0
     env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.5.0
@@ -52,8 +40,6 @@ matrix:
   - rvm: 2.5.0
     env: TARGET=rails_event_store SCRIPT=test
   - rvm: 2.5.0
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.2.9
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
   - rvm: 2.3.6
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
@@ -66,11 +52,15 @@ matrix:
   - rvm: 2.4.3
     env: TARGET=ruby_event_store SCRIPT=test
   - rvm: 2.4.3
+    env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=5.2.0.rc2
+  - rvm: 2.4.3
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=5.1.4
   - rvm: 2.4.3
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=5.0.6
   - rvm: 2.4.3
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.3
+    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.2.0.rc2
   - rvm: 2.4.3
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.1.4
   - rvm: 2.4.3
@@ -78,17 +68,23 @@ matrix:
   - rvm: 2.4.3
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=4.2.10
   - rvm: 2.4.3
+    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.2.0.rc2
+  - rvm: 2.4.3
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.1.4
   - rvm: 2.4.3
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.0.6
   - rvm: 2.4.3
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=4.2.10
   - rvm: 2.4.3
+    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.2.0.rc2
+  - rvm: 2.4.3
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.1.4
   - rvm: 2.4.3
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.0.6
   - rvm: 2.4.3
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=4.2.10
+  - rvm: 2.4.3
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.2.0.rc2"
   - rvm: 2.4.3
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.1.4"
   - rvm: 2.4.3
@@ -116,3 +112,5 @@ addons:
 notifications:
   slack:
     secure: bWHujiF+SFAh6m3aXxtLpsyiSfYGPQAGHwp/nsv8VpXxzON1evYkyJ+Fu+vPjvyFrA8m6N9E/jmzEGOMMvOXT0++SR4Axr7LhsbFdBDhlRBgtkzEV1Iyr96ipaTQ1IwY2R0QnVdFSIbxKtJAtB1BFn4tBxDEfLc44/n0+7SxEY8=
+cache: yarn
+

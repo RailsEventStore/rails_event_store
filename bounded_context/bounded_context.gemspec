@@ -11,6 +11,13 @@ Gem::Specification.new do |spec|
   spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Generate opinionated component structure.}
+  spec.homepage      = 'https://railseventstore.org'
+  spec.metadata    = {
+    "homepage_uri" => "https://railseventstore.org/",
+    "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
+    "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
+    "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
+  }
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -22,6 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
-  spec.add_development_dependency 'rails', '~> 5.1'
+  spec.add_development_dependency 'rails', '~> 5.2.0.rc2'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
 end

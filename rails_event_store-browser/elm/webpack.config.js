@@ -21,6 +21,9 @@ module.exports = createConfig([
   defineConstants({
     "process.env.NODE_ENV": process.env.NODE_ENV
   }),
+  addPlugins([
+    new webpack.NoEmitOnErrorsPlugin()
+  ]),
   env("development", [
     devServer({
       contentBase: "./src",

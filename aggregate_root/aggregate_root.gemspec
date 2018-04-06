@@ -12,7 +12,13 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Event sourced (with Rails Event Store) aggregate root implementation}
   spec.description   = %q{Event sourced (with Rails Event Store) aggregate root implementation}
-  spec.homepage      = ''
+  spec.homepage      = 'https://railseventstore.org'
+  spec.metadata    = {
+    "homepage_uri" => "https://railseventstore.org/",
+    "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
+    "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
+    "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
+  }
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'exe'
@@ -22,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
-  spec.add_development_dependency 'ruby_event_store', '= 0.26.0'
+  spec.add_development_dependency 'ruby_event_store', '= 0.27.1'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
 
   spec.add_dependency 'activesupport', '>= 3.0'

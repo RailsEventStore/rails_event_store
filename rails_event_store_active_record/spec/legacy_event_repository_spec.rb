@@ -26,6 +26,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_expected_version_auto) { false }
     let(:test_link_events_to_stream) { false }
+    let(:test_non_legacy_all_stream) { false }
 
     it_behaves_like :event_repository, LegacyEventRepository
 
@@ -41,7 +42,7 @@ module RailsEventStoreActiveRecord
       repository = LegacyEventRepository.new
       expect{
         repository.append_to_stream(
-          TestDomainEvent.new(event_id: SecureRandom.uuid),
+          SRecord.new(event_id: SecureRandom.uuid),
           'stream_2',
           :auto
         )
@@ -69,11 +70,24 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify 'delete stream moves events back to all' do
+      repository = LegacyEventRepository.new
+      repository.append_to_stream(e1 = SRecord.new, 'stream', -1)
+      repository.append_to_stream(e2 = SRecord.new, 'other_stream', -1)
+
+      repository.delete_stream('stream')
+      expect(repository.read_stream_events_forward('stream')).to be_empty
+      expect(repository.read_stream_events_forward('other_stream')).to eq([e2])
+
+      expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
+      expect(repository.read_stream_events_forward('all')).to eq([e1])
+    end
+
     specify do
       repository = LegacyEventRepository.new
       expect{
-        repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_1', :none)
-        repository.append_to_stream(TestDomainEvent.new(event_id: SecureRandom.uuid), 'stream_2', :none)
+        repository.append_to_stream(SRecord.new, 'stream_1', :none)
+        repository.append_to_stream(SRecord.new, 'stream_2', :none)
       }.to_not raise_error
     end
 
@@ -82,13 +96,6 @@ module RailsEventStoreActiveRecord
       expect{
         repository.link_to_stream(SecureRandom.uuid, 'stream_2', :none)
       }.to raise_error(RubyEventStore::NotSupported)
-    end
-
-    specify 'add_metadata default mapper' do
-      event = TestDomainEvent.new
-      repository = LegacyEventRepository.new
-      repository.add_metadata(event, :yo, 1)
-      expect(event.metadata.fetch(:yo)).to eq(1)
     end
 
     private

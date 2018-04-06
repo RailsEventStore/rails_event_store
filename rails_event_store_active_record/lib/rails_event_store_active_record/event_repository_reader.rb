@@ -1,10 +1,6 @@
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
 
-    def initialize(mapper)
-      @mapper = mapper
-    end
-
     def has_event?(event_id)
       Event.exists?(id: event_id)
     end
@@ -21,7 +17,8 @@ module RailsEventStoreActiveRecord
         stream = stream.where('id > ?', after_event)
       end
 
-      stream.preload(:event).order('position ASC, id ASC').limit(count)
+      stream = stream.order('position ASC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream.preload(:event).order('id ASC').limit(count)
         .map(&method(:build_event_instance))
     end
 
@@ -32,18 +29,23 @@ module RailsEventStoreActiveRecord
         stream = stream.where('id < ?', before_event)
       end
 
-      stream.preload(:event).order('position DESC, id DESC').limit(count)
+      stream = stream.order('position DESC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream.preload(:event).order('id DESC').limit(count)
         .map(&method(:build_event_instance))
     end
 
     def read_stream_events_forward(stream_name)
-      EventInStream.preload(:event).where(stream: stream_name).order('position ASC, id ASC')
-        .map(&method(:build_event_instance))
+      stream = EventInStream.preload(:event).where(stream: stream_name)
+      stream = stream.order('position ASC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream = stream.order('id ASC')
+      stream.map(&method(:build_event_instance))
     end
 
     def read_stream_events_backward(stream_name)
-      EventInStream.preload(:event).where(stream: stream_name).order('position DESC, id DESC')
-        .map(&method(:build_event_instance))
+      stream = EventInStream.preload(:event).where(stream: stream_name)
+      stream = stream.order('position DESC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
+      stream = stream.order('id DESC')
+      stream.map(&method(:build_event_instance))
     end
 
     def read_all_streams_forward(after_event_id, count)
@@ -70,13 +72,12 @@ module RailsEventStoreActiveRecord
 
     def read_event(event_id)
       event             = Event.find(event_id)
-      serialized_record = RubyEventStore::SerializedRecord.new(
+      RubyEventStore::SerializedRecord.new(
         event_id:   event.id,
         metadata:   event.metadata,
         data:       event.data,
         event_type: event.event_type
       )
-      @mapper.serialized_record_to_event(serialized_record)
     rescue ActiveRecord::RecordNotFound
       raise RubyEventStore::EventNotFound.new(event_id)
     end
@@ -90,13 +91,12 @@ module RailsEventStoreActiveRecord
     private
 
     def build_event_instance(record)
-      serialized_record = RubyEventStore::SerializedRecord.new(
-        event_id:         record.event.id,
+      RubyEventStore::SerializedRecord.new(
+        event_id:   record.event.id,
         metadata:   record.event.metadata,
         data:       record.event.data,
         event_type: record.event.event_type
       )
-      @mapper.serialized_record_to_event(serialized_record)
     end
   end
 

@@ -1,10 +1,9 @@
 require 'spec_helper'
-require 'active_support/core_ext/string/strip'
 
 module RailsEventStoreActiveRecord
   RSpec.describe LegacyEventRepository do
     specify do
-      deprecation_warning = <<-MSG.strip_heredoc
+      deprecation_warning = <<~MSG
         `RailsEventStoreActiveRecord::LegacyEventRepository` has been deprecated.
 
         Please migrate to new database schema and use `RailsEventStoreActiveRecord::EventRepository`

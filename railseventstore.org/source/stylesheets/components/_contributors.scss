@@ -1,0 +1,21 @@
+.contributors {
+}
+
+.contributors__list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  list-style-type: none;
+  padding: 0;
+  margin: 0 -10px;
+}
+
+.contributors__contributor {
+  width: 80px;
+  height: 80px;
+  margin: 8px;
+}
+
+.contributor__avatar {
+  border-radius: 5px;
+}

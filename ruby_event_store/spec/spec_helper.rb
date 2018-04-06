@@ -1,17 +1,11 @@
 require 'ruby_event_store'
 require 'support/rspec_defaults'
+require 'support/mutant_timeout'
 require 'pry'
 
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
-
-
-RSpec.configure do |config|
-  config.around(:each) do |example|
-    Timeout.timeout(5, &example)
-  end
-end
-
+TestEvent = Class.new(RubyEventStore::Event)
 
 module Subscribers
   class InvalidHandler

@@ -2,7 +2,7 @@ require "aggregate_root"
 require "rails_event_store"
 require "rails_event_store/rspec"
 require "support/rspec_defaults"
-
+require "support/mutant_timeout"
 
 FooEvent = Class.new(RailsEventStore::Event)
 BarEvent = Class.new(RailsEventStore::Event)

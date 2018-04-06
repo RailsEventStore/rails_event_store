@@ -1,10 +1,11 @@
 require 'bounded_context'
 require 'securerandom'
 require 'support/rspec_defaults'
+require 'support/mutant_timeout'
 require 'rails'
 
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
-DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
+DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].split('.').take(2).join('_')}"
 TMP_ROOT   = File.join(__dir__, 'tmp')
 DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)
 raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exists?(DUMMY_ROOT)

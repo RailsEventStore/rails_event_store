@@ -5,10 +5,9 @@ module RailsEventStoreActiveRecord
 
     POSITION_SHIFT = 1
 
-    def initialize(mapper: RubyEventStore::Mappers::Default.new)
+    def initialize
       verify_correct_schema_present
-      @mapper      = mapper
-      @repo_reader = EventRepositoryReader.new(mapper)
+      @repo_reader = EventRepositoryReader.new
     end
 
     def append_to_stream(events, stream_name, expected_version)
@@ -69,10 +68,6 @@ module RailsEventStoreActiveRecord
 
     def get_all_streams
       @repo_reader.get_all_streams
-    end
-
-    def add_metadata(event, key, value)
-      @mapper.add_metadata(event, key, value)
     end
 
     private
@@ -139,8 +134,7 @@ module RailsEventStoreActiveRecord
       IndexViolationDetector.new.detect(message)
     end
 
-    def build_event_record(event)
-      serialized_record = @mapper.event_to_serialized_record(event)
+    def build_event_record(serialized_record)
       Event.new(
         id:         serialized_record.event_id,
         data:       serialized_record.data,

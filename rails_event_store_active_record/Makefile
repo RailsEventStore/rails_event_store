@@ -10,6 +10,7 @@ install: ## Install gem dependencies
 	@bundle install
 	@echo "Installing v1_v2_schema_migration gem dependencies"
 	@BUNDLE_GEMFILE=spec/v1_v2_schema_migration/Gemfile bundle install
+	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
 
 test: ## Run unit tests
 	@echo "Running unit tests"
@@ -20,6 +21,14 @@ mutate: test ## Run mutation tests
 	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--use rspec "$(SUBJECT)"
+
+mutate-fast: ## Run mutation tests with --fail-fast
+	@echo "Running mutation tests with --fail-fast"
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--fail-fast \
 		--use rspec "$(SUBJECT)"
 
 build:

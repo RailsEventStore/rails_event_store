@@ -1,0 +1,13 @@
+<nav class="site-navigation
+            u-flex
+            u-flex-align-items-center
+            u-flex-justify-space-between">
+  <%= link_to "Rails Event Store", "/", class: "site-navigation__site-name" %>
+
+  <div class="u-flex u-flex-nowrap">
+    <%= link_to "Community", "/community", class: "site-navigation__link" %>
+    <%= link_to "Commercial Support", "/support", class: "site-navigation__link" %>
+    <%= link_to "Documentation", "/docs/install", class: "site-navigation__link" %>
+    <%= link_to "v#{config[:res_version]}", "https://github.com/RailsEventStore/rails_event_store/releases/tag/v#{config[:res_version]}", class: "site-navigation__link site-navigation__link--external" %>
+  </div>
+</nav>
