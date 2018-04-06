@@ -3,12 +3,12 @@ require "postgresql_queue/distributed_repository"
 
 module PostgresqlQueue
   class Reader
-    def initialize(res)
-      @res = res
+    def initialize(repo)
+      @repo = repo
     end
 
     def events(after_event_id:, count: 100, iterated_stream: RubyEventStore::GLOBAL_STREAM)
-      events = @res.read_all_streams_forward(start: after_event_id || :head, count: count)
+      events = @repo.read_all_streams_forward(after_event_id || :head, count)
       return [] if events.empty?
 
       after = find_event_in_stream_id_by_event_id(event_id: after_event_id, stream: iterated_stream)

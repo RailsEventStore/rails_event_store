@@ -25,12 +25,15 @@ RSpec.describe PostgresqlQueue::Reader do
     ActiveRecord::Base.connection.execute("TRUNCATE event_store_events_in_streams")
   end
 
+  let(:repository) do
+    DistributedRepository.new
+  end
   let(:res) do
-    RubyEventStore::Client.new(repository: DistributedRepository.new)
+    RubyEventStore::Client.new(repository: repository)
   end
 
   subject(:q) do
-    PostgresqlQueue::Reader.new(res)
+    PostgresqlQueue::Reader.new(repository)
   end
 
   it "has a version number" do
@@ -55,12 +58,12 @@ RSpec.describe PostgresqlQueue::Reader do
     expect(q.events(after_event_id: nil)).to eqs(events[0..99])
   end
 
-  specify "does not read too much Events unnecessarily" do
+  specify "does not read too much SerializedRecord unnecessarily" do
     res.publish_events(events = 10.times.map{MyEvent.new})
 
-    allow(MyEvent).to receive(:new).and_call_original
+    allow(RubyEventStore::SerializedRecord).to receive(:new).and_call_original
     expect(q.events(after_event_id: events[5].event_id, count: 3 )).to eqs(events[6..8])
-    expect(MyEvent).to have_received(:new).exactly(3).times
+    expect(RubyEventStore::SerializedRecord).to have_received(:new).exactly(3).times
   end
 
   specify "does not read too much EventInStream unnecessarily" do
