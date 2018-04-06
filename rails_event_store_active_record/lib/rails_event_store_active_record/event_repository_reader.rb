@@ -23,7 +23,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read(spec)
-      stream = EventInStream.preload(:event).where(stream: spec.stream.name)
+      stream = EventInStream.preload(:event).where(stream: spec.stream_name)
       stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
       stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
@@ -40,7 +40,7 @@ module RailsEventStoreActiveRecord
 
     def start_condition(specification)
       event_record =
-        EventInStream.find_by!(event_id: specification.start, stream: specification.stream.name)
+        EventInStream.find_by!(event_id: specification.start, stream: specification.stream_name)
       case specification.direction
       when :forward
         ['id > ?', event_record]

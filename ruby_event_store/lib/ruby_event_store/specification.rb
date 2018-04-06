@@ -11,6 +11,10 @@ module RubyEventStore
         stream.global?
       end
 
+      def stream_name
+        stream.name
+      end
+
       def head?
         start.equal?(:head)
       end

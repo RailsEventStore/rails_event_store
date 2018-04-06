@@ -12,7 +12,7 @@ module RubyEventStore
 
     specify { expect(specification).to have_result(:count, Specification::NO_LIMIT) }
 
-    specify { expect(specification).to have_result(:stream, Stream.new(GLOBAL_STREAM)) }
+    specify { expect(specification).to have_result(:stream_name, GLOBAL_STREAM) }
 
     specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
 
@@ -30,9 +30,9 @@ module RubyEventStore
 
     specify { expect{specification.stream('')}.to raise_error(IncorrectStreamData) }
 
-    specify { expect(specification.stream('stream')).to have_result(:stream, Stream.new('stream')) }
+    specify { expect(specification.stream('stream')).to have_result(:stream_name, 'stream') }
 
-    specify { expect(specification.stream('all')).to have_result(:stream, Stream.new(GLOBAL_STREAM)) }
+    specify { expect(specification.stream('all')).to have_result(:stream_name, GLOBAL_STREAM) }
 
     specify { expect(specification.from(:head)).to have_result(:start, :head) }
 
