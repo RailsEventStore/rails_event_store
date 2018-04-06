@@ -100,6 +100,10 @@ module RubyEventStore::ROM::Repositories
       expect(results[0].position).to eq(nil)
       expect(results[1].event_id).to eq(id2)
       expect(results[1].position).to eq(nil)
+
+      results = events.link([id1, id2], "all", RubyEventStore::ExpectedVersion.any)
+      
+      expect(results.size).to eq(0)
     end
   
     specify "#link with event ID that doesn't exist raises EventNotFound" do

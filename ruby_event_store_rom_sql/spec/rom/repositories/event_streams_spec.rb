@@ -20,20 +20,40 @@ module RubyEventStore::ROM::Repositories
     specify "#delete removes events from stream" do
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
+        SRecord.new(event_id: id2 = SecureRandom.uuid)
       ], stream_name: 'stream')
       
+      events.create([
+        SRecord.new(event_id: SecureRandom.uuid),
+        SRecord.new(event_id: SecureRandom.uuid)
+      ], stream_name: 'stream2')
+      
       results = events.read(:forward, 'stream')
+      
+      expect(results.size).to eq(2)
+      expect(results.map(&:event_id)).to eq([id1, id2])
 
-      expect(results.size).to eq(1)
-      expect(results[0].event_id).to eq(id1)
+      result = event_streams.event_streams.where(stream: 'stream').count
+      
+      expect(result).to eq(2)
 
-      results = event_streams.delete('stream')
-
-      expect(results.size).to eq(1)
+      event_streams.delete('stream')
+      
+      result = event_streams.event_streams.where(stream: 'stream').count
+      
+      expect(result).to eq(0)
 
       results = events.read(:forward, 'stream')
 
       expect(results.size).to eq(0)
+
+      results = events.read(:forward, 'stream2')
+
+      expect(results.size).to eq(2)
+
+      results = events.read(:forward, 'all')
+
+      expect(results.size).to eq(4)
     end
   end
 end
