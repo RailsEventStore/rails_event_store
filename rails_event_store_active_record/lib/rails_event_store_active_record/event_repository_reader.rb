@@ -5,68 +5,68 @@ module RailsEventStoreActiveRecord
       Event.exists?(id: event_id)
     end
 
-    def last_stream_event(stream_name)
-      record = EventInStream.where(stream: stream_name).order('position DESC, id DESC').first
+    def last_stream_event(stream)
+      record = EventInStream.where(stream: stream.name).order('position DESC, id DESC').first
       record && build_event_instance(record)
     end
 
-    def read_events_forward(stream_name, after_event_id, count)
-      stream = EventInStream.where(stream: stream_name)
+    def read_events_forward(stream, after_event_id, count)
+      events = EventInStream.where(stream: stream.name)
       unless after_event_id.equal?(:head)
-        after_event = stream.find_by!(event_id: after_event_id)
-        stream = stream.where('id > ?', after_event)
+        after_event = events.find_by!(event_id: after_event_id)
+        events = events.where('id > ?', after_event)
       end
 
-      stream = stream.order('position ASC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-      stream.preload(:event).order('id ASC').limit(count)
+      events = events.order('position ASC') unless stream.global?
+      events.preload(:event).order('id ASC').limit(count)
         .map(&method(:build_event_instance))
     end
 
-    def read_events_backward(stream_name, before_event_id, count)
-      stream = EventInStream.where(stream: stream_name)
+    def read_events_backward(stream, before_event_id, count)
+      events = EventInStream.where(stream: stream.name)
       unless before_event_id.equal?(:head)
-        before_event = stream.find_by!(event_id: before_event_id)
-        stream = stream.where('id < ?', before_event)
+        before_event = events.find_by!(event_id: before_event_id)
+        events = events.where('id < ?', before_event)
       end
 
-      stream = stream.order('position DESC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-      stream.preload(:event).order('id DESC').limit(count)
+      events = events.order('position DESC') unless stream.global?
+      events.preload(:event).order('id DESC').limit(count)
         .map(&method(:build_event_instance))
     end
 
-    def read_stream_events_forward(stream_name)
-      stream = EventInStream.preload(:event).where(stream: stream_name)
-      stream = stream.order('position ASC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-      stream = stream.order('id ASC')
-      stream.map(&method(:build_event_instance))
+    def read_stream_events_forward(stream)
+      events = EventInStream.preload(:event).where(stream: stream.name)
+      events = events.order('position ASC') unless stream.global?
+      events = events.order('id ASC')
+      events.map(&method(:build_event_instance))
     end
 
-    def read_stream_events_backward(stream_name)
-      stream = EventInStream.preload(:event).where(stream: stream_name)
-      stream = stream.order('position DESC') unless stream_name.eql?(RubyEventStore::GLOBAL_STREAM)
-      stream = stream.order('id DESC')
-      stream.map(&method(:build_event_instance))
+    def read_stream_events_backward(stream)
+      events = EventInStream.preload(:event).where(stream: stream.name)
+      events = events.order('position DESC') unless stream.global?
+      events = events.order('id DESC')
+      events.map(&method(:build_event_instance))
     end
 
     def read_all_streams_forward(after_event_id, count)
-      stream = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
+      events = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
       unless after_event_id.equal?(:head)
-        after_event = stream.find_by!(event_id: after_event_id)
-        stream = stream.where('id > ?', after_event)
+        after_event = events.find_by!(event_id: after_event_id)
+        events = events.where('id > ?', after_event)
       end
 
-      stream.preload(:event).order('id ASC').limit(count)
+      events.preload(:event).order('id ASC').limit(count)
         .map(&method(:build_event_instance))
     end
 
     def read_all_streams_backward(before_event_id, count)
-      stream = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
+      events = EventInStream.where(stream: RubyEventStore::GLOBAL_STREAM)
       unless before_event_id.equal?(:head)
-        before_event = stream.find_by!(event_id: before_event_id)
-        stream = stream.where('id < ?', before_event)
+        before_event = events.find_by!(event_id: before_event_id)
+        events = events.where('id < ?', before_event)
       end
 
-      stream.preload(:event).order('id DESC').limit(count)
+      events.preload(:event).order('id DESC').limit(count)
         .map(&method(:build_event_instance))
     end
 
