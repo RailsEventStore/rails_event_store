@@ -20,14 +20,14 @@ module RubyEventStore
 
         ### Writer interface
 
-        def create(serialized_records, stream_name: nil, expected_version: ExpectedVersion.any)
+        def create(serialized_records, stream_name: nil, expected_version: nil)
           events.transaction(savepoint: true) do
             events.changeset(CreateEventsChangeset, serialized_records).commit.tap do
               if stream_name
                 link(
                   serialized_records.map(&:event_id),
                   stream_name,
-                  expected_version,
+                  expected_version || ExpectedVersion.any,
                   global_stream: true
                 )
               end
@@ -82,10 +82,13 @@ module RubyEventStore
 
           stream = events_for(stream_name, order).limit(limit)
           stream = stream.where(
-                    event_streams[:id].public_send(operator, fetch_id_for(stream_name, from))
+                    event_streams[:id].public_send(operator, fetch_stream_id_for(stream_name, from))
                   ) unless from.equal?(:head)
 
           stream.to_a
+        
+        rescue ::ROM::TupleCountMismatchError
+          raise EventNotFound.new(from)
         end
   
       private
@@ -101,8 +104,8 @@ module RubyEventStore
             .map_with(:serialized_record_mapper)
         end
 
-        def fetch_id_for(stream_name, event_id)
-          event_streams.where(stream: stream_name, event_id: event_id).select(:id).pluck(:id).first
+        def fetch_stream_id_for(stream_name, event_id)
+          event_streams.where(stream: stream_name, event_id: event_id).select(:id).one![:id]
         end
 
         def compute_position(version, offset)
