@@ -72,5 +72,17 @@ module RubyEventStore
       expect(m[:x]).to be_nil
     end
 
+    specify 'Enumerable' do
+      m = Metadata.new
+      m[:a] = 1
+      expect(m.map{|k,v| [k,v] }).to eq([[:a, 1]])
+    end
+
+    specify 'safe Hash methods' do
+      m = Metadata.new
+      m[:a] = 1
+      expect(m.key?(:a)).to eq(true)
+    end
+
   end
 end
