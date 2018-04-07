@@ -34,7 +34,7 @@ module RubyEventStore
       :flatten, :has_key?, :has_value?,
       :keep_if, :key, :key?, :keys, :length,
       :rassoc, :reject!, :select!, :shift, :size, :slice,
-      :to_hash, :to_proc, :transform_keys, :transform_values,
+      :to_proc, :transform_keys, :transform_values,
       :value?, :values, :values_at]
 
     delegate SAFE_HASH_METHODS => :@h
