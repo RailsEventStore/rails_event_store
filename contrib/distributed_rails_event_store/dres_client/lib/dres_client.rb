@@ -20,10 +20,7 @@ module DresClient
       body = Net::HTTP.get(uri)
       json = JSON.parse(body)
       json["events"].map do |ev|
-        serialized_record = RubyEventStore::SerializedRecord.new(
-          metadata: yaml_empty_hash,
-          **symbolize_keys(ev)
-        )
+        serialized_record = RubyEventStore::SerializedRecord.new(**symbolize_keys(ev))
         @mapper.serialized_record_to_event(serialized_record)
       end
     rescue
@@ -35,10 +32,6 @@ module DresClient
     end
 
     private
-
-    def yaml_empty_hash
-      "--- {}\n"
-    end
 
     def symbolize_keys(ev)
       ev.transform_keys(&:to_sym)
