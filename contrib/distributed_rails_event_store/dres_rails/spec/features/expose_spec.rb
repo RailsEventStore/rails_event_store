@@ -35,6 +35,18 @@ RSpec.describe "DresRails::ApplicationController" do
     end
   end
 
+  specify "Auth" do
+    page.driver.header 'RES-Api-Key', "Wrong"
+    expect do
+      visit "/dres_rails"
+    end.to raise_error(ActionController::RoutingError)
+
+    page.driver.header 'RES-Api-Key', "33bbd0ea-b7ce-49d5-bc9d-198f7884c485"
+    expect do
+      visit "/dres_rails"
+    end.not_to raise_error
+  end
+
   specify "returns JSON with serialized events" do
     res.publish_events([
       MyEvent.new(
@@ -46,6 +58,8 @@ RSpec.describe "DresRails::ApplicationController" do
         event_id:"b2f58e9c-0887-4fbf-99a8-0bb19cfebeef",
       ),
     ])
+
+    page.driver.header 'RES-Api-Key', "33bbd0ea-b7ce-49d5-bc9d-198f7884c485"
     visit "/dres_rails"
     expect(JSON.parse(page.body)).to eq({
       "events"=>[{
