@@ -105,8 +105,8 @@ module RailsEventStore
         def to_s
           [
             ExpectedLine.new(@expected_klass, @expected_metadata, @expected_data),
-            ActualLine.new(@actual_klass, @actual_metadata, @actual_data, @expected_metadata, @expected_data),
-            Diff.new(@actual_metadata, @expected_metadata, "Metadata", differ: @differ),
+            ActualLine.new(@actual_klass, @actual_metadata.to_h, @actual_data, @expected_metadata, @expected_data),
+            Diff.new(@actual_metadata.to_h, @expected_metadata, "Metadata", differ: @differ),
             Diff.new(@actual_data, @expected_data, "Data", differ: @differ)
           ].map(&:to_s).join
         end
@@ -161,7 +161,7 @@ expected: not a kind of #{@expected}
       end
 
       def matches_metadata
-        DataMatcher.new(@expected_metadata, strict: @strict).matches?(@actual.metadata)
+        DataMatcher.new(@expected_metadata, strict: @strict).matches?(@actual.metadata.to_h)
       end
     end
   end
