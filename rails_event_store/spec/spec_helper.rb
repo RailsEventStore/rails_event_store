@@ -1,6 +1,7 @@
 require 'rails_event_store'
 require 'example_invoicing_app'
 require 'support/rspec_defaults'
+require 'support/mutant_timeout'
 require 'support/fake_configuration'
 
 

@@ -24,10 +24,11 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rails', '>= 4.2'
   spec.add_dependency 'rails_event_store', '= 0.27.1'
 
+  spec.add_development_dependency 'rails', '~> 5.2.0.rc2'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'rspec-rails', '~> 3.6'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
-  spec.add_development_dependency 'capybara'
+  spec.add_development_dependency 'capybara', '< 3.0.0'
   spec.add_development_dependency 'selenium-webdriver'
   spec.add_development_dependency 'json-schema'
 end

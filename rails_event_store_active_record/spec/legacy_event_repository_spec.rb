@@ -52,14 +52,14 @@ module RailsEventStoreActiveRecord
     specify "read_stream_events_forward explicit ORDER BY id" do
       expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY id ASC.*/) do
         repository = LegacyEventRepository.new
-        repository.read_stream_events_forward('stream')
+        repository.read_stream_events_forward(RubyEventStore::Stream.new('stream'))
       end
     end
 
     specify "read_events_forward explicit ORDER BY id" do
       expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
         repository = LegacyEventRepository.new
-        repository.read_events_forward('stream', :head, 1)
+        repository.read_events_forward(RubyEventStore::Stream.new('stream'), :head, 1)
       end
     end
 
@@ -70,18 +70,31 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify 'delete stream moves events back to all' do
+      repository = LegacyEventRepository.new
+      repository.append_to_stream(e1 = SRecord.new, RubyEventStore::Stream.new('stream'), -1)
+      repository.append_to_stream(e2 = SRecord.new, RubyEventStore::Stream.new('other_stream'), -1)
+
+      repository.delete_stream(RubyEventStore::Stream.new('stream'))
+      expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('stream'))).to be_empty
+      expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('other_stream'))).to eq([e2])
+
+      expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
+      expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('all'))).to eq([e1])
+    end
+
     specify do
       repository = LegacyEventRepository.new
       expect{
-        repository.append_to_stream(SRecord.new, 'stream_1', :none)
-        repository.append_to_stream(SRecord.new, 'stream_2', :none)
+        repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new('stream_1'), :none)
+        repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new('stream_2'), :none)
       }.to_not raise_error
     end
 
     specify do
       repository = LegacyEventRepository.new
       expect{
-        repository.link_to_stream(SecureRandom.uuid, 'stream_2', :none)
+        repository.link_to_stream(SecureRandom.uuid, RubyEventStore::Stream.new('stream_2'), :none)
       }.to raise_error(RubyEventStore::NotSupported)
     end
 

@@ -16,19 +16,19 @@ module RubyEventStore
       repository = InMemoryRepository.new
       repository.append_to_stream(
         SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
-        'other',
+        Stream.new('other'),
         -1
       )
       repository.append_to_stream(
         SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
-        'stream',
+        Stream.new('stream'),
         -1
       )
       expect(eid).not_to receive(:eql?)
       expect do
         repository.append_to_stream(
           SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
-          'stream',
+          Stream.new('stream'),
           0
         )
       end.to raise_error(RubyEventStore::EventDuplicatedInStream)

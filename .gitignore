@@ -18,3 +18,4 @@ elm-stuff/
 build/
 rails_event_store_browser.js
 contributors.json
+config/master.key
