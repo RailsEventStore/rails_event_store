@@ -50,5 +50,6 @@ RSpec.describe "DresRails::ApplicationController" do
         "data"=>"---\n:two: 2\n",
         "event_type"=>"MyEvent"
     }]})
+    expect(page.body).to eq(File.read("../shared_spec/body1.json"))
   end
 end
