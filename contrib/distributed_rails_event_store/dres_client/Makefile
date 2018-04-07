@@ -1,5 +1,5 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
-GEM_NAME     = postgresql_queue
+GEM_NAME     = dres_client
 REQUIRE      = $(GEM_NAME)
 IGNORE       = PostgresqlQueueNothingYet
 SUBJECT      ?= PostgresqlQueue*
@@ -33,13 +33,13 @@ mutate-fast: ## Run mutation tests
 
 build:
 	@echo "Building gem package"
-	@gem build -V postgresql_queue.gemspec
+	@gem build -V dres_client.gemspec
 	@mkdir -p pkg/
-	@mv postgresql_queue-*.gem pkg/
+	@mv dres_client-*.gem pkg/
 
 push:
 	@echo "Pushing package to Gemfury"
-	@fury push pkg/postgresql_queue-0.1.0.gem
+	@fury push pkg/dres_client-0.1.0.gem
 
 clean:
 	@echo "Removing previously built package"
