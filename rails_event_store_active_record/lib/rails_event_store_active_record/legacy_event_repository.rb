@@ -38,7 +38,8 @@ instead:
       end
 
       normalize_to_array(events).each do |event|
-        data = event.to_h.merge!(stream: stream.name)
+        data = event.to_h
+        data[:stream] = stream.name
         LegacyEvent.create!(data)
       end
       self

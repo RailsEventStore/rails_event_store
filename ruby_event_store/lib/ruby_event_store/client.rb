@@ -203,11 +203,10 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      metadata = {}
-      metadata[:timestamp] ||= @clock.()
-      metadata.merge!(@metadata_proc.call || {}) if @metadata_proc
-      metadata.each do |key, value|
-        @mapper.add_metadata(event, key, value)
+      event.metadata[:timestamp] ||= @clock.()
+      if @metadata_proc
+        md = @metadata_proc.call || {}
+        md.each{|k,v| event.metadata[k]=(v) }
       end
     end
 

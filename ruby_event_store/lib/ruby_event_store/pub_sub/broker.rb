@@ -38,12 +38,12 @@ module RubyEventStore
 
       def add_thread_subscriber(subscriber, event_types)
         verify_subscriber(subscriber)
-        event_types.each{ |type| @thread_subscribers.value[type.name] << subscriber }
-        ->() {event_types.each{ |type| @thread_subscribers.value.fetch(type.name).delete(subscriber) } }
+        event_types.each{ |type| @thread_subscribers.value[type.to_s] << subscriber }
+        ->() {event_types.each{ |type| @thread_subscribers.value.fetch(type.to_s).delete(subscriber) } }
       end
 
       def notify_subscribers(event)
-        all_subscribers_for(event.class).each do |subscriber|
+        all_subscribers_for(event.type).each do |subscriber|
           @dispatcher.call(subscriber, event)
         end
       end
@@ -56,15 +56,15 @@ module RubyEventStore
       end
 
       def subscribe(subscriber, event_types)
-        event_types.each{ |type| @subscribers[type.name] << subscriber }
-        ->() {event_types.each{ |type| @subscribers.fetch(type.name).delete(subscriber) } }
+        event_types.each{ |type| @subscribers[type.to_s] << subscriber }
+        ->() {event_types.each{ |type| @subscribers.fetch(type.to_s).delete(subscriber) } }
       end
 
       def all_subscribers_for(event_type)
-        @subscribers[event_type.name] +
+        @subscribers[event_type] +
         @global_subscribers +
         @thread_global_subscribers.value +
-        @thread_subscribers.value[event_type.name]
+        @thread_subscribers.value[event_type]
       end
     end
   end

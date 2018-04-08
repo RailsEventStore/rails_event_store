@@ -9,11 +9,16 @@ module RubyEventStore
     end
     attr_reader :event_id, :metadata, :data
 
+    def type
+      self.class.name
+    end
+
     def to_h
       {
           event_id:   event_id,
           metadata:   metadata.to_h,
-          data:       data
+          data:       data,
+          type:       type,
       }
     end
 
