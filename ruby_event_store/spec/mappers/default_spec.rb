@@ -30,7 +30,7 @@ module RubyEventStore
         expect(event).to              eq(domain_event)
         expect(event.event_id).to     eq domain_event.event_id
         expect(event.data).to         eq(data)
-        expect(event.metadata).to     eq(metadata)
+        expect(event.metadata.to_h).to     eq(metadata)
       end
 
       specify '#serialized_record_to_event its using events class remapping' do
@@ -89,7 +89,7 @@ module RubyEventStore
           expect(event).to              eq(domain_event)
           expect(event.event_id).to     eq domain_event.event_id
           expect(event.data).to         eq(data)
-          expect(event.metadata).to     eq(metadata)
+          expect(event.metadata.to_h).to     eq(metadata)
         end
       end
     end

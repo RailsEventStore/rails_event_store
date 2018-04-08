@@ -16,9 +16,9 @@ end
 module RailsEventStore
   RSpec.describe Client do
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
-      client = Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new(
+      client = Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
-      ))
+      )
       client.subscribe(->(ev){@ev = ev}, to: [ResTesting::OrderCreated.descriptor.name])
       client.subscribe(AsyncProtoHandler, to: [ResTesting::OrderCreated.descriptor.name])
 

@@ -4,16 +4,9 @@ require 'childprocess'
 require 'active_record'
 require 'logger'
 require 'ruby_event_store'
+require 'ruby_event_store/spec/event_repository_lint'
 
-class EventAll < RubyEventStore::Event
-end
-class EventA1 < RubyEventStore::Event
-end
 class EventA2 < RubyEventStore::Event
-end
-class EventB1 < RubyEventStore::Event
-end
-class EventB2 < RubyEventStore::Event
 end
 
 RSpec.describe "v1_v2_migration" do
@@ -106,7 +99,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_event_sourced_stream
-    events = repository.read_stream_events_forward("Order-1")
+    events = repository.read_stream_events_forward(RubyEventStore::Stream.new("Order-1"))
     expect(events.map(&:event_id)).to eq(%w(
       d39cb65f-bc3c-4fbb-9470-52bf5e322bba
       f2cecc51-adb1-4d83-b3ca-483d26311f03
@@ -119,23 +112,19 @@ RSpec.describe "v1_v2_migration" do
       map(&:position)
     expect(positions).to eq([0, 1, 2])
     expect do
-      repository.append_to_stream(EventA2.new(data: {
-        v2: true,
-      }, event_id: "7c485b58-2d6a-4017-a174-8ab41ea4a4dd"),
-        "Order-1",
+      repository.append_to_stream(SRecord.new(event_id: "7c485b58-2d6a-4017-a174-8ab41ea4a4dd"),
+        RubyEventStore::Stream.new("Order-1"),
         1
       )
     end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
-    repository.append_to_stream(EventA2.new(data: {
-      v2: true,
-    }, event_id: "3cf767d5-16ad-43a7-8d65-bb5575b301f2"),
-      "Order-1",
+    repository.append_to_stream(SRecord.new(event_id: "3cf767d5-16ad-43a7-8d65-bb5575b301f2"),
+      RubyEventStore::Stream.new("Order-1"),
       2
     )
   end
 
   def verify_technical_stream
-    events = repository.read_stream_events_forward("WroclawBuyers")
+    events = repository.read_stream_events_forward(RubyEventStore::Stream.new("WroclawBuyers"))
     expect(events.map(&:event_id)).to eq(%w(
       9009df88-6044-4a62-b7ae-098c42a9c5e1
       cefdd213-0c92-46f6-bbdf-3ea9542d969a

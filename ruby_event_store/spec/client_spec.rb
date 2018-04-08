@@ -141,7 +141,7 @@ module RubyEventStore
       client.append_to_stream(event)
       published = client.read_all_streams_forward
       expect(published.size).to eq(1)
-      expect(published.first.metadata.keys).to eq([:timestamp])
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
@@ -205,6 +205,7 @@ module RubyEventStore
 
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       client = RubyEventStore::Client.new(
+        mapper: RubyEventStore::Mappers::Protobuf.new,
         repository: InMemoryRepository.new
       )
       event = RubyEventStore::Proto.new(
@@ -328,6 +329,26 @@ module RubyEventStore
       expect { client.read_stream_events_forward('') }.to raise_error(IncorrectStreamData)
       expect { client.read_stream_events_backward(nil) }.to raise_error(IncorrectStreamData)
       expect { client.read_stream_events_backward('') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.publish_event(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
+      expect { client.publish_event(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
+      expect { client.publish_events([OrderCreated.new], stream_name: nil) }.to raise_error(IncorrectStreamData)
+      expect { client.publish_events([OrderCreated.new], stream_name: '') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
     end
 
     specify 'return all events ordered forward' do
