@@ -15,12 +15,13 @@ module RubyEventStore::ROM::Repositories
     end
 
     let(:events) { Events.new(rom) }
+    let(:event_streams) { EventStreams.new(rom) }
 
     specify '#create links events to stream and also GLOBAL_STREAM' do
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: id2 = SecureRandom.uuid),
-      ], stream_name: 'stream')
+      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.auto)
       
       results = events.read(:forward, "all")
 
@@ -119,7 +120,7 @@ module RubyEventStore::ROM::Repositories
     specify "#link with expected version not :any for GLOBAL_STREAM raises InvalidExpectedVersion" do
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid)
-      ], stream_name: 'stream')
+      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.auto)
       
       expect do
         events.link([id1], "all", RubyEventStore::ExpectedVersion.auto, global_stream: true)
@@ -223,6 +224,46 @@ module RubyEventStore::ROM::Repositories
         expect(err.event_id).to eq("bogus-event-id")
         expect(err.message).to eq("Event not found: bogus-event-id")
       end
+    end
+
+    specify "#read fetches stream with position ordering" do
+      events.create([
+        SRecord.new(event_id: id1 = SecureRandom.uuid),
+        SRecord.new(event_id: id2 = SecureRandom.uuid),
+        SRecord.new(event_id: id3 = SecureRandom.uuid)
+      ])
+      
+      event_streams.create('stream', id1, position: 1)
+      event_streams.create('stream', id2, position: 0)
+      event_streams.create('stream', id3, position: 2)
+      
+      results = events.read(:forward, 'stream', limit: 3)
+
+      expect(results.map(&:event_id)).to eq([id2, id1, id3])
+      
+      results = events.read(:backward, 'stream', limit: 3)
+
+      expect(results.map(&:event_id)).to eq([id3, id1, id2])
+    end
+  
+    specify "#read fetches GLOBAL_STREAM without position ordering" do
+      events.create([
+        SRecord.new(event_id: id1 = SecureRandom.uuid),
+        SRecord.new(event_id: id2 = SecureRandom.uuid),
+        SRecord.new(event_id: id3 = SecureRandom.uuid)
+      ])
+      
+      event_streams.create('all', id1, position: 1)
+      event_streams.create('all', id2, position: 0)
+      event_streams.create('all', id3, position: 2)
+      
+      results = events.read(:forward, 'all', limit: 3)
+
+      expect(results.map(&:event_id)).to eq([id1, id2, id3])
+      
+      results = events.read(:backward, 'all', limit: 3)
+
+      expect(results.map(&:event_id)).to eq([id3, id2, id1])
     end
   
     specify "#fetch event retrieves SerializedRecord" do
