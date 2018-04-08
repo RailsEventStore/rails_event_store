@@ -16,14 +16,20 @@ module RubyEventStore::ROM::Repositories
 
     let(:events) { Events.new(rom) }
     let(:event_streams) { EventStreams.new(rom) }
+    let(:default_stream) { RubyEventStore::Stream.new('stream') }
+    let(:global_stream) { RubyEventStore::Stream.new('all') }
+    let(:auto_stream) { RubyEventStore::Stream.new('auto') }
+    let(:auto_stream2) { RubyEventStore::Stream.new('auto2') }
+    let(:none_stream) { RubyEventStore::Stream.new('none') }
+    let(:any_stream) { RubyEventStore::Stream.new('any') }
 
     specify '#create links events to stream and also GLOBAL_STREAM' do
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: id2 = SecureRandom.uuid),
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.auto)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.auto)
       
-      results = events.read(:forward, "all")
+      results = events.read(:forward, global_stream)
 
       expect(results.size).to eq(2)
       expect(results.map(&:event_id)).to eq([id1, id2])
@@ -35,14 +41,14 @@ module RubyEventStore::ROM::Repositories
         SRecord.new(event_id: id2 = SecureRandom.uuid),
       ])
       
-      events.link([id1, id2], "stream", RubyEventStore::ExpectedVersion.none)
+      events.link([id1, id2], default_stream, RubyEventStore::ExpectedVersion.none)
 
-      results = events.read(:forward, "stream")
+      results = events.read(:forward, default_stream)
 
       expect(results.size).to eq(2)
       expect(results.map(&:event_id)).to eq([id1, id2])
 
-      results = events.read(:forward, "all")
+      results = events.read(:forward, global_stream)
 
       expect(results.size).to eq(0)
     end
@@ -53,7 +59,7 @@ module RubyEventStore::ROM::Repositories
         SRecord.new(event_id: id2 = SecureRandom.uuid),
       ])
       
-      results = events.link([id1, id2], "auto", RubyEventStore::ExpectedVersion.auto)
+      results = events.link([id1, id2], auto_stream, RubyEventStore::ExpectedVersion.auto)
       
       expect(results.size).to eq(2)
       expect(results[0].event_id).to eq(id1)
@@ -61,7 +67,7 @@ module RubyEventStore::ROM::Repositories
       expect(results[1].event_id).to eq(id2)
       expect(results[1].position).to eq(1)
       
-      results = events.link([id1, id2], "none", RubyEventStore::ExpectedVersion.none)
+      results = events.link([id1, id2], none_stream, RubyEventStore::ExpectedVersion.none)
       
       expect(results.size).to eq(2)
       expect(results[0].event_id).to eq(id1)
@@ -75,10 +81,10 @@ module RubyEventStore::ROM::Repositories
       ])
       
       expect do
-        events.link([id3, id4], "none", RubyEventStore::ExpectedVersion.none)
+        events.link([id3, id4], none_stream, RubyEventStore::ExpectedVersion.none)
       end.to raise_error(::ROM::SQL::UniqueConstraintError)
       
-      results = events.link([id3, id4], "auto", RubyEventStore::ExpectedVersion.auto)
+      results = events.link([id3, id4], auto_stream, RubyEventStore::ExpectedVersion.auto)
       
       expect(results.size).to eq(2)
       expect(results[0].event_id).to eq(id3)
@@ -86,7 +92,7 @@ module RubyEventStore::ROM::Repositories
       expect(results[1].event_id).to eq(id4)
       expect(results[1].position).to eq(3)
 
-      results = events.link([id3, id4], "auto2", RubyEventStore::ExpectedVersion.auto)
+      results = events.link([id3, id4], auto_stream2, RubyEventStore::ExpectedVersion.auto)
       
       expect(results.size).to eq(2)
       expect(results[0].event_id).to eq(id3)
@@ -94,7 +100,7 @@ module RubyEventStore::ROM::Repositories
       expect(results[1].event_id).to eq(id4)
       expect(results[1].position).to eq(1)
 
-      results = events.link([id1, id2], "any", RubyEventStore::ExpectedVersion.any)
+      results = events.link([id1, id2], any_stream, RubyEventStore::ExpectedVersion.any)
       
       expect(results.size).to eq(2)
       expect(results[0].event_id).to eq(id1)
@@ -102,14 +108,14 @@ module RubyEventStore::ROM::Repositories
       expect(results[1].event_id).to eq(id2)
       expect(results[1].position).to eq(nil)
 
-      results = events.link([id1, id2], "all", RubyEventStore::ExpectedVersion.any)
+      results = events.link([id1, id2], global_stream, RubyEventStore::ExpectedVersion.any)
       
       expect(results.size).to eq(0)
     end
   
     specify "#link with event ID that doesn't exist raises EventNotFound" do
       expect do
-        events.link(["bogus-event-id"], "stream", RubyEventStore::ExpectedVersion.any)
+        events.link(["bogus-event-id"], default_stream, RubyEventStore::ExpectedVersion.any)
       end.to raise_error do |err|
         expect(err).to be_a(RubyEventStore::EventNotFound)
         expect(err.event_id).to eq("bogus-event-id")
@@ -120,22 +126,22 @@ module RubyEventStore::ROM::Repositories
     specify "#link with expected version not :any for GLOBAL_STREAM raises InvalidExpectedVersion" do
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid)
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.auto)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.auto)
       
       expect do
-        events.link([id1], "all", RubyEventStore::ExpectedVersion.auto, global_stream: true)
+        events.link([id1], global_stream, RubyEventStore::ExpectedVersion.auto, global_stream: true)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
   
     specify "#read direction that isn't valid raises ArgumentError" do
-      expect { events.read(nil, "stream") }.to raise_error do |err|
+      expect { events.read(nil, default_stream) }.to raise_error do |err|
         expect(err).to be_a(ArgumentError)
         expect(err.message).to eq("Direction must be :forward or :backward")
       end
     end
 
     specify "#read returns an array" do
-      results = events.read(:forward, "stream")
+      results = events.read(:forward, default_stream)
 
       expect(results).to be_an(Array)
       expect(results.size).to eq(0)
@@ -145,21 +151,21 @@ module RubyEventStore::ROM::Repositories
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: id2 = SecureRandom.uuid),
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.auto)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.auto)
       
-      results = events.read(:forward, "stream")
+      results = events.read(:forward, default_stream)
 
       expect(results.map(&:event_id)).to eq([id1, id2])
       
-      results = events.read(:backward, "stream")
+      results = events.read(:backward, default_stream)
 
       expect(results.map(&:event_id)).to eq([id2, id1])
       
-      results = events.read(:forward, "all")
+      results = events.read(:forward, global_stream)
 
       expect(results.map(&:event_id)).to eq([id1, id2])
       
-      results = events.read(:backward, "all")
+      results = events.read(:backward, global_stream)
 
       expect(results.map(&:event_id)).to eq([id2, id1])
     end
@@ -168,9 +174,9 @@ module RubyEventStore::ROM::Repositories
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: id2 = SecureRandom.uuid),
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.none)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.none)
       
-      results = events.read(:forward, "stream", from: id1)
+      results = events.read(:forward, default_stream, from: id1)
 
       expect(results.size).to eq(1)
       expect(results[0].event_id).to eq(id2)
@@ -180,9 +186,9 @@ module RubyEventStore::ROM::Repositories
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: id2 = SecureRandom.uuid),
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.none)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.none)
       
-      results = events.read(:forward, "stream")
+      results = events.read(:forward, default_stream)
 
       expect(results.size).to eq(2)
       expect(results.map(&:event_id)).to eq([id1, id2])
@@ -192,14 +198,14 @@ module RubyEventStore::ROM::Repositories
       events.create([
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: id2 = SecureRandom.uuid),
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.none)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.none)
       
-      results = events.read(:forward, "stream", limit: 1)
+      results = events.read(:forward, default_stream, limit: 1)
 
       expect(results.size).to eq(1)
       expect(results[0].event_id).to eq(id1)
       
-      results = events.read(:backward, "stream", limit: 1)
+      results = events.read(:backward, default_stream, limit: 1)
 
       expect(results.size).to eq(1)
       expect(results[0].event_id).to eq(id2)
@@ -209,16 +215,16 @@ module RubyEventStore::ROM::Repositories
       events.create([
         SRecord.new(event_id: SecureRandom.uuid),
         SRecord.new(event_id: SecureRandom.uuid),
-      ], stream_name: 'stream', expected_version: RubyEventStore::ExpectedVersion.none)
+      ], stream: default_stream, expected_version: RubyEventStore::ExpectedVersion.none)
       
-      results = events.read(:forward, "stream", limit: nil)
+      results = events.read(:forward, default_stream, limit: nil)
 
       expect(results.size).to eq(2)
     end
   
     specify "#read :from event that doesn't exist raises EventNotFound" do
       expect do
-        events.read(:forward, "stream", from: "bogus-event-id")
+        events.read(:forward, default_stream, from: "bogus-event-id")
       end.to raise_error do |err|
         expect(err).to be_a(RubyEventStore::EventNotFound)
         expect(err.event_id).to eq("bogus-event-id")
@@ -233,15 +239,15 @@ module RubyEventStore::ROM::Repositories
         SRecord.new(event_id: id3 = SecureRandom.uuid)
       ])
       
-      event_streams.create('stream', id1, position: 1)
-      event_streams.create('stream', id2, position: 0)
-      event_streams.create('stream', id3, position: 2)
+      event_streams.create(default_stream, id1, position: 1)
+      event_streams.create(default_stream, id2, position: 0)
+      event_streams.create(default_stream, id3, position: 2)
       
-      results = events.read(:forward, 'stream', limit: 3)
+      results = events.read(:forward, default_stream, limit: 3)
 
       expect(results.map(&:event_id)).to eq([id2, id1, id3])
       
-      results = events.read(:backward, 'stream', limit: 3)
+      results = events.read(:backward, default_stream, limit: 3)
 
       expect(results.map(&:event_id)).to eq([id3, id1, id2])
     end
@@ -253,15 +259,15 @@ module RubyEventStore::ROM::Repositories
         SRecord.new(event_id: id3 = SecureRandom.uuid)
       ])
       
-      event_streams.create('all', id1, position: 1)
-      event_streams.create('all', id2, position: 0)
-      event_streams.create('all', id3, position: 2)
+      event_streams.create(global_stream, id1, position: 1)
+      event_streams.create(global_stream, id2, position: 0)
+      event_streams.create(global_stream, id3, position: 2)
       
-      results = events.read(:forward, 'all', limit: 3)
+      results = events.read(:forward, global_stream, limit: 3)
 
       expect(results.map(&:event_id)).to eq([id1, id2, id3])
       
-      results = events.read(:backward, 'all', limit: 3)
+      results = events.read(:backward, global_stream, limit: 3)
 
       expect(results.map(&:event_id)).to eq([id3, id2, id1])
     end
@@ -271,7 +277,7 @@ module RubyEventStore::ROM::Repositories
         SRecord.new(event_id: SecureRandom.uuid),
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: SecureRandom.uuid)
-      ], stream_name: 'stream')
+      ], stream: default_stream)
       
       expect(events.fetch(id1)).to be_a(RubyEventStore::SerializedRecord)
       expect(events.fetch(id1).event_id).to eq(id1)
@@ -282,7 +288,7 @@ module RubyEventStore::ROM::Repositories
         SRecord.new(event_id: SecureRandom.uuid),
         SRecord.new(event_id: id1 = SecureRandom.uuid),
         SRecord.new(event_id: SecureRandom.uuid)
-      ], stream_name: 'stream')
+      ], stream: default_stream)
       
       expect(events.exist?(id1)).to eq(true)
       expect(events.exist?("bogus-event-id")).to eq(false)

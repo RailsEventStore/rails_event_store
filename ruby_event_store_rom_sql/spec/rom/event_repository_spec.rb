@@ -22,6 +22,9 @@ module RubyEventStore::ROM
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
     let(:test_non_legacy_all_stream) { true }
+
+    let(:default_stream) { RubyEventStore::Stream.new('stream') }
+    let(:global_stream) { RubyEventStore::Stream.new('all') }
     
     it_behaves_like :event_repository, EventRepository
 
@@ -31,23 +34,23 @@ module RubyEventStore::ROM
       repository.append_to_stream([
         SRecord.new,
         SRecord.new,
-      ], 'stream', :auto)
+      ], default_stream, :auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
       expect(c1).to eq(2)
 
       c2 = count_queries{ repository.read_all_streams_backward(:head, 2) }
       expect(c2).to eq(2)
 
-      c3 = count_queries{ repository.read_stream_events_forward('stream') }
+      c3 = count_queries{ repository.read_stream_events_forward(default_stream) }
       expect(c3).to eq(2)
 
-      c4 = count_queries{ repository.read_stream_events_backward('stream') }
+      c4 = count_queries{ repository.read_stream_events_backward(default_stream) }
       expect(c4).to eq(2)
 
-      c5 = count_queries{ repository.read_events_forward('stream', :head, 2) }
+      c5 = count_queries{ repository.read_events_forward(default_stream, :head, 2) }
       expect(c5).to eq(2)
 
-      c6 = count_queries{ repository.read_events_backward('stream', :head, 2) }
+      c6 = count_queries{ repository.read_events_backward(default_stream, :head, 2) }
       expect(c6).to eq(2)
     end
 
@@ -80,20 +83,20 @@ module RubyEventStore::ROM
         events_writer.(event)
       end
       
-      event_streams_writer.("stream", events[1].event_id, position: 1)
-      event_streams_writer.("stream", events[0].event_id, position: 0)
-      event_streams_writer.("stream", events[2].event_id, position: 2)
+      event_streams_writer.(default_stream, events[1].event_id, position: 1)
+      event_streams_writer.(default_stream, events[0].event_id, position: 0)
+      event_streams_writer.(default_stream, events[2].event_id, position: 2)
       
       # ActiveRecord::Schema.define do
       #   self.verbose = false
       #   remove_index :event_store_events_in_streams, [:stream, :position]
       # end
       repository = EventRepository.new
-      expect(repository.read_events_forward('stream', :head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_stream_events_forward('stream').map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_events_forward(default_stream, :head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_stream_events_forward(default_stream).map(&:event_id)).to eq([u1,u2,u3])
 
-      expect(repository.read_events_backward('stream', :head, 3).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read_stream_events_backward('stream').map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_events_backward(default_stream, :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward(default_stream).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "explicit sorting by id rather than accidental for all events" do
@@ -125,19 +128,19 @@ module RubyEventStore::ROM
         events_writer.(event)
       end
 
-      event_streams_writer.("all", events[0].event_id, position: 1)
-      event_streams_writer.("all", events[1].event_id, position: 0)
-      event_streams_writer.("all", events[2].event_id, position: 2)
+      event_streams_writer.(global_stream, events[0].event_id, position: 1)
+      event_streams_writer.(global_stream, events[1].event_id, position: 0)
+      event_streams_writer.(global_stream, events[2].event_id, position: 2)
       
       repository = EventRepository.new
 
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_events_forward("all", :head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_stream_events_forward("all").map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_events_forward(global_stream, :head, 3).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read_stream_events_forward(global_stream).map(&:event_id)).to eq([u1,u2,u3])
 
       expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read_events_backward("all", :head, 3).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read_stream_events_backward("all").map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_events_backward(global_stream, :head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read_stream_events_backward(global_stream).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     # TODO: Port from AR to ROM
@@ -152,7 +155,7 @@ module RubyEventStore::ROM
     xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
         repository = EventRepository.new
-        repository.read_events_forward("all", :head, 3)
+        repository.read_events_forward(global_stream, :head, 3)
       end
     end
 
@@ -160,7 +163,7 @@ module RubyEventStore::ROM
     xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC.*/) do
         repository = EventRepository.new
-        repository.read_stream_events_forward("all")
+        repository.read_stream_events_forward(global_stream)
       end
     end
 
@@ -176,7 +179,7 @@ module RubyEventStore::ROM
     xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
         repository = EventRepository.new
-        repository.read_events_backward("all", :head, 3)
+        repository.read_events_backward(global_stream, :head, 3)
       end
     end
 
@@ -184,7 +187,7 @@ module RubyEventStore::ROM
     xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC.*/) do
         repository = EventRepository.new
-        repository.read_stream_events_backward("all")
+        repository.read_stream_events_backward(global_stream)
       end
     end
 
@@ -194,7 +197,7 @@ module RubyEventStore::ROM
         repository = EventRepository.new
         repository.append_to_stream([
           SRecord.new,
-        ], 'stream', :auto)
+        ], default_stream, :auto)
       end
     end
 
@@ -202,7 +205,7 @@ module RubyEventStore::ROM
       repository = EventRepository.new
       repository.append_to_stream([
         event = SRecord.new(event_id: SecureRandom.uuid),
-      ], 'stream', :none)
+      ], default_stream, :none)
 
       rom_db.transaction do
         expect do
@@ -210,7 +213,7 @@ module RubyEventStore::ROM
             SRecord.new(
               event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
             ),
-          ], 'stream', :none)
+          ], default_stream, :none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
         expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
@@ -224,7 +227,7 @@ module RubyEventStore::ROM
       repository = EventRepository.new
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
         expect do
-          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", -1)
+          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', RubyEventStore::Stream.new('flow'), -1)
         end.to raise_error(RubyEventStore::EventNotFound)
       end
     end
@@ -248,7 +251,7 @@ module RubyEventStore::ROM
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
       positions = rom_db.relations[:event_streams].
-        where(stream: "stream").
+        where(stream: default_stream).
         order("position ASC").
         map(&:position)
       expect(positions).to eq((0..positions.size-1).to_a)

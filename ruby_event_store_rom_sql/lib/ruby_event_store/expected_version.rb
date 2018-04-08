@@ -22,16 +22,16 @@ module RubyEventStore
       @expected == :any
     end
 
-    def check!(stream_name)
-      invalid_version! unless allowed?(stream_name)
+    def check!(stream)
+      invalid_version! unless allowed?(stream)
     end
 
-    def allowed?(stream_name)
-      @expected.equal?(:any) || !stream_name.eql?(GLOBAL_STREAM)
+    def allowed?(stream)
+      @expected.equal?(:any) || !stream.global?
     end
 
-    def resolve_for(stream_name, &resolver)
-      check!(stream_name)
+    def resolve_for(stream, &resolver)
+      check!(stream)
       
       case @expected
       when Integer
@@ -41,7 +41,7 @@ module RubyEventStore
       when :none
         POSITION_DEFAULT
       when :auto
-        resolver && resolver.call(stream_name) || POSITION_DEFAULT
+        resolver && resolver.call(stream) || POSITION_DEFAULT
       else
         invalid_version!
       end

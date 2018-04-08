@@ -1,5 +1,6 @@
 require 'ruby_event_store/rom'
 require 'support/rspec_defaults'
+require 'support/mutant_timeout'
 
 begin
   require 'pry'
