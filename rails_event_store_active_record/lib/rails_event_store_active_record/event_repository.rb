@@ -74,7 +74,6 @@ module RailsEventStoreActiveRecord
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
       raise RubyEventStore::InvalidExpectedVersion if stream.global? && !expected_version.equal?(:any)
-
       expected_version = normalize_expected_version(expected_version, stream)
 
       ActiveRecord::Base.transaction(requires_new: true) do
@@ -85,7 +84,7 @@ module RailsEventStoreActiveRecord
           collection.unshift({
             stream: RubyEventStore::GLOBAL_STREAM,
             position: nil,
-            event_id: event_id
+            event_id: event_id,
           }) if include_global
           collection.unshift({
             stream:   stream.name,
@@ -94,6 +93,7 @@ module RailsEventStoreActiveRecord
           }) unless stream.global?
           collection
         end
+        fill_ids(in_stream)
         EventInStream.import(in_stream)
       end
       self
@@ -148,6 +148,10 @@ module RailsEventStoreActiveRecord
 
     def verify_correct_schema_present
       CorrectSchemaVerifier.new.verify
+    end
+
+    # Overwritten in a sub-class
+    def fill_ids(_in_stream)
     end
   end
 
