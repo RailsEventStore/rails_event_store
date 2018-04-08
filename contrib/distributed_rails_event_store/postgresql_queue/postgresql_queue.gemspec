@@ -31,7 +31,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails_event_store_active_record", ["~> 0.27", "< 0.28"]
   spec.add_dependency "pg", [">= 0.15", "< 2"]
-  spec.add_dependency "rails", ["~> 5.0", "< 6"] # rails_event_store_active_record uses rails/generators :(
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"
