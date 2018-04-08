@@ -141,7 +141,7 @@ module RubyEventStore
       client.append_to_stream(event)
       published = client.read_all_streams_forward
       expect(published.size).to eq(1)
-      expect(published.first.metadata.keys).to eq([:timestamp])
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to be_a Time
     end
 

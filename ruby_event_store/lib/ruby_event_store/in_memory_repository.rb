@@ -10,51 +10,51 @@ module RubyEventStore
       @streams[GLOBAL_STREAM] = Array.new
     end
 
-    def append_to_stream(events, stream_name, expected_version)
-      add_to_stream(events, expected_version, stream_name, true)
+    def append_to_stream(events, stream, expected_version)
+      add_to_stream(events, expected_version, stream, true)
     end
 
-    def link_to_stream(event_ids, stream_name, expected_version)
+    def link_to_stream(event_ids, stream, expected_version)
       events = normalize_to_array(event_ids).map{|eid| read_event(eid) }
-      add_to_stream(events, expected_version, stream_name, nil)
+      add_to_stream(events, expected_version, stream, nil)
     end
 
-    def delete_stream(stream_name)
-      @streams.delete(stream_name)
+    def delete_stream(stream)
+      @streams.delete(stream.name)
     end
 
     def has_event?(event_id)
       @streams.fetch(GLOBAL_STREAM).any? { |item| item.event_id.eql?(event_id) }
     end
 
-    def last_stream_event(stream_name)
-      read_stream_events_forward(stream_name).last
+    def last_stream_event(stream)
+      read_stream_events_forward(stream).last
     end
 
-    def read_events_forward(stream_name, start_event_id, count)
-      source = read_stream_events_forward(stream_name)
+    def read_events_forward(stream, start_event_id, count)
+      source = read_stream_events_forward(stream)
       read_batch(source, start_event_id, count)
     end
 
-    def read_events_backward(stream_name, start_event_id, count)
-      source = read_stream_events_backward(stream_name)
+    def read_events_backward(stream, start_event_id, count)
+      source = read_stream_events_backward(stream)
       read_batch(source, start_event_id, count)
     end
 
-    def read_stream_events_forward(stream_name)
-      @streams.fetch(stream_name, Array.new)
+    def read_stream_events_forward(stream)
+      @streams.fetch(stream.name, Array.new)
     end
 
-    def read_stream_events_backward(stream_name)
-      read_stream_events_forward(stream_name).reverse
+    def read_stream_events_backward(stream)
+      read_stream_events_forward(stream).reverse
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_events_forward(GLOBAL_STREAM, start_event_id, count)
+      read_events_forward(Stream.new(GLOBAL_STREAM), start_event_id, count)
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_events_backward(GLOBAL_STREAM, start_event_id, count)
+      read_events_backward(Stream.new(GLOBAL_STREAM), start_event_id, count)
     end
 
     def read_event(event_id)
@@ -71,23 +71,23 @@ module RubyEventStore
       return *events
     end
 
-    def add_to_stream(events, expected_version, stream_name, include_global)
-      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream_name.eql?(GLOBAL_STREAM)
+    def add_to_stream(events, expected_version, stream, include_global)
+      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream.name.eql?(GLOBAL_STREAM)
       events = normalize_to_array(events)
       expected_version = case expected_version
         when :none
           -1
         when :auto
-          read_stream_events_forward(stream_name).size - 1
+          read_stream_events_forward(stream).size - 1
         when Integer, :any
           expected_version
         else
          raise InvalidExpectedVersion
       end
-      append_with_synchronize(events, expected_version, stream_name, include_global)
+      append_with_synchronize(events, expected_version, stream, include_global)
     end
 
-    def append_with_synchronize(events, expected_version, stream_name, include_global)
+    def append_with_synchronize(events, expected_version, stream, include_global)
       # expected_version :auto assumes external lock is used
       # which makes reading stream before writing safe.
       #
@@ -98,25 +98,25 @@ module RubyEventStore
       Thread.pass
       @mutex.synchronize do
         if expected_version == :any
-          expected_version = read_stream_events_forward(stream_name).size - 1
+          expected_version = read_stream_events_forward(stream).size - 1
         end
-        append(events, expected_version, stream_name, include_global)
+        append(events, expected_version, stream, include_global)
       end
     end
 
-    def append(events, expected_version, stream_name, include_global)
-      stream = read_stream_events_forward(stream_name)
-      raise WrongExpectedEventVersion unless (stream.size - 1).equal?(expected_version)
+    def append(events, expected_version, stream, include_global)
+      stream_ = read_stream_events_forward(stream)
+      raise WrongExpectedEventVersion unless (stream_.size - 1).equal?(expected_version)
       events.each do |event|
-        raise EventDuplicatedInStream if stream.any?{|ev| ev.event_id.eql?(event.event_id) }
+        raise EventDuplicatedInStream if stream_.any?{|ev| ev.event_id.eql?(event.event_id) }
         if include_global
-          global_stream = read_stream_events_forward(GLOBAL_STREAM)
+          global_stream = read_stream_events_forward(Stream.new(GLOBAL_STREAM))
           raise EventDuplicatedInStream if global_stream.any? { |ev| ev.event_id.eql?(event.event_id) }
           global_stream.push(event)
         end
-        stream.push(event) unless stream_name.eql?(GLOBAL_STREAM)
+        stream_.push(event) unless stream.name.eql?(GLOBAL_STREAM)
       end
-      @streams[stream_name] = stream
+      @streams[stream.name] = stream_
       self
     end
 
