@@ -9,7 +9,7 @@ module RailsEventStore
 
       def matches?(aggregate_root)
         @events = aggregate_root.unpublished_events.to_a
-        matcher.matches?(events) && matches_count(events, expected, count)
+        matcher.matches?(events) && matches_count?
       end
 
       def exactly(count)
@@ -32,7 +32,7 @@ module RailsEventStore
 
       private
 
-      def matches_count(events, expected, count)
+      def matches_count?
         return true unless count
         raise NotSupported if expected.size > 1
 
