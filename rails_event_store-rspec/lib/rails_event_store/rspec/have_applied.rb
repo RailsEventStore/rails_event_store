@@ -9,7 +9,7 @@ module RailsEventStore
 
       def matches?(aggregate_root)
         @events = aggregate_root.unpublished_events.to_a
-        @matcher.matches?(@events) && matches_count(@events, @expected, @count)
+        @matcher.matches?(events) && matches_count(events, expected, count)
       end
 
       def exactly(count)
@@ -27,7 +27,7 @@ module RailsEventStore
       end
 
       def failure_message
-        @differ.diff_as_string(@expected.to_s, @events.to_s)
+        differ.diff_as_string(expected.to_s, events.to_s)
       end
 
       private
@@ -40,6 +40,8 @@ module RailsEventStore
           events.select { |e| event_or_matcher === e }.size.equal?(count)
         end
       end
+
+      attr_reader :differ, :expected, :events, :count
     end
   end
 end
