@@ -9,7 +9,7 @@ module RailsEventStore
 
       def matches?(aggregate_root)
         @events = aggregate_root.unpublished_events.to_a
-        @matcher.matches?(events) && matches_count(events, expected, count)
+        matcher.matches?(events) && matches_count(events, expected, count)
       end
 
       def exactly(count)
@@ -41,7 +41,7 @@ module RailsEventStore
         end
       end
 
-      attr_reader :differ, :expected, :events, :count
+      attr_reader :differ, :expected, :events, :count, :matcher
     end
   end
 end
