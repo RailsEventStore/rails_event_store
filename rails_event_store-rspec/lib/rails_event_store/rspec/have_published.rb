@@ -10,7 +10,7 @@ module RailsEventStore
       def matches?(event_store)
         @events = stream_name ? event_store.read_events_backward(stream_name)
                               : event_store.read_all_streams_backward
-        @matcher.matches?(events) && matches_count(events, expected, count)
+        @matcher.matches?(events) && matches_count?
       end
 
       def exactly(count)
@@ -38,7 +38,7 @@ module RailsEventStore
 
       private
 
-      def matches_count(events, expected, count)
+      def matches_count?
         return true unless count
         raise NotSupported if expected.size > 1
 
