@@ -8,9 +8,9 @@ module RailsEventStore
       end
 
       def matches?(event_store)
-        @events = @stream_name ? event_store.read_events_backward(@stream_name)
+        @events = stream_name ? event_store.read_events_backward(stream_name)
                               : event_store.read_all_streams_backward
-        @matcher.matches?(@events) && matches_count(@events, @expected, @count)
+        @matcher.matches?(events) && matches_count(events, expected, count)
       end
 
       def exactly(count)
@@ -33,7 +33,7 @@ module RailsEventStore
       end
 
       def failure_message
-        @differ.diff_as_string(@expected.to_s, @events.to_s)
+        differ.diff_as_string(expected.to_s, events.to_s)
       end
 
       private
@@ -46,6 +46,8 @@ module RailsEventStore
           events.select { |e| event_or_matcher === e }.size.equal?(count)
         end
       end
+
+      attr_reader :differ, :stream_name, :expected, :count, :events
     end
   end
 end
