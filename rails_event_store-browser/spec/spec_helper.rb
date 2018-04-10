@@ -4,7 +4,7 @@ require "support/rspec_defaults"
 require "support/mutant_timeout"
 
 ENV['RAILS_ENV']     ||= 'test'
-ENV['RAILS_VERSION'] ||= '5.2.0.rc2'
+ENV['RAILS_VERSION'] ||= '5.2.0'
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 
 dummy_app_name = "dummy_#{ENV['RAILS_VERSION'].gsub(".", "_")}"
