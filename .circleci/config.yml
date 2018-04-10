@@ -19,7 +19,8 @@ jobs:
       - image: circleci/ruby:2.4.4-node-browsers
     steps:
       - checkout
-      - run: cd rails_event_store_active_record && make install mutate
+      - run: cd rails_event_store_active_record && make install
+      - run: cd rails_event_store_active_record && make mutate
 
 workflows:
   version: 2
