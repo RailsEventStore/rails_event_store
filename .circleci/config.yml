@@ -19,7 +19,7 @@ jobs:
       xcode: "9.3.0"
     steps:
       - checkout
-      - run: cd rails_event_store_active_record && chruby 2.5.1 && make install mutate
+      - run: cd rails_event_store_active_record && make install mutate
 
 workflows:
   version: 2
