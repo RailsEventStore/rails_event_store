@@ -14,18 +14,19 @@ install: ## Install gem dependencies
 
 test: ## Run unit tests
 	@echo "Running unit tests"
-	@bundle exec rspec
+	@BUNDLE_GEMFILE=Gemfile bundle exec rspec
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
+		-j 1 \
 		--use rspec "$(SUBJECT)"
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests with --fail-fast"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \
