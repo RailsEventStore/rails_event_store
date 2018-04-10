@@ -4,7 +4,8 @@ CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= $(shell cat RES_VERSION)
 NIX_TYPE     =  $(shell uname -s)
 GEMS         = aggregate_root bounded_context ruby_event_store rails_event_store \
-	           rails_event_store_active_record rails_event_store-browser rails_event_store-rspec
+	           rails_event_store_active_record ruby_event_store_rom_sql \
+						rails_event_store-browser rails_event_store-rspec
 
 ifeq ($(NIX_TYPE),Linux)
   SED_OPTS = -i
