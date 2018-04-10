@@ -15,11 +15,11 @@ jobs:
       - run: cd rails_event_store-browser && make install mutate
 
   rails_event_store_active_record:
-    docker:
-      - image: circleci/ruby:2.4.4-node-browsers
+    macos:
+      xcode: "9.3"
     steps:
       - checkout
-      - run: cd rails_event_store_active_record && make install mutate
+      - run: cd rails_event_store_active_record && chruby 2.5.1 && make install mutate
 
 workflows:
   version: 2
