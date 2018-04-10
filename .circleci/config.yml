@@ -1,8 +1,14 @@
 version: 2
 jobs:
-  build:
+  aggregate_root:
     docker:
       - image: circleci/ruby:2.4.4-node-browsers
     steps:
       - checkout
-      - run: make install mutate
+      - run: cd aggregate_root && make install mutate
+
+workflows:
+  version: 2
+  test_mutate:
+    jobs:
+    - aggregate_root
