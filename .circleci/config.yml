@@ -12,6 +12,7 @@ jobs:
       xcode: "9.3.0"
     steps:
       - run: brew install sqlite3
+      - run: brew install chromedriver
       - checkout
       - run:
           name: make install mutate
