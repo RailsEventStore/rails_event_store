@@ -18,6 +18,9 @@ jobs:
     macos:
       xcode: "9.3.0"
     steps:
+      - brew install mysql
+      - brew install sqlite3
+      - brew install postgresql
       - checkout
       - run: cd rails_event_store_active_record && make install mutate
 
