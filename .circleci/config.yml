@@ -13,7 +13,11 @@ jobs:
     steps:
       - run: brew install sqlite3
       - checkout
-      - run: cd rails_event_store-browser && make install mutate
+      - run:
+          name: make install mutate
+          command: cd rails_event_store-browser && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
 
   rails_event_store_active_record:
     macos:
