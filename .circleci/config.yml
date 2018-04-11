@@ -8,9 +8,10 @@ jobs:
       - run: cd aggregate_root && make install mutate
 
   rails_event_store-browser:
-    docker:
-      - image: circleci/ruby:2.4.4-node-browsers
+    macos:
+      xcode: "9.3.0"
     steps:
+      - run: brew install sqlite3
       - checkout
       - run: cd rails_event_store-browser && make install mutate
 
@@ -33,5 +34,5 @@ workflows:
   test_mutate:
     jobs:
 #    - aggregate_root
-#    - rails_event_store-browser
+    - rails_event_store-browser
     - rails_event_store_active_record
