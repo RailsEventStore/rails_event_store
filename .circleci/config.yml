@@ -23,10 +23,10 @@ jobs:
       - run: brew install postgresql
       - checkout
       - run:
-        name: make install mutate
-        command: cd rails_event_store_active_record && make install mutate
-        environment:
-          ARCHFLAGS="-arch x86_64"
+          name: make install mutate
+          command: cd rails_event_store_active_record && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
 
 workflows:
   version: 2
