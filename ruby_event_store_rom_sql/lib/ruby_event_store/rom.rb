@@ -33,13 +33,13 @@ module RubyEventStore
       # ROM::Configuration
       def apply_defaults(config)
         require_relative 'rom/mappers/serialized_record'
-        require_relative 'rom/relations/event_streams'
+        require_relative 'rom/relations/stream_entries'
         require_relative 'rom/relations/events'
-        require_relative 'rom/repositories/event_streams'
+        require_relative 'rom/repositories/stream_entries'
         require_relative 'rom/repositories/events'
         
         config.register_relation(ROM::Relations::Events)
-        config.register_relation(ROM::Relations::EventStreams)
+        config.register_relation(ROM::Relations::StreamEntries)
   
         config.register_mapper(ROM::Mappers::SerializedRecord)
       end

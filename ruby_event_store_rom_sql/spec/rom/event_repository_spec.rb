@@ -76,15 +76,15 @@ module RubyEventStore::ROM
       ]
       
       events_writer = Repositories::Events.new(rom).method(:create)
-      event_streams_writer = Repositories::EventStreams.new(rom).method(:create)
+      stream_entries_writer = Repositories::StreamEntries.new(rom).method(:create)
 
       events.each do |event|
         events_writer.(event)
       end
       
-      event_streams_writer.(default_stream, events[1].event_id, position: 1)
-      event_streams_writer.(default_stream, events[0].event_id, position: 0)
-      event_streams_writer.(default_stream, events[2].event_id, position: 2)
+      stream_entries_writer.(default_stream, events[1].event_id, position: 1)
+      stream_entries_writer.(default_stream, events[0].event_id, position: 0)
+      stream_entries_writer.(default_stream, events[2].event_id, position: 2)
       
       # ActiveRecord::Schema.define do
       #   self.verbose = false
@@ -121,15 +121,15 @@ module RubyEventStore::ROM
       ]
       
       events_writer = Repositories::Events.new(rom).method(:create)
-      event_streams_writer = Repositories::EventStreams.new(rom).method(:create)
+      stream_entries_writer = Repositories::StreamEntries.new(rom).method(:create)
 
       events.each do |event|
         events_writer.(event)
       end
 
-      event_streams_writer.(global_stream, events[0].event_id, position: 1)
-      event_streams_writer.(global_stream, events[1].event_id, position: 0)
-      event_streams_writer.(global_stream, events[2].event_id, position: 2)
+      stream_entries_writer.(global_stream, events[0].event_id, position: 1)
+      stream_entries_writer.(global_stream, events[1].event_id, position: 0)
+      stream_entries_writer.(global_stream, events[2].event_id, position: 2)
       
       repository = EventRepository.new
 
@@ -242,7 +242,7 @@ module RubyEventStore::ROM
 
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
-      positions = rom.relations[:event_streams].
+      positions = rom.relations[:stream_entries].
         where(stream: default_stream.name).
         order(Sequel.asc(:position)).
         map { |entity| entity[:position] }

@@ -3,7 +3,7 @@ module RubyEventStore
     class EventRepository
       def initialize(rom: ROM.env)
         @events        = Repositories::Events.new(rom)
-        @event_streams = Repositories::EventStreams.new(rom)
+        @stream_entries = Repositories::StreamEntries.new(rom)
       end
 
       def append_to_stream(events, stream, expected_version)
@@ -27,7 +27,7 @@ module RubyEventStore
       end
 
       def delete_stream(stream)
-        @event_streams.delete(stream)
+        @stream_entries.delete(stream)
       end
 
       def has_event?(event_id)

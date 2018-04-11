@@ -14,7 +14,7 @@ module RubyEventStore
 
         POSITION_SHIFT = 1.freeze
 
-        # relations :event_streams
+        # relations :stream_entries
         # commands :create
         # struct_namespace Entities
 
@@ -41,14 +41,14 @@ module RubyEventStore
           end
 
           resolved_version = expected_version.resolve_for(stream, ->(stream) {
-            event_streams.where(stream: stream.name).max(:position)
+            stream_entries.where(stream: stream.name).max(:position)
           })
 
           tuples = []
 
           event_ids.each_with_index do |event_id, index|
             tuples << {
-              stream: stream.name,
+              stream:   stream.name,
               position: compute_position(resolved_version, index),
               event_id: event_id
             } unless stream.global?
@@ -59,7 +59,7 @@ module RubyEventStore
             } if global_stream
           end
 
-          event_streams.changeset(:create, tuples).commit
+          stream_entries.changeset(:create, tuples).commit
         end
 
         ### Reader interface
@@ -77,7 +77,7 @@ module RubyEventStore
 
         def read(direction, stream, from: :head, limit: nil)
           order, operator = {
-            forward: [:asc, :>],
+            forward:  [:asc, :>],
             backward: [:desc, :<]
           }[direction]
 
@@ -85,8 +85,8 @@ module RubyEventStore
 
           query = events_for(stream, order).limit(limit)
           query = query.where(
-            event_streams[:id].public_send(operator, fetch_stream_id_for(stream, from))
-          ) unless from.equal?(:head)
+                    stream_entries[:id].public_send(operator, fetch_stream_id_for(stream, from))
+                  ) unless from.equal?(:head)
 
           query.to_a
 
@@ -94,21 +94,21 @@ module RubyEventStore
           raise EventNotFound.new(from)
         end
 
-        private
+      private
 
         def events_for(stream, direction)
           order_columns = %i[position id]
           order_columns.delete(:position) if stream.global?
 
           events
-            .join(event_streams)
-            .where(event_streams[:stream].in(stream.name))
-            .order { |r| order_columns.map { |c| r[:event_streams][c].public_send(direction) } }
+            .join(stream_entries)
+            .where(stream_entries[:stream].in(stream.name))
+            .order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(direction) } }
             .map_with(:serialized_record_mapper)
         end
 
         def fetch_stream_id_for(stream, event_id)
-          event_streams.where(stream: stream.name, event_id: event_id).select(:id).one![:id]
+          stream_entries.where(stream: stream.name, event_id: event_id).select(:id).one![:id]
         end
 
         def compute_position(version, offset)
