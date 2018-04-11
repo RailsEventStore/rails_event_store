@@ -22,7 +22,11 @@ jobs:
       - run: brew install sqlite3
       - run: brew install postgresql
       - checkout
-      - run: cd rails_event_store_active_record && make install mutate
+      - run:
+        name: make install mutate
+        command: cd rails_event_store_active_record && make install mutate
+        environment:
+          ARCHFLAGS="-arch x86_64"
 
 workflows:
   version: 2
