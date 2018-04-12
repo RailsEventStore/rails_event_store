@@ -28,9 +28,11 @@ jobs:
     steps:
       - run: brew install sqlite3
       - checkout
+      - run: "date +'Cache for week: %U of %Y' >> rails_event_store/CacheBust"
       - restore_cache:
           keys:
-          - v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}
+          - v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}-{{ checksum "rails_event_store/CacheBust" }}
+          - v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}-
           - v1-rails_event_store-
       - run:
           name: make install
@@ -42,7 +44,7 @@ jobs:
       - save_cache:
           paths:
             - rails_event_store/vendor/bundle
-          key: v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}
+          key: v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}-{{ checksum "rails_event_store/CacheBust" }}
       - run:
           name: make mutate
           working_directory: rails_event_store
