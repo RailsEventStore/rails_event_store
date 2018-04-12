@@ -2,8 +2,6 @@ language: ruby
 matrix:
   include:
   - rvm: 2.4.3
-    env: TARGET=rails_event_store-rspec SCRIPT=mutate
-  - rvm: 2.4.3
     env: TARGET=ruby_event_store SCRIPT=mutate
   - rvm: 2.4.3
     env: TARGET=rails_event_store SCRIPT=mutate

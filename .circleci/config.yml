@@ -14,6 +14,13 @@ jobs:
       - checkout
       - run: cd bounded_context && make install mutate
 
+  rails_event_store-rspec:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd rails_event_store-rspec && make install mutate
+
   rails_event_store-browser:
     macos:
       xcode: "9.3.0"
@@ -47,6 +54,7 @@ workflows:
   test_mutate:
     jobs:
     - aggregate_root
+    - rails_event_store-rspec
     - rails_event_store-browser
     - rails_event_store_active_record
     - bounded_context
