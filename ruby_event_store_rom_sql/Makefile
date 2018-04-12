@@ -1,31 +1,32 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
-GEM_NAME     = rails_event_store_active_record
+GEM_NAME     = ruby_event_store_rom_sql
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector\#detect
-SUBJECT      ?= RailsEventStoreActiveRecord*
-DATABASE_URL ?= sqlite3::memory:
+IGNORE       = RubyEventStore::IndexViolationDetector\#detect
+SUBJECT      ?= RubyEventStore::ROM*
+DATABASE_URL ?= sqlite::memory:
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
-	@echo "Installing v1_v2_schema_migration gem dependencies"
-	@BUNDLE_GEMFILE=spec/v1_v2_schema_migration/Gemfile bundle install
-	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
 
 test: ## Run unit tests
 	@echo "Running unit tests"
-	@BUNDLE_GEMFILE=Gemfile bundle exec rspec
+	@bundle exec rspec
+
+test-fast: ## Run unit tests with --fail-fast
+	@echo "Running unit tests with --fail-fast"
+	@bundle exec rspec --fail-fast --order defined --backtrace
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests with --fail-fast"
-	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \
