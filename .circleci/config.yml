@@ -1,11 +1,18 @@
 version: 2
 jobs:
   aggregate_root:
-    docker:
-      - image: circleci/ruby:2.4.4-node-browsers
+    macos:
+      xcode: "9.3.0"
     steps:
       - checkout
       - run: cd aggregate_root && make install mutate
+
+  bounded_context:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd bounded_context && make install mutate
 
   rails_event_store-browser:
     macos:
@@ -39,6 +46,7 @@ workflows:
   version: 2
   test_mutate:
     jobs:
-#    - aggregate_root
+    - aggregate_root
     - rails_event_store-browser
     - rails_event_store_active_record
+    - bounded_context

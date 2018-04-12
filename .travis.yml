@@ -2,19 +2,11 @@ language: ruby
 matrix:
   include:
   - rvm: 2.4.3
-    env: TARGET=rails_event_store-browser SCRIPT=mutate
-  - rvm: 2.4.3
-    env: TARGET=bounded_context SCRIPT=mutate
-  - rvm: 2.4.3
     env: TARGET=rails_event_store-rspec SCRIPT=mutate
-  - rvm: 2.4.3
-    env: TARGET=aggregate_root SCRIPT=mutate
   - rvm: 2.4.3
     env: TARGET=ruby_event_store SCRIPT=mutate
   - rvm: 2.4.3
     env: TARGET=rails_event_store SCRIPT=mutate
-  - rvm: 2.4.3
-    env: TARGET=rails_event_store_active_record SCRIPT=mutate
   - rvm: 2.3.6
     env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.3.6
