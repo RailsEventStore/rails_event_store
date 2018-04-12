@@ -21,6 +21,18 @@ jobs:
       - checkout
       - run: cd ruby_event_store && make install mutate
 
+  rails_event_store:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install sqlite3
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
   rails_event_store-rspec:
     macos:
       xcode: "9.3.0"
@@ -61,8 +73,9 @@ workflows:
   test_mutate:
     jobs:
     - ruby_event_store
+    - rails_event_store
+    - rails_event_store_active_record
     - aggregate_root
     - rails_event_store-rspec
     - rails_event_store-browser
-    - rails_event_store_active_record
     - bounded_context

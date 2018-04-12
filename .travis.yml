@@ -1,8 +1,6 @@
 language: ruby
 matrix:
   include:
-  - rvm: 2.4.3
-    env: TARGET=rails_event_store SCRIPT=mutate
   - rvm: 2.3.6
     env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.3.6
