@@ -87,10 +87,4 @@ workflows:
   version: 2
   test_mutate:
     jobs:
-    - ruby_event_store
     - rails_event_store
-    - rails_event_store_active_record
-    - aggregate_root
-    - rails_event_store-rspec
-    - rails_event_store-browser
-    - bounded_context
