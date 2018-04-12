@@ -47,6 +47,8 @@ jobs:
           name: make mutate
           working_directory: rails_event_store
           command: make mutate
+          environment:
+            BUNDLE_PATH: vendor/bundle
 
   rails_event_store-rspec:
     macos:
