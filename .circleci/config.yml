@@ -1,8 +1,81 @@
 version: 2
 jobs:
-  build:
-    docker:
-      - image: circleci/ruby:2.4.4-node-browsers
+  aggregate_root:
+    macos:
+      xcode: "9.3.0"
     steps:
       - checkout
-      - run: make install mutate
+      - run: cd aggregate_root && make install mutate
+
+  bounded_context:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd bounded_context && make install mutate
+
+  ruby_event_store:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd ruby_event_store && make install mutate
+
+  rails_event_store:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install sqlite3
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+  rails_event_store-rspec:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd rails_event_store-rspec && make install mutate
+
+  rails_event_store-browser:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install sqlite3
+      - run: brew install chromedriver
+      - run: brew cask install google-chrome
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store-browser && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+  rails_event_store_active_record:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install mysql
+      - run: brew install sqlite3
+      - run: brew install postgresql
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store_active_record && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+workflows:
+  version: 2
+  test_mutate:
+    jobs:
+    - ruby_event_store
+    - rails_event_store
+    - rails_event_store_active_record
+    - aggregate_root
+    - rails_event_store-rspec
+    - rails_event_store-browser
+    - bounded_context
