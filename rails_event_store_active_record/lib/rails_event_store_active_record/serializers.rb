@@ -1,4 +1,5 @@
 require 'singleton'
+require 'active_support/core_ext/module'
 require 'json'
 require 'snappy'
 
