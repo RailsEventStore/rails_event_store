@@ -16,6 +16,28 @@ module RubyEventStore
   
         # struct_namespace Entities
         # auto_struct true
+
+        def by_stream_and_event_id(stream, event_id)
+          stream_entries.where(stream: stream.name, event_id: event_id).one!
+        end
+
+        DIRECTION_MAP = {
+          forward:  [:asc,  :>],
+          backward: [:desc, :<]
+        }.freeze
+
+        def ordered(direction, stream, offset_entry_id = nil)
+          order, operator = DIRECTION_MAP[direction]
+
+          raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
+
+          order_columns = %i[position id]
+          order_columns.delete(:position) if stream.global?
+          
+          query = where(stream: stream.name)
+          query = query.where { id.public_send(operator, offset_entry_id) } if offset_entry_id
+          query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
+        end
       end
     end
   end

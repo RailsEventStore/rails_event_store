@@ -17,6 +17,7 @@ module RubyEventStore
         # relations :stream_entries
         # commands :create
         # struct_namespace Entities
+        # auto_struct false
 
         ### Writer interface
 
@@ -65,28 +66,25 @@ module RubyEventStore
         ### Reader interface
 
         def exist?(event_id)
-          events.where(id: event_id).exist?
-        rescue Sequel::DatabaseError => ex
-          return false if ex.message =~ /PG::InvalidTextRepresentation.*uuid/
-          raise
+          !!events.fetch(event_id)
+        rescue ::ROM::TupleCountMismatchError
+          false
         end
-
-        def fetch(event_id)
-          events.where(id: event_id).map_with(:serialized_record_mapper).one!
+  
+        def by_id(event_id)
+          events.map_with(:serialized_record_mapper).by_pk(event_id).one!
         end
 
         def read(direction, stream, from: :head, limit: nil)
-          order, operator = {
-            forward:  [:asc, :>],
-            backward: [:desc, :<]
-          }[direction]
+          unless from.equal?(:head)
+            offset_entry_id = stream_entries.by_stream_and_event_id(stream, from)[:id]
+          end
 
-          raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
-
-          query = events_for(stream, order).limit(limit)
-          query = query.where(
-                    stream_entries[:id].public_send(operator, fetch_stream_id_for(stream, from))
-                  ) unless from.equal?(:head)
+          events
+            .for_stream_entries(nil, stream_entries.ordered(direction, stream, offset_entry_id))
+            .limit(limit)
+            .map_with(:serialized_record_mapper)
+            .to_a
 
           query.to_a
 
@@ -95,21 +93,6 @@ module RubyEventStore
         end
 
       private
-
-        def events_for(stream, direction)
-          order_columns = %i[position id]
-          order_columns.delete(:position) if stream.global?
-
-          events
-            .join(stream_entries)
-            .where(stream_entries[:stream].in(stream.name))
-            .order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(direction) } }
-            .map_with(:serialized_record_mapper)
-        end
-
-        def fetch_stream_id_for(stream, event_id)
-          stream_entries.where(stream: stream.name, event_id: event_id).select(:id).one![:id]
-        end
 
         def compute_position(version, offset)
           version + offset + POSITION_SHIFT if version

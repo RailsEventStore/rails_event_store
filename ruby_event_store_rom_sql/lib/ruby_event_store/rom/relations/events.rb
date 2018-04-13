@@ -16,6 +16,10 @@ module RubyEventStore
   
         # struct_namespace Entities
         # auto_struct true
+
+        def for_stream_entries(assoc, stream_entries)
+          new dataset.order(nil).join(stream_entries.dataset, event_id: :id)
+        end
       end
     end
   end

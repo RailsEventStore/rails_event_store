@@ -63,7 +63,7 @@ module RubyEventStore
       end
 
       def read_event(event_id)
-        @events.fetch(event_id)
+        @events.by_id(event_id)
       rescue ::ROM::TupleCountMismatchError
         raise EventNotFound.new(event_id)
       end
