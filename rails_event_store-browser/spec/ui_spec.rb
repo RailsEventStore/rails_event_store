@@ -8,7 +8,7 @@ module RailsEventStore
 
     before { load_database_schema }
 
-    specify "ui works", mutate: false do
+    specify "ui works", mutant: false do
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
 
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })

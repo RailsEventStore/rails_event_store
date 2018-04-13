@@ -387,7 +387,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_stream_events_forward(RubyEventStore::Stream.new("flow"))).to eq([event0, event1])
   end
 
-  specify 'unlimited concurrency for :any - everything should succeed' do
+  specify 'unlimited concurrency for :any - everything should succeed', timeout: 10, mutant: false do
     skip unless test_race_conditions_any
     verify_conncurency_assumptions
     begin
@@ -426,7 +426,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
-  specify 'unlimited concurrency for :any - everything should succeed when linking', timeout: 10 do
+  specify 'unlimited concurrency for :any - everything should succeed when linking', timeout: 10, mutant: false do
     skip unless test_race_conditions_any
     skip unless test_link_events_to_stream
     verify_conncurency_assumptions
