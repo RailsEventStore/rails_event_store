@@ -12,16 +12,20 @@ module RailsEventStoreActiveRecord
 
     def append_to_stream(events, stream, expected_version)
       add_to_stream(normalize_to_array(events), stream, expected_version, true) do |event|
-        build_event_record(event).save!
-        event.event_id
+        event_record = build_event_record(event)
+        event_record.save!
+        event_record.id
       end
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
-        raise RubyEventStore::EventNotFound.new(id)
+      array_ids = normalize_to_array(event_ids)
+      lookup_ids = array_ids.map(&UuidSerializer.method(:dump))
+      existing_ids = Event.where(id: lookup_ids).pluck(:id)
+      (lookup_ids - existing_ids).each do |id|
+        raise RubyEventStore::EventNotFound, UuidSerializer.load(id)
       end
-      add_to_stream(normalize_to_array(event_ids), stream, expected_version, nil) do |event_id|
+      add_to_stream(lookup_ids, stream, expected_version, nil) do |event_id|
         event_id
       end
     end
@@ -134,10 +138,14 @@ module RailsEventStoreActiveRecord
 
     def build_event_record(serialized_record)
       Event.new(
-        id:         serialized_record.event_id,
-        data:       serialized_record.data,
-        metadata:   serialized_record.metadata,
-        event_type: serialized_record.event_type
+        id: UuidSerializer.dump(
+                    serialized_record.event_id,
+        ),
+        serialized_data: {
+          data:     serialized_record.data,
+          metadata: serialized_record.metadata,
+        },
+        event_type: serialized_record.event_type,
       )
     end
 
