@@ -426,7 +426,7 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
-  specify 'unlimited concurrency for :any - everything should succeed when linking' do
+  specify 'unlimited concurrency for :any - everything should succeed when linking', timeout: 10 do
     skip unless test_race_conditions_any
     skip unless test_link_events_to_stream
     verify_conncurency_assumptions
