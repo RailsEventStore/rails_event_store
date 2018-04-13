@@ -85,16 +85,20 @@ module RailsEventStoreActiveRecord
           position = compute_position(expected_version, index)
           event_id = to_event_id.call(element)
           collection = []
-          collection.unshift({
-            stream: RubyEventStore::GLOBAL_STREAM,
-            position: nil,
-            event_id: event_id,
-          }) if include_global
-          collection.unshift({
-            stream:   stream.name,
-            position: position,
-            event_id: event_id
-          }) unless stream.global?
+          if include_global
+            collection.unshift(
+              stream: RubyEventStore::GLOBAL_STREAM,
+              position: nil,
+              event_id: event_id,
+            )
+          end
+          unless stream.global?
+            collection.unshift(
+              stream: stream.name,
+              position: position,
+              event_id: event_id,
+            )
+          end
           collection
         end
         fill_ids(in_stream)
@@ -120,15 +124,15 @@ module RailsEventStoreActiveRecord
 
     def normalize_expected_version(expected_version, stream)
       case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream.name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
+      when Integer, :any
+        expected_version
+      when :none
+        -1
+      when :auto
+        eis = EventInStream.where(stream: stream.name).order("position DESC").first
+        (eis && eis.position) || -1
+      else
+        raise RubyEventStore::InvalidExpectedVersion
       end
     end
 

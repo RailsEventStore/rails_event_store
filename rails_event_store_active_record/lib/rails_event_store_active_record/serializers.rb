@@ -1,4 +1,6 @@
 require 'singleton'
+require 'json'
+require 'snappy'
 
 module RailsEventStoreActiveRecord
   class UuidSerializer
@@ -33,6 +35,24 @@ module RailsEventStoreActiveRecord
         )
       end
       hexadecimal.sub(@hyphen_restorer, '\1-\2-\3-\4-\5')
+    end
+  end
+
+  class CompressionSerializer
+    include Singleton
+
+    class << self
+      delegate :dump, :load, to: :instance
+    end
+
+    def dump(hash_object)
+      return nil unless hash_object
+      Snappy.dump(JSON.dump(hash_object))
+    end
+
+    def load(compressed_binary)
+      return nil unless compressed_binary
+      JSON.load(Snappy.load(compressed_binary))
     end
   end
 end
