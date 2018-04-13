@@ -3,7 +3,7 @@ module RailsEventStore
     class HaveApplied
       def initialize(expected, *expecteds, differ:)
         @expected = [expected, *expecteds]
-        @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*@expected)
+        @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*expected())
         @differ   = differ
       end
 
