@@ -17,7 +17,7 @@ module RubyEventStore
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
       events.each do |ev|
-        @event_broker.notify_subscribers(ev)
+        event_broker.notify_subscribers(ev)
       end
       :ok
     end
@@ -29,54 +29,54 @@ module RubyEventStore
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
-      @repository.append_to_stream(serialized_events(events), Stream.new(stream_name), expected_version)
+      repository.append_to_stream(serialized_events(events), Stream.new(stream_name), expected_version)
       :ok
     end
 
     def link_to_stream(event_ids, stream_name:, expected_version: :any)
-      @repository.link_to_stream(event_ids, Stream.new(stream_name), expected_version)
+      repository.link_to_stream(event_ids, Stream.new(stream_name), expected_version)
       self
     end
 
     def delete_stream(stream_name)
-      @repository.delete_stream(Stream.new(stream_name))
+      repository.delete_stream(Stream.new(stream_name))
       :ok
     end
 
-    def read_events_forward(stream_name, start: :head, count: @page_size)
-      page = Page.new(@repository, start, count)
-      deserialized_events(@repository.read_events_forward(Stream.new(stream_name), page.start, page.count))
+    def read_events_forward(stream_name, start: :head, count: page_size)
+      page = Page.new(repository, start, count)
+      deserialized_events(repository.read_events_forward(Stream.new(stream_name), page.start, page.count))
     end
 
-    def read_events_backward(stream_name, start: :head, count: @page_size)
-      page = Page.new(@repository, start, count)
-      deserialized_events(@repository.read_events_backward(Stream.new(stream_name), page.start, page.count))
+    def read_events_backward(stream_name, start: :head, count: page_size)
+      page = Page.new(repository, start, count)
+      deserialized_events(repository.read_events_backward(Stream.new(stream_name), page.start, page.count))
     end
 
     def read_stream_events_forward(stream_name)
-      deserialized_events(@repository.read_stream_events_forward(Stream.new(stream_name)))
+      deserialized_events(repository.read_stream_events_forward(Stream.new(stream_name)))
     end
 
     def read_stream_events_backward(stream_name)
-      deserialized_events(@repository.read_stream_events_backward(Stream.new(stream_name)))
+      deserialized_events(repository.read_stream_events_backward(Stream.new(stream_name)))
     end
 
-    def read_all_streams_forward(start: :head, count: @page_size)
-      page = Page.new(@repository, start, count)
-      deserialized_events(@repository.read_all_streams_forward(page.start, page.count))
+    def read_all_streams_forward(start: :head, count: page_size)
+      page = Page.new(repository, start, count)
+      deserialized_events(repository.read_all_streams_forward(page.start, page.count))
     end
 
-    def read_all_streams_backward(start: :head, count: @page_size)
-      page = Page.new(@repository, start, count)
-      deserialized_events(@repository.read_all_streams_backward(page.start, page.count))
+    def read_all_streams_backward(start: :head, count: page_size)
+      page = Page.new(repository, start, count)
+      deserialized_events(repository.read_all_streams_backward(page.start, page.count))
     end
 
     def read_event(event_id)
-      deserialize_event(@repository.read_event(event_id))
+      deserialize_event(repository.read_event(event_id))
     end
 
     def get_all_streams
-      @repository.get_all_streams
+      repository.get_all_streams
     end
 
 
@@ -94,7 +94,7 @@ module RubyEventStore
         raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
         raise ArgumentError, "list of event types must be second argument or named argument to: , it cannot be both" if event_types
         subscriber ||= proc
-        @event_broker.add_subscriber(subscriber, to)
+        event_broker.add_subscriber(subscriber, to)
       else
         if proc
           warn(DEPRECATED_WITHIN)
@@ -121,10 +121,10 @@ module RubyEventStore
           within(&proc).subscribe_to_all_events(subscriber).call
           -> {}
         else
-          @event_broker.add_global_subscriber(subscriber)
+          event_broker.add_global_subscriber(subscriber)
         end
       else
-        @event_broker.add_global_subscriber(proc)
+        event_broker.add_global_subscriber(proc)
       end
     end
 
@@ -177,14 +177,14 @@ module RubyEventStore
 
     def within(&block)
       raise ArgumentError if block.nil?
-      Within.new(block, @event_broker)
+      Within.new(block, event_broker)
     end
 
     private
 
     def serialized_events(events)
       events.map do |ev|
-        @mapper.event_to_serialized_record(ev)
+        mapper.event_to_serialized_record(ev)
       end
     end
 
@@ -195,7 +195,7 @@ module RubyEventStore
     end
 
     def deserialize_event(sev)
-      @mapper.serialized_record_to_event(sev)
+      mapper.serialized_record_to_event(sev)
     end
 
     def normalize_to_array(events)
@@ -203,12 +203,14 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      event.metadata[:timestamp] ||= @clock.()
-      if @metadata_proc
-        md = @metadata_proc.call || {}
+      event.metadata[:timestamp] ||= clock.()
+      if metadata_proc
+        md = metadata_proc.call || {}
         md.each{|k,v| event.metadata[k]=(v) }
       end
     end
+
+    attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
 
     class Page
       def initialize(repository, start, count)
@@ -225,6 +227,5 @@ module RubyEventStore
       end
       attr_reader :start, :count
     end
-
   end
 end

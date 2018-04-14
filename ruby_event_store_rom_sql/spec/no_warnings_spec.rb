@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module RubyEventStore::ROM
-  RSpec.describe 'no warnings', mutate: false do
+  RSpec.describe 'no warnings', mutant: false do
     specify do
       expect(ruby_event_store_rom_sql_warnings).to eq([])
     end

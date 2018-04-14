@@ -19,7 +19,7 @@ RSpec.describe RailsEventStoreActiveRecord do
     end
   end
 
-  specify "can be used without rails", mutate: false do
+  specify "can be used without rails", mutant: false do
     skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
     pathname = Pathname.new(__FILE__).dirname
     cwd = pathname.join("without_rails")

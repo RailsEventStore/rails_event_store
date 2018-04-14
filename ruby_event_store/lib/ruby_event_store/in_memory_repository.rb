@@ -20,11 +20,11 @@ module RubyEventStore
     end
 
     def delete_stream(stream)
-      @streams.delete(stream.name)
+      streams.delete(stream.name)
     end
 
     def has_event?(event_id)
-      @streams.fetch(GLOBAL_STREAM).any? { |item| item.event_id.eql?(event_id) }
+      streams.fetch(GLOBAL_STREAM).any? { |item| item.event_id.eql?(event_id) }
     end
 
     def last_stream_event(stream)
@@ -42,7 +42,7 @@ module RubyEventStore
     end
 
     def read_stream_events_forward(stream)
-      @streams.fetch(stream.name, Array.new)
+      streams.fetch(stream.name, Array.new)
     end
 
     def read_stream_events_backward(stream)
@@ -58,11 +58,11 @@ module RubyEventStore
     end
 
     def read_event(event_id)
-      @streams.fetch(GLOBAL_STREAM).find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
+      streams.fetch(GLOBAL_STREAM).find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
     end
 
     def get_all_streams
-      @streams.keys.map { |name| Stream.new(name) }
+      streams.keys.map { |name| Stream.new(name) }
     end
 
     private
@@ -96,7 +96,7 @@ module RubyEventStore
       # conditions more likely. And we only use mutex.synchronize for writing
       # not for the whole read+write algorithm.
       Thread.pass
-      @mutex.synchronize do
+      mutex.synchronize do
         if expected_version == :any
           expected_version = read_stream_events_forward(stream).size - 1
         end
@@ -116,7 +116,7 @@ module RubyEventStore
         end
         stream_.push(event) unless stream.name.eql?(GLOBAL_STREAM)
       end
-      @streams[stream.name] = stream_
+      streams[stream.name] = stream_
       self
     end
 
@@ -129,5 +129,7 @@ module RubyEventStore
     def index_of(source, event_id)
       source.index{ |item| item.event_id.eql?(event_id) }
     end
+
+    attr_reader :streams, :mutex
   end
 end
