@@ -63,6 +63,7 @@ jobs:
     macos:
       xcode: "9.3.0"
     steps:
+      - run: brew tap caskroom/cask
       - run: brew install sqlite3
       - run: brew install chromedriver
       - run: brew cask install google-chrome
