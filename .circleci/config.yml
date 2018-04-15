@@ -65,7 +65,7 @@ jobs:
     steps:
       - run: brew tap caskroom/cask
       - run: brew install sqlite3
-      - run: brew install chromedriver
+      - run: brew cask install chromedriver
       - run: brew cask install google-chrome
       - checkout
       - run:
