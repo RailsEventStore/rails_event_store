@@ -1,6 +1,5 @@
 module RailsEventStore
   module Browser
-
     class JsonApiEvent
       def initialize(event)
         @event = event
@@ -19,9 +18,7 @@ module RailsEventStore
       end
 
       private
-
       attr_reader :event
     end
-
   end
 end
