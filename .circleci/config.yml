@@ -77,16 +77,35 @@ jobs:
   rails_event_store_active_record:
     macos:
       xcode: "9.3.0"
+    working_directory: ~/res
     steps:
       - run: brew install mysql
       - run: brew install sqlite3
       - run: brew install postgresql
       - checkout
+      - run: "date +'Cache for week: %U of %Y' >> rails_event_store_active_record/CacheBust"
+      - restore_cache:
+          keys:
+          - v1-rails_event_store_active_record-{{ checksum "rails_event_store_active_record/Gemfile" }}-{{ checksum "rails_event_store_active_record/rails_event_store_active_record.gemspec" }}-{{ checksum "rails_event_store_active_record/CacheBust" }}
+          - v1-rails_event_store_active_record-{{ checksum "rails_event_store_active_record/Gemfile" }}-{{ checksum "rails_event_store_active_record/rails_event_store_active_record.gemspec" }}-
+          - v1-rails_event_store_active_record-
       - run:
-          name: make install mutate
-          command: cd rails_event_store_active_record && make install mutate
+          name: make install
+          working_directory: rails_event_store_active_record
+          command: make install
           environment:
             ARCHFLAGS: "-arch x86_64"
+            BUNDLE_PATH: vendor/bundle
+      - save_cache:
+          paths:
+            - rails_event_store_active_record/vendor/bundle
+          key: v1-rails_event_store_active_record-{{ checksum "rails_event_store_active_record/Gemfile" }}-{{ checksum "rails_event_store_active_record/rails_event_store_active_record.gemspec" }}-{{ checksum "rails_event_store_active_record/CacheBust" }}
+      - run:
+          name: make mutate
+          working_directory: rails_event_store_active_record
+          command: make mutate
+          environment:
+            BUNDLE_PATH: vendor/bundle
 
 workflows:
   version: 2
