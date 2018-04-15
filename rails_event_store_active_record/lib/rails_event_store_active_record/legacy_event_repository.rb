@@ -121,12 +121,6 @@ instead:
       build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
 
-    def get_all_streams
-      (["all"] + LegacyEvent.pluck(:stream))
-        .uniq
-        .map { |name| RubyEventStore::Stream.new(name) }
-    end
-
     private
 
     def normalize_to_array(events)

@@ -907,16 +907,6 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
   end
 
-  specify "all stream always present" do
-    expect(repository.get_all_streams).to match_array([RubyEventStore::Stream.new("all")])
-  end
-
-  specify "reading all existing stream names" do
-    repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new("test"), -1)
-    repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new("test"),  0)
-    expect(repository.get_all_streams).to match_array([RubyEventStore::Stream.new("all"), RubyEventStore::Stream.new("test")])
-  end
-
   specify 'reading particular event' do
     test_event = SRecord.new(event_id: "941cd8f5-b3f9-47af-b4e4-07f8cea37467")
     repository.

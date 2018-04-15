@@ -164,13 +164,6 @@ module RubyEventStore
       expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
     end
 
-    specify 'reading all existing stream names' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(TestEvent.new, stream_name: 'test')
-
-      expect(client.get_all_streams).to eq([Stream.new('all'), Stream.new('test')])
-    end
-
     specify 'reading particular event' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new

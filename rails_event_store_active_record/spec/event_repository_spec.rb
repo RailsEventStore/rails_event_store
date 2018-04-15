@@ -223,13 +223,6 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    specify "explicit order when fetching list of streams" do
-      repository = EventRepository.new
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY.*id.*ASC.*/) do
-        repository.get_all_streams
-      end
-    end
-
     class FillInRepository < EventRepository
       def fill_ids(in_stream)
         in_stream.each.with_index.map do |is, index|

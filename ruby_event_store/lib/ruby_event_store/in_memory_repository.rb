@@ -61,10 +61,6 @@ module RubyEventStore
       streams.fetch(GLOBAL_STREAM).find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
     end
 
-    def get_all_streams
-      streams.keys.map { |name| Stream.new(name) }
-    end
-
     private
 
     def normalize_to_array(events)

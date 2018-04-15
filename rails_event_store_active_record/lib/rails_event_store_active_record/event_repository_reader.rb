@@ -82,12 +82,6 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::EventNotFound.new(event_id)
     end
 
-    def get_all_streams
-      (["all"] + EventInStream.order(:id).pluck(:stream))
-        .uniq
-        .map { |name| RubyEventStore::Stream.new(name) }
-    end
-
     private
 
     def build_event_instance(record)
