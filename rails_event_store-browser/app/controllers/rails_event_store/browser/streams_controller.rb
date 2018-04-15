@@ -1,35 +1,6 @@
 module RailsEventStore
   module Browser
     class StreamsController < ApplicationController
-      def index
-        links   = {}
-        streams = case direction
-        when :forward
-          items = event_store.get_all_streams
-          items = items.drop_while { |s| !s.name.eql?(position) }.drop(1) unless position.equal?(:head)
-          items.take(count).reverse
-        when :backward
-          items = event_store.get_all_streams.reverse
-          items = items.drop_while { |s| !s.name.eql?(position) }.drop(1) unless position.equal?(:head)
-          items.take(count)
-        end
-
-        if next_stream?(streams)
-          links[:next] = streams_next_page_link(streams.last.name)
-          links[:last] = streams_last_page_link
-        end
-
-        if prev_stream?(streams)
-          links[:prev]  = streams_prev_page_link(streams.first.name)
-          links[:first] = streams_first_page_link
-        end
-
-        render json: {
-          data: streams.map { |s| serialize_stream(s) },
-          links: links
-        }, content_type: 'application/vnd.api+json'
-      end
-
       def show
         links  = {}
         events = case direction
@@ -59,39 +30,6 @@ module RailsEventStore
       end
 
       private
-
-      def next_stream?(streams)
-        return if streams.empty?
-        event_store.get_all_streams
-          .reverse
-          .drop_while { |s| !s.name.eql?(streams.last.name) }
-          .drop(1)
-          .present?
-      end
-
-      def prev_stream?(streams)
-        return if streams.empty?
-        event_store.get_all_streams
-          .drop_while { |s| !s.name.eql?(streams.first.name) }
-          .drop(1)
-          .present?
-      end
-
-      def streams_next_page_link(stream_name)
-        streams_url(position: stream_name, direction: :backward, count: count)
-      end
-
-      def streams_prev_page_link(stream_name)
-        streams_url(position: stream_name, direction: :forward, count: count)
-      end
-
-      def streams_first_page_link
-        streams_url(position: :head, direction: :backward, count: count)
-      end
-
-      def streams_last_page_link
-        streams_url(position: :head, direction: :forward, count: count)
-      end
 
       def next_event?(events)
         return if events.empty?
@@ -143,13 +81,6 @@ module RailsEventStore
 
       def stream_name
         params.fetch(:id)
-      end
-
-      def serialize_stream(stream)
-        {
-          id: stream.name,
-          type: "streams"
-        }
       end
     end
   end
