@@ -12,6 +12,15 @@ install: ## Install gem dependencies
 	@BUNDLE_GEMFILE=spec/v1_v2_schema_migration/Gemfile bundle install
 	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
 
+remove-lock:
+	@echo "Removing resolved dependency versions"
+	-rm Gemfile.lock
+	-rm spec/v1_v2_schema_migration/Gemfile.lock
+	-rm spec/without_rails/Gemfile.lock
+
+reinstall: remove-lock install ## Removing resolved dependency versions
+
+
 test: ## Run unit tests
 	@echo "Running unit tests"
 	@BUNDLE_GEMFILE=Gemfile bundle exec rspec

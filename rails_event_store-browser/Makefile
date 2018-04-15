@@ -12,6 +12,13 @@ install: ## Install gem dependencies
 	@echo "Installing npm dependencies"
 	@cd elm; yarn install
 
+remove-lock:
+	@echo "Removing resolved dependency versions"
+	-rm Gemfile.lock
+
+reinstall: remove-lock install ## Removing resolved dependency versions
+
+
 test: $(JS_BUNDLE) ## Run unit tests
 	@echo "Running unit and integration tests"
 	@cd elm; yarn test; cd -

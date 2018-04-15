@@ -18,6 +18,9 @@ endif
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
+$(addprefix reinstall-, $(GEMS)):
+	@make -C $(subst reinstall-,,$@) reinstall
+
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
 
@@ -64,6 +67,8 @@ set-version: git-check-clean git-check-committed
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
+
+reinstall: $(addprefix reinstall-, $(GEMS)) ## Reinstall (with new resolve) dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
