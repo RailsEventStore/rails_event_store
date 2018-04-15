@@ -53,7 +53,7 @@ module RailsEventStore
         end
 
         render json: {
-          data: events.map { |e| serialize_event(e) },
+          data: events.map { |e| JsonApiEvent.new(e).to_h },
           links: links
         }, content_type: 'application/vnd.api+json'
       end
@@ -149,18 +149,6 @@ module RailsEventStore
         {
           id: stream.name,
           type: "streams"
-        }
-      end
-
-      def serialize_event(event)
-        {
-          id: event.event_id,
-          type: "events",
-          attributes: {
-            event_type: event.class.to_s,
-            data: event.data,
-            metadata: event.metadata.to_h
-          }
         }
       end
     end
