@@ -37,8 +37,7 @@ type Msg
 
 
 type Page
-    = BrowseStreams
-    | BrowseEvents String
+    = BrowseEvents String
     | ShowEvent String
     | NotFound
 
@@ -147,9 +146,6 @@ urlUpdate model location =
             UrlParser.parseHash routeParser location
     in
         case decodeLocation location of
-            Just BrowseStreams ->
-                ( { model | page = BrowseStreams }, getItems model.flags.streamsUrl )
-
             Just (BrowseEvents encodedStreamId) ->
                 case (Http.decodeUri encodedStreamId) of
                     Just streamId ->
@@ -176,7 +172,7 @@ urlUpdate model location =
 routeParser : UrlParser.Parser (Page -> a) a
 routeParser =
     UrlParser.oneOf
-        [ UrlParser.map BrowseStreams UrlParser.top
+        [ UrlParser.map (BrowseEvents "all") UrlParser.top
         , UrlParser.map BrowseEvents (UrlParser.s "streams" </> UrlParser.string)
         , UrlParser.map ShowEvent (UrlParser.s "events" </> UrlParser.string)
         ]
@@ -217,9 +213,6 @@ browserFooter model =
 browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
-        BrowseStreams ->
-            browseItems "Streams" model.items
-
         BrowseEvents streamName ->
             browseItems ("Events in " ++ streamName) model.items
 
