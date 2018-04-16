@@ -2,11 +2,17 @@ module RubyEventStore
   class ExpectedVersion
     POSITION_DEFAULT = -1.freeze
     NOT_RESOLVED = Object.new.freeze
+    
+    def self.any
+      new(:any)
+    end
 
-    class << self
-      %i[any none auto].each do |name|
-        define_method(name) { new(name) }
-      end
+    def self.none
+      new(:none)
+    end
+
+    def self.auto
+      new(:auto)
     end
 
     attr_reader :expected
