@@ -2,9 +2,9 @@
 
 A ROM-based implementation of events repository for [Ruby Event Store](https://github.com/RailsEventStore/rails_event_store).
 
-This is an alternative ActiveRecord `EventRepository` used in `rails_event_store` gem.
+This version of the ROM adapter supports [rom-sql](https://github.com/rom-rb/rom-sql) at this time. It is an alternative to the ActiveRecord `EventRepository` implementation used in `rails_event_store` gem.
 
-This version of the ROM adapter uses [rom-sql](https://github.com/rom-rb/rom-sql) and will be updated to facilitate multiple backends for implementing other (non-SQL) data stores behind ROM's API interface.
+_Additonal backing stores via ROM are being tracked here: [#299](https://github.com/RailsEventStore/rails_event_store/issues/299)._
 
 ## Get started
 
@@ -48,7 +48,3 @@ repo = RubyEventStore::ROM::EventRepository.new(rom: container)
 ```
 
 The second option provides flexibility if you are using a separate database for RES or have other needs that require more granular configurations.
-
-## TODO
-
-Currently, the ROM implementation is specific to SQL. However, this will be refactored to make ROM relations interchangeable with different backing stores.
