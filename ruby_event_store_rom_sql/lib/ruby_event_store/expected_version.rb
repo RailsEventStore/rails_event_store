@@ -15,23 +15,23 @@ module RubyEventStore
       new(:auto)
     end
 
-    attr_reader :expected
+    attr_reader :value
 
-    def initialize(expected)
-      @expected = expected
-      invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === expected}
+    def initialize(value)
+      @value = value
+      invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === value}
     end
 
     def any?
-      @expected == :any
+      value.eql?(:any)
     end
 
     def resolve_for(stream, &resolver)
       invalid_version! unless allowed?(stream)
 
-      case @expected
+      case value
       when Integer
-        @expected
+        value
       when :any
         nil
       when :none
@@ -46,7 +46,7 @@ module RubyEventStore
     private
 
     def allowed?(stream)
-      @expected.equal?(:any) || !stream.global?
+      any? || !stream.global?
     end
 
     def invalid_version!
