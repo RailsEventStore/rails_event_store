@@ -15,23 +15,23 @@ module RubyEventStore
       new(:auto)
     end
 
-    attr_reader :value
+    attr_reader :version
 
-    def initialize(value)
-      @value = value
-      invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === value}
+    def initialize(version)
+      @version = version
+      invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === version}
     end
 
     def any?
-      value.equal?(:any)
+      version.equal?(:any)
     end
 
     def resolve_for(stream, &resolver)
       invalid_version! if stream.global? && !any?
 
-      case value
+      case version
       when Integer
-        value
+        version
       when :any
         nil
       when :none
