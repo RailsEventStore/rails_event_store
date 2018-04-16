@@ -43,8 +43,7 @@ type Page
 
 
 type Item
-    = StreamItem Stream
-    | EventItem Event
+    = EventItem Event
 
 
 type alias Event =
@@ -53,11 +52,6 @@ type alias Event =
     , createdAt : String
     , rawData : String
     , rawMetadata : String
-    }
-
-
-type alias Stream =
-    { name : String
     }
 
 
@@ -328,16 +322,6 @@ renderResults items =
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
 
-        (StreamItem _) :: _ ->
-            table []
-                [ thead []
-                    [ tr []
-                        [ th [] [ text "Stream name" ]
-                        ]
-                    ]
-                , tbody [] (List.map itemRow (items))
-                ]
-
         (EventItem _) :: _ ->
             table []
                 [ thead []
@@ -369,17 +353,6 @@ itemRow item =
                     ]
                 ]
 
-        StreamItem { name } ->
-            tr []
-                [ td []
-                    [ a
-                        [ class "results__link"
-                        , href (buildUrl "#streams" name)
-                        ]
-                        [ text name ]
-                    ]
-                ]
-
 
 getEvent : String -> Cmd Msg
 getEvent url =
@@ -398,12 +371,9 @@ itemsDecoder =
     let
         eventItemDecoder =
             Json.Decode.map EventItem eventDecoder_
-
-        streamItemDecoder =
-            Json.Decode.map StreamItem streamDecoder_
     in
         decode PaginatedList
-            |> required "data" (list (oneOf [ eventItemDecoder, streamItemDecoder ]))
+            |> required "data" (list eventItemDecoder)
             |> required "links" linksDecoder
 
 
@@ -420,12 +390,6 @@ eventDecoder : Decoder Event
 eventDecoder =
     eventDecoder_
         |> field "data"
-
-
-streamDecoder_ : Decoder Stream
-streamDecoder_ =
-    decode Stream
-        |> required "id" string
 
 
 eventDecoder_ : Decoder Event
