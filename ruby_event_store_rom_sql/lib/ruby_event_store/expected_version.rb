@@ -15,8 +15,6 @@ module RubyEventStore
       new(:auto)
     end
 
-    attr_reader :version
-
     def initialize(version)
       @version = version
       invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === version}
@@ -44,6 +42,8 @@ module RubyEventStore
     end
 
     private
+
+    attr_reader :version
 
     def invalid_version!
       raise InvalidExpectedVersion
