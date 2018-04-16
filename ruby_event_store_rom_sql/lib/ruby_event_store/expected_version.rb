@@ -27,7 +27,7 @@ module RubyEventStore
     end
 
     def resolve_for(stream, &resolver)
-      invalid_version! unless allowed?(stream)
+      invalid_version! if stream.global? && !any?
 
       case value
       when Integer
@@ -44,10 +44,6 @@ module RubyEventStore
     end
 
     private
-
-    def allowed?(stream)
-      any? || !stream.global?
-    end
 
     def invalid_version!
       raise InvalidExpectedVersion
