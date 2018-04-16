@@ -52,3 +52,47 @@ end
 We don't recommend using `InMemoryRepository` in production even if you don't need to persist events because the repository keeps all published events in memory. This is acceptable in testing because you can throw the instance away for every test and garbage collector reclaims the memory. In production, your memory would keep growing until you restart the application server.
 
 `InMemoryRepository` can take custom `mapper:` as an argument just like `RailsEventStoreActiveRecord::EventRepository`. [Read more on that](/docs/mapping_serialization/)
+
+# Using Ruby Object Mapper (ROM) for SQL without ActiveRecord or Rails
+
+RubyEventStore comes with `RubyEventStore::ROM::EventRepository` that you can use with a SQL database without requiring ORM like ActiveRecord or when not using Rails altogether. It is tested with the same test suite as the ActiveRecord implementation and raises identical exceptions.
+
+## Basic setup
+
+You simply need to configure your ROM container and then store it globally on `RubyEventStore::ROM.env` or pass it to the repository constructor.
+
+```ruby
+gem 'ruby_event_store_rom_sql'
+
+# Use the `setup` helper to configure the
+# ROM container and store it globally
+RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
+
+# Use the repository the same as with ActiveRecord
+client = RailsEventStore::Client.new(
+  repository: RubyEventStore::ROM::EventRepository.new
+)
+```
+
+## Advanced setup
+
+You can use a specific ROM container per repository, and customize ROM more extensively. This example illustrates how to get at the ROM configuration and even run the latest migrations.
+
+```ruby
+gem 'ruby_event_store_rom_sql'
+
+config = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
+
+# Run migrations if you need to (optional)
+config.default.run_migrations
+
+# Use the `setup` helper to configure the ROM container
+container = RubyEventStore::ROM.setup(config)
+
+# Use the repository the same as with ActiveRecord
+client = RailsEventStore::Client.new(
+  repository: RubyEventStore::ROM::EventRepository.new(rom: container)
+)
+```
+
+This advanced option provides flexibility if you are using a separate database for RES or have other needs that require more granular configurations.
