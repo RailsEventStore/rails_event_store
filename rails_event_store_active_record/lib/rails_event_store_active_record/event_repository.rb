@@ -66,10 +66,6 @@ module RailsEventStoreActiveRecord
       @repo_reader.read_event(event_id)
     end
 
-    def get_all_streams
-      @repo_reader.get_all_streams
-    end
-
     private
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)

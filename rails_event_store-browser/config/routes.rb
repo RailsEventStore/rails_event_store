@@ -9,7 +9,5 @@ RailsEventStore::Browser::Engine.routes.draw do
     format: false,
     constraints: { id: %r{[^\/]+} }
 
-  get '/streams(/:position/:direction/:count)',
-    to: "streams#index",
-    as: :streams
+  resources :streams, only: [:index]
 end

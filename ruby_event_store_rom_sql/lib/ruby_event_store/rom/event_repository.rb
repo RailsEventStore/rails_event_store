@@ -68,10 +68,6 @@ module RubyEventStore
         raise EventNotFound.new(event_id)
       end
 
-      def get_all_streams
-        @event_streams.all
-      end
-
       private
 
       def raise_error(ex)

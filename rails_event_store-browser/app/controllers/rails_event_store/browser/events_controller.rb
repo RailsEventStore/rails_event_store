@@ -1,6 +1,5 @@
 module RailsEventStore
   module Browser
-
     class EventsController < ApplicationController
       def show
         event = event_store.read_event(event_id)
@@ -12,8 +11,6 @@ module RailsEventStore
       def event_id
         params.fetch(:id)
       end
-
     end
-
   end
 end

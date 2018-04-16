@@ -232,14 +232,6 @@ module RubyEventStore::ROM
       end
     end
 
-    # TODO: Port from AR to ROM
-    xspecify "explicit order when fetching list of streams" do
-      repository = EventRepository.new
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY.*id.*ASC.*/) do
-        repository.get_all_streams
-      end
-    end
-
     def cleanup_concurrency_test
       rom_db.connection.pool.disconnect
     end

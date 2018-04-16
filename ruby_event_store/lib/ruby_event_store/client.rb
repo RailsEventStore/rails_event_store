@@ -75,11 +75,6 @@ module RubyEventStore
       deserialize_event(repository.read_event(event_id))
     end
 
-    def get_all_streams
-      repository.get_all_streams
-    end
-
-
     DEPRECATED_WITHIN = "subscribe(subscriber, event_types, &task) has been deprecated. Use within(&task).subscribe(subscriber, to: event_types).call instead"
     DEPRECATED_TO = "subscribe(subscriber, event_types) has been deprecated. Use subscribe(subscriber, to: event_types) instead"
     # OLD:
