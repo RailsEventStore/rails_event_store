@@ -22,7 +22,7 @@ main =
 
 
 type alias Model =
-    { items : PaginatedList Item
+    { events : PaginatedList Event
     , event : Maybe Event
     , page : Page
     , flags : Flags
@@ -30,7 +30,7 @@ type alias Model =
 
 
 type Msg
-    = GetItems (Result Http.Error (PaginatedList Item))
+    = GetEvents (Result Http.Error (PaginatedList Event))
     | GetEvent (Result Http.Error Event)
     | ChangeUrl Navigation.Location
     | GoToPage PaginationLink
@@ -40,10 +40,6 @@ type Page
     = BrowseEvents String
     | ShowEvent String
     | NotFound
-
-
-type Item
-    = EventItem Event
 
 
 type alias Event =
@@ -68,7 +64,7 @@ type alias PaginationLinks =
 
 
 type alias PaginatedList a =
-    { items : List a
+    { events : List a
     , links : PaginationLinks
     }
 
@@ -97,7 +93,7 @@ model flags location =
             }
 
         initModel =
-            { items = PaginatedList [] initLinks
+            { events = PaginatedList [] initLinks
             , page = NotFound
             , event = Nothing
             , flags = flags
@@ -109,10 +105,10 @@ model flags location =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GetItems (Ok result) ->
-            ( { model | items = result }, Cmd.none )
+        GetEvents (Ok result) ->
+            ( { model | events = result }, Cmd.none )
 
-        GetItems (Err msg) ->
+        GetEvents (Err msg) ->
             ( model, Cmd.none )
 
         GetEvent (Ok result) ->
@@ -125,7 +121,7 @@ update msg model =
             urlUpdate model location
 
         GoToPage paginationLink ->
-            ( model, getItems paginationLink )
+            ( model, getEvents paginationLink )
 
 
 buildUrl : String -> String -> String
@@ -143,7 +139,7 @@ urlUpdate model location =
             Just (BrowseEvents encodedStreamId) ->
                 case (Http.decodeUri encodedStreamId) of
                     Just streamId ->
-                        ( { model | page = (BrowseEvents streamId) }, getItems (buildUrl model.flags.streamsUrl streamId) )
+                        ( { model | page = (BrowseEvents streamId) }, getEvents (buildUrl model.flags.streamsUrl streamId) )
 
                     Nothing ->
                         ( { model | page = NotFound }, Cmd.none )
@@ -208,7 +204,7 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         BrowseEvents streamName ->
-            browseItems ("Events in " ++ streamName) model.items
+            browseEvents ("Events in " ++ streamName) model.events
 
         ShowEvent eventId ->
             showEvent model.event
@@ -247,12 +243,12 @@ showEvent event =
             div [ class "event" ] []
 
 
-browseItems : String -> PaginatedList Item -> Html Msg
-browseItems title { links, items } =
+browseEvents : String -> PaginatedList Event -> Html Msg
+browseEvents title { links, events } =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
         , div [ class "browser__pagination" ] [ displayPagination links ]
-        , div [ class "browser__results" ] [ renderResults items ]
+        , div [ class "browser__results" ] [ renderResults events ]
         ]
 
 
@@ -316,13 +312,13 @@ firstPageButton url =
         [ text "first" ]
 
 
-renderResults : List Item -> Html Msg
-renderResults items =
-    case items of
+renderResults : List Event -> Html Msg
+renderResults events =
+    case events of
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
 
-        (EventItem _) :: _ ->
+        _ ->
             table []
                 [ thead []
                     [ tr []
@@ -331,27 +327,25 @@ renderResults items =
                         , th [ class "u-align-right" ] [ text "Created at" ]
                         ]
                     ]
-                , tbody [] (List.map itemRow items)
+                , tbody [] (List.map itemRow events)
                 ]
 
 
-itemRow : Item -> Html Msg
-itemRow item =
-    case item of
-        EventItem { eventType, createdAt, eventId } ->
-            tr []
-                [ td []
-                    [ a
-                        [ class "results__link"
-                        , href (buildUrl "#events" eventId)
-                        ]
-                        [ text eventType ]
-                    ]
-                , td [] [ text eventId ]
-                , td [ class "u-align-right" ]
-                    [ text createdAt
-                    ]
+itemRow : Event -> Html Msg
+itemRow { eventType, createdAt, eventId } =
+    tr []
+        [ td []
+            [ a
+                [ class "results__link"
+                , href (buildUrl "#events" eventId)
                 ]
+                [ text eventType ]
+            ]
+        , td [] [ text eventId ]
+        , td [ class "u-align-right" ]
+            [ text createdAt
+            ]
+        ]
 
 
 getEvent : String -> Cmd Msg
@@ -360,21 +354,17 @@ getEvent url =
         |> Http.send GetEvent
 
 
-getItems : String -> Cmd Msg
-getItems url =
-    Http.get url itemsDecoder
-        |> Http.send GetItems
+getEvents : String -> Cmd Msg
+getEvents url =
+    Http.get url eventsDecoder
+        |> Http.send GetEvents
 
 
-itemsDecoder : Decoder (PaginatedList Item)
-itemsDecoder =
-    let
-        eventItemDecoder =
-            Json.Decode.map EventItem eventDecoder_
-    in
-        decode PaginatedList
-            |> required "data" (list eventItemDecoder)
-            |> required "links" linksDecoder
+eventsDecoder : Decoder (PaginatedList Event)
+eventsDecoder =
+    decode PaginatedList
+        |> required "data" (list eventDecoder_)
+        |> required "links" linksDecoder
 
 
 linksDecoder : Decoder PaginationLinks
