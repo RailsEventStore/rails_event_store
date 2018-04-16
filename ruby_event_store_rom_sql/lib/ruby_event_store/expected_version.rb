@@ -2,7 +2,7 @@ module RubyEventStore
   class ExpectedVersion
     POSITION_DEFAULT = -1.freeze
     NOT_RESOLVED = Object.new.freeze
-    
+
     def self.any
       new(:any)
     end
@@ -19,26 +19,16 @@ module RubyEventStore
 
     def initialize(expected)
       @expected = expected
-
-      # validate
-      invalid_version! unless [Integer, :any, :none, :auto].any? { |i| i === expected }
+      invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === expected}
     end
 
     def any?
       @expected == :any
     end
 
-    def check!(stream)
-      invalid_version! unless allowed?(stream)
-    end
-
-    def allowed?(stream)
-      @expected.equal?(:any) || !stream.global?
-    end
-
     def resolve_for(stream, &resolver)
-      check!(stream)
-      
+      invalid_version! unless allowed?(stream)
+
       case @expected
       when Integer
         @expected
@@ -53,7 +43,11 @@ module RubyEventStore
       end
     end
 
-  protected
+    private
+
+    def allowed?(stream)
+      @expected.equal?(:any) || !stream.global?
+    end
 
     def invalid_version!
       raise InvalidExpectedVersion
