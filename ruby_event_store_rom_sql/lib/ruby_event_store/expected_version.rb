@@ -23,7 +23,7 @@ module RubyEventStore
     end
 
     def any?
-      value.eql?(:any)
+      value.equal?(:any)
     end
 
     def resolve_for(stream, &resolver)
