@@ -68,7 +68,7 @@ module RubyEventStore
     end
 
     def add_to_stream(events, expected_version, stream, include_global)
-      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream.name.eql?(GLOBAL_STREAM)
+      raise InvalidExpectedVersion if !expected_version.equal?(:any) && stream.global?
       events = normalize_to_array(events)
       expected_version = case expected_version
         when :none
@@ -110,7 +110,7 @@ module RubyEventStore
           raise EventDuplicatedInStream if global_stream.any? { |ev| ev.event_id.eql?(event.event_id) }
           global_stream.push(event)
         end
-        stream_.push(event) unless stream.name.eql?(GLOBAL_STREAM)
+        stream_.push(event) unless stream.global?
       end
       streams[stream.name] = stream_
       self
