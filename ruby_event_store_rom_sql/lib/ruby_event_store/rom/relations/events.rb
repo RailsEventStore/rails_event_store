@@ -17,6 +17,10 @@ module RubyEventStore
         # struct_namespace Entities
         # auto_struct true
 
+        def by_pks(ids)
+          where(id: ids)
+        end
+
         def for_stream_entries(assoc, stream_entries)
           new dataset.order(nil).join(stream_entries.dataset, event_id: :id)
         end

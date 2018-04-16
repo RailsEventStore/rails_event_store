@@ -37,12 +37,12 @@ module RubyEventStore
         end
 
         def link(event_ids, stream, expected_version, global_stream: nil)
-          (event_ids - events.where(id: event_ids).select(:id).pluck(:id)).each do |id|
+          (event_ids - events.by_pks(event_ids).pluck(:id)).each do |id|
             raise EventNotFound.new(id)
           end
 
           resolved_version = expected_version.resolve_for(stream, ->(stream) {
-            stream_entries.where(stream: stream.name).max(:position)
+            (stream_entries.max_position(stream) || {})[:position]
           })
 
           tuples = []
@@ -66,7 +66,7 @@ module RubyEventStore
         ### Reader interface
 
         def exist?(event_id)
-          !!events.fetch(event_id)
+          !!events.by_pk(event_id).one!
         rescue ::ROM::TupleCountMismatchError
           false
         end
@@ -85,8 +85,6 @@ module RubyEventStore
             .limit(limit)
             .map_with(:serialized_record_mapper)
             .to_a
-
-          query.to_a
 
         rescue ::ROM::TupleCountMismatchError
           raise EventNotFound.new(from)
