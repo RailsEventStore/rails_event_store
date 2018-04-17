@@ -51,7 +51,7 @@ module RubyEventStore
 
     def ==(other_expected_version)
       other_expected_version.instance_of?(self.class) &&
-        other_expected_version.version.eql?(version)
+        other_expected_version.version.equal?(version)
     end
 
     alias_method :eql?, :==
