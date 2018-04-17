@@ -24,15 +24,9 @@ instead:
     end
 
     def append_to_stream(events, stream, expected_version)
-      expected_version = expected_version.version
-      validate_expected_version_is_not_auto(expected_version)
-
-      case expected_version
-      when :none
-        validate_stream_is_empty(stream)
-      when Integer
-        validate_expected_version_number(expected_version, stream)
-      end
+      validate_unsupported_expected_version(expected_version)
+      validate_stream_is_empty(stream) if expected_version.none?
+      validate_expected_version_number(expected_version, stream) if Integer === expected_version.version
 
       normalize_to_array(events).each do |event|
         data = event.to_h
@@ -148,11 +142,11 @@ instead:
     end
 
     def validate_expected_version_number(expected_version, stream)
-      raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream).equal?(expected_version)
+      raise RubyEventStore::WrongExpectedEventVersion unless last_stream_version(stream).equal?(expected_version.version)
     end
 
-    def validate_expected_version_is_not_auto(expected_version)
-      raise RubyEventStore::InvalidExpectedVersion, ":auto mode is not supported by LegacyEventRepository" if expected_version.equal?(:auto)
+    def validate_unsupported_expected_version(expected_version)
+      raise RubyEventStore::InvalidExpectedVersion, ":auto mode is not supported by LegacyEventRepository" if expected_version.auto?
     end
 
   end
