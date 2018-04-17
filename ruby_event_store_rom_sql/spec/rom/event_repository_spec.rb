@@ -243,8 +243,7 @@ module RubyEventStore::ROM
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
       positions = rom.relations[:stream_entries].
-        where(stream: default_stream.name).
-        order(Sequel.asc(:position)).
+        ordered(:forward, default_stream).
         map { |entity| entity[:position] }
       expect(positions).to eq((0..positions.size-1).to_a)
     end
