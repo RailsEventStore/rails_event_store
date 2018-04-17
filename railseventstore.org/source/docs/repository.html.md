@@ -55,9 +55,9 @@ We don't recommend using `InMemoryRepository` in production even if you don't ne
 
 # Using Ruby Object Mapper (ROM) for SQL without ActiveRecord or Rails
 
-RubyEventStore comes with `RubyEventStore::ROM::EventRepository` that you can use with a SQL database without requiring ORM like ActiveRecord or when not using Rails altogether. It is tested with the same test suite as the ActiveRecord implementation and raises identical exceptions.
+RubyEventStore comes with `RubyEventStore::ROM::EventRepository` that you can use with a SQL database without requiring ActiveRecord or when not using Rails altogether. It is tested with the same test suite as the ActiveRecord implementation and raises identical exceptions.
 
-## Basic setup
+## Basic ROM setup
 
 You simply need to configure your ROM container and then store it globally on `RubyEventStore::ROM.env` or pass it to the repository constructor.
 
@@ -74,9 +74,9 @@ client = RailsEventStore::Client.new(
 )
 ```
 
-## Advanced setup
+## Advanced ROM setup
 
-You can use a specific ROM container per repository, and customize ROM more extensively. This example illustrates how to get at the ROM configuration and even run the latest migrations.
+You can use a specific ROM container per repository to customize it more extensively. This example illustrates how to get at the ROM configuration and even run the latest migrations.
 
 ```ruby
 gem 'ruby_event_store_rom_sql'
