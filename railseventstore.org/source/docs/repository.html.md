@@ -66,7 +66,7 @@ gem 'ruby_event_store_rom_sql'
 
 # Use the `setup` helper to configure the
 # ROM container and store it globally
-RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
+RubyEventStore::ROM.env = RubyEventStore::ROM.setup(ENV['DATABASE_URL'])
 
 # Use the repository the same as with ActiveRecord
 client = RailsEventStore::Client.new(
