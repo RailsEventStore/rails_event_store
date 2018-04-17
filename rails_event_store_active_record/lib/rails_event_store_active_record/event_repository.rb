@@ -69,12 +69,12 @@ module RailsEventStoreActiveRecord
     private
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
-      raise RubyEventStore::InvalidExpectedVersion if stream.global? && !expected_version.equal?(:any)
-      expected_version = normalize_expected_version(expected_version, stream)
+      last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
+      resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       ActiveRecord::Base.transaction(requires_new: true) do
         in_stream = collection.flat_map.with_index do |element, index|
-          position = compute_position(expected_version, index)
+          position = compute_position(resolved_version, index)
           event_id = to_event_id.call(element)
           collection = []
           collection.unshift({
@@ -104,23 +104,9 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::WrongExpectedEventVersion
     end
 
-    def compute_position(expected_version, index)
-      unless expected_version.equal?(:any)
-        expected_version + index + POSITION_SHIFT
-      end
-    end
-
-    def normalize_expected_version(expected_version, stream)
-      case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream.name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
+    def compute_position(resolved_version, index)
+      unless resolved_version.nil?
+        resolved_version + index + POSITION_SHIFT
       end
     end
 

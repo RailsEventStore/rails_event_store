@@ -114,12 +114,12 @@ RSpec.describe "v1_v2_migration" do
     expect do
       repository.append_to_stream(SRecord.new(event_id: "7c485b58-2d6a-4017-a174-8ab41ea4a4dd"),
         RubyEventStore::Stream.new("Order-1"),
-        1
+        RubyEventStore::ExpectedVersion.new(1)
       )
     end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
     repository.append_to_stream(SRecord.new(event_id: "3cf767d5-16ad-43a7-8d65-bb5575b301f2"),
       RubyEventStore::Stream.new("Order-1"),
-      2
+      RubyEventStore::ExpectedVersion.new(2)
     )
   end
 

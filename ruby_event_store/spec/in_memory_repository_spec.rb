@@ -17,19 +17,19 @@ module RubyEventStore
       repository.append_to_stream(
         SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
         Stream.new('other'),
-        -1
+        ExpectedVersion.none
       )
       repository.append_to_stream(
         SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
         Stream.new('stream'),
-        -1
+        ExpectedVersion.none
       )
       expect(eid).not_to receive(:eql?)
       expect do
         repository.append_to_stream(
           SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
           Stream.new('stream'),
-          0
+          ExpectedVersion.new(0)
         )
       end.to raise_error(RubyEventStore::EventDuplicatedInStream)
     end

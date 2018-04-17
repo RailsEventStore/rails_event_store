@@ -29,12 +29,12 @@ module RubyEventStore
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
-      repository.append_to_stream(serialized_events(events), Stream.new(stream_name), expected_version)
+      repository.append_to_stream(serialized_events(events), Stream.new(stream_name), ExpectedVersion.new(expected_version))
       :ok
     end
 
     def link_to_stream(event_ids, stream_name:, expected_version: :any)
-      repository.link_to_stream(event_ids, Stream.new(stream_name), expected_version)
+      repository.link_to_stream(event_ids, Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
     end
 

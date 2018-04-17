@@ -40,41 +40,41 @@ module RubyEventStore
             raise EventNotFound.new(id)
           end
 
-          resolved_version = expected_version.resolve_for(stream) do
+          resolved_version = expected_version.resolve_for(stream, ->(stream) {
             event_streams.where(stream: stream.name).max(:position)
-          end
-          
+          })
+
           tuples = []
 
           event_ids.each_with_index do |event_id, index|
             tuples << {
-              stream:   stream.name,
+              stream: stream.name,
               position: compute_position(resolved_version, index),
               event_id: event_id
             } unless stream.global?
-  
+
             tuples << {
               stream: GLOBAL_STREAM,
               event_id: event_id
             } if global_stream
           end
-  
+
           event_streams.changeset(:create, tuples).commit
         end
-    
+
         ### Reader interface
-  
+
         def exist?(event_id)
           events.where(id: event_id).exist?
         end
-  
+
         def fetch(event_id)
           events.where(id: event_id).map_with(:serialized_record_mapper).one!
         end
-  
+
         def read(direction, stream, from: :head, limit: nil)
           order, operator = {
-            forward:  [:asc, :>],
+            forward: [:asc, :>],
             backward: [:desc, :<]
           }[direction]
 
@@ -82,16 +82,16 @@ module RubyEventStore
 
           query = events_for(stream, order).limit(limit)
           query = query.where(
-                    event_streams[:id].public_send(operator, fetch_stream_id_for(stream, from))
-                  ) unless from.equal?(:head)
+            event_streams[:id].public_send(operator, fetch_stream_id_for(stream, from))
+          ) unless from.equal?(:head)
 
           query.to_a
-        
+
         rescue ::ROM::TupleCountMismatchError
           raise EventNotFound.new(from)
         end
-  
-      private
+
+        private
 
         def events_for(stream, direction)
           order_columns = %i[position id]

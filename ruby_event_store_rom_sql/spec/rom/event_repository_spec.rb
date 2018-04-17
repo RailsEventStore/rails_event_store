@@ -34,7 +34,7 @@ module RubyEventStore::ROM
       repository.append_to_stream([
         SRecord.new,
         SRecord.new,
-      ], default_stream, :auto)
+      ], default_stream, RubyEventStore::ExpectedVersion.auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
       expect(c1).to eq(2)
 
@@ -197,7 +197,7 @@ module RubyEventStore::ROM
         repository = EventRepository.new
         repository.append_to_stream([
           SRecord.new,
-        ], default_stream, :auto)
+        ], default_stream, RubyEventStore::ExpectedVersion.auto)
       end
     end
 
@@ -205,7 +205,7 @@ module RubyEventStore::ROM
       repository = EventRepository.new
       repository.append_to_stream([
         event = SRecord.new(event_id: SecureRandom.uuid),
-      ], default_stream, :none)
+      ], default_stream, RubyEventStore::ExpectedVersion.none)
 
       rom_db.transaction do
         expect do
@@ -213,7 +213,7 @@ module RubyEventStore::ROM
             SRecord.new(
               event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
             ),
-          ], default_stream, :none)
+          ], default_stream, RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
         expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
@@ -227,7 +227,7 @@ module RubyEventStore::ROM
       repository = EventRepository.new
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
         expect do
-          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', RubyEventStore::Stream.new('flow'), -1)
+          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', RubyEventStore::Stream.new('flow'), RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::EventNotFound)
       end
     end
