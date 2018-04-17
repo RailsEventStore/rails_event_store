@@ -17,14 +17,6 @@ module RubyEventStore
         def delete(stream)
           event_streams.where(stream: stream.name).command(:delete).call
         end
-  
-        ### Reader interface
-  
-        def all
-          ([GLOBAL_STREAM] + event_streams.distinct.select(:stream).pluck(:stream))
-            .uniq
-            .map(&Stream.method(:new))
-        end
       end
     end
   end
