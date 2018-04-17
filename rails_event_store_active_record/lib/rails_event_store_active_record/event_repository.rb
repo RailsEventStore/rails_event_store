@@ -12,16 +12,20 @@ module RailsEventStoreActiveRecord
 
     def append_to_stream(events, stream, expected_version)
       add_to_stream(normalize_to_array(events), stream, expected_version, true) do |event|
-        build_event_record(event).save!
-        event.event_id
+        event_record = build_event_record(event)
+        event_record.save!
+        event_record.id
       end
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
-        raise RubyEventStore::EventNotFound.new(id)
+      array_ids = normalize_to_array(event_ids)
+      lookup_ids = array_ids.map(&UuidSerializer.method(:dump))
+      existing_ids = Event.where(id: lookup_ids).pluck(:id)
+      (lookup_ids - existing_ids).each do |id|
+        raise RubyEventStore::EventNotFound, UuidSerializer.load(id)
       end
-      add_to_stream(normalize_to_array(event_ids), stream, expected_version, nil) do |event_id|
+      add_to_stream(lookup_ids, stream, expected_version, nil) do |event_id|
         event_id
       end
     end
@@ -77,16 +81,20 @@ module RailsEventStoreActiveRecord
           position = compute_position(expected_version, index)
           event_id = to_event_id.call(element)
           collection = []
-          collection.unshift({
-            stream: RubyEventStore::GLOBAL_STREAM,
-            position: nil,
-            event_id: event_id,
-          }) if include_global
-          collection.unshift({
-            stream:   stream.name,
-            position: position,
-            event_id: event_id
-          }) unless stream.global?
+          if include_global
+            collection.unshift(
+              stream: RubyEventStore::GLOBAL_STREAM,
+              position: nil,
+              event_id: event_id,
+            )
+          end
+          unless stream.global?
+            collection.unshift(
+              stream: stream.name,
+              position: position,
+              event_id: event_id,
+            )
+          end
           collection
         end
         fill_ids(in_stream)
@@ -112,15 +120,15 @@ module RailsEventStoreActiveRecord
 
     def normalize_expected_version(expected_version, stream)
       case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream.name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
+      when Integer, :any
+        expected_version
+      when :none
+        -1
+      when :auto
+        eis = EventInStream.where(stream: stream.name).order("position DESC").first
+        (eis && eis.position) || -1
+      else
+        raise RubyEventStore::InvalidExpectedVersion
       end
     end
 
@@ -130,10 +138,14 @@ module RailsEventStoreActiveRecord
 
     def build_event_record(serialized_record)
       Event.new(
-        id:         serialized_record.event_id,
-        data:       serialized_record.data,
-        metadata:   serialized_record.metadata,
-        event_type: serialized_record.event_type
+        id: UuidSerializer.dump(
+                    serialized_record.event_id,
+        ),
+        serialized_data: {
+          data:     serialized_record.data,
+          metadata: serialized_record.metadata,
+        },
+        event_type: serialized_record.event_type,
       )
     end
 
