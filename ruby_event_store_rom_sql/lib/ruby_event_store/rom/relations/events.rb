@@ -10,7 +10,7 @@ module RubyEventStore
           attribute :created_at, ::ROM::Types::DateTime.default { Time.now.utc }
 
           associations do
-            has_many :stream_entries, foreign_key: :event_id
+            has_many :stream_entries
           end
         end
   
@@ -19,10 +19,6 @@ module RubyEventStore
 
         def by_pks(ids)
           where(id: ids)
-        end
-
-        def for_stream_entries(assoc, stream_entries)
-          new dataset.order(nil).join(stream_entries.dataset, event_id: :id)
         end
       end
     end

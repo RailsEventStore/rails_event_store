@@ -10,7 +10,7 @@ module RubyEventStore
           attribute :created_at, ::ROM::Types::DateTime.default { Time.now.utc }
 
           associations do
-            belongs_to :events, as: :event
+            belongs_to :events, as: :event, foreign_key: :event_id
           end
         end
   
@@ -42,7 +42,7 @@ module RubyEventStore
           order_columns = %i[position id]
           order_columns.delete(:position) if stream.global?
           
-          query = where(stream: stream.name)
+          query = by_stream(stream)
           query = query.where { id.public_send(operator, offset_entry_id) } if offset_entry_id
           query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
         end

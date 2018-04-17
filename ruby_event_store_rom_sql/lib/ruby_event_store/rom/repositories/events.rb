@@ -80,12 +80,15 @@ module RubyEventStore
           unless from.equal?(:head)
             offset_entry_id = stream_entries.by_stream_and_event_id(stream, from)[:id]
           end
-
-          events
-            .for_stream_entries(nil, stream_entries.ordered(direction, stream, offset_entry_id))
-            .limit(limit)
-            .map_with(:serialized_record_mapper)
-            .to_a
+          
+          Mappers::SerializedRecord.new.call(
+            stream_entries
+              .ordered(direction, stream, offset_entry_id)
+              .limit(limit)
+              .combine(:event)
+              .to_a
+              .map(&:event)
+          )
 
         rescue ::ROM::TupleCountMismatchError
           raise EventNotFound.new(from)
