@@ -236,15 +236,15 @@ module RubyEventStore::ROM
     end
 
     def verify_conncurency_assumptions
-      expect(rom_db.connection.pool.size).to eq(5)
+      expect(rom_db.connection.pool.size).to eq(1)
     end
 
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
-      positions = rom_db.relations[:event_streams].
-        where(stream: default_stream).
-        order("position ASC").
-        map(&:position)
+      positions = rom.relations[:event_streams].
+        where(stream: default_stream.name).
+        order(Sequel.asc(:position)).
+        map { |entity| entity[:position] }
       expect(positions).to eq((0..positions.size-1).to_a)
     end
 
