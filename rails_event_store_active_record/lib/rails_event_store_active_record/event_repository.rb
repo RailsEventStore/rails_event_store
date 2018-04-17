@@ -109,7 +109,7 @@ module RailsEventStoreActiveRecord
 
     def compute_position(resolved_version, index)
       unless resolved_version.nil?
-        expected_version + index + POSITION_SHIFT
+        resolved_version + index + POSITION_SHIFT
       end
     end
 
