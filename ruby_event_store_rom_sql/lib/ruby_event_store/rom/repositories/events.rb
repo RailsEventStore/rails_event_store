@@ -66,9 +66,7 @@ module RubyEventStore
         ### Reader interface
 
         def exist?(event_id)
-          !!events.by_pk(event_id).one!
-        rescue ::ROM::TupleCountMismatchError
-          false
+          events.by_pk(event_id).exist?
         end
   
         def by_id(event_id)
