@@ -17,12 +17,16 @@ module RubyEventStore
         # struct_namespace Entities
         # auto_struct true
 
+        def by_stream(stream)
+          where(stream: stream.name)
+        end
+
         def by_stream_and_event_id(stream, event_id)
           where(stream: stream.name, event_id: event_id).one!
         end
 
         def max_position(stream)
-          where(stream: stream.name).select(:position).order(Sequel.desc(:position)).limit(1).one
+          by_stream(stream).select(:position).order(Sequel.desc(:position)).limit(1).one
         end
 
         DIRECTION_MAP = {

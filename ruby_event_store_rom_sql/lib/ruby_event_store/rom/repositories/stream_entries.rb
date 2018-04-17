@@ -15,7 +15,7 @@ module RubyEventStore
         end
   
         def delete(stream)
-          stream_entries.where(stream: stream.name).command(:delete, result: :many).call
+          stream_entries.by_stream(stream).command(:delete, result: :many).call
         end
       end
     end
