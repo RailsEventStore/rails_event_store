@@ -68,12 +68,9 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def version_resolver(stream)
-      EventInStream.where(stream: stream.name).order("position DESC").first.try(:position)
-    end
-
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
-      resolved_version = expected_version.resolve_for(stream, method(:version_resolver))
+      last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
+      resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       ActiveRecord::Base.transaction(requires_new: true) do
         in_stream = collection.flat_map.with_index do |element, index|

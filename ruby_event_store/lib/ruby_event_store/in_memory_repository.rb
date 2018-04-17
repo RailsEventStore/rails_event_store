@@ -72,12 +72,12 @@ module RubyEventStore
       append_with_synchronize(events, expected_version, stream, include_global)
     end
 
-    def version_resolver(stream)
+    def last_stream_version(stream)
       read_stream_events_forward(stream).size - 1
     end
 
     def append_with_synchronize(events, expected_version, stream, include_global)
-      resolved_version = expected_version.resolve_for(stream, method(:version_resolver))
+      resolved_version = expected_version.resolve_for(stream, method(:last_stream_version))
 
       # expected_version :auto assumes external lock is used
       # which makes reading stream before writing safe.
@@ -88,7 +88,7 @@ module RubyEventStore
       # not for the whole read+write algorithm.
       Thread.pass
       mutex.synchronize do
-        resolved_version = version_resolver(stream) if expected_version.any?
+        resolved_version = last_stream_version(stream) if expected_version.any?
         append(events, resolved_version, stream, include_global)
       end
     end
