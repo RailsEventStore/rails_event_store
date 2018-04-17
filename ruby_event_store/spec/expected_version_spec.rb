@@ -16,6 +16,14 @@ module RubyEventStore
 
     specify { expect(ExpectedVersion.new(1).any?).to eq(false) }
 
+    specify { expect(ExpectedVersion.new(:auto).auto?).to eq(true) }
+
+    specify { expect(ExpectedVersion.new(1).auto?).to eq(false) }
+
+    specify { expect(ExpectedVersion.new(:none).none?).to eq(true) }
+
+    specify { expect(ExpectedVersion.new(1).none?).to eq(false) }
+
     specify { expect(ExpectedVersion.any.resolve_for(Stream.new(GLOBAL_STREAM))).to eq(nil) }
 
     specify { expect { ExpectedVersion.auto.resolve_for(Stream.new(GLOBAL_STREAM)) }.to raise_error(InvalidExpectedVersion) }

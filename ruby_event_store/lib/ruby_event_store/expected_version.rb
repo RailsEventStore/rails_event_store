@@ -26,6 +26,14 @@ module RubyEventStore
       version.equal?(:any)
     end
 
+    def auto?
+      version.equal?(:auto)
+    end
+
+    def none?
+      version.equal?(:none)
+    end
+
     def resolve_for(stream, resolver = Proc.new {})
       invalid_version! if stream.global? && !any?
 
