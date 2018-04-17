@@ -21,20 +21,6 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_forward(:head, 1)).to be_empty
   end
 
-  specify 'append_to_stream fail if expected version is nil' do
-    expect do
-      repository.append_to_stream(event = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.new(nil))
-    end.to raise_error(RubyEventStore::InvalidExpectedVersion)
-  end
-
-  specify 'link_to_stream fail if expected version is nil' do
-    skip unless test_link_events_to_stream
-    repository.append_to_stream(event = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.any)
-    expect do
-      repository.link_to_stream(event.event_id, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.new(nil))
-    end.to raise_error(RubyEventStore::InvalidExpectedVersion)
-  end
-
   specify 'append_to_stream returns self' do
     repository.
       append_to_stream(event = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none).
@@ -843,53 +829,6 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.append_to_stream(event, RubyEventStore::Stream.new("any"), RubyEventStore::ExpectedVersion.any)
 
     expect(repository.read_events_forward(RubyEventStore::Stream.new("all"), :head, 10)).to eq([event])
-  end
-
-  specify 'GLOBAL_STREAM is unordered, one cannot expect specific version number to work' do
-    expect {
-      event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
-      repository.append_to_stream(event, RubyEventStore::Stream.new("all"), RubyEventStore::ExpectedVersion.new(42))
-    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
-  end
-
-  specify 'GLOBAL_STREAM is unordered, one cannot expect :none to work' do
-    expect {
-      event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
-      repository.append_to_stream(event, RubyEventStore::Stream.new("all"), RubyEventStore::ExpectedVersion.none)
-    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
-  end
-
-  specify 'GLOBAL_STREAM is unordered, one cannot expect :auto to work' do
-    expect {
-      event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
-      repository.append_to_stream(event, RubyEventStore::Stream.new("all"), RubyEventStore::ExpectedVersion.auto)
-    }.to raise_error(RubyEventStore::InvalidExpectedVersion)
-  end
-
-  specify "only :none, :any, :auto and Integer allowed as expected_version" do
-    [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
-      expect {
-        repository.append_to_stream(
-          SRecord.new(event_id: SecureRandom.uuid),
-          RubyEventStore::Stream.new("some_stream"),
-          RubyEventStore::ExpectedVersion.new(invalid_expected_version)
-        )
-      }.to raise_error(RubyEventStore::InvalidExpectedVersion)
-    end
-  end
-
-  specify "only :none, :any, :auto and Integer allowed as expected_version when linking" do
-    skip unless test_link_events_to_stream
-    [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
-      repository.append_to_stream(
-        SRecord.new(event_id: evid = SecureRandom.uuid),
-        RubyEventStore::Stream.new(SecureRandom.uuid),
-        RubyEventStore::ExpectedVersion.none
-      )
-      expect {
-        repository.link_to_stream(evid, RubyEventStore::Stream.new(SecureRandom.uuid), RubyEventStore::ExpectedVersion.new(invalid_expected_version))
-      }.to raise_error(RubyEventStore::InvalidExpectedVersion)
-    end
   end
 
   specify "events not persisted if append failed" do
