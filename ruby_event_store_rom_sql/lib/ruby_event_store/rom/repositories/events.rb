@@ -66,6 +66,9 @@ module RubyEventStore
 
         def exist?(event_id)
           events.where(id: event_id).exist?
+        rescue Sequel::DatabaseError => ex
+          return false if ex.message =~ /PG::InvalidTextRepresentation.*uuid/
+          raise
         end
 
         def fetch(event_id)
