@@ -31,7 +31,7 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
-      ], RubyEventStore::Stream.new('stream'), :auto)
+      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
       expect(c1).to eq(2)
 
@@ -189,7 +189,7 @@ module RailsEventStoreActiveRecord
         repository = EventRepository.new
         repository.append_to_stream([
           SRecord.new,
-        ], RubyEventStore::Stream.new('stream'), :auto)
+        ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       end
     end
 
@@ -197,7 +197,7 @@ module RailsEventStoreActiveRecord
       repository = EventRepository.new
       repository.append_to_stream([
         event = SRecord.new(event_id: SecureRandom.uuid),
-      ], RubyEventStore::Stream.new('stream'), :none)
+      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
 
       ActiveRecord::Base.transaction do
         expect do
@@ -205,7 +205,7 @@ module RailsEventStoreActiveRecord
             SRecord.new(
               event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
             ),
-          ], RubyEventStore::Stream.new('stream'), :none)
+          ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
         expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
@@ -218,7 +218,7 @@ module RailsEventStoreActiveRecord
       repository = EventRepository.new
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
         expect do
-          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", -1)
+          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::EventNotFound)
       end
     end
@@ -235,7 +235,7 @@ module RailsEventStoreActiveRecord
     specify 'fill_ids in append_to_stream' do
       event = SRecord.new
       repository = FillInRepository.new
-      repository.append_to_stream([event], RubyEventStore::Stream.new('stream'), :any)
+      repository.append_to_stream([event], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.any)
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
       expect(EventInStream.find(987_654_322).stream).to eq(RubyEventStore::GLOBAL_STREAM)
@@ -244,7 +244,7 @@ module RailsEventStoreActiveRecord
     specify 'fill_ids in append_to_stream global' do
       event = SRecord.new
       repository = FillInRepository.new
-      repository.append_to_stream([event], RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM), :any)
+      repository.append_to_stream([event], RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM), RubyEventStore::ExpectedVersion.any)
 
       expect(EventInStream.find(987_654_321).stream).to eq(RubyEventStore::GLOBAL_STREAM)
     end
@@ -252,8 +252,8 @@ module RailsEventStoreActiveRecord
     specify 'fill_ids in link_to_stream' do
       event = SRecord.new
       repository = FillInRepository.new
-      repository.append_to_stream([event], RubyEventStore::Stream.new('stream'), :any)
-      repository.link_to_stream([event.event_id], RubyEventStore::Stream.new("whoo"), :any)
+      repository.append_to_stream([event], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.any)
+      repository.link_to_stream([event.event_id], RubyEventStore::Stream.new("whoo"), RubyEventStore::ExpectedVersion.any)
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
       expect(EventInStream.find(987_654_322).stream).to eq(RubyEventStore::GLOBAL_STREAM)

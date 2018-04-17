@@ -11,12 +11,12 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream, expected_version)
-      add_to_stream(events, ExpectedVersion.new(expected_version), stream, true)
+      add_to_stream(events, expected_version, stream, true)
     end
 
     def link_to_stream(event_ids, stream, expected_version)
       events = normalize_to_array(event_ids).map {|eid| read_event(eid)}
-      add_to_stream(events, ExpectedVersion.new(expected_version), stream, nil)
+      add_to_stream(events, expected_version, stream, nil)
     end
 
     def delete_stream(stream)
