@@ -21,22 +21,11 @@ module RubyEventStore
 
         ### Writer interface
 
-        def create(serialized_records, stream: nil, expected_version: nil)
-          events.transaction(savepoint: true) do
-            events.changeset(CreateEventsChangeset, serialized_records).commit.tap do
-              if stream
-                link(
-                  serialized_records.map(&:event_id),
-                  stream,
-                  expected_version || ExpectedVersion.any,
-                  global_stream: true
-                )
-              end
-            end
-          end
+        def create(serialized_records)
+          events.changeset(CreateEventsChangeset, serialized_records).commit
         end
 
-        def link(event_ids, stream, expected_version, global_stream: nil)
+        def link(event_ids, stream, expected_version = ExpectedVersion.any, global_stream: nil)
           (event_ids - events.by_pks(event_ids).pluck(:id)).each do |id|
             raise EventNotFound.new(id)
           end

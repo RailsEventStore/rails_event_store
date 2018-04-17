@@ -7,11 +7,13 @@ module RubyEventStore
       end
 
       def append_to_stream(events, stream, expected_version)
-        @events.create(
-          normalize_to_array(events),
-          stream: stream,
-          expected_version: expected_version
-        )
+        events = normalize_to_array(events)
+        event_ids = events.map(&:event_id)
+
+        @events.events.transaction(savepoint: true) do
+          @events.create(events)
+          @events.link(event_ids, stream, expected_version, global_stream: true)
+        end
 
         self
       rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => ex
