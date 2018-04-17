@@ -96,3 +96,27 @@ client = RailsEventStore::Client.new(
 ```
 
 This advanced option provides flexibility if you are using a separate database for RES or have other needs that require more granular configurations.
+
+## ROM migrations
+
+SQL schema migrations can be copied to your project using Rake tasks. (The ROM migrations use [Sequel]() under the hood.)
+
+Add the tasks to your `Rakefile` to import them into your project:
+
+```ruby
+# In your project Rakefile
+require 'ruby_event_store/rom/rake_task
+```
+
+Then run Rake tasks to get your database setup:
+
+```shell
+# Copy the migrations to your project
+bundle exec rake db:copy_migrations
+# <= migration file created db/migrate/20180417201709_create_ruby_event_store_tables.rb
+
+# Make sure `DATABASE_URL` is set and run the migrations
+bundle exec rake db:migrate
+```
+
+You can run `bundle exec rake -T` to get a list of all available tasks. You can also programmatically run migrations (see examples above).
