@@ -26,16 +26,12 @@ instead:
     def append_to_stream(events, stream, expected_version)
       expected_version = expected_version.version
       validate_expected_version_is_not_auto(expected_version)
-      validate_expected_version_is_any_for_global_stream(expected_version, stream)
 
       case expected_version
       when :none
         validate_stream_is_empty(stream)
-      when :any
       when Integer
         validate_expected_version_number(expected_version, stream)
-      else
-        raise RubyEventStore::InvalidExpectedVersion
       end
 
       normalize_to_array(events).each do |event|
@@ -145,10 +141,6 @@ instead:
 
     def stream_non_empty?(stream)
       LegacyEvent.where(stream: stream.name).exists?
-    end
-
-    def validate_expected_version_is_any_for_global_stream(expected_version, stream)
-      raise RubyEventStore::InvalidExpectedVersion if stream.global? && !expected_version.equal?(:any)
     end
 
     def validate_stream_is_empty(stream)
