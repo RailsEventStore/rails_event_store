@@ -5,7 +5,7 @@ require 'rom/sql'
     postgres = database_type =~ /postgres/
     sqlite   = database_type =~ /sqlite/
     
-    run 'CREATE EXTENSION pgcrypto;' if postgres
+    run 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' if postgres
 
     create_table :event_store_events_in_streams do
       primary_key :id, type: :Bignum
@@ -19,7 +19,7 @@ require 'rom/sql'
         column :event_id, String, null: false, index: true
       end
 
-      column :created_at, :datetime, null: false, index: true
+      column :created_at, DateTime, null: false, index: true
       
       index %i[stream position], unique: true
       index %i[stream event_id], unique: true
@@ -35,7 +35,7 @@ require 'rom/sql'
       column :event_type, String, null: false
       column :metadata, String, text: true
       column :data, String, text: true, null: false
-      column :created_at, :datetime, null: false, index: true
+      column :created_at, DateTime, null: false, index: true
 
       if sqlite # TODO: Is this relevant without ActiveRecord?
         index :id, unique: true
