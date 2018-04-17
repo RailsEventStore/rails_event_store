@@ -49,7 +49,7 @@ module RubyEventStore
 
           event_ids.each_with_index do |event_id, index|
             tuples << {
-              stream:   stream.name,
+              stream: stream.name,
               position: compute_position(resolved_version, index),
               event_id: event_id
             } unless stream.global?
@@ -67,6 +67,9 @@ module RubyEventStore
 
         def exist?(event_id)
           events.by_pk(event_id).exist?
+        rescue Sequel::DatabaseError => ex
+          return false if ex.message =~ /PG::InvalidTextRepresentation.*uuid/
+          raise
         end
   
         def by_id(event_id)
@@ -88,7 +91,7 @@ module RubyEventStore
           raise EventNotFound.new(from)
         end
 
-      private
+        private
 
         def compute_position(version, offset)
           version + offset + POSITION_SHIFT if version
