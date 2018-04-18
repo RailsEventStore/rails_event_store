@@ -862,14 +862,6 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(repository.read_all_streams_forward(:head, 10)).to eq([event])
   end
 
-  it 'allows reading from GLOBAL_STREAM explicitly' do
-    skip unless test_non_legacy_all_stream
-    event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
-    repository.append_to_stream(event, RubyEventStore::Stream.new("any"), RubyEventStore::ExpectedVersion.any)
-
-    expect(repository.read_events_forward(RubyEventStore::Stream.new("all"), :head, 10)).to eq([event])
-  end
-
   specify "events not persisted if append failed" do
     repository.append_to_stream([
       SRecord.new(event_id: SecureRandom.uuid),

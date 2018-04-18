@@ -21,7 +21,6 @@ module RubyEventStore::ROM
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
-    let(:test_non_legacy_all_stream) { true }
 
     let(:default_stream) { RubyEventStore::Stream.new('stream') }
     let(:global_stream) { RubyEventStore::Stream.new('all') }
