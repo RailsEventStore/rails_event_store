@@ -4,7 +4,8 @@ module RubyEventStore
       ACCEPTABLE_UUID_FORMAT = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/
 
       def initialize(rom: ROM.env)
-        @events        = Repositories::Events.new(rom)
+        @rom = rom
+        @events = Repositories::Events.new(rom)
         @stream_entries = Repositories::StreamEntries.new(rom)
       end
 
@@ -12,9 +13,9 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        @events.events.transaction(savepoint: true) do
+        @rom.gateways[:default].transaction(savepoint: true) do
           @events.create(events)
-          @events.link(event_ids, stream, expected_version, global_stream: true)
+          @stream_entries.create(event_ids, stream, expected_version, global_stream: true)
         end
 
         self
@@ -23,7 +24,7 @@ module RubyEventStore
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-        @events.link(normalize_to_array(event_ids), stream, expected_version)
+        @stream_entries.create(normalize_to_array(event_ids), stream, expected_version)
 
         self
       rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => ex

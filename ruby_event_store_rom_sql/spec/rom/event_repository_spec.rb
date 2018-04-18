@@ -75,22 +75,26 @@ module RubyEventStore::ROM
         )
       ]
       
-      events_writer = Repositories::Events.new(rom).method(:create)
-      stream_entries_writer = Repositories::StreamEntries.new(rom).method(:create)
-
-      events.each do |event|
-        events_writer.(event)
-      end
+      repo = Repositories::Events.new(rom)
       
-      stream_entries_writer.(default_stream, events[1].event_id, position: 1)
-      stream_entries_writer.(default_stream, events[0].event_id, position: 0)
-      stream_entries_writer.(default_stream, events[2].event_id, position: 2)
+      events.each(&repo.method(:create))
+
+      expect(repo.events.to_a.size).to eq(3)
+      
+      repo.stream_entries.command(:create, result: :many).call([
+        {stream: default_stream.name, event_id: events[1].event_id, position: 1},
+        {stream: default_stream.name, event_id: events[0].event_id, position: 0},
+        {stream: default_stream.name, event_id: events[2].event_id, position: 2}
+      ])
+      
+      expect(repo.stream_entries.to_a.size).to eq(3)
       
       # ActiveRecord::Schema.define do
       #   self.verbose = false
       #   remove_index :event_store_events_in_streams, [:stream, :position]
       # end
-      repository = EventRepository.new
+      repository = EventRepository.new(rom: rom)
+
       expect(repository.read_events_forward(default_stream, :head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_stream_events_forward(default_stream).map(&:event_id)).to eq([u1,u2,u3])
 
@@ -119,19 +123,22 @@ module RubyEventStore::ROM
           event_type: "TestDomainEvent"
         )
       ]
-      
-      events_writer = Repositories::Events.new(rom).method(:create)
-      stream_entries_writer = Repositories::StreamEntries.new(rom).method(:create)
 
-      events.each do |event|
-        events_writer.(event)
-      end
-
-      stream_entries_writer.(global_stream, events[0].event_id, position: 1)
-      stream_entries_writer.(global_stream, events[1].event_id, position: 0)
-      stream_entries_writer.(global_stream, events[2].event_id, position: 2)
+      repo = Repositories::Events.new(rom)
       
-      repository = EventRepository.new
+      events.each(&repo.method(:create))
+
+      expect(repo.events.to_a.size).to eq(3)
+      
+      repo.stream_entries.command(:create, result: :many).call([
+        {stream: global_stream.name, event_id: events[0].event_id, position: 1},
+        {stream: global_stream.name, event_id: events[1].event_id, position: 0},
+        {stream: global_stream.name, event_id: events[2].event_id, position: 2}
+      ])
+      
+      expect(repo.stream_entries.to_a.size).to eq(3)
+      
+      repository = EventRepository.new(rom: rom)
 
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read_events_forward(global_stream, :head, 3).map(&:event_id)).to eq([u1,u2,u3])

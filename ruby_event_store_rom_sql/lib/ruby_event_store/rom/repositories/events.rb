@@ -12,8 +12,6 @@ module RubyEventStore
           end
         end
 
-        POSITION_SHIFT = 1.freeze
-
         # relations :stream_entries
         # commands :create
         # struct_namespace Entities
@@ -23,33 +21,6 @@ module RubyEventStore
 
         def create(serialized_records)
           events.changeset(CreateEventsChangeset, serialized_records).commit
-        end
-
-        def link(event_ids, stream, expected_version = ExpectedVersion.any, global_stream: nil)
-          (event_ids - events.by_pks(event_ids).pluck(:id)).each do |id|
-            raise EventNotFound.new(id)
-          end
-
-          resolved_version = expected_version.resolve_for(stream, ->(stream) {
-            (stream_entries.max_position(stream) || {})[:position]
-          })
-
-          tuples = []
-
-          event_ids.each_with_index do |event_id, index|
-            tuples << {
-              stream: stream.name,
-              position: compute_position(resolved_version, index),
-              event_id: event_id
-            } unless stream.global?
-
-            tuples << {
-              stream: GLOBAL_STREAM,
-              event_id: event_id
-            } if global_stream
-          end
-
-          stream_entries.changeset(:create, tuples).commit
         end
 
         ### Reader interface
@@ -78,12 +49,6 @@ module RubyEventStore
 
         rescue ::ROM::TupleCountMismatchError
           raise EventNotFound.new(from)
-        end
-
-        private
-
-        def compute_position(version, offset)
-          version + offset + POSITION_SHIFT if version
         end
       end
     end
