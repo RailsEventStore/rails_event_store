@@ -26,7 +26,7 @@ module RubyEventStore
         end
 
         def max_position(stream)
-          by_stream(stream).select(:position).order(Sequel.desc(:position)).limit(1).one
+          by_stream(stream).select(:position).order(Sequel.desc(:position)).first
         end
 
         DIRECTION_MAP = {
