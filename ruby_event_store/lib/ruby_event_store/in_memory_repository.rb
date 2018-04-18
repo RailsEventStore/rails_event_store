@@ -95,12 +95,12 @@ module RubyEventStore
 
     def append(events, resolved_version, stream, include_global)
       stream_ = read_stream_events_forward(stream)
-      raise WrongExpectedEventVersion unless (stream_.size - 1).equal?(resolved_version)
+      raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
       events.each do |event|
         raise EventDuplicatedInStream if stream_.any? {|ev| ev.event_id.eql?(event.event_id)}
         if include_global
           global_stream = read_stream_events_forward(Stream.new(GLOBAL_STREAM))
-          raise EventDuplicatedInStream if global_stream.any? {|ev| ev.event_id.eql?(event.event_id)}
+          raise EventDuplicatedInStream if has_event?(event.event_id)
           global_stream.push(event)
         end
         stream_.push(event) unless stream.global?
