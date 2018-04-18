@@ -857,7 +857,7 @@ RSpec.shared_examples :event_repository do |repository_class|
 
   it 'allows appending to GLOBAL_STREAM explicitly' do
     event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
-    repository.append_to_stream(event, RubyEventStore::Stream.new("all"), RubyEventStore::ExpectedVersion.any)
+    repository.append_to_stream(event, RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM), RubyEventStore::ExpectedVersion.any)
 
     expect(repository.read_all_streams_forward(:head, 10)).to eq([event])
   end
