@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
-require 'active_support/core_ext/string/strip'
 
 module RailsEventStoreActiveRecord
   RSpec.describe LegacyEventRepository do
