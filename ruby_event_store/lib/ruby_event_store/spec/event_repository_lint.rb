@@ -644,8 +644,18 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'reads batch of events from stream forward & backward' do
-    event_ids = ["96c920b1-cdd0-40f4-907c-861b9fff7d02", "56404f79-0ba0-4aa0-8524-dc3436368ca0", "6a54dd21-f9d8-4857-a195-f5588d9e406c", "0e50a9cd-f981-4e39-93d5-697fc7285b98", "d85589bc-b993-41d4-812f-fc631d9185d5", "96bdacda-77dd-4d7d-973d-cbdaa5842855", "94688199-e6b7-4180-bf8e-825b6808e6cc", "68fab040-741e-4bc2-9cca-5b8855b0ca19", "ab60114c-011d-4d58-ab31-7ba65d99975e", "868cac42-3d19-4b39-84e8-cd32d65c2445"]
-    events = event_ids.map{|id| SRecord.new(event_id: id) }
+    events = %w[
+      96c920b1-cdd0-40f4-907c-861b9fff7d02
+      56404f79-0ba0-4aa0-8524-dc3436368ca0
+      6a54dd21-f9d8-4857-a195-f5588d9e406c
+      0e50a9cd-f981-4e39-93d5-697fc7285b98
+      d85589bc-b993-41d4-812f-fc631d9185d5
+      96bdacda-77dd-4d7d-973d-cbdaa5842855
+      94688199-e6b7-4180-bf8e-825b6808e6cc
+      68fab040-741e-4bc2-9cca-5b8855b0ca19
+      ab60114c-011d-4d58-ab31-7ba65d99975e
+      868cac42-3d19-4b39-84e8-cd32d65c2445
+    ].map { |id| SRecord.new(event_id: id) }
     repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new("other_stream"), RubyEventStore::ExpectedVersion.none)
     events.each.with_index do |event, index|
       repository.append_to_stream(event, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.new(index - 1))
@@ -665,8 +675,18 @@ RSpec.shared_examples :event_repository do |repository_class|
 
   it 'reads batch of linked events from stream forward & backward' do
     skip unless test_link_events_to_stream
-    event_ids = ["96c920b1-cdd0-40f4-907c-861b9fff7d02", "56404f79-0ba0-4aa0-8524-dc3436368ca0", "6a54dd21-f9d8-4857-a195-f5588d9e406c", "0e50a9cd-f981-4e39-93d5-697fc7285b98", "d85589bc-b993-41d4-812f-fc631d9185d5", "96bdacda-77dd-4d7d-973d-cbdaa5842855", "94688199-e6b7-4180-bf8e-825b6808e6cc", "68fab040-741e-4bc2-9cca-5b8855b0ca19", "ab60114c-011d-4d58-ab31-7ba65d99975e", "868cac42-3d19-4b39-84e8-cd32d65c2445"]
-    events = event_ids.map{|id| SRecord.new(event_id: id) }
+    events = %w[
+      96c920b1-cdd0-40f4-907c-861b9fff7d02
+      56404f79-0ba0-4aa0-8524-dc3436368ca0
+      6a54dd21-f9d8-4857-a195-f5588d9e406c
+      0e50a9cd-f981-4e39-93d5-697fc7285b98
+      d85589bc-b993-41d4-812f-fc631d9185d5
+      96bdacda-77dd-4d7d-973d-cbdaa5842855
+      94688199-e6b7-4180-bf8e-825b6808e6cc
+      68fab040-741e-4bc2-9cca-5b8855b0ca19
+      ab60114c-011d-4d58-ab31-7ba65d99975e
+      868cac42-3d19-4b39-84e8-cd32d65c2445
+    ].map { |id| SRecord.new(event_id: id) }
     repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new("other_stream"), RubyEventStore::ExpectedVersion.none)
     events.each.with_index do |event, index|
       repository.
@@ -720,8 +740,18 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'reads batch of events from all streams forward & backward' do
-    event_ids = ["96c920b1-cdd0-40f4-907c-861b9fff7d02", "56404f79-0ba0-4aa0-8524-dc3436368ca0", "6a54dd21-f9d8-4857-a195-f5588d9e406c", "0e50a9cd-f981-4e39-93d5-697fc7285b98", "d85589bc-b993-41d4-812f-fc631d9185d5", "96bdacda-77dd-4d7d-973d-cbdaa5842855", "94688199-e6b7-4180-bf8e-825b6808e6cc", "68fab040-741e-4bc2-9cca-5b8855b0ca19", "ab60114c-011d-4d58-ab31-7ba65d99975e", "868cac42-3d19-4b39-84e8-cd32d65c2445"]
-    events = event_ids.map{|id| SRecord.new(event_id: id) }
+    events = %w[
+      96c920b1-cdd0-40f4-907c-861b9fff7d02
+      56404f79-0ba0-4aa0-8524-dc3436368ca0
+      6a54dd21-f9d8-4857-a195-f5588d9e406c
+      0e50a9cd-f981-4e39-93d5-697fc7285b98
+      d85589bc-b993-41d4-812f-fc631d9185d5
+      96bdacda-77dd-4d7d-973d-cbdaa5842855
+      94688199-e6b7-4180-bf8e-825b6808e6cc
+      68fab040-741e-4bc2-9cca-5b8855b0ca19
+      ab60114c-011d-4d58-ab31-7ba65d99975e
+      868cac42-3d19-4b39-84e8-cd32d65c2445
+    ].map { |id| SRecord.new(event_id: id) }
     events.each do |ev|
       repository.append_to_stream(ev, RubyEventStore::Stream.new(SecureRandom.uuid), RubyEventStore::ExpectedVersion.none)
     end
@@ -739,8 +769,18 @@ RSpec.shared_examples :event_repository do |repository_class|
 
   it 'linked events do not affect reading from all streams - no duplicates' do
     skip unless test_link_events_to_stream
-    event_ids = ["96c920b1-cdd0-40f4-907c-861b9fff7d02", "56404f79-0ba0-4aa0-8524-dc3436368ca0", "6a54dd21-f9d8-4857-a195-f5588d9e406c", "0e50a9cd-f981-4e39-93d5-697fc7285b98", "d85589bc-b993-41d4-812f-fc631d9185d5", "96bdacda-77dd-4d7d-973d-cbdaa5842855", "94688199-e6b7-4180-bf8e-825b6808e6cc", "68fab040-741e-4bc2-9cca-5b8855b0ca19", "ab60114c-011d-4d58-ab31-7ba65d99975e", "868cac42-3d19-4b39-84e8-cd32d65c2445"]
-    events = event_ids.map{|id| SRecord.new(event_id: id) }
+    events = %w[
+      96c920b1-cdd0-40f4-907c-861b9fff7d02
+      56404f79-0ba0-4aa0-8524-dc3436368ca0
+      6a54dd21-f9d8-4857-a195-f5588d9e406c
+      0e50a9cd-f981-4e39-93d5-697fc7285b98
+      d85589bc-b993-41d4-812f-fc631d9185d5
+      96bdacda-77dd-4d7d-973d-cbdaa5842855
+      94688199-e6b7-4180-bf8e-825b6808e6cc
+      68fab040-741e-4bc2-9cca-5b8855b0ca19
+      ab60114c-011d-4d58-ab31-7ba65d99975e
+      868cac42-3d19-4b39-84e8-cd32d65c2445
+    ].map { |id| SRecord.new(event_id: id) }
     events.each do |ev|
       repository.
         append_to_stream(ev, RubyEventStore::Stream.new(SecureRandom.uuid), RubyEventStore::ExpectedVersion.none).
@@ -759,11 +799,10 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   it 'reads events different uuid object but same content' do
-    event_ids = [
-      "96c920b1-cdd0-40f4-907c-861b9fff7d02",
-      "56404f79-0ba0-4aa0-8524-dc3436368ca0"
-    ]
-    events = event_ids.map{|id| SRecord.new(event_id: id) }
+    events = %w[
+      96c920b1-cdd0-40f4-907c-861b9fff7d02
+      56404f79-0ba0-4aa0-8524-dc3436368ca0
+    ].map{|id| SRecord.new(event_id: id) }
     repository.append_to_stream(events.first, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
     repository.append_to_stream(events.last,  RubyEventStore::Stream.new('stream'),  RubyEventStore::ExpectedVersion.new(0))
 
