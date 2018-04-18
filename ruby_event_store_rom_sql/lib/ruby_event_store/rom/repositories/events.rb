@@ -15,10 +15,12 @@ module RubyEventStore
         end
 
         def create(serialized_records)
-          events.changeset(CreateEventsChangeset, serialized_records).commit
+          create_changeset(serialized_records).commit
         end
 
-        ### Reader interface
+        def create_changeset(serialized_records)
+          events.changeset(CreateEventsChangeset, serialized_records)
+        end
 
         def find_nonexistent_pks(event_ids)
           event_ids - events.by_pks(event_ids).pluck(:id)
@@ -38,11 +40,11 @@ module RubyEventStore
           end
           
           stream_entries
-          .ordered(direction, stream, offset_entry_id)
-          .limit(limit)
-          .combine(:event)
-          .map_with(:stream_entry_to_serialized_record)
-          .to_a
+            .ordered(direction, stream, offset_entry_id)
+            .limit(limit)
+            .combine(:event)
+            .map_with(:stream_entry_to_serialized_record)
+            .to_a
         end
       end
     end

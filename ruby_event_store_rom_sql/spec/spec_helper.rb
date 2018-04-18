@@ -17,6 +17,7 @@ rom = ROM::Configuration.new(
   preconnect: :concurrently
 )
 rom.default.run_migrations
+# rom.default.use_logger Logger.new(STDOUT)
 
 RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom)
 

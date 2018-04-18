@@ -1,4 +1,5 @@
 require 'ruby_event_store/index_violation_detector'
+require 'ruby_event_store/rom/unit_of_work'
 
 module RubyEventStore
   module ROM
@@ -13,9 +14,9 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        @rom.gateways[:default].transaction(savepoint: true) do
-          @events.create(events)
-          @stream_entries.create(event_ids, stream, expected_version, global_stream: true)
+        UnitOfWork.perform(rom: @rom) do |session|
+          session << @events.create_changeset(events)
+          session << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
         end
 
         self

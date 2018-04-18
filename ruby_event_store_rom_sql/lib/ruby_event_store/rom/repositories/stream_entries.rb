@@ -6,7 +6,11 @@ module RubyEventStore
       class StreamEntries < ::ROM::Repository[:stream_entries]
         POSITION_SHIFT = 1.freeze
 
-        def create(event_ids, stream, expected_version = ExpectedVersion.any, global_stream: nil)
+        def create(*args, **kwargs)
+          create_changeset(*args, **kwargs).commit
+        end
+
+        def create_changeset(event_ids, stream, expected_version = ExpectedVersion.any, global_stream: nil)
           resolved_version = expected_version.resolve_for(stream, ->(stream) {
             (stream_entries.max_position(stream) || {})[:position]
           })
@@ -26,11 +30,15 @@ module RubyEventStore
             } if global_stream
           end
 
-          stream_entries.changeset(:create, tuples).commit
+          stream_entries.changeset(:create, tuples)
         end
 
         def delete(stream)
-          stream_entries.by_stream(stream).command(:delete, result: :many).call
+          delete_changeset(stream).commit
+        end
+
+        def delete_changeset(stream)
+          stream_entries.by_stream(stream).changeset(:delete)
         end
       end
     end
