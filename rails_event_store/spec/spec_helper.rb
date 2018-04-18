@@ -20,3 +20,6 @@ RSpec.configure do |config|
     example.run
   end
 end
+
+$verbose = ENV.has_key?('VERBOSE') ? true : false
+ActiveJob::Base.logger = nil unless $verbose
