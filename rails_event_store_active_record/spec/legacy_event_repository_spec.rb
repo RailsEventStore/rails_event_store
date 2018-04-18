@@ -77,9 +77,16 @@ module RailsEventStoreActiveRecord
       repository.delete_stream(RubyEventStore::Stream.new('stream'))
       expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('stream'))).to be_empty
       expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('other_stream'))).to eq([e2])
-
       expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
-      expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('all'))).to eq([e1])
+    end
+
+    specify 'active record is drunk' do
+      repository = LegacyEventRepository.new
+      repository.append_to_stream(e1 = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+
+      expect_query(/UPDATE.*event_store_events.*SET.*stream.* = 'all'.*/) do
+        repository.delete_stream(RubyEventStore::Stream.new('stream'))
+      end
     end
 
     specify do
