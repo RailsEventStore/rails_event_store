@@ -22,7 +22,7 @@ module RubyEventStore
           event_ids.each_with_index do |event_id, index|
             tuples << {
               stream: stream.name,
-              position: compute_position(resolved_version, index),
+              position: resolved_version && resolved_version + index + POSITION_SHIFT,
               event_id: event_id
             } unless stream.global?
 
@@ -37,12 +37,6 @@ module RubyEventStore
 
         def delete(stream)
           stream_entries.by_stream(stream).command(:delete, result: :many).call
-        end
-
-        private
-
-        def compute_position(version, offset)
-          version + offset + POSITION_SHIFT if version
         end
       end
     end
