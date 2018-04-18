@@ -14,9 +14,6 @@ module RubyEventStore
           end
         end
   
-        # struct_namespace Entities
-        # auto_struct true
-
         def by_pks(ids)
           where(id: ids)
         end

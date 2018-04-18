@@ -4,10 +4,6 @@ module RubyEventStore
   module ROM
     module Repositories
       class StreamEntries < ::ROM::Repository[:stream_entries]
-        # struct_namespace Entities
-
-        ### Writer interface
-
         POSITION_SHIFT = 1.freeze
 
         def create(event_ids, stream, expected_version = ExpectedVersion.any, global_stream: nil)

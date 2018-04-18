@@ -14,13 +14,6 @@ module RubyEventStore
           end
         end
 
-        # relations :stream_entries
-        # commands :create
-        # struct_namespace Entities
-        # auto_struct false
-
-        ### Writer interface
-
         def create(serialized_records)
           events.changeset(CreateEventsChangeset, serialized_records).commit
         end

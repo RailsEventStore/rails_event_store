@@ -3,8 +3,6 @@ require 'ruby_event_store/index_violation_detector'
 module RubyEventStore
   module ROM
     class EventRepository
-      ACCEPTABLE_UUID_FORMAT = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/
-
       def initialize(rom: ROM.env)
         @rom = rom
         @events = Repositories::Events.new(rom)
@@ -43,7 +41,6 @@ module RubyEventStore
       end
 
       def has_event?(event_id)
-        return false unless event_id =~ ACCEPTABLE_UUID_FORMAT
         @events.exist?(event_id)
       rescue => ex
         handle_not_found_errors(ex, event_id) rescue EventNotFound; false
