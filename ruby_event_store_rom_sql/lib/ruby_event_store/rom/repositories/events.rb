@@ -56,9 +56,6 @@ module RubyEventStore
 
         def exist?(event_id)
           events.by_pk(event_id).exist?
-        rescue Sequel::DatabaseError => ex
-          return false if ex.message =~ /PG::InvalidTextRepresentation.*uuid/
-          raise
         end
   
         def by_id(event_id)
