@@ -25,6 +25,10 @@ module RubyEventStore
 
         ### Reader interface
 
+        def find_nonexistent_pks(event_ids)
+          event_ids - events.by_pks(event_ids).pluck(:id)
+        end
+
         def exist?(event_id)
           events.by_pk(event_id).exist?
         end

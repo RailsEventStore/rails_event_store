@@ -1,3 +1,5 @@
+require_relative '../mappers/stream_entry_to_serialized_record'
+
 module RubyEventStore
   module ROM
     module Repositories
@@ -9,10 +11,6 @@ module RubyEventStore
         POSITION_SHIFT = 1.freeze
 
         def create(event_ids, stream, expected_version = ExpectedVersion.any, global_stream: nil)
-          (event_ids - events.by_pks(event_ids).pluck(:id)).each do |id|
-            raise EventNotFound.new(id)
-          end
-
           resolved_version = expected_version.resolve_for(stream, ->(stream) {
             (stream_entries.max_position(stream) || {})[:position]
           })
