@@ -1,3 +1,5 @@
+require_relative '../mappers/event_to_serialized_record'
+
 module RubyEventStore
   module ROM
     module Repositories
@@ -34,7 +36,7 @@ module RubyEventStore
         end
   
         def by_id(event_id)
-          events.map_with(:serialized_record_mapper).by_pk(event_id).one!
+          events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
         def read(direction, stream, from: :head, limit: nil)
@@ -42,17 +44,12 @@ module RubyEventStore
             offset_entry_id = stream_entries.by_stream_and_event_id(stream, from)[:id]
           end
           
-          Mappers::SerializedRecord.new.call(
-            stream_entries
-              .ordered(direction, stream, offset_entry_id)
-              .limit(limit)
-              .combine(:event)
-              .to_a
-              .map(&:event)
-          )
-
-        rescue ::ROM::TupleCountMismatchError
-          raise EventNotFound.new(from)
+          stream_entries
+          .ordered(direction, stream, offset_entry_id)
+          .limit(limit)
+          .combine(:event)
+          .map_with(:stream_entry_to_serialized_record)
+          .to_a
         end
       end
     end

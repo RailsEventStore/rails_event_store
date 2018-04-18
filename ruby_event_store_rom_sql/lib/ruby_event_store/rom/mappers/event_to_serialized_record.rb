@@ -3,9 +3,9 @@ require 'rom/transformer'
 module RubyEventStore
   module ROM
     module Mappers
-      class SerializedRecord < ::ROM::Transformer
+      class EventToSerializedRecord < ::ROM::Transformer
         relation :events
-        register_as :serialized_record_mapper
+        register_as :event_to_serialized_record
       
         map_array do
           rename_keys id: :event_id

@@ -3,7 +3,6 @@ require 'rom-changeset'
 require 'rom-mapper'
 require 'rom-repository'
 require 'ruby_event_store'
-require 'ruby_event_store/index_violation_detector'
 require 'ruby_event_store/rom/event_repository'
 require 'ruby_event_store/rom/version'
 
@@ -32,16 +31,16 @@ module RubyEventStore
   
       # ROM::Configuration
       def apply_defaults(config)
-        require_relative 'rom/mappers/serialized_record'
         require_relative 'rom/relations/stream_entries'
         require_relative 'rom/relations/events'
         require_relative 'rom/repositories/stream_entries'
         require_relative 'rom/repositories/events'
         
         config.register_relation(ROM::Relations::Events)
+        config.register_mapper(ROM::Mappers::EventToSerializedRecord)
+
         config.register_relation(ROM::Relations::StreamEntries)
-  
-        config.register_mapper(ROM::Mappers::SerializedRecord)
+        config.register_mapper(ROM::Mappers::StreamEntryToSerializedRecord)
       end
   
       def run_migrations_for(gateway)
