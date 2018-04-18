@@ -3,6 +3,8 @@ require 'support/rspec_defaults'
 require 'support/mutant_timeout'
 require 'rails'
 
+$verbose = ENV.has_key?('VERBOSE') ? true : false
+
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 

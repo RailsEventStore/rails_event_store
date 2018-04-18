@@ -28,7 +28,7 @@ RSpec.describe RailsEventStoreActiveRecord do
     process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
     process.environment['DATABASE_URL']   = ENV['DATABASE_URL']
     process.environment['RAILS_VERSION']  = ENV['RAILS_VERSION']
-    process.environment['VERBOSE'] = 'true'
+    process.environment['VERBOSE'] = 'true' if $verbose
     process.cwd = cwd
     process.io.stdout = $stdout
     process.io.stderr = $stderr
