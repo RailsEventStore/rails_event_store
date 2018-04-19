@@ -35,11 +35,19 @@ module RailsEventStore
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       event_store.publish_events(events, stream_name: "dummy")
-      get "/res/streams/dummy"
+      event_store.publish_events([DummyEvent.new])
 
+      get "/res/streams/dummy"
       expect(parsed_body["links"]).to eq({
         "last"  => "http://www.example.com/res/streams/dummy/head/forward/20",
-        "next"  => "http://www.example.com/res/streams/dummy/#{first_page.last.event_id}/backward/20"
+        "next"  => "http://www.example.com/res/streams/dummy/#{first_page[19].event_id}/backward/20"
+      })
+      expect(parsed_body["data"].size).to eq(20)
+
+      get "/res/streams/all"
+      expect(parsed_body["links"]).to eq({
+        "last"  => "http://www.example.com/res/streams/all/head/forward/20",
+        "next"  => "http://www.example.com/res/streams/all/#{first_page[18].event_id}/backward/20"
       })
       expect(parsed_body["data"].size).to eq(20)
     end
@@ -75,12 +83,22 @@ module RailsEventStore
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       last_page  = events.reverse.drop(20)
+      event_store.publish_events([DummyEvent.new])
       event_store.publish_events(events, stream_name: "dummy")
-      get "/res/streams/dummy/#{first_page.last.event_id}/backward/20"
 
+      get "/res/streams/dummy/#{first_page.last.event_id}/backward/20"
       expect(parsed_body["links"]).to eq({
         "first" => "http://www.example.com/res/streams/dummy/head/backward/20",
         "prev"  => "http://www.example.com/res/streams/dummy/#{last_page.first.event_id}/forward/20" ,
+      })
+      expect(parsed_body["data"].size).to eq(20)
+
+      get "/res/streams/all/#{first_page.last.event_id}/backward/20"
+      expect(parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/res/streams/all/head/backward/20",
+        "last"  => "http://www.example.com/res/streams/all/head/forward/20",
+        "next"  => "http://www.example.com/res/streams/all/#{last_page.last.event_id}/backward/20",
+        "prev"  => "http://www.example.com/res/streams/all/#{last_page.first.event_id}/forward/20" ,
       })
       expect(parsed_body["data"].size).to eq(20)
     end
