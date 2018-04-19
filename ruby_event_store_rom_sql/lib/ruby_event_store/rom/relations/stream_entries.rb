@@ -7,7 +7,6 @@ module RubyEventStore
           attribute :stream, ::ROM::Types::String
           attribute :position, ::ROM::Types::Int.optional
           attribute :event_id, ::ROM::Types::String.meta(foreign_key: true, relation: :events)
-          attribute :created_at, ::ROM::Types::DateTime.default { Time.now.utc }
 
           associations do
             belongs_to :events, as: :event, foreign_key: :event_id

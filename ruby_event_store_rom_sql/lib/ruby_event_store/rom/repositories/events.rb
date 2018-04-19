@@ -4,13 +4,14 @@ module RubyEventStore
   module ROM
     module Repositories
       class Events < ::ROM::Repository[:events]
-        class CreateEventsChangeset < ::ROM::Changeset::Create
+        class Create < ::ROM::Changeset::Create
           # Convert to Hash
           map(&:to_h)
 
           map do
             rename_keys event_id: :id
             accept_keys %i[id data metadata event_type]
+            add_timestamps
           end
         end
 
@@ -19,7 +20,7 @@ module RubyEventStore
         end
 
         def create_changeset(serialized_records)
-          events.changeset(CreateEventsChangeset, serialized_records)
+          events.changeset(Create, serialized_records)
         end
 
         def find_nonexistent_pks(event_ids)

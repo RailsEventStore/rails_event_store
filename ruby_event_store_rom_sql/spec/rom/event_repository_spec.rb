@@ -104,11 +104,11 @@ module RubyEventStore::ROM
 
       expect(repo.events.to_a.size).to eq(3)
       
-      repo.stream_entries.command(:create, result: :many).call([
+      repo.stream_entries.changeset(Repositories::StreamEntries::Create, [
         {stream: default_stream.name, event_id: events[1].event_id, position: 1},
         {stream: default_stream.name, event_id: events[0].event_id, position: 0},
         {stream: default_stream.name, event_id: events[2].event_id, position: 2}
-      ])
+      ]).commit
       
       expect(repo.stream_entries.to_a.size).to eq(3)
       
@@ -153,11 +153,11 @@ module RubyEventStore::ROM
 
       expect(repo.events.to_a.size).to eq(3)
       
-      repo.stream_entries.command(:create, result: :many).call([
+      repo.stream_entries.changeset(Repositories::StreamEntries::Create, [
         {stream: global_stream.name, event_id: events[0].event_id, position: 1},
         {stream: global_stream.name, event_id: events[1].event_id, position: 0},
         {stream: global_stream.name, event_id: events[2].event_id, position: 2}
-      ])
+      ]).commit
       
       expect(repo.stream_entries.to_a.size).to eq(3)
       
