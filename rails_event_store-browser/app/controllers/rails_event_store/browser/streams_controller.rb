@@ -2,19 +2,31 @@ module RailsEventStore
   module Browser
     class StreamsController < ApplicationController
       def show
-        links  = {}
-        events = case direction
-        when :forward
-          event_store
-            .read_events_forward(stream_name, start: position, count: count)
-            .reverse
-        when :backward
-          event_store
-            .read_events_backward(stream_name, start: position, count: count)
-        end
+        links = {}
+        events =
+          case direction
+          when :forward
+            if stream_name.eql?(GLOBAL_STREAM)
+              event_store
+                .read_all_streams_forward(start: position, count: count)
+                .reverse
+            else
+              event_store
+                .read_events_forward(stream_name, start: position, count: count)
+                .reverse
+            end
+          when :backward
+            if stream_name.eql?(GLOBAL_STREAM)
+              event_store
+                .read_all_streams_backward(start: position, count: count)
+            else
+              event_store
+                .read_events_backward(stream_name, start: position, count: count)
+            end
+          end
 
         if prev_event?(events)
-          links[:prev]  = prev_page_link(events.first.event_id)
+          links[:prev] = prev_page_link(events.first.event_id)
           links[:first] = first_page_link
         end
 
@@ -33,12 +45,20 @@ module RailsEventStore
 
       def next_event?(events)
         return if events.empty?
-        event_store.read_events_backward(stream_name, start: events.last.event_id).present?
+        if stream_name.eql?(GLOBAL_STREAM)
+          event_store.read_all_streams_backward(start: events.last.event_id).present?
+        else
+          event_store.read_events_backward(stream_name, start: events.last.event_id).present?
+        end
       end
 
       def prev_event?(events)
         return if events.empty?
-        event_store.read_events_forward(stream_name, start: events.first.event_id).present?
+        if stream_name.eql?(GLOBAL_STREAM)
+          event_store.read_all_streams_forward(start: events.first.event_id).present?
+        else
+          event_store.read_events_forward(stream_name, start: events.first.event_id).present?
+        end
       end
 
       def prev_page_link(event_id)
@@ -46,7 +66,7 @@ module RailsEventStore
       end
 
       def next_page_link(event_id)
-        stream_url(position: event_id,  direction: :backward, count: count)
+        stream_url(position: event_id, direction: :backward, count: count)
       end
 
       def first_page_link
