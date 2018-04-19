@@ -236,6 +236,7 @@ module RubyEventStore::ROM
     end
 
     def verify_conncurency_assumptions
+      expect(rom_db.connection.pool.max_size).to eq(5)
       expect(rom_db.connection.pool.size).to eq(5)
     end
 
