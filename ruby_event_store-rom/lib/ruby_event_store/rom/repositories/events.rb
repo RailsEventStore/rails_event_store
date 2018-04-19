@@ -11,6 +11,7 @@ module RubyEventStore
           map do
             rename_keys event_id: :id
             accept_keys %i[id data metadata event_type]
+            add_timestamps
           end
 
           map do |tuple|
