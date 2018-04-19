@@ -6,23 +6,9 @@ module RailsEventStore
         events =
           case direction
           when :forward
-            if stream_name.eql?(GLOBAL_STREAM)
-              event_store
-                .read_all_streams_forward(start: position, count: count)
-                .reverse
-            else
-              event_store
-                .read_events_forward(stream_name, start: position, count: count)
-                .reverse
-            end
+            events_forward(position).reverse
           when :backward
-            if stream_name.eql?(GLOBAL_STREAM)
-              event_store
-                .read_all_streams_backward(start: position, count: count)
-            else
-              event_store
-                .read_events_backward(stream_name, start: position, count: count)
-            end
+            events_backward(position)
           end
 
         if prev_event?(events)
@@ -43,22 +29,30 @@ module RailsEventStore
 
       private
 
+      def events_forward(start)
+        if stream_name.eql?(GLOBAL_STREAM)
+          event_store.read_all_streams_forward(start: start, count: count)
+        else
+          event_store.read_events_forward(stream_name, start: start, count: count)
+        end
+      end
+
+      def events_backward(start)
+        if stream_name.eql?(GLOBAL_STREAM)
+          event_store.read_all_streams_backward(start: start, count: count)
+        else
+          event_store.read_events_backward(stream_name, start: start, count: count)
+        end
+      end
+
       def next_event?(events)
         return if events.empty?
-        if stream_name.eql?(GLOBAL_STREAM)
-          event_store.read_all_streams_backward(start: events.last.event_id).present?
-        else
-          event_store.read_events_backward(stream_name, start: events.last.event_id).present?
-        end
+        events_backward(events.last.event_id).present?
       end
 
       def prev_event?(events)
         return if events.empty?
-        if stream_name.eql?(GLOBAL_STREAM)
-          event_store.read_all_streams_forward(start: events.first.event_id).present?
-        else
-          event_store.read_events_forward(stream_name, start: events.first.event_id).present?
-        end
+        events_forward(events.first.event_id).present?
       end
 
       def prev_page_link(event_id)
