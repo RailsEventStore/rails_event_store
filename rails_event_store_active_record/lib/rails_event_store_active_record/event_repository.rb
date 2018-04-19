@@ -2,7 +2,6 @@ require 'activerecord-import'
 
 module RailsEventStoreActiveRecord
   class EventRepository
-
     POSITION_SHIFT = 1
 
     def initialize
@@ -39,18 +38,22 @@ module RailsEventStoreActiveRecord
     end
 
     def read_events_forward(stream, after_event_id, count)
+      raise ReservedInternalName if stream.name.eql?("all")
       @repo_reader.read_events_forward(stream, after_event_id, count)
     end
 
     def read_events_backward(stream, before_event_id, count)
+      raise ReservedInternalName if stream.name.eql?("all")
       @repo_reader.read_events_backward(stream, before_event_id, count)
     end
 
     def read_stream_events_forward(stream)
+      raise ReservedInternalName if stream.name.eql?("all")
       @repo_reader.read_stream_events_forward(stream)
     end
 
     def read_stream_events_backward(stream)
+      raise ReservedInternalName if stream.name.eql?("all")
       @repo_reader.read_stream_events_backward(stream)
     end
 

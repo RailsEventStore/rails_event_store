@@ -25,6 +25,21 @@ module RailsEventStoreActiveRecord
 
     it_behaves_like :event_repository, EventRepository
 
+    specify "all considered internal detail" do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        [event = SRecord.new],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      reserved_stream = RubyEventStore::Stream.new("all")
+
+      expect{ repository.read_stream_events_forward(reserved_stream) }.to raise_error(ReservedInternalName)
+      expect{ repository.read_stream_events_backward(reserved_stream) }.to raise_error(ReservedInternalName)
+      expect{ repository.read_events_forward(reserved_stream, :head, 5) }.to raise_error(ReservedInternalName)
+      expect{ repository.read_events_backward(reserved_stream, :head, 5) }.to raise_error(ReservedInternalName)
+    end
+
     specify "using preload()" do
       repository = EventRepository.new
       repository.append_to_stream([

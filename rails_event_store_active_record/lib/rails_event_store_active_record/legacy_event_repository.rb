@@ -55,6 +55,8 @@ instead:
     end
 
     def read_events_forward(stream, start_event_id, count)
+      raise ReservedInternalName if stream.name.eql?("all")
+
       events = LegacyEvent.where(stream: stream.name)
       unless start_event_id.equal?(:head)
         starting_event = LegacyEvent.find_by(event_id: start_event_id)
@@ -66,6 +68,8 @@ instead:
     end
 
     def read_events_backward(stream, start_event_id, count)
+      raise ReservedInternalName if stream.name.eql?("all")
+
       events = LegacyEvent.where(stream: stream.name)
       unless start_event_id.equal?(:head)
         starting_event = LegacyEvent.find_by(event_id: start_event_id)
@@ -77,11 +81,15 @@ instead:
     end
 
     def read_stream_events_forward(stream)
+      raise ReservedInternalName if stream.name.eql?("all")
+
       LegacyEvent.where(stream: stream.name).order('id ASC')
         .map(&method(:build_event_entity))
     end
 
     def read_stream_events_backward(stream)
+      raise ReservedInternalName if stream.name.eql?("all")
+
       LegacyEvent.where(stream: stream.name).order('id DESC')
         .map(&method(:build_event_entity))
     end
