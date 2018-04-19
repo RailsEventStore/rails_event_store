@@ -1,25 +1,22 @@
-require 'yaml'
-
 module RubyEventStore
   module ROM
     module Relations
       class Events < ::ROM::Relation[:sql]
         schema(:event_store_events, as: :events, infer: true) do
-          attribute :id, ::ROM::Types::String
+          attribute :id, ::ROM::Types::String.meta(primary_key: true)
           attribute :event_type, ::ROM::Types::String
           attribute :metadata, ::ROM::Types::String.optional
           attribute :data, ::ROM::Types::String
           attribute :created_at, ::ROM::Types::DateTime.default { Time.now.utc }
 
-          primary_key :id
-    
           associations do
-            has_many :event_streams, foreign_key: :event_id
+            has_many :stream_entries
           end
         end
   
-        # struct_namespace Entities
-        # auto_struct true
+        def by_pks(ids)
+          where(id: ids)
+        end
       end
     end
   end

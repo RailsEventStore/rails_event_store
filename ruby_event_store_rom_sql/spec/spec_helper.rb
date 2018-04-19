@@ -10,13 +10,14 @@ end
 
 ENV['DATABASE_URL']  ||= 'sqlite:db.sqlite3'
 
-rom = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
-# # See: https://github.com/rom-rb/rom-sql/blob/master/spec/unit/relation/instrument_spec.rb
-# rom.plugin(:sql, relations: :instrumentation) do |c|
-#   c.notifications = Instrumenter
-# end
-
+rom = ROM::Configuration.new(
+  :sql,
+  ENV['DATABASE_URL'],
+  max_connections: ENV['DATABASE_URL'] =~ /sqlite/ ? 1 : 5,
+  preconnect: :concurrently
+)
 rom.default.run_migrations
+# rom.default.use_logger Logger.new(STDOUT)
 
 RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom)
 
@@ -30,6 +31,9 @@ module SchemaHelper
   end
 
   def establish_database_connection
+    # Manually preconnect because disconnecting and reconnecting
+    # seems to lose the "preconnect concurrently" setting
+    rom_db.connection.pool.send(:preconnect, true)
   end
 
   def load_database_schema
