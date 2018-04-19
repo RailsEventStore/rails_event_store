@@ -236,7 +236,7 @@ module RubyEventStore::ROM
     end
 
     def verify_conncurency_assumptions
-      expect(rom_db.connection.pool.size).to eq(1)
+      expect(rom_db.connection.pool.size).to eq(5)
     end
 
     # TODO: Port from AR to ROM

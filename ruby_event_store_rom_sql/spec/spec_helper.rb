@@ -10,12 +10,12 @@ end
 
 ENV['DATABASE_URL']  ||= 'sqlite:db.sqlite3'
 
-rom = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
-# # See: https://github.com/rom-rb/rom-sql/blob/master/spec/unit/relation/instrument_spec.rb
-# rom.plugin(:sql, relations: :instrumentation) do |c|
-#   c.notifications = Instrumenter
-# end
-
+rom = ROM::Configuration.new(
+  :sql,
+  ENV['DATABASE_URL'], {
+  max_connections: 5,
+  preconnect: 'concurrently'
+})
 rom.default.run_migrations
 
 RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom)
