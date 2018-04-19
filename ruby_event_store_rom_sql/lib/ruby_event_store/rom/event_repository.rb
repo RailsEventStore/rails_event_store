@@ -1,4 +1,4 @@
-require 'ruby_event_store/index_violation_detector'
+require 'ruby_event_store/rom/sql/index_violation_detector'
 require 'ruby_event_store/rom/unit_of_work'
 
 module RubyEventStore

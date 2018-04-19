@@ -1,3 +1,4 @@
+require 'ruby_event_store/rom'
 
 desc 'Setup ROM EventRespository environment'
 task 'db:setup' do

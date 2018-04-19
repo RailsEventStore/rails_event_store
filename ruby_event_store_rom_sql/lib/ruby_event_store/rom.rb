@@ -31,20 +31,11 @@ module RubyEventStore
   
       # ROM::Configuration
       def apply_defaults(config)
-        require_relative 'rom/relations/stream_entries'
-        require_relative 'rom/relations/events'
         require_relative 'rom/repositories/stream_entries'
         require_relative 'rom/repositories/events'
         
-        config.register_relation(ROM::Relations::Events)
         config.register_mapper(ROM::Mappers::EventToSerializedRecord)
-
-        config.register_relation(ROM::Relations::StreamEntries)
         config.register_mapper(ROM::Mappers::StreamEntryToSerializedRecord)
-      end
-  
-      def run_migrations_for(gateway)
-        gateway.run_migrations(path: File.expand_path('../../db/migrate', File.dirname(__FILE__)))
       end
     end
   end

@@ -8,7 +8,8 @@ begin
 rescue LoadError
 end
 
-ENV['DATABASE_URL']  ||= 'sqlite:db.sqlite3'
+ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
+ENV['ROM_ADAPTER'] ||= 'SQL'
 
 rom = ROM::Configuration.new(
   :sql,
@@ -19,7 +20,12 @@ rom = ROM::Configuration.new(
 rom.default.run_migrations
 # rom.default.use_logger Logger.new(STDOUT)
 
-RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom)
+RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom) do |config|
+  require "ruby_event_store/rom/#{ENV['ROM_ADAPTER'].downcase}"
+
+  config.register_relation(Kernel.const_get("RubyEventStore::ROM::Relations::Events"))
+  config.register_relation(Kernel.const_get("RubyEventStore::ROM::Relations::StreamEntries"))
+end
 
 module SchemaHelper
   def rom
