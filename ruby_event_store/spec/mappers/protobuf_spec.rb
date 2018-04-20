@@ -208,7 +208,7 @@ module RubyEventStore
         record = SerializedRecord.new(
           event_id:   event_id,
           data:       "",
-          metadata:   "\xA2\x01\x00",
+          metadata:   "",
           event_type: "res_testing.OrderCreatedBeforeRefactor",
         )
         event = subject.serialized_record_to_event(record)
