@@ -64,9 +64,9 @@ You simply need to configure your ROM container and then store it globally on `R
 ```ruby
 gem 'ruby_event_store_rom_sql'
 
-# Use the `setup` helper to configure the
-# ROM container and store it globally
-RubyEventStore::ROM.env = RubyEventStore::ROM.setup(ENV['DATABASE_URL'])
+# Use the `setup` helper to configure repositories and mappers.
+# Then store an Env instance to get access to the ROM container.
+RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
 
 # Use the repository the same as with ActiveRecord
 client = RailsEventStore::Client.new(
@@ -87,25 +87,28 @@ config = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 config.default.run_migrations
 
 # Use the `setup` helper to configure the ROM container
-container = RubyEventStore::ROM.setup(config)
+env = RubyEventStore::ROM.setup(config)
 
 # Use the repository the same as with ActiveRecord
 client = RailsEventStore::Client.new(
-  repository: RubyEventStore::ROM::EventRepository.new(rom: container)
+  repository: RubyEventStore::ROM::EventRepository.new(rom: env)
 )
+
+# P.S. Access the ROM container
+container = env.container
 ```
 
 This advanced option provides flexibility if you are using a separate database for RES or have other needs that require more granular configurations.
 
 ## ROM migrations
 
-SQL schema migrations can be copied to your project using Rake tasks. (The ROM migrations use [Sequel]() under the hood.)
+SQL schema migrations can be copied to your project using Rake tasks. (The ROM migrations use [Sequel](https://github.com/jeremyevans/sequel) under the hood.)
 
 Add the tasks to your `Rakefile` to import them into your project:
 
 ```ruby
 # In your project Rakefile
-require 'ruby_event_store/rom/rake_task
+require 'ruby_event_store/rom/adapters/sql/rake_task'
 ```
 
 Then run Rake tasks to get your database setup:
