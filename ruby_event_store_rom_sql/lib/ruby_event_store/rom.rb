@@ -4,7 +4,6 @@ require 'rom-repository'
 require 'ruby_event_store'
 require 'ruby_event_store/rom/event_repository'
 require 'ruby_event_store/rom/version'
-require 'dry/inflector'
 
 module RubyEventStore
   module ROM
