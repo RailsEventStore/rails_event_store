@@ -19,8 +19,9 @@ module RubyEventStore
         container.register(:not_found_error_handlers, Set.new)
       end
 
-      def perform_unit_of_work(&block)
-        UnitOfWork.new(rom: self).call(container[:unit_of_work_options], &block)
+      def transaction(&block)
+        options = container[:unit_of_work_options].dup
+        options.delete(:class){UnitOfWork}.new(rom: self).call(options, &block)
       end
 
       def register_unit_of_work_options(options)

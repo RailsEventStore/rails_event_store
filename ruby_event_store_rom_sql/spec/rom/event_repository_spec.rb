@@ -199,7 +199,7 @@ module RubyEventStore::ROM
         event = SRecord.new(event_id: SecureRandom.uuid),
       ], default_stream, RubyEventStore::ExpectedVersion.none)
 
-      rom_db.transaction do
+      env.transaction do
         expect do
           repository.append_to_stream([
             SRecord.new(

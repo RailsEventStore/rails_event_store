@@ -13,7 +13,7 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        @rom.perform_unit_of_work do |queue|
+        @rom.transaction do |queue|
           queue << @events.create_changeset(events)
           queue << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
         end
