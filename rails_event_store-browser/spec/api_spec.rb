@@ -158,6 +158,14 @@ module RailsEventStore
       expect(parsed_body["data"].size).to eq(5)
     end
 
+    specify "custom page size" do
+      events = 40.times.map { DummyEvent.new }
+      event_store.publish_events(events, stream_name: "dummy")
+      get "/res/streams/all/head/forward/5"
+
+      expect(parsed_body["data"].size).to eq(5)
+    end
+
     specify "out of bounds beyond oldest" do
       events    = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
