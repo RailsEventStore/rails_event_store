@@ -28,6 +28,7 @@ module RubyEventStore
 
             tuples << {
               stream: stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME,
+              position: nil,
               event_id: event_id
             } if global_stream
           end

@@ -3,6 +3,7 @@ require 'rom-mapper'
 require 'rom-repository'
 require 'ruby_event_store'
 require 'ruby_event_store/rom/event_repository'
+require 'ruby_event_store/rom/tuple_uniqueness_error'
 require 'ruby_event_store/rom/unit_of_work'
 require 'ruby_event_store/rom/version'
 
@@ -54,19 +55,8 @@ module RubyEventStore
       def setup(*args, &block)
         configure(*args) do |config|
           setup_defaults(config)
-
-          find_adapters(config.environment.gateways).each do |adapter|
-            adapter.setup(config)
-          end
-  
           block.call(config) if block
-        end.tap do |env|
-          configure_defaults(env)
-
-          find_adapters(env.container.gateways).each do |adapter|
-            adapter.configure(env)
-          end
-        end
+        end.tap(&method(:configure_defaults))
       end
 
     private
@@ -77,6 +67,10 @@ module RubyEventStore
         
         config.register_mapper(ROM::Mappers::EventToSerializedRecord)
         config.register_mapper(ROM::Mappers::StreamEntryToSerializedRecord)
+
+        find_adapters(config.environment.gateways).each do |adapter|
+          adapter.setup(config)
+        end
       end
 
       def configure_defaults(env)
@@ -86,6 +80,10 @@ module RubyEventStore
             raise EventNotFound.new(event_id)
           end
         }
+
+        find_adapters(env.container.gateways).each do |adapter|
+          adapter.configure(env)
+        end
       end
 
       def find_adapters(gateways)
