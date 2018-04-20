@@ -11,10 +11,6 @@ module RubyEventStore
 
           alias_method :take, :limit
     
-          def by_stream(stream)
-            where(stream: stream.name)
-          end
-    
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
           def by_stream(stream)

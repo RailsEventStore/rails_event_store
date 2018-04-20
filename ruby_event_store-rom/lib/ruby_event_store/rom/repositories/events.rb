@@ -16,7 +16,7 @@ module RubyEventStore
 
           map do |tuple|
             Hash(created_at: Time.now).merge(tuple)
-        end
+          end
         end
 
         def create_changeset(serialized_records)
