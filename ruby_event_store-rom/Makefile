@@ -1,5 +1,5 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
-GEM_NAME     = ruby_event_store_rom_sql
+GEM_NAME     = ruby_event_store-rom
 REQUIRE      = $(GEM_NAME)
 IGNORE       = RubyEventStore::IndexViolationDetector\#detect \
                RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
