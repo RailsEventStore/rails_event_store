@@ -13,9 +13,9 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        UnitOfWork.perform(@rom.container.gateways.fetch(:default)) do |session|
-          session << @events.create_changeset(events)
-          session << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
+        @rom.perform_unit_of_work do |queue|
+          queue << @events.create_changeset(events)
+          queue << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
         end
 
         self

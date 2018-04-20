@@ -3,6 +3,7 @@ require 'rom-mapper'
 require 'rom-repository'
 require 'ruby_event_store'
 require 'ruby_event_store/rom/event_repository'
+require 'ruby_event_store/rom/unit_of_work'
 require 'ruby_event_store/rom/version'
 
 module RubyEventStore
@@ -15,6 +16,14 @@ module RubyEventStore
   
         container.register(:unique_violation_error_handlers, Set.new)
         container.register(:not_found_error_handlers, Set.new)
+      end
+
+      def perform_unit_of_work(&block)
+        UnitOfWork.new(rom: self).call(container[:unit_of_work_options], &block)
+      end
+
+      def register_unit_of_work_options(options)
+        container.register(:unit_of_work_options, options)
       end
   
       def register_error_handler(type, handler)

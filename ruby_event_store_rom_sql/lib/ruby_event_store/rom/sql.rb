@@ -13,6 +13,8 @@ module RubyEventStore
         end
 
         def configure(env)
+          env.register_unit_of_work_options(savepoint: true)
+
           env.register_error_handler :unique_violation, -> ex {
             case ex
             when ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
