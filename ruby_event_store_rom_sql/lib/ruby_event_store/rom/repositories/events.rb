@@ -44,7 +44,7 @@ module RubyEventStore
             .limit(limit)
             .combine(:event)
             .map_with(:stream_entry_to_serialized_record)
-            .to_a
+            .each
         end
       end
     end

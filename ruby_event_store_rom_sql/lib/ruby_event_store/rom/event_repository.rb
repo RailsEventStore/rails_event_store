@@ -48,31 +48,64 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        read(:backward, stream, limit: 1).first
+        RubyEventStore::Specification.new(self)
+          .stream(stream.name)
+          .limit(1)
+          .backward
+          .each
+          .to_a
+          .first
       end
 
       def read_events_forward(stream, after_event_id, count)
-        read(:forward, stream, from: after_event_id, limit: count)
+        RubyEventStore::Specification.new(self)
+          .stream(stream.name)
+          .from(after_event_id)
+          .limit(count)
+          .each
+          .to_a
       end
 
       def read_events_backward(stream, before_event_id, count)
-        read(:backward, stream, from: before_event_id, limit: count)
+        RubyEventStore::Specification.new(self)
+          .stream(stream.name)
+          .from(before_event_id)
+          .limit(count)
+          .backward
+          .each
+          .to_a
       end
 
       def read_stream_events_forward(stream)
-        read(:forward, stream)
+        RubyEventStore::Specification.new(self)
+          .stream(stream.name)
+          .each
+          .to_a
       end
 
       def read_stream_events_backward(stream)
-        read(:backward, stream)
+        RubyEventStore::Specification.new(self)
+          .stream(stream.name)
+          .backward
+          .each
+          .to_a
       end
 
       def read_all_streams_forward(after_event_id, count)
-        read_events_forward(RubyEventStore::Stream.new(GLOBAL_STREAM), after_event_id, count)
+        RubyEventStore::Specification.new(self)
+          .from(after_event_id)
+          .limit(count)
+          .each
+          .to_a
       end
 
       def read_all_streams_backward(before_event_id, count)
-        read_events_backward(RubyEventStore::Stream.new(GLOBAL_STREAM), before_event_id, count)
+        RubyEventStore::Specification.new(self)
+          .from(before_event_id)
+          .limit(count)
+          .backward
+          .each
+          .to_a
       end
 
       def read_event(event_id)
@@ -81,14 +114,19 @@ module RubyEventStore
         handle_not_found_errors(ex, event_id)
       end
 
+      def read(specification)
+        @events.read(
+          specification.direction,
+          specification.stream,
+          from: specification.start,
+          limit: (specification.count if specification.limit?)
+        )
+      rescue => ex
+        handle_not_found_errors(ex, specification.start)
+      end
+
       private
 
-      def read(*args, **kwargs)
-        @events.read(*args, **kwargs)
-      rescue => ex
-        handle_not_found_errors(ex, kwargs[:from])
-      end
-      
       def handle_unique_violation_errors(ex)
         case ex
         when ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
