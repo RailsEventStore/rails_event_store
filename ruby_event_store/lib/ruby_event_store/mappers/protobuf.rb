@@ -1,6 +1,6 @@
 module RubyEventStore
   class Proto < RubyEventStore::Event
-    def initialize(event_id: SecureRandom.uuid, metadata: {}, data:)
+    def initialize(event_id: SecureRandom.uuid, metadata: nil, data:)
       @event_id = event_id
       @metadata = Metadata.new(metadata.to_h)
       @data     = data
@@ -20,7 +20,7 @@ module RubyEventStore
     def init_with(coder)
       @event_id = coder['event_id']
       @metadata = Metadata.new
-      ProtobufNestedStruct::HashMapStringValue.load(coder['metadata']).each_with_object(@metadata){|(k,v),meta| meta[k.to_sym] = v }
+      ProtobufNestedStruct::HashMapStringValue.load(coder['metadata']).each_with_object(metadata){|(k,v),meta| meta[k.to_sym] = v }
       @data = pool.lookup(coder['data.type']).msgclass.decode(coder['data.proto'])
     end
 
@@ -59,7 +59,6 @@ module RubyEventStore
         Proto.new(
           event_id: record.event_id,
           data: data,
-          metadata: {},
         ).tap do |p|
           ProtobufNestedStruct::HashMapStringValue.load(record.metadata).each_with_object(p.metadata) {|(k, v), meta| meta[k.to_sym] = v}
         end

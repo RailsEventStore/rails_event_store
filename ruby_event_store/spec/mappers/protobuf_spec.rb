@@ -154,6 +154,14 @@ module RubyEventStore
       expect(event.metadata.to_h).to eq({})
       expect(event.data).to eq("One")
     end
+
+    specify 'metadata' do
+      event = RubyEventStore::Proto.new(data: nil, metadata: {one: 1})
+      expect(event.metadata[:one]).to eq(1)
+      expect do
+        event.metadata['doh']
+      end.to raise_error(ArgumentError)
+    end
   end
 
   module Mappers
@@ -181,6 +189,16 @@ module RubyEventStore
           data: data,
           metadata: metadata,
         )
+      end
+
+      specify "initialize requires protobuf_nested_struct" do
+        p = Protobuf.allocate
+        def p.require(_name)
+          raise LoadError
+        end
+        expect do
+          p.send(:initialize)
+        end.to raise_error(LoadError, "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile")
       end
 
       specify '#event_to_serialized_record returns proto serialized record' do
