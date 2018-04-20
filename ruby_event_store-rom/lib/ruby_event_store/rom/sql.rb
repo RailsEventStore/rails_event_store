@@ -44,7 +44,7 @@ module RubyEventStore
         end
 
         def gateway
-          env.container.gateways[:default]
+          env.container.gateways.fetch(:default)
         end
 
         def establish_gateway_connection

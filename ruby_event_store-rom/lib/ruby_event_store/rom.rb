@@ -21,7 +21,7 @@ module RubyEventStore
 
       def transaction(&block)
         options = container[:unit_of_work_options].dup
-        options.delete(:class){UnitOfWork}.new(rom: self).call(options, &block)
+        options.delete(:class){UnitOfWork}.new(rom: self).call(**options, &block)
       end
 
       def register_unit_of_work_options(options)

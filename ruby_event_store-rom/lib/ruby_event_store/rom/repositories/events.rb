@@ -24,6 +24,7 @@ module RubyEventStore
         end
 
         def find_nonexistent_pks(event_ids)
+          return event_ids unless event_ids.any?
           event_ids - events.by_pk(event_ids).pluck(:id)
         end
 
