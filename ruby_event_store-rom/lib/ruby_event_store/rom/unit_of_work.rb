@@ -1,22 +1,19 @@
 module RubyEventStore
   module ROM
     class UnitOfWork
-      attr_reader :env
-
       def initialize(rom: ROM.env)
         @env = rom
       end
 
-      def call(**options)
-        gateway = @env.container.gateways.fetch(options.delete(:gateway){:default})
+      def call(options = {})
+        yield(queue = [])
 
-        yield(changesets = [])
-
-        commit!(gateway, changesets, options)
+        commit!(options.delete(:gateway) || :default, queue, options)
       end
 
-      def commit!(gateway, changesets, **options)
-        gateway.transaction(options) { changesets.each(&:commit) }
+      def commit!(gateway, queue, options = {})
+        gateway = @env.container.gateways[gateway]
+        gateway.transaction(options) { queue.each(&:commit) }
       end
     end
   end
