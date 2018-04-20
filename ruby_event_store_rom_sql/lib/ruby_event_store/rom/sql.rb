@@ -1,7 +1,7 @@
 require 'rom/sql'
-require_relative 'sql/index_violation_detector'
-require_relative 'sql/relations/events'
-require_relative 'sql/relations/stream_entries'
+require_relative 'adapters/sql/index_violation_detector'
+require_relative 'adapters/sql/relations/events'
+require_relative 'adapters/sql/relations/stream_entries'
 
 module RubyEventStore
   module ROM
