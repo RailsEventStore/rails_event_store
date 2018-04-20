@@ -29,11 +29,7 @@ module RailsEventStoreActiveRecord
       stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
       stream = stream.order(id: order(spec.direction))
 
-      Enumerator.new do |y|
-        stream.each do |event_record|
-          y << build_event_instance(event_record)
-        end
-      end
+      stream.map(&method(:build_event_instance)).each
     end
 
     private

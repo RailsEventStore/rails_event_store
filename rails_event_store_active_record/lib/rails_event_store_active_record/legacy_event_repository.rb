@@ -123,11 +123,7 @@ instead:
       stream = stream.where(start_condition(spec)) unless spec.head?
       stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
 
-      Enumerator.new do |y|
-        stream.each do |event_record|
-          y << build_event_entity(event_record)
-        end
-      end
+      stream.map(&method(:build_event_entity)).each
     end
 
     private
