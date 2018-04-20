@@ -21,6 +21,7 @@ module RubyEventStore
 
     def []=(key, val)
       raise ArgumentError unless allowed_types.any?{|klass| klass === val }
+      raise ArgumentError unless Symbol === key
       @h[key]=val
     end
 
