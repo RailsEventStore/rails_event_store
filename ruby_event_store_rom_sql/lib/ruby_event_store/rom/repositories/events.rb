@@ -42,9 +42,9 @@ module RubyEventStore
           
           stream_entries
             .ordered(direction, stream, offset_entry_id)
-            .limit(limit)
+            .take(limit)
             .combine(:event)
-            .map_with(:stream_entry_to_serialized_record)
+            .map_with(:stream_entry_to_serialized_record, auto_struct: false)
             .each
         end
       end

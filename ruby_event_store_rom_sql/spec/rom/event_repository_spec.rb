@@ -17,8 +17,8 @@ module RubyEventStore::ROM
       end
     end
 
-    let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
-    let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_race_conditions_auto)  { !(ENV['DATABASE_URL'] =~ /sqlite|memory/) }
+    let(:test_race_conditions_any)   { !(ENV['DATABASE_URL'] =~ /sqlite|memory/) }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
 
@@ -98,7 +98,7 @@ module RubyEventStore::ROM
         )
       ]
       
-      repo = Repositories::Events.new(rom)
+      repo = Repositories::Events.new(container)
       
       events.each(&repo.method(:create))
 
@@ -116,7 +116,7 @@ module RubyEventStore::ROM
       #   self.verbose = false
       #   remove_index :event_store_events_in_streams, [:stream, :position]
       # end
-      repository = EventRepository.new(rom: rom)
+      repository = EventRepository.new(rom: env)
 
       expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").result).map(&:event_id)).to eq([u1,u2,u3])
@@ -147,7 +147,7 @@ module RubyEventStore::ROM
         )
       ]
 
-      repo = Repositories::Events.new(rom)
+      repo = Repositories::Events.new(container)
       
       events.each(&repo.method(:create))
 
@@ -161,7 +161,7 @@ module RubyEventStore::ROM
       
       expect(repo.stream_entries.to_a.size).to eq(3)
       
-      repository = EventRepository.new(rom: rom)
+      repository = EventRepository.new(rom: env)
 
       expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
@@ -235,7 +235,7 @@ module RubyEventStore::ROM
 
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
-      positions = rom.relations[:stream_entries].
+      positions = container.relations[:stream_entries].
         ordered(:forward, default_stream).
         map { |entity| entity[:position] }
       expect(positions).to eq((0..positions.size-1).to_a)

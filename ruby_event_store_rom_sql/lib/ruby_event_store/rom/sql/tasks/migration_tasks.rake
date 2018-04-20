@@ -2,7 +2,7 @@ require 'ruby_event_store/rom'
 
 desc 'Setup ROM EventRespository environment'
 task 'db:setup' do
-  ROM::SQL::RakeSupport.env = ::RubyEventStore::ROM.configure(ENV['DATABASE_URL'])
+  ROM::SQL::RakeSupport.env = ::RubyEventStore::ROM.configure(:sql)
 end
 
 desc "Copy RubyEventStore SQL migrations to db/migrate"
