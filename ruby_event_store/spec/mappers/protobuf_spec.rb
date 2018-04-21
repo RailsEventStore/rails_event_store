@@ -171,9 +171,9 @@ module RubyEventStore
         one: 1,
         two: 2.0,
         three: true,
-        # four: Date.new(2018, 4, 17),
+        four: Date.new(2018, 4, 17),
         five: "five",
-        # six: Time.utc(2018, 12, 13, 11 ),
+        six: Time.utc(2018, 12, 13, 11 ),
         seven: true,
         eight: false,
       } }

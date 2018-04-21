@@ -907,4 +907,17 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
+  specify 'can store arbitrary binary data' do
+    binary = "\xB0"
+    expect(binary.valid_encoding?).to eq(false)
+    binary.force_encoding("binary")
+    expect(binary.valid_encoding?).to eq(true)
+
+    repository.append_to_stream(
+      event = SRecord.new(data: binary, metadata: binary),
+      RubyEventStore::Stream.new('stream'),
+      RubyEventStore::ExpectedVersion.none
+    )
+  end
+
 end
