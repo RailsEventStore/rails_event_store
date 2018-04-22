@@ -7,7 +7,7 @@ module RubyEventStore
     def initialize
       @streams = Hash.new
       @mutex = Mutex.new
-      @streams[GLOBAL_STREAM] = Array.new
+      @global = Array.new
     end
 
     def append_to_stream(events, stream, expected_version)
@@ -24,7 +24,7 @@ module RubyEventStore
     end
 
     def has_event?(event_id)
-      streams.fetch(GLOBAL_STREAM).any? {|item| item.event_id.eql?(event_id)}
+       global.any?{ |item| item.event_id.eql?(event_id) }
     end
 
     def last_stream_event(stream)
@@ -32,36 +32,38 @@ module RubyEventStore
     end
 
     def read_events_forward(stream, start_event_id, count)
-      source = read_stream_events_forward(stream)
-      read_batch(source, start_event_id, count)
+      read_batch(stream_of(stream.name), start_event_id, count)
     end
 
     def read_events_backward(stream, start_event_id, count)
-      source = read_stream_events_backward(stream)
-      read_batch(source, start_event_id, count)
+      read_batch(stream_of(stream.name).reverse, start_event_id, count)
     end
 
     def read_stream_events_forward(stream)
-      streams.fetch(stream.name, Array.new)
+      stream_of(stream.name)
     end
 
     def read_stream_events_backward(stream)
-      read_stream_events_forward(stream).reverse
+      stream_of(stream.name).reverse
     end
 
     def read_all_streams_forward(start_event_id, count)
-      read_events_forward(Stream.new(GLOBAL_STREAM), start_event_id, count)
+      read_batch(global, start_event_id, count)
     end
 
     def read_all_streams_backward(start_event_id, count)
-      read_events_backward(Stream.new(GLOBAL_STREAM), start_event_id, count)
+      read_batch(global.reverse, start_event_id, count)
     end
 
     def read_event(event_id)
-      streams.fetch(GLOBAL_STREAM).find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
+      global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
     end
 
     private
+
+    def stream_of(name)
+      streams.fetch(name, Array.new)
+    end
 
     def normalize_to_array(events)
       return *events
@@ -94,18 +96,17 @@ module RubyEventStore
     end
 
     def append(events, resolved_version, stream, include_global)
-      stream_ = read_stream_events_forward(stream)
+      stream_events = stream_of(stream.name)
       raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
       events.each do |event|
-        raise EventDuplicatedInStream if stream_.any? {|ev| ev.event_id.eql?(event.event_id)}
+        raise EventDuplicatedInStream if stream_events.any? {|ev| ev.event_id.eql?(event.event_id)}
         if include_global
-          global_stream = read_stream_events_forward(Stream.new(GLOBAL_STREAM))
           raise EventDuplicatedInStream if has_event?(event.event_id)
-          global_stream.push(event)
+          global.push(event)
         end
-        stream_.push(event) unless stream.global?
+        stream_events.push(event)
       end
-      streams[stream.name] = stream_
+      streams[stream.name] = stream_events
       self
     end
 
@@ -119,6 +120,6 @@ module RubyEventStore
       source.index {|item| item.event_id.eql?(event_id)}
     end
 
-    attr_reader :streams, :mutex
+    attr_reader :streams, :mutex, :global
   end
 end
