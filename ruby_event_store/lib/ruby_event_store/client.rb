@@ -190,7 +190,7 @@ module RubyEventStore
     end
 
     def read
-      Specification.new(@repository)
+      Specification.new(repository)
     end
 
     def normalize_to_array(events)
