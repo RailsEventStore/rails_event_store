@@ -33,7 +33,7 @@ module RubyEventStore
 
     def initialize(repository)
       @repository  = repository
-      @result = Result.new(:forward, :head, NO_LIMIT, nil)
+      @result = Result.new(:forward, :head, NO_LIMIT)
     end
 
     def stream(stream_name)
