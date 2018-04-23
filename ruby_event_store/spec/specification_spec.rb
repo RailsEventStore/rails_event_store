@@ -12,7 +12,7 @@ module RubyEventStore
 
     specify { expect(specification).to have_result(:count, Specification::NO_LIMIT) }
 
-    specify { expect(specification).to have_result(:stream_name, GLOBAL_STREAM) }
+    specify { expect(specification).to have_result(:stream_name, nil) }
 
     specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
 
@@ -61,7 +61,7 @@ module RubyEventStore
 
     specify { expect(specification.stream('nope')).to have_result(:global_stream?, false) }
 
-    specify { expect(specification).to have_result(:global_stream?, true) }
+    specify { expect(specification).to have_result(:global_stream?, false) }
 
     specify { expect(specification).to have_result(:limit?, false) }
 

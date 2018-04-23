@@ -13,9 +13,9 @@ module RailsEventStoreActiveRecord
     def read_event(event_id)
       event = Event.find(event_id)
       RubyEventStore::SerializedRecord.new(
-        event_id:   event.id,
-        metadata:   event.metadata,
-        data:       event.data,
+        event_id: event.id,
+        metadata: event.metadata,
+        data: event.data,
         event_type: event.event_type
       )
     rescue ActiveRecord::RecordNotFound
@@ -23,10 +23,12 @@ module RailsEventStoreActiveRecord
     end
 
     def read(spec)
-      stream = EventInStream.preload(:event).where(stream: spec.stream_name)
+      raise ReservedInternalName if spec.stream_name.eql?("all")
+
+      stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
+      stream = stream.order(position: order(spec.direction)) if spec.stream
       stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
-      stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
       stream = stream.order(id: order(spec.direction))
 
       stream.map(&method(:build_event_instance)).each
@@ -34,9 +36,13 @@ module RailsEventStoreActiveRecord
 
     private
 
+    def normalize_stream_name(specification)
+      specification.stream ? specification.stream_name : RubyEventStore::GLOBAL_STREAM
+    end
+
     def start_condition(specification)
       event_record =
-        EventInStream.find_by!(event_id: specification.start, stream: specification.stream_name)
+        EventInStream.find_by!(event_id: specification.start, stream: normalize_stream_name(specification))
       case specification.direction
       when :forward
         ['id > ?', event_record]
@@ -46,14 +52,14 @@ module RailsEventStoreActiveRecord
     end
 
     def order(direction)
-      { forward: 'ASC', backward: 'DESC' }.fetch(direction)
+      {forward: 'ASC', backward: 'DESC'}.fetch(direction)
     end
 
     def build_event_instance(record)
       RubyEventStore::SerializedRecord.new(
-        event_id:   record.event.id,
-        metadata:   record.event.metadata,
-        data:       record.event.data,
+        event_id: record.event.id,
+        metadata: record.event.metadata,
+        data: record.event.data,
         event_type: record.event.event_type
       )
     end

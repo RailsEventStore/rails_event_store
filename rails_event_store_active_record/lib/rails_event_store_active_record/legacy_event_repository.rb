@@ -121,7 +121,7 @@ instead:
       stream = LegacyEvent.order(id: order(spec.direction))
       stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
-      stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
+      stream = stream.where(stream: spec.stream_name) if spec.stream
 
       stream.map(&method(:build_event_entity)).each
     end
