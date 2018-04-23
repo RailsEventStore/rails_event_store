@@ -6,7 +6,7 @@ module RubyEventStore
     specify { expect{Stream.new('')}.to raise_error(IncorrectStreamData) }
     specify { expect{Stream.new(nil)}.to raise_error(IncorrectStreamData) }
     specify { expect(Stream.new(GLOBAL_STREAM).global?).to eq(true) }
-    specify { expect(Stream.new("all").global?).to eq(true) }
+    specify { expect(Stream.new("all").global?).to eq(false) }
     specify { expect(Stream.new("meh").global?).to eq(false) }
 
     specify "in-equality" do

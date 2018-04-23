@@ -102,6 +102,26 @@ module RailsEventStoreActiveRecord
       }.to raise_error(RubyEventStore::NotSupported)
     end
 
+    it 'does not confuse all with GLOBAL_STREAM' do
+      repository = LegacyEventRepository.new
+      repository.append_to_stream(
+        SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
+        RubyEventStore::Stream.new('all'),
+        RubyEventStore::ExpectedVersion.none
+      )
+      repository.append_to_stream(
+        SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        RubyEventStore::Stream.new('stream'),
+        RubyEventStore::ExpectedVersion.none
+      )
+
+      expect(repository.read(RubyEventStore::Specification.new(repository).result))
+        .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a a1b49edb-7636-416f-874a-88f94b859bef]))
+
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream('all').result))
+        .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
+    end
+
     private
 
     def expect_query(match, &block)

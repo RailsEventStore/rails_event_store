@@ -37,7 +37,7 @@ module RubyEventStore
           raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
 
           order_columns = %i[position id]
-          order_columns.delete(:position) if !stream || stream.global?
+          order_columns.delete(:position) if stream.global?
           
           query = by_stream(stream)
           query = query.where { id.public_send(operator, offset_entry_id) } if offset_entry_id
@@ -47,7 +47,7 @@ module RubyEventStore
         private
 
         def normalize_stream_name(stream)
-          stream ? stream.name : RubyEventStore::GLOBAL_STREAM
+          stream.global? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : stream.name
         end
       end
     end

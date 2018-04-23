@@ -2,6 +2,8 @@ require 'active_record'
 
 module RailsEventStoreActiveRecord
   class LegacyEventRepository
+    SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
+
     class LegacyEvent < ::ActiveRecord::Base
       self.primary_key = :id
       self.table_name = 'event_store_events'
@@ -43,7 +45,7 @@ instead:
     end
 
     def delete_stream(stream)
-      LegacyEvent.where({stream: stream.name}).update_all(stream: RubyEventStore::GLOBAL_STREAM)
+      LegacyEvent.where({stream: stream.name}).update_all(stream: SERIALIZED_GLOBAL_STREAM_NAME)
     end
 
     def has_event?(event_id)
@@ -62,7 +64,7 @@ instead:
       stream = LegacyEvent.order(id: order(spec.direction))
       stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
-      stream = stream.where(stream: spec.stream_name) if spec.stream
+      stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
 
       stream.map(&method(:build_event_entity)).each
     end

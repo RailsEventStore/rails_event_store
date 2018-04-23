@@ -4,6 +4,8 @@ require 'ruby_event_store/rom/unit_of_work'
 module RubyEventStore
   module ROM
     class EventRepository
+      SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
+
       def initialize(rom: ROM.env)
         @rom = rom
         @events = Repositories::Events.new(rom)
@@ -64,7 +66,7 @@ module RubyEventStore
       end
 
       def read(specification)
-        raise RubyEventStore::ReservedInternalName if specification.stream_name.eql?("all")
+        raise RubyEventStore::ReservedInternalName if specification.stream_name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
         @events.read(
           specification.direction,

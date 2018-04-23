@@ -8,11 +8,11 @@ module RubyEventStore
       end
 
       def global_stream?
-        !!stream&.global?
+        stream.global?
       end
 
       def stream_name
-        stream&.name
+        stream.name
       end
 
       def head?
@@ -33,7 +33,7 @@ module RubyEventStore
 
     def initialize(repository)
       @repository  = repository
-      @result = Result.new(:forward, :head, NO_LIMIT)
+      @result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM))
     end
 
     def stream(stream_name)
