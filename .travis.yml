@@ -13,6 +13,8 @@ matrix:
     env: TARGET=ruby_event_store SCRIPT=test
   - rvm: 2.3.6
     env: TARGET=rails_event_store SCRIPT=test
+  - rvm: 2.3.6
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
   - rvm: 2.5.1
     env: TARGET=rails_event_store-browser SCRIPT=test
   - rvm: 2.5.1
@@ -27,12 +29,6 @@ matrix:
     env: TARGET=rails_event_store SCRIPT=test
   - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.3.6
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.4.3
-    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
-  - rvm: 2.4.3
-    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
   - rvm: 2.4.3
     env: TARGET=aggregate_root SCRIPT=test
   - rvm: 2.4.3
@@ -77,6 +73,10 @@ matrix:
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.0.6"
   - rvm: 2.4.3
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=4.2.10"
+  - rvm: 2.4.3
+    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+  - rvm: 2.4.3
+    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
 
 before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
