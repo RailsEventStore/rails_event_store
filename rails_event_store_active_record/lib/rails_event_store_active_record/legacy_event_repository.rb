@@ -55,8 +55,6 @@ instead:
     end
 
     def read_events_forward(stream, start_event_id, count)
-      raise ReservedInternalName if stream.name.eql?("all")
-
       RubyEventStore::Specification.new(self)
         .stream(stream.name)
         .from(start_event_id)
@@ -66,8 +64,6 @@ instead:
     end
 
     def read_events_backward(stream, start_event_id, count)
-      raise ReservedInternalName if stream.name.eql?("all")
-
       RubyEventStore::Specification.new(self)
         .stream(stream.name)
         .from(start_event_id)
@@ -78,8 +74,6 @@ instead:
     end
 
     def read_stream_events_forward(stream)
-      raise ReservedInternalName if stream.name.eql?("all")
-
       RubyEventStore::Specification.new(self)
         .stream(stream.name)
         .each
@@ -87,8 +81,6 @@ instead:
     end
 
     def read_stream_events_backward(stream)
-      raise ReservedInternalName if stream.name.eql?("all")
-
       RubyEventStore::Specification.new(self)
         .stream(stream.name)
         .backward
