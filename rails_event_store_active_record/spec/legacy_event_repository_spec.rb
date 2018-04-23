@@ -50,21 +50,21 @@ module RailsEventStoreActiveRecord
     specify "read_stream_events_forward explicit ORDER BY id" do
       expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY.*event_store_events.*id.* ASC.*/) do
         repository = LegacyEventRepository.new
-        repository.read_stream_events_forward(RubyEventStore::Stream.new('stream'))
+        repository.read(RubyEventStore::Specification.new(repository).stream("stream").result)
       end
     end
 
     specify "read_events_forward explicit ORDER BY id" do
       expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY.*event_store_events.*id.* ASC LIMIT.*/) do
         repository = LegacyEventRepository.new
-        repository.read_events_forward(RubyEventStore::Stream.new('stream'), :head, 1)
+        repository.read(RubyEventStore::Specification.new(repository).stream("stream").from(:head).limit(1).result)
       end
     end
 
     specify "read_all_streams_forward explicit ORDER BY id" do
       expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY.*event_store_events.*id.* ASC LIMIT.*/) do
         repository = LegacyEventRepository.new
-        repository.read_all_streams_forward(:head, 1)
+        repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(1).result)
       end
     end
 
@@ -74,15 +74,14 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream(e2 = SRecord.new, RubyEventStore::Stream.new('other_stream'), RubyEventStore::ExpectedVersion.none)
 
       repository.delete_stream(RubyEventStore::Stream.new('stream'))
-      expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('stream'))).to be_empty
-      expect(repository.read_stream_events_forward(RubyEventStore::Stream.new('other_stream'))).to eq([e2])
-      expect(repository.read_all_streams_forward(:head, 10)).to eq([e1,e2])
+      expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(10).result).to_a).to eq([e1,e2])
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").result).to_a).to be_empty
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream("other_stream").result).to_a).to eq([e2])
     end
 
     specify 'active record is drunk' do
       repository = LegacyEventRepository.new
       repository.append_to_stream(e1 = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
-
       expect_query(/UPDATE.*event_store_events.*SET.*stream.* = 'all'.*/) do
         repository.delete_stream(RubyEventStore::Stream.new('stream'))
       end

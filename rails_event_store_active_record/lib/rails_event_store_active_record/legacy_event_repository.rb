@@ -54,57 +54,6 @@ instead:
       build_event_entity(LegacyEvent.where(stream: stream.name).last)
     end
 
-    def read_events_forward(stream, start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .from(start_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_events_backward(stream, start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .from(start_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_stream_events_forward(stream)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .each
-        .to_a
-    end
-
-    def read_stream_events_backward(stream)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_all_streams_forward(start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .from(start_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_all_streams_backward(start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .from(start_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
     def read_event(event_id)
       build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
