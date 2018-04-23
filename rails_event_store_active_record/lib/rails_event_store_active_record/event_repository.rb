@@ -37,57 +37,6 @@ module RailsEventStoreActiveRecord
       @repo_reader.last_stream_event(stream)
     end
 
-    def read_events_forward(stream, after_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .from(after_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_events_backward(stream, before_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .from(before_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_stream_events_forward(stream)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .each
-        .to_a
-    end
-
-    def read_stream_events_backward(stream)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_all_streams_forward(after_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .from(after_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_all_streams_backward(before_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .from(before_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
     def read_event(event_id)
       @repo_reader.read_event(event_id)
     end

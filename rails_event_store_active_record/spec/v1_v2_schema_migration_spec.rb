@@ -77,7 +77,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_all_events_stream
-    events = repository.read_all_streams_forward(:head, 100)
+    events = repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(100).result)
     expect(events.size).to eq(9)
     expect(events.map(&:event_id)).to eq(%w(
       94b297a3-5a29-4942-9038-3efeceb4d905
@@ -99,7 +99,8 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_event_sourced_stream
-    events = repository.read_stream_events_forward(RubyEventStore::Stream.new("Order-1"))
+    events = repository.read(RubyEventStore::Specification.new(repository).stream("Order-1").result)
+
     expect(events.map(&:event_id)).to eq(%w(
       d39cb65f-bc3c-4fbb-9470-52bf5e322bba
       f2cecc51-adb1-4d83-b3ca-483d26311f03
@@ -124,7 +125,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_technical_stream
-    events = repository.read_stream_events_forward(RubyEventStore::Stream.new("WroclawBuyers"))
+    events = repository.read(RubyEventStore::Specification.new(repository).stream("WroclawBuyers").result)
     expect(events.map(&:event_id)).to eq(%w(
       9009df88-6044-4a62-b7ae-098c42a9c5e1
       cefdd213-0c92-46f6-bbdf-3ea9542d969a
