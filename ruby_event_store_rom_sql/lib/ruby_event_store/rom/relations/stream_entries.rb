@@ -15,11 +15,11 @@ module RubyEventStore
         end
   
         def by_stream(stream)
-          where(stream: stream.name)
+          where(stream: normalize_stream_name(stream))
         end
 
         def by_stream_and_event_id(stream, event_id)
-          where(stream: stream.name, event_id: event_id).one!
+          where(stream: normalize_stream_name(stream), event_id: event_id).one!
         end
 
         def max_position(stream)
@@ -37,11 +37,17 @@ module RubyEventStore
           raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
 
           order_columns = %i[position id]
-          order_columns.delete(:position) if stream.global?
+          order_columns.delete(:position) if !stream || stream.global?
           
           query = by_stream(stream)
           query = query.where { id.public_send(operator, offset_entry_id) } if offset_entry_id
           query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
+        end
+
+        private
+
+        def normalize_stream_name(stream)
+          stream ? stream.name : RubyEventStore::GLOBAL_STREAM
         end
       end
     end
