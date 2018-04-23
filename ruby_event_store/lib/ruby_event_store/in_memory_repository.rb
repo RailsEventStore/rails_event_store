@@ -28,58 +28,7 @@ module RubyEventStore
     end
 
     def last_stream_event(stream)
-      read_stream_events_forward(stream).last
-    end
-
-    def read_events_forward(stream, start_event_id, count)
-      Specification.new(self)
-        .stream(stream.name)
-        .from(start_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_events_backward(stream, start_event_id, count)
-      Specification.new(self)
-        .stream(stream.name)
-        .from(start_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_stream_events_forward(stream)
-      Specification.new(self)
-        .stream(stream.name)
-        .each
-        .to_a
-    end
-
-    def read_stream_events_backward(stream)
-      Specification.new(self)
-        .stream(stream.name)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_all_streams_forward(start_event_id, count)
-      Specification.new(self)
-        .from(start_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_all_streams_backward(start_event_id, count)
-      Specification.new(self)
-        .from(start_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
+      stream_of(stream.name).last
     end
 
     def read_event(event_id)
@@ -109,7 +58,7 @@ module RubyEventStore
     end
 
     def last_stream_version(stream)
-      read_stream_events_forward(stream).size - 1
+      stream_of(stream.name).size - 1
     end
 
     def append_with_synchronize(events, expected_version, stream, include_global)
