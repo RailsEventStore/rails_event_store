@@ -36,10 +36,10 @@ module RubyEventStore::ROM
       )
       reserved_stream = RubyEventStore::Stream.new("all")
 
-      expect{ repository.read_stream_events_forward(reserved_stream) }.to raise_error(ReservedInternalName)
-      expect{ repository.read_stream_events_backward(reserved_stream) }.to raise_error(ReservedInternalName)
-      expect{ repository.read_events_forward(reserved_stream, :head, 5) }.to raise_error(ReservedInternalName)
-      expect{ repository.read_events_backward(reserved_stream, :head, 5) }.to raise_error(ReservedInternalName)
+      expect{ repository.read_stream_events_forward(reserved_stream) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read_stream_events_backward(reserved_stream) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read_events_forward(reserved_stream, :head, 5) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read_events_backward(reserved_stream, :head, 5) }.to raise_error(RubyEventStore::ReservedInternalName)
     end
 
     specify "all considered internal detail" do
@@ -51,10 +51,10 @@ module RubyEventStore::ROM
       )
       specification = RubyEventStore::Specification.new(repository)
 
-      expect{ repository.read(specification.stream("all").result) }.to raise_error(ReservedInternalName)
-      expect{ repository.read(specification.stream("all").backward.result) }.to raise_error(ReservedInternalName)
-      expect{ repository.read(specification.stream("all").from(:head).limit(5).result) }.to raise_error(ReservedInternalName)
-      expect{ repository.read(specification.stream("all").from(:head).limit(5).backward.result) }.to raise_error(ReservedInternalName)
+      expect{ repository.read(specification.stream("all").result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(specification.stream("all").backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(specification.stream("all").from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(specification.stream("all").from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
     end
 
     # TODO: Port from AR to ROM
