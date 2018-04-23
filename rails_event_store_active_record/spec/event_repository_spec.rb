@@ -221,7 +221,7 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream([event], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.any)
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
-      expect(EventInStream.find(987_654_322).stream).to eq(RubyEventStore::GLOBAL_STREAM)
+      expect(EventInStream.find(987_654_322).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
     end
 
     specify 'fill_ids in append_to_stream global' do
@@ -229,7 +229,7 @@ module RailsEventStoreActiveRecord
       repository = FillInRepository.new
       repository.append_to_stream([event], RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM), RubyEventStore::ExpectedVersion.any)
 
-      expect(EventInStream.find(987_654_321).stream).to eq(RubyEventStore::GLOBAL_STREAM)
+      expect(EventInStream.find(987_654_321).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
     end
 
     specify 'fill_ids in link_to_stream' do
@@ -239,7 +239,7 @@ module RailsEventStoreActiveRecord
       repository.link_to_stream([event.event_id], RubyEventStore::Stream.new("whoo"), RubyEventStore::ExpectedVersion.any)
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
-      expect(EventInStream.find(987_654_322).stream).to eq(RubyEventStore::GLOBAL_STREAM)
+      expect(EventInStream.find(987_654_322).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
       expect(EventInStream.find(987_654_324).stream).to eq("whoo")
     end
 

@@ -37,7 +37,7 @@ module RailsEventStoreActiveRecord
     private
 
     def normalize_stream_name(specification)
-      specification.stream ? specification.stream_name : RubyEventStore::GLOBAL_STREAM
+      specification.stream ? specification.stream_name : EventRepository::SERIALIZED_GLOBAL_STREAM_NAME
     end
 
     def start_condition(specification)

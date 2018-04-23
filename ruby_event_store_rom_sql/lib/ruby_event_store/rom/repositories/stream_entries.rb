@@ -25,7 +25,7 @@ module RubyEventStore
             } unless stream.global?
 
             tuples << {
-              stream: GLOBAL_STREAM,
+              stream: EventRepository::SERIALIZED_GLOBAL_STREAM_NAME,
               event_id: event_id
             } if global_stream
           end

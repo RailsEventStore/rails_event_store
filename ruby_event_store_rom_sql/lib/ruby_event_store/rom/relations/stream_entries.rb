@@ -47,7 +47,7 @@ module RubyEventStore
         private
 
         def normalize_stream_name(stream)
-          stream ? stream.name : RubyEventStore::GLOBAL_STREAM
+          stream ? stream.name : EventRepository::SERIALIZED_GLOBAL_STREAM_NAME
         end
       end
     end

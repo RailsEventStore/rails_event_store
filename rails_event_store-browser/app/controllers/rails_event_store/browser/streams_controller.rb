@@ -30,7 +30,7 @@ module RailsEventStore
       private
 
       def events_forward(start)
-        if stream_name.eql?(GLOBAL_STREAM)
+        if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
           event_store.read_all_streams_forward(start: start, count: count)
         else
           event_store.read_events_forward(stream_name, start: start, count: count)
@@ -38,7 +38,7 @@ module RailsEventStore
       end
 
       def events_backward(start)
-        if stream_name.eql?(GLOBAL_STREAM)
+        if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
           event_store.read_all_streams_backward(start: start, count: count)
         else
           event_store.read_events_backward(stream_name, start: start, count: count)

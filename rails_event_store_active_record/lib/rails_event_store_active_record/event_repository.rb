@@ -3,6 +3,7 @@ require 'activerecord-import'
 module RailsEventStoreActiveRecord
   class EventRepository
     POSITION_SHIFT = 1
+    SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
     def initialize
       verify_correct_schema_present
@@ -57,7 +58,7 @@ module RailsEventStoreActiveRecord
           event_id = to_event_id.call(element)
           collection = []
           collection.unshift({
-            stream: RubyEventStore::GLOBAL_STREAM,
+            stream: SERIALIZED_GLOBAL_STREAM_NAME,
             position: nil,
             event_id: event_id,
           }) if include_global
