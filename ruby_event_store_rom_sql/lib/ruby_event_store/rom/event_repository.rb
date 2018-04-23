@@ -66,7 +66,7 @@ module RubyEventStore
       end
 
       def read(specification)
-        raise RubyEventStore::ReservedInternalName if specification.stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
+        raise RubyEventStore::ReservedInternalName if specification.stream_name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
         @events.read(
           specification.direction,

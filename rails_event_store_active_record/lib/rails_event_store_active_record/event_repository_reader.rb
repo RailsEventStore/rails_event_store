@@ -23,7 +23,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read(spec)
-      raise RubyEventStore::ReservedInternalName if spec.stream_name.eql?("all")
+      raise RubyEventStore::ReservedInternalName if spec.stream_name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
