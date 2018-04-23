@@ -28,6 +28,36 @@ module RubyEventStore::ROM
     
     it_behaves_like :event_repository, EventRepository
 
+    specify "all considered internal detail" do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        [event = SRecord.new],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      reserved_stream = RubyEventStore::Stream.new("all")
+
+      expect{ repository.read_stream_events_forward(reserved_stream) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read_stream_events_backward(reserved_stream) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read_events_forward(reserved_stream, :head, 5) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read_events_backward(reserved_stream, :head, 5) }.to raise_error(RubyEventStore::ReservedInternalName)
+    end
+
+    specify "all considered internal detail" do
+      repository = EventRepository.new
+      repository.append_to_stream(
+        [event = SRecord.new],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      specification = RubyEventStore::Specification.new(repository)
+
+      expect{ repository.read(specification.stream("all").result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(specification.stream("all").backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(specification.stream("all").from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(specification.stream("all").from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+    end
+
     # TODO: Port from AR to ROM
     xspecify "using preload()" do
       repository = EventRepository.new
@@ -142,12 +172,7 @@ module RubyEventStore::ROM
       repository = EventRepository.new(rom: rom)
 
       expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_events_forward(global_stream, :head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_stream_events_forward(global_stream).map(&:event_id)).to eq([u1,u2,u3])
-
       expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read_events_backward(global_stream, :head, 3).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read_stream_events_backward(global_stream).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     # TODO: Port from AR to ROM
@@ -160,41 +185,9 @@ module RubyEventStore::ROM
 
     # TODO: Port from AR to ROM
     xspecify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
-        repository = EventRepository.new
-        repository.read_events_forward(global_stream, :head, 3)
-      end
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC.*/) do
-        repository = EventRepository.new
-        repository.read_stream_events_forward(global_stream)
-      end
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
         repository = EventRepository.new
         repository.read_all_streams_backward(:head, 3)
-      end
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
-        repository = EventRepository.new
-        repository.read_events_backward(global_stream, :head, 3)
-      end
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC.*/) do
-        repository = EventRepository.new
-        repository.read_stream_events_backward(global_stream)
       end
     end
 

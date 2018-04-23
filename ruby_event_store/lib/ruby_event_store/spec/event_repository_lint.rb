@@ -907,6 +907,11 @@ RSpec.shared_examples :event_repository do |repository_class|
     end
   end
 
+  specify 'read returns enumerator' do
+    specification = RubyEventStore::Specification.new(repository)
+    expect(repository.read(specification.result)).to be_kind_of(Enumerator)
+  end
+
   specify 'can store arbitrary binary data' do
     skip unless test_binary
     migrate_to_binary
@@ -921,5 +926,4 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.none
     )
   end
-
 end

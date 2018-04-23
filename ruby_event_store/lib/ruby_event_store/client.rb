@@ -44,31 +44,27 @@ module RubyEventStore
     end
 
     def read_events_forward(stream_name, start: :head, count: page_size)
-      page = Page.new(repository, start, count)
-      deserialized_events(repository.read_events_forward(Stream.new(stream_name), page.start, page.count))
+      deserialized_events(read.stream(stream_name).limit(count).from(start).each)
     end
 
     def read_events_backward(stream_name, start: :head, count: page_size)
-      page = Page.new(repository, start, count)
-      deserialized_events(repository.read_events_backward(Stream.new(stream_name), page.start, page.count))
+      deserialized_events(read.stream(stream_name).limit(count).from(start).backward.each)
     end
 
     def read_stream_events_forward(stream_name)
-      deserialized_events(repository.read_stream_events_forward(Stream.new(stream_name)))
+      deserialized_events(read.stream(stream_name).each)
     end
 
     def read_stream_events_backward(stream_name)
-      deserialized_events(repository.read_stream_events_backward(Stream.new(stream_name)))
+      deserialized_events(read.stream(stream_name).backward.each)
     end
 
     def read_all_streams_forward(start: :head, count: page_size)
-      page = Page.new(repository, start, count)
-      deserialized_events(repository.read_all_streams_forward(page.start, page.count))
+      deserialized_events(read.limit(count).from(start).each)
     end
 
     def read_all_streams_backward(start: :head, count: page_size)
-      page = Page.new(repository, start, count)
-      deserialized_events(repository.read_all_streams_backward(page.start, page.count))
+      deserialized_events(read.limit(count).from(start).backward.each)
     end
 
     def read_event(event_id)
@@ -152,7 +148,7 @@ module RubyEventStore
       end
 
       private
-      
+
       def add_thread_subscribers
         @subscribers.map do |handler, types|
           @event_broker.add_thread_subscriber(handler, types)
@@ -193,6 +189,10 @@ module RubyEventStore
       mapper.serialized_record_to_event(sev)
     end
 
+    def read
+      Specification.new(repository)
+    end
+
     def normalize_to_array(events)
       return *events
     end
@@ -206,21 +206,5 @@ module RubyEventStore
     end
 
     attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
-
-    class Page
-      def initialize(repository, start, count)
-        if start.instance_of?(Symbol)
-          raise InvalidPageStart unless [:head].include?(start)
-        else
-          start = start.to_s
-          raise InvalidPageStart if start.empty?
-          raise EventNotFound.new(start) unless repository.has_event?(start)
-        end
-        raise InvalidPageSize unless count > 0
-        @start = start
-        @count = count
-      end
-      attr_reader :start, :count
-    end
   end
 end
