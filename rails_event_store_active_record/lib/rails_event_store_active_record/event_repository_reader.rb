@@ -26,7 +26,7 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::ReservedInternalName if spec.stream_name.eql?("all")
 
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
-      stream = stream.order(position: order(spec.direction)) if spec.stream
+      stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
       stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
       stream = stream.order(id: order(spec.direction))
@@ -37,7 +37,7 @@ module RailsEventStoreActiveRecord
     private
 
     def normalize_stream_name(specification)
-      specification.stream ? specification.stream_name : EventRepository::SERIALIZED_GLOBAL_STREAM_NAME
+      specification.global_stream? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream_name
     end
 
     def start_condition(specification)
