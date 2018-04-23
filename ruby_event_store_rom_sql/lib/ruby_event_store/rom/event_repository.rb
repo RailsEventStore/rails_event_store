@@ -3,6 +3,8 @@ require 'ruby_event_store/rom/unit_of_work'
 
 module RubyEventStore
   module ROM
+    ReservedInternalName = Class.new(StandardError)
+
     class EventRepository
       def initialize(rom: ROM.env)
         @rom = rom
@@ -115,6 +117,8 @@ module RubyEventStore
       end
 
       def read(specification)
+        raise ReservedInternalName if specification.stream_name.eql?("all")
+
         @events.read(
           specification.direction,
           specification.stream,
