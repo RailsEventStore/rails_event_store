@@ -16,7 +16,7 @@ require 'rom/sql'
       if postgres
         column :event_id, :uuid, null: false, index: true
       else
-        column :event_id, String, null: false, index: true
+        column :event_id, String, size: 36, null: false, index: true
       end
 
       column :created_at, DateTime, null: false, index: true

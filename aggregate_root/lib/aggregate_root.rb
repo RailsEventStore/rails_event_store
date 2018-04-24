@@ -1,4 +1,3 @@
-require 'active_support/inflector'
 require 'aggregate_root/version'
 require 'aggregate_root/configuration'
 require 'aggregate_root/default_apply_strategy'

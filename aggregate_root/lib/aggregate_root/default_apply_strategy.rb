@@ -18,12 +18,21 @@ module AggregateRoot
 
     private
 
-    def handler_name_by_class(event_class)
-      "apply_#{event_class.name.demodulize.underscore}"
+    def handler_name(event)
+      on_methods.fetch(event.class) { handler_name_by_class(event.class) }
     end
 
-    def handler_name(event)
-      on_methods.fetch(event.class){ handler_name_by_class(event.class) }
+    def handler_name_by_class(event_class)
+      "apply_#{to_snake_case(event_class.name)}"
+    end
+
+    def to_snake_case(class_name)
+      class_name
+        .split("::")
+        .last
+        .gsub(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
+        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+        .downcase
     end
 
     private
