@@ -45,7 +45,7 @@ module RubyEventStore
             .ordered(direction, stream, offset_entry_id)
             .take(limit)
             .combine(:event)
-            .map_with(:stream_entry_to_serialized_record, auto_struct: false)
+            .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
             .each
         end
       end

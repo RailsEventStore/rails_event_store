@@ -6,7 +6,12 @@ IGNORE       = RubyEventStore::IndexViolationDetector\#detect \
                RubyEventStore::ROM::EventRepository\#handle_unique_violation_errors \
                RubyEventStore::ROM::EventRepository\#has_event? \
                RubyEventStore::ROM::EventRepository\#last_stream_event \
-               RubyEventStore::ROM::Repositories::Events\#find_nonexistent_pks
+               RubyEventStore::ROM::Repositories::Events\#find_nonexistent_pks \
+               RubyEventStore::ROM::Env\#handle_error \
+               RubyEventStore::ROM::Env\#initialize \
+               RubyEventStore::ROM::Env\#register_error_handler \
+               RubyEventStore::ROM::Env\#register_unit_of_work_options \
+               RubyEventStore::ROM::Env\#transaction
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 
