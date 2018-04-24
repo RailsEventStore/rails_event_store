@@ -39,7 +39,7 @@ module RubyEventStore
       class SpecHelper
         attr_reader :env
         
-        def initialize(rom: RubyEventStore::ROM.env)
+        def initialize(rom: ROM.env)
           @env = rom
         end
 
