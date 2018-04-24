@@ -8,6 +8,7 @@ Add RES and protobuf to your app's `Gemfile`
 
 ```ruby
 gem 'google-protobuf'
+gem 'protobuf_nested_struct'
 gem 'rails_event_store'
 ```
 

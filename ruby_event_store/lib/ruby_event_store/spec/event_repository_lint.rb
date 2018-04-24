@@ -974,4 +974,19 @@ RSpec.shared_examples :event_repository do |repository_class|
     specification = RubyEventStore::Specification.new(repository)
     expect(repository.read(specification.result)).to be_kind_of(Enumerator)
   end
+
+  specify 'can store arbitrary binary data' do
+    skip unless test_binary
+    migrate_to_binary
+    binary = "\xB0"
+    expect(binary.valid_encoding?).to eq(false)
+    binary.force_encoding("binary")
+    expect(binary.valid_encoding?).to eq(true)
+
+    repository.append_to_stream(
+      event = SRecord.new(data: binary, metadata: binary),
+      RubyEventStore::Stream.new('stream'),
+      RubyEventStore::ExpectedVersion.none
+    )
+  end
 end

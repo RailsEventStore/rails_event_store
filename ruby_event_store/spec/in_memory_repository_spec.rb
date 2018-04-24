@@ -8,6 +8,7 @@ module RubyEventStore
     let(:test_race_conditions_auto)  { true }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
+    let(:test_binary) { true }
 
     it_behaves_like :event_repository, InMemoryRepository
 
@@ -60,6 +61,9 @@ module RubyEventStore
     end
 
     def additional_limited_concurrency_for_auto_check
+    end
+
+    def migrate_to_binary
     end
   end
 end

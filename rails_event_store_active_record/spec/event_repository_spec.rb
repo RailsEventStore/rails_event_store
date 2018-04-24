@@ -22,6 +22,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
+    let(:test_binary) { true }
 
     it_behaves_like :event_repository, EventRepository
 
@@ -260,6 +261,24 @@ module RailsEventStoreActiveRecord
     end
 
     private
+
+    def migrate_to_binary
+      ar_migration = ActiveRecord::Migration
+      if Gem::Version.new(ActiveRecord::VERSION::STRING) >= Gem::Version.new("5.0.0")
+        ar_migration = ar_migration[4.2]
+      end
+      Class.new(ar_migration) do
+        def up
+          drop_table :event_store_events
+          drop_table :event_store_events_in_streams
+        end
+      end.new.up
+      binary = MigrationCode.gsub("text", "binary").gsub("CreateEventStoreEvents", "CreateEventStoreEventsBinary")
+      eval(binary) unless defined?(CreateEventStoreEventsBinary)
+      CreateEventStoreEventsBinary.new.change
+      RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
+      RailsEventStoreActiveRecord::Event.reset_column_information
+    end
 
     def count_queries(&block)
       count = 0

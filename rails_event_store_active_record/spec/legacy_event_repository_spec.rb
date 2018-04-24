@@ -25,6 +25,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_expected_version_auto) { false }
     let(:test_link_events_to_stream) { false }
+    let(:test_binary) { false }
 
     it_behaves_like :event_repository, LegacyEventRepository
 

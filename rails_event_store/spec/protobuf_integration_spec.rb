@@ -16,6 +16,7 @@ end
 module RailsEventStore
   RSpec.describe Client do
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
+      manually_migrate_columns_to_binary
       client = Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
       )
@@ -34,6 +35,26 @@ module RailsEventStore
 
       expect(@ev).to eq(event)
       expect(AsyncProtoHandler.event).to eq(event)
+    end
+
+    private
+
+    def manually_migrate_columns_to_binary
+      ar_migration = ActiveRecord::Migration
+      if Gem::Version.new(ActiveRecord::VERSION::STRING) >= Gem::Version.new("5.0.0")
+        ar_migration = ar_migration[4.2]
+      end
+      Class.new(ar_migration) do
+        def up
+          drop_table :event_store_events
+          drop_table :event_store_events_in_streams
+        end
+      end.new.up
+      binary = MigrationCode.gsub("text", "binary").gsub("CreateEventStoreEvents", "CreateEventStoreEventsBinary")
+      eval(binary) unless defined?(CreateEventStoreEventsBinary)
+      CreateEventStoreEventsBinary.new.change
+      RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
+      RailsEventStoreActiveRecord::Event.reset_column_information
     end
   end
 
