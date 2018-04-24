@@ -1,7 +1,12 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store_rom_sql
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RubyEventStore::IndexViolationDetector\#detect
+IGNORE       = RubyEventStore::IndexViolationDetector\#detect \
+               RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
+               RubyEventStore::ROM::EventRepository\#handle_unique_violation_errors \
+               RubyEventStore::ROM::EventRepository\#has_event? \
+               RubyEventStore::ROM::EventRepository\#last_stream_event \
+               RubyEventStore::ROM::Repositories::Events\#find_nonexistent_pks
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 

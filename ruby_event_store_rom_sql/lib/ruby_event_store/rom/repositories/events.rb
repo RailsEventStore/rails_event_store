@@ -34,9 +34,9 @@ module RubyEventStore
           events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
-        def read(direction, stream, from: :head, limit: nil)
+        def read(direction, stream, from:, limit:)
           unless from.equal?(:head)
-            offset_entry_id = stream_entries.by_stream_and_event_id(stream, from)[:id]
+            offset_entry_id = stream_entries.by_stream_and_event_id(stream, from).fetch(:id)
           end
           
           stream_entries
