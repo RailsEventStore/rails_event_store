@@ -62,7 +62,7 @@ RubyEventStore comes with `RubyEventStore::ROM::EventRepository` that you can us
 You simply need to configure your ROM container and then store it globally on `RubyEventStore::ROM.env` or pass it to the repository constructor.
 
 ```ruby
-gem 'ruby_event_store/rom/sql'
+require 'ruby_event_store/rom/sql'
 
 # Use the `setup` helper to configure repositories and mappers.
 # Then store an Env instance to get access to the ROM container.
@@ -79,7 +79,7 @@ client = RailsEventStore::Client.new(
 You can use a specific ROM container per repository to customize it more extensively. This example illustrates how to get at the ROM configuration and even run the latest migrations.
 
 ```ruby
-gem 'ruby_event_store/rom/sql'
+require 'ruby_event_store/rom/sql'
 
 config = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 
