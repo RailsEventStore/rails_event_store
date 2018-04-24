@@ -22,7 +22,7 @@ require 'rom/sql'
       column :created_at, DateTime, null: false, index: true
       
       index %i[stream position], unique: true
-      index %i[stream event_id], unique: true
+      index %i[stream event_id], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_event_id'
     end
 
     create_table :event_store_events do

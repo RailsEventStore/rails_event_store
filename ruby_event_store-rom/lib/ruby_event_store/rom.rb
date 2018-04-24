@@ -10,10 +10,11 @@ require 'ruby_event_store/rom/version'
 module RubyEventStore
   module ROM
     class Env
-      attr_accessor :container
+      attr_accessor :container, :lock
   
       def initialize(container)
         @container = container
+        @lock = Mutex.new
   
         container.register(:unique_violation_error_handlers, Set.new)
         container.register(:not_found_error_handlers, Set.new)
