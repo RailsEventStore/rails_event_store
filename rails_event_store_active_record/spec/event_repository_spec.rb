@@ -264,8 +264,8 @@ module RailsEventStoreActiveRecord
 
     def migrate_to_binary
       ar_migration = ActiveRecord::Migration
-      ar_migration = if Gem::Version.new(ActiveRecord::VERSION::STRING) >= Gem::Version.new("5.0.0")
-        ar_migration[4.2]
+      if Gem::Version.new(ActiveRecord::VERSION::STRING) >= Gem::Version.new("5.0.0")
+        ar_migration = ar_migration[4.2]
       end
       Class.new(ar_migration) do
         def up
