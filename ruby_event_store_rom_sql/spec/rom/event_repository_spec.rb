@@ -28,6 +28,14 @@ module RubyEventStore::ROM
     
     it_behaves_like :event_repository, EventRepository
 
+    specify "#initialize requires ROM::Container" do
+      expect{EventRepository.new(rom: nil).append_to_stream([], 'stream', :none)}.to raise_error(NoMethodError)
+    end
+
+    specify "#has_event? to raise exception for bad ID" do
+      expect(EventRepository.new.has_event?('0')).to eq(false)
+    end
+
     specify "all considered internal detail" do
       repository = EventRepository.new
       repository.append_to_stream(
@@ -37,25 +45,10 @@ module RubyEventStore::ROM
       )
       reserved_stream = RubyEventStore::Stream.new("all")
 
-      expect{ repository.read_stream_events_forward(reserved_stream) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect{ repository.read_stream_events_backward(reserved_stream) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect{ repository.read_events_forward(reserved_stream, :head, 5) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect{ repository.read_events_backward(reserved_stream, :head, 5) }.to raise_error(RubyEventStore::ReservedInternalName)
-    end
-
-    specify "all considered internal detail" do
-      repository = EventRepository.new
-      repository.append_to_stream(
-        [event = SRecord.new],
-        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any
-      )
-      specification = RubyEventStore::Specification.new(repository)
-
-      expect{ repository.read(specification.stream("all").result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect{ repository.read(specification.stream("all").backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect{ repository.read(specification.stream("all").from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect{ repository.read(specification.stream("all").from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(RubyEventStore::Specification.new(repository).stream("all").result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(RubyEventStore::Specification.new(repository).stream("all").backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(RubyEventStore::Specification.new(repository).stream("all").from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect{ repository.read(RubyEventStore::Specification.new(repository).stream("all").from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
     end
 
     # TODO: Port from AR to ROM
@@ -65,22 +58,22 @@ module RubyEventStore::ROM
         SRecord.new,
         SRecord.new,
       ], default_stream, RubyEventStore::ExpectedVersion.auto)
-      c1 = count_queries{ repository.read_all_streams_forward(:head, 2) }
+      c1 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).result) }
       expect(c1).to eq(2)
 
-      c2 = count_queries{ repository.read_all_streams_backward(:head, 2) }
+      c2 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).backward.result) }
       expect(c2).to eq(2)
 
-      c3 = count_queries{ repository.read_stream_events_forward(default_stream) }
+      c3 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).stream("stream").result) }
       expect(c3).to eq(2)
 
-      c4 = count_queries{ repository.read_stream_events_backward(default_stream) }
+      c4 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).stream("stream").backward.result) }
       expect(c4).to eq(2)
 
-      c5 = count_queries{ repository.read_events_forward(default_stream, :head, 2) }
+      c5 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).stream("stream").from(:head).limit(2).result) }
       expect(c5).to eq(2)
 
-      c6 = count_queries{ repository.read_events_backward(default_stream, :head, 2) }
+      c6 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).stream("stream").from(:head).limit(2).backward.result) }
       expect(c6).to eq(2)
     end
 
@@ -126,11 +119,11 @@ module RubyEventStore::ROM
       # end
       repository = EventRepository.new(rom: rom)
 
-      expect(repository.read_events_forward(default_stream, :head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_stream_events_forward(default_stream).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").result).map(&:event_id)).to eq([u1,u2,u3])
 
-      expect(repository.read_events_backward(default_stream, :head, 3).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read_stream_events_backward(default_stream).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").backward.from(:head).limit(3).result).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read(RubyEventStore::Specification.new(repository).stream("stream").backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "explicit sorting by id rather than accidental for all events" do
@@ -171,15 +164,15 @@ module RubyEventStore::ROM
       
       repository = EventRepository.new(rom: rom)
 
-      expect(repository.read_all_streams_forward(:head, 3).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read_all_streams_backward(:head, 3).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     # TODO: Port from AR to ROM
     xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
         repository = EventRepository.new
-        repository.read_all_streams_forward(:head, 3)
+        repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(3).result)
       end
     end
 
@@ -187,7 +180,7 @@ module RubyEventStore::ROM
     xspecify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
         repository = EventRepository.new
-        repository.read_all_streams_backward(:head, 3)
+        repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(3).backward.result)
       end
     end
 
@@ -216,10 +209,10 @@ module RubyEventStore::ROM
           ], default_stream, RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-        expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+        expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).result).to_a).to eq([event])
       end
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-      expect(repository.read_all_streams_forward(:head, 2)).to eq([event])
+      expect(repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).result).to_a).to eq([event])
     end
 
     # TODO: Port from AR to ROM

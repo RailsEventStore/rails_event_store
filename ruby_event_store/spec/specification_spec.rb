@@ -12,7 +12,7 @@ module RubyEventStore
 
     specify { expect(specification).to have_result(:count, Specification::NO_LIMIT) }
 
-    specify { expect(specification).to have_result(:stream_name, nil) }
+    specify { expect(specification).to have_result(:stream_name, GLOBAL_STREAM) }
 
     specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
 
@@ -32,7 +32,9 @@ module RubyEventStore
 
     specify { expect(specification.stream('stream')).to have_result(:stream_name, 'stream') }
 
-    specify { expect(specification.stream('all')).to have_result(:stream_name, GLOBAL_STREAM) }
+    specify { expect(specification.stream('all')).to have_result(:stream_name, 'all') }
+
+    specify { expect(specification.stream(GLOBAL_STREAM)).to have_result(:stream_name, GLOBAL_STREAM) }
 
     specify { expect(specification.from(:head)).to have_result(:start, :head) }
 
@@ -57,11 +59,13 @@ module RubyEventStore
         .to(have_result(:start, '567ef3dd-dd28-4e05-9734-9353cd8653df'))
     end
 
-    specify { expect(specification.stream('all')).to have_result(:global_stream?, true) }
+    specify { expect(specification.stream('all')).to have_result(:global_stream?, false) }
 
     specify { expect(specification.stream('nope')).to have_result(:global_stream?, false) }
 
-    specify { expect(specification).to have_result(:global_stream?, false) }
+    specify { expect(specification.stream(GLOBAL_STREAM)).to have_result(:global_stream?, true) }
+
+    specify { expect(specification).to have_result(:global_stream?, true) }
 
     specify { expect(specification).to have_result(:limit?, false) }
 

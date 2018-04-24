@@ -2,6 +2,8 @@ require 'active_record'
 
 module RailsEventStoreActiveRecord
   class LegacyEventRepository
+    SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
+
     class LegacyEvent < ::ActiveRecord::Base
       self.primary_key = :id
       self.table_name = 'event_store_events'
@@ -43,7 +45,7 @@ instead:
     end
 
     def delete_stream(stream)
-      LegacyEvent.where({stream: stream.name}).update_all(stream: RubyEventStore::GLOBAL_STREAM)
+      LegacyEvent.where({stream: stream.name}).update_all(stream: SERIALIZED_GLOBAL_STREAM_NAME)
     end
 
     def has_event?(event_id)
@@ -54,57 +56,6 @@ instead:
       build_event_entity(LegacyEvent.where(stream: stream.name).last)
     end
 
-    def read_events_forward(stream, start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .from(start_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_events_backward(stream, start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .from(start_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_stream_events_forward(stream)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .each
-        .to_a
-    end
-
-    def read_stream_events_backward(stream)
-      RubyEventStore::Specification.new(self)
-        .stream(stream.name)
-        .backward
-        .each
-        .to_a
-    end
-
-    def read_all_streams_forward(start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .from(start_event_id)
-        .limit(count)
-        .each
-        .to_a
-    end
-
-    def read_all_streams_backward(start_event_id, count)
-      RubyEventStore::Specification.new(self)
-        .from(start_event_id)
-        .limit(count)
-        .backward
-        .each
-        .to_a
-    end
-
     def read_event(event_id)
       build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
     end
@@ -113,7 +64,7 @@ instead:
       stream = LegacyEvent.order(id: order(spec.direction))
       stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
-      stream = stream.where(stream: spec.stream_name) if spec.stream
+      stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
 
       stream.map(&method(:build_event_entity)).each
     end
