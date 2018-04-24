@@ -40,10 +40,16 @@ module RailsEventStore
     private
 
     def manually_migrate_columns_to_binary
-      Class.new(ActiveRecord::Migration[4.2]) do
+      ar_migration = ActiveRecord::Migration
+      ar_migration = if Gem::Version.new(Rails::VERSION::STRING) >= Gem::Version.new("5.0.0")
+        ar_migration[4.2]
+      end
+      Class.new(ar_migration) do
         def change
-          change_column :event_store_events, :metadata, :binary, null: true
-          change_column :event_store_events, :data, :binary, null: false
+          remove_column :event_store_events, :metadata
+          remove_column :event_store_events, :data
+          add_column :event_store_events, :metadata, :binary
+          add_column :event_store_events, :data, :binary
         end
       end.new.change
       RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
