@@ -32,11 +32,13 @@ RSpec.describe AggregateRoot do
     stream = "any-order-stream"
     order_created = Orders::Events::OrderCreated.new
     order_expired = Orders::Events::OrderExpired.new
+    order_complicated = Orders::Events::OrderA1BcdEFghI2Jz.new
 
     order = Order.new
     order.apply(order_created)
     order.apply(order_expired)
-    expect(event_store).to receive(:publish_events).with([order_created, order_expired], stream_name: stream, expected_version: -1).and_call_original
+    order.apply(order_complicated)
+    expect(event_store).to receive(:publish_events).with([order_created, order_expired, order_complicated], stream_name: stream, expected_version: -1).and_call_original
     order.store(stream, event_store: event_store)
     expect(order.unpublished_events.to_a).to be_empty
   end
