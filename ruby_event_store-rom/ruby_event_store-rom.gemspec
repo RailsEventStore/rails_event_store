@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'ruby_event_store/rom/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'ruby_event_store_rom_sql'
+  spec.name          = 'ruby_event_store-rom'
   spec.version       = RubyEventStore::ROM::VERSION
   spec.licenses      = ['MIT']
   spec.authors       = ['Joel Van Horn']

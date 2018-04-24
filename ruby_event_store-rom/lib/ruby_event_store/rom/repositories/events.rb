@@ -4,13 +4,14 @@ module RubyEventStore
   module ROM
     module Repositories
       class Events < ::ROM::Repository[:events]
-        class CreateEventsChangeset < ::ROM::Changeset::Create
+        class Create < ::ROM::Changeset::Create
           # Convert to Hash
           map(&:to_h)
 
           map do
             rename_keys event_id: :id
             accept_keys %i[id data metadata event_type]
+            add_timestamps
           end
         end
 
@@ -19,11 +20,12 @@ module RubyEventStore
         end
 
         def create_changeset(serialized_records)
-          events.changeset(CreateEventsChangeset, serialized_records)
+          events.changeset(Create, serialized_records)
         end
 
         def find_nonexistent_pks(event_ids)
-          event_ids - events.by_pks(event_ids).pluck(:id)
+          return event_ids unless event_ids.any?
+          event_ids - events.by_pk(event_ids).pluck(:id)
         end
 
         def exist?(event_id)
@@ -41,9 +43,9 @@ module RubyEventStore
           
           stream_entries
             .ordered(direction, stream, offset_entry_id)
-            .limit(limit)
+            .take(limit)
             .combine(:event)
-            .map_with(:stream_entry_to_serialized_record)
+            .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
             .each
         end
       end

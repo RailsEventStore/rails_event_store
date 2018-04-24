@@ -1,6 +1,7 @@
 require 'ruby_event_store/rom'
 require 'support/rspec_defaults'
 require 'support/mutant_timeout'
+require 'dry/inflector'
 
 begin
   require 'pry'
@@ -8,50 +9,57 @@ begin
 rescue LoadError
 end
 
-ENV['DATABASE_URL']  ||= 'sqlite:db.sqlite3'
+ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
+ENV['ROM_ADAPTER'] ||= 'SQL'
+
+adapter_name = Dry::Inflector.new.underscore(ENV['ROM_ADAPTER']).to_sym
+
+require "ruby_event_store/rom/#{adapter_name}"
+ADAPTER_MODULE = Kernel.const_get("RubyEventStore::ROM::#{ENV['ROM_ADAPTER']}")
 
 rom = ROM::Configuration.new(
-  :sql,
+  adapter_name, # :sql, :memory
   ENV['DATABASE_URL'],
   max_connections: ENV['DATABASE_URL'] =~ /sqlite/ ? 1 : 5,
   preconnect: :concurrently
 )
-rom.default.run_migrations
 # rom.default.use_logger Logger.new(STDOUT)
+rom.default.run_migrations if adapter_name == :sql
 
 RubyEventStore::ROM.env = RubyEventStore::ROM.setup(rom)
 
 module SchemaHelper
-  def rom
+  def rom_helper
+    ADAPTER_MODULE::SpecHelper.new(rom: env)
+  end
+
+  def env
     RubyEventStore::ROM.env
   end
 
+  def container
+    env.container
+  end
+
   def rom_db
-    rom.gateways[:default]
+    container.gateways[:default]
   end
 
   def establish_database_connection
-    # Manually preconnect because disconnecting and reconnecting
-    # seems to lose the "preconnect concurrently" setting
-    rom_db.connection.pool.send(:preconnect, true)
+    rom_helper.establish_gateway_connection
   end
 
   def load_database_schema
-    rom_db.run_migrations
+    rom_helper.load_gateway_schema
   end
 
   def drop_database
-    rom_db.connection.drop_table?('event_store_events')
-    rom_db.connection.drop_table?('event_store_events_in_streams')
-    rom_db.connection.drop_table?('schema_migrations')
+    rom_helper.drop_gateway_schema
   end
 
   # See: https://github.com/rom-rb/rom-sql/blob/master/spec/shared/database_setup.rb
   def close_database_connection
-    rom_db.connection.disconnect
-    # Prevent the auto-reconnect when the test completed
-    # This will save from hardly reproducible connection run outs
-    rom_db.connection.pool.available_connections.freeze
+    rom_helper.close_gateway_connection
   end
 end
 

@@ -4,6 +4,12 @@ module RubyEventStore
   module ROM
     module Repositories
       class StreamEntries < ::ROM::Repository[:stream_entries]
+        class Create < ::ROM::Changeset::Create
+          map do
+            add_timestamps
+          end
+        end
+
         POSITION_SHIFT = 1.freeze
 
         def create_changeset(event_ids, stream, expected_version, global_stream: nil)
@@ -21,12 +27,12 @@ module RubyEventStore
             } unless stream.global?
 
             tuples << {
-              stream: Relations::StreamEntries::SERIALIZED_GLOBAL_STREAM_NAME,
+              stream: stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME,
               event_id: event_id
             } if global_stream
           end
 
-          stream_entries.changeset(:create, tuples)
+          stream_entries.changeset(Create, tuples)
         end
 
         def delete(stream)
