@@ -20,7 +20,7 @@ module SchemaHelper
 
   def load_database_schema
     ActiveRecord::Schema.define do
-      self.verbose = false
+      self.verbose = $verbose
       eval(MigrationCode) unless defined?(CreateEventStoreEvents)
       CreateEventStoreEvents.new.change
     end
@@ -28,7 +28,7 @@ module SchemaHelper
 
   def load_legacy_database_schema
     ActiveRecord::Schema.define do
-      self.verbose = false
+      self.verbose = $verbose
       create_table(:event_store_events, force: false) do |t|
         t.string      :stream,      null: false
         t.string      :event_type,  null: false

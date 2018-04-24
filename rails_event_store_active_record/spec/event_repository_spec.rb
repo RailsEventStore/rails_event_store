@@ -268,13 +268,14 @@ module RailsEventStoreActiveRecord
         ar_migration[4.2]
       end
       Class.new(ar_migration) do
-        def change
-          remove_column :event_store_events, :metadata
-          remove_column :event_store_events, :data
-          add_column :event_store_events, :metadata, :binary
-          add_column :event_store_events, :data, :binary
+        def up
+          drop_table :event_store_events
+          drop_table :event_store_events_in_streams
         end
-      end.new.change
+      end.new.up
+      binary = MigrationCode.gsub("text", "binary").gsub("CreateEventStoreEvents", "CreateEventStoreEventsBinary")
+      eval(binary) unless defined?(CreateEventStoreEventsBinary)
+      CreateEventStoreEventsBinary.new.change
       RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
       RailsEventStoreActiveRecord::Event.reset_column_information
     end
