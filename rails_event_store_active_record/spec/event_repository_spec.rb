@@ -29,28 +29,24 @@ module RailsEventStoreActiveRecord
 
     it_behaves_like :event_repository, EventRepository
 
-    specify "all considered internal detail" do
+    it 'does not confuse all with GLOBAL_STREAM' do
+      repository = EventRepository.new
       repository.append_to_stream(
-        [SRecord.new],
+        SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
+        RubyEventStore::Stream.new('all'),
+        RubyEventStore::ExpectedVersion.none
+      )
+      repository.append_to_stream(
+        SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )
 
-      expect do
-        repository.read(specification.stream("all").result)
-      end.to raise_error(RubyEventStore::ReservedInternalName)
+      expect(repository.read(specification.result))
+        .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a a1b49edb-7636-416f-874a-88f94b859bef]))
 
-      expect do
-        repository.read(specification.stream("all").backward.result)
-      end.to raise_error(RubyEventStore::ReservedInternalName)
-
-      expect do
-        repository.read(specification.stream("all").from(:head).limit(5).result)
-      end.to raise_error(RubyEventStore::ReservedInternalName)
-
-      expect do
-        repository.read(specification.stream("all").from(:head).limit(5).backward.result)
-      end.to raise_error(RubyEventStore::ReservedInternalName)
+      expect(repository.read(specification.stream('all').result))
+        .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
     end
 
     specify "using preload()" do
@@ -59,10 +55,10 @@ module RailsEventStoreActiveRecord
         event1 = SRecord.new,
       ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       c1 = count_queries{ repository.read(specification.from(:head).limit(2).result) }
-      expect(c1).to eq(2)
+      expect(c1).to eq(1)
 
       c2 = count_queries{ repository.read(specification.from(:head).limit(2).backward.result) }
-      expect(c2).to eq(2)
+      expect(c2).to eq(1)
 
       c3 = count_queries{ repository.read(specification.stream("stream").result) }
       expect(c3).to eq(2)
@@ -163,14 +159,20 @@ module RailsEventStoreActiveRecord
     end
 
     specify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*id.* ASC LIMIT.*/) do
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*position.* ASC LIMIT.*/) do
         repository.read(specification.from(:head).limit(3).result)
       end
     end
 
     specify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*id.* DESC LIMIT.*/) do
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*position.* DESC LIMIT.*/) do
         repository.read(specification.from(:head).limit(3).backward.result)
+      end
+    end
+
+    specify do
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*position.* ASC LIMIT.*/) do
+        repository.read(specification.from(:head).limit(3).result)
       end
     end
 
@@ -179,6 +181,18 @@ module RailsEventStoreActiveRecord
         repository.append_to_stream([
           SRecord.new,
         ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
+      end
+    end
+
+    specify "explicit ORDER BY position, id" do
+      repository.append_to_stream(
+        [SRecord.new],
+        RubyEventStore::Stream.new('stream'),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*position.* ASC, .*event_store_events_in_streams.*id.* ASC.*/) do
+        repository.read(specification.stream('stream').result)
       end
     end
 
@@ -228,18 +242,6 @@ module RailsEventStoreActiveRecord
       )
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
-      expect(EventInStream.find(987_654_322).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
-    end
-
-    specify 'fill_ids in append_to_stream global' do
-      repository = FillInRepository.new
-      repository.append_to_stream(
-        [event = SRecord.new],
-        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any
-      )
-
-      expect(EventInStream.find(987_654_321).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
     end
 
     specify 'fill_ids in link_to_stream' do
@@ -256,7 +258,6 @@ module RailsEventStoreActiveRecord
       )
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
-      expect(EventInStream.find(987_654_322).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
       expect(EventInStream.find(987_654_324).stream).to eq("whoo")
     end
 
