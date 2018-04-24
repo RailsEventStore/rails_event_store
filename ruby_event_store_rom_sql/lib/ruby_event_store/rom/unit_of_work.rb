@@ -1,10 +1,10 @@
 module RubyEventStore
   module ROM
     class UnitOfWork
-      def self.perform(rom: ROM.env)
+      def self.perform(gateway)
         queue = []
         yield(queue)
-        rom.gateways[:default].transaction(savepoint: true) { queue.each(&:commit) }
+        gateway.transaction(savepoint: true) { queue.each(&:commit) }
       end
     end
   end

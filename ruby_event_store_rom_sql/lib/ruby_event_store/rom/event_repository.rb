@@ -14,7 +14,7 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        UnitOfWork.perform(rom: @rom) do |session|
+        UnitOfWork.perform(@rom.gateways.fetch(:default)) do |session|
           session << @events.create_changeset(events)
           session << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
         end
@@ -28,9 +28,9 @@ module RubyEventStore
         event_ids = normalize_to_array(event_ids)
         nonexistent_ids = @events.find_nonexistent_pks(event_ids)
 
-        raise EventNotFound.new(nonexistent_ids.first) if nonexistent_ids.any?
+        nonexistent_ids.each { |id| raise EventNotFound.new(id) }
 
-        @stream_entries.create(event_ids, stream, expected_version)
+        @stream_entries.create_changeset(event_ids, stream, expected_version).commit
 
         self
       rescue => ex
@@ -44,16 +44,19 @@ module RubyEventStore
       def has_event?(event_id)
         @events.exist?(event_id)
       rescue => ex
-        handle_not_found_errors(ex, event_id) rescue EventNotFound; false
+        begin
+          handle_not_found_errors(ex, event_id)
+        rescue EventNotFound
+          false
+        end
       end
 
       def last_stream_event(stream)
-        RubyEventStore::Specification.new(self)
+        Specification.new(self)
           .stream(stream.name)
           .limit(1)
           .backward
           .each
-          .to_a
           .first
       end
 
@@ -72,8 +75,6 @@ module RubyEventStore
           from: specification.start,
           limit: (specification.count if specification.limit?)
         )
-      rescue => ex
-        handle_not_found_errors(ex, specification.start)
       end
 
       private

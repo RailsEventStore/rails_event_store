@@ -27,6 +27,14 @@ module RubyEventStore::ROM
     
     it_behaves_like :event_repository, EventRepository
 
+    specify "#initialize requires ROM::Container" do
+      expect{EventRepository.new(rom: nil).append_to_stream([], 'stream', :none)}.to raise_error(NoMethodError)
+    end
+
+    specify "#has_event? to raise exception for bad ID" do
+      expect(EventRepository.new.has_event?('0')).to eq(false)
+    end
+
     specify "all considered internal detail" do
       repository = EventRepository.new
       repository.append_to_stream(
