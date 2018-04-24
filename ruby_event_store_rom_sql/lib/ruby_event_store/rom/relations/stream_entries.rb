@@ -14,6 +14,8 @@ module RubyEventStore
           end
         end
   
+        SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
+
         def by_stream(stream)
           where(stream: normalize_stream_name(stream))
         end
@@ -47,7 +49,7 @@ module RubyEventStore
         private
 
         def normalize_stream_name(stream)
-          stream.global? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : stream.name
+          stream.global? ? SERIALIZED_GLOBAL_STREAM_NAME : stream.name
         end
       end
     end
