@@ -11,8 +11,9 @@ Gem::Specification.new do |spec|
   spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Active Record events repository for Rails Event Store}
-  spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store'}
-  spec.homepage      = 'https://railseventstore.org'
+  spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store. Exists for limited backwards-compatibilty and should not be chosen for new projects.}
+
+    spec.homepage      = 'https://railseventstore.org'
   spec.metadata    = {
     "homepage_uri" => "https://railseventstore.org/",
     "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
