@@ -100,8 +100,7 @@ module RubyEventStore::ROM
       ]
       
       repo = Repositories::Events.new(container)
-      
-      events.each(&repo.method(:create))
+      repo.create_changeset(events).commit
 
       expect(repo.events.to_a.size).to eq(3)
       
@@ -149,8 +148,7 @@ module RubyEventStore::ROM
       ]
 
       repo = Repositories::Events.new(container)
-      
-      events.each(&repo.method(:create))
+      repo.create_changeset(events).commit
 
       expect(repo.events.to_a.size).to eq(3)
       

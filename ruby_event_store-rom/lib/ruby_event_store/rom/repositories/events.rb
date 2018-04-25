@@ -18,10 +18,6 @@ module RubyEventStore
           end
         end
 
-        def create(serialized_records)
-          create_changeset(serialized_records).commit
-        end
-
         def create_changeset(serialized_records)
           events.changeset(Create, serialized_records)
         end
