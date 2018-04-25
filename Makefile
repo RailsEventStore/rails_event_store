@@ -6,7 +6,7 @@ NIX_TYPE     =  $(shell uname -s)
 GEMS         = aggregate_root \
 	       bounded_context \
 	       ruby_event_store \
-	       ruby_event_store_rom \
+	       ruby_event_store-rom \
 	       rails_event_store \
 	       rails_event_store_active_record \
 	       rails_event_store_active_record-legacy \
