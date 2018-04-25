@@ -18,9 +18,7 @@ module RubyEventStore
           # See: https://github.com/jeremyevans/sequel/blob/master/doc/transactions.rdoc
           env.register_unit_of_work_options(
             class: UnitOfWork,
-            savepoint: true,
-            retry_on: Sequel::SerializationFailure, # Retry on MySQL Deadlocks
-            # before_retry: -> (num, ex) { puts "RETRY [#{ex.class.name}]: #{ex.message}" }
+            savepoint: true
           )
 
           env.register_error_handler :unique_violation, -> ex {
