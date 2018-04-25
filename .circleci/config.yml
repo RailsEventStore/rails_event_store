@@ -88,6 +88,20 @@ jobs:
           environment:
             ARCHFLAGS: "-arch x86_64"
 
+  rails_event_store_active_record-legacy:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install mysql
+      - run: brew install sqlite3
+      - run: brew install postgresql
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store_active_record-legacy && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
 workflows:
   version: 2
   test_mutate:
@@ -95,6 +109,7 @@ workflows:
     - ruby_event_store
     - rails_event_store
     - rails_event_store_active_record
+    - rails_event_store_active_record-legacy
     - aggregate_root
     - rails_event_store-rspec
     - rails_event_store-browser
