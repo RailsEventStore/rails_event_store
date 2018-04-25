@@ -102,6 +102,20 @@ jobs:
           environment:
             ARCHFLAGS: "-arch x86_64"
 
+  ruby_event_store-rom:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install mysql
+      - run: brew install sqlite3
+      - run: brew install postgresql
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd ruby_event_store-rom && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
 workflows:
   version: 2
   test_mutate:
@@ -114,3 +128,4 @@ workflows:
     - rails_event_store-rspec
     - rails_event_store-browser
     - bounded_context
+    - ruby_event_store-rom
