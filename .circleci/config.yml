@@ -127,4 +127,5 @@ workflows:
     - aggregate_root
     - rails_event_store-rspec
     - rails_event_store-browser
-    - bounded_context    - ruby_event_store-rom
+    - bounded_context
+    - ruby_event_store-rom
