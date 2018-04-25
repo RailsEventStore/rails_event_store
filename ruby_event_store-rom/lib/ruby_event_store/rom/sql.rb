@@ -19,7 +19,8 @@ module RubyEventStore
           env.register_unit_of_work_options(
             class: UnitOfWork,
             savepoint: true,
-            retry_on: Sequel::SerializationFailure
+            retry_on: Sequel::SerializationFailure, # Retry on MySQL Deadlocks
+            # before_retry: -> (num, ex) { puts "RETRY [#{ex.class.name}]: #{ex.message}" }
           )
 
           env.register_error_handler :unique_violation, -> ex {
@@ -58,17 +59,17 @@ module RubyEventStore
           # seems to lose the "preconnect concurrently" setting
           gateway.connection.pool.send(:preconnect, true)
         end
-      
+
         def load_gateway_schema
           gateway.run_migrations
         end
-      
+
         def drop_gateway_schema
           gateway.connection.drop_table?('event_store_events')
           gateway.connection.drop_table?('event_store_events_in_streams')
           gateway.connection.drop_table?('schema_migrations')
         end
-      
+
         # See: https://github.com/rom-rb/rom-sql/blob/master/spec/shared/database_setup.rb
         def close_gateway_connection
           gateway.connection.disconnect
