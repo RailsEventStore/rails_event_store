@@ -34,10 +34,14 @@ module RailsEventStoreActiveRecord
 
 
             If you cannot migrate right now -- you can for some time continue using
-            old repository. In order to do so, change configuration accordingly:
-
+            old repository. In order to do so:
+            1. install 'rails_event_store_active_record-legacy' gem
+            2. change configuration accordingly:
+            
+              require 'rails_event_store_active_record/legacy'
+            
               config.event_store = RailsEventStore::Client.new(
-                                     repository: RailsEventStoreActiveRecord::LegacyEventRepository.new
+                                     repository: RailsEventStoreActiveRecord::Legacy::EventRepository.new
                                    )
 
 
