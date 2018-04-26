@@ -49,6 +49,20 @@ RSpec.configure do |c|
 end
 ```
 
+If you want even faster tests you can additionally skip event's serialization.
+
+```ruby
+RSpec.configure do |c|
+  c.around(:each)
+    Rails.configuration.event_store = RailsEventStore::Client.new(
+      repository: RubyEventStore::InMemoryRepository.new,
+      mapper: RubyEventStore::Mappers::NullMapper,
+    )
+    # add subscribers here
+  end
+end
+```
+
 We don't recommend using `InMemoryRepository` in production even if you don't need to persist events because the repository keeps all published events in memory. This is acceptable in testing because you can throw the instance away for every test and garbage collector reclaims the memory. In production, your memory would keep growing until you restart the application server.
 
 # Using Ruby Object Mapper (ROM) for SQL without ActiveRecord or Rails
