@@ -1,7 +1,8 @@
 require 'spec_helper'
+require 'ruby_event_store/rom/sql'
 
-module RubyEventStore::ROM
-  RSpec.describe SQL::SpecHelper do
+module RubyEventStore::ROM::SQL
+  RSpec.describe SpecHelper do
     include SchemaHelper
 
     around(:each) do |example|
