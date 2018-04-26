@@ -38,14 +38,11 @@ If you want to write your own repository, we provide [a suite of tests that you 
 
 RubyEventStore comes with `RubyEventStore::InMemoryRepository` that you can use in tests instead of the default one. `InMemoryRepository` does not persist events but offers the same characteristics as `RailsEventStoreActiveRecord::EventRepository`. It is tested with the same test suite and raises identical exceptions.
 
-You can additionally use pass `RubyEventStore::Mappers::NullMapper.new` which will skip serialization/deserialization of events and make tests even faster. Full example:
-
 ```ruby
 RSpec.configure do |c|
   c.around(:each)
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RubyEventStore::InMemoryRepository.new,
-      mapper: RubyEventStore::Mappers::NullMapper.new,
+      repository: RubyEventStore::InMemoryRepository.new()
     )
     # add subscribers here
   end
