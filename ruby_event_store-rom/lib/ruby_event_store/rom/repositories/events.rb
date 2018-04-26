@@ -47,7 +47,7 @@ module RubyEventStore
                 .offset(offset)
                 .take(limit)
                 .combine(:event)
-                .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
+                .map_with(:stream_entry_to_serialized_record, auto_struct: false)
                 .to_ary
             end
             BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
@@ -56,7 +56,7 @@ module RubyEventStore
               .ordered(direction, stream, offset_entry_id)
               .take(limit)
               .combine(:event)
-              .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
+              .map_with(:stream_entry_to_serialized_record, auto_struct: false)
               .each
           end
         end
