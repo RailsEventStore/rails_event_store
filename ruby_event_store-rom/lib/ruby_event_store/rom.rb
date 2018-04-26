@@ -24,7 +24,7 @@ module RubyEventStore
         container[:logger]
       end
 
-      def transaction(&block)
+      def unit_of_work(&block)
         options = container[:unit_of_work_options].dup
         options.delete(:class){UnitOfWork}.new(rom: self).call(**options, &block)
       end
@@ -37,9 +37,15 @@ module RubyEventStore
         container[:"#{type}_error_handlers"] << handler
       end
   
-      def handle_error(type, ex, *args)
-        container[:"#{type}_error_handlers"].each{ |h| h.call(ex, *args) }
-        raise ex
+      def handle_error(type, *args, swallow: [])
+        yield
+      rescue => ex
+        begin
+          container[:"#{type}_error_handlers"].each{ |h| h.call(ex, *args) }
+          raise ex
+        rescue *swallow
+          # swallow
+        end
       end
     end
 
