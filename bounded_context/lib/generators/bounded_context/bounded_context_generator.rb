@@ -7,6 +7,8 @@ module BoundedContext
       hook_for :test_framework
 
       def create_bounded_context
+        create_file "#{bounded_context_name}/lib/#{bounded_context_name}/.keep"
+
         template "module.rb", "#{bounded_context_name}/lib/#{bounded_context_name}.rb"
 
         application do
