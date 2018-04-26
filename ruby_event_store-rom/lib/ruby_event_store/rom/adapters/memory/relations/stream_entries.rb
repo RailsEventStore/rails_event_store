@@ -27,11 +27,11 @@ module RubyEventStore
           end
           
           def by_stream(stream)
-            restrict(stream: stream.name)
+            restrict(stream: normalize_stream_name(stream))
           end
   
           def by_stream_and_event_id(stream, event_id)
-            restrict(stream: stream.name, event_id: event_id).one!
+            restrict(stream: normalize_stream_name(stream), event_id: event_id).one!
           end
   
           def max_position(stream)
@@ -72,6 +72,10 @@ module RubyEventStore
 
               raise TupleUniquenessError.new("Uniquness violated for: stream and #{key}")
             end
+          end
+
+          def normalize_stream_name(stream)
+            stream.global? ? SERIALIZED_GLOBAL_STREAM_NAME : stream.name
           end
         end
       end
