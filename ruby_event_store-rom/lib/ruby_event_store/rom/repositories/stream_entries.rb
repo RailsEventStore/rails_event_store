@@ -33,11 +33,7 @@ module RubyEventStore
         end
 
         def delete(stream)
-          delete_changeset(stream).commit
-        end
-
-        def delete_changeset(stream)
-          stream_entries.by_stream(stream).changeset(:delete)
+          stream_entries.by_stream(stream).command(:delete).call
         end
 
         def resolve_version(stream, expected_version)
