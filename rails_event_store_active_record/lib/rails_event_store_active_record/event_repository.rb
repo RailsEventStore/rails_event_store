@@ -2,8 +2,8 @@ require 'activerecord-import'
 
 module RailsEventStoreActiveRecord
   class EventRepository
-
     POSITION_SHIFT = 1
+    SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
     def initialize
       verify_correct_schema_present
@@ -38,51 +38,27 @@ module RailsEventStoreActiveRecord
       @repo_reader.last_stream_event(stream)
     end
 
-    def read_events_forward(stream, after_event_id, count)
-      @repo_reader.read_events_forward(stream, after_event_id, count)
-    end
-
-    def read_events_backward(stream, before_event_id, count)
-      @repo_reader.read_events_backward(stream, before_event_id, count)
-    end
-
-    def read_stream_events_forward(stream)
-      @repo_reader.read_stream_events_forward(stream)
-    end
-
-    def read_stream_events_backward(stream)
-      @repo_reader.read_stream_events_backward(stream)
-    end
-
-    def read_all_streams_forward(after_event_id, count)
-      @repo_reader.read_all_streams_forward(after_event_id, count)
-    end
-
-    def read_all_streams_backward(before_event_id, count)
-      @repo_reader.read_all_streams_backward(before_event_id, count)
-    end
-
     def read_event(event_id)
       @repo_reader.read_event(event_id)
     end
 
-    def get_all_streams
-      @repo_reader.get_all_streams
+    def read(specification)
+      @repo_reader.read(specification)
     end
 
     private
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
-      raise RubyEventStore::InvalidExpectedVersion if stream.global? && !expected_version.equal?(:any)
-      expected_version = normalize_expected_version(expected_version, stream)
+      last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
+      resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       ActiveRecord::Base.transaction(requires_new: true) do
         in_stream = collection.flat_map.with_index do |element, index|
-          position = compute_position(expected_version, index)
+          position = compute_position(resolved_version, index)
           event_id = to_event_id.call(element)
           collection = []
           collection.unshift({
-            stream: RubyEventStore::GLOBAL_STREAM,
+            stream: SERIALIZED_GLOBAL_STREAM_NAME,
             position: nil,
             event_id: event_id,
           }) if include_global
@@ -108,23 +84,9 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::WrongExpectedEventVersion
     end
 
-    def compute_position(expected_version, index)
-      unless expected_version.equal?(:any)
-        expected_version + index + POSITION_SHIFT
-      end
-    end
-
-    def normalize_expected_version(expected_version, stream)
-      case expected_version
-        when Integer, :any
-          expected_version
-        when :none
-          -1
-        when :auto
-          eis = EventInStream.where(stream: stream.name).order("position DESC").first
-          (eis && eis.position) || -1
-        else
-          raise RubyEventStore::InvalidExpectedVersion
+    def compute_position(resolved_version, index)
+      unless resolved_version.nil?
+        resolved_version + index + POSITION_SHIFT
       end
     end
 

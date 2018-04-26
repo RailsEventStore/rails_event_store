@@ -37,6 +37,10 @@ module RubyEventStore
       expect do
         m[:key] = Object.new
       end.to raise_error(ArgumentError)
+
+      expect do
+        m['key'] = 1
+      end.to raise_error(ArgumentError)
     end
 
     specify 'allowed keys' do

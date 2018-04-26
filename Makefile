@@ -3,8 +3,15 @@ ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= $(shell cat RES_VERSION)
 NIX_TYPE     =  $(shell uname -s)
-GEMS         = aggregate_root bounded_context ruby_event_store rails_event_store \
-	           rails_event_store_active_record rails_event_store-browser rails_event_store-rspec
+GEMS         = aggregate_root \
+	       bounded_context \
+	       ruby_event_store \
+	       ruby_event_store-rom \
+	       rails_event_store \
+	       rails_event_store_active_record \
+	       rails_event_store_active_record-legacy \
+	       rails_event_store-browser \
+	       rails_event_store-rspec
 
 ifeq ($(NIX_TYPE),Linux)
   SED_OPTS = -i
@@ -16,6 +23,9 @@ endif
 
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
+
+$(addprefix reinstall-, $(GEMS)):
+	@make -C $(subst reinstall-,,$@) reinstall
 
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
@@ -63,6 +73,8 @@ set-version: git-check-clean git-check-committed
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
+
+reinstall: $(addprefix reinstall-, $(GEMS)) ## Reinstall (with new resolve) dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 

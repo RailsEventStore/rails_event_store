@@ -3,6 +3,8 @@ require 'support/rspec_defaults'
 require 'support/mutant_timeout'
 require 'rails'
 
+$verbose = ENV.has_key?('VERBOSE') ? true : false
+
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 
@@ -18,7 +20,7 @@ module SchemaHelper
 
   def load_database_schema
     ActiveRecord::Schema.define do
-      self.verbose = false
+      self.verbose = $verbose
       eval(MigrationCode) unless defined?(CreateEventStoreEvents)
       CreateEventStoreEvents.new.change
     end
@@ -26,7 +28,7 @@ module SchemaHelper
 
   def load_legacy_database_schema
     ActiveRecord::Schema.define do
-      self.verbose = false
+      self.verbose = $verbose
       create_table(:event_store_events, force: false) do |t|
         t.string      :stream,      null: false
         t.string      :event_type,  null: false
@@ -55,4 +57,12 @@ end
 
 RSpec.configure do |config|
   config.failure_color = :magenta
+end
+
+RSpec::Matchers.define :contains_ids do |expected_ids|
+  match do |enum|
+    @actual = enum.map(&:event_id)
+    values_match?(expected_ids, @actual)
+  end
+  diffable
 end

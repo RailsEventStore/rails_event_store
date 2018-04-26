@@ -12,20 +12,29 @@ install: ## Install gem dependencies
 	@BUNDLE_GEMFILE=spec/v1_v2_schema_migration/Gemfile bundle install
 	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
 
+remove-lock:
+	@echo "Removing resolved dependency versions"
+	-rm Gemfile.lock
+	-rm spec/v1_v2_schema_migration/Gemfile.lock
+	-rm spec/without_rails/Gemfile.lock
+
+reinstall: remove-lock install ## Removing resolved dependency versions
+
+
 test: ## Run unit tests
 	@echo "Running unit tests"
-	@bundle exec rspec
+	@BUNDLE_GEMFILE=Gemfile bundle exec rspec
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests with --fail-fast"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \

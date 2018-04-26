@@ -1,8 +1,131 @@
 version: 2
 jobs:
-  build:
-    docker:
-      - image: circleci/ruby:2.4.4-node-browsers
+  aggregate_root:
+    macos:
+      xcode: "9.3.0"
     steps:
       - checkout
-      - run: make install mutate
+      - run: cd aggregate_root && make install mutate
+
+  bounded_context:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd bounded_context && make install mutate
+
+  ruby_event_store:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd ruby_event_store && make install mutate
+
+  rails_event_store:
+    macos:
+      xcode: "9.3.0"
+    working_directory: ~/res
+    steps:
+      - run: brew install sqlite3
+      - checkout
+      - run: "date +'Cache for week: %U of %Y' >> rails_event_store/CacheBust"
+      - restore_cache:
+          keys:
+          - v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}-{{ checksum "rails_event_store/CacheBust" }}
+          - v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}-
+          - v1-rails_event_store-
+      - run:
+          name: make install
+          working_directory: rails_event_store
+          command: make install
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+            BUNDLE_PATH: vendor/bundle
+      - save_cache:
+          paths:
+            - rails_event_store/vendor/bundle
+          key: v1-rails_event_store-{{ checksum "rails_event_store/Gemfile" }}-{{ checksum "rails_event_store/rails_event_store.gemspec" }}-{{ checksum "rails_event_store/CacheBust" }}
+      - run:
+          name: make mutate
+          working_directory: rails_event_store
+          command: make mutate
+          environment:
+            BUNDLE_PATH: vendor/bundle
+
+  rails_event_store-rspec:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - checkout
+      - run: cd rails_event_store-rspec && make install mutate
+
+  rails_event_store-browser:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew tap caskroom/cask
+      - run: brew install sqlite3
+      - run: brew cask install chromedriver
+      - run: brew cask install google-chrome
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store-browser && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+  rails_event_store_active_record:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install mysql
+      - run: brew install sqlite3
+      - run: brew install postgresql
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store_active_record && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+  rails_event_store_active_record-legacy:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install mysql
+      - run: brew install sqlite3
+      - run: brew install postgresql
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd rails_event_store_active_record-legacy && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+  ruby_event_store-rom:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew install mysql
+      - run: brew install sqlite3
+      - run: brew install postgresql
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd ruby_event_store-rom && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
+workflows:
+  version: 2
+  test_mutate:
+    jobs:
+    - ruby_event_store
+    - rails_event_store
+    - rails_event_store_active_record
+    - rails_event_store_active_record-legacy
+    - aggregate_root
+    - rails_event_store-rspec
+    - rails_event_store-browser
+    - bounded_context
+    - ruby_event_store-rom

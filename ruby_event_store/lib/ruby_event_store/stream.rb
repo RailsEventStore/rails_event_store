@@ -1,12 +1,12 @@
 module RubyEventStore
   class Stream
     def initialize(name)
-      raise IncorrectStreamData if name.nil? || name.empty?
+      raise IncorrectStreamData if !name.equal?(GLOBAL_STREAM) && (name.nil? || name.empty?)
       @name = name
     end
 
     def global?
-      name.eql?(GLOBAL_STREAM)
+      name.equal?(GLOBAL_STREAM)
     end
 
     attr_reader :name

@@ -186,6 +186,17 @@ RSpec.shared_examples :event_broker do |broker_class|
     expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])
   end
 
+  it 'subscribes by type of event which is a String' do
+    handler         = TestHandler.new
+    broker.add_subscriber(handler, ["Test1DomainEvent"])
+    broker.add_thread_subscriber(handler, ["Test1DomainEvent"])
+
+    event1 = Test1DomainEvent.new
+    broker.notify_subscribers(event1)
+
+    expect(handler.events).to eq([event1,event1])
+  end
+
   private
 
   class HandlerClass

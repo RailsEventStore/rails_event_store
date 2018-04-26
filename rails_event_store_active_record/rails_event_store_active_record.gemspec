@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['dev@arkency.com']
 
   spec.summary       = %q{Active Record events repository for Rails Event Store}
-  spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store'}
+  spec.description   = %q{Implementation of events repository based on Rails Active Record for Rails Event Store}
   spec.homepage      = 'https://railseventstore.org'
   spec.metadata    = {
     "homepage_uri" => "https://railseventstore.org/",
@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
-  spec.add_development_dependency 'rails', '~> 5.2.0.rc2'
+  spec.add_development_dependency 'rails', '~> 5.2'
   spec.add_development_dependency 'sqlite3', '1.3.13'
   spec.add_development_dependency 'pg', '0.21'
   spec.add_development_dependency 'mysql2', '0.4.10'
