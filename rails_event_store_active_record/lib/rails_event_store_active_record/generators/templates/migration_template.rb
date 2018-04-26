@@ -10,7 +10,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
       if postgres
         t.references :event, null: false, type: :uuid
       else
-        t.references :event, null: false, type: :string
+        t.references :event, null: false, type: :string, limit: 36
       end
       t.datetime    :created_at,  null: false
     end
