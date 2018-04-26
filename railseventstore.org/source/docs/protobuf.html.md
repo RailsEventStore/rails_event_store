@@ -12,7 +12,15 @@ gem 'protobuf_nested_struct'
 gem 'rails_event_store'
 ```
 
-This edge feature is not yet available in a released gem version.
+## Migration
+
+Change `data` and `metadata` columns' type to `binary` to allow storing
+non-UTF8 characters which might appear when using protobuf serialization.
+
+```ruby
+change_column :event_store_events, :data,     :binary, null: true
+change_column :event_store_events, :metadata, :binary, null: true
+```
 
 ## Configure protobuf mapper
 
