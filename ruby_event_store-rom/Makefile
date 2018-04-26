@@ -6,11 +6,12 @@ IGNORE       = RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::EventRepository\#has_event? \
                RubyEventStore::ROM::EventRepository\#last_stream_event \
                RubyEventStore::ROM::Repositories::Events\#find_nonexistent_pks \
+               RubyEventStore::ROM::Repositories::StreamEntries\#create_changeset \
                RubyEventStore::ROM::Env\#handle_error \
                RubyEventStore::ROM::Env\#initialize \
                RubyEventStore::ROM::Env\#register_error_handler \
                RubyEventStore::ROM::Env\#register_unit_of_work_options \
-               RubyEventStore::ROM::Env\#transaction \
+               RubyEventStore::ROM::Env\#unit_of_work \
                RubyEventStore::ROM::UnitOfWork\#call \
                RubyEventStore::ROM::UnitOfWork\#commit! \
                RubyEventStore::ROM::SQL::Relations::StreamEntries\#normalize_stream_name \
