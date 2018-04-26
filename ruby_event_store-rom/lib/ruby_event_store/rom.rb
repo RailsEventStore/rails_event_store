@@ -17,6 +17,11 @@ module RubyEventStore
   
         container.register(:unique_violation_error_handlers, Set.new)
         container.register(:not_found_error_handlers, Set.new)
+        container.register(:logger, Logger.new(STDOUT).tap { |logger| logger.level = Logger::WARN })
+      end
+
+      def logger
+        container[:logger]
       end
 
       def transaction(&block)

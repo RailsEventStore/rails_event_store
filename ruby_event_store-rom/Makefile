@@ -18,7 +18,8 @@ IGNORE       = RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::SQL::SpecHelper\#load_gateway_schema \
                RubyEventStore::ROM::SQL::SpecHelper\#establish_gateway_connection \
                RubyEventStore::ROM::SQL::SpecHelper\#drop_gateway_schema \
-               RubyEventStore::ROM::SQL::SpecHelper\#close_gateway_connection
+               RubyEventStore::ROM::SQL::SpecHelper\#close_gateway_connection \
+               RubyEventStore::ROM::SQL::UnitOfWork\#commit!
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 
