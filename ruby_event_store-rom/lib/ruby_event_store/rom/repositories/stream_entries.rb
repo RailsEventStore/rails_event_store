@@ -12,22 +12,19 @@ module RubyEventStore
 
         POSITION_SHIFT = 1.freeze
 
-        def create_changeset(event_ids, stream, expected_version, global_stream: nil)
-          resolved_version = expected_version.resolve_for(stream, ->(_stream) {
-            (stream_entries.max_position(stream) || {})[:position]
-          })
-
+        def create_changeset(event_ids, stream, resolved_version, global_stream: nil)
           tuples = []
-
+          
           event_ids.each_with_index do |event_id, index|
             tuples << {
               stream: stream.name,
               position: resolved_version && resolved_version + index + POSITION_SHIFT,
               event_id: event_id
-            } unless stream.global?
+             } unless stream.global?
 
-            tuples << {
+             tuples << {
               stream: stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME,
+              position: nil,
               event_id: event_id
             } if global_stream
           end
@@ -41,6 +38,12 @@ module RubyEventStore
 
         def delete_changeset(stream)
           stream_entries.by_stream(stream).changeset(:delete)
+        end
+
+        def resolve_version(stream, expected_version)
+          expected_version.resolve_for(stream, ->(_stream) {
+            (stream_entries.max_position(stream) || {})[:position]
+          })
         end
       end
     end

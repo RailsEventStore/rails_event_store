@@ -26,7 +26,12 @@ module RubyEventStore
             # again if the transaction is retried due to a
             # deadlock in MySQL
             changesets << @events.create_changeset(events)
-            changesets << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
+            changesets << @stream_entries.create_changeset(
+              event_ids,
+              stream,
+              @stream_entries.resolve_version(stream, expected_version),
+              global_stream: true
+            )
           end
         end
 
@@ -35,12 +40,18 @@ module RubyEventStore
 
       def link_to_stream(event_ids, stream, expected_version)
         event_ids = normalize_to_array(event_ids)
-        nonexistent_ids = @events.find_nonexistent_pks(event_ids)
 
-        nonexistent_ids.each { |id| raise EventNotFound.new(id) }
+        # Validate event IDs
+        @events
+          .find_nonexistent_pks(event_ids)
+          .each { |id| raise EventNotFound.new(id) }
 
         guard_for(:unique_violation) do
-          @stream_entries.create_changeset(event_ids, stream, expected_version).commit
+          @stream_entries.create_changeset(
+            event_ids,
+            stream,
+            @stream_entries.resolve_version(stream, expected_version)
+          ).commit
         end
 
         self
