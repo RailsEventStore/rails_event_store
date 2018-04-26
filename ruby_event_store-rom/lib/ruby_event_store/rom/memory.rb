@@ -19,7 +19,7 @@ module RubyEventStore
         end
 
         def configure(env)
-          env.register_unit_of_work_options(class: Memory::UnitOfWork)
+          env.register_unit_of_work_options(class: UnitOfWork)
 
           env.register_error_handler :unique_violation, -> ex {
             case ex

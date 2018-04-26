@@ -43,8 +43,6 @@ module RubyEventStore
             query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
           end
           
-          alias_method :take, :limit
-
           private
   
           def normalize_stream_name(stream)

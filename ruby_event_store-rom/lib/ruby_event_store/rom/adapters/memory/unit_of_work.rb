@@ -1,20 +1,48 @@
 module RubyEventStore
   module ROM
     module Memory
-      class UnitOfWork < RubyEventStore::ROM::UnitOfWork
-        def commit!(gateway, queue, options = {})
-          completed = []
-          
-          while queue.size > 0
-            completed << queue.shift
+      class UnitOfWork < ROM::UnitOfWork
+        def self.mutex
+          @mutex ||= Mutex.new
+        end
 
-            begin
-              completed.last.commit
-            rescue => ex
-              completed.reverse.each do |item|
-                item.relation.command(:delete, result: :many).call
+        def commit!(gateway, changesets, **options)
+          self.class.mutex.synchronize do
+            committed = []
+            
+            while changesets.size > 0
+              changeset = changesets.shift
+
+              begin
+                relation = env.container.relations[changeset.relation.name]
+
+                case changeset
+                when ROM::Repositories::Events::Create
+                  relation.by_pk(changeset.to_a.map{ |e| e[:id] }).each do |tuple|
+                    raise TupleUniquenessError.new("Uniquness violated for: #{tuple[:id]}")
+                  end
+                when ROM::Repositories::StreamEntries::Create
+                  changeset.to_a.each do |tuple|
+                    relation.send(:verify_uniquness!, tuple)
+                  end
+                else
+                  raise ArgumentError, 'Unknown changeset'
+                end
+
+                committed << changeset
+
+                changeset.commit
+              rescue => ex
+                committed.reverse.each do |changeset|
+                  relation = env.container
+                              .relations[changeset.relation.name]
+                              .by_pk(changeset.to_a.map { |e| e[:id] })
+
+                  relation.command(:delete, result: :many).call
+                end
+                
+                raise
               end
-              raise
             end
           end
         end
