@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
-require_relative '../../../ruby_event_store/spec/mappers/events_pb.rb'
 
 module RubyEventStore::ROM
   RSpec.describe EventRepository do
@@ -167,32 +166,6 @@ module RubyEventStore::ROM
       expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
-    # TODO: Port from AR to ROM
-    xspecify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id ASC LIMIT.*/) do
-        repository = EventRepository.new
-        repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(3).result)
-      end
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY id DESC LIMIT.*/) do
-        repository = EventRepository.new
-        repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(3).backward.result)
-      end
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify "explicit ORDER BY position" do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
-        repository = EventRepository.new
-        repository.append_to_stream([
-          SRecord.new,
-        ], default_stream, RubyEventStore::ExpectedVersion.auto)
-      end
-    end
-
     specify "nested transaction - events still not persisted if append failed" do
       repository = EventRepository.new
       repository.append_to_stream([
@@ -212,16 +185,6 @@ module RubyEventStore::ROM
       end
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
       expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(2).result).to_a).to eq([event])
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify "limited query when looking for unexisting events during linking" do
-      repository = EventRepository.new
-      expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
-        expect do
-          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', RubyEventStore::Stream.new('flow'), RubyEventStore::ExpectedVersion.none)
-        end.to raise_error(RubyEventStore::EventNotFound)
-      end
     end
 
     def cleanup_concurrency_test
