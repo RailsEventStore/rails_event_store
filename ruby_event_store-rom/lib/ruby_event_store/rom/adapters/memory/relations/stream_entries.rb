@@ -14,6 +14,13 @@ module RubyEventStore
             end
           end
 
+          SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
+
+          def take(num)
+            return self unless num
+            super
+          end
+          
           def insert(tuple)
             verify_uniquness!(tuple)
             super
