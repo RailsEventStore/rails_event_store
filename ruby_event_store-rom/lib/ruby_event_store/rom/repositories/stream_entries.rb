@@ -5,8 +5,8 @@ module RubyEventStore
     module Repositories
       class StreamEntries < ::ROM::Repository[:stream_entries]
         class Create < ::ROM::Changeset::Create
-          map do
-            add_timestamps
+          map do |tuple|
+            Hash(created_at: Time.now).merge(tuple)
           end
         end
 

@@ -21,8 +21,10 @@ rom = ROM::Configuration.new(
   adapter_name, # :sql, :memory
   ENV['DATABASE_URL'],
   max_connections: ENV['DATABASE_URL'] =~ /sqlite/ ? 1 : 5,
-  preconnect: :concurrently
+  preconnect: :concurrently,
+  # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
 )
+# $stdout.sync = true
 # rom.default.use_logger Logger.new(STDOUT)
 rom.default.run_migrations if adapter_name == :sql
 

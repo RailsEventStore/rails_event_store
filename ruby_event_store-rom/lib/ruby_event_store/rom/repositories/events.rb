@@ -11,12 +11,11 @@ module RubyEventStore
           map do
             rename_keys event_id: :id
             accept_keys %i[id data metadata event_type]
-            add_timestamps
           end
-        end
 
-        def create(serialized_records)
-          create_changeset(serialized_records).commit
+          map do |tuple|
+            Hash(created_at: Time.now).merge(tuple)
+          end
         end
 
         def create_changeset(serialized_records)

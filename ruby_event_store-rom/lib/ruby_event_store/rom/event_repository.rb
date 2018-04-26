@@ -13,9 +13,13 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        @rom.transaction do |queue|
-          queue << @events.create_changeset(events)
-          queue << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
+        @rom.transaction do |changesets|
+          # Create changesets inside transaction because
+          # we want to find the last position (a.k.a. version)
+          # again if the transaction is retried due to a
+          # deadlock in MySQL
+          changesets << @events.create_changeset(events)
+          changesets << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
         end
 
         self
