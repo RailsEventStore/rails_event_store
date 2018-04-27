@@ -29,16 +29,14 @@ module RubyEventStore
                   raise ArgumentError, 'Unknown changeset'
                 end
 
-                committed << changeset
+                committed << [changeset, relation]
 
                 changeset.commit
               rescue => ex
-                committed.reverse.each do |changeset|
-                  relation = env.container
-                              .relations[changeset.relation.name]
-                              .by_pk(changeset.to_a.map { |e| e[:id] })
-
-                  relation.command(:delete, result: :many).call
+                committed.reverse.each do |changeset, relation|
+                  relation
+                    .by_pk(changeset.to_a.map { |e| e[:id] })
+                    .command(:delete, result: :many).call
                 end
                 
                 raise
