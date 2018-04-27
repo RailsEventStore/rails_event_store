@@ -17,6 +17,10 @@ module RailsEventStore
       end
 
       specify do
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent))
+      end
+
+      specify do
         event_store.publish_event(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent))
       end
@@ -132,8 +136,13 @@ module RailsEventStore
         _matcher = matcher(matchers.an_event(BarEvent))
         _matcher.matches?(event_store)
 
+        expect(_matcher.failure_message.to_s).to include("] to be published")
         expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
         expect(_matcher.failure_message.to_s).to include("BeEvent")
+
+        expect(_matcher.failure_message_when_negated.to_s).to include("] not to be published")
+        expect(_matcher.failure_message_when_negated.to_s).to include("-[#<FooEvent")
+        expect(_matcher.failure_message_when_negated.to_s).to include("BeEvent")
       end
 
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
