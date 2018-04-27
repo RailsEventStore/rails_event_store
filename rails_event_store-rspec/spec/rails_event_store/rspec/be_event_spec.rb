@@ -21,6 +21,15 @@ module RailsEventStore
 
       specify do
         _matcher = matcher(FooEvent)
+        _matcher.matches?("Not an Event object")
+        expect(_matcher.failure_message).to eq(%q{
+expected: FooEvent
+     got: String
+})
+      end
+
+      specify do
+        _matcher = matcher(FooEvent)
         _matcher.matches?(BarEvent.new)
 
         expect(_matcher.failure_message).to eq(%q{

@@ -117,11 +117,12 @@ module RailsEventStore
       def initialize(expected, differ:)
         @differ   = differ
         @expected = expected
+        @strict = false
       end
 
       def matches?(actual)
         @actual = actual
-        [matches_kind, matches_data, matches_metadata].all?
+        matches_kind && matches_data && matches_metadata
       end
 
       def with_data(expected_data)
@@ -135,7 +136,7 @@ module RailsEventStore
       end
 
       def failure_message
-        FailureMessage.new(expected, actual.class, expected_data, actual.data, expected_metadata, actual.metadata, differ: differ).to_s
+        FailureMessage.new(expected, actual.class, expected_data, actual.try(:data), expected_metadata, actual.try(:metadata), differ: differ).to_s
       end
 
       def failure_message_when_negated
@@ -148,6 +149,10 @@ expected: not a kind of #{expected}
       def strict
         @strict = true
         self
+      end
+
+      def description
+        "be event #{@expected}"
       end
 
       private
