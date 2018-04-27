@@ -57,8 +57,6 @@ module RubyEventStore
         if adapter_name.is_a?(::ROM::Configuration)
           # Call config block manually
           Env.new ::ROM.container(adapter_name.tap(&block), &block)
-        elsif database_uri.nil?
-          raise ArgumentError.new('Missing database URI argument or DATABASE_URL environment variable')
         else
           Env.new ::ROM.container(adapter_name, database_uri, &block)
         end
