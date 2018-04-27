@@ -24,11 +24,11 @@ module RubyEventStore
           end
 
           def exist?
-            to_a.one?
+            one?
           end
 
           def pluck(name)
-            project(name).map { |e| e[name] }
+            map { |e| e[name] }
           end
       
         private

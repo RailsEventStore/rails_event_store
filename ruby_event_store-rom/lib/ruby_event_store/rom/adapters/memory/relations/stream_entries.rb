@@ -17,8 +17,7 @@ module RubyEventStore
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
           def take(num)
-            return self unless num
-            super
+            num.nil? ? self : super
           end
           
           def insert(tuple)
@@ -61,6 +60,7 @@ module RubyEventStore
         
         private
 
+          # Verifies uniqueness of [stream, event_id] and [stream, position]
           def verify_uniquness!(tuple)
             stream = tuple[:stream]
             attrs = %i[position event_id]
