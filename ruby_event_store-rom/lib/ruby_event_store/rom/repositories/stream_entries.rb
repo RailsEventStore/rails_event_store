@@ -33,7 +33,7 @@ module RubyEventStore
         end
 
         def delete(stream)
-          stream_entries.by_stream(stream).command(:delete).call
+          stream_entries.by_stream(stream).map_with(auto_struct: false).command(:delete).call
         end
 
         def resolve_version(stream, expected_version)

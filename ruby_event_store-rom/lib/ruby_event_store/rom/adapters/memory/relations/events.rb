@@ -10,6 +10,11 @@ module RubyEventStore
             attribute :data, ::ROM::Types::String
           end
 
+          def insert(tuple)
+            verify_uniquness!(tuple)
+            super
+          end
+          
           def for_stream_entries(_assoc, stream_entries)
             restrict(id: stream_entries.map { |e| e[:event_id] })
           end
@@ -24,6 +29,13 @@ module RubyEventStore
 
           def pluck(name)
             project(name).map { |e| e[name] }
+          end
+      
+        private
+
+          def verify_uniquness!(tuple)
+            return unless by_pk(tuple[:id]).exist?
+            raise TupleUniquenessError.for_event_id(tuple[:id])
           end
         end
       end

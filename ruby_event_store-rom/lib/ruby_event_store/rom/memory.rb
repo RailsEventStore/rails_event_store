@@ -24,7 +24,7 @@ module RubyEventStore
           env.register_error_handler :unique_violation, -> ex {
             case ex
             when TupleUniquenessError
-              raise EventDuplicatedInStream if ex.message =~ /stream.*event_id/
+              raise EventDuplicatedInStream if ex.message =~ /event_id/
               raise WrongExpectedEventVersion
             end
           }

@@ -70,7 +70,7 @@ module RubyEventStore
               next if key == :position && tuple[key].nil?
               next if restrict(:stream => stream, key => tuple[key]).to_a.none?
 
-              raise TupleUniquenessError.new("Uniquness violated for: stream and #{key}")
+              raise TupleUniquenessError.send(:"for_stream_and_#{key}", stream, tuple[key])
             end
           end
 

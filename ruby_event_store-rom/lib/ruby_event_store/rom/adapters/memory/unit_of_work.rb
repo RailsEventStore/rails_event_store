@@ -19,7 +19,7 @@ module RubyEventStore
                 case changeset
                 when ROM::Repositories::Events::Create
                   relation.by_pk(changeset.to_a.map{ |e| e[:id] }).each do |tuple|
-                    raise TupleUniquenessError.new("Uniquness violated for: #{tuple[:id]}")
+                    raise TupleUniquenessError.for_event_id(tuple[:id])
                   end
                 when ROM::Repositories::StreamEntries::Create
                   changeset.to_a.each do |tuple|
