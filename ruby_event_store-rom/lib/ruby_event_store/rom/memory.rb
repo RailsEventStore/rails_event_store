@@ -55,6 +55,17 @@ module RubyEventStore
         def close_gateway_connection
           gateway.disconnect
         end
+
+        def has_connection_pooling?
+          true
+        end
+
+        def connection_pool_size
+          5
+        end
+
+        def close_pool_connection
+        end
       end
     end
   end

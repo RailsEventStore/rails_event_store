@@ -75,6 +75,18 @@ module RubyEventStore
           # This will save from hardly reproducible connection run outs
           gateway.connection.pool.available_connections.freeze
         end
+
+        def has_connection_pooling?
+          gateway.connection.database_type != :sqlite
+        end
+
+        def connection_pool_size
+          gateway.connection.pool.size
+        end
+
+        def close_pool_connection
+          gateway.connection.pool.disconnect
+        end
       end
     end
   end

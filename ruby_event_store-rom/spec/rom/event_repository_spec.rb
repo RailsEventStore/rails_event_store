@@ -16,8 +16,8 @@ module RubyEventStore::ROM
       end
     end
 
-    let(:test_race_conditions_auto)  { !(ENV['DATABASE_URL'] =~ /sqlite|memory/) }
-    let(:test_race_conditions_any)   { !(ENV['DATABASE_URL'] =~ /sqlite|memory/) }
+    let(:test_race_conditions_auto)  { has_connection_pooling? }
+    let(:test_race_conditions_any)   { has_connection_pooling? }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
     let(:test_binary) { false }
@@ -188,12 +188,11 @@ module RubyEventStore::ROM
     end
 
     def cleanup_concurrency_test
-      rom_db.connection.pool.disconnect
+      close_pool_connection
     end
 
     def verify_conncurency_assumptions
-      expect(rom_db.connection.pool.max_size).to eq(5)
-      expect(rom_db.connection.pool.size).to eq(5)
+      expect(connection_pool_size).to eq(5)
     end
 
     # TODO: Port from AR to ROM

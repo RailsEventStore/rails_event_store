@@ -57,6 +57,18 @@ module SchemaHelper
   def close_database_connection
     rom_helper.close_gateway_connection
   end
+
+  def has_connection_pooling?
+    rom_helper.has_connection_pooling?
+  end
+
+  def connection_pool_size
+    rom_helper.connection_pool_size
+  end
+
+  def close_pool_connection
+    rom_helper.close_pool_connection
+  end
 end
 
 RSpec.configure do |config|
