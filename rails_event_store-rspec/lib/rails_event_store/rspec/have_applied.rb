@@ -30,6 +30,10 @@ module RailsEventStore
         differ.diff_as_string(expected.to_s, events.to_s)
       end
 
+      def description
+        "have apply events #{events.map(&:class)}"
+      end
+
       private
 
       def matches_count?
