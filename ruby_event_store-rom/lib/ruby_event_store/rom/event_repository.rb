@@ -47,11 +47,13 @@ module RubyEventStore
           .each { |id| raise EventNotFound.new(id) }
 
         guard_for(:unique_violation) do
-          @stream_entries.create_changeset(
-            event_ids,
-            stream,
-            @stream_entries.resolve_version(stream, expected_version)
-          ).commit
+          unit_of_work do |changesets|
+            changesets << @stream_entries.create_changeset(
+              event_ids,
+              stream,
+              @stream_entries.resolve_version(stream, expected_version)
+            )
+          end
         end
 
         self
