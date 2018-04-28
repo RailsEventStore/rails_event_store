@@ -14,6 +14,8 @@ module RubyEventStore
             end
           end
 
+          auto_struct true
+
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
           def take(num)

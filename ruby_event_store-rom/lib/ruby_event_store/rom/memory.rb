@@ -1,4 +1,5 @@
 require 'rom/memory'
+require 'ruby_event_store/rom'
 require_relative 'adapters/memory/unit_of_work'
 require_relative 'adapters/memory/relations/events'
 require_relative 'adapters/memory/relations/stream_entries'
@@ -33,21 +34,23 @@ module RubyEventStore
 
       class SpecHelper
         attr_reader :env
+        attr_reader :connection_pool_size, :close_pool_connection
         
-        def initialize(rom: RubyEventStore::ROM.env)
-          @env = rom
+        def initialize
+          @connection_pool_size = 5
+          @env = RubyEventStore::ROM.setup(:memory)
+        end
+
+        def run_lifecycle
+          yield
+        ensure
+          drop_gateway_schema
         end
 
         def gateway
           env.container.gateways[:default]
         end
 
-        def establish_gateway_connection
-        end
-      
-        def load_gateway_schema
-        end
-      
         def drop_gateway_schema
           gateway.connection.data.values.each { |v| v.data.clear }
         end
@@ -58,13 +61,6 @@ module RubyEventStore
 
         def has_connection_pooling?
           true
-        end
-
-        def connection_pool_size
-          5
-        end
-
-        def close_pool_connection
         end
       end
     end

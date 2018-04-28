@@ -2,16 +2,12 @@ require 'spec_helper'
 
 module RubyEventStore::ROM
   RSpec.describe UnitOfWork do
-    include SchemaHelper
+    subject { UnitOfWork.new(rom: rom_helper.env) }
+
+    let(:rom_helper) { Memory::SpecHelper.new }
 
     around(:each) do |example|
-      begin
-        establish_database_connection
-        load_database_schema
-        example.run
-      ensure
-        drop_database
-      end
+      rom_helper.run_lifecycle { example.run }
     end
 
     specify '#env gives access to ROM container' do

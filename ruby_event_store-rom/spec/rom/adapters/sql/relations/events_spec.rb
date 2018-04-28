@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'ruby_event_store/rom/memory'
+require 'ruby_event_store/rom/sql'
 require 'ruby_event_store/spec/rom/relations/events_lint'
 
-module RubyEventStore::ROM::Memory
+module RubyEventStore::ROM::SQL
   RSpec.describe Relations::Events do
     let(:rom_helper) { SpecHelper.new }
 

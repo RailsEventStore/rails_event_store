@@ -1,23 +1,20 @@
-require 'spec_helper'
-require 'ruby_event_store'
+require 'ruby_event_store/rom/event_repository'
 require 'ruby_event_store/spec/event_repository_lint'
 
 module RubyEventStore::ROM
-  RSpec.describe EventRepository do
-    include SchemaHelper
+  RSpec.shared_examples :rom_event_repository do |repository_class|
+    subject(:repository) { repository_class.new(rom: env) }
+
+    let(:env) { rom_helper.env }
+    let(:container) { env.container }
+    let(:rom_db) { container.gateways[:default] }
 
     around(:each) do |example|
-      begin
-        establish_database_connection
-        load_database_schema
-        example.run
-      ensure
-        drop_database
-      end
+      rom_helper.run_lifecycle { example.run }
     end
 
-    let(:test_race_conditions_auto)  { has_connection_pooling? }
-    let(:test_race_conditions_any)   { has_connection_pooling? }
+    let(:test_race_conditions_auto)  { rom_helper.has_connection_pooling? }
+    let(:test_race_conditions_any)   { rom_helper.has_connection_pooling? }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
     let(:test_binary) { false }
@@ -25,19 +22,18 @@ module RubyEventStore::ROM
     let(:default_stream) { RubyEventStore::Stream.new('stream') }
     let(:global_stream) { RubyEventStore::Stream.new('all') }
     let(:mapper) { RubyEventStore::Mappers::NullMapper.new }
-
-    it_behaves_like :event_repository, EventRepository
+    
+    it_behaves_like :event_repository, repository_class
 
     specify "#initialize requires ROM::Container" do
-      expect{EventRepository.new(rom: nil).append_to_stream([], 'stream', :none)}.to raise_error(NoMethodError)
+      expect{repository_class.new(rom: nil).append_to_stream([], 'stream', :none)}.to raise_error(NoMethodError)
     end
 
     specify "#has_event? to raise exception for bad ID" do
-      expect(EventRepository.new.has_event?('0')).to eq(false)
+      expect(repository.has_event?('0')).to eq(false)
     end
 
     specify "all considered internal detail" do
-      repository = EventRepository.new
       repository.append_to_stream(
         [event = SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
@@ -49,32 +45,6 @@ module RubyEventStore::ROM
       expect{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("all").backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
       expect{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("all").from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
       expect{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("all").from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
-    end
-
-    # TODO: Port from AR to ROM
-    xspecify "using preload()" do
-      repository = EventRepository.new
-      repository.append_to_stream([
-        SRecord.new,
-        SRecord.new,
-      ], default_stream, RubyEventStore::ExpectedVersion.auto)
-      c1 = count_queries{ repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(2).result) }
-      expect(c1).to eq(2)
-
-      c2 = count_queries{ repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(2).backward.result) }
-      expect(c2).to eq(2)
-
-      c3 = count_queries{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").result) }
-      expect(c3).to eq(2)
-
-      c4 = count_queries{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").backward.result) }
-      expect(c4).to eq(2)
-
-      c5 = count_queries{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").from(:head).limit(2).result) }
-      expect(c5).to eq(2)
-
-      c6 = count_queries{ repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").from(:head).limit(2).backward.result) }
-      expect(c6).to eq(2)
     end
 
     specify "explicit sorting by position rather than accidental" do
@@ -116,7 +86,6 @@ module RubyEventStore::ROM
       #   self.verbose = false
       #   remove_index :event_store_events_in_streams, [:stream, :position]
       # end
-      repository = EventRepository.new(rom: env)
 
       expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").result).map(&:event_id)).to eq([u1,u2,u3])
@@ -160,14 +129,11 @@ module RubyEventStore::ROM
       
       expect(repo.stream_entries.to_a.size).to eq(3)
       
-      repository = EventRepository.new(rom: env)
-
       expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "nested transaction - events still not persisted if append failed" do
-      repository = EventRepository.new
       repository.append_to_stream([
         event = SRecord.new(event_id: SecureRandom.uuid),
       ], default_stream, RubyEventStore::ExpectedVersion.none)
@@ -188,11 +154,11 @@ module RubyEventStore::ROM
     end
 
     def cleanup_concurrency_test
-      close_pool_connection
+      rom_helper.close_pool_connection
     end
 
     def verify_conncurency_assumptions
-      expect(connection_pool_size).to eq(5)
+      expect(rom_helper.connection_pool_size).to eq(5)
     end
 
     # TODO: Port from AR to ROM
