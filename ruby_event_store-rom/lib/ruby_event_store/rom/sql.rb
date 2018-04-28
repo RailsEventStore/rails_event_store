@@ -1,5 +1,5 @@
-require 'rom/sql'
 require 'ruby_event_store/rom'
+require 'rom/sql'
 require_relative 'adapters/sql/index_violation_detector'
 require_relative 'adapters/sql/unit_of_work'
 require_relative 'adapters/sql/relations/events'

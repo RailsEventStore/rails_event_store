@@ -1,5 +1,5 @@
-require 'rom/memory'
 require 'ruby_event_store/rom'
+require 'rom/memory'
 require_relative 'adapters/memory/unit_of_work'
 require_relative 'adapters/memory/relations/events'
 require_relative 'adapters/memory/relations/stream_entries'
