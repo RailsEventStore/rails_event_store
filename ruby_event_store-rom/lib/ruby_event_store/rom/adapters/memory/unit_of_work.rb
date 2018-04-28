@@ -35,7 +35,7 @@ module RubyEventStore
               rescue => ex
                 committed.reverse.each do |changeset, relation|
                   relation
-                    .by_pk(changeset.to_a.map { |e| e[:id] })
+                    .restrict(id: changeset.to_a.map { |e| e[:id] })
                     .command(:delete, result: :many).call
                 end
                 
