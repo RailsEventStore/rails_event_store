@@ -1,4 +1,4 @@
-GEM_VERSION  = $(shell cat ../RES_VERSION)
+GEM_VERSION  = "0.1.1"
 GEM_NAME     = postgresql_queue
 REQUIRE      = $(GEM_NAME)
 IGNORE       = PostgresqlQueueNothingYet
@@ -39,7 +39,7 @@ build:
 
 push:
 	@echo "Pushing package to Gemfury"
-	@fury push pkg/postgresql_queue-0.1.0.gem
+	@fury push pkg/postgresql_queue-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package"
