@@ -27,6 +27,10 @@ module RubyEventStore
             verify_uniquness!(tuple)
             super
           end
+
+          def delete(tuple)
+            super tuple.to_h
+          end
           
           def by_stream(stream)
             restrict(stream: normalize_stream_name(stream))
