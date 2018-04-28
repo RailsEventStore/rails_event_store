@@ -26,6 +26,14 @@
   font-weight: 600;
   font-size: 2rem;
   margin: 3rem auto;
+
+  &:active,
+  &:focus {
+    border-color: darken($oc-red-8, 10);
+    background-color: darken($oc-red-8, 10);
+    color: white;
+    outline: inherit;
+  }
 }
 
 .site-hero__cta--secondary {
@@ -33,7 +41,9 @@
   border: 2px solid $oc-gray-7;
   color: $oc-gray-0;
 
-  &:hover {
+  &:hover,
+  &:active,
+  &:focus {
     background: transparent;
     border: 2px solid $oc-red-8;
     color: $oc-red-8;

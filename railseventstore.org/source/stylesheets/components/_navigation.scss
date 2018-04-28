@@ -9,12 +9,6 @@
     align-items: flex-start !important;
     padding: 0 1rem 2rem 1rem;
   }
-
-  a {
-    &:hover {
-      opacity: 0.75;
-    }
-  }
 }
 
 .site-navigation__site-name {
@@ -22,12 +16,41 @@
   margin-right: 1rem;
   line-height: 6rem;
   color: $oc-red-8;
+  background: transparent;
   font-size: 2rem;
+  border-bottom: none;
+
+  &:hover {
+    background: inherit;
+    border-bottom: none;
+  }
+
+  &:active, &:focus {
+    color: $oc-white;
+    background: inherit;
+    outline: none;
+    border-bottom: none;
+  }
 }
 
 .site-navigation__link {
   margin-left: 1rem;
   color: $oc-gray-5;
+  background: transparent;
+  border-bottom: none;
+
+  &:hover {
+    background: inherit;
+    border-bottom: none;
+    color: $oc-red-3;
+  }
+
+  &:active, &:focus {
+    color: $oc-white;
+    background: inherit;
+    border-bottom: none;
+    outline: none;
+  }
 }
 
 .site-navigation__link:first-child {
@@ -39,4 +62,11 @@
   font-size: 1.6rem;
   padding-top: 0.4rem;
   line-height: 2rem;
+
+  &:active, &:focus {
+    color: $oc-red-3;
+    background: inherit;
+    border: none;
+    outline: none;
+  }
 }

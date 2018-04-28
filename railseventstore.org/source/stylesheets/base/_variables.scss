@@ -30,20 +30,11 @@ $base-spacing: $base-line-height * 1em;
 $small-spacing: $base-spacing / 2;
 $base-z-index: 0;
 
-// Colors
-$mm-yellow: #fbc547;
 
 // Font Colors
 $base-font-color: $oc-gray-8;
 $header-font-color: $oc-gray-7;
 $base-accent-color: $oc-red-8;
-$secondary-accent-color: $oc-blue-7;
-
-// Link Colors
-$base-link-color: $secondary-accent-color;
-$hover-link-color: darken($base-link-color, 15%);
-$base-button-color: $base-link-color;
-$hover-button-color: $hover-link-color;
 
 // Border color
 $base-border-color: $oc-gray-3;

@@ -14,7 +14,7 @@
         <ul class="contributors__list">
           <% data.contributors.each do |contributor| %>
             <li class="contributors__contributor">
-              <a href="<%= contributor.html_url %>">
+              <a class="contributor__link" href="<%= contributor.html_url %>">
                 <img class="contributor__avatar" src="<%= contributor.avatar_url %>" />
               </a>
             </li>

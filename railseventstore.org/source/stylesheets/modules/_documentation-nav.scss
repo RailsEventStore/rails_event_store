@@ -34,6 +34,8 @@
 
   a {
     color: $base-font-color;
+    background: transparent;
+    border-bottom: none;
     display: block;
     padding: 0.34em 0.5em;
     transition: all 0.15s ease;
