@@ -35,7 +35,7 @@ module RubyEventStore::ROM
 
     specify "all considered internal detail" do
       repository.append_to_stream(
-        [event = SRecord.new],
+        [SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )

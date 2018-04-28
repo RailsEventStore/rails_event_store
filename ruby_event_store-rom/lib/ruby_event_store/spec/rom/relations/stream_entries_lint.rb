@@ -22,20 +22,18 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
 
     relation.command(:create).call(stream_entries)
 
-    conflicting_event_id = {stream: 'stream', position: 3, event_id: id1}
+    conflicting_event_id = {stream: 'stream', position: 3, event_id: id1, created_at: Time.now}
 
     expect(relation.to_a.size).to eq(3)
-    expect{relation.insert(conflicting_event_id)}.to raise_error do |err|
-      expect(err).to be_a(RubyEventStore::ROM::TupleUniquenessError)
-      expect(err.message).to eq(%[Uniquness violated for stream ("stream") and event_id (#{id1.inspect})])
-    end
+    expect do
+      env.handle_error(:unique_violation) { relation.insert(conflicting_event_id) }
+    end.to raise_error(RubyEventStore::EventDuplicatedInStream)
 
-    conflicting_position = {stream: 'stream', position: 2, event_id: SecureRandom.uuid}
+    conflicting_position = {stream: 'stream', position: 2, event_id: SecureRandom.uuid, created_at: Time.now}
 
-    expect{relation.insert(conflicting_position)}.to raise_error do |err|
-      expect(err).to be_a(RubyEventStore::ROM::TupleUniquenessError)
-      expect(err.message).to eq(%[Uniquness violated for stream ("stream") and position (2)])
-    end
+    expect do
+      env.handle_error(:unique_violation) { relation.insert(conflicting_position) }
+    end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
   end
 
   specify '#take ignores nil' do
@@ -116,7 +114,7 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
     expect(relation.to_a.size).to eq(7)
     expect(relation.max_position(stream)).not_to be(nil)
     expect(relation.max_position(stream)[:position]).to eq(2)
-    expect(relation.max_position(stream)[:event_id]).to eq(id)
+    expect(relation.max_position(stream).to_h.keys).to eq([:position])
     expect(relation.max_position(stream3)).to eq(nil)
   end
 
@@ -184,34 +182,17 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
 
     relation.command(:create).call(stream_entries)
 
-    expect(relation.take(1)).to be_a(RubyEventStore::ROM::Memory::Relations::StreamEntries)
-    expect(relation.take(1).one).to be_a(::ROM::Struct)
+    expect(relation.take(1)).to be_a(relation.class)
+    # expect(relation.take(1).one).to be_a(::ROM::Struct)
 
-    expect(relation.by_stream(stream)).to be_a(RubyEventStore::ROM::Memory::Relations::StreamEntries)
-    expect(relation.by_stream(stream).take(1).one).to be_a(::ROM::Struct)
+    expect(relation.by_stream(stream)).to be_a(relation.class)
+    # expect(relation.by_stream(stream).take(1).one).to be_a(::ROM::Struct)
 
-    expect(relation.by_stream_and_event_id(stream, id1)).to be_a(::ROM::Struct)
+    # expect(relation.by_stream_and_event_id(stream, id1)).to be_a(::ROM::Struct)
     
-    expect(relation.max_position(stream)).to be_a(::ROM::Struct)
+    # expect(relation.max_position(stream)).to be_a(::ROM::Struct)
 
-    expect(relation.ordered(:forward, stream)).to be_a(RubyEventStore::ROM::Memory::Relations::StreamEntries)
-    expect(relation.ordered(:forward, stream).take(1).one).to be_a(::ROM::Struct)
+    expect(relation.ordered(:forward, stream)).to be_a(relation.class)
+    # expect(relation.ordered(:forward, stream).take(1).one).to be_a(::ROM::Struct)
   end
 end
-
-#   def ordered(direction, stream, offset_entry_id = nil)
-#     reverse, operator = DIRECTION_MAP[direction]
-
-#     raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
-
-#     order_columns = %i[position id]
-#     order_columns.delete(:position) if stream.global?
-    
-#     query = by_stream(stream)
-#     query = query.restrict { |tuple| tuple[:id].public_send(operator, offset_entry_id) } if offset_entry_id
-#     query = query.order(*order_columns)
-#     query = new(query.dataset.reverse) if reverse
-
-#     query
-#   end
-# end

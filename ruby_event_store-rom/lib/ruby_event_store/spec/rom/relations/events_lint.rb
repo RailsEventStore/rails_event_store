@@ -14,7 +14,7 @@ RSpec.shared_examples :events_relation do |relation_class|
   end
 
   specify '#exist? indicates if one instance of the record exists by primary key' do
-    event = {id: SecureRandom.uuid}
+    event = {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now}
 
     expect(relation.by_pk(event[:id]).exist?).to eq(false)
 
@@ -25,62 +25,51 @@ RSpec.shared_examples :events_relation do |relation_class|
 
   specify '#insert verifies tuple is unique' do
     events = [
-      {id: SecureRandom.uuid},
-      {id: SecureRandom.uuid},
-      {id: SecureRandom.uuid}
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now}
     ]
 
-    relation.insert(events[0])
-    relation.insert(events[1])
+    relation.command(:create).call(events[0..1])
 
-    expect{relation.insert(events[0])}.to raise_error(RubyEventStore::ROM::TupleUniquenessError)
-    expect{relation.insert(events[1])}.to raise_error(RubyEventStore::ROM::TupleUniquenessError)
+    expect do
+      env.handle_error(:unique_violation) { relation.insert(events[0]) }
+    end.to raise_error(RubyEventStore::EventDuplicatedInStream)
+    expect do
+      env.handle_error(:unique_violation) { relation.insert(events[1]) }
+    end.to raise_error(RubyEventStore::EventDuplicatedInStream)
     expect{relation.insert(events[2])}.not_to raise_error
-    expect{relation.insert(events[2])}.to raise_error(RubyEventStore::ROM::TupleUniquenessError)
+    expect do
+      env.handle_error(:unique_violation) { relation.insert(events[2]) }
+    end.to raise_error(RubyEventStore::EventDuplicatedInStream)
   end
 
   specify '#by_pk finds tuples by ID' do
     events = [
-      {id: SecureRandom.uuid},
-      {id: SecureRandom.uuid},
-      {id: SecureRandom.uuid}
+      {id: id = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now}
     ]
 
     relation.command(:create).call(events)
 
-    expect(relation.by_pk(events[0][:id]).to_a.size).to eq(1)
-    expect(relation.by_pk(events[0][:id]).to_a).to eq([events[0]])
+    expect(relation.by_pk(id).to_a.size).to eq(1)
+    expect(relation.by_pk(id).to_a.map { |e| e[:id] }).to eq([id])
   end
 
-  specify '#pluck returns an array with single value for each tuple' do
+  specify 'each method returns proper type' do
     events = [
-      {id: id1 = SecureRandom.uuid},
-      {id: id2 = SecureRandom.uuid},
-      {id: id3 = SecureRandom.uuid}
+      {id: id = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
+      {id: SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now}
     ]
 
     relation.command(:create).call(events)
 
-    expect(relation.to_a.size).to eq(3)
-    expect(relation.pluck(:id)).to eq([id1, id2, id3])
-    expect(relation.by_pk(events[0][:id]).to_a.size).to eq(1)
-    expect(relation.by_pk(events[0][:id]).pluck(:id)).to eq([id1])
-  end
+    expect(relation.by_pk(SecureRandom.uuid).exist?).to eq(false)
+    expect(relation.by_pk(id).exist?).to eq(true)
 
-  specify '#for_stream_entries filters events on :event_id in stream entries' do
-    events = [
-      {id: id1 = SecureRandom.uuid},
-      {id: id2 = SecureRandom.uuid},
-      {id: id3 = SecureRandom.uuid}
-    ]
-
-    stream_entries = [
-      {id: 1, event_id: id2},
-      {id: 2, event_id: id3}
-    ]
-
-    relation.command(:create).call(events)
-
-    expect(relation.for_stream_entries(nil, stream_entries).to_a).to eq([events[1], events[2]])
+    expect(relation.by_pk(id)).to be_a(relation.class)
+    # expect(relation.by_pk(id).first).to be_a(::ROM::Struct)
   end
 end

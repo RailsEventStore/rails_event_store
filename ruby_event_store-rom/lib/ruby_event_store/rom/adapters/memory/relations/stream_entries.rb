@@ -7,7 +7,8 @@ module RubyEventStore
             attribute :id, ::ROM::Types::Int.meta(primary_key: true).default { RubyEventStore::ROM::Memory.fetch_next_id }
             attribute :stream, ::ROM::Types::String
             attribute :position, ::ROM::Types::Int.optional
-            attribute :event_id, ::ROM::Types::String.meta(foreign_key: true, relation: :events)  
+            attribute :event_id, ::ROM::Types::String.meta(foreign_key: true, relation: :events)
+            attribute :created_at, ::ROM::Types::DateTime.default { Time.now }
 
             associations do
               belongs_to :events, as: :event, foreign_key: :event_id, override: true, view: :for_stream_entries
@@ -36,7 +37,7 @@ module RubyEventStore
           end
   
           def max_position(stream)
-            new(by_stream(stream).order(:position).dataset.reverse).take(1).one
+            new(by_stream(stream).order(:position).dataset.reverse).project(:position).take(1).one
           end
   
           DIRECTION_MAP = {

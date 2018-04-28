@@ -8,6 +8,7 @@ module RubyEventStore
             attribute :event_type, ::ROM::Types::String
             attribute :metadata, ::ROM::Types::String.optional
             attribute :data, ::ROM::Types::String
+            attribute :created_at, ::ROM::Types::DateTime.default { Time.now }
           end
 
           def insert(tuple)

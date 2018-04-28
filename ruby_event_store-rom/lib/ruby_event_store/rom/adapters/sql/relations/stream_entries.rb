@@ -4,6 +4,8 @@ module RubyEventStore
       module Relations
         class StreamEntries < ::ROM::Relation[:sql]
           schema(:event_store_events_in_streams, as: :stream_entries, infer: true) do
+            attribute :created_at, ::ROM::Types::DateTime.default { Time.now }
+            
             associations do
               belongs_to :events, as: :event, foreign_key: :event_id
             end
