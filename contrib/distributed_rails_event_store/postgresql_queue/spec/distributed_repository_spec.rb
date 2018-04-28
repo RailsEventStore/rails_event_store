@@ -22,6 +22,7 @@ RSpec.describe DistributedRepository do
   let(:test_expected_version_auto) { true }
   let(:test_link_events_to_stream) { true }
   let(:test_non_legacy_all_stream) { true }
+  let(:test_binary) { false }
 
   it_behaves_like :event_repository, DistributedRepository
 
