@@ -4,11 +4,8 @@ source "https://rubygems.org"
 gemspec
 gem 'postgresql_queue', path: '../postgresql_queue'
 gem 'rails_event_store_active_record',
-    github: "RailsEventStore/rails_event_store",
-    branch: "fill_ids"
+    github: "RailsEventStore/rails_event_store"
 gem 'ruby_event_store',
-    github: "RailsEventStore/rails_event_store",
-    branch: "fill_ids"
+    github: "RailsEventStore/rails_event_store"
 gem 'rails_event_store',
-    github: "RailsEventStore/rails_event_store",
-    branch: "fill_ids"
+    github: "RailsEventStore/rails_event_store"

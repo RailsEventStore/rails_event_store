@@ -5,5 +5,4 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 # Specify your gem's dependencies in dres_client.gemspec
 gemspec
 gem 'ruby_event_store',
-    github: "RailsEventStore/rails_event_store",
-    branch: "fill_ids"
+    github: "RailsEventStore/rails_event_store"
