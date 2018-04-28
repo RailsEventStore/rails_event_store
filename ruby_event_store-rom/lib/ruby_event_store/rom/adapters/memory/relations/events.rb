@@ -4,11 +4,11 @@ module RubyEventStore
       module Relations
         class Events < ::ROM::Relation[:memory]
           schema(:events) do
-            attribute :id, ::ROM::Types::String.meta(primary_key: true)
-            attribute :event_type, ::ROM::Types::String
-            attribute :metadata, ::ROM::Types::String.optional
-            attribute :data, ::ROM::Types::String
-            attribute :created_at, ::ROM::Types::DateTime.default { Time.now }
+            attribute :id, ::ROM::Types::Strict::String.meta(primary_key: true)
+            attribute :event_type, ::ROM::Types::Strict::String
+            attribute :metadata, ::ROM::Types::Strict::String.optional
+            attribute :data, ::ROM::Types::Strict::String
+            attribute :created_at, ::ROM::Types::Strict::Time.default { Time.now }
           end
 
           def insert(tuple)

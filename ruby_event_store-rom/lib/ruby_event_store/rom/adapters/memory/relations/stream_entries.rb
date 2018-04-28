@@ -4,11 +4,11 @@ module RubyEventStore
       module Relations
         class StreamEntries < ::ROM::Relation[:memory]
           schema(:stream_entries) do
-            attribute :id, ::ROM::Types::Int.meta(primary_key: true).default { RubyEventStore::ROM::Memory.fetch_next_id }
-            attribute :stream, ::ROM::Types::String
-            attribute :position, ::ROM::Types::Int.optional
-            attribute :event_id, ::ROM::Types::String.meta(foreign_key: true, relation: :events)
-            attribute :created_at, ::ROM::Types::DateTime.default { Time.now }
+            attribute :id, ::ROM::Types::Strict::Int.meta(primary_key: true).default { RubyEventStore::ROM::Memory.fetch_next_id }
+            attribute :stream, ::ROM::Types::Strict::String
+            attribute :position, ::ROM::Types::Strict::Int.optional
+            attribute :event_id, ::ROM::Types::Strict::String.meta(foreign_key: true, relation: :events)
+            attribute :created_at, ::ROM::Types::Strict::Time.default { Time.now }
 
             associations do
               belongs_to :events, as: :event, foreign_key: :event_id, override: true, view: :for_stream_entries
