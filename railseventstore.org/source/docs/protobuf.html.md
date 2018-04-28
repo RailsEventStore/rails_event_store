@@ -45,9 +45,8 @@ syntax = "proto3";
 package my_app;
 
 message OrderPlaced {
-  string event_id = 1;
-  string order_id = 2;
-  int32 customer_id = 3;
+  string order_id = 1;
+  int32 customer_id = 2;
 }
 ```
 
@@ -61,9 +60,8 @@ require 'google/protobuf'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "my_app.OrderPlaced" do
-    optional :event_id, :string, 1
-    optional :order_id, :string, 2
-    optional :customer_id, :int32, 3
+    optional :order_id, :string, 1
+    optional :customer_id, :int32, 2
   end
 end
 
@@ -78,9 +76,9 @@ end
 event_store = Rails.configuration.event_store
 
 event = RubyEventStore::Proto.new(
-  data: ResTesting::OrderPlaced.new(
-    customer_id: 123,
+  data: MyApp::OrderPlaced.new(
     order_id: "K3THNX9",
+    customer_id: 123,
   )
 )
 event_store.publish_event(event, stream_name: "Order-K3THNX9")
@@ -97,7 +95,7 @@ event = client.read_stream_events_forward('test').last
 #### Sync handlers
 
 ```ruby
-event_store.subscribe(->(ev){ },  to: [ResTesting::OrderPlaced.descriptor.name])
+event_store.subscribe(->(ev){ },  to: [MyApp::OrderPlaced.descriptor.name])
 ````
 
 #### Async handlers
@@ -112,5 +110,5 @@ class SendOrderEmailHandler < ActiveJob::Base
   end
 end
 
-event_store.subscribe(SendOrderEmailHandler, to: [ResTesting::OrderPlaced.descriptor.name])
+event_store.subscribe(SendOrderEmailHandler, to: [MyApp::OrderPlaced.descriptor.name])
 ```
