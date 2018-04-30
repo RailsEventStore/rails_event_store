@@ -66,3 +66,60 @@ end
 ```
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
+
+## Passing your own metadata using `with_metadata` method
+
+Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
+
+```ruby
+event_store.with_metadata(remote_ip: '1.2.3.4', request_id: SecureRandom.uuid) do
+  event_store.publish(MyEvent.new(data: {foo: 'bar'}))
+end
+
+my_event = event_store.read_all_events(RailsEventStore::GLOBAL_STREAM).last
+
+my_event.metadata[:remote_ip] #=> '1.2.3.4'
+my_event.metadata[:request_id] #=> unique ID
+```
+
+When using `with_metadata`, the `timestamp` is still added to the metadata unless you explicitly specify it on your own. Additionally, if you are also using the middleware & `request_metadata`, your metadata passed as `with_metadata` argument will be merged with the result of `rails_event_store.request_metadata` proc:
+
+```ruby
+event_store.with_metadata(causation_id: 1234567890) do
+  event_store.publish(MyEvent.new(data: {foo: 'bar'})
+end
+
+my_event = event_store.read_all_events(RailsEventStore::GLOBAL_STREAM).last
+my_event.metadata[:remote_ip] #=> your IP from request metadata proc
+my_event.metadata[:request_id #=> unique ID from request metadata proc
+my_event.metadata[:causation_id] #=> 1234567890 from with_metadata argument
+my_event.metadata[:timestamp] #=> a timestamp
+```
+
+You can nest multiple `with_metadata` calls, in such case the inmost argument is used:
+
+```ruby
+event_store.with_metadata(foo: 'bar') do
+  event_store.with_metadata(foo: 'baz') do
+    event_store.publish(MyEvent.new)
+  end
+end
+
+my_event = event_store.read_all_events(RailsEventStore::GLOBAL_STREAM).last
+my_event.metadata[:foo] #=> 'baz'
+```
+
+When you want to clear the metadata for some published events while having them set with `with_metadata`, you can just pass `nil` as an argument (please note that timestamp will still be included in the metadata hash):
+
+```ruby
+event_store.with_metadata(foo: 'bar') do
+  event_store.with_metadata(nil) do
+    event_store.publish(MyEvent.new)
+  end
+end
+
+my_event = event_store.read_all_events(RailsEventStore::GLOBAL_STREAM).last
+my_event.metadata[:foo] #=> nil
+my_event.metadata[:timestamp] #=> a timestamp
+```
+
