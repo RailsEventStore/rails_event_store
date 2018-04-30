@@ -10,6 +10,7 @@ module RubyEventStore
       @mapper         = mapper
       @event_broker   = event_broker
       @page_size      = page_size
+      warn "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead." if metadata_proc
       @metadata_proc  = metadata_proc
       @clock          = clock
     end
@@ -172,7 +173,7 @@ module RubyEventStore
     end
 
     def with_metadata(metadata, &block)
-      previous_metadata = self.metadata
+      previous_metadata = metadata()
       self.metadata = metadata
       block.call if block_given?
     ensure
@@ -207,7 +208,6 @@ module RubyEventStore
 
     def enrich_event_metadata(event)
       if metadata_proc
-        warn "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead."
         md = metadata_proc.call || {}
         md.each{|k,v| event.metadata[k]=(v) }
       end
