@@ -1,42 +1,77 @@
 require 'spec_helper'
+require 'action_controller/railtie'
+require 'rails_event_store/railtie'
+require 'securerandom'
 require 'rails_event_store/middleware'
 require 'rack/lint'
 
 module RailsEventStore
   RSpec.describe Middleware do
-    specify 'lint' do
-      request = ::Rack::MockRequest.new(::Rack::Lint.new(Middleware.new(
-        ->(env) { [200, {}, ['Hello World']] },
-        ->(env) { { kaka: 'dudu' } } )))
-
-      expect { request.get('/') }.to_not raise_error
+    specify 'calls app within with_metadata block when app has configured the event store instance' do
+      app.config.event_store = event_store = Client.new
+      expect(app).to receive(:call).with(dummy_env)
+      middleware = Middleware.new(app)
+      expect(event_store).to receive(:with_metadata).with(request_id: 'dummy_id', remote_ip: 'dummy_ip').and_call_original
+      middleware.call(dummy_env)
     end
 
-    specify do
-      request = ::Rack::MockRequest.new(Middleware.new(
-        ->(env) { [200, {}, ['Hello World']] },
-        ->(env) { { kaka: 'dudu' } } ))
-      request.get('/')
-
-      expect(Thread.current[:rails_event_store]).to be_nil
+    specify 'just calls the app when app has not configured the event store instance' do
+      expect(app).to receive(:call).with(dummy_env)
+      middleware = Middleware.new(app)
+      middleware.call(dummy_env)
     end
 
-    specify do
-      request = ::Rack::MockRequest.new(Middleware.new(
-        ->(env) { raise },
-        ->(env) { { kaka: 'dudu' } } ))
+    specify 'use config.rails_event_store.request_metadata' do
+      app.config.x.rails_event_store.request_metadata = kaka_dudu
+      middleware = Middleware.new(app)
 
-      expect { request.get('/') }.to raise_error(RuntimeError)
-      expect(Thread.current[:rails_event_store]).to be_nil
+      expect(middleware.request_metadata(dummy_env)).to eq({
+        kaka: 'dudu'
+      })
     end
 
-    specify do
-      request = ::Rack::MockRequest.new(Middleware.new(
-        ->(env) { [200, {}, ['Hello World']] },
-        ->(env) { raise } ))
+    specify 'use config.rails_event_store.request_metadata is not callable' do
+      app.config.x.rails_event_store.request_metadata = {}
+      middleware = Middleware.new(app)
 
-      expect { request.get('/') }.to raise_error(RuntimeError)
-      expect(Thread.current[:rails_event_store]).to be_nil
+      expect(middleware.request_metadata(dummy_env)).to eq({
+        request_id: 'dummy_id',
+        remote_ip:  'dummy_ip'
+      })
+    end
+
+    specify 'use config.rails_event_store.request_metadata is not set' do
+      middleware = Middleware.new(app)
+
+      expect(middleware.request_metadata(dummy_env)).to eq({
+        request_id: 'dummy_id',
+        remote_ip:  'dummy_ip'
+      })
+    end
+
+    def kaka_dudu
+      ->(env) { { kaka: 'dudu' } }
+    end
+
+    def dummy_env
+      {
+        'action_dispatch.request_id' => 'dummy_id',
+        'action_dispatch.remote_ip'  => 'dummy_ip'
+      }
+    end
+
+    def app
+      @app ||= Class.new(::Rails::Application) do
+        def self.name
+          "TestRails::Application"
+        end
+      end.tap do |app|
+        app.config.eager_load = false
+        app.config.secret_key_base = SecureRandom.hex
+        app.initialize!
+        app.routes.draw { root(to: ->(env) {[200, {}, ['']]}) }
+        app.default_url_options = { host: 'example.com' }
+      end
     end
   end
 end
