@@ -86,7 +86,7 @@ When using `with_metadata`, the `timestamp` is still added to the metadata unles
 
 ```ruby
 event_store.with_metadata(causation_id: 1234567890) do
-  event_store.publish(MyEvent.new(data: {foo: 'bar'})
+  event_store.publish(MyEvent.new(data: {foo: 'bar'}))
 end
 
 my_event = event_store.read_all_events(RailsEventStore::GLOBAL_STREAM).last
