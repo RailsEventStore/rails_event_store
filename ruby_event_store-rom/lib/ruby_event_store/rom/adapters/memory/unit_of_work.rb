@@ -10,10 +10,9 @@ module RubyEventStore
           self.class.mutex.synchronize do
             committed = []
             
-            while changesets.size > 0
-              changeset = changesets.shift
-
-              begin
+            begin
+              while changesets.size > 0
+                changeset = changesets.shift
                 relation = env.container.relations[changeset.relation.name]
 
                 case changeset
@@ -32,15 +31,15 @@ module RubyEventStore
                 committed << [changeset, relation]
 
                 changeset.commit
-              rescue => ex
-                committed.reverse.each do |changeset, relation|
-                  relation
-                    .restrict(id: changeset.to_a.map { |e| e[:id] })
-                    .command(:delete, result: :many).call
-                end
-                
-                raise
               end
+            rescue StandardError
+              committed.reverse.each do |changeset, relation|
+                relation
+                  .restrict(id: changeset.to_a.map { |e| e[:id] })
+                  .command(:delete, result: :many).call
+              end
+              
+              raise
             end
           end
         end

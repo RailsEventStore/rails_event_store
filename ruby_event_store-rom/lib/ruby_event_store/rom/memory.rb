@@ -38,7 +38,7 @@ module RubyEventStore
         
         def initialize
           @connection_pool_size = 5
-          @env = RubyEventStore::ROM.setup(:memory)
+          @env = ROM.setup(:memory)
         end
 
         def run_lifecycle

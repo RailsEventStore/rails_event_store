@@ -16,11 +16,22 @@ IGNORE       = RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::UnitOfWork\#commit! \
                RubyEventStore::ROM::SQL::Relations::StreamEntries\#normalize_stream_name \
                RubyEventStore::ROM::SQL::IndexViolationDetector\#detect \
+               RubyEventStore::ROM::SQL::SpecHelper\#initialize \
+               RubyEventStore::ROM::SQL::SpecHelper\#close_pool_connection \
                RubyEventStore::ROM::SQL::SpecHelper\#load_gateway_schema \
                RubyEventStore::ROM::SQL::SpecHelper\#establish_gateway_connection \
                RubyEventStore::ROM::SQL::SpecHelper\#drop_gateway_schema \
                RubyEventStore::ROM::SQL::SpecHelper\#close_gateway_connection \
-               RubyEventStore::ROM::SQL::UnitOfWork\#commit!
+               RubyEventStore::ROM::SQL::SpecHelper\#run_lifecycle \
+               RubyEventStore::ROM::SQL::UnitOfWork\#commit! \
+               RubyEventStore::ROM::Memory::SpecHelper\#initialize \
+               RubyEventStore::ROM::Memory::SpecHelper\#close_pool_connection \
+               RubyEventStore::ROM::Memory::SpecHelper\#load_gateway_schema \
+               RubyEventStore::ROM::Memory::SpecHelper\#establish_gateway_connection \
+               RubyEventStore::ROM::Memory::SpecHelper\#drop_gateway_schema \
+               RubyEventStore::ROM::Memory::SpecHelper\#close_gateway_connection \
+               RubyEventStore::ROM::Memory::SpecHelper\#run_lifecycle \
+               RubyEventStore::ROM::Memory::UnitOfWork\#commit!
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 

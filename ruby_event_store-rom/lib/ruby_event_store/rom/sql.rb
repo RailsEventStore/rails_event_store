@@ -44,11 +44,11 @@ module RubyEventStore
       class SpecHelper
         attr_reader :env
         
-        def initialize
+        def initialize(database_uri = ENV['DATABASE_URL'])
           config = ::ROM::Configuration.new(
             :sql,
-            ENV['DATABASE_URL'],
-            max_connections: ENV['DATABASE_URL'] =~ /sqlite/ ? 1 : 5,
+            database_uri,
+            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
             preconnect: :concurrently,
             # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
           )
@@ -57,7 +57,7 @@ module RubyEventStore
           # config.default.connection.pool.send(:preconnect, true)
           config.default.run_migrations
     
-          @env = RubyEventStore::ROM.setup(config)
+          @env = ROM.setup(config)
         end
         
         def run_lifecycle
@@ -75,7 +75,7 @@ module RubyEventStore
         end
 
         def has_connection_pooling?
-          gateway.connection.database_type != :sqlite
+          !gateway.connection.database_type.eql?(:sqlite)
         end
 
         def connection_pool_size
