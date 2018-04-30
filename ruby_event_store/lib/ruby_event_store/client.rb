@@ -209,6 +209,7 @@ module RubyEventStore
 
     def enrich_event_metadata(event)
       if metadata_proc
+        warn "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead."
         md = metadata_proc.call || {}
         md.each{|k,v| event.metadata[k]=(v) }
       end
