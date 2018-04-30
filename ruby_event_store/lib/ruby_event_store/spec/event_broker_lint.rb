@@ -5,6 +5,7 @@ RSpec.shared_examples :event_broker do |broker_class|
 
   class InvalidTestHandler
   end
+
   class TestHandler
     def initialize
       @events = []
@@ -16,6 +17,7 @@ RSpec.shared_examples :event_broker do |broker_class|
 
     attr_reader :events
   end
+
   class TestDispatcher
     attr_reader :dispatched
 
@@ -26,8 +28,19 @@ RSpec.shared_examples :event_broker do |broker_class|
     def verify(_subscriber)
     end
 
-    def call(subscriber, event)
-      @dispatched << {subscriber: subscriber, event: event}
+    def call(subscriber, event, serialized_event)
+      @dispatched << {subscriber: subscriber, event: event, serialized_event: serialized_event}
+    end
+  end
+
+  class TestMapper
+    def event_to_serialized_record(domain_event)
+      {
+        event_id:   domain_event.event_id,
+        metadata:   domain_event.metadata.to_h,
+        data:       domain_event.data,
+        event_type: domain_event.class.name
+      }
     end
   end
 
@@ -53,8 +66,10 @@ RSpec.shared_examples :event_broker do |broker_class|
     event2 = Test2DomainEvent.new
     event3 = Test3DomainEvent.new
 
+    mapper = TestMapper.new
+
     [event1, event2, event3].each do |ev|
-      broker.notify_subscribers(ev)
+      broker.notify_subscribers(ev, mapper.event_to_serialized_record(ev))
     end
 
     expect(handler.events).to eq([event1,event3])
@@ -66,6 +81,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     handler         = TestHandler.new
     another_handler = TestHandler.new
     global_handler  = TestHandler.new
+    mapper          = TestMapper.new
 
     broker.add_thread_subscriber(handler, [Test1DomainEvent, Test3DomainEvent])
     broker.add_thread_subscriber(another_handler, [Test2DomainEvent])
@@ -76,7 +92,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     event3 = Test3DomainEvent.new
 
     [event1, event2, event3].each do |ev|
-      broker.notify_subscribers(ev)
+      broker.notify_subscribers(ev,  mapper.event_to_serialized_record(ev))
     end
 
     expect(handler.events).to eq([event1,event3])
@@ -125,74 +141,92 @@ RSpec.shared_examples :event_broker do |broker_class|
   end
 
   it 'revokes global subscription' do
+    mapper    = TestMapper.new
     handler   = TestHandler.new
     event1    = Test1DomainEvent.new
     event2    = Test2DomainEvent.new
 
+    serialized_event1 = mapper.event_to_serialized_record(event1)
+    serialized_event2 = mapper.event_to_serialized_record(event2)
+
     revoke    = broker.add_global_subscriber(handler)
-    broker.notify_subscribers(event1)
+    broker.notify_subscribers(event1, serialized_event1)
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2)
+    broker.notify_subscribers(event2, serialized_event2)
     expect(handler.events).to eq([event1])
   end
 
   it 'revokes subscription' do
+    mapper    = TestMapper.new
     handler   = TestHandler.new
     event1    = Test1DomainEvent.new
     event2    = Test2DomainEvent.new
+    serialized_event1 = mapper.event_to_serialized_record(event1)
+    serialized_event2 = mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
-    broker.notify_subscribers(event1)
+    broker.notify_subscribers(event1, serialized_event1)
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2)
+    broker.notify_subscribers(event2, serialized_event2)
     expect(handler.events).to eq([event1])
   end
 
   it 'revokes thread global subscription' do
+    mapper    = TestMapper.new
     handler   = TestHandler.new
     event1    = Test1DomainEvent.new
     event2    = Test2DomainEvent.new
+    serialized_event1 = mapper.event_to_serialized_record(event1)
+    serialized_event2 = mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_thread_global_subscriber(handler)
-    broker.notify_subscribers(event1)
+    broker.notify_subscribers(event1, serialized_event1)
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2)
+    broker.notify_subscribers(event2, serialized_event2)
     expect(handler.events).to eq([event1])
   end
 
   it 'revokes thread subscription' do
-    handler   = TestHandler.new
-    event1    = Test1DomainEvent.new
-    event2    = Test2DomainEvent.new
+    mapper            = TestMapper.new
+    handler           = TestHandler.new
+    event1            = Test1DomainEvent.new
+    event2            = Test2DomainEvent.new
+    serialized_event1 =  mapper.event_to_serialized_record(event1)
+    serialized_event2 =  mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_thread_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
-    broker.notify_subscribers(event1)
+    broker.notify_subscribers(event1, serialized_event1)
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2)
+    broker.notify_subscribers(event2, serialized_event2)
     expect(handler.events).to eq([event1])
   end
 
   it 'allows to provide a custom dispatcher' do
-    dispatcher  = TestDispatcher.new
-    handler     = TestHandler.new
-    event1      = Test1DomainEvent.new
+    dispatcher        = TestDispatcher.new
+    handler           = TestHandler.new
+    mapper            = TestMapper.new
+    event1            = Test1DomainEvent.new
+    serialized_event1 = mapper.event_to_serialized_record(event1)
+
     broker_with_custom_dispatcher = broker_class.new(dispatcher: dispatcher)
     broker_with_custom_dispatcher.add_subscriber(handler, [Test1DomainEvent])
-    broker_with_custom_dispatcher.notify_subscribers(event1)
-    expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1}])
+    broker_with_custom_dispatcher.notify_subscribers(event1, serialized_event1)
+    expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, serialized_event: serialized_event1}])
   end
 
   it 'subscribes by type of event which is a String' do
+    mapper          = TestMapper.new
     handler         = TestHandler.new
     broker.add_subscriber(handler, ["Test1DomainEvent"])
     broker.add_thread_subscriber(handler, ["Test1DomainEvent"])
 
-    event1 = Test1DomainEvent.new
-    broker.notify_subscribers(event1)
+    event1           = Test1DomainEvent.new
+    serialized_event1 = mapper.event_to_serialized_record(event1)
+    broker.notify_subscribers(event1, serialized_event1)
 
     expect(handler.events).to eq([event1,event1])
   end

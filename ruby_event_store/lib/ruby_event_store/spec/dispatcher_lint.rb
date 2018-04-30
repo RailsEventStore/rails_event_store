@@ -1,18 +1,17 @@
 RSpec.shared_examples :dispatcher do |dispatcher|
-  specify "calls subscribed instance" do
-    handler = HandlerClass.new
-    event   = instance_double(::RubyEventStore::Event)
+  let(:event) { instance_double(::RubyEventStore::Event) }
+  let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
+  let(:handler) { HandlerClass.new }
 
+  specify "calls subscribed instance" do
     expect(handler).to receive(:call).with(event)
-    dispatcher.(handler, event)
+    dispatcher.call(handler, event, serialized_event)
   end
 
   specify "calls subscribed class" do
-    event   = instance_double(::RubyEventStore::Event)
-
-    expect(HandlerClass).to receive(:new).and_return( h = HandlerClass.new )
-    expect(h).to receive(:call).with(event)
-    dispatcher.(HandlerClass, event)
+    expect(HandlerClass).to receive(:new).and_return(handler)
+    expect(handler).to receive(:call).with(event)
+    dispatcher.call(HandlerClass, event, serialized_event)
   end
 
   specify "allows callable classes and instances" do

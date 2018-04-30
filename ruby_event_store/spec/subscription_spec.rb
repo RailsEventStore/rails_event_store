@@ -7,7 +7,7 @@ class CustomDispatcher
     @dispatched_events = []
   end
 
-  def call(subscriber, event)
+  def call(subscriber, event, serialized_event)
     subscriber = subscriber.new if Class === subscriber
     @dispatched_events << {to: subscriber.class, event: event}
   end

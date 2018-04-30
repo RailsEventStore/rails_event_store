@@ -17,12 +17,12 @@ module RubyEventStore
 
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
-      events.each do |ev|
-        with_metadata(
-          correlation_id: ev.metadata[:correlation_id] || ev.event_id,
-          causation_id: ev.event_id,
-        ) do
-          event_broker.notify_subscribers(ev)
+      events = prepare_events(events)
+      serialized_events = serialize_events(events)
+      append_to_stream_serialized(serialized_events, stream_name: stream_name, expected_version: expected_version)
+      events.zip(serialized_events) do |event, serialized_event|
+        with_metadata(correlation_id: ev.metadata[:correlation_id] || ev.event_id, causation_id: ev.event_id) do
+          event_broker.notify_subscribers(event, serialized_event)
         end
       end
       :ok
@@ -33,9 +33,8 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      events = normalize_to_array(events)
-      events.each{|event| enrich_event_metadata(event) }
-      repository.append_to_stream(serialized_events(events), Stream.new(stream_name), ExpectedVersion.new(expected_version))
+      serialized_events = serialize_events(prepare_events(events))
+      append_to_stream_serialized(serialized_events, stream_name: stream_name, expected_version: expected_version)
       :ok
     end
 
@@ -196,7 +195,7 @@ module RubyEventStore
 
     private
 
-    def serialized_events(events)
+    def serialize_events(events)
       events.map do |ev|
         mapper.event_to_serialized_record(ev)
       end
@@ -217,7 +216,17 @@ module RubyEventStore
       event.metadata[:timestamp] ||= clock.call
     end
 
-    attr_reader :repository, :mapper, :event_broker, :clock, :page_size
+    def append_to_stream_serialized(serialized_events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      repository.append_to_stream(serialized_events, Stream.new(stream_name), ExpectedVersion.new(expected_version))
+    end
+
+    def prepare_events(events)
+      events = normalize_to_array(events)
+      events.each{|event| enrich_event_metadata(event) }
+      events
+    end
+
+    attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
 
     protected
 
