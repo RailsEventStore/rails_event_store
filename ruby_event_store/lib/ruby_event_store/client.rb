@@ -173,12 +173,10 @@ module RubyEventStore
 
     def with_metadata(metadata, &block)
       previous_metadata = self.metadata
-      begin
-        self.metadata = metadata
-        block.call if block_given?
-      ensure
-        self.metadata = previous_metadata
-      end
+      self.metadata = metadata
+      block.call if block_given?
+    ensure
+      self.metadata = previous_metadata
     end
 
     private
