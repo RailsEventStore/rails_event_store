@@ -1,6 +1,10 @@
 # Logging request metadata
 
-In Rails environment, every event is enhanced with the request metadata provided by `rack` server. This can help with debugging and building an audit log from events for the future use.
+In Rails environment, every event is enhanced with the request metadata provided by `rack` server as long as you configure your event store instance in `config.event_store`. This can help with debugging and building an audit log from events for the future use.
+
+## Setup
+
+In order to enhance your events with metadata, you need to setup your client as described in [Installation](/docs/install).
 
 ## Defaults
 
@@ -31,7 +35,7 @@ my_event.metadata[:request_id] # unique ID
 
 You can configure which metadata you'd like to catch. To do so, you need to provide a `lambda` which takes Rack environment and returns a metadata hash/object.
 
-This can be configurable using `rails_event_store.request_metadata` field in your Rails configuration.
+This can be configurable using `x.rails_event_store.request_metadata` field in your Rails configuration.
 
 You should set it up globally (`config/application.rb`) or locally for each environment (`config/environments/test.rb`, `config/environments/development.rb`, `config/environments/production.rb`, ...). If you don't provide your own, the default implementation will be used.
 
