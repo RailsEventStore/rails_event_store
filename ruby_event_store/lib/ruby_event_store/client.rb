@@ -171,6 +171,16 @@ module RubyEventStore
       Within.new(block, event_broker)
     end
 
+    def with_metadata(metadata, &block)
+      previous_metadata = self.metadata
+      begin
+        self.metadata = metadata
+        block.call if block_given?
+      ensure
+        self.metadata = previous_metadata
+      end
+    end
+
     private
 
     def serialized_events(events)
@@ -198,13 +208,26 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      event.metadata[:timestamp] ||= clock.()
       if metadata_proc
         md = metadata_proc.call || {}
         md.each{|k,v| event.metadata[k]=(v) }
       end
+      if metadata
+        metadata.each { |key, value| event.metadata[key] = value }
+      end
+      event.metadata[:timestamp] ||= clock.call
     end
 
     attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
+
+    protected
+
+    def metadata
+      Thread.current[:ruby_event_store]
+    end
+
+    def metadata=(value)
+      Thread.current[:ruby_event_store] = value
+    end
   end
 end

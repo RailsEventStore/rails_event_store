@@ -135,6 +135,99 @@ module RubyEventStore
       expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
+    specify 'published event metadata will be enriched by metadata provided in with_metadata when executed inside a block' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event = TestEvent.new
+      client.with_metadata(request_ip: '127.0.0.1') do
+        client.publish_event(event)
+      end
+      published = client.read_all_streams_forward
+      expect(published.size).to eq(1)
+      expect(published.first.metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published.first.metadata[:timestamp]).to be_a Time
+    end
+
+    specify 'published event metadata will not be enriched by metadata provided in with_metadata when published outside a block' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event = TestEvent.new
+      client.with_metadata(request_ip: '127.0.0.1')
+      client.publish_event(event)
+      published = client.read_all_streams_forward
+      expect(published.size).to eq(1)
+      expect(published.first.metadata[:request_ip]).to be_nil
+      expect(published.first.metadata[:timestamp]).to be_a Time
+    end
+
+    specify 'published event metadata will be enriched by nested metadata provided in with_metadata' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.with_metadata(request_ip: '127.0.0.1') do
+        client.publish_event(TestEvent.new)
+        client.with_metadata(request_ip: '1.2.3.4', nested: true) do
+          client.publish_event(TestEvent.new)
+        end
+        client.publish_event(TestEvent.new)
+      end
+      published = client.read_all_streams_forward
+      expect(published.size).to eq(3)
+      expect(published[0].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[0].metadata[:timestamp]).to be_a Time
+      expect(published[1].metadata.keys).to match_array([:timestamp, :request_ip, :nested])
+      expect(published[1].metadata[:request_ip]).to eq('1.2.3.4')
+      expect(published[1].metadata[:nested]).to eq true
+      expect(published[1].metadata[:timestamp]).to be_a Time
+      expect(published[2].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[2].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[2].metadata[:timestamp]).to be_a Time
+    end
+
+    specify 'with_metadata can be cleared by using nil argument' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.with_metadata(request_ip: '127.0.0.1') do
+        client.publish_event(TestEvent.new)
+        client.with_metadata(nil) do
+          client.publish_event(TestEvent.new)
+        end
+        client.publish_event(TestEvent.new)
+      end
+      published = client.read_all_streams_forward
+      expect(published.size).to eq(3)
+      expect(published[0].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[0].metadata[:timestamp]).to be_a Time
+      expect(published[1].metadata.keys).to match_array([:timestamp])
+      expect(published[1].metadata[:timestamp]).to be_a Time
+      expect(published[2].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[2].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[2].metadata[:timestamp]).to be_a Time
+    end
+
+    specify 'when both metadata_proc & with_metadata block are used, the event\'s metadata will be enriched first from the proc and then from with_metadata argument' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ {proc: true, request_ip: '127.0.0.1'} })
+      event = TestEvent.new
+      client.with_metadata(request_ip: '1.2.3.4', meta: true) do
+        client.publish_event(event)
+      end
+      published = client.read_all_streams_forward
+      expect(published.size).to eq(1)
+      expect(published.first.metadata[:request_ip]).to eq('1.2.3.4')
+      expect(published.first.metadata[:proc]).to eq(true)
+      expect(published.first.metadata[:meta]).to eq(true)
+      expect(published.first.metadata[:timestamp]).to be_a Time
+    end
+
+    specify 'timestamp can be overwritten by using with_metadata' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event = TestEvent.new
+      client.with_metadata(timestamp: '2018-01-01T00:00:00Z') do
+        client.append_to_stream(event)
+      end
+      published = client.read_all_streams_forward
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
+      expect(published.first.metadata[:timestamp]).to eq('2018-01-01T00:00:00Z')
+    end
+
     specify 'only timestamp set inn metadata when event stored in stream if metadata proc return nil' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ nil })
       event = TestEvent.new
