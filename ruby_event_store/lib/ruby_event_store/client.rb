@@ -222,11 +222,11 @@ module RubyEventStore
     protected
 
     def metadata
-      Thread.current[:ruby_event_store]
+      Thread.current["ruby_event_store_#{hash}"]
     end
 
     def metadata=(value)
-      Thread.current[:ruby_event_store] = value
+      Thread.current["ruby_event_store_#{hash}"] = value
     end
   end
 end

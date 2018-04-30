@@ -223,6 +223,25 @@ module RubyEventStore
       expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
+    specify 'metadata is bound to the current instance and does not leak to others' do
+      client_a = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client_b = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+
+      client_a.with_metadata(client: 'a') do
+        client_b.with_metadata(client: 'b') do
+          client_a.publish_event(TestEvent.new)
+          client_b.publish_event(TestEvent.new)
+        end
+      end
+
+      published_a = client_a.read_all_streams_forward
+      published_b = client_b.read_all_streams_forward
+      expect(published_a.size).to eq(1)
+      expect(published_b.size).to eq(1)
+      expect(published_a.last.metadata[:client]).to eq('a')
+      expect(published_b.last.metadata[:client]).to eq('b')
+    end
+
     specify 'timestamp can be overwritten by using with_metadata' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = TestEvent.new
