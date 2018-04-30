@@ -5,8 +5,8 @@ module RailsEventStore
     end
 
     def call(env)
-      if @app.config.respond_to?(:event_store)
-        @app.config.event_store.with_metadata(request_metadata(env)) do
+      if config.respond_to?(:event_store)
+        config.event_store.with_metadata(request_metadata(env)) do
           @app.call(env)
         end
       else
@@ -19,9 +19,13 @@ module RailsEventStore
     end
 
     private
+    
+    def config
+      Rails.application.config
+    end
 
     def metadata_proc
-      @app.config.x.rails_event_store.request_metadata if @app.config.x.rails_event_store.request_metadata.respond_to?(:call)
+      config.x.rails_event_store.request_metadata if config.x.rails_event_store.request_metadata.respond_to?(:call)
     end
 
     def default_request_metadata

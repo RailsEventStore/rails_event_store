@@ -8,9 +8,10 @@ require 'rack/lint'
 module RailsEventStore
   RSpec.describe Middleware do
     specify 'calls app within with_metadata block when app has configured the event store instance' do
-      app.config.event_store = event_store = Client.new
       expect(app).to receive(:call).with(dummy_env)
       middleware = Middleware.new(app)
+      ::Rails.application.config.event_store = event_store = Client.new
+      ::Rails.application.config.x = ::Rails::Application::Configuration::Custom.new
       expect(event_store).to receive(:with_metadata).with(request_id: 'dummy_id', remote_ip: 'dummy_ip').and_call_original
       middleware.call(dummy_env)
     end
@@ -22,8 +23,8 @@ module RailsEventStore
     end
 
     specify 'use config.rails_event_store.request_metadata' do
-      app.config.x.rails_event_store.request_metadata = kaka_dudu
       middleware = Middleware.new(app)
+      ::Rails.application.config.x.rails_event_store.request_metadata = kaka_dudu
 
       expect(middleware.request_metadata(dummy_env)).to eq({
         kaka: 'dudu'
@@ -31,8 +32,8 @@ module RailsEventStore
     end
 
     specify 'use config.rails_event_store.request_metadata is not callable' do
-      app.config.x.rails_event_store.request_metadata = {}
       middleware = Middleware.new(app)
+      ::Rails.application.config.x.rails_event_store.request_metadata = {}
 
       expect(middleware.request_metadata(dummy_env)).to eq({
         request_id: 'dummy_id',
@@ -42,6 +43,7 @@ module RailsEventStore
 
     specify 'use config.rails_event_store.request_metadata is not set' do
       middleware = Middleware.new(app)
+      ::Rails.application.config.x = ::Rails::Application::Configuration::Custom.new
 
       expect(middleware.request_metadata(dummy_env)).to eq({
         request_id: 'dummy_id',
