@@ -48,7 +48,7 @@ build:
 
 push:
 	@echo "Pushing package to RubyGems"
-	@gem push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+	@gem push -k dev_arkency pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package"
