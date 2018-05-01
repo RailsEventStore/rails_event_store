@@ -23,11 +23,9 @@ events' `data` and `metadata` using `JSON`.
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(
-        mapper: RubyEventStore::Mappers::Default.new(
-          serializer: JSON 
-        )
-      ) 
+      mapper: RubyEventStore::Mappers::Default.new(
+        serializer: JSON 
+      )
     )
   end
 end
@@ -93,7 +91,6 @@ end
 
 Check out the code of our [default mapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/default.rb) and [protobuf mapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/protobuf.rb) on github for examples on how to implement mappers.
 
-
 You can pass a different `mapper` as a dependency when [instantiating the client](/docs/install).
 
 ```ruby
@@ -102,9 +99,7 @@ You can pass a different `mapper` as a dependency when [instantiating the client
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(
-        mapper: MyHashToMessagePackMapper.new
-      )
+      mapper: MyHashToMessagePackMapper.new
     )
   end
 end

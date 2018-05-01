@@ -28,9 +28,7 @@ change_column :event_store_events, :metadata, :binary, null: true
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(
-        mapper: RubyEventStore::Mappers::Protobuf.new
-      )
+      mapper: RubyEventStore::Mappers::Protobuf.new
     )
   end
 end
