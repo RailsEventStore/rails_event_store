@@ -135,6 +135,8 @@ module RailsEventStore
         expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
         expect(_matcher.failure_message.to_s).to include("BeEvent")
       end
+
+      specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
     end
   end
 end

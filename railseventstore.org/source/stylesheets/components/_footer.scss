@@ -10,13 +10,21 @@
 }
 
 .site-footer__link {
-  margin: 0 .4rem;
-  color: $base-font-color;
-  text-decoration: underline;
-  text-decoration-skip: ink;
+  margin: 0 1rem;
+  color: $oc-gray-5;
+  background: transparent;
+  border-bottom: none;
 
   &:hover {
-    color: $base-font-color;
-    opacity: 0.75;
+    background: inherit;
+    border-bottom: none;
+    color: $oc-red-3;
+  }
+
+  &:active, &:focus {
+    color: $oc-white;
+    background: inherit;
+    border-bottom: none;
+    outline: none;
   }
 }

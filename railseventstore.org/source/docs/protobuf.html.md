@@ -8,7 +8,18 @@ Add RES and protobuf to your app's `Gemfile`
 
 ```ruby
 gem 'google-protobuf'
+gem 'protobuf_nested_struct'
 gem 'rails_event_store'
+```
+
+## Migration
+
+Change `data` and `metadata` columns' type to `binary` to allow storing
+non-UTF8 characters which might appear when using protobuf serialization.
+
+```ruby
+change_column :event_store_events, :data,     :binary, null: true
+change_column :event_store_events, :metadata, :binary, null: true
 ```
 
 ## Configure protobuf mapper
@@ -32,9 +43,8 @@ syntax = "proto3";
 package my_app;
 
 message OrderPlaced {
-  string event_id = 1;
-  string order_id = 2;
-  int32 customer_id = 3;
+  string order_id = 1;
+  int32 customer_id = 2;
 }
 ```
 
@@ -48,39 +58,14 @@ require 'google/protobuf'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "my_app.OrderPlaced" do
-    optional :event_id, :string, 1
-    optional :order_id, :string, 2
-    optional :customer_id, :int32, 3
+    optional :order_id, :string, 1
+    optional :customer_id, :int32, 2
   end
 end
 
 module MyApp
   OrderPlaced = Google::Protobuf::DescriptorPool.generated_pool.lookup("my_app.OrderPlaced").msgclass
 end
-
-```
-
-### Metadata
-
-Rails Event Store can automatically fill out some meta-data for your events such as:
-
-* `timestamp`
-* `remote_ip`
-* `request_id`
-
-If you want to include them, define those fields in your event schema definition as well.
-
-```
-syntax = "proto3";
-package my_app;
-
-message OrderPlaced {
-  string event_id = 1;
-  string order_id = 2;
-  int32 customer_id = 3;
-  
-  string remote_ip = 4;
-}
 ```
 
 ## Publishing
@@ -88,10 +73,11 @@ message OrderPlaced {
 ```ruby
 event_store = Rails.configuration.event_store
 
-event = MyApp::OrderPlaced.new(
-  event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-  customer_id: 123,
-  order_id: "K3THNX9",
+event = RubyEventStore::Proto.new(
+  data: MyApp::OrderPlaced.new(
+    order_id: "K3THNX9",
+    customer_id: 123,
+  )
 )
 event_store.publish_event(event, stream_name: "Order-K3THNX9")
 ```
@@ -102,6 +88,25 @@ event_store.publish_event(event, stream_name: "Order-K3THNX9")
 event = client.read_stream_events_forward('test').last
 ```
 
-## Async handlers
+## Subscribing
 
-* BUG: [Protobuf cannot be used with async handlers](https://github.com/RailsEventStore/rails_event_store/issues/228)
+#### Sync handlers
+
+```ruby
+event_store.subscribe(->(ev){ },  to: [MyApp::OrderPlaced.descriptor.name])
+````
+
+#### Async handlers
+
+```ruby
+class SendOrderEmailHandler < ActiveJob::Base
+  self.queue_adapter = :inline
+
+  def perform(event)
+    event = YAML.load(event)
+    # do something
+  end
+end
+
+event_store.subscribe(SendOrderEmailHandler, to: [MyApp::OrderPlaced.descriptor.name])
+```

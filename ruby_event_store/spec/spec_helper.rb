@@ -1,16 +1,11 @@
 require 'ruby_event_store'
 require 'support/rspec_defaults'
-require 'pry'
+require 'support/mutant_timeout'
+require_relative 'mappers/events_pb.rb'
 
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
 TestEvent = Class.new(RubyEventStore::Event)
-
-RSpec.configure do |config|
-  config.around(:each) do |example|
-    Timeout.timeout(5, &example)
-  end
-end
 
 module Subscribers
   class InvalidHandler
@@ -28,3 +23,10 @@ module Subscribers
   end
 end
 
+RSpec::Matchers.define :contains_ids do |expected_ids|
+  match do |enum|
+    @actual = enum.map(&:event_id)
+    values_match?(expected_ids, @actual)
+  end
+  diffable
+end

@@ -28,8 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
-  spec.add_development_dependency 'ruby_event_store', '= 0.27.1'
+  spec.add_development_dependency 'ruby_event_store', '= 0.28.0'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
-
-  spec.add_dependency 'activesupport', '>= 3.0'
 end

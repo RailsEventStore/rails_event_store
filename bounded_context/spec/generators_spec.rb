@@ -14,6 +14,17 @@ module BoundedContext
       end
     end
 
+    RSpec::Matchers.define :exists_at_destination_path do |_|
+      match do |actual|
+        @matcher = ::RSpec::Matchers::BuiltIn::Exist.new(File.join(destination_root, actual))
+        @matcher.matches?(File)
+      end
+
+      failure_message do
+        @matcher.failure_message
+      end
+    end
+
     specify do
       run_generator %w[payments]
 
@@ -80,6 +91,14 @@ module BoundedContext
       system_run_generator %w[IdentityAccess]
       expect_identity_access_test_helper
     end
+
+
+    specify do
+      run_generator %w[identity_access]
+
+      expect('identity_access/lib/identity_access/.keep').to exists_at_destination_path
+    end
+
 
     def expect_identity_access_spec_helper
       expect('identity_access/spec/spec_helper.rb').to match_content(<<~EOF)

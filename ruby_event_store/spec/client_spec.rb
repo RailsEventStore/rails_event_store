@@ -20,14 +20,14 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
       expect(client.append_to_stream(test_event)).to eq(:ok)
-      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
+      expect(client.read_all_streams_forward).to eq([test_event])
     end
 
     specify 'publish to default stream when not specified' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
       expect(client.publish_events([test_event])).to eq(:ok)
-      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
+      expect(client.read_all_streams_forward).to eq([test_event])
     end
 
     specify 'delete_stream returns :ok when success' do
@@ -40,7 +40,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
       expect(client.publish_event(test_event)).to eq(:ok)
-      expect(client.read_stream_events_forward(GLOBAL_STREAM)).to eq([test_event])
+      expect(client.read_all_streams_forward).to eq([test_event])
     end
 
     specify 'publish first event, expect any stream state' do
@@ -141,7 +141,7 @@ module RubyEventStore
       client.append_to_stream(event)
       published = client.read_all_streams_forward
       expect(published.size).to eq(1)
-      expect(published.first.metadata.keys).to eq([:timestamp])
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
@@ -162,13 +162,6 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       expect { client.subscribe(nil, to: [])}.to raise_error(SubscriberNotExist)
       expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
-    end
-
-    specify 'reading all existing stream names' do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(TestEvent.new, stream_name: 'test')
-
-      expect(client.get_all_streams).to eq([Stream.new('all'), Stream.new('test')])
     end
 
     specify 'reading particular event' do
@@ -206,12 +199,14 @@ module RubyEventStore
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       client = RubyEventStore::Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
-        repository: InMemoryRepository.new,
+        repository: InMemoryRepository.new
       )
-      event = ResTesting::OrderCreated.new(
+      event = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        customer_id: 123,
-        order_id: "K3THNX9",
+        data: ResTesting::OrderCreated.new(
+          customer_id: 123,
+          order_id: "K3THNX9",
+        )
       )
       client.publish_event(event, stream_name: 'test')
       expect(client.read_event(event.event_id)).to eq(event)
@@ -347,6 +342,12 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       expect { client.append_to_stream(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
       expect { client.append_to_stream(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
+    end
+
+    specify 'raise exception if stream name is incorrect' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(IncorrectStreamData)
+      expect { client.append_to_stream(OrderCreated.new, stream_name: '', expected_version: -1) }.to raise_error(IncorrectStreamData)
     end
 
     specify 'return all events ordered forward' do
@@ -513,9 +514,75 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = OrderCreated.new
       client.publish_event(event)
-      saved_events = client.read_stream_events_forward('all')
+      saved_events = client.read_all_streams_forward
       expect(saved_events[0]).to eq(event)
     end
 
+    specify 'append_to_stream fail if expected version is nil' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+
+      expect do
+        client.append_to_stream(event = OrderCreated.new, stream_name: 'stream', expected_version: nil)
+      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+
+    specify 'link_to_stream fail if expected version is nil' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client.append_to_stream(event = OrderCreated.new, stream_name: 'stream', expected_version: :any)
+
+      expect do
+        client.link_to_stream(event.event_id, stream_name: 'stream', expected_version: nil)
+      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+
+    specify 'GLOBAL_STREAM is unordered, one cannot expect specific version number to work' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect do
+        client.append_to_stream(OrderCreated.new, expected_version: 42)
+      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+
+    specify 'GLOBAL_STREAM is unordered, one cannot expect :none to work' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect do
+        client.append_to_stream(OrderCreated.new, expected_version: :none)
+      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+
+    specify 'GLOBAL_STREAM is unordered, one cannot expect :auto to work' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect do
+        client.append_to_stream(OrderCreated.new, expected_version: :auto)
+      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+    end
+
+    specify "only :none, :any, :auto and Integer allowed as expected_version" do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+
+      [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
+        expect do
+          client.append_to_stream(
+            OrderCreated.new(event_id: SecureRandom.uuid),
+            stream_name: "some_stream",
+            expected_version: invalid_expected_version
+          )
+        end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      end
+    end
+
+    specify "only :none, :any, :auto and Integer allowed as expected_version when linking" do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+
+      [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
+        client.append_to_stream(
+          OrderCreated.new(event_id: evid = SecureRandom.uuid),
+          stream_name: SecureRandom.uuid,
+          expected_version: :none
+        )
+        expect do
+          client.link_to_stream(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
+        end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      end
+    end
   end
 end

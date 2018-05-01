@@ -1,6 +1,6 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = rails_event_store-browser
-REQUIRE      = rails_event_store/browser ./spec/dummy_5_1_4/config/environment
+REQUIRE      = rails_event_store/browser ./spec/dummy_5_2_0/config/environment
 IGNORE       =
 SUBJECT      ?= RailsEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
@@ -11,6 +11,13 @@ install: ## Install gem dependencies
 	@bundle install
 	@echo "Installing npm dependencies"
 	@cd elm; yarn install
+
+remove-lock:
+	@echo "Removing resolved dependency versions"
+	-rm Gemfile.lock
+
+reinstall: remove-lock install ## Removing resolved dependency versions
+
 
 test: $(JS_BUNDLE) ## Run unit tests
 	@echo "Running unit and integration tests"
@@ -36,7 +43,7 @@ build: $(JS_BUNDLE)
 
 push: $(JS_BUNDLE)
 	@echo "Pushing package to RubyGems"
-	@gem push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+	@gem push -k dev_arkency pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package and bundle"

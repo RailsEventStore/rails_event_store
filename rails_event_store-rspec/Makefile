@@ -11,6 +11,12 @@ install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 
+remove-lock:
+	@echo "Removing resolved dependency versions"
+	-rm Gemfile.lock
+
+reinstall: remove-lock install ## Removing resolved dependency versions
+
 test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec
@@ -30,7 +36,7 @@ build:
 
 push:
 	@echo "Pushing package to RubyGems"
-	@gem push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+	@gem push -k dev_arkency pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package"

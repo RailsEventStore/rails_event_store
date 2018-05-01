@@ -59,7 +59,6 @@ Mapper needs to implement 3 methods:
   * `metadata` (String)
   * `event_type` (String)
 * `serialized_record_to_event(record)` - which takes `RubyEventStore::SerializedRecord` and converts it to an instance of an event class that was stored.
-* `add_metadata(domain_event, key, value)` - which knows how to (if possible) add automatically some metadata such as `request_ip`, `request_id` or `timestamp` to events.
 
 ```ruby
 require 'msgpack'
@@ -71,25 +70,26 @@ class MyHashToMessagePackMapper
     # of your domain event 
     SerializedRecord.new(
       event_id:   domain_event.fetch('event_id'),
-      metadata:   "",
-      data:       domain_event.to_msg_pack,
-      event_type: domain_event.fetch('event_type')
+      metadata:   domain_event.metadata.to_msg_pack,
+      data:       domain_event.data.to_msg_pack,
+      event_type: domain_event.type
     )
   end
 
   # Deserialize proper object based on
   # event_type and data+metadata fields
   def serialized_record_to_event(record)
-    MessagePack.unpack(record.data)
+    Object.const_get(event_type).new(
+      event_id: record.event_id,
+      metadata: MessagePack.unpack(record.metadata),
+      data:     MessagePack.unpack(record.data)
+    )
   end
 
-  def add_metadata(event, key, value)
-    event[key.to_s] = value
-  end
 end
 ```
 
-Check out the code of our [default mapper](https://github.com/RailsEventStore/rails_event_store/blob/52d5104a8f47dab7f71c555d0185b58bc9c71c5a/ruby_event_store/lib/ruby_event_store/mappers/default.rb) and [protobuf mapper](https://github.com/RailsEventStore/rails_event_store/blob/52d5104a8f47dab7f71c555d0185b58bc9c71c5a/ruby_event_store/lib/ruby_event_store/mappers/protobuf.rb) on github for examples on how to implement mappers.
+Check out the code of our [default mapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/default.rb) and [protobuf mapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/protobuf.rb) on github for examples on how to implement mappers.
 
 You can pass a different `mapper` as a dependency when [instantiating the client](/docs/install).
 
@@ -108,10 +108,14 @@ end
 Now you should be able to publish your events:
 
 ```ruby
-Rails.configuration.event_store.publish_event({
+class OrderPlaced < RubyEventStore::Event
+end
+
+event_store = Rails.configuration.event_store
+
+event_store.publish_event(OrderPlaced.new(data: {
   'event_id' => SecureRandom.uuid,
   'order_id' => 1,
-  'event_type' => 'OrderPlaced',
   'order_amount' => BigDecimal.new('120.55'),
-}, stream_name: 'Order$1')
+}), stream_name: 'Order$1')
 ```

@@ -23,7 +23,7 @@ module RubyEventStore
       expect(event.event_id).to_not  be_nil
       expect(event.data[:sample]).to eq(123)
       expect(event.data).to          eq({sample: 123})
-      expect(event.metadata).to      eq({})
+      expect(event.metadata.to_h).to eq({})
       expect(event.timestamp).to     be_nil
     end
 
@@ -31,7 +31,7 @@ module RubyEventStore
       event = Test::TestCreated.new(event_id: 234)
       expect(event.event_id).to eq("234")
       expect(event.data).to     eq({})
-      expect(event.metadata).to eq({})
+      expect(event.metadata.to_h).to eq({})
     end
 
     specify 'constructor metadata attribute is used as event metadata (with timestamp changed)' do
@@ -45,9 +45,9 @@ module RubyEventStore
 
     specify 'for empty data it initializes instance with default values' do
       event = Test::TestCreated.new
-      expect(event.event_id).to_not be_nil
-      expect(event.data).to         eq({})
-      expect(event.metadata).to     eq({})
+      expect(event.event_id).to_not  be_nil
+      expect(event.data).to          eq({})
+      expect(event.metadata.to_h).to eq({})
     end
 
     specify 'UUID should be String' do
@@ -100,13 +100,13 @@ module RubyEventStore
     end
 
     specify 'convert to hash' do
-      event_data = {
+      hash = {
           data: { data: 'sample' },
           event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd',
-          metadata: { meta: 'test'}
+          metadata: { meta: 'test'},
       }
-      event = Test::TestCreated.new(event_data)
-      expect(event.to_h).to eq(event_data)
+      event = Test::TestCreated.new(hash)
+      expect(event.to_h).to eq(hash.merge(type: 'Test::TestCreated'))
     end
 
     specify 'only events with the same class, event_id & data are equal' do
@@ -160,5 +160,12 @@ module RubyEventStore
         {}
       ].hash)
     end
+
+    specify "uses Metadata and its restrictions" do
+      expect do
+        Test::TestCreated.new(metadata: {key: Object.new})
+      end.to raise_error(ArgumentError)
+    end
+
   end
 end

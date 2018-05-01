@@ -45,7 +45,7 @@ When in doubt, check this [example](https://github.com/RailsEventStore/rails_eve
   - build all gem packages
   - push built gem packages to RubyGems
 
-    You'll need to be [gem owner](https://rubygems.org/gems/rails_event_store) of each gem to complete this step.
+    You'll need to have [dev_arkency](https://github.com/RailsEventStore/rails_event_store/commit/020a384b93496f0c2ba2357ec933251e8a5ed24d) RubyGems API key to complete this step.
 
 5. Go back to [releases](https://github.com/RailsEventStore/rails_event_store/releases/), link to appropriate git tag in _Tag version_ field. Set title corresponding to version number and publish this release entry.
 

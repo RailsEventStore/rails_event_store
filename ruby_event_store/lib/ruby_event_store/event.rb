@@ -4,16 +4,21 @@ module RubyEventStore
   class Event
     def initialize(event_id: SecureRandom.uuid, metadata: nil, data: nil)
       @event_id = event_id.to_s
-      @metadata = metadata.to_h
+      @metadata = Metadata.new(metadata.to_h)
       @data     = data.to_h
     end
     attr_reader :event_id, :metadata, :data
 
+    def type
+      self.class.name
+    end
+
     def to_h
       {
           event_id:   event_id,
-          metadata:   metadata,
-          data:       data
+          metadata:   metadata.to_h,
+          data:       data,
+          type:       type,
       }
     end
 

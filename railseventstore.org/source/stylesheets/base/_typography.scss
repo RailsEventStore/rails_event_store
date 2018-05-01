@@ -54,17 +54,21 @@ p {
 }
 
 a {
-  color: $base-link-color;
+  color: $base-font-color;
   text-decoration: none;
-  transition: color 0.1s linear;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: $oc-red-1;
+  //transition: color 0.1s linear;
 
   &:hover {
-    color: $hover-link-color;
+    background-color: $oc-red-3 ;
+    border-bottom: 1px solid $base-font-color;
   }
 
   &:active,
   &:focus {
-    color: $hover-link-color;
+    background-color: $oc-red-3;
+    border-bottom: 1px solid $base-font-color;
     outline: none;
   }
 }

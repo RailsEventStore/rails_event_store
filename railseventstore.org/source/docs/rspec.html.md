@@ -10,26 +10,6 @@ end
 
 ## Matchers usage
 
-Configure your rspec to include matchers in all examples first:
-
-```ruby
-RSpec.configure do |config|
-  config.include ::RailsEventStore::RSpec::Matchers
-end
-```
-
-You can as well choose to have RES matches in particular test file only:
-
-```ruby
-RSpec.describe MySubject do
-  include ::RailsEventStore::RSpec::Matchers
-
-  specify do
-    # matchers available here
-  end
-end
-```
-
 ### be_event
 
 The `be_event` matcher enables you to make expectations on a domain event. It exposes fluent interface.

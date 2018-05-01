@@ -19,3 +19,22 @@
 .contributor__avatar {
   border-radius: 5px;
 }
+
+.contributor__link {
+  border-bottom: none;
+  border-radius: 5px;
+  background-color: $oc-red-2;
+  display: inline-block;
+  line-height: 0;
+
+  &:hover,
+  &:focus,
+  &:active {
+    border-bottom: none;
+
+    .contributor__avatar {
+      filter: grayscale(100%);
+      opacity: 0.5;
+    }
+  }
+}

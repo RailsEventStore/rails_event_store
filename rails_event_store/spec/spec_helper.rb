@@ -1,6 +1,7 @@
 require 'rails_event_store'
 require 'example_invoicing_app'
 require 'support/rspec_defaults'
+require 'support/mutant_timeout'
 require 'support/fake_configuration'
 
 
@@ -12,10 +13,13 @@ RSpec.configure do |config|
   config.around(:each) do |example|
     ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
     ActiveRecord::Schema.define do
-      self.verbose = false
+      self.verbose = $verbose
       eval(MigrationCode) unless defined?(CreateEventStoreEvents)
       CreateEventStoreEvents.new.change
     end
     example.run
   end
 end
+
+$verbose = ENV.has_key?('VERBOSE') ? true : false
+ActiveJob::Base.logger = nil unless $verbose

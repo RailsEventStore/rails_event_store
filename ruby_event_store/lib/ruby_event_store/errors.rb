@@ -7,6 +7,7 @@ module RubyEventStore
   InvalidPageSize            = Class.new(ArgumentError)
   EventDuplicatedInStream    = Class.new(StandardError)
   NotSupported               = Class.new(StandardError)
+  ReservedInternalName       = Class.new(StandardError)
 
   class EventNotFound < StandardError
     attr_reader :event_id

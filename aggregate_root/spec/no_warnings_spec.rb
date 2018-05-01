@@ -3,9 +3,7 @@ require 'spec_helper'
 module RubyEventStore
   RSpec.describe 'no warnings' do
     specify do
-      expect(aggregate_root_warnings.reject do |w|
-        w.to_s =~ /default_apply_strategy.rb.*warning: private attribute/
-      end).to eq([])
+      expect(aggregate_root_warnings).to eq([])
     end
 
     def aggregate_root_warnings

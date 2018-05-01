@@ -17,6 +17,12 @@ install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 
+remove-lock:
+	@echo "Removing resolved dependency versions"
+	-rm Gemfile.lock
+
+reinstall: remove-lock install ## Removing resolved dependency versions
+
 test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec
@@ -28,6 +34,14 @@ mutate: test ## Run mutation tests
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
+mutate-fast: ## Run mutation tests with --fail-fast
+	@echo "Running mutation tests"
+	@MUTATING=true bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--fail-fast \
+		--use rspec "$(SUBJECT)"
+
 build:
 	@echo "Building gem package"
 	@gem build -V $(GEM_NAME).gemspec
@@ -36,7 +50,7 @@ build:
 
 push:
 	@echo "Pushing package to RubyGems"
-	@gem push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+	@gem push -k dev_arkency pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package"
