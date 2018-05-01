@@ -9,8 +9,8 @@ module RailsEventStore
       end
 
       def matches?(event_store)
-        @events = stream_name ? event_store.read_events_backward(stream_name)
-                              : event_store.read_all_streams_backward
+        @events = stream_name ? event_store.read.stream(stream_name).backward.each
+                              : event_store.read.backward.each
         @matcher.matches?(events) && matches_count?
       end
 
@@ -35,12 +35,12 @@ module RailsEventStore
 
       def failure_message
         "expected #{expected} to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_s)
+            differ.diff_as_string(expected.to_s, events.to_a.to_s)
       end
 
       def failure_message_when_negated
         "expected #{expected} not to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_s)
+            differ.diff_as_string(expected.to_s, events.to_a.to_s)
       end
 
       def description
