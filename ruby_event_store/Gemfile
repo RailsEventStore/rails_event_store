@@ -1,4 +1,3 @@
 source 'https://rubygems.org'
 gemspec
-gem 'pry'
 gem 'protobuf_nested_struct'
