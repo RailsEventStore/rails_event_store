@@ -45,31 +45,71 @@ module RubyEventStore
     end
 
     def read_events_forward(stream_name, start: :head, count: page_size)
-      deserialized_events(read.stream(stream_name).limit(count).from(start).each)
+      warn <<~EOW
+        RubyEventStore::Client#read_events_forward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).limit(count).from(start).each.to_a
+      EOW
+      read.stream(stream_name).limit(count).from(start).each.to_a
     end
 
     def read_events_backward(stream_name, start: :head, count: page_size)
-      deserialized_events(read.stream(stream_name).limit(count).from(start).backward.each)
+      warn <<~EOW
+        RubyEventStore::Client#read_events_backward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).limit(count).from(start).backward.each.to_a
+      EOW
+      read.stream(stream_name).limit(count).from(start).backward.each.to_a
     end
 
     def read_stream_events_forward(stream_name)
-      deserialized_events(read.stream(stream_name).each)
+      warn <<~EOW
+        RubyEventStore::Client#read_stream_events_forward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).each.to_a
+      EOW
+      read.stream(stream_name).each.to_a
     end
 
     def read_stream_events_backward(stream_name)
-      deserialized_events(read.stream(stream_name).backward.each)
+      warn <<~EOW
+        RubyEventStore::Client#read_stream_events_backward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).backward.each.to_a
+      EOW
+      read.stream(stream_name).backward.each.to_a
     end
 
     def read_all_streams_forward(start: :head, count: page_size)
-      deserialized_events(read.limit(count).from(start).each)
+      warn <<~EOW
+        RubyEventStore::Client#read_all_streams_forward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.limit(count).from(start).each.to_a
+      EOW
+      read.limit(count).from(start).each.to_a
     end
 
     def read_all_streams_backward(start: :head, count: page_size)
-      deserialized_events(read.limit(count).from(start).backward.each)
+      warn <<~EOW
+        RubyEventStore::Client#read_all_streams_backward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.limit(count).from(start).backward.each.to_a
+      EOW
+      read.limit(count).from(start).backward.each.to_a
     end
 
     def read_event(event_id)
       deserialize_event(repository.read_event(event_id))
+    end
+
+    def read
+      Specification.new(repository, mapper)
     end
 
     DEPRECATED_WITHIN = "subscribe(subscriber, event_types, &task) has been deprecated. Use within(&task).subscribe(subscriber, to: event_types).call instead"
@@ -188,18 +228,8 @@ module RubyEventStore
       end
     end
 
-    def deserialized_events(serialized_events)
-      serialized_events.map do |sev|
-        deserialize_event(sev)
-      end
-    end
-
     def deserialize_event(sev)
       mapper.serialized_record_to_event(sev)
-    end
-
-    def read
-      Specification.new(repository)
     end
 
     def normalize_to_array(events)

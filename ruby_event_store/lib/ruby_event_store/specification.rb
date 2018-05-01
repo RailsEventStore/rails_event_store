@@ -31,13 +31,14 @@ module RubyEventStore
 
     attr_reader :result
 
-    def initialize(repository, result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM)))
+    def initialize(repository, mapper, result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM)))
+      @mapper = mapper
       @repository  = repository
       @result = result
     end
 
     def stream(stream_name)
-      Specification.new(repository, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
     end
 
     def from(start)
@@ -48,27 +49,31 @@ module RubyEventStore
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless repository.has_event?(start)
       end
-      Specification.new(repository, result.dup.tap { |r| r.start = start })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.start = start })
     end
 
     def forward
-      Specification.new(repository, result.dup.tap { |r| r.direction = :forward })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.direction = :forward })
     end
 
     def backward
-      Specification.new(repository, result.dup.tap { |r| r.direction = :backward })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.direction = :backward })
     end
 
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      Specification.new(repository, result.dup.tap { |r| r.count = count })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.count = count })
     end
 
     def each
-      repository.read(result)
+      Enumerator.new do |y|
+        repository.read(result).each do |sev|
+          y << mapper.serialized_record_to_event(sev)
+        end
+      end
     end
 
     private
-    attr_reader :repository
+    attr_reader :repository, :mapper
   end
 end
