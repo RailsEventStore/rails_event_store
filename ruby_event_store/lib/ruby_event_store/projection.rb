@@ -72,7 +72,7 @@ module RubyEventStore
     end
 
     def read_events_from_stream(event_store, stream_name, start, count)
-      event_store.read_events_forward(stream_name, start: start, count: count)
+      event_store.read.stream(stream_name).from(start).limit(count).each.to_a
     end
 
     def reduce_from_streams(event_store, start, count)
@@ -84,7 +84,7 @@ module RubyEventStore
     end
 
     def read_events_from_all_streams(event_store, start, count)
-      event_store.read_all_streams_forward(start: start, count: count)
+      event_store.read.from(start).limit(count).each.to_a
     end
 
     def reduce_from_all_streams(event_store, start, count)
