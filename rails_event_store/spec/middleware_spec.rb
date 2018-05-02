@@ -1,9 +1,6 @@
 require 'spec_helper'
-require 'action_controller/railtie'
-require 'rails_event_store/railtie'
-require 'securerandom'
 require 'rails_event_store/middleware'
-require 'rack/lint'
+require 'support/test_application'
 
 module RailsEventStore
   RSpec.describe Middleware do
@@ -63,16 +60,8 @@ module RailsEventStore
     end
 
     def app
-      @app ||= Class.new(::Rails::Application) do
-        def self.name
-          "TestRails::Application"
-        end
-      end.tap do |app|
-        app.config.eager_load = false
-        app.config.secret_key_base = SecureRandom.hex
-        app.initialize!
+      TestApplication.tap do |app|
         app.routes.draw { root(to: ->(env) {[200, {}, ['']]}) }
-        app.default_url_options = { host: 'example.com' }
       end
     end
   end
