@@ -56,10 +56,13 @@ Draft a [new release](https://github.com/RailsEventStore/rails_event_store/relea
 
 ### Troubleshooting when something went wrong during release
 
-- no RubyGems credentials
+- no `dev@arkency.com` RubyGems credentials
 
-  Assuming you've by now obtained the missing credentials and signed in (`gem signin`) you can resume broken `make release` by executing last step of it explicitly, that is `make push`.
+  In order push gems, you have to have following `~/.gem/credentials`:
+  
+  ```yaml
+  ---
+  :dev_arkency: SECRET_API_KEY_FROM_RUBYGEMS_ORG
+  ```
 
-- not owning all involved gems on RubyGems
-
-  Ask gem owners to add your email via `gem owner GEM_NAME -a YOUR_EMAIL`. Then proceed like above.
+  Assuming you've by now obtained the missing credentials you can resume broken `make release` by executing last step of it explicitly, that is `make push`.
