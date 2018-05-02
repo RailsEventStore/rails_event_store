@@ -171,11 +171,15 @@ module RubyEventStore
         client.publish_event(TestEvent.new)
         client.with_metadata(request_ip: '1.2.3.4', nested: true) do
           client.publish_event(TestEvent.new)
+          client.with_metadata(deeply_nested: true) do
+            client.publish_event(TestEvent.new)
+          end
         end
         client.publish_event(TestEvent.new)
       end
+      client.publish_event(TestEvent.new)
       published = client.read_all_streams_forward
-      expect(published.size).to eq(3)
+      expect(published.size).to eq(5)
       expect(published[0].metadata.keys).to match_array([:timestamp, :request_ip])
       expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
@@ -183,29 +187,38 @@ module RubyEventStore
       expect(published[1].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[1].metadata[:nested]).to eq true
       expect(published[1].metadata[:timestamp]).to be_a Time
-      expect(published[2].metadata.keys).to match_array([:timestamp, :request_ip])
-      expect(published[2].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[2].metadata.keys).to match_array([:timestamp, :request_ip, :nested, :deeply_nested])
+      expect(published[2].metadata[:request_ip]).to eq('1.2.3.4')
+      expect(published[2].metadata[:nested]).to eq true
+      expect(published[2].metadata[:deeply_nested]).to eq true
       expect(published[2].metadata[:timestamp]).to be_a Time
+      expect(published[3].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[3].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[3].metadata[:timestamp]).to be_a Time
+      expect(published[4].metadata.keys).to match_array([:timestamp])
+      expect(published[4].metadata[:timestamp]).to be_a Time
     end
 
-    specify 'with_metadata can be cleared by using nil argument' do
+    specify 'with_metadata is merged when nested' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.with_metadata(request_ip: '127.0.0.1') do
+      client.with_metadata(remote_ip: '127.0.0.1') do
         client.publish_event(TestEvent.new)
-        client.with_metadata(nil) do
-          client.publish_event(TestEvent.new)
-        end
+          client.with_metadata(remote_ip: '192.168.0.1', request_id: '1234567890') do
+              client.publish_event(TestEvent.new)
+          end
         client.publish_event(TestEvent.new)
       end
       published = client.read_all_streams_forward
       expect(published.size).to eq(3)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :request_ip])
-      expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[0].metadata.keys).to match_array([:timestamp, :remote_ip])
+      expect(published[0].metadata[:remote_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
-      expect(published[1].metadata.keys).to match_array([:timestamp])
+      expect(published[1].metadata.keys).to match_array([:timestamp, :remote_ip, :request_id])
       expect(published[1].metadata[:timestamp]).to be_a Time
-      expect(published[2].metadata.keys).to match_array([:timestamp, :request_ip])
-      expect(published[2].metadata[:request_ip]).to eq('127.0.0.1')
+      expect(published[1].metadata[:remote_ip]).to eq('192.168.0.1')
+      expect(published[1].metadata[:request_id]).to eq('1234567890')
+      expect(published[2].metadata.keys).to match_array([:timestamp, :remote_ip])
+      expect(published[2].metadata[:remote_ip]).to eq('127.0.0.1')
       expect(published[2].metadata[:timestamp]).to be_a Time
     end
 

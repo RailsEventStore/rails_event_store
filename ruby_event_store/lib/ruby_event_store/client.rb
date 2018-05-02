@@ -174,7 +174,7 @@ module RubyEventStore
 
     def with_metadata(metadata, &block)
       previous_metadata = metadata()
-      self.metadata = metadata
+      self.metadata = (previous_metadata || {}).merge(metadata)
       block.call if block_given?
     ensure
       self.metadata = previous_metadata
