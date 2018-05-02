@@ -17,6 +17,7 @@ IGNORE       = RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::SQL::Relations::StreamEntries\#normalize_stream_name \
                RubyEventStore::ROM::SQL::IndexViolationDetector\#detect \
                RubyEventStore::ROM::SQL::SpecHelper\#initialize \
+               RubyEventStore::ROM::SQL::SpecHelper\#has_connection_pooling? \
                RubyEventStore::ROM::SQL::SpecHelper\#close_pool_connection \
                RubyEventStore::ROM::SQL::SpecHelper\#load_gateway_schema \
                RubyEventStore::ROM::SQL::SpecHelper\#establish_gateway_connection \

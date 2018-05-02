@@ -75,9 +75,9 @@ module RubyEventStore
 
             attrs.each do |key|
               next if key == :position && tuple[key].nil?
-              next if restrict(:stream => stream, key => tuple[key]).to_a.none?
+              next if restrict(:stream => stream, key => tuple.fetch(key)).none?
 
-              raise TupleUniquenessError.send(:"for_stream_and_#{key}", stream, tuple[key])
+              raise TupleUniquenessError.public_send(:"for_stream_and_#{key}", stream, tuple.fetch(key))
             end
           end
 
