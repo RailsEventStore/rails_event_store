@@ -23,6 +23,7 @@ Documentation, tutorials and code samples are available at [https://railseventst
 ## Code status
 
 [![Build Status](https://travis-ci.org/RailsEventStore/rails_event_store.svg?branch=master)](https://travis-ci.org/RailsEventStore/rails_event_store)
+[![CircleCI](https://circleci.com/gh/RailsEventStore/rails_event_store.svg?style=svg)](https://circleci.com/gh/RailsEventStore/rails_event_store)
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
 
 We're aiming for 100% mutation coverage in this project. This is why:
@@ -34,7 +35,7 @@ Whenever you fix a bug or add a new feature, we require that the coverage doesn'
 
 ## Contributing
 
-This single repository hosts several gems. Check the contribution [guide](https://railseventstore.org/contributing/). Documentation sources can be found in [another repository](https://github.com/RailsEventStore/railseventstore.org).
+This single repository hosts several gems and website with documentation. Check the contribution [guide](https://railseventstore.org/community/). 
 
 ## About
 
@@ -46,7 +47,7 @@ Consider [hiring us](https://arkency.com/hire-us) and make sure to check out [ou
 
 ### Learn more about DDD & Event Sourcing
 
-Check our [Rails + Domain Driven Design Workshop](https://blog.arkency.com/domain-driven-rails-workshop-london/).
+Check our [Rails + Domain Driven Design Workshop](https://blog.arkency.com/ddd-training/).
 Why You should attend? Robert has explained this in a [blogpost](https://blog.arkency.com/2016/12/why-would-you-even-want-to-listen-about-ddd/).
 
 ### Read about Domain Driven Rails
