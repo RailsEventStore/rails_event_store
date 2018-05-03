@@ -1,15 +1,23 @@
 module RailsEventStore
   class Middleware
-    def initialize(app, request_metadata_proc)
+    def initialize(app)
       @app = app
-      @request_metadata_proc = request_metadata_proc
     end
 
     def call(env)
-      Thread.current[:rails_event_store] = @request_metadata_proc.(env)
-      @app.call(env)
-    ensure
-      Thread.current[:rails_event_store] = nil
+      if config.respond_to?(:event_store)
+        config.event_store.with_request_metadata(env) do
+          @app.call(env)
+        end
+      else
+        @app.call(env)
+      end
+    end
+
+    private
+
+    def config
+      Rails.application.config
     end
   end
 end

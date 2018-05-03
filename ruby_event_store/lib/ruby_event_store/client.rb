@@ -10,6 +10,7 @@ module RubyEventStore
       @mapper         = mapper
       @event_broker   = event_broker
       @page_size      = page_size
+      warn "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead." if metadata_proc
       @metadata_proc  = metadata_proc
       @clock          = clock
     end
@@ -171,6 +172,14 @@ module RubyEventStore
       Within.new(block, event_broker)
     end
 
+    def with_metadata(metadata, &block)
+      previous_metadata = metadata()
+      self.metadata = (previous_metadata || {}).merge(metadata)
+      block.call if block_given?
+    ensure
+      self.metadata = previous_metadata
+    end
+
     private
 
     def serialized_events(events)
@@ -198,13 +207,26 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      event.metadata[:timestamp] ||= clock.()
       if metadata_proc
         md = metadata_proc.call || {}
         md.each{|k,v| event.metadata[k]=(v) }
       end
+      if metadata
+        metadata.each { |key, value| event.metadata[key] = value }
+      end
+      event.metadata[:timestamp] ||= clock.call
     end
 
     attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
+
+    protected
+
+    def metadata
+      Thread.current["ruby_event_store_#{hash}"]
+    end
+
+    def metadata=(value)
+      Thread.current["ruby_event_store_#{hash}"] = value
+    end
   end
 end

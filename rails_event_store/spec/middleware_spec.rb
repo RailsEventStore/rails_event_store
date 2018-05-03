@@ -1,42 +1,39 @@
 require 'spec_helper'
 require 'rails_event_store/middleware'
-require 'rack/lint'
+require 'support/test_application'
 
 module RailsEventStore
   RSpec.describe Middleware do
-    specify 'lint' do
-      request = ::Rack::MockRequest.new(::Rack::Lint.new(Middleware.new(
-        ->(env) { [200, {}, ['Hello World']] },
-        ->(env) { { kaka: 'dudu' } } )))
-
-      expect { request.get('/') }.to_not raise_error
+    before do
+      allow(Rails.application).to receive(:config).and_return(configuration)
+    end
+    specify 'calls app within with_request_metadata block when app has configured the event store instance' do
+      Rails.application.config.event_store = event_store = Client.new
+      expect(event_store).to receive(:with_request_metadata).with(dummy_env).and_call_original
+      expect(app).to receive(:call).with(dummy_env).and_call_original
+      middleware = Middleware.new(app)
+      expect(middleware.call(dummy_env)).to eq([204, {}, ['']])
     end
 
-    specify do
-      request = ::Rack::MockRequest.new(Middleware.new(
-        ->(env) { [200, {}, ['Hello World']] },
-        ->(env) { { kaka: 'dudu' } } ))
-      request.get('/')
-
-      expect(Thread.current[:rails_event_store]).to be_nil
+    specify 'just calls the app when app has not configured the event store instance' do
+      expect(app).to receive(:call).with(dummy_env).and_call_original
+      middleware = Middleware.new(app)
+      expect(middleware.call(dummy_env)).to eq([204, {}, ['']])
     end
 
-    specify do
-      request = ::Rack::MockRequest.new(Middleware.new(
-        ->(env) { raise },
-        ->(env) { { kaka: 'dudu' } } ))
-
-      expect { request.get('/') }.to raise_error(RuntimeError)
-      expect(Thread.current[:rails_event_store]).to be_nil
+    def dummy_env
+      {
+        'action_dispatch.request_id' => 'dummy_id',
+        'action_dispatch.remote_ip'  => 'dummy_ip'
+      }
     end
 
-    specify do
-      request = ::Rack::MockRequest.new(Middleware.new(
-        ->(env) { [200, {}, ['Hello World']] },
-        ->(env) { raise } ))
+    def configuration
+      @configuration ||= FakeConfiguration.new
+    end
 
-      expect { request.get('/') }.to raise_error(RuntimeError)
-      expect(Thread.current[:rails_event_store]).to be_nil
+    def app
+      @app ||= -> _ { [204, {}, ['']] }
     end
   end
 end
