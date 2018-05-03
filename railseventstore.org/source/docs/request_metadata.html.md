@@ -71,7 +71,7 @@ end
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
 
-## Passing your own metadata using `with_metadata` method
+## [UNRELEASED] Passing your own metadata using `with_metadata` method
 
 Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
 
