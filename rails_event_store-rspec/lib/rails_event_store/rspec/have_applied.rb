@@ -37,7 +37,7 @@ module RailsEventStore
       end
 
       def description
-        "have apply events #{events.map(&:class)}"
+        "have applied events #{events.map(&:class)}"
       end
 
       private

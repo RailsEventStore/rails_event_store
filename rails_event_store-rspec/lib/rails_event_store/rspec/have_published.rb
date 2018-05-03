@@ -43,7 +43,7 @@ module RailsEventStore
       end
 
       def description
-        "have publish events #{events.map(&:class)}"
+        "have published events #{events.map(&:class)}"
       end
 
       private
