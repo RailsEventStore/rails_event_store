@@ -37,8 +37,7 @@ module RubyEventStore
     end
 
     def stream(stream_name)
-      result.stream = Stream.new(stream_name)
-      Specification.new(repository, result)
+      Specification.new(repository, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
     end
 
     def from(start)
@@ -49,24 +48,20 @@ module RubyEventStore
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless repository.has_event?(start)
       end
-      result.start = start
-      Specification.new(repository, result)
+      Specification.new(repository, result.dup.tap { |r| r.start = start })
     end
 
     def forward
-      result.direction = :forward
-      Specification.new(repository, result)
+      Specification.new(repository, result.dup.tap { |r| r.direction = :forward })
     end
 
     def backward
-      result.direction = :backward
-      Specification.new(repository, result)
+      Specification.new(repository, result.dup.tap { |r| r.direction = :backward })
     end
 
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      result.count = count
-      Specification.new(repository, result)
+      Specification.new(repository, result.dup.tap { |r| r.count = count })
     end
 
     def each

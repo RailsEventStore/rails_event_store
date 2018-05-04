@@ -110,20 +110,56 @@ module RubyEventStore
       })
     end
 
-    def with_event_of_id(event_id, &block)
-      repository.append_to_stream(
-        [TestEvent.new(event_id: event_id)],
-        Stream.new(stream_name),
-        ExpectedVersion.none
-      )
-      block.call
+    specify 'immutable specification' do
+      expect(backward_specifcation = specification.backward).to match_result({
+        direction: :backward,
+        start: :head,
+        count: Specification::NO_LIMIT,
+        stream_name: GLOBAL_STREAM
+      })
+      expect(specification.from(event_id)).to match_result({
+        direction: :forward,
+        start: event_id,
+        count: Specification::NO_LIMIT,
+        stream_name: GLOBAL_STREAM
+      })
+      expect(specification.limit(10)).to match_result({
+        direction: :forward,
+        start: :head,
+        count: 10,
+        stream_name: GLOBAL_STREAM
+      })
+      expect(specification.stream(stream_name)).to match_result({
+        direction: :forward,
+        start: :head,
+        count: Specification::NO_LIMIT,
+        stream_name: stream_name
+      })
+      expect(specification).to match_result({
+        direction: :forward,
+        start: :head,
+        count: Specification::NO_LIMIT,
+        stream_name: GLOBAL_STREAM
+      })
+      expect(backward_specifcation.forward).to match_result({
+        direction: :forward,
+        start: :head,
+        count: Specification::NO_LIMIT,
+        stream_name: GLOBAL_STREAM
+      })
+      expect(backward_specifcation).to match_result({
+        direction: :backward,
+        start: :head,
+        count: Specification::NO_LIMIT,
+        stream_name: GLOBAL_STREAM
+      })
     end
 
     let(:repository)    { InMemoryRepository.new }
     let(:specification) { Specification.new(repository) }
     let(:event_id)      { SecureRandom.uuid }
     let(:none_such_id)  { SecureRandom.uuid }
-    let(:stream_name)   { 'fancy_stream' }
+    let(:stream_name)   { SecureRandom.hex }
 
     around(:each) do |example|
       with_event_of_id(event_id) do
@@ -140,6 +176,15 @@ module RubyEventStore
         values_match?(expected_hash, @actual)
       end
       diffable
+    end
+
+    def with_event_of_id(event_id, &block)
+      repository.append_to_stream(
+        [TestEvent.new(event_id: event_id)],
+        Stream.new(stream_name),
+        ExpectedVersion.none
+      )
+      block.call
     end
   end
 end
