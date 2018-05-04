@@ -71,7 +71,8 @@ end
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
 
-## [UNRELEASED] Passing your own metadata using `with_metadata` method
+<% in_version_above('0.28.0') do %>
+## Passing your own metadata using `with_metadata` method
 
 Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
 
@@ -102,3 +103,4 @@ my_event.metadata[:causation_id] #=> 1234567890 from with_metadata argument
 my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
 my_event.metadata[:timestamp] #=> a timestamp
 ```
+<% end %>
