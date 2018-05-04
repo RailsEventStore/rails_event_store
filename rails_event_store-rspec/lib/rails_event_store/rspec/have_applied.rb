@@ -1,10 +1,11 @@
 module RailsEventStore
   module RSpec
     class HaveApplied
-      def initialize(mandatory_expected, *optional_expected, differ:)
-        @expected = [mandatory_expected, *optional_expected]
-        @matcher  = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
-        @differ   = differ
+      def initialize(mandatory_expected, *optional_expected, differ:, formatter:)
+        @expected  = [mandatory_expected, *optional_expected]
+        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
+        @differ    = differ
+        @formatter = formatter
       end
 
       def matches?(aggregate_root)
@@ -37,7 +38,7 @@ module RailsEventStore
       end
 
       def description
-        "have applied events #{events.map(&:class)}"
+        "have applied [%s]" % expected.map { |e| formatter.(e) }.join(', ')
       end
 
       private
@@ -51,7 +52,7 @@ module RailsEventStore
         end
       end
 
-      attr_reader :differ, :expected, :events, :count, :matcher
+      attr_reader :formatter, :differ, :expected, :events, :count, :matcher
     end
   end
 end

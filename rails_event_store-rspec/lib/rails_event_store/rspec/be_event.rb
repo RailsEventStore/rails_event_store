@@ -114,10 +114,11 @@ module RailsEventStore
 
       include ::RSpec::Matchers::Composable
 
-      def initialize(expected, differ:)
-        @differ   = differ
-        @expected = expected
-        @strict = false
+      def initialize(expected, differ:, formatter:)
+        @differ    = differ
+        @formatter = formatter
+        @expected  = expected
+        @strict    = false
       end
 
       def matches?(actual)
@@ -152,7 +153,7 @@ expected: not a kind of #{expected}
       end
 
       def description
-        "be event #{@expected}"
+        "be event #{formatter.(expected)}"
       end
 
       private
@@ -169,7 +170,7 @@ expected: not a kind of #{expected}
         DataMatcher.new(expected_metadata, strict: strict?).matches?(actual.metadata.to_h)
       end
 
-      attr_reader :expected_metadata, :expected_data, :actual, :expected, :differ
+      attr_reader :expected_metadata, :expected_data, :actual, :expected, :differ, :formatter
 
       def strict?
         @strict
