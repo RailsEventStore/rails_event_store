@@ -111,7 +111,7 @@ module RubyEventStore
     def read_event(event_id)
       deserialize_event(repository.read_event(event_id))
     end
-
+    
     def read
       Specification.new(repository, mapper)
     end
@@ -226,8 +226,6 @@ module RubyEventStore
       events
     end
 
-    attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
-
     protected
 
     def metadata
@@ -237,5 +235,7 @@ module RubyEventStore
     def metadata=(value)
       @metadata.value = value
     end
+
+    attr_reader :repository, :mapper, :event_broker, :clock, :page_size
   end
 end

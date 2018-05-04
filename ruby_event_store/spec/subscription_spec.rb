@@ -291,6 +291,7 @@ module RubyEventStore
         broker = PubSub::Broker.new(dispatcher: dispatcher)
         client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
 
+        binding.pry
         result = client.within do
           client.publish_event(event_1)
           :yo
