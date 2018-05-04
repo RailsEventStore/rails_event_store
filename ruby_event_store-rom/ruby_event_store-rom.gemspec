@@ -41,4 +41,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rom-sql', '~> 2.4'
   spec.add_dependency 'rom-repository', '~> 2.0'
   spec.add_dependency 'rom-changeset', '~> 1.0'
+  spec.add_dependency 'dry-types', '~> 0.12.2'
 end
