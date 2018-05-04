@@ -2,8 +2,6 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Specification do
-    let(:specification) { Specification.new(InMemoryRepository.new) }
-
     specify { expect(specification.each).to be_kind_of(Enumerator) }
 
     specify { expect(specification).to match_result({ direction: :forward }) }
@@ -44,21 +42,10 @@ module RubyEventStore
 
     specify { expect{specification.from(:dummy)}.to raise_error(InvalidPageStart) }
 
-    specify do
-      expect{specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df')}
-        .to(raise_error(EventNotFound, /567ef3dd-dd28-4e05-9734-9353cd8653df/))
-    end
+    specify { expect{ specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 
-    specify do
-      repository = InMemoryRepository.new
-      test_event = TestEvent.new(event_id: '567ef3dd-dd28-4e05-9734-9353cd8653df')
-      specification = Specification.new(repository)
-      repository.append_to_stream([test_event], Stream.new("fancy_stream"), ExpectedVersion.new(-1))
-
-      expect(specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df'))
-        .to(match_result({ start: '567ef3dd-dd28-4e05-9734-9353cd8653df' }))
-    end
-
+    specify { expect(specification.from(event_id)).to match_result({ start: event_id }) }
+    
     specify { expect(specification.stream('all')).to match_result({ global_stream?: false }) }
 
     specify { expect(specification.stream('nope')).to match_result({ global_stream?: false }) }
@@ -83,15 +70,29 @@ module RubyEventStore
 
     specify { expect(specification.from(:head)).to match_result({ head?: true }) }
 
-    specify do
-      repository = InMemoryRepository.new
-      test_event = TestEvent.new(event_id: '567ef3dd-dd28-4e05-9734-9353cd8653df')
-      specification = Specification.new(repository)
-      repository.append_to_stream([test_event], Stream.new("fancy_stream"), ExpectedVersion.new(-1))
+    specify { expect(specification.from(event_id)).to match_result({ head?: false }) }
 
-      expect(specification.from('567ef3dd-dd28-4e05-9734-9353cd8653df')).to match_result({ head?: false })
+    def with_event_of_id(event_id, &block)
+      repository.append_to_stream(
+        [TestEvent.new(event_id: event_id)],
+        Stream.new(stream_name),
+        ExpectedVersion.none
+      )
+      block.call
     end
-    
+
+    let(:repository)    { InMemoryRepository.new }
+    let(:specification) { Specification.new(repository) }
+    let(:event_id)      { SecureRandom.uuid }
+    let(:none_such_id)  { SecureRandom.uuid }
+    let(:stream_name)   { 'fancy_stream' }
+
+    around(:each) do |example|
+      with_event_of_id(event_id) do
+        example.call
+      end
+    end
+
     RSpec::Matchers.define :match_result do |expected_hash|
       match do |specification|
         @actual = expected_hash.keys.reduce({}) do |memo, attribute|
