@@ -45,7 +45,9 @@ module RubyEventStore
     specify { expect{ specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 
     specify { expect(specification.from(event_id)).to match_result({ start: event_id }) }
-    
+
+    specify { expect(specification.from(:head).from(event_id)).to match_result({ start: event_id }) }
+
     specify { expect(specification.stream('all')).to match_result({ global_stream?: false }) }
 
     specify { expect(specification.stream('nope')).to match_result({ global_stream?: false }) }
@@ -71,6 +73,42 @@ module RubyEventStore
     specify { expect(specification.from(:head)).to match_result({ head?: true }) }
 
     specify { expect(specification.from(event_id)).to match_result({ head?: false }) }
+
+    specify do
+      expect(specification.limit(10).from(event_id)).to match_result({
+        count: 10,
+        start: event_id
+      })
+    end
+
+    specify do
+      expect(specification.stream(stream_name).from(event_id)).to match_result({
+        stream_name: stream_name,
+        start: event_id
+      })
+    end
+
+    specify do
+      expect(specification.stream(stream_name).from(event_id)).to match_result({
+        stream_name: stream_name,
+        start: event_id
+      })
+    end
+
+    specify do
+      expect(specification.backward.from(event_id)).to match_result({
+        direction: :backward,
+        start: event_id
+      })
+    end
+
+    specify do
+      expect(specification.stream(stream_name).forward.from(event_id)).to match_result({
+        direction: :forward,
+        stream_name: stream_name,
+        start: event_id
+      })
+    end
 
     def with_event_of_id(event_id, &block)
       repository.append_to_stream(
