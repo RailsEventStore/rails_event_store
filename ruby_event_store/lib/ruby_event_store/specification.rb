@@ -31,14 +31,13 @@ module RubyEventStore
 
     attr_reader :result
 
-    def initialize(repository)
+    def initialize(repository, result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM)))
       @repository  = repository
-      @result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM))
+      @result = result
     end
 
     def stream(stream_name)
-      result.stream = Stream.new(stream_name)
-      self
+      Specification.new(repository, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
     end
 
     def from(start)
@@ -47,30 +46,29 @@ module RubyEventStore
         raise InvalidPageStart unless [:head].include?(start)
       else
         raise InvalidPageStart if start.nil? || start.empty?
-        raise EventNotFound.new(start) unless @repository.has_event?(start)
+        raise EventNotFound.new(start) unless repository.has_event?(start)
       end
-      result.start = start
-      self
+      Specification.new(repository, result.dup.tap { |r| r.start = start })
     end
 
     def forward
-      result.direction = :forward
-      self
+      Specification.new(repository, result.dup.tap { |r| r.direction = :forward })
     end
 
     def backward
-      result.direction = :backward
-      self
+      Specification.new(repository, result.dup.tap { |r| r.direction = :backward })
     end
 
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      result.count = count
-      self
+      Specification.new(repository, result.dup.tap { |r| r.count = count })
     end
 
     def each
-      @repository.read(result)
+      repository.read(result)
     end
+
+    private
+    attr_reader :repository
   end
 end
