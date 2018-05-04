@@ -8,5 +8,21 @@ set :markdown, tables: true, autolink: true, gh_blockcode: true, fenced_code_blo
 set :markdown_engine, :redcarpet
 set :res_version, File.read('../RES_VERSION')
 
+helpers do
+  def version_above(version_string)
+    given_version   = Gem::Version.new(version_string)
+    current_version = Gem::Version.new(config[:res_version])
+    current_version > given_version
+  end
+
+  def in_version_above(version_string, &block)
+    block.call if version_above(version_string)
+  end
+
+  def in_version_at_most(version_string, &block)
+    block.call unless version_above(version_string)
+  end
+end
+
 page "/", layout: "landing"
 page "/docs/*", layout: "documentation"
