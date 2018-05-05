@@ -116,17 +116,33 @@ module RailsEventStore
       specify { expect{ HaveApplied.new() }.to raise_error(ArgumentError) }
 
       specify do
+        expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
+
         aggregate_root.foo
-        _matcher = matcher(matchers.an_event(BarEvent))
+        _matcher = matcher(expected = matchers.an_event(BarEvent))
         _matcher.matches?(aggregate_root)
 
-        expect(_matcher.failure_message.to_s).to include("] to be applied")
-        expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
-        expect(_matcher.failure_message.to_s).to include("BeEvent")
+        expect(_matcher.failure_message.to_s).to match(<<~EOS)
+          expected [#{expected.inspect}] to be applied, diff:
+          @@ -1,2 +1,2 @@
+          -[#{actual.inspect}]
+          +[#{expected.inspect}]
+        EOS
+      end
 
-        expect(_matcher.failure_message_when_negated.to_s).to include("] not to be applied")
-        expect(_matcher.failure_message_when_negated.to_s).to include("-[#<FooEvent")
-        expect(_matcher.failure_message_when_negated.to_s).to include("BeEvent")
+      specify do
+        expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
+
+        aggregate_root.foo
+        _matcher = matcher(expected = matchers.an_event(BarEvent))
+        _matcher.matches?(aggregate_root)
+
+        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
+          expected [#{expected.inspect}] not to be applied, diff:
+          @@ -1,2 +1,2 @@
+          -[#{actual.inspect}]
+          +[#{expected.inspect}]
+        EOS
       end
 
       specify do
