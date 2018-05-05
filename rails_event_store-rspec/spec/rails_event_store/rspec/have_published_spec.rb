@@ -5,7 +5,10 @@ module RailsEventStore
     ::RSpec.describe HavePublished do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
-        RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
+        RailsEventStore::Client.new(
+          repository: RailsEventStore::InMemoryRepository.new,
+          mapper: RubyEventStore::Mappers::NullMapper.new
+        )
       end
 
       def matcher(*expected)
@@ -136,17 +139,29 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        _matcher = matcher(matchers.an_event(BarEvent))
+        event_store.publish_event(actual = FooEvent.new)
+        _matcher = matcher(expected = matchers.an_event(BarEvent))
         _matcher.matches?(event_store)
 
-        expect(_matcher.failure_message.to_s).to include("] to be published")
-        expect(_matcher.failure_message.to_s).to include("-[#<FooEvent")
-        expect(_matcher.failure_message.to_s).to include("BeEvent")
+        expect(_matcher.failure_message.to_s).to eq(<<~EOS)
+          expected [#{expected.inspect}] to be published, diff:
+          @@ -1,2 +1,2 @@
+          -[#{actual.inspect}]
+          +[#{expected.inspect}]
+        EOS
+      end
 
-        expect(_matcher.failure_message_when_negated.to_s).to include("] not to be published")
-        expect(_matcher.failure_message_when_negated.to_s).to include("-[#<FooEvent")
-        expect(_matcher.failure_message_when_negated.to_s).to include("BeEvent")
+      specify do
+        event_store.publish_event(actual = FooEvent.new)
+        _matcher = matcher(expected = matchers.an_event(BarEvent))
+        _matcher.matches?(event_store)
+
+        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
+          expected [#{expected.inspect}] not to be published, diff:
+          @@ -1,2 +1,2 @@
+          -[#{actual.inspect}]
+          +[#{expected.inspect}]
+        EOS
       end
 
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
