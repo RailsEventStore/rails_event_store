@@ -7,11 +7,15 @@ module RailsEventStore
       let(:aggregate_root) { TestAggregate.new }
 
       def matcher(*expected)
-        HaveApplied.new(*expected, differ: colorless_differ)
+        HaveApplied.new(*expected, differ: colorless_differ, formatter: formatter)
       end
 
       def colorless_differ
         ::RSpec::Support::Differ.new(color: false)
+      end
+
+      def formatter
+        ::RSpec::Support::ObjectFormatter.method(:format)
       end
 
       specify do
@@ -123,6 +127,24 @@ module RailsEventStore
         expect(_matcher.failure_message_when_negated.to_s).to include("] not to be applied")
         expect(_matcher.failure_message_when_negated.to_s).to include("-[#<FooEvent")
         expect(_matcher.failure_message_when_negated.to_s).to include("BeEvent")
+      end
+
+      specify do
+        _matcher = matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )
+        expect(_matcher.description)
+          .to eq("have applied [be event FooEvent, be event BazEvent]")
+      end
+
+      specify do
+        _matcher = matcher(
+          FooEvent,
+          BazEvent
+        )
+        expect(_matcher.description)
+          .to eq("have applied [FooEvent, BazEvent]")
       end
     end
   end

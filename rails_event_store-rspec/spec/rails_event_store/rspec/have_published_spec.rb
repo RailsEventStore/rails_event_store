@@ -9,11 +9,15 @@ module RailsEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, differ: colorless_differ)
+        HavePublished.new(*expected, differ: colorless_differ, formatter: formatter)
       end
 
       def colorless_differ
         ::RSpec::Support::Differ.new(color: false)
+      end
+
+      def formatter
+        ::RSpec::Support::ObjectFormatter.method(:format)
       end
 
       specify do
@@ -146,6 +150,24 @@ module RailsEventStore
       end
 
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
-    end
+
+      specify do
+        _matcher = matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BazEvent)
+        )
+        expect(_matcher.description)
+          .to eq("have published [be event FooEvent, be event BazEvent]")
+      end
+
+      specify do
+        _matcher = matcher(
+          FooEvent,
+          BazEvent
+        )
+        expect(_matcher.description)
+          .to eq("have published [FooEvent, BazEvent]")
+      end
+   end
   end
 end

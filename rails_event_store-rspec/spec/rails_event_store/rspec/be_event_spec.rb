@@ -4,11 +4,15 @@ module RailsEventStore
   module RSpec
     ::RSpec.describe BeEvent do
       def matcher(expected)
-        BeEvent.new(expected, differ: colorless_differ)
+        BeEvent.new(expected, differ: colorless_differ, formatter: formatter)
       end
 
       def colorless_differ
         ::RSpec::Support::Differ.new(color: false)
+      end
+
+      def formatter
+        ::RSpec::Support::ObjectFormatter.method(:format)
       end
 
       specify do
@@ -168,6 +172,10 @@ Data diff:
           .to(matcher(FooEvent).with_data(foo: "bar").strict
             .and(matcher(FooEvent).with_metadata(foo: "bar")))
       end
+
+      specify { expect(matcher(FooEvent).description).to eq("be event FooEvent") }
+
+      specify { expect(matcher(kind_of(FooEvent)).description).to eq("be event kind of FooEvent") }
     end
   end
 end
