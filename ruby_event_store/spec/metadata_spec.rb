@@ -34,6 +34,9 @@ module RubyEventStore
       m[:key] = false
       expect(m[:key]).to eq(false)
 
+      m[:key] = nil
+      expect(m[:key]).to eq(nil)
+
       expect do
         m[:key] = Object.new
       end.to raise_error(ArgumentError)

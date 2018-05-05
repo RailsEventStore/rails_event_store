@@ -43,7 +43,7 @@ module RubyEventStore
     private
 
     def allowed_types
-      [String, Integer, Float, Date, Time, TrueClass, FalseClass]
+      [String, Integer, Float, Date, Time, TrueClass, FalseClass, nil]
     end
 
     private_constant :SAFE_HASH_METHODS
