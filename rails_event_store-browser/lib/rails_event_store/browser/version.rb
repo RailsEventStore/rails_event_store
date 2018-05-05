@@ -1,5 +1,5 @@
 module RailsEventStore
   module Browser
-    VERSION = "0.28.0"
+    VERSION = "0.28.1"
   end
 end

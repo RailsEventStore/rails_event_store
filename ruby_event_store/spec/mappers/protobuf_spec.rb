@@ -176,6 +176,7 @@ module RubyEventStore
         six: Time.utc(2018, 12, 13, 11 ),
         seven: true,
         eight: false,
+        nein: nil,
       } }
       let(:data) do
         ResTesting::OrderCreated.new(
