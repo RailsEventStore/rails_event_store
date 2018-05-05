@@ -118,7 +118,6 @@ module RailsEventStore
         @differ    = differ
         @formatter = formatter
         @expected  = expected
-        @strict    = false
       end
 
       def matches?(actual)
