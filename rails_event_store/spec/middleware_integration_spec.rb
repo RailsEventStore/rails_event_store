@@ -10,7 +10,7 @@ module RailsEventStore
 
     specify 'works without event store instance' do
       event_store = Client.new
-      request = ::Rack::MockRequest.new(Middleware.new(app))
+      request = ::Rack::MockRequest.new(middleware)
       request.get('/')
 
       event_store.read_all_streams_forward.map(&:metadata).each do |metadata|
@@ -25,13 +25,17 @@ module RailsEventStore
       )
       app.config.event_store = event_store
 
-      request = ::Rack::MockRequest.new(Middleware.new(app))
+      request = ::Rack::MockRequest.new(middleware)
       request.get('/')
 
       event_store.read_all_streams_forward.map(&:metadata).each do |metadata|
         expect(metadata[:server_name]).to eq('example.org')
         expect(metadata[:timestamp]).to be_a(Time)
       end
+    end
+
+    def middleware
+      ::Rack::Lint.new(Middleware.new(app))
     end
 
     def app
