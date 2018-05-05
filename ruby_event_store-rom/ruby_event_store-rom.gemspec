@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'childprocess'
   spec.add_development_dependency 'google-protobuf', '~> 3.5.1.2'
 
-  spec.add_dependency 'ruby_event_store', '= 0.28.0'
+  spec.add_dependency 'ruby_event_store', '= 0.28.1'
   spec.add_dependency 'sequel', '>= 4.49'
   spec.add_dependency 'rom-sql', '~> 2.4'
   spec.add_dependency 'rom-repository', '~> 2.0'
