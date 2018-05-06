@@ -17,7 +17,7 @@ end
 class EventB2 < RubyEventStore::Event
 end
 
-RSpec.describe "schema" do
+RSpec.describe "legacy schema compatibility" do
   include SchemaHelper
 
   def silence_stderr
@@ -57,7 +57,7 @@ RSpec.describe "schema" do
     expect(read_event.metadata[:foo]).to eq(13)
     expect(read_event.metadata[:timestamp]).to be_kind_of(Time)
   end
-
+  
   private
 
   let(:client) { RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::Legacy::EventRepository.new) }
