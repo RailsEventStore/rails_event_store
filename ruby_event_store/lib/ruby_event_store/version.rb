@@ -1,3 +1,3 @@
 module RubyEventStore
-  VERSION = "0.28.1"
+  VERSION = "0.28.2"
 end
