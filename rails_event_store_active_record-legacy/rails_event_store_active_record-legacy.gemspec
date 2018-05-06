@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'childprocess'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
 
-  spec.add_dependency 'ruby_event_store', '= 0.28.2'
+  spec.add_dependency 'ruby_event_store', '= 0.29.0'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
 end
