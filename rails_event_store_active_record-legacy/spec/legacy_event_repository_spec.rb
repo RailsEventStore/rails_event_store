@@ -124,6 +124,21 @@ module RailsEventStoreActiveRecord
           .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
       end
 
+      specify "does not serialize to YAML twice" do
+        repository = LegacyEventRepository.new
+        repository.append_to_stream(
+          SRecord.new(
+            data:     d = YAML.dump({when: Time.now}),
+            metadata: m = YAML.dump({timestamp: Time.now}),
+          ),
+          RubyEventStore::Stream.new('stream_1'),
+          RubyEventStore::ExpectedVersion.none
+        )
+        row = LegacyEventRepository.const_get(:LegacyEvent).last
+        expect(row.data_before_type_cast).to eq(d)
+        expect(row.metadata_before_type_cast).to eq(m)
+      end
+
       private
 
       def expect_query(match, &block)
