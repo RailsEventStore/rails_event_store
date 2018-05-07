@@ -2,13 +2,6 @@
               
 _Command Pattern - decoupling what is done from who does it._
 
-## Installation
-
-```ruby
-source 'https://rubygems.org'
-gem 'rails_event_store', github: "RailsEventStore/rails_event_store"
-```
-
 ## Usage
 
 ### Registering commands and their handlers
