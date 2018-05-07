@@ -9,8 +9,8 @@ module RailsEventStore
       end
 
       def matches?(event_store)
-        @events = stream_name ? event_store.read.stream(stream_name).backward.each
-                              : event_store.read.backward.each
+        @events = stream_name ? event_store.read.stream(stream_name).each
+                              : event_store.read.each
         @matcher.matches?(events) && matches_count?
       end
 
