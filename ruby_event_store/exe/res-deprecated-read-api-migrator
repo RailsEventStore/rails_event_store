@@ -1,12 +1,22 @@
 #!/usr/bin/env ruby
 
-require 'ruby_event_store'
-require 'parser/current'
-require 'parser/runner'
-require 'unparser'
-require 'tempfile'
-require 'astrolabe/builder'
-require 'irb'
+begin
+  require 'ruby_event_store'
+  require 'parser/current'
+  require 'parser/runner'
+  require 'unparser'
+  require 'tempfile'
+  require 'astrolabe/builder'
+rescue LoadError
+  warn <<-EOS
+  
+Yogu need following gems in order to use this script:
+
+  gem install parser unparser astrolabe
+
+EOS
+  exit(2)
+end
 
 
 class DeprecatedReadAPIRewriter < ::Parser::TreeRewriter
