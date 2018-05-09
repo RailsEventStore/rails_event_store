@@ -67,7 +67,11 @@ Providing `stream_name` is optional (but recommended).
 event_store.publish_event(event)
 ```
 
+<% if version_above('0.29.0') %>
 If you don't provide the `stream_name` you can only read the events with `read_all_streams_forward` and `read_all_streams_backward` method which includes events from all streams.
+<% else %>
+If you don't provide the `stream_name` you can only read the events with `read.each.to_a` and `read.backward.each.to_a` queries (without filtering on particular stream name).
+<% end %>
 
 ## Appending an event to stream
 

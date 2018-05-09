@@ -4,7 +4,6 @@ require_relative 'mappers/events_pb.rb'
 
 module RubyEventStore
   RSpec.describe Client do
-
     specify 'deprecates using metadata_proc' do
       deprecation_warning = "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead.\n"
       expect {

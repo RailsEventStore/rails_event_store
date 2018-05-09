@@ -59,32 +59,57 @@ end.to raise_error(IncorrectStreamData)
 
 Occurs when event of given id cannot be found. This can happen either when looking for particular event details via `read_event` or when reading stream, starting from given event.
 
+<% if version_above('0.29.0') %>
 ```ruby
 none_such_id = SecureRandom.uuid
 expect do
-  client.read_events_forward('Order$1', start: none_such_id) }
+  client.read.stream('Order$1').from(none_such_id).each.to_a
 end.to raise_error(EventNotFound)
 ```
+<% else %>
+```ruby
+none_such_id = SecureRandom.uuid
+expect do
+  client.read_events_forward('Order$1', start: none_such_id)
+end.to raise_error(EventNotFound)
+```
+<% end %>
 
 ### RubyEventStore::InvalidPageStart
 
 Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string. Special case of `:head` is accepted as a beginning of a stream in given direction.
 
+<% if version_above('0.29.0') %>
+```ruby
+expect do
+  client.read.stream('Order$1').from(nil).each.to_a
+end.to raise_error(InvalidPageStart)
+```
+<% else %>
 ```ruby
 expect do
   client.read_events_forward('Order$1', start: nil)
 end.to raise_error(InvalidPageStart)
 ```
+<% end %>
 
 ### RubyEventStore::InvalidPageSize
 
 Occurs when expecting to read less than one event from a stream:
 
+<% if version_above('0.29.0') %>
+```ruby
+expect do
+  client.read.stream('Order$1').limit(-1).each.to_a
+end.to raise_error(InvalidPageSize)
+```
+<% else %>
 ```ruby
 expect do
   client.read_events_forward('Order$1', count: -1)
 end.to raise_error(InvalidPageSize)
 ```
+<% end %>
 
 ### RubyEventStore::SubscriberNotExist
 
