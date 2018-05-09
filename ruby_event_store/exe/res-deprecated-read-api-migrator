@@ -10,9 +10,11 @@ begin
 rescue LoadError
   warn <<-EOS
   
-Yogu need following gems in order to use this script:
+You need following gems in Gemfile in order to use this script:
 
-  gem install parser unparser astrolabe
+  gem 'parser'
+  gem 'unparser'
+  gem 'astrolabe'
 
 EOS
   exit(2)
