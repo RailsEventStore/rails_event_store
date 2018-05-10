@@ -36,11 +36,10 @@ module AggregateRoot
 
   def load(stream_name, event_store: default_event_store)
     @loaded_from_stream_name = stream_name
-    events = event_store.read_stream_events_forward(stream_name)
-    events.each do |event|
+    event_store.read.stream(stream_name).each.with_index do |event, index|
       apply(event)
+      @version = index
     end
-    @version = events.size - 1
     @unpublished_events = nil
     self
   end

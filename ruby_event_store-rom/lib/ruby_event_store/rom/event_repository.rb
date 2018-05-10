@@ -55,12 +55,12 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        Specification.new(self)
-          .stream(stream.name)
-          .limit(1)
-          .backward
-          .each
-          .first
+        @events.read(
+          :backward,
+          stream,
+          from: :head,
+          limit: 1
+        ).first
       end
 
       def read_event(event_id)

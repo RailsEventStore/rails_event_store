@@ -18,7 +18,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   let(:repository) { subject || repository_class.new }
 
   def read_stream_events_forward(repository, stream)
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -27,7 +27,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_stream_events_backward(repository, stream)
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -37,7 +37,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_events_forward(repository, stream, start, count)
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -48,7 +48,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_events_backward(repository, stream, start, count)
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -60,7 +60,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_all_streams_forward(repository, start, count)
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .from(start)
@@ -70,7 +70,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_all_streams_backward(repository, start, count)
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .from(start)
@@ -971,7 +971,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify 'read returns enumerator' do
-    specification = RubyEventStore::Specification.new(repository)
+    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     expect(repository.read(specification.result)).to be_kind_of(Enumerator)
   end
 

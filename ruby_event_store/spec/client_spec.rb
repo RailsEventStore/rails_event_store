@@ -4,7 +4,6 @@ require_relative 'mappers/events_pb.rb'
 
 module RubyEventStore
   RSpec.describe Client do
-
     specify 'deprecates using metadata_proc' do
       deprecation_warning = "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead.\n"
       expect {
@@ -27,14 +26,14 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
       expect(client.append_to_stream(test_event)).to eq(:ok)
-      expect(client.read_all_streams_forward).to eq([test_event])
+      expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
     specify 'publish to default stream when not specified' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
       expect(client.publish_events([test_event])).to eq(:ok)
-      expect(client.read_all_streams_forward).to eq([test_event])
+      expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
     specify 'delete_stream returns :ok when success' do
@@ -47,96 +46,96 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       test_event = TestEvent.new
       expect(client.publish_event(test_event)).to eq(:ok)
-      expect(client.read_all_streams_forward).to eq([test_event])
+      expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
     specify 'publish first event, expect any stream state' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
+      first_event = TestEvent.new
       expect(client.publish_event(first_event, stream_name: stream)).to eq(:ok)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event])
+      expect(client.read.stream(stream).each.to_a).to eq([first_event])
     end
 
     specify 'publish next event, expect any stream state' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
-      second_event  = TestEvent.new
+      first_event = TestEvent.new
+      second_event = TestEvent.new
       client.append_to_stream(first_event, stream_name: stream)
       expect(client.publish_event(second_event, stream_name: stream)).to eq(:ok)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
+      expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'publish first event, expect empty stream' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
+      first_event = TestEvent.new
       expect(client.publish_event(first_event, stream_name: stream, expected_version: :none)).to eq(:ok)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event])
+      expect(client.read.stream(stream).each.to_a).to eq([first_event])
     end
 
     specify 'publish first event, fail if not empty stream' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
-      second_event  = TestEvent.new
+      first_event = TestEvent.new
+      second_event = TestEvent.new
       client.append_to_stream(first_event, stream_name: stream)
-      expect{ client.publish_event(second_event, stream_name: stream, expected_version: :none) }.to raise_error(WrongExpectedEventVersion)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event])
+      expect { client.publish_event(second_event, stream_name: stream, expected_version: :none) }.to raise_error(WrongExpectedEventVersion)
+      expect(client.read.stream(stream).each.to_a).to eq([first_event])
     end
 
     specify 'publish event, expect last event to be the last read one' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
-      second_event  = TestEvent.new
+      first_event = TestEvent.new
+      second_event = TestEvent.new
       client.append_to_stream(first_event, stream_name: stream)
       expect(client.publish_event(second_event, stream_name: stream, expected_version: 0)).to eq(:ok)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
+      expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'publish event, fail if last event is not the last read one' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
-      second_event  = TestEvent.new
-      third_event   = TestEvent.new
+      first_event = TestEvent.new
+      second_event = TestEvent.new
+      third_event = TestEvent.new
       client.append_to_stream(first_event, stream_name: stream)
       client.append_to_stream(second_event, stream_name: stream)
-      expect{ client.publish_event(third_event, stream_name: stream, expected_version: 0) }.to raise_error(WrongExpectedEventVersion)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
+      expect { client.publish_event(third_event, stream_name: stream, expected_version: 0) }.to raise_error(WrongExpectedEventVersion)
+      expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'append many events' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
-      second_event  = TestEvent.new
+      first_event = TestEvent.new
+      second_event = TestEvent.new
       client.append_to_stream([first_event, second_event], stream_name: stream, expected_version: -1)
-      expect(client.read_stream_events_forward(stream)).to eq([first_event, second_event])
+      expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'read only up to page size from stream' do
       stream = SecureRandom.uuid
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       (1..102).each { client.append_to_stream(TestEvent.new, stream_name: stream) }
-      expect(client.read_events_forward(stream, count: 10).size).to eq(10)
-      expect(client.read_events_backward(stream, count: 10).size).to eq(10)
-      expect(client.read_events_forward(stream).size).to eq(PAGE_SIZE)
-      expect(client.read_events_backward(stream).size).to eq(PAGE_SIZE)
+      expect(client.read.stream(stream).limit(10).each.to_a.size).to eq(10)
+      expect(client.read.backward.stream(stream).limit(10).each.to_a.size).to eq(10)
+      expect(client.read.stream(stream).limit(100).each.to_a.size).to eq(PAGE_SIZE)
+      expect(client.read.backward.stream(stream).limit(100).each.to_a.size).to eq(PAGE_SIZE)
 
-      expect(client.read_all_streams_forward(count: 10).size).to eq(10)
-      expect(client.read_all_streams_backward(count: 10).size).to eq(10)
-      expect(client.read_all_streams_forward.size).to eq(PAGE_SIZE)
-      expect(client.read_all_streams_backward.size).to eq(PAGE_SIZE)
+      expect(client.read.limit(10).each.to_a.size).to eq(10)
+      expect(client.read.backward.limit(10).each.to_a.size).to eq(10)
+      expect(client.read.limit(100).each.to_a.size).to eq(PAGE_SIZE)
+      expect(client.read.backward.limit(100).each.to_a.size).to eq(PAGE_SIZE)
     end
 
     specify 'published event metadata will be enriched by proc execution' do
       client = silence_warnings { RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ {request_id: '127.0.0.1'} }) }
       event = TestEvent.new
       client.append_to_stream(event)
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_id]).to eq('127.0.0.1')
       expect(published.first.metadata[:timestamp]).to be_a Time
@@ -148,7 +147,7 @@ module RubyEventStore
       client.with_metadata(request_ip: '127.0.0.1') do
         client.publish_event(event)
       end
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_ip]).to eq('127.0.0.1')
       expect(published.first.metadata[:timestamp]).to be_a Time
@@ -159,7 +158,7 @@ module RubyEventStore
       event = TestEvent.new
       client.with_metadata(request_ip: '127.0.0.1')
       client.publish_event(event)
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_ip]).to be_nil
       expect(published.first.metadata[:timestamp]).to be_a Time
@@ -178,7 +177,7 @@ module RubyEventStore
         client.publish_event(TestEvent.new)
       end
       client.publish_event(TestEvent.new)
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(5)
       expect(published[0].metadata.keys).to match_array([:timestamp, :request_ip])
       expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
@@ -208,7 +207,7 @@ module RubyEventStore
           end
         client.publish_event(TestEvent.new)
       end
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(3)
       expect(published[0].metadata.keys).to match_array([:timestamp, :remote_ip])
       expect(published[0].metadata[:remote_ip]).to eq('127.0.0.1')
@@ -228,7 +227,7 @@ module RubyEventStore
       client.with_metadata(request_ip: '1.2.3.4', meta: true) do
         client.append_to_stream(event)
       end
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_ip]).to eq('1.2.3.4')
       expect(published.first.metadata[:proc]).to eq(true)
@@ -247,8 +246,8 @@ module RubyEventStore
         end
       end
 
-      published_a = client_a.read_all_streams_forward
-      published_b = client_b.read_all_streams_forward
+      published_a = client_a.read.limit(100).each.to_a
+      published_b = client_b.read.limit(100).each.to_a
       expect(published_a.size).to eq(1)
       expect(published_b.size).to eq(1)
       expect(published_a.last.metadata[:client]).to eq('a')
@@ -261,7 +260,7 @@ module RubyEventStore
       client.with_metadata(timestamp: '2018-01-01T00:00:00Z') do
         client.append_to_stream(event)
       end
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata.to_h.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to eq('2018-01-01T00:00:00Z')
@@ -271,7 +270,7 @@ module RubyEventStore
       client = silence_warnings { RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ nil }) }
       event = TestEvent.new
       client.append_to_stream(event)
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata.to_h.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to be_a Time
@@ -285,15 +284,15 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = TestEvent.new
       client.publish_event(event)
-      published = client.read_all_streams_forward
+      published = client.read.limit(100).each.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:timestamp]).to eq(utc)
     end
 
     specify 'throws exception if subscriber is not defined' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.subscribe(nil, to: [])}.to raise_error(SubscriberNotExist)
-      expect { client.subscribe_to_all_events(nil)}.to raise_error(SubscriberNotExist)
+      expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil) }.to raise_error(SubscriberNotExist)
     end
 
     specify 'reading particular event' do
@@ -306,13 +305,13 @@ module RubyEventStore
 
     specify 'reading non-existent event' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect{client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')}.to raise_error(EventNotFound)
+      expect { client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to raise_error(EventNotFound)
     end
 
     specify 'link events' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      first_event   = TestEvent.new
-      second_event  = TestEvent.new
+      first_event = TestEvent.new
+      second_event = TestEvent.new
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
       client.append_to_stream([first_event, second_event], stream_name: 'stream')
       client.link_to_stream(
@@ -323,8 +322,8 @@ module RubyEventStore
         [first_event.event_id],
         stream_name: 'cars',
       )
-      expect(client.read_stream_events_forward('flow')).to eq([first_event, second_event])
-      expect(client.read_stream_events_forward('cars')).to eq([first_event])
+      expect(client.read.stream("flow").each.to_a).to eq([first_event, second_event])
+      expect(client.read.stream("cars").each.to_a).to eq([first_event])
       expect(subscriber.handled_events).to be_empty
     end
 
@@ -342,35 +341,35 @@ module RubyEventStore
       )
       client.publish_event(event, stream_name: 'test')
       expect(client.read_event(event.event_id)).to eq(event)
-      expect(client.read_stream_events_forward('test')).to eq([event])
+      expect(client.read.stream("test").each.to_a).to eq([event])
     end
 
     specify 'raise exception if stream name is incorrect' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_events_forward(nil) }.to raise_error(IncorrectStreamData)
-      expect { client.read_events_forward('') }.to raise_error(IncorrectStreamData)
-      expect { client.read_events_backward(nil) }.to raise_error(IncorrectStreamData)
-      expect { client.read_events_backward('') }.to raise_error(IncorrectStreamData)
+      expect { client.read.stream(nil).limit(100).each.to_a }.to raise_error(IncorrectStreamData)
+      expect { client.read.stream("").limit(100).each.to_a }.to raise_error(IncorrectStreamData)
+      expect { client.read.backward.stream(nil).limit(100).each.to_a }.to raise_error(IncorrectStreamData)
+      expect { client.read.backward.stream("").limit(100).each.to_a }.to raise_error(IncorrectStreamData)
     end
 
     specify 'raise exception if event_id does not exist' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_events_forward('stream_name', start: '0') }.to raise_error(EventNotFound, /Event not found: 0/)
-      expect { client.read_events_backward('stream_name', start: '0') }.to raise_error(EventNotFound, /0/)
+      expect { client.read.stream("stream_name").from("0").limit(100).each.to_a }.to raise_error(EventNotFound, /Event not found: 0/)
+      expect { client.read.backward.stream("stream_name").from("0").limit(100).each.to_a }.to raise_error(EventNotFound, /0/)
     end
 
     specify 'raise exception if event_id is not given or invalid' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_events_forward('stream_name', start: nil) }.to raise_error(InvalidPageStart)
-      expect { client.read_events_backward('stream_name', start: :invalid) }.to raise_error(InvalidPageStart)
+      expect { client.read.stream("stream_name").from(nil).limit(100).each.to_a }.to raise_error(InvalidPageStart)
+      expect { client.read.backward.stream("stream_name").from(:invalid).limit(100).each.to_a }.to raise_error(InvalidPageStart)
     end
 
     specify 'fails when page size is invalid' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_events_forward('stream_name', count: 0) }.to raise_error(InvalidPageSize)
-      expect { client.read_events_backward('stream_name', count: 0) }.to raise_error(InvalidPageSize)
-      expect { client.read_events_forward('stream_name', count: -1) }.to raise_error(InvalidPageSize)
-      expect { client.read_events_backward('stream_name', count: -1) }.to raise_error(InvalidPageSize)
+      expect { client.read.stream("stream_name").limit(0).each.to_a }.to raise_error(InvalidPageSize)
+      expect { client.read.backward.stream("stream_name").limit(0).each.to_a }.to raise_error(InvalidPageSize)
+      expect { client.read.stream("stream_name").limit(-1).each.to_a }.to raise_error(InvalidPageSize)
+      expect { client.read.backward.stream("stream_name").limit(-1).each.to_a }.to raise_error(InvalidPageSize)
     end
 
     specify 'return all events ordered forward' do
@@ -379,7 +378,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_forward('stream_name', start: '1', count: 3)
+      events = client.read.stream("stream_name").from("1").limit(3).each.to_a
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '3'))
     end
@@ -390,7 +389,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_forward('stream_name', start: '1', count: 1)
+      events = client.read.stream("stream_name").from("1").limit(1).each.to_a
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
     end
 
@@ -400,7 +399,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_backward('stream_name', start: '2', count: 3)
+      events = client.read.backward.stream("stream_name").from("2").limit(3).each.to_a
       expect(events[0]).to eq(OrderCreated.new(event_id: '1'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '0'))
     end
@@ -411,7 +410,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_events_backward('stream_name', start: '3', count: 2)
+      events = client.read.backward.stream("stream_name").from("3").limit(2).each.to_a
       expect(events[0]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
     end
@@ -422,8 +421,8 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      expect{ client.read_events_forward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
-      expect{ client.read_events_backward('stream_name', start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+      expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).each.to_a }.to raise_error(EventNotFound)
+      expect { client.read.backward.stream("stream_name").from(SecureRandom.uuid).limit(100).each.to_a }.to raise_error(EventNotFound)
     end
 
     specify 'raise exception if stream name is incorrect' do
@@ -440,20 +439,20 @@ module RubyEventStore
       4.times do |index|
         client.publish_event(OrderCreated.new, stream_name: 'test_2')
       end
-      all_events = client.read_all_streams_forward
+      all_events = client.read.limit(100).each.to_a
       expect(all_events.length).to eq 8
       client.delete_stream('test_2')
-      all_events = client.read_all_streams_forward
+      all_events = client.read.limit(100).each.to_a
       expect(all_events.length).to eq 8
-      expect(client.read_stream_events_forward('test_2')).to eq []
+      expect(client.read.stream("test_2").each.to_a).to eq []
     end
 
     specify 'raise exception if stream name is incorrect' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      expect { client.read_stream_events_forward(nil) }.to raise_error(IncorrectStreamData)
-      expect { client.read_stream_events_forward('') }.to raise_error(IncorrectStreamData)
-      expect { client.read_stream_events_backward(nil) }.to raise_error(IncorrectStreamData)
-      expect { client.read_stream_events_backward('') }.to raise_error(IncorrectStreamData)
+      expect { client.read.stream(nil).each.to_a }.to raise_error(IncorrectStreamData)
+      expect { client.read.stream("").each.to_a }.to raise_error(IncorrectStreamData)
+      expect { client.read.backward.stream(nil).each.to_a }.to raise_error(IncorrectStreamData)
+      expect { client.read.backward.stream("").each.to_a }.to raise_error(IncorrectStreamData)
     end
 
     specify 'raise exception if stream name is incorrect' do
@@ -488,7 +487,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_stream_events_forward('stream_name')
+      events = client.read.stream("stream_name").each.to_a
       expect(events[0]).to eq(OrderCreated.new(event_id: '0'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '1'))
       expect(events[2]).to eq(OrderCreated.new(event_id: '2'))
@@ -501,7 +500,7 @@ module RubyEventStore
         event = OrderCreated.new(event_id: index.to_s)
         client.publish_event(event, stream_name: 'stream_name')
       end
-      events = client.read_stream_events_backward('stream_name')
+      events = client.read.backward.stream("stream_name").each.to_a
       expect(events[0]).to eq(OrderCreated.new(event_id: '3'))
       expect(events[1]).to eq(OrderCreated.new(event_id: '2'))
       expect(events[2]).to eq(OrderCreated.new(event_id: '1'))
@@ -510,9 +509,9 @@ module RubyEventStore
 
     specify 'return all events ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
-      response = client.read_all_streams_forward
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
+      response = client.read.limit(100).each.to_a
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
       expect(response[1].data[:order_id]).to eq 234
@@ -520,10 +519,10 @@ module RubyEventStore
 
     specify 'return batch of events from the beginging ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
-      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
-      response = client.read_all_streams_forward(start: :head, count: 2)
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      response = client.read.from(:head).limit(2).each.to_a
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
       expect(response[1].data[:order_id]).to eq 234
@@ -532,19 +531,19 @@ module RubyEventStore
     specify 'return batch of events from given event ordered forward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       uid = SecureRandom.uuid
-      client.publish_event(OrderCreated.new(event_id: uid, data: { order_id: 123 }), stream_name: 'order_1')
-      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
-      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
-      response = client.read_all_streams_forward(start: uid, count: 1)
+      client.publish_event(OrderCreated.new(event_id: uid, data: {order_id: 123}), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      response = client.read.from(uid).limit(1).each.to_a
       expect(response.length).to eq 1
       expect(response[0].data[:order_id]).to eq 234
     end
 
     specify 'return all events ordered backward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_1')
-      response = client.read_all_streams_backward
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_1')
+      response = client.read.backward.limit(100).each.to_a
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 234
       expect(response[1].data[:order_id]).to eq 123
@@ -552,10 +551,10 @@ module RubyEventStore
 
     specify 'return batch of events from the end ordered backward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      client.publish_event(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
-      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
-      response = client.read_all_streams_backward(start: :head, count: 2)
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      response = client.read.backward.from(:head).limit(2).each.to_a
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 345
       expect(response[1].data[:order_id]).to eq 234
@@ -564,35 +563,35 @@ module RubyEventStore
     specify 'return batch of events from given event ordered backward' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       uid = SecureRandom.uuid
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      client.publish_event(OrderCreated.new(event_id: uid, data: { order_id: 234 }), stream_name: 'order_2')
-      client.publish_event(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
-      response = client.read_all_streams_backward(start: uid, count: 1)
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish_event(OrderCreated.new(event_id: uid, data: {order_id: 234}), stream_name: 'order_2')
+      client.publish_event(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      response = client.read.backward.from(uid).limit(1).each.to_a
       expect(response.length).to eq 1
       expect(response[0].data[:order_id]).to eq 123
     end
 
     specify 'fails when starting event not exists' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      expect{ client.read_all_streams_forward(start: SecureRandom.uuid) }.to raise_error(EventNotFound)
-      expect{ client.read_all_streams_backward(start: SecureRandom.uuid) }.to raise_error(EventNotFound)
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      expect { client.read.from(SecureRandom.uuid).limit(100).each.to_a }.to raise_error(EventNotFound)
+      expect { client.read.backward.from(SecureRandom.uuid).limit(100).each.to_a }.to raise_error(EventNotFound)
     end
 
     specify 'fails when page size is invalid' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client.publish_event(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
-      expect{ client.read_all_streams_forward(count: 0) }.to raise_error(InvalidPageSize)
-      expect{ client.read_all_streams_backward(count: 0) }.to raise_error(InvalidPageSize)
-      expect{ client.read_all_streams_forward(count: -1) }.to raise_error(InvalidPageSize)
-      expect{ client.read_all_streams_backward(count: -1) }.to raise_error(InvalidPageSize)
+      client.publish_event(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      expect { client.read.limit(0).each.to_a }.to raise_error(InvalidPageSize)
+      expect { client.read.backward.limit(0).each.to_a }.to raise_error(InvalidPageSize)
+      expect { client.read.limit(-1).each.to_a }.to raise_error(InvalidPageSize)
+      expect { client.read.backward.limit(-1).each.to_a }.to raise_error(InvalidPageSize)
     end
 
     specify 'create successfully event' do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd')
       client.append_to_stream(event, stream_name: 'stream_name')
-      saved_events = client.read_stream_events_forward('stream_name')
+      saved_events = client.read.stream("stream_name").each.to_a
       expect(saved_events[0]).to eq(event)
     end
 
@@ -600,7 +599,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = OrderCreated.new
       client.append_to_stream(event, stream_name: 'stream_name')
-      saved_events = client.read_stream_events_forward('stream_name')
+      saved_events = client.read.stream("stream_name").each.to_a
       expect(saved_events[0]).to eq(event)
     end
 
@@ -627,7 +626,7 @@ module RubyEventStore
       event = OrderCreated.new
       client.subscribe_to_all_events(handler)
       client.append_to_stream(event, stream_name: 'stream_name')
-      saved_events = client.read_stream_events_forward('stream_name')
+      saved_events = client.read.stream("stream_name").each.to_a
       expect(saved_events[0]).to eq(event)
     end
 
@@ -638,7 +637,7 @@ module RubyEventStore
       event = OrderCreated.new
       client.subscribe_to_all_events(handler)
       client.publish_event(event, stream_name: 'stream_name')
-      saved_events = client.read_stream_events_forward('stream_name')
+      saved_events = client.read.stream("stream_name").each.to_a
       expect(saved_events[0]).to eq(event)
     end
 
@@ -646,7 +645,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
       event = OrderCreated.new
       client.publish_event(event)
-      saved_events = client.read_all_streams_forward
+      saved_events = client.read.limit(100).each.to_a
       expect(saved_events[0]).to eq(event)
     end
 
@@ -715,6 +714,103 @@ module RubyEventStore
           client.link_to_stream(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
         end.to raise_error(RubyEventStore::InvalidExpectedVersion)
       end
+    end
+
+    specify "public read" do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+
+      expect(client).to respond_to(:read)
+      expect(client.read.each.to_a).to eq([])
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_all_streams_forward }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_all_streams_forward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.limit(count).from(start).each.to_a
+      EOS
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      silence_warnings { expect(client.read_all_streams_forward).to be_kind_of(Array) }
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_all_streams_backward }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_all_streams_backward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.limit(count).from(start).backward.each.to_a
+      EOS
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      silence_warnings { expect(client.read_all_streams_backward).to be_kind_of(Array) }
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_stream_events_forward('some_stream') }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_stream_events_forward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).each.to_a
+      EOS
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      silence_warnings { expect(client.read_stream_events_forward('some_stream')).to be_kind_of(Array) }
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_stream_events_backward('some_stream') }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_stream_events_backward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).backward.each.to_a
+      EOS
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      silence_warnings { expect(client.read_stream_events_backward('some_stream')).to be_kind_of(Array) }
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_events_forward('some_stream') }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_events_forward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).limit(count).from(start).each.to_a
+      EOS
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      silence_warnings { expect(client.read_events_forward('some_stream')).to be_kind_of(Array) }
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      expect { client.read_events_backward('some_stream') }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_events_backward has been deprecated.
+
+        Use following fluent API to receive exact results:
+        client.read.stream(stream_name).limit(count).from(start).backward.each.to_a
+      EOS
+    end
+
+    specify do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      silence_warnings { expect(client.read_events_backward('some_stream')).to be_kind_of(Array) }
     end
   end
 end

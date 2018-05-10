@@ -31,17 +31,17 @@ module RailsEventStore
 
       def events_forward(start)
         if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-          event_store.read_all_streams_forward(start: start, count: count)
+          event_store.read.limit(count).from(start).each.to_a
         else
-          event_store.read_events_forward(stream_name, start: start, count: count)
+          event_store.read.limit(count).from(start).stream(stream_name).each.to_a
         end
       end
 
       def events_backward(start)
         if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-          event_store.read_all_streams_backward(start: start, count: count)
+          event_store.read.limit(count).from(start).backward.each.to_a
         else
-          event_store.read_events_backward(stream_name, start: start, count: count)
+          event_store.read.limit(count).from(start).stream(stream_name).backward.each.to_a
         end
       end
 

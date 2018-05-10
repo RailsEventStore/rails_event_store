@@ -1,0 +1,143 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'ruby_event_store'
+  require 'parser/current'
+  require 'parser/runner'
+  require 'unparser'
+  require 'tempfile'
+  require 'astrolabe/builder'
+rescue LoadError
+  warn <<-EOS
+  
+You need following gems in Gemfile in order to use this script:
+
+  gem 'parser'
+  gem 'unparser'
+  gem 'astrolabe'
+
+EOS
+  exit(2)
+end
+
+
+class DeprecatedReadAPIRewriter < ::Parser::TreeRewriter
+  def on_send(node)
+    node.each_descendant(:send) { |desc_node| on_send(desc_node) }
+
+    _, method_name, *args = node.children
+    replace_range = node.location.selector
+    replace_range = replace_range.join(node.location.end) if node.location.end
+
+    case method_name
+    when :read_all_streams_backward, :read_events_backward
+      rewrite_api("read.backward", replace_range, **parse_args(args))
+    when :read_stream_events_backward
+      rewrite_api("read.backward", replace_range, count: nil, **parse_args(args))
+    when :read_all_streams_forward, :read_events_forward
+      rewrite_api("read", replace_range, **parse_args(args))
+    when :read_stream_events_forward
+      rewrite_api("read", replace_range, count: nil, **parse_args(args))
+    end
+  end
+
+  def rewrite_api(query, range, start: nil, count: RubyEventStore::PAGE_SIZE, stream: nil)
+    query << ".stream(#{stream})" if stream
+    query << ".from(#{start})"    if start
+    query << ".limit(#{count})"   if count
+
+    replace(range, "#{query}.each.to_a")
+  end
+
+  def parse_args(args)
+    return {} if args.empty?
+
+    case args.size
+    when 1
+      case args[0].type
+      when :hash
+        stream_name, kwargs = nil, args[0]
+      else
+        stream_name, kwargs = parse_value(args[0]), AST::Node.new(:hash)
+      end
+    else
+      stream_name, kwargs = parse_value(args[0]), args[1]
+    end
+
+    kwargs
+      .children
+      .reduce({ stream: stream_name }) do |memo, pair|
+        keyword, value = pair.children
+        memo[parse_keyword(keyword)] = parse_value(value)
+        memo
+      end
+  end
+
+  def parse_value(node)
+    Unparser.unparse(node)
+  end
+
+  def parse_keyword(node)
+    node.children[0].to_sym
+  end
+end
+
+class DeprecatedReadAPIRunner < Parser::Runner
+  attr_reader :rewriter, :parser_class, :modify
+
+  def initialize
+    super
+    @rewriter = DeprecatedReadAPIRewriter.new
+  end
+
+  def runner_name
+    "res-deprecated-read-api-migrator"
+  end
+
+  def setup_option_parsing(opts)
+    super(opts)
+
+    opts.on '-m', '--modify' do
+      @modify = true
+    end
+  end
+
+  def process(buffer)
+    parser = parser_class.new(Astrolabe::Builder.new)
+    new_source = rewriter.rewrite(buffer, parser.parse(buffer))
+    new_buffer = Parser::Source::Buffer.new(buffer.name + '|after res-deprecated-read-api-migrator')
+    new_buffer.source = new_source
+
+    if !modify
+      old = Tempfile.new('old')
+      old.write(buffer.source + "\n")
+      old.flush
+
+      new = Tempfile.new('new')
+      new.write(new_source + "\n")
+      new.flush
+
+      IO.popen("diff -u #{old.path} #{new.path}") do |io|
+        $stderr.write(
+          io.read
+            .sub(/^---.*/, "--- #{buffer.name}")
+            .sub(/^\+\+\+.*/, "+++ #{new_buffer.name}")
+        )
+      end
+      exit(1)
+    end
+
+    if File.exist?(buffer.name)
+      File.open(buffer.name, 'w') do |file|
+        file.write(new_source)
+      end
+    else
+      if input_size > 1
+        puts "Rewritten content of #{buffer.name}:"
+      end
+      puts new_source
+    end
+  end
+end
+
+DeprecatedReadAPIRunner.go(ARGV)

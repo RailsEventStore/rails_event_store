@@ -155,11 +155,32 @@ module RubyEventStore
       })
     end
 
+    specify { expect(specification.each.to_a).to eq([test_event]) }
+
+    specify { expect(specification.stream(stream_name).each.to_a).to eq([test_event]) }
+
+    specify { expect(specification.limit(1).each.to_a).to eq([test_event]) }
+
+    specify { expect(specification.backward.each.to_a).to eq([test_event]) }
+
+    specify { expect(specification.forward.each.to_a).to eq([test_event]) }
+
+    specify { expect(specification.from(event_id).each.to_a).to eq([test_event]) }
+
     let(:repository)    { InMemoryRepository.new }
-    let(:specification) { Specification.new(repository) }
+    let(:mapper)        { Mappers::NullMapper.new }
+    let(:mapper)        { Mappers::Default.new }
+    let(:specification) { Specification.new(repository, mapper) }
     let(:event_id)      { SecureRandom.uuid }
     let(:none_such_id)  { SecureRandom.uuid }
     let(:stream_name)   { SecureRandom.hex }
+    let(:test_event)    { TestEvent.new(event_id: event_id) }
+    let(:test_record)   { RubyEventStore::SerializedRecord.new(
+      event_id: event_id,
+      data: "{}",
+      metadata: "{}",
+      event_type: "TestEvent",
+    ) }
 
     around(:each) do |example|
       with_event_of_id(event_id) do
@@ -180,7 +201,7 @@ module RubyEventStore
 
     def with_event_of_id(event_id, &block)
       repository.append_to_stream(
-        [TestEvent.new(event_id: event_id)],
+        [test_record],
         Stream.new(stream_name),
         ExpectedVersion.none
       )

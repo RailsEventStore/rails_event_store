@@ -116,12 +116,22 @@ expect(event_store).to have_published(
 
 If there's a usecase not covered by examples above or you need a different set of events to make expectations on you can always resort to a more verbose approach and skip `have_published`.
 
+<% if version_above('0.29.0') %>
+```ruby
+expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([
+  an_event(OrderPlaced),
+  an_event(OrderExpired)
+])
+```
+<% else %>
 ```ruby
 expect(event_store.read_events_forward("OrderAuditLog$42", count: 2)).to eq([
   an_event(OrderPlaced),
   an_event(OrderExpired)
 ])
 ```
+<% end %>
+
 
 ### have_applied
 

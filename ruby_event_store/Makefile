@@ -8,6 +8,12 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Client::Within\#normalize_to_array \
               RubyEventStore::Client::Within\#add_thread_subscribers \
               RubyEventStore::Client::Within\#add_thread_global_subscribers \
+              RubyEventStore::Client\#read_all_streams_forward \
+              RubyEventStore::Client\#read_all_streams_backward \
+              RubyEventStore::Client\#read_stream_events_forward \
+              RubyEventStore::Client\#read_stream_events_backward \
+              RubyEventStore::Client\#read_events_forward \
+              RubyEventStore::Client\#read_events_backward \
               RubyEventStore::SerializedRecord \
               RubyEventStore::Projection\#read_events_from_stream \
               RubyEventStore::Projection\#read_events_from_all_streams

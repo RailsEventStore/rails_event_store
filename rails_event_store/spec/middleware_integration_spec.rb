@@ -13,9 +13,9 @@ module RailsEventStore
       request = ::Rack::MockRequest.new(middleware)
       request.get('/')
 
-      event_store.read_all_streams_forward.map(&:metadata).each do |metadata|
-        expect(metadata.keys).to eq([:timestamp])
-        expect(metadata[:timestamp]).to be_a(Time)
+      event_store.read.each do |event|
+        expect(event.metadata.keys).to eq([:timestamp])
+        expect(event.metadata[:timestamp]).to be_a(Time)
       end
     end
 
@@ -28,9 +28,9 @@ module RailsEventStore
       request = ::Rack::MockRequest.new(middleware)
       request.get('/')
 
-      event_store.read_all_streams_forward.map(&:metadata).each do |metadata|
-        expect(metadata[:server_name]).to eq('example.org')
-        expect(metadata[:timestamp]).to be_a(Time)
+      event_store.read.each do |event|
+        expect(event.metadata[:server_name]).to eq('example.org')
+        expect(event.metadata[:timestamp]).to be_a(Time)
       end
     end
 

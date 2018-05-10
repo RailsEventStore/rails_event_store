@@ -41,6 +41,10 @@ RSpec.describe "v1_v2_migration" do
     @repository ||= RailsEventStoreActiveRecord::EventRepository.new
   end
 
+  def mapper
+    RubyEventStore::Mappers::NullMapper.new
+  end
+
   def fill_data_using_older_gem
     pathname = Pathname.new(__FILE__).dirname
     cwd = pathname.join("v1_v2_schema_migration")
@@ -77,7 +81,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_all_events_stream
-    events = repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(100).result)
+    events = repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(100).result)
     expect(events.size).to eq(9)
     expect(events.map(&:event_id)).to eq(%w(
       94b297a3-5a29-4942-9038-3efeceb4d905
@@ -99,7 +103,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_event_sourced_stream
-    events = repository.read(RubyEventStore::Specification.new(repository).stream("Order-1").result)
+    events = repository.read(RubyEventStore::Specification.new(repository, mapper).stream("Order-1").result)
 
     expect(events.map(&:event_id)).to eq(%w(
       d39cb65f-bc3c-4fbb-9470-52bf5e322bba
@@ -125,7 +129,7 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def verify_technical_stream
-    events = repository.read(RubyEventStore::Specification.new(repository).stream("WroclawBuyers").result)
+    events = repository.read(RubyEventStore::Specification.new(repository, mapper).stream("WroclawBuyers").result)
     expect(events.map(&:event_id)).to eq(%w(
       9009df88-6044-4a62-b7ae-098c42a9c5e1
       cefdd213-0c92-46f6-bbdf-3ea9542d969a
