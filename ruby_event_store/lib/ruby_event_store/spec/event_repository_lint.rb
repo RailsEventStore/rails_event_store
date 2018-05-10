@@ -15,10 +15,11 @@ class SRecord
 end
 
 RSpec.shared_examples :event_repository do |repository_class|
-  let(:repository) { subject || repository_class.new }
+  let(:repository)    { subject || repository_class.new }
+  let(:mapper)        { RubyEventStore::Mappers::NullMapper.new }
+  let(:specification) { RubyEventStore::Specification.new(repository, mapper) }
 
   def read_stream_events_forward(repository, stream)
-    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -27,7 +28,6 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_stream_events_backward(repository, stream)
-    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -37,7 +37,6 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_events_forward(repository, stream, start, count)
-    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -48,7 +47,6 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_events_backward(repository, stream, start, count)
-    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .stream(stream.name)
@@ -60,7 +58,6 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_all_streams_forward(repository, start, count)
-    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .from(start)
@@ -70,7 +67,6 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   def read_all_streams_backward(repository, start, count)
-    specification = RubyEventStore::Specification.new(repository, RubyEventStore::Mappers::NullMapper.new)
     repository.read(
       specification
         .from(start)
