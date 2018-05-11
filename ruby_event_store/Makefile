@@ -16,7 +16,9 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Client\#read_events_backward \
               RubyEventStore::SerializedRecord \
               RubyEventStore::Projection\#read_events_from_stream \
-              RubyEventStore::Projection\#read_events_from_all_streams
+              RubyEventStore::Projection\#read_events_from_all_streams \
+              RubyEventStore::DeprecatedReadAPIRunner* \
+              RubyEventStore::DeprecatedReadAPIRewriter*
 SUBJECT     ?= RubyEventStore*
 
 install: ## Install gem dependencies
