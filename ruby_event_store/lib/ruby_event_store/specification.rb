@@ -73,6 +73,14 @@ module RubyEventStore
       end
     end
 
+    def in_batches
+      Enumerator.new do |y|
+        repository.read(result).each_slice(100) do |aosev|
+          y << aosev.map { |sev| mapper.serialized_record_to_event(sev) }
+        end
+      end
+    end
+
     private
     attr_reader :repository, :mapper
   end

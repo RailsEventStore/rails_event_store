@@ -167,6 +167,15 @@ module RubyEventStore
 
     specify { expect(specification.from(event_id).each.to_a).to eq([test_event]) }
 
+    specify { expect(specification.in_batches).to be_kind_of(Enumerator) }
+
+    specify do
+      batch_size = 100
+      events = (batch_size * 10).times.map { test_record }
+      repository.append_to_stream(events, Stream.new("batch"), ExpectedVersion.none)
+      expect(specification.stream("batch").in_batches.to_a.size).to eq(10)
+    end
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::NullMapper.new }
     let(:mapper)        { Mappers::Default.new }
@@ -175,12 +184,15 @@ module RubyEventStore
     let(:none_such_id)  { SecureRandom.uuid }
     let(:stream_name)   { SecureRandom.hex }
     let(:test_event)    { TestEvent.new(event_id: event_id) }
-    let(:test_record)   { RubyEventStore::SerializedRecord.new(
-      event_id: event_id,
-      data: "{}",
-      metadata: "{}",
-      event_type: "TestEvent",
-    ) }
+
+    def test_record(event_id = SecureRandom.uuid)
+        RubyEventStore::SerializedRecord.new(
+        event_id: event_id,
+        data: "{}",
+        metadata: "{}",
+        event_type: "TestEvent",
+      )
+    end
 
     around(:each) do |example|
       with_event_of_id(event_id) do
@@ -201,7 +213,7 @@ module RubyEventStore
 
     def with_event_of_id(event_id, &block)
       repository.append_to_stream(
-        [test_record],
+        [test_record(event_id)],
         Stream.new(stream_name),
         ExpectedVersion.none
       )
