@@ -14,7 +14,6 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Client\#read_stream_events_backward \
               RubyEventStore::Client\#read_events_forward \
               RubyEventStore::Client\#read_events_backward \
-              RubyEventStore::SerializedRecord \
               RubyEventStore::Projection\#read_events_from_stream \
               RubyEventStore::Projection\#read_events_from_all_streams \
               RubyEventStore::DeprecatedReadAPIRunner* \
