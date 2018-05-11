@@ -115,43 +115,57 @@ module RubyEventStore
         direction: :backward,
         start: :head,
         count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM
+        stream_name: GLOBAL_STREAM,
+        batch_size: Specification::NO_BATCH
       })
       expect(specification.from(event_id)).to match_result({
         direction: :forward,
         start: event_id,
         count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM
+        stream_name: GLOBAL_STREAM,
+        batch_size: Specification::NO_BATCH
       })
       expect(specification.limit(10)).to match_result({
         direction: :forward,
         start: :head,
         count: 10,
-        stream_name: GLOBAL_STREAM
+        stream_name: GLOBAL_STREAM,
+        batch_size: Specification::NO_BATCH
       })
       expect(specification.stream(stream_name)).to match_result({
         direction: :forward,
         start: :head,
         count: Specification::NO_LIMIT,
-        stream_name: stream_name
+        stream_name: stream_name,
+        batch_size: Specification::NO_BATCH
+      })
+      expect(specification.in_batches).to match_result({
+        direction: :forward,
+        start: :head,
+        count: Specification::NO_LIMIT,
+        stream_name: GLOBAL_STREAM,
+        batch_size: 100
       })
       expect(specification).to match_result({
         direction: :forward,
         start: :head,
         count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM
+        stream_name: GLOBAL_STREAM,
+        batch_size: Specification::NO_BATCH
       })
       expect(backward_specifcation.forward).to match_result({
         direction: :forward,
         start: :head,
         count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM
+        stream_name: GLOBAL_STREAM,
+        batch_size: Specification::NO_BATCH
       })
       expect(backward_specifcation).to match_result({
         direction: :backward,
         start: :head,
         count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM
+        stream_name: GLOBAL_STREAM,
+        batch_size: Specification::NO_BATCH
       })
     end
 
@@ -167,13 +181,19 @@ module RubyEventStore
 
     specify { expect(specification.from(event_id).each.to_a).to eq([test_event]) }
 
-    specify { expect(specification.in_batches).to be_kind_of(Enumerator) }
-
     specify do
       batch_size = 100
       events = (batch_size * 10).times.map { test_record }
       repository.append_to_stream(events, Stream.new("batch"), ExpectedVersion.none)
-      expect(specification.stream("batch").in_batches.to_a.size).to eq(10)
+      expect(specification.stream("batch").in_batches.each.to_a.size).to eq(10)
+    end
+
+    specify { expect(specification.in_batches).to match_result(batch_size: 100) }
+
+    specify { expect(specification).to match_result(batch_size: Specification::NO_BATCH) }
+
+    specify do
+      expect(specification.in_batches.each.to_a).to eq([[test_event]])
     end
 
     let(:repository)    { InMemoryRepository.new }
