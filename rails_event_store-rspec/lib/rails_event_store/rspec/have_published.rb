@@ -1,11 +1,12 @@
 module RailsEventStore
   module RSpec
     class HavePublished
-      def initialize(mandatory_expected, *optional_expected, differ:, formatter:)
+      def initialize(mandatory_expected, *optional_expected, differ:, formatter:, lister:)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @differ    = differ
         @formatter = formatter
+        @lister    = lister
       end
 
       def matches?(event_store)
@@ -44,9 +45,7 @@ module RailsEventStore
       end
 
       def description
-        "have published [%s]" % expected
-          .map { |e| formatter.(e) }
-          .join(', ')
+        "have published events that have to (#{lister.(expected).strip})"
       end
 
       private
@@ -60,7 +59,7 @@ module RailsEventStore
         end
       end
 
-      attr_reader :formatter, :differ, :stream_name, :expected, :count, :events
+      attr_reader :formatter, :differ, :lister, :stream_name, :expected, :count, :events
     end
   end
 end

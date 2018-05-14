@@ -12,7 +12,7 @@ module RailsEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, differ: colorless_differ, formatter: formatter)
+        HavePublished.new(*expected, differ: colorless_differ, formatter: formatter, lister: lister)
       end
 
       def colorless_differ
@@ -21,6 +21,10 @@ module RailsEventStore
 
       def formatter
         ::RSpec::Support::ObjectFormatter.method(:format)
+      end
+
+      def lister
+        ::RSpec::Matchers::EnglishPhrasing.method(:list)
       end
 
       specify do
@@ -172,7 +176,7 @@ module RailsEventStore
           matchers.an_event(BazEvent)
         )
         expect(_matcher.description)
-          .to eq("have published [be event FooEvent, be event BazEvent]")
+          .to eq("have published events that have to (be an event FooEvent and be an event BazEvent)")
       end
 
       specify do
@@ -181,7 +185,7 @@ module RailsEventStore
           BazEvent
         )
         expect(_matcher.description)
-          .to eq("have published [FooEvent, BazEvent]")
+          .to eq("have published events that have to (FooEvent and BazEvent)")
       end
    end
   end
