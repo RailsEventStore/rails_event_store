@@ -112,31 +112,13 @@ module RubyEventStore
       Specification.new(repository, mapper)
     end
 
-    DEPRECATED_WITHIN = "subscribe(subscriber, event_types, &task) has been deprecated. Use within(&task).subscribe(subscriber, to: event_types).call instead"
-    DEPRECATED_TO = "subscribe(subscriber, event_types) has been deprecated. Use subscribe(subscriber, to: event_types) instead"
-    # OLD:
-    #  subscribe(subscriber, event_types, &within)
-    #  subscribe(subscriber, event_types)
-    # NEW:
-    #  subscribe(subscriber, to:)
-    #  subscribe(to:, &subscriber)
-    def subscribe(subscriber = nil, event_types = nil, to: nil, &proc)
-      if to
-        raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-        raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
-        raise ArgumentError, "list of event types must be second argument or named argument to: , it cannot be both" if event_types
-        subscriber ||= proc
-        event_broker.add_subscriber(subscriber, to)
-      else
-        if proc
-          warn(DEPRECATED_WITHIN)
-          within(&proc).subscribe(subscriber, to: event_types).call
-          -> {}
-        else
-          warn(DEPRECATED_TO)
-          subscribe(subscriber, to: event_types)
-        end
-      end
+    # subscribe(subscriber, to:)
+    # subscribe(to:, &subscriber)
+    def subscribe(subscriber = nil, to:, &proc)
+      raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
+      raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
+      subscriber ||= proc
+      event_broker.add_subscriber(subscriber, to)
     end
 
     DEPRECATED_ALL_WITHIN = "subscribe_to_all_events(subscriber, &task) has been deprecated. Use within(&task).subscribe_to_all_events(subscriber).call instead."
