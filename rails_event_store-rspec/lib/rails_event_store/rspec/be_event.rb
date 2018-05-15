@@ -115,9 +115,9 @@ module RailsEventStore
       include ::RSpec::Matchers::Composable
 
       def initialize(expected, differ:, formatter:)
+        @expected  = expected
         @differ    = differ
         @formatter = formatter
-        @expected  = expected
       end
 
       def matches?(actual)
@@ -152,7 +152,15 @@ expected: not a kind of #{expected}
       end
 
       def description
-        "be event #{formatter.(expected)}"
+        "be an event #{formatter.(expected)}#{data_and_metadata_expectations_description}"
+      end
+
+      def data_and_metadata_expectations_description
+        predicate = strict? ? "matching" : "including"
+        expectation_list = []
+        expectation_list << "with data #{predicate} #{formatter.(expected_data)}" if expected_data
+        expectation_list << "with metadata #{predicate} #{formatter.(expected_metadata)}" if expected_metadata
+        " (#{expectation_list.join(" and ")})" if expectation_list.any?
       end
 
       private
