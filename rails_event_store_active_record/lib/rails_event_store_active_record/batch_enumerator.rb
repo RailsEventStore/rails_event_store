@@ -1,29 +1,26 @@
 module RailsEventStoreActiveRecord
   class BatchEnumerator
     def initialize(spec)
-      self.spec = spec
+      @batch_size  = spec.batch_size
+      @total_limit = spec.limit? ? spec.count : Float::INFINITY
     end
 
     def each(&block)
       Enumerator.new do |y|
-        offset = 0
-        limit = spec.limit? ? spec.count : spec.batch_size
-        loop do
-          batch_limit = [spec.batch_size, limit].min
-
-          result = block.call(offset, batch_limit)
-
-          offset += spec.batch_size
-          limit -= spec.batch_size if spec.limit?
+        0.upto(Float::INFINITY) do |index|
+          result = block.call(
+            batch_offset = batch_size * index,
+            [batch_size, total_limit - batch_offset, total_limit].min
+          )
           break if result.empty?
+
           y << result
-          break if result.size < spec.batch_size
+
+          break if result.size < batch_size
         end
       end
     end
-
-    private
-
-    attr_accessor :spec
+    
+    attr_accessor :batch_size, :total_limit
   end
 end
