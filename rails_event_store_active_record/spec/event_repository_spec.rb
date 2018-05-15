@@ -275,6 +275,10 @@ module RailsEventStoreActiveRecord
       expect(repository.read(specification.limit(199).in_batches.result).to_a[1]).to eq(events[100..198])
       expect(repository.read(specification.limit(99).in_batches.result).to_a.size).to eq(1)
       expect(repository.read(specification.limit(99).in_batches.result).to_a[0]).to eq(events[0..98])
+      expect(repository.read(specification.backward.limit(99).in_batches.result).to_a.size).to eq(1)
+      expect(repository.read(specification.backward.limit(99).in_batches.result).to_a[0]).to eq(events[901..-1].reverse)
+      expect(repository.read(specification.from(events[100].event_id).limit(99).in_batches.result).to_a.size).to eq(1)
+      expect(repository.read(specification.from(events[100].event_id).limit(99).in_batches.result).to_a[0]).to eq(events[101..199])
     end
 
     def cleanup_concurrency_test
