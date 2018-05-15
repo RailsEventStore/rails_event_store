@@ -271,21 +271,55 @@ module RailsEventStoreActiveRecord
       expect(repository.read(specification.in_batches.result).to_a.size).to eq(10)
       expect(repository.read(specification.in_batches.result).to_a[0].size).to eq(100)
       expect(repository.read(specification.in_batches.result).to_a[0]).to eq(events[0..99])
+    end
+
+    specify do
+      events = Array.new(1000) { SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
 
       expect(repository.read(specification.limit(199).in_batches.result).to_a.size).to eq(2)
       expect(repository.read(specification.limit(199).in_batches.result).to_a[0].size).to eq(100)
       expect(repository.read(specification.limit(199).in_batches.result).to_a[0]).to eq(events[0..99])
       expect(repository.read(specification.limit(199).in_batches.result).to_a[1].size).to eq(99)
       expect(repository.read(specification.limit(199).in_batches.result).to_a[1]).to eq(events[100..198])
+    end
+
+    specify do
+      events = Array.new(1000) { SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
 
       expect(repository.read(specification.limit(99).in_batches.result).to_a.size).to eq(1)
       expect(repository.read(specification.limit(99).in_batches.result).to_a[0].size).to eq(99)
       expect(repository.read(specification.limit(99).in_batches.result).to_a[0]).to eq(events[0..98])
+    end
 
+    specify do
+      events = Array.new(1000) { SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
       expect(repository.read(specification.backward.limit(99).in_batches.result).to_a.size).to eq(1)
       expect(repository.read(specification.backward.limit(99).in_batches.result).to_a[0].size).to eq(99)
       expect(repository.read(specification.backward.limit(99).in_batches.result).to_a[0]).to eq(events[901..-1].reverse)
+    end
 
+    specify do
+      events = Array.new(1000) { SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
       expect(repository.read(specification.from(events[100].event_id).limit(99).in_batches.result).to_a.size).to eq(1)
       expect(repository.read(specification.from(events[100].event_id).limit(99).in_batches.result).to_a[0].size).to eq(99)
       expect(repository.read(specification.from(events[100].event_id).limit(99).in_batches.result).to_a[0]).to eq(events[101..199])
