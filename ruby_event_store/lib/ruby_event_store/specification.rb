@@ -2,6 +2,7 @@ module RubyEventStore
   class Specification
     NO_LIMIT = Object.new.freeze
     NO_BATCH = Object.new.freeze
+    DEFAULT_BATCH_SIZE = 100
 
     class Result < Struct.new(:direction, :start, :count, :stream, :batch_size)
       def limit?
@@ -86,8 +87,8 @@ module RubyEventStore
       end
     end
 
-    def in_batches
-      Specification.new(repository, mapper, result.dup.tap { |r| r.batch_size = 100 })
+    def in_batches(batch_size = DEFAULT_BATCH_SIZE)
+      Specification.new(repository, mapper, result.dup.tap { |r| r.batch_size = batch_size })
     end
 
     private

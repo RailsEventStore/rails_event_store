@@ -192,6 +192,8 @@ module RubyEventStore
 
     specify { expect(specification).to match_result(batch_size: Specification::NO_BATCH) }
 
+    specify { expect(specification.in_batches(1000)).to match_result(batch_size: 1000) }
+
     specify do
       expect(specification.in_batches.each.to_a).to eq([[test_event]])
     end
