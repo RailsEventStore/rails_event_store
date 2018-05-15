@@ -1,4 +1,4 @@
-module RailsEventStoreActiveRecord
+module RubyEventStore
   class BatchEnumerator
     def initialize(batch_size, total_limit, reader)
       @batch_size  = batch_size

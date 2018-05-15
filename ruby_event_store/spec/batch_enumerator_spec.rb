@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'rails_event_store_active_record/batch_enumerator'
+require 'ruby_event_store/batch_enumerator'
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
   RSpec.describe BatchEnumerator do
     let(:collection) { (1..10000).to_a }
     let(:reader) { ->(offset,limit) { collection.drop(offset).take(limit) } }

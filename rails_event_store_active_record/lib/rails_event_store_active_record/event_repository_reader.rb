@@ -1,5 +1,3 @@
-require 'rails_event_store_active_record/batch_enumerator'
-
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
 
@@ -36,7 +34,7 @@ module RailsEventStoreActiveRecord
 
       if spec.batched?
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
-        BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+        RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
       else
         stream.map(&method(:build_event_instance)).each
       end
