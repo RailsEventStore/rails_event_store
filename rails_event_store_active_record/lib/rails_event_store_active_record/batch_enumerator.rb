@@ -1,15 +1,16 @@
 module RailsEventStoreActiveRecord
   class BatchEnumerator
-    def initialize(batch_size, total_limit)
+    def initialize(batch_size, total_limit, reader)
       @batch_size  = batch_size
       @total_limit = total_limit
+      @reader      = reader
     end
 
-    def each(&block)
+    def each
       Enumerator.new do |y|
         (0..Float::INFINITY).step(batch_size) do |batch_offset|
           batch_limit = [batch_size, total_limit - batch_offset, total_limit].min
-          result      = block.call(batch_offset, batch_limit)
+          result      = reader.call(batch_offset, batch_limit)
 
           break if result.empty?
           y << result
@@ -18,6 +19,8 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    attr_accessor :batch_size, :total_limit
+    private
+
+    attr_accessor :batch_size, :total_limit, :reader
   end
 end
