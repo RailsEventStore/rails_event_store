@@ -263,6 +263,24 @@ module RailsEventStoreActiveRecord
     specify do
       events = Array.new(1000) { SRecord.new }
       repository.append_to_stream(
+        events[500...1000],
+        RubyEventStore::Stream.new("Foo"),
+        RubyEventStore::ExpectedVersion.none
+      )
+      repository.append_to_stream(
+        events[0...500],
+        RubyEventStore::Stream.new("Dummy"),
+        RubyEventStore::ExpectedVersion.none
+      )
+
+      expect(repository.read(specification.stream("Dummy").in_batches.result).to_a.size).to eq(5)
+      expect(repository.read(specification.stream("Dummy").in_batches.result).to_a[0].size).to eq(100)
+      expect(repository.read(specification.stream("Dummy").in_batches.result).to_a[0]).to eq(events[0..99])
+    end
+
+    specify do
+      events = Array.new(1000) { SRecord.new }
+      repository.append_to_stream(
         events,
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
