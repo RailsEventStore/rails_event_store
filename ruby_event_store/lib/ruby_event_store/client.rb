@@ -121,25 +121,12 @@ module RubyEventStore
       event_broker.add_subscriber(subscriber, to)
     end
 
-    DEPRECATED_ALL_WITHIN = "subscribe_to_all_events(subscriber, &task) has been deprecated. Use within(&task).subscribe_to_all_events(subscriber).call instead."
-    # OLD:
-    #  subscribe_to_all_events(subscriber, &within)
-    #  subscribe_to_all_events(subscriber)
-    # NEW:
-    #  subscribe_to_all_events(subscriber)
-    #  subscribe_to_all_events(&subscriber)
+    # subscribe_to_all_events(subscriber)
+    # subscribe_to_all_events(&subscriber)
     def subscribe_to_all_events(subscriber = nil, &proc)
-      if subscriber
-        if proc
-          warn(DEPRECATED_ALL_WITHIN)
-          within(&proc).subscribe_to_all_events(subscriber).call
-          -> {}
-        else
-          event_broker.add_global_subscriber(subscriber)
-        end
-      else
-        event_broker.add_global_subscriber(proc)
-      end
+      raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
+      raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
+      event_broker.add_global_subscriber(subscriber || proc)
     end
 
     class Within

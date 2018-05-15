@@ -167,21 +167,21 @@ module RubyEventStore
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
 
-    specify 'dynamic global subscription (deprecated)' do
-      event_1 = OrderCreated.new
-      event_2 = ProductAdded.new
-      subscriber = Subscribers::ValidHandler.new
-      result = nil
-      expect do
-        result = client.subscribe_to_all_events(subscriber) do
-          client.publish_event(event_1)
-        end
-      end.to output("#{Client::DEPRECATED_ALL_WITHIN}\n").to_stderr
-      client.publish_event(event_2)
-      expect(subscriber.handled_events).to eq [event_1]
-      expect(client.read_all_streams_forward).to eq([event_1, event_2])
-      result.call()
-    end
+    # specify 'dynamic global subscription (deprecated)' do # OK TO REMOVE
+    #   event_1 = OrderCreated.new
+    #   event_2 = ProductAdded.new
+    #   subscriber = Subscribers::ValidHandler.new
+    #   result = nil
+    #   expect do
+    #     result = client.subscribe_to_all_events(subscriber) do
+    #       client.publish_event(event_1)
+    #     end
+    #   end.to output("#{Client::DEPRECATED_ALL_WITHIN}\n").to_stderr
+    #   client.publish_event(event_2)
+    #   expect(subscriber.handled_events).to eq [event_1]
+    #   expect(client.read_all_streams_forward).to eq([event_1, event_2])
+    #   result.call()
+    # end
 
     # specify 'dynamic subscription (deprecated)' do OK TO REMOVE
     #   event_1 = OrderCreated.new
@@ -365,6 +365,14 @@ module RubyEventStore
       expect do
         client.subscribe(to: [])
       end.to raise_error(RubyEventStore::SubscriberNotExist, "subscriber must be first argument or block")
+
+      expect do
+        client.subscribe_to_all_events()
+      end.to raise_error(RubyEventStore::SubscriberNotExist, "subscriber must be first argument or block")
+
+      expect do
+        client.subscribe_to_all_events(subscriber = ->(){}, ){}
+      end.to raise_error(ArgumentError, "subscriber must be first argument or block, cannot be both")
 
       # expect do # OK TO REMOVE
       #   client.subscribe(-> (){}, [], to: [])
