@@ -9,9 +9,9 @@ module RailsEventStoreActiveRecord
         offset = 0
         limit = spec.limit? ? spec.count : spec.batch_size
         loop do
-          minimum = [spec.batch_size, limit].min
+          batch_limit = [spec.batch_size, limit].min
 
-          result = block.call(offset, minimum)
+          result = block.call(offset, batch_limit)
 
           offset += spec.batch_size
           limit -= spec.batch_size if spec.limit?
