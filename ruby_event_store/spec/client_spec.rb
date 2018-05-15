@@ -254,11 +254,6 @@ module RubyEventStore
       expect(published.first.metadata[:timestamp]).to eq(utc)
     end
 
-    specify 'throws exception if subscriber is not defined' do
-      expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
-      expect { client.subscribe_to_all_events(nil) }.to raise_error(SubscriberNotExist)
-    end
-
     specify 'reading particular event' do
       client.publish_event(test_event = TestEvent.new, stream_name: 'test')
       expect(client.read_event(test_event.event_id)).to eq(test_event)
