@@ -35,7 +35,7 @@ module RailsEventStoreActiveRecord
       stream = stream.order(id: order(spec.direction))
 
       if spec.batched?
-        BatchEnumerator.new(spec).each do |offset, batch_limit|
+        BatchEnumerator.new(spec.batch_size, total_limit(spec)).each do |offset, batch_limit|
           stream.offset(offset).limit(batch_limit).map(&method(:build_event_instance))
         end
       else
@@ -44,6 +44,10 @@ module RailsEventStoreActiveRecord
     end
 
     private
+
+    def total_limit(specification)
+      specification.limit? ? specification.count : Float::INFINITY
+    end
 
     def normalize_stream_name(specification)
       specification.global_stream? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream_name

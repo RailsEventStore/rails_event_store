@@ -1,8 +1,8 @@
 module RailsEventStoreActiveRecord
   class BatchEnumerator
-    def initialize(spec)
-      @batch_size  = spec.batch_size
-      @total_limit = spec.limit? ? spec.count : Float::INFINITY
+    def initialize(batch_size, total_limit)
+      @batch_size  = batch_size
+      @total_limit = total_limit
     end
 
     def each(&block)
