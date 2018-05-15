@@ -74,7 +74,7 @@ module RubyEventStore
     def each
       if result.batched?
         Enumerator.new do |y|
-          repository.read(result).each_slice(result.batch_size) do |batch|
+          repository.read(result).each do |batch|
             y << batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
           end
         end
