@@ -178,6 +178,11 @@ Data diff:
       specify { expect(matcher(kind_of(FooEvent)).description).to eq("be an event kind of FooEvent") }
 
       specify do
+        expect(matcher(FooEvent).with_data(foo: kind_of(String)).description)
+            .to eq("be an event FooEvent (with data including {:foo=>kind of String})")
+      end
+
+      specify do
         expect(matcher(FooEvent).with_data(foo: "bar").description)
           .to eq("be an event FooEvent (with data including {:foo=>\"bar\"})")
       end
@@ -185,6 +190,11 @@ Data diff:
       specify do
         expect(matcher(FooEvent).with_data(foo: "bar").strict.description)
           .to eq("be an event FooEvent (with data matching {:foo=>\"bar\"})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_metadata(foo: kind_of(String)).description)
+            .to eq("be an event FooEvent (with metadata including {:foo=>kind of String})")
       end
 
       specify do

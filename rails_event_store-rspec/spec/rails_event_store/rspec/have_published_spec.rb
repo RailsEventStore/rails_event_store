@@ -12,7 +12,7 @@ module RailsEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, differ: colorless_differ, formatter: formatter, lister: lister)
+        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser)
       end
 
       def colorless_differ
@@ -23,7 +23,7 @@ module RailsEventStore
         ::RSpec::Support::ObjectFormatter.method(:format)
       end
 
-      def lister
+      def phraser
         ::RSpec::Matchers::EnglishPhrasing.method(:list)
       end
 

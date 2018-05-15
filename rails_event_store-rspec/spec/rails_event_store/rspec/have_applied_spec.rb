@@ -7,7 +7,7 @@ module RailsEventStore
       let(:aggregate_root) { TestAggregate.new }
 
       def matcher(*expected)
-        HaveApplied.new(*expected, differ: colorless_differ, formatter: formatter, lister: lister)
+        HaveApplied.new(*expected, differ: colorless_differ, phraser: phraser)
       end
 
       def colorless_differ
@@ -18,7 +18,7 @@ module RailsEventStore
         ::RSpec::Support::ObjectFormatter.method(:format)
       end
 
-      def lister
+      def phraser
         ::RSpec::Matchers::EnglishPhrasing.method(:list)
       end
 
@@ -154,7 +154,6 @@ module RailsEventStore
           matchers.an_event(FooEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
           matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
         )
-        puts _matcher.description
         expect(_matcher.description)
           .to eq("have applied events that have to (be an event FooEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}) and be an event BazEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}))")
       end
@@ -162,8 +161,7 @@ module RailsEventStore
       specify do
         _matcher = matcher(
           FooEvent,
-          BazEvent
-        )
+          BazEvent)
         expect(_matcher.description)
           .to eq("have applied events that have to (FooEvent and BazEvent)")
       end

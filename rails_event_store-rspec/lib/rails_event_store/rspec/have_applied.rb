@@ -1,12 +1,11 @@
 module RailsEventStore
   module RSpec
     class HaveApplied
-      def initialize(mandatory_expected, *optional_expected, differ:, formatter:, lister:)
+      def initialize(mandatory_expected, *optional_expected, differ:, phraser:)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @differ    = differ
-        @formatter = formatter
-        @lister    = lister
+        @phraser    = phraser
       end
 
       def matches?(aggregate_root)
@@ -39,7 +38,7 @@ module RailsEventStore
       end
 
       def description
-        "have applied events that have to (#{lister.(expected).strip})"
+        "have applied events that have to (#{phraser.(expected).strip})"
       end
 
       private
@@ -53,7 +52,7 @@ module RailsEventStore
         end
       end
 
-      attr_reader :formatter, :differ, :lister, :expected, :events, :count, :matcher
+      attr_reader :differ, :phraser, :expected, :events, :count, :matcher
     end
   end
 end

@@ -36,6 +36,8 @@ module RailsEventStore
 
       specify { expect(matchers.have_applied(matchers.an_event(FooEvent))).to be_an(HaveApplied) }
 
+      specify { expect(matchers.have_applied(matchers.an_event(FooEvent)).description).to eq("have applied events that have to (be an event FooEvent)") }
+
       specify do
         expect(matchers.have_applied(
           matchers.an_event(FooEvent),
