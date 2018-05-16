@@ -40,18 +40,14 @@ module RubyEventStore
       events = events.reverse if spec.backward?
       events = read_batch(events, spec.start, spec.count) if spec.limit?
       if spec.batched?
-        batch_reader = ->(offset,limit) { events.drop(offset).take(limit) }
-        BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+        batch_reader = ->(offset, limit) { events.drop(offset).take(limit) }
+        BatchEnumerator.new(spec.batch_size, events.size, batch_reader).each
       else
         events.each
       end
     end
 
     private
-
-    def total_limit(specification)
-      specification.limit? ? specification.count : Float::INFINITY
-    end
 
     def stream_of(name)
       streams.fetch(name, Array.new)
