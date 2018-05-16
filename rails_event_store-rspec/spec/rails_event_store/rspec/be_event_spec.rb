@@ -173,9 +173,49 @@ Data diff:
             .and(matcher(FooEvent).with_metadata(foo: "bar")))
       end
 
-      specify { expect(matcher(FooEvent).description).to eq("be event FooEvent") }
+      specify { expect(matcher(FooEvent).description).to eq("be an event FooEvent") }
 
-      specify { expect(matcher(kind_of(FooEvent)).description).to eq("be event kind of FooEvent") }
+      specify { expect(matcher(kind_of(FooEvent)).description).to eq("be an event kind of FooEvent") }
+
+      specify do
+        expect(matcher(FooEvent).with_data(foo: kind_of(String)).description)
+            .to eq("be an event FooEvent (with data including {:foo=>kind of String})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_data(foo: "bar").description)
+          .to eq("be an event FooEvent (with data including {:foo=>\"bar\"})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_data(foo: "bar").strict.description)
+          .to eq("be an event FooEvent (with data matching {:foo=>\"bar\"})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_metadata(foo: kind_of(String)).description)
+            .to eq("be an event FooEvent (with metadata including {:foo=>kind of String})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_metadata(foo: "bar").description)
+          .to eq("be an event FooEvent (with metadata including {:foo=>\"bar\"})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_metadata(foo: "bar").strict.description)
+          .to eq("be an event FooEvent (with metadata matching {:foo=>\"bar\"})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_metadata(foo: "bar").with_data(bar: "foo").description)
+          .to eq("be an event FooEvent (with data including {:bar=>\"foo\"} and with metadata including {:foo=>\"bar\"})")
+      end
+
+      specify do
+        expect(matcher(FooEvent).with_data(bar: "foo").with_metadata(foo: "baz").strict.description)
+            .to eq("be an event FooEvent (with data matching {:bar=>\"foo\"} and with metadata matching {:foo=>\"baz\"})")
+      end
     end
   end
 end

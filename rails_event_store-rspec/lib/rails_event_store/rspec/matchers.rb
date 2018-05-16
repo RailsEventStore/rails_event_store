@@ -9,21 +9,25 @@ module RailsEventStore
       alias :event    :be_an_event
 
       def have_published(*expected)
-        HavePublished.new(*expected, differ: differ, formatter: formatter)
+        HavePublished.new(*expected, differ: differ, phraser: phraser)
       end
 
       def have_applied(*expected)
-        HaveApplied.new(*expected, differ: differ, formatter: formatter)
+        HaveApplied.new(*expected, differ: differ, phraser: phraser)
       end
 
       private
 
       def formatter
-        ::RSpec::Support::ObjectFormatter.method(:format)
+        ::RSpec::Support::ObjectFormatter.public_method(:format)
       end
 
       def differ
         ::RSpec::Support::Differ.new(color: ::RSpec::Matchers.configuration.color?)
+      end
+
+      def phraser
+        ::RSpec::Matchers::EnglishPhrasing.public_method(:list)
       end
     end
   end
