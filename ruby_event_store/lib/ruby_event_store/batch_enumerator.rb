@@ -9,7 +9,7 @@ module RubyEventStore
     def each
       Enumerator.new do |y|
         (0...total_limit).step(batch_size) do |batch_offset|
-          batch_offset = batch_offset.to_i
+          batch_offset = Integer(batch_offset)
           batch_limit  = [batch_size, total_limit - batch_offset].min
           result       = reader.call(batch_offset, batch_limit)
 
