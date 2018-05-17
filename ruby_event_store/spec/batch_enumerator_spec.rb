@@ -26,6 +26,7 @@ module RubyEventStore
     specify { expect(BatchEnumerator.new(100, 199, reader).each.to_a[0]).to eq(collection[0..99]) }
     specify { expect(BatchEnumerator.new(100, 199, reader).each.to_a[1].size).to eq(99) }
     specify { expect(BatchEnumerator.new(100, 199, reader).each.to_a[1]).to eq(collection[100..198]) }
+    specify { expect { |b| BatchEnumerator.new(1000, 1, reader).each(&b) }.to yield_control }
 
     specify do
       expect(collection).to receive(:drop).once.and_call_original
