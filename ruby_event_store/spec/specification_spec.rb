@@ -198,6 +198,9 @@ module RubyEventStore
       expect(specification.in_batches.each.to_a).to eq([[test_event]])
     end
 
+    specify { expect { |b| specification.in_batches.each(&b) }.to yield_control }
+    specify { expect { |b| specification.each(&b) }.to yield_control }
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::NullMapper.new }
     let(:mapper)        { Mappers::Default.new }
