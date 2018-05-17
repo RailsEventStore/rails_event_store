@@ -48,7 +48,7 @@ module RubyEventStore
                 .take(limit)
                 .combine(:event)
                 .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
-                .to_a
+                .to_ary
             end
             BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
           else
