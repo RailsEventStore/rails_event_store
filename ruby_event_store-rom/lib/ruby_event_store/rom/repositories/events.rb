@@ -41,15 +41,15 @@ module RubyEventStore
           end
 
           if batch_size
-            reader = ->(offset, limit) { stream_entries
-              .ordered(direction, stream, offset_entry_id)
-              .offset(offset)
-              .take(limit)
-              .combine(:event)
-              .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
-              .each
-              .to_a
-            }
+            reader = ->(offset, limit) do
+              stream_entries
+                .ordered(direction, stream, offset_entry_id)
+                .offset(offset)
+                .take(limit)
+                .combine(:event)
+                .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
+                .to_a
+            end
             BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
           else
             stream_entries
