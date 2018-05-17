@@ -735,6 +735,7 @@ RSpec.shared_examples :event_repository do |repository_class|
 
     expect(read_events_forward(repository, stream, :head, 3)).to eq(events.first(3))
     expect(read_events_forward(repository, stream, :head, 100)).to eq(events)
+    expect(repository.read(specification.stream(stream.name).from(events[4].event_id).result).to_a).to eq(events[5..9])
     expect(read_events_forward(repository, stream, events[4].event_id, 4)).to eq(events[5..8])
     expect(read_events_forward(repository, stream, events[4].event_id, 100)).to eq(events[5..9])
 

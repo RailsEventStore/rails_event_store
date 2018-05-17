@@ -179,7 +179,7 @@ module RubyEventStore
 
     specify { expect(specification.forward.each.to_a).to eq([test_event]) }
 
-    specify { expect(specification.from(event_id).each.to_a).to eq([test_event]) }
+    specify { expect(specification.from(event_id).each.to_a).to eq([]) }
 
     specify do
       batch_size = 100
