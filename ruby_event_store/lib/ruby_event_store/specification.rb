@@ -72,17 +72,9 @@ module RubyEventStore
     end
 
     def each_batch
-      enum = if result.batched?
-        Enumerator.new do |y|
-          repository.read(result).each do |batch|
-            y << batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
-          end
-        end
-      else
-        Enumerator.new do |y|
-          repository.read(result).each do |serialized_record|
-            y << Array(mapper.serialized_record_to_event(serialized_record))
-          end
+      enum = Enumerator.new do |y|
+        repository.read(result).each do |batch|
+          y << Array(batch).map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
         end
       end
       enum.each { |event_or_events| yield event_or_events } if block_given?
