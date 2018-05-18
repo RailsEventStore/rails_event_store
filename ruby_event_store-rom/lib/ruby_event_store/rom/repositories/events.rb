@@ -30,22 +30,35 @@ module RubyEventStore
         def exist?(event_id)
           events.by_pk(event_id).exist?
         end
-  
+
         def by_id(event_id)
           events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
-        def read(direction, stream, from:, limit:)
+        def read(direction, stream, from:, limit:, batch_size:)
           unless from.equal?(:head)
             offset_entry_id = stream_entries.by_stream_and_event_id(stream, from).fetch(:id)
           end
-          
-          stream_entries
-            .ordered(direction, stream, offset_entry_id)
-            .take(limit)
-            .combine(:event)
-            .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
-            .each
+
+          if batch_size
+            reader = ->(offset, limit) do
+              stream_entries
+                .ordered(direction, stream, offset_entry_id)
+                .offset(offset)
+                .take(limit)
+                .combine(:event)
+                .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
+                .to_ary
+            end
+            BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
+          else
+            stream_entries
+              .ordered(direction, stream, offset_entry_id)
+              .take(limit)
+              .combine(:event)
+              .map_with(:stream_entry_to_serialized_record) # Add `auto_struct: false` for Memory adapter
+              .each
+          end
         end
       end
     end

@@ -59,7 +59,8 @@ module RubyEventStore
           :backward,
           stream,
           from: :head,
-          limit: 1
+          limit: 1,
+          batch_size: nil
         ).first
       end
 
@@ -76,7 +77,8 @@ module RubyEventStore
           specification.direction,
           specification.stream,
           from: specification.start,
-          limit: (specification.count if specification.limit?)
+          limit: (specification.count if specification.limit?),
+          batch_size: (specification.batch_size if specification.batched?)
         )
       end
 

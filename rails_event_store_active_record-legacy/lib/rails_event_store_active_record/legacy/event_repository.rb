@@ -65,10 +65,19 @@ instead:
         stream = stream.where(start_condition(spec)) unless spec.head?
         stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
 
-        stream.map(&method(:build_event_entity)).each
+        if spec.batched?
+          batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_entity)) }
+          RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+        else
+          stream.map(&method(:build_event_entity)).each
+        end
       end
 
       private
+
+      def total_limit(specification)
+        specification.limit? ? specification.count : Float::INFINITY
+      end
 
       def start_condition(specification)
         event_record =

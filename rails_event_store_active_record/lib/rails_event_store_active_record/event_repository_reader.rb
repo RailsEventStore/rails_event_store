@@ -22,6 +22,7 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::EventNotFound.new(event_id)
     end
 
+
     def read(spec)
       raise RubyEventStore::ReservedInternalName if spec.stream_name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
@@ -31,10 +32,19 @@ module RailsEventStoreActiveRecord
       stream = stream.where(start_condition(spec)) unless spec.head?
       stream = stream.order(id: order(spec.direction))
 
-      stream.map(&method(:build_event_instance)).each
+      if spec.batched?
+        batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
+        RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+      else
+        stream.map(&method(:build_event_instance)).each
+      end
     end
 
     private
+
+    def total_limit(specification)
+      specification.limit? ? specification.count : Float::INFINITY
+    end
 
     def normalize_stream_name(specification)
       specification.global_stream? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream_name

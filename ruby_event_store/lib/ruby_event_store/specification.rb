@@ -1,8 +1,10 @@
 module RubyEventStore
   class Specification
     NO_LIMIT = Object.new.freeze
+    NO_BATCH = Object.new.freeze
+    DEFAULT_BATCH_SIZE = 100
 
-    class Result < Struct.new(:direction, :start, :count, :stream)
+    class Result < Struct.new(:direction, :start, :count, :stream, :batch_size)
       def limit?
         !count.equal?(NO_LIMIT)
       end
@@ -26,12 +28,16 @@ module RubyEventStore
       def backward?
         !forward?
       end
+
+      def batched?
+        !batch_size.equal?(NO_BATCH)
+      end
     end
     private_constant :Result
 
     attr_reader :result
 
-    def initialize(repository, mapper, result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM)))
+    def initialize(repository, mapper, result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM), NO_BATCH))
       @mapper = mapper
       @repository  = repository
       @result = result
@@ -66,11 +72,25 @@ module RubyEventStore
     end
 
     def each
-      Enumerator.new do |y|
-        repository.read(result).each do |sev|
-          y << mapper.serialized_record_to_event(sev)
+      enum = if result.batched?
+        Enumerator.new do |y|
+          repository.read(result).each do |batch|
+            y << batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
+          end
+        end
+      else
+        Enumerator.new do |y|
+          repository.read(result).each do |serialized_record|
+            y << mapper.serialized_record_to_event(serialized_record)
+          end
         end
       end
+      enum.each { |event_or_events| yield event_or_events } if block_given?
+      enum
+    end
+
+    def in_batches(batch_size = DEFAULT_BATCH_SIZE)
+      Specification.new(repository, mapper, result.dup.tap { |r| r.batch_size = batch_size })
     end
 
     private

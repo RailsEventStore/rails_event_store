@@ -38,8 +38,14 @@ module RubyEventStore
     def read(spec)
       events = spec.global_stream? ? global : stream_of(spec.stream_name)
       events = events.reverse if spec.backward?
-      events = read_batch(events, spec.start, spec.count) if spec.limit?
-      events.each
+      events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
+      events = events[0...spec.count] if spec.limit?
+      if spec.batched?
+        batch_reader = ->(offset, limit) { events.drop(offset).take(limit) }
+        BatchEnumerator.new(spec.batch_size, events.size, batch_reader).each
+      else
+        events.each
+      end
     end
 
     private
@@ -92,12 +98,6 @@ module RubyEventStore
       end
       streams[stream.name] = stream_events
       self
-    end
-
-    def read_batch(source, start_event_id, count)
-      return source[0..count - 1] if start_event_id.equal?(:head)
-      start_index = index_of(source, start_event_id)
-      source[start_index + 1..start_index + count]
     end
 
     def index_of(source, event_id)
