@@ -85,7 +85,7 @@ module RubyEventStore
           end
         end
       end
-      return enum.each { |event_or_events| yield event_or_events } if block_given?
+      enum.each { |event_or_events| yield event_or_events } if block_given?
       enum
     end
 

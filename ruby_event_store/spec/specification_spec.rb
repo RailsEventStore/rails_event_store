@@ -250,13 +250,13 @@ module RubyEventStore
 
     specify do
       with_event_of_id(event_id) do
-        expect { |b| specification.in_batches.each(&b) }.to yield_control
+        expect { |b| specification.in_batches.each(&b) }.to yield_successive_args([test_event])
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect { |b| specification.each(&b) }.to yield_control
+        expect { |b| specification.each(&b) }.to yield_successive_args(test_event)
       end
     end
 
