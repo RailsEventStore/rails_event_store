@@ -76,7 +76,7 @@ module RubyEventStore
       streams.zip(start_events(start)).reduce(initial_state) do |state, (stream_name, start_event_id)|
         state_ = state
 
-        event_store.read.in_batches(count).stream(stream_name).from(start_event_id).each do |events|
+        event_store.read.in_batches(count).stream(stream_name).from(start_event_id).each_batch do |events|
           reduce_events(events, state_)
         end
 
@@ -88,7 +88,7 @@ module RubyEventStore
       raise ArgumentError.new('Start must be valid event id or :head') unless valid_starting_point?(start)
       state = initial_state
 
-      event_store.read.in_batches(count).from(start).each do |events|
+      event_store.read.in_batches(count).from(start).each_batch do |events|
         reduce_events(events, state)
       end
 

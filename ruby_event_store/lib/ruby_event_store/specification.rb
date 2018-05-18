@@ -71,7 +71,7 @@ module RubyEventStore
       Specification.new(repository, mapper, result.dup.tap { |r| r.count = count })
     end
 
-    def each
+    def each_batch
       enum = if result.batched?
         Enumerator.new do |y|
           repository.read(result).each do |batch|
@@ -81,12 +81,19 @@ module RubyEventStore
       else
         Enumerator.new do |y|
           repository.read(result).each do |serialized_record|
-            y << mapper.serialized_record_to_event(serialized_record)
+            y << Array(mapper.serialized_record_to_event(serialized_record))
           end
         end
       end
       enum.each { |event_or_events| yield event_or_events } if block_given?
       enum
+    end
+
+    def each
+      return to_enum unless block_given?
+      each_batch do |batch|
+        batch.each { |event| yield event }
+      end
     end
 
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
