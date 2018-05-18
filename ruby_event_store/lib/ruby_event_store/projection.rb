@@ -71,10 +71,6 @@ module RubyEventStore
       events.reduce(initial_state, &method(:transition))
     end
 
-    def read_events_from_stream(event_store, stream_name, start, count)
-      event_store.read.stream(stream_name).from(start).limit(count).each.to_a
-    end
-
     def reduce_from_streams(event_store, start, count)
       raise ArgumentError.new('Start must be an array with event ids or :head') unless valid_starting_point?(start)
       streams.zip(start_events(start)).reduce(initial_state) do |state, (stream_name, start_event_id)|
