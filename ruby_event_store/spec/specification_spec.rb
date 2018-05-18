@@ -44,9 +44,17 @@ module RubyEventStore
 
     specify { expect{ specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 
-    specify { expect(specification.from(event_id)).to match_result({ start: event_id }) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.from(event_id)).to match_result({ start: event_id })
+      end
+    end
 
-    specify { expect(specification.from(:head).from(event_id)).to match_result({ start: event_id }) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.from(:head).from(event_id)).to match_result({ start: event_id })
+      end
+    end
 
     specify { expect(specification.stream('all')).to match_result({ global_stream?: false }) }
 
@@ -72,114 +80,154 @@ module RubyEventStore
 
     specify { expect(specification.from(:head)).to match_result({ head?: true }) }
 
-    specify { expect(specification.from(event_id)).to match_result({ head?: false }) }
-
     specify do
-      expect(specification.limit(10).from(event_id)).to match_result({
-        count: 10,
-        start: event_id
-      })
+      with_event_of_id(event_id) do
+        expect(specification.from(event_id)).to match_result({ head?: false })
+      end
     end
 
     specify do
-      expect(specification.stream(stream_name).from(event_id)).to match_result({
-        stream_name: stream_name,
-        start: event_id
-      })
+      with_event_of_id(event_id) do
+        expect(specification.limit(10).from(event_id)).to match_result({
+          count: 10,
+          start: event_id
+        })
+      end
     end
 
     specify do
-      expect(specification.stream(stream_name).from(event_id)).to match_result({
-        stream_name: stream_name,
-        start: event_id
-      })
+      with_event_of_id(event_id) do
+        expect(specification.stream(stream_name).from(event_id)).to match_result({
+          stream_name: stream_name,
+          start: event_id
+        })
+      end
     end
 
     specify do
-      expect(specification.backward.from(event_id)).to match_result({
-        direction: :backward,
-        start: event_id
-      })
+      with_event_of_id(event_id) do
+        expect(specification.stream(stream_name).from(event_id)).to match_result({
+          stream_name: stream_name,
+          start: event_id
+        })
+      end
     end
 
     specify do
-      expect(specification.stream(stream_name).forward.from(event_id)).to match_result({
-        direction: :forward,
-        stream_name: stream_name,
-        start: event_id
-      })
+      with_event_of_id(event_id) do
+        expect(specification.backward.from(event_id)).to match_result({
+          direction: :backward,
+          start: event_id
+        })
+      end
+    end
+
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.stream(stream_name).forward.from(event_id)).to match_result({
+          direction: :forward,
+          stream_name: stream_name,
+          start: event_id
+        })
+      end
     end
 
     specify 'immutable specification' do
-      expect(backward_specifcation = specification.backward).to match_result({
-        direction: :backward,
-        start: :head,
-        count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM,
-        batch_size: Specification::NO_BATCH
-      })
-      expect(specification.from(event_id)).to match_result({
-        direction: :forward,
-        start: event_id,
-        count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM,
-        batch_size: Specification::NO_BATCH
-      })
-      expect(specification.limit(10)).to match_result({
-        direction: :forward,
-        start: :head,
-        count: 10,
-        stream_name: GLOBAL_STREAM,
-        batch_size: Specification::NO_BATCH
-      })
-      expect(specification.stream(stream_name)).to match_result({
-        direction: :forward,
-        start: :head,
-        count: Specification::NO_LIMIT,
-        stream_name: stream_name,
-        batch_size: Specification::NO_BATCH
-      })
-      expect(specification.in_batches).to match_result({
-        direction: :forward,
-        start: :head,
-        count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM,
-        batch_size: 100
-      })
-      expect(specification).to match_result({
-        direction: :forward,
-        start: :head,
-        count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM,
-        batch_size: Specification::NO_BATCH
-      })
-      expect(backward_specifcation.forward).to match_result({
-        direction: :forward,
-        start: :head,
-        count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM,
-        batch_size: Specification::NO_BATCH
-      })
-      expect(backward_specifcation).to match_result({
-        direction: :backward,
-        start: :head,
-        count: Specification::NO_LIMIT,
-        stream_name: GLOBAL_STREAM,
-        batch_size: Specification::NO_BATCH
-      })
+      with_event_of_id(event_id) do
+        expect(backward_specifcation = specification.backward).to match_result({
+          direction: :backward,
+          start: :head,
+          count: Specification::NO_LIMIT,
+          stream_name: GLOBAL_STREAM,
+          batch_size: Specification::NO_BATCH
+        })
+        expect(specification.from(event_id)).to match_result({
+          direction: :forward,
+          start: event_id,
+          count: Specification::NO_LIMIT,
+          stream_name: GLOBAL_STREAM,
+          batch_size: Specification::NO_BATCH
+        })
+        expect(specification.limit(10)).to match_result({
+          direction: :forward,
+          start: :head,
+          count: 10,
+          stream_name: GLOBAL_STREAM,
+          batch_size: Specification::NO_BATCH
+        })
+        expect(specification.stream(stream_name)).to match_result({
+          direction: :forward,
+          start: :head,
+          count: Specification::NO_LIMIT,
+          stream_name: stream_name,
+          batch_size: Specification::NO_BATCH
+        })
+        expect(specification.in_batches).to match_result({
+          direction: :forward,
+          start: :head,
+          count: Specification::NO_LIMIT,
+          stream_name: GLOBAL_STREAM,
+          batch_size: 100
+        })
+        expect(specification).to match_result({
+          direction: :forward,
+          start: :head,
+          count: Specification::NO_LIMIT,
+          stream_name: GLOBAL_STREAM,
+          batch_size: Specification::NO_BATCH
+        })
+        expect(backward_specifcation.forward).to match_result({
+          direction: :forward,
+          start: :head,
+          count: Specification::NO_LIMIT,
+          stream_name: GLOBAL_STREAM,
+          batch_size: Specification::NO_BATCH
+        })
+        expect(backward_specifcation).to match_result({
+          direction: :backward,
+          start: :head,
+          count: Specification::NO_LIMIT,
+          stream_name: GLOBAL_STREAM,
+          batch_size: Specification::NO_BATCH
+        })
+      end
     end
 
-    specify { expect(specification.each.to_a).to eq([test_event]) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.each.to_a).to eq([test_event])
+      end
+    end
 
-    specify { expect(specification.stream(stream_name).each.to_a).to eq([test_event]) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.stream(stream_name).each.to_a).to eq([test_event])
+      end
+    end
 
-    specify { expect(specification.limit(1).each.to_a).to eq([test_event]) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.limit(1).each.to_a).to eq([test_event])
+      end
+    end
 
-    specify { expect(specification.backward.each.to_a).to eq([test_event]) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.backward.each.to_a).to eq([test_event])
+      end
+    end
 
-    specify { expect(specification.forward.each.to_a).to eq([test_event]) }
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.forward.each.to_a).to eq([test_event])
+      end
+    end
 
-    specify { expect(specification.from(event_id).each.to_a).to eq([]) }
+    specify do
+      events = [test_record, test_record]
+      repository.append_to_stream(events, Stream.new("Dummy"), ExpectedVersion.none)
+      expect(specification.from(events[0].event_id).each.to_a).to eq([TestEvent.new(event_id: events[1].event_id)])
+    end
 
     specify do
       batch_size = 100
@@ -195,14 +243,24 @@ module RubyEventStore
     specify { expect(specification.in_batches(1000)).to match_result(batch_size: 1000) }
 
     specify do
-      expect(specification.in_batches.each.to_a).to eq([[test_event]])
+      with_event_of_id(event_id) do
+        expect(specification.in_batches.each.to_a).to eq([[test_event]])
+      end
     end
 
-    specify { expect { |b| specification.in_batches.each(&b) }.to yield_control }
-    specify { expect { |b| specification.each(&b) }.to yield_control }
+    specify do
+      with_event_of_id(event_id) do
+        expect { |b| specification.in_batches.each(&b) }.to yield_control
+      end
+    end
+
+    specify do
+      with_event_of_id(event_id) do
+        expect { |b| specification.each(&b) }.to yield_control
+      end
+    end
 
     let(:repository)    { InMemoryRepository.new }
-    let(:mapper)        { Mappers::NullMapper.new }
     let(:mapper)        { Mappers::Default.new }
     let(:specification) { Specification.new(repository, mapper) }
     let(:event_id)      { SecureRandom.uuid }
@@ -219,11 +277,8 @@ module RubyEventStore
       )
     end
 
-    around(:each) do |example|
-      with_event_of_id(event_id) do
-        example.call
-      end
-    end
+    # around(:each) do |example|
+    # end
 
     RSpec::Matchers.define :match_result do |expected_hash|
       match do |specification|
