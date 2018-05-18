@@ -41,7 +41,7 @@ module RubyEventStore
       )
     end
 
-    specify do
+    specify "ensure minimal required number of iterations" do
       expect(collection).to receive(:drop).once.and_call_original
       BatchEnumerator.new(100, 100, reader).each.to_a
     end
