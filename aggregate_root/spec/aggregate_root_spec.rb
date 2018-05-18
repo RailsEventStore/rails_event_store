@@ -285,7 +285,6 @@ RSpec.describe AggregateRoot do
         end
       end.to raise_error(ArgumentError, "Anonymous class is missing name")
     end
-
   end
 
   describe '.include' do
@@ -294,5 +293,4 @@ RSpec.describe AggregateRoot do
       Order.include(AggregateRoot)
     end
   end
-
 end

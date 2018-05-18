@@ -1,7 +1,8 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = aggregate_root
 REQUIRE     = $(GEM_NAME)
-IGNORE      =
+IGNORE      = AggregateRoot\#events_enumerator
+
 SUBJECT     ?= AggregateRoot*
 
 install: ## Install gem dependencies
