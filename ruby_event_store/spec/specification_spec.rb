@@ -224,22 +224,22 @@ module RubyEventStore
     end
 
     specify do
-      events = [test_record, test_record]
-      repository.append_to_stream(events, Stream.new("Dummy"), ExpectedVersion.none)
-      expect(specification.from(events[0].event_id).each.to_a).to eq([TestEvent.new(event_id: events[1].event_id)])
+      records = [test_record, test_record]
+      repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+      expect(specification.from(records[0].event_id).each.to_a).to eq([TestEvent.new(event_id: records[1].event_id)])
     end
 
     specify do
       batch_size = 100
-      events = (batch_size * 10).times.map { test_record }
-      repository.append_to_stream(events, Stream.new("batch"), ExpectedVersion.none)
+      records = (batch_size * 10).times.map { test_record }
+      repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
       expect(specification.stream("batch").in_batches.each_batch.to_a.size).to eq(10)
     end
 
     specify do
       batch_size = 100
-      events = (batch_size * 10).times.map { test_record }
-      repository.append_to_stream(events, Stream.new("batch"), ExpectedVersion.none)
+      records = (batch_size * 10).times.map { test_record }
+      repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
       expect(specification.stream("batch").in_batches.each.to_a.size).to eq(1000)
     end
 
