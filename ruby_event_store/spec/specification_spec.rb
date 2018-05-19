@@ -233,7 +233,14 @@ module RubyEventStore
       batch_size = 100
       events = (batch_size * 10).times.map { test_record }
       repository.append_to_stream(events, Stream.new("batch"), ExpectedVersion.none)
-      expect(specification.stream("batch").in_batches.each.to_a.size).to eq(10)
+      expect(specification.stream("batch").in_batches.each_batch.to_a.size).to eq(10)
+    end
+
+    specify do
+      batch_size = 100
+      events = (batch_size * 10).times.map { test_record }
+      repository.append_to_stream(events, Stream.new("batch"), ExpectedVersion.none)
+      expect(specification.stream("batch").in_batches.each.to_a.size).to eq(1000)
     end
 
     specify { expect(specification.in_batches).to match_result(batch_size: 100) }
@@ -244,13 +251,25 @@ module RubyEventStore
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.in_batches.each.to_a).to eq([[test_event]])
+        expect(specification.in_batches.each_batch.to_a).to eq([[test_event]])
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect { |b| specification.in_batches.each(&b) }.to yield_successive_args([test_event])
+        expect(specification.in_batches.each.to_a).to eq([test_event])
+      end
+    end
+
+    specify do
+      with_event_of_id(event_id) do
+        expect { |b| specification.in_batches.each_batch(&b) }.to yield_successive_args([test_event])
+      end
+    end
+
+    specify do
+      with_event_of_id(event_id) do
+        expect { |b| specification.in_batches.each(&b) }.to yield_successive_args(test_event)
       end
     end
 

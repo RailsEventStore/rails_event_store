@@ -58,6 +58,7 @@ module RubyEventStore
     end
 
     private
+
     def valid_starting_point?(start)
       return true if start === :head
       if streams.any?
@@ -67,32 +68,16 @@ module RubyEventStore
       end
     end
 
-    def reduce_events(events, initial_state)
-      events.reduce(initial_state, &method(:transition))
-    end
-
     def reduce_from_streams(event_store, start, count)
       raise ArgumentError.new('Start must be an array with event ids or :head') unless valid_starting_point?(start)
       streams.zip(start_events(start)).reduce(initial_state) do |state, (stream_name, start_event_id)|
-        state_ = state
-
-        event_store.read.in_batches(count).stream(stream_name).from(start_event_id).each do |events|
-          reduce_events(events, state_)
-        end
-
-        state_
+        event_store.read.in_batches(count).stream(stream_name).from(start_event_id).each.reduce(state, &method(:transition))
       end
     end
 
     def reduce_from_all_streams(event_store, start, count)
       raise ArgumentError.new('Start must be valid event id or :head') unless valid_starting_point?(start)
-      state = initial_state
-
-      event_store.read.in_batches(count).from(start).each do |events|
-        reduce_events(events, state)
-      end
-
-      state
+      event_store.read.in_batches(count).from(start).each.reduce(initial_state, &method(:transition))
     end
 
     def start_events(start)
