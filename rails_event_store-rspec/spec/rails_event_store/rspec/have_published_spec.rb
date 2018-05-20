@@ -24,7 +24,7 @@ module RailsEventStore
       end
 
       def phraser
-        Matchers::EnglishPhrasing.method(:list)
+        Matchers::ListPhraser
       end
 
       specify do

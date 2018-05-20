@@ -1,19 +1,14 @@
 module RailsEventStore
   module RSpec
     module Matchers
-      class EnglishPhrasing
-        def self.list(object)
-          return format(object) if !object || Struct === object
-          items = Array(object).map { |o| format(o) }
-          case items.length
-          when 0
-            ""
-          when 1
-            items[0]
-          when 2
-            items.join(" and ")
+      class ListPhraser
+        def self.call(object)
+          items = Array(object).compact.map { |o| format(o) }
+          return "" if items.empty?
+          if items.one?
+            items.join
           else
-            "#{items[0...-1].join(', ')} and #{items[-1]}"
+            "#{items[0...-1].join(", ")}#{" and "}#{items.fetch(-1)}"
           end
         end
 
@@ -54,7 +49,7 @@ module RailsEventStore
       end
 
       def phraser
-        EnglishPhrasing.public_method(:list)
+        ListPhraser
       end
     end
   end
