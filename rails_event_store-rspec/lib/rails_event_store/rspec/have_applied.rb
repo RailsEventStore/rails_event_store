@@ -38,7 +38,7 @@ module RailsEventStore
       end
 
       def description
-        "have applied events that have to (#{phraser.(expected).strip})"
+        "have applied events that have to (#{phraser.(expected)})"
       end
 
       private

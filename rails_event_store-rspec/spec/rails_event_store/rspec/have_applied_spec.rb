@@ -19,7 +19,7 @@ module RailsEventStore
       end
 
       def phraser
-        ::RSpec::Matchers::EnglishPhrasing.method(:list)
+        Matchers::ListPhraser
       end
 
       specify do
@@ -163,7 +163,16 @@ module RailsEventStore
           FooEvent,
           BazEvent)
         expect(_matcher.description)
-          .to eq("have applied events that have to (FooEvent and BazEvent)")
+          .to eq("have applied events that have to (be a FooEvent and be a BazEvent)")
+      end
+
+      specify do
+        _matcher = matcher(
+            FooEvent,
+            BarEvent,
+            BazEvent)
+        expect(_matcher.description)
+            .to eq("have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)")
       end
     end
   end
