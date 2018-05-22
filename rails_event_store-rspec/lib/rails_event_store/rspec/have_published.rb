@@ -47,6 +47,11 @@ module RailsEventStore
         "have published events that have to (#{phraser.(expected)})"
       end
 
+      def strict
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected)
+        self
+      end
+
       private
 
       def matches_count?
