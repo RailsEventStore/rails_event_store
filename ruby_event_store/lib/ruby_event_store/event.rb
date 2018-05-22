@@ -6,6 +6,8 @@ module RubyEventStore
       @event_id = event_id.to_s
       @metadata = Metadata.new(metadata.to_h)
       @data     = data.to_h
+      self.correlation_id ||= @event_id
+      self.causation_id   ||= @event_id
     end
     attr_reader :event_id, :metadata, :data
 
@@ -41,6 +43,27 @@ module RubyEventStore
         event_id,
         data
       ].hash ^ BIG_VALUE
+    end
+
+    def correlation_id
+      metadata[:correlation_id]
+    end
+
+    def correlation_id=(val)
+      metadata[:correlation_id] = val
+    end
+
+    def causation_id
+      metadata[:causation_id]
+    end
+
+    def causation_id=(val)
+      metadata[:causation_id]=(val)
+    end
+
+    def correlate_with(other_message)
+      self.correlation_id = other_message.correlation_id || event.event_id
+      self.causation_id   = other_message.event_id
     end
 
     alias_method :eql?, :==
