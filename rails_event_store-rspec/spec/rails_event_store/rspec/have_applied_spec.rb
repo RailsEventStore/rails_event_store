@@ -108,6 +108,37 @@ module RailsEventStore
       specify do
         aggregate_root.foo
         aggregate_root.bar
+        aggregate_root.baz
+
+        expect(aggregate_root).not_to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BarEvent)
+        ).strict
+      end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.bar
+
+        expect(aggregate_root).not_to matcher(
+          matchers.an_event(BarEvent),
+          matchers.an_event(FooEvent)
+        ).strict
+      end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.bar
+
+        expect(aggregate_root).to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BarEvent)
+        ).strict
+      end
+
+      specify do
+        aggregate_root.foo
+        aggregate_root.bar
 
         expect{
           expect(aggregate_root).to matcher(

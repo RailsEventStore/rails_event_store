@@ -27,6 +27,11 @@ module RailsEventStore
         exactly(1)
       end
 
+      def strict
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected)
+        self
+      end
+
       def failure_message
         "expected #{expected} to be applied, diff:" +
           differ.diff_as_string(expected.to_s, events.to_s)

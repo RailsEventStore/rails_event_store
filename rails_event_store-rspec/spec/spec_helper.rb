@@ -19,11 +19,18 @@ class TestAggregate
     apply(BarEvent.new)
   end
 
+  def baz
+    apply(BazEvent.new)
+  end
+
   private
 
   def apply_foo_event(*)
   end
 
   def apply_bar_event(*)
+  end
+
+  def apply_baz_event(*)
   end
 end
