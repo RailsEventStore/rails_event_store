@@ -5,13 +5,13 @@ RSpec.shared_examples :dispatcher do |dispatcher|
 
   specify "calls subscribed instance" do
     expect(handler).to receive(:call).with(event)
-    dispatcher.call(handler, event, serialized_event)
+    dispatcher.call(handler, [event, serialized_event])
   end
 
   specify "calls subscribed class" do
     expect(HandlerClass).to receive(:new).and_return(handler)
     expect(handler).to receive(:call).with(event)
-    dispatcher.call(HandlerClass, event, serialized_event)
+    dispatcher.call(HandlerClass, [event, serialized_event])
   end
 
   specify "allows callable classes and instances" do

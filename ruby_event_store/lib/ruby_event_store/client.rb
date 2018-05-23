@@ -21,7 +21,7 @@ module RubyEventStore
       serialized_events = serialize_events(events)
       append_to_stream_serialized(serialized_events, stream_name: stream_name, expected_version: expected_version)
       events.zip(serialized_events) do |event, serialized_event|
-        with_metadata(correlation_id: ev.metadata[:correlation_id] || ev.event_id, causation_id: ev.event_id) do
+        with_metadata(correlation_id: event.metadata[:correlation_id] || event.event_id, causation_id: event.event_id) do
           event_broker.notify_subscribers(event, serialized_event)
         end
       end
@@ -115,7 +115,7 @@ module RubyEventStore
     def read
       Specification.new(repository, mapper)
     end
-
+    
     # subscribe(subscriber, to:)
     # subscribe(to:, &subscriber)
     def subscribe(subscriber = nil, to:, &proc)

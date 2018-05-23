@@ -7,7 +7,8 @@ class CustomDispatcher
     @dispatched_events = []
   end
 
-  def call(subscriber, event, serialized_event)
+  def call(subscriber, payload)
+    event, _ = *payload
     subscriber = subscriber.new if Class === subscriber
     @dispatched_events << {to: subscriber.class, event: event}
   end
@@ -291,7 +292,6 @@ module RubyEventStore
         broker = PubSub::Broker.new(dispatcher: dispatcher)
         client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
 
-        binding.pry
         result = client.within do
           client.publish_event(event_1)
           :yo

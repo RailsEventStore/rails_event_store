@@ -28,8 +28,8 @@ RSpec.shared_examples :event_broker do |broker_class|
     def verify(_subscriber)
     end
 
-    def call(subscriber, event, serialized_event)
-      @dispatched << {subscriber: subscriber, event: event, serialized_event: serialized_event}
+    def call(subscriber, payload)
+      @dispatched << {subscriber: subscriber, payload: payload}
     end
   end
 
@@ -69,7 +69,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     mapper = TestMapper.new
 
     [event1, event2, event3].each do |ev|
-      broker.notify_subscribers(ev, mapper.event_to_serialized_record(ev))
+      broker.notify_subscribers([ev, mapper.event_to_serialized_record(ev)])
     end
 
     expect(handler.events).to eq([event1,event3])
@@ -92,7 +92,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     event3 = Test3DomainEvent.new
 
     [event1, event2, event3].each do |ev|
-      broker.notify_subscribers(ev,  mapper.event_to_serialized_record(ev))
+      broker.notify_subscribers([ev,  mapper.event_to_serialized_record(ev)])
     end
 
     expect(handler.events).to eq([event1,event3])
@@ -150,10 +150,10 @@ RSpec.shared_examples :event_broker do |broker_class|
     serialized_event2 = mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_global_subscriber(handler)
-    broker.notify_subscribers(event1, serialized_event1)
+    broker.notify_subscribers([event1, serialized_event1])
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2, serialized_event2)
+    broker.notify_subscribers([event2, serialized_event2])
     expect(handler.events).to eq([event1])
   end
 
@@ -166,10 +166,10 @@ RSpec.shared_examples :event_broker do |broker_class|
     serialized_event2 = mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
-    broker.notify_subscribers(event1, serialized_event1)
+    broker.notify_subscribers([event1, serialized_event1])
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2, serialized_event2)
+    broker.notify_subscribers([event2, serialized_event2])
     expect(handler.events).to eq([event1])
   end
 
@@ -182,10 +182,10 @@ RSpec.shared_examples :event_broker do |broker_class|
     serialized_event2 = mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_thread_global_subscriber(handler)
-    broker.notify_subscribers(event1, serialized_event1)
+    broker.notify_subscribers([event1, serialized_event1])
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2, serialized_event2)
+    broker.notify_subscribers([event2, serialized_event2])
     expect(handler.events).to eq([event1])
   end
 
@@ -198,10 +198,10 @@ RSpec.shared_examples :event_broker do |broker_class|
     serialized_event2 =  mapper.event_to_serialized_record(event2)
 
     revoke    = broker.add_thread_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
-    broker.notify_subscribers(event1, serialized_event1)
+    broker.notify_subscribers([event1, serialized_event1])
     expect(handler.events).to eq([event1])
     revoke.()
-    broker.notify_subscribers(event2, serialized_event2)
+    broker.notify_subscribers([event2, serialized_event2])
     expect(handler.events).to eq([event1])
   end
 
@@ -214,8 +214,8 @@ RSpec.shared_examples :event_broker do |broker_class|
 
     broker_with_custom_dispatcher = broker_class.new(dispatcher: dispatcher)
     broker_with_custom_dispatcher.add_subscriber(handler, [Test1DomainEvent])
-    broker_with_custom_dispatcher.notify_subscribers(event1, serialized_event1)
-    expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, serialized_event: serialized_event1}])
+    broker_with_custom_dispatcher.notify_subscribers([event1, serialized_event1])
+    expect(dispatcher.dispatched).to eq([{subscriber: handler, payload: [event1, serialized_event1]}])
   end
 
   it 'subscribes by type of event which is a String' do
@@ -226,7 +226,7 @@ RSpec.shared_examples :event_broker do |broker_class|
 
     event1           = Test1DomainEvent.new
     serialized_event1 = mapper.event_to_serialized_record(event1)
-    broker.notify_subscribers(event1, serialized_event1)
+    broker.notify_subscribers([event1, serialized_event1])
 
     expect(handler.events).to eq([event1,event1])
   end
