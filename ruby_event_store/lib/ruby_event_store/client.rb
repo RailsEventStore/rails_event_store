@@ -193,6 +193,10 @@ module RubyEventStore
       self.metadata = previous_metadata
     end
 
+    def load_event(event_type:, event_id:, data:, metadata:)
+      mapper.load_event(event_type: event_type, event_id: event_id, data: data, metadata: metadata)
+    end
+
     private
 
     def serialize_events(events)
@@ -225,7 +229,7 @@ module RubyEventStore
       events.each{|event| enrich_event_metadata(event) }
       events
     end
-
+    
     protected
 
     def metadata

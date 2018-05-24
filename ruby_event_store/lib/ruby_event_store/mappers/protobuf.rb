@@ -62,7 +62,8 @@ module RubyEventStore
         )
       end
 
-      def build_event(event_type:, event_id:, data:, metadata:)
+      def load_event(event_type:, event_id:, data:, metadata:)
+        event_type = events_class_remapping.fetch(event_type) { event_type }
         Proto.new(
           event_id: event_id,
           data:     load_data(event_type, data),

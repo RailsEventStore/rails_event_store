@@ -5,7 +5,7 @@ RSpec.describe RailsEventStore do
     self.queue_adapter = :inline
     cattr_accessor :event, :event_store
     def perform(payload)
-      self.class.event = self.class.event_store.build_event(**payload)
+      self.class.event = self.class.event_store.load_event(**payload)
     end
   end
 

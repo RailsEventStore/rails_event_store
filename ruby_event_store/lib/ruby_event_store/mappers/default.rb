@@ -26,7 +26,8 @@ module RubyEventStore
         )
       end
 
-      def build_event(event_type:, event_id:, data:, metadata:)
+      def load_event(event_type:, event_id:, data:, metadata:)
+        event_type = events_class_remapping.fetch(event_type) { event_type }
         Object.const_get(event_type).new(
             event_id: event_id,
             metadata: serializer.load(metadata),

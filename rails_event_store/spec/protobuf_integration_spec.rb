@@ -7,7 +7,7 @@ class AsyncProtoHandler < ActiveJob::Base
   cattr_accessor :event_store
 
   def perform(payload)
-    @@event = self.class.event_store.build_event(payload)
+    @@event = self.class.event_store.load_event(payload)
   end
 
   def self.event
