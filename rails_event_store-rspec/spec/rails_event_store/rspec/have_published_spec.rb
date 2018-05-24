@@ -165,7 +165,32 @@ module RailsEventStore
         event_store.publish_event(FooEvent.new, stream_name: "Foo")
         event_store.publish_event(BarEvent.new, stream_name: "Foo")
         event_store.publish_event(FooEvent.new, stream_name: "Bar")
-        expect(event_store).to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict.in_stream("Foo")
+
+        expect(event_store).to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BarEvent)
+        ).strict.in_stream("Foo")
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new(event_id: start_id = SecureRandom.uuid))
+        event_store.publish_event(BarEvent.new)
+        event_store.publish_event(BazEvent.new)
+
+        expect(event_store).to matcher(
+          matchers.an_event(BarEvent),
+          matchers.an_event(BazEvent)
+        ).from(start_id)
+      end
+
+      specify do
+        event_store.publish_event(FooEvent.new(event_id: start_id = SecureRandom.uuid))
+        event_store.publish_event(BarEvent.new)
+        event_store.publish_event(BazEvent.new)
+
+        expect(event_store).not_to matcher(
+          matchers.an_event(FooEvent)
+        ).from(start_id)
       end
 
       specify do

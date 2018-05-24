@@ -9,8 +9,10 @@ module RailsEventStore
       end
 
       def matches?(event_store)
-        @events = stream_name ? event_store.read.stream(stream_name).each
-                              : event_store.read.each
+        @events = event_store.read
+        @events = events.stream(stream_name) if stream_name
+        @events = events.from(start)         if start
+        @events = events.each
         @matcher.matches?(events) && matches_count?
       end
 
@@ -28,6 +30,11 @@ module RailsEventStore
         self
       end
       alias :time :times
+
+      def from(event_id)
+        @start = event_id
+        self
+      end
 
       def once
         exactly(1)
@@ -63,7 +70,7 @@ module RailsEventStore
         end
       end
 
-      attr_reader :differ, :phraser, :stream_name, :expected, :count, :events
+      attr_reader :differ, :phraser, :stream_name, :expected, :count, :events, :start
     end
   end
 end
