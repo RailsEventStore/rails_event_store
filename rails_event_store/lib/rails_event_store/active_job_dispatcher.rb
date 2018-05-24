@@ -10,7 +10,7 @@ module RailsEventStore
             current_transaction.
             add_record(AsyncRecord.new(klass, serialized_event))
         else
-          klass.perform_later(serialized_event)
+          klass.perform_later(serialized_event.to_h)
         end
       end
 
@@ -22,7 +22,7 @@ module RailsEventStore
         end
 
         def committed!
-          klass.perform_later(serialized_event)
+          klass.perform_later(serialized_event.to_h)
         end
 
         def rolledback!(*)
@@ -41,7 +41,7 @@ module RailsEventStore
 
     class Inline
       def call(klass, serialized_event)
-        klass.perform_later(serialized_event)
+        klass.perform_later(serialized_event.to_h)
       end
     end
   end

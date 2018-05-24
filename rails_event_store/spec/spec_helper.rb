@@ -4,6 +4,13 @@ require 'support/rspec_defaults'
 require 'support/mutant_timeout'
 require 'support/fake_configuration'
 
+
+begin
+  require 'pry'
+  require 'pry-byebug'
+rescue LoadError
+end
+
 MigrationCode = File.read( File.expand_path('../../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
 migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
 MigrationCode.gsub!("<%= migration_version %>", migration_version)

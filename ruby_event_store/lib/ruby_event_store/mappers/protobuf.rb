@@ -55,18 +55,34 @@ module RubyEventStore
 
       def serialized_record_to_event(record)
         event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
-        data = Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(record.data)
         Proto.new(
           event_id: record.event_id,
-          data: data,
-        ).tap do |p|
-          ProtobufNestedStruct::HashMapStringValue.load(record.metadata).each_with_object(p.metadata) {|(k, v), meta| meta[k.to_sym] = v}
-        end
+          data:     load_data(event_type, record.data),
+          metadata: load_metadata(record.metadata)
+        )
+      end
+
+      def build_event(event_type:, event_id:, data:, metadata:)
+        Proto.new(
+          event_id: event_id,
+          data:     load_data(event_type, data),
+          metadata: load_metadata(metadata)
+        )
       end
 
       private
 
       attr_reader :event_id_getter, :events_class_remapping
+
+      def load_metadata(protobuf_metadata)
+        ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata).each_with_object({}) do |(k, v), meta|
+         meta[k.to_sym] = v
+        end
+      end
+
+      def load_data(event_type, protobuf_data)
+        Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(protobuf_data)
+      end
 
       def require_optional_dependency
         require 'protobuf_nested_struct'
