@@ -34,7 +34,7 @@ module RubyEventStore
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       serialized_events = serialize_events(prepare_events(events))
-      append_to_stream_serialized(serialized_events, stream_name: stream_name, expected_version: expected_version)
+      append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
       :ok
     end
 
@@ -193,8 +193,8 @@ module RubyEventStore
       self.metadata = previous_metadata
     end
 
-    def load_event(event_type:, event_id:, data:, metadata:)
-      mapper.load_event(event_type: event_type, event_id: event_id, data: data, metadata: metadata)
+    def load_serialized_event(event_type:, event_id:, data:, metadata:)
+      mapper.load_serialized_event(event_type: event_type, event_id: event_id, data: data, metadata: metadata)
     end
 
     private
@@ -220,7 +220,7 @@ module RubyEventStore
       event.metadata[:timestamp] ||= clock.call
     end
 
-    def append_to_stream_serialized(serialized_events, stream_name: GLOBAL_STREAM, expected_version: :any)
+    def append_to_stream_serialized_events(serialized_events, stream_name:, expected_version:)
       repository.append_to_stream(serialized_events, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
@@ -229,7 +229,7 @@ module RubyEventStore
       events.each{|event| enrich_event_metadata(event) }
       events
     end
-    
+
     protected
 
     def metadata

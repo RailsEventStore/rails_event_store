@@ -733,5 +733,48 @@ module RubyEventStore
     specify do
       silence_warnings { expect(client.read_events_backward('some_stream')).to be_kind_of(Array) }
     end
+
+    specify 'can load serialized event when using Default mapper' do
+      client = RubyEventStore::Client.new(
+        mapper:     RubyEventStore::Mappers::Default.new,
+        repository: InMemoryRepository.new
+      )
+      event = OrderCreated.new(
+          event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:     { foo: 'bar' },
+          metadata: { bar: 'baz' }
+      )
+      serialized_event = {
+        event_type: "OrderCreated",
+        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data:       "---\n:foo: bar\n",
+        metadata:   "---\n:bar: baz\n"
+      }
+      expect(client.load_serialized_event(serialized_event)).to eq(event)
+    end
+
+    specify 'can load serialized event using Protobuf mapper' do
+      client = RubyEventStore::Client.new(
+          mapper:     RubyEventStore::Mappers::Protobuf.new,
+          repository: InMemoryRepository.new
+      )
+      event = RubyEventStore::Proto.new(
+          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+          data: ResTesting::OrderCreated.new(
+            customer_id: 123,
+            order_id: "K3THNX9",
+            ),
+          metadata: {
+            time: Time.new(2018, 12, 13, 11 ),
+          }
+      )
+      serialized_event = {
+        event_type: "res_testing.OrderCreated",
+        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data:       "\n\aK3THNX9\x10{",
+        metadata:   "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
+      }
+      expect(client.load_serialized_event(serialized_event)).to eq(event)
+    end
   end
 end
