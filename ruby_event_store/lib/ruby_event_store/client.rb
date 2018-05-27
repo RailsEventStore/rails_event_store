@@ -28,9 +28,7 @@ module RubyEventStore
       :ok
     end
 
-    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      publish_events([event], stream_name: stream_name, expected_version: expected_version)
-    end
+    alias_method :publish_event, :publish_events
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       serialized_events = serialize_events(prepare_events(events))
