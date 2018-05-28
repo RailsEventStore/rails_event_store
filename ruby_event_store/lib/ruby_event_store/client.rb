@@ -24,11 +24,12 @@ module RubyEventStore
         with_metadata(correlation_id: event.metadata[:correlation_id] || event.event_id, causation_id: event.event_id) do
           event_broker.notify_subscribers(event, serialized_event)
         end
-      end
       :ok
     end
 
-    alias_method :publish_event, :publish_events
+    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
+      publish_events(event, stream_name: stream_name, expected_version: expected_version)
+    end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       serialized_events = serialize_events(prepare_events(events))

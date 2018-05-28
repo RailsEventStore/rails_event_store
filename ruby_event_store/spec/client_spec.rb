@@ -584,6 +584,16 @@ module RubyEventStore
       expect(saved_events[0]).to eq(event)
     end
 
+    specify 'expect publish to call event handlers' do
+      handler = double(:event_handler)
+      expect(handler).to receive(:call)
+      client.subscribe_to_all_events(handler)
+      client.publish_event(event = OrderCreated.new, stream_name: 'stream_name')
+      saved_events = client.read.stream("stream_name").each.to_a
+
+      expect(saved_events[0]).to eq(event)
+    end
+
     specify 'create global event without stream name' do
       client.publish_event(event = OrderCreated.new)
       saved_events = client.read.limit(100).each.to_a
