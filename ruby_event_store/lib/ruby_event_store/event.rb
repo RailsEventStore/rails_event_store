@@ -56,7 +56,7 @@ module RubyEventStore
     end
 
     def causation_id=(val)
-      metadata[:causation_id]=(val)
+      metadata[:causation_id]= val
     end
 
     def correlate_with(other_message)
