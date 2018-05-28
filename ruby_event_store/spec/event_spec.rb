@@ -170,8 +170,8 @@ module RubyEventStore
     specify "correlation_id && causation_id" do
       e0 = Event.new(event_id: "doh")
       expect(e0.event_id).to       eq("doh")
-      expect(e0.correlation_id).to eq("doh")
-      expect(e0.causation_id).to   eq("doh")
+      expect(e0.correlation_id).to eq(nil)
+      expect(e0.causation_id).to   eq(nil)
 
       e1 = Event.new(event_id: "yay")
       e1.correlate_with(e0)
