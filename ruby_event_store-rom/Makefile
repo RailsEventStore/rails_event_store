@@ -32,7 +32,10 @@ IGNORE       = RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::Memory::SpecHelper\#drop_gateway_schema \
                RubyEventStore::ROM::Memory::SpecHelper\#close_gateway_connection \
                RubyEventStore::ROM::Memory::SpecHelper\#run_lifecycle \
-               RubyEventStore::ROM::Memory::UnitOfWork\#commit!
+               RubyEventStore::ROM::Memory::UnitOfWork\#commit! \
+               RubyEventStore::ROM::Memory::Relations::Events\#verify_uniquness! \
+               RubyEventStore::ROM::Memory::Relations::StreamEntries\#verify_uniquness! \
+               RubyEventStore::ROM::Memory::Relations::StreamEntries\#normalize_stream_name
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 

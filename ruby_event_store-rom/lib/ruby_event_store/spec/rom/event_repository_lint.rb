@@ -25,8 +25,15 @@ module RubyEventStore::ROM
     
     it_behaves_like :event_repository, repository_class
 
-    specify "#initialize requires ROM::Container" do
-      expect{repository_class.new(rom: nil).append_to_stream([], 'stream', :none)}.to raise_error(NoMethodError)
+    specify "#initialize requires ROM::Env" do
+      expect{repository_class.new(rom: nil)}.to raise_error(ArgumentError)
+    end
+
+    specify "#initialize uses ROM.env by default" do
+      expect{repository_class.new}.to raise_error(ArgumentError)
+      RubyEventStore::ROM.env = env
+      expect{repository_class.new}.not_to raise_error
+      RubyEventStore::ROM.env = nil
     end
 
     specify "#has_event? to raise exception for bad ID" do
