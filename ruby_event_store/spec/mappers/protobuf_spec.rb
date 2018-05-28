@@ -162,6 +162,8 @@ module RubyEventStore
         event.metadata['doh']
       end.to raise_error(ArgumentError)
     end
+
+    it_behaves_like :correlatable, Proto
   end
 
   module Mappers
