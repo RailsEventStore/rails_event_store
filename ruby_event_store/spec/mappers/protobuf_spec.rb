@@ -237,6 +237,34 @@ module RubyEventStore
         expect(event.type).to eq("res_testing.OrderCreated")
       end
 
+      specify 'can load serialized event when using Default mapper' do
+        serialized_event = {
+          event_type: 'res_testing.OrderCreated',
+          event_id:   'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:       "\n\aK3THNX9\x10{",
+          metadata:   "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
+        }
+        event = subject.load_serialized_event(serialized_event)
+        expect(event.event_id).to eq("f90b8848-e478-47fe-9b4a-9f2a1d53622b")
+        expect(event.type).to eq("res_testing.OrderCreated")
+        expect(event.data).to eq(data)
+        expect(event.metadata.to_h).to eq({time: Time.new(2018, 12, 13, 11 )})
+      end
+
+      specify 'can load serialized event when using Default mapper with events class remapping' do
+        serialized_event = {
+          event_type: 'res_testing.NewOrder',
+          event_id:   'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:       "\n\aK3THNX9\x10{",
+          metadata:   "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
+        }
+        subject = described_class.new(events_class_remapping: {'res_testing.NewOrder' => 'res_testing.OrderCreated'})
+        event = subject.load_serialized_event(serialized_event)
+        expect(event.event_id).to eq('f90b8848-e478-47fe-9b4a-9f2a1d53622b')
+        expect(event.type).to eq('res_testing.OrderCreated')
+        expect(event.data).to eq(data)
+        expect(event.metadata.to_h).to eq({time: Time.new(2018, 12, 13, 11 )})
+      end
     end
   end
 end

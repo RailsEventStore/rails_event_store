@@ -45,6 +45,35 @@ module RubyEventStore
         expect(event).to eq(domain_event)
       end
 
+      specify 'can load serialized event when using Default mapper' do
+        serialized_event = {
+          event_type: 'OrderCreated',
+          event_id:   'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:       "---\n:some_attribute: 5\n",
+          metadata:   "---\n:some_meta: 1\n"
+        }
+        event = subject.load_serialized_event(serialized_event)
+        expect(event.event_id).to eq("f90b8848-e478-47fe-9b4a-9f2a1d53622b")
+        expect(event).to be_a(OrderCreated)
+        expect(event.data).to eq(data)
+        expect(event.metadata.to_h).to eq(metadata)
+      end
+
+      specify 'can load serialized event when using Default mapper with events class remapping' do
+        serialized_event = {
+          event_type: 'NewOrder',
+          event_id:   'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:       "---\n:some_attribute: 5\n",
+          metadata:   "---\n:some_meta: 1\n"
+        }
+        subject = described_class.new(events_class_remapping: {'NewOrder' => 'OrderCreated'})
+        event = subject.load_serialized_event(serialized_event)
+        expect(event.event_id).to eq('f90b8848-e478-47fe-9b4a-9f2a1d53622b')
+        expect(event).to be_a(OrderCreated)
+        expect(event.data).to eq(data)
+        expect(event.metadata.to_h).to eq(metadata)
+      end
+
       context 'when custom serializer is provided' do
         class ExampleYamlSerializer
           def self.load(value)
