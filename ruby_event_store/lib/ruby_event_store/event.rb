@@ -43,6 +43,27 @@ module RubyEventStore
       ].hash ^ BIG_VALUE
     end
 
+    def correlation_id
+      metadata[:correlation_id]
+    end
+
+    def correlation_id=(val)
+      metadata[:correlation_id] = val
+    end
+
+    def causation_id
+      metadata[:causation_id]
+    end
+
+    def causation_id=(val)
+      metadata[:causation_id]= val
+    end
+
+    def correlate_with(other_message)
+      self.correlation_id = other_message.correlation_id || other_message.event_id
+      self.causation_id   = other_message.event_id
+    end
+
     alias_method :eql?, :==
   end
 end

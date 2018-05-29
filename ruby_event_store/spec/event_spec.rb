@@ -167,5 +167,7 @@ module RubyEventStore
       end.to raise_error(ArgumentError)
     end
 
+    it_behaves_like :correlatable, Event
   end
+
 end
