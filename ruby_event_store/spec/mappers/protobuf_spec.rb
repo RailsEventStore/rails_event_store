@@ -248,7 +248,7 @@ module RubyEventStore
         expect(event.event_id).to eq("f90b8848-e478-47fe-9b4a-9f2a1d53622b")
         expect(event.type).to eq("res_testing.OrderCreated")
         expect(event.data).to eq(data)
-        expect(event.metadata.to_h).to eq({time: Time.new(2018, 12, 13, 11 )})
+        expect(event.metadata.to_h).to eq({time: Time.utc(2018, 12, 13, 10 )})
       end
 
       specify 'can load serialized event when using Default mapper with events class remapping' do
@@ -263,7 +263,7 @@ module RubyEventStore
         expect(event.event_id).to eq('f90b8848-e478-47fe-9b4a-9f2a1d53622b')
         expect(event.type).to eq('res_testing.OrderCreated')
         expect(event.data).to eq(data)
-        expect(event.metadata.to_h).to eq({time: Time.new(2018, 12, 13, 11 )})
+        expect(event.metadata.to_h).to eq({time: Time.utc(2018, 12, 13, 10 )})
       end
     end
   end

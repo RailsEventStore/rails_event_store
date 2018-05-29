@@ -77,7 +77,7 @@ module RubyEventStore
 
       def load_metadata(protobuf_metadata)
         ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata).each_with_object({}) do |(k, v), meta|
-         meta[k.to_sym] = v
+          meta[k.to_sym] = v
         end
       end
 
