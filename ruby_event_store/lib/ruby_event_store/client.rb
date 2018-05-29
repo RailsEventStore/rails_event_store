@@ -110,11 +110,11 @@ module RubyEventStore
     def read_event(event_id)
       deserialize_event(repository.read_event(event_id))
     end
-    
+
     def read
       Specification.new(repository, mapper)
     end
-    
+
     # subscribe(subscriber, to:)
     # subscribe(to:, &subscriber)
     def subscribe(subscriber = nil, to:, &proc)
