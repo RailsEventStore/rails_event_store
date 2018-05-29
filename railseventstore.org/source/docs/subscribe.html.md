@@ -268,8 +268,8 @@ It's possible to also subscribe async handlers to events. Async handlers are jus
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
-  def perform(event)
-    event = YAML.load(event)
+  def perform(payload)
+    event = Rails.configuration.event_store.load_serialized_event(payload)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end
@@ -306,8 +306,8 @@ You can configure your dispatcher slightly different, to schedule async handlers
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
-  def perform(event)
-    event = YAML.load(event)
+  def perform(payload)
+    event = Rails.configuration.event_store.load_serialized_event(payload)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end

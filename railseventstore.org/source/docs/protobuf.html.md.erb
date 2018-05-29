@@ -108,8 +108,8 @@ event_store.subscribe(->(ev){ },  to: [MyApp::OrderPlaced.descriptor.name])
 class SendOrderEmailHandler < ActiveJob::Base
   self.queue_adapter = :inline
 
-  def perform(event)
-    event = YAML.load(event)
+  def perform(payload)
+    event = Rails.configuration.event_store.load_serialized_event(payload)
     # do something
   end
 end
