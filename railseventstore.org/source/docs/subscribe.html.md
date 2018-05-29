@@ -264,12 +264,25 @@ You start the temporary subscription by providing a block `within` which the sub
 
 <h2 id="async-handlers">Async handlers</h2>
 
-It's possible to also subscribe async handlers to events. Async handlers are just background jobs implemented with `ActiveJob`.
+It's possible to also subscribe async handlers to events. Async handlers are just background jobs implemented with `ActiveJob`. You have to remember that events are serialized during asynchronous processing, You will have to use `Client#deserialize` method in order to get domain event from ActiveJob payload:
 
 ```ruby
+module AsyncHandler
+  def perform(payload)
+    super(event_store.deserialize(payload))
+  end
+  
+  private
+  
+  def event_store
+    Rails.configuration.event_store
+  end
+end
+
 class SendOrderEmail < ActiveJob::Base
+  prepend AsyncHandler
+  
   def perform(event)
-    event = YAML.load(event)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end
@@ -306,8 +319,9 @@ You can configure your dispatcher slightly different, to schedule async handlers
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
+  prepend AsyncHandler
+  
   def perform(event)
-    event = YAML.load(event)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end
