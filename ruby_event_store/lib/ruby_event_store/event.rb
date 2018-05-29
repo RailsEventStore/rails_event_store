@@ -9,6 +9,10 @@ module RubyEventStore
     end
     attr_reader :event_id, :metadata, :data
 
+    def message_id
+      event_id
+    end
+
     def type
       self.class.name
     end
@@ -60,8 +64,8 @@ module RubyEventStore
     end
 
     def correlate_with(other_message)
-      self.correlation_id = other_message.correlation_id || other_message.event_id
-      self.causation_id   = other_message.event_id
+      self.correlation_id = other_message.correlation_id || other_message.message_id
+      self.causation_id   = other_message.message_id
     end
 
     alias_method :eql?, :==

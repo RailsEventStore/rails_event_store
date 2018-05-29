@@ -28,4 +28,20 @@ RSpec.shared_examples :correlatable do |klass|
     expect(event.correlation_id).to eq("cor")
     expect(event.causation_id).to   eq("cau")
   end
+
+  specify "correlate_with a command" do
+    command = Struct.new(:correlation_id, :message_id).new("correlation", "command_id")
+    event = klass.new(event_id: "event", data: nil)
+    event.correlate_with(command)
+    expect(event.event_id).to       eq("event")
+    expect(event.correlation_id).to eq("correlation")
+    expect(event.causation_id).to   eq("command_id")
+
+    command = Struct.new(:correlation_id, :message_id).new(nil, "command_id")
+    event = klass.new(event_id: "event", data: nil)
+    event.correlate_with(command)
+    expect(event.event_id).to       eq("event")
+    expect(event.correlation_id).to eq("command_id")
+    expect(event.causation_id).to   eq("command_id")
+  end
 end
