@@ -73,13 +73,16 @@ module RubyEventStore
 
     def each_batch
       return to_enum(:each_batch) unless block_given?
-      repository.read(result).each do |batch|
-        yield Array(batch).map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
+
+      result_  = result.batched? ? result : result.tap { |r| r.batch_size = DEFAULT_BATCH_SIZE }
+      repository.read(result_).each do |batch|
+        yield batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
       end
     end
 
     def each
       return to_enum unless block_given?
+
       each_batch do |batch|
         batch.each { |event| yield event }
       end

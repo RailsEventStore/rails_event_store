@@ -226,6 +226,7 @@ module RubyEventStore
     specify do
       records = [test_record, test_record]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+
       expect(specification.from(records[0].event_id).each.to_a).to eq([TestEvent.new(event_id: records[1].event_id)])
     end
 
@@ -233,6 +234,7 @@ module RubyEventStore
       batch_size = 100
       records = (batch_size * 10).times.map { test_record }
       repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
+
       expect(specification.stream("batch").in_batches.each_batch.to_a.size).to eq(10)
     end
 
@@ -240,6 +242,7 @@ module RubyEventStore
       batch_size = 100
       records = (batch_size * 10).times.map { test_record }
       repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
+
       expect(specification.stream("batch").in_batches.each.to_a.size).to eq(1000)
     end
 
@@ -282,6 +285,14 @@ module RubyEventStore
     specify do
       expect(specification.in_batches_of.result).to       eq(specification.in_batches.result)
       expect(specification.in_batches_of(1000).result).to eq(specification.in_batches(1000).result)
+    end
+
+    specify do
+      records = 200.times.map { test_record }
+      repository.append_to_stream(records, Stream.new("whatever"), ExpectedVersion.none)
+
+      expect(specification.each_batch.to_a).to     eq(specification.in_batches.each_batch.to_a)
+      expect(specification.each_batch.to_a).not_to eq(specification.in_batches(1000).each_batch.to_a)
     end
 
     let(:repository)    { InMemoryRepository.new }
