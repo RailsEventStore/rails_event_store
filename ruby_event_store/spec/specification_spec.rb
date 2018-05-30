@@ -279,6 +279,11 @@ module RubyEventStore
       end
     end
 
+    specify do
+      expect(specification.in_batches_of.result).to       eq(specification.in_batches.result)
+      expect(specification.in_batches_of(1000).result).to eq(specification.in_batches(1000).result)
+    end
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
     let(:specification) { Specification.new(repository, mapper) }

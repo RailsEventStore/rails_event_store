@@ -88,6 +88,7 @@ module RubyEventStore
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
       Specification.new(repository, mapper, result.dup.tap { |r| r.batch_size = batch_size })
     end
+    alias :in_batches_of :in_batches
 
     private
     attr_reader :repository, :mapper
