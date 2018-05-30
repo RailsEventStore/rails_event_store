@@ -301,9 +301,6 @@ module RubyEventStore
       )
     end
 
-    # around(:each) do |example|
-    # end
-
     RSpec::Matchers.define :match_result do |expected_hash|
       match do |specification|
         @actual = expected_hash.keys.reduce({}) do |memo, attribute|
