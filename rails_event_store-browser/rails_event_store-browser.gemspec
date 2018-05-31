@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{app,config,db,lib,public}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
 
   spec.add_dependency 'rails', '>= 4.2'
-  spec.add_dependency 'rails_event_store', '= 0.29.0'
+  spec.add_dependency 'rails_event_store', '= 0.30.0'
 
   spec.add_development_dependency 'rails', '~> 5.2'
   spec.add_development_dependency 'sqlite3'
