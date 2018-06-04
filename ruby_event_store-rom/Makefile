@@ -1,7 +1,8 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store-rom
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
+IGNORE       = RubyEventStore::ROM::EventRepository\#initialize \
+               RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::EventRepository\#handle_unique_violation_errors \
                RubyEventStore::ROM::EventRepository\#has_event? \
                RubyEventStore::ROM::EventRepository\#last_stream_event \

@@ -26,7 +26,10 @@ module RubyEventStore::ROM
     it_behaves_like :event_repository, repository_class
 
     specify "#initialize requires ROM::Env" do
-      expect{repository_class.new(rom: nil)}.to raise_error(ArgumentError)
+      expect{repository_class.new(rom: nil)}.to raise_error do |err|
+        expect(err).to be_a(ArgumentError)
+        expect(err.message).to eq("Must specify rom")
+      end
     end
 
     specify "#initialize uses ROM.env by default" do

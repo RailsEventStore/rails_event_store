@@ -10,7 +10,7 @@ module RubyEventStore
       def_delegators :@rom, :unit_of_work
 
       def initialize(rom: ROM.env)
-        raise ArgumentError, "must specify rom" unless rom.is_a? ROM::Env
+        raise ArgumentError, "Must specify rom" unless rom && rom.instance_of?(Env)
         
         @rom = rom
         @events = Repositories::Events.new(rom.container)
