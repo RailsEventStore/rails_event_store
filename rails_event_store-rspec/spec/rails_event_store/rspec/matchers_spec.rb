@@ -34,6 +34,14 @@ module RailsEventStore
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
       end
 
+      specify do
+        event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
+        event_store.publish_event(FooEvent.new)
+        expect {
+          event_store.publish_event(BarEvent.new)
+        }.to publish(matchers.an_event(BarEvent)).in(event_store)
+      end
+
       specify { expect(matchers.have_applied(matchers.an_event(FooEvent))).to be_an(HaveApplied) }
 
       specify do
