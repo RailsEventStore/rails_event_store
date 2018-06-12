@@ -81,7 +81,7 @@ require 'ruby_event_store/rom/sql'
 RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
 
 # Use the repository the same as with ActiveRecord
-client = RailsEventStore::Client.new(
+client = RubyEventStore::Client.new(
   repository: RubyEventStore::ROM::EventRepository.new
 )
 ```
@@ -102,7 +102,7 @@ config.default.run_migrations
 env = RubyEventStore::ROM.setup(config)
 
 # Use the repository the same as with ActiveRecord
-client = RailsEventStore::Client.new(
+client = RubyEventStore::Client.new(
   repository: RubyEventStore::ROM::EventRepository.new(rom: env)
 )
 
@@ -127,7 +127,7 @@ Then run Rake tasks to get your database setup:
 
 ```shell
 # Copy the migrations to your project
-bundle exec rake db:copy_migrations
+DATABASE_URL=postgres://localhost/database bundle exec rake db:copy_migrations
 # <= migration file created db/migrate/20180417201709_create_ruby_event_store_tables.rb
 
 # Make sure `DATABASE_URL` is set and run the migrations
