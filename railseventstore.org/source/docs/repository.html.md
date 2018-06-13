@@ -81,7 +81,7 @@ require 'ruby_event_store/rom/sql'
 RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
 
 # Use the repository the same as with ActiveRecord
-client = RailsEventStore::Client.new(
+client = RubyEventStore::Client.new(
   repository: RubyEventStore::ROM::EventRepository.new
 )
 ```
@@ -102,7 +102,7 @@ config.default.run_migrations
 env = RubyEventStore::ROM.setup(config)
 
 # Use the repository the same as with ActiveRecord
-client = RailsEventStore::Client.new(
+client = RubyEventStore::Client.new(
   repository: RubyEventStore::ROM::EventRepository.new(rom: env)
 )
 
@@ -126,12 +126,15 @@ require 'ruby_event_store/rom/adapters/sql/rake_task'
 Then run Rake tasks to get your database setup:
 
 ```shell
-# Copy the migrations to your project
-bundle exec rake db:copy_migrations
+# Copies the migrations to your project (in db/migrate)
+DATABASE_URL=postgres://localhost/database bundle exec rake db:migrations:copy
 # <= migration file created db/migrate/20180417201709_create_ruby_event_store_tables.rb
 
-# Make sure `DATABASE_URL` is set and run the migrations
-bundle exec rake db:migrate
+# Run the migrations in your project (in db/migrate)
+DATABASE_URL=postgres://localhost/database bundle exec rake db:migrate
+# <= db:migrate executed
 ```
 
 You can run `bundle exec rake -T` to get a list of all available tasks. You can also programmatically run migrations (see examples above).
+
+NOTE: Make sure the database connection in your app doesn't try to connect and setup RES before the migrations have run.
