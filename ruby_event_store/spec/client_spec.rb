@@ -7,11 +7,6 @@ module RubyEventStore
     let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
     let(:stream) { SecureRandom.uuid }
 
-    specify 'deprecates using metadata_proc' do
-      deprecation_warning = "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead.\n"
-      expect { RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: -> { {} }) }.to output(deprecation_warning).to_stderr
-    end
-
     specify 'publish_event returns :ok when success' do
       expect(client.publish_event(TestEvent.new)).to eq(:ok)
     end
@@ -101,16 +96,6 @@ module RubyEventStore
       expect(client.read.backward.limit(100).each.to_a.size).to eq(PAGE_SIZE)
     end
 
-    specify 'published event metadata will be enriched by proc execution' do
-      client = silence_warnings { RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ {request_id: '127.0.0.1'} }) }
-      client.append_to_stream(event = TestEvent.new)
-      published = client.read.limit(100).each.to_a
-
-      expect(published.size).to eq(1)
-      expect(published.first.metadata[:request_id]).to eq('127.0.0.1')
-      expect(published.first.metadata[:timestamp]).to be_a Time
-    end
-
     specify 'published event metadata will be enriched by metadata provided in with_metadata when executed inside a block' do
       client.with_metadata(request_ip: '127.0.0.1') do
         client.publish_event(event = TestEvent.new)
@@ -189,20 +174,6 @@ module RubyEventStore
       expect(published[2].metadata[:timestamp]).to be_a Time
     end
 
-    specify 'when both metadata_proc & with_metadata block are used, the event\'s metadata will be enriched first from the proc and then from with_metadata argument' do
-      client = silence_warnings { RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ {proc: true, request_ip: '127.0.0.1'} }) }
-      client.with_metadata(request_ip: '1.2.3.4', meta: true) do
-        client.append_to_stream(event = TestEvent.new)
-      end
-      published = client.read.limit(100).each.to_a
-
-      expect(published.size).to eq(1)
-      expect(published.first.metadata[:request_ip]).to eq('1.2.3.4')
-      expect(published.first.metadata[:proc]).to eq(true)
-      expect(published.first.metadata[:meta]).to eq(true)
-      expect(published.first.metadata[:timestamp]).to be_a Time
-    end
-
     specify "event's  metadata takes precedence over with_metadata" do
       client.with_metadata(request_ip: '127.0.0.1') do
         client.publish_event(@event = TestEvent.new(metadata: {request_ip: '1.2.3.4'}))
@@ -237,16 +208,6 @@ module RubyEventStore
       expect(published.size).to eq(1)
       expect(published.first.metadata.to_h.keys).to eq([:timestamp])
       expect(published.first.metadata[:timestamp]).to eq('2018-01-01T00:00:00Z')
-    end
-
-    specify 'only timestamp set inn metadata when event stored in stream if metadata proc return nil' do
-      client = silence_warnings { RubyEventStore::Client.new(repository: InMemoryRepository.new, metadata_proc: ->{ nil }) }
-      client.append_to_stream(event = TestEvent.new)
-      published = client.read.limit(100).each.to_a
-
-      expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
-      expect(published.first.metadata[:timestamp]).to be_a Time
     end
 
     specify 'timestamp is utc time' do
