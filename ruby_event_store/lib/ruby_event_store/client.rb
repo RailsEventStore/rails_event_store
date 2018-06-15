@@ -16,14 +16,14 @@ module RubyEventStore
     end
 
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
-      events = prepare_events(events)
-      serialized_events = serialize_events(events)
-      append_to_stream_serialized(serialized_events, stream_name: stream_name, expected_version: expected_version)
-      events.zip(serialized_events) do |event, serialized_event|
+      enriched_events = enrich_events_metadata(events)
+      serialized_events = serialize_events(enriched_events)
+      append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
+      enriched_events.zip(serialized_events) do |event, serialized_event|
         with_metadata(correlation_id: event.metadata[:correlation_id] || event.event_id, causation_id: event.event_id) do
           event_broker.notify_subscribers(event, serialized_event)
         end
+      end
       :ok
     end
 
@@ -32,7 +32,7 @@ module RubyEventStore
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      serialized_events = serialize_events(prepare_events(events))
+      serialized_events = serialize_events(enrich_events_metadata(events))
       append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
       :ok
     end
@@ -212,6 +212,12 @@ module RubyEventStore
       return *events
     end
 
+    def enrich_events_metadata(events)
+      events = normalize_to_array(events)
+      events.each{|event| enrich_event_metadata(event) }
+      events
+    end
+
     def enrich_event_metadata(event)
       if metadata
         metadata.each { |key, value| event.metadata[key] ||= value }
@@ -223,11 +229,15 @@ module RubyEventStore
       repository.append_to_stream(serialized_events, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
+<<<<<<< HEAD
     def prepare_events(events)
       events = normalize_to_array(events)
       events.each{|event| enrich_event_metadata(event) }
       events
     end
+=======
+    attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
+>>>>>>> Change method signature for Dispatcher#call to more explicit
 
     protected
 
