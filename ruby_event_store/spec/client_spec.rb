@@ -169,9 +169,9 @@ module RubyEventStore
     specify 'with_metadata is merged when nested' do
       client.with_metadata(remote_ip: '127.0.0.1') do
         client.publish_event(TestEvent.new)
-          client.with_metadata(remote_ip: '192.168.0.1', request_id: '1234567890') do
-              client.publish_event(TestEvent.new)
-          end
+        client.with_metadata(remote_ip: '192.168.0.1', request_id: '1234567890') do
+          client.publish_event(TestEvent.new)
+        end
         client.publish_event(TestEvent.new)
       end
       published = client.read.limit(100).each.to_a
@@ -201,6 +201,13 @@ module RubyEventStore
       expect(published.first.metadata[:proc]).to eq(true)
       expect(published.first.metadata[:meta]).to eq(true)
       expect(published.first.metadata[:timestamp]).to be_a Time
+    end
+
+    specify "event's  metadata takes precedence over with_metadata" do
+      client.with_metadata(request_ip: '127.0.0.1') do
+        client.publish_event(@event = TestEvent.new(metadata: {request_ip: '1.2.3.4'}))
+      end
+      expect(@event.metadata.fetch(:request_ip)).to eq('1.2.3.4')
     end
 
     specify 'metadata is bound to the current instance and does not leak to others' do
@@ -252,6 +259,29 @@ module RubyEventStore
 
       expect(published.size).to eq(1)
       expect(published.first.metadata[:timestamp]).to eq(utc)
+    end
+
+    specify "correlation_id and causation_id in metadata for sync handlers" do
+      client.subscribe(to: [ProductAdded]) do
+        client.publish_event(@two = OrderCreated.new)
+      end
+      client.subscribe(to: [OrderCreated]) do
+        client.publish_event(@three = TestEvent.new)
+        client.publish_event(@four  = TestEvent.new(metadata:{
+          correlation_id: 'COID',
+          causation_id:   'CAID',
+        }))
+      end
+      client.publish_event(one = ProductAdded.new)
+
+      expect(@two.correlation_id).to eq(one.event_id)
+      expect(@two.causation_id).to   eq(one.event_id)
+
+      expect(@three.correlation_id).to eq(one.event_id)
+      expect(@three.causation_id).to   eq(@two.event_id)
+
+      expect(@four.correlation_id).to eq('COID')
+      expect(@four.causation_id).to   eq('CAID')
     end
 
     specify 'reading particular event' do

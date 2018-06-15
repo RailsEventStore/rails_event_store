@@ -18,7 +18,12 @@ module RubyEventStore
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
       events.each do |ev|
-        event_broker.notify_subscribers(ev)
+        with_metadata(
+          correlation_id: ev.metadata[:correlation_id] || ev.event_id,
+          causation_id: ev.event_id,
+        ) do
+          event_broker.notify_subscribers(ev)
+        end
       end
       :ok
     end
@@ -211,7 +216,7 @@ module RubyEventStore
         md.each{|k,v| event.metadata[k]=(v) }
       end
       if metadata
-        metadata.each { |key, value| event.metadata[key] = value }
+        metadata.each { |key, value| event.metadata[key] ||= value }
       end
       event.metadata[:timestamp] ||= clock.call
     end
