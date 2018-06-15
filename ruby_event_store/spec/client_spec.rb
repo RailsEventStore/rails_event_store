@@ -199,6 +199,18 @@ module RubyEventStore
       expect(published_b.last.metadata[:client]).to eq('b')
     end
 
+    specify 'with_metadata is thread-safe' do
+      client.with_metadata(thread1: '1') do
+        Thread.new do
+          client.with_metadata(thread2: '2') do
+            client.publish_event(@event = TestEvent.new)
+          end
+        end.join
+      end
+      expect(@event.metadata[:thread1]).to be_nil
+      expect(@event.metadata[:thread2]).to eq('2')
+    end
+
     specify 'timestamp can be overwritten by using with_metadata' do
       client.with_metadata(timestamp: '2018-01-01T00:00:00Z') do
         client.append_to_stream(event = TestEvent.new)

@@ -1,3 +1,5 @@
+require 'concurrent'
+
 module RubyEventStore
   class Client
     def initialize(repository:,
@@ -10,6 +12,7 @@ module RubyEventStore
       @event_broker   = event_broker
       @page_size      = page_size
       @clock          = clock
+      @metadata       = Concurrent::ThreadLocalVar.new
     end
 
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
@@ -219,11 +222,11 @@ module RubyEventStore
     protected
 
     def metadata
-      Thread.current["ruby_event_store_#{hash}"]
+      @metadata.value
     end
 
     def metadata=(value)
-      Thread.current["ruby_event_store_#{hash}"] = value
+      @metadata.value = value
     end
   end
 end
