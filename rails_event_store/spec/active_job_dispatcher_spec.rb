@@ -41,7 +41,7 @@ module RailsEventStore
 
     it "builds async proxy for ActiveJob::Base ancestors" do
       expect_to_have_enqueued_job(AsyncHandler) do
-        ActiveJobDispatcher.new.call(AsyncHandler, [event, serialized_event])
+        ActiveJobDispatcher.new.call(AsyncHandler, event, serialized_event)
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
@@ -57,7 +57,7 @@ module RailsEventStore
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_to_have_enqueued_job(AsyncHandler) do
-        dispatcher.call(AsyncHandler, [event, serialized_event])
+        dispatcher.call(AsyncHandler, event, serialized_event)
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
@@ -75,7 +75,7 @@ module RailsEventStore
       expect_to_have_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
-            dispatcher.call(AsyncHandler, [event, serialized_event])
+            dispatcher.call(AsyncHandler, event, serialized_event)
           end
         end
       end
@@ -94,7 +94,7 @@ module RailsEventStore
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_no_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do
-          dispatcher.call(AsyncHandler, [event, serialized_event])
+          dispatcher.call(AsyncHandler, event, serialized_event)
           raise ActiveRecord::Rollback
         end
       end
@@ -110,7 +110,7 @@ module RailsEventStore
         dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
         expect_no_enqueued_job(AsyncHandler) do
           ActiveRecord::Base.transaction do
-            dispatcher.call(AsyncHandler, [event, serialized_event])
+            dispatcher.call(AsyncHandler, event, serialized_event)
             raise ActiveRecord::Rollback
           end
         end
@@ -127,7 +127,7 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: false) do
-              dispatcher.call(AsyncHandler, [event, serialized_event])
+              dispatcher.call(AsyncHandler, event, serialized_event)
             end
           end
         end
@@ -149,7 +149,7 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(AsyncHandler, [event, serialized_event])
+              dispatcher.call(AsyncHandler, event, serialized_event)
             end
           end
         end
@@ -171,7 +171,7 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(AsyncHandler, [event, serialized_event])
+              dispatcher.call(AsyncHandler, event, serialized_event)
               raise ActiveRecord::Rollback
             end
           end

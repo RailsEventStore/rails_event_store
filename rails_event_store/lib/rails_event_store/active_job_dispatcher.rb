@@ -51,9 +51,8 @@ module RailsEventStore
       @async_proxy_strategy = proxy_strategy
     end
 
-    def call(subscriber, payload)
+    def call(subscriber, event, serialized_event)
       if async_handler?(subscriber)
-        _, serialized_event = *payload
         @async_proxy_strategy.call(subscriber, serialized_event)
       else
         super
