@@ -760,7 +760,7 @@ module RubyEventStore
         data:       "---\n:foo: bar\n",
         metadata:   "---\n:bar: baz\n"
       }
-      expect(client.load_serialized_event(serialized_event)).to eq(event)
+      expect(client.deserialize(serialized_event)).to eq(event)
     end
 
     specify 'can load serialized event using Protobuf mapper' do
@@ -784,7 +784,7 @@ module RubyEventStore
         data:       "\n\aK3THNX9\x10{",
         metadata:   "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
       }
-      expect(client.load_serialized_event(serialized_event)).to eq(event)
+      expect(client.deserialize(serialized_event)).to eq(event)
     end
   end
 end

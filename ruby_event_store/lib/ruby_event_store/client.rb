@@ -192,8 +192,8 @@ module RubyEventStore
       self.metadata = previous_metadata
     end
 
-    def load_serialized_event(event_type:, event_id:, data:, metadata:)
-      mapper.load_serialized_event(event_type: event_type, event_id: event_id, data: data, metadata: metadata)
+    def deserialize(event_type:, event_id:, data:, metadata:)
+      mapper.serialized_record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
     end
 
     private

@@ -26,15 +26,6 @@ module RubyEventStore
         )
       end
 
-      def load_serialized_event(event_type:, event_id:, data:, metadata:)
-        event_type = events_class_remapping.fetch(event_type) { event_type }
-        Object.const_get(event_type).new(
-            event_id: event_id,
-            metadata: serializer.load(metadata),
-            data:     serializer.load(data)
-        )
-      end
-
       private
 
       attr_reader :serializer, :events_class_remapping

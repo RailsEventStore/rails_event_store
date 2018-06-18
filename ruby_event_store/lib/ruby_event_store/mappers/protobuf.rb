@@ -62,15 +62,6 @@ module RubyEventStore
         )
       end
 
-      def load_serialized_event(event_type:, event_id:, data:, metadata:)
-        event_type = events_class_remapping.fetch(event_type) { event_type }
-        Proto.new(
-          event_id: event_id,
-          data:     load_data(event_type, data),
-          metadata: load_metadata(metadata)
-        )
-      end
-
       private
 
       attr_reader :event_id_getter, :events_class_remapping
