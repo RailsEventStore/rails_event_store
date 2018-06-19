@@ -42,9 +42,9 @@ module RubyEventStore
         ->() {event_types.each{ |type| thread_subscribers.value.fetch(type.to_s).delete(subscriber) } }
       end
 
-      def notify_subscribers(event)
+      def notify_subscribers(event, serialized_event)
         all_subscribers_for(event.type).each do |subscriber|
-          dispatcher.call(subscriber, event)
+          dispatcher.call(subscriber, event, serialized_event)
         end
       end
 

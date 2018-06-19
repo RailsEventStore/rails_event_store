@@ -4,8 +4,10 @@ require_relative '../../ruby_event_store/spec/mappers/events_pb'
 class AsyncProtoHandler < ActiveJob::Base
   self.queue_adapter = :inline
 
-  def perform(event)
-    @@event = YAML.load(event)
+  cattr_accessor :event_store
+
+  def perform(payload)
+    @@event = self.class.event_store.deserialize(payload)
   end
 
   def self.event
@@ -22,6 +24,7 @@ module RailsEventStore
       )
       client.subscribe(->(ev){@ev = ev}, to: [ResTesting::OrderCreated.descriptor.name])
       client.subscribe(AsyncProtoHandler, to: [ResTesting::OrderCreated.descriptor.name])
+      AsyncProtoHandler.event_store = client
 
       event = RubyEventStore::Proto.new(
         data: ResTesting::OrderCreated.new(

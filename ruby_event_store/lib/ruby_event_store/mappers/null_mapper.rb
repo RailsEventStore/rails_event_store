@@ -9,7 +9,6 @@ module RubyEventStore
       def serialized_record_to_event(record)
         record
       end
-
     end
   end
 end

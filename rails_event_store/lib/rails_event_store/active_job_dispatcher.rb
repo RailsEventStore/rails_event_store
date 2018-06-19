@@ -3,26 +3,26 @@ require 'active_job'
 module RailsEventStore
   module AsyncProxyStrategy
     class AfterCommit
-      def call(klass, event)
+      def call(klass, serialized_event)
         if ActiveRecord::Base.connection.transaction_open?
           ActiveRecord::Base.
             connection.
             current_transaction.
-            add_record(AsyncRecord.new(klass, event))
+            add_record(AsyncRecord.new(klass, serialized_event))
         else
-          klass.perform_later(YAML.dump(event))
+          klass.perform_later(serialized_event.to_h)
         end
       end
 
       private
       class AsyncRecord
-        def initialize(klass, event)
+        def initialize(klass, serialized_event)
           @klass = klass
-          @event = event
+          @serialized_event = serialized_event
         end
 
         def committed!
-          @klass.perform_later(YAML.dump(@event))
+          klass.perform_later(serialized_event.to_h)
         end
 
         def rolledback!(*)
@@ -32,14 +32,16 @@ module RailsEventStore
         end
 
         def add_to_transaction
-          AfterCommit.new.call(@klass, @event)
+          AfterCommit.new.call(klass, serialized_event)
         end
+
+        attr_reader :serialized_event, :klass
       end
     end
 
     class Inline
-      def call(klass, event)
-        klass.perform_later(YAML.dump(event))
+      def call(klass, serialized_event)
+        klass.perform_later(serialized_event.to_h)
       end
     end
   end
@@ -49,9 +51,9 @@ module RailsEventStore
       @async_proxy_strategy = proxy_strategy
     end
 
-    def call(subscriber, event)
+    def call(subscriber, _, serialized_event)
       if async_handler?(subscriber)
-        @async_proxy_strategy.call(subscriber, event)
+        @async_proxy_strategy.call(subscriber, serialized_event)
       else
         super
       end
