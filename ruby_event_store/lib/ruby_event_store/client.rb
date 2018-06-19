@@ -188,11 +188,18 @@ module RubyEventStore
 
     def with_metadata(metadata, &block)
       previous_metadata = metadata()
-      self.metadata = (previous_metadata || {}).merge(metadata)
+      self.metadata = previous_metadata.merge(metadata)
       block.call if block_given?
     ensure
       self.metadata = previous_metadata
     end
+
+    def metadata
+      @metadata.value || EMPTY_HASH
+    end
+
+    EMPTY_HASH = {}.freeze
+    private_constant :EMPTY_HASH
 
     private
 
@@ -217,16 +224,10 @@ module RubyEventStore
       event.metadata[:timestamp] ||= clock.call
     end
 
-    attr_reader :repository, :mapper, :event_broker, :clock, :page_size
-
-    protected
-
-    def metadata
-      @metadata.value
-    end
-
     def metadata=(value)
       @metadata.value = value
     end
+
+    attr_reader :repository, :mapper, :event_broker, :clock, :page_size
   end
 end
