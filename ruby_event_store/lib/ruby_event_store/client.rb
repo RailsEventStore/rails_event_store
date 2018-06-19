@@ -1,24 +1,29 @@
+require 'concurrent'
+
 module RubyEventStore
   class Client
     def initialize(repository:,
                    mapper: Mappers::Default.new,
                    event_broker:  PubSub::Broker.new,
                    page_size: PAGE_SIZE,
-                   metadata_proc: nil,
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
       @event_broker   = event_broker
       @page_size      = page_size
-      warn "`RubyEventStore::Client#metadata_proc` has been deprecated. Use `RubyEventStore::Client#with_metadata` instead." if metadata_proc
-      @metadata_proc  = metadata_proc
       @clock          = clock
+      @metadata       = Concurrent::ThreadLocalVar.new
     end
 
     def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       append_to_stream(events, stream_name: stream_name, expected_version: expected_version)
       events.each do |ev|
-        event_broker.notify_subscribers(ev)
+        with_metadata(
+          correlation_id: ev.metadata[:correlation_id] || ev.event_id,
+          causation_id: ev.event_id,
+        ) do
+          event_broker.notify_subscribers(ev)
+        end
       end
       :ok
     end
@@ -206,26 +211,22 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      if metadata_proc
-        md = metadata_proc.call || {}
-        md.each{|k,v| event.metadata[k]=(v) }
-      end
       if metadata
-        metadata.each { |key, value| event.metadata[key] = value }
+        metadata.each { |key, value| event.metadata[key] ||= value }
       end
       event.metadata[:timestamp] ||= clock.call
     end
 
-    attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
+    attr_reader :repository, :mapper, :event_broker, :clock, :page_size
 
     protected
 
     def metadata
-      Thread.current["ruby_event_store_#{hash}"]
+      @metadata.value
     end
 
     def metadata=(value)
-      Thread.current["ruby_event_store_#{hash}"] = value
+      @metadata.value = value
     end
   end
 end
