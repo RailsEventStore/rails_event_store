@@ -229,16 +229,6 @@ module RubyEventStore
       repository.append_to_stream(serialized_events, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
-<<<<<<< HEAD
-    def prepare_events(events)
-      events = normalize_to_array(events)
-      events.each{|event| enrich_event_metadata(event) }
-      events
-    end
-=======
-    attr_reader :repository, :mapper, :event_broker, :clock, :metadata_proc, :page_size
->>>>>>> Change method signature for Dispatcher#call to more explicit
-
     protected
 
     def metadata
