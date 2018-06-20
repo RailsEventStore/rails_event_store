@@ -11,7 +11,7 @@ module RailsEventStore
     before { load_database_schema }
 
     specify do
-      event_store.publish_event(dummy_event, stream_name: "dummy")
+      event_store.publish(dummy_event, stream_name: "dummy")
       get "/res/streams/all"
 
       expect(response).to have_http_status(200)
@@ -24,7 +24,7 @@ module RailsEventStore
     end
 
     specify do
-      event_store.publish_event(dummy_event, stream_name: "dummy")
+      event_store.publish(dummy_event, stream_name: "dummy")
       get "/res/events/#{dummy_event.event_id}"
 
       expect(response).to have_http_status(200)
@@ -34,8 +34,8 @@ module RailsEventStore
     specify "first page, newest events descending" do
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
-      event_store.publish_events(events, stream_name: "dummy")
-      event_store.publish_events([DummyEvent.new])
+      event_store.publish(events, stream_name: "dummy")
+      event_store.publish([DummyEvent.new])
 
       get "/res/streams/dummy"
       expect(parsed_body["links"]).to eq({
@@ -55,7 +55,7 @@ module RailsEventStore
     specify "first page, newest events descending" do
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/head/backward/20"
 
       expect(parsed_body["links"]).to eq({
@@ -69,7 +69,7 @@ module RailsEventStore
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       last_page  = events.reverse.drop(20)
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/#{last_page.first.event_id}/forward/20"
 
       expect(parsed_body["links"]).to eq({
@@ -83,8 +83,8 @@ module RailsEventStore
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       last_page  = events.reverse.drop(20)
-      event_store.publish_events([DummyEvent.new])
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish([DummyEvent.new])
+      event_store.publish(events, stream_name: "dummy")
 
       get "/res/streams/dummy/#{first_page.last.event_id}/backward/20"
       expect(parsed_body["links"]).to eq({
@@ -106,7 +106,7 @@ module RailsEventStore
     specify "last page, oldest events descending" do
       events    = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/head/forward/20"
 
       expect(parsed_body["links"]).to eq({
@@ -120,7 +120,7 @@ module RailsEventStore
       events = 41.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       next_page  = events.reverse.drop(20).take(20)
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/#{first_page.last.event_id}/backward/20"
 
       expect(parsed_body["links"]).to eq({
@@ -134,7 +134,7 @@ module RailsEventStore
 
     specify "smaller than page size" do
       events = [DummyEvent.new, DummyEvent.new]
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy"
 
       expect(parsed_body["links"]).to eq({})
@@ -146,7 +146,7 @@ module RailsEventStore
       first_page = events.reverse.take(5)
       next_page  = events.reverse.drop(5).take(5)
 
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/#{first_page.last.event_id}/backward/5"
 
       expect(parsed_body["links"]).to eq({
@@ -160,7 +160,7 @@ module RailsEventStore
 
     specify "custom page size" do
       events = 40.times.map { DummyEvent.new }
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/all/head/forward/5"
 
       expect(parsed_body["data"].size).to eq(5)
@@ -169,7 +169,7 @@ module RailsEventStore
     specify "out of bounds beyond oldest" do
       events    = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/#{last_page.last.event_id}/backward/20"
 
       expect(parsed_body["links"]).to eq({})
@@ -179,7 +179,7 @@ module RailsEventStore
     specify "out of bounds beyond newest" do
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
-      event_store.publish_events(events, stream_name: "dummy")
+      event_store.publish(events, stream_name: "dummy")
       get "/res/streams/dummy/#{first_page.first.event_id}/forward/20"
 
       expect(parsed_body["links"]).to eq({})
