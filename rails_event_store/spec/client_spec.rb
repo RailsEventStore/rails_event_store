@@ -35,7 +35,7 @@ module RailsEventStore
         'action_dispatch.request_id' => 'dummy_id',
         'action_dispatch.remote_ip'  => 'dummy_ip'
       ) do
-        client.publish_event(event)
+        client.publish(event)
       end
       published = client.read.each.to_a
       expect(published.size).to eq(1)

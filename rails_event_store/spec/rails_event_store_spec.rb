@@ -14,7 +14,7 @@ RSpec.describe RailsEventStore do
     client = RailsEventStore::Client.new
     MyAsyncHandler.event_store = client
     client.subscribe_to_all_events(MyAsyncHandler)
-    client.publish_event(ev = RailsEventStore::Event.new)
+    client.publish(ev = RailsEventStore::Event.new)
     expect(MyAsyncHandler.event).to eq(ev)
   end
 end
