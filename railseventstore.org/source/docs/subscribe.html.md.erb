@@ -115,10 +115,10 @@ event_store.subscribe(handler, to: [OrderPlaced])
 ```
 
 ```ruby
-event_store.publish_event(OrderPlaced.new)
+event_store.publish(OrderPlaced.new)
 # handler is called
 
-event_store.publish_event(OrderPlaced.new)
+event_store.publish(OrderPlaced.new)
 # handler is called again
 ```
 
@@ -146,10 +146,10 @@ event_store.subscribe(SyncHandler, to: [OrderPlaced])
 ```
 
 ```ruby
-event_store.publish_event(OrderPlaced.new(data: {customer_id: 2}))
+event_store.publish(OrderPlaced.new(data: {customer_id: 2}))
 # SyncHandler.new.call is invoked (instance A)
 
-event_store.publish_event(OrderPlaced.new(data: {customer_id: 3}))
+event_store.publish(OrderPlaced.new(data: {customer_id: 3}))
 # SyncHandler.new.call is invoked (instance B)
 ```
 
@@ -160,7 +160,7 @@ Those handlers are executed immediately after events are stored in the DB.
 ```ruby
 ActiveRecord::Base.transction do
   order = Order.new(...).save!
-  event_store.publish_event(
+  event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
     stream_name: "Order-#{order.id}"
   )
@@ -329,7 +329,7 @@ Those async handlers are scheduled immediately after events are stored in the DB
 ```ruby
 ActiveRecord::Base.transction do
   order = Order.new(...).save!
-  event_store.publish_event(
+  event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
     stream_name: "Order-#{order.id}"
   )
@@ -378,7 +378,7 @@ event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 ```ruby
 ActiveRecord::Base.transction do
   order = Order.new(...).save!
-  event_store.publish_event(
+  event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
     stream_name: "Order-#{order.id}"
   )

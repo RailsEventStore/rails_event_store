@@ -113,7 +113,7 @@ end
 
 event_store = Rails.configuration.event_store
 
-event_store.publish_event(OrderPlaced.new(data: {
+event_store.publish(OrderPlaced.new(data: {
   'event_id' => SecureRandom.uuid,
   'order_id' => 1,
   'order_amount' => BigDecimal.new('120.55'),

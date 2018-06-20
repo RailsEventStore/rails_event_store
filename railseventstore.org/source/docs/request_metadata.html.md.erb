@@ -23,7 +23,7 @@ event.metadata # empty, unless you provided your own data called 'metadata'.
 If you publish an event, the special field called `metadata` will get filled in with request details:
 
 ```ruby
-event_store.publish_event(MyEvent.new(data: {foo: 'bar'}))
+event_store.publish(MyEvent.new(data: {foo: 'bar'}))
 
 <% if version_above('0.29.0') %>
 my_event = event_store.read_all_streams_backward(count: 1).first

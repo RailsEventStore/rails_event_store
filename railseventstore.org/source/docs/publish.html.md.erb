@@ -15,7 +15,7 @@ OrderPlaced = Class.new(RailsEventStore::Event)
 
 ## Publishing an event
 
-Then you can use `publish_event` or `publish_events` method.
+Then you can use `publish` or `publish` method.
 
 ```ruby
 stream_name = "order_1"
@@ -26,7 +26,7 @@ event = OrderPlaced.new(data: {
 })
 
 #publishing an event for a specific stream
-event_store.publish_event(event, stream_name: stream_name)
+event_store.publish(event, stream_name: stream_name)
 ```
 
 ## Publishing an event with optimistic locking
@@ -40,7 +40,7 @@ event = OrderPlaced.new(data: {
   festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
 })
 
-event_store.publish_event(
+event_store.publish(
   event,
   stream_name: "order_1",
   expected_version: 3 # the position of the last
@@ -64,7 +64,7 @@ For more information about when should you use which one, read [expected_version
 Providing `stream_name` is optional (but recommended).
 
 ```ruby
-event_store.publish_event(event)
+event_store.publish(event)
 ```
 
 <% if version_above('0.29.0') %>

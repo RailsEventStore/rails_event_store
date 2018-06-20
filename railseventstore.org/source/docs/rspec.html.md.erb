@@ -84,7 +84,7 @@ In a simplest form it would read all streams backward up to a page limit (100 ev
 
 ```ruby
 event_store = RailsEventStore::Client.new
-event_store.publish_event(OrderPlaced.new(data: { order_id: 42 }))
+event_store.publish(OrderPlaced.new(data: { order_id: 42 }))
 
 expect(event_store).to have_published(an_event(OrderPlaced))
 ```
@@ -93,7 +93,7 @@ Expectation can be narrowed to the specific stream.
 
 ```ruby
 event_store = RailsEventStore::Client.new
-event_store.publish_event(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
 
 expect(event_store).to have_published(an_event(OrderPlaced)).in_stream("Order$42")
 ```

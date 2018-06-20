@@ -5,7 +5,7 @@ There are 3 values that you can use for providing `expected_version` when publis
 ## :any
 
 ```ruby
-event_store.publish_event(
+event_store.publish(
   event,
   stream_name: "Order-1",
   expected_version: :any,
@@ -32,7 +32,7 @@ event_store.publish_event(
 You start by publishing the first event in a stream with `expected_version` being `-1` (or `:none`). That means you expect no events in the stream right now.
 
 ```ruby
-event_store.publish_event(
+event_store.publish(
   event0,
   stream_name: "Order-1",
   expected_version: -1,   # or :none which is a synonym
@@ -43,7 +43,7 @@ event_store.publish_event(
 The first published event is at position `0`. When you publish a second event you provide `expected_version: 0`.
 
 ```ruby
-event_store.publish_events(
+event_store.publish(
   [event1, event2],
   stream_name: "Order-1",
   expected_version: 0,
@@ -53,7 +53,7 @@ event_store.publish_events(
 We published the second and third events. Their positions are `1` and `2`. That's why when you publish the next event you need to provide `expected_version: 2`.
 
 ```ruby
-event_store.publish_event(
+event_store.publish(
   event3,
   stream_name: "Order-1",
   expected_version: 2,
@@ -81,7 +81,7 @@ This mode effectively acts as optimistic locking.
 ## :auto
 
 ```ruby
-event_store.publish_event(
+event_store.publish(
   event,
   stream_name: "Order-1",
   expected_version: :auto,
@@ -95,7 +95,7 @@ There is a potential for a race condition between reading the `expected_version`
 ```ruby
 application_lock("Order-1") do
   # do something with Order 1...
-  event_store.publish_event(
+  event_store.publish(
     event,
     stream_name: "Order-1",
     expected_version: :auto,
