@@ -39,7 +39,7 @@ If you want to have an event present in multiple streams, you have to link it wi
 ### RubyEventStore::InvalidExpectedVersion
 
 <% if version_above('0.30.0') %>
-Occurs when invalid `exception_version` is passed in `append`, `link` or `publish`.
+Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream` or `publish`.
 <% else %>
 Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream`, `publish_event` or `publish_events`.
 <% end %>
