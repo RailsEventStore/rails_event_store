@@ -255,6 +255,13 @@ module RubyEventStore
 
       expect(@four.correlation_id).to eq('COID')
       expect(@four.causation_id).to   eq('CAID')
+
+      client.publish_event(one = ProductAdded.new(metadata:{
+        correlation_id: "COID",
+        causation_id:   "CAID",
+      }))
+      expect(@two.correlation_id).to eq("COID")
+      expect(@two.causation_id).to   eq(one.event_id)
     end
 
     specify 'reading particular event' do

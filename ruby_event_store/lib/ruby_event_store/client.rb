@@ -20,7 +20,7 @@ module RubyEventStore
       events.each do |ev|
         with_metadata(
           correlation_id: ev.metadata[:correlation_id] || ev.event_id,
-          causation_id: ev.event_id,
+          causation_id:   ev.event_id,
         ) do
           event_broker.notify_subscribers(ev)
         end
@@ -218,9 +218,7 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      if metadata
-        metadata.each { |key, value| event.metadata[key] ||= value }
-      end
+      metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp] ||= clock.call
     end
 
