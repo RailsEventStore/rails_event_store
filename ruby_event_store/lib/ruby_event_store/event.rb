@@ -7,6 +7,7 @@ module RubyEventStore
       @metadata = Metadata.new(metadata.to_h)
       @data     = data.to_h
     end
+
     attr_reader :event_id, :metadata, :data
 
     def message_id

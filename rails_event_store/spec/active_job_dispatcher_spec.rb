@@ -24,8 +24,8 @@ module RailsEventStore
       AsyncHandler.reset
     end
 
-    let!(:event) { RailsEventStore::Event.new }
-    let!(:yaml)  { YAML.dump(event) }
+    let!(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
+    let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
     it "verification" do
       expect do
@@ -41,21 +41,33 @@ module RailsEventStore
 
     it "builds async proxy for ActiveJob::Base ancestors" do
       expect_to_have_enqueued_job(AsyncHandler) do
-        ActiveJobDispatcher.new.call(AsyncHandler, event)
+        ActiveJobDispatcher.new.call(AsyncHandler, event, serialized_event)
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq(yaml)
+      expect(AsyncHandler.received).to eq({
+        "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+        "data"            => "--- {}\n",
+        "metadata"        => "--- {}\n",
+        "event_type"      => "RubyEventStore::Event",
+        "_aj_symbol_keys" => ["event_id", "data", "metadata", "event_type"]
+      })
     end
 
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_to_have_enqueued_job(AsyncHandler) do
-        dispatcher.call(AsyncHandler, event)
+        dispatcher.call(AsyncHandler, event, serialized_event)
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq(yaml)
+      expect(AsyncHandler.received).to eq({
+          "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+          "data"            => "--- {}\n",
+          "metadata"        => "--- {}\n",
+          "event_type"      => "RubyEventStore::Event",
+          "_aj_symbol_keys" => ["event_id", "data", "metadata", "event_type"]
+      })
     end
 
     it "async proxy for defined adapter enqueue job only after transaction commit" do
@@ -63,20 +75,26 @@ module RailsEventStore
       expect_to_have_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
-            dispatcher.call(AsyncHandler, event)
+            dispatcher.call(AsyncHandler, event, serialized_event)
           end
         end
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq(yaml)
+      expect(AsyncHandler.received).to eq({
+          "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+          "data"            => "--- {}\n",
+          "metadata"        => "--- {}\n",
+          "event_type"      => "RubyEventStore::Event",
+          "_aj_symbol_keys" => ["event_id", "data", "metadata", "event_type"]
+      })
     end
 
     it "async proxy for defined adapter do not enqueue job after transaction rollback" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
       expect_no_enqueued_job(AsyncHandler) do
         ActiveRecord::Base.transaction do
-          dispatcher.call(AsyncHandler, event)
+          dispatcher.call(AsyncHandler, event, serialized_event)
           raise ActiveRecord::Rollback
         end
       end
@@ -92,7 +110,7 @@ module RailsEventStore
         dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
         expect_no_enqueued_job(AsyncHandler) do
           ActiveRecord::Base.transaction do
-            dispatcher.call(AsyncHandler, event)
+            dispatcher.call(AsyncHandler, event, serialized_event)
             raise ActiveRecord::Rollback
           end
         end
@@ -109,14 +127,20 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: false) do
-              dispatcher.call(AsyncHandler, event)
+              dispatcher.call(AsyncHandler, event, serialized_event)
             end
           end
         end
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq(yaml)
+      expect(AsyncHandler.received).to eq({
+          "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+          "data"            => "--- {}\n",
+          "metadata"        => "--- {}\n",
+          "event_type"      => "RubyEventStore::Event",
+          "_aj_symbol_keys" => ["event_id", "data", "metadata", "event_type"]
+      })
     end
 
     it "async proxy for defined adapter enqueue job only after top-level transaction commit" do
@@ -125,14 +149,20 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(AsyncHandler, event)
+              dispatcher.call(AsyncHandler, event, serialized_event)
             end
           end
         end
       end
       expect(AsyncHandler.received).to be_nil
       perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq(yaml)
+      expect(AsyncHandler.received).to eq({
+          "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+          "data"            => "--- {}\n",
+          "metadata"        => "--- {}\n",
+          "event_type"      => "RubyEventStore::Event",
+          "_aj_symbol_keys" => ["event_id", "data", "metadata", "event_type"]
+      })
     end
 
     it "async proxy for defined adapter do not enqueue job after nested transaction rollback" do
@@ -141,7 +171,7 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(AsyncHandler, event)
+              dispatcher.call(AsyncHandler, event, serialized_event)
               raise ActiveRecord::Rollback
             end
           end

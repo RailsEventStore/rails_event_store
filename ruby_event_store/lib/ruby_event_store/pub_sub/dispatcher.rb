@@ -2,7 +2,7 @@ module RubyEventStore
   module PubSub
 
     class Dispatcher
-      def call(subscriber, event)
+      def call(subscriber, event, _)
         subscriber = subscriber.new if Class === subscriber
         subscriber.call(event)
       end

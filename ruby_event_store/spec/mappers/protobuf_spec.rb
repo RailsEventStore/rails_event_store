@@ -236,7 +236,6 @@ module RubyEventStore
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.type).to eq("res_testing.OrderCreated")
       end
-
     end
   end
 end

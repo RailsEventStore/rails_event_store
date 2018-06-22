@@ -7,9 +7,9 @@ class CustomDispatcher
     @dispatched_events = []
   end
 
-  def call(subscriber, event)
+  def call(subscriber, event, serialized_event)
     subscriber = subscriber.new if Class === subscriber
-    @dispatched_events << {to: subscriber.class, event: event}
+    @dispatched_events << {to: subscriber.class, event: event, serialized_event: serialized_event}
   end
 
   def verify(subscriber)
@@ -35,7 +35,8 @@ module RubyEventStore
     end
 
     let(:repository) { InMemoryRepository.new }
-    let(:client)     { RubyEventStore::Client.new(repository: repository) }
+    let(:client)     { RubyEventStore::Client.new(repository: repository, mapper: mapper) }
+    let(:mapper)     { RubyEventStore::Mappers::Default.new }
 
     specify 'throws exception if subscriber is not defined' do
       expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
@@ -123,12 +124,13 @@ module RubyEventStore
     specify 'allows to provide a custom dispatcher' do
       dispatcher = CustomDispatcher.new
       broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, event_broker: broker, mapper: mapper)
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
+      serialized_event = mapper.event_to_serialized_record(event)
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_event: serialized_event}]
     end
 
     specify 'unsubscribes' do
@@ -187,7 +189,8 @@ module RubyEventStore
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
+      serialized_event = mapper.event_to_serialized_record(event)
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_event: serialized_event}]
     end
 
     specify 'dispatch all events to subscribers via proxy' do
@@ -197,7 +200,8 @@ module RubyEventStore
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish_event(event)
-      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event}]
+      serialized_event = mapper.event_to_serialized_record(event)
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_event: serialized_event}]
     end
 
     specify 'lambda is an output of global subscribe via proxy' do
@@ -227,7 +231,8 @@ module RubyEventStore
         :elo
       end.subscribe_to_all_events(Subscribers::ValidHandler).call
       client.publish_event(event_2)
-      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
+      serialized_event_1 = mapper.event_to_serialized_record(event_1)
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_event: serialized_event_1}]
       expect(result).to eq(:elo)
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
@@ -297,8 +302,8 @@ module RubyEventStore
         end.subscribe_to_all_events(Subscribers::ValidHandler).call
 
         client.publish_event(event_2)
-
-        expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1}]
+        serialized_event = mapper.event_to_serialized_record(event_1)
+        expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_event: serialized_event}]
         expect(client.read_all_streams_forward).to eq([event_1, event_2])
         expect(result).to eq(:yo)
       end
