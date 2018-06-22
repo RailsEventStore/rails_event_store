@@ -2,19 +2,20 @@ require 'spec_helper'
 require 'action_controller/railtie'
 
 RSpec.describe RailsEventStore do
-  class MyAsyncHandler < ActiveJob::Base
-    self.queue_adapter = :inline
-    cattr_accessor :event, :event_store
+  class MyLovelyAsyncHandler < ActiveJob::Base
+    self.queue_adapter = :async
+    cattr_accessor :event
+
     def perform(payload)
       self.class.event = Rails.configuration.event_store.deserialize(payload)
     end
   end
 
   class HandlerWithHelper < ActiveJob::Base
-    self.queue_adapter = :inline
+    self.queue_adapter = :async
     cattr_accessor :event
 
-    prepend AsyncHandler
+    prepend RailsEventStore::AsyncHandler
 
     def perform(event)
       self.class.event = event
@@ -22,11 +23,11 @@ RSpec.describe RailsEventStore do
   end
 
   class MetadataHandler < ActiveJob::Base
-    self.queue_adapter = :inline
+    self.queue_adapter = :async
     cattr_accessor :metadata
 
-    prepend CorrelatedHandler
-    prepend AsyncHandler
+    prepend RailsEventStore::CorrelatedHandler
+    prepend RailsEventStore::AsyncHandler
 
     def perform(event)
       self.metadata = Rails.configuration.event_store.metadata
@@ -42,16 +43,18 @@ RSpec.describe RailsEventStore do
   end
 
   specify 'default dispatcher can into ActiveJob' do
-    expect(MyAsyncHandler.event).to eq(nil)
-    event_store.subscribe_to_all_events(MyAsyncHandler)
+    expect(MyLovelyAsyncHandler.event).to eq(nil)
+    event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
     event_store.publish_event(ev = RailsEventStore::Event.new)
-    expect(MyAsyncHandler.event).to eq(ev)
+    wait_until{ MyLovelyAsyncHandler.event }
+    expect(MyLovelyAsyncHandler.event).to eq(ev)
   end
 
   specify 'ActiveJob with AsyncHandler prepended' do
     expect(HandlerWithHelper.event).to eq(nil)
     event_store.subscribe_to_all_events(HandlerWithHelper)
     event_store.publish_event(ev = RailsEventStore::Event.new)
+    wait_until{ HandlerWithHelper.event }
     expect(HandlerWithHelper.event).to eq(ev)
   end
 
@@ -59,6 +62,7 @@ RSpec.describe RailsEventStore do
     MetadataHandler.metadata = nil
     event_store.subscribe_to_all_events(MetadataHandler)
     event_store.publish_event(ev = RailsEventStore::Event.new)
+    wait_until{ MetadataHandler.metadata }
     expect(MetadataHandler.metadata).to eq({
       correlation_id: ev.event_id,
       causation_id:   ev.event_id,
@@ -74,9 +78,22 @@ RSpec.describe RailsEventStore do
         causation_id:   "CAID",
       }
     ))
+    wait_until{ MetadataHandler.metadata }
     expect(MetadataHandler.metadata).to eq({
       correlation_id: "COID",
       causation_id:   ev.event_id,
     })
   end
+
+  private
+
+  def wait_until(&block)
+    Timeout.timeout(1) do
+      loop do
+        break if block.call
+        sleep(0.001)
+      end
+    end
+  end
+
 end
