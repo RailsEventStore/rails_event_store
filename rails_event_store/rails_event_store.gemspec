@@ -29,10 +29,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
   spec.add_development_dependency 'rails', '~> 5.2'
+  # spec.add_development_dependency 'railties', '~> 5.2'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'mutant-rspec', '~> 0.8.14'
   spec.add_development_dependency 'google-protobuf', '~> 3.5.1.2'
+  spec.add_development_dependency 'pry'
 
   spec.add_dependency 'ruby_event_store', '= 0.30.0'
   spec.add_dependency 'rails_event_store_active_record', '= 0.30.0'
