@@ -21,7 +21,7 @@ RSpec.describe AggregateRoot do
   it "should have no unpublished events when loaded" do
     stream = "any-order-stream"
     order_created = Orders::Events::OrderCreated.new
-    event_store.publish_event(order_created, stream_name: stream)
+    event_store.publish(order_created, stream_name: stream)
 
     order = Order.new.load(stream, event_store: event_store)
     expect(order.status).to eq :created
@@ -38,23 +38,23 @@ RSpec.describe AggregateRoot do
     order.apply(order_created)
     order.apply(order_expired)
     order.apply(order_complicated)
-    expect(event_store).to receive(:publish_events).with([order_created, order_expired, order_complicated], stream_name: stream, expected_version: -1).and_call_original
+    expect(event_store).to receive(:publish).with([order_created, order_expired, order_complicated], stream_name: stream, expected_version: -1).and_call_original
     order.store(stream, event_store: event_store)
     expect(order.unpublished_events.to_a).to be_empty
   end
 
-  it "updates aggregate stream position and uses it in subsequent publish_events call as expected_version" do
+  it "updates aggregate stream position and uses it in subsequent publish call as expected_version" do
     stream = "any-order-stream"
     order_created = Orders::Events::OrderCreated.new
 
     order = Order.new
     order.apply(order_created)
-    expect(event_store).to receive(:publish_events).with([order_created], stream_name: stream, expected_version: -1).and_call_original
+    expect(event_store).to receive(:publish).with([order_created], stream_name: stream, expected_version: -1).and_call_original
     order.store(stream, event_store: event_store)
 
     order_expired = Orders::Events::OrderExpired.new
     order.apply(order_expired)
-    expect(event_store).to receive(:publish_events).with([order_expired], stream_name: stream, expected_version: 0).and_call_original
+    expect(event_store).to receive(:publish).with([order_expired], stream_name: stream, expected_version: 0).and_call_original
     order.store(stream, event_store: event_store)
   end
 
@@ -193,8 +193,8 @@ RSpec.describe AggregateRoot do
   end
 
   it "loads events from given stream" do
-    event_store.publish_event(Orders::Events::OrderCreated.new, stream_name: "Order$1")
-    event_store.publish_event(Orders::Events::OrderExpired.new, stream_name: "Order$2")
+    event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
+    event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$2")
 
     order = Order.new.load("Order$1", event_store: event_store)
     expect(order.status).to eq :created

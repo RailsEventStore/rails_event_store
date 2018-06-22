@@ -32,78 +32,78 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent))
       end
 
       specify do
-        event_store.publish_event(BarEvent.new)
+        event_store.publish(BarEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent))
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent)).exactly(1)
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(2)
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BazEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BazEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(1)
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(2).times
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(1).time
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent)).once
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent)).once
       end
 
       specify do
-        event_store.publish_event(FooEvent.new, stream_name: "Foo")
+        event_store.publish(FooEvent.new, stream_name: "Foo")
         expect(event_store).to matcher(matchers.an_event(FooEvent))
       end
 
       specify do
-        event_store.publish_event(FooEvent.new, stream_name: "Foo")
+        event_store.publish(FooEvent.new, stream_name: "Foo")
         expect(event_store).to matcher(matchers.an_event(FooEvent)).in_stream("Foo")
       end
 
       specify do
-        event_store.publish_event(FooEvent.new, stream_name: "Foo")
+        event_store.publish(FooEvent.new, stream_name: "Foo")
         expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_stream("Baz")
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_stream("Baz")
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BazEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BazEvent.new)
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent),
@@ -112,7 +112,7 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent),
@@ -121,8 +121,8 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BarEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BarEvent.new)
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent),
@@ -131,9 +131,9 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BarEvent.new)
-        event_store.publish_event(BazEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BarEvent.new)
+        event_store.publish(BazEvent.new)
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent),
@@ -142,8 +142,8 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BarEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BarEvent.new)
 
         expect(event_store).not_to matcher(
           matchers.an_event(BarEvent),
@@ -152,8 +152,8 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BarEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BarEvent.new)
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent),
@@ -162,9 +162,9 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new, stream_name: "Foo")
-        event_store.publish_event(BarEvent.new, stream_name: "Foo")
-        event_store.publish_event(FooEvent.new, stream_name: "Bar")
+        event_store.publish(FooEvent.new, stream_name: "Foo")
+        event_store.publish(BarEvent.new, stream_name: "Foo")
+        event_store.publish(FooEvent.new, stream_name: "Bar")
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent),
@@ -173,9 +173,9 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new(event_id: start_id = SecureRandom.uuid))
-        event_store.publish_event(BarEvent.new)
-        event_store.publish_event(BazEvent.new)
+        event_store.publish(FooEvent.new(event_id: start_id = SecureRandom.uuid))
+        event_store.publish(BarEvent.new)
+        event_store.publish(BazEvent.new)
 
         expect(event_store).to matcher(
           matchers.an_event(BarEvent),
@@ -184,9 +184,9 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new(event_id: start_id = SecureRandom.uuid))
-        event_store.publish_event(BarEvent.new)
-        event_store.publish_event(BazEvent.new)
+        event_store.publish(FooEvent.new(event_id: start_id = SecureRandom.uuid))
+        event_store.publish(BarEvent.new)
+        event_store.publish(BazEvent.new)
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent)
@@ -194,8 +194,8 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(FooEvent.new)
-        event_store.publish_event(BazEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(BazEvent.new)
 
         expect{
           expect(event_store).to matcher(
@@ -206,7 +206,7 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(actual = FooEvent.new)
+        event_store.publish(actual = FooEvent.new)
         _matcher = matcher(expected = matchers.an_event(BarEvent))
         _matcher.matches?(event_store)
 
@@ -219,7 +219,7 @@ module RailsEventStore
       end
 
       specify do
-        event_store.publish_event(actual = FooEvent.new)
+        event_store.publish(actual = FooEvent.new)
         _matcher = matcher(expected = matchers.an_event(BarEvent))
         _matcher.matches?(event_store)
 
