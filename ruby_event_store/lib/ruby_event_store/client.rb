@@ -22,7 +22,7 @@ module RubyEventStore
       enriched_events.zip(serialized_events) do |event, serialized_event|
         with_metadata(
           correlation_id: event.metadata[:correlation_id] || event.event_id,
-          causation_id:   event.event_id
+          causation_id:   event.event_id,
         ) do
           event_broker.notify_subscribers(event, serialized_event)
         end
