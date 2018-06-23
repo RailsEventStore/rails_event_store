@@ -38,6 +38,7 @@ RSpec.describe AggregateRoot do
     order.apply(order_created)
     order.apply(order_expired)
     order.apply(order_complicated)
+    expect(event_store).not_to receive(:publish).with(kind_of(Enumerator), any_args)
     expect(event_store).to receive(:publish).with([order_created, order_expired, order_complicated], stream_name: stream, expected_version: -1).and_call_original
     order.store(stream, event_store: event_store)
     expect(order.unpublished_events.to_a).to be_empty
