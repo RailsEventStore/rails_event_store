@@ -46,17 +46,17 @@ RSpec.describe RailsEventStore do
   end
 
   specify 'default dispatcher can into ActiveJob' do
-    expect(MyLovelyAsyncHandler.event).to eq(nil)
+    MyLovelyAsyncHandler.event = nil
     event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
-    event_store.publish_event(ev = RailsEventStore::Event.new)
+    event_store.publish(ev = RailsEventStore::Event.new)
     wait_until{ MyLovelyAsyncHandler.event }
     expect(MyLovelyAsyncHandler.event).to eq(ev)
   end
 
   specify 'ActiveJob with AsyncHandler prepended' do
-    expect(HandlerWithHelper.event).to eq(nil)
+    HandlerWithHelper.event = nil
     event_store.subscribe_to_all_events(HandlerWithHelper)
-    event_store.publish_event(ev = RailsEventStore::Event.new)
+    event_store.publish(ev = RailsEventStore::Event.new)
     wait_until{ HandlerWithHelper.event }
     expect(HandlerWithHelper.event).to eq(ev)
   end
@@ -64,7 +64,7 @@ RSpec.describe RailsEventStore do
   specify 'ActiveJob with CorrelatedHandler prepended' do
     MetadataHandler.metadata = nil
     event_store.subscribe_to_all_events(MetadataHandler)
-    event_store.publish_event(ev = RailsEventStore::Event.new)
+    event_store.publish(ev = RailsEventStore::Event.new)
     wait_until{ MetadataHandler.metadata }
     expect(MetadataHandler.metadata).to eq({
       correlation_id: ev.event_id,
@@ -75,7 +75,7 @@ RSpec.describe RailsEventStore do
   specify 'ActiveJob with CorrelatedHandler prepended (2)' do
     MetadataHandler.metadata = nil
     event_store.subscribe_to_all_events(MetadataHandler)
-    event_store.publish_event(ev = RailsEventStore::Event.new(
+    event_store.publish(ev = RailsEventStore::Event.new(
       metadata: {
         correlation_id: "COID",
         causation_id:   "CAID",

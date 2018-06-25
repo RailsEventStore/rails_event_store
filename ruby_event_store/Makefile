@@ -15,7 +15,10 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Client\#read_events_forward \
               RubyEventStore::Client\#read_events_backward \
               RubyEventStore::DeprecatedReadAPIRunner* \
-              RubyEventStore::DeprecatedReadAPIRewriter*
+              RubyEventStore::DeprecatedReadAPIRewriter* \
+              RubyEventStore::Client\#publish_event \
+              RubyEventStore::Client\#publish_events \
+
 SUBJECT     ?= RubyEventStore*
 
 install: ## Install gem dependencies

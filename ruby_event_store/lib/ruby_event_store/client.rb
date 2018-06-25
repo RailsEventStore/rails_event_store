@@ -15,7 +15,7 @@ module RubyEventStore
       @metadata       = Concurrent::ThreadLocalVar.new
     end
 
-    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+    def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
       serialized_events = serialize_events(enriched_events)
       append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
@@ -30,8 +30,22 @@ module RubyEventStore
       :ok
     end
 
+    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      warn <<~EOW
+        RubyEventStore::Client#publish_events has been deprecated.
+
+        Use RubyEventStore::Client#publish instead
+      EOW
+      publish(events, stream_name: stream_name, expected_version: expected_version)
+    end
+
     def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      publish_events(event, stream_name: stream_name, expected_version: expected_version)
+      warn <<~EOW
+        RubyEventStore::Client#publish_event has been deprecated.
+
+        Use RubyEventStore::Client#publish instead
+      EOW
+      publish(event, stream_name: stream_name, expected_version: expected_version)
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)

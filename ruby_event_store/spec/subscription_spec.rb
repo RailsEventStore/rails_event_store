@@ -57,7 +57,7 @@ module RubyEventStore
       subscriber = Subscribers::ValidHandler.new
       client.subscribe_to_all_events(subscriber)
       event = OrderCreated.new
-      client.publish_event(event)
+      client.publish(event)
       expect(subscriber.handled_events).to eq [event]
     end
 
@@ -66,8 +66,8 @@ module RubyEventStore
       client.subscribe(subscriber, to: [OrderCreated, ProductAdded])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      client.publish_event(event_1)
-      client.publish_event(event_2)
+      client.publish(event_1)
+      client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1, event_2]
     end
 
@@ -78,7 +78,7 @@ module RubyEventStore
       }
       client.subscribe_to_all_events(subscriber)
       event = OrderCreated.new
-      client.publish_event(event)
+      client.publish(event)
       expect(handled_events).to eq [event]
     end
 
@@ -89,9 +89,9 @@ module RubyEventStore
       unsub = client.subscribe_to_all_events do |ev|
         subscriber.call(ev)
       end
-      client.publish_event(event_1)
+      client.publish(event_1)
       unsub.()
-      client.publish_event(event_2)
+      client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
@@ -104,8 +104,8 @@ module RubyEventStore
       client.subscribe(subscriber, to: [OrderCreated, ProductAdded])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      client.publish_event(event_1)
-      client.publish_event(event_2)
+      client.publish(event_1)
+      client.publish(event_2)
       expect(handled_events).to eq [event_1, event_2]
     end
 
@@ -116,8 +116,8 @@ module RubyEventStore
       end
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      client.publish_event(event_1)
-      client.publish_event(event_2)
+      client.publish(event_1)
+      client.publish(event_2)
       expect(handled_events).to eq [event_1, event_2]
     end
 
@@ -128,7 +128,7 @@ module RubyEventStore
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
-      client.publish_event(event)
+      client.publish(event)
       serialized_event = mapper.event_to_serialized_record(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_event: serialized_event}]
     end
@@ -139,9 +139,9 @@ module RubyEventStore
       event_2 = OrderCreated.new
       subscriber = Subscribers::ValidHandler.new
       unsub = client.subscribe(subscriber, to: [OrderCreated])
-      client.publish_event(event_1)
+      client.publish(event_1)
       unsub.()
-      client.publish_event(event_2)
+      client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
@@ -151,9 +151,9 @@ module RubyEventStore
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
       client.within do
-        client.publish_event(event_1)
+        client.publish(event_1)
       end.subscribe(subscriber, to: [OrderCreated, ProductAdded]).call
-      client.publish_event(event_2)
+      client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(client.read_all_streams_forward).to eq([event_1, event_2])
     end
@@ -164,7 +164,7 @@ module RubyEventStore
       client.subscribe(to: [OrderCreated]) do |event|
         received_event = event
       end
-      client.publish_event(OrderCreated.new)
+      client.publish(OrderCreated.new)
 
       expect(received_event).to_not be_nil
       expect(received_event.metadata[:timestamp]).to eq(Time.at(0))
@@ -188,7 +188,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
-      client.publish_event(event)
+      client.publish(event)
       serialized_event = mapper.event_to_serialized_record(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_event: serialized_event}]
     end
@@ -199,7 +199,7 @@ module RubyEventStore
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
-      client.publish_event(event)
+      client.publish(event)
       serialized_event = mapper.event_to_serialized_record(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_event: serialized_event}]
     end
@@ -227,10 +227,10 @@ module RubyEventStore
       broker = PubSub::Broker.new(dispatcher: dispatcher)
       client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
       result = client.within do
-        client.publish_event(event_1)
+        client.publish(event_1)
         :elo
       end.subscribe_to_all_events(Subscribers::ValidHandler).call
-      client.publish_event(event_2)
+      client.publish(event_2)
       serialized_event_1 = mapper.event_to_serialized_record(event_1)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_event: serialized_event_1}]
       expect(result).to eq(:elo)
@@ -245,7 +245,7 @@ module RubyEventStore
       client.subscribe(subscriber, to: [ProductAdded, OrderCreated])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      client.publish_events([event_1, event_2])
+      client.publish([event_1, event_2])
       expect(handled_events).to eq [event_1, event_2]
     end
 
@@ -263,7 +263,7 @@ module RubyEventStore
       client.subscribe(subscriber2, to: [ProductAdded, OrderCreated])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
-      client.publish_events([event_1, event_2])
+      client.publish([event_1, event_2])
       expect(handled_events).to eq [
         event_1, :subscriber1, event_1, :subscriber2,
         event_2, :subscriber1, event_2, :subscriber2,
@@ -297,11 +297,11 @@ module RubyEventStore
         client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
 
         result = client.within do
-          client.publish_event(event_1)
+          client.publish(event_1)
           :yo
         end.subscribe_to_all_events(Subscribers::ValidHandler).call
 
-        client.publish_event(event_2)
+        client.publish(event_2)
         serialized_event = mapper.event_to_serialized_record(event_1)
         expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_event: serialized_event}]
         expect(client.read_all_streams_forward).to eq([event_1, event_2])
@@ -314,12 +314,12 @@ module RubyEventStore
         event_3 = ProductAdded.new
         types = [OrderCreated, ProductAdded]
         result = client.within do
-          client.publish_event(event_1)
-          client.publish_event(event_2)
+          client.publish(event_1)
+          client.publish(event_2)
           :result
         end.subscribe(h = Subscribers::ValidHandler.new, to: types).call
 
-        client.publish_event(event_3)
+        client.publish(event_3)
         expect(h.handled_events).to eq([event_1, event_2])
         expect(result).to eq(:result)
         expect(client.read_all_streams_forward).to eq([event_1, event_2, event_3])
@@ -329,19 +329,19 @@ module RubyEventStore
         e1 = e2 = e3 = e4 = e5 = e6 = e7 = e8 = nil
         h1 = h2 = nil
         result = client.within do
-          client.publish_event(e1 = ProductAdded.new)
-          client.publish_event(e2 = OrderCreated.new)
+          client.publish(e1 = ProductAdded.new)
+          client.publish(e2 = OrderCreated.new)
           client.within do
-            client.publish_event(e3 = ProductAdded.new)
-            client.publish_event(e4 = OrderCreated.new)
+            client.publish(e3 = ProductAdded.new)
+            client.publish(e4 = OrderCreated.new)
             :result1
           end.subscribe(h2 = Subscribers::ValidHandler.new, to: [OrderCreated]).call
-          client.publish_event(e5 = ProductAdded.new)
-          client.publish_event(e6 = OrderCreated.new)
+          client.publish(e5 = ProductAdded.new)
+          client.publish(e6 = OrderCreated.new)
           :result2
         end.subscribe(h1 = Subscribers::ValidHandler.new, to: [ProductAdded]).call
-        client.publish_event(e7 = ProductAdded.new)
-        client.publish_event(e8 = OrderCreated.new)
+        client.publish(e7 = ProductAdded.new)
+        client.publish(e8 = OrderCreated.new)
 
         expect(h1.handled_events).to eq([e1,e3,e5])
         expect(h2.handled_events).to eq([e4])
@@ -355,12 +355,12 @@ module RubyEventStore
         exception = Class.new(StandardError)
         begin
           client.within do
-            client.publish_event(event_1)
+            client.publish(event_1)
             raise exception
           end.subscribe(h = Subscribers::ValidHandler.new, to: OrderCreated).call
         rescue exception
         end
-        client.publish_event(event_2)
+        client.publish(event_2)
         expect(h.handled_events).to eq([event_1])
         expect(client.read_all_streams_forward).to eq([event_1, event_2])
       end
@@ -371,8 +371,8 @@ module RubyEventStore
         event_3 = ProductAdded.new
         h1,h2,h3,h4 = 4.times.map{Subscribers::ValidHandler.new}
         result = client.within do
-          client.publish_event(event_1)
-          client.publish_event(event_2)
+          client.publish(event_1)
+          client.publish(event_2)
           :result
         end.
         subscribe(h1, to: OrderCreated).
@@ -385,7 +385,7 @@ module RubyEventStore
         end.
         call
 
-        client.publish_event(event_3)
+        client.publish(event_3)
         expect(h1.handled_events).to eq([event_1])
         expect(h3.handled_events).to eq([event_2])
         expect(h2.handled_events).to eq([event_1, event_2])
@@ -402,13 +402,13 @@ module RubyEventStore
         thread = Thread.new do
           client.within do
             exchanger.exchange!('love_marta', timeout)
-            events_count.times{ client.publish_event(ProductAdded.new) }
+            events_count.times{ client.publish(ProductAdded.new) }
             exchanger.exchange!('love_robert', timeout)
           end.subscribe_to_all_events(h3).subscribe(h4, to: ProductAdded).call
         end
         client.within do
           exchanger.exchange!('love_marta', timeout)
-          events_count.times{ client.publish_event(OrderCreated.new) }
+          events_count.times{ client.publish(OrderCreated.new) }
           exchanger.exchange!('love_robert', timeout)
         end.subscribe_to_all_events(h1).subscribe(h2, to: OrderCreated).call
         thread.join

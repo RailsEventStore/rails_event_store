@@ -40,7 +40,7 @@ module RailsEventStore
 
     def app
       TestApplication.tap do |app|
-        app.routes.draw { root(to: ->(env) {event_store.publish_event(DummyEvent.new); [200, {}, ['']]}) }
+        app.routes.draw { root(to: ->(env) {event_store.publish(DummyEvent.new); [200, {}, ['']]}) }
       end
     end
   end
