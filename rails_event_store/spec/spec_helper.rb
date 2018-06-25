@@ -19,6 +19,11 @@ RSpec.configure do |config|
     end
     example.run
   end
+
+  config.around(:each) do |example|
+    ActiveJob::Base.queue_adapter = :inline
+    example.run
+  end
 end
 
 $verbose = ENV.has_key?('VERBOSE') ? true : false

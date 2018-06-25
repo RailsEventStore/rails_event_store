@@ -1,12 +1,15 @@
 require 'spec_helper'
 require 'action_controller/railtie'
 
-AsyncAdapterAvailable = Gem::Version.new(Rails::VERSION::STRING) > Gem::Version.new("5.0.0")
+$stdout = StringIO.new
+require 'sidekiq/testing'
+$stdout = STDOUT
+
+AsyncAdapterAvailable = Gem::Version.new(Rails::VERSION::STRING) >= Gem::Version.new("5.0.0")
 SimpleAdapter = AsyncAdapterAvailable ? :async : :inline
 
 RSpec.describe RailsEventStore do
   class MyLovelyAsyncHandler < ActiveJob::Base
-    self.queue_adapter = SimpleAdapter
     cattr_accessor :event
 
     def perform(payload)
@@ -15,7 +18,6 @@ RSpec.describe RailsEventStore do
   end
 
   class HandlerWithHelper < ActiveJob::Base
-    self.queue_adapter = SimpleAdapter
     cattr_accessor :event
 
     prepend RailsEventStore::AsyncHandler
@@ -26,7 +28,6 @@ RSpec.describe RailsEventStore do
   end
 
   class MetadataHandler < ActiveJob::Base
-    self.queue_adapter = SimpleAdapter
     cattr_accessor :metadata
 
     prepend RailsEventStore::CorrelatedHandler
@@ -43,6 +44,7 @@ RSpec.describe RailsEventStore do
     rails = double("Rails", configuration: Rails::Application::Configuration.new)
     stub_const("Rails", rails)
     Rails.configuration.event_store = event_store
+    ActiveJob::Base.queue_adapter = SimpleAdapter
   end
 
   specify 'default dispatcher can into ActiveJob' do
@@ -86,6 +88,18 @@ RSpec.describe RailsEventStore do
       correlation_id: "COID",
       causation_id:   ev.event_id,
     })
+  end
+
+  specify 'ActiveJob with sidekiq adapter that requires serialization', mutant: false do
+    ActiveJob::Base.queue_adapter = :sidekiq
+    ev = RailsEventStore::Event.new
+    Sidekiq::Testing.fake! do
+      MyLovelyAsyncHandler.event = nil
+      event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
+      event_store.publish(ev)
+      Thread.new{ Sidekiq::Worker.drain_all }.join
+    end
+    expect(MyLovelyAsyncHandler.event).to eq(ev)
   end
 
   private
