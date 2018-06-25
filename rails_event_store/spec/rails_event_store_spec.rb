@@ -1,9 +1,12 @@
 require 'spec_helper'
 require 'action_controller/railtie'
 
+AsyncAdapterAvailable = Gem::Version.new(Rails::VERSION::STRING) > Gem::Version.new("5.0.0")
+SimpleAdapter = AsyncAdapterAvailable ? :async : :inline
+
 RSpec.describe RailsEventStore do
   class MyLovelyAsyncHandler < ActiveJob::Base
-    self.queue_adapter = :async
+    self.queue_adapter = SimpleAdapter
     cattr_accessor :event
 
     def perform(payload)
@@ -12,7 +15,7 @@ RSpec.describe RailsEventStore do
   end
 
   class HandlerWithHelper < ActiveJob::Base
-    self.queue_adapter = :async
+    self.queue_adapter = SimpleAdapter
     cattr_accessor :event
 
     prepend RailsEventStore::AsyncHandler
@@ -23,7 +26,7 @@ RSpec.describe RailsEventStore do
   end
 
   class MetadataHandler < ActiveJob::Base
-    self.queue_adapter = :async
+    self.queue_adapter = SimpleAdapter
     cattr_accessor :metadata
 
     prepend RailsEventStore::CorrelatedHandler
