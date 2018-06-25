@@ -6,6 +6,7 @@ gem 'rails_event_store_active_record', path: '../rails_event_store_active_record
 gem 'aggregate_root',                  path: '../aggregate_root'
 gem 'bounded_context',                 path: '../bounded_context'
 gem 'protobuf_nested_struct'
+gem 'sidekiq'
 
 if v = ENV['RAILS_VERSION']
   gem 'rails', v

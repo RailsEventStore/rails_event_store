@@ -209,16 +209,16 @@ module RubyEventStore
       self.metadata = previous_metadata
     end
 
+    def deserialize(event_type:, event_id:, data:, metadata:)
+      mapper.serialized_record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
+    end
+
     def metadata
       @metadata.value || EMPTY_HASH
     end
 
     EMPTY_HASH = {}.freeze
     private_constant :EMPTY_HASH
-
-    def deserialize(event_type:, event_id:, data:, metadata:)
-      mapper.serialized_record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
-    end
 
     private
 
