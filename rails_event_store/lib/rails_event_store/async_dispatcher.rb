@@ -1,28 +1,27 @@
-require 'active_job'
-
 module RailsEventStore
   module AsyncProxyStrategy
     class AfterCommit
-      def call(klass, serialized_event)
+      def call(klass, serialized_event, async_call)
         if ActiveRecord::Base.connection.transaction_open?
           ActiveRecord::Base.
             connection.
             current_transaction.
-            add_record(AsyncRecord.new(klass, serialized_event))
+            add_record(AsyncRecord.new(klass, serialized_event, async_call))
         else
-          klass.perform_later(serialized_event.to_h)
+          async_call.call(klass, serialized_event)
         end
       end
 
       private
       class AsyncRecord
-        def initialize(klass, serialized_event)
+        def initialize(klass, serialized_event, async_call)
           @klass = klass
           @serialized_event = serialized_event
+          @async_call = async_call
         end
 
         def committed!
-          klass.perform_later(serialized_event.to_h)
+          async_call.call(klass, serialized_event)
         end
 
         def rolledback!(*)
@@ -32,42 +31,36 @@ module RailsEventStore
         end
 
         def add_to_transaction
-          AfterCommit.new.call(klass, serialized_event)
+          AfterCommit.new.call(klass, serialized_event, async_call)
         end
 
-        attr_reader :serialized_event, :klass
+        attr_reader :serialized_event, :klass, :async_call
       end
     end
 
     class Inline
-      def call(klass, serialized_event)
-        klass.perform_later(serialized_event.to_h)
+      def call(klass, serialized_event, async_call)
+        async_call.call(klass, serialized_event)
       end
     end
   end
 
   class AsyncDispatcher < RubyEventStore::PubSub::Dispatcher
-    def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new)
+    def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new, async_call:)
       @async_proxy_strategy = proxy_strategy
+      @async_call = async_call
     end
 
     def call(subscriber, _, serialized_event)
-      if async_handler?(subscriber)
-        @async_proxy_strategy.call(subscriber, serialized_event)
+      if @async_call.async_handler?(subscriber)
+        @async_proxy_strategy.call(subscriber, serialized_event, @async_call)
       else
         super
       end
     end
 
     def verify(subscriber)
-      super unless async_handler?(subscriber)
+      super unless @async_call.async_handler?(subscriber)
     end
-
-    private
-
-    def async_handler?(klass)
-      Class === klass && klass < ActiveJob::Base
-    end
-
   end
 end
