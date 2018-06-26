@@ -45,7 +45,7 @@ module AggregateRoot
   end
 
   def store(stream_name = loaded_from_stream_name, event_store: default_event_store)
-    event_store.publish_events(unpublished_events, stream_name: stream_name, expected_version: version)
+    event_store.publish(unpublished, stream_name: stream_name, expected_version: version)
     @version += unpublished_events.size
     @unpublished_events = nil
   end

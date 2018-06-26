@@ -32,7 +32,7 @@ module RailsEventStore
           order_id: "K3THNX9",
         )
       )
-      client.publish_event(event, stream_name: 'test')
+      client.publish(event, stream_name: 'test')
       expect(client.read_event(event.event_id)).to eq(event)
       expect(client.read.stream('test').each.to_a).to eq([event])
 

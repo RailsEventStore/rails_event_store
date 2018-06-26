@@ -15,20 +15,37 @@ module RubyEventStore
       @metadata       = Concurrent::ThreadLocalVar.new
     end
 
-    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+    def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
       serialized_events = serialize_events(enriched_events)
       append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(serialized_events) do |event, serialized_event|
-        with_metadata(correlation_id: event.metadata[:correlation_id] || event.event_id, causation_id: event.event_id) do
+        with_metadata(
+          correlation_id: event.metadata[:correlation_id] || event.event_id,
+          causation_id:   event.event_id,
+        ) do
           event_broker.notify_subscribers(event, serialized_event)
         end
       end
       :ok
     end
 
+    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      warn <<~EOW
+        RubyEventStore::Client#publish_events has been deprecated.
+
+        Use RubyEventStore::Client#publish instead
+      EOW
+      publish(events, stream_name: stream_name, expected_version: expected_version)
+    end
+
     def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      publish_events(event, stream_name: stream_name, expected_version: expected_version)
+      warn <<~EOW
+        RubyEventStore::Client#publish_event has been deprecated.
+
+        Use RubyEventStore::Client#publish instead
+      EOW
+      publish(event, stream_name: stream_name, expected_version: expected_version)
     end
 
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
@@ -186,7 +203,7 @@ module RubyEventStore
 
     def with_metadata(metadata, &block)
       previous_metadata = metadata()
-      self.metadata = (previous_metadata || {}).merge(metadata)
+      self.metadata = previous_metadata.merge(metadata)
       block.call if block_given?
     ensure
       self.metadata = previous_metadata
@@ -195,6 +212,13 @@ module RubyEventStore
     def deserialize(event_type:, event_id:, data:, metadata:)
       mapper.serialized_record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
     end
+
+    def metadata
+      @metadata.value || EMPTY_HASH
+    end
+
+    EMPTY_HASH = {}.freeze
+    private_constant :EMPTY_HASH
 
     private
 
@@ -219,9 +243,7 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      if metadata
-        metadata.each { |key, value| event.metadata[key] ||= value }
-      end
+      metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp] ||= clock.call
     end
 
@@ -230,10 +252,6 @@ module RubyEventStore
     end
 
     protected
-
-    def metadata
-      @metadata.value
-    end
 
     def metadata=(value)
       @metadata.value = value

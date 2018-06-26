@@ -21,7 +21,7 @@ module RailsEventStore
 
     before(:each) do
       CallableHandler.reset
-      AsyncHandler.reset
+      MyAsyncHandler.reset
     end
 
     let!(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
@@ -29,7 +29,7 @@ module RailsEventStore
 
     it "verification" do
       expect do
-        ActiveJobDispatcher.new.verify(AsyncHandler)
+        ActiveJobDispatcher.new.verify(MyAsyncHandler)
       end.not_to raise_error
       expect do
         ActiveJobDispatcher.new.verify(ActiveJob::Base)
@@ -40,12 +40,12 @@ module RailsEventStore
     end
 
     it "builds async proxy for ActiveJob::Base ancestors" do
-      expect_to_have_enqueued_job(AsyncHandler) do
-        ActiveJobDispatcher.new.call(AsyncHandler, event, serialized_event)
+      expect_to_have_enqueued_job(MyAsyncHandler) do
+        ActiveJobDispatcher.new.call(MyAsyncHandler, event, serialized_event)
       end
-      expect(AsyncHandler.received).to be_nil
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq({
+      expect(MyAsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to eq({
         "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
         "data"            => "--- {}\n",
         "metadata"        => "--- {}\n",
@@ -56,12 +56,12 @@ module RailsEventStore
 
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-      expect_to_have_enqueued_job(AsyncHandler) do
-        dispatcher.call(AsyncHandler, event, serialized_event)
+      expect_to_have_enqueued_job(MyAsyncHandler) do
+        dispatcher.call(MyAsyncHandler, event, serialized_event)
       end
-      expect(AsyncHandler.received).to be_nil
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq({
+      expect(MyAsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to eq({
           "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
           "data"            => "--- {}\n",
           "metadata"        => "--- {}\n",
@@ -72,16 +72,16 @@ module RailsEventStore
 
     it "async proxy for defined adapter enqueue job only after transaction commit" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-      expect_to_have_enqueued_job(AsyncHandler) do
+      expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
-            dispatcher.call(AsyncHandler, event, serialized_event)
+            dispatcher.call(MyAsyncHandler, event, serialized_event)
           end
         end
       end
-      expect(AsyncHandler.received).to be_nil
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq({
+      expect(MyAsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to eq({
           "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
           "data"            => "--- {}\n",
           "metadata"        => "--- {}\n",
@@ -92,14 +92,14 @@ module RailsEventStore
 
     it "async proxy for defined adapter do not enqueue job after transaction rollback" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-      expect_no_enqueued_job(AsyncHandler) do
+      expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
-          dispatcher.call(AsyncHandler, event, serialized_event)
+          dispatcher.call(MyAsyncHandler, event, serialized_event)
           raise ActiveRecord::Rollback
         end
       end
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to be_nil
     end
 
     it "async proxy for defined adapter does not enqueue job after transaction rollback (with raises)" do
@@ -108,14 +108,14 @@ module RailsEventStore
         ActiveRecord::Base.raise_in_transactional_callbacks = true
 
         dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-        expect_no_enqueued_job(AsyncHandler) do
+        expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
-            dispatcher.call(AsyncHandler, event, serialized_event)
+            dispatcher.call(MyAsyncHandler, event, serialized_event)
             raise ActiveRecord::Rollback
           end
         end
-        perform_enqueued_jobs(AsyncHandler.queue_adapter)
-        expect(AsyncHandler.received).to be_nil
+        perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+        expect(MyAsyncHandler.received).to be_nil
       ensure
         ActiveRecord::Base.raise_in_transactional_callbacks = was
       end
@@ -123,18 +123,18 @@ module RailsEventStore
 
     it "async proxy for defined adapter enqueue job only after top-level transaction (nested is not new) commit" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-      expect_to_have_enqueued_job(AsyncHandler) do
+      expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: false) do
-              dispatcher.call(AsyncHandler, event, serialized_event)
+              dispatcher.call(MyAsyncHandler, event, serialized_event)
             end
           end
         end
       end
-      expect(AsyncHandler.received).to be_nil
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq({
+      expect(MyAsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to eq({
           "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
           "data"            => "--- {}\n",
           "metadata"        => "--- {}\n",
@@ -145,18 +145,18 @@ module RailsEventStore
 
     it "async proxy for defined adapter enqueue job only after top-level transaction commit" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-      expect_to_have_enqueued_job(AsyncHandler) do
+      expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(AsyncHandler, event, serialized_event)
+              dispatcher.call(MyAsyncHandler, event, serialized_event)
             end
           end
         end
       end
-      expect(AsyncHandler.received).to be_nil
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to eq({
+      expect(MyAsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to eq({
           "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
           "data"            => "--- {}\n",
           "metadata"        => "--- {}\n",
@@ -167,18 +167,18 @@ module RailsEventStore
 
     it "async proxy for defined adapter do not enqueue job after nested transaction rollback" do
       dispatcher = ActiveJobDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new)
-      expect_no_enqueued_job(AsyncHandler) do
+      expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(AsyncHandler, event, serialized_event)
+              dispatcher.call(MyAsyncHandler, event, serialized_event)
               raise ActiveRecord::Rollback
             end
           end
         end
       end
-      perform_enqueued_jobs(AsyncHandler.queue_adapter)
-      expect(AsyncHandler.received).to be_nil
+      perform_enqueued_jobs(MyAsyncHandler.queue_adapter)
+      expect(MyAsyncHandler.received).to be_nil
     end
 
     def with_queue_adapter(job, queue_adapter = :test, &proc)
@@ -222,7 +222,7 @@ module RailsEventStore
       end
     end
 
-    class AsyncHandler < ActiveJob::Base
+    class MyAsyncHandler < ActiveJob::Base
       @@received = nil
       def self.reset
         @@received = nil

@@ -109,4 +109,48 @@ class MyEventHandler
 end
 ```
 
+## Correlating together events with commands, and commands with events from sync handlers
+
+If you use event store and [command bus](/docs/command_bus/) you can correlate together both kinds of messages: events & commands.
+
+```ruby
+config.to_prepare do
+  Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+  # register handlers
+   
+  command_bus = Arkency::CommandBus.new
+  # register commands...
+  
+  # wire event_store and command_bus together
+  Rails.configuration.command_bus = RubyEventStore::CorrelatedCommands.new(event_store, command_bus)
+end
+```
+
+Using `CorrelatedCommands` makes your events automatically correlated to the commands which triggered them (commands must respond to `message_id` method). 
+
+If your commands respond to `correlate_with` method they will be correlated to events which triggered them inside sync handlers. 
+
+Example:
+
+```ruby
+module CorrelableCommand
+  attr_accessor :correlation_id, :causation_id
+
+  def correlate_with(other_message)
+    self.correlation_id = other_message.correlation_id || other_message.message_id
+    self.causation_id   = other_message.message_id
+  end
+end
+
+class AddProductCommand < Struct.new(:message_id, :product_id)
+  include CorrelableCommand
+  
+  def initialize(product_id:, message_id: SecureRandom.uuid)
+    super(message_id, product_id)
+  end
+end
+```
+
+## Thanks
+
 Image thanks to [Arkency blog](https://blog.arkency.com/correlation-id-and-causation-id-in-evented-systems/)
