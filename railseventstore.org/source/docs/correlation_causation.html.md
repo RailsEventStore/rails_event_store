@@ -53,13 +53,37 @@ new_event.metadata[:correlation_id]
 new_event.metadata[:causation_id]
 ```
 
-## Correlating an event with a command
+This is however not necessary for sync handlers. Events published from sync handlers are by default correlated with events that caused them.
 
-If your command responds to `correlation_id` (can even always be `nil`) and `message_id` you can correlate your events
-also with commands.
+## Correlating events published from async handlers
+
+Events published from async handlers are not correlated with events that caused them by default. To enable that functionality you need to prepend `RailsEventStore::CorrelatedHandler`
 
 ```ruby
-class ApproveOrder = < Struct.new(:order_id, :message_id, :correlation_id)
+class SendOrderEmail < ActiveJob::Base
+  prepend RailsEventStore::CorrelatedHandler
+  prepend RailsEventStore::AsyncHandler
+  
+  def perform(event)
+    event_store.publish(HappenedLater.new(data:{
+      user_id: event.data.fetch(:user_id),
+    }))
+  end
+  
+  private
+  
+  def event_store
+    Rails.configuration.event_store
+  end
+end
+```
+
+## Correlating an event with a command
+
+If your command responds to `correlation_id` (can even always be `nil`) and `message_id` you can correlate your events also with commands.
+
+```ruby
+class ApproveOrder < Struct.new(:order_id, :message_id, :correlation_id)
 end
 
 command = ApproveOrder.new("KTXBN123", SecureRandom.uuid, nil)
