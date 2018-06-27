@@ -1,0 +1,73 @@
+require 'spec_helper'
+
+module RubyEventStore
+  RSpec.describe LinkByMetadata do
+
+    let(:event_store) do
+      RubyEventStore::Client.new(repository: InMemoryRepository.new)
+    end
+
+    specify 'links to stream based on selected metadata' do
+      event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :string))
+      event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :float))
+      event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :int))
+      event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :missing))
+
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        string: "city",
+        float: 1.5,
+        int: 2,
+      }))
+
+      expect(event_store.read.stream("$by_string_city").each.to_a).to eq([ev])
+      expect(event_store.read.stream("$by_float_1.5").each.to_a).to   eq([ev])
+      expect(event_store.read.stream("$by_int_2").each.to_a).to       eq([ev])
+
+      expect(event_store.read.stream("$by_missing").each.to_a).to     eq([])
+      expect(event_store.read.stream("$by_missing_").each.to_a).to    eq([])
+      expect(event_store.read.stream("$by_missing_nil").each.to_a).to eq([])
+    end
+
+    specify 'links to stream based on selected metadata' do
+      event_store = RubyEventStore::Client.new(
+        mapper: RubyEventStore::Mappers::Protobuf.new,
+        repository: InMemoryRepository.new
+      )
+      event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
+      ev = RubyEventStore::Proto.new(
+        data: ResTesting::OrderCreated.new(
+          customer_id: 123,
+          order_id: "K3THNX9",
+        ),
+        metadata: { city: "Chicago" }
+      )
+      event_store.publish(ev)
+
+      expect(event_store.read.stream("$by_city_Chicago").each.to_a).to eq([ev])
+    end
+
+    specify "custom prefix" do
+      event_store.subscribe_to_all_events(LinkByMetadata.new(
+        event_store: event_store,
+        key: :city,
+        prefix: "sweet+")
+      )
+
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        city: "Paris",
+      }))
+
+      expect(event_store.read.stream("sweet+Paris").each.to_a).to eq([ev])
+    end
+
+    specify "array of ids" do
+      event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
+      expect(event_store).to receive(:link_to_stream).with(instance_of(Array), any_args)
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        city: "Paris",
+      }))
+    end
+
+  end
+end
+
