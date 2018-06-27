@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'ruby_event_store'
-require 'ruby_event_store/spec/dispatcher_lint'
 
 module RailsEventStore
   RSpec.describe AsyncDispatcher do
@@ -15,8 +14,6 @@ module RailsEventStore
       end
     end
 
-    it_behaves_like :dispatcher, AsyncDispatcher.new(scheduler: CustomScheduler.new)
-
     before(:each) do
       CallableHandler.reset
       MyAsyncHandler.reset
@@ -24,27 +21,6 @@ module RailsEventStore
 
     let!(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
     let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
-
-    it "verification" do
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(NotCallableHandler)
-      end.to raise_error(RubyEventStore::InvalidHandler)
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(MyAsyncHandler)
-      end.not_to raise_error
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Object.new)
-      end.not_to raise_error
-    end
-
-    it "builds async proxy for Async::Base ancestors" do
-      expect_to_have_enqueued_job(MyAsyncHandler) do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).call(MyAsyncHandler, event, serialized_event)
-      end
-      expect(MyAsyncHandler.received).to be_nil
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_event)
-    end
 
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
       dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)

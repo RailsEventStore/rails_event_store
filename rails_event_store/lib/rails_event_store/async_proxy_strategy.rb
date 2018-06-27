@@ -35,11 +35,5 @@ module RailsEventStore
         attr_reader :schedule_proc
       end
     end
-
-    class Inline
-      def call(schedule_proc)
-        schedule_proc.call
-      end
-    end
   end
 end
