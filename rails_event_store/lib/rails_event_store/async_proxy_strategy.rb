@@ -1,25 +1,25 @@
 module RailsEventStore
   module AsyncProxyStrategy
     class AfterCommit
-      def call(async_call)
+      def call(schedule_proc)
         if ActiveRecord::Base.connection.transaction_open?
           ActiveRecord::Base.
             connection.
             current_transaction.
-            add_record(AsyncRecord.new(async_call))
+            add_record(AsyncRecord.new(schedule_proc))
         else
-          async_call.call
+          schedule_proc.call
         end
       end
 
       private
       class AsyncRecord
-        def initialize(async_call)
-          @async_call = async_call
+        def initialize(schedule_proc)
+          @schedule_proc = schedule_proc
         end
 
         def committed!
-          async_call.call
+          schedule_proc.call
         end
 
         def rolledback!(*)
@@ -29,16 +29,16 @@ module RailsEventStore
         end
 
         def add_to_transaction
-          AfterCommit.new.call(async_call)
+          AfterCommit.new.call(schedule_proc)
         end
 
-        attr_reader :async_call
+        attr_reader :schedule_proc
       end
     end
 
     class Inline
-      def call(async_call)
-        async_call.call
+      def call(schedule_proc)
+        schedule_proc.call
       end
     end
   end
