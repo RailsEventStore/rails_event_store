@@ -1,5 +1,5 @@
-module RailsEventStore
-  class AsyncDispatcher < RubyEventStore::PubSub::Dispatcher
+module RubyEventStore
+  class AsyncDispatcher < PubSub::Dispatcher
     def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new, scheduler:)
       @async_proxy_strategy = proxy_strategy
       @scheduler = scheduler
