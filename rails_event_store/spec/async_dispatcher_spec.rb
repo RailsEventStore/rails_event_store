@@ -1,10 +1,9 @@
 require 'spec_helper'
 require 'ruby_event_store'
-require 'ruby_event_store/spec/dispatcher_lint'
 
 module RailsEventStore
   RSpec.describe AsyncDispatcher do
-    class CustomAsyncCall
+    class CustomScheduler
       def call(klass, serialized_event)
         klass.new.perform_async(serialized_event)
       end
@@ -15,8 +14,6 @@ module RailsEventStore
       end
     end
 
-    it_behaves_like :dispatcher, AsyncDispatcher.new(async_call: CustomAsyncCall.new)
-
     before(:each) do
       CallableHandler.reset
       MyAsyncHandler.reset
@@ -25,29 +22,8 @@ module RailsEventStore
     let!(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
     let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
-    it "verification" do
-      expect do
-        AsyncDispatcher.new(async_call: CustomAsyncCall.new).verify(NotCallableHandler)
-      end.to raise_error(RubyEventStore::InvalidHandler)
-      expect do
-        AsyncDispatcher.new(async_call: CustomAsyncCall.new).verify(MyAsyncHandler)
-      end.not_to raise_error
-      expect do
-        AsyncDispatcher.new(async_call: CustomAsyncCall.new).verify(Object.new)
-      end.not_to raise_error
-    end
-
-    it "builds async proxy for Async::Base ancestors" do
-      expect_to_have_enqueued_job(MyAsyncHandler) do
-        AsyncDispatcher.new(async_call: CustomAsyncCall.new).call(MyAsyncHandler, event, serialized_event)
-      end
-      expect(MyAsyncHandler.received).to be_nil
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_event)
-    end
-
     it "async proxy for defined adapter enqueue job immediately when no transaction is open" do
-      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         dispatcher.call(MyAsyncHandler, event, serialized_event)
       end
@@ -57,7 +33,7 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job only after transaction commit" do
-      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -71,7 +47,7 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter do not enqueue job after transaction rollback" do
-      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
       expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           dispatcher.call(MyAsyncHandler, event, serialized_event)
@@ -87,7 +63,7 @@ module RailsEventStore
       begin
         ActiveRecord::Base.raise_in_transactional_callbacks = true
 
-        dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+        dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
         expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
             dispatcher.call(MyAsyncHandler, event, serialized_event)
@@ -102,7 +78,7 @@ module RailsEventStore
     end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
 
     it "async proxy for defined adapter enqueue job only after top-level transaction (nested is not new) commit" do
-      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -118,7 +94,7 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter enqueue job only after top-level transaction commit" do
-      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -134,7 +110,7 @@ module RailsEventStore
     end
 
     it "async proxy for defined adapter do not enqueue job after nested transaction rollback" do
-      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, async_call: CustomAsyncCall.new)
+      dispatcher = AsyncDispatcher.new(proxy_strategy: AsyncProxyStrategy::AfterCommit.new, scheduler: CustomScheduler.new)
       expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do

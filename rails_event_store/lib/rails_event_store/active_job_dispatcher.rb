@@ -1,13 +1,12 @@
 require 'active_job'
 
 module RailsEventStore
-
-  class ActiveJobDispatcher < AsyncDispatcher
+  class ActiveJobDispatcher < RubyEventStore::AsyncDispatcher
     def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new)
-      super(proxy_strategy: proxy_strategy, async_call: ActiveJobCall.new)
+      super(proxy_strategy: proxy_strategy, scheduler: ActiveJobScheduler.new)
     end
 
-    class ActiveJobCall
+    class ActiveJobScheduler
       def call(klass, serialized_event)
         klass.perform_later(serialized_event.to_h)
       end
