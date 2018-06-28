@@ -28,7 +28,7 @@ module RubyEventStore
       expect(event_store.read.stream("$by_missing_nil").each.to_a).to eq([])
     end
 
-    specify 'links to stream based on selected metadata' do
+    specify 'links to stream based on selected metadata (proto)' do
       event_store = RubyEventStore::Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
         repository: InMemoryRepository.new
@@ -68,6 +68,54 @@ module RubyEventStore
       }))
     end
 
+  end
+
+  RSpec.describe LinkByCorrelationId do
+    let(:event_store) do
+      RubyEventStore::Client.new(repository: InMemoryRepository.new)
+    end
+    let(:event) do
+      OrderCreated.new.tap do |ev|
+        ev.correlation_id = "COR"
+        ev.causation_id   = "CAU"
+      end
+    end
+
+    specify "default prefix" do
+      event_store.subscribe_to_all_events(LinkByCorrelationId.new(event_store: event_store))
+      event_store.publish(event)
+      expect(event_store.read.stream("$by_correlation_id_COR").each.to_a).to eq([event])
+    end
+
+    specify "custom prefix" do
+      event_store.subscribe_to_all_events(LinkByCorrelationId.new(event_store: event_store, prefix: "c-"))
+      event_store.publish(event)
+      expect(event_store.read.stream("c-COR").each.to_a).to eq([event])
+    end
+  end
+
+  RSpec.describe LinkByCausationId do
+    let(:event_store) do
+      RubyEventStore::Client.new(repository: InMemoryRepository.new)
+    end
+    let(:event) do
+      OrderCreated.new.tap do |ev|
+        ev.correlation_id = "COR"
+        ev.causation_id   = "CAU"
+      end
+    end
+
+    specify "default prefix" do
+      event_store.subscribe_to_all_events(LinkByCausationId.new(event_store: event_store))
+      event_store.publish(event)
+      expect(event_store.read.stream("$by_causation_id_CAU").each.to_a).to eq([event])
+    end
+
+    specify "custom prefix" do
+      event_store.subscribe_to_all_events(LinkByCausationId.new(event_store: event_store, prefix: "c-"))
+      event_store.publish(event)
+      expect(event_store.read.stream("c-CAU").each.to_a).to eq([event])
+    end
   end
 end
 

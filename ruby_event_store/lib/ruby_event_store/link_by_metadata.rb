@@ -4,11 +4,11 @@ module RubyEventStore
     def initialize(
       event_store:,
       key:,
-      prefix: ["$by", key, nil].join("_")
+      prefix: nil
     )
       @event_store = event_store
       @key = key
-      @prefix = prefix
+      @prefix = prefix || ["$by", key, nil].join("_")
     end
 
     def call(event)
@@ -20,5 +20,25 @@ module RubyEventStore
       )
     end
 
+  end
+
+  class LinkByCorrelationId < LinkByMetadata
+    def initialize(event_store:, prefix: nil)
+      super(
+        event_store: event_store,
+        prefix:      prefix,
+        key:         :correlation_id,
+      )
+    end
+  end
+
+  class LinkByCausationId < LinkByMetadata
+    def initialize(event_store:, prefix: nil)
+      super(
+        event_store: event_store,
+        prefix:      prefix,
+        key:         :causation_id,
+      )
+    end
   end
 end
