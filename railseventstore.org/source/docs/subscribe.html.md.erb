@@ -258,13 +258,50 @@ event_store.within do
 end.subscribe_to_all_events(EventsLogger).subscribe_to_all_events do |event|
   puts event.inspect
 end.call
-``` 
+```
 
 You start the temporary subscription by providing a block `within` which the subscriptions will be active. Then you can chain `subscribe` and `subscribe_to_all_events` as many times as you want to register temporary subscribers. When you are ready call `call` to evaluate the provided block with the temporary subscriptions.
 
 <h2 id="async-handlers">Async handlers</h2>
 
-It's possible to also subscribe async handlers to events. Async handlers are just background jobs implemented with `ActiveJob`.
+It's possible to also subscribe async handlers to events.
+<% if version_above('0.30.0') %>
+To implement async dispatcher for a background jobs library of your choise you need to implement scheduler class
+that will enqueue asynchrounous handlers as background jobs.
+
+The sample `CustomAsyncDispatcher` could be implemented as:
+
+```ruby
+class CustomAsyncDispatcher < RubyEventStore::AsyncDispatcher
+  def initialize(proxy_strategy: RubyEventStore::AsyncProxyStrategy::Inline.new)
+    super(proxy_strategy: proxy_strategy, scheduler: CustomScheduler.new)
+  end
+end
+```
+
+The `CustomScheduler` class is responsible for 2 operations: enqueue asynchrounous job using
+your background job library & tell dispatcher if the subscriber is an asynchronous one (if not
+it will be dispatched using provided dispatcher for synchrounous subscribers).
+The sample implementation of `CustomScheduler`:
+
+```ruby
+class CustomScheduler
+  def call(klass, serialized_event)
+    #... your code to enqueue klass with serialized_event payload here
+  end
+
+  def async_handler?(klass)
+    #... your code that returns true is handler should be async, otherwise false
+  end
+end
+```
+
+RailsEventStore provides implementation of asynchronous dispatcher with scheduler
+dedicated for `ActiveJob` library (`ActiveJobDispatcher` class).
+In that case async handlers are just background jobs implemented as:
+<% else %>
+Async handlers are just background jobs implemented with `ActiveJob`.
+<% end %>
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
@@ -280,6 +317,10 @@ event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 ```
 
 If a subscribed class does not inherit from `ActiveJob::Base` or anything responding to `#call` method is provided as first argument, it will be considered a synchronous handler.
+<% if version_above('0.30.0') %>
+Of course if you are using other background jobs library than ActiveJob you
+do not need to inherit from `ActiveJob::Base` and the implementation is up to you.
+<% end %>
 
 ### When are async handlers scheduled?
 
@@ -299,6 +340,8 @@ end
 That means when your `ActiveJob` adapter (such as sidekiq or resque)
 is using non-SQL store, your handler might get called before the
 whole transaction is committed or when the transaction was rolled-back.
+In this case the `RubyEventStore::AsyncProxyStrategy::Inline` is used
+(default for `ActiveJobDispatcher` class). This strategy might be useful in tests.
 
 ### Scheduling async handlers after commit
 
@@ -334,3 +377,5 @@ ActiveRecord::Base.transction do
 end
 # Async handlers such as SendOrderEmail scheduled here
 ```
+
+In this case the `RailsEventStore::AsyncProxyStrategy::AfterCommit` is used.
