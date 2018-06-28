@@ -11,7 +11,7 @@ Provided you have Ruby installed, you can serve the docs locally at `http://loca
 
 ```
 bundle install
-bin/build
+./bin/contributors
 bundle exec middleman server
 ```
 
