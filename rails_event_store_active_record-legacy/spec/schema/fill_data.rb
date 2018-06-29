@@ -37,17 +37,17 @@ end
 client = RubyEventStore::Client.new(
   repository: RailsEventStoreActiveRecord::EventRepository.new
 )
-client.append(EventAll.new(data: {
+client.append_to_stream(EventAll.new(data: {
   all: true,
   a: 1,
   text: "text",
 }, event_id: "94b297a3-5a29-4942-9038-3efeceb4d905"))
-client.append(EventAll.new(data: {
+client.append_to_stream(EventAll.new(data: {
   all: true,
   a: 2,
   date: Date.new(2017, 10, 11),
 }, event_id: "6a31b594-7d8f-428b-916f-496f6da05bfd"))
-client.append(EventAll.new(data: {
+client.append_to_stream(EventAll.new(data: {
   all: true,
   a: 3,
   time: Time.new(2017,10, 10, 12),
@@ -55,19 +55,19 @@ client.append(EventAll.new(data: {
 
 
 
-client.append(EventA1.new(data: {
+client.append_to_stream(EventA1.new(data: {
     a1: true,
     decimal: BigDecimal.new("20.00"),
   }, event_id: "d39cb65f-bc3c-4fbb-9470-52bf5e322bba"),
   stream_name: "Order-1",
 )
-client.append(EventA2.new(data: {
+client.append_to_stream(EventA2.new(data: {
     all: true,
     symbol: :symbol,
   }, event_id: "f2cecc51-adb1-4d83-b3ca-483d26311f03"),
   stream_name: "Order-1",
 )
-client.append(EventA1.new(data: {
+client.append_to_stream(EventA1.new(data: {
     all: true,
     symbol: :symbol,
   }, event_id: "600e1e1b-7fdf-44e2-a406-8b612c67c881"),
@@ -75,19 +75,19 @@ client.append(EventA1.new(data: {
 )
 
 
-client.append(EventB1.new(data: {
+client.append_to_stream(EventB1.new(data: {
   a1: true,
   decimal: BigDecimal.new("20.00"),
 }, event_id: "9009df88-6044-4a62-b7ae-098c42a9c5e1"),
   stream_name: "WroclawBuyers",
 )
-client.append(EventB2.new(data: {
+client.append_to_stream(EventB2.new(data: {
   all: true,
   symbol: :symbol,
 }, event_id: "cefdd213-0c92-46f6-bbdf-3ea9542d969a"),
   stream_name: "WroclawBuyers",
 )
-client.append(EventB2.new(data: {
+client.append_to_stream(EventB2.new(data: {
   all: true,
   symbol: :symbol,
 }, event_id: "36775fcd-c5d8-49c9-bf70-f460ba12d7c2"),
