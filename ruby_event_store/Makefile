@@ -19,6 +19,7 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Client\#publish_event \
               RubyEventStore::Client\#publish_events \
               RubyEventStore::Client\#link_to_stream \
+              RubyEventStore::Client\#append_to_stream \
 
 SUBJECT     ?= RubyEventStore*
 
