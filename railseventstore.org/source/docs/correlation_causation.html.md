@@ -151,6 +151,39 @@ class AddProductCommand < Struct.new(:message_id, :product_id)
 end
 ```
 
+## Building streams based on correlation id and causation id
+
+You can use `RailsEventStore::LinkByCorrelationId` (`RubyEventStore::LinkByCorrelationId`) and `RailsEventStore::LinkByCausationId` (`RubyEventStore::LinkByCausationId`) to build streams of all events with certain correlation or causation id. This makes debugging and making sense of a large process easier to see.  
+
+```ruby
+Rails.application.configure do
+  config.to_prepare do
+    Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+    event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
+    event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
+  end
+end
+```
+
+After publishing an event:
+
+```ruby
+event = OrderPlaced.new
+event_store.publish(event)
+```
+
+you can read events caused by it:
+
+```ruby
+event_store.read.stream("$by_causation_id_#{event.event_id}")
+```
+
+and events correlated with it:
+
+```ruby
+event_store.read.stream("$by_correlation_id_#{event.correlation_id || event.event_id}")
+```
+
 ## Thanks
 
 Image thanks to [Arkency blog](https://blog.arkency.com/correlation-id-and-causation-id-in-evented-systems/)
