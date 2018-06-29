@@ -82,6 +82,14 @@ module RubyEventStore
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
+    specify do
+      expect { client.append_to_stream(TestEvent.new, stream_name: stream) }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#append_to_stream has been deprecated.
+
+        Use RubyEventStore::Client#append instead
+      EOS
+    end
+
     specify 'read only up to page size from stream' do
       (1..102).each { client.append(TestEvent.new, stream_name: stream) }
 
