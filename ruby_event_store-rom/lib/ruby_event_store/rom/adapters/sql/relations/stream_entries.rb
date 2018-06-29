@@ -4,16 +4,14 @@ module RubyEventStore
       module Relations
         class StreamEntries < ::ROM::Relation[:sql]
           schema(:event_store_events_in_streams, as: :stream_entries, infer: true) do
+            attribute :created_at, ::ROM::Types::Strict::Time.default { Time.now }
+            
             associations do
               belongs_to :events, as: :event, foreign_key: :event_id
             end
           end
 
           alias_method :take, :limit
-    
-          def by_stream(stream)
-            where(stream: stream.name)
-          end
     
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
@@ -47,8 +45,6 @@ module RubyEventStore
             query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
           end
           
-          alias_method :take, :limit
-
           private
   
           def normalize_stream_name(stream)

@@ -1,5 +1,5 @@
-require 'rom/sql'
 require 'ruby_event_store/rom'
+require 'rom/sql'
 require_relative 'adapters/sql/index_violation_detector'
 require_relative 'adapters/sql/unit_of_work'
 require_relative 'adapters/sql/relations/events'
@@ -44,13 +44,49 @@ module RubyEventStore
       class SpecHelper
         attr_reader :env
         
-        def initialize(rom: ROM.env)
-          @env = rom
+        def initialize(database_uri = ENV['DATABASE_URL'])
+          config = ::ROM::Configuration.new(
+            :sql,
+            database_uri,
+            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
+            preconnect: :concurrently,
+            # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
+          )
+          # $stdout.sync = true
+          # config.default.use_logger Logger.new(STDOUT)
+          # config.default.connection.pool.send(:preconnect, true)
+          config.default.run_migrations
+    
+          @env = ROM.setup(config)
+        end
+        
+        def run_lifecycle
+          establish_gateway_connection
+          load_gateway_schema
+
+          yield
+        ensure
+          drop_gateway_schema
+          close_gateway_connection
         end
 
         def gateway
           env.container.gateways.fetch(:default)
         end
+
+        def has_connection_pooling?
+          !gateway.connection.database_type.eql?(:sqlite)
+        end
+
+        def connection_pool_size
+          gateway.connection.pool.size
+        end
+
+        def close_pool_connection
+          gateway.connection.pool.disconnect
+        end
+
+      protected
 
         def establish_gateway_connection
           # Manually preconnect because disconnecting and reconnecting
