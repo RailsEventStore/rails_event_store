@@ -42,7 +42,7 @@ Any kind of contribution is welcomed.
     make test
     ```
 
-    You could test each project separatelly, just enter the project folder and run tests (`make test` again) there.
+    You could test each project separately, just enter the project folder and run tests (`make test` again) there.
 
 * Make sure your changes survive mutation testing
 
@@ -50,7 +50,7 @@ Any kind of contribution is welcomed.
     make mutate
     ```
 
-    Will run mutation tests for all projects. The same command executed in specific project's folder will wun mutation tests ony for that project.
+    Will run mutation tests for all projects. The same command executed in specific project's folder will run mutation tests only for that project.
     Mutation tests might be time consuming, so you could try to limit the scope of mutations to some specific subjects:
 
     ```
@@ -59,7 +59,7 @@ Any kind of contribution is welcomed.
 
     How to specify `code_to_mutate` is described in [Mutant documentation](https://github.com/mbj/mutant#test-selection).
 
-* Don't forget to [create a Pull Request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/). You could do it even if not eveything is ready. The sooner you will share your changes the quicker feedback you will get.
+* Don't forget to [create a Pull Request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/). You could do it even if not everything is ready. The sooner you will share your changes the quicker feedback you will get.
 
 ## License
 
