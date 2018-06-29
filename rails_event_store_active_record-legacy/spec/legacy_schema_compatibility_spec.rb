@@ -46,7 +46,7 @@ RSpec.describe "legacy schema compatibility" do
 
   specify "writing events" do
     skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-    client.append_to_stream(
+    client.append(
       write_event = EventAll.new(metadata: { foo: 13 }),
       stream_name: 'foo',
       expected_version: -1
