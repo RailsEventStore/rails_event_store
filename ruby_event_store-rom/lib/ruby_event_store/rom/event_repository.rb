@@ -1,9 +1,17 @@
 require 'ruby_event_store/rom/unit_of_work'
+require 'forwardable'
 
 module RubyEventStore
   module ROM
     class EventRepository
+      extend Forwardable
+
+      def_delegator :@rom, :handle_error, :guard_for
+      def_delegators :@rom, :unit_of_work
+
       def initialize(rom: ROM.env)
+        raise ArgumentError, "Must specify rom" unless rom && rom.instance_of?(Env)
+        
         @rom = rom
         @events = Repositories::Events.new(rom.container)
         @stream_entries = Repositories::StreamEntries.new(rom.container)
@@ -13,31 +21,44 @@ module RubyEventStore
         events = normalize_to_array(events)
         event_ids = events.map(&:event_id)
 
-        @rom.transaction do |changesets|
-          # Create changesets inside transaction because
-          # we want to find the last position (a.k.a. version)
-          # again if the transaction is retried due to a
-          # deadlock in MySQL
-          changesets << @events.create_changeset(events)
-          changesets << @stream_entries.create_changeset(event_ids, stream, expected_version, global_stream: true)
+        guard_for(:unique_violation) do
+          unit_of_work do |changesets|
+            # Create changesets inside transaction because
+            # we want to find the last position (a.k.a. version)
+            # again if the transaction is retried due to a
+            # deadlock in MySQL
+            changesets << @events.create_changeset(events)
+            changesets << @stream_entries.create_changeset(
+              event_ids,
+              stream,
+              @stream_entries.resolve_version(stream, expected_version),
+              global_stream: true
+            )
+          end
         end
 
         self
-      rescue => ex
-        @rom.handle_error(:unique_violation, ex)
       end
 
       def link_to_stream(event_ids, stream, expected_version)
         event_ids = normalize_to_array(event_ids)
-        nonexistent_ids = @events.find_nonexistent_pks(event_ids)
 
-        nonexistent_ids.each { |id| raise EventNotFound.new(id) }
+        # Validate event IDs
+        @events
+          .find_nonexistent_pks(event_ids)
+          .each { |id| raise EventNotFound.new(id) }
 
-        @stream_entries.create_changeset(event_ids, stream, expected_version).commit
+        guard_for(:unique_violation) do
+          unit_of_work do |changesets|
+            changesets << @stream_entries.create_changeset(
+              event_ids,
+              stream,
+              @stream_entries.resolve_version(stream, expected_version)
+            )
+          end
+        end
 
         self
-      rescue => ex
-        @rom.handle_error(:unique_violation, ex)
       end
 
       def delete_stream(stream)
@@ -45,12 +66,8 @@ module RubyEventStore
       end
 
       def has_event?(event_id)
-        @events.exist?(event_id)
-      rescue => ex
-        begin
-          @rom.handle_error(:not_found, ex, event_id)
-        rescue EventNotFound
-          false
+        !! guard_for(:not_found, event_id, swallow: EventNotFound) do
+          @events.exist?(event_id)
         end
       end
 
@@ -65,9 +82,9 @@ module RubyEventStore
       end
 
       def read_event(event_id)
-        @events.by_id(event_id)
-      rescue => ex
-        @rom.handle_error(:not_found, ex, event_id)
+        guard_for(:not_found, event_id) do
+          @events.by_id(event_id)
+        end
       end
 
       def read(specification)
