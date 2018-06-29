@@ -83,7 +83,11 @@ event = OrderPlaced.new(data: {
   order_data: "sample",
   festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
 })
+<% if version_above('0.30.0') %>
+event_store.append(
+<% else %>
 event_store.append_to_stream(
+<% end %>
   event,
   stream_name: "order_1"
 )
