@@ -123,8 +123,7 @@ module RubyEventStore
 
     specify 'allows to provide a custom dispatcher' do
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker, mapper: mapper)
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher, mapper: mapper)
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
@@ -184,8 +183,7 @@ module RubyEventStore
 
     specify 'dispatch events to subscribers via proxy' do
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
@@ -195,8 +193,7 @@ module RubyEventStore
 
     specify 'dispatch all events to subscribers via proxy' do
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish(event)
@@ -206,16 +203,14 @@ module RubyEventStore
 
     specify 'lambda is an output of global subscribe via proxy' do
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
       result = client.subscribe_to_all_events(Subscribers::ValidHandler)
       expect(result).to respond_to(:call)
     end
 
     specify 'lambda is an output of subscribe via proxy' do
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
       result = client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       expect(result).to respond_to(:call)
     end
@@ -224,8 +219,7 @@ module RubyEventStore
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       dispatcher = CustomDispatcher.new
-      broker = PubSub::Broker.new(dispatcher: dispatcher)
-      client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
       result = client.within do
         client.publish(event_1)
         :elo
@@ -293,8 +287,7 @@ module RubyEventStore
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         dispatcher = CustomDispatcher.new
-        broker = PubSub::Broker.new(dispatcher: dispatcher)
-        client = RubyEventStore::Client.new(repository: repository, event_broker: broker)
+        client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
 
         result = client.within do
           client.publish(event_1)
