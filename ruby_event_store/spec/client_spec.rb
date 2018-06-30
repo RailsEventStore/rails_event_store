@@ -279,11 +279,11 @@ module RubyEventStore
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: 'stream'
       )
-      client.link_to_stream(
+      client.link(
         [first_event.event_id, second_event.event_id],
         stream_name: 'flow',
         expected_version: -1
-      ).link_to_stream(
+      ).link(
         [first_event.event_id],
         stream_name: 'cars',
       )
@@ -630,11 +630,11 @@ module RubyEventStore
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
 
-    specify 'link_to_stream fail if expected version is nil' do
+    specify 'link fail if expected version is nil' do
       client.append_to_stream(event = OrderCreated.new, stream_name: 'stream', expected_version: :any)
 
       expect do
-        client.link_to_stream(event.event_id, stream_name: 'stream', expected_version: nil)
+        client.link(event.event_id, stream_name: 'stream', expected_version: nil)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
 
@@ -678,7 +678,7 @@ module RubyEventStore
           expected_version: :none
         )
         expect do
-          client.link_to_stream(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
+          client.link(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
         end.to raise_error(RubyEventStore::InvalidExpectedVersion)
       end
     end
