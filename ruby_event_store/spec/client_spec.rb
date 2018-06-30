@@ -293,6 +293,21 @@ module RubyEventStore
       expect(subscriber.handled_events).to be_empty
     end
 
+    specify do
+      client.append_to_stream(
+        [first_event = TestEvent.new, second_event = TestEvent.new],
+        stream_name: 'stream'
+      )
+      expect {
+        client.link_to_stream([first_event.event_id, second_event.event_id],
+                              stream_name: 'flow')
+      }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#link_to_stream has been deprecated.
+
+        Use RubyEventStore::Client#link instead
+      EOS
+    end
+
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       client = RubyEventStore::Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
