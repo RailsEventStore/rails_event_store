@@ -44,7 +44,7 @@ RSpec.shared_examples :event_broker do |broker_class|
     end
   end
 
-  subject(:broker) { broker_class.new }
+  subject(:broker) { broker_class.new(dispatcher: RubyEventStore::PubSub::Dispatcher.new) }
 
   it 'raise error when no subscriber' do
     expect { broker.add_subscriber(nil, [])}.to raise_error(RubyEventStore::SubscriberNotExist)

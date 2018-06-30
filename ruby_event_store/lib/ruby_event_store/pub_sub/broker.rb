@@ -3,9 +3,7 @@ require 'concurrent'
 module RubyEventStore
   module PubSub
     class Broker
-      DEFAULT_DISPATCHER = Dispatcher.new
-
-      def initialize(dispatcher: DEFAULT_DISPATCHER)
+      def initialize(dispatcher:)
         @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
         @global_subscribers = []
 
