@@ -12,6 +12,14 @@ module RailsEventStore
 
     let(:event_store) { RailsEventStore::Client.new }
 
+    specify "links" do
+      event_store.subscribe_to_all_events(LinkByMetadata.new(key: :city))
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        city: "Paris",
+      }))
+      expect(event_store.read.stream("$by_city_Paris").each.to_a).to eq([ev])
+    end
+
     specify "defaults to Rails.configuration.event_store and passes rest of options" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(
         key: :city,
