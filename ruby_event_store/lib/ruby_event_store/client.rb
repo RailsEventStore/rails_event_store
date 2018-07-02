@@ -141,7 +141,7 @@ module RubyEventStore
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       subscriber ||= proc
       verify_subscriber(subscriber)
-      event_broker.add_subscriber(subscriber, to)
+      event_broker.local.add(subscriber, to)
     end
 
     # subscribe_to_all_events(subscriber)
@@ -150,7 +150,7 @@ module RubyEventStore
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       verify_subscriber(subscriber || proc)
-      event_broker.add_global_subscriber(subscriber || proc)
+      event_broker.global.add(subscriber || proc)
     end
 
     class Within
@@ -187,14 +187,14 @@ module RubyEventStore
       def add_thread_subscribers
         @subscribers.map do |subscriber, types|
           verify_subscriber(subscriber)
-          @event_broker.add_thread_subscriber(subscriber, types)
+          @event_broker.thread.local.add(subscriber, types)
         end
       end
 
       def add_thread_global_subscribers
         @global_subscribers.map do |subscriber|
           verify_subscriber(subscriber)
-          @event_broker.add_thread_global_subscriber(subscriber)
+          @event_broker.thread.global.add(subscriber)
         end
       end
 

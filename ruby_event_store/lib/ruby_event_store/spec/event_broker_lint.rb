@@ -22,9 +22,9 @@ RSpec.shared_examples :event_broker do |broker_class|
     another_handler = TestHandler.new
     global_handler  = TestHandler.new
 
-    broker.add_subscriber(handler, [Test1DomainEvent, Test3DomainEvent])
-    broker.add_subscriber(another_handler, [Test2DomainEvent])
-    broker.add_global_subscriber(global_handler)
+    broker.local.add(handler, [Test1DomainEvent, Test3DomainEvent])
+    broker.local.add(another_handler, [Test2DomainEvent])
+    broker.global.add(global_handler)
 
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([handler, global_handler])
     expect(broker.all_subscribers_for('Test2DomainEvent')).to eq([another_handler, global_handler])
@@ -36,9 +36,9 @@ RSpec.shared_examples :event_broker do |broker_class|
     another_handler = TestHandler.new
     global_handler  = TestHandler.new
 
-    broker.add_thread_subscriber(handler, [Test1DomainEvent, Test3DomainEvent])
-    broker.add_thread_subscriber(another_handler, [Test2DomainEvent])
-    broker.add_thread_global_subscriber(global_handler)
+    broker.thread.local.add(handler, [Test1DomainEvent, Test3DomainEvent])
+    broker.thread.local.add(another_handler, [Test2DomainEvent])
+    broker.thread.global.add(global_handler)
 
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([global_handler, handler])
     expect(broker.all_subscribers_for('Test2DomainEvent')).to eq([global_handler, another_handler])
@@ -47,20 +47,20 @@ RSpec.shared_examples :event_broker do |broker_class|
 
   it 'returns lambda as an output of global subscribe methods' do
     handler   = TestHandler.new
-    result = broker.add_global_subscriber(handler)
+    result = broker.global.add(handler)
     expect(result).to respond_to(:call)
   end
 
   it 'returns lambda as an output of subscribe methods' do
     handler   = TestHandler.new
-    result    = broker.add_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
+    result    = broker.local.add(handler, [Test1DomainEvent, Test2DomainEvent])
     expect(result).to respond_to(:call)
   end
 
   it 'revokes global subscription' do
     handler   = TestHandler.new
 
-    revoke    = broker.add_global_subscriber(handler)
+    revoke    = broker.global.add(handler)
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([handler])
     expect(broker.all_subscribers_for('Test2DomainEvent')).to eq([handler])
     revoke.()
@@ -71,7 +71,7 @@ RSpec.shared_examples :event_broker do |broker_class|
   it 'revokes subscription' do
     handler   = TestHandler.new
 
-    revoke    = broker.add_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
+    revoke    = broker.local.add(handler, [Test1DomainEvent, Test2DomainEvent])
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([handler])
     expect(broker.all_subscribers_for('Test2DomainEvent')).to eq([handler])
     revoke.()
@@ -82,7 +82,7 @@ RSpec.shared_examples :event_broker do |broker_class|
   it 'revokes thread global subscription' do
     handler   = TestHandler.new
 
-    revoke    = broker.add_thread_global_subscriber(handler)
+    revoke    = broker.thread.global.add(handler)
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([handler])
     expect(broker.all_subscribers_for('Test2DomainEvent')).to eq([handler])
     revoke.()
@@ -93,7 +93,7 @@ RSpec.shared_examples :event_broker do |broker_class|
   it 'revokes thread subscription' do
     handler           = TestHandler.new
 
-    revoke    = broker.add_thread_subscriber(handler, [Test1DomainEvent, Test2DomainEvent])
+    revoke    = broker.thread.local.add(handler, [Test1DomainEvent, Test2DomainEvent])
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([handler])
     expect(broker.all_subscribers_for('Test2DomainEvent')).to eq([handler])
     revoke.()
@@ -103,8 +103,8 @@ RSpec.shared_examples :event_broker do |broker_class|
 
   it 'subscribes by type of event which is a String' do
     handler         = TestHandler.new
-    broker.add_subscriber(handler, ["Test1DomainEvent"])
-    broker.add_thread_subscriber(handler, ["Test1DomainEvent"])
+    broker.local.add(handler, ["Test1DomainEvent"])
+    broker.thread.local.add(handler, ["Test1DomainEvent"])
 
     expect(broker.all_subscribers_for('Test1DomainEvent')).to eq([handler, handler])
   end
