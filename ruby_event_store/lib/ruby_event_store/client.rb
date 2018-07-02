@@ -4,13 +4,13 @@ module RubyEventStore
   class Client
     def initialize(repository:,
                    mapper: Mappers::Default.new,
-                   event_broker: PubSub::Broker.new,
+                   subscriptions: PubSub::Subscriptions.new,
                    dispatcher: PubSub::Dispatcher.new,
                    page_size: PAGE_SIZE,
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
-      @event_broker   = event_broker
+      @subscriptions   = subscriptions
       @dispatcher     = dispatcher
       @page_size      = page_size
       @clock          = clock
@@ -141,7 +141,7 @@ module RubyEventStore
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       subscriber ||= proc
       verify_subscriber(subscriber)
-      event_broker.local.add(subscriber, to)
+      subscriptions.local.add(subscriber, to)
     end
 
     # subscribe_to_all_events(subscriber)
@@ -150,13 +150,13 @@ module RubyEventStore
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       verify_subscriber(subscriber || proc)
-      event_broker.global.add(subscriber || proc)
+      subscriptions.global.add(subscriber || proc)
     end
 
     class Within
-      def initialize(block, event_broker, dispatcher)
+      def initialize(block, subscriptions, dispatcher)
         @block = block
-        @event_broker = event_broker
+        @subscriptions = subscriptions
         @dispatcher = dispatcher
         @global_subscribers = []
         @subscribers = Hash.new {[]}
@@ -187,14 +187,14 @@ module RubyEventStore
       def add_thread_subscribers
         @subscribers.map do |subscriber, types|
           verify_subscriber(subscriber)
-          @event_broker.thread.local.add(subscriber, types)
+          @subscriptions.thread.local.add(subscriber, types)
         end
       end
 
       def add_thread_global_subscribers
         @global_subscribers.map do |subscriber|
           verify_subscriber(subscriber)
-          @event_broker.thread.global.add(subscriber)
+          @subscriptions.thread.global.add(subscriber)
         end
       end
 
@@ -210,7 +210,7 @@ module RubyEventStore
 
     def within(&block)
       raise ArgumentError if block.nil?
-      Within.new(block, event_broker, dispatcher)
+      Within.new(block, subscriptions, dispatcher)
     end
 
     def with_metadata(metadata, &block)
@@ -266,7 +266,7 @@ module RubyEventStore
     protected
 
     def notify_subscribers(event, serialized_event)
-      subscribers = event_broker.all_subscribers_for(event.type)
+      subscribers = subscriptions.all_subscribers_for(event.type)
       subscribers.each do |subscriber|
         dispatcher.call(subscriber, event, serialized_event)
       end
@@ -281,6 +281,6 @@ module RubyEventStore
       @metadata.value = value
     end
 
-    attr_reader :repository, :mapper, :event_broker, :dispatcher, :clock, :page_size
+    attr_reader :repository, :mapper, :subscriptions, :dispatcher, :clock, :page_size
   end
 end

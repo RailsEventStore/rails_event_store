@@ -2,7 +2,7 @@ require 'concurrent'
 
 module RubyEventStore
   module PubSub
-    class Broker
+    class Subscriptions
       def initialize
         @local  = Local.new
         @global = Global.new
