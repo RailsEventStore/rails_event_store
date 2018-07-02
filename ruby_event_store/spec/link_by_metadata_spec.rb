@@ -60,7 +60,7 @@ module RubyEventStore
       expect(event_store.read.stream("sweet+Paris").each.to_a).to eq([ev])
     end
 
-    specify "array of ids" do
+    specify "explicitly passes array of ids instead of a single id" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
       expect(event_store).to receive(:link_to_stream).with(instance_of(Array), any_args)
       event_store.publish(ev = OrderCreated.new(metadata:{
@@ -136,12 +136,12 @@ module RubyEventStore
       expect(event_store.read.stream("e-OrderCreated").each.to_a).to eq([event])
     end
 
-    specify "array of ids" do
+    specify "explicitly passes array of ids instead of a single id" do
       event_store.subscribe_to_all_events(LinkByEventType.new(event_store: event_store))
       expect(event_store).to receive(:link_to_stream).with(instance_of(Array), any_args)
       event_store.publish(ev = OrderCreated.new())
     end
   end
-  
+
 end
 

@@ -1,11 +1,7 @@
 module RubyEventStore
   class LinkByMetadata
 
-    def initialize(
-      event_store:,
-      key:,
-      prefix: nil
-    )
+    def initialize(event_store:, key:, prefix: nil)
       @event_store = event_store
       @key = key
       @prefix = prefix || ["$by", key, nil].join("_")
@@ -43,12 +39,9 @@ module RubyEventStore
   end
 
   class LinkByEventType
-    def initialize(
-      event_store:,
-      prefix: "$by_type_"
-    )
+    def initialize(event_store:, prefix: nil)
       @event_store = event_store
-      @prefix = prefix
+      @prefix = prefix || "$by_type_"
     end
 
     def call(event)

@@ -18,4 +18,10 @@ module RailsEventStore
     end
   end
 
+  class LinkByEventType < RubyEventStore::LinkByEventType
+    def initialize(event_store: Rails.configuration.event_store, prefix: nil)
+      super(event_store: event_store, prefix: prefix)
+    end
+  end
+  
 end

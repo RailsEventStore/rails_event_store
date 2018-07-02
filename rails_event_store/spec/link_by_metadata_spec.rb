@@ -89,4 +89,27 @@ module RailsEventStore
     end
   end
 
+  RSpec.describe LinkByEventType do
+    let(:event_store) { RailsEventStore::Client.new }
+    let(:event) { OrderCreated.new }
+
+    before do
+      rails = double("Rails", configuration: Rails::Application::Configuration.new)
+      stub_const("Rails", rails)
+      Rails.configuration.event_store = event_store
+    end
+
+    specify "default prefix" do
+      event_store.subscribe_to_all_events(LinkByEventType.new)
+      event_store.publish(event)
+      expect(event_store.read.stream("$by_type_OrderCreated").each.to_a).to eq([event])
+    end
+
+    specify "custom prefix" do
+      event_store.subscribe_to_all_events(LinkByEventType.new(prefix: "e-"))
+      event_store.publish(event)
+      expect(event_store.read.stream("e-OrderCreated").each.to_a).to eq([event])
+    end
+  end
+
 end
