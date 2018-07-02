@@ -358,8 +358,10 @@ end
 
 <% if version_above('0.30.0') %>
 event_store = RailsEventStore::Client.new(
-  dispatcher: RailsEventStore::ActiveJobDispatcher.new(
-    proxy_strategy: RailsEventStore::AsyncProxyStrategy::AfterCommit.new
+  broker: RubyEventStore::PubSub::Broker.new(
+    dispatcher: RailsEventStore::ActiveJobDispatcher.new(
+      proxy_strategy: RailsEventStore::AsyncProxyStrategy::AfterCommit.new
+    )
   )
 )
 <% else %>
