@@ -793,5 +793,12 @@ module RubyEventStore
       }
       expect(client.deserialize(serialized_event)).to eq(event)
     end
+
+    specify 'raise error when no subscriber' do
+      expect { client.subscribe(nil, to: [])}.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.within{}.subscribe(nil, to: []).call}.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil)}.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.within{}.subscribe_to_all_events(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist)
+    end
   end
 end
