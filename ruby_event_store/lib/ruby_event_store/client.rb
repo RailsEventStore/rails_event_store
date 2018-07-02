@@ -1,13 +1,11 @@
 require 'concurrent'
 
 module RubyEventStore
-  DEFAULT_DISPATCHER = PubSub::Dispatcher.new
-
   class Client
     def initialize(repository:,
                    mapper: Mappers::Default.new,
                    event_broker: PubSub::Broker.new,
-                   dispatcher: DEFAULT_DISPATCHER,
+                   dispatcher: PubSub::Dispatcher.new,
                    page_size: PAGE_SIZE,
                    clock: ->{ Time.now.utc })
       @repository     = repository
