@@ -41,4 +41,22 @@ module RubyEventStore
       )
     end
   end
+
+  class LinkByEventType
+    def initialize(
+      event_store:,
+      prefix: "$by_type_"
+    )
+      @event_store = event_store
+      @prefix = prefix
+    end
+
+    def call(event)
+      @event_store.link_to_stream(
+        [event.message_id],
+        stream_name: "#{@prefix}#{event.type}"
+      )
+    end
+  end
+
 end
