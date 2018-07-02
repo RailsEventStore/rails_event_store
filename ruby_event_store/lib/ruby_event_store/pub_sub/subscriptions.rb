@@ -4,89 +4,89 @@ module RubyEventStore
   module PubSub
     class Subscriptions
       def initialize
-        @local  = Local.new
-        @global = Global.new
-        @thread  = Thread.new
+        @local  = LocalSubscriptions.new
+        @global = GlobalSubscriptions.new
+        @thread  = ThreadSubscriptions.new
       end
       attr_reader :local, :global, :thread
 
-      def all_subscribers_for(event_type)
-        [local, global, thread].map{|r| r.all(event_type)}.reduce(&:+)
+      def all_for(event_type)
+        [local, global, thread].map{|r| r.all_for(event_type)}.reduce(&:+)
       end
 
       private
 
-      class Thread
+      class ThreadSubscriptions
         def initialize
-          @local  = ThreadLocal.new
-          @global = ThreadGlobal.new
+          @local  = ThreadLocalSubscriptions.new
+          @global = ThreadGlobalSubscriptions.new
         end
         attr_reader :local, :global
 
-        def all(event_type)
-          [global, local].map{|r| r.all(event_type)}.reduce(&:+)
+        def all_for(event_type)
+          [global, local].map{|r| r.all_for(event_type)}.reduce(&:+)
         end
       end
 
-      class Local
+      class LocalSubscriptions
         def initialize
-          @subscribers = Hash.new {|hsh, key| hsh[key] = [] }
+          @subscriptions = Hash.new {|hsh, key| hsh[key] = [] }
         end
 
-        def add(subscriber, event_types)
-          event_types.each{ |type| @subscribers[type.to_s] << subscriber }
-          ->() {event_types.each{ |type| @subscribers.fetch(type.to_s).delete(subscriber) } }
+        def add(subscription, event_types)
+          event_types.each{ |type| @subscriptions[type.to_s] << subscription }
+          ->() {event_types.each{ |type| @subscriptions.fetch(type.to_s).delete(subscription) } }
         end
 
-        def all(event_type)
-          @subscribers[event_type]
+        def all_for(event_type)
+          @subscriptions[event_type]
         end
       end
 
-      class Global
+      class GlobalSubscriptions
         def initialize
-          @subscribers = []
+          @subscriptions = []
         end
 
-        def add(subscriber)
-          @subscribers << subscriber
-          ->() { @subscribers.delete(subscriber) }
+        def add(subscription)
+          @subscriptions << subscription
+          ->() { @subscriptions.delete(subscription) }
         end
 
-        def all(_event_type)
-          @subscribers
+        def all_for(_event_type)
+          @subscriptions
         end
       end
 
-      class ThreadLocal
+      class ThreadLocalSubscriptions
         def initialize
-          @subscribers = Concurrent::ThreadLocalVar.new do
+          @subscriptions = Concurrent::ThreadLocalVar.new do
             Hash.new {|hsh, key| hsh[key] = [] }
           end
         end
 
-        def add(subscriber, event_types)
-          event_types.each{ |type| @subscribers.value[type.to_s] << subscriber }
-          ->() {event_types.each{ |type| @subscribers.value.fetch(type.to_s).delete(subscriber) } }
+        def add(subscription, event_types)
+          event_types.each{ |type| @subscriptions.value[type.to_s] << subscription }
+          ->() {event_types.each{ |type| @subscriptions.value.fetch(type.to_s).delete(subscription) } }
         end
 
-        def all(event_type)
-          @subscribers.value[event_type]
+        def all_for(event_type)
+          @subscriptions.value[event_type]
         end
       end
 
-      class ThreadGlobal
+      class ThreadGlobalSubscriptions
         def initialize
-          @subscribers = Concurrent::ThreadLocalVar.new([])
+          @subscriptions = Concurrent::ThreadLocalVar.new([])
         end
 
-        def add(subscriber)
-          @subscribers.value += [subscriber]
-          ->() { @subscribers.value -= [subscriber] }
+        def add(subscription)
+          @subscriptions.value += [subscription]
+          ->() { @subscriptions.value -= [subscription] }
         end
 
-        def all(_event_type)
-          @subscribers.value
+        def all_for(_event_type)
+          @subscriptions.value
         end
       end
     end

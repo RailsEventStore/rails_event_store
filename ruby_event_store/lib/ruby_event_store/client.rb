@@ -10,7 +10,7 @@ module RubyEventStore
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
-      @subscriptions   = subscriptions
+      @subscriptions  = subscriptions
       @dispatcher     = dispatcher
       @page_size      = page_size
       @clock          = clock
@@ -266,7 +266,7 @@ module RubyEventStore
     protected
 
     def notify_subscribers(event, serialized_event)
-      subscribers = subscriptions.all_subscribers_for(event.type)
+      subscribers = subscriptions.all_for(event.type)
       subscribers.each do |subscriber|
         dispatcher.call(subscriber, event, serialized_event)
       end
