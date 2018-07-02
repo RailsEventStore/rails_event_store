@@ -208,7 +208,8 @@ module RubyEventStore
       client_with_custom_dispatcher = RubyEventStore::Client.new(
         repository: InMemoryRepository.new,
         mapper: TestMapper.new,
-        dispatcher: dispatcher)
+        broker: PubSub::Broker.new(dispatcher: dispatcher),
+      )
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
       expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, serialized_event:serialized_event1}])

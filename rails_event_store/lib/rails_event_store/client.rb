@@ -4,14 +4,13 @@ module RailsEventStore
 
     def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new,
                    mapper: RubyEventStore::Mappers::Default.new,
-                   subscriptions: Subscriptions.new,
-                   dispatcher: ActiveJobDispatcher.new,
+                   broker: RubyEventStore::PubSub::Broker.new(
+                     dispatcher: ActiveJobDispatcher.new),
                    request_metadata: default_request_metadata,
                    page_size: PAGE_SIZE)
       super(repository: repository,
             mapper: mapper,
-            subscriptions: subscriptions,
-            dispatcher: dispatcher,
+            broker: broker,
             page_size: page_size)
       @request_metadata = request_metadata
     end
