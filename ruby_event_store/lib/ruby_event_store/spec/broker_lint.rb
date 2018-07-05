@@ -6,12 +6,6 @@ RSpec.shared_examples :broker do |broker_klass|
   let(:dispatcher) { ::RubyEventStore::PubSub::Dispatcher.new }
   let(:broker) { broker_klass.new(subscriptions: subscriptions, dispatcher: dispatcher) }
 
-  specify "must have subscriptions & dispatcher" do
-    broker = broker_klass.new(subscriptions: subscriptions, dispatcher: dispatcher)
-    expect(broker.subscriptions).to eq(subscriptions)
-    expect(broker.dispatcher).to eq(dispatcher)
-  end
-
   specify "no dispatch when no subscriptions" do
     expect(subscriptions).to receive(:all_for).with('EventType').and_return([])
     expect(dispatcher).not_to receive(:call)

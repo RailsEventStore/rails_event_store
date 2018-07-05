@@ -136,19 +136,15 @@ module RubyEventStore
     # subscribe(to:, &subscriber)
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-      raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       subscriber ||= proc
-      verify_subscriber(subscriber)
-      broker.subscriptions.local.add(subscriber, to)
+      broker.add_subscription(subscriber, to)
     end
 
     # subscribe_to_all_events(subscriber)
     # subscribe_to_all_events(&subscriber)
     def subscribe_to_all_events(subscriber = nil, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-      raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
-      verify_subscriber(subscriber || proc)
-      broker.subscriptions.global.add(subscriber || proc)
+      broker.add_global_subscription(subscriber || proc)
     end
 
     class Within
@@ -183,25 +179,18 @@ module RubyEventStore
 
       def add_thread_subscribers
         @subscribers.map do |subscriber, types|
-          verify_subscriber(subscriber)
-          @broker.subscriptions.thread.local.add(subscriber, types)
+          @broker.add_thread_subscription(subscriber, types)
         end
       end
 
       def add_thread_global_subscribers
         @global_subscribers.map do |subscriber|
-          verify_subscriber(subscriber)
-          @broker.subscriptions.thread.global.add(subscriber)
+          @broker.add_thread_global_subscription(subscriber)
         end
       end
 
       def normalize_to_array(objs)
         return *objs
-      end
-
-      def verify_subscriber(subscriber)
-        raise SubscriberNotExist if subscriber.nil?
-        @broker.dispatcher.verify(subscriber)
       end
     end
 
@@ -261,11 +250,6 @@ module RubyEventStore
     end
 
     protected
-
-    def verify_subscriber(subscriber)
-      raise SubscriberNotExist if subscriber.nil?
-      broker.dispatcher.verify(subscriber)
-    end
 
     def metadata=(value)
       @metadata.value = value
