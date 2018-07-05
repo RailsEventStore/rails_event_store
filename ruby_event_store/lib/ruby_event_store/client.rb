@@ -17,6 +17,12 @@ module RubyEventStore
     end
 
 
+    # Persists events and notifies subscribed handlers about them
+    #
+    # @param events [Array<Event, Proto>, Event, Proto] event(s)
+    # @param stream_name [String] name of the stream for persisting events.
+    # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {http://railseventstore.org/docs/expected_version/ Read more}
+    # @return [:ok]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
       serialized_events = serialize_events(enriched_events)
