@@ -4,12 +4,13 @@ module RubyEventStore
   class Client
     def initialize(repository:,
                    mapper: Mappers::Default.new,
-                   broker: PubSub::Broker.new,
+                   subscriptions: PubSub::Subscriptions.new,
+                   dispatcher: PubSub::Dispatcher.new,
                    page_size: PAGE_SIZE,
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
-      @broker         = broker
+      @broker         = PubSub::Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @page_size      = page_size
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
