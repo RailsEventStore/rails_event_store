@@ -68,7 +68,7 @@ module RubyEventStore
       :ok
     end
 
-    # @deprecated Use {#read} instead. More info: https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0
+    # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
     def read_events_forward(stream_name, start: :head, count: page_size)
       warn <<~EOW
         RubyEventStore::Client#read_events_forward has been deprecated.
@@ -79,7 +79,7 @@ module RubyEventStore
       read.stream(stream_name).limit(count).from(start).each.to_a
     end
 
-    # @deprecated Use {#read} instead. More info: https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0
+    # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
     def read_events_backward(stream_name, start: :head, count: page_size)
       warn <<~EOW
         RubyEventStore::Client#read_events_backward has been deprecated.
@@ -90,7 +90,7 @@ module RubyEventStore
       read.stream(stream_name).limit(count).from(start).backward.each.to_a
     end
 
-    # @deprecated Use {#read} instead. More info: https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0
+    # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
     def read_stream_events_forward(stream_name)
       warn <<~EOW
         RubyEventStore::Client#read_stream_events_forward has been deprecated.
@@ -101,7 +101,7 @@ module RubyEventStore
       read.stream(stream_name).each.to_a
     end
 
-    # @deprecated Use {#read} instead. More info: https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0
+    # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
     def read_stream_events_backward(stream_name)
       warn <<~EOW
         RubyEventStore::Client#read_stream_events_backward has been deprecated.
@@ -112,7 +112,7 @@ module RubyEventStore
       read.stream(stream_name).backward.each.to_a
     end
 
-    # @deprecated Use {#read} instead. More info: https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0
+    # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
     def read_all_streams_forward(start: :head, count: page_size)
       warn <<~EOW
         RubyEventStore::Client#read_all_streams_forward has been deprecated.
@@ -123,7 +123,7 @@ module RubyEventStore
       read.limit(count).from(start).each.to_a
     end
 
-    # @deprecated Use {#read} instead. More info: https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0
+    # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
     def read_all_streams_backward(start: :head, count: page_size)
       warn <<~EOW
         RubyEventStore::Client#read_all_streams_backward has been deprecated.
