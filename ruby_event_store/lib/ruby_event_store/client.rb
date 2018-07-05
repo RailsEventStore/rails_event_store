@@ -58,17 +58,34 @@ module RubyEventStore
       publish(event, stream_name: stream_name, expected_version: expected_version)
     end
 
+    # Persists new event(s) without notifying any subscribed handlers
+    #
+    # @param (see #publish)
+    # @return [:ok]
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       serialized_events = serialize_events(enrich_events_metadata(events))
       append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
       :ok
     end
 
+    # Links already persisted event(s) to a different stream.
+    # Does not notify any subscribed handlers.
+    #
+    # @param event_ids [String, Array<String>] ids of events
+    # @param stream_name (see #publish)
+    # @param expected_version (see #publish)
+    # @return [self]
     def link_to_stream(event_ids, stream_name:, expected_version: :any)
       repository.link_to_stream(event_ids, Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
     end
 
+    # Deletes a stream.
+    # All events from the stream remain intact but they are no
+    # longer linked to the stream.
+    #
+    # @param stream_name [String] name of the stream to be cleared.
+    # @return [:ok]
     def delete_stream(stream_name)
       repository.delete_stream(Stream.new(stream_name))
       :ok
