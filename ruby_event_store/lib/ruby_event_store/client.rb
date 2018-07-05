@@ -157,16 +157,34 @@ module RubyEventStore
       read.limit(count).from(start).backward.each.to_a
     end
 
+    # Returns a single, persisted event based on its ID.
+    #
+    # @param event_id [String] event id
+    # @return [Event, Proto]
     def read_event(event_id)
       deserialize_event(repository.read_event(event_id))
     end
 
+    # Starts building a query specification for reading events.
+    # {http://railseventstore.org/docs/read/ More info.}
+    #
+    # @return [Specification]
     def read
       Specification.new(repository, mapper)
     end
 
-    # subscribe(subscriber, to:)
-    # subscribe(to:, &subscriber)
+    # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
+    #
+    # @overload subscribe(subscriber, to:)
+    #   @param to [Array<Class>] types of events to subscribe
+    #   @param subscriber [Object, Class] handler
+    #   @return [Proc] - unsubscribe proc. Call to unsubscribe.
+    #   @raise [ArgumentError, SubscriberNotExist]
+    # @overload subscribe(to:, &subscriber)
+    #   @param to [Array<Class>] types of events to subscribe
+    #   @param subscriber [Proc] handler
+    #   @return [Proc] - unsubscribe proc. Call to unsubscribe.
+    #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
@@ -174,14 +192,25 @@ module RubyEventStore
       event_broker.add_subscriber(subscriber, to)
     end
 
-    # subscribe_to_all_events(subscriber)
-    # subscribe_to_all_events(&subscriber)
+    # Subscribes a handler (subscriber) that will be invoked for all published events
+    #
+    # @overload subscribe_to_all_events(subscriber)
+    #   @param subscriber [Object, Class] handler
+    #   @return [Proc] - unsubscribe proc. Call to unsubscribe.
+    #   @raise [ArgumentError, SubscriberNotExist]
+    # @overload subscribe_to_all_events(&subscriber)
+    #   @param subscriber [Proc] handler
+    #   @return [Proc] - unsubscribe proc. Call to unsubscribe.
+    #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe_to_all_events(subscriber = nil, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       event_broker.add_global_subscriber(subscriber || proc)
     end
 
+    # Builder object for collecting temporary handlers (subscribers)
+    # which are active only during the invocation of the provided
+    # block of code.
     class Within
       def initialize(block, event_broker)
         @block = block
@@ -190,18 +219,46 @@ module RubyEventStore
         @subscribers = Hash.new {[]}
       end
 
+      # Subscribes temporary handlers that
+      # will be called for all published events.
+      # The subscription is active only during the invocation
+      # of the block of code provided to {Client#within}.
+      # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more.}
+      #
+      # @param handlers [Object, Class] handlers passed as objects or classes
+      # @param handler2 [Proc] handler passed as proc
+      # @return [self]
       def subscribe_to_all_events(*handlers, &handler2)
         handlers << handler2 if handler2
         @global_subscribers += handlers
         self
       end
 
+      # Subscribes temporary handlers that
+      # will be called for published events of provided type.
+      # The subscription is active only during the invocation
+      # of the block of code provided to {Client#within}.
+      # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more.}
+      #
+      # @overload subscribe(handler, to:)
+      #   @param handler [Object, Class] handler passed as objects or classes
+      #   @param to [Array<Class>] types of events to subscribe
+      #   @return [self]
+      # @overload subscribe(to:, &handler)
+      #   @param to [Array<Class>] types of events to subscribe
+      #   @param handler [Proc] handler passed as proc
+      #   @return [self]
       def subscribe(handler=nil, to:, &handler2)
         raise ArgumentError if handler && handler2
         @subscribers[handler || handler2] += normalize_to_array(to)
         self
       end
 
+      # Invokes the block of code provided to {Client#within}
+      # and then unsubscribes temporary handlers.
+      # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more.}
+      #
+      # @return [Object] value returned by the invoked block of code
       def call
         unsubs  = add_thread_global_subscribers
         unsubs += add_thread_subscribers
@@ -229,11 +286,16 @@ module RubyEventStore
       end
     end
 
+    # Use for starting temporary subscriptions.
+    # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more}
+    #
+    # @param block [Proc] block of code during which the temporary subscriptions will be active
+    # @return [Within] builder object which collects temporary subscriptions
     def within(&block)
       raise ArgumentError if block.nil?
       Within.new(block, event_broker)
     end
-
+    
     def with_metadata(metadata, &block)
       previous_metadata = metadata()
       self.metadata = previous_metadata.merge(metadata)
