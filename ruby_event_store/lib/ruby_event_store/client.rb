@@ -58,7 +58,7 @@ module RubyEventStore
       publish(event, stream_name: stream_name, expected_version: expected_version)
     end
 
-    # @deprecated Use {#publish} instead
+    # @deprecated Use {#append} instead
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       warn <<~EOW
         RubyEventStore::Client#append_to_stream has been deprecated.
