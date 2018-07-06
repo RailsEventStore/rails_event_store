@@ -356,6 +356,13 @@ class SendOrderEmail < ActiveJob::Base
   end
 end
 
+<% if version_above('0.30.0') %>
+event_store = RailsEventStore::Client.new(
+  dispatcher: RailsEventStore::ActiveJobDispatcher.new(
+    proxy_strategy: RailsEventStore::AsyncProxyStrategy::AfterCommit.new
+  )
+)
+<% else %>
 event_store = RailsEventStore::Client.new(
   event_broker: RailsEventStore::EventBroker.new(
     dispatcher: RailsEventStore::ActiveJobDispatcher.new(
@@ -363,6 +370,7 @@ event_store = RailsEventStore::Client.new(
     )
   )
 )
+<% end %>
 
 event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 ```

@@ -11,7 +11,7 @@ require 'rails_event_store/deprecations'
 module RailsEventStore
   Event                       = RubyEventStore::Event
   InMemoryRepository          = RubyEventStore::InMemoryRepository
-  EventBroker                 = RubyEventStore::PubSub::Broker
+  Subscriptions               = RubyEventStore::PubSub::Subscriptions
   Projection                  = RubyEventStore::Projection
   WrongExpectedEventVersion   = RubyEventStore::WrongExpectedEventVersion
   InvalidExpectedVersion      = RubyEventStore::InvalidExpectedVersion

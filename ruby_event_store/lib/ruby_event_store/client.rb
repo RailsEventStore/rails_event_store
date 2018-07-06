@@ -5,12 +5,13 @@ module RubyEventStore
 
     def initialize(repository:,
                    mapper: Mappers::Default.new,
-                   event_broker:  PubSub::Broker.new,
+                   subscriptions: PubSub::Subscriptions.new,
+                   dispatcher: PubSub::Dispatcher.new,
                    page_size: PAGE_SIZE,
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
-      @event_broker   = event_broker
+      @broker         = PubSub::Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @page_size      = page_size
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
@@ -32,7 +33,7 @@ module RubyEventStore
           correlation_id: event.metadata[:correlation_id] || event.event_id,
           causation_id:   event.event_id,
         ) do
-          event_broker.notify_subscribers(event, serialized_event)
+          broker.(event, serialized_event)
         end
       end
       :ok
@@ -207,9 +208,8 @@ module RubyEventStore
     #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-      raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
       subscriber ||= proc
-      event_broker.add_subscriber(subscriber, to)
+      broker.add_subscription(subscriber, to)
     end
 
     # Subscribes a handler (subscriber) that will be invoked for all published events
@@ -224,17 +224,16 @@ module RubyEventStore
     #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe_to_all_events(subscriber = nil, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-      raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber || proc
-      event_broker.add_global_subscriber(subscriber || proc)
+      broker.add_global_subscription(subscriber || proc)
     end
 
     # Builder object for collecting temporary handlers (subscribers)
     # which are active only during the invocation of the provided
     # block of code.
     class Within
-      def initialize(block, event_broker)
+      def initialize(block, broker)
         @block = block
-        @event_broker = event_broker
+        @broker = broker
         @global_subscribers = []
         @subscribers = Hash.new {[]}
       end
@@ -284,20 +283,20 @@ module RubyEventStore
         unsubs += add_thread_subscribers
         @block.call
       ensure
-        unsubs.each(&:call)
+        unsubs.each(&:call) if unsubs
       end
 
       private
 
       def add_thread_subscribers
-        @subscribers.map do |handler, types|
-          @event_broker.add_thread_subscriber(handler, types)
+        @subscribers.map do |subscriber, types|
+          @broker.add_thread_subscription(subscriber, types)
         end
       end
 
       def add_thread_global_subscribers
-        @global_subscribers.map do |s|
-          @event_broker.add_thread_global_subscriber(s)
+        @global_subscribers.map do |subscriber|
+          @broker.add_thread_global_subscription(subscriber)
         end
       end
 
@@ -313,7 +312,7 @@ module RubyEventStore
     # @return [Within] builder object which collects temporary subscriptions
     def within(&block)
       raise ArgumentError if block.nil?
-      Within.new(block, event_broker)
+      Within.new(block, broker)
     end
 
     def with_metadata(metadata, &block)
@@ -372,6 +371,6 @@ module RubyEventStore
       @metadata.value = value
     end
 
-    attr_reader :repository, :mapper, :event_broker, :clock, :page_size
+    attr_reader :repository, :mapper, :broker, :clock, :page_size
   end
 end
