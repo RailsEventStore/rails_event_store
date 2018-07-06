@@ -16,7 +16,7 @@ end.to raise_error(WrongExpectedEventVersion)
 
 Second write to the stream should have happened with `expected_version: 1` above.
 
-### RubyEventStore::EventDuplicatedInStream   
+### RubyEventStore::EventDuplicatedInStream
 
 Occurs when you're writing same event more than once.
 
@@ -36,10 +36,10 @@ If you want to have an event present in multiple streams, you have to link it wi
 <% end %>
 
 
-### RubyEventStore::InvalidExpectedVersion    
+### RubyEventStore::InvalidExpectedVersion
 
 <% if version_above('0.30.0') %>
-Occurs when invalid `exception_version` is passed in `append_to_stream`, `link`, `publish_event` or `publish_events`.
+Occurs when invalid `exception_version` is passed in `append`, `link`, `publish_event` or `publish_events`.
 <% else %>
 Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream`, `publish_event` or `publish_events`.
 <% end %>
@@ -48,18 +48,26 @@ Valid values are `Integer` or one of `:any`, `:none`, `:auto`.
 
 ```ruby
 expect do
+<% if version_above('0.30.0') %>
+  client.append(OrderPlaced.new, stream_name: 'Order$1', expected_version: nil)
+<% else %>
   client.append_to_stream(OrderPlaced.new, stream_name: 'Order$1', expected_version: nil)
+<% end %>
 end.to raise_error(InvalidExpectedVersion)
 ```
 
 
-### RubyEventStore::IncorrectStreamData     
+### RubyEventStore::IncorrectStreamData
 
 Occurs when invalid `stream_name` is passed in any client method expecting it. Name must not be `nil` or empty string.
 
 ```ruby
 expect do
+<% if version_above('0.30.0') %>
+  client.append(OrderPlaced.new, stream_name: nil)
+<% else %>
   client.append_to_stream(OrderPlaced.new, stream_name: nil)
+<% end %>
 end.to raise_error(IncorrectStreamData)
 ```
 

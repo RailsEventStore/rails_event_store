@@ -11,12 +11,12 @@ module RubyEventStore
       expect(client.publish(TestEvent.new)).to eq(:ok)
     end
 
-    specify 'append_to_stream returns :ok when success' do
-      expect(client.append_to_stream(TestEvent.new, stream_name: stream)).to eq(:ok)
+    specify 'append returns :ok when success' do
+      expect(client.append(TestEvent.new, stream_name: stream)).to eq(:ok)
     end
 
     specify 'append to default stream when not specified' do
-      expect(client.append_to_stream(test_event = TestEvent.new)).to eq(:ok)
+      expect(client.append(test_event = TestEvent.new)).to eq(:ok)
       expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
@@ -40,7 +40,7 @@ module RubyEventStore
     end
 
     specify 'publish next event, expect any stream state' do
-      client.append_to_stream(first_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream)
 
       expect(client.publish(second_event = TestEvent.new, stream_name: stream)).to eq(:ok)
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
@@ -52,29 +52,29 @@ module RubyEventStore
     end
 
     specify 'publish first event, fail if not empty stream' do
-      client.append_to_stream(first_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream)
 
       expect { client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: :none) }.to raise_error(WrongExpectedEventVersion)
       expect(client.read.stream(stream).each.to_a).to eq([first_event])
     end
 
     specify 'publish event, expect last event to be the last read one' do
-      client.append_to_stream(first_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream)
 
       expect(client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: 0)).to eq(:ok)
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'publish event, fail if last event is not the last read one' do
-      client.append_to_stream(first_event = TestEvent.new, stream_name: stream)
-      client.append_to_stream(second_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream)
+      client.append(second_event = TestEvent.new, stream_name: stream)
 
       expect { client.publish(third_event = TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(WrongExpectedEventVersion)
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'append many events' do
-      client.append_to_stream(
+      client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: stream,
         expected_version: -1
@@ -82,8 +82,16 @@ module RubyEventStore
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
+    specify do
+      expect { client.append_to_stream(TestEvent.new, stream_name: stream) }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#append_to_stream has been deprecated.
+
+        Use RubyEventStore::Client#append instead
+      EOS
+    end
+
     specify 'read only up to page size from stream' do
-      (1..102).each { client.append_to_stream(TestEvent.new, stream_name: stream) }
+      (1..102).each { client.append(TestEvent.new, stream_name: stream) }
 
       expect(client.read.stream(stream).limit(10).each.to_a.size).to eq(10)
       expect(client.read.backward.stream(stream).limit(10).each.to_a.size).to eq(10)
@@ -213,7 +221,7 @@ module RubyEventStore
 
     specify 'timestamp can be overwritten by using with_metadata' do
       client.with_metadata(timestamp: '2018-01-01T00:00:00Z') do
-        client.append_to_stream(event = TestEvent.new)
+        client.append(event = TestEvent.new)
       end
       published = client.read.limit(100).each.to_a
 
@@ -275,7 +283,7 @@ module RubyEventStore
 
     specify 'link events' do
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
-      client.append_to_stream(
+      client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: 'stream'
       )
@@ -427,8 +435,8 @@ module RubyEventStore
     end
 
     specify 'raise exception if stream name is incorrect' do
-      expect { client.append_to_stream(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
-      expect { client.append_to_stream(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
     end
 
     specify 'raise exception if stream name is incorrect' do
@@ -439,13 +447,13 @@ module RubyEventStore
     end
 
     specify 'raise exception if stream name is incorrect' do
-      expect { client.append_to_stream(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
-      expect { client.append_to_stream(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: nil) }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: '') }.to raise_error(IncorrectStreamData)
     end
 
     specify 'raise exception if stream name is incorrect' do
-      expect { client.append_to_stream(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(IncorrectStreamData)
-      expect { client.append_to_stream(OrderCreated.new, stream_name: '', expected_version: -1) }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: '', expected_version: -1) }.to raise_error(IncorrectStreamData)
     end
 
     specify 'return all events ordered forward' do
@@ -551,7 +559,7 @@ module RubyEventStore
     end
 
     specify 'create successfully event' do
-      client.append_to_stream(
+      client.append(
         event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'),
         stream_name: 'stream_name'
       )
@@ -561,24 +569,24 @@ module RubyEventStore
     end
 
     specify 'generate guid and create successfully event' do
-      client.append_to_stream(event = OrderCreated.new, stream_name: 'stream_name')
+      client.append(event = OrderCreated.new, stream_name: 'stream_name')
       saved_events = client.read.stream("stream_name").each.to_a
 
       expect(saved_events[0]).to eq(event)
     end
 
     specify 'raise exception if expected version incorrect' do
-      client.append_to_stream(event = OrderCreated.new, stream_name: 'stream_name')
+      client.append(event = OrderCreated.new, stream_name: 'stream_name')
       expect { client.publish(event, stream_name: 'stream_name', expected_version: 100) }.to raise_error(WrongExpectedEventVersion)
     end
 
     specify 'create event with optimistic locking' do
       expect do
-        client.append_to_stream(
+        client.append(
           OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'),
           stream_name: 'stream_name'
         )
-        client.append_to_stream(
+        client.append(
           OrderCreated.new(event_id: '724dd49d-6e20-40e6-bc32-ed75258f886b'),
           stream_name: 'stream_name',
           expected_version: 0
@@ -590,7 +598,7 @@ module RubyEventStore
       handler = double(:event_handler)
       expect(handler).not_to receive(:call)
       client.subscribe_to_all_events(handler)
-      client.append_to_stream(event = OrderCreated.new, stream_name: 'stream_name')
+      client.append(event = OrderCreated.new, stream_name: 'stream_name')
       saved_events = client.read.stream("stream_name").each.to_a
 
       expect(saved_events[0]).to eq(event)
@@ -623,15 +631,15 @@ module RubyEventStore
       expect(saved_events[0]).to eq(event)
     end
 
-    specify 'append_to_stream fail if expected version is nil' do
+    specify 'append fail if expected version is nil' do
 
       expect do
-        client.append_to_stream(event = OrderCreated.new, stream_name: 'stream', expected_version: nil)
+        client.append(event = OrderCreated.new, stream_name: 'stream', expected_version: nil)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
 
     specify 'link fail if expected version is nil' do
-      client.append_to_stream(event = OrderCreated.new, stream_name: 'stream', expected_version: :any)
+      client.append(event = OrderCreated.new, stream_name: 'stream', expected_version: :any)
 
       expect do
         client.link(event.event_id, stream_name: 'stream', expected_version: nil)
@@ -640,19 +648,19 @@ module RubyEventStore
 
     specify 'global stream is unordered, one cannot expect specific version number to work' do
       expect do
-        client.append_to_stream(OrderCreated.new, expected_version: 42)
+        client.append(OrderCreated.new, expected_version: 42)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
 
     specify 'global stream is unordered, one cannot expect :none to work' do
       expect do
-        client.append_to_stream(OrderCreated.new, expected_version: :none)
+        client.append(OrderCreated.new, expected_version: :none)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
 
     specify 'global stream is unordered, one cannot expect :auto to work' do
       expect do
-        client.append_to_stream(OrderCreated.new, expected_version: :auto)
+        client.append(OrderCreated.new, expected_version: :auto)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
     end
 
@@ -660,7 +668,7 @@ module RubyEventStore
 
       [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
         expect do
-          client.append_to_stream(
+          client.append(
             OrderCreated.new(event_id: SecureRandom.uuid),
             stream_name: "some_stream",
             expected_version: invalid_expected_version
@@ -672,7 +680,7 @@ module RubyEventStore
     specify "only :none, :any, :auto and Integer allowed as expected_version when linking" do
 
       [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
-        client.append_to_stream(
+        client.append(
           OrderCreated.new(event_id: evid = SecureRandom.uuid),
           stream_name: SecureRandom.uuid,
           expected_version: :none

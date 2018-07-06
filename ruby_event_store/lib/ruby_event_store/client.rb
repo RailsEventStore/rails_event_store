@@ -63,6 +63,15 @@ module RubyEventStore
     # @param (see #publish)
     # @return [:ok]
     def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+      warn <<~EOW
+        RubyEventStore::Client#append_to_stream has been deprecated.
+
+        Use RubyEventStore::Client#append instead
+      EOW
+      append(events, stream_name: stream_name, expected_version: expected_version)
+    end
+
+    def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       serialized_events = serialize_events(enrich_events_metadata(events))
       append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
       :ok
