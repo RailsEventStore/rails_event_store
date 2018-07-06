@@ -1,7 +1,7 @@
 module RubyEventStore
   module PubSub
     class Broker
-      def initialize(subscriptions: Subscriptions.new, dispatcher: Dispatcher.new)
+      def initialize(subscriptions:, dispatcher:)
         @subscriptions = subscriptions
         @dispatcher = dispatcher
       end
