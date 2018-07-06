@@ -64,13 +64,17 @@ module AggregateRoot
     @version ||= -1
   end
 
+  def config
+    AggregateRoot.configuration || Configuration.new
+  end
+
   def apply_strategy
     DefaultApplyStrategy.new(on_methods: self.class.on_methods,
-                             strict: AggregateRoot.configuration.strict_apply)
+                             strict: config.strict_apply)
   end
 
   def default_event_store
-    AggregateRoot.configuration.default_event_store
+    config.default_event_store
   end
 
   def events_enumerator(event_store, stream_name)
