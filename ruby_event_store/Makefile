@@ -18,6 +18,7 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::DeprecatedReadAPIRewriter* \
               RubyEventStore::Client\#publish_event \
               RubyEventStore::Client\#publish_events \
+              RubyEventStore::Client\#link_to_stream \
 
 SUBJECT     ?= RubyEventStore*
 

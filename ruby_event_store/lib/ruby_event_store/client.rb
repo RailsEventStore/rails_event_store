@@ -75,9 +75,19 @@ module RubyEventStore
     # @param stream_name (see #publish)
     # @param expected_version (see #publish)
     # @return [self]
-    def link_to_stream(event_ids, stream_name:, expected_version: :any)
+    def link(event_ids, stream_name:, expected_version: :any)
       repository.link_to_stream(event_ids, Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
+    end
+
+    # @deprecated Use {#link} instead
+    def link_to_stream(event_ids, stream_name:, expected_version: :any)
+      warn <<~EOW
+        RubyEventStore::Client#link_to_stream has been deprecated.
+
+        Use RubyEventStore::Client#link instead
+      EOW
+      link(event_ids, stream_name: stream_name, expected_version: expected_version)
     end
 
     # Deletes a stream.
@@ -295,7 +305,7 @@ module RubyEventStore
       raise ArgumentError if block.nil?
       Within.new(block, event_broker)
     end
-    
+
     def with_metadata(metadata, &block)
       previous_metadata = metadata()
       self.metadata = previous_metadata.merge(metadata)
