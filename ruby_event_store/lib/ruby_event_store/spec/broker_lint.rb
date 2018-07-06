@@ -38,29 +38,27 @@ RSpec.shared_examples :broker do |broker_klass|
     expect { broker.add_thread_global_subscription(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
   end
 
-  specify "no verification when no subscriptions" do
-    expect(subscriptions).to receive(:all_for).with('EventType').and_return([])
-    expect(dispatcher).not_to receive(:verify)
-    broker.call(event, serialized_event)
-  end
-
-  specify "allows dispatcher to verify subscribers - local subscriptions" do
+  specify "verify and add - local subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler)
+    expect(subscriptions).to receive(:add_subscription).with(handler, ['EventType'])
     broker.add_subscription(handler, ['EventType'])
   end
 
-  specify "allows dispatcher to verify subscribers - global subscriptions" do
+  specify "verify and add - global subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler)
+    expect(subscriptions).to receive(:add_global_subscription).with(handler)
     broker.add_global_subscription(handler)
   end
 
-  specify "allows dispatcher to verify subscribers - thread local subscriptions" do
+  specify "verify and add - thread local subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler)
+    expect(subscriptions).to receive(:add_thread_subscription).with(handler, ['EventType'])
     broker.add_thread_subscription(handler, ['EventType'])
   end
 
-  specify "allows dispatcher to verify subscribers - thread global subscriptions" do
+  specify "verify and add - thread global subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler)
+    expect(subscriptions).to receive(:add_thread_global_subscription).with(handler)
     broker.add_thread_global_subscription(handler)
   end
 
