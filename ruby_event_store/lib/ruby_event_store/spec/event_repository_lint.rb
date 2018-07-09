@@ -1,3 +1,4 @@
+# @private
 class SRecord
   def self.new(
     event_id:   SecureRandom.uuid,
