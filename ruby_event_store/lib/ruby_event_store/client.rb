@@ -315,6 +315,12 @@ module RubyEventStore
       Within.new(block, broker)
     end
 
+    # Set additional metadata for all events published within the provided block
+    # {http://railseventstore.org/docs/request_metadata#passing-your-own-metadata-using-with_metadata-method Read more}
+    #
+    # @param metadata [Hash] metadata to set for events
+    # @param block [Proc] block of code during which the metadata will be added
+    # @return [Object] last value returned by the provided block
     def with_metadata(metadata, &block)
       previous_metadata = metadata()
       self.metadata = previous_metadata.merge(metadata)
@@ -323,10 +329,18 @@ module RubyEventStore
       self.metadata = previous_metadata
     end
 
+    # Deserialize event which was serialized for async event handlers
+    # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
+    #
+    # @return [Event, Proto] deserialized event
     def deserialize(event_type:, event_id:, data:, metadata:)
       mapper.serialized_record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
     end
 
+    # Read additional metadata which will be added for published events
+    # {http://railseventstore.org/docs/request_metadata#passing-your-own-metadata-using-with_metadata-method Read more}
+    #
+    # @return [Hash]
     def metadata
       @metadata.value || EMPTY_HASH
     end
