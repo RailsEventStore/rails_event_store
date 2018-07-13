@@ -38,6 +38,10 @@ module RailsEventStore
         HaveApplied.new(*expected, differ: differ, phraser: phraser)
       end
 
+      def publish(*expected)
+        Publish.new(*expected)
+      end
+
       private
 
       def formatter
