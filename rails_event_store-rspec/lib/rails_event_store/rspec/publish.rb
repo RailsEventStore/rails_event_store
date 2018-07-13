@@ -2,69 +2,59 @@ require 'rspec/matchers/built_in/base_matcher'
 
 module RailsEventStore
   module RSpec
-    class Publish < ::RSpec::Matchers::BuiltIn::BaseMatcher
-      def in(event_store, &block)
+    class Publish
+      def in(event_store)
         @event_store = event_store
-        @block = block if block_given?
         self
       end
 
-      def in_stream(stream, &block)
+      def in_stream(stream)
         @stream = stream
-        @block = block if block_given?
         self
       end
 
       def matches?(event_proc)
         raise_event_store_not_set unless @event_store
-        @event_proc = event_proc
-        return false unless Proc === event_proc
         spec = @event_store.read
         spec = spec.stream(@stream) if @stream
-        last_event_before_block = spec.backward.limit(1).each.to_a.first
+        last_event_before_block = last_event(spec)
         event_proc.call
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = spec.each.to_a
-        if @block
-          @block.call(@published_events)
-        elsif @event
-          ::RSpec::Matchers::BuiltIn::Include.new(*@event).matches?(@published_events)
+        if match_events?
+          ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@published_events)
         else
           !@published_events.empty?
         end
       end
 
-      def does_not_match?(event_proc)
-        !matches?(event_proc) && Proc === event_proc
-      end
-
       def failure_message
-        if @event
+        if match_events?
           <<-EOS
-  expected block to have published:
+expected block to have published:
 
-  #{@event.inspect}
+#{@expected}
 
-  #{"in stream #{@stream} " if @stream}but published:
+#{"in stream #{@stream} " if @stream}but published:
 
-  #{@published_events.inspect}
-          EOS
+#{@published_events}
+EOS
         else
           "expected block to have published any events"
         end
       end
 
       def failure_message_when_negated
-        if @event
+        if match_events?
           <<-EOS
-  expected block not to have published:
+expected block not to have published:
 
-  #{@event.inspect}
+#{@expected}
 
-  #{"in stream #{@stream} " if @stream}but published:
+#{"in stream #{@stream} " if @stream}but published:
 
-  #{@published_events.inspect}
-          EOS
+#{@published_events}
+EOS
         else
           "expected block not to have published any events"
         end
@@ -80,11 +70,16 @@ module RailsEventStore
 
       private
 
-      def initialize(event = nil, &block)
-        @event = event
-        @stream = nil
-        @event_store = nil
-        @block = block
+      def initialize(*expected)
+        @expected = expected
+      end
+
+      def match_events?
+        !@expected.empty?
+      end
+
+      def last_event(spec)
+        spec.backward.limit(1).each.first
       end
 
       def raise_event_store_not_set

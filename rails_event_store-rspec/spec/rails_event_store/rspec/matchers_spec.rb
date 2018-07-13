@@ -68,6 +68,10 @@ module RailsEventStore
         aggregate_root.bar
         expect(aggregate_root).to matchers.have_applied(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
       end
+
+      specify do
+        expect(matchers.publish).to be_a(Publish)
+      end
     end
 
     module Matchers

@@ -6,7 +6,8 @@ IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
               RailsEventStore::RSpec::Matchers\#have_published \
               RailsEventStore::RSpec::Matchers\#have_applied \
               RailsEventStore::RSpec::Matchers\#publish \
-              RailsEventStore::RSpec::Matchers\#be_an_event
+              RailsEventStore::RSpec::Matchers\#be_an_event \
+              RailsEventStore::RSpec::Publish\#last_event
 SUBJECT     ?= RailsEventStore::RSpec*
 
 install: ## Install gem dependencies
