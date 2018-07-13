@@ -5,6 +5,7 @@ IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
               RailsEventStore::RSpec::Matchers\#formatter \
               RailsEventStore::RSpec::Matchers\#have_published \
               RailsEventStore::RSpec::Matchers\#have_applied \
+              RailsEventStore::RSpec::Matchers\#publish \
               RailsEventStore::RSpec::Matchers\#be_an_event
 SUBJECT     ?= RailsEventStore::RSpec*
 
