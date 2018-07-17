@@ -305,8 +305,30 @@ Async handlers are just background jobs implemented with `ActiveJob`.
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
+  def perform(payload)
+    event = event_store.deserialize(payload)
+    email = event.data.fetch(:customer_email)
+    OrderMailer.notify_customer(email).deliver_now!
+  end
+  
+  private
+  
+  def event_store
+    Rails.configuration.event_store
+  end
+end
+
+event_store = RailsEventStore::Client.new
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
+```
+
+You can also use `RailsEventStore::AsyncHandler` module that will deserialize the event for you:
+
+```ruby
+class SendOrderEmail < ActiveJob::Base
+  prepend RailsEventStore::AsyncHandler
+  
   def perform(event)
-    event = YAML.load(event)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end
@@ -349,8 +371,9 @@ You can configure your dispatcher slightly different, to schedule async handlers
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
+  prepend RailsEventStore::AsyncHandler
+  
   def perform(event)
-    event = YAML.load(event)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end

@@ -53,12 +53,37 @@ new_event.metadata[:correlation_id]
 new_event.metadata[:causation_id]
 ```
 
+This is however not necessary for sync handlers. Events published from sync handlers are by default correlated with events that caused them.
+
+## Correlating events published from async handlers
+
+Events published from async handlers are not correlated with events that caused them by default. To enable that functionality you need to prepend `RailsEventStore::CorrelatedHandler`
+
+```ruby
+class SendOrderEmail < ActiveJob::Base
+  prepend RailsEventStore::CorrelatedHandler
+  prepend RailsEventStore::AsyncHandler
+  
+  def perform(event)
+    event_store.publish(HappenedLater.new(data:{
+      user_id: event.data.fetch(:user_id),
+    }))
+  end
+  
+  private
+  
+  def event_store
+    Rails.configuration.event_store
+  end
+end
+```
+
 ## Correlating an event with a command
 
 If your command responds to `correlation_id` (can even always be `nil`) and `message_id` you can correlate your events also with commands.
 
 ```ruby
-class ApproveOrder = < Struct.new(:order_id, :message_id, :correlation_id)
+class ApproveOrder < Struct.new(:order_id, :message_id, :correlation_id)
 end
 
 command = ApproveOrder.new("KTXBN123", SecureRandom.uuid, nil)
@@ -124,6 +149,39 @@ class AddProductCommand < Struct.new(:message_id, :product_id)
     super(message_id, product_id)
   end
 end
+```
+
+## Building streams based on correlation id and causation id
+
+You can use `RailsEventStore::LinkByCorrelationId` (`RubyEventStore::LinkByCorrelationId`) and `RailsEventStore::LinkByCausationId` (`RubyEventStore::LinkByCausationId`) to build streams of all events with certain correlation or causation id. This makes debugging and making sense of a large process easier to see.  
+
+```ruby
+Rails.application.configure do
+  config.to_prepare do
+    Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+    event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
+    event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
+  end
+end
+```
+
+After publishing an event:
+
+```ruby
+event = OrderPlaced.new
+event_store.publish(event)
+```
+
+you can read events caused by it:
+
+```ruby
+event_store.read.stream("$by_causation_id_#{event.event_id}")
+```
+
+and events correlated with it:
+
+```ruby
+event_store.read.stream("$by_correlation_id_#{event.correlation_id || event.event_id}")
 ```
 
 ## Thanks
