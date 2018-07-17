@@ -302,7 +302,7 @@ module RubyEventStore
     end
 
     specify do
-      client.append_to_stream(
+      client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: 'stream'
       )
