@@ -36,9 +36,9 @@ module RailsEventStore
 
       specify do
         event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
-        event_store.publish_event(FooEvent.new)
+        event_store.publish(FooEvent.new)
         expect {
-          event_store.publish_event(BarEvent.new)
+          event_store.publish(BarEvent.new)
         }.to publish(matchers.an_event(BarEvent)).in(event_store)
       end
 

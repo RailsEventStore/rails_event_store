@@ -31,43 +31,43 @@ module RailsEventStore
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new)
+          event_store.publish(FooEvent.new)
         }.to matcher.in(event_store)
       end
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new, stream_name: 'Foo$1')
+          event_store.publish(FooEvent.new, stream_name: 'Foo$1')
         }.to matcher.in(event_store).in_stream('Foo$1')
       end
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new, stream_name: 'Foo$1')
+          event_store.publish(FooEvent.new, stream_name: 'Foo$1')
         }.not_to matcher.in(event_store).in_stream('Bar$1')
       end
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new)
+          event_store.publish(FooEvent.new)
         }.not_to matcher(matchers.an_event(BarEvent)).in(event_store)
       end
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new)
+          event_store.publish(FooEvent.new)
         }.to matcher(matchers.an_event(FooEvent)).in(event_store)
       end
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new, stream_name: "Foo$1")
+          event_store.publish(FooEvent.new, stream_name: "Foo$1")
         }.to matcher(matchers.an_event(FooEvent)).in(event_store).in_stream("Foo$1")
       end
 
       specify do
         expect {
-          event_store.publish_event(FooEvent.new)
+          event_store.publish(FooEvent.new)
         }.not_to matcher(matchers.an_event(FooEvent)).in(event_store).in_stream("Foo$1")
       end
 
@@ -75,8 +75,8 @@ module RailsEventStore
         foo_event = FooEvent.new
         bar_event = BarEvent.new
         expect {
-          event_store.publish_event(foo_event, stream_name: "Foo$1")
-          event_store.publish_event(bar_event, stream_name: "Bar$1")
+          event_store.publish(foo_event, stream_name: "Foo$1")
+          event_store.publish(bar_event, stream_name: "Bar$1")
         }.to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).in(event_store)
       end
 
@@ -84,9 +84,9 @@ module RailsEventStore
         foo_event = FooEvent.new
         bar_event = BarEvent.new
 
-        event_store.publish_event(foo_event)
+        event_store.publish(foo_event)
         expect {
-          event_store.publish_event(bar_event)
+          event_store.publish(bar_event)
         }.not_to matcher(matchers.an_event(FooEvent)).in(event_store)
       end
 
@@ -147,7 +147,7 @@ module RailsEventStore
       specify do
         foo_event = FooEvent.new
         _matcher = matcher(actual = matchers.an_event(FooEvent)).in(event_store)
-        _matcher.matches?(Proc.new { event_store.publish_event(foo_event) })
+        _matcher.matches?(Proc.new { event_store.publish(foo_event) })
 
         expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected block not to have published:
@@ -163,7 +163,7 @@ module RailsEventStore
       specify do
         foo_event = FooEvent.new
         _matcher = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
-        _matcher.matches?(Proc.new { event_store.publish_event(foo_event, stream_name: 'foo') })
+        _matcher.matches?(Proc.new { event_store.publish(foo_event, stream_name: 'foo') })
 
         expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected block not to have published:

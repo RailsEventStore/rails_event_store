@@ -264,7 +264,7 @@ module RubyEventStore
       expect(@four.correlation_id).to eq('COID')
       expect(@four.causation_id).to   eq('CAID')
 
-      client.publish_event(one = ProductAdded.new(metadata:{
+      client.publish(one = ProductAdded.new(metadata:{
         correlation_id: "COID",
         causation_id:   "CAID",
       }))
