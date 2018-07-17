@@ -10,7 +10,7 @@ module RubyEventStore
     def call(event)
       return unless event.metadata.has_key?(@key)
 
-      @event_store.link_to_stream(
+      @event_store.link(
         [event.message_id],
         stream_name: "#{@prefix}#{event.metadata.fetch(@key)}"
       )
@@ -45,7 +45,7 @@ module RubyEventStore
     end
 
     def call(event)
-      @event_store.link_to_stream(
+      @event_store.link(
         [event.message_id],
         stream_name: "#{@prefix}#{event.type}"
       )
