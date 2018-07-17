@@ -22,7 +22,7 @@ class MyEventHandler
       new_event = MyEvent.new(data: {foo: 'bar'})
       new_event.correlate_with(previous_event)
       
-      event_store.publish_event(new_event)   
+      event_store.publish(new_event)   
     end
   end
   
@@ -75,7 +75,7 @@ class MyEventHandler
       correlation_id: previous_event.correlation_id || previous_event.event_id,
       causation_id:   previous_event.event_id
     ) do
-      event_store.publish_events([
+      event_store.publish([
         MyEvent.new(data: {foo: 'bar'}),
         AnotherEvent.new(data: {baz: 'bax'}),
       ])   

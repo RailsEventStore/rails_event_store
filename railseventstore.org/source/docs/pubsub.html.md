@@ -32,7 +32,7 @@ class CancelOrdersService
       order_id: order_id,
     )
     order.cancel!
-    event_store.publish_event(
+    event_store.publish(
       OrderCancelled.new(data: {
         order_id: order.id,
         customer_id: order.customer_id,

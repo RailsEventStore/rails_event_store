@@ -13,7 +13,7 @@ class Order
   end
 
   def place
-    event_store.publish_event(
+    event_store.publish(
       OrderPlaced.new(data: { id: @id }),
       stream_name: stream_name
     )

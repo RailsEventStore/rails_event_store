@@ -38,7 +38,7 @@ event_store = RubyEventStore::Client.new(
   repository: RailsEventStoreActiveRecord::EventRepository.new
 )
 
-event_store.publish_event(OrderPlaced.new(data: {
+event_store.publish(OrderPlaced.new(data: {
     order_id: 1,
     customer_id: 47271,
     amount: BigDecimal.new("20.00"),

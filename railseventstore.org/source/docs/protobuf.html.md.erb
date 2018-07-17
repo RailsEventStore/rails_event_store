@@ -79,7 +79,7 @@ event = RubyEventStore::Proto.new(
     customer_id: 123,
   )
 )
-event_store.publish_event(event, stream_name: "Order-K3THNX9")
+event_store.publish(event, stream_name: "Order-K3THNX9")
 ```
 
 ## Retrieving
