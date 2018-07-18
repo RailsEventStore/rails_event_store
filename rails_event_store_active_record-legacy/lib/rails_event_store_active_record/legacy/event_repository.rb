@@ -68,6 +68,10 @@ instead:
         if spec.batched?
           batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_entity)) }
           RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+        elsif spec.first?
+          build_event_entity(stream.first)
+        elsif spec.last?
+          build_event_entity(stream.last)
         else
           stream.map(&method(:build_event_entity)).each
         end
