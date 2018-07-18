@@ -139,34 +139,39 @@ module RubyEventStore
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: nil,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.from(event_id)).to match_result({
           direction: :forward,
           start: event_id,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: nil,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.limit(10)).to match_result({
           direction: :forward,
           start: :head,
           count: 10,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: nil,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.stream(stream_name)).to match_result({
           direction: :forward,
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: stream_name,
-          batch_size: Specification::NO_BATCH
+          read_as: nil,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.in_batches).to match_result({
           direction: :forward,
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
+          read_as: Specification::BATCH,
           batch_size: 100
         })
         expect(specification).to match_result({
@@ -174,21 +179,24 @@ module RubyEventStore
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: Specification::BATCH,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation.forward).to match_result({
           direction: :forward,
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: nil,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation).to match_result({
           direction: :backward,
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: nil,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
       end
     end
@@ -248,7 +256,7 @@ module RubyEventStore
 
     specify { expect(specification.in_batches).to match_result(batch_size: 100) }
 
-    specify { expect(specification).to match_result(batch_size: Specification::NO_BATCH) }
+    specify { expect(specification).to match_result(batch_size: Specification::DEFAULT_BATCH_SIZE) }
 
     specify { expect(specification.in_batches(1000)).to match_result(batch_size: 1000) }
 
@@ -293,6 +301,18 @@ module RubyEventStore
 
       expect(specification.each_batch.to_a).to     eq(specification.in_batches.each_batch.to_a)
       expect(specification.each_batch.to_a).not_to eq(specification.in_batches(1000).each_batch.to_a)
+    end
+
+    specify do
+      records = 5.times.map { test_record }
+      repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+
+      expect(specification.first).to eq(TestEvent.new(event_id: records[0].event_id))
+      expect(specification.last).to eq(TestEvent.new(event_id: records[4].event_id))
+      expect(specification.from(records[2].event_id).first).to eq(TestEvent.new(event_id: records[3].event_id))
+      expect(specification.from(records[2].event_id).last).to eq(TestEvent.new(event_id: records[4].event_id))
+      expect(specification.from(records[2].event_id).backward.first).to eq(TestEvent.new(event_id: records[1].event_id))
+      expect(specification.from(records[2].event_id).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
     end
 
     let(:repository)    { InMemoryRepository.new }

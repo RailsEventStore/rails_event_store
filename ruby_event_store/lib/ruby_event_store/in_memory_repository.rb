@@ -43,6 +43,10 @@ module RubyEventStore
       if spec.batched?
         batch_reader = ->(offset, limit) { events.drop(offset).take(limit) }
         BatchEnumerator.new(spec.batch_size, events.size, batch_reader).each
+      elsif spec.first?
+        events.first
+      elsif spec.last?
+        events.last
       else
         events.each
       end
