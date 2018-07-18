@@ -79,7 +79,7 @@ EOS
       end
 
       def last_event(spec)
-        spec.backward.limit(1).each.first
+        spec.last
       end
 
       def raise_event_store_not_set
