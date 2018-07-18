@@ -35,12 +35,12 @@ module RubyEventStore
           events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
-        def read(direction, stream, from:, limit:, batch_size:)
+        def read(direction, stream, from:, limit:, read_as:, batch_size:)
           unless from.equal?(:head)
             offset_entry_id = stream_entries.by_stream_and_event_id(stream, from).fetch(:id)
           end
 
-          if batch_size
+          if read_as == RubyEventStore::Specification::BATCH
             reader = ->(offset, limit) do
               stream_entries
                 .ordered(direction, stream, offset_entry_id)
@@ -51,6 +51,18 @@ module RubyEventStore
                 .to_ary
             end
             BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
+          elsif read_as == RubyEventStore::Specification::FIRST
+            stream_entries
+              .ordered(direction, stream, offset_entry_id)
+              .combine(:event)
+              .map_with(:stream_entry_to_serialized_record, auto_struct: false)
+              .to_ary.first
+          elsif read_as == RubyEventStore::Specification::LAST
+            stream_entries
+              .ordered(direction, stream, offset_entry_id)
+              .combine(:event)
+              .map_with(:stream_entry_to_serialized_record, auto_struct: false)
+              .to_ary.last
           else
             stream_entries
               .ordered(direction, stream, offset_entry_id)

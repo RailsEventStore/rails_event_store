@@ -11,7 +11,7 @@ module RubyEventStore
 
       def initialize(rom: ROM.env)
         raise ArgumentError, "Must specify rom" unless rom && rom.instance_of?(Env)
-        
+
         @rom = rom
         @events = Repositories::Events.new(rom.container)
         @stream_entries = Repositories::StreamEntries.new(rom.container)
@@ -77,6 +77,7 @@ module RubyEventStore
           stream,
           from: :head,
           limit: 1,
+          read_as: nil,
           batch_size: nil
         ).first
       end
@@ -95,6 +96,7 @@ module RubyEventStore
           specification.stream,
           from: specification.start,
           limit: (specification.count if specification.limit?),
+          read_as: specification.read_as,
           batch_size: (specification.batch_size if specification.batched?)
         )
       end
