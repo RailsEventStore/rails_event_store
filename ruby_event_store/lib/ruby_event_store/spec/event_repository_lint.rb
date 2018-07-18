@@ -1100,4 +1100,18 @@ RSpec.shared_examples :event_repository do |repository_class|
     expect(batches[0].size).to eq(99)
     expect(batches[0]).to eq(events[101..199])
   end
+
+  specify do
+    events = Array.new(5) { SRecord.new }
+    repository.append_to_stream(
+      events,
+      RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+      RubyEventStore::ExpectedVersion.any
+    )
+
+    expect(repository.read(specification.result.tap{|r| r.read_as = RubyEventStore::Specification::FIRST})).to eq(events[0])
+    expect(repository.read(specification.result.tap{|r| r.read_as = RubyEventStore::Specification::LAST})).to eq(events[4])
+    expect(repository.read(specification.backward.result.tap{|r| r.read_as = RubyEventStore::Specification::FIRST})).to eq(events[4])
+    expect(repository.read(specification.backward.result.tap{|r| r.read_as = RubyEventStore::Specification::LAST})).to eq(events[0])
+  end
 end
