@@ -56,7 +56,7 @@ module RubyEventStore
               .ordered(direction, stream, offset_entry_id)
               .combine(:event)
               .map_with(:stream_entry_to_serialized_record, auto_struct: false)
-              .to_ary.first
+              .first
           elsif read_as == RubyEventStore::Specification::LAST
             stream_entries
               .ordered(direction, stream, offset_entry_id)
