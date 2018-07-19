@@ -97,7 +97,7 @@ module RubyEventStore
           from: specification.start,
           limit: (specification.count if specification.limit?),
           read_as: specification.read_as,
-          batch_size: (specification.batch_size if specification.batched?)
+          batch_size: specification.batch_size
         )
       end
 
