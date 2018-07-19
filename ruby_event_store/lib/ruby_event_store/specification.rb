@@ -42,15 +42,15 @@ module RubyEventStore
       end
 
       def batched?
-        read_as == BATCH
+        read_as.equal?(BATCH)
       end
 
       def first?
-        read_as == FIRST
+        read_as.equal?(FIRST)
       end
 
       def last?
-        read_as == LAST
+        read_as.equal?(LAST)
       end
     end
     private_constant :Result
