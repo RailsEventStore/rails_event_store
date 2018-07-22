@@ -35,33 +35,33 @@ module RubyEventStore
           events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
-        MATERIALIZE_READ_AS = {
-          RubyEventStore::Specification::BATCH => :to_ary,
-          RubyEventStore::Specification::FIRST => :first,
-          RubyEventStore::Specification::LAST  => :first
-        }.freeze
+        def last_stream_event(stream)
+          query = stream_entries.ordered(:backward, stream)
+          query = query_builder(query, limit: 1)
+          query.first
+        end
 
-        def read(direction, stream, from:, limit:, read_as:, batch_size:)
-          unless from.equal?(:head)
-            offset_entry_id = stream_entries.by_stream_and_event_id(stream, from).fetch(:id)
+        def read(specification)
+          unless specification.head?
+            offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id)
           end
 
-          # Note: `last` is problematic, so we switch direction and get `first`.
-          #       See `MATERIALIZE_READ_AS`
-          if read_as == RubyEventStore::Specification::LAST
-            direction = direction == :forward ? :backward : :forward
+          direction = specification.direction
+          limit = specification.count if specification.limit?
+          if specification.last?
+            direction = specification.forward? ? :backward : :forward
           end
 
-          query = stream_entries.ordered(direction, stream, offset_entry_id)
+          query = stream_entries.ordered(direction, specification.stream, offset_entry_id)
 
-          if read_as == RubyEventStore::Specification::BATCH
+          if specification.batched?
             reader = ->(offset, limit) do
               query_builder(query, offset: offset, limit: limit).to_ary
             end
-            BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
+            BatchEnumerator.new(specification.batch_size, limit || Float::INFINITY, reader).each
           else
-            materialize_method = MATERIALIZE_READ_AS.fetch(read_as, :each)
-            query_builder(query, limit: limit).__send__(materialize_method)
+            query = query_builder(query, limit: limit)
+            specification.first? || specification.last? ? query.first : query.each
           end
         end
 
