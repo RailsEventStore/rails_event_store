@@ -116,8 +116,8 @@ module RailsEventStoreActiveRecord
     def fill_ids(_in_stream)
     end
 
-    def start_transaction(&proc)
-      ActiveRecord::Base.transaction(requires_new: true, &proc)
+    def start_transaction(&block)
+      ActiveRecord::Base.transaction(requires_new: true, &block)
     end
   end
 
