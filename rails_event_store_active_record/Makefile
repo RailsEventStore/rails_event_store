@@ -1,7 +1,8 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = rails_event_store_active_record
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector\#detect
+IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector\#detect \
+               RailsEventStoreActiveRecord::PgLinearizedEventRepository*
 SUBJECT      ?= RailsEventStoreActiveRecord*
 DATABASE_URL ?= sqlite3::memory:
 

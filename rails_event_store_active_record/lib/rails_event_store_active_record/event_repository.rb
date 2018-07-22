@@ -52,7 +52,7 @@ module RailsEventStoreActiveRecord
       last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
-      ActiveRecord::Base.transaction(requires_new: true) do
+      start_transaction do
         in_stream = collection.flat_map.with_index do |element, index|
           position = compute_position(resolved_version, index)
           event_id = to_event_id.call(element)
@@ -114,6 +114,10 @@ module RailsEventStoreActiveRecord
 
     # Overwritten in a sub-class
     def fill_ids(_in_stream)
+    end
+
+    def start_transaction(&block)
+      ActiveRecord::Base.transaction(requires_new: true, &block)
     end
   end
 
