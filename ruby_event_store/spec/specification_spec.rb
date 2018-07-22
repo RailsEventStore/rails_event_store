@@ -315,6 +315,26 @@ module RubyEventStore
       expect(specification.from(records[2].event_id).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
     end
 
+    specify do
+      repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.none)
+
+      expect(specification.result.batched?).to be_falsey
+      expect(specification.result.first?).to be_falsey
+      expect(specification.result.last?).to be_falsey
+      specification.first
+      expect(specification.result.batched?).to be_falsey
+      expect(specification.result.first?).to be_truthy
+      expect(specification.result.last?).to be_falsey
+      specification.last
+      expect(specification.result.batched?).to be_falsey
+      expect(specification.result.first?).to be_falsey
+      expect(specification.result.last?).to be_truthy
+      specification.in_batches
+      expect(specification.result.batched?).to be_truthy
+      expect(specification.result.first?).to be_falsey
+      expect(specification.result.last?).to be_falsey
+    end
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
     let(:specification) { Specification.new(repository, mapper) }
