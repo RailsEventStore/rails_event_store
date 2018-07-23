@@ -132,6 +132,23 @@ module RubyEventStore
       end
     end
 
+    specify do
+      with_event_of_id(event_id) do
+        specs = [
+          specification.forward,
+          specification.backward,
+          specification.in_batches,
+          specification.read_first,
+          specification.read_last,
+          specification.limit(10),
+          specification.from(event_id),
+          specification.stream(stream_name),
+        ]
+        expect(specs.map{|s| s.send(:repository)}.uniq).to eq([repository])
+        expect(specs.map{|s| s.send(:mapper)}.uniq).to eq([mapper])
+      end
+    end
+
     specify 'immutable specification' do
       with_event_of_id(event_id) do
         expect(backward_specifcation = specification.backward).to match_result({
@@ -192,6 +209,38 @@ module RubyEventStore
         })
         expect(backward_specifcation).to match_result({
           direction: :backward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
+        })
+        expect(specification.read_first).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :first,
+          batch_size: 100
+        })
+        expect(specification).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
+        })
+        expect(specification.read_last).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :last,
+          batch_size: 100
+        })
+        expect(specification).to match_result({
+          direction: :forward,
           start: :head,
           count: nil,
           stream_name: GLOBAL_STREAM,
