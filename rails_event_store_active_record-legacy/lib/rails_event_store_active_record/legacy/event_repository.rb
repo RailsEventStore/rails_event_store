@@ -61,7 +61,7 @@ instead:
 
       def read(spec)
         stream = LegacyEvent.order(id: order(spec.direction))
-        stream = stream.limit(spec.count) if spec.limit?
+        stream = stream.limit(spec.limit) if spec.limit?
         stream = stream.where(start_condition(spec)) unless spec.head?
         stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
 
@@ -80,7 +80,7 @@ instead:
       private
 
       def total_limit(specification)
-        specification.limit? ? specification.count : Float::INFINITY
+        specification.limit
       end
 
       def start_condition(specification)

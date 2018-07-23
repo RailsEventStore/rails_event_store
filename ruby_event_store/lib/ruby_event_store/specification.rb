@@ -9,6 +9,10 @@ module RubyEventStore
         !count.nil?
       end
 
+      def limit
+        count || Float::INFINITY
+      end
+
       def global_stream?
         stream.global?
       end

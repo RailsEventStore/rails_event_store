@@ -47,7 +47,7 @@ module RubyEventStore
           end
 
           direction = specification.direction
-          limit = specification.count if specification.limit?
+          limit = specification.limit if specification.limit?
           if specification.last?
             direction = specification.forward? ? :backward : :forward
           end
