@@ -179,7 +179,7 @@ module RubyEventStore
           start: :head,
           count: Specification::NO_LIMIT,
           stream_name: GLOBAL_STREAM,
-          read_as: Specification::BATCH,
+          read_as: nil,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation.forward).to match_result({
