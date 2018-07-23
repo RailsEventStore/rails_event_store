@@ -321,18 +321,18 @@ module RubyEventStore
       expect(specification.result.batched?).to be_falsey
       expect(specification.result.first?).to be_falsey
       expect(specification.result.last?).to be_falsey
-      specification.first
-      expect(specification.result.batched?).to be_falsey
-      expect(specification.result.first?).to be_truthy
-      expect(specification.result.last?).to be_falsey
-      specification.last
-      expect(specification.result.batched?).to be_falsey
-      expect(specification.result.first?).to be_falsey
-      expect(specification.result.last?).to be_truthy
-      specification.in_batches
-      expect(specification.result.batched?).to be_truthy
-      expect(specification.result.first?).to be_falsey
-      expect(specification.result.last?).to be_falsey
+
+      expect(specification.read_first.result.batched?).to be_falsey
+      expect(specification.read_first.result.first?).to be_truthy
+      expect(specification.read_first.result.last?).to be_falsey
+
+      expect(specification.read_last.result.batched?).to be_falsey
+      expect(specification.read_last.result.first?).to be_falsey
+      expect(specification.read_last.result.last?).to be_truthy
+
+      expect(specification.in_batches.result.batched?).to be_truthy
+      expect(specification.in_batches.result.first?).to be_falsey
+      expect(specification.in_batches.result.last?).to be_falsey
     end
 
     let(:repository)    { InMemoryRepository.new }

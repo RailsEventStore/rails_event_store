@@ -1109,9 +1109,10 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    expect(repository.read(specification.result.tap{|r| r.read_as = RubyEventStore::Specification::FIRST})).to eq(events[0])
-    expect(repository.read(specification.result.tap{|r| r.read_as = RubyEventStore::Specification::LAST})).to eq(events[4])
-    expect(repository.read(specification.backward.result.tap{|r| r.read_as = RubyEventStore::Specification::FIRST})).to eq(events[4])
-    expect(repository.read(specification.backward.result.tap{|r| r.read_as = RubyEventStore::Specification::LAST})).to eq(events[0])
+    expect(repository.read(specification.read_first.result)).to eq(events[0])
+    expect(repository.read(specification.read_last.result)).to eq(events[4])
+
+    expect(repository.read(specification.backward.read_first.result)).to eq(events[4])
+    expect(repository.read(specification.backward.read_last.result)).to eq(events[0])
   end
 end

@@ -162,9 +162,17 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(repository, mapper, result.tap { |r| r.read_as = BATCH; r.batch_size = batch_size })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = BATCH; r.batch_size = batch_size })
     end
     alias :in_batches_of :in_batches
+
+    def read_first
+      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = FIRST })
+    end
+
+    def read_last
+      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = LAST })
+    end
 
     # Executes the query based on the specification built up to this point.
     # Returns the first event in specified collection of events.
@@ -172,7 +180,7 @@ module RubyEventStore
     #
     # @return [Event]
     def first
-      mapper.serialized_record_to_event(repository.read(result.tap { |r| r.read_as = FIRST }))
+      mapper.serialized_record_to_event(repository.read(read_first.result))
     end
 
     # Executes the query based on the specification built up to this point.
@@ -181,7 +189,7 @@ module RubyEventStore
     #
     # @return [Event]
     def last
-      mapper.serialized_record_to_event(repository.read(result.tap { |r| r.read_as = LAST }))
+      mapper.serialized_record_to_event(repository.read(read_last.result))
     end
 
     private
