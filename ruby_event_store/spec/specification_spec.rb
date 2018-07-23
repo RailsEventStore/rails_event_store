@@ -8,7 +8,7 @@ module RubyEventStore
 
     specify { expect(specification).to match_result({ start: :head }) }
 
-    specify { expect(specification).to match_result({ count: Specification::NO_LIMIT }) }
+    specify { expect(specification).to match_result({ count: nil }) }
 
     specify { expect(specification).to match_result({ stream_name: GLOBAL_STREAM }) }
 
@@ -137,17 +137,17 @@ module RubyEventStore
         expect(backward_specifcation = specification.backward).to match_result({
           direction: :backward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.from(event_id)).to match_result({
           direction: :forward,
           start: event_id,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.limit(10)).to match_result({
@@ -155,47 +155,47 @@ module RubyEventStore
           start: :head,
           count: 10,
           stream_name: GLOBAL_STREAM,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.stream(stream_name)).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: stream_name,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.in_batches).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          read_as: Specification::BATCH,
+          read_as: :batch,
           batch_size: 100
         })
         expect(specification).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation.forward).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation).to match_result({
           direction: :backward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          read_as: nil,
+          read_as: :all,
           batch_size: Specification::DEFAULT_BATCH_SIZE
         })
       end
