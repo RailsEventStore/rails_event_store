@@ -9,12 +9,14 @@ require 'ruby_event_store/spec/event_repository_lint'
 class EventA2 < RubyEventStore::Event
 end
 
-RSpec.describe "v1_v2_migration" do
+RSpec.describe "v1_v2_v3_migration" do
   include SchemaHelper
 
-  MigrationRubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/v1_v2_migration_template.rb', __FILE__) )
+  MigrationV2RubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/v1_v2_migration_template.rb', __FILE__) )
+  MigrationV3RubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/v2_v3_migration_template.rb', __FILE__) )
   migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
-  MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
+  MigrationV2RubyCode.gsub!("<%= migration_version %>", migration_version)
+  MigrationV3RubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
     begin
@@ -24,7 +26,8 @@ RSpec.describe "v1_v2_migration" do
       dump_current_schema
       drop_existing_tables_to_clean_state
       fill_data_using_older_gem
-      run_the_migration
+      run_the_v2_migration
+      run_the_v3_migration
       reset_columns_information
       verify_all_events_stream
       verify_event_sourced_stream
@@ -65,14 +68,19 @@ RSpec.describe "v1_v2_migration" do
     expect(process.exit_code).to eq(0)
   end
 
-  def run_the_migration
-    eval(MigrationRubyCode)
+  def run_the_v2_migration
+    eval(MigrationV2RubyCode)
     MigrateResSchemaV1ToV2.class_eval do
       def preserve_positions?(stream_name)
         stream_name == "Order-1"
       end
     end
     MigrateResSchemaV1ToV2.new.up
+  end
+
+  def run_the_v3_migration
+    eval(MigrationV3RubyCode)
+    MigrateResSchemaV2ToV3.new.up
   end
 
   def reset_columns_information
