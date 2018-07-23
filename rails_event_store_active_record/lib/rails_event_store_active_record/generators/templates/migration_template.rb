@@ -32,12 +32,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.text     :metadata
         t.text     :data,       null: false
         t.datetime :created_at, null: false
-
-        if sqlite
-          t.integer :position, null: false, primary_key: true
-        else
-          t.integer :position, null: false, primary_key: true, auto_increment: true
-        end
+        t.integer :position, null: false, primary_key: true, auto_increment: true
       end
       add_index :event_store_events, :id, unique: true
     end
