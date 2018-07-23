@@ -1114,5 +1114,10 @@ RSpec.shared_examples :event_repository do |repository_class|
 
     expect(repository.read(specification.backward.read_first.result)).to eq(events[4])
     expect(repository.read(specification.backward.read_last.result)).to eq(events[0])
+
+    expect(repository.read(specification.from(events[2].event_id).read_first.result)).to eq(events[3])
+    expect(repository.read(specification.from(events[2].event_id).read_last.result)).to eq(events[4])
+    expect(repository.read(specification.from(events[2].event_id).backward.read_first.result)).to eq(events[1])
+    expect(repository.read(specification.from(events[2].event_id).backward.read_last.result)).to eq(events[0])
   end
 end
