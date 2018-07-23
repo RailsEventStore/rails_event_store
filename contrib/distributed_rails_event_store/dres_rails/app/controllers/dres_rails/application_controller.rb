@@ -1,13 +1,23 @@
 module DresRails
   class ApplicationController < ActionController::Base
     def index
-      r = PostgresqlQueue::Reader.new(DistributedRepository.new)
-      events = r.events(after_event_id: params[:after_event_id]).map do |serialized_record|
-        serialized_record.to_h
-      end
+      spec = RubyEventStore::Specification.new(
+        Rails.configuration.event_store.instance_variable_get(:@repository),
+        RubyEventStore::Mappers::NullMapper.new,
+      )
+      spec = spec.from(after).limit(1000)
+      events = spec.each.map(&:to_h)
       render json: {
+        after: after,
         events: events,
       }
     end
+
+    private
+
+    def after
+      params[:after_event_id] || :head
+    end
+
   end
 end

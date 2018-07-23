@@ -23,7 +23,8 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = "~> 2.3"
 
   spec.add_dependency "rails", [">= 4.2", "< 6"]
-  spec.add_dependency "postgresql_queue"
+  spec.add_dependency "ruby_event_store"
+  spec.add_dependency "rails_event_store"
 
   spec.add_development_dependency "bundler-audit", "~> 0.6"
   spec.add_development_dependency "gemsmith", "~> 12.0"

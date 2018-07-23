@@ -20,10 +20,10 @@ RSpec.describe "DresRails::ApplicationController" do
   end
 
   let(:repository) do
-    DistributedRepository.new
+    RailsEventStoreActiveRecord::PgLinearizedEventRepository.new
   end
   let(:res) do
-    RubyEventStore::Client.new(repository: repository)
+    RailsEventStore::Client.new(repository: repository)
   end
 
   class MyEvent < RubyEventStore::Event
@@ -33,6 +33,10 @@ RSpec.describe "DresRails::ApplicationController" do
     Timecop.freeze(Time.utc(2018, 4, 7, 12, 30)) do
       spec.call
     end
+  end
+
+  before do
+    Rails.configuration.event_store = res
   end
 
   specify "Auth" do
@@ -48,7 +52,7 @@ RSpec.describe "DresRails::ApplicationController" do
   end
 
   specify "returns JSON with serialized events" do
-    res.publish_events([
+    res.publish([
       MyEvent.new(
         data: {one: 1},
         event_id: "dfc7f58d-aae3-4d21-8f3a-957bfa765ef8",
@@ -62,6 +66,7 @@ RSpec.describe "DresRails::ApplicationController" do
     page.driver.header 'RES-Api-Key', "33bbd0ea-b7ce-49d5-bc9d-198f7884c485"
     visit "/dres_rails"
     expect(JSON.parse(page.body)).to eq({
+      "after" => "head",
       "events"=>[{
         "event_id"=>"dfc7f58d-aae3-4d21-8f3a-957bfa765ef8",
         "data"=>"---\n:one: 1\n",
