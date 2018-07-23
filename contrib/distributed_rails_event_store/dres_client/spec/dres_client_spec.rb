@@ -5,17 +5,14 @@ class MyEvent < RubyEventStore::Event
 end
 
 RSpec.describe DresClient do
-  it "has a version number" do
-    expect(DresClient::VERSION).not_to be nil
-  end
-
   it "gets events" do
     stub_request(:get, "http://example.org/dres_rails").to_return(
       body: File.read("../shared_spec/body1.json")
     )
     client = DresClient::Http.new(
       mapper: RubyEventStore::Mappers::Default.new,
-      uri: URI("http://example.org/dres_rails")
+      uri: URI("http://example.org/dres_rails"),
+      api_key: "haXXy"
     )
     events = client.events(after_event_id: nil)
     expect(events).to eq([
