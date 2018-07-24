@@ -6,12 +6,12 @@ module RubyEventStore
       @command_bus = command_bus
     end
 
-    class MiniEvent < Struct.new(:correlation_id, :message_id)
+    class MetaEvent < Struct.new(:correlation_id, :message_id)
     end
 
     def call(command)
       if (correlation_id = event_store.metadata[:correlation_id]) && (causation_id = event_store.metadata[:causation_id])
-        command.correlate_with(MiniEvent.new(
+        command.correlate_with(MetaEvent.new(
           correlation_id,
           causation_id,
         )) if command.respond_to?(:correlate_with)
