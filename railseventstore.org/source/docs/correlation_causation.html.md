@@ -97,7 +97,7 @@ event.correlate_with(command)
 class MyEventHandler
   def call(previous_event)
     event_store.with_metadata(
-      RailsEventStore::CorrelatedEvents.metadata_for(previous_event)
+      RailsEventStore::CorrelatedMessages.metadata_for(previous_event)
     ) do
       event_store.publish([
         MyEvent.new(data: {foo: 'bar'}),
@@ -137,7 +137,7 @@ module CorrelableCommand
 
   def correlate_with(other_message)
     self.correlation_id,
-    self.causation_id = RailsEventStore::CorrelatedEvents.
+    self.causation_id = RailsEventStore::CorrelatedMessages.
                           metadata_for(other_message).
                           values_at(:correlation_id, :causation_id)
   end

@@ -15,7 +15,7 @@ module RailsEventStore
   InvalidPageStart           = RubyEventStore::InvalidPageStart
   InvalidPageSize            = RubyEventStore::InvalidPageSize
   CorrelatedCommands         = RubyEventStore::CorrelatedCommands
-  CorrelatedEvents           = RubyEventStore::CorrelatedEvents
+  CorrelatedMessages         = RubyEventStore::CorrelatedMessages
   GLOBAL_STREAM              = RubyEventStore::GLOBAL_STREAM
   PAGE_SIZE                  = RubyEventStore::PAGE_SIZE
   AsyncProxyStrategy::Inline = RubyEventStore::AsyncProxyStrategy::Inline

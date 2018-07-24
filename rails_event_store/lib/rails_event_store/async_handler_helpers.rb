@@ -9,7 +9,7 @@ module RailsEventStore
   module CorrelatedHandler
     def perform(event)
       Rails.configuration.event_store.with_metadata(
-        CorrelatedEvents.metadata_for(event)
+        CorrelatedMessages.metadata_for(event)
       ) do
         super
       end
