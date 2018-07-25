@@ -12,11 +12,15 @@ module RubyEventStore
 
     specify { expect(specification).to match_result({ stream_name: GLOBAL_STREAM }) }
 
+    specify { expect(specification).to match_result({ limit: Float::INFINITY }) }
+
     specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
 
     specify { expect{specification.limit(0)}.to raise_error(InvalidPageSize) }
 
     specify { expect(specification.limit(1)).to match_result({ count: 1 }) }
+
+    specify { expect(specification.limit(1)).to match_result({ limit: 1 }) }
 
     specify { expect(specification.forward).to match_result({ direction: :forward }) }
 
