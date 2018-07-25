@@ -33,7 +33,7 @@ module DresClient
     rescue
       raise Error.new
     end
-    
+
     def drain(after_event_id:, &proc)
       run(after_event_id: after_event_id) do |events|
         break if events.empty?
