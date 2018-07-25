@@ -48,7 +48,7 @@ module RubyEventStore
 
           direction = specification.direction
           limit = specification.limit if specification.limit?
-          if specification.last?
+          if specification.last? && specification.head?
             direction = specification.forward? ? :backward : :forward
           end
 
@@ -61,7 +61,15 @@ module RubyEventStore
             BatchEnumerator.new(specification.batch_size, limit || Float::INFINITY, reader).each
           else
             query = query_builder(query, limit: limit)
-            specification.first? || specification.last? ? query.first : query.each
+            if specification.head?
+              specification.first? || specification.last? ? query.first : query.each
+            else
+              if specification.last?
+                query.to_ary.last
+              else
+                specification.first? ? query.first : query.each
+              end
+            end
           end
         end
 
