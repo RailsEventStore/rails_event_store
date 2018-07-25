@@ -43,15 +43,17 @@ class RubyEventStore::Debouncer
   def create_consumer(job)
     Thread.new do
       loop do
-        @queue.pop
-        @queue.clear
-        Timeout.timeout(@timeout) do
-          job.call
+        begin
+          @queue.pop
+          @queue.clear
+          Timeout.timeout(@timeout) do
+            job.call
+          end
+          sleep(@delay)
+        rescue Timeout::Error
+        rescue StandardError
+          sleep(@delay)
         end
-        sleep(@delay)
-      rescue Timeout::Error
-      rescue StandardError
-        sleep(@delay)
       end
     end
   end
