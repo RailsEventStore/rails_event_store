@@ -158,10 +158,18 @@ module RubyEventStore
     end
     alias :in_batches_of :in_batches
 
+    # Specifies that only first event should be read.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Specification]
     def read_first
       Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :first })
     end
 
+    # Specifies that only last event should be read.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Specification]
     def read_last
       Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :last })
     end
