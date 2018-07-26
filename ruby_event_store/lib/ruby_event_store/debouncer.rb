@@ -37,6 +37,7 @@ class RubyEventStore::Debouncer
   private
 
   def create_consumer_if_dead
+    # puts @consumer.status
     @consumer = create_consumer(@job) unless @consumer.status
   end
 

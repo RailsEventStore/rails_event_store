@@ -4,6 +4,8 @@ require 'timeout'
 module RubyEventStore
   RSpec.describe Debouncer do
 
+    SAFETY_NET=5
+
     specify "waits 'delay' amount of time when fast jobs" do
       a = []
       d = Debouncer.new(delay: delay = 0.020, timeout: 2) do
@@ -16,7 +18,7 @@ module RubyEventStore
 
       a.each_cons(2) do |earlier, later|
         expect(later.to_f - earlier.to_f).to be >= delay
-        expect(later.to_f - earlier.to_f).to be <= delay*2
+        expect(later.to_f - earlier.to_f).to be <= delay*SAFETY_NET
       end
     end
 
@@ -33,7 +35,7 @@ module RubyEventStore
       end
       a.each_cons(2) do |earlier, later|
         expect(later.to_f - earlier.to_f).to be >= delay+job
-        expect(later.to_f - earlier.to_f).to be <= (delay+job)*2
+        expect(later.to_f - earlier.to_f).to be <= (delay+job)*SAFETY_NET
       end
     end
 
@@ -50,7 +52,7 @@ module RubyEventStore
       end
       a.each_cons(2) do |earlier, later|
         expect(later.to_f - earlier.to_f).to be >= timeout
-        expect(later.to_f - earlier.to_f).to be <= timeout*2
+        expect(later.to_f - earlier.to_f).to be <= timeout*SAFETY_NET
       end
     end
 
@@ -69,7 +71,7 @@ module RubyEventStore
 
       times.each_cons(2) do |earlier, later|
         expect(later.to_f - earlier.to_f).to be >= delay
-        expect(later.to_f - earlier.to_f).to be <= delay*2
+        expect(later.to_f - earlier.to_f).to be <= delay*SAFETY_NET
       end
 
       expect(threads.uniq.size).to eq(1)
@@ -77,8 +79,9 @@ module RubyEventStore
 
     specify "creates new consumer if it crashes" do
       threads = []
+      supported = Thread.current.respond_to?(:report_on_exception=)
       d = Debouncer.new(delay: 0.020) do
-        Thread.current.report_on_exception = false
+        Thread.current.report_on_exception = false if supported
         threads << Thread.current.object_id
         raise Exception
       end
