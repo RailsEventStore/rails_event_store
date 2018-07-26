@@ -371,21 +371,21 @@ module RubyEventStore
     specify do
       repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.result.batched?).to be_falsey
-      expect(specification.result.first?).to be_falsey
-      expect(specification.result.last?).to be_falsey
+      expect(specification.result.batched?).to eq(false)
+      expect(specification.result.first?).to eq(false)
+      expect(specification.result.last?).to eq(false)
 
-      expect(specification.read_first.result.batched?).to be_falsey
-      expect(specification.read_first.result.first?).to be_truthy
-      expect(specification.read_first.result.last?).to be_falsey
+      expect(specification.read_first.result.batched?).to eq(false)
+      expect(specification.read_first.result.first?).to eq(true)
+      expect(specification.read_first.result.last?).to eq(false)
 
-      expect(specification.read_last.result.batched?).to be_falsey
-      expect(specification.read_last.result.first?).to be_falsey
-      expect(specification.read_last.result.last?).to be_truthy
+      expect(specification.read_last.result.batched?).to eq(false)
+      expect(specification.read_last.result.first?).to eq(false)
+      expect(specification.read_last.result.last?).to eq(true)
 
-      expect(specification.in_batches.result.batched?).to be_truthy
-      expect(specification.in_batches.result.first?).to be_falsey
-      expect(specification.in_batches.result.last?).to be_falsey
+      expect(specification.in_batches.result.batched?).to eq(true)
+      expect(specification.in_batches.result.first?).to eq(false)
+      expect(specification.in_batches.result.last?).to eq(false)
     end
 
     let(:repository)    { InMemoryRepository.new }
