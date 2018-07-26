@@ -17,7 +17,7 @@ module RailsEventStore
         raise_event_store_not_set unless @event_store
         spec = @event_store.read
         spec = spec.stream(@stream) if @stream
-        last_event_before_block = last_event(spec)
+        last_event_before_block = spec.last
         event_proc.call
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = spec.each.to_a
@@ -76,10 +76,6 @@ EOS
 
       def match_events?
         !@expected.empty?
-      end
-
-      def last_event(spec)
-        spec.last
       end
 
       def raise_event_store_not_set
