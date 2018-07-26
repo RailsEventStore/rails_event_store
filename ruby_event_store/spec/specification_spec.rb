@@ -357,15 +357,29 @@ module RubyEventStore
     end
 
     specify do
+      expect(specification.first).to be_nil
+      expect(specification.last).to be_nil
+
       records = 5.times.map { test_record }
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
+      expect(specification.stream("Another").first).to be_nil
+      expect(specification.stream("Another").last).to be_nil
+
       expect(specification.first).to eq(TestEvent.new(event_id: records[0].event_id))
       expect(specification.last).to eq(TestEvent.new(event_id: records[4].event_id))
+
       expect(specification.from(records[2].event_id).first).to eq(TestEvent.new(event_id: records[3].event_id))
       expect(specification.from(records[2].event_id).last).to eq(TestEvent.new(event_id: records[4].event_id))
+
       expect(specification.from(records[2].event_id).backward.first).to eq(TestEvent.new(event_id: records[1].event_id))
       expect(specification.from(records[2].event_id).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
+
+      expect(specification.from(records[4].event_id).first).to be_nil
+      expect(specification.from(records[4].event_id).last).to be_nil
+
+      expect(specification.from(records[0].event_id).backward.first).to be_nil
+      expect(specification.from(records[0].event_id).backward.last).to be_nil
     end
 
     specify do

@@ -178,18 +178,20 @@ module RubyEventStore
     # Returns the first event in specified collection of events.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Event]
+    # @return [Event, nil]
     def first
-      mapper.serialized_record_to_event(repository.read(read_first.result))
+      record = repository.read(read_first.result)
+      mapper.serialized_record_to_event(record) if record
     end
 
     # Executes the query based on the specification built up to this point.
     # Returns the last event in specified collection of events.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Event]
+    # @return [Event, nil]
     def last
-      mapper.serialized_record_to_event(repository.read(read_last.result))
+      record = repository.read(read_last.result)
+      mapper.serialized_record_to_event(record) if record
     end
 
     private

@@ -1102,12 +1102,18 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify do
+    expect(repository.read(specification.read_first.result)).to be_nil
+    expect(repository.read(specification.read_last.result)).to be_nil
+
     events = Array.new(5) { SRecord.new }
     repository.append_to_stream(
       events,
       RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
       RubyEventStore::ExpectedVersion.any
     )
+
+    expect(repository.read(specification.stream("Any").read_first.result)).to be_nil
+    expect(repository.read(specification.stream("Any").read_last.result)).to be_nil
 
     expect(repository.read(specification.read_first.result)).to eq(events[0])
     expect(repository.read(specification.read_last.result)).to eq(events[4])
@@ -1117,7 +1123,14 @@ RSpec.shared_examples :event_repository do |repository_class|
 
     expect(repository.read(specification.from(events[2].event_id).read_first.result)).to eq(events[3])
     expect(repository.read(specification.from(events[2].event_id).read_last.result)).to eq(events[4])
+
     expect(repository.read(specification.from(events[2].event_id).backward.read_first.result)).to eq(events[1])
     expect(repository.read(specification.from(events[2].event_id).backward.read_last.result)).to eq(events[0])
+
+    expect(repository.read(specification.from(events[4].event_id).read_first.result)).to be_nil
+    expect(repository.read(specification.from(events[4].event_id).read_last.result)).to be_nil
+
+    expect(repository.read(specification.from(events[0].event_id).backward.read_first.result)).to be_nil
+    expect(repository.read(specification.from(events[0].event_id).backward.read_last.result)).to be_nil
   end
 end
