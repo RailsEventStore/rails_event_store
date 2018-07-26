@@ -36,9 +36,11 @@ module RailsEventStoreActiveRecord
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
         RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
       elsif spec.first?
-        build_event_instance(stream.first)
+        record = stream.first
+        build_event_instance(record) if record
       elsif spec.last?
-        build_event_instance(stream.last)
+        record = stream.last
+        build_event_instance(record) if record
       else
         stream.map(&method(:build_event_instance)).each
       end
