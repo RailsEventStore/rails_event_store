@@ -82,12 +82,12 @@ module RubyEventStore
         threads << Thread.current.object_id
         raise Exception
       end
-      while threads.size < 10
+      while threads.size < 4
         rand(10).times{ d.call }
         Thread.pass
       end
 
-      expect(threads.size).to be >= 10
+      expect(threads.size).to be >= 4
       expect(threads.uniq.sort).to eq(threads.sort)
     end
   end
