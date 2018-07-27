@@ -6,7 +6,7 @@ module RubyEventStore
 
     SAFETY_NET=5
 
-    specify "waits 'delay' amount of time when fast jobs" do
+    specify "waits 'delay' amount of time when fast jobs", mutant: false do
       a = []
       d = Debouncer.new(delay: delay = 0.020, timeout: 2) do
         a << Time.now
@@ -22,7 +22,7 @@ module RubyEventStore
       end
     end
 
-    specify "waits 'delay+job' amount of time normally" do
+    specify "waits 'delay+job' amount of time normally", mutant: false do
       a = []
       job = 0.010
       d = Debouncer.new(delay: delay = 0.020) do
@@ -39,7 +39,7 @@ module RubyEventStore
       end
     end
 
-    specify "waits 'timeout' amount of time when job is lagging" do
+    specify "waits 'timeout' amount of time when job is lagging", mutant: false do
       a = []
       job = 0.500
       d = Debouncer.new(delay: 0.000, timeout: timeout = 0.020) do
@@ -56,7 +56,7 @@ module RubyEventStore
       end
     end
 
-    specify "waits 'delay' amount of time when job is crashing" do
+    specify "waits 'delay' amount of time when job is crashing", mutant: false do
       times = []
       threads = []
       d = Debouncer.new(delay: delay = 0.020, timeout: 2) do
@@ -77,7 +77,7 @@ module RubyEventStore
       expect(threads.uniq.size).to eq(1)
     end
 
-    specify "creates new consumer if it crashes" do
+    specify "creates new consumer if it crashes", mutant: false do
       threads = []
       supported = Thread.current.respond_to?(:report_on_exception=)
       d = Debouncer.new(delay: 0.020) do
