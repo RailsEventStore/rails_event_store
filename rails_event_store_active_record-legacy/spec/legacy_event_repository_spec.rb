@@ -53,21 +53,21 @@ module RailsEventStoreActiveRecord
       specify "read_stream_events_forward explicit ORDER BY id" do
         expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY.*event_store_events.*id.* ASC.*/) do
           repository = LegacyEventRepository.new
-          repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").result)
+          repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream"))
         end
       end
 
       specify "read_events_forward explicit ORDER BY id" do
         expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY.*event_store_events.*id.* ASC LIMIT.*/) do
           repository = LegacyEventRepository.new
-          repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").from(:head).limit(1).result)
+          repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").from(:head).limit(1))
         end
       end
 
       specify "read_all_streams_forward explicit ORDER BY id" do
         expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY.*event_store_events.*id.* ASC LIMIT.*/) do
           repository = LegacyEventRepository.new
-          repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(1).result)
+          repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(1))
         end
       end
 
@@ -77,9 +77,9 @@ module RailsEventStoreActiveRecord
         repository.append_to_stream(e2 = SRecord.new, RubyEventStore::Stream.new('other_stream'), RubyEventStore::ExpectedVersion.none)
 
         repository.delete_stream(RubyEventStore::Stream.new('stream'))
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(10).result).to_a).to eq([e1, e2])
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").result).to_a).to be_empty
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("other_stream").result).to_a).to eq([e2])
+        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(10)).to_a).to eq([e1, e2])
+        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream")).to_a).to be_empty
+        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("other_stream")).to_a).to eq([e2])
       end
 
       specify 'active record is drunk' do
@@ -118,10 +118,10 @@ module RailsEventStoreActiveRecord
           RubyEventStore::ExpectedVersion.none
         )
 
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).result))
+        expect(repository.read(RubyEventStore::Specification.new(repository, mapper)))
           .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a a1b49edb-7636-416f-874a-88f94b859bef]))
 
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream('all').result))
+        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream('all')))
           .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
       end
 
