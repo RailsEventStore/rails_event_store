@@ -8,15 +8,19 @@ module RubyEventStore
 
     specify { expect(specification).to match_result({ start: :head }) }
 
-    specify { expect(specification).to match_result({ count: Specification::NO_LIMIT }) }
+    specify { expect(specification).to match_result({ count: nil }) }
 
     specify { expect(specification).to match_result({ stream_name: GLOBAL_STREAM }) }
+
+    specify { expect(specification).to match_result({ limit: Float::INFINITY }) }
 
     specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
 
     specify { expect{specification.limit(0)}.to raise_error(InvalidPageSize) }
 
     specify { expect(specification.limit(1)).to match_result({ count: 1 }) }
+
+    specify { expect(specification.limit(1)).to match_result({ limit: 1 }) }
 
     specify { expect(specification.forward).to match_result({ direction: :forward }) }
 
@@ -132,63 +136,120 @@ module RubyEventStore
       end
     end
 
+    specify do
+      with_event_of_id(event_id) do
+        specs = [
+          specification.forward,
+          specification.backward,
+          specification.in_batches,
+          specification.read_first,
+          specification.read_last,
+          specification.limit(10),
+          specification.from(event_id),
+          specification.stream(stream_name),
+        ]
+        expect(specs.map{|s| s.send(:repository)}.uniq).to eq([repository])
+        expect(specs.map{|s| s.send(:mapper)}.uniq).to eq([mapper])
+      end
+    end
+
     specify 'immutable specification' do
       with_event_of_id(event_id) do
         expect(backward_specifcation = specification.backward).to match_result({
           direction: :backward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.from(event_id)).to match_result({
           direction: :forward,
           start: event_id,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.limit(10)).to match_result({
           direction: :forward,
           start: :head,
           count: 10,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.stream(stream_name)).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: stream_name,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(specification.in_batches).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
+          read_as: :batch,
           batch_size: 100
         })
         expect(specification).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation.forward).to match_result({
           direction: :forward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
         expect(backward_specifcation).to match_result({
           direction: :backward,
           start: :head,
-          count: Specification::NO_LIMIT,
+          count: nil,
           stream_name: GLOBAL_STREAM,
-          batch_size: Specification::NO_BATCH
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
+        })
+        expect(specification.read_first).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :first,
+          batch_size: 100
+        })
+        expect(specification).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
+        })
+        expect(specification.read_last).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :last,
+          batch_size: 100
+        })
+        expect(specification).to match_result({
+          direction: :forward,
+          start: :head,
+          count: nil,
+          stream_name: GLOBAL_STREAM,
+          read_as: :all,
+          batch_size: Specification::DEFAULT_BATCH_SIZE
         })
       end
     end
@@ -248,7 +309,7 @@ module RubyEventStore
 
     specify { expect(specification.in_batches).to match_result(batch_size: 100) }
 
-    specify { expect(specification).to match_result(batch_size: Specification::NO_BATCH) }
+    specify { expect(specification).to match_result(batch_size: Specification::DEFAULT_BATCH_SIZE) }
 
     specify { expect(specification.in_batches(1000)).to match_result(batch_size: 1000) }
 
@@ -293,6 +354,52 @@ module RubyEventStore
 
       expect(specification.each_batch.to_a).to     eq(specification.in_batches.each_batch.to_a)
       expect(specification.each_batch.to_a).not_to eq(specification.in_batches(1000).each_batch.to_a)
+    end
+
+    specify do
+      expect(specification.first).to be_nil
+      expect(specification.last).to be_nil
+
+      records = 5.times.map { test_record }
+      repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+
+      expect(specification.stream("Another").first).to be_nil
+      expect(specification.stream("Another").last).to be_nil
+
+      expect(specification.first).to eq(TestEvent.new(event_id: records[0].event_id))
+      expect(specification.last).to eq(TestEvent.new(event_id: records[4].event_id))
+
+      expect(specification.from(records[2].event_id).first).to eq(TestEvent.new(event_id: records[3].event_id))
+      expect(specification.from(records[2].event_id).last).to eq(TestEvent.new(event_id: records[4].event_id))
+
+      expect(specification.from(records[2].event_id).backward.first).to eq(TestEvent.new(event_id: records[1].event_id))
+      expect(specification.from(records[2].event_id).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
+
+      expect(specification.from(records[4].event_id).first).to be_nil
+      expect(specification.from(records[4].event_id).last).to be_nil
+
+      expect(specification.from(records[0].event_id).backward.first).to be_nil
+      expect(specification.from(records[0].event_id).backward.last).to be_nil
+    end
+
+    specify do
+      repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.none)
+
+      expect(specification.result.batched?).to eq(false)
+      expect(specification.result.first?).to eq(false)
+      expect(specification.result.last?).to eq(false)
+
+      expect(specification.read_first.result.batched?).to eq(false)
+      expect(specification.read_first.result.first?).to eq(true)
+      expect(specification.read_first.result.last?).to eq(false)
+
+      expect(specification.read_last.result.batched?).to eq(false)
+      expect(specification.read_last.result.first?).to eq(false)
+      expect(specification.read_last.result.last?).to eq(true)
+
+      expect(specification.in_batches.result.batched?).to eq(true)
+      expect(specification.in_batches.result.first?).to eq(false)
+      expect(specification.in_batches.result.last?).to eq(false)
     end
 
     let(:repository)    { InMemoryRepository.new }

@@ -28,13 +28,19 @@ module RailsEventStoreActiveRecord
 
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
-      stream = stream.limit(spec.count) if spec.limit?
+      stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
       stream = stream.order(id: order(spec.direction))
 
       if spec.batched?
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
         RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+      elsif spec.first?
+        record = stream.first
+        build_event_instance(record) if record
+      elsif spec.last?
+        record = stream.last
+        build_event_instance(record) if record
       else
         stream.map(&method(:build_event_instance)).each
       end
@@ -43,7 +49,7 @@ module RailsEventStoreActiveRecord
     private
 
     def total_limit(specification)
-      specification.limit? ? specification.count : Float::INFINITY
+      specification.limit
     end
 
     def normalize_stream_name(specification)

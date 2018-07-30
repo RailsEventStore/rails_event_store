@@ -39,10 +39,14 @@ module RubyEventStore
       events = spec.global_stream? ? global : stream_of(spec.stream_name)
       events = events.reverse if spec.backward?
       events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
-      events = events[0...spec.count] if spec.limit?
+      events = events[0...spec.limit] if spec.limit?
       if spec.batched?
         batch_reader = ->(offset, limit) { events.drop(offset).take(limit) }
         BatchEnumerator.new(spec.batch_size, events.size, batch_reader).each
+      elsif spec.first?
+        events.first
+      elsif spec.last?
+        events.last
       else
         events.each
       end

@@ -35,30 +35,53 @@ module RubyEventStore
           events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
-        def read(direction, stream, from:, limit:, batch_size:)
-          unless from.equal?(:head)
-            offset_entry_id = stream_entries.by_stream_and_event_id(stream, from).fetch(:id)
+        def last_stream_event(stream)
+          query = stream_entries.ordered(:backward, stream)
+          query = query_builder(query, limit: 1)
+          query.first
+        end
+
+        def read(specification)
+          unless specification.head?
+            offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id)
           end
 
-          if batch_size
-            reader = ->(offset, limit) do
-              stream_entries
-                .ordered(direction, stream, offset_entry_id)
-                .offset(offset)
-                .take(limit)
-                .combine(:event)
-                .map_with(:stream_entry_to_serialized_record, auto_struct: false)
-                .to_ary
-            end
-            BatchEnumerator.new(batch_size, limit || Float::INFINITY, reader).each
-          else
-            stream_entries
-              .ordered(direction, stream, offset_entry_id)
-              .take(limit)
-              .combine(:event)
-              .map_with(:stream_entry_to_serialized_record, auto_struct: false)
-              .each
+          direction = specification.direction
+          limit = specification.limit if specification.limit?
+          if specification.last? && specification.head?
+            direction = specification.forward? ? :backward : :forward
           end
+
+          query = stream_entries.ordered(direction, specification.stream, offset_entry_id)
+
+          if specification.batched?
+            reader = ->(offset, limit) do
+              query_builder(query, offset: offset, limit: limit).to_ary
+            end
+            BatchEnumerator.new(specification.batch_size, limit || Float::INFINITY, reader).each
+          else
+            query = query_builder(query, limit: limit)
+            if specification.head?
+              specification.first? || specification.last? ? query.first : query.each
+            else
+              if specification.last?
+                query.to_ary.last
+              else
+                specification.first? ? query.first : query.each
+              end
+            end
+          end
+        end
+
+      protected
+
+        def query_builder(query, offset: nil, limit: nil)
+          query = query.offset(offset) if offset
+          query = query.take(limit)    if limit
+
+          query
+            .combine(:event)
+            .map_with(:stream_entry_to_serialized_record, auto_struct: false)
         end
       end
     end

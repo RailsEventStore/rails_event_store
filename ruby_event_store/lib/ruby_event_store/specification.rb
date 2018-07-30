@@ -2,17 +2,15 @@ module RubyEventStore
 
   # Used for building and executing the query specification.
   class Specification
-    # @private
-    # @api private
-    NO_LIMIT = Object.new.freeze
-    # @private
-    # @api private
-    NO_BATCH = Object.new.freeze
     DEFAULT_BATCH_SIZE = 100
 
-    class Result < Struct.new(:direction, :start, :count, :stream, :batch_size)
+    class Result < Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size)
       def limit?
-        !count.equal?(NO_LIMIT)
+        !count.nil?
+      end
+
+      def limit
+        count || Float::INFINITY
       end
 
       def global_stream?
@@ -36,7 +34,15 @@ module RubyEventStore
       end
 
       def batched?
-        !batch_size.equal?(NO_BATCH)
+        read_as.equal?(:batch)
+      end
+
+      def first?
+        read_as.equal?(:first)
+      end
+
+      def last?
+        read_as.equal?(:last)
       end
     end
     private_constant :Result
@@ -47,7 +53,7 @@ module RubyEventStore
 
     # @api private
     # @private
-    def initialize(repository, mapper, result = Result.new(:forward, :head, NO_LIMIT, Stream.new(GLOBAL_STREAM), NO_BATCH))
+    def initialize(repository, mapper, result = Result.new(:forward, :head, nil, Stream.new(GLOBAL_STREAM), :all, DEFAULT_BATCH_SIZE))
       @mapper = mapper
       @repository  = repository
       @result = result
@@ -115,8 +121,7 @@ module RubyEventStore
     def each_batch
       return to_enum(:each_batch) unless block_given?
 
-      result_  = result.batched? ? result : result.tap { |r| r.batch_size = DEFAULT_BATCH_SIZE }
-      repository.read(result_).each do |batch|
+      repository.read(result.tap { |r| r.read_as = :batch }).each do |batch|
         yield batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
       end
     end
@@ -149,9 +154,45 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(repository, mapper, result.dup.tap { |r| r.batch_size = batch_size })
+      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :batch; r.batch_size = batch_size })
     end
     alias :in_batches_of :in_batches
+
+    # Specifies that only first event should be read.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Specification]
+    def read_first
+      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :first })
+    end
+
+    # Specifies that only last event should be read.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Specification]
+    def read_last
+      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :last })
+    end
+
+    # Executes the query based on the specification built up to this point.
+    # Returns the first event in specified collection of events.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Event, nil]
+    def first
+      record = repository.read(read_first.result)
+      mapper.serialized_record_to_event(record) if record
+    end
+
+    # Executes the query based on the specification built up to this point.
+    # Returns the last event in specified collection of events.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Event, nil]
+    def last
+      record = repository.read(read_last.result)
+      mapper.serialized_record_to_event(record) if record
+    end
 
     private
     attr_reader :repository, :mapper

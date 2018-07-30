@@ -11,7 +11,7 @@ module RubyEventStore
 
       def initialize(rom: ROM.env)
         raise ArgumentError, "Must specify rom" unless rom && rom.instance_of?(Env)
-        
+
         @rom = rom
         @events = Repositories::Events.new(rom.container)
         @stream_entries = Repositories::StreamEntries.new(rom.container)
@@ -72,13 +72,7 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        @events.read(
-          :backward,
-          stream,
-          from: :head,
-          limit: 1,
-          batch_size: nil
-        ).first
+        @events.last_stream_event(stream)
       end
 
       def read_event(event_id)
@@ -90,13 +84,7 @@ module RubyEventStore
       def read(specification)
         raise ReservedInternalName if specification.stream_name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
 
-        @events.read(
-          specification.direction,
-          specification.stream,
-          from: specification.start,
-          limit: (specification.count if specification.limit?),
-          batch_size: (specification.batch_size if specification.batched?)
-        )
+        @events.read(specification)
       end
 
       private

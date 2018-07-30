@@ -72,6 +72,18 @@ module RailsEventStore
       end
 
       specify do
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        expect {
+          event_store.publish(BarEvent.new)
+        }.to matcher(matchers.an_event(BarEvent)).in(event_store)
+        expect {
+          event_store.publish(BarEvent.new)
+        }.not_to matcher(matchers.an_event(FooEvent)).in(event_store)
+      end
+
+      specify do
         foo_event = FooEvent.new
         bar_event = BarEvent.new
         expect {
