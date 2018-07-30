@@ -159,7 +159,7 @@ module RubyEventStore
     def each_batch
       return to_enum(:each_batch) unless block_given?
 
-      repository.read(batched? ? self : in_batches).each do |batch|
+      repository.read(in_batches(batch_size)).each do |batch|
         yield batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
       end
     end
