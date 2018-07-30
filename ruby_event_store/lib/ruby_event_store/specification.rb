@@ -4,68 +4,82 @@ module RubyEventStore
   class Specification
     DEFAULT_BATCH_SIZE = 100
 
-    class Result < Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size)
-      def limit?
-        !count.nil?
-      end
-
-      def limit
-        count || Float::INFINITY
-      end
-
-      def global_stream?
-        stream.global?
-      end
-
-      def stream_name
-        stream.name
-      end
-
-      def head?
-        start.equal?(:head)
-      end
-
-      def forward?
-        direction.equal?(:forward)
-      end
-
-      def backward?
-        !forward?
-      end
-
-      def batched?
-        read_as.equal?(:batch)
-      end
-
-      def first?
-        read_as.equal?(:first)
-      end
-
-      def last?
-        read_as.equal?(:last)
-      end
+    attr_reader :start, :batch_size
+    def limit?
+      !@count.nil?
     end
-    private_constant :Result
 
-    # @api private
-    # @private
-    attr_reader :result
+    def count
+      @count || Float::INFINITY
+    end
 
-    # @api private
-    # @private
-    def initialize(repository, mapper, result = Result.new(:forward, :head, nil, Stream.new(GLOBAL_STREAM), :all, DEFAULT_BATCH_SIZE))
+    def global_stream?
+      @stream.global?
+    end
+
+    def stream_name
+      @stream.name
+    end
+
+    def head?
+      @start.equal?(:head)
+    end
+
+    def forward?
+      @direction.equal?(:forward)
+    end
+
+    def backward?
+      !forward?
+    end
+
+    def all?
+      @read_as.equal?(:all)
+    end
+
+    def batched?
+      @read_as.equal?(:batch)
+    end
+
+    def first?
+      @read_as.equal?(:first)
+    end
+
+    def last?
+      @read_as.equal?(:last)
+    end
+
+    def initialize(repository, mapper,
+                   direction: :forward,
+                   start: :head,
+                   count: nil,
+                   stream: Stream.new(GLOBAL_STREAM),
+                   read_as: :all,
+                   batch_size: DEFAULT_BATCH_SIZE)
       @mapper = mapper
       @repository  = repository
-      @result = result
+      @direction = direction
+      @start = start
+      @count = count
+      @stream = stream
+      @read_as = read_as
+      @batch_size = batch_size
+      freeze
     end
 
     # Limits the query to certain stream.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param stream_name [String] name of the stream to get events from
+    # @param name [String] name of the stream to get events from
     # @return [Specification]
-    def stream(stream_name)
-      Specification.new(repository, mapper, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
+    def stream(name)
+      Specification.new(repository, mapper,
+                        direction: @direction,
+                        start: @start,
+                        count: @count,
+                        stream: Stream.new(name),
+                        read_as: @read_as,
+                        batch_size: @batch_size)
     end
 
     # Limits the query to events before or after another event.
@@ -83,7 +97,13 @@ module RubyEventStore
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless repository.has_event?(start)
       end
-      Specification.new(repository, mapper, result.dup.tap { |r| r.start = start })
+      Specification.new(repository, mapper,
+                        direction: @direction,
+                        start: start,
+                        count: @count,
+                        stream: @stream,
+                        read_as: @read_as,
+                        batch_size: @batch_size)
     end
 
     # Sets the order of reading events to ascending (forward from the start).
@@ -91,7 +111,13 @@ module RubyEventStore
     #
     # @return [Specification]
     def forward
-      Specification.new(repository, mapper, result.dup.tap { |r| r.direction = :forward })
+      Specification.new(repository, mapper,
+                        direction: :forward,
+                        start: @start,
+                        count: @count,
+                        stream: @stream,
+                        read_as: @read_as,
+                        batch_size: @batch_size)
     end
 
     # Sets the order of reading events to descending (backward from the start).
@@ -99,7 +125,13 @@ module RubyEventStore
     #
     # @return [Specification]
     def backward
-      Specification.new(repository, mapper, result.dup.tap { |r| r.direction = :backward })
+      Specification.new(repository, mapper,
+                        direction: :backward,
+                        start: @start,
+                        count: @count,
+                        stream: @stream,
+                        read_as: @read_as,
+                        batch_size: @batch_size)
     end
 
     # Limits the query to specified number of events.
@@ -109,7 +141,13 @@ module RubyEventStore
     # @return [Specification]
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      Specification.new(repository, mapper, result.dup.tap { |r| r.count = count })
+      Specification.new(repository, mapper,
+                        direction: @direction,
+                        start: @start,
+                        count: count,
+                        stream: @stream,
+                        read_as: @read_as,
+                        batch_size: @batch_size)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -121,7 +159,7 @@ module RubyEventStore
     def each_batch
       return to_enum(:each_batch) unless block_given?
 
-      repository.read(result.tap { |r| r.read_as = :batch }).each do |batch|
+      repository.read(batched? ? self : in_batches).each do |batch|
         yield batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
       end
     end
@@ -154,7 +192,13 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :batch; r.batch_size = batch_size })
+      Specification.new(repository, mapper,
+                        direction: @direction,
+                        start: @start,
+                        count: @count,
+                        stream: @stream,
+                        read_as: :batch,
+                        batch_size: batch_size)
     end
     alias :in_batches_of :in_batches
 
@@ -163,7 +207,13 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_first
-      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :first })
+      Specification.new(repository, mapper,
+                        direction: @direction,
+                        start: @start,
+                        count: @count,
+                        stream: @stream,
+                        read_as: :first,
+                        batch_size: @batch_size)
     end
 
     # Specifies that only last event should be read.
@@ -171,7 +221,13 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_last
-      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :last })
+      Specification.new(repository, mapper,
+                        direction: @direction,
+                        start: @start,
+                        count: @count,
+                        stream: @stream,
+                        read_as: :last,
+                        batch_size: @batch_size)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -180,7 +236,7 @@ module RubyEventStore
     #
     # @return [Event, nil]
     def first
-      record = repository.read(read_first.result)
+      record = repository.read(read_first)
       mapper.serialized_record_to_event(record) if record
     end
 
@@ -190,8 +246,56 @@ module RubyEventStore
     #
     # @return [Event, nil]
     def last
-      record = repository.read(read_last.result)
+      record = repository.read(read_last)
       mapper.serialized_record_to_event(record) if record
+    end
+
+    # Two read specifications are equal if:
+    # * they are of the same class
+    # * have identical data (verified with eql? method)
+    #
+    # @param other_spec [Specification, Object] object to compare
+    #
+    # @return [TrueClass, FalseClass]
+    def ==(other_spec)
+      other_spec.instance_of?(self.class) &&
+        other_spec.count.eql?(count) &&
+        other_spec.stream_name.eql?(stream_name) &&
+        other_spec.head?.eql?(head?) &&
+        other_spec.forward?.eql?(forward?) &&
+        other_spec.batched?.eql?(batched?) &&
+        other_spec.first?.eql?(first?) &&
+        other_spec.last?.eql?(last?)
+    end
+
+    # @private
+    BIG_VALUE = 0b100010010100011110111101100001011111100101001010111110101000000
+
+    # Generates a Fixnum hash value for this object. This function
+    # have the property that a.eql?(b) implies a.hash == b.hash.
+    #
+    # The hash value is used along with eql? by the Hash class to
+    # determine if two objects reference the same hash key.
+    #
+    # This hash is based on
+    # * class
+    # * stream_name
+    # * head?
+    # * forward?
+    # * batched?
+    # * first?
+    # * last?
+    def hash
+      [
+        self.class,
+        count,
+        stream_name,
+        head?,
+        forward?,
+        batched?,
+        first?,
+        last?,
+      ].hash ^ BIG_VALUE
     end
 
     private
