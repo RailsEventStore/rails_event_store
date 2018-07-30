@@ -27,14 +27,14 @@ module RailsEventStoreActiveRecord
       raise RubyEventStore::ReservedInternalName if spec.stream_name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
-      stream = stream.order(position: order(spec.direction)) unless spec.global_stream?
-      stream = stream.limit(spec.limit) if spec.limit?
+      stream = stream.order(position: order(spec)) unless spec.global_stream?
+      stream = stream.limit(spec.count) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
-      stream = stream.order(id: order(spec.direction))
+      stream = stream.order(id: order(spec))
 
       if spec.batched?
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
-        RubyEventStore::BatchEnumerator.new(spec.batch_size, total_limit(spec), batch_reader).each
+        RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.count, batch_reader).each
       elsif spec.first?
         record = stream.first
         build_event_instance(record) if record
@@ -48,10 +48,6 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def total_limit(specification)
-      specification.limit
-    end
-
     def normalize_stream_name(specification)
       specification.global_stream? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream_name
     end
@@ -59,16 +55,12 @@ module RailsEventStoreActiveRecord
     def start_condition(specification)
       event_record =
         EventInStream.find_by!(event_id: specification.start, stream: normalize_stream_name(specification))
-      case specification.direction
-      when :forward
-        ['id > ?', event_record]
-      else
-        ['id < ?', event_record]
-      end
+      condition = specification.forward? ? 'id > ?' : 'id < ?'
+      [condition, event_record]
     end
 
-    def order(direction)
-      {forward: 'ASC', backward: 'DESC'}.fetch(direction)
+    def order(spec)
+      spec.forward? ? 'ASC' : 'DESC'
     end
 
     def build_event_instance(record)
