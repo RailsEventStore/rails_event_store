@@ -8,9 +8,27 @@ $verbose = ENV.has_key?('VERBOSE') ? true : false
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 
+MigrationCode = File.read(File.expand_path('../../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
+migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
+MigrationCode.gsub!("<%= migration_version %>", migration_version)
+MigrationCode.gsub!("force: false", "force: true")
+
 module SchemaHelper
   def establish_database_connection
     ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+  end
+
+  def load_database_schema
+    ActiveRecord::Schema.define do
+      self.verbose = $verbose
+      eval(MigrationCode) unless defined?(CreateEventStoreEvents)
+      CreateEventStoreEvents.new.change
+    end
+  end
+
+  def drop_database
+    ActiveRecord::Migration.drop_table("event_store_events")
+    ActiveRecord::Migration.drop_table("event_store_events_in_streams")
   end
 
   def load_legacy_database_schema
