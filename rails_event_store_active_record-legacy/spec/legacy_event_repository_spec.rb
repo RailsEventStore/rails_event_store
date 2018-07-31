@@ -43,7 +43,7 @@ module RailsEventStoreActiveRecord
         repository = LegacyEventRepository.new
         expect {
           repository.append_to_stream(
-            SRecord.new(event_id: SecureRandom.uuid),
+            RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
             'stream_2',
             RubyEventStore::ExpectedVersion.auto
           )
@@ -73,8 +73,8 @@ module RailsEventStoreActiveRecord
 
       specify 'delete stream moves events back to all' do
         repository = LegacyEventRepository.new
-        repository.append_to_stream(e1 = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
-        repository.append_to_stream(e2 = SRecord.new, RubyEventStore::Stream.new('other_stream'), RubyEventStore::ExpectedVersion.none)
+        repository.append_to_stream(e1 = RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+        repository.append_to_stream(e2 = RubyEventStore::SRecord.new, RubyEventStore::Stream.new('other_stream'), RubyEventStore::ExpectedVersion.none)
 
         repository.delete_stream(RubyEventStore::Stream.new('stream'))
         expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(10).result).to_a).to eq([e1, e2])
@@ -84,7 +84,7 @@ module RailsEventStoreActiveRecord
 
       specify 'active record is drunk' do
         repository = LegacyEventRepository.new
-        repository.append_to_stream(e1 = SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+        repository.append_to_stream(e1 = RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
         expect_query(/UPDATE.*event_store_events.*SET.*stream.* = 'all'.*/) do
           repository.delete_stream(RubyEventStore::Stream.new('stream'))
         end
@@ -93,8 +93,8 @@ module RailsEventStoreActiveRecord
       specify do
         repository = LegacyEventRepository.new
         expect {
-          repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new('stream_1'), RubyEventStore::ExpectedVersion.none)
-          repository.append_to_stream(SRecord.new, RubyEventStore::Stream.new('stream_2'), RubyEventStore::ExpectedVersion.none)
+          repository.append_to_stream(RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream_1'), RubyEventStore::ExpectedVersion.none)
+          repository.append_to_stream(RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream_2'), RubyEventStore::ExpectedVersion.none)
         }.to_not raise_error
       end
 
@@ -108,12 +108,12 @@ module RailsEventStoreActiveRecord
       it 'does not confuse all with GLOBAL_STREAM' do
         repository = LegacyEventRepository.new
         repository.append_to_stream(
-          SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
+          RubyEventStore::SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
           RubyEventStore::Stream.new('all'),
           RubyEventStore::ExpectedVersion.none
         )
         repository.append_to_stream(
-          SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+          RubyEventStore::SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
           RubyEventStore::Stream.new('stream'),
           RubyEventStore::ExpectedVersion.none
         )
@@ -128,7 +128,7 @@ module RailsEventStoreActiveRecord
       specify "does not serialize to YAML twice" do
         repository = LegacyEventRepository.new
         repository.append_to_stream(
-          SRecord.new(
+          RubyEventStore::SRecord.new(
             data:     d = YAML.dump({when: Time.now}),
             metadata: m = YAML.dump({timestamp: Time.now}),
           ),
