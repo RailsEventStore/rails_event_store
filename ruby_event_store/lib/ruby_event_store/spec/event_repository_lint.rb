@@ -36,7 +36,6 @@ RSpec.shared_examples :event_repository do |repository_class|
     repository.read(
       specification
         .stream(stream.name)
-        .result
     ).to_a
   end
 
@@ -45,7 +44,6 @@ RSpec.shared_examples :event_repository do |repository_class|
       specification
         .stream(stream.name)
         .backward
-        .result
     ).to_a
   end
 
@@ -55,7 +53,6 @@ RSpec.shared_examples :event_repository do |repository_class|
         .stream(stream.name)
         .from(start)
         .limit(count)
-        .result
     ).to_a
   end
 
@@ -66,7 +63,6 @@ RSpec.shared_examples :event_repository do |repository_class|
         .from(start)
         .limit(count)
         .backward
-        .result
     ).to_a
   end
 
@@ -75,7 +71,6 @@ RSpec.shared_examples :event_repository do |repository_class|
       specification
         .from(start)
         .limit(count)
-        .result
     ).to_a
   end
 
@@ -85,7 +80,6 @@ RSpec.shared_examples :event_repository do |repository_class|
         .from(start)
         .limit(count)
         .backward
-        .result
     ).to_a
   end
 
@@ -736,7 +730,7 @@ RSpec.shared_examples :event_repository do |repository_class|
 
     expect(read_events_forward(repository, stream, :head, 3)).to eq(events.first(3))
     expect(read_events_forward(repository, stream, :head, 100)).to eq(events)
-    expect(repository.read(specification.stream(stream.name).from(events[4].event_id).result).to_a).to eq(events[5..9])
+    expect(repository.read(specification.stream(stream.name).from(events[4].event_id)).to_a).to eq(events[5..9])
     expect(read_events_forward(repository, stream, events[4].event_id, 4)).to eq(events[5..8])
     expect(read_events_forward(repository, stream, events[4].event_id, 100)).to eq(events[5..9])
 
@@ -981,7 +975,7 @@ RSpec.shared_examples :event_repository do |repository_class|
   end
 
   specify 'read returns enumerator' do
-    expect(repository.read(specification.result)).to be_kind_of(Enumerator)
+    expect(repository.read(specification)).to be_kind_of(Enumerator)
   end
 
   specify 'can store arbitrary binary data' do
@@ -1012,7 +1006,7 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.none
     )
 
-    batches = repository.read(specification.stream("Dummy").in_batches.result).to_a
+    batches = repository.read(specification.stream("Dummy").in_batches).to_a
     expect(batches.size).to eq(2)
     expect(batches[0].size).to eq(100)
     expect(batches[0]).to eq(events[0..99])
@@ -1026,7 +1020,7 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    batches = repository.read(specification.in_batches.result).to_a
+    batches = repository.read(specification.in_batches).to_a
     expect(batches.size).to eq(2)
     expect(batches[0].size).to eq(100)
     expect(batches[0]).to eq(events[0..99])
@@ -1040,7 +1034,7 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    expect(repository.read(specification.in_batches(200).result).to_a.size).to eq(1)
+    expect(repository.read(specification.in_batches(200)).to_a.size).to eq(1)
   end
 
   specify do
@@ -1051,7 +1045,7 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    batches = repository.read(specification.limit(199).in_batches.result).to_a
+    batches = repository.read(specification.limit(199).in_batches).to_a
     expect(batches.size).to eq(2)
     expect(batches[0].size).to eq(100)
     expect(batches[0]).to eq(events[0..99])
@@ -1067,7 +1061,7 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    batches = repository.read(specification.limit(99).in_batches.result).to_a
+    batches = repository.read(specification.limit(99).in_batches).to_a
     expect(batches.size).to eq(1)
     expect(batches[0].size).to eq(99)
     expect(batches[0]).to eq(events[0..98])
@@ -1081,7 +1075,7 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    batches = repository.read(specification.backward.limit(99).in_batches.result).to_a
+    batches = repository.read(specification.backward.limit(99).in_batches).to_a
     expect(batches.size).to eq(1)
     expect(batches[0].size).to eq(99)
     expect(batches[0]).to eq(events[101..-1].reverse)
@@ -1095,15 +1089,15 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    batches = repository.read(specification.from(events[100].event_id).limit(99).in_batches.result).to_a
+    batches = repository.read(specification.from(events[100].event_id).limit(99).in_batches).to_a
     expect(batches.size).to eq(1)
     expect(batches[0].size).to eq(99)
     expect(batches[0]).to eq(events[101..199])
   end
 
   specify do
-    expect(repository.read(specification.read_first.result)).to be_nil
-    expect(repository.read(specification.read_last.result)).to be_nil
+    expect(repository.read(specification.read_first)).to be_nil
+    expect(repository.read(specification.read_last)).to be_nil
 
     events = Array.new(5) { SRecord.new }
     repository.append_to_stream(
@@ -1112,25 +1106,25 @@ RSpec.shared_examples :event_repository do |repository_class|
       RubyEventStore::ExpectedVersion.any
     )
 
-    expect(repository.read(specification.stream("Any").read_first.result)).to be_nil
-    expect(repository.read(specification.stream("Any").read_last.result)).to be_nil
+    expect(repository.read(specification.stream("Any").read_first)).to be_nil
+    expect(repository.read(specification.stream("Any").read_last)).to be_nil
 
-    expect(repository.read(specification.read_first.result)).to eq(events[0])
-    expect(repository.read(specification.read_last.result)).to eq(events[4])
+    expect(repository.read(specification.read_first)).to eq(events[0])
+    expect(repository.read(specification.read_last)).to eq(events[4])
 
-    expect(repository.read(specification.backward.read_first.result)).to eq(events[4])
-    expect(repository.read(specification.backward.read_last.result)).to eq(events[0])
+    expect(repository.read(specification.backward.read_first)).to eq(events[4])
+    expect(repository.read(specification.backward.read_last)).to eq(events[0])
 
-    expect(repository.read(specification.from(events[2].event_id).read_first.result)).to eq(events[3])
-    expect(repository.read(specification.from(events[2].event_id).read_last.result)).to eq(events[4])
+    expect(repository.read(specification.from(events[2].event_id).read_first)).to eq(events[3])
+    expect(repository.read(specification.from(events[2].event_id).read_last)).to eq(events[4])
 
-    expect(repository.read(specification.from(events[2].event_id).backward.read_first.result)).to eq(events[1])
-    expect(repository.read(specification.from(events[2].event_id).backward.read_last.result)).to eq(events[0])
+    expect(repository.read(specification.from(events[2].event_id).backward.read_first)).to eq(events[1])
+    expect(repository.read(specification.from(events[2].event_id).backward.read_last)).to eq(events[0])
 
-    expect(repository.read(specification.from(events[4].event_id).read_first.result)).to be_nil
-    expect(repository.read(specification.from(events[4].event_id).read_last.result)).to be_nil
+    expect(repository.read(specification.from(events[4].event_id).read_first)).to be_nil
+    expect(repository.read(specification.from(events[4].event_id).read_last)).to be_nil
 
-    expect(repository.read(specification.from(events[0].event_id).backward.read_first.result)).to be_nil
-    expect(repository.read(specification.from(events[0].event_id).backward.read_last.result)).to be_nil
+    expect(repository.read(specification.from(events[0].event_id).backward.read_first)).to be_nil
+    expect(repository.read(specification.from(events[0].event_id).backward.read_last)).to be_nil
   end
 end
