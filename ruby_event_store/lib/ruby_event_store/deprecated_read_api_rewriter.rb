@@ -5,10 +5,21 @@ require 'ruby_event_store'
 
 module RubyEventStore
   class DeprecatedReadAPIRewriter < ::Parser::Rewriter
+    DEPRECATED_READER_METHODS = [
+      :read_all_streams_backward,
+      :read_events_backward,
+      :read_stream_events_backward,
+      :read_all_streams_forward,
+      :read_events_forward,
+      :read_stream_events_forward
+    ]
+    private_constant :DEPRECATED_READER_METHODS
+
     def on_send(node)
       node.each_descendant(:send) { |desc_node| on_send(desc_node) }
 
       _, method_name, *args = node.children
+      return unless DEPRECATED_READER_METHODS.include?(method_name)
       replace_range = node.location.selector
       replace_range = replace_range.join(node.location.end) if node.location.end
 
