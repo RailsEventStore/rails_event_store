@@ -12,8 +12,8 @@ module RubyEventStore::ROM
     xspecify "using preload()" do
       repository = repository
       repository.append_to_stream([
-        SRecord.new,
-        SRecord.new,
+        RubyEventStore::SRecord.new,
+        RubyEventStore::SRecord.new,
       ], default_stream, RubyEventStore::ExpectedVersion.auto)
       c1 = count_queries{ repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).result) }
       expect(c1).to eq(2)

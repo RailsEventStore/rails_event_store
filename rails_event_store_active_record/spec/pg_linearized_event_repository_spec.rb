@@ -72,8 +72,8 @@ module RailsEventStoreActiveRecord
         expect do
           repository.append_to_stream(
             [
-              SRecord.new,
-              SRecord.new,
+              RubyEventStore::SRecord.new,
+              RubyEventStore::SRecord.new,
             ],
             RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
             RubyEventStore::ExpectedVersion.any
@@ -108,7 +108,7 @@ module RailsEventStoreActiveRecord
 
     def append_an_event_to_repo
       repository.append_to_stream(
-        [SRecord.new],
+        [RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )

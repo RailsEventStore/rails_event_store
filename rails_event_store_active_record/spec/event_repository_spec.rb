@@ -31,7 +31,7 @@ module RailsEventStoreActiveRecord
 
     specify "all considered internal detail" do
       repository.append_to_stream(
-        [SRecord.new],
+        [RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )
@@ -55,8 +55,8 @@ module RailsEventStoreActiveRecord
 
     specify "using preload()" do
       repository.append_to_stream([
-        event0 = SRecord.new,
-        event1 = SRecord.new,
+        event0 = RubyEventStore::SRecord.new,
+        event1 = RubyEventStore::SRecord.new,
       ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       c1 = count_queries{ repository.read(specification.from(:head).limit(2).result) }
       expect(c1).to eq(2)
@@ -177,20 +177,20 @@ module RailsEventStoreActiveRecord
     specify "explicit ORDER BY position" do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
         repository.append_to_stream([
-          SRecord.new,
+          RubyEventStore::SRecord.new,
         ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       end
     end
 
     specify "nested transaction - events still not persisted if append failed" do
       repository.append_to_stream([
-        event = SRecord.new(event_id: SecureRandom.uuid),
+        event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
       ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
 
       ActiveRecord::Base.transaction do
         expect do
           repository.append_to_stream([
-            SRecord.new(
+            RubyEventStore::SRecord.new(
               event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
             ),
           ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
@@ -222,7 +222,7 @@ module RailsEventStoreActiveRecord
     specify 'fill_ids in append_to_stream' do
       repository = FillInRepository.new
       repository.append_to_stream(
-        [event = SRecord.new],
+        [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new('stream'),
         RubyEventStore::ExpectedVersion.any
       )
@@ -234,7 +234,7 @@ module RailsEventStoreActiveRecord
     specify 'fill_ids in append_to_stream global' do
       repository = FillInRepository.new
       repository.append_to_stream(
-        [event = SRecord.new],
+        [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )
@@ -245,7 +245,7 @@ module RailsEventStoreActiveRecord
     specify 'fill_ids in link_to_stream' do
       repository = FillInRepository.new
       repository.append_to_stream(
-        [event = SRecord.new],
+        [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new('stream'),
         RubyEventStore::ExpectedVersion.any
       )
