@@ -54,5 +54,7 @@ module RubyEventStore
     specify { expect(rewrite('block_call{client.read_all_streams_forward}')).to eq('block_call{client.read.limit(100).each.to_a}') }
 
     specify { expect(rewrite('client.read_stream_events_forward(name_as_variable)')).to eq('client.read.stream(name_as_variable).each.to_a') }
+
+    specify { expect(rewrite('@bus.(command)')).to eq('@bus.(command)') }
   end
 end
