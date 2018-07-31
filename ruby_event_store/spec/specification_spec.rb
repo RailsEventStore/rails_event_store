@@ -41,7 +41,7 @@ module RubyEventStore
     specify { expect{specification.from(nil)}.to raise_error(InvalidPageStart) }
     specify { expect{specification.from('')}.to raise_error(InvalidPageStart) }
     specify { expect{specification.from(:dummy)}.to raise_error(InvalidPageStart) }
-    specify { expect{ specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
+    specify { expect{specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
     specify { expect(specification.from(:head).head?).to eq(true) }
 
     specify do
@@ -78,6 +78,44 @@ module RubyEventStore
         expect(specs.map{|s| s.send(:mapper)}.uniq).to eq([mapper])
       end
     end
+
+    specify { expect(specification.in_batches(3).from(:head).batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).in_batches.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
+    specify { expect(specification.in_batches(3).forward.batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).backward.batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).read_first.batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).read_last.batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).limit(1).batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).stream('dummy').batch_size).to eq(3) }
+
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.from(event_id).stream('dummy').start).to eq(event_id)
+        expect(specification.from(event_id).limit(1).start).to eq(event_id)
+        expect(specification.from(event_id).read_first.start).to eq(event_id)
+        expect(specification.from(event_id).read_last.start).to eq(event_id)
+        expect(specification.from(event_id).forward.start).to eq(event_id)
+        expect(specification.from(event_id).backward.start).to eq(event_id)
+        expect(specification.read_first.from(event_id).first?).to eq(true)
+      end
+    end
+
+    specify { expect(specification.limit(3).stream('dummy').count).to eq(3) }
+    specify { expect(specification.limit(3).read_first.count).to eq(3) }
+    specify { expect(specification.limit(3).read_last.count).to eq(3) }
+    specify { expect(specification.limit(3).forward.count).to eq(3) }
+    specify { expect(specification.limit(3).backward.count).to eq(3) }
+    specify { expect(specification.limit(3).in_batches.count).to eq(3) }
+
+    specify { expect(specification.read_first.stream('dummy').first?).to eq(true) }
+    specify { expect(specification.stream('dummy').forward.stream_name).to eq('dummy') }
+    specify { expect(specification.stream('dummy').backward.stream_name).to eq('dummy') }
+    specify { expect(specification.stream('dummy').in_batches.stream_name).to eq('dummy') }
+
+    specify { expect(specification.read_first.limit(1).first?).to eq(true) }
+    specify { expect(specification.read_first.forward.first?).to eq(true) }
+    specify { expect(specification.read_first.backward.first?).to eq(true) }
+    specify { expect(specification.backward.in_batches.backward?).to eq(true) }
 
     specify 'immutable specification' do
       with_event_of_id(event_id) do
@@ -334,6 +372,75 @@ module RubyEventStore
       expect(specification.in_batches.batched?).to eq(true)
       expect(specification.in_batches.first?).to eq(false)
       expect(specification.in_batches.last?).to eq(false)
+    end
+
+    specify{ expect(specification.frozen?).to eq(true) }
+    specify{ expect(specification.backward.frozen?).to eq(true) }
+
+    specify "#hash" do
+      expect(specification.hash).to eq(specification.forward.hash)
+      expect(specification.forward.hash).not_to eq(specification.backward.hash)
+
+      expect(specification.read_first.hash).to eq(specification.read_first.hash)
+      expect(specification.read_last.hash).to eq(specification.read_last.hash)
+      expect(specification.read_first.hash).not_to eq(specification.read_last.hash)
+
+      expect(specification.hash).not_to eq(specification.limit(10).hash)
+      expect(specification.in_batches.hash).to eq(specification.in_batches(Specification::DEFAULT_BATCH_SIZE).hash)
+      expect(specification.in_batches.hash).not_to eq(specification.in_batches(10).hash)
+      expect(specification.hash).to eq(specification.stream(GLOBAL_STREAM).hash)
+      expect(specification.hash).not_to eq(specification.stream('dummy').hash)
+
+      with_event_of_id(event_id) do
+        expect(specification.hash).to eq(specification.from(:head).hash)
+        expect(specification.from(event_id).hash).not_to eq(specification.from(:head).hash)
+      end
+
+      klass = Class.new(Specification)
+      expect(
+        klass.new(repository, mapper).hash
+      ).not_to eq(specification.hash)
+      expect(
+        klass.new(repository, mapper).hash
+      ).to eq(klass.new(repository, mapper).hash)
+
+      expect(specification.hash).not_to eq([
+          Specification,
+          Float::INFINITY,
+          Stream.new(GLOBAL_STREAM).name,
+          :head,
+          :forward,
+          :all,
+          Specification::DEFAULT_BATCH_SIZE,
+        ].hash)
+    end
+
+    specify "#eql?" do
+      expect(specification).to eq(specification.forward)
+      expect(specification.forward).not_to eq(specification.backward)
+
+      expect(specification.read_first).to eq(specification.read_first)
+      expect(specification.read_last).to eq(specification.read_last)
+      expect(specification.read_first).not_to eq(specification.read_last)
+
+      expect(specification).not_to eq(specification.limit(10))
+      expect(specification.in_batches).to eq(specification.in_batches(Specification::DEFAULT_BATCH_SIZE))
+      expect(specification.in_batches).not_to eq(specification.in_batches(10))
+      expect(specification).to eq(specification.stream(GLOBAL_STREAM))
+      expect(specification).not_to eq(specification.stream('dummy'))
+
+      with_event_of_id(event_id) do
+        expect(specification).to eq(specification.from(:head))
+        expect(specification.from(event_id)).not_to eq(specification.from(:head))
+      end
+
+      klass = Class.new(Specification)
+      expect(
+        klass.new(repository, mapper)
+      ).not_to eq(specification)
+      expect(
+        klass.new(repository, mapper)
+      ).to eq(klass.new(repository, mapper))
     end
 
     let(:repository)    { InMemoryRepository.new }

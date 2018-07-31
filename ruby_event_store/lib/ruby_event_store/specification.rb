@@ -22,7 +22,7 @@ module RubyEventStore
     end
 
     def head?
-      @start.equal?(:head)
+      start.equal?(:head)
     end
 
     def forward?
@@ -30,7 +30,7 @@ module RubyEventStore
     end
 
     def backward?
-      !forward?
+      @direction.equal?(:backward)
     end
 
     def all?
@@ -75,11 +75,11 @@ module RubyEventStore
     def stream(name)
       Specification.new(repository, mapper,
                         direction: @direction,
-                        start: @start,
+                        start: start,
                         count: @count,
                         stream: Stream.new(name),
                         read_as: @read_as,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Limits the query to events before or after another event.
@@ -103,7 +103,7 @@ module RubyEventStore
                         count: @count,
                         stream: @stream,
                         read_as: @read_as,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Sets the order of reading events to ascending (forward from the start).
@@ -112,12 +112,11 @@ module RubyEventStore
     # @return [Specification]
     def forward
       Specification.new(repository, mapper,
-                        direction: :forward,
-                        start: @start,
+                        start: start,
                         count: @count,
                         stream: @stream,
                         read_as: @read_as,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Sets the order of reading events to descending (backward from the start).
@@ -127,11 +126,11 @@ module RubyEventStore
     def backward
       Specification.new(repository, mapper,
                         direction: :backward,
-                        start: @start,
+                        start: start,
                         count: @count,
                         stream: @stream,
                         read_as: @read_as,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Limits the query to specified number of events.
@@ -143,11 +142,11 @@ module RubyEventStore
       raise InvalidPageSize unless count && count > 0
       Specification.new(repository, mapper,
                         direction: @direction,
-                        start: @start,
+                        start: start,
                         count: count,
                         stream: @stream,
                         read_as: @read_as,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -194,7 +193,7 @@ module RubyEventStore
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
       Specification.new(repository, mapper,
                         direction: @direction,
-                        start: @start,
+                        start: start,
                         count: @count,
                         stream: @stream,
                         read_as: :batch,
@@ -209,11 +208,11 @@ module RubyEventStore
     def read_first
       Specification.new(repository, mapper,
                         direction: @direction,
-                        start: @start,
+                        start: start,
                         count: @count,
                         stream: @stream,
                         read_as: :first,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Specifies that only last event should be read.
@@ -223,11 +222,11 @@ module RubyEventStore
     def read_last
       Specification.new(repository, mapper,
                         direction: @direction,
-                        start: @start,
+                        start: start,
                         count: @count,
                         stream: @stream,
                         read_as: :last,
-                        batch_size: @batch_size)
+                        batch_size: batch_size)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -258,14 +257,7 @@ module RubyEventStore
     #
     # @return [TrueClass, FalseClass]
     def ==(other_spec)
-      other_spec.instance_of?(self.class) &&
-        other_spec.count.eql?(count) &&
-        other_spec.stream_name.eql?(stream_name) &&
-        other_spec.head?.eql?(head?) &&
-        other_spec.forward?.eql?(forward?) &&
-        other_spec.batched?.eql?(batched?) &&
-        other_spec.first?.eql?(first?) &&
-        other_spec.last?.eql?(last?)
+      other_spec.hash.eql?(hash)
     end
 
     # @private
@@ -280,21 +272,19 @@ module RubyEventStore
     # This hash is based on
     # * class
     # * stream_name
-    # * head?
-    # * forward?
-    # * batched?
-    # * first?
-    # * last?
+    # * start
+    # * direction
+    # * read_as
+    # * batch_size
     def hash
       [
         self.class,
         count,
         stream_name,
-        head?,
-        forward?,
-        batched?,
-        first?,
-        last?,
+        start,
+        @direction,
+        @read_as,
+        batch_size,
       ].hash ^ BIG_VALUE
     end
 
