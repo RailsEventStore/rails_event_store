@@ -7,6 +7,7 @@ import Http
 import Json.Decode exposing (Decoder, Value, field, list, string, at, value, maybe, oneOf)
 import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional)
 import Json.Encode exposing (encode)
+import JsonTree
 import Navigation
 import UrlParser exposing ((</>))
 
@@ -23,7 +24,7 @@ main =
 
 type alias Model =
     { events : PaginatedList Event
-    , event : Maybe Event
+    , event : Maybe OpenedEvent
     , page : Page
     , flags : Flags
     }
@@ -34,6 +35,8 @@ type Msg
     | GetEvent (Result Http.Error Event)
     | ChangeUrl Navigation.Location
     | GoToPage PaginationLink
+    | ChangeOpenedEventDataTreeState (JsonTree.State)
+    | ChangeOpenedEventMetadataTreeState (JsonTree.State)
 
 
 type Page
@@ -48,6 +51,13 @@ type alias Event =
     , createdAt : String
     , rawData : String
     , rawMetadata : String
+    }
+
+
+type alias OpenedEvent =
+    { event : Event
+    , dataTreeState : JsonTree.State
+    , metadataTreeState : JsonTree.State
     }
 
 
@@ -112,7 +122,7 @@ update msg model =
             ( model, Cmd.none )
 
         GetEvent (Ok result) ->
-            ( { model | event = Just result }, Cmd.none )
+            ( { model | event = Just (mkOpenedEvent result) }, Cmd.none )
 
         GetEvent (Err msg) ->
             ( model, Cmd.none )
@@ -122,6 +132,24 @@ update msg model =
 
         GoToPage paginationLink ->
             ( model, getEvents paginationLink )
+
+        ChangeOpenedEventDataTreeState newState ->
+            (case model.event of
+                Just openedEvent -> ( { model | event = Just ({ openedEvent | dataTreeState = newState })}, Cmd.none )
+                Nothing -> ( model, Cmd.none ))
+
+        ChangeOpenedEventMetadataTreeState newState ->
+            (case model.event of
+                Just openedEvent -> ( { model | event = Just ({ openedEvent | metadataTreeState = newState })}, Cmd.none )
+                Nothing -> ( model, Cmd.none ))
+
+
+mkOpenedEvent : Event -> OpenedEvent
+mkOpenedEvent e =
+    { event = e
+    , dataTreeState = JsonTree.defaultState
+    , metadataTreeState = JsonTree.defaultState
+    }
 
 
 buildUrl : String -> String -> String
@@ -213,12 +241,12 @@ browserBody model =
             h1 [] [ text "404" ]
 
 
-showEvent : Maybe Event -> Html Msg
+showEvent : Maybe OpenedEvent -> Html Msg
 showEvent event =
     case event of
         Just event ->
             div [ class "event" ]
-                [ h1 [ class "event__title" ] [ text event.eventType ]
+                [ h1 [ class "event__title" ] [ text event.event.eventType ]
                 , div [ class "event__body" ]
                     [ table []
                         [ thead []
@@ -230,9 +258,9 @@ showEvent event =
                             ]
                         , tbody []
                             [ tr []
-                                [ td [] [ text event.eventId ]
-                                , td [] [ pre [] [ text event.rawData ] ]
-                                , td [] [ pre [] [ text event.rawMetadata ] ]
+                                [ td [] [ text event.event.eventId ]
+                                , td [] [ showJsonTree event.event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                                , td [] [ showJsonTree event.event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                                 ]
                             ]
                         ]
@@ -241,6 +269,12 @@ showEvent event =
 
         Nothing ->
             div [ class "event" ] []
+
+
+showJsonTree rawJson treeState changeState =
+    JsonTree.parseString rawJson
+        |> Result.map (\tree -> JsonTree.view tree ({ onSelect = Nothing, toMsg = changeState }) treeState)
+        |> Result.withDefault (pre [] [ text rawJson ])
 
 
 browseEvents : String -> PaginatedList Event -> Html Msg
