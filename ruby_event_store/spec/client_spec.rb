@@ -25,8 +25,8 @@ module RubyEventStore
       expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
-    specify 'delete_stream returns :ok when success' do
-      expect(client.delete_stream(stream)).to eq(:ok)
+    specify 'delete_stream returns client when success' do
+      expect(client.delete_stream(stream)).to eq(client)
     end
 
     specify 'publish to default stream when not specified' do

@@ -106,10 +106,10 @@ module RubyEventStore
     # longer linked to the stream.
     #
     # @param stream_name [String] name of the stream to be cleared.
-    # @return [:ok]
+    # @return [self]
     def delete_stream(stream_name)
       repository.delete_stream(Stream.new(stream_name))
-      :ok
+      self
     end
 
     # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
