@@ -11,12 +11,12 @@ module RubyEventStore
       expect(client.publish(TestEvent.new)).to eq(:ok)
     end
 
-    specify 'append returns :ok when success' do
-      expect(client.append(TestEvent.new, stream_name: stream)).to eq(:ok)
+    specify 'append returns client when success' do
+      expect(client.append(TestEvent.new, stream_name: stream)).to eq(client)
     end
 
     specify 'append to default stream when not specified' do
-      expect(client.append(test_event = TestEvent.new)).to eq(:ok)
+      expect(client.append(test_event = TestEvent.new)).to eq(client)
       expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
