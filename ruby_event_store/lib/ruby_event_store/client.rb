@@ -23,7 +23,7 @@ module RubyEventStore
     # @param events [Array<Event, Proto>, Event, Proto] event(s)
     # @param stream_name [String] name of the stream for persisting events.
     # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {http://railseventstore.org/docs/expected_version/ Read more}
-    # @return [:ok]
+    # @return [self]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
       serialized_events = serialize_events(enriched_events)
@@ -36,7 +36,7 @@ module RubyEventStore
           broker.(event, serialized_event)
         end
       end
-      :ok
+      self
     end
 
     # @deprecated Use {#publish} instead
