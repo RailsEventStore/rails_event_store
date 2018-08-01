@@ -7,47 +7,47 @@ module RubyEventStore
     let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
     let(:stream) { SecureRandom.uuid }
 
-    specify 'publish returns :ok when success' do
-      expect(client.publish(TestEvent.new)).to eq(:ok)
+    specify 'publish returns self when success' do
+      expect(client.publish(TestEvent.new)).to eq(client)
     end
 
-    specify 'append returns :ok when success' do
-      expect(client.append(TestEvent.new, stream_name: stream)).to eq(:ok)
+    specify 'append returns client when success' do
+      expect(client.append(TestEvent.new, stream_name: stream)).to eq(client)
     end
 
     specify 'append to default stream when not specified' do
-      expect(client.append(test_event = TestEvent.new)).to eq(:ok)
+      expect(client.append(test_event = TestEvent.new)).to eq(client)
       expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
     specify 'publish to default stream when not specified' do
-      expect(client.publish([test_event = TestEvent.new])).to eq(:ok)
+      expect(client.publish([test_event = TestEvent.new])).to eq(client)
       expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
-    specify 'delete_stream returns :ok when success' do
-      expect(client.delete_stream(stream)).to eq(:ok)
+    specify 'delete_stream returns client when success' do
+      expect(client.delete_stream(stream)).to eq(client)
     end
 
     specify 'publish to default stream when not specified' do
-      expect(client.publish(test_event = TestEvent.new)).to eq(:ok)
+      expect(client.publish(test_event = TestEvent.new)).to eq(client)
       expect(client.read.limit(100).each.to_a).to eq([test_event])
     end
 
     specify 'publish first event, expect any stream state' do
-      expect(client.publish(first_event = TestEvent.new, stream_name: stream)).to eq(:ok)
+      expect(client.publish(first_event = TestEvent.new, stream_name: stream)).to eq(client)
       expect(client.read.stream(stream).each.to_a).to eq([first_event])
     end
 
     specify 'publish next event, expect any stream state' do
       client.append(first_event = TestEvent.new, stream_name: stream)
 
-      expect(client.publish(second_event = TestEvent.new, stream_name: stream)).to eq(:ok)
+      expect(client.publish(second_event = TestEvent.new, stream_name: stream)).to eq(client)
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
     specify 'publish first event, expect empty stream' do
-      expect(client.publish(first_event = TestEvent.new, stream_name: stream, expected_version: :none)).to eq(:ok)
+      expect(client.publish(first_event = TestEvent.new, stream_name: stream, expected_version: :none)).to eq(client)
       expect(client.read.stream(stream).each.to_a).to eq([first_event])
     end
 
@@ -61,7 +61,7 @@ module RubyEventStore
     specify 'publish event, expect last event to be the last read one' do
       client.append(first_event = TestEvent.new, stream_name: stream)
 
-      expect(client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: 0)).to eq(:ok)
+      expect(client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: 0)).to eq(client)
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 

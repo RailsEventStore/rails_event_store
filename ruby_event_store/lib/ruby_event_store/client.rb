@@ -23,7 +23,7 @@ module RubyEventStore
     # @param events [Array<Event, Proto>, Event, Proto] event(s)
     # @param stream_name [String] name of the stream for persisting events.
     # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {http://railseventstore.org/docs/expected_version/ Read more}
-    # @return [:ok]
+    # @return [self]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
       serialized_events = serialize_events(enriched_events)
@@ -36,7 +36,7 @@ module RubyEventStore
           broker.(event, serialized_event)
         end
       end
-      :ok
+      self
     end
 
     # @deprecated Use {#publish} instead
@@ -72,11 +72,11 @@ module RubyEventStore
     # Persists new event(s) without notifying any subscribed handlers
     #
     # @param (see #publish)
-    # @return [:ok]
+    # @return [self]
     def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       serialized_events = serialize_events(enrich_events_metadata(events))
       append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
-      :ok
+      self
     end
 
     # Links already persisted event(s) to a different stream.
@@ -106,10 +106,10 @@ module RubyEventStore
     # longer linked to the stream.
     #
     # @param stream_name [String] name of the stream to be cleared.
-    # @return [:ok]
+    # @return [self]
     def delete_stream(stream_name)
       repository.delete_stream(Stream.new(stream_name))
-      :ok
+      self
     end
 
     # @deprecated Use {#read} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.30.0 More info}
