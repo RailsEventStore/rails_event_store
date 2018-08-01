@@ -39,7 +39,7 @@ build:
 
 push:
 	@echo "Pushing package to Gemfury"
-	@fury push pkg/dres_rails-0.1.0.gem
+	@fury push pkg/dres_rails-0.3.0.gem
 
 clean:
 	@echo "Removing previously built package"
