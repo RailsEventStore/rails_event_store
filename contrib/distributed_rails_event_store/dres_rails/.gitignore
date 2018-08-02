@@ -5,3 +5,4 @@ pkg/*
 Gemfile.lock
 tmp
 spec/dummy/log/test.log
+spec/dummy/log/development.log
