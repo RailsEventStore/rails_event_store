@@ -26,6 +26,7 @@ clean:
 	@echo "Removing previously built package"
 	-rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
+release: install test build push clean
 
 version:
 	@echo "Lists versions"
