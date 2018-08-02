@@ -21,7 +21,7 @@ module RubyEventStore
   RSpec.shared_examples :event_repository do |repository_class|
     let(:repository)    { subject || repository_class.new }
     let(:mapper)        { Mappers::NullMapper.new }
-    let(:specification) { Specification.new(repository, mapper) }
+    let(:specification) { Specification.new(SpecificationReader.new(repository, mapper)) }
     let(:global_stream) { Stream.new(GLOBAL_STREAM) }
     let(:stream)        { Stream.new(SecureRandom.uuid) }
     let(:stream_flow)   { Stream.new('flow') }

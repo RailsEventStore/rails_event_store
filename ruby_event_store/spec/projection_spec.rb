@@ -196,14 +196,14 @@ module RubyEventStore
     end
 
     specify do
-      specification = Specification.new(InMemoryRepository.new, Mappers::Default.new)
+      specification = Specification.new(SpecificationReader.new(InMemoryRepository.new, Mappers::Default.new))
       expect(Specification).to receive(:new).at_least(:once).and_return(specification)
       expect(specification).to receive(:in_batches).with(2).and_return(specification)
       Projection.from_all_streams.run(event_store, count: 2)
     end
 
     specify do
-      specification = Specification.new(InMemoryRepository.new, Mappers::Default.new)
+      specification = Specification.new(SpecificationReader.new(InMemoryRepository.new, Mappers::Default.new))
       expect(Specification).to receive(:new).at_least(:once).and_return(specification)
       expect(specification).to receive(:in_batches).with(2).and_return(specification)
       Projection.from_stream("FancyStream").run(event_store, count: 2)

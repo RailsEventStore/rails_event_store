@@ -191,7 +191,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read
-      Specification.new(repository, mapper)
+      Specification.new(SpecificationReader.new(repository, mapper))
     end
 
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.

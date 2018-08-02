@@ -148,8 +148,7 @@ module RubyEventStore
           specification.from(event_id),
           specification.stream(stream_name),
         ]
-        expect(specs.map{|s| s.send(:repository)}.uniq).to eq([repository])
-        expect(specs.map{|s| s.send(:mapper)}.uniq).to eq([mapper])
+        expect(specs.map{|s| s.send(:reader)}.uniq).to eq([reader])
       end
     end
 
@@ -404,7 +403,8 @@ module RubyEventStore
 
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
-    let(:specification) { Specification.new(repository, mapper) }
+    let(:reader)        { SpecificationReader.new(repository, mapper) }
+    let(:specification) { Specification.new(reader) }
     let(:event_id)      { SecureRandom.uuid }
     let(:none_such_id)  { SecureRandom.uuid }
     let(:stream_name)   { SecureRandom.hex }

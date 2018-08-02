@@ -53,9 +53,8 @@ module RubyEventStore
 
     # @api private
     # @private
-    def initialize(repository, mapper, result = Result.new(:forward, :head, nil, Stream.new(GLOBAL_STREAM), :all, DEFAULT_BATCH_SIZE))
-      @mapper = mapper
-      @repository  = repository
+    def initialize(reader, result = Result.new(:forward, :head, nil, Stream.new(GLOBAL_STREAM), :all, DEFAULT_BATCH_SIZE))
+      @reader = reader
       @result = result
     end
 
@@ -65,7 +64,7 @@ module RubyEventStore
     # @param stream_name [String] name of the stream to get events from
     # @return [Specification]
     def stream(stream_name)
-      Specification.new(repository, mapper, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
+      Specification.new(reader, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
     end
 
     # Limits the query to events before or after another event.
@@ -81,9 +80,9 @@ module RubyEventStore
         raise InvalidPageStart unless [:head].include?(start)
       else
         raise InvalidPageStart if start.nil? || start.empty?
-        raise EventNotFound.new(start) unless repository.has_event?(start)
+        raise EventNotFound.new(start) unless reader.has_event?(start)
       end
-      Specification.new(repository, mapper, result.dup.tap { |r| r.start = start })
+      Specification.new(reader, result.dup.tap { |r| r.start = start })
     end
 
     # Sets the order of reading events to ascending (forward from the start).
@@ -91,7 +90,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def forward
-      Specification.new(repository, mapper, result.dup.tap { |r| r.direction = :forward })
+      Specification.new(reader, result.dup.tap { |r| r.direction = :forward })
     end
 
     # Sets the order of reading events to descending (backward from the start).
@@ -99,7 +98,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def backward
-      Specification.new(repository, mapper, result.dup.tap { |r| r.direction = :backward })
+      Specification.new(reader, result.dup.tap { |r| r.direction = :backward })
     end
 
     # Limits the query to specified number of events.
@@ -109,7 +108,7 @@ module RubyEventStore
     # @return [Specification]
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      Specification.new(repository, mapper, result.dup.tap { |r| r.count = count })
+      Specification.new(reader, result.dup.tap { |r| r.count = count })
     end
 
     # Executes the query based on the specification built up to this point.
@@ -121,8 +120,8 @@ module RubyEventStore
     def each_batch
       return to_enum(:each_batch) unless block_given?
 
-      repository.read(result.tap { |r| r.read_as = :batch }).each do |batch|
-        yield batch.map { |serialized_record| mapper.serialized_record_to_event(serialized_record) }
+      reader.each(result.tap { |r| r.read_as = :batch }) do |batch|
+        yield batch
       end
     end
 
@@ -154,7 +153,7 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :batch; r.batch_size = batch_size })
+      Specification.new(reader, result.dup.tap { |r| r.read_as = :batch; r.batch_size = batch_size })
     end
     alias :in_batches_of :in_batches
 
@@ -163,7 +162,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_first
-      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :first })
+      Specification.new(reader, result.dup.tap { |r| r.read_as = :first })
     end
 
     # Specifies that only last event should be read.
@@ -171,7 +170,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_last
-      Specification.new(repository, mapper, result.dup.tap { |r| r.read_as = :last })
+      Specification.new(reader, result.dup.tap { |r| r.read_as = :last })
     end
 
     # Executes the query based on the specification built up to this point.
@@ -180,8 +179,7 @@ module RubyEventStore
     #
     # @return [Event, nil]
     def first
-      record = repository.read(read_first.result)
-      mapper.serialized_record_to_event(record) if record
+      reader.one(read_first.result)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -190,11 +188,10 @@ module RubyEventStore
     #
     # @return [Event, nil]
     def last
-      record = repository.read(read_last.result)
-      mapper.serialized_record_to_event(record) if record
+      reader.one(read_last.result)
     end
 
     private
-    attr_reader :repository, :mapper
+    attr_reader :reader
   end
 end
