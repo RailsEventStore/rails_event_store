@@ -196,16 +196,20 @@ module RubyEventStore
     end
 
     specify do
-      specification = Specification.new(SpecificationReader.new(InMemoryRepository.new, Mappers::Default.new))
-      expect(Specification).to receive(:new).at_least(:once).and_return(specification)
-      expect(specification).to receive(:in_batches).with(2).and_return(specification)
+      repository = event_store.send(:repository)
+      mapper     = event_store.send(:mapper)
+      specification = Specification.new(SpecificationReader.new(repository, mapper))
+      expected = specification.in_batches(2).result
+      expect(repository).to receive(:read).with(expected).and_return([])
       Projection.from_all_streams.run(event_store, count: 2)
     end
 
     specify do
-      specification = Specification.new(SpecificationReader.new(InMemoryRepository.new, Mappers::Default.new))
-      expect(Specification).to receive(:new).at_least(:once).and_return(specification)
-      expect(specification).to receive(:in_batches).with(2).and_return(specification)
+      repository = event_store.send(:repository)
+      mapper     = event_store.send(:mapper)
+      specification = Specification.new(SpecificationReader.new(repository, mapper))
+      expected = specification.in_batches(2).stream("FancyStream").result
+      expect(repository).to receive(:read).with(expected).and_return([])
       Projection.from_stream("FancyStream").run(event_store, count: 2)
     end
   end

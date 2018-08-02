@@ -120,7 +120,7 @@ module RubyEventStore
     def each_batch
       return to_enum(:each_batch) unless block_given?
 
-      reader.each(result.tap { |r| r.read_as = :batch }) do |batch|
+      reader.each(in_batches(result.batch_size).result) do |batch|
         yield batch
       end
     end
