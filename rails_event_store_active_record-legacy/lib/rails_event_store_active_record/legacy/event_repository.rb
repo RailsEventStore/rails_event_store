@@ -60,7 +60,7 @@ instead:
       end
 
       def read(spec)
-        stream = LegacyEvent.order(id: order(spec.direction))
+        stream = LegacyEvent.order(id: order(spec))
         stream = stream.limit(spec.limit) if spec.limit?
         stream = stream.where(start_condition(spec)) unless spec.head?
         stream = stream.where(stream: spec.stream_name) unless spec.global_stream?
@@ -88,16 +88,12 @@ instead:
       def start_condition(specification)
         event_record =
           LegacyEvent.find_by!(event_id: specification.start)
-        case specification.direction
-        when :forward
-          ['id > ?', event_record]
-        else
-          ['id < ?', event_record]
-        end
+        condition = specification.forward? ? 'id > ?' : 'id < ?'
+        [condition, event_record]
       end
 
-      def order(direction)
-        {forward: 'ASC', backward: 'DESC'}.fetch(direction)
+      def order(spec)
+        spec.forward? ? 'ASC' : 'DESC'
       end
 
 
