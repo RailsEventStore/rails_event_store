@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "capybara", "~> 3.0"
   spec.add_development_dependency "timecop", "~> 0.9"
 
-  spec.files = Dir["app/**/*", "bin/**/*", "config/**/*", "lib/**/*", "vendor/**/*"]
+  spec.files = Dir["app/**/*", "bin/**/*", "config/**/*", "db/**/*", "lib/**/*", "vendor/**/*"]
   spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
   spec.require_paths = ["lib"]
 end
