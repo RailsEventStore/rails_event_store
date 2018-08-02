@@ -25,7 +25,8 @@ module RailsEventStoreActiveRecord
     let(:test_binary)                { true }
     let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }
     let(:repository)                 { EventRepository.new }
-    let(:specification)              { RubyEventStore::Specification.new(repository, mapper) }
+    let(:reader)                     { RubyEventStore::SpecificationReader.new(repository, mapper) }
+    let(:specification)              { RubyEventStore::Specification.new(reader) }
 
     it_behaves_like :event_repository, EventRepository
 

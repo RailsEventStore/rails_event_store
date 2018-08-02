@@ -28,6 +28,9 @@ module RailsEventStoreActiveRecord
       let(:test_link_events_to_stream) { false }
       let(:test_binary) { false }
       let(:mapper) { RubyEventStore::Mappers::NullMapper.new }
+      let(:repository) { LegacyEventRepository.new }
+      let(:reader) { RubyEventStore::SpecificationReader.new(repository, mapper) }
+      let(:specification) { RubyEventStore::Specification.new(reader) }
 
       it_behaves_like :event_repository, LegacyEventRepository
 
@@ -40,7 +43,6 @@ module RailsEventStoreActiveRecord
       end
 
       specify ":auto mode is not supported" do
-        repository = LegacyEventRepository.new
         expect {
           repository.append_to_stream(
             RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
@@ -52,38 +54,33 @@ module RailsEventStoreActiveRecord
 
       specify "read_stream_events_forward explicit ORDER BY id" do
         expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY.*event_store_events.*id.* ASC.*/) do
-          repository = LegacyEventRepository.new
-          repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").result)
+          repository.read(specification.stream("stream").result)
         end
       end
 
       specify "read_events_forward explicit ORDER BY id" do
         expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.*stream.*=.*ORDER BY.*event_store_events.*id.* ASC LIMIT.*/) do
-          repository = LegacyEventRepository.new
-          repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").from(:head).limit(1).result)
+          repository.read(specification.stream("stream").from(:head).limit(1).result)
         end
       end
 
       specify "read_all_streams_forward explicit ORDER BY id" do
         expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY.*event_store_events.*id.* ASC LIMIT.*/) do
-          repository = LegacyEventRepository.new
-          repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(1).result)
+          repository.read(specification.from(:head).limit(1).result)
         end
       end
 
       specify 'delete stream moves events back to all' do
-        repository = LegacyEventRepository.new
         repository.append_to_stream(e1 = RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
         repository.append_to_stream(e2 = RubyEventStore::SRecord.new, RubyEventStore::Stream.new('other_stream'), RubyEventStore::ExpectedVersion.none)
 
         repository.delete_stream(RubyEventStore::Stream.new('stream'))
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).from(:head).limit(10).result).to_a).to eq([e1, e2])
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("stream").result).to_a).to be_empty
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream("other_stream").result).to_a).to eq([e2])
+        expect(repository.read(specification.from(:head).limit(10).result).to_a).to eq([e1, e2])
+        expect(repository.read(specification.stream("stream").result).to_a).to be_empty
+        expect(repository.read(specification.stream("other_stream").result).to_a).to eq([e2])
       end
 
       specify 'active record is drunk' do
-        repository = LegacyEventRepository.new
         repository.append_to_stream(e1 = RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
         expect_query(/UPDATE.*event_store_events.*SET.*stream.* = 'all'.*/) do
           repository.delete_stream(RubyEventStore::Stream.new('stream'))
@@ -91,7 +88,6 @@ module RailsEventStoreActiveRecord
       end
 
       specify do
-        repository = LegacyEventRepository.new
         expect {
           repository.append_to_stream(RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream_1'), RubyEventStore::ExpectedVersion.none)
           repository.append_to_stream(RubyEventStore::SRecord.new, RubyEventStore::Stream.new('stream_2'), RubyEventStore::ExpectedVersion.none)
@@ -99,14 +95,12 @@ module RailsEventStoreActiveRecord
       end
 
       specify do
-        repository = LegacyEventRepository.new
         expect {
           repository.link_to_stream(SecureRandom.uuid, RubyEventStore::Stream.new('stream_2'), RubyEventStore::ExpectedVersion.none)
         }.to raise_error(RubyEventStore::NotSupported)
       end
 
       it 'does not confuse all with GLOBAL_STREAM' do
-        repository = LegacyEventRepository.new
         repository.append_to_stream(
           RubyEventStore::SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
           RubyEventStore::Stream.new('all'),
@@ -118,15 +112,14 @@ module RailsEventStoreActiveRecord
           RubyEventStore::ExpectedVersion.none
         )
 
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).result))
+        expect(repository.read(specification.result))
           .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a a1b49edb-7636-416f-874a-88f94b859bef]))
 
-        expect(repository.read(RubyEventStore::Specification.new(repository, mapper).stream('all').result))
+        expect(repository.read(specification.stream('all').result))
           .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
       end
 
       specify "does not serialize to YAML twice" do
-        repository = LegacyEventRepository.new
         repository.append_to_stream(
           RubyEventStore::SRecord.new(
             data:     d = YAML.dump({when: Time.now}),
