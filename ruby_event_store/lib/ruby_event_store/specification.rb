@@ -179,7 +179,7 @@ module RubyEventStore
     #
     # @return [Event, nil]
     def first
-      reader.single(read_first.result)
+      reader.one(read_first.result)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -188,7 +188,7 @@ module RubyEventStore
     #
     # @return [Event, nil]
     def last
-      reader.single(read_last.result)
+      reader.one(read_last.result)
     end
 
     private

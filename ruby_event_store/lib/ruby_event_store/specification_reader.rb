@@ -10,7 +10,7 @@ module RubyEventStore
 
     # @api private
     # @private
-    def single(specification_result)
+    def one(specification_result)
       record = repository.read(specification_result)
       mapper.serialized_record_to_event(record) if record
     end
