@@ -26,6 +26,11 @@ module SchemaHelper
     end
   end
 
+  def drop_database
+    ActiveRecord::Migration.drop_table("event_store_events")
+    ActiveRecord::Migration.drop_table("event_store_events_in_streams")
+  end
+
   def load_legacy_database_schema
     ActiveRecord::Schema.define do
       self.verbose = $verbose
@@ -47,11 +52,6 @@ module SchemaHelper
   def drop_legacy_database
     ActiveRecord::Migration.drop_table("event_store_events")
   rescue ActiveRecord::StatementInvalid
-  end
-
-  def drop_database
-    ActiveRecord::Migration.drop_table("event_store_events")
-    ActiveRecord::Migration.drop_table("event_store_events_in_streams")
   end
 end
 

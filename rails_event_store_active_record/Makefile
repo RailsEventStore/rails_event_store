@@ -9,14 +9,11 @@ DATABASE_URL ?= sqlite3::memory:
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
-	@echo "Installing v1_v2_schema_migration gem dependencies"
-	@BUNDLE_GEMFILE=spec/v1_v2_schema_migration/Gemfile bundle install
 	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
 
 remove-lock:
 	@echo "Removing resolved dependency versions"
 	-rm Gemfile.lock
-	-rm spec/v1_v2_schema_migration/Gemfile.lock
 	-rm spec/without_rails/Gemfile.lock
 
 reinstall: remove-lock install ## Removing resolved dependency versions
