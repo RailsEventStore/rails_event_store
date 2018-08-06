@@ -45,7 +45,7 @@ module DresClient
       loop do
         events = events(after_event_id: after_event_id)
         proc.call(events)
-        after_event_id = events.last.event_id
+        after_event_id = events.last.event_id if events.last
       end
     end
 
