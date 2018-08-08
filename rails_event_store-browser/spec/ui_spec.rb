@@ -23,8 +23,8 @@ module RailsEventStore
 
       within('.event__body') do
         expect(page).to have_content(foo_bar_event.event_id)
-        expect(page).to have_content(%Q[{ "timestamp": "#{foo_bar_event.metadata[:timestamp].as_json}" ])
-        expect(page).to have_content(%Q[{ "foo": "bar" }])
+        expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].as_json}" ])
+        expect(page).to have_content(%Q[foo: "bar"])
       end
     end
 
@@ -43,8 +43,8 @@ module RailsEventStore
 
       within('.event__body') do
         expect(page).to have_content(foo_bar_event.event_id)
-        expect(page).to have_content(%Q[{ "timestamp": "#{foo_bar_event.metadata[:timestamp].as_json}" ])
-        expect(page).to have_content(%Q[{ "foo": "bar" }])
+        expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].as_json}"])
+        expect(page).to have_content(%Q[foo: "bar"])
       end
     end
 

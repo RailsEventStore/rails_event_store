@@ -6,9 +6,18 @@
       "event_type": "OrderPlaced",
       "data": {
         "order_id": 42,
+        "buyer": {
+          "name": "Ludwik Zamenhof"
+        },
         "net_value": 900001
       },
-      "metadata": { "timestamp": "2017-11-14 23:21:04 UTC" }
+      "metadata": {
+        "timestamp": "2017-11-14 23:21:04 UTC",
+        "originator": {
+          "name": "Admin",
+          "user_id": 444
+        }
+      }
     }
   }
 }

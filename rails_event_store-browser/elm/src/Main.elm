@@ -9,6 +9,7 @@ import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional)
 import Json.Encode exposing (encode)
 import Navigation
 import UrlParser exposing ((</>))
+import OpenedEventUI
 
 
 main : Program Flags Model Msg
@@ -23,7 +24,7 @@ main =
 
 type alias Model =
     { events : PaginatedList Event
-    , event : Maybe Event
+    , event : Maybe OpenedEventUI.Model
     , page : Page
     , flags : Flags
     }
@@ -34,6 +35,7 @@ type Msg
     | GetEvent (Result Http.Error Event)
     | ChangeUrl Navigation.Location
     | GoToPage PaginationLink
+    | OpenedEventUIChanged OpenedEventUI.Msg
 
 
 type Page
@@ -112,7 +114,7 @@ update msg model =
             ( model, Cmd.none )
 
         GetEvent (Ok result) ->
-            ( { model | event = Just result }, Cmd.none )
+            ( { model | event = Just (OpenedEventUI.initModel result) }, Cmd.none )
 
         GetEvent (Err msg) ->
             ( model, Cmd.none )
@@ -122,6 +124,18 @@ update msg model =
 
         GoToPage paginationLink ->
             ( model, getEvents paginationLink )
+
+        OpenedEventUIChanged openedEventUIMsg ->
+            case model.event of
+                Just openedEvent ->
+                    let
+                        ( newModel, cmd ) =
+                            OpenedEventUI.update openedEventUIMsg openedEvent
+                    in
+                        ( { model | event = Just newModel }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 buildUrl : String -> String -> String
@@ -213,31 +227,11 @@ browserBody model =
             h1 [] [ text "404" ]
 
 
-showEvent : Maybe Event -> Html Msg
+showEvent : Maybe OpenedEventUI.Model -> Html Msg
 showEvent event =
     case event of
         Just event ->
-            div [ class "event" ]
-                [ h1 [ class "event__title" ] [ text event.eventType ]
-                , div [ class "event__body" ]
-                    [ table []
-                        [ thead []
-                            [ tr []
-                                [ th [] [ text "Event id" ]
-                                , th [] [ text "Raw Data" ]
-                                , th [] [ text "Raw Metadata" ]
-                                ]
-                            ]
-                        , tbody []
-                            [ tr []
-                                [ td [] [ text event.eventId ]
-                                , td [] [ pre [] [ text event.rawData ] ]
-                                , td [] [ pre [] [ text event.rawMetadata ] ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+            Html.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.showEvent event)
 
         Nothing ->
             div [ class "event" ] []
