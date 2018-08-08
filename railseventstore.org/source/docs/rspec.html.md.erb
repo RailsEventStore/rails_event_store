@@ -80,7 +80,7 @@ You may have noticed the same matcher being referenced as `be_event`, `be_an_eve
 ### have_published
 
 Use this matcher to target `event_store` and reading from streams specifically.
-In a simplest form it would read all streams backward up to a page limit (100 events) and check whether the expectation holds true. Its behaviour can be best compared to the `include` matcher — it is satisfied by at least one element present in the collection. You're encouraged to compose it with `be_event`.
+In a simplest form it would read all streams forward and check whether the expectation holds true. Its behaviour can be best compared to the `include` matcher — it is satisfied by at least one element present in the collection. You're encouraged to compose it with `be_event`.
 
 ```ruby
 event_store = RailsEventStore::Client.new
@@ -98,20 +98,37 @@ event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order
 expect(event_store).to have_published(an_event(OrderPlaced)).in_stream("Order$42")
 ```
 
-It is sometimes important to ensure no additional events have been published. Luckliy there's a modifier to cover that usecase.
+It is sometimes important to ensure no additional events have been published. Luckily there's a modifier to cover that usecase.
 
 ```ruby
 expect(event_store).not_to have_published(an_event(OrderPlaced)).once
 expect(event_store).to have_published(an_event(OrderPlaced)).exactly(2).times
 ```
 
-Finally you can make expectation on several events at once.
+You can make expectation on several events at once.
 
 ```ruby
 expect(event_store).to have_published(
   an_event(OrderPlaced),
   an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
 )
+```
+
+You can also make expectation to ensure that expected list of events is exact actual list of events (and in the same order) using `strict` modifier.
+
+```ruby
+expect(event_store).to have_published(
+  an_event(OrderPlaced),
+  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
+).strict
+```
+
+Last but not least, you can specify reading starting point for matcher.
+
+```ruby
+expect(event_store).to have_published(
+  an_event(OrderExpired)
+).from(order_placed.event_id)
 ```
 
 If there's a usecase not covered by examples above or you need a different set of events to make expectations on you can always resort to a more verbose approach and skip `have_published`.
