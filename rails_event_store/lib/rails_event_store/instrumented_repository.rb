@@ -10,6 +10,12 @@ module RailsEventStore
       end
     end
 
+    def link_to_stream(event_ids, stream, expected_version)
+      ActiveSupport::Notifications.instrument("link_to_stream.repository.rails_event_store", event_ids: event_ids, stream: stream) do
+        repository.link_to_stream(event_ids, stream, expected_version)
+      end
+    end
+
     private
     attr_reader :repository
   end
