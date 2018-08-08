@@ -23,15 +23,11 @@ module RailsEventStore
     end
 
     def has_event?(event_id)
-      ActiveSupport::Notifications.instrument("has_event?.repository.rails_event_store", event_id: event_id) do
-        repository.has_event?(event_id)
-      end
+      repository.has_event?(event_id)
     end
 
     def last_stream_event(stream)
-      ActiveSupport::Notifications.instrument("last_stream_event.repository.rails_event_store", stream: stream) do
-        repository.last_stream_event(stream)
-      end
+      repository.last_stream_event(stream)
     end
 
     def read_event(event_id)

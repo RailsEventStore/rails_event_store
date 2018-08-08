@@ -86,19 +86,6 @@ module RailsEventStore
 
         expect(some_repository).to have_received(:has_event?).with(42)
       end
-
-      specify "instruments" do
-        some_repository = double
-        allow(some_repository).to receive(:has_event?)
-        instrumented_repository = InstrumentedRepository.new(some_repository)
-        notification_calls = subscribe_to("has_event?.repository.rails_event_store")
-
-        instrumented_repository.has_event?(42)
-
-        expect(notification_calls).to eq([
-          { event_id: 42 }
-        ])
-      end
     end
 
     describe "#last_stream_event" do
@@ -109,19 +96,6 @@ module RailsEventStore
         instrumented_repository.last_stream_event("SomeStream")
 
         expect(some_repository).to have_received(:last_stream_event).with("SomeStream")
-      end
-
-      specify "instruments" do
-        some_repository = double
-        allow(some_repository).to receive(:last_stream_event)
-        instrumented_repository = InstrumentedRepository.new(some_repository)
-        notification_calls = subscribe_to("last_stream_event.repository.rails_event_store")
-
-        instrumented_repository.last_stream_event("SomeStream")
-
-        expect(notification_calls).to eq([
-          { stream: "SomeStream" }
-        ])
       end
     end
 
