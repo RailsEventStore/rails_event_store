@@ -148,6 +148,32 @@ module RailsEventStore
       end
     end
 
+    describe "#read" do
+      specify "wraps around original implementation" do
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository)
+        specification = double
+
+        instrumented_repository.read(specification)
+
+        expect(some_repository).to have_received(:read).with(specification)
+      end
+
+      specify "instruments" do
+        some_repository = double
+        allow(some_repository).to receive(:read)
+        instrumented_repository = InstrumentedRepository.new(some_repository)
+        notification_calls = subscribe_to("read.repository.rails_event_store")
+        specification = double
+
+        instrumented_repository.read(specification)
+
+        expect(notification_calls).to eq([
+          { specification: specification }
+        ])
+      end
+    end
+
     def subscribe_to(name)
       received_payloads = []
       ActiveSupport::Notifications.subscribe(name) do |_name, _start, _finish, _id, payload|

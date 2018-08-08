@@ -40,6 +40,12 @@ module RailsEventStore
       end
     end
 
+    def read(specification)
+      ActiveSupport::Notifications.instrument("read.repository.rails_event_store", specification: specification) do
+        repository.read(specification)
+      end
+    end
+
     private
     attr_reader :repository
   end
