@@ -4,6 +4,7 @@ import Expect
 import Test exposing (..)
 import Json.Decode exposing (list)
 import Main exposing (..)
+import OpenedEventUI
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (text, tag)
 import JsonTree
@@ -110,7 +111,7 @@ suite =
         , describe "Changing tree state"
             [ test "showJsonTree fallbacks to regular html if parsing went wrong" <|
                 \_ -> 
-                    let faultyJsonResult = showJsonTree "{ its not correct }" JsonTree.defaultState (always ())
+                    let faultyJsonResult = OpenedEventUI.showJsonTree "{ its not correct }" JsonTree.defaultState (always ())
                     in faultyJsonResult
                         |> Query.fromHtml
                         |> Query.has [ text "{ its not correct }" ]

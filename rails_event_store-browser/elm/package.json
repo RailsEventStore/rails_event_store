@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@webpack-blocks/elm": "^1.0.0-beta",
+    "elm-format": "^0.6.1-alpha",
     "elm-test": "^0.18.12",
     "html-webpack-plugin": "^2.30.1",
     "open-color": "^1.5.1",
