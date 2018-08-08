@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'ruby_event_store/spec/event_repository_lint'
 
 module RailsEventStore
   RSpec.describe InstrumentedRepository do
@@ -181,5 +182,21 @@ module RailsEventStore
       end
       received_payloads
     end
+  end
+end
+
+module RailsEventStore
+  RSpec.describe InstrumentedRepository do
+    subject do
+      InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new)
+    end
+
+    let(:test_race_conditions_any)   { false }
+    let(:test_race_conditions_auto)  { false }
+    let(:test_expected_version_auto) { false }
+    let(:test_link_events_to_stream) { false }
+    let(:test_binary) { false }
+
+    it_behaves_like :event_repository, InstrumentedRepository
   end
 end
