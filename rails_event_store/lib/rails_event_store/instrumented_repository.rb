@@ -22,6 +22,12 @@ module RailsEventStore
       end
     end
 
+    def has_event?(event_id)
+      ActiveSupport::Notifications.instrument("has_event?.repository.rails_event_store", event_id: event_id) do
+        repository.has_event?(event_id)
+      end
+    end
+
     private
     attr_reader :repository
   end

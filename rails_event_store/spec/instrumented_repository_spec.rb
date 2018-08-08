@@ -76,6 +76,30 @@ module RailsEventStore
       end
     end
 
+    describe "#has_event?" do
+      specify "wraps around original implementation" do
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository)
+
+        instrumented_repository.has_event?(42)
+
+        expect(some_repository).to have_received(:has_event?).with(42)
+      end
+
+      specify "instruments" do
+        some_repository = double
+        allow(some_repository).to receive(:has_event?)
+        instrumented_repository = InstrumentedRepository.new(some_repository)
+        notification_calls = subscribe_to("has_event?.repository.rails_event_store")
+
+        instrumented_repository.has_event?(42)
+
+        expect(notification_calls).to eq([
+          { event_id: 42 }
+        ])
+      end
+    end
+
     def subscribe_to(name)
       received_payloads = []
       ActiveSupport::Notifications.subscribe(name) do |_name, _start, _finish, _id, payload|
