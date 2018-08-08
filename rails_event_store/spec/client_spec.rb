@@ -43,5 +43,18 @@ module RailsEventStore
       expect(published.first.metadata[:request_id]).to eq('dummy_id')
       expect(published.first.metadata[:timestamp]).to be_a Time
     end
+
+    specify 'wraps repository into instrumentation' do
+      client = Client.new(repository: InMemoryRepository.new)
+
+      received_notifications = 0
+      ActiveSupport::Notifications.subscribe("append_to_stream.repository.rails_event_store") do
+        received_notifications += 1
+      end
+
+      client.publish(TestEvent.new)
+
+      expect(received_notifications).to eq(1)
+    end
   end
 end
