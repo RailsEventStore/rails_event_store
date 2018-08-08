@@ -16,6 +16,12 @@ module RailsEventStore
       end
     end
 
+    def delete_stream(stream)
+      ActiveSupport::Notifications.instrument("delete_stream.repository.rails_event_store", stream: stream) do
+        repository.delete_stream(stream)
+      end
+    end
+
     private
     attr_reader :repository
   end

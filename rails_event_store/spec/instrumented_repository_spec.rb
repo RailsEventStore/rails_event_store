@@ -52,6 +52,30 @@ module RailsEventStore
       end
     end
 
+    describe "#delete_stream" do
+      specify "wraps around original implementation" do
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository)
+
+        instrumented_repository.delete_stream("SomeStream")
+
+        expect(some_repository).to have_received(:delete_stream).with("SomeStream")
+      end
+
+      specify "instruments" do
+        some_repository = double
+        allow(some_repository).to receive(:delete_stream)
+        instrumented_repository = InstrumentedRepository.new(some_repository)
+        notification_calls = subscribe_to("delete_stream.repository.rails_event_store")
+
+        instrumented_repository.delete_stream("SomeStream")
+
+        expect(notification_calls).to eq([
+          { stream: "SomeStream" }
+        ])
+      end
+    end
+
     def subscribe_to(name)
       received_payloads = []
       ActiveSupport::Notifications.subscribe(name) do |_name, _start, _finish, _id, payload|
