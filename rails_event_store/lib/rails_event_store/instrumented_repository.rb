@@ -28,6 +28,12 @@ module RailsEventStore
       end
     end
 
+    def last_stream_event(stream)
+      ActiveSupport::Notifications.instrument("last_stream_event.repository.rails_event_store", stream: stream) do
+        repository.last_stream_event(stream)
+      end
+    end
+
     private
     attr_reader :repository
   end
