@@ -167,8 +167,8 @@ module RailsEventStore
 
     let(:test_race_conditions_any)   { false }
     let(:test_race_conditions_auto)  { false }
-    let(:test_expected_version_auto) { false }
-    let(:test_link_events_to_stream) { false }
+    let(:test_expected_version_auto) { true }
+    let(:test_link_events_to_stream) { true }
     let(:test_binary) { false }
 
     it_behaves_like :event_repository, InstrumentedRepository
