@@ -1,0 +1,70 @@
+# Instrumentation 
+
+RubyEventStore and RailsEventStore ships with built-in instrumentation on which you can build additional features or benchmark event store performance in your app.
+
+## Enabling instrumentation
+
+### RailsEventStore
+
+In RailsEventStore, instrumentation provided by `ActiveSupport::Notifications` is enabled by default and you don't have to do anything else.
+
+### RubyEventStore
+
+Instrumentation is provided in the form of decorator around repository: `InstrumentedRepository`. We don't force any particular instrumentation framework, as long as it has the same API as `ActiveSupport::Notifications`. That having said, if you want to instrument your event store with `ActiveSupport::Notifications`, initialize your client with following repository:
+
+```ruby
+RubyEventStore::Client.new(
+  repository: InstrumentedRepository.new(repository_you_are_using, ActiveSupport::Notifications)
+)
+```
+
+## Usage
+
+If you are using `ActiveSupport::Notifications`, just subscribe to the hooks as Rails [guides](https://guides.rubyonrails.org/active_support_instrumentation.html#subscribing-to-an-event) and [manual](https://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) recommends, for example:
+
+```ruby
+ActiveSupport::Notifications.subscribe("append_to_stream.repository.rails_event_store") do |name, started, finished, unique_id, payload|
+  # your own custom stuff
+end
+```
+
+You will find the list of the currently supported hooks in next section.
+
+## Hooks
+
+Currently there are only hooks around event store's repository, but we plan to extend it on our other functionalities.
+
+
+### `append_to_stream.repository.rails_event_store`
+
+| Key     | Value                              |
+|---------|------------------------------------|
+| :events | Array of appended events           |
+| :stream | Name of stream we append events to |
+
+### `link_to_stream.repository.rails_event_store`
+
+| Key        | Value                            |
+|------------|----------------------------------|
+| :event_ids | Array of linked events' ids      |
+| :stream    | Name of stream we link events to |
+
+### `delete_stream.repository.rails_event_store`
+
+| Key     | Value                  |
+|---------|------------------------|
+| :stream | Name of stream deleted |
+
+### `read_event.repository.rails_event_store`
+
+| Key       | Value                |
+|-----------|----------------------|
+| :event_id | Id of the read event |
+
+### `read.repository.rails_event_store`
+
+| Key            | Value                                     |
+|----------------|-------------------------------------------|
+| :specification | Specification of the query to event store |
+
+Queries specification is not documented, but you can read the [source code of it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/specification.rb).
