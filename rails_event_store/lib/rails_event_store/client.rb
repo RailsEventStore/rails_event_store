@@ -8,7 +8,7 @@ module RailsEventStore
                    dispatcher: ActiveJobDispatcher.new,
                    request_metadata: default_request_metadata,
                    page_size: PAGE_SIZE)
-      super(repository: InstrumentedRepository.new(repository),
+      super(repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications),
             mapper: mapper,
             subscriptions: subscriptions,
             dispatcher: dispatcher,

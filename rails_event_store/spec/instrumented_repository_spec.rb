@@ -6,7 +6,7 @@ module RailsEventStore
     describe "#append_to_stream" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
         event1 = Object.new
 
         instrumented_repository.append_to_stream([event1], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
@@ -15,7 +15,7 @@ module RailsEventStore
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy)
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("append_to_stream.repository.rails_event_store") do |notification_calls|
           event1 = Object.new
 
@@ -31,7 +31,7 @@ module RailsEventStore
     describe "#link_to_stream" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
         instrumented_repository.link_to_stream([42], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
 
@@ -39,7 +39,7 @@ module RailsEventStore
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy)
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("link_to_stream.repository.rails_event_store") do |notification_calls|
 
           instrumented_repository.link_to_stream([42], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
@@ -54,7 +54,7 @@ module RailsEventStore
     describe "#delete_stream" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
         instrumented_repository.delete_stream("SomeStream")
 
@@ -62,7 +62,7 @@ module RailsEventStore
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy)
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("delete_stream.repository.rails_event_store") do |notification_calls|
 
           instrumented_repository.delete_stream("SomeStream")
@@ -77,7 +77,7 @@ module RailsEventStore
     describe "#has_event?" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
         instrumented_repository.has_event?(42)
 
@@ -88,7 +88,7 @@ module RailsEventStore
     describe "#last_stream_event" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
         instrumented_repository.last_stream_event("SomeStream")
 
@@ -99,7 +99,7 @@ module RailsEventStore
     describe "#read_event" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
         instrumented_repository.read_event(42)
 
@@ -107,7 +107,7 @@ module RailsEventStore
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy)
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("read_event.repository.rails_event_store") do |notification_calls|
 
           instrumented_repository.read_event(42)
@@ -122,7 +122,7 @@ module RailsEventStore
     describe "#read" do
       specify "wraps around original implementation" do
         some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository)
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
         specification = double
 
         instrumented_repository.read(specification)
@@ -131,7 +131,7 @@ module RailsEventStore
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy)
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("read.repository.rails_event_store") do |notification_calls|
           specification = double
 
@@ -157,7 +157,7 @@ end
 module RailsEventStore
   RSpec.describe InstrumentedRepository do
     subject do
-      InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new)
+      InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, ActiveSupport::Notifications)
     end
 
     let(:test_race_conditions_any)   { false }
