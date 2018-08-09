@@ -31,6 +31,9 @@
     <li class="doc-item"><%= current_link_to "Custom repository", "/docs/repository/" %></li>
     <li class="doc-item"><%= current_link_to "Browser", "/docs/browser/" %></li>
     <li class="doc-item"><%= current_link_to "Ruby Event Store without Rails", "/docs/without_rails/" %></li>
+    <% if version_above('0.31.1') %>
+    <li class="doc-item"><%= current_link_to "Instrumentation", "/docs/instrumentation/" %></li>
+    <% end %>
   </ul>
 </div>
 
