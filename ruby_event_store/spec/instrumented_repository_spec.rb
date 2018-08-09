@@ -1,7 +1,8 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/event_repository_lint'
+require 'active_support/notifications'
 
-module RailsEventStore
+module RubyEventStore
   RSpec.describe InstrumentedRepository do
     describe "#append_to_stream" do
       specify "wraps around original implementation" do
@@ -154,10 +155,10 @@ module RailsEventStore
   end
 end
 
-module RailsEventStore
+module RubyEventStore
   RSpec.describe InstrumentedRepository do
     subject do
-      InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, ActiveSupport::Notifications)
+      InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications)
     end
 
     let(:test_race_conditions_any)   { false }

@@ -1,4 +1,4 @@
-module RailsEventStore
+module RubyEventStore
   class InstrumentedRepository
     def initialize(repository, instrumentation)
       @repository = repository
