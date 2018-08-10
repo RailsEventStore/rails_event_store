@@ -19,11 +19,10 @@ Now, the message that you are responding to can be either a command or an event 
 ```ruby
 class MyEventHandler
   def call(previous_event)
-      new_event = MyEvent.new(data: {foo: 'bar'})
-      new_event.correlate_with(previous_event)
+    new_event = MyEvent.new(data: {foo: 'bar'})
+    new_event.correlate_with(previous_event)
       
-      event_store.publish(new_event)   
-    end
+    event_store.publish(new_event)   
   end
   
   private
