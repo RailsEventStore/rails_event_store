@@ -9,6 +9,8 @@ JS_BUNDLE    = public/rails_event_store_browser.js
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
+	@echo "Installing npm dependencies"
+	@cd ../ruby_event_store-browser; cd elm; yarn install
 
 remove-lock:
 	@echo "Removing resolved dependency versions"

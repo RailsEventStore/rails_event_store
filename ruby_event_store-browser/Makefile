@@ -17,7 +17,6 @@ remove-lock:
 
 reinstall: remove-lock install ## Removing resolved dependency versions
 
-
 test: $(JS_BUNDLE) ## Run unit tests
 	@echo "Running unit and integration tests"
 	@cd elm; yarn test; cd -
