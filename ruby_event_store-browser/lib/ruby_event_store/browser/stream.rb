@@ -27,12 +27,12 @@ module RubyEventStore
 
       def links
         @links ||= {}.tap do |h|
-          if prev_event?(events)
+          if prev_event?
             h[:prev] = prev_page_link(events.first.event_id)
             h[:first] = first_page_link
           end
 
-          if next_event?(events)
+          if next_event?
             h[:next] = next_page_link(events.last.event_id)
             h[:last] = last_page_link
           end
@@ -55,12 +55,12 @@ module RubyEventStore
         end
       end
 
-      def next_event?(events)
+      def next_event?
         return if events.empty?
         events_backward(events.last.event_id).any?
       end
 
-      def prev_event?(events)
+      def prev_event?
         return if events.empty?
         events_forward(events.first.event_id).any?
       end

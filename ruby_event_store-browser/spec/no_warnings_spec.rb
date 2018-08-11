@@ -5,10 +5,10 @@ module RubyEventStore
     include SchemaHelper
     
     specify do
-      expect(rails_event_store_browser_warnings).to eq([])
+      expect(ruby_event_store_browser_warnings).to eq([])
     end
 
-    def rails_event_store_browser_warnings
+    def ruby_event_store_browser_warnings
       warnings.select { |w| w =~ %r{lib/ruby_event_store/browser} }
     end
 

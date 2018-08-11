@@ -5,7 +5,7 @@ module RailsEventStore
         stream = RubyEventStore::Browser::Stream.new(
           event_store: event_store,
           params: params,
-          url_builder: method(:stream_url)
+          url_builder: public_method(:stream_url)
         )
 
         render json: stream.as_json, content_type: 'application/vnd.api+json'

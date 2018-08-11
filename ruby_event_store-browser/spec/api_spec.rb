@@ -30,6 +30,24 @@ module RubyEventStore
       expect(parsed_body["data"]).to match(event_resource)
     end
 
+    specify do
+      json = Browser::JsonApiEvent.new(dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f")).to_h
+
+      expect(json).to match(
+        id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+        type: "events",
+        attributes: {
+          event_type: "DummyEvent",
+          data: {
+            foo: 1,
+            bar: 2.0,
+            baz: "3"
+          },
+          metadata: {}
+        }
+      )
+    end
+
     specify "first page, newest events descending" do
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
@@ -185,13 +203,16 @@ module RubyEventStore
       expect(parsed_body["data"].size).to eq(0)
     end
 
-    def dummy_event
-      @dummy_event ||=
-        DummyEvent.new(data: {
+    def dummy_event(id = nil)
+      @dummy_events ||= {}
+      @dummy_events[id] ||= DummyEvent.new(
+        event_id: id || SecureRandom.uuid,
+        data: {
           foo: 1,
           bar: 2.0,
           baz: "3"
-        })
+        }
+      )
     end
 
     def event_resource
