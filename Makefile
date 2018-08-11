@@ -4,14 +4,15 @@ CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= $(shell cat RES_VERSION)
 NIX_TYPE     =  $(shell uname -s)
 GEMS         = aggregate_root \
-	       bounded_context \
-	       ruby_event_store \
-	       ruby_event_store-rom \
-	       rails_event_store \
-	       rails_event_store_active_record \
-	       rails_event_store_active_record-legacy \
-	       rails_event_store-browser \
-	       rails_event_store-rspec
+							 bounded_context \
+							 ruby_event_store \
+							 ruby_event_store-browser \
+							 ruby_event_store-rom \
+							 rails_event_store \
+							 rails_event_store_active_record \
+							 rails_event_store_active_record-legacy \
+							 rails_event_store-browser \
+							 rails_event_store-rspec
 
 ifeq ($(NIX_TYPE),Linux)
   SED_OPTS = -i
@@ -63,6 +64,7 @@ set-version: git-check-clean git-check-committed
 	@echo $(RES_VERSION) > RES_VERSION
 	@find . -name version.rb -exec sed $(SED_OPTS) "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('ruby_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('ruby_event_store-browser', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('ruby_event_store-rom', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store_active_record-legacy', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
