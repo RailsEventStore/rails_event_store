@@ -15,7 +15,7 @@ module RailsEventStore
       event_store.publish(foo_bar_event, stream_name: 'dummy')
 
       visit('/res')
-      puts "PAGE: #{page.html}"
+      
       expect(page).to have_content("Events in all")
 
       within('.browser__results') do
@@ -36,7 +36,7 @@ module RailsEventStore
       event_store.publish(foo_bar_event, stream_name: 'foo/bar.xml')
 
       visit('/res/#streams/foo%2Fbar.xml')
-      puts "PAGE: #{page.html}"
+      
       expect(page).to have_content("Events in foo/bar.xml")
 
       within('.browser__results') do

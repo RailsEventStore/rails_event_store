@@ -16,7 +16,6 @@ remove-lock:
 
 reinstall: remove-lock install ## Removing resolved dependency versions
 
-
 test: $(JS_BUNDLE) ## Run unit tests
 	@echo "Running unit and integration tests"
 	@bundle exec rspec
@@ -29,7 +28,7 @@ mutate: test ## Run mutation tests
 		--use rspec "$(SUBJECT)"
 
 $(JS_BUNDLE):
-	@echo "Building browser frontend"
+	@echo "Copying browser frontend"
 	@cd ../ruby_event_store-browser; make public/ruby_event_store_browser.js
 	@cp ../ruby_event_store-browser/public/ruby_event_store_browser.js $(JS_BUNDLE)
 
