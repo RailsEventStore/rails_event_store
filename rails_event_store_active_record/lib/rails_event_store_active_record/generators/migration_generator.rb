@@ -20,7 +20,7 @@ module RailsEventStoreActiveRecord
     def migration_version
       return nil if Gem::Version.new(rails_version) < Gem::Version.new('5.0.0')
 
-      rails_version_with_subnumber = rails_version.match(/\d\.\d/).first
+      rails_version_with_subnumber = rails_version.match(/\d\.\d/)[0]
       "[#{rails_version_with_subnumber}]"
     end
 
