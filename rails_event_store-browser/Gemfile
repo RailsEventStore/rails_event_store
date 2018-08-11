@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gemspec
 gem 'rails_event_store',               path: '../rails_event_store'
 gem 'ruby_event_store',                path: '../ruby_event_store'
+gem 'ruby_event_store-browser',        path: '../ruby_event_store-browser'
 gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
 gem 'aggregate_root',                  path: '../aggregate_root'
 gem 'bounded_context',                 path: '../bounded_context'

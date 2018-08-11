@@ -2,7 +2,7 @@
   "name": "browser",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:RailsEventStore/browser.git",
+  "repository": "git@github.com:RubyEventStore/browser.git",
   "author": "dev@arkency.com",
   "license": "MIT",
   "dependencies": {

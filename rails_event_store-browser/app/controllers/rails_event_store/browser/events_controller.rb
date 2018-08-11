@@ -2,14 +2,12 @@ module RailsEventStore
   module Browser
     class EventsController < ApplicationController
       def show
-        event = event_store.read_event(event_id)
-        render json: { data: JsonApiEvent.new(event).to_h }, content_type: 'application/vnd.api+json'
-      end
+        event = RubyEventStore::Browser::Event.new(
+          event_store: event_store,
+          params: params
+        )
 
-      private
-
-      def event_id
-        params.fetch(:id)
+        render json: event.as_json, content_type: 'application/vnd.api+json'
       end
     end
   end
