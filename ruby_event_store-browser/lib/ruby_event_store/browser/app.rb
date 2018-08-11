@@ -9,7 +9,7 @@ module RubyEventStore
       def self.for(event_store_locator:, host:, path: nil)
         self.tap do |app|
           app.settings.instance_exec do
-            set :event_store_locator, -> { event_store_locator }
+            set :event_store_locator, event_store_locator
             set :host, host
             set :root_path, path
           end
@@ -50,7 +50,7 @@ module RubyEventStore
 
       get '/events/:id' do
         event = Event.new(
-          event_store: settings.event_store_locator.call,
+          event_store: settings.event_store_locator,
           params: symbolized_params
         )
 
@@ -60,7 +60,7 @@ module RubyEventStore
 
       get '/streams/:id(/:position/:direction/:count)?' do
         stream = Stream.new(
-          event_store: settings.event_store_locator.call,
+          event_store: settings.event_store_locator,
           params: symbolized_params,
           url_builder: method(:streams_url_for)
         )
