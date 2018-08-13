@@ -35,6 +35,7 @@ Add this line to your application's Gemfile:
 
 ```ruby
 gem 'ruby_event_store-browser'
+gem 'sinatra'
 ```
 
 And then execute:
@@ -44,7 +45,7 @@ $ bundle
 
 Or install it yourself as:
 ```bash
-$ gem install ruby_event_store-browser
+$ gem install ruby_event_store-browser sinatra
 ```
 
 ## Contributing
