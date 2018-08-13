@@ -1,6 +1,5 @@
 require_relative '../browser'
-require 'sinatra/base'
-require 'rack'
+require 'sinatra'
 
 module RubyEventStore
   module Browser
