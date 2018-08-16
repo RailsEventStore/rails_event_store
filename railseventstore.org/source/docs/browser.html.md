@@ -1,10 +1,12 @@
-## Browser
+# RES Browser
 
 Browser is a web interface that allows you to inspect existing streams and their contents. You can use it for debugging purpose as well as a built-in audit log frontend.
 
 ![RES Browser](/images/localhost_3000_res_.png)
 
 ## Adding browser to the project
+
+### Rails
 
 Add this line to your application's Gemfile:
 
@@ -22,11 +24,56 @@ end
 
 It is assumed that you have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](https://railseventstore.org/docs/install/)).
 
+### Sinatra / Rack
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'ruby_event_store-browser'
+gem 'sinatra'
+```
+
+Add this to your `config.ru` or wherever you mount your Rack apps to enable web interface. Check the appropriate environment variable (e.g. `ENV['RACK_ENV']`) to only mount the browser in the appropriate environment such as `development`.
+
+There is a helper method on the Rack app to configure options `event_store_locator`, `host` and `path`.
+
+```ruby
+# e.g. Sinatra rackup file
+
+require 'ruby_event_store/browser/app'
+
+# Example RES client you might configure
+event_store = RubyEventStore::Client.new(
+  repository: RubyEventStore::InMemoryRepository.new
+)
+
+run RubyEventStore::Browser::App.for(
+  event_store_locator: -> { event_store },
+  host: 'http://localhost:4567'
+)
+```
+
+Specify the `path` option if you are not mounting the browser at the root.
+
+```ruby
+# e.g. mounting the Rack app in Hanami
+
+require 'ruby_event_store/browser/app'
+
+run RubyEventStore::Browser::App.for(
+  event_store_locator: -> { event_store },
+  host: 'http://localhost:2300',
+  path: '/res'
+), at: '/res'
+```
+
 ## Usage in production
+
+### Rails
 
 In a production environment you'll likely want to protect access to the browser. You can use the constraints feature of routing (in the `config/routes.rb` file) to accomplish this:
 
-### Devise
+#### Devise
 
 Allow any authenticated `User`:
 
@@ -48,7 +95,7 @@ Rails.application.routes.draw do
 end
 ```
 
-### Rails HTTP Basic Auth
+### HTTP Basic Auth
 
 Use HTTP Basic Auth with credentials set from `RES_BROWSER_USERNAME` and `RES_BROWSER_PASSWORD` environment variables:
 
@@ -74,3 +121,6 @@ Rails.application.routes.draw do
 end
 ```
 
+### Sinatra
+
+You can use Rack-based middleware such as HTTP Basic Auth (as illustrated in the Rails example above) to control access to the browser Rack app.
