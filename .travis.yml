@@ -1,108 +1,127 @@
 language: ruby
 matrix:
   include:
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: TARGET=rails_event_store-browser SCRIPT=test
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: TARGET=bounded_context SCRIPT=test
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: TARGET=rails_event_store-rspec SCRIPT=test
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: TARGET=aggregate_root SCRIPT=test
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: TARGET=ruby_event_store SCRIPT=test
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: TARGET=rails_event_store SCRIPT=test
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.3.6
+  - rvm: 2.3.7
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.3.6
+  - rvm: 2.3.7
+    env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
+  - rvm: 2.4.4
+    env: TARGET=rails_event_store-browser SCRIPT=test
+  - rvm: 2.4.4
+    env: TARGET=bounded_context SCRIPT=test
+  - rvm: 2.4.4
+    env: TARGET=rails_event_store-rspec SCRIPT=test
+  - rvm: 2.4.4
+    env: TARGET=aggregate_root SCRIPT=test
+  - rvm: 2.4.4
+    env: TARGET=ruby_event_store SCRIPT=test
+  - rvm: 2.4.4
+    env: TARGET=rails_event_store SCRIPT=test
+  - rvm: 2.4.4
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
+  - rvm: 2.4.4
+    env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
+  - rvm: 2.4.4
+    env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
+  - rvm: 2.6.0-preview2
+    env: TARGET=rails_event_store-browser SCRIPT=test
+  - rvm: 2.6.0-preview2
+    env: TARGET=bounded_context SCRIPT=test
+  - rvm: 2.6.0-preview2
+    env: TARGET=rails_event_store-rspec SCRIPT=test
+  - rvm: 2.6.0-preview2
+    env: TARGET=aggregate_root SCRIPT=test
+  - rvm: 2.6.0-preview2
+    env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
+  - rvm: 2.6.0-preview2
     env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
   - rvm: 2.5.1
-    env: TARGET=rails_event_store-browser SCRIPT=test
-  - rvm: 2.5.1
-    env: TARGET=bounded_context SCRIPT=test
-  - rvm: 2.5.1
-    env: TARGET=rails_event_store-rspec SCRIPT=test
-  - rvm: 2.5.1
     env: TARGET=aggregate_root SCRIPT=test
   - rvm: 2.5.1
     env: TARGET=ruby_event_store SCRIPT=test
   - rvm: 2.5.1
-    env: TARGET=rails_event_store SCRIPT=test
-  - rvm: 2.5.1
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.5.1
-    env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.5.1
-    env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
-  - rvm: 2.4.3
-    env: TARGET=aggregate_root SCRIPT=test
-  - rvm: 2.4.3
-    env: TARGET=ruby_event_store SCRIPT=test
-  - rvm: 2.4.3
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-browser SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.2.0"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.1.4"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.0.6"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=4.2.10"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.2.0"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.1.4"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.0.6"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=4.2.10"
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
-  - rvm: 2.4.3
+  - rvm: 2.5.1
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
+  allow_failures:
+    - rvm: 2.6.0-preview2
+      env: TARGET=ruby_event_store SCRIPT=test
+    - rvm: 2.6.0-preview2
+      env: TARGET=rails_event_store SCRIPT=test
+    - rvm: 2.6.0-preview2
+      env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
 
 before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
