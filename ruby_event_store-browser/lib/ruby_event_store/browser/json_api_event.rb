@@ -1,4 +1,4 @@
-module RailsEventStore
+module RubyEventStore
   module Browser
     class JsonApiEvent
       def initialize(event)

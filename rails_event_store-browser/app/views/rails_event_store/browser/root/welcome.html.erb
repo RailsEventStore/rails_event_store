@@ -7,8 +7,8 @@
   <body>
     <%= javascript_include_tag "/rails_event_store_browser.js" %>
     <script type="text/javascript">
-      RailsEventStore.Browser.Main.fullscreen({
-        rootUrl:    "<%= root_path %>",
+      RubyEventStore.Browser.Main.fullscreen({
+        rootUrl:    "<%= root_path.chomp('/') %>",
         eventsUrl:  "<%= events_path %>",
         streamsUrl: "<%= streams_path %>",
         resVersion: "<%= RailsEventStore::VERSION %>"

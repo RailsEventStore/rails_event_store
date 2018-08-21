@@ -195,7 +195,7 @@ browserNavigation : Model -> Html Msg
 browserNavigation model =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
-            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Rails Event Store" ]
+            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
             ]
         , div [ class "navigation__links" ]
             [ a [ href model.flags.rootUrl, class "navigation__link" ] [ text "Stream Browser" ]
@@ -207,7 +207,7 @@ browserFooter : Model -> Html Msg
 browserFooter model =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
-            [ text ("RailsEventStore v" ++ model.flags.resVersion)
+            [ text ("RubyEventStore v" ++ model.flags.resVersion)
             , a [ href "https://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
             , a [ href "https://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
             ]
