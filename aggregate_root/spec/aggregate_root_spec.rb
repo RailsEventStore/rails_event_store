@@ -3,6 +3,28 @@ require 'spec_helper'
 RSpec.describe AggregateRoot do
   let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
+  def with_strict_mode(enabled, &block)
+    current_mode = AggregateRoot.configuration.strict_apply
+    AggregateRoot.configure do |config|
+      config.strict_apply = enabled
+    end
+    block.call
+    AggregateRoot.configure do |config|
+      config.strict_apply = current_mode
+    end
+  end
+
+  def with_event_store(store, &block)
+    current_instance = AggregateRoot.configuration.default_event_store
+    AggregateRoot.configure do |config|
+      config.default_event_store = store
+    end
+    block.call
+    AggregateRoot.configure do |config|
+      config.default_event_store = current_instance
+    end
+  end
+
   it "should have ability to apply event on itself" do
     order = Order.new
     order_created = Orders::Events::OrderCreated.new
@@ -60,67 +82,61 @@ RSpec.describe AggregateRoot do
   end
 
   it "should work with provided event_store" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = double(:some_other_event_store)
+    with_event_store(double(:some_other_event_store)) do
+      stream = "any-order-stream"
+      order = Order.new.load(stream, event_store: event_store)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      order.store(stream, event_store: event_store)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+
+      restored_order = Order.new.load(stream, event_store: event_store)
+      expect(restored_order.status).to eq :created
+      order_expired = Orders::Events::OrderExpired.new
+      restored_order.apply(order_expired)
+      restored_order.store(stream, event_store: event_store)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
+
+      restored_again_order = Order.new.load(stream, event_store: event_store)
+      expect(restored_again_order.status).to eq :expired
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream, event_store: event_store)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store(stream, event_store: event_store)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
-
-    restored_order = Order.new.load(stream, event_store: event_store)
-    expect(restored_order.status).to eq :created
-    order_expired = Orders::Events::OrderExpired.new
-    restored_order.apply(order_expired)
-    restored_order.store(stream, event_store: event_store)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
-
-    restored_again_order = Order.new.load(stream, event_store: event_store)
-    expect(restored_again_order.status).to eq :expired
   end
 
   it "should use default client if event_store not provided" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = event_store
+    with_event_store(event_store) do
+      stream = "any-order-stream"
+      order = Order.new.load(stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      order.store(stream)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+
+      restored_order = Order.new.load(stream)
+      expect(restored_order.status).to eq :created
+      order_expired = Orders::Events::OrderExpired.new
+      restored_order.apply(order_expired)
+      restored_order.store(stream)
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
+
+      restored_again_order = Order.new.load(stream)
+      expect(restored_again_order.status).to eq :expired
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store(stream)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
-
-    restored_order = Order.new.load(stream)
-    expect(restored_order.status).to eq :created
-    order_expired = Orders::Events::OrderExpired.new
-    restored_order.apply(order_expired)
-    restored_order.store(stream)
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
-
-    restored_again_order = Order.new.load(stream)
-    expect(restored_again_order.status).to eq :expired
   end
 
   it "if loaded from some stream should store to the same stream is no other stream specified" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = event_store
+    with_event_store(event_store) do
+      stream = "any-order-stream"
+      order = Order.new.load(stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      order.store
+
+      expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store
-
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
   end
 
   it "should receive a method call based on a default apply strategy" do
@@ -135,6 +151,34 @@ RSpec.describe AggregateRoot do
     order = Order.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
+  end
+
+  it "should raise error for missing apply method when aggregate with strict apply strategy" do
+    order = OrderWithStrictApplyStrategy.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate OrderWithStrictApplyStrategy")
+  end
+
+  it "should not raise error for missing apply method when aggregate with not strict apply strategy" do
+    order = OrderWithNonStrictApplyStrategy.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect{ order.apply(spanish_inquisition) }.not_to raise_error
+  end
+
+  it "should raise error for missing apply method when default apply strategy in strict apply mode" do
+    with_strict_mode(true) do
+      order = Order.new
+      spanish_inquisition = Orders::Events::SpanishInquisition.new
+      expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
+    end
+  end
+
+  it "should not raise error for missing apply method when default apply strategy not in strict apply mode" do
+    with_strict_mode(false) do
+      order = Order.new
+      spanish_inquisition = Orders::Events::SpanishInquisition.new
+      expect{ order.apply(spanish_inquisition) }.not_to raise_error
+    end
   end
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
