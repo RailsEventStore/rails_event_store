@@ -400,10 +400,12 @@ module RubyEventStore
           :forward,
           :head,
           nil,
-          Stream.new(GLOBAL_STREAM).hash,
+          Stream.new(GLOBAL_STREAM).name,
           :all,
           Specification::DEFAULT_BATCH_SIZE,
         ].hash)
+
+      expect(Class.new(SpecificationResult).new.hash).not_to eq(specification.result.hash)
     end
 
     specify "#eql?" do
@@ -423,6 +425,13 @@ module RubyEventStore
       with_event_of_id(event_id) do
         expect(specification.result).to eq(specification.from(:head).result)
         expect(specification.from(event_id).result).not_to eq(specification.from(:head).result)
+      end
+    end
+
+    specify "#dup" do
+      expect(specification.result.dup).to eq(specification.result)
+      specification.result.dup do |result|
+        expect(result.object_id).not_to eq(specification.result.object_id)
       end
     end
 

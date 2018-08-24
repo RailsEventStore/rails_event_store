@@ -6,24 +6,25 @@ module RubyEventStore
                    stream: Stream.new(GLOBAL_STREAM),
                    read_as: :all,
                    batch_size: Specification::DEFAULT_BATCH_SIZE)
-      @result = Result.new(direction, start, count, stream, read_as, batch_size)
+      @attributes = Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size)
+        .new(direction, start, count, stream, read_as, batch_size)
       freeze
     end
 
-    # Results limit. True if number of read elements are limited
+    # attributess limit. True if number of read elements are limited
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Boolean]
     def limit?
-      !result.count.nil?
+      !attributes.count.nil?
     end
 
-    # Results limit. Limit count or infinity if limit not defined
+    # attributess limit. Limit count or infinity if limit not defined
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Integer|Infinity]
     def limit
-      result.count || Float::INFINITY
+      attributes.count || Float::INFINITY
     end
 
     # Stream definition. True if reading from global stream
@@ -31,7 +32,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def global_stream?
-      result.stream.global?
+      attributes.stream.global?
     end
 
     # Stream definition. Name of the stream to be read or nil
@@ -39,7 +40,7 @@ module RubyEventStore
     #
     # @return [String|nil]
     def stream_name
-      result.stream.name
+      attributes.stream.name
     end
 
     # Starting position. True is starting from head
@@ -47,7 +48,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def head?
-      result.start.equal?(:head)
+      start.equal?(:head)
     end
 
     # Starting position. Event id of starting event or :head
@@ -55,7 +56,7 @@ module RubyEventStore
     #
     # @return [String|Symbol]
     def start
-      result.start
+      attributes.start
     end
 
     # Read direction. True is reading forward
@@ -63,7 +64,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def forward?
-      result.direction.equal?(:forward)
+      attributes.direction.equal?(:forward)
     end
 
     # Read direction. True is reading backward
@@ -71,7 +72,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def backward?
-      result.direction.equal?(:backward)
+      attributes.direction.equal?(:backward)
     end
 
     # Size of batch to read (only for :batch read strategy)
@@ -79,7 +80,7 @@ module RubyEventStore
     #
     # @return [Integer]
     def batch_size
-      result.batch_size
+      attributes.batch_size
     end
 
     # Read strategy. True if items will be read in batches
@@ -87,7 +88,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def batched?
-      result.read_as.equal?(:batch)
+      attributes.read_as.equal?(:batch)
     end
 
     # Read strategy. True if first item will be read
@@ -95,7 +96,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def first?
-      result.read_as.equal?(:first)
+      attributes.read_as.equal?(:first)
     end
 
     # Read strategy. True if last item will be read
@@ -103,7 +104,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def last?
-      result.read_as.equal?(:last)
+      attributes.read_as.equal?(:last)
     end
 
     # Read strategy. True if all items will be read
@@ -111,20 +112,20 @@ module RubyEventStore
     #
     # @return [Boolean]
     def all?
-      result.read_as.equal?(:all)
+      attributes.read_as.equal?(:all)
     end
 
     # Clone [SpecificationResult]
-    # If block is given cloned result might be modified.
+    # If block is given cloned attributes might be modified.
     #
     # @return [SpecificationResult]
     def dup
-      new_result = result.dup
-      yield new_result if block_given?
-      SpecificationResult.new(new_result.to_h)
+      new_attributes = attributes.dup
+      yield new_attributes if block_given?
+      SpecificationResult.new(new_attributes.to_h)
     end
 
-    # Two specification results are equal if:
+    # Two specification attributess are equal if:
     # * they are of the same class
     # * have identical data (verified with eql? method)
     #
@@ -157,18 +158,15 @@ module RubyEventStore
     def hash
       [
         self.class,
-        result.direction,
-        result.start,
-        result.count,
-        result.stream.hash,
-        result.read_as,
-        result.batch_size,
+        attributes.direction,
+        start,
+        attributes.count,
+        stream_name,
+        attributes.read_as,
+        batch_size,
       ].hash ^ BIG_VALUE
     end
     private
-    attr_reader :result
-
-    Result = Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size)
-    private_constant :Result
+    attr_reader :attributes
   end
 end
