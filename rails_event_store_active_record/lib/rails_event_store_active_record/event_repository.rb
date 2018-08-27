@@ -57,6 +57,12 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    def streams_of(event_id)
+      EventInStream.where(event_id: event_id)
+        .where.not(stream: SERIALIZED_GLOBAL_STREAM_NAME)
+        .pluck(:stream)
+    end
+
     private
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
