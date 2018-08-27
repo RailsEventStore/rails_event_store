@@ -170,6 +170,31 @@ module RubyEventStore
       end
     end
 
+    describe "#streams_of" do
+      specify "wraps around original implementation" do
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+
+        uuid = SecureRandom.uuid
+        instrumented_repository.streams_of(uuid)
+
+        expect(some_repository).to have_received(:streams_of).with(uuid)
+      end
+
+      specify "instruments" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("streams_of.repository.rails_event_store") do |notification_calls|
+
+          uuid = SecureRandom.uuid
+          instrumented_repository.streams_of(uuid)
+
+          expect(notification_calls).to eq([
+            { event_id: uuid }
+          ])
+        end
+      end
+    end
+
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }

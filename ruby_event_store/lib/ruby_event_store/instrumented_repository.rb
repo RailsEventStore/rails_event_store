@@ -49,6 +49,12 @@ module RubyEventStore
       end
     end
 
+    def streams_of(event_id)
+      instrumentation.instrument("streams_of.repository.rails_event_store", event_id: event_id) do
+        repository.streams_of(event_id)
+      end
+    end
+
     private
     attr_reader :repository, :instrumentation
   end

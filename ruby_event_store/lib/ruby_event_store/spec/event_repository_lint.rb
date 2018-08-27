@@ -1174,5 +1174,19 @@ module RubyEventStore
       end
     end
 
+    specify do
+      event_1 = SRecord.new
+      event_2 = SRecord.new
+      event_3 = SRecord.new
+      event_4 = SRecord.new
+      repository.append_to_stream([event_1, event_2], Stream.new('Stream A'), version_any)
+      repository.append_to_stream([event_3], Stream.new('Stream B'), version_any)
+      repository.link_to_stream(event_1.event_id, Stream.new('Stream C'), version_none)
+
+      expect(repository.streams_of(event_1.event_id)).to eq ['Stream A', 'Stream C']
+      expect(repository.streams_of(event_2.event_id)).to eq ['Stream A']
+      expect(repository.streams_of(event_3.event_id)).to eq ['Stream B']
+      expect(repository.streams_of(event_4.event_id)).to eq []
+    end
   end
 end
