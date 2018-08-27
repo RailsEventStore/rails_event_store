@@ -87,6 +87,10 @@ module RubyEventStore
         @events.read(specification)
       end
 
+      def streams_of(event_id)
+        @stream_entries.streams_of(event_id)
+      end
+
       private
 
       def normalize_to_array(events)

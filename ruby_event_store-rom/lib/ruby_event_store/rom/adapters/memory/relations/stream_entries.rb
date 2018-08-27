@@ -26,7 +26,7 @@ module RubyEventStore
           def take(num)
             num.nil? ? self : super
           end
-          
+
           def insert(tuple)
             verify_uniquness!(tuple)
             super
@@ -35,32 +35,36 @@ module RubyEventStore
           def delete(tuple)
             super tuple.to_h
           end
-          
+
           def by_stream(stream)
             restrict(stream: normalize_stream_name(stream))
           end
-  
+
+          def by_event_id(event_id)
+            restrict(event_id: event_id)
+          end
+
           def by_stream_and_event_id(stream, event_id)
             restrict(stream: normalize_stream_name(stream), event_id: event_id).one!
           end
-  
+
           def max_position(stream)
             new(by_stream(stream).order(:position).dataset.reverse).project(:position).take(1).one
           end
-  
+
           DIRECTION_MAP = {
             forward:  [false,  :>],
             backward: [true, :<]
           }.freeze
-  
+
           def ordered(direction, stream, offset_entry_id = nil)
             reverse, operator = DIRECTION_MAP[direction]
-  
+
             raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
-  
+
             order_columns = %i[position id]
             order_columns.delete(:position) if stream.global?
-            
+
             query = by_stream(stream)
             query = query.restrict { |tuple| tuple[:id].public_send(operator, offset_entry_id) } if offset_entry_id
             query = query.order(*order_columns)
@@ -68,7 +72,7 @@ module RubyEventStore
 
             query
           end
-        
+
         private
 
           # Verifies uniqueness of [stream, event_id] and [stream, position]
