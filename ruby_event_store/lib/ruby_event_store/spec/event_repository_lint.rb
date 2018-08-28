@@ -1175,6 +1175,7 @@ module RubyEventStore
     end
 
     specify do
+      skip unless test_link_events_to_stream
       event_1 = SRecord.new
       event_2 = SRecord.new
       event_3 = SRecord.new

@@ -134,6 +134,20 @@ module RailsEventStoreActiveRecord
         expect(row.metadata_before_type_cast).to eq(m)
       end
 
+      specify do
+        event_1 = RubyEventStore::SRecord.new
+        event_2 = RubyEventStore::SRecord.new
+        event_3 = RubyEventStore::SRecord.new
+        event_4 = RubyEventStore::SRecord.new
+        repository.append_to_stream([event_1, event_2], RubyEventStore::Stream.new('Stream A'), RubyEventStore::ExpectedVersion.any)
+        repository.append_to_stream([event_3], RubyEventStore::Stream.new('Stream B'), RubyEventStore::ExpectedVersion.any)
+
+        expect(repository.streams_of(event_1.event_id)).to eq ['Stream A']
+        expect(repository.streams_of(event_2.event_id)).to eq ['Stream A']
+        expect(repository.streams_of(event_3.event_id)).to eq ['Stream B']
+        expect(repository.streams_of(event_4.event_id)).to eq []
+      end
+
       private
 
       def expect_query(match, &block)

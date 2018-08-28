@@ -79,7 +79,6 @@ instead:
 
       def streams_of(event_id)
         LegacyEvent.where(event_id: event_id)
-          .where.not(stream: SERIALIZED_GLOBAL_STREAM_NAME)
           .pluck(:stream)
       end
 
