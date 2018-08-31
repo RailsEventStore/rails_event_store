@@ -11,7 +11,7 @@ module RubyEventStore
       freeze
     end
 
-    # attributess limit. True if number of read elements are limited
+    # Limited results. True if number of read elements are limited
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Boolean]
@@ -19,7 +19,7 @@ module RubyEventStore
       !attributes.count.nil?
     end
 
-    # attributess limit. Limit count or infinity if limit not defined
+    # Results limit or infinity if limit not defined
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Integer|Infinity]
@@ -27,7 +27,7 @@ module RubyEventStore
       attributes.count || Float::INFINITY
     end
 
-    # Stream definition. True if reading from global stream
+    # Global stream definition. True if reading from global stream
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Boolean]
