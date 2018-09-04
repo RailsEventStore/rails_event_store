@@ -6,17 +6,24 @@ module RubyEventStore
 
     def call(subscriber, event, serialized_event)
       @dispatchers.each do |dispatcher|
-        if dispatcher.verify(subscriber)
+        begin
+          dispatcher.verify(subscriber)
           dispatcher.call(subscriber, event, serialized_event)
           break
+        rescue RubyEventStore::InvalidHandler
         end
       end
     end
 
     def verify(subscriber)
-      @dispatchers.any? do |dispatcher|
-        dispatcher.verify(subscriber)
+      correct_dispatcher = @dispatchers.find do |dispatcher|
+        begin
+          dispatcher.verify(subscriber)
+          true
+        rescue RubyEventStore::InvalidHandler
+        end
       end
+      raise InvalidHandler if correct_dispatcher.nil?
     end
   end
 end

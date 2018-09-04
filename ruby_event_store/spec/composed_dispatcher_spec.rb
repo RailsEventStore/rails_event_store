@@ -9,7 +9,7 @@ module RubyEventStore
       end
 
       def verify(subscriber)
-        false
+        raise InvalidHandler
       end
       attr_reader :called
     end
@@ -21,7 +21,6 @@ module RubyEventStore
       end
 
       def verify(subscriber)
-        true
       end
       attr_reader :called
     end
@@ -40,18 +39,22 @@ module RubyEventStore
         expect(dispatcher).to have_received(:verify).with(subscriber)
       end
 
-      specify "true if at least one dispatcher truthy" do
+      specify "ok if at least one dispatcher truthy" do
         composed_dispatcher = ComposedDispatcher.new(skippy_dispatcher.new, real_dispatcher.new)
 
         subscriber = double
-        expect(composed_dispatcher.verify(subscriber)).to eq(true)
+        expect do
+          composed_dispatcher.verify(subscriber)
+        end.not_to raise_error
       end
 
-      specify "false if all dispatchers falsey" do
+      specify "raise error if all dispatchers falsey" do
         composed_dispatcher = ComposedDispatcher.new(skippy_dispatcher.new)
 
         subscriber = double
-        expect(composed_dispatcher.verify(subscriber)).to eq(false)
+        expect do
+          composed_dispatcher.verify(subscriber)
+        end.to raise_error(InvalidHandler)
       end
     end
 

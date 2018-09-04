@@ -9,7 +9,7 @@ module RubyEventStore
       end
 
       def verify(klass)
-        klass.respond_to?(:perform_async)
+        raise InvalidHandler.new("#{klass.inspect} does not respond to #perform_async") unless klass.respond_to?(:perform_async)
       end
     end
 
@@ -35,7 +35,18 @@ module RubyEventStore
         dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
 
         handler = double(perform_async: true)
-        expect(dispatcher.verify(handler)).to eq(true)
+        expect do
+          dispatcher.verify(handler)
+        end.not_to raise_error
+      end
+
+      specify do
+        dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
+
+        handler = double
+        expect do
+          dispatcher.verify(handler)
+        end.to raise_error(InvalidHandler, /does not respond to #perform_async/)
       end
     end
   end

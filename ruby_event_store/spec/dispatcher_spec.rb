@@ -35,7 +35,7 @@ module RubyEventStore
         end
         expect do
           Dispatcher.new.verify(klass)
-        end.to raise_error(RubyEventStore::InvalidHandler, /^#call method not found in #<Class/)
+        end.to raise_error(RubyEventStore::InvalidHandler, /^#initialize method/)
       end
 
       specify "calls subscribed instance" do

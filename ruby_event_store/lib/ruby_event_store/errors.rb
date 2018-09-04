@@ -18,8 +18,13 @@ module RubyEventStore
   end
 
   class InvalidHandler < StandardError
-    def initialize(object)
-      super("#call method not found in #{object.inspect} subscriber. Are you sure it is a valid subscriber?")
+    def initialize(object_or_message = nil)
+      if object_or_message && !object_or_message.is_a?(String)
+        # Deprecate will be here
+        super("#call method not found in #{object_or_message.inspect} subscriber. Are you sure it is a valid subscriber?")
+      else
+        super(object_or_message)
+      end
     end
   end
 end
