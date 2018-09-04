@@ -1137,40 +1137,42 @@ module RubyEventStore
       expect(repository.read(specification.from(events[0].event_id).backward.read_last.result)).to be_nil
     end
 
-    specify "changes events", mutant: "#{repository_class}#update_messages" do
-      skip unless test_change
-      events = Array.new(5) { SRecord.new }
-      repository.append_to_stream(
-        events[0..2],
-        Stream.new("whatever"),
-        ExpectedVersion.any
-      )
-      repository.append_to_stream(
-        events[3..4],
-        Stream.new("elo"),
-        ExpectedVersion.any
-      )
-      repository.update_messages([
-        a = SRecord.new(event_id: events[0].event_id.clone, data: events[0].data, metadata: events[0].metadata, event_type: events[0].event_type),
-        b = SRecord.new(event_id: events[1].event_id.dup,   data: "data1",        metadata: events[1].metadata, event_type: events[1].event_type),
-        c = SRecord.new(event_id: events[2].event_id,       data: events[2].data, metadata: "metadata2",        event_type: events[2].event_type),
-        d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data, metadata: events[3].metadata, event_type: "event_type3"),
-        e = SRecord.new(event_id: events[4].event_id.dup,   data: "data4",        metadata: "metadata4",        event_type: "event_type4"),
-      ])
-      expect(repository.read(specification.result).to_a).to eq([a,b,c,d,e])
-      expect(repository.read(specification.stream("whatever").result).to_a).to eq([a,b,c])
-      expect(repository.read(specification.stream("elo").result).to_a).to eq([d,e])
-    end
+    context "#update_messages" do
+      specify "changes events" do
+        skip unless test_change
+        events = Array.new(5) { SRecord.new }
+        repository.append_to_stream(
+          events[0..2],
+          Stream.new("whatever"),
+          ExpectedVersion.any
+        )
+        repository.append_to_stream(
+          events[3..4],
+          Stream.new("elo"),
+          ExpectedVersion.any
+        )
+        repository.update_messages([
+          a = SRecord.new(event_id: events[0].event_id.clone, data: events[0].data, metadata: events[0].metadata, event_type: events[0].event_type),
+          b = SRecord.new(event_id: events[1].event_id.dup,   data: "data1",        metadata: events[1].metadata, event_type: events[1].event_type),
+          c = SRecord.new(event_id: events[2].event_id,       data: events[2].data, metadata: "metadata2",        event_type: events[2].event_type),
+          d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data, metadata: events[3].metadata, event_type: "event_type3"),
+          e = SRecord.new(event_id: events[4].event_id.dup,   data: "data4",        metadata: "metadata4",        event_type: "event_type4"),
+        ])
+        expect(repository.read(specification.result).to_a).to eq([a,b,c,d,e])
+        expect(repository.read(specification.stream("whatever").result).to_a).to eq([a,b,c])
+        expect(repository.read(specification.stream("elo").result).to_a).to eq([d,e])
+      end
 
-    specify "cannot change unexisting event", mutant: "#{repository_class}#update_messages" do
-      skip unless test_change
-      e = SRecord.new
-      expect{ repository.update_messages([e]) }.to raise_error do |err|
-        expect(err).to be_a(EventNotFound)
-        expect(err.event_id).to eq(e.event_id)
-        expect(err.message).to eq("Event not found: #{e.event_id}")
+      specify "cannot change unexisting event" do
+        skip unless test_change
+        e = SRecord.new
+        expect{ repository.update_messages([e]) }.to raise_error do |err|
+          expect(err).to be_a(EventNotFound)
+          expect(err.event_id).to eq(e.event_id)
+          expect(err.message).to eq("Event not found: #{e.event_id}")
+        end
       end
     end
-    
+
   end
 end
