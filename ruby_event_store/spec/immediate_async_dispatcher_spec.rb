@@ -13,6 +13,8 @@ module RubyEventStore
       end
     end
 
+    it_behaves_like :dispatcher, ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
+
     let(:event) { instance_double(::RubyEventStore::Event) }
     let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
     let(:scheduler) { MyCustomScheduler.new }

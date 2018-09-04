@@ -1,31 +1,33 @@
 require "spec_helper"
+require 'ruby_event_store/spec/dispatcher_lint'
 
 module RubyEventStore
   RSpec.describe ComposedDispatcher do
-    let(:skippy_dispatcher) do
-      Class.new do
-        def call(subscriber, event, serialized_event)
-          @called = true
-        end
-
-        def verify(subscriber)
-          false
-        end
-        attr_reader :called
+    skippy_dispatcher = Class.new do
+      def call(subscriber, event, serialized_event)
+        @called = true
       end
-    end
-    let(:real_dispatcher) do
-      Class.new do
-        def call(subscriber, event, serialized_event)
-          @called = true
-        end
 
-        def verify(subscriber)
-          true
-        end
-        attr_reader :called
+      def verify(subscriber)
+        false
       end
+      attr_reader :called
     end
+    it_behaves_like :dispatcher, skippy_dispatcher.new
+
+    real_dispatcher = Class.new do
+      def call(subscriber, event, serialized_event)
+        @called = true
+      end
+
+      def verify(subscriber)
+        true
+      end
+      attr_reader :called
+    end
+    it_behaves_like :dispatcher, real_dispatcher.new
+
+    it_behaves_like :dispatcher, ComposedDispatcher.new
 
     describe "#verify" do
       specify "pass subscriber to dispatcher" do
