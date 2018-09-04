@@ -9,8 +9,8 @@ module RailsEventStore
       end
 
       def async_handler?(klass)
-        not_async_class = [CallableHandler, NotCallableHandler, HandlerClass].include?(klass)
-        !(not_async_class || klass.is_a?(HandlerClass))
+        not_async_class = [CallableHandler, NotCallableHandler].include?(klass)
+        !not_async_class
       end
     end
 

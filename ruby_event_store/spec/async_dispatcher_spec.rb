@@ -9,8 +9,8 @@ module RubyEventStore
       end
 
       def async_handler?(klass)
-        not_async_class = [CallableHandler, NotCallableHandler, HandlerClass].include?(klass)
-        !(not_async_class || klass.is_a?(HandlerClass))
+        not_async_class = [CallableHandler, NotCallableHandler].include?(klass)
+        !(not_async_class || klass.is_a?(CallableHandler))
       end
     end
 
@@ -44,6 +44,33 @@ module RubyEventStore
       MyAsyncHandler.perform_enqueued_jobs
       expect(MyAsyncHandler.received).to eq(serialized_event)
     end
+
+    it "calls subscribed instance" do
+      handler = CallableHandler.new
+      expect(handler).to receive(:call).with(event)
+      AsyncDispatcher.new(scheduler: CustomScheduler.new).call(handler, event, serialized_event)
+    end
+
+    it "calls subscribed class" do
+      handler = CallableHandler.new
+      expect(CallableHandler).to receive(:new).and_return(handler)
+      expect(handler).to receive(:call).with(event)
+      AsyncDispatcher.new(scheduler: CustomScheduler.new).call(CallableHandler, event, serialized_event)
+    end
+
+    it "allows callable classes and instances" do
+      expect do
+        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(CallableHandler)
+      end.not_to raise_error
+      expect do
+        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(CallableHandler.new)
+      end.not_to raise_error
+      expect do
+        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Proc.new{ "yo" })
+      end.not_to raise_error
+    end
+
+    private
 
     def expect_to_have_enqueued_job(job, &proc)
       raise unless block_given?
