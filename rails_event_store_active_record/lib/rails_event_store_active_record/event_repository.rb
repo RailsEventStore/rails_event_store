@@ -46,6 +46,17 @@ module RailsEventStoreActiveRecord
       @repo_reader.read(specification)
     end
 
+    def update_messages(messages)
+      hashes = messages.map(&:to_h)
+      hashes.each{|h| h[:id] = h.delete(:event_id) }
+      for_update = messages.map(&:event_id).to_set
+      start_transaction do
+        existing = Event.where(id: for_update).pluck(:id).to_set
+        (for_update - existing).each{|id| raise RubyEventStore::EventNotFound.new(id) }
+        Event.import(hashes, on_duplicate_key_update: [:data, :metadata, :event_type])
+      end
+    end
+
     private
 
     def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
