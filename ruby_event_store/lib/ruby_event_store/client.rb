@@ -345,6 +345,40 @@ module RubyEventStore
       @metadata.value || EMPTY_HASH
     end
 
+    # Overwrite existing event(s) with the same ID.
+    #
+    # Does not notify any subscribed handlers.
+    # Does not enrich with additional current metadata.
+    # Does not allow changing which streams these events are in.
+    #
+    # @example Add data and metadata to existing events
+    #
+    #   events = event_store.read.limit(10).backward.each do |ev|
+    #     ev.data[:tenant_id] = 1
+    #     ev.metadata[:server_id] = "eu-west-2"
+    #   end
+    #   event_store.overwrite(events)
+    #
+    # @example Change event type
+    #
+    #   events = event_store.read.limit(10).forward.select{|ev| OldType === ev }.map do |ev|
+    #     NewType.new(
+    #       event_id: ev.event_id,
+    #       data: ev.data,
+    #       metadata: ev.metadata,
+    #     )
+    #   end
+    #   event_store.overwrite(events)
+    #
+    # @param events [Array<Event, Proto>, Event, Proto] event(s) to serialize and overwrite again
+    # @return [self]
+    def overwrite(events_or_event)
+      events = normalize_to_array(events_or_event)
+      serialized_events = serialize_events(events)
+      repository.update_messages(serialized_events)
+      self
+    end
+
     EMPTY_HASH = {}.freeze
     private_constant :EMPTY_HASH
 
