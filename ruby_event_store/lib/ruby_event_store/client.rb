@@ -350,10 +350,12 @@ module RubyEventStore
     # Does not notify any subscribed handlers.
     # Does not enrich with additional current metadata.
     # Does not allow changing which streams these events are in.
+    # {http://railseventstore.org/docs/migrating_messages Read more}
     #
     # @example Add data and metadata to existing events
     #
-    #   events = event_store.read.limit(10).backward.each do |ev|
+    #   events = event_store.read.limit(10).each.to_a
+    #   events.each do |ev|
     #     ev.data[:tenant_id] = 1
     #     ev.metadata[:server_id] = "eu-west-2"
     #   end
@@ -361,7 +363,7 @@ module RubyEventStore
     #
     # @example Change event type
     #
-    #   events = event_store.read.limit(10).forward.select{|ev| OldType === ev }.map do |ev|
+    #   events = event_store.read.limit(10).each.select{|ev| OldType === ev }.map do |ev|
     #     NewType.new(
     #       event_id: ev.event_id,
     #       data: ev.data,
