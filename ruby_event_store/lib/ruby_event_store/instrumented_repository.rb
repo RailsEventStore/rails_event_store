@@ -43,6 +43,12 @@ module RubyEventStore
       end
     end
 
+    def update_messages(messages)
+      instrumentation.instrument("update_messages.repository.rails_event_store", messages: messages) do
+        repository.update_messages(messages)
+      end
+    end
+
     private
     attr_reader :repository, :instrumentation
   end
