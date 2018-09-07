@@ -823,5 +823,46 @@ module RubyEventStore
       expect { client.within{}.subscribe(nil, to: []).call}.to raise_error(RubyEventStore::SubscriberNotExist)
       expect { client.within{}.subscribe_to_all_events(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist)
     end
+
+    describe '#overwrite' do
+      specify 'overwrites events data and metadata' do
+        client.publish(
+          old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}),
+          stream_name: "some_stream",
+        )
+        old.data[:amount] = 12
+        old.metadata[:server] = "eu-west"
+        client.with_metadata(nonono: "no") do
+          client.overwrite(old)
+        end
+
+        new = client.read.backward.limit(1).each.first
+        expect(new).to eq(old)
+        expect(new.data.fetch(:customer_id)).to eq(44)
+        expect(new.data.fetch(:amount)).to eq(12)
+        expect(new.metadata.fetch(:server)).to eq("eu-west")
+        expect(new.metadata).not_to have_key(:nonono)
+      end
+
+      specify 'overwrites event type' do
+        client.publish(
+          old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}, metadata: {server: "eu-west"}),
+          stream_name: "some_stream",
+        )
+        client.overwrite([ProductAdded.new(event_id: old.event_id, data: old.data, metadata: old.metadata)])
+
+        new = client.read.backward.limit(1).each.first
+        expect(new.class).to eq(ProductAdded)
+        expect(new.data).to eq(old.data)
+        expect(new.metadata.to_h).to eq(old.metadata.to_h)
+        expect(new.data.fetch(:customer_id)).to eq(44)
+        expect(new.metadata.fetch(:server)).to eq("eu-west")
+      end
+
+      specify 'overwrites is chainable' do
+        expect { client.overwrite([]).overwrite([]).overwrite([]) }.not_to raise_error
+      end
+    end
+
   end
 end

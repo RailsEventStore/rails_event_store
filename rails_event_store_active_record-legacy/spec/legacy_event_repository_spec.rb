@@ -27,6 +27,7 @@ module RailsEventStoreActiveRecord
       let(:test_expected_version_auto) { false }
       let(:test_link_events_to_stream) { false }
       let(:test_binary) { false }
+      let(:test_change) { false }
       let(:mapper) { RubyEventStore::Mappers::NullMapper.new }
       let(:repository) { LegacyEventRepository.new }
       let(:reader) { RubyEventStore::SpecificationReader.new(repository, mapper) }

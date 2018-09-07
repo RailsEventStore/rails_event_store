@@ -145,6 +145,31 @@ module RubyEventStore
       end
     end
 
+    describe "#update_messages" do
+      specify "wraps around original implementation" do
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        messages = double
+
+        instrumented_repository.update_messages(messages)
+
+        expect(some_repository).to have_received(:update_messages).with(messages)
+      end
+
+      specify "instruments" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("update_messages.repository.rails_event_store") do |notification_calls|
+          messages = double
+
+          instrumented_repository.update_messages(messages)
+
+          expect(notification_calls).to eq([
+            { messages: messages }
+          ])
+        end
+      end
+    end
+
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
@@ -166,6 +191,7 @@ module RubyEventStore
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
     let(:test_binary) { false }
+    let(:test_change) { false }
 
     it_behaves_like :event_repository, InstrumentedRepository
   end

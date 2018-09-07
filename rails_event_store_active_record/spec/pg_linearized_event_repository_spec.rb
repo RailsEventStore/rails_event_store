@@ -22,6 +22,7 @@ module RailsEventStoreActiveRecord
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
     let(:test_binary)                { false }
+    let(:test_change)                { true }
     let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }
     let(:repository)                 { PgLinearizedEventRepository.new }
     let(:specification)              { RubyEventStore::Specification.new(repository, mapper) }
