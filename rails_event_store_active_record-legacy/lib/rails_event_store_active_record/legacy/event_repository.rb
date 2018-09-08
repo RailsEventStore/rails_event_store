@@ -77,6 +77,11 @@ instead:
         end
       end
 
+      def streams_of(event_id)
+        LegacyEvent.where(event_id: event_id)
+          .pluck(:stream)
+      end
+
       private
 
       def start_condition(specification)

@@ -14,7 +14,7 @@ module RubyEventStore
 
         def create_changeset(event_ids, stream, resolved_version, global_stream: nil)
           tuples = []
-          
+
           event_ids.each_with_index do |event_id, index|
             tuples << {
               stream: stream.name,
@@ -40,6 +40,11 @@ module RubyEventStore
           expected_version.resolve_for(stream, ->(_stream) {
             (stream_entries.max_position(stream) || {})[:position]
           })
+        end
+
+        def streams_of(event_id)
+          stream_entries.by_event_id(event_id).map{|e| e[:stream]}
+            .reject{|s| s == stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME}
         end
       end
     end
