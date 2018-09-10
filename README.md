@@ -1,3 +1,32 @@
+# RESCon - the first Rails Event Store conference!
+
+It will be an **exclusive (limited seats)** occasion to meet Rails Event Store core team, talk with developers who are using DDD & Event Sourcing in their projects, share your experience & learn from others experience.
+We have the **agenda ready** (see below) and **registration is now open!** You could register here [http://rescon.arkency.com](http://rescon.arkency.com)
+This will be 3 days, each with separate Rails Event Store event and will be held from 4th to 6th of October in Wrocław, Poland (venue will be revealed soon).
+
+### The agenda of those 3 days:
+
+```
+Thursday (4.10) / Workshop
+DDD with Rails & Rails Event Store by Arkency (20 participants)
+
+Friday (5.10) / Conference
+10:00—11:30 The vision behind Rails, DDD and the RailsEventStore ecosystem - Andrzej Krzywda
+12:00—13:00 Our current Rails Event Store extensions - Andrzej Śliwa
+13:00—15:00 Lunch break
+15:00—16:00 Introducing DDD/ES with RES in legacy systems - Mirosław Pragłowski & Paweł Pacana
+16:30—18:30 Event sourcing with Rails Event Store
+19:00— ..   Dinner and start of the unconference
+
+Saturday (6.10) / Hackathon
+10:00—22:00 Hackathon, improving RES, confronting ideas (free attendance, registration required)
+```
+
+And one more thing!
+There will be a possibility to have private mentoring/code review sessions during hackathon (please contact us for details).
+
+See more details at [http://rescon.arkency.com](http://rescon.arkency.com)
+
 # Rails Event Store
 
 [Rails Event Store (RES)](https://railseventstore.org/) is a library for publishing, consuming, storing and retrieving events. It's your best companion for going with an event-driven architecture for your Rails application.
@@ -35,7 +64,7 @@ Whenever you fix a bug or add a new feature, we require that the coverage doesn'
 
 ## Contributing
 
-This single repository hosts several gems and website with documentation. Check the contribution [guide](https://railseventstore.org/community/). 
+This single repository hosts several gems and website with documentation. Check the contribution [guide](https://railseventstore.org/community/).
 
 ## About
 
