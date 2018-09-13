@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ruby_event_store', '= 0.31.1'
   spec.add_dependency 'sequel', '>= 4.49'
   spec.add_dependency 'dry-types', '~> 0.12.2'
+  spec.add_dependency 'dry-initializer', '= 2.5.0'
   spec.add_dependency 'rom-sql', '>= 2.4'
   spec.add_dependency 'rom-repository', '>= 2.0'
   spec.add_dependency 'rom-changeset', '>= 1.0'
