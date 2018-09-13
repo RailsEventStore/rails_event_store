@@ -4,7 +4,11 @@ REQUIRE     = $(GEM_NAME)
 IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::Client::Within\#add_thread_subscribers \
               RubyEventStore::Client::Within\#add_thread_global_subscribers \
-              RubyEventStore::Client::Within\#call
+              RubyEventStore::Client::Within\#call \
+              RubyEventStore::Mappers::InMemoryEncryptionKeyRepository\#prepare_encrypt \
+              RubyEventStore::Mappers::EncryptionKey\#prepare_encrypt \
+              RubyEventStore::Mappers::EncryptionKey\#prepare_decrypt
+
 SUBJECT     ?= RubyEventStore*
 
 include ../lib/install.mk
