@@ -4,7 +4,7 @@ require 'ruby_event_store'
 
 
 module RubyEventStore
-  class DeprecatedReadAPIRewriter < ::Parser::Rewriter
+  class DeprecatedReadAPIRewriter < ::Parser::TreeRewriter
     DEPRECATED_READER_METHODS = [
       :read_all_streams_backward,
       :read_events_backward,
