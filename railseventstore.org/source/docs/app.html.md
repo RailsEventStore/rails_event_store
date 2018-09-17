@@ -135,7 +135,7 @@ order.store
 
 ## Overwriting default apply_strategy
 
-You can change the way how aggregate methods are called in response to applied events. Let's say we want to call `order_has_expired` when `OrderExpired` event is applied. To achieve this we'll provide our implementation for `apply_strategy` method.
+You can change the way how aggregate methods are called in response to applied events. Let's say we want to call `order_has_expired` when `OrderExpired` event is applied. To achieve this we'll provide our implementation for the `apply_strategy` method:
 
 ```ruby
 class Order
@@ -181,10 +181,30 @@ class Order
     @state = :expired
   end
 end
-
 ```
 
-The convention is to use apply\_ plus an underscored event class name for event handler methods. I.e. when you apply OrderExpired event, the apply_order_expired method is called.
+The `apply_strategy` method must return a _callable_, that responds to `#call`. We've used lambda in the example above. This lambda takes two arguments -- `aggreate` which in this case is `self` and a an `event` being applied.
+
+The `case` statement is one way to implement such dispatch. The following example shows an equivalent implemented with `Hash`:
+
+```ruby
+def apply_strategy
+    ->(aggregate, event) do
+      {
+        OrderExpired => method(:order_has_been_submitted),
+        OrderSubmitted => method(:order_has_expired),
+      }.fetch(event.class, ->(event) { raise }).call(event)
+    end
+  end
+
+  def order_has_been_submitted(event)
+    @state = :submitted
+  end
+
+  def order_has_expired(event)
+    @state = :expired
+  end
+```
 
 ## API
 
