@@ -22,10 +22,19 @@
 }
 
 .site-hero__cta {
-  @include button-filled($oc-red-8);
+  border: 2px solid $oc-red-8;
+  box-sizing: border-box;
+  display: inline-block;
   font-weight: 600;
   font-size: 2rem;
   margin: 3rem auto;
+  color: $oc-white;
+  background-color: $oc-red-8;
+
+  &:hover {
+    border-color: darken($oc-red-8, 10);
+    background-color: darken($oc-red-8, 10);
+  }
 
   &:active,
   &:focus {
