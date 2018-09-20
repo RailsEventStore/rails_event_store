@@ -30,7 +30,6 @@ $base-spacing: $base-line-height * 1em;
 $small-spacing: $base-spacing / 2;
 $base-z-index: 0;
 
-
 // Font Colors
 $base-font-color: $oc-gray-8;
 $header-font-color: $oc-gray-7;
@@ -39,8 +38,3 @@ $base-accent-color: $oc-red-8;
 // Border color
 $base-border-color: $oc-gray-3;
 $base-border: 1px solid $base-border-color;
-
-// Forms
-$form-box-shadow: inset 0 1px 3px rgba(#000, 0.06);
-$form-box-shadow-focus: $form-box-shadow,
-  0 0 5px adjust-color($base-accent-color, $lightness: -5%, $alpha: -0.3);
