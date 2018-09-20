@@ -194,6 +194,13 @@ module RubyEventStore
       Specification.new(SpecificationReader.new(repository, mapper))
     end
 
+    # Gets list of stream names where event is stored or linked
+    #
+    # @return [Array<String>] names of streams where event is stored or linked
+    def streams_of(event_id)
+      repository.streams_of(event_id)
+    end
+
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
     #
     # @overload subscribe(subscriber, to:)
