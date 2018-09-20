@@ -8,59 +8,6 @@
   <main class="frame__body" role="main">
     <div class="container u-text-padding">
       <%= yield %>
-
-      <div class="contributors">
-        <h1 class="contributors__title">Contributors</h2>
-        <ul class="contributors__list">
-          <% data.contributors.each do |contributor| %>
-            <li class="contributors__contributor">
-              <a class="contributor__link" href="<%= contributor.html_url %>">
-                <img class="contributor__avatar" src="<%= contributor.avatar_url %>" />
-              </a>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-
-      <div class="events">
-        <h1 class="events__title">Upcoming events</h2>
-        <ul class="events__list">
-          <li class="events_event">
-            <h2>RESCon, 4—6.10.2018</h2>
-            <p>
-              The first Rails Event Store conference! An exclusive (limited seats) occasion to meet Rails Event Store core team, talk with developers who are using DDD & Event Sourcing in their projects, share your experience & learn from others experience. We have the agenda ready (see below) and registration is now open! You could register here <a href="http://rescon.arkency.com">http://rescon.arkency.com</a>.
-              <br/>
-              <br/>
-              This will be 3 days, each with separate Rails Event Store event and will be held from 4th to 6th of October in Wrocław, Poland (venue will be revealed soon).
-
-              The agenda of those 3 days:<br/>
-            </p>
-
-            <p>
-             <h3>Thursday (4.10) / Workshop</h3>
-             DDD with Rails & Rails Event Store by Arkency (20 participants)
-            </p>
-
-             <p>
-             <h3>Friday (5.10) / Conference</h3>
-             10:00—11:30 The vision behind Rails, DDD and the RailsEventStore ecosystem - Andrzej Krzywda</br>
-             12:00—13:00 Our current Rails Event Store extensions - Andrzej Śliwa</br>
-             13:00—15:00 Lunch break</br>
-             15:00—16:00 Introducing DDD/ES with RES in legacy systems - Mirosław Pragłowski & Paweł Pacana</br>
-             16:30—18:30 Event sourcing with Rails Event Store</br>
-             19:00—...   Dinner and start of the unconference
-              </p>
-
-             <h3>Saturday (6.10) / Hackathon</h3>
-             <p>10:00—22:00 Hackathon, improving RES, confronting ideas (free attendance, registration required)</p>
-             <p>And one more thing! There will be a possibility to have private mentoring/code review sessions during hackathon (please contact us at <a href="mailto:rescon@arkency.com">rescon@arkency.com</a>).</p>
-
-
-             See more details at <a href="http://rescon.arkency.com">http://rescon.arkency.com</a>
-            </p>
-          </li>
-        </ul>
-      </div>
     </div>
   </main>
 <% end %>

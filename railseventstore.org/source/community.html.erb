@@ -1,7 +1,136 @@
 ---
 title: Community
 ---
+<section class="stats">
+  <dl class="stats__stat">
+    <dt class="stat__title">
+      Stargazers
+    </dt>
+    <dd class="stat__value">
+      528
+    </dd>
+  </dl>
 
-<h2>Contributing to RailsEventStore organization repositories</h2>
+  <dl class="stats__stat">
+    <dt class="stat__title">
+      Contributors
+    </dt>
+    <dd class="stat__value">
+      39
+    </dd>
+  </dl>
 
-Any kind of contribution is welcomed. See our <a href="/contributing">contribution guide</a>
+  <dl class="stats__stat">
+    <dt class="stat__title">
+      Releases
+    </dt>
+    <dd class="stat__value">
+      55
+    </dd>
+  </dl>
+
+  <dl class="stats__stat">
+    <dt class="stat__title">
+      Commits
+    </dt>
+    <dd class="stat__value">
+      2302
+    </dd>
+  </dl>
+
+  <dl class="stats__stat">
+    <dt class="stat__title">
+      Downloads
+    </dt>
+    <dd class="stat__value">
+      150894
+    </dd>
+  </dl>
+</section>
+
+<section class="discuss">
+  <h1 class="discuss__title">Discuss</h1>
+  <p class="discuss__about">
+    <a href="https://github.com/RailsEventStore/rails_event_store/issues">GitHub Issues</a> is the best place to share your questions and answers with the community. Official Twitter hashtag is <a href="https://twitter.com/hashtag/railseventstore">#RailsEventStore</a>.
+  </p>
+</section>
+
+<section class="contribute">
+  <h1 class="contribute__title">Contribute</h1>
+  <p class="contribute__about">
+    Any kind of contribution is welcomed. See our guide <a href="/contributing">how to start</a> participating as a contributor.
+  </p>
+
+  <ul class="contribute__contributors">
+    <% data.contributors.each do |contributor| %>
+      <li class="contributor">
+        <a class="contributor__link" href="<%= contributor.html_url %>">
+          <img class="contributor__avatar" src="<%= contributor.avatar_url %>" />
+        </a>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
+<section class="attend">
+  <h1 class="attend__title">Attend</h1>
+  <p class="attend__about">
+    Participate in on-site trainings where Rails Event Store is used. Visit the conferences where RES is on the spotlight. Meet in-person people involved with its development.
+  </p>
+
+  <ul class="attend__events">
+    <% data.events.each do |event| %>
+      <li>
+        <a href="<%= event.url %>">
+          <%= event.title %>
+        </a>
+      </li>
+      <% end %>
+  </ul>
+</section>
+
+<section class="explore">
+  <h1 class="explore__title">Explore</h1>
+  <p class="explore__about">Learn how Rails Event Store helps deliver better software.</p>
+
+  <div class="explore__cards">
+    <div class="card explore__card">
+      <h2 class="card__title">Articles</h2>
+      <ul class="card__content">
+        <% data.articles.each do |article| %>
+          <li>
+            <a href="<%= article.url %>">
+              <%= article.title %>
+            </a>
+          </li>
+          <% end %>
+      </ul>
+    </div>
+
+    <div class="card explore__card">
+      <h2 class="card__title">Videos</h2>
+      <ul class="card__content">
+        <% data.videos.each do |video| %>
+          <li>
+            <a href="<%= video.url %>">
+              <%= video.title %>
+            </a>
+          </li>
+          <% end %>
+      </ul>
+    </div>
+
+    <div class="card explore__card">
+      <h2 class="card__title">Apps, Code Samples and 3rd Party Extensions</h2>
+      <ul class="card__content">
+        <% data.apps.each do |app| %>
+          <li>
+            <a href="<%= app.url %>">
+              <%= app.title %>
+            </a>
+          </li>
+          <% end %>
+      </ul>
+    </div>
+  </div>
+</section>
