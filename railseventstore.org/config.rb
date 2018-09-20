@@ -1,5 +1,6 @@
 activate :aria_current
 activate :directory_indexes
+activate :autoprefixer
 activate :syntax do |syntax|
   syntax.css_class = "syntax-highlight"
 end
