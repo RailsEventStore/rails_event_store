@@ -3,7 +3,7 @@
   height: 100vh;
   overflow: scroll;
 
-  @include media($medium-screen-up) {
+  @media (min-width: $md) {
     display: block;
   }
 }

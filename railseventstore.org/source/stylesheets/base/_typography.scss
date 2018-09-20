@@ -61,7 +61,7 @@ a {
   //transition: color 0.1s linear;
 
   &:hover {
-    background-color: $oc-red-3 ;
+    background-color: $oc-red-3;
     border-bottom: 1px solid $base-font-color;
   }
 
@@ -81,7 +81,7 @@ hr {
   margin: ($base-spacing * 2) auto;
   width: 75%;
 
-  @include media($medium-screen-up) {
+  @media (min-width: $md) {
     margin: ($base-spacing * 4) auto;
   }
 }
@@ -97,6 +97,7 @@ code {
   border-radius: $base-border-radius;
   font-family: $monospace-font-family;
   font-size: 0.875em;
+  margin-bottom: 2rem;
 
   :not(pre) > & {
     margin: 0 0.125em;

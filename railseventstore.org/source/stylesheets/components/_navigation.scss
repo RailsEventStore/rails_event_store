@@ -4,7 +4,7 @@
   padding: 0 1rem;
   font-size: 1.8rem;
 
-  @include media($mobile) {
+  @media (max-width: $sm) {
     flex-direction: column;
     align-items: flex-start !important;
     padding: 0 1rem 2rem 1rem;
@@ -25,7 +25,8 @@
     border-bottom: none;
   }
 
-  &:active, &:focus {
+  &:active,
+  &:focus {
     color: $oc-white;
     background: inherit;
     outline: none;
@@ -45,7 +46,8 @@
     color: $oc-red-3;
   }
 
-  &:active, &:focus {
+  &:active,
+  &:focus {
     color: $oc-white;
     background: inherit;
     border-bottom: none;
@@ -63,7 +65,8 @@
   padding-top: 0.4rem;
   line-height: 2rem;
 
-  &:active, &:focus {
+  &:active,
+  &:focus {
     color: $oc-red-3;
     background: inherit;
     border: none;
