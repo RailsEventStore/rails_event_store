@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/event_repository_lint'
-require_relative 'mappers/events_pb.rb'
 
 module RubyEventStore
   RSpec.describe InMemoryRepository do

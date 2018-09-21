@@ -44,6 +44,8 @@ module RubyEventStore
       event_store.publish(ev)
 
       expect(event_store.read.stream("$by_city_Chicago").each.to_a).to eq([ev])
+    rescue LoadError => exc
+      skip if exc.message == "cannot load such file -- google/protobuf_c"
     end
 
     specify "custom prefix" do

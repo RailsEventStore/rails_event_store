@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
 require 'rails_event_store_active_record/event'
-require_relative '../../ruby_event_store/spec/mappers/events_pb.rb'
 
 module RailsEventStoreActiveRecord
   RSpec.describe EventRepository do

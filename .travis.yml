@@ -115,13 +115,6 @@ matrix:
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
   - rvm: 2.5.1
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
-  allow_failures:
-    - rvm: 2.6.0-preview2
-      env: TARGET=ruby_event_store SCRIPT=test
-    - rvm: 2.6.0-preview2
-      env: TARGET=rails_event_store SCRIPT=test
-    - rvm: 2.6.0-preview2
-      env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
 
 before_script:
 - psql -c 'create extension pgcrypto;' -U postgres

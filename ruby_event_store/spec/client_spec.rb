@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'time'
-require_relative 'mappers/events_pb.rb'
 
 module RubyEventStore
   RSpec.describe Client do
@@ -332,6 +331,8 @@ module RubyEventStore
 
       expect(client.read_event(event.event_id)).to eq(event)
       expect(client.read.stream("test").each.to_a).to eq([event])
+    rescue LoadError => exc
+      skip if exc.message == "cannot load such file -- google/protobuf_c"
     end
 
     specify 'raise exception if stream name is incorrect' do
@@ -815,6 +816,8 @@ module RubyEventStore
         metadata:   "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
       }
       expect(client.deserialize(serialized_event)).to eq(event)
+    rescue LoadError => exc
+      skip if exc.message == "cannot load such file -- google/protobuf_c"
     end
 
     specify 'raise error when no subscriber' do

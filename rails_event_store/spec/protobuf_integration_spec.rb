@@ -1,5 +1,4 @@
 require 'spec_helper'
-require_relative '../../ruby_event_store/spec/mappers/events_pb'
 
 class AsyncProtoHandler < ActiveJob::Base
   self.queue_adapter = :inline
@@ -17,6 +16,12 @@ end
 
 module RailsEventStore
   RSpec.describe Client do
+    before(:each) do
+      require_relative '../../ruby_event_store/spec/mappers/events_pb'
+    rescue LoadError => exc
+      skip if exc.message == "cannot load such file -- google/protobuf_c"
+    end
+
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       manually_migrate_columns_to_binary
       client = Client.new(
@@ -62,6 +67,12 @@ module RailsEventStore
   end
 
   RSpec.describe RubyEventStore::Proto do
+    before(:each) do
+      require_relative '../../ruby_event_store/spec/mappers/events_pb'
+    rescue LoadError => exc
+      skip if exc.message == "cannot load such file -- google/protobuf_c"
+    end
+
     specify "equality" do
       event1 = RubyEventStore::Proto.new(
         event_id: "40a09ed1-e72f-4cbf-9b34-f28bc4e129bc",
