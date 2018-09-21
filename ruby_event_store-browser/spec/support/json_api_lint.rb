@@ -23,9 +23,9 @@ class JsonApiLint
   def call(env)
     request  = Rack::Request.new(env)
     status, headers, body = @app.call(env)
-    
+
     response = Rack::Response.new(body, status, headers)
-    
+
     validate_request(request)
     validate_response(response)
 
@@ -58,6 +58,6 @@ class JsonApiLint
   end
 
   def match_content_type(content_type)
-    /application\/vnd\.api\+json/.match?(content_type)
+    /application\/vnd\.api\+json/.match(content_type)
   end
 end

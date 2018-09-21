@@ -57,6 +57,6 @@ class JsonApiLint
   end
 
   def match_content_type(content_type)
-    /application\/vnd\.api\+json/.match?(content_type)
+    /application\/vnd\.api\+json/.match(content_type)
   end
 end
