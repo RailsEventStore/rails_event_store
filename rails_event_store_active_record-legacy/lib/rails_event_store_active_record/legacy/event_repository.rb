@@ -80,6 +80,7 @@ instead:
       def streams_of(event_id)
         LegacyEvent.where(event_id: event_id)
           .pluck(:stream)
+          .map{|name| RubyEventStore::Stream.new(name)}
       end
 
       private

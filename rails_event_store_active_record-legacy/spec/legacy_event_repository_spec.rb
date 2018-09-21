@@ -139,12 +139,14 @@ module RailsEventStoreActiveRecord
         event_2 = RubyEventStore::SRecord.new
         event_3 = RubyEventStore::SRecord.new
         event_4 = RubyEventStore::SRecord.new
-        repository.append_to_stream([event_1, event_2], RubyEventStore::Stream.new('Stream A'), RubyEventStore::ExpectedVersion.any)
-        repository.append_to_stream([event_3], RubyEventStore::Stream.new('Stream B'), RubyEventStore::ExpectedVersion.any)
+        stream_a = RubyEventStore::Stream.new('Stream A')
+        stream_b = RubyEventStore::Stream.new('Stream B')
+        repository.append_to_stream([event_1, event_2], stream_a, RubyEventStore::ExpectedVersion.any)
+        repository.append_to_stream([event_3], stream_b, RubyEventStore::ExpectedVersion.any)
 
-        expect(repository.streams_of(event_1.event_id)).to eq ['Stream A']
-        expect(repository.streams_of(event_2.event_id)).to eq ['Stream A']
-        expect(repository.streams_of(event_3.event_id)).to eq ['Stream B']
+        expect(repository.streams_of(event_1.event_id)).to eq [stream_a]
+        expect(repository.streams_of(event_2.event_id)).to eq [stream_a]
+        expect(repository.streams_of(event_3.event_id)).to eq [stream_b]
         expect(repository.streams_of(event_4.event_id)).to eq []
       end
 
