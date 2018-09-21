@@ -115,6 +115,87 @@ matrix:
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
   - rvm: 2.5.1
     env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: TARGET=rails_event_store-browser SCRIPT=test
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: TARGET=bounded_context SCRIPT=test
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: TARGET=rails_event_store-rspec SCRIPT=test
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: TARGET=aggregate_root SCRIPT=test
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: TARGET=ruby_event_store SCRIPT=test
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: TARGET=rails_event_store SCRIPT=test
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
+  - name: TruffleRuby
+    rvm: system
+    install:
+      - export TRUFFLERUBY_VERSION=1.0.0-rc3
+      - curl -L https://github.com/oracle/truffleruby/releases/download/vm-$TRUFFLERUBY_VERSION/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64.tar.gz | tar xz
+      - export PATH="$PWD/truffleruby-$TRUFFLERUBY_VERSION-linux-amd64/bin:$PATH"
+      - gem install bundler
+      - bundle install
+    env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
 
 before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
@@ -137,4 +218,3 @@ notifications:
   slack:
     secure: bWHujiF+SFAh6m3aXxtLpsyiSfYGPQAGHwp/nsv8VpXxzON1evYkyJ+Fu+vPjvyFrA8m6N9E/jmzEGOMMvOXT0++SR4Axr7LhsbFdBDhlRBgtkzEV1Iyr96ipaTQ1IwY2R0QnVdFSIbxKtJAtB1BFn4tBxDEfLc44/n0+7SxEY8=
 cache: yarn
-
