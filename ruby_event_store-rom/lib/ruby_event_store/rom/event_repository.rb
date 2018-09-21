@@ -89,7 +89,7 @@ module RubyEventStore
 
       def streams_of(event_id)
         @stream_entries.streams_of(event_id)
-          .map{|name| RubyEventStore::Stream.new(name)}
+          .map{|name| Stream.new(name)}
       end
 
       private
