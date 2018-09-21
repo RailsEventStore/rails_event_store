@@ -17,9 +17,11 @@ end
 module RailsEventStore
   RSpec.describe Client do
     before(:each) do
-      require_relative '../../ruby_event_store/spec/mappers/events_pb'
-    rescue LoadError => exc
-      skip if exc.message == "cannot load such file -- google/protobuf_c"
+      begin
+        require_relative '../../ruby_event_store/spec/mappers/events_pb'
+      rescue LoadError => exc
+        skip if exc.message == "cannot load such file -- google/protobuf_c"
+      end
     end
 
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
@@ -68,9 +70,11 @@ module RailsEventStore
 
   RSpec.describe RubyEventStore::Proto do
     before(:each) do
-      require_relative '../../ruby_event_store/spec/mappers/events_pb'
-    rescue LoadError => exc
-      skip if exc.message == "cannot load such file -- google/protobuf_c"
+      begin
+        require_relative '../../ruby_event_store/spec/mappers/events_pb'
+      rescue LoadError => exc
+        skip if exc.message == "cannot load such file -- google/protobuf_c"
+      end
     end
 
     specify "equality" do
