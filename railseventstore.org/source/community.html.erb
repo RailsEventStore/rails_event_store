@@ -78,7 +78,7 @@ title: Community
     Participate in on-site trainings where Rails Event Store is used. Visit the conferences where RES is on the spotlight. Meet in-person people involved with its development.
   </p>
 
-  <ul class="attend__events">
+  <ul class="attend__events list-reset">
     <% data.events.each do |event| %>
       <li>
         <a href="<%= event.url %>">
@@ -93,10 +93,10 @@ title: Community
   <h1 class="explore__title">Explore</h1>
   <p class="explore__about">Learn how Rails Event Store helps deliver better software.</p>
 
-  <div class="explore__cards">
-    <div class="card explore__card">
-      <h2 class="card__title">Articles</h2>
-      <ul class="card__content">
+  <div class="flex flex-wrap">
+    <div class="w-full xl:w-1/3">
+      <h2>Articles</h2>
+      <ul class="list-reset">
         <% data.articles.each do |article| %>
           <li>
             <a href="<%= article.url %>">
@@ -107,9 +107,9 @@ title: Community
       </ul>
     </div>
 
-    <div class="card explore__card">
-      <h2 class="card__title">Videos</h2>
-      <ul class="card__content">
+    <div class="w-full xl:w-1/3">
+      <h2>Videos</h2>
+      <ul class="list-reset">
         <% data.videos.each do |video| %>
           <li>
             <a href="<%= video.url %>">
@@ -120,9 +120,9 @@ title: Community
       </ul>
     </div>
 
-    <div class="card explore__card">
-      <h2 class="card__title">Code</h2>
-      <ul class="card__content">
+    <div class="w-full xl:w-1/3">
+      <h2>Code</h2>
+      <ul class="list-reset">
         <% data.apps.each do |app| %>
           <li>
             <a href="<%= app.url %>">
