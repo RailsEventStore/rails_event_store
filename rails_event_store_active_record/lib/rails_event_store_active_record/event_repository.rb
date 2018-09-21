@@ -61,6 +61,7 @@ module RailsEventStoreActiveRecord
       EventInStream.where(event_id: event_id)
         .where.not(stream: SERIALIZED_GLOBAL_STREAM_NAME)
         .pluck(:stream)
+        .map{|name| RubyEventStore::Stream.new(name)}
     end
 
     private

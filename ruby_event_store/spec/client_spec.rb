@@ -864,5 +864,24 @@ module RubyEventStore
       end
     end
 
+    describe "#streams_of" do
+      specify do
+        event_1 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
+        event_2 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
+        event_3 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
+        event_4 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
+        stream_a = Stream.new('Stream A')
+        stream_b = Stream.new('Stream B')
+        stream_c = Stream.new('Stream C')
+        client.append([event_1, event_2], stream_name: stream_a.name)
+        client.append([event_3], stream_name: stream_b.name)
+        client.link(event_1.event_id, stream_name: stream_c.name)
+
+        expect(client.streams_of(event_1.event_id)).to eq [stream_a, stream_c]
+        expect(client.streams_of(event_2.event_id)).to eq [stream_a]
+        expect(client.streams_of(event_3.event_id)).to eq [stream_b]
+        expect(client.streams_of(event_4.event_id)).to eq []
+      end
+    end
   end
 end
