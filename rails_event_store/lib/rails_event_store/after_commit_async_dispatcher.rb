@@ -5,17 +5,19 @@ module RailsEventStore
     end
 
     def call(subscriber, _, serialized_event)
-      run(->() { @scheduler.call(subscriber, serialized_event) })
+      run do
+        @scheduler.call(subscriber, serialized_event)
+      end
     end
 
-    def run(schedule_proc)
+    def run(&schedule_proc)
       if ActiveRecord::Base.connection.transaction_open?
         ActiveRecord::Base.
           connection.
           current_transaction.
           add_record(AsyncRecord.new(self, schedule_proc))
       else
-        schedule_proc.call
+        yield
       end
     end
 
@@ -41,7 +43,7 @@ module RailsEventStore
       end
 
       def add_to_transaction
-        dispatcher.run(schedule_proc)
+        dispatcher.run(&schedule_proc)
       end
 
       attr_reader :schedule_proc, :dispatcher
