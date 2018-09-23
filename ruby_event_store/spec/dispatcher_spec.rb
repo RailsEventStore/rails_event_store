@@ -24,6 +24,9 @@ module RubyEventStore
           def initialize(something)
             @something = something
           end
+
+          def call
+          end
         end
         expect(Dispatcher.new.verify(klass)).to eq(false)
       end

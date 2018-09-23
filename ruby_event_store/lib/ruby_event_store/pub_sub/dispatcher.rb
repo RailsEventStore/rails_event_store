@@ -10,9 +10,10 @@ module RubyEventStore
         begin
           subscriber_instance = Class === subscriber ? subscriber.new : subscriber
         rescue ArgumentError
-          return false
+          false
+        else
+          subscriber_instance.respond_to?(:call)
         end
-        subscriber_instance.respond_to?(:call)
       end
     end
   end
