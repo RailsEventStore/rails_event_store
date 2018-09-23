@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/dispatcher_lint'
+require 'ruby_event_store/spec/scheduler_lint'
 
 module RailsEventStore
   RSpec.describe AfterCommitAsyncDispatcher do
@@ -15,6 +16,7 @@ module RailsEventStore
 
     let(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
     let(:serialized_event) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
+    it_behaves_like :scheduler, CustomScheduler.new
 
     it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
 

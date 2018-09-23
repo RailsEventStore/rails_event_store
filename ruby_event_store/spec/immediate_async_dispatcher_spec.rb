@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/dispatcher_lint'
+require 'ruby_event_store/spec/scheduler_lint'
 
 module RubyEventStore
   RSpec.describe ImmediateAsyncDispatcher do
@@ -14,6 +15,7 @@ module RubyEventStore
     end
 
     it_behaves_like :dispatcher, ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
+    it_behaves_like :scheduler, MyCustomScheduler.new
 
     let(:event) { instance_double(::RubyEventStore::Event) }
     let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
