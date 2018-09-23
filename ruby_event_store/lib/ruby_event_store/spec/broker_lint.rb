@@ -38,6 +38,22 @@ RSpec.shared_examples :broker do |broker_klass|
     expect { broker.add_thread_global_subscription(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
   end
 
+  specify 'raise error when wrong subscriber' do
+    allow(dispatcher).to receive(:verify).and_return(false)
+    expect do
+      broker.add_subscription(HandlerClass, [])
+    end.to raise_error(RubyEventStore::InvalidHandler, /Handler HandlerClass is invalid for dispatcher .*PubSub::Dispatcher/)
+    expect do
+      broker.add_global_subscription(HandlerClass)
+    end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)
+    expect do
+      broker.add_thread_subscription(HandlerClass, [])
+    end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)
+    expect do
+      broker.add_thread_global_subscription(HandlerClass)
+    end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)
+  end
+
   specify "verify and add - local subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
     expect(subscriptions).to receive(:add_subscription).with(handler, ['EventType'])

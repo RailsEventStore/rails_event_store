@@ -1,8 +1,14 @@
 module RubyEventStore
+  # @deprecated Use RubyEventStore::ImmediateAsyncDispatcher instead
   class AsyncDispatcher < PubSub::Dispatcher
     def initialize(proxy_strategy: AsyncProxyStrategy::Inline.new, scheduler:)
       @async_proxy_strategy = proxy_strategy
       @scheduler = scheduler
+      warn <<~EOW
+        RubyEventStore::AsyncDispatcher has been deprecated.
+
+        Use RubyEventStore::ImmediateAsyncDispatcher instead
+      EOW
     end
 
     def call(subscriber, _, serialized_event)

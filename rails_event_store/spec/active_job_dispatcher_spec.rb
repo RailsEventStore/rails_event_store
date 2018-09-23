@@ -5,8 +5,6 @@ require 'ruby_event_store/spec/dispatcher_lint'
 
 module RailsEventStore
   RSpec.describe ActiveJobDispatcher do
-    it_behaves_like :dispatcher, ActiveJobDispatcher.new
-
     around do |example|
       with_queue_adapter(ActiveJob::Base) do
         begin
@@ -18,6 +16,8 @@ module RailsEventStore
         end
       end
     end
+
+    around(:each) {|example| silence_warnings { example.call } }
 
     before(:each) do
       CallableHandler.reset

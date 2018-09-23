@@ -1,6 +1,15 @@
 module RailsEventStore
   module AsyncProxyStrategy
+    # @deprecated Use RailsEventStore::AfterCommitAsyncDispatcher instead
     class AfterCommit
+      def initialize
+        warn <<~EOW
+          RailsEventStore::AsyncProxyStrategy::AfterCommit has been deprecated.
+
+          Use RailsEventStore::AfterCommitAsyncDispatcher instead
+        EOW
+      end
+
       def call(schedule_proc)
         if ActiveRecord::Base.connection.transaction_open?
           ActiveRecord::Base.

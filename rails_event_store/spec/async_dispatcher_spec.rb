@@ -14,6 +14,8 @@ module RailsEventStore
       end
     end
 
+    around(:each) {|example| silence_warnings { example.call } }
+
     before(:each) do
       CallableHandler.reset
       MyAsyncHandler.reset

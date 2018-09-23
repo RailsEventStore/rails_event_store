@@ -4,8 +4,9 @@ REQUIRE     = $(GEM_NAME)
 IGNORE      = RailsEventStore.const_missing \
               RailsEventStore::Client\#initialize \
               RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord\#rolledback! \
-              RailsEventStore::AsyncProxyStrategy::AfterCommit::AsyncRecord\#rolledback! \
-              RailsEventStore::AsyncProxyStrategy::AfterCommit::AsyncRecord\#before_committed!
+              RailsEventStore::AsyncProxyStrategy::AfterCommit* \
+              RailsEventStore::ActiveJobDispatcher* \
+
 SUBJECT     ?= RailsEventStore*
 
 install: ## Install gem dependencies

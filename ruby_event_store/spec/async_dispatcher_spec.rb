@@ -14,11 +14,13 @@ module RubyEventStore
       end
     end
 
-    it_behaves_like :dispatcher, AsyncDispatcher.new(scheduler: CustomScheduler.new)
-
     before(:each) do
       CallableHandler.reset
       MyAsyncHandler.reset
+    end
+
+    around(:each) do |example|
+      silence_warnings { example.call }
     end
 
     let!(:event) { RubyEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
