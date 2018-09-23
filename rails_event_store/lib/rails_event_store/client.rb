@@ -5,7 +5,9 @@ module RailsEventStore
     def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new,
                    mapper: RubyEventStore::Mappers::Default.new,
                    subscriptions: RubyEventStore::PubSub::Subscriptions.new,
-                   dispatcher: ActiveJobDispatcher.new,
+                   dispatcher: RubyEventStore::ComposedDispatcher.new(
+                     RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new),
+                     RubyEventStore::PubSub::Dispatcher.new),
                    request_metadata: default_request_metadata,
                    page_size: PAGE_SIZE)
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
