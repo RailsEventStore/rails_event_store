@@ -25,15 +25,9 @@ module RubyEventStore
     let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
     it "verification" do
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(NotCallableHandler)
-      end.to raise_error(RubyEventStore::InvalidHandler)
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(MyAsyncHandler)
-      end.not_to raise_error
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Object.new)
-      end.not_to raise_error
+      expect(AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(NotCallableHandler)).to eq(false)
+      expect(AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(MyAsyncHandler)).to eq(true)
+      expect(AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Object.new)).to eq(true)
     end
 
     it "builds async proxy for async handlers" do

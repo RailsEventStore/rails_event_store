@@ -10,21 +10,13 @@ module RubyEventStore
       let(:handler) { HandlerClass.new }
 
       specify "does not allow silly subscribers" do
-        expect do
-          Dispatcher.new.verify(:symbol)
-        end.to raise_error(RubyEventStore::InvalidHandler, /:symbol/)
-
-        expect do
-          Dispatcher.new.verify(Object.new)
-        end.to raise_error(RubyEventStore::InvalidHandler, /Object/)
+        expect(Dispatcher.new.verify(:symbol)).to eq(false)
+        expect(Dispatcher.new.verify(Object.new)).to eq(false)
       end
 
       specify "does not allow class without instance method #call" do
-        klass = Class.new do
-        end
-        expect do
-          Dispatcher.new.verify(klass)
-        end.to raise_error(RubyEventStore::InvalidHandler)
+        klass = Class.new
+        expect(Dispatcher.new.verify(klass)).to eq(false)
       end
 
       specify "does not allow class without constructor requiring arguments" do
@@ -33,9 +25,7 @@ module RubyEventStore
             @something = something
           end
         end
-        expect do
-          Dispatcher.new.verify(klass)
-        end.to raise_error(RubyEventStore::InvalidHandler, /^#initialize method/)
+        expect(Dispatcher.new.verify(klass)).to eq(false)
       end
 
       specify "calls subscribed instance" do
@@ -50,15 +40,9 @@ module RubyEventStore
       end
 
       specify "allows callable classes and instances" do
-        expect do
-          Dispatcher.new.verify(HandlerClass)
-        end.not_to raise_error
-        expect do
-          Dispatcher.new.verify(HandlerClass.new)
-        end.not_to raise_error
-        expect do
-          Dispatcher.new.verify(Proc.new{ "yo" })
-        end.not_to raise_error
+        expect(Dispatcher.new.verify(HandlerClass)).to eq(true)
+        expect(Dispatcher.new.verify(HandlerClass.new)).to eq(true)
+        expect(Dispatcher.new.verify(Proc.new{ "yo" })).to eq(true)
       end
 
       private

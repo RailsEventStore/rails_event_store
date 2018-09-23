@@ -30,6 +30,7 @@ module RubyEventStore
       end
 
       def verify(_subscriber)
+        true
       end
 
       def call(subscriber, event, serialized_event)

@@ -14,7 +14,7 @@ module RubyEventStore
     end
 
     def verify(subscriber)
-      super unless @scheduler.async_handler?(subscriber)
+      @scheduler.async_handler?(subscriber) || super
     end
   end
 end

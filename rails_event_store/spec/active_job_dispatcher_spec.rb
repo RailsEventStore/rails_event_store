@@ -28,15 +28,9 @@ module RailsEventStore
     let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
     it "verification" do
-      expect do
-        ActiveJobDispatcher.new.verify(MyAsyncHandler)
-      end.not_to raise_error
-      expect do
-        ActiveJobDispatcher.new.verify(ActiveJob::Base)
-      end.to raise_error(RubyEventStore::InvalidHandler)
-      expect do
-        ActiveJobDispatcher.new.verify(Object.new)
-      end.to raise_error(RubyEventStore::InvalidHandler)
+      expect(ActiveJobDispatcher.new.verify(MyAsyncHandler)).to eq(true)
+      expect(ActiveJobDispatcher.new.verify(ActiveJob::Base)).to eq(false)
+      expect(ActiveJobDispatcher.new.verify(Object.new)).to eq(false)
     end
 
     it "builds async proxy for ActiveJob::Base ancestors" do

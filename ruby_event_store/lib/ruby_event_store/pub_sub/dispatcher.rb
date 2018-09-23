@@ -7,16 +7,12 @@ module RubyEventStore
       end
 
       def verify(subscriber)
-        subscriber = klassify(subscriber)
-        raise InvalidHandler.new("#call method not found in #{subscriber.inspect} subscriber. Are you sure it is a valid subscriber?") if !subscriber.respond_to?(:call)
-      end
-
-      private
-
-      def klassify(subscriber)
-        Class === subscriber ? subscriber.new : subscriber
-      rescue ArgumentError
-        raise InvalidHandler.new("#initialize method in #{subscriber.inspect} subscriber should be allowable to use with 0 arguments. Are you sure it is a valid subscriber?")
+        begin
+          subscriber_instance = Class === subscriber ? subscriber.new : subscriber
+        rescue ArgumentError
+          return false
+        end
+        subscriber_instance.respond_to?(:call)
       end
     end
   end

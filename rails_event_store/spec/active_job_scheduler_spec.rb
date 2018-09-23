@@ -28,31 +28,23 @@ module RailsEventStore
       specify do
         scheduler = ActiveJobScheduler.new
         proper_handler = Class.new(ActiveJob::Base)
-        expect do
-          scheduler.verify(proper_handler)
-        end.not_to raise_error
+        expect(scheduler.verify(proper_handler)).to eq(true)
       end
 
       specify do
         scheduler = ActiveJobScheduler.new
         some_class = Class.new
-        expect do
-          scheduler.verify(some_class)
-        end.to raise_error(InvalidHandler)
+        expect(scheduler.verify(some_class)).to eq(false)
       end
 
       specify do
         scheduler = ActiveJobScheduler.new
-        expect do
-          scheduler.verify(ActiveJob::Base)
-        end.to raise_error(InvalidHandler)
+        expect(scheduler.verify(ActiveJob::Base)).to eq(false)
       end
 
       specify do
         scheduler = ActiveJobScheduler.new
-        expect do
-          scheduler.verify(Object.new)
-        end.to raise_error(InvalidHandler)
+        expect(scheduler.verify(Object.new)).to eq(false)
       end
     end
 

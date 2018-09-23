@@ -5,7 +5,7 @@ module RailsEventStore
     end
 
     def verify(subscriber)
-      raise InvalidHandler.new("#{subscriber.inspect} is not a class inheriting from ActiveJob::Base") unless Class === subscriber && !!(subscriber < ActiveJob::Base)
+      Class === subscriber && !!(subscriber < ActiveJob::Base)
     end
   end
 end
