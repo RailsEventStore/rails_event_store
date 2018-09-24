@@ -26,7 +26,7 @@ test: ## Run unit tests
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant --include lib \
+	@MUTATING=true bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"

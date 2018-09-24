@@ -26,14 +26,14 @@ test: ## Run unit tests
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@MUTATING=true BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests with --fail-fast"
-	@BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@MUTATING=true BUNDLE_GEMFILE=Gemfile DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \

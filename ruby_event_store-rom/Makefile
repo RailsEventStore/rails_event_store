@@ -60,14 +60,14 @@ test-fast: ## Run unit tests with --fail-fast
 
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests with --fail-fast"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
+	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \
