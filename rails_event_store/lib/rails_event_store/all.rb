@@ -3,6 +3,8 @@ require 'rails_event_store/async_proxy_strategy'
 require 'rails_event_store/active_job_dispatcher'
 require 'rails_event_store/async_handler_helpers'
 require 'rails_event_store/link_by_metadata'
+require 'rails_event_store/after_commit_async_dispatcher'
+require 'rails_event_store/active_job_scheduler'
 require 'rails_event_store/client'
 require 'rails_event_store/version'
 require 'rails_event_store/railtie'
@@ -26,4 +28,5 @@ module RailsEventStore
   PAGE_SIZE                   = RubyEventStore::PAGE_SIZE
   AsyncProxyStrategy::Inline  = RubyEventStore::AsyncProxyStrategy::Inline
   AsyncDispatcher             = RubyEventStore::AsyncDispatcher
+  ImmediateAsyncDispatcher    = RubyEventStore::ImmediateAsyncDispatcher
 end

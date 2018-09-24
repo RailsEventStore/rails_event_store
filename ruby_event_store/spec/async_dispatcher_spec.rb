@@ -9,31 +9,27 @@ module RubyEventStore
       end
 
       def async_handler?(klass)
-        not_async_class = [CallableHandler, NotCallableHandler, HandlerClass].include?(klass)
-        !(not_async_class || klass.is_a?(HandlerClass))
+        not_async_class = [CallableHandler, NotCallableHandler].include?(klass)
+        !(not_async_class || klass.is_a?(CallableHandler))
       end
     end
-
-    it_behaves_like :dispatcher, AsyncDispatcher.new(scheduler: CustomScheduler.new)
 
     before(:each) do
       CallableHandler.reset
       MyAsyncHandler.reset
     end
 
+    around(:each) do |example|
+      silence_warnings { example.call }
+    end
+
     let!(:event) { RubyEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
     let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
     it "verification" do
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(NotCallableHandler)
-      end.to raise_error(RubyEventStore::InvalidHandler)
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(MyAsyncHandler)
-      end.not_to raise_error
-      expect do
-        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Object.new)
-      end.not_to raise_error
+      expect(AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(NotCallableHandler)).to eq(false)
+      expect(AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(MyAsyncHandler)).to eq(true)
+      expect(AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Object.new)).to eq(true)
     end
 
     it "builds async proxy for async handlers" do
@@ -44,6 +40,33 @@ module RubyEventStore
       MyAsyncHandler.perform_enqueued_jobs
       expect(MyAsyncHandler.received).to eq(serialized_event)
     end
+
+    it "calls subscribed instance" do
+      handler = CallableHandler.new
+      expect(handler).to receive(:call).with(event)
+      AsyncDispatcher.new(scheduler: CustomScheduler.new).call(handler, event, serialized_event)
+    end
+
+    it "calls subscribed class" do
+      handler = CallableHandler.new
+      expect(CallableHandler).to receive(:new).and_return(handler)
+      expect(handler).to receive(:call).with(event)
+      AsyncDispatcher.new(scheduler: CustomScheduler.new).call(CallableHandler, event, serialized_event)
+    end
+
+    it "allows callable classes and instances" do
+      expect do
+        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(CallableHandler)
+      end.not_to raise_error
+      expect do
+        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(CallableHandler.new)
+      end.not_to raise_error
+      expect do
+        AsyncDispatcher.new(scheduler: CustomScheduler.new).verify(Proc.new{ "yo" })
+      end.not_to raise_error
+    end
+
+    private
 
     def expect_to_have_enqueued_job(job, &proc)
       raise unless block_given?

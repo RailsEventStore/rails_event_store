@@ -8,18 +8,13 @@ module RubyEventStore
   EventDuplicatedInStream    = Class.new(StandardError)
   NotSupported               = Class.new(StandardError)
   ReservedInternalName       = Class.new(StandardError)
+  InvalidHandler             = Class.new(StandardError)
 
   class EventNotFound < StandardError
     attr_reader :event_id
     def initialize(event_id)
       super("Event not found: #{event_id}")
       @event_id = event_id
-    end
-  end
-
-  class InvalidHandler < StandardError
-    def initialize(object)
-      super("#call method not found in #{object.inspect} subscriber. Are you sure it is a valid subscriber?")
     end
   end
 end

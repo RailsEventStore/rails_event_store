@@ -38,7 +38,7 @@ module RubyEventStore
 
       def verify_subscription(subscriber)
         raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber
-        dispatcher.verify(subscriber)
+        raise InvalidHandler.new("Handler #{subscriber} is invalid for dispatcher #{dispatcher}") unless dispatcher.verify(subscriber)
       end
     end
   end

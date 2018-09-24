@@ -5,8 +5,6 @@ require 'ruby_event_store/spec/dispatcher_lint'
 
 module RailsEventStore
   RSpec.describe ActiveJobDispatcher do
-    it_behaves_like :dispatcher, ActiveJobDispatcher.new
-
     around do |example|
       with_queue_adapter(ActiveJob::Base) do
         begin
@@ -19,6 +17,8 @@ module RailsEventStore
       end
     end
 
+    around(:each) {|example| silence_warnings { example.call } }
+
     before(:each) do
       CallableHandler.reset
       MyAsyncHandler.reset
@@ -28,15 +28,9 @@ module RailsEventStore
     let!(:serialized_event)  { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
     it "verification" do
-      expect do
-        ActiveJobDispatcher.new.verify(MyAsyncHandler)
-      end.not_to raise_error
-      expect do
-        ActiveJobDispatcher.new.verify(ActiveJob::Base)
-      end.to raise_error(RubyEventStore::InvalidHandler)
-      expect do
-        ActiveJobDispatcher.new.verify(Object.new)
-      end.to raise_error(RubyEventStore::InvalidHandler)
+      expect(ActiveJobDispatcher.new.verify(MyAsyncHandler)).to eq(true)
+      expect(ActiveJobDispatcher.new.verify(ActiveJob::Base)).to eq(false)
+      expect(ActiveJobDispatcher.new.verify(Object.new)).to eq(false)
     end
 
     it "builds async proxy for ActiveJob::Base ancestors" do

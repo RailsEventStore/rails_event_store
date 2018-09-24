@@ -21,6 +21,8 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Client\#link_to_stream \
               RubyEventStore::Client\#append_to_stream \
               RubyEventStore::Debouncer* \
+              RubyEventStore::AsyncDispatcher* \
+              RubyEventStore::AsyncProxyStrategy::Inline* \
 
 
 SUBJECT     ?= RubyEventStore*
