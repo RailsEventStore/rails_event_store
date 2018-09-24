@@ -16,4 +16,19 @@
       </div>
     </div>
   </main>
+
+  <style>
+    .anchorjs-link, .anchorjs-link:hover, .anchorjs-link:active {
+      background-color: transparent;
+      text-decoration: none;
+      border: none;
+      color: #adb5bd;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+      anchors.add('.frame__main h2, .frame__main h3');
+    });
+</script>
 <% end %>
