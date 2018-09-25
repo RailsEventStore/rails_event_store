@@ -22,21 +22,6 @@ module.exports = createConfig([
     devServer({
       contentBase: "./src",
       before: app => {
-        app.get("/streams/head/backward/20", (req, res) =>
-          res.sendFile(path.resolve("./src/mocks/streams_0.json"))
-        );
-        app.get("/streams/head/forward/20", (req, res) =>
-          res.sendFile(path.resolve("./src/mocks/streams_1.json"))
-        );
-        app.get("/streams/Caterer_96/forward/20", (req, res) =>
-          res.sendFile(path.resolve("./src/mocks/streams_0.json"))
-        );
-        app.get("/streams/Caterer_8/backward/20", (req, res) =>
-          res.sendFile(path.resolve("./src/mocks/streams_1.json"))
-        );
-        app.get("/streams", (req, res) =>
-          res.sendFile(path.resolve("./src/mocks/streams_0.json"))
-        );
         app.get("/events/*", (req, res) =>
           res.sendFile(path.resolve("./src/mocks/event.json"))
         );
