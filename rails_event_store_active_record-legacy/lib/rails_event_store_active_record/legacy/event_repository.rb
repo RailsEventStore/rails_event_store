@@ -63,7 +63,7 @@ instead:
         stream = LegacyEvent.order(id: order(spec))
         stream = stream.limit(spec.limit) if spec.limit?
         stream = stream.where(start_condition(spec)) unless spec.head?
-        stream = stream.where(stream: spec.stream.name) unless spec.stream&.global?
+        stream = stream.where(stream: spec.stream.name) unless spec.stream.global?
 
         if spec.batched?
           batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_entity)) }

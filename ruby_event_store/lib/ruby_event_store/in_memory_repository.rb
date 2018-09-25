@@ -36,7 +36,7 @@ module RubyEventStore
     end
 
     def read(spec)
-      events = spec.stream&.global? ? global : stream_of(spec.stream.name)
+      events = spec.stream.global? ? global : stream_of(spec.stream.name)
       events = events.reverse if spec.backward?
       events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
       events = events[0...spec.limit] if spec.limit?
