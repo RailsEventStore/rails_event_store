@@ -18,12 +18,6 @@ module.exports = createConfig([
   setOutput("../public/ruby_event_store_browser.js"),
   elm(),
   sass(),
-  defineConstants({
-    "process.env.NODE_ENV": process.env.NODE_ENV
-  }),
-  addPlugins([
-    new webpack.NoEmitOnErrorsPlugin()
-  ]),
   env("development", [
     devServer({
       contentBase: "./src",

@@ -6,18 +6,19 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "dependencies": {
-    "@webpack-blocks/elm": "^1.0.0-beta",
-    "elm-format": "^0.6.1-alpha",
-    "elm-test": "^0.18.12",
-    "html-webpack-plugin": "^2.30.1",
+    "@webpack-blocks/elm": "^1.0.0",
+    "elm-format": "^0.8.0",
+    "elm-test": "0.18.12",
+    "html-webpack-plugin": "^3.2.0",
     "open-color": "^1.5.1",
-    "webpack": "^3.6.0",
-    "webpack-blocks": "^1.0.0-beta.4",
-    "webpack-dev-server": "^2.9.1"
+    "webpack": "^4.20.2",
+    "webpack-blocks": "^1.0.0",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-server": "^3.1.9"
   },
   "scripts": {
-    "start": "NODE_ENV=development node --harmony node_modules/.bin/webpack-dev-server",
-    "build": "NODE_ENV=production node --harmony node_modules/.bin/webpack -p --bail",
+    "start": "NODE_ENV=development webpack-dev-server --mode=development",
+    "build": "NODE_ENV=production webpack -p --bail --mode=production",
     "test": "elm-test",
     "postinstall": "elm-package install -y"
   }
