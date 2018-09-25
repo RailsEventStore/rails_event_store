@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{app,config,db,lib,public}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
 
   spec.add_dependency 'ruby_event_store', '= 0.31.1'
+  spec.add_dependency 'sinatra'
 
   spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'sinatra'
