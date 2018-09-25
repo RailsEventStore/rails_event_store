@@ -139,7 +139,11 @@ end.to raise_error(SubscriberNotExist)
 
 ### RubyEventStore::InvalidHandler
 
+<% if version_above('0.31.1') %>
+Occurs when given subscriber is not a valid handler to given dispatcher.
+<% else %>
 Occurs when given subscriber does not respond to `call` method.
+<% end %>
 
 ```ruby
 subscriber = Object.new
