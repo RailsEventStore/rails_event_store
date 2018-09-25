@@ -166,6 +166,26 @@ module RubyEventStore
         batch_size,
       ].hash ^ BIG_VALUE
     end
+
+    # @deprecated Use {#limit} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
+    def count
+      warn <<~EOW
+        RubyEventStore::SpecificationResult#count has been deprecated.
+        Use RubyEventStore::SpecificationResult#limit instead.
+      EOW
+      limit
+    end
+
+    # @deprecated Use {#forward?} or {#backward?} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
+    def direction
+      warn <<~EOW
+        RubyEventStore::SpecificationResult#direction has been deprecated.
+        Use RubyEventStore::SpecificationResult#forward? or
+        RubyEventStore::SpecificationResult#backward? instead.
+      EOW
+      attributes.direction
+    end
+
     private
     attr_reader :attributes
   end

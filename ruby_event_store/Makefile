@@ -23,6 +23,8 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::Debouncer* \
               RubyEventStore::AsyncDispatcher* \
               RubyEventStore::AsyncProxyStrategy::Inline* \
+              RubyEventStore::SpecificationResult\#count \
+              RubyEventStore::SpecificationResult\#direction \
 
 
 SUBJECT     ?= RubyEventStore*
