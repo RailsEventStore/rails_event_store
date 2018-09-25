@@ -14,9 +14,9 @@ Gem::Specification.new do |spec|
   spec.homepage    = 'https://railseventstore.org'
   spec.metadata    = {
     "homepage_uri" => "https://railseventstore.org/",
-    "changelog_uri" => "https://github.com/RubyEventStore/ruby_event_store/releases",
-    "source_code_uri" => "https://github.com/RubyEventStore/ruby_event_store",
-    "bug_tracker_uri" => "https://github.com/RubyEventStore/ruby_event_store/issues",
+    "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
+    "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
+    "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
 
   spec.files = Dir['{app,config,db,lib,public}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
