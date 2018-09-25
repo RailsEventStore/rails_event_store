@@ -5,7 +5,6 @@ require "support/rspec_defaults"
 require "support/mutant_timeout"
 
 ENV['RACK_ENV'] = 'test'
-# ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
 
 EVENT_STORE_BUILDER = -> do
   RubyEventStore::Client.new(
@@ -32,7 +31,6 @@ Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
 Capybara.javascript_driver = :chrome
-# Capybara.app = APP_BUILDER.call(EVENT_STORE_BUILDER.call)
 
 module SchemaHelper
   include Rack::Test::Methods

@@ -9,8 +9,6 @@ module RailsEventStore
     before { load_database_schema }
 
     specify "main view", mutant: false do
-      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
       event_store.publish(foo_bar_event, stream_name: 'dummy')
 
@@ -30,8 +28,6 @@ module RailsEventStore
     end
 
     specify "stream view", mutant: false do
-      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
       event_store.publish(foo_bar_event, stream_name: 'foo/bar.xml')
 
