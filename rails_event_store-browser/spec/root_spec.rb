@@ -4,7 +4,18 @@ module RailsEventStore
   RSpec.describe Browser, type: :request do
     include SchemaHelper
 
-    before { load_database_schema }
+    def silence_stderr
+      $stderr = StringIO.new
+      yield
+      $stderr = STDERR
+    end
+
+    around(:each) do |example|
+      begin
+        load_database_schema
+        silence_stderr { example.run }
+      end
+    end
 
     specify do
       get '/res'

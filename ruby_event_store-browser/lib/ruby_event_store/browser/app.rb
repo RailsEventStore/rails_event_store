@@ -3,7 +3,7 @@ require 'sinatra'
 
 module RubyEventStore
   module Browser
-    class App < Sinatra::Application # Sinatra::Base
+    class App < Sinatra::Application
 
       def self.for(event_store_locator:, host:, path: nil)
         self.tap do |app|
