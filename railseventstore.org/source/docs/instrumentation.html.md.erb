@@ -10,15 +10,17 @@ RailsEventStore is integrated with `ActiveSupport::Notifications` by default. Yo
 
 #### RubyEventStore
 
-Instrumentation is provided by `InstrumentedRepository` decorator. We don't force any particular instrumentation framework, [as long as it has the same API](https://github.com/bernd/as-notifications) as `ActiveSupport::Notifications`.
+Instrumentation is provided by `InstrumentedRepository` and `InstrumentedDispatcher` decorators. We don't force any particular instrumentation framework, [as long as it has the same API](https://github.com/bernd/as-notifications) as `ActiveSupport::Notifications`.
 
 
-That having said, if you want to instrument your event store repository with `ActiveSupport::Notifications`, initialize your client with following repository:
+That having said, if you want to instrument your event store with `ActiveSupport::Notifications`, initialize your client with following repository and/or dispatcher:
 
 ```ruby
 repository = RailsEventStoreActiveRecord::EventRepository.new # or other repo you use
+dispatcher = RubyEventStore::PubSub::Dispatcher.new # or other dispatcher you use
 RubyEventStore::Client.new(
-  repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications)
+  repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications),
+  dispatcher: InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
 )
 ```
 
@@ -72,3 +74,12 @@ end
 | :specification | Specification of the query to event store |
 
 Queries specification is not documented, but you can read the [source code of it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/specification.rb).
+
+### `call.dispatcher.rails_event_store`
+
+| Key         | Value                                        |
+|-------------|----------------------------------------------|
+| :event      | An event which is being dispatched           |
+| :subscriber | A subscriber to which event is dispatched to |
+
+<%# Use https://www.tablesgenerator.com/markdown_tables to generate such nice tables %>

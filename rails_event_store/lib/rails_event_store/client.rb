@@ -13,7 +13,7 @@ module RailsEventStore
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
             mapper: mapper,
             subscriptions: subscriptions,
-            dispatcher: dispatcher,
+            dispatcher: RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications),
             page_size: page_size)
       @request_metadata = request_metadata
     end
