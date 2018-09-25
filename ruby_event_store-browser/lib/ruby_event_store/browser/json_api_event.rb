@@ -12,13 +12,19 @@ module RubyEventStore
           attributes: {
             event_type: event.class.to_s,
             data: event.data,
-            metadata: event.metadata.to_h
+            metadata: metadata
           }
         }
       end
 
       private
       attr_reader :event
+
+      def metadata
+        event.metadata.to_h.tap do |m|
+          m[:timestamp] = m[:timestamp].iso8601(3) if m[:timestamp]
+        end
+      end
     end
   end
 end

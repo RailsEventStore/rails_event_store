@@ -227,7 +227,7 @@ module RubyEventStore
             "baz" => "3"
           },
           "metadata" => {
-            "timestamp" => dummy_event.metadata[:timestamp].to_s
+            "timestamp" => dummy_event.metadata[:timestamp].iso8601(3)
           }
         }
       }
