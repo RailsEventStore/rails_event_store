@@ -27,20 +27,12 @@ module RubyEventStore
       attributes.count || Float::INFINITY
     end
 
-    # Global stream definition. True if reading from global stream
+    # Stream definition. Stream to be read or nil
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Boolean]
-    def global_stream?
-      attributes.stream.global?
-    end
-
-    # Stream definition. Name of the stream to be read or nil
-    # {http://railseventstore.org/docs/read/ Find out more}.
-    #
-    # @return [String|nil]
-    def stream_name
-      attributes.stream.name
+    # @return [Stream|nil]
+    def stream
+      attributes.stream
     end
 
     # Starting position. True is starting from head
@@ -161,7 +153,7 @@ module RubyEventStore
         attributes.direction,
         start,
         attributes.count,
-        stream_name,
+        stream.name,
         attributes.read_as,
         batch_size,
       ].hash ^ BIG_VALUE
@@ -184,6 +176,24 @@ module RubyEventStore
         RubyEventStore::SpecificationResult#backward? instead.
       EOW
       attributes.direction
+    end
+
+    # @deprecated Use {#stream.name} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
+    def stream_name
+      warn <<~EOW
+        RubyEventStore::SpecificationResult#stream_name has been deprecated.
+        Use RubyEventStore::SpecificationResult#stream.name instead.
+      EOW
+      stream.name
+    end
+
+    # @deprecated Use {#stream.global?} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
+    def global_stream?
+      warn <<~EOW
+        RubyEventStore::SpecificationResult#global_stream? has been deprecated.
+        Use RubyEventStore::SpecificationResult#stream.global? instead.
+      EOW
+      stream.global?
     end
 
     private

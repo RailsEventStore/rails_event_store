@@ -25,6 +25,8 @@ IGNORE      = RubyEventStore.const_missing \
               RubyEventStore::AsyncProxyStrategy::Inline* \
               RubyEventStore::SpecificationResult\#count \
               RubyEventStore::SpecificationResult\#direction \
+              RubyEventStore::SpecificationResult\#stream_name \
+              RubyEventStore::SpecificationResult\#global_stream? \
 
 
 SUBJECT     ?= RubyEventStore*
