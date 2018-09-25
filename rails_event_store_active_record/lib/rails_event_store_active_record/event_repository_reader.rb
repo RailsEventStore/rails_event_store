@@ -24,10 +24,10 @@ module RailsEventStoreActiveRecord
 
 
     def read(spec)
-      raise RubyEventStore::ReservedInternalName if spec.stream_name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
+      raise RubyEventStore::ReservedInternalName if spec.stream&.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
-      stream = stream.order(position: order(spec)) unless spec.global_stream?
+      stream = stream.order(position: order(spec)) unless spec.stream&.global?
       stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
       stream = stream.order(id: order(spec))
@@ -49,7 +49,7 @@ module RailsEventStoreActiveRecord
     private
 
     def normalize_stream_name(specification)
-      specification.global_stream? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream_name
+      specification.stream&.global? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream.name
     end
 
     def start_condition(specification)

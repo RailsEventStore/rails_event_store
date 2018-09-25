@@ -25,16 +25,16 @@ module RubyEventStore
     specify { expect(specification.result.limit?).to eq(false) }
     specify { expect(specification.limit(100).result.limit?).to eq(true) }
 
-    specify { expect(specification.result.stream_name).to eq(GLOBAL_STREAM) }
-    specify { expect(specification.result.global_stream?).to eq(true) }
+    specify { expect(specification.result.stream.name).to eq(GLOBAL_STREAM) }
+    specify { expect(specification.result.stream.global?).to eq(true) }
     specify { expect{specification.stream(nil)}.to raise_error(IncorrectStreamData) }
     specify { expect{specification.stream('')}.to raise_error(IncorrectStreamData) }
-    specify { expect(specification.stream('stream').result.stream_name).to eq('stream') }
-    specify { expect(specification.stream('nope').result.global_stream?).to eq(false) }
-    specify { expect(specification.stream('all').result.stream_name).to eq('all') }
-    specify { expect(specification.stream('all').result.global_stream?).to eq(false) }
-    specify { expect(specification.stream(GLOBAL_STREAM).result.stream_name).to eq( GLOBAL_STREAM) }
-    specify { expect(specification.stream(GLOBAL_STREAM).result.global_stream?).to eq(true) }
+    specify { expect(specification.stream('stream').result.stream.name).to eq('stream') }
+    specify { expect(specification.stream('nope').result.stream.global?).to eq(false) }
+    specify { expect(specification.stream('all').result.stream.name).to eq('all') }
+    specify { expect(specification.stream('all').result.stream.global?).to eq(false) }
+    specify { expect(specification.stream(GLOBAL_STREAM).result.stream.name).to eq( GLOBAL_STREAM) }
+    specify { expect(specification.stream(GLOBAL_STREAM).result.stream.global?).to eq(true) }
 
     specify { expect(specification.result.head?).to eq(true) }
     specify { expect(specification.from(:head).result.start).to eq(:head) }
@@ -55,7 +55,8 @@ module RubyEventStore
     specify do
       with_event_of_id(event_id) do
         spec = specification.backward.stream(stream_name).limit(10).from(event_id)
-        expect(spec.result.stream_name).to eq(stream_name)
+        expect(spec.result.stream.name).to eq(stream_name)
+        expect(spec.result.stream.global?).to eq(false)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.start).to eq(event_id)
         expect(spec.result.backward?).to eq(true)
@@ -107,9 +108,12 @@ module RubyEventStore
     specify { expect(specification.limit(3).in_batches.result.limit).to eq(3) }
 
     specify { expect(specification.read_first.stream('dummy').result.first?).to eq(true) }
-    specify { expect(specification.stream('dummy').forward.result.stream_name).to eq('dummy') }
-    specify { expect(specification.stream('dummy').backward.result.stream_name).to eq('dummy') }
-    specify { expect(specification.stream('dummy').in_batches.result.stream_name).to eq('dummy') }
+    specify { expect(specification.stream('dummy').forward.result.stream.name).to eq('dummy') }
+    specify { expect(specification.stream('dummy').forward.result.stream.global?).to eq(false) }
+    specify { expect(specification.stream('dummy').backward.result.stream.name).to eq('dummy') }
+    specify { expect(specification.stream('dummy').backward.result.stream.global?).to eq(false) }
+    specify { expect(specification.stream('dummy').in_batches.result.stream.name).to eq('dummy') }
+    specify { expect(specification.stream('dummy').in_batches.result.stream.global?).to eq(false) }
 
     specify { expect(specification.read_first.limit(1).result.first?).to eq(true) }
     specify { expect(specification.read_first.forward.result.first?).to eq(true) }
@@ -123,7 +127,8 @@ module RubyEventStore
         expect(spec.result.backward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -132,7 +137,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(event_id)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -141,7 +147,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit).to eq(10)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -150,7 +157,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(stream_name)
+        expect(spec.result.stream.name).to eq(stream_name)
+        expect(spec.result.stream.global?).to eq(false)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -159,7 +167,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.batched?).to eq(true)
         expect(spec.result.batch_size).to eq(100)
 
@@ -167,7 +176,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -176,7 +186,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -185,7 +196,8 @@ module RubyEventStore
         expect(spec.result.backward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -194,7 +206,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.first?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -202,7 +215,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -211,7 +225,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.last?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
@@ -219,7 +234,8 @@ module RubyEventStore
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
         expect(spec.result.limit?).to eq(false)
-        expect(spec.result.stream_name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.all?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
       end

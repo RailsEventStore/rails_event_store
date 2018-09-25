@@ -82,7 +82,7 @@ module RubyEventStore
       end
 
       def read(specification)
-        raise ReservedInternalName if specification.stream_name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
+        raise ReservedInternalName if specification.stream&.name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
 
         @events.read(specification)
       end
