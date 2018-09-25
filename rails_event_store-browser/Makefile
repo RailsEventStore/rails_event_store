@@ -32,7 +32,6 @@ mutate: test ## Run mutation tests
 $(JS_BUNDLE):
 	@echo "Copying browser frontend"
 	@cd ../ruby_event_store-browser; make public/ruby_event_store_browser.js
-	@cp ../ruby_event_store-browser/public/ruby_event_store_browser.js $(JS_BUNDLE)
 
 build: $(JS_BUNDLE)
 	@echo "Building gem package"

@@ -1,14 +1,16 @@
-require 'rails'
-require 'active_support/core_ext/string/filters'
-require 'ruby_event_store/browser'
+require 'ruby_event_store/browser/app'
 
 module RailsEventStore
   module Browser
-    class Engine < ::Rails::Engine
-      isolate_namespace RailsEventStore::Browser
-
-      initializer "static assets" do |app|
-        app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
+    class Engine
+      def self.call(env)
+        request = Rack::Request.new(env)
+        app = RubyEventStore::Browser::App.for(
+          event_store_locator: -> { Rails.configuration.event_store },
+          host: request.base_url,
+          path: request.script_name
+        )
+        app.call(env)
       end
     end
   end
