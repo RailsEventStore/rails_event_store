@@ -56,7 +56,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def forward?
-      attributes.direction.equal?(:forward)
+      get_direction.equal?(:forward)
     end
 
     # Read direction. True is reading backward
@@ -64,7 +64,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def backward?
-      attributes.direction.equal?(:backward)
+      get_direction.equal?(:backward)
     end
 
     # Size of batch to read (only for :batch read strategy)
@@ -150,10 +150,10 @@ module RubyEventStore
     def hash
       [
         self.class,
-        attributes.direction,
+        get_direction,
         start,
-        attributes.count,
-        stream.name,
+        limit,
+        stream,
         attributes.read_as,
         batch_size,
       ].hash ^ BIG_VALUE
@@ -175,7 +175,7 @@ module RubyEventStore
         Use RubyEventStore::SpecificationResult#forward? or
         RubyEventStore::SpecificationResult#backward? instead.
       EOW
-      attributes.direction
+      get_direction
     end
 
     # @deprecated Use {#stream.name} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
@@ -198,5 +198,9 @@ module RubyEventStore
 
     private
     attr_reader :attributes
+
+    def get_direction
+      attributes.direction
+    end
   end
 end

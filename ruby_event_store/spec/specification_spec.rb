@@ -415,8 +415,8 @@ module RubyEventStore
           SpecificationResult,
           :forward,
           :head,
-          nil,
-          Stream.new(GLOBAL_STREAM).name,
+          Float::INFINITY,
+          Stream.new(GLOBAL_STREAM),
           :all,
           Specification::DEFAULT_BATCH_SIZE,
         ].hash)
