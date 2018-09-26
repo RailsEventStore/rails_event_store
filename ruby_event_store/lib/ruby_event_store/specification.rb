@@ -3,57 +3,9 @@ module RubyEventStore
   # Used for building and executing the query specification.
   class Specification
     DEFAULT_BATCH_SIZE = 100
-
-    class Result < Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size)
-      def limit?
-        !count.nil?
-      end
-
-      def limit
-        count || Float::INFINITY
-      end
-
-      def global_stream?
-        stream.global?
-      end
-
-      def stream_name
-        stream.name
-      end
-
-      def head?
-        start.equal?(:head)
-      end
-
-      def forward?
-        direction.equal?(:forward)
-      end
-
-      def backward?
-        !forward?
-      end
-
-      def batched?
-        read_as.equal?(:batch)
-      end
-
-      def first?
-        read_as.equal?(:first)
-      end
-
-      def last?
-        read_as.equal?(:last)
-      end
-    end
-    private_constant :Result
-
     # @api private
     # @private
-    attr_reader :result
-
-    # @api private
-    # @private
-    def initialize(reader, result = Result.new(:forward, :head, nil, Stream.new(GLOBAL_STREAM), :all, DEFAULT_BATCH_SIZE))
+    def initialize(reader, result = SpecificationResult.new)
       @reader = reader
       @result = result
     end
@@ -64,7 +16,7 @@ module RubyEventStore
     # @param stream_name [String] name of the stream to get events from
     # @return [Specification]
     def stream(stream_name)
-      Specification.new(reader, result.dup.tap { |r| r.stream = Stream.new(stream_name) })
+      Specification.new(reader, result.dup { |r| r.stream = Stream.new(stream_name) })
     end
 
     # Limits the query to events before or after another event.
@@ -82,7 +34,7 @@ module RubyEventStore
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless reader.has_event?(start)
       end
-      Specification.new(reader, result.dup.tap { |r| r.start = start })
+      Specification.new(reader, result.dup { |r| r.start = start })
     end
 
     # Sets the order of reading events to ascending (forward from the start).
@@ -90,7 +42,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def forward
-      Specification.new(reader, result.dup.tap { |r| r.direction = :forward })
+      Specification.new(reader, result.dup { |r| r.direction = :forward })
     end
 
     # Sets the order of reading events to descending (backward from the start).
@@ -98,7 +50,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def backward
-      Specification.new(reader, result.dup.tap { |r| r.direction = :backward })
+      Specification.new(reader, result.dup { |r| r.direction = :backward })
     end
 
     # Limits the query to specified number of events.
@@ -108,7 +60,7 @@ module RubyEventStore
     # @return [Specification]
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      Specification.new(reader, result.dup.tap { |r| r.count = count })
+      Specification.new(reader, result.dup { |r| r.count = count })
     end
 
     # Executes the query based on the specification built up to this point.
@@ -153,7 +105,7 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(reader, result.dup.tap { |r| r.read_as = :batch; r.batch_size = batch_size })
+      Specification.new(reader, result.dup { |r| r.read_as = :batch; r.batch_size = batch_size })
     end
     alias :in_batches_of :in_batches
 
@@ -162,7 +114,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_first
-      Specification.new(reader, result.dup.tap { |r| r.read_as = :first })
+      Specification.new(reader, result.dup { |r| r.read_as = :first })
     end
 
     # Specifies that only last event should be read.
@@ -170,7 +122,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_last
-      Specification.new(reader, result.dup.tap { |r| r.read_as = :last })
+      Specification.new(reader, result.dup { |r| r.read_as = :last })
     end
 
     # Executes the query based on the specification built up to this point.
@@ -191,6 +143,7 @@ module RubyEventStore
       reader.one(read_last.result)
     end
 
+    attr_reader :result
     private
     attr_reader :reader
   end

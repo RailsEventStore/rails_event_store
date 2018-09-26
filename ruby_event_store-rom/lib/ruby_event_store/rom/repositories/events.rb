@@ -46,7 +46,7 @@ module RubyEventStore
             offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id)
           end
 
-          direction = specification.direction
+          direction = specification.forward? ? :forward : :backward
           limit = specification.limit if specification.limit?
           if specification.last? && specification.head?
             direction = specification.forward? ? :backward : :forward
