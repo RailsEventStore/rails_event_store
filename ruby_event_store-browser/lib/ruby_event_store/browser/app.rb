@@ -54,7 +54,15 @@ module RubyEventStore
         )
       end
 
-      get '/streams/:id(/:position/:direction/:count)?' do
+      get '/streams/:id' do
+        json Stream.new(
+          event_store: settings.event_store_locator,
+          params: symbolized_params,
+          url_builder: method(:streams_url_for)
+        )
+      end
+
+      get '/streams/:id/:position/:direction/:count' do
         json Stream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
