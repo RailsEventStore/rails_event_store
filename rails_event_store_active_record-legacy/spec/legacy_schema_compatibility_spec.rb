@@ -40,7 +40,7 @@ RSpec.describe "legacy schema compatibility" do
   specify "reading events" do
     skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
 
-    event = client.read_all_streams_forward[0]
+    event = client.read.first
     expect(event.metadata[:timestamp]).to be_kind_of(Time)
   end
 
@@ -52,7 +52,7 @@ RSpec.describe "legacy schema compatibility" do
       expected_version: -1
     )
 
-    read_event = client.read_stream_events_forward('foo')[0]
+    read_event = client.read.stream('foo').first
     expect(read_event).to eq(write_event)
     expect(read_event.metadata[:foo]).to eq(13)
     expect(read_event.metadata[:timestamp]).to be_kind_of(Time)
