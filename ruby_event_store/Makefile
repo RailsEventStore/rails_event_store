@@ -13,7 +13,6 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::Client\#publish_events \
               RubyEventStore::Client\#link_to_stream \
               RubyEventStore::Client\#append_to_stream \
-              RubyEventStore::Debouncer* \
               RubyEventStore::AsyncDispatcher* \
               RubyEventStore::AsyncProxyStrategy::Inline* \
               RubyEventStore::SpecificationResult\#count \
