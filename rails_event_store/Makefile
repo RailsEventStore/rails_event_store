@@ -1,8 +1,7 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store
 REQUIRE     = $(GEM_NAME)
-IGNORE      = RailsEventStore.const_missing \
-              RailsEventStore::Client\#initialize \
+IGNORE      = RailsEventStore::Client\#initialize \
               RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord\#rolledback! \
               RailsEventStore::AsyncProxyStrategy::AfterCommit* \
               RailsEventStore::ActiveJobDispatcher* \
