@@ -74,6 +74,21 @@ jobs:
           environment:
             ARCHFLAGS: "-arch x86_64"
 
+  ruby_event_store-browser:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run: brew tap caskroom/cask
+      - run: brew install sqlite3
+      - run: brew cask install chromedriver
+      - run: brew cask install google-chrome
+      - checkout
+      - run:
+          name: make install mutate
+          command: cd ruby_event_store-browser && make install mutate
+          environment:
+            ARCHFLAGS: "-arch x86_64"
+
   rails_event_store_active_record:
     macos:
       xcode: "9.3.0"
@@ -129,3 +144,4 @@ workflows:
     - rails_event_store-browser
     - bounded_context
     - ruby_event_store-rom
+    - ruby_event_store-browser
