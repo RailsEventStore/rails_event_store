@@ -8,13 +8,12 @@ module RailsEventStore
                    dispatcher: RubyEventStore::ComposedDispatcher.new(
                      RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new),
                      RubyEventStore::PubSub::Dispatcher.new),
-                   request_metadata: default_request_metadata,
-                   page_size: PAGE_SIZE)
+                   request_metadata: default_request_metadata)
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
             mapper: mapper,
             subscriptions: subscriptions,
-            dispatcher: RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications),
-            page_size: page_size)
+            dispatcher: RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
+            )
       @request_metadata = request_metadata
     end
 

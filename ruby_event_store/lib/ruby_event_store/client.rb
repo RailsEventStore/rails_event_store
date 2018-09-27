@@ -7,12 +7,10 @@ module RubyEventStore
                    mapper: Mappers::Default.new,
                    subscriptions: PubSub::Subscriptions.new,
                    dispatcher: PubSub::Dispatcher.new,
-                   page_size: PAGE_SIZE,
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
       @broker         = PubSub::Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
-      @page_size      = page_size
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
     end
@@ -362,6 +360,6 @@ module RubyEventStore
       @metadata.value = value
     end
 
-    attr_reader :repository, :mapper, :broker, :clock, :page_size
+    attr_reader :repository, :mapper, :broker, :clock
   end
 end
