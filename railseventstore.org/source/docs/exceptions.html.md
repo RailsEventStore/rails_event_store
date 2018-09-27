@@ -29,30 +29,18 @@ expect do
 end.to raise_error(WrongExpectedEventVersion)
 ```
 
-<% if version_above('0.30.0') %>
 If you want to have an event present in multiple streams, you have to link it with `link`.
-<% else %>
-If you want to have an event present in multiple streams, you have to link it with `link_to_stream`.
-<% end %>
 
 
 ### RubyEventStore::InvalidExpectedVersion
 
-<% if version_above('0.30.0') %>
 Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream` or `publish`.
-<% else %>
-Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream`, `publish_event` or `publish_events`.
-<% end %>
 Valid values are `Integer` or one of `:any`, `:none`, `:auto`.
 
 
 ```ruby
 expect do
-<% if version_above('0.30.0') %>
   client.append(OrderPlaced.new, stream_name: 'Order$1', expected_version: nil)
-<% else %>
-  client.append_to_stream(OrderPlaced.new, stream_name: 'Order$1', expected_version: nil)
-<% end %>
 end.to raise_error(InvalidExpectedVersion)
 ```
 
@@ -63,11 +51,7 @@ Occurs when invalid `stream_name` is passed in any client method expecting it. N
 
 ```ruby
 expect do
-<% if version_above('0.30.0') %>
   client.append(OrderPlaced.new, stream_name: nil)
-<% else %>
-  client.append_to_stream(OrderPlaced.new, stream_name: nil)
-<% end %>
 end.to raise_error(IncorrectStreamData)
 ```
 
@@ -75,57 +59,33 @@ end.to raise_error(IncorrectStreamData)
 
 Occurs when event of given id cannot be found. This can happen either when looking for particular event details via `read_event` or when reading stream, starting from given event.
 
-<% if version_above('0.29.0') %>
 ```ruby
 none_such_id = SecureRandom.uuid
 expect do
   client.read.stream('Order$1').from(none_such_id).each.to_a
 end.to raise_error(EventNotFound)
 ```
-<% else %>
-```ruby
-none_such_id = SecureRandom.uuid
-expect do
-  client.read_events_forward('Order$1', start: none_such_id)
-end.to raise_error(EventNotFound)
-```
-<% end %>
+
 
 ### RubyEventStore::InvalidPageStart
 
 Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string. Special case of `:head` is accepted as a beginning of a stream in given direction.
 
-<% if version_above('0.29.0') %>
 ```ruby
 expect do
   client.read.stream('Order$1').from(nil).each.to_a
 end.to raise_error(InvalidPageStart)
 ```
-<% else %>
-```ruby
-expect do
-  client.read_events_forward('Order$1', start: nil)
-end.to raise_error(InvalidPageStart)
-```
-<% end %>
 
 ### RubyEventStore::InvalidPageSize
 
 Occurs when expecting to read less than one event from a stream:
 
-<% if version_above('0.29.0') %>
 ```ruby
 expect do
   client.read.stream('Order$1').limit(-1).each.to_a
 end.to raise_error(InvalidPageSize)
 ```
-<% else %>
-```ruby
-expect do
-  client.read_events_forward('Order$1', count: -1)
-end.to raise_error(InvalidPageSize)
-```
-<% end %>
 
 ### RubyEventStore::SubscriberNotExist
 
@@ -139,11 +99,7 @@ end.to raise_error(SubscriberNotExist)
 
 ### RubyEventStore::InvalidHandler
 
-<% if version_above('0.31.1') %>
 Occurs when given subscriber is not a valid handler to given dispatcher.
-<% else %>
-Occurs when given subscriber does not respond to `call` method.
-<% end %>
 
 ```ruby
 subscriber = Object.new
@@ -154,11 +110,7 @@ end.to raise_error(InvalidHandler)
 
 ### RubyEventStore::NotSupported
 
-<% if version_above('0.30.0') %>
 Raised when using `RailsEventStoreActiveRecord::Legacy` repository on unsupported `link` operation.
-<% else %>
-Raised when using `RailsEventStoreActiveRecord::Legacy` repository on unsupported `link_to_stream` operation.
-<% end %>
 
 
 ### RubyEventStore::ReservedInternalName

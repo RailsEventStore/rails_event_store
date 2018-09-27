@@ -29,14 +29,10 @@
     <li class="doc-item"><%= current_link_to "Request metadata", "/docs/request_metadata/" %></li>
     <li class="doc-item"><%= current_link_to "Event serialization formats", "/docs/mapping_serialization/" %></li>
     <li class="doc-item"><%= current_link_to "Custom repository", "/docs/repository/" %></li>
-    <% if version_gteq('0.32') %>
-      <li class="doc-item"><%= current_link_to "Migrating existing events", "/docs/migrating_messages/" %></li>
-    <% end %>
+    <li class="doc-item"><%= current_link_to "Migrating existing events", "/docs/migrating_messages/" %></li>
     <li class="doc-item"><%= current_link_to "Browser", "/docs/browser/" %></li>
     <li class="doc-item"><%= current_link_to "Ruby Event Store without Rails", "/docs/without_rails/" %></li>
-    <% if version_above('0.31.1') %>
-      <li class="doc-item"><%= current_link_to "Instrumentation", "/docs/instrumentation/" %></li>
-    <% end %>
+    <li class="doc-item"><%= current_link_to "Instrumentation", "/docs/instrumentation/" %></li>
   </ul>
 </div>
 

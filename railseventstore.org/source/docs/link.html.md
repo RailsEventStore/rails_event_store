@@ -45,11 +45,7 @@ order_placed = RailsEventStore::Projection
   .when([OrderPlaced], ->(state, event) {
     time = event.metadata[:timestamp]
     if time.year == 2018 && time.month == 1
-<% if version_above('0.30.0') %>
       event_store.link(
-<% else %>
-      event_store.link_to_stream(
-<% end %>
         event.id,
         stream_name: 'OrderPlaced$2018-01',
         expected_version: :any
@@ -62,27 +58,16 @@ order_placed.run(event_store)
 
 Now going for `OrderPlaced` events in January is as simple as reading:
 
-
-<% if version_above('0.29.0') %>
 ```ruby
 event_store.read.stream('OrderPlaced$2018-01').each.to_a
 ```
-<% else %>
-```ruby
-event_store.read_stream_events_forward('OrderPlaced$2018-01')
-```
-<% end %>
 
 Linking can be even managed as soon as event is published, via event handler:
 
 ```ruby
 class OrderPlacedReport
   def call(event)
-<% if version_above('0.30.0') %>
     event_store.link(
-<% else %>
-    event_store.link_to_stream(
-<% end %>
       event.id,
       stream_name: stream_name(event.metadata[:timestamp]),
       expected_version: :any

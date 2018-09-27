@@ -84,15 +84,9 @@ event_store.publish(event, stream_name: "Order-K3THNX9")
 
 ## Retrieving
 
-<% if version_above('0.29.0') %>
 ```ruby
 event = client.read.stream('test').each.to_a.last
 ```
-<% else %>
-```ruby
-event = client.read_stream_events_forward('test').last
-```
-<% end %>
 
 ## Subscribing
 

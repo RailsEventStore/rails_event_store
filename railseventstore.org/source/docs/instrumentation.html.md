@@ -82,4 +82,3 @@ Queries specification is not documented, but you can read the [source code of it
 | :event      | An event which is being dispatched           |
 | :subscriber | A subscriber to which event is dispatched to |
 
-<%# Use https://www.tablesgenerator.com/markdown_tables to generate such nice tables %>

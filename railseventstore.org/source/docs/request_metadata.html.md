@@ -25,11 +25,7 @@ If you publish an event, the special field called `metadata` will get filled in 
 ```ruby
 event_store.publish(MyEvent.new(data: {foo: 'bar'}))
 
-<% if version_above('0.29.0') %>
-my_event = event_store.read_all_streams_backward(count: 1).first
-<% else %>
 my_event = event_store.read.backward.limit(1).each.to_a.first
-<% end %>
 my_event.metadata[:remote_ip] # your IP
 my_event.metadata[:request_id] # unique ID
 ```
@@ -74,7 +70,6 @@ end
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
 
-<% if version_above('0.29.0') %>
 ## Passing your own metadata using `with_metadata` method
 
 Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
@@ -100,43 +95,11 @@ event_store.with_metadata(causation_id: 1234567890) do
 end
 
 my_event = event_store.read.backward.limit(1).each.to_a.first
-my_event.metadata[:remote_ip] #=> your IP from request metadata proc
-my_event.metadata[:request_id #=> unique ID from request metadata proc
-my_event.metadata[:causation_id] #=> 1234567890 from with_metadata argument
+my_event.metadata[:remote_ip]      #=> your IP from request metadata proc
+my_event.metadata[:request_id      #=> unique ID from request metadata proc
+my_event.metadata[:causation_id]   #=> 1234567890 from with_metadata argument
 my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
-my_event.metadata[:timestamp] #=> a timestamp
+my_event.metadata[:timestamp]      #=> a timestamp
 ```
 
-<% else %>
-## Passing your own metadata using `with_metadata` method
 
-Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
-
-```ruby
-event_store.with_metadata(remote_ip: '1.2.3.4', request_id: SecureRandom.uuid) do
-  event_store.publish(MyEvent.new(data: {foo: 'bar'}))
-end
-
-my_event = event_store.read_all_streams_backward(count: 1).first
-
-my_event.metadata[:remote_ip] #=> '1.2.3.4'
-my_event.metadata[:request_id] #=> unique ID
-```
-
-When using `with_metadata`, the `timestamp` is still added to the metadata unless you explicitly specify it on your own. Additionally, if you are nesting `with_metadata` blocks or  also using the middleware & `request_metadata` lambda, your metadata passed as `with_metadata` argument will be merged with the result of `rails_event_store.request_metadata` proc:
-
-```ruby
-event_store.with_metadata(causation_id: 1234567890) do
-  event_store.with_metadata(correlation_id: 987654321) do
-    event_store.publish(MyEvent.new(data: {foo: 'bar'}))
-  end
-end
-
-my_event = event_store.event_store.read_all_streams_backward(count: 1).first
-my_event.metadata[:remote_ip] #=> your IP from request metadata proc
-my_event.metadata[:request_id #=> unique ID from request metadata proc
-my_event.metadata[:causation_id] #=> 1234567890 from with_metadata argument
-my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
-my_event.metadata[:timestamp] #=> a timestamp
-```
-<% end %>

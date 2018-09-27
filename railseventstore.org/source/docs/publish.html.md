@@ -67,11 +67,7 @@ Providing `stream_name` is optional (but recommended).
 event_store.publish(event)
 ```
 
-<% if version_above('0.29.0') %>
-If you don't provide the `stream_name` you can only read the events with `read_all_streams_forward` and `read_all_streams_backward` method which includes events from all streams.
-<% else %>
 If you don't provide the `stream_name` you can only read the events with `read.each.to_a` and `read.backward.each.to_a` queries (without filtering on particular stream name).
-<% end %>
 
 ## Appending an event to stream
 
@@ -83,11 +79,8 @@ event = OrderPlaced.new(data: {
   order_data: "sample",
   festival_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"
 })
-<% if version_above('0.30.0') %>
+
 event_store.append(
-<% else %>
-event_store.append_to_stream(
-<% end %>
   event,
   stream_name: "order_1"
 )
