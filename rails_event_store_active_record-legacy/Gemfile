@@ -2,6 +2,7 @@ source "https://rubygems.org"
 gemspec
 
 gem 'ruby_event_store', path: '../ruby_event_store'
+gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
 
 if v = ENV['RAILS_VERSION']
   gem 'rails', v
