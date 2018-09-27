@@ -37,36 +37,6 @@ module RubyEventStore
       self
     end
 
-    # @deprecated Use {#publish} instead
-    def publish_events(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      warn <<~EOW
-        RubyEventStore::Client#publish_events has been deprecated.
-
-        Use RubyEventStore::Client#publish instead
-      EOW
-      publish(events, stream_name: stream_name, expected_version: expected_version)
-    end
-
-    # @deprecated Use {#publish} instead
-    def publish_event(event, stream_name: GLOBAL_STREAM, expected_version: :any)
-      warn <<~EOW
-        RubyEventStore::Client#publish_event has been deprecated.
-
-        Use RubyEventStore::Client#publish instead
-      EOW
-      publish(event, stream_name: stream_name, expected_version: expected_version)
-    end
-
-    # @deprecated Use {#append} instead
-    def append_to_stream(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      warn <<~EOW
-        RubyEventStore::Client#append_to_stream has been deprecated.
-
-        Use RubyEventStore::Client#append instead
-      EOW
-      append(events, stream_name: stream_name, expected_version: expected_version)
-    end
-
     # Persists new event(s) without notifying any subscribed handlers
     #
     # @param (see #publish)
@@ -87,16 +57,6 @@ module RubyEventStore
     def link(event_ids, stream_name:, expected_version: :any)
       repository.link_to_stream(event_ids, Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
-    end
-
-    # @deprecated Use {#link} instead
-    def link_to_stream(event_ids, stream_name:, expected_version: :any)
-      warn <<~EOW
-        RubyEventStore::Client#link_to_stream has been deprecated.
-
-        Use RubyEventStore::Client#link instead
-      EOW
-      link(event_ids, stream_name: stream_name, expected_version: expected_version)
     end
 
     # Deletes a stream.

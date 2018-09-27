@@ -81,14 +81,6 @@ module RubyEventStore
       expect(client.read.stream(stream).each.to_a).to eq([first_event, second_event])
     end
 
-    specify do
-      expect { client.append_to_stream(TestEvent.new, stream_name: stream) }.to output(<<~EOS).to_stderr
-        RubyEventStore::Client#append_to_stream has been deprecated.
-
-        Use RubyEventStore::Client#append instead
-      EOS
-    end
-
     specify 'read only up to page size from stream' do
       (1..102).each { client.append(TestEvent.new, stream_name: stream) }
 
@@ -298,21 +290,6 @@ module RubyEventStore
       expect(client.read.stream("flow").each.to_a).to eq([first_event, second_event])
       expect(client.read.stream("cars").each.to_a).to eq([first_event])
       expect(subscriber.handled_events).to be_empty
-    end
-
-    specify do
-      client.append(
-        [first_event = TestEvent.new, second_event = TestEvent.new],
-        stream_name: 'stream'
-      )
-      expect {
-        client.link_to_stream([first_event.event_id, second_event.event_id],
-                              stream_name: 'flow')
-      }.to output(<<~EOS).to_stderr
-        RubyEventStore::Client#link_to_stream has been deprecated.
-
-        Use RubyEventStore::Client#link instead
-      EOS
     end
 
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
