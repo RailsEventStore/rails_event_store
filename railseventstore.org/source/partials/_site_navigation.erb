@@ -1,4 +1,7 @@
 <nav class="site-navigation
+            text-xl
+            px-4
+            h-16
             flex
             items-center
             justify-between">
@@ -8,6 +11,6 @@
     <%= link_to "Community", "/community", class: "site-navigation__link" %>
     <%= link_to "Commercial Support", "/support", class: "site-navigation__link" %>
     <%= link_to "Documentation", "/docs/install", class: "site-navigation__link" %>
-    <%= link_to "v#{config[:res_version]}", "https://github.com/RailsEventStore/rails_event_store/releases/tag/v#{config[:res_version]}", class: "site-navigation__link site-navigation__link--external" %>
+    <%= link_to "v#{config[:res_version]}", "https://github.com/RailsEventStore/rails_event_store/releases/tag/v#{config[:res_version]}", class: "site-navigation__link site-navigation__link--external text-base" %>
   </div>
 </nav>

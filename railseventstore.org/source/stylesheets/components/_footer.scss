@@ -1,5 +1,4 @@
 .site-footer {
-  padding: 4rem 1rem;
   text-align: center;
 }
 
@@ -14,6 +13,7 @@
   color: $oc-gray-5;
   background: transparent;
   border-bottom: none;
+  font-weight: normal;
 
   &:hover {
     background: inherit;
@@ -21,7 +21,8 @@
     color: $oc-red-3;
   }
 
-  &:active, &:focus {
+  &:active,
+  &:focus {
     color: $oc-white;
     background: inherit;
     border-bottom: none;

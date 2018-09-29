@@ -1,0 +1,10 @@
+.documentation { 
+	h1, h2, h3 {
+		margin: 1.5rem 0 1rem 0;
+		font-weight: normal;
+
+		&:first-child {
+			margin-top: 0;
+		}
+	}
+}

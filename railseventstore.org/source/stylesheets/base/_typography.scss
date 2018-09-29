@@ -1,74 +1,19 @@
-html {
-  font-size: 62.5%;
-}
-
-body {
-  -webkit-font-smoothing: antialiased;
-  color: $base-font-color;
-  font-family: $base-font-family;
-  font-size: $base-font-size;
-  line-height: $base-line-height;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: $header-font-color;
-  font-family: $header-font-family;
-  font-weight: normal;
-  line-height: $header-line-height;
-  margin-bottom: 0.3em;
-}
-
-h1 {
-  font-size: $h1-font-size;
-}
-
-h2 {
-  font-size: $h2-font-size;
-}
-
-h3 {
-  font-size: $h3-font-size;
-}
-
-h4 {
-  font-size: $h4-font-size;
-}
-
-h5 {
-  font-size: $h5-font-size;
-}
-
-h6 {
-  font-size: $h6-font-size;
-}
-
-p {
-  font-size: $base-font-size * 1.02;
-  margin: 0 0 ($base-spacing / 1.5);
-  line-height: 1.75;
-}
-
 a {
   color: $base-font-color;
+  font-weight: $font-weight-semibold;
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  background-color: $oc-red-1;
-  //transition: color 0.1s linear;
+
+  background-image: linear-gradient(
+    180deg,
+    transparent 70%,
+    rgba($oc-red-5, 0.4) 0
+  );
 
   &:hover {
-    background-color: $oc-red-3;
-    border-bottom: 1px solid $base-font-color;
   }
 
   &:active,
   &:focus {
-    background-color: $oc-red-3;
-    border-bottom: 1px solid $base-font-color;
     outline: none;
   }
 }
@@ -97,7 +42,7 @@ code {
   border-radius: $base-border-radius;
   font-family: $monospace-font-family;
   font-size: 0.875em;
-  margin-bottom: 2rem;
+  margin: 0.5rem 0 1.25rem 0;
 
   :not(pre) > & {
     margin: 0 0.125em;

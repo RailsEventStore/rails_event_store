@@ -2,7 +2,6 @@
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid $oc-gray-1;
-  padding-bottom: 2rem;
 }
 
 .stats__stat {
@@ -21,7 +20,6 @@
 
 .stat__value {
   text-align: center;
-  font-size: 3.2rem;
   order: 1;
   color: $oc-gray-5;
 }
