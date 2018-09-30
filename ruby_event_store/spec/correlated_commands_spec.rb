@@ -48,7 +48,7 @@ module RubyEventStore
     specify "correlate produced events with current command" do
       bus = CorrelatedCommands.new(event_store, command_bus)
       bus.call(cmd = TestCommand.new)
-      event = event_store.read.each.first
+      event = event_store.read.first
       expect(event.correlation_id).to eq(cmd.message_id)
       expect(event.causation_id).to eq(cmd.message_id)
       expect(cmd.message_id).to be_a(String)
@@ -65,14 +65,14 @@ module RubyEventStore
       expect(cmd1.correlation_id).to be_nil
       expect(cmd1.causation_id).to be_nil
 
-      event1 = event_store.read.each.first
+      event1 = event_store.read.first
       expect(event1.correlation_id).to eq(cmd1.message_id)
       expect(event1.causation_id).to eq(cmd1.message_id)
 
       expect(cmd2.correlation_id).to eq(cmd1.message_id)
       expect(cmd2.causation_id).to eq(event1.message_id)
 
-      event2 = event_store.read.each.to_a.last
+      event2 = event_store.read.last
       expect(event2.correlation_id).to eq(cmd1.message_id)
       expect(event2.causation_id).to eq(cmd2.message_id)
     end
@@ -93,14 +93,14 @@ module RubyEventStore
       expect(cmd1.correlation_id).to be_nil
       expect(cmd1.causation_id).to be_nil
 
-      event1 = event_store.read.each.first
+      event1 = event_store.read.first
       expect(event1.correlation_id).to eq(cmd1.message_id)
       expect(event1.causation_id).to eq(cmd1.message_id)
 
       expect(cmd2.correlation_id).to be_nil
       expect(cmd2.causation_id).to be_nil
 
-      event2 = event_store.read.each.to_a.last
+      event2 = event_store.read.last
       expect(event2.correlation_id).to eq(cmd1.message_id)
       expect(event2.causation_id).to eq(cmd2.message_id)
     end
