@@ -1192,5 +1192,19 @@ module RubyEventStore
       expect(repository.streams_of(event_3.event_id)).to eq [stream_b]
       expect(repository.streams_of(event_4.event_id)).to eq []
     end
+
+    specify do
+      e1 = SRecord.new
+      e2 = SRecord.new
+      e3 = SRecord.new
+      e4 = SRecord.new
+      stream = Stream.new('Stream A')
+      repository.append_to_stream([e1, e2, e3], stream, version_any)
+
+      expect(repository.read(specification.with_id([e1.event_id]).read_first.result)).to eq(e1)
+      expect(repository.read(specification.with_id([e3.event_id]).read_first.result)).to eq(e3)
+      expect(repository.read(specification.with_id([e4.event_id]).read_first.result)).to eq(nil)
+      expect(repository.read(specification.with_id([e1.event_id, e3.event_id]).in_batches.result).to_a[0]).to eq([e1,e3])
+    end
   end
 end

@@ -74,6 +74,7 @@ module RubyEventStore
           specification.limit(10),
           specification.from(event_id),
           specification.stream(stream_name),
+          specification.with_id([event_id]),
         ]
         expect(specs.map{|s| s.send(:reader)}.uniq).to eq([reader])
       end
@@ -230,6 +231,16 @@ module RubyEventStore
         expect(spec.result.last?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
+        spec = specification.with_id([event_id])
+        expect(spec.result.object_id).not_to eq(specification.result.object_id)
+        expect(spec.result.forward?).to eq(true)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
+        expect(spec.result.stream.global?).to eq(true)
+        expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
+        expect(spec.result.with_ids).to eq([event_id])
+
         spec = specification
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(:head)
@@ -370,6 +381,25 @@ module RubyEventStore
     end
 
     specify do
+      expect(specification.event(event_id)).to be_nil
+      expect{specification.event!(event_id)}.to raise_error(EventNotFound, "Event not found: #{event_id}")
+
+      records = 5.times.map { test_record }
+      repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+
+      expect(specification.event(records[0].event_id)).to eq(TestEvent.new(event_id: records[0].event_id))
+      expect(specification.event(records[3].event_id)).to eq(TestEvent.new(event_id: records[3].event_id))
+
+      expect(specification.event!(records[0].event_id)).to eq(TestEvent.new(event_id: records[0].event_id))
+      expect(specification.event!(records[3].event_id)).to eq(TestEvent.new(event_id: records[3].event_id))
+
+      expect(specification.events([0,2,4].map{|i| records[i].event_id}).to_a).to eq(
+        [0,2,4].map{|i| TestEvent.new(event_id: records[i].event_id)})
+      expect(specification.events([records[0].event_id, SecureRandom.uuid]).to_a).to eq(
+        [TestEvent.new(event_id: records[0].event_id)])
+    end
+
+    specify do
       repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.none)
 
       expect(specification.result.batched?).to eq(false)
@@ -406,6 +436,9 @@ module RubyEventStore
       expect(specification.result.hash).to eq(specification.stream(GLOBAL_STREAM).result.hash)
       expect(specification.result.hash).not_to eq(specification.stream('dummy').result.hash)
 
+      expect(specification.with_id(event_id).result.hash).to eq(specification.with_id(event_id).result.hash)
+      expect(specification.with_id(event_id).result.hash).not_to eq(specification.with_id(SecureRandom.uuid).result.hash)
+
       with_event_of_id(event_id) do
         expect(specification.result.hash).to eq(specification.from(:head).result.hash)
         expect(specification.from(event_id).result.hash).not_to eq(specification.from(:head).result.hash)
@@ -419,6 +452,7 @@ module RubyEventStore
           Stream.new(GLOBAL_STREAM),
           :all,
           Specification::DEFAULT_BATCH_SIZE,
+          nil,
         ].hash)
 
       expect(Class.new(SpecificationResult).new.hash).not_to eq(specification.result.hash)
@@ -437,6 +471,9 @@ module RubyEventStore
       expect(specification.in_batches.result).not_to eq(specification.in_batches(10).result)
       expect(specification.result).to eq(specification.stream(GLOBAL_STREAM).result)
       expect(specification.result).not_to eq(specification.stream('dummy').result)
+
+      expect(specification.with_id(event_id).result).to eq(specification.with_id(event_id).result)
+      expect(specification.with_id(event_id).result).not_to eq(specification.with_id(SecureRandom.uuid).result)
 
       with_event_of_id(event_id) do
         expect(specification.result).to eq(specification.from(:head).result)
