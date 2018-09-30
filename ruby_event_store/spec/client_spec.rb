@@ -265,11 +265,12 @@ module RubyEventStore
 
     specify 'reading particular event' do
       client.publish(test_event = TestEvent.new, stream_name: 'test')
-      expect(client.read_event(test_event.event_id)).to eq(test_event)
+      expect(client.read.event!(test_event.event_id)).to eq(test_event)
     end
 
     specify 'reading non-existent event' do
-      expect { client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to raise_error(EventNotFound)
+      expect(client.read.event('72922e65-1b32-4e97-8023-03ae81dd3a27')).to be_nil
+      expect { client.read.event!('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to raise_error(EventNotFound)
     end
 
     specify 'link events' do
@@ -309,7 +310,7 @@ module RubyEventStore
         )
         client.publish(event, stream_name: 'test')
 
-        expect(client.read_event(event.event_id)).to eq(event)
+        expect(client.read.event!(event.event_id)).to eq(event)
         expect(client.read.stream("test").each.to_a).to eq([event])
       rescue LoadError => exc
         skip if exc.message == "cannot load such file -- google/protobuf_c"
