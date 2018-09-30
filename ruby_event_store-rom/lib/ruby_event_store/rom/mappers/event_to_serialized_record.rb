@@ -6,7 +6,7 @@ module RubyEventStore
       class EventToSerializedRecord < ::ROM::Transformer
         relation :events
         register_as :event_to_serialized_record
-      
+
         map_array do
           rename_keys id: :event_id
           accept_keys %i[event_id data metadata event_type]

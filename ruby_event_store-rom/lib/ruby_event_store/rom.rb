@@ -11,10 +11,10 @@ module RubyEventStore
   module ROM
     class Env
       attr_accessor :container
-  
+
       def initialize(container)
         @container = container
-  
+
         container.register(:unique_violation_error_handlers, Set.new)
         container.register(:not_found_error_handlers, Set.new)
         container.register(:logger, Logger.new(STDOUT).tap { |logger| logger.level = Logger::WARN })
@@ -26,22 +26,22 @@ module RubyEventStore
 
       def unit_of_work(&block)
         options = container[:unit_of_work_options].dup
-        options.delete(:class){UnitOfWork}.new(rom: self).call(**options, &block)
+        options.delete(:class) { UnitOfWork }.new(rom: self).call(**options, &block)
       end
 
       def register_unit_of_work_options(options)
         container.register(:unit_of_work_options, options)
       end
-  
+
       def register_error_handler(type, handler)
         container[:"#{type}_error_handlers"] << handler
       end
-  
+
       def handle_error(type, *args, swallow: [])
         yield
-      rescue => ex
+      rescue StandardError => ex
         begin
-          container[:"#{type}_error_handlers"].each{ |h| h.call(ex, *args) }
+          container[:"#{type}_error_handlers"].each { |h| h.call(ex, *args) }
           raise ex
         rescue *swallow
           # swallow
@@ -52,7 +52,7 @@ module RubyEventStore
     class << self
       # Set to a default instance
       attr_accessor :env
-  
+
       def configure(adapter_name, database_uri = ENV['DATABASE_URL'], &block)
         if adapter_name.is_a?(::ROM::Configuration)
           # Call config block manually
@@ -61,7 +61,7 @@ module RubyEventStore
           Env.new ::ROM.container(adapter_name, database_uri, &block)
         end
       end
-  
+
       def setup(*args, &block)
         configure(*args) do |config|
           setup_defaults(config)
@@ -69,12 +69,12 @@ module RubyEventStore
         end.tap(&method(:configure_defaults))
       end
 
-    private
-      
+      private
+
       def setup_defaults(config)
         require_relative 'rom/repositories/stream_entries'
         require_relative 'rom/repositories/events'
-        
+
         config.register_mapper(ROM::Mappers::EventToSerializedRecord)
         config.register_mapper(ROM::Mappers::StreamEntryToSerializedRecord)
 
@@ -84,7 +84,7 @@ module RubyEventStore
       end
 
       def configure_defaults(env)
-        env.register_error_handler :not_found, -> (ex, event_id) {
+        env.register_error_handler :not_found, ->(ex, event_id) {
           case ex
           when ::ROM::TupleCountMismatchError
             raise EventNotFound.new(event_id)

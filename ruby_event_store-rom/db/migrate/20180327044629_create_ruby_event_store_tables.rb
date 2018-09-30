@@ -4,7 +4,7 @@ require 'rom/sql'
   change do
     postgres = database_type =~ /postgres/
     sqlite   = database_type =~ /sqlite/
-    
+
     run 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' if postgres
 
     create_table? :event_store_events_in_streams do
@@ -20,7 +20,7 @@ require 'rom/sql'
       end
 
       column :created_at, DateTime, null: false, index: 'index_event_store_events_in_streams_on_created_at'
-      
+
       index %i[stream position], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_position'
       index %i[stream event_id], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_event_id'
     end

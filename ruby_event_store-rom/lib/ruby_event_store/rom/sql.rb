@@ -4,6 +4,7 @@ require_relative 'adapters/sql/index_violation_detector'
 require_relative 'adapters/sql/unit_of_work'
 require_relative 'adapters/sql/relations/events'
 require_relative 'adapters/sql/relations/stream_entries'
+require_relative 'adapters/sql/commands/batch_update'
 
 module RubyEventStore
   module ROM
@@ -12,6 +13,7 @@ module RubyEventStore
         def setup(config)
           config.register_relation Relations::Events
           config.register_relation Relations::StreamEntries
+          config.register_command  Commands::BatchUpdate
         end
 
         def configure(env)
@@ -21,10 +23,11 @@ module RubyEventStore
             savepoint: true
           )
 
-          env.register_error_handler :unique_violation, -> ex {
+          env.register_error_handler :unique_violation, ->(ex) {
             case ex
             when ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
               raise EventDuplicatedInStream if IndexViolationDetector.new.detect(ex.message)
+
               raise WrongExpectedEventVersion
             end
           }
@@ -43,7 +46,7 @@ module RubyEventStore
 
       class SpecHelper
         attr_reader :env
-        
+
         def initialize(database_uri = ENV['DATABASE_URL'])
           config = ::ROM::Configuration.new(
             :sql,
@@ -56,10 +59,10 @@ module RubyEventStore
           # config.default.use_logger Logger.new(STDOUT)
           # config.default.connection.pool.send(:preconnect, true)
           config.default.run_migrations
-    
+
           @env = ROM.setup(config)
         end
-        
+
         def run_lifecycle
           establish_gateway_connection
           load_gateway_schema

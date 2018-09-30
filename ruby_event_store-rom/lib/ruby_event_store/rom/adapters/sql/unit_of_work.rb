@@ -27,7 +27,12 @@ module RubyEventStore
   
           gateway.transaction(options) do
             changesets.each do |changeset|
-              changeset.relation.multi_insert(changeset.to_a)
+              case changeset
+              when ROM::Repositories::Events::BatchUpdate
+                changeset.commit
+              else
+                changeset.relation.multi_insert(changeset.to_a)
+              end
             end
           end
         end

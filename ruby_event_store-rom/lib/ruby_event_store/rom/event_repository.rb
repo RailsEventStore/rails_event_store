@@ -81,6 +81,17 @@ module RubyEventStore
         @events.read(specification)
       end
 
+      def update_messages(messages)
+        # Validate event IDs
+        @events
+          .find_nonexistent_pks(messages.map(&:event_id))
+          .each { |id| raise EventNotFound, id }
+
+        unit_of_work do |changesets|
+          changesets << @events.update_changeset(messages)
+        end
+      end
+
       def streams_of(event_id)
         @stream_entries.streams_of(event_id)
           .map{|name| Stream.new(name)}
@@ -90,6 +101,7 @@ module RubyEventStore
 
       def normalize_to_array(events)
         return events if events.is_a?(Enumerable)
+
         [events]
       end
     end

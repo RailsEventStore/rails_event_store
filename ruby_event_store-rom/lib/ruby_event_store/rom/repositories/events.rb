@@ -18,12 +18,33 @@ module RubyEventStore
           end
         end
 
+        class BatchUpdate < ::ROM::Changeset::Create
+          command_type :batch_update
+
+          # Convert to Hash
+          map(&:to_h)
+
+          map do
+            rename_keys event_id: :id
+            accept_keys %i[id data metadata event_type created_at]
+          end
+
+          map do |tuple|
+            Hash(created_at: nil).merge(tuple)
+          end
+        end
+
         def create_changeset(serialized_records)
           events.changeset(Create, serialized_records)
         end
 
+        def update_changeset(serialized_records)
+          events.changeset(BatchUpdate, serialized_records)
+        end
+
         def find_nonexistent_pks(event_ids)
           return event_ids unless event_ids.any?
+
           event_ids - events.by_pk(event_ids).pluck(:id)
         end
 
