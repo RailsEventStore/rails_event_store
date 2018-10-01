@@ -7,6 +7,7 @@ module RubyEventStore
     let(:test_race_conditions_auto)  { true }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
+    let(:test_read_by_event_ids)     { true }
     let(:test_binary) { true }
     let(:test_change) { true }
 

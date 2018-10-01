@@ -21,6 +21,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_any)   { true }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
+    let(:test_read_by_event_ids)     { true }
     let(:test_binary)                { false }
     let(:test_change)                { true }
     let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }
