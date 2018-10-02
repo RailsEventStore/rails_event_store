@@ -293,10 +293,6 @@ module RubyEventStore
       end
     end
 
-    def deserialize_event(sev)
-      mapper.serialized_record_to_event(sev)
-    end
-
     def normalize_to_array(events)
       return *events
     end
