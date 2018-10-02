@@ -47,12 +47,16 @@ module RubyEventStore
           end
 
           direction = specification.forward? ? :forward : :backward
+
           limit = specification.limit if specification.limit?
+
           if specification.last? && specification.head?
             direction = specification.forward? ? :backward : :forward
           end
 
           query = stream_entries.ordered(direction, specification.stream, offset_entry_id)
+
+          query = query.by_event_id(specification.with_ids) if specification.with_ids
 
           if specification.batched?
             reader = ->(offset, limit) do

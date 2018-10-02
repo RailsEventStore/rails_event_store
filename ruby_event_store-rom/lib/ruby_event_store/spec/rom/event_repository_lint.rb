@@ -17,7 +17,7 @@ module RubyEventStore::ROM
     let(:test_race_conditions_any)   { rom_helper.has_connection_pooling? }
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
-    let(:test_read_by_event_ids)     { false }
+    let(:test_read_by_event_ids)     { true }
     let(:test_binary) { false }
     let(:test_change) { false }
 
