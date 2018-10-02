@@ -1175,7 +1175,6 @@ module RubyEventStore
     end
 
     specify do
-      skip unless test_read_by_event_ids
       e1 = SRecord.new
       e2 = SRecord.new
       e3 = SRecord.new
