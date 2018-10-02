@@ -20,7 +20,7 @@ module RubyEventStore
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
           def offset(num)
-            num.zero? ? self : new(dataset.slice(num..-1))
+            num.zero? ? self : new(dataset.slice(num..-1) || [])
           end
 
           def take(num)
