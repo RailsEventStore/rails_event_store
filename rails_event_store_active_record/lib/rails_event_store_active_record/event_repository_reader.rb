@@ -10,19 +10,6 @@ module RailsEventStoreActiveRecord
       record && build_event_instance(record)
     end
 
-    def read_event(event_id)
-      event = Event.find(event_id)
-      RubyEventStore::SerializedRecord.new(
-        event_id: event.id,
-        metadata: event.metadata,
-        data: event.data,
-        event_type: event.event_type
-      )
-    rescue ActiveRecord::RecordNotFound
-      raise RubyEventStore::EventNotFound.new(event_id)
-    end
-
-
     def read(spec)
       raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 

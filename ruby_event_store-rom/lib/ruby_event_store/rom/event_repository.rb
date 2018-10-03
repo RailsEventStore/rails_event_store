@@ -75,12 +75,6 @@ module RubyEventStore
         @events.last_stream_event(stream)
       end
 
-      def read_event(event_id)
-        guard_for(:not_found, event_id) do
-          @events.by_id(event_id)
-        end
-      end
-
       def read(specification)
         raise ReservedInternalName if specification.stream.name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
 

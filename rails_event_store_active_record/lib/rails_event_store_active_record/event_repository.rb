@@ -38,10 +38,6 @@ module RailsEventStoreActiveRecord
       @repo_reader.last_stream_event(stream)
     end
 
-    def read_event(event_id)
-      @repo_reader.read_event(event_id)
-    end
-
     def read(specification)
       @repo_reader.read(specification)
     end

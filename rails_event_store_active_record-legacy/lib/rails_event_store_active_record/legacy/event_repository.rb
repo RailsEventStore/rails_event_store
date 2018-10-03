@@ -55,10 +55,6 @@ instead:
         build_event_entity(LegacyEvent.where(stream: stream.name).last)
       end
 
-      def read_event(event_id)
-        build_event_entity(LegacyEvent.find_by(event_id: event_id)) or raise RubyEventStore::EventNotFound.new(event_id)
-      end
-
       def read(spec)
         stream = LegacyEvent.order(id: order(spec))
         stream = stream.where(event_id: spec.with_ids) if spec.with_ids
