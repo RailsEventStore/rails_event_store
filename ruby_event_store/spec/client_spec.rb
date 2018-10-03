@@ -273,6 +273,17 @@ module RubyEventStore
       expect { client.read.event!('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to raise_error(EventNotFound)
     end
 
+    specify 'deprecation of read_event' do
+      spec = instance_double(Specification)
+      expect(client).to receive(:read).and_return(spec)
+      expect(spec).to receive(:event!).with('72922e65-1b32-4e97-8023-03ae81dd3a27')
+      expect { client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_event(event_id) has been deprecated.
+        Use `client.read.event!(event_id)` instead. Also available without
+        bang - return nil when no event is found.
+      EOS
+     end
+
     specify 'link events' do
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
       client.append(
