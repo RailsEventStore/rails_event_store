@@ -34,6 +34,7 @@ module RubyEventStore
     def read(spec)
       events = spec.stream.global? ? global : stream_of(spec.stream.name)
       events = events.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
+      events = events.select{|e| spec.with_types.any?{|x| x.to_s.eql?(e.event_type)}} if spec.with_types?
       events = events.reverse if spec.backward?
       events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
       events = events[0...spec.limit] if spec.limit?
