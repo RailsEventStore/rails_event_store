@@ -2,9 +2,6 @@
 
 Source files for the documentation and website of [Rails Event Store](https://railseventstore.org).
 
-[![Build Status](https://travis-ci.org/RailsEventStore/railseventstore.org.svg?branch=master)](https://travis-ci.org/RailsEventStore/railseventstore.org)
-
-
 ## Serving the docs locally
 
 Provided you have Ruby installed, you can serve the docs locally at `http://localhost:4567`
