@@ -13,8 +13,9 @@ module RailsEventStoreActiveRecord
     def read(spec)
       raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
-      stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
+      stream = EventInStream.joins(:event).preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
+      stream = stream.where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
       stream = stream.order(position: order(spec)) unless spec.stream.global?
       stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?
@@ -43,7 +44,7 @@ module RailsEventStoreActiveRecord
     def start_condition(specification)
       event_record =
         EventInStream.find_by!(event_id: specification.start, stream: normalize_stream_name(specification))
-      condition = specification.forward? ? 'id > ?' : 'id < ?'
+      condition = specification.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
       [condition, event_record]
     end
 
