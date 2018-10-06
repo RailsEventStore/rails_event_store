@@ -58,6 +58,7 @@ instead:
       def read(spec)
         stream = LegacyEvent.order(id: order(spec))
         stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
+        stream = stream.where(event_type: spec.with_types) if spec.with_types?
         stream = stream.limit(spec.limit) if spec.limit?
         stream = stream.where(start_condition(spec)) unless spec.head?
         stream = stream.where(stream: spec.stream.name) unless spec.stream.global?
