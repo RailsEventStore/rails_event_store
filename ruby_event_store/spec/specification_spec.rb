@@ -44,6 +44,11 @@ module RubyEventStore
     specify { expect{specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
     specify { expect(specification.from(:head).result.head?).to eq(true) }
 
+    specify { expect(specification.result.with_ids).to be_nil }
+    specify { expect(specification.with_id([event_id]).result.with_ids).to eq([event_id]) }
+    specify { expect(specification.result.with_ids?).to eq(false) }
+    specify { expect(specification.with_id([event_id]).result.with_ids?).to eq(true) }
+
     specify do
       with_event_of_id(event_id) do
         expect(specification.from(event_id).result.start).to eq(event_id)

@@ -84,6 +84,14 @@ module RubyEventStore
       attributes.with_ids
     end
 
+    # Read by specified ids. True if event ids have been specified.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Boolean]
+    def with_ids?
+      !(with_ids || []).empty?
+    end
+
     # Read strategy. True if items will be read in batches
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
