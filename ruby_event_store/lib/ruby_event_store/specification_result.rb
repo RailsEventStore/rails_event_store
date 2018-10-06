@@ -98,7 +98,7 @@ module RubyEventStore
     #
     # @return [Array|nil]
     def with_types
-      attributes.with_types
+      attributes.with_types&.map(&:to_s)
     end
 
     # Read by specified event types. True if event types have been specified.

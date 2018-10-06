@@ -50,7 +50,7 @@ module RubyEventStore
     specify { expect(specification.with_id([event_id]).result.with_ids?).to eq(true) }
 
     specify { expect(specification.result.with_types).to be_nil }
-    specify { expect(specification.of_type([TestEvent]).result.with_types).to eq([TestEvent]) }
+    specify { expect(specification.of_type([TestEvent]).result.with_types).to eq(['TestEvent']) }
     specify { expect(specification.result.with_types?).to eq(false) }
     specify { expect(specification.of_type([TestEvent]).result.with_types?).to eq(true) }
 
@@ -260,7 +260,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
-        expect(spec.result.with_types).to eq([TestEvent])
+        expect(spec.result.with_types).to eq(['TestEvent'])
 
         spec = specification
         expect(spec.result.forward?).to eq(true)
