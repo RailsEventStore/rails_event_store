@@ -793,5 +793,10 @@ module RubyEventStore
         expect(client.streams_of(event_4.event_id)).to eq []
       end
     end
+
+    specify "#inspect" do
+      object_id = client.object_id.to_s(16)
+      expect(client.inspect).to eq("#<RubyEventStore::Client:0x#{object_id}>")
+    end
   end
 end

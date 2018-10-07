@@ -280,6 +280,10 @@ module RubyEventStore
       self
     end
 
+    def inspect
+      "#<#{self.class}:0x#{__id__.to_s(16)}>"
+    end
+
     EMPTY_HASH = {}.freeze
     private_constant :EMPTY_HASH
 
