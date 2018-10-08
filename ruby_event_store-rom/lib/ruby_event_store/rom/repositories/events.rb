@@ -57,6 +57,7 @@ module RubyEventStore
           query = stream_entries.ordered(direction, specification.stream, offset_entry_id)
 
           query = query.by_event_id(specification.with_ids) if specification.with_ids
+          query = query.by_event_type(specification.with_types) if specification.with_types?
 
           if specification.batched?
             reader = ->(offset, limit) do
