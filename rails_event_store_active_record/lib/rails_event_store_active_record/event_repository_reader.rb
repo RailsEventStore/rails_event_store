@@ -10,23 +10,11 @@ module RailsEventStoreActiveRecord
       record && build_event_instance(record)
     end
 
-    def read_event(event_id)
-      event = Event.find(event_id)
-      RubyEventStore::SerializedRecord.new(
-        event_id: event.id,
-        metadata: event.metadata,
-        data: event.data,
-        event_type: event.event_type
-      )
-    rescue ActiveRecord::RecordNotFound
-      raise RubyEventStore::EventNotFound.new(event_id)
-    end
-
-
     def read(spec)
       raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
 
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
+      stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
       stream = stream.order(position: order(spec)) unless spec.stream.global?
       stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) unless spec.head?

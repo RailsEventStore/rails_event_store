@@ -265,12 +265,24 @@ module RubyEventStore
 
     specify 'reading particular event' do
       client.publish(test_event = TestEvent.new, stream_name: 'test')
-      expect(client.read_event(test_event.event_id)).to eq(test_event)
+      expect(client.read.event!(test_event.event_id)).to eq(test_event)
     end
 
     specify 'reading non-existent event' do
-      expect { client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to raise_error(EventNotFound)
+      expect(client.read.event('72922e65-1b32-4e97-8023-03ae81dd3a27')).to be_nil
+      expect { client.read.event!('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to raise_error(EventNotFound)
     end
+
+    specify 'deprecation of read_event' do
+      spec = instance_double(Specification)
+      expect(client).to receive(:read).and_return(spec)
+      expect(spec).to receive(:event!).with('72922e65-1b32-4e97-8023-03ae81dd3a27')
+      expect { client.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27') }.to output(<<~EOS).to_stderr
+        RubyEventStore::Client#read_event(event_id) has been deprecated.
+        Use `client.read.event!(event_id)` instead. Also available without
+        bang - return nil when no event is found.
+      EOS
+     end
 
     specify 'link events' do
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
@@ -309,7 +321,7 @@ module RubyEventStore
         )
         client.publish(event, stream_name: 'test')
 
-        expect(client.read_event(event.event_id)).to eq(event)
+        expect(client.read.event!(event.event_id)).to eq(event)
         expect(client.read.stream("test").each.to_a).to eq([event])
       rescue LoadError => exc
         skip if exc.message == "cannot load such file -- google/protobuf_c"

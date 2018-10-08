@@ -31,12 +31,6 @@ module RubyEventStore
       repository.last_stream_event(stream)
     end
 
-    def read_event(event_id)
-      instrumentation.instrument("read_event.repository.rails_event_store", event_id: event_id) do
-        repository.read_event(event_id)
-      end
-    end
-
     def read(specification)
       instrumentation.instrument("read.repository.rails_event_store", specification: specification) do
         repository.read(specification)

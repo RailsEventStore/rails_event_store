@@ -70,12 +70,14 @@ module RubyEventStore
       self
     end
 
-    # Returns a single, persisted event based on its ID.
-    #
-    # @param event_id [String] event id
-    # @return [Event, Proto]
+    # @deprecated Use {#read.event!(event_id)} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.33.0 More info}
     def read_event(event_id)
-      deserialize_event(repository.read_event(event_id))
+      warn <<~EOW
+        RubyEventStore::Client#read_event(event_id) has been deprecated.
+        Use `client.read.event!(event_id)` instead. Also available without
+        bang - return nil when no event is found.
+      EOW
+      read.event!(event_id)
     end
 
     # Starts building a query specification for reading events.
@@ -293,10 +295,6 @@ module RubyEventStore
       events.map do |ev|
         mapper.event_to_serialized_record(ev)
       end
-    end
-
-    def deserialize_event(sev)
-      mapper.serialized_record_to_event(sev)
     end
 
     def normalize_to_array(events)

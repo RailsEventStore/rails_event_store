@@ -15,7 +15,7 @@ module RubyEventStore
       end
 
       def event
-        @event ||= event_store.read_event(event_id)
+        @event ||= event_store.read.event!(event_id)
       end
 
       def event_id

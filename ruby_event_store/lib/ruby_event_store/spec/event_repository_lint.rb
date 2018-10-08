@@ -953,25 +953,6 @@ module RubyEventStore
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
     end
 
-    specify 'reading particular event' do
-      test_event = SRecord.new(event_id: "941cd8f5-b3f9-47af-b4e4-07f8cea37467")
-      repository.
-        append_to_stream(SRecord.new, stream_test, version_none).
-        append_to_stream(test_event, stream_test, version_0)
-
-      expect(repository.read_event("941cd8f5-b3f9-47af-b4e4-07f8cea37467")).to eq(test_event)
-    end
-
-    specify 'reading non-existent event' do
-      expect do
-        repository.read_event('72922e65-1b32-4e97-8023-03ae81dd3a27')
-      end.to raise_error do |err|
-        expect(err).to be_a(EventNotFound)
-        expect(err.event_id).to eq('72922e65-1b32-4e97-8023-03ae81dd3a27')
-        expect(err.message).to eq('Event not found: 72922e65-1b32-4e97-8023-03ae81dd3a27')
-      end
-    end
-
     specify 'linking non-existent event' do
       skip unless test_link_events_to_stream
       expect do
@@ -1191,6 +1172,28 @@ module RubyEventStore
       expect(repository.streams_of(event_2.event_id)).to eq [stream_a]
       expect(repository.streams_of(event_3.event_id)).to eq [stream_b]
       expect(repository.streams_of(event_4.event_id)).to eq []
+    end
+
+    specify do
+      e1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea')
+      e2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7')
+      e3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e')
+      stream = Stream.new('Stream A')
+      repository.append_to_stream([e1, e2, e3], stream, version_any)
+
+      expect(repository.read(specification.with_id([
+        '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea'
+      ]).read_first.result)).to eq(e1)
+      expect(repository.read(specification.with_id([
+        'd345f86d-b903-4d78-803f-38990c078d9e'
+      ]).read_first.result)).to eq(e3)
+      expect(repository.read(specification.with_id([
+        'c31b327c-0da1-4178-a3cd-d2f6bb5d0688'
+      ]).read_first.result)).to eq(nil)
+      expect(repository.read(specification.with_id([
+        '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea',
+        'd345f86d-b903-4d78-803f-38990c078d9e'
+      ]).in_batches.result).to_a[0]).to eq([e1,e3])
     end
   end
 end

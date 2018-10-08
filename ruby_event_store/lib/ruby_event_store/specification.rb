@@ -143,6 +143,46 @@ module RubyEventStore
       reader.one(read_last.result)
     end
 
+    # Limits the query to certain events by given even ids.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param even_ids [Array(String)] ids of event to look for.
+    # @return [Specification]
+    def with_id(event_ids)
+      Specification.new(reader, result.dup{ |r| r.with_ids = event_ids })
+    end
+
+    # Executes the query based on the specification built up to this point.
+    # Returns the event with specified id or nil if event is not found
+    # in specified collection of events.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Event, nil]
+    def event(event_id)
+      reader.one(read_first.with_id([event_id]).result)
+    end
+
+    # Executes the query based on the specification built up to this point.
+    # Returns the event with specified id or raises [EventNotFound[ error if
+    # event is not found in specified collection of events.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Event]
+    def event!(event_id)
+      event(event_id) or raise EventNotFound.new(event_id)
+    end
+
+    # Executes the query based on the specification built up to this point.
+    # Yields each event (found by id in specified collection of events)
+    # read from the store if block given. Otherwise, returns enumerable collection.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @yield [Event, Proto] event
+    # @return [Enumerator, nil] Enumerator is returned when block not given
+    def events(event_ids)
+      with_id(event_ids).each
+    end
+
     attr_reader :result
     private
     attr_reader :reader

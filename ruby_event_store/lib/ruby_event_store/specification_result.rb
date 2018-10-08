@@ -5,9 +5,10 @@ module RubyEventStore
                    count: nil,
                    stream: Stream.new(GLOBAL_STREAM),
                    read_as: :all,
-                   batch_size: Specification::DEFAULT_BATCH_SIZE)
-      @attributes = Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size)
-        .new(direction, start, count, stream, read_as, batch_size)
+                   batch_size: Specification::DEFAULT_BATCH_SIZE,
+                   with_ids: nil)
+      @attributes = Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size, :with_ids)
+        .new(direction, start, count, stream, read_as, batch_size, with_ids)
       freeze
     end
 
@@ -73,6 +74,22 @@ module RubyEventStore
     # @return [Integer]
     def batch_size
       attributes.batch_size
+    end
+
+    # Ids of specified event to be read (if any given)
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Array|nil]
+    def with_ids
+      attributes.with_ids
+    end
+
+    # Read by specified ids. True if event ids have been specified.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Boolean]
+    def with_ids?
+      !(with_ids || []).empty?
     end
 
     # Read strategy. True if items will be read in batches
@@ -145,6 +162,7 @@ module RubyEventStore
     # * stream
     # * read_as
     # * batch_size
+    # * with_ids
     #
     # @return [Integer]
     def hash
@@ -156,6 +174,7 @@ module RubyEventStore
         stream,
         attributes.read_as,
         batch_size,
+        with_ids,
       ].hash ^ BIG_VALUE
     end
 

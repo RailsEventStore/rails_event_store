@@ -31,12 +31,9 @@ module RubyEventStore
       stream_of(stream.name).last
     end
 
-    def read_event(event_id)
-      global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
-    end
-
     def read(spec)
       events = spec.stream.global? ? global : stream_of(spec.stream.name)
+      events = events.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       events = events.reverse if spec.backward?
       events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
       events = events[0...spec.limit] if spec.limit?
@@ -70,6 +67,10 @@ module RubyEventStore
     end
 
     private
+
+    def read_event(event_id)
+      global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
+    end
 
     def stream_of(name)
       streams.fetch(name, Array.new)
