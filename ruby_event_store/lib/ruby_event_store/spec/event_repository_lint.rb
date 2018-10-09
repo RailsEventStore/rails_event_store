@@ -15,6 +15,13 @@ module RubyEventStore
       )
     end
   end
+
+  # @private
+  Type1 = Class.new(RubyEventStore::Event)
+  # @private
+  Type2 = Class.new(RubyEventStore::Event)
+  # @private
+  Type3 = Class.new(RubyEventStore::Event)
 end
 
 module RubyEventStore
@@ -1197,9 +1204,6 @@ module RubyEventStore
     end
 
     specify do
-      Type1 = Class.new(RubyEventStore::Event)
-      Type2 = Class.new(RubyEventStore::Event)
-      Type3 = Class.new(RubyEventStore::Event)
       e1 = SRecord.new(event_type: Type1.to_s)
       e2 = SRecord.new(event_type: Type2.to_s)
       e3 = SRecord.new(event_type: Type1.to_s)
