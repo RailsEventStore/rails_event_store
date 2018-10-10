@@ -6,11 +6,19 @@ module RailsEventStoreActiveRecord
 
   class CorrectSchemaVerifier
     def verify
-      return unless ActiveRecord::Base.connected?
+      return unless connected? && table_exists?
       raise_invalid_db_schema if legacy_columns.eql?(current_columns)
     end
 
     private
+
+    def connected?
+      ActiveRecord::Base.connected?
+    end
+
+    def table_exists?
+      ActiveRecord::Base.connection.table_exists?(:event_store_events)
+    end
 
     def raise_invalid_db_schema
       raise EventRepository::InvalidDatabaseSchema.new(incorrect_schema_message)
