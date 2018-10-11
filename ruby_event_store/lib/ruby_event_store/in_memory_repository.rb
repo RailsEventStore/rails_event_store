@@ -116,9 +116,9 @@ module RubyEventStore
       raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
       events.each do |event|
-        raise EventDuplicatedInStream if stream_events.any? {|ev| ev.event_id.eql?(event.event_id)}
+        raise EventDuplicatedInStream.new(event.event_id) if stream_events.any? {|ev| ev.event_id.eql?(event.event_id)}
         if include_global
-          raise EventDuplicatedInStream if has_event?(event.event_id)
+          raise EventDuplicatedInStream.new(event.event_id) if has_event?(event.event_id)
           global.push(event)
         end
         stream_events.push(event)

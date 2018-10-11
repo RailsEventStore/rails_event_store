@@ -49,7 +49,7 @@ module RubyEventStore
           Stream.new('stream'),
           ExpectedVersion.new(0)
         )
-      end.to raise_error(RubyEventStore::EventDuplicatedInStream)
+      end.to raise_error(RubyEventStore::EventDuplicatedInStream, "a1b49edb-7636-416f-874a-88f94b859bef")
     end
 
     def verify_conncurency_assumptions
