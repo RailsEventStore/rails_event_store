@@ -1,13 +1,24 @@
 activate :aria_current
+activate :livereload
 activate :directory_indexes
-activate :autoprefixer
 activate :syntax do |syntax|
   syntax.css_class = "syntax-highlight"
 end
+activate :external_pipeline,
+  name: :webpack,
+  command: build? ? 'yarn webpack-production' : 'yarn webpack-development',
+  source: ".tmp/dist",
+  latency: 1
 
-set :markdown, tables: true, autolink: true, gh_blockcode: true, fenced_code_blocks: true, with_toc_data: true, no_intra_emphasis: true
 set :markdown_engine, :redcarpet
 set :res_version, File.read('../RES_VERSION')
+set :markdown,
+  tables: true,
+  autolink: true,
+  gh_blockcode: true,
+  fenced_code_blocks: true,
+  with_toc_data: true,
+  no_intra_emphasis: true
 
 helpers do
   def version_above(version_string)
