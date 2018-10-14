@@ -15,6 +15,10 @@ module RubyEventStore
             end
           end
 
+          def for_events(events)
+            restrict(event_id: events.map { |e| e[:id] })
+          end
+
           auto_struct true
 
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
@@ -42,6 +46,10 @@ module RubyEventStore
 
           def by_event_id(event_id)
             restrict(event_id: event_id)
+          end
+
+          def by_event_type(types)
+            for_events(events.restrict(event_type: Array(types)))
           end
 
           def by_stream_and_event_id(stream, event_id)
