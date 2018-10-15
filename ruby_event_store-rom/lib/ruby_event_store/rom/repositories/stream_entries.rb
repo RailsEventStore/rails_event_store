@@ -1,16 +1,11 @@
 require_relative '../mappers/stream_entry_to_serialized_record'
+require_relative '../changesets/create_stream_entries'
 
 module RubyEventStore
   module ROM
     module Repositories
       class StreamEntries < ::ROM::Repository[:stream_entries]
-        class Create < ::ROM::Changeset::Create
-          map do |tuple|
-            Hash(created_at: RubyEventStore::ROM::Types::DateTime.call(nil)).merge(tuple)
-          end
-        end
-
-        POSITION_SHIFT = 1
+        POSITION_SHIFT = 1.freeze
 
         def create_changeset(event_ids, stream, resolved_version, global_stream: nil)
           tuples = []
@@ -33,7 +28,7 @@ module RubyEventStore
             }
           end
 
-          stream_entries.changeset(Create, tuples)
+          stream_entries.create_changeset(tuples)
         end
 
         def delete(stream)

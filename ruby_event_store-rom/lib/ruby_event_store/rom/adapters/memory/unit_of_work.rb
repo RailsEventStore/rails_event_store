@@ -15,19 +15,6 @@ module RubyEventStore
                 changeset = changesets.shift
                 relation = env.container.relations[changeset.relation.name]
 
-                case changeset
-                when ROM::Repositories::Events::Create
-                  relation.by_pk(changeset.to_a.map { |e| e[:id] }).each do |tuple|
-                    raise TupleUniquenessError.for_event_id(tuple[:id])
-                  end
-                when ROM::Repositories::StreamEntries::Create
-                  changeset.to_a.each do |tuple|
-                    relation.send(:verify_uniquness!, tuple)
-                  end
-                else
-                  raise ArgumentError, 'Unknown changeset'
-                end
-
                 committed << [changeset, relation]
 
                 changeset.commit

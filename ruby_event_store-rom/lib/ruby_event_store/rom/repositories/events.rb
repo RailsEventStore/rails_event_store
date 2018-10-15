@@ -1,25 +1,17 @@
 require_relative '../mappers/event_to_serialized_record'
+require_relative '../changesets/create_events'
+require_relative '../changesets/update_events'
 
 module RubyEventStore
   module ROM
     module Repositories
       class Events < ::ROM::Repository[:events]
-        class Create < ::ROM::Changeset::Create
-          # Convert to Hash
-          map(&:to_h)
-
-          map do
-            rename_keys event_id: :id
-            accept_keys %i[id data metadata event_type]
-          end
-
-          map do |tuple|
-            Hash(created_at: RubyEventStore::ROM::Types::DateTime.call(nil)).merge(tuple)
-          end
+        def create_changeset(serialized_records)
+          events.create_changeset(serialized_records)
         end
 
-        def create_changeset(serialized_records)
-          events.changeset(Create, serialized_records)
+        def update_changeset(serialized_records)
+          events.update_changeset(serialized_records)
         end
 
         def find_nonexistent_pks(event_ids)

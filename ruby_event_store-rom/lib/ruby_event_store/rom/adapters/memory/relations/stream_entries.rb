@@ -23,6 +23,10 @@ module RubyEventStore
 
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
+          def create_changeset(tuples)
+            changeset(Changesets::CreateStreamEntries, tuples)
+          end
+  
           def offset(num)
             num.zero? ? self : new(dataset.slice(num..-1) || [])
           end

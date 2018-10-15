@@ -11,6 +11,14 @@ module RubyEventStore
             attribute :created_at, RubyEventStore::ROM::Types::DateTime
           end
 
+          def create_changeset(tuples)
+            events.changeset(Changesets::CreateEvents, tuples)
+          end
+  
+          def update_changeset(tuples)
+            events.changeset(Changesets::UpdateEvents, tuples)
+          end
+  
           def insert(tuple)
             verify_uniquness!(tuple)
             super

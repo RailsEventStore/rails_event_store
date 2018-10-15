@@ -3,6 +3,9 @@ require 'rom/memory'
 require_relative 'adapters/memory/unit_of_work'
 require_relative 'adapters/memory/relations/events'
 require_relative 'adapters/memory/relations/stream_entries'
+require_relative 'adapters/memory/changesets/create_events'
+require_relative 'adapters/memory/changesets/update_events'
+require_relative 'adapters/memory/changesets/create_stream_entries'
 
 module RubyEventStore
   module ROM

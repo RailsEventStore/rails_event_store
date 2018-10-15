@@ -15,6 +15,10 @@ module RubyEventStore
 
           SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
+          def create_changeset(tuples)
+            changeset(ROM::Changesets::CreateStreamEntries, tuples)
+          end
+  
           def by_stream(stream)
             where(stream: normalize_stream_name(stream))
           end
