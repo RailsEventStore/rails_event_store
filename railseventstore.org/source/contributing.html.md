@@ -3,17 +3,17 @@ title: Community
 ---
 
 
-<h2 class="text-black mb-6">Contributing to RailsEventStore organization repositories</h2>
+<h2 class="uppercase text-grey tracking-tight mb-6">Contributing to RailsEventStore organization repositories</h2>
 
 Any kind of contribution is welcomed.
 
-<h2 class="text-black mt-12 mb-6">Found a bug? Have a question?</h2>
+<h2 class="uppercase text-grey tracking-tight mt-12 mb-6">Found a bug? Have a question?</h2>
 
 - [Create a new issue](https://help.github.com/articles/creating-an-issue/), assuming one does not already exist.
 - Clearly describe the problem including steps to reproduce when it is a bug.
 - If possible provide a Pull Request with failing test case.
 
-<h2 class="text-black mt-12 mb-6">Prepare a Pull Request</h2>
+<h2 class="uppercase text-grey tracking-tight mt-12 mb-6">Prepare a Pull Request</h2>
 
 - Fork the [RailsEventStore monorepo](https://github.com/RailsEventStore/rails_event_store)
 
@@ -62,6 +62,6 @@ Any kind of contribution is welcomed.
 
 - Don't forget to [create a Pull Request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/). You could do it even if not everything is ready. The sooner you will share your changes the quicker feedback you will get.
 
-<h2 class="text-black mt-12 mb-6">License</h2>
+<h2 class="uppercase text-grey tracking-tight mt-12 mb-6">License</h2>
 
 By contributing, you agree that your contributions will be licensed under its [MIT License](https://github.com/RailsEventStore/rails_event_store/blob/master/LICENSE).
