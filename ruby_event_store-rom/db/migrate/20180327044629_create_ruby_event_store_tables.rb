@@ -52,8 +52,6 @@ require 'rom/sql'
       end
 
       column :created_at, DateTime, null: false, index: 'index_event_store_events_on_created_at'
-
-      index :id, unique: true if sqlite # TODO: Is this relevant without ActiveRecord?
     end
   end
 end
