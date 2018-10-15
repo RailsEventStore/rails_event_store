@@ -4,7 +4,7 @@ module RubyEventStore
       module Changesets
         class CreateEvents < ROM::Changesets::CreateEvents
           def commit
-            relation.by_pk(to_a.map{ |e| e[:id] }).each do |tuple|
+            relation.by_pk(to_a.map { |e| e[:id] }).each do |tuple|
               raise TupleUniquenessError.for_event_id(tuple[:id])
             end
 

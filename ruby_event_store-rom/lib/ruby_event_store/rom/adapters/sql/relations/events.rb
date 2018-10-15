@@ -14,7 +14,7 @@ module RubyEventStore
           def create_changeset(tuples)
             events.changeset(Changesets::CreateEvents, tuples)
           end
-  
+
           def update_changeset(tuples)
             events.changeset(Changesets::UpdateEvents, tuples)
           end

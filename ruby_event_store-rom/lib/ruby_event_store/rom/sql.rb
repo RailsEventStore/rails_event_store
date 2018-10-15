@@ -35,7 +35,7 @@ module RubyEventStore
             # MySQL deadlocks or to allow Sequel to retry transactions
             # when the :retry_on option is specified.
             retry_on: Sequel::SerializationFailure,
-            before_retry: -> (num, ex) {
+            before_retry: lambda { |_num, ex|
               env.logger.warn("RETRY TRANSACTION [#{self.class.name} => #{ex.class.name}] #{ex.message}")
             }
           )

@@ -26,7 +26,7 @@ module RubyEventStore
           def create_changeset(tuples)
             changeset(Changesets::CreateStreamEntries, tuples)
           end
-  
+
           def offset(num)
             num.zero? ? self : new(dataset.slice(num..-1) || [])
           end

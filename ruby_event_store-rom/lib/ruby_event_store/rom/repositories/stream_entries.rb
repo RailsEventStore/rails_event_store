@@ -5,7 +5,7 @@ module RubyEventStore
   module ROM
     module Repositories
       class StreamEntries < ::ROM::Repository[:stream_entries]
-        POSITION_SHIFT = 1.freeze
+        POSITION_SHIFT = 1
 
         def create_changeset(event_ids, stream, resolved_version, global_stream: nil)
           tuples = []
