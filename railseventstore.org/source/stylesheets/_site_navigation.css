@@ -23,5 +23,5 @@
 }
 
 .site-navigation__link--external {
-  @apply text-grey-darkest;
+  @apply text-grey-darkest tracking-tight;
 }
