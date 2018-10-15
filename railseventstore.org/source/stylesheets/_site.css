@@ -236,3 +236,8 @@ th {
 .docs p {
   @apply mb-4;
 }
+
+.company__logo {
+  filter: grayscale(100%);
+  opacity: 0.25;
+}
