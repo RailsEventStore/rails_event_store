@@ -41,9 +41,27 @@ pre > code {
 }
 
 .btn {
-  @apply  py-4 px-6 rounded;
+  @apply inline-block py-4 px-6 rounded;
   background-image: none;
 }
+
+.btn--primary {
+  @apply bg-red text-grey-lightest;
+}
+
+.btn--secondary {
+  @apply bg-red text-grey-lightest;
+}
+
+.btn--ternary {
+  @apply py-2 px-3 text-sm text-red font-semibold border-red border uppercase;
+  background: none;
+}
+
+/*.btn--ternary:before {
+  @apply -ml-6 mr-2;
+  content: "➝";
+}*/
 
 .frame {
   align-items: stretch;
