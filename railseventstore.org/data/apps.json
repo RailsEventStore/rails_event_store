@@ -10,5 +10,13 @@
   {
     "url": "https://github.com/gottfrois/rails_event_store_mongoid",
     "title": "rails_event_store_mongoid"
+  },
+  {
+    "url": "https://github.com/OnApp/custom_active_record_observer",
+    "title": "custom_active_record_observer"
+  },
+  {
+    "url": "https://github.com/carsdb/rails_event_store_dynamoid",
+    "title": "rails_event_store_dynamoid"
   }
 ]
