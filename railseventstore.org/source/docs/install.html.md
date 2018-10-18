@@ -71,4 +71,4 @@ Then in your application code you can reference it as:
 Rails.configuration.event_store
 ```
 
-In Rails development mode when you change a registered class, it is reloaded, and a new class with same name is constructed. To keep `RailsEventStore` aware of changes in event classes, handler classes, and handler subscriptions use [`to_prepare`](http://api.rubyonrails.org/classes/Rails/Railtie/Configuration.html#method-i-to_prepare) callback. It is executed before every code reload in development, and once in production.
+In Rails development mode when you change a registered class, it is reloaded, and a new class with same name is constructed. To keep `RailsEventStore` aware of changes in event classes, handler classes, and handler subscriptions use `to_prepare` [callback](http://api.rubyonrails.org/classes/Rails/Railtie/Configuration.html#method-i-to_prepare). It is executed before every code reload in development, and once in production.
