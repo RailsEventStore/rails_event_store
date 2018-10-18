@@ -1,0 +1,11 @@
+[
+  "aggregate_root",
+  "bounded_context",
+  "rails_event_store",
+  "rails_event_store-rspec",
+  "rails_event_store_active_record",
+  "rails_event_store_active_record-legacy",
+  "ruby_event_store",
+  "ruby_event_store-browser",
+  "ruby_event_store-rom"
+]
