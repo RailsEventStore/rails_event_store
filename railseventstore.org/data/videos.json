@@ -18,5 +18,21 @@
   {
     "url": "https://www.youtube.com/watch?v=LrSBrHgCLm8",
     "title": "From Rails legacy to DDD"
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=XC4w_TGVpC0",
+    "title": "Event-Driven Rails from scratch - Part 4: Conclusions"
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=acoc8TZw1EE",
+    "title": "Event-Driven Rails from scratch - Part 3: Testing strategies"
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=2bUW87MIzRg",
+    "title": "Event-Driven Rails from scratch - Part 2: Showing the Code"
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=C3P3yGQyDQ4",
+    "title": "Event-Driven Rails from scratch - Part 1: Motivation"
   }
 ]
