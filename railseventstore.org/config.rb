@@ -40,6 +40,31 @@ helpers do
   def in_version_at_most(version_string, &block)
     block.call unless version_above(version_string)
   end
+
+  def current_source_file
+    current_page.source_file.gsub(Dir.pwd, '')
+  end
+
+  def current_source_file_name
+    File.basename(current_source_file)
+  end
+
+  def github_url
+    'https://github.com/RailsEventStore/rails_event_store'
+  end
+
+  def page_title
+    current_page.data.title
+  end
+
+  def feedback_link
+    issue_title = "Feedback on #{URI.encode(page_title || current_source_file_name)}"
+    link_to "Provide feedback", File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}")
+  end
+
+  def edit_github_link
+    link_to "Edit on GitHub", File.join(github_url, 'blob/master/railseventstore.org', current_source_file)
+  end
 end
 
 page "/", layout: "landing"
