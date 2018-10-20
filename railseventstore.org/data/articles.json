@@ -1,7 +1,6 @@
 [
   {
-    "url":
-      "https://kickstarter.engineering/event-sourcing-made-simple-4a2625113224",
+    "url": "https://kickstarter.engineering/event-sourcing-made-simple-4a2625113224",
     "title": "Event Sourcing made Simple"
   },
   {
@@ -13,8 +12,7 @@
     "title": "Reaktyvus programavimas įvykių kaupimo sistemose"
   },
   {
-    "url":
-      "https://blog.arkency.com/rewriting-deprecated-apis-with-parser-gem/",
+    "url": "https://blog.arkency.com/rewriting-deprecated-apis-with-parser-gem/",
     "title": "Rewriting deprecated APIs with parser gem"
   },
   {
@@ -30,18 +28,15 @@
     "title": "Process Managers revisited"
   },
   {
-    "url":
-      "https://blog.arkency.com/railseventstore-browser-is-now-a-rails-engine/",
+    "url": "https://blog.arkency.com/railseventstore-browser-is-now-a-rails-engine/",
     "title": "RailsEventStore Browser is now a Rails Engine"
   },
   {
-    "url":
-      "https://blog.arkency.com/how-to-get-audit-log-with-railseventstore/",
+    "url": "https://blog.arkency.com/how-to-get-audit-log-with-railseventstore/",
     "title": "How to get an audit log with RailsEventStore today"
   },
   {
-    "url":
-      "http://andrzejsliwa.com/thoughs-after-rails-domain-driven-desgin-workshop.html",
+    "url": "http://andrzejsliwa.com/thoughs-after-rails-domain-driven-desgin-workshop.html",
     "title": "Thoughts after Rails + Domain Driven Design workshop"
   },
   {
@@ -49,13 +44,11 @@
     "title": "Composable RSpec matchers"
   },
   {
-    "url":
-      "https://blog.arkency.com/2016-12-30-event-sourced-domain-objects-in-less-than-150-loc",
+    "url": "https://blog.arkency.com/2016-12-30-event-sourced-domain-objects-in-less-than-150-loc",
     "title": "Event sourced domain objects in less than 150 LOC"
   },
   {
-    "url":
-      "https://blog.arkency.com/2016-07-10-domain-events-schema-definitions",
+    "url": "https://blog.arkency.com/2016-07-10-domain-events-schema-definitions",
     "title": "Domain Events Schema Definitions"
   },
   {
@@ -71,33 +64,43 @@
     "title": "Event Sourcing Libraries in Ruby: A Guide"
   },
   {
-    "url":
-      "https://blog.arkency.com/2015-09-22-testing-event-sourced-application-the-read-side",
+    "url": "https://blog.arkency.com/2015-09-22-testing-event-sourced-application-the-read-side",
     "title": "Testing Event Sourced application - the read side"
   },
   {
-    "url":
-      "https://blog.arkency.com/2015-07-07-testing-event-sourced-application",
+    "url": "https://blog.arkency.com/2015-07-07-testing-event-sourced-application",
     "title": "Testing an Event Sourced application"
   },
   {
-    "url":
-      "https://blog.arkency.com/2015-06-12-subscribing-for-events-in-rails-event-store",
+    "url": "https://blog.arkency.com/2015-06-12-subscribing-for-events-in-rails-event-store",
     "title": "Subscribing for events in rails_event_store"
   },
   {
-    "url":
-      "https://blog.arkency.com/2015-05-15-using-domain-events-as-success-slash-failure-messages/",
+    "url": "https://blog.arkency.com/2015-05-15-using-domain-events-as-success-slash-failure-messages/",
     "title": "Using domain events as successfailure messages"
   },
   {
-    "url":
-      "https://blog.arkency.com/2015-05-14-introducing-read-models-in-your-legacy-application",
+    "url": "https://blog.arkency.com/2015-05-14-introducing-read-models-in-your-legacy-application",
     "title": "Introducing Read Models in your legacy application"
   },
   {
-    "url":
-      "https://blog.arkency.com/2015-05-05-building-an-event-sourced-application-using-rails-event-store",
+    "url": "https://blog.arkency.com/2015-05-05-building-an-event-sourced-application-using-rails-event-store",
     "title": "Building an Event Sourced application using rails_event_store"
+  },
+  {
+    "url": "http://blog.arkency.com/2015/03/why-use-event-sourcing/",
+    "title": "Why use Event Sourcing"
+  },
+  {
+    "url": "http://blog.arkency.com/2015/04/the-event-store-for-rails-developers/",
+    "title": "The Event Store for Rails developers"
+  },
+  {
+    "url": "http://blog.arkency.com/2015/03/fast-introduction-to-event-sourcing-for-ruby-programmers/",
+    "title": "Fast introduction to Event Sourcing for Ruby programmers"
+  },
+  {
+    "url": "http://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/",
+    "title": "Why I want to introduce mutation testing to the rails_event_store gem"
   }
 ]
