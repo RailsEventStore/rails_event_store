@@ -1,4 +1,6 @@
-## Projection based on single stream
+---
+title: Projections
+---
 
 You can create a projection abstract based on single stream.
 

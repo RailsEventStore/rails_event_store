@@ -1,6 +1,6 @@
-# AggregateRoot
-
-Event sourced (with Rails Event Store) aggregate root implementation.
+---
+title: Event Sourcing with AggregateRoot
+---
 
 ## Configuration
 

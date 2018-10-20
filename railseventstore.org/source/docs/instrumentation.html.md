@@ -1,4 +1,6 @@
-# Instrumentation & Metrics
+---
+title: Instrumentation
+---
 
 RubyEventStore and RailsEventStore ships with built-in instrumentation on which you can build additional features or benchmark event store performance in your app.
 
@@ -11,7 +13,6 @@ RailsEventStore is integrated with `ActiveSupport::Notifications` by default. Yo
 #### RubyEventStore
 
 Instrumentation is provided by `InstrumentedRepository` and `InstrumentedDispatcher` decorators. We don't force any particular instrumentation framework, [as long as it has the same API](https://github.com/bernd/as-notifications) as `ActiveSupport::Notifications`.
-
 
 That having said, if you want to instrument your event store with `ActiveSupport::Notifications`, initialize your client with following repository and/or dispatcher:
 
@@ -40,37 +41,36 @@ end
 
 ## Hooks and their payloads
 
-
 ### `append_to_stream.repository.rails_event_store`
 
 | Key     | Value                              |
-|---------|------------------------------------|
+| ------- | ---------------------------------- |
 | :events | Array of appended events           |
 | :stream | Name of stream we append events to |
 
 ### `link_to_stream.repository.rails_event_store`
 
 | Key        | Value                            |
-|------------|----------------------------------|
+| ---------- | -------------------------------- |
 | :event_ids | Array of linked events' ids      |
 | :stream    | Name of stream we link events to |
 
 ### `delete_stream.repository.rails_event_store`
 
 | Key     | Value                  |
-|---------|------------------------|
+| ------- | ---------------------- |
 | :stream | Name of stream deleted |
 
 ### `read_event.repository.rails_event_store`
 
 | Key       | Value                |
-|-----------|----------------------|
+| --------- | -------------------- |
 | :event_id | Id of the read event |
 
 ### `read.repository.rails_event_store`
 
 | Key            | Value                                     |
-|----------------|-------------------------------------------|
+| -------------- | ----------------------------------------- |
 | :specification | Specification of the query to event store |
 
 Queries specification is not documented, but you can read the [source code of it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/specification.rb).
@@ -78,7 +78,6 @@ Queries specification is not documented, but you can read the [source code of it
 ### `call.dispatcher.rails_event_store`
 
 | Key         | Value                                        |
-|-------------|----------------------------------------------|
+| ----------- | -------------------------------------------- |
 | :event      | An event which is being dispatched           |
 | :subscriber | A subscriber to which event is dispatched to |
-

@@ -1,3 +1,7 @@
+---
+title: Installation
+---
+
 ## Installation with Bundler
 
 If your application dependencies happen to be managed by [Bundler](http://bundler.io/), please add the following line to your `Gemfile`:

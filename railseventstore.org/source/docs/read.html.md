@@ -1,3 +1,7 @@
+---
+title: Reading from stream
+---
+
 ## Reading stream's events forward in batch — starting from first event
 
 ```ruby
@@ -77,6 +81,7 @@ client.read.from(last_read_event.event_id).limit(100).each.to_a
 This method allows us to load all stored events descending.
 
 This will read last 100 domain events stored in event store.
+
 ```ruby
 client.read.backward.from(:head).limit(100).each.to_a
 ```

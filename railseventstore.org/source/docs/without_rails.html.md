@@ -1,4 +1,6 @@
-# Using Ruby Event Store without Rails
+---
+title: Using Ruby Event Store without Rails
+---
 
 ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyevans/sequel)) are supported SQL adapters out-of-the-box.
 
@@ -131,8 +133,8 @@ This advanced option provides flexibility if you are using a separate database f
 
 `rails_event_store` provides some features that `ruby_event_store` by design cannot:
 
-* async handlers and ActiveJob integration
+- async handlers and ActiveJob integration
 
-    You can implement and provide your [own dispatcher](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store/lib/rails_event_store/active_job_dispatcher.rb#L47) which knows how to recognize and enqueue async handlers. Pass it [as a dependency](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store/lib/rails_event_store/client.rb#L4) to `RubyEventStore::Client` constructor.  
-    
+  You can implement and provide your [own dispatcher](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store/lib/rails_event_store/active_job_dispatcher.rb#L47) which knows how to recognize and enqueue async handlers. Pass it [as a dependency](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store/lib/rails_event_store/client.rb#L4) to `RubyEventStore::Client` constructor.
+
 * Request metadata such as `remote_ip` and `request_id` won't be automatically filled in events' metadata.

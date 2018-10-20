@@ -1,4 +1,6 @@
-# Using Rails Event Store with Protobuf
+---
+title: Using Rails Event Store with Protobuf
+---
 
 Using RES with Protobuf or another binary serialization protocol might be a good idea if you want to share your events' data with another applications and micro-services.
 
@@ -94,7 +96,7 @@ event = client.read.stream('test').each.to_a.last
 
 ```ruby
 event_store.subscribe(->(ev){ },  to: [MyApp::OrderPlaced.descriptor.name])
-````
+```
 
 #### Async handlers
 

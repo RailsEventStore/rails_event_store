@@ -1,4 +1,6 @@
-# Using Rails Event Store as a pub-sub message bus
+---
+title: Using Rails Event Store as a pub-sub message bus
+---
 
 ## Defining an event
 
@@ -64,7 +66,7 @@ cancel_order = CancelOrder.new
 event_store  = Rails.configuration.event_store
 listener     = OrderNotifier.new
 
-event_store.within do 
+event_store.within do
   cancel_order.call(order_id, user_id)
 end.subscribe(listener, to: [OrderCancelled]).call
 ```

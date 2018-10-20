@@ -1,3 +1,7 @@
+---
+title: RSpec matchers
+---
+
 ## Adding matchers to the project
 
 Add this line to your application's Gemfile:
@@ -139,7 +143,6 @@ expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([
   an_event(OrderExpired)
 ])
 ```
-
 
 ### have_applied
 

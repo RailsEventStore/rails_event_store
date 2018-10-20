@@ -1,5 +1,7 @@
-# Command Bus
-              
+---
+title: Command Bus
+---
+
 _Command Pattern - decoupling what is done from who does it._
 
 ## Usage
@@ -37,26 +39,26 @@ command_bus.register(BarCommand, -> (bar_cmd) { BarService.new.call(bar_cmd) })
 
 ## Working with Rails development mode
 
-In Rails `development` mode when you change a registered class, it is reloaded, and a new class with same name is constructed. 
+In Rails `development` mode when you change a registered class, it is reloaded, and a new class with same name is constructed.
 
 ```ruby
 a = User
 a.object_id
-# => 40737760 
+# => 40737760
 
 reload!
 # Reloading...
- 
+
 b = User
 b.object_id
 # => 48425300
 
 h = {a => 1, b => 2}
 h[User]
-# => 2 
+# => 2
 
 a == b
-# => false 
+# => false
 ```
 
 so your `Hash` with mapping from command class to service may not find the new version of reloaded class.

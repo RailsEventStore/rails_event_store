@@ -1,4 +1,6 @@
-# Event handlers - Subscribing to events
+---
+title: Event handlers - Subscribing to events
+---
 
 To subscribe a handler to events in Rails Event Store you need to use `#subscribe` method on `RailsEventStore::Client`
 
@@ -20,8 +22,8 @@ end
 
 To subscribe to events publication, you can use `#subscribe` method. It accepts two arguments:
 
-* `subscriber` (an event handler) - which can be a function-like object. That means it needs to respond to the `#call` method. This way both normal objects and `lambda` expressions are supported. A block of code can also be passed as a subscriber (`&subscriber`)
-* `to:` - which is an array of event types. Your subscriber gets notified only when events of types listed here are be published.
+- `subscriber` (an event handler) - which can be a function-like object. That means it needs to respond to the `#call` method. This way both normal objects and `lambda` expressions are supported. A block of code can also be passed as a subscriber (`&subscriber`)
+- `to:` - which is an array of event types. Your subscriber gets notified only when events of types listed here are be published.
 
 An example usage with the object event handler:
 
@@ -42,7 +44,7 @@ You can use `Proc` objects or `lambda`s in 3 ways:
 event_store.subscribe(to: [InvoicePrinted]) do |event|
   # Process an event here...
 end
-````
+```
 
 ```ruby
 invoice_read_model = -> (event) {

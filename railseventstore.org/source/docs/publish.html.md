@@ -1,4 +1,6 @@
-# Publishing events
+---
+title: Publishing events
+---
 
 ## Defining an event
 
@@ -53,9 +55,9 @@ event_store.publish(
 Providing `expected_version` is optional. The default value is `:any`.
 Allowed values are:
 
-* `:any`:
-* `Integer` such as `-1, 0, 1, 2, 3...`
-* `:auto`
+- `:any`:
+- `Integer` such as `-1, 0, 1, 2, 3...`
+- `:auto`
 
 For more information about when should you use which one, read [expected_version explained](/docs/expected_version/)
 

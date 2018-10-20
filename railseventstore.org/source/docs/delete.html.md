@@ -1,4 +1,6 @@
-## Deleting stream
+---
+title: Deleting stream
+---
 
 You can permanently delete all events from a specific stream. Use this wisely.
 

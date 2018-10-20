@@ -1,4 +1,6 @@
-# Migrating (updating, enriching) existing events
+---
+title: Migrating existing events
+---
 
 Sometimes it is convenient to update existing historical events. Instead of introducing a new event in a different version (`SomethingHappened-v2`), we might prefer the simplicity of adding a new field to existing events via migration. Such as for example `tenant_id` when we introduce multi-tenancy to our application. There are various tread-offs here (you are rewriting a history after all), but we assume you understand them well if you decide to go this way.
 

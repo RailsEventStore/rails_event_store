@@ -1,4 +1,6 @@
-# Custom Repository
+---
+title: Custom Repository
+---
 
 ## Installation with Bundler
 
@@ -28,7 +30,7 @@ end
 
 Those repositories were written by community members and are not guaranteed to be up to date with latest Rails event store.
 
-* [rails\_event\_store\_mongoid](https://github.com/gottfrois/rails_event_store_mongoid) by [Pierre-Louis Gottfrois](https://github.com/gottfrois)
+- [rails_event_store_mongoid](https://github.com/gottfrois/rails_event_store_mongoid) by [Pierre-Louis Gottfrois](https://github.com/gottfrois)
 
 ## Writing your own repository
 

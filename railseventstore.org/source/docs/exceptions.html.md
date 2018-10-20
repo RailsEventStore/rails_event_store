@@ -1,4 +1,6 @@
-## Client Errors
+---
+title: Client Errors
+---
 
 When using Rails Event Store you have to be prepared for following errors:
 
@@ -31,19 +33,16 @@ end.to raise_error(WrongExpectedEventVersion)
 
 If you want to have an event present in multiple streams, you have to link it with `link`.
 
-
 ### RubyEventStore::InvalidExpectedVersion
 
 Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream` or `publish`.
 Valid values are `Integer` or one of `:any`, `:none`, `:auto`.
-
 
 ```ruby
 expect do
   client.append(OrderPlaced.new, stream_name: 'Order$1', expected_version: nil)
 end.to raise_error(InvalidExpectedVersion)
 ```
-
 
 ### RubyEventStore::IncorrectStreamData
 
@@ -65,7 +64,6 @@ expect do
   client.read.stream('Order$1').from(none_such_id).each.to_a
 end.to raise_error(EventNotFound)
 ```
-
 
 ### RubyEventStore::InvalidPageStart
 
@@ -111,7 +109,6 @@ end.to raise_error(InvalidHandler)
 ### RubyEventStore::NotSupported
 
 Raised when using `RailsEventStoreActiveRecord::Legacy` repository on unsupported `link` operation.
-
 
 ### RubyEventStore::ReservedInternalName
 

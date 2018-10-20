@@ -1,4 +1,6 @@
-# Correlating messages (events and commands)
+---
+title: Correlation and Causation
+---
 
 Debugging can be one of the challenges when building asynchronous, evented systems. _Why did this happen, what caused all of that?_. But there are patterns which might make your life easier. We just need to keep track of what is happening as a result of what.
 
@@ -6,8 +8,8 @@ For that, you can use 2 metadata attributes associated with events you are going
 
 Let's hear what Greg Young says about `correlation_id` and `causation_id`:
 
-> Let's say every message has 3 ids. 1 is its id. Another is correlation the last it causation. 
-> If you are responding to a message, you copy its correlation id as your correlation id, its message id is your causation id. 
+> Let's say every message has 3 ids. 1 is its id. Another is correlation the last it causation.
+> If you are responding to a message, you copy its correlation id as your correlation id, its message id is your causation id.
 > This allows you to see an entire conversation (correlation id) or to see what causes what (causation id).
 
 Now, the message that you are responding to can be either a command or an event which triggered some event handlers and probably caused even more events.
@@ -21,12 +23,12 @@ class MyEventHandler
   def call(previous_event)
     new_event = MyEvent.new(data: {foo: 'bar'})
     new_event.correlate_with(previous_event)
-      
-    event_store.publish(new_event)   
+
+    event_store.publish(new_event)
   end
-  
+
   private
-  
+
   def event_store
     Rails.configuration.event_store
   end
@@ -40,10 +42,10 @@ new_event.correlation_id
 ```
 
 and
-    
+
 ```ruby
 new_event.causation_id
-```   
+```
 
 They are also available as:
 
@@ -62,15 +64,15 @@ Events published from async handlers are not correlated with events that caused 
 class SendOrderEmail < ActiveJob::Base
   prepend RailsEventStore::CorrelatedHandler
   prepend RailsEventStore::AsyncHandler
-  
+
   def perform(event)
     event_store.publish(HappenedLater.new(data:{
       user_id: event.data.fetch(:user_id),
     }))
   end
-  
+
   private
-  
+
   def event_store
     Rails.configuration.event_store
   end
@@ -102,7 +104,7 @@ class MyEventHandler
       event_store.publish([
         MyEvent.new(data: {foo: 'bar'}),
         AnotherEvent.new(data: {baz: 'bax'}),
-      ])   
+      ])
     end
   end
 end
@@ -116,18 +118,18 @@ If you use event store and [command bus](/docs/command_bus/) you can correlate t
 config.to_prepare do
   Rails.configuration.event_store = event_store = RailsEventStore::Client.new
   # register handlers
-   
+
   command_bus = Arkency::CommandBus.new
   # register commands...
-  
+
   # wire event_store and command_bus together
   Rails.configuration.command_bus = RubyEventStore::CorrelatedCommands.new(event_store, command_bus)
 end
 ```
 
-Using `CorrelatedCommands` makes your events automatically correlated to the commands which triggered them (commands must respond to `message_id` method). 
+Using `CorrelatedCommands` makes your events automatically correlated to the commands which triggered them (commands must respond to `message_id` method).
 
-If your commands respond to `correlate_with` method they will be correlated to events which triggered them inside sync handlers. 
+If your commands respond to `correlate_with` method they will be correlated to events which triggered them inside sync handlers.
 
 Example:
 
@@ -143,7 +145,7 @@ end
 
 class AddProductCommand < Struct.new(:message_id, :product_id)
   include CorrelableCommand
-  
+
   def initialize(product_id:, message_id: SecureRandom.uuid)
     super(message_id, product_id)
   end
@@ -152,7 +154,7 @@ end
 
 ## Building streams based on correlation id and causation id
 
-You can use `RailsEventStore::LinkByCorrelationId` (`RubyEventStore::LinkByCorrelationId`) and `RailsEventStore::LinkByCausationId` (`RubyEventStore::LinkByCausationId`) to build streams of all events with certain correlation or causation id. This makes debugging and making sense of a large process easier to see.  
+You can use `RailsEventStore::LinkByCorrelationId` (`RubyEventStore::LinkByCorrelationId`) and `RailsEventStore::LinkByCausationId` (`RubyEventStore::LinkByCausationId`) to build streams of all events with certain correlation or causation id. This makes debugging and making sense of a large process easier to see.
 
 ```ruby
 Rails.application.configure do

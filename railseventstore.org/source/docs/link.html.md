@@ -1,4 +1,6 @@
-## Linking published events to stream
+---
+title: Linking to stream
+---
 
 An event, once published, can live in more than one stream. Such quality comes useful in order to persistently group events of particular kinds.
 
@@ -88,7 +90,6 @@ end
 subscriber = OrderPlacedReport.new
 event_store.subscribe(subscriber, [OrderPlaced])
 ```
-
 
 It is worth remembering that linking an event does not trigger event handlers and you cannot link same event more than once in a given stream.
 
