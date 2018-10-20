@@ -57,6 +57,10 @@ helpers do
     current_page.data.title
   end
 
+  def rubydoc_link(gem)
+    link_to gem, "https://www.rubydoc.info/gems/#{gem}"
+  end
+
   def feedback_link
     issue_title = "Feedback on #{URI.encode(page_title || current_source_file_name)}"
     link_to "Provide feedback", File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}")
