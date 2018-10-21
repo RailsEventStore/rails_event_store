@@ -42,21 +42,45 @@ pre > code {
 }
 
 .btn {
-  @apply inline-block py-4 px-6 rounded;
+  @apply inline-block rounded;
   background-image: none;
 }
 
+.btn:hover {
+  transition: all 0.5s ease;
+}
+
 .btn--primary {
-  @apply bg-red text-grey-lightest;
+  @apply bg-red text-grey-lighter border-2 border-red bg-red;
+}
+
+.btn--primary:hover {
+   @apply bg-red-dark border-red-dark;
 }
 
 .btn--secondary {
-  @apply bg-red text-grey-lightest;
+  @apply text-grey border-2 border-grey-darkest;
+}
+
+.btn--secondary:hover {
+  @apply text-red border-red-dark;
 }
 
 .btn--ternary {
-  @apply py-2 px-3 text-sm text-red font-semibold border-red border uppercase;
+  @apply text-red font-semibold border-red border uppercase;
   background: none;
+}
+
+.btn--ternary:hover {
+  @apply text-white bg-red font-semibold border-red border uppercase;
+}
+
+.btn--small {
+  @apply text-sm py-2 px-3; 
+}
+
+.btn--large {
+  @apply text-xl py-4 px-6;
 }
 
 .frame {
