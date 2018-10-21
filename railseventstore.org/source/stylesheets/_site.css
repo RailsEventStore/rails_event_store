@@ -21,23 +21,29 @@ a {
 }
 
 pre {
+  @apply rounded;
   tab-size: 2;
+  line-height: 1.5rem;
+  font-size: 1rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  margin-bottom: 0.63rem;
 }
 
 code {
-  font-size: 90%;
-  background-color: rgba(0, 0, 0, 0.03);
-  @apply rounded font-mono mt-2 mb-5;
+  @apply rounded font-mono px-2;
 }
 
 :not(pre) > code {
-  @apply text-grey-darker;
-  padding: 0.125em 0.5em;
+  @apply px-1;
+  font-size: 1rem;
+  line-height: 1rem;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 pre > code {
-  @apply block overflow-x-auto p-3;
+  @apply inline-block overflow-x-auto;
   -webkit-overflow-scrolling: touch;
+  padding-top: 0.438rem;
 }
 
 .btn {
@@ -84,7 +90,7 @@ pre > code {
 }
 
 .frame__body {
-  padding: 2rem 0;
+  @apply py-12;
   flex-grow: 1;
 }
 
@@ -231,31 +237,47 @@ th {
 }
 
 .docs h1 {
-  @apply font-semibold text-grey-darker mt-10 mb-4;
+  font-size: 2.38rem;
+  line-height: 3rem;
+  padding-top: 0.6875rem;
+  margin-bottom: 0.8125rem;
 }
 
 .docs h2 {
-  @apply font-normal text-grey-darkest mt-10 mb-4;
+  font-size: 1.75rem;
+  line-height: 3rem;
+  padding-top: 0.875rem;
+  margin-bottom: 0.625rem;
 }
 
 .docs h3 {
-  @apply font-normal text-grey-darker mt-6 mb-4;
+  font-size: 1.31rem;
+  line-height: 1.50rem;
+  padding-top: 0.3125rem;
+  margin-bottom: 1.875rem;
 }
 
 .docs h4 {
-  @apply font-semibold text-grey mt-4 mb-2 uppercase;
-}
-
-.docs h1:first-child,
-.docs h2:first-child {
-  @apply mt-0;
+  font-size: 1.00rem;
+  line-height: 1.50rem;
+  padding-top: 0.438rem;
+  margin-bottom: 1.06rem;
+  @apply uppercase;
 }
 
 .docs p {
-  @apply mb-4;
+  font-size: 1.00rem;
+  line-height: 1.50rem;
+  padding-top: 0.438rem;
+  margin-bottom: 1.06rem;
 }
 
 .company__logo {
   filter: grayscale(100%);
   opacity: 0.25;
+}
+
+.visual-debug {
+  background: linear-gradient(to bottom, rgba(32, 160, 255, .35) 1px, transparent 1px);
+  background-size: 100% 24px;
 }
