@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --sm: 576px;
-  --md: 768px;
-}
-
 a {
   @apply font-semibold text-grey-darkest no-underline;
   background-image: linear-gradient(
@@ -63,11 +58,6 @@ pre > code {
   @apply py-2 px-3 text-sm text-red font-semibold border-red border uppercase;
   background: none;
 }
-
-/*.btn--ternary:before {
-  @apply -ml-6 mr-2;
-  content: "➝";
-}*/
 
 .frame {
   align-items: stretch;
@@ -177,11 +167,6 @@ pre > code {
 
 .site-section__title {
   color: var(--oc-gray-5);
-  margin: 0;
-}
-
-.site-section__subtitle {
-  color: var(--oc-gray-6);
   margin: 0;
 }
 
