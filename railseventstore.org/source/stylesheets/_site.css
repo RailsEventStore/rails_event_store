@@ -84,11 +84,7 @@ pre > code {
 }
 
 .frame {
-  align-items: stretch;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
+  @apply w-full min-h-screen flex flex-col items-stretch;
 }
 
 .frame__header {
@@ -243,6 +239,40 @@ tr,
 td,
 th {
   vertical-align: middle;
+}
+
+.offer {
+  @apply flex flex-wrap border-t border-grey-lighter py-12;
+}
+
+.offer:first-child {
+  @apply pb-12 pt-4 border-0;
+}
+
+.offer__left {
+  @apply w-full;
+}
+
+.offer__right {
+  @apply w-full;
+}
+
+.offer__price {
+  @apply block text-sm uppercase text-grey font-bold;
+}
+
+.offer__cta {
+  @apply btn btn--ternary btn--small mt-6;
+}
+
+@screen sm {  
+  .offer__left {
+    @apply w-2/5;
+  }
+
+  .offer__right {
+    @apply w-3/5;
+  }
 }
 
 .docs h1 {
