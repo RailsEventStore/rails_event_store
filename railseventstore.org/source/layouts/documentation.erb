@@ -1,7 +1,10 @@
 <% wrap_layout :base do %>
   <header class="frame__section">
     <div class="container mx-auto">
-      <%= partial "partials/site_section", locals: { title: "Documentation" , subtitle: nil } %>
+      <div class="site-section px-4 h-16 flex items-center justify-between">
+        <span class="site-section__title text-xl font-normal">Documentation</span>
+        <input class="w-64 text-base py-2 px-4 rounded appearance-none bg-grey-darker text-grey-lightest" id="search" type="text" placeholder="Search" />
+      </div>
     </div>
   </header>
 
@@ -37,4 +40,14 @@
       anchors.add('.docs h2, .docs h3');
     });
   </script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script> 
+  <script type="text/javascript">
+    docsearch({
+      apiKey: '45776784d078c2fa4495099da7063654',
+      indexName: 'railseventstore',
+      inputSelector: '#search',
+      debug: false
+    });
+  </script>
+
 <% end %>
