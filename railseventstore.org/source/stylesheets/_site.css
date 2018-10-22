@@ -88,15 +88,15 @@ pre > code {
 }
 
 .frame__header {
-  background-color: var(--oc-gray-9);
+  @apply bg-black;
 }
 
 .frame__section {
-  background-color: var(--oc-gray-8);
+  @apply bg-grey-darkest;
 }
 
 .frame__footer {
-  background-color: var(--oc-gray-1);
+  @apply bg-grey-lighter;
 }
 
 .frame__body {
@@ -164,22 +164,22 @@ pre > code {
 }
 
 .site-footer__link {
+  @apply text-grey;
   margin: 0 1rem;
-  color: var(--oc-gray-5);
   background: transparent;
   border-bottom: none;
   font-weight: normal;
 }
 
 .site-footer__link:hover {
+  @apply text-red-lighter;
   background: inherit;
   border-bottom: none;
-  color: var(--oc-red-3);
 }
 
 .site-footer__link:active,
 .site-footer__link:focus {
-  color: var(--oc-white);
+  @apply text-white;
   background: inherit;
   border-bottom: none;
   outline: none;
