@@ -39,6 +39,7 @@ module RubyEventStore
 
       case version
       when Integer
+        wrong_version! if version > (resolver[stream] || POSITION_DEFAULT)
         version
       when :none
         POSITION_DEFAULT
@@ -68,6 +69,10 @@ module RubyEventStore
 
     def invalid_version!
       raise InvalidExpectedVersion
+    end
+
+    def wrong_version!
+      raise WrongExpectedEventVersion
     end
   end
 end
