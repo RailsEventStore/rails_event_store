@@ -182,7 +182,7 @@ module RubyEventStore
       expect(read_stream_events_forward(repository, stream_flow)).to eq([event2, event3, event0, event1])
     end
 
-    specify 'incorrect expected version on second write' do
+    specify 'incorrect expected version on second write, lower than last stream position' do
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -198,7 +198,23 @@ module RubyEventStore
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1])
     end
 
-    specify 'incorrect expected version on second link' do
+    specify 'incorrect expected version on second write, higher than last stream position' do
+      repository.append_to_stream([
+        event0 = SRecord.new,
+        event1 = SRecord.new,
+      ], stream, version_none)
+      expect do
+        repository.append_to_stream([
+          event2 = SRecord.new,
+          event3 = SRecord.new,
+        ], stream, version_2)
+      end.to raise_error(WrongExpectedEventVersion)
+
+      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1])
+      expect(read_stream_events_forward(repository, stream)).to eq([event0, event1])
+    end
+
+    specify 'incorrect expected version on second link, lower than last stream position' do
       skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
@@ -213,6 +229,27 @@ module RubyEventStore
           event2.event_id,
           event3.event_id,
         ], stream, version_0)
+      end.to raise_error(WrongExpectedEventVersion)
+
+      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
+      expect(read_stream_events_forward(repository, stream)).to eq([event0, event1])
+    end
+
+    specify 'incorrect expected version on second link, higher than last stream position' do
+      skip unless test_link_events_to_stream
+      repository.append_to_stream([
+        event0 = SRecord.new,
+        event1 = SRecord.new,
+      ], stream, version_none)
+      repository.append_to_stream([
+        event2 = SRecord.new,
+        event3 = SRecord.new,
+      ], stream_other, version_none)
+      expect do
+        repository.link_to_stream([
+          event2.event_id,
+          event3.event_id,
+        ], stream, version_2)
       end.to raise_error(WrongExpectedEventVersion)
 
       expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
