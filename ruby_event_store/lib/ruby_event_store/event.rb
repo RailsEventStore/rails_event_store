@@ -12,10 +12,10 @@ module RubyEventStore
     #   part of your domain such as remote_ip, request_id, correlation_id,
     #   causation_id etc.
     # @return [Event]
-    def initialize(event_id: SecureRandom.uuid, metadata: nil, data: nil)
+    def initialize(event_id: SecureRandom.uuid, metadata: nil, data: {})
       @event_id = event_id.to_s
       @metadata = Metadata.new(metadata.to_h)
-      @data     = data.to_h
+      @data     = data
     end
 
     attr_reader :event_id, :metadata, :data

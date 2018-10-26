@@ -50,6 +50,11 @@ module RubyEventStore
       expect(event.metadata.to_h).to eq({})
     end
 
+    specify 'data can be anything' do
+      event = Test::TestCreated.new(data: nil)
+      expect(event.data).to be_nil
+    end
+
     specify 'UUID should be String' do
       event_1 = Test::TestCreated.new({event_id: 1})
       event_2 = Test::TestCreated.new
