@@ -20,6 +20,7 @@ RSpec.describe "limit_for_event_id_migration" do
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
       dump_current_schema
       drop_existing_tables_to_clean_state
+      establish_database_connection
       fill_data_using_older_gem
       run_the_migration
       reset_columns_information
