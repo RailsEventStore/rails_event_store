@@ -25,7 +25,7 @@ RSpec.describe "limit_for_event_id_migration" do
       reset_columns_information
       compare_new_schema
     ensure
-      drop_legacy_database
+      drop_database
     end
   end
 
