@@ -51,7 +51,6 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     add_index :event_store_events_in_streams, [:stream, :event_id], unique: true
     add_index :event_store_events_in_streams, [:created_at]
 
-    remove_index  :event_store_events, :event_type
     remove_column :event_store_events, :stream
     remove_column :event_store_events, :id
     rename_column :event_store_events, :event_id, :id
@@ -71,6 +70,7 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
       end
       add_index :event_store_events, :id, unique: true if rails_42
       add_index :event_store_events, :created_at
+      add_index :event_store_events, :event_type
       execute <<-SQL
         INSERT INTO event_store_events(id, event_type, metadata, data, created_at)
         SELECT id, event_type, metadata, data, created_at FROM old_event_store_events;
