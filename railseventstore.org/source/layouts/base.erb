@@ -9,7 +9,11 @@
     <title><%= current_page.data.title %></title>
     <link rel="stylesheet" href="https://use.typekit.net/iox0vwx.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
-    <%= stylesheet_link_tag :all %>
+    <% if config[:mode] == :server %>
+      <%= javascript_include_tag "http://localhost:8080/javascripts/all.js" %>
+    <% else %>
+      <%= stylesheet_link_tag :all %>
+    <% end %>
     <link rel="icon" type="image/png" href="/images/favicons/res-rubies-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="/images/favicons/res-rubies-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="/images/favicons/res-rubies-96x96.png" sizes="96x96">
