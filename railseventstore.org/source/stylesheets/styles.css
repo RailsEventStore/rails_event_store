@@ -184,11 +184,6 @@ pre > code {
   outline: none;
 }
 
-.site-section__title {
-  color: var(--oc-gray-5);
-  margin: 0;
-}
-
 .site-navigation {
   @apply -mr-4 py-4 px-4 items-center overflow-x-auto text-base flex flex-wrap items-center justify-between;
   -webkit-overflow-scrolling: touch;
@@ -361,4 +356,8 @@ th {
     transparent 1px
   );
   background-size: 100% 24px;
+}
+
+.algolia-autocomplete {
+  width: 100%;
 }
