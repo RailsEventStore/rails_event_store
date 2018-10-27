@@ -1,11 +1,6 @@
-@tailwind preflight;
-@tailwind components;
-@tailwind utilities;
-
 html {
   font-size: 20px;
 }
-
 
 a {
   @apply font-semibold text-grey-darkest no-underline;
@@ -54,7 +49,7 @@ pre > code {
 }
 
 .btn--primary:hover {
-   @apply bg-red-dark border-red-dark;
+  @apply bg-red-dark border-red-dark;
 }
 
 .btn--secondary {
@@ -75,7 +70,7 @@ pre > code {
 }
 
 .btn--small {
-  @apply text-sm py-2 px-3; 
+  @apply text-sm py-2 px-3;
 }
 
 .btn--large {
@@ -264,7 +259,7 @@ th {
   @apply btn btn--ternary btn--small mt-6;
 }
 
-@screen sm {  
+@screen sm {
   .offer__left {
     @apply w-2/5;
   }
@@ -292,21 +287,21 @@ th {
 
 .docs h3 {
   font-size: 1.31rem;
-  line-height: 1.50rem;
+  line-height: 1.5rem;
   padding-top: 0.3125rem;
   margin-bottom: 1.875rem;
 }
 
 .docs h4 {
-  font-size: 1.00rem;
-  line-height: 1.50rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   padding-top: 0.438rem;
   margin-bottom: 1.06rem;
 }
 
 .docs p {
-  font-size: 1.00rem;
-  line-height: 1.50rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   padding-top: 0.438rem;
   margin-bottom: 1.06rem;
 }
@@ -317,6 +312,10 @@ th {
 }
 
 .visual-debug {
-  background: linear-gradient(to bottom, rgba(32, 160, 255, .35) 1px, transparent 1px);
+  background: linear-gradient(
+    to bottom,
+    rgba(32, 160, 255, 0.35) 1px,
+    transparent 1px
+  );
   background-size: 100% 24px;
 }

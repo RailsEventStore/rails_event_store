@@ -7,11 +7,7 @@ module.exports = {
     path: path.resolve(__dirname, ".tmp/dist"),
     filename: "javascripts/all.js"
   },
-  entry: [
-    "./stylesheets/_solarized.css",
-    "./stylesheets/_site.css",
-    "./stylesheets/_site_navigation.css"
-  ],
+  entry: ["./stylesheets/styles.css"],
   module: {
     rules: [
       {
