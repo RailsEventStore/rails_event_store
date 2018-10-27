@@ -1,5 +1,4 @@
 activate :aria_current
-activate :livereload
 activate :directory_indexes
 activate :syntax do |syntax|
   syntax.css_class = "syntax-highlight"
