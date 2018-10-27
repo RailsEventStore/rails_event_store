@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-size: 20px;
+}
+
+
 a {
   @apply font-semibold text-grey-darkest no-underline;
   background-image: linear-gradient(
@@ -16,23 +21,17 @@ a {
 }
 
 pre {
-  @apply rounded;
+  @apply text-sm py-2 px-4 -mx-4 bg-grey-lightest rounded;
   tab-size: 2;
-  line-height: 1.5rem;
-  font-size: 1rem;
-  background-color: rgba(0, 0, 0, 0.03);
   margin-bottom: 0.63rem;
 }
 
 code {
-  @apply rounded font-mono px-2;
+  @apply rounded font-mono;
 }
 
 :not(pre) > code {
-  @apply px-1;
-  font-size: 1rem;
-  line-height: 1rem;
-  background-color: rgba(0, 0, 0, 0.03);
+  @apply text-sm leading-none text-grey-darker bg-grey-lightest py-1 px-2;
 }
 
 pre > code {
@@ -280,6 +279,7 @@ th {
   line-height: 3rem;
   padding-top: 0.6875rem;
   margin-bottom: 0.8125rem;
+  @apply tracking-tight font-semibold;
 }
 
 .docs h2 {
@@ -287,6 +287,7 @@ th {
   line-height: 3rem;
   padding-top: 0.875rem;
   margin-bottom: 0.625rem;
+  @apply tracking-tight font-semibold;
 }
 
 .docs h3 {
@@ -301,7 +302,6 @@ th {
   line-height: 1.50rem;
   padding-top: 0.438rem;
   margin-bottom: 1.06rem;
-  @apply uppercase;
 }
 
 .docs p {
