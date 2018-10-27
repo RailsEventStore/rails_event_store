@@ -137,9 +137,9 @@ pre > code {
 }
 
 .contributor__link {
+  @apply bg-red-lightest;
   border-bottom: none;
   border-radius: 5px;
-  background-color: var(--oc-red-2);
   display: inline-block;
   line-height: 0;
 }
@@ -225,7 +225,6 @@ pre > code {
 .stats {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid var(--oc-gray-1);
 }
 
 .stats__stat {
@@ -239,13 +238,11 @@ pre > code {
   font-weight: normal;
   order: 2;
   margin-top: 0;
-  color: var(--oc-gray-7);
 }
 
 .stat__value {
   text-align: center;
   order: 1;
-  color: var(--oc-gray-5);
 }
 
 .offer {
