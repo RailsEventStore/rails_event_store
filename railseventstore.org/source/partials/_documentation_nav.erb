@@ -1,49 +1,49 @@
-<div class="mb-8">
-  <h3 class="uppercase text-grey tracking-wide mb-2 text-sm">
+<div class="leading-normal">
+  <h4 class="uppercase text-grey tracking-tight">
     Getting started
-  </h3>
+  </h4>
 
-  <ul class="list-reset"> 
-    <li><%= current_link_to "Installation", "/docs/install/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Publishing events", "/docs/publish/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Event handlers - Subscribing to events", "/docs/subscribe/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Reading from stream", "/docs/read/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Deleting stream", "/docs/delete/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Linking to stream", "/docs/link/", class: 'doc-link' %></li>
+  <ul class="list-reset whitespace-no-wrap overflow-hidden"> 
+    <li><%= sidebar_link_to "Installation", "/docs/install/" %></li>
+    <li><%= sidebar_link_to "Publishing events", "/docs/publish/" %></li>
+    <li><%= sidebar_link_to "Event handlers - Subscribing to events", "/docs/subscribe/" %></li>
+    <li><%= sidebar_link_to "Reading from stream", "/docs/read/" %></li>
+    <li><%= sidebar_link_to "Deleting stream", "/docs/delete/" %></li>
+    <li><%= sidebar_link_to "Linking to stream", "/docs/link/" %></li>
   </ul>
 </div>
 
-<div class="mb-8">
-  <h3 class="uppercase text-grey tracking-wide mb-2 text-sm">
+<div class="leading-normal">
+  <h4 class="uppercase text-grey tracking-tight">
     Advanced
-  </h3>
+  </h4>
 
-  <ul class="list-reset">
-    <li><%= current_link_to "API Documenation", "/docs/api/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Client Errors", "/docs/exceptions/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Command Bus", "/docs/command_bus/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Correlation and Causation", "/docs/correlation_causation/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Event sourcing with AggregateRoot", "/docs/app/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Expected Version explained", "/docs/expected_version/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Projections", "/docs/projection/", class: 'doc-link' %></li>
-    <li><%= current_link_to "RSpec matchers", "/docs/rspec/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Request metadata", "/docs/request_metadata/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Event serialization formats", "/docs/mapping_serialization/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Custom repository", "/docs/repository/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Migrating existing events", "/docs/migrating_messages/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Browser", "/docs/browser/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Ruby Event Store without Rails", "/docs/without_rails/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Instrumentation", "/docs/instrumentation/", class: 'doc-link' %></li>
+  <ul class="list-reset whitespace-no-wrap overflow-hidden">
+    <li><%= sidebar_link_to "API Documenation", "/docs/api/" %></li>
+    <li><%= sidebar_link_to "Client Errors", "/docs/exceptions/" %></li>
+    <li><%= sidebar_link_to "Command Bus", "/docs/command_bus/" %></li>
+    <li><%= sidebar_link_to "Correlation and Causation", "/docs/correlation_causation/" %></li>
+    <li><%= sidebar_link_to "Event sourcing with AggregateRoot", "/docs/app/" %></li>
+    <li><%= sidebar_link_to "Expected Version explained", "/docs/expected_version/" %></li>
+    <li><%= sidebar_link_to "Projections", "/docs/projection/" %></li>
+    <li><%= sidebar_link_to "RSpec matchers", "/docs/rspec/" %></li>
+    <li><%= sidebar_link_to "Request metadata", "/docs/request_metadata/" %></li>
+    <li><%= sidebar_link_to "Event serialization formats", "/docs/mapping_serialization/" %></li>
+    <li><%= sidebar_link_to "Custom repository", "/docs/repository/" %></li>
+    <li><%= sidebar_link_to "Migrating existing events", "/docs/migrating_messages/" %></li>
+    <li><%= sidebar_link_to "Browser", "/docs/browser/" %></li>
+    <li><%= sidebar_link_to "Ruby Event Store without Rails", "/docs/without_rails/" %></li>
+    <li><%= sidebar_link_to "Instrumentation", "/docs/instrumentation/" %></li>
   </ul>
 </div>
 
-<div class="mb-8">
-  <h3 class="uppercase text-grey tracking-wide mb-2 text-sm">
+<div class="leading-normal">
+  <h4 class="uppercase text-grey tracking-tight">
     Tutorials
-  </h3>
+  </h4>
 
-  <ul class="list-reset">
-    <li><%= current_link_to "Publish-Subscribe", "/docs/pubsub/", class: 'doc-link' %></li>
-    <li><%= current_link_to "Using RES with Protobuf", "/docs/protobuf/", class: 'doc-link' %></li>
+  <ul class="list-reset whitespace-no-wrap overflow-hidden">
+    <li><%= sidebar_link_to "Publish-Subscribe", "/docs/pubsub/" %></li>
+    <li><%= sidebar_link_to "Using RES with Protobuf", "/docs/protobuf/" %></li>
   </ul>
 </div>

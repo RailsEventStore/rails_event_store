@@ -68,6 +68,10 @@ helpers do
   def edit_github_link
     link_to "Edit on GitHub", File.join(github_url, 'blob/master/railseventstore.org', current_source_file)
   end
+
+  def sidebar_link_to(name, url)
+    current_link_to(name, url, class: "font-normal bg-none")
+  end
 end
 
 page "/", layout: "landing"
