@@ -1,29 +1,76 @@
-<p class="mb-6 mt-12">
-Rails Event Store is a library for publishing, consuming, storing and retrieving events. It's your best companion for going with an event-driven architecture for your Rails application.
+<p class="mb-6 mt-12 text-lg sm:text-2xl leading-normal">
+    Rails Event Store is a library for publishing, consuming, storing and retrieving events. It's&nbspyour best companion for going with an Event-Driven Architecture for your Rails application.
 </p>
 
-<h2 class="uppercase tracking-tight text-grey mt-12 mb-4">It can help you</h2>
-<ul class="list-reset mb-6">
-    <li>Introduce <a href="/docs/pubsub/">Publish-Subscribe bus</a></li>
-    <li>Decouple core business logic from external concerns in Hexagonal style architectures</li>
-    <li>Replace <a href="http://blog.arkency.com/2016/05/domain-events-over-active-record-callbacks/"> ActiveRecord callbacks and Observers</a></li>
-    <li>Introduce communication layer between loosely coupled components</li>
-    <li>React to published events synchronously or asynchronously</li>
-    <li>Extract side-effects (notifications, metrics etc) from your controllers and services into event handlers</li>
-    <li>Build an audit-log</li>
-    <li>Create read models</li>
-    <li>Implement event-sourcing</li>
+<ul class="list-reset mt-6 mb-6 flex flex-wrap -mr-4">
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Introduce Publish-Subscribe bus
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Decouple core business logic from external concerns in Hexagonal style architectures
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Replace ActiveRecord callbacks and Observers
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Introduce communication layer between loosely coupled components
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            React to published events synchronously or asynchronously
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Extract side-effects from your controllers and services into event handlers
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Build an Audit Log
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Introduce Read Models
+        </div>
+    </li>
+    <li class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            Implement Event Sourcing
+        </div>
+    </li>
 </ul>
 
-<h2 class="uppercase tracking-tight text-grey mt-12 mb-6">Trusted by</h2>
-<div class="flex flex-wrap">
-    <a style="background: none" class="h-32 sm:px-4 md:px-12 w-full sm:w-1/3 flex items-center" href="https://billetto.co.uk">
-        <img class="company__logo w-48 sm:w-64" src="/images/billetto_logo.svg" />
-    </a>
-    <a style="background: none" class="h-32 sm:-mt-2 sm:px-4 md:px-12 w-full sm:w-1/3 flex items-center" href="https://zencargo.com">
-        <img class="company__logo w-48 sm:w-64" src="/images/zencargo_logo.png" />
-    </a>
-    <a style="background: none" class="h-32 sm:-mt-4 md:-mt-4 sm:px-4 md:px-12 w-full sm:w-1/3 flex items-center" href="https://acatus.com">
-        <img class="company__logo w-48 sm:w-64" src="/images/acatus_logo.svg" />
-    </a>
+<h2 class="mt-24 mb-12 -mr-6">Join growing list of companies using Rails Event Store</h2>
+<div class="flex flex-wrap mb-32 -mr-4">
+    <div class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            <a class="bg-none" href="https://billetto.co.uk">
+                <img class="w-full" src="/images/billetto_logo.svg" />
+            </a>
+        </div>
+    </div>
+    <div class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            <a class="bg-none" href="https://zencargo.com">
+                <img class="w-full" src="/images/zencargo_logo.png" />
+            </a>
+        </div>
+    </div>
+    <div class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            <a class="bg-none" href="https://acatus.com">
+                <img class="w-full" src="/images/acatus_logo.svg" />
+            </a>
+        </div>
+    </div>
 </div>

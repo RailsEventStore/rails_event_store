@@ -7,8 +7,71 @@ html {
   font-size: 20px;
 }
 
-a {
-  @apply font-semibold text-grey-darkest no-underline;
+h1 {
+  @apply tracking-tight;
+  font-size: 47px;
+  line-height: 60px;
+  padding-top: 14px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  @apply tracking-tight;
+  font-size: 36px;
+  line-height: 60px;
+  padding-top: 18px;
+  margin-bottom: 12px;
+}
+
+h3 {
+  font-size: 27px;
+  line-height: 30px;
+  padding-top: 6px;
+  margin-bottom: 24px;
+}
+
+h4 {
+  font-size: 20px;
+  line-height: 30px;
+  padding-top: 8px;
+  margin-bottom: 22px;
+}
+
+p {
+  font-size: 20px;
+  line-height: 30px;
+  padding-top: 8px;
+  margin-bottom: 22px;
+}
+
+li {
+  font-size: 20px;
+  line-height: 30px;
+  padding-top: 8px;
+  margin-bottom: -8px;
+}
+
+ul {
+  margin-bottom: 30px;
+}
+
+li ul {
+  margin-bottom: 0;
+}
+
+.bg-none {
+  background: none;
+}
+
+.order-1 {
+  order: 1;
+}
+
+.order-2 {
+  order: 2;
+}
+
+.bg-gradient {
   background-image: linear-gradient(
     180deg,
     transparent 70%,
@@ -16,28 +79,39 @@ a {
   );
 }
 
+a {
+  @apply font-semibold text-grey-darkest no-underline bg-gradient;
+}
+
+blockquote {
+  @apply text-grey-darker border-l-4 pl-4;
+}
+
 ::selection {
   @apply bg-red-lightest;
 }
 
 pre {
-  @apply text-sm py-2 px-4 -mx-4 bg-grey-lightest rounded;
-  tab-size: 2;
-  margin-bottom: 0.63rem;
+  @apply rounded px-2 py-2;
+  margin-bottom: 30px;
+  background-color: rgba(247, 247, 247, 1);
 }
 
 code {
-  @apply rounded font-mono;
-}
-
-:not(pre) > code {
-  @apply text-sm leading-none text-grey-darker bg-grey-lightest py-1 px-2;
+  @apply rounded font-mono text-xs leading-normal;
 }
 
 pre > code {
-  @apply inline-block overflow-x-auto;
-  -webkit-overflow-scrolling: touch;
-  padding-top: 0.438rem;
+  @apply bg-transparent;
+}
+
+:not(pre) > code {
+  @apply px-2 py-1 text-grey-darker;
+  background-color: rgba(247, 247, 247, 1);
+}
+
+.hero__title {
+  font-size: 5rem;
 }
 
 .btn {
@@ -50,7 +124,7 @@ pre > code {
 }
 
 .btn--primary {
-  @apply bg-red text-grey-lighter border-2 border-red bg-red;
+  @apply bg-red text-red-lighter border-2 border-red bg-red;
 }
 
 .btn--primary:hover {
@@ -58,7 +132,7 @@ pre > code {
 }
 
 .btn--secondary {
-  @apply text-grey border-2 border-grey-darkest;
+  @apply text-grey border-2 border-grey-lighter text-red;
 }
 
 .btn--secondary:hover {
@@ -79,7 +153,7 @@ pre > code {
 }
 
 .btn--large {
-  @apply text-xl py-4 px-6;
+  @apply text-lg py-4 px-6;
 }
 
 .frame {
@@ -88,10 +162,11 @@ pre > code {
 
 .frame__header {
   @apply bg-black;
+  opacity: 0.95;
 }
 
 .frame__section {
-  @apply bg-grey-darkest;
+  @apply bg-grey-lighter;
 }
 
 .frame__footer {
@@ -99,57 +174,19 @@ pre > code {
 }
 
 .frame__body {
-  @apply py-12;
-  flex-grow: 1;
+  @apply flex-grow;
 }
 
 .frame__sidebar a {
-  background-image: none;
-  transition: all 0.15s ease;
-  @apply block rounded font-normal -ml-2 px-2 py-1;
+  @apply bg-none text-grey-darker;
 }
 
 .frame__sidebar a[aria-current] {
-  @apply font-bold;
+  @apply font-bold text-grey-darkest;
 }
 
 .frame__sidebar a:hover {
-  @apply bg-red-lightest;
-}
-
-.contribute__contributors {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  list-style-type: none;
-  padding: 0;
-  margin: 0 -10px;
-}
-
-.contributor {
-  width: 80px;
-  height: 80px;
-  margin: 8px;
-}
-
-.contributor__avatar {
-  border-radius: 5px;
-}
-
-.contributor__link {
-  @apply bg-red-lightest;
-  border-bottom: none;
-  border-radius: 5px;
-  display: inline-block;
-  line-height: 0;
-}
-
-.contributor__link:hover .contributor__avatar,
-.contributor__link:focus .contributor__avatar,
-.contributor__link:active .contributor__avatar {
-  background-image: none;
-  filter: grayscale(100%);
-  opacity: 0.5;
+  @apply bg-gradient text-grey-darkest;
 }
 
 .site-footer {
@@ -164,7 +201,6 @@ pre > code {
 
 .site-footer__link {
   @apply text-grey;
-  margin: 0 1rem;
   background: transparent;
   border-bottom: none;
   font-weight: normal;
@@ -190,8 +226,9 @@ pre > code {
 }
 
 .site-navigation__title {
-  @apply font-bold text-red;
+  @apply text-red tracking-wide;
   background: none;
+  opacity: 0.95;
 }
 
 .site-navigation__link {
@@ -209,11 +246,11 @@ pre > code {
 }
 
 .site-navigation__link--external {
-  @apply text-grey-darkest tracking-tight;
+  @apply text-grey-darker font-bold text-sm tracking-tight;
 }
 
 .site-navigation__links {
-  @apply w-full block flex-grow;
+  @apply w-full block flex-grow items-end;
 }
 
 @screen md {
@@ -222,35 +259,12 @@ pre > code {
   }
 }
 
-.stats {
-  display: flex;
-  justify-content: space-between;
-}
-
-.stats__stat {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.stat__title {
-  text-align: center;
-  font-weight: normal;
-  order: 2;
-  margin-top: 0;
-}
-
-.stat__value {
-  text-align: center;
-  order: 1;
-}
-
 .offer {
-  @apply flex flex-wrap border-t border-grey-lighter py-12;
+  @apply flex flex-wrap border-t border-grey-lighter py-6;
 }
 
 .offer:first-child {
-  @apply pb-12 pt-4 border-0;
+  @apply pb-6 pt-4 border-0;
 }
 
 .offer__left {
@@ -262,11 +276,11 @@ pre > code {
 }
 
 .offer__price {
-  @apply block text-sm uppercase text-grey font-bold;
+  @apply block text-sm uppercase text-grey font-bold -mt-4 mb-2;
 }
 
 .offer__cta {
-  @apply btn btn--ternary btn--small mt-6;
+  @apply mt-6;
 }
 
 @screen sm {
@@ -279,55 +293,13 @@ pre > code {
   }
 }
 
-.docs h1 {
-  font-size: 2.38rem;
-  line-height: 3rem;
-  padding-top: 0.6875rem;
-  margin-bottom: 0.8125rem;
-  @apply tracking-tight font-semibold;
-}
-
-.docs h2 {
-  font-size: 1.75rem;
-  line-height: 3rem;
-  padding-top: 0.875rem;
-  margin-bottom: 0.625rem;
-  @apply tracking-tight font-semibold;
-}
-
-.docs h3 {
-  font-size: 1.31rem;
-  line-height: 1.5rem;
-  padding-top: 0.3125rem;
-  margin-bottom: 1.875rem;
-}
-
-.docs h4 {
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-top: 0.438rem;
-  margin-bottom: 1.06rem;
-}
-
-.docs p {
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-top: 0.438rem;
-  margin-bottom: 1.06rem;
-}
-
-.company__logo {
-  filter: grayscale(100%);
-  opacity: 0.25;
-}
-
-.visual-debug {
+.debug {
   background: linear-gradient(
     to bottom,
     rgba(32, 160, 255, 0.35) 1px,
     transparent 1px
   );
-  background-size: 100% 24px;
+  background-size: 100% 30px;
 }
 
 .algolia-autocomplete {
