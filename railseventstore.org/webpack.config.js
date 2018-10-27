@@ -8,7 +8,6 @@ module.exports = {
     filename: "javascripts/all.js"
   },
   entry: [
-    "./stylesheets/_open-color.css",
     "./stylesheets/_solarized.css",
     "./stylesheets/_site.css",
     "./stylesheets/_site_navigation.css"
