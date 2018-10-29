@@ -113,3 +113,7 @@ Raised when using `RailsEventStoreActiveRecord::Legacy` repository on unsupporte
 ### RubyEventStore::ReservedInternalName
 
 Occurs when passing stream name of `all` when using `RailsEventStoreActiveRecord` of `RubyEventStore::ROM` repository. This stream name is used internally to implement global stream. Use dedicated global stream readers in order to read events from it.
+
+### RubyEventStore::ProtobufEncodingFailed
+
+Raised when event's `data` is not serializable by `RubyEventStore::Mappers::Protobuf`.
