@@ -1,9 +1,7 @@
 module RubyEventStore
   class Proto < RubyEventStore::Event
     def initialize(event_id: SecureRandom.uuid, metadata: nil, data:)
-      @event_id = event_id
-      @metadata = Metadata.new(metadata.to_h)
-      @data     = data
+      super
     end
 
     def type
