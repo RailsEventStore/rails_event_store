@@ -1,9 +1,5 @@
 module RubyEventStore
   class Proto < RubyEventStore::Event
-    def initialize(event_id: SecureRandom.uuid, metadata: nil, data:)
-      super
-    end
-
     def type
       data.class.descriptor.name
     end
@@ -45,8 +41,8 @@ module RubyEventStore
       def event_to_serialized_record(domain_event)
         SerializedRecord.new(
           event_id:   domain_event.event_id,
-          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(domain_event.metadata.each_with_object({}){|(k,v),h| h[k.to_s] =v }),
-          data:       domain_event.data.class.encode(domain_event.data),
+          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(domain_event.metadata.each_with_object({}) {|(k, v), h| h[k.to_s] = v}),
+          data:       encode_data(domain_event.data),
           event_type: domain_event.type
         )
       end
@@ -72,6 +68,14 @@ module RubyEventStore
 
       def load_data(event_type, protobuf_data)
         Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(protobuf_data)
+      end
+
+      def encode_data(domain_event_data)
+        begin
+          domain_event_data.class.encode(domain_event_data)
+        rescue NoMethodError
+          raise ProtobufEncodingFailed
+        end
       end
 
       def require_optional_dependency
