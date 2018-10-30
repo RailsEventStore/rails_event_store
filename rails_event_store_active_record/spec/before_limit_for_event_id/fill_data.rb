@@ -13,7 +13,7 @@ ActiveRecord::Schema.define do
   sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
   rails_42 = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0")
   enable_extension "pgcrypto" if postgres
-  create_table(:event_store_events_in_streams, force: false) do |t|
+  create_table(:event_store_events_in_streams, id: :integer, force: false) do |t|
     t.string      :stream,      null: false
     t.integer     :position,    null: true
     if postgres
