@@ -13,14 +13,18 @@ Browser is a web interface that allows you to inspect existing streams and their
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rails_event_store-browser'
+gem 'ruby_event_store-browser'
 ```
 
 Add this to your `routes.rb` to enable web interface in development:
 
 ```ruby
 Rails.application.routes.draw do
-  mount RailsEventStore::Browser::Engine => "/res" if Rails.env.development?
+  mount RubyEventStore::Browser::App.for(
+    event_store_locator: -> { Rails.configuration.event_store },
+    host: 'http://localhost:3000',
+    path: '/res'
+  ) => '/res' if Rails.env.development?
 end
 ```
 
@@ -80,9 +84,19 @@ In a production environment you'll likely want to protect access to the browser.
 Allow any authenticated `User`:
 
 ```ruby
+browser = ->(env) do
+  request = Rack::Request.new(env)
+  app = RubyEventStore::Browser::App.for(
+    event_store_locator: -> { Rails.configuration.event_store },
+    host: request.base_url,
+    path: request.script_name
+  )
+  app.call(env)
+end
+
 Rails.application.routes.draw do
   authenticate :user do
-    mount RailsEventStore::Browser::Engine => "/res"
+    mount browser => "/res"
   end
 end
 ```
@@ -90,9 +104,19 @@ end
 Allow any authenticated `User` for whom `User#admin?` returns `true`:
 
 ```ruby
+browser = ->(env) do
+  request = Rack::Request.new(env)
+  app = RubyEventStore::Browser::App.for(
+    event_store_locator: -> { Rails.configuration.event_store },
+    host: request.base_url,
+    path: request.script_name
+  )
+  app.call(env)
+end
+
 Rails.application.routes.draw do
   authenticate :user, lambda { |u| u.admin? } do
-    mount RailsEventStore::Browser::Engine => "/res"
+    mount browser => "/res"
   end
 end
 ```
@@ -115,7 +139,15 @@ Rails.application.routes.draw do
     end
 
     map "/" do
-      run RailsEventStore::Browser::Engine
+      run ->(env) do
+        request = Rack::Request.new(env)
+        app = RubyEventStore::Browser::App.for(
+          event_store_locator: -> { Rails.configuration.event_store },
+          host: request.base_url,
+          path: request.script_name
+        )
+        app.call(env)
+      end
     end
   end
 
