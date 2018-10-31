@@ -102,7 +102,7 @@ code {
 }
 
 pre > code {
-  @apply bg-transparent;
+  @apply bg-transparent scrolling-touch overflow-x-auto block;
 }
 
 :not(pre) > code {
