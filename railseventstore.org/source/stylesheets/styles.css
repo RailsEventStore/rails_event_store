@@ -99,6 +99,7 @@ pre {
 
 code {
   @apply rounded font-mono text-xs leading-normal;
+  color: #586e75;
 }
 
 pre > code {
@@ -106,7 +107,7 @@ pre > code {
 }
 
 :not(pre) > code {
-  @apply px-2 py-1 text-grey-darker;
+  @apply px-2 py-1;
   background-color: rgba(247, 247, 247, 1);
 }
 
