@@ -19,7 +19,7 @@ RSpec.describe "limit_for_event_id_migration" do
       fill_data_using_older_gem
       before = RailsEventStoreActiveRecord::EventInStream.columns
         .select{|c| c.name == 'event_id'}.first
-      expect(before .limit).to eq(nil)
+      expect(before.limit).to eq(nil)
 
       run_the_migration
       reset_columns_information
