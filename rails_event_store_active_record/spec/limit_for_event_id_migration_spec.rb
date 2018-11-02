@@ -16,7 +16,9 @@ RSpec.describe "limit_for_event_id_migration" do
   specify do
     begin
       establish_database_connection
+      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
       fill_data_using_older_gem
+      reset_columns_information
       before = RailsEventStoreActiveRecord::EventInStream.columns
         .select{|c| c.name == 'event_id'}.first
       expect(before.limit).to eq(nil)
