@@ -16,34 +16,22 @@ RSpec.describe "index_by_event_type_migration" do
   specify do
     begin
       establish_database_connection
-      load_database_schema
-      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-      dump_current_schema
-      drop_existing_tables_to_clean_state
       fill_data_using_older_gem
+      before = ActiveRecord::Base.connection.indexes('event_store_events')
+        .select{|c| c.name == 'indexe_event_store_events_on_event_type'}.first
+      expect(before).to eq(nil)
+
       run_the_migration
-      reset_columns_information
-      compare_new_schema
+      after = ActiveRecord::Base.connection.indexes('event_store_events')
+        .select{|c| c.name == 'index_event_store_events_on_event_type'}.first
+      expect(after.columns).to eq(['event_type'])
+      expect(after.unique).to eq(false)
     ensure
       drop_database
     end
   end
 
   private
-
-  def repository
-    @repository ||= RailsEventStoreActiveRecord::EventRepository.new
-  end
-
-  def mapper
-    RubyEventStore::Mappers::NullMapper.new
-  end
-
-  def specification
-    @specification ||= RubyEventStore::Specification.new(
-      RubyEventStore::SpecificationReader.new(repository, mapper)
-    )
-  end
 
   def fill_data_using_older_gem
     pathname = Pathname.new(__FILE__).dirname
@@ -68,29 +56,5 @@ RSpec.describe "index_by_event_type_migration" do
   def run_the_migration
     eval(MigrationRubyCode)
     IndexByEventType.new.up
-  end
-
-  def reset_columns_information
-    RailsEventStoreActiveRecord::Event.reset_column_information
-    RailsEventStoreActiveRecord::EventInStream.reset_column_information
-  end
-
-  def drop_existing_tables_to_clean_state
-    drop_database
-  end
-
-  def dump_current_schema
-    @schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, @schema)
-    @schema.rewind
-    @schema = @schema.read
-  end
-
-  def compare_new_schema
-    schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
-    schema.rewind
-    schema = schema.read
-    expect(schema).to eq(@schema)
   end
 end
