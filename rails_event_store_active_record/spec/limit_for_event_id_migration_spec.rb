@@ -10,7 +10,7 @@ RSpec.describe "limit_for_event_id_migration" do
   include SchemaHelper
 
   MigrationRubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/limit_for_event_id_template.rb', __FILE__) )
-  migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
+  migration_version = rails_dependent("", "[4.2]")
   MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
