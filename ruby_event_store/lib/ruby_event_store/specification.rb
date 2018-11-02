@@ -152,7 +152,7 @@ module RubyEventStore
       Specification.new(reader, result.dup{ |r| r.with_ids = event_ids })
     end
 
-    # Executes the query based on the specification built up to this point.
+    # Reads single event from repository.
     # Returns the event with specified id or nil if event is not found
     # in specified collection of events.
     # {http://railseventstore.org/docs/read/ Find out more}.
@@ -162,8 +162,8 @@ module RubyEventStore
       reader.one(read_first.with_id([event_id]).result)
     end
 
-    # Executes the query based on the specification built up to this point.
-    # Returns the event with specified id or raises [EventNotFound[ error if
+    # Reads single existing event from repository.
+    # Returns the event with specified id or raises [EventNotFound] error if
     # event is not found in specified collection of events.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
@@ -172,7 +172,7 @@ module RubyEventStore
       event(event_id) or raise EventNotFound.new(event_id)
     end
 
-    # Executes the query based on the specification built up to this point.
+    # Reads all events of given ids from repository.
     # Yields each event (found by id in specified collection of events)
     # read from the store if block given. Otherwise, returns enumerable collection.
     # {http://railseventstore.org/docs/read/ Find out more}.
