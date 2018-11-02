@@ -375,8 +375,8 @@ class SendOrderEmail < ActiveJob::Base
 end
 
 event_store = RailsEventStore::Client.new(
-  dispatcher: ComposedDispatcher.new(
-    RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler),
+  dispatcher: RubyEventStore::ComposedDispatcher.new(
+    RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
     RubyEventStore::PubSub::Dispatcher.new
   )
 )
