@@ -32,19 +32,6 @@ RSpec.describe "limit_for_event_id_migration" do
 
   private
 
-  def repository
-    @repository ||= RailsEventStoreActiveRecord::EventRepository.new
-  end
-
-  def mapper
-    RubyEventStore::Mappers::NullMapper.new
-  end
-
-  def specification
-    @specification ||= RubyEventStore::Specification.new(
-      RubyEventStore::SpecificationReader.new(repository, mapper)
-    )
-  end
 
   def fill_data_using_older_gem
     pathname = Pathname.new(__FILE__).dirname
