@@ -16,15 +16,16 @@ RSpec.describe "limit_for_event_id_migration" do
   specify do
     begin
       establish_database_connection
-      load_database_schema
-      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-      dump_current_schema
-      drop_existing_tables_to_clean_state
-      establish_database_connection
       fill_data_using_older_gem
+      before = RailsEventStoreActiveRecord::EventInStream.columns
+        .select{|c| c.name == 'event_id'}.first
+      expect(before .limit).to eq(nil)
+
       run_the_migration
       reset_columns_information
-      compare_new_schema
+      after = RailsEventStoreActiveRecord::EventInStream.columns
+        .select{|c| c.name == 'event_id'}.first
+      expect(after.limit).to eq(36)
     ensure
       drop_database
     end
@@ -61,24 +62,5 @@ RSpec.describe "limit_for_event_id_migration" do
   def reset_columns_information
     RailsEventStoreActiveRecord::Event.reset_column_information
     RailsEventStoreActiveRecord::EventInStream.reset_column_information
-  end
-
-  def drop_existing_tables_to_clean_state
-    drop_database
-  end
-
-  def dump_current_schema
-    @schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, @schema)
-    @schema.rewind
-    @schema = @schema.read
-  end
-
-  def compare_new_schema
-    schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
-    schema.rewind
-    schema = schema.read
-    expect(schema).to eq(@schema)
   end
 end
