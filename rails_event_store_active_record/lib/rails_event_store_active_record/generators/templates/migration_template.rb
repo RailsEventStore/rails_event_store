@@ -38,5 +38,6 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
       end
     end
     add_index :event_store_events, :created_at
+    add_index :event_store_events, :event_type
   end
 end

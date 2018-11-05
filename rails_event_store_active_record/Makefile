@@ -11,11 +11,13 @@ install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 	@BUNDLE_GEMFILE=spec/without_rails/Gemfile bundle install
+	@BUNDLE_GEMFILE=spec/before_index_by_event_type/Gemfile bundle install
 
 remove-lock:
 	@echo "Removing resolved dependency versions"
 	-rm Gemfile.lock
 	-rm spec/without_rails/Gemfile.lock
+	-rm spec/before_index_by_event_type/Gemfile.lock
 
 reinstall: remove-lock install ## Removing resolved dependency versions
 

@@ -23,6 +23,10 @@ module RubyEventStore
             where(event_id: event_id)
           end
 
+          def by_event_type(types)
+            join(:events).where(event_type: types)
+          end
+
           def by_stream_and_event_id(stream, event_id)
             where(stream: normalize_stream_name(stream), event_id: event_id).one!
           end

@@ -15,6 +15,13 @@ module RubyEventStore
       )
     end
   end
+
+  # @private
+  Type1 = Class.new(RubyEventStore::Event)
+  # @private
+  Type2 = Class.new(RubyEventStore::Event)
+  # @private
+  Type3 = Class.new(RubyEventStore::Event)
 end
 
 module RubyEventStore
@@ -1194,6 +1201,19 @@ module RubyEventStore
         '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea',
         'd345f86d-b903-4d78-803f-38990c078d9e'
       ]).in_batches.result).to_a[0]).to eq([e1,e3])
+    end
+
+    specify do
+      e1 = SRecord.new(event_type: Type1.to_s)
+      e2 = SRecord.new(event_type: Type2.to_s)
+      e3 = SRecord.new(event_type: Type1.to_s)
+      stream = Stream.new('Stream A')
+      repository.append_to_stream([e1, e2, e3], stream, version_any)
+
+      expect(repository.read(specification.of_type([Type1]).result).to_a).to eq([e1,e3])
+      expect(repository.read(specification.of_type([Type2]).result).to_a).to eq([e2])
+      expect(repository.read(specification.of_type([Type3]).result).to_a).to eq([])
+      expect(repository.read(specification.of_type([Type1, Type2, Type3]).result).to_a).to eq([e1,e2,e3])
     end
   end
 end
