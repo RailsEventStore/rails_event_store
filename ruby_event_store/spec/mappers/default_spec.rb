@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'json'
 
 SomethingHappened = Class.new(RubyEventStore::Event)
 
@@ -90,6 +91,46 @@ module RubyEventStore
           expect(event.event_id).to     eq domain_event.event_id
           expect(event.data).to         eq(data)
           expect(event.metadata.to_h).to     eq(metadata)
+        end
+      end
+
+      context 'when JSON serializer is provided' do
+        subject { described_class.new(serializer: JSON) }
+
+        specify '#event_to_serialized_record returns serialized record' do
+          record = subject.event_to_serialized_record(domain_event)
+          expect(record).to            be_a SerializedRecord
+          expect(record.event_id).to   eq event_id
+          expect(record.data).to       eq %q[{"some_attribute":5}]
+          expect(record.metadata).to   eq %q[{"some_meta":1}]
+          expect(record.event_type).to eq "SomethingHappened"
+        end
+
+        specify '#serialized_record_to_event returns event instance' do
+          record = SerializedRecord.new(
+            event_id:   domain_event.event_id,
+            data:       %q[{"some_attribute":5}],
+            metadata:   %q[{"some_meta":1}],
+            event_type: SomethingHappened.name
+          )
+          domain_event = SomethingHappened.new(
+            data: stringify(data),
+            metadata: metadata,
+            event_id: event_id
+          )
+          event = subject.serialized_record_to_event(record)
+          expect(event).to              eq(domain_event)
+          expect(event.event_id).to     eq domain_event.event_id
+          expect(event.data).to         eq(domain_event.data)
+          expect(event.metadata.to_h).to     eq(domain_event.metadata.to_h)
+        end
+      end
+
+      private
+
+      def stringify(hash)
+        hash.each_with_object({}) do |(k, v), memo|
+          memo[k.to_s] = v
         end
       end
     end
