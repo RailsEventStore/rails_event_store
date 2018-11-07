@@ -15,7 +15,7 @@
         <%= partial "partials/documentation_nav" %>
       </nav>
 
-      <div class="frame__main w-full md:w-3/4 px-4">
+      <div class="frame__main w-full md:w-3/4 px-4 js-docs">
         <h1><%= page_title %></h1>
         <%= yield %>
 
@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function(event) {
-      anchors.add('.docs h2, .docs h3');
+      anchors.add('.js-docs h2, .js-docs h3');
     });
   </script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script> 
