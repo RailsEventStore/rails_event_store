@@ -72,7 +72,7 @@ end
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
 
-## Passing your own metadata using with_metadata method
+## Passing your own metadata using with_metadata
 
 Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
 
@@ -104,7 +104,7 @@ my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
 my_event.metadata[:timestamp]      #=> a timestamp
 ```
 
-### Recording current_user in request-response cycle
+### Recording current user in request–response cycle
 
 One can use metadata to associate a logged-in user with domain events published in a request-response cycle of a web application. This is useful for auditing purpose.
 
