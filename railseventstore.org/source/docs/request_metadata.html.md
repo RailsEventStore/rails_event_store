@@ -72,7 +72,7 @@ end
 
 You can read more about your possible options by reading [ActionDispatch::Request](http://api.rubyonrails.org/classes/ActionDispatch/Request.html) documentation.
 
-## Passing your own metadata using `with_metadata` method
+## Passing your own metadata using with_metadata method
 
 Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
 
@@ -103,3 +103,73 @@ my_event.metadata[:causation_id]   #=> 1234567890 from with_metadata argument
 my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
 my_event.metadata[:timestamp]      #=> a timestamp
 ```
+
+### Recording current_user in request-response cycle
+
+One can use metadata to associate a logged-in user with domain events published in a request-response cycle of a web application. This is useful for auditing purpose.
+
+Consider following Rails `ApplicationController` with a method returning currently logged-in user or `nil`:
+
+```ruby
+class ApplicationController < ActionController::Base
+  def current_user
+    # ...
+  end
+end
+```
+
+We can use `with_metadata` combined with an `around_action` to wrap an action handling incoming request. Every domain event that originated from a controller action would get `user_id` key in its metadata with the value taken from `current_user.id` or being `nil`:
+
+```ruby
+class ApplicationController < ActionController::Base
+  around_action :use_request_metadata
+
+  private
+
+  def use_request_metadata(&block)
+    Rails.configuration.event_store.with_metadata(request_metadata, &block)
+  end
+
+  def request_metadata
+    { user_id: current_user&.id }
+  end
+end
+```
+
+This metadata would be added to domain events published in synchronous handlers as well, as they happen immediately in the same request-response cycle.
+
+### Passing metadata to asynchronous handlers
+
+Asynchronous event handling by design happens outside of the request-response cycle — in a different thread or completely different process. Our only source of metadata is the event we're processing in a handler.
+
+Let's look at an example how to retain it's metadata in any domain event published in an asynchronous handler.
+
+```ruby
+OrderPlaced = Class.new(RailsEventStore::Event)
+
+module MetadataHandler
+  def perform(event)
+    event_store.with_metadata(**event.metadata.to_h) do
+      super
+    end
+  end
+
+  def event_store
+    Rails.configuration.event_store
+  end
+end
+
+class OrderHandler < ActiveJob::Base
+  prepend RubyEventStore::AsyncHandler
+  prepend MetadataHandler
+
+  def perform(event)
+    # ...
+  end
+end
+
+event_store = RailsEventStore::Client.new
+event_store.subscribe(OrderHandler, to: [OrderPlaced])
+```
+
+In `MetadataHandler` we first read existing metadata from the currently processed event and then decorate any further event publications inside the handler with that metadata.
