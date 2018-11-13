@@ -35,6 +35,23 @@ end
 
 The provided `serializer` must respond to `load` and `dump`.
 
+Bear in mind that serializers have their limitations. For example `JSON` would convert symbol keys to strings and you have to prepare for that when retrieving events.
+
+```ruby
+JSON.load(JSON.dump({a: 1}))
+=> {"a"=>1}
+```
+
+One way to approach this is to have your own event adapter, specific for the project you're working on:
+
+```ruby
+class MyEvent < RailsEventStore::Event
+  def data
+    ActiveSupport::HashWithIndifferentAccess.new(super)
+  end
+end
+```
+
 ## Configuring a different mapper
 
 Configuring a different mapper makes it possible to define events however you want and store in them in the database.
