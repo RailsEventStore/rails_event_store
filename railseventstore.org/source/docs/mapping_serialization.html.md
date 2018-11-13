@@ -42,7 +42,7 @@ JSON.load(JSON.dump({a: 1}))
 => {"a"=>1}
 ```
 
-One way to approach this is to have your own event adapter, specific for the project you're working on:
+One way to approach this is to have your own event adapter, specific for the project you're working on.
 
 ```ruby
 class MyEvent < RailsEventStore::Event
@@ -50,6 +50,8 @@ class MyEvent < RailsEventStore::Event
     ActiveSupport::HashWithIndifferentAccess.new(super)
   end
 end
+
+OrderPlaced = Class.new(MyEvent)
 ```
 
 ## Configuring a different mapper
