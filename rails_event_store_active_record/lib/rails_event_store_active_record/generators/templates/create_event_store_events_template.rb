@@ -21,16 +21,16 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
     if postgres
       create_table(:event_store_events, id: :uuid, default: 'gen_random_uuid()', force: false) do |t|
         t.string      :event_type,  null: false
-        t.text        :metadata
-        t.text        :data,        null: false
+        t.binary      :metadata
+        t.binary      :data,        null: false
         t.datetime    :created_at,  null: false
       end
     else
       create_table(:event_store_events, id: false, force: false) do |t|
         t.string :id, limit: 36, primary_key: true, null: false
         t.string      :event_type,  null: false
-        t.text        :metadata
-        t.text        :data,        null: false
+        t.binary      :metadata
+        t.binary      :data,        null: false
         t.datetime    :created_at,  null: false
       end
       if sqlite && rails_42
