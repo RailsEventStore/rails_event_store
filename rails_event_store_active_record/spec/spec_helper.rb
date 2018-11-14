@@ -8,7 +8,7 @@ $verbose = ENV.has_key?('VERBOSE') ? true : false
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 
-MigrationCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
+MigrationCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/create_event_store_events_template.rb', __FILE__) )
 migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
 MigrationCode.gsub!("<%= migration_version %>", migration_version)
 MigrationCode.gsub!("force: false", "force: true")
