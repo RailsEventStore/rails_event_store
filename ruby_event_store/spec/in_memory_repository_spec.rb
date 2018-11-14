@@ -62,8 +62,5 @@ module RubyEventStore
 
     def additional_limited_concurrency_for_auto_check
     end
-
-    def migrate_to_binary
-    end
   end
 end

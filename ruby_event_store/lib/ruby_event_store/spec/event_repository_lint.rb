@@ -977,7 +977,6 @@ module RubyEventStore
 
     specify 'can store arbitrary binary data' do
       skip unless test_binary
-      migrate_to_binary
       binary = "\xB0"
       expect(binary.valid_encoding?).to eq(false)
       binary.force_encoding("binary")

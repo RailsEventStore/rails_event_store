@@ -279,16 +279,6 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def migrate_to_binary
-      drop_database
-      m = Migrator.new(File.expand_path('../lib/rails_event_store_active_record/generators/templates', __dir__))
-      binary = m.migration_code('create_event_store_events').gsub("text", "binary").gsub("CreateEventStoreEvents", "CreateEventStoreEventsBinary")
-      eval(binary) unless defined?(CreateEventStoreEventsBinary)
-      CreateEventStoreEventsBinary.new.change
-      RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
-      RailsEventStoreActiveRecord::Event.reset_column_information
-    end
-
     def count_queries(&block)
       count = 0
       counter_f = ->(_name, _started, _finished, _unique_id, payload) {
