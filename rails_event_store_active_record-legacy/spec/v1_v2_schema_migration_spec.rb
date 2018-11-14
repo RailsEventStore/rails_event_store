@@ -13,10 +13,6 @@ end
 RSpec.describe "v1_v2_migration" do
   include SchemaHelper
 
-  MigrationRubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/legacy/generators/templates/v1_v2_migration_template.rb', __FILE__) )
-  migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
-  MigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
-
   specify do
     begin
       establish_database_connection
@@ -32,7 +28,7 @@ RSpec.describe "v1_v2_migration" do
       verify_technical_stream
       compare_new_schema
     ensure
-      drop_legacy_database
+      drop_database
     end
   end
 
@@ -73,7 +69,9 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def run_the_migration
-    eval(MigrationRubyCode)
+    code = Migrator.new(File.expand_path("../lib/rails_event_store_active_record/legacy/generators/templates", __dir__))
+      .send(:migration_code, 'migrate_res_schema_v1_to_v2')
+    eval(code)
     MigrateResSchemaV1ToV2.class_eval do
       def preserve_positions?(stream_name)
         stream_name == "Order-1"

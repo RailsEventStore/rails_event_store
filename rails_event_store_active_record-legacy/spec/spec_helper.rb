@@ -1,17 +1,15 @@
 require 'rails_event_store_active_record/legacy'
 require 'support/rspec_defaults'
 require 'support/mutant_timeout'
+require_relative '../../lib/migrator'
 require 'rails'
 
 $verbose = ENV.has_key?('VERBOSE') ? true : false
+ActiveRecord::Schema.verbose = $verbose
 
 ENV['DATABASE_URL']  ||= 'sqlite3:db.sqlite3'
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 
-MigrationCode = File.read(File.expand_path('../../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/migration_template.rb', __FILE__) )
-migration_version = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
-MigrationCode.gsub!("<%= migration_version %>", migration_version)
-MigrationCode.gsub!("force: false", "force: true")
 
 module SchemaHelper
   def establish_database_connection
@@ -19,11 +17,8 @@ module SchemaHelper
   end
 
   def load_database_schema
-    ActiveRecord::Schema.define do
-      self.verbose = $verbose
-      eval(MigrationCode) unless defined?(CreateEventStoreEvents)
-      CreateEventStoreEvents.new.change
-    end
+    m = Migrator.new(File.expand_path('../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates', __dir__))
+    m.run_migration('create_event_store_events')
   end
 
   def drop_database
@@ -33,7 +28,6 @@ module SchemaHelper
 
   def load_legacy_database_schema
     ActiveRecord::Schema.define do
-      self.verbose = $verbose
       create_table(:event_store_events, force: false) do |t|
         t.string      :stream,      null: false
         t.string      :event_type,  null: false

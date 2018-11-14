@@ -1,0 +1,30 @@
+require 'erb'
+
+class Migrator
+  def initialize(template_root)
+    @template_root = template_root
+  end
+
+  def run_migration(name)
+    eval(migration_code(name))
+    migration_class(name).new.change
+  end
+
+  def migration_code(name)
+    migration_template(name).result_with_hash(migration_version: migration_version)
+  end
+
+  private
+
+  def migration_class(name)
+    Migrator.const_get(name.camelize)
+  end
+
+  def migration_version
+    Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
+  end
+
+  def migration_template(name)
+    ERB.new(File.read(File.join(@template_root, "#{name}_template.rb")))
+  end
+end

@@ -50,17 +50,10 @@ module RailsEventStore
     private
 
     def manually_migrate_columns_to_binary
-      ar_migration = ActiveRecord::Migration
-      if Gem::Version.new(ActiveRecord::VERSION::STRING) >= Gem::Version.new("5.0.0")
-        ar_migration = ar_migration[4.2]
-      end
-      Class.new(ar_migration) do
-        def up
-          drop_table :event_store_events
-          drop_table :event_store_events_in_streams
-        end
-      end.new.up
-      binary = MigrationCode.gsub("text", "binary").gsub("CreateEventStoreEvents", "CreateEventStoreEventsBinary")
+      ActiveRecord::Migration.drop_table("event_store_events")
+      ActiveRecord::Migration.drop_table("event_store_events_in_streams")
+      m = Migrator.new(File.expand_path('../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates', __dir__))
+      binary = m.migration_code('create_event_store_events').gsub("text", "binary").gsub("CreateEventStoreEvents", "CreateEventStoreEventsBinary")
       eval(binary) unless defined?(CreateEventStoreEventsBinary)
       CreateEventStoreEventsBinary.new.change
       RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!

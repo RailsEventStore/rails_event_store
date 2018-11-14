@@ -9,7 +9,7 @@ module RailsEventStoreActiveRecord
         source_root File.expand_path(File.join(File.dirname(__FILE__), '../generators/templates'))
 
       def create_migration
-        template "v1_v2_migration_template.rb", "db/migrate/#{timestamp}_migrate_res_schema_v1_to_v2.rb"
+        template "migrate_res_schema_v1_to_v2_template.rb", "db/migrate/#{timestamp}_migrate_res_schema_v1_to_v2.rb"
       end
 
       private
