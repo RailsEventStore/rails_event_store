@@ -64,8 +64,8 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
       create_table(:event_store_events, id: false, force: false) do |t|
         t.string :id, limit: 36, primary_key: true, null: false
         t.string      :event_type,  null: false
-        t.text        :metadata
-        t.text        :data,        null: false
+        t.binary      :metadata
+        t.binary      :data,        null: false
         t.datetime    :created_at,  null: false
       end
       add_index :event_store_events, :id, unique: true if rails_42
@@ -79,6 +79,8 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
     else
       execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
       remove_index  :event_store_events, name: :index_event_store_events_on_id
+      change_column :event_store_events, :data,     :binary
+      change_column :event_store_events, :metadata, :binary
     end
   end
 
