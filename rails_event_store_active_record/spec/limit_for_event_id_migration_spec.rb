@@ -24,7 +24,8 @@ RSpec.describe "limit_for_event_id_migration" do
       reset_columns_information
       before = RailsEventStoreActiveRecord::EventInStream.columns
         .select{|c| c.name == 'event_id'}.first
-      expect(before.limit).to eq(nil)
+      default_limit = 255 if ENV['DATABASE_URL'].include?("mysql2:")
+      expect(before.limit).to eq(default_limit)
 
       run_the_migration
       reset_columns_information
