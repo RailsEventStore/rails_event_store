@@ -16,7 +16,7 @@ RSpec.describe "binary_data_and_metadata_migration" do
       dump_current_schema
       drop_database
       fill_data_using_older_gem
-      establish_database_connection
+      clear_connection_schema_cache
       run_migration('binary_data_and_metadata')
       reset_columns_information
       verify_event
@@ -27,6 +27,10 @@ RSpec.describe "binary_data_and_metadata_migration" do
   end
 
   private
+
+  def clear_connection_schema_cache
+    RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
+  end
 
   def mapper
     RubyEventStore::Mappers::NullMapper.new
