@@ -9,10 +9,6 @@ begin
 rescue LoadError
 end
 
-RSpec.configure do |config|
-  config.failure_color = :magenta
-end
-
 ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
 
 module RomHelpers
