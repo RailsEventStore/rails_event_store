@@ -81,20 +81,20 @@ module RailsEventStoreActiveRecord
     specify "explicit sorting by position rather than accidental" do
       e1 = Event.create!(
         id: u1 = SecureRandom.uuid,
-        data: {},
-        metadata: {},
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
         id: u2 = SecureRandom.uuid,
-        data: {},
-        metadata: {},
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
         id: u3 = SecureRandom.uuid,
-        data: {},
-        metadata: {},
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       EventInStream.create!(
@@ -127,20 +127,20 @@ module RailsEventStoreActiveRecord
     specify "explicit sorting by id rather than accidental for all events" do
       e1 = Event.create!(
         id: u1 = SecureRandom.uuid,
-        data: {},
-        metadata: {},
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
         id: u2 = SecureRandom.uuid,
-        data: {},
-        metadata: {},
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
         id: u3 = SecureRandom.uuid,
-        data: {},
-        metadata: {},
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       EventInStream.create!(
