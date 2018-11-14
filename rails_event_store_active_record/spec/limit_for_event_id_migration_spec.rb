@@ -14,9 +14,12 @@ RSpec.describe "limit_for_event_id_migration" do
   LimitMigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
 
   specify do
+    need_cleanup = false
     begin
       establish_database_connection
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
+      skip("postgres cannot run this test - no limit on uuid column") if ENV['DATABASE_URL'].include?("postgres:")
+      need_cleanup = true
       fill_data_using_older_gem
       reset_columns_information
       before = RailsEventStoreActiveRecord::EventInStream.columns
@@ -29,7 +32,7 @@ RSpec.describe "limit_for_event_id_migration" do
         .select{|c| c.name == 'event_id'}.first
       expect(after.limit).to eq(36)
     ensure
-      drop_database
+      drop_database if need_cleanup
     end
   end
 
