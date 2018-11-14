@@ -55,6 +55,6 @@ RSpec.describe "index_by_event_type_migration" do
 
   def run_the_migration
     eval(MigrationRubyCode)
-    IndexByEventType.new.up
+    IndexByEventType.new.change
   end
 end
