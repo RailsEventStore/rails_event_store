@@ -12,30 +12,40 @@ RSpec.describe "binary_data_and_metadata_migration" do
   specify do
     begin
       establish_database_connection
+      load_database_schema
+      dump_current_schema
+      drop_database
       fill_data_using_older_gem
-      before =
-        ActiveRecord::Base
-          .connection
-          .columns('event_store_events')
-          .find { |c| c.name == 'data' }
-          .type
-      expect(before).to eq(:text)
-
+      establish_database_connection
       run_migration('binary_data_and_metadata')
-
-      after =
-        ActiveRecord::Base
-          .connection
-          .columns('event_store_events')
-          .find { |c| c.name == 'data' }
-          .type
-      expect(after).to eq(:binary)
+      reset_columns_information
+      compare_new_schema
     ensure
       drop_database
     end
   end
 
   private
+
+  def reset_columns_information
+    RailsEventStoreActiveRecord::Event.reset_column_information
+    RailsEventStoreActiveRecord::EventInStream.reset_column_information
+  end
+
+  def dump_current_schema
+    @schema = StringIO.new
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, @schema)
+    @schema.rewind
+    @schema = @schema.read
+  end
+
+  def compare_new_schema
+    schema = StringIO.new
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
+    schema.rewind
+    schema = schema.read
+    expect(schema).to eq(@schema)
+  end
 
   def fill_data_using_older_gem
     pathname = Pathname.new(__FILE__).dirname
