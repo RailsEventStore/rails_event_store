@@ -18,7 +18,7 @@ RSpec.describe "index_by_event_type_migration" do
       establish_database_connection
       fill_data_using_older_gem
       before = ActiveRecord::Base.connection.indexes('event_store_events')
-        .select{|c| c.name == 'indexe_event_store_events_on_event_type'}.first
+        .select{|c| c.name == 'index_event_store_events_on_event_type'}.first
       expect(before).to eq(nil)
 
       run_the_migration
