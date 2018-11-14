@@ -19,6 +19,7 @@ RSpec.describe "binary_data_and_metadata_migration" do
       establish_database_connection
       run_migration('binary_data_and_metadata')
       reset_columns_information
+      verify_event
       compare_new_schema
     ensure
       drop_database
@@ -26,6 +27,29 @@ RSpec.describe "binary_data_and_metadata_migration" do
   end
 
   private
+
+  def mapper
+    RubyEventStore::Mappers::NullMapper.new
+  end
+
+  def repository
+    @repository ||= RailsEventStoreActiveRecord::EventRepository.new
+  end
+
+  def specification
+    @specification ||= RubyEventStore::Specification.new(
+      RubyEventStore::SpecificationReader.new(repository, mapper)
+    )
+  end
+
+  def verify_event
+    event = repository.read(specification.with_id("94b297a3-5a29-4942-9038-3efeceb4d905").result).first
+    expect(YAML.load(event.data)).to eq({
+      all: true,
+      a: 1,
+      text: "text",
+    })
+  end
 
   def reset_columns_information
     RailsEventStoreActiveRecord::Event.reset_column_information
