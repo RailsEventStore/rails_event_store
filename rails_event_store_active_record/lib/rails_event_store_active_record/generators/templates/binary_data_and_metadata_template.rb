@@ -20,6 +20,11 @@ class BinaryDataAndMetadata < ActiveRecord::Migration<%= migration_version %>
         SELECT id, event_type, metadata, data, created_at FROM old_event_store_events;
       SQL
       drop_table :old_event_store_events
+    when "PostgreSQL"
+      execute <<-SQL
+        ALTER TABLE event_store_events ALTER COLUMN data     TYPE bytea USING convert_to(data,     'UTF8');
+        ALTER TABLE event_store_events ALTER COLUMN metadata TYPE bytea USING convert_to(metadata, 'UTF8');
+      SQL
     else
       change_column :event_store_events, :data,     :binary
       change_column :event_store_events, :metadata, :binary

@@ -76,6 +76,13 @@ class MigrateResSchemaV1ToV2 < ActiveRecord::Migration<%= migration_version %>
         SELECT id, event_type, metadata, data, created_at FROM old_event_store_events;
       SQL
       drop_table :old_event_store_events
+    when "PostgreSQL"
+      execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
+      remove_index  :event_store_events, name: :index_event_store_events_on_id
+      execute <<-SQL
+        ALTER TABLE event_store_events ALTER COLUMN data     TYPE bytea USING convert_to(data,     'UTF8');
+        ALTER TABLE event_store_events ALTER COLUMN metadata TYPE bytea USING convert_to(metadata, 'UTF8');
+      SQL
     else
       execute "ALTER TABLE event_store_events ADD PRIMARY KEY (id);"
       remove_index  :event_store_events, name: :index_event_store_events_on_id
