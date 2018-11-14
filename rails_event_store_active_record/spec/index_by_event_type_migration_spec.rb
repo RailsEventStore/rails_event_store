@@ -18,12 +18,13 @@ RSpec.describe "index_by_event_type_migration" do
       establish_database_connection
       fill_data_using_older_gem
       before = ActiveRecord::Base.connection.indexes('event_store_events')
-        .select{|c| c.name == 'index_event_store_events_on_event_type'}.first
+                 .find { |c| c.name == 'index_event_store_events_on_event_type' }
       expect(before).to eq(nil)
 
       run_the_migration
+
       after = ActiveRecord::Base.connection.indexes('event_store_events')
-        .select{|c| c.name == 'index_event_store_events_on_event_type'}.first
+                .find { |c| c.name == 'index_event_store_events_on_event_type' }
       expect(after.columns).to eq(['event_type'])
       expect(after.unique).to eq(false)
     ensure
