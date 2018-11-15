@@ -1,72 +1,38 @@
 require 'spec_helper'
-require 'pathname'
-require 'childprocess'
 require 'active_record'
-require 'logger'
 require 'ruby_event_store'
-require 'ruby_event_store/spec/event_repository_lint'
+require_relative '../../lib/subprocess_helper'
 
 RSpec.describe "limit_for_event_id_migration" do
   include SchemaHelper
-
-  LimitMigrationRubyCode = File.read(File.expand_path('../../lib/rails_event_store_active_record/generators/templates/limit_for_event_id_template.rb', __FILE__) )
-  migration_version = rails_dependent("", "[4.2]")
-  LimitMigrationRubyCode.gsub!("<%= migration_version %>", migration_version)
+  include SubprocessHelper
 
   specify do
-    need_cleanup = false
     begin
       establish_database_connection
-      skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-      skip("postgres cannot run this test - no limit on uuid column") if ENV['DATABASE_URL'].include?("postgres:")
-      need_cleanup = true
-      fill_data_using_older_gem
-      reset_columns_information
-      before = RailsEventStoreActiveRecord::EventInStream.columns
-        .select{|c| c.name == 'event_id'}.first
-      default_limit = 255 if ENV['DATABASE_URL'].include?("mysql2:")
-      expect(before.limit).to eq(default_limit)
+      load_database_schema
+      current_schema = dump_schema
+      drop_database
+      run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_33_0')
+        require 'rails/generators'
+        require 'rails_event_store_active_record'
+        require 'ruby_event_store'
+        require 'logger'
+        require '../lib/migrator'
 
-      run_the_migration
-      reset_columns_information
-      after = RailsEventStoreActiveRecord::EventInStream.columns
-        .select{|c| c.name == 'event_id'}.first
-      expect(after.limit).to eq(36)
+        $verbose = ENV.has_key?('VERBOSE') ? true : false
+        ActiveRecord::Schema.verbose = $verbose
+        ActiveRecord::Base.logger    = Logger.new(STDOUT) if $verbose
+        ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+
+        gem_path = $LOAD_PATH.find { |path| path.match(/rails_event_store_active_record/) }
+        Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
+          .run_migration('create_event_store_events', 'migration')
+      EOF
+      run_migration('limit_for_event_id')
+      expect(dump_schema).to eq(current_schema)
     ensure
-      drop_database if need_cleanup
+      drop_database
     end
-  end
-
-  private
-
-
-  def fill_data_using_older_gem
-    pathname = Pathname.new(__FILE__).dirname
-    cwd = pathname.join("before_limit_for_event_id")
-    FileUtils.rm(cwd.join("Gemfile.lock")) if File.exists?(cwd.join("Gemfile.lock"))
-    process = ChildProcess.build("bundle", "exec", "ruby", "fill_data.rb")
-    process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
-    process.environment['DATABASE_URL']   = ENV['DATABASE_URL']
-    process.environment['RAILS_VERSION']  = ENV['RAILS_VERSION']
-    process.cwd = cwd
-    process.io.stdout = $stdout
-    process.io.stderr = $stderr
-    process.start
-    begin
-      process.poll_for_exit(10)
-    rescue ChildProcess::TimeoutError
-      process.stop
-    end
-    expect(process.exit_code).to eq(0)
-  end
-
-  def run_the_migration
-    eval(LimitMigrationRubyCode)
-    LimitForEventId.new.up
-  end
-
-  def reset_columns_information
-    RailsEventStoreActiveRecord::Event.reset_column_information
-    RailsEventStoreActiveRecord::EventInStream.reset_column_information
   end
 end
