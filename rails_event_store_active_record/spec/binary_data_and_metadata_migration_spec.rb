@@ -18,6 +18,7 @@ RSpec.describe "binary_data_and_metadata_migration" do
       fill_data_using_older_gem
       clear_connection_schema_cache
       run_migration('binary_data_and_metadata')
+      run_migration('index_by_event_type')
       reset_columns_information
       verify_event
       compare_new_schema
