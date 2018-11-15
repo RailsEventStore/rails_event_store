@@ -2,7 +2,6 @@
 title: Community
 ---
 
-<div class="my-6">
 
 ## Contributing to RailsEventStore organization repositories
 
@@ -66,5 +65,3 @@ Any kind of contribution is welcomed.
 ## License
 
 By contributing, you agree that your contributions will be licensed under its [MIT License](https://github.com/RailsEventStore/rails_event_store/blob/master/LICENSE).
-
-</div>
