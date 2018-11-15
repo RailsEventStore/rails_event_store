@@ -5,8 +5,8 @@ class Migrator
     @template_root = template_root
   end
 
-  def run_migration(name)
-    eval(migration_code(name))
+  def run_migration(name, template_name = nil)
+    eval(migration_code(template_name || name))
     migration_class(name).new.change
   end
 
