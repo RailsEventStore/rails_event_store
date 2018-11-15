@@ -1,8 +1,8 @@
 require 'rails_event_store'
 require 'example_invoicing_app'
-require 'support/rspec_defaults'
-require 'support/mutant_timeout'
 require 'support/fake_configuration'
+require_relative '../../lib/rspec_defaults'
+require_relative '../../lib/mutant_timeout'
 require_relative '../../lib/migrator'
 require 'pry'
 

@@ -1,7 +1,7 @@
 require 'bounded_context'
 require 'securerandom'
-require 'support/rspec_defaults'
-require 'support/mutant_timeout'
+require_relative '../../lib/rspec_defaults'
+require_relative '../../lib/mutant_timeout'
 require 'rails'
 
 ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING

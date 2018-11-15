@@ -1,6 +1,6 @@
 require 'rails_event_store_active_record/legacy'
-require 'support/rspec_defaults'
-require 'support/mutant_timeout'
+require_relative '../../lib/rspec_defaults'
+require_relative '../../lib/mutant_timeout'
 require_relative '../../lib/migrator'
 require 'rails'
 

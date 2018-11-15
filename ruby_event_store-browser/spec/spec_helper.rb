@@ -1,8 +1,8 @@
 require "ruby_event_store"
 require "ruby_event_store/browser/app"
 require "rack/test"
-require "support/rspec_defaults"
-require "support/mutant_timeout"
+require_relative '../../lib/rspec_defaults'
+require_relative '../../lib/mutant_timeout'
 
 ENV['RACK_ENV'] = 'test'
 

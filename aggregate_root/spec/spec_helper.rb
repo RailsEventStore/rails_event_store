@@ -1,7 +1,7 @@
 require 'aggregate_root'
 require 'ruby_event_store'
-require 'support/rspec_defaults'
-require 'support/mutant_timeout'
+require_relative '../../lib/rspec_defaults'
+require_relative '../../lib/mutant_timeout'
 
 RSpec.configure do |spec|
   spec.before(:each) do
