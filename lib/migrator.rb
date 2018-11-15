@@ -1,6 +1,20 @@
 require 'erb'
 
 class Migrator
+  module Binding
+    module_function
+
+    def clean_binding
+      binding
+    end
+
+    def from_hash(**variables)
+      clean_binding.tap do |b|
+        variables.each { |k, v| b.local_variable_set(k, v) }
+      end
+    end
+  end
+
   def initialize(template_root)
     @template_root = template_root
   end
@@ -11,7 +25,7 @@ class Migrator
   end
 
   def migration_code(name)
-    migration_template(name).result_with_hash(migration_version: migration_version)
+    migration_template(name).result(Binding.from_hash(migration_version: migration_version))
   end
 
   private
