@@ -52,13 +52,3 @@ module SchemaHelper
     Capybara.app = APP_BUILDER.call(event_store)
   end
 end
-
-RSpec.configure do |config|
-  config.around(:each) do |example|
-    unless example.metadata[:js]
-      load_database_schema
-    end
-
-    example.call
-  end
-end
