@@ -1,9 +1,6 @@
 require 'spec_helper'
-require 'pathname'
 require 'active_record'
-require 'logger'
 require 'ruby_event_store'
-require 'tempfile'
 require_relative '../../lib/subprocess_helper'
 
 class EventAll < RubyEventStore::Event
@@ -28,11 +25,9 @@ RSpec.describe "legacy schema compatibility" do
   end
 
   around(:each) do |example|
-    script = Tempfile.new
     begin
-      ActiveRecord::Schema.verbose = $verbose
-      script.write <<~EOF
-        require 'rails/generators' # doh
+      run_in_subprocess(File.join(__dir__, "schema/Gemfile"), <<~EOF)
+        require 'rails/generators'
         require 'rails_event_store_active_record'
         require 'ruby_event_store'
         require 'logger'
@@ -117,8 +112,6 @@ RSpec.describe "legacy schema compatibility" do
 
         puts "filled" if $verbose
       EOF
-      script.close
-      run_subprocess(File.join(__dir__, "schema"), script.path)
       establish_database_connection
       silence_stderr { example.run }
     ensure

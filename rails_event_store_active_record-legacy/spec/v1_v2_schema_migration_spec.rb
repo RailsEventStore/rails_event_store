@@ -1,8 +1,5 @@
 require 'spec_helper'
-require 'pathname'
 require 'active_record'
-require 'logger'
-require 'tempfile'
 require 'ruby_event_store'
 require 'rails_event_store_active_record'
 require 'ruby_event_store/spec/event_repository_lint'
@@ -17,7 +14,6 @@ RSpec.describe "v1_v2_migration" do
   include SubprocessHelper
 
   specify do
-    script = Tempfile.new
     begin
       establish_database_connection
       load_database_schema
@@ -25,8 +21,8 @@ RSpec.describe "v1_v2_migration" do
       dump_current_schema
       drop_existing_tables_to_clean_state
 
-      script.write <<~EOF
-        require 'rails/generators' # doh
+      run_in_subprocess(File.join(__dir__, 'schema/Gemfile'), <<~EOF)
+        require 'rails/generators'
         require 'rails_event_store_active_record'
         require 'ruby_event_store'
         require 'logger'
@@ -111,9 +107,7 @@ RSpec.describe "v1_v2_migration" do
 
         puts "filled" if $verbose
       EOF
-      script.close
 
-      run_subprocess(File.join(__dir__, 'schema'), script.path)
       run_the_migration
       reset_columns_information
       verify_all_events_stream
@@ -122,7 +116,6 @@ RSpec.describe "v1_v2_migration" do
       compare_new_schema
     ensure
       drop_database
-      script.unlink
     end
   end
 
