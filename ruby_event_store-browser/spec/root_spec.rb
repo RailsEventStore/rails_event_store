@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 module RubyEventStore
-  RSpec.describe Browser, type: :request do
+  RSpec.describe Browser do
+    include Rack::Test::Methods
     include SchemaHelper
 
     before { load_database_schema }

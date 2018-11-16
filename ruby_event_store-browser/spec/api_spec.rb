@@ -4,7 +4,8 @@ require "support/json_api_lint"
 DummyEvent = Class.new(::RubyEventStore::Event)
 
 module RubyEventStore
-  RSpec.describe Browser, type: :request do
+  RSpec.describe Browser do
+    include Rack::Test::Methods
     include SchemaHelper
 
     before { load_database_schema }

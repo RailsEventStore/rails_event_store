@@ -33,8 +33,6 @@ end
 Capybara.javascript_driver = :chrome
 
 module SchemaHelper
-  include Rack::Test::Methods
-
   def app
     APP_BUILDER.call(event_store)
   end
