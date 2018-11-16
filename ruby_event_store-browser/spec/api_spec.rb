@@ -6,9 +6,6 @@ DummyEvent = Class.new(::RubyEventStore::Event)
 module RubyEventStore
   RSpec.describe Browser do
     include Rack::Test::Methods
-    include SchemaHelper
-
-    before { load_database_schema }
 
     specify do
       event_store.publish(dummy_event, stream_name: "dummy")
@@ -240,12 +237,10 @@ module RubyEventStore
 
     def get(*)
       header "Content-Type", "application/vnd.api+json"
-
       super
     end
 
-    def app
-      JsonApiLint.new(super)
-    end
+    let(:app) { JsonApiLint.new(APP_BUILDER.call(event_store)) }
+    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
   end
 end

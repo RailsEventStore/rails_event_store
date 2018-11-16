@@ -4,9 +4,9 @@ FooBarEvent = Class.new(::RubyEventStore::Event)
 
 module RubyEventStore
   RSpec.describe Browser, type: :feature, js: true do
-    include SchemaHelper
-
-    before { load_database_schema }
+    before do
+      Capybara.app = APP_BUILDER.call(event_store)
+    end
 
     specify "main view", mutant: false do
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
@@ -45,5 +45,7 @@ module RubyEventStore
         expect(page).to have_content(%Q[foo: "bar"])
       end
     end
+
+    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
   end
 end

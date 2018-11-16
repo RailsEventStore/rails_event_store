@@ -6,14 +6,6 @@ require_relative '../../lib/mutant_timeout'
 
 ENV['RACK_ENV'] = 'test'
 
-EVENT_STORE_BUILDER = -> do
-  RubyEventStore::Client.new(
-    repository: RubyEventStore::InMemoryRepository.new
-  )
-end
-
-EVENT_STORE = EVENT_STORE_BUILDER.call
-
 APP_BUILDER = -> (event_store) do
   RubyEventStore::Browser::App.for(
     event_store_locator: -> { event_store },
@@ -31,22 +23,3 @@ Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
 Capybara.javascript_driver = :chrome
-
-module SchemaHelper
-  def app
-    APP_BUILDER.call(event_store)
-  end
-
-  def event_store
-    @event_store ||= build_event_store
-  end
-
-  def build_event_store
-    EVENT_STORE_BUILDER.call
-  end
-
-  def load_database_schema
-    @event_store = nil
-    Capybara.app = APP_BUILDER.call(event_store)
-  end
-end
