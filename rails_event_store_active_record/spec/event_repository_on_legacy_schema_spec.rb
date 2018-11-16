@@ -10,7 +10,7 @@ module RailsEventStoreActiveRecord
         load_legacy_database_schema
         example.run
       ensure
-        drop_legacy_database rescue nil
+        drop_legacy_database
       end
     end
 
@@ -53,10 +53,6 @@ module RailsEventStoreActiveRecord
       close_database_connection
       expect { EventRepository.new }.not_to raise_error
       establish_database_connection
-    end
-
-    def close_database_connection
-      ActiveRecord::Base.remove_connection
     end
   end
 end
