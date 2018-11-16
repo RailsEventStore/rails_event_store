@@ -55,4 +55,11 @@ module SchemaHelper
     RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
     RailsEventStoreActiveRecord::Event.reset_column_information
   end
+
+  def dump_schema
+    schema = StringIO.new
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
+    schema.rewind
+    schema.read
+  end
 end

@@ -18,8 +18,8 @@ RSpec.describe "v1_v2_migration" do
       establish_database_connection
       load_database_schema
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
-      dump_current_schema
-      drop_existing_tables_to_clean_state
+      current_schema = dump_schema
+      drop_database
 
       run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_18_2')
         require 'rails/generators'
@@ -113,7 +113,8 @@ RSpec.describe "v1_v2_migration" do
       verify_all_events_stream
       verify_event_sourced_stream
       verify_technical_stream
-      compare_new_schema
+
+      expect(dump_schema).to eq(current_schema)
     ensure
       drop_database
     end
@@ -214,24 +215,5 @@ RSpec.describe "v1_v2_migration" do
       map(&:position).
       uniq
     expect(positions).to eq([nil])
-  end
-
-  def drop_existing_tables_to_clean_state
-    drop_database
-  end
-
-  def dump_current_schema
-    @schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, @schema)
-    @schema.rewind
-    @schema = @schema.read
-  end
-
-  def compare_new_schema
-    schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
-    schema.rewind
-    schema = schema.read
-    expect(schema).to eq(@schema)
   end
 end
