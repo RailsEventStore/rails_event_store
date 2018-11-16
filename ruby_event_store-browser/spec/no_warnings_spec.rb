@@ -2,8 +2,6 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe 'no warnings' do
-    include SchemaHelper
-    
     specify do
       expect(ruby_event_store_browser_warnings).to eq([])
     end
