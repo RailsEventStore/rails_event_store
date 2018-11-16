@@ -3,7 +3,7 @@
 .rspec_status
 .sass-cache/
 .cache/
-Gemfile.lock
+Gemfile*.lock
 _yardoc/
 coverage/
 log/

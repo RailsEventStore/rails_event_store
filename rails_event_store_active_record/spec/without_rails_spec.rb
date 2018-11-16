@@ -23,7 +23,7 @@ RSpec.describe RailsEventStoreActiveRecord do
   specify "can be used without rails", mutant: false do
     skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
 
-    run_in_subprocess(File.join(__dir__, 'without_rails/Gemfile'), <<~EOF)
+    run_in_subprocess(<<~EOF, cwd: __dir__)
       require 'active_record'
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
@@ -32,7 +32,7 @@ RSpec.describe RailsEventStoreActiveRecord do
       $verbose = ENV.has_key?('VERBOSE') ? true : false
 
       ActiveRecord::Base.logger = Logger.new(STDOUT) if $verbose
-      ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'].gsub("db.sqlite3", "../../db.sqlite3"))
+      ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'].gsub("db.sqlite3", "../db.sqlite3"))
 
       EventA1 = Class.new(RubyEventStore::Event)
 
