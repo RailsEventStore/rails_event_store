@@ -1,17 +1,19 @@
 require 'spec_helper'
 require 'pathname'
-require 'childprocess'
 require 'active_record'
 require 'logger'
 require 'ruby_event_store'
 require 'rails_event_store_active_record'
 require 'ruby_event_store/spec/event_repository_lint'
+require_relative '../../lib/subprocess_helper'
+
 
 class EventA2 < RubyEventStore::Event
 end
 
 RSpec.describe "v1_v2_migration" do
   include SchemaHelper
+  include SubprocessHelper
 
   specify do
     begin
@@ -20,7 +22,7 @@ RSpec.describe "v1_v2_migration" do
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
       dump_current_schema
       drop_existing_tables_to_clean_state
-      fill_data_using_older_gem
+      run_subprocess(File.join(__dir__, 'schema'), 'fill_data.rb')
       run_the_migration
       reset_columns_information
       verify_all_events_stream
@@ -46,26 +48,6 @@ RSpec.describe "v1_v2_migration" do
     @specification ||= RubyEventStore::Specification.new(
       RubyEventStore::SpecificationReader.new(repository, mapper)
     )
-  end
-
-  def fill_data_using_older_gem
-    pathname = Pathname.new(__FILE__).dirname
-    cwd = pathname.join("schema")
-    FileUtils.rm(cwd.join("Gemfile.lock")) if File.exists?(cwd.join("Gemfile.lock"))
-    process = ChildProcess.build("bundle", "exec", "ruby", "fill_data.rb")
-    process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
-    process.environment['DATABASE_URL']   = ENV['DATABASE_URL']
-    process.environment['RAILS_VERSION']  = ENV['RAILS_VERSION']
-    process.cwd = cwd
-    process.io.stdout = $stdout
-    process.io.stderr = $stderr
-    process.start
-    begin
-      process.poll_for_exit(10)
-    rescue ChildProcess::TimeoutError
-      process.stop
-    end
-    expect(process.exit_code).to eq(0)
   end
 
   def run_the_migration
