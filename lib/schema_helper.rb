@@ -28,7 +28,7 @@ module SchemaHelper
   end
 
   def load_legacy_database_schema
-    run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_18_2', cwd: Dir.pwd)
+    run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_18_2')
       require 'rails/generators'
       require 'rails_event_store_active_record'
       require 'ruby_event_store'

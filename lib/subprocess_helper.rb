@@ -23,7 +23,7 @@ module SubprocessHelper
     expect(process.exit_code).to eq(0)
   end
 
-  def run_in_subprocess(code, gemfile: 'Gemfile.master', cwd: __dir__)
+  def run_in_subprocess(code, gemfile: 'Gemfile.master', cwd: Dir.pwd)
     Tempfile.open do |script|
       script.write(code)
       script.close

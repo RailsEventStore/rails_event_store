@@ -21,17 +21,17 @@ RSpec.describe "v1_v2_migration" do
       dump_current_schema
       drop_existing_tables_to_clean_state
 
-      run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_18_2', cwd: __dir__)
+      run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_18_2')
         require 'rails/generators'
         require 'rails_event_store_active_record'
         require 'ruby_event_store'
         require 'logger'
-        require '../../lib/migrator'
+        require '../lib/migrator'
 
         $verbose = ENV.has_key?('VERBOSE') ? true : false
         ActiveRecord::Schema.verbose = $verbose
         ActiveRecord::Base.logger = Logger.new(STDOUT) if $verbose
-        ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'].gsub("db.sqlite3", "../db.sqlite3"))
+        ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
         gem_path = $LOAD_PATH.find { |path| path.match(/rails_event_store_active_record/) }
         Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
