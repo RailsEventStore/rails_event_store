@@ -107,11 +107,9 @@ RSpec.describe "v1_v2_migration" do
         puts "filled" if $verbose
       EOF
       run_the_migration
-      reset_columns_information
       verify_all_events_stream
       verify_event_sourced_stream
       verify_technical_stream
-
       expect(dump_schema).to eq(current_schema)
     ensure
       drop_database
@@ -135,18 +133,14 @@ RSpec.describe "v1_v2_migration" do
   end
 
   def run_the_migration
-    code = Migrator.new(File.expand_path("../lib/rails_event_store_active_record/legacy/generators/templates", __dir__))
-      .send(:migration_code, 'migrate_res_schema_v1_to_v2')
-    eval(code)
+    m = Migrator.new(File.expand_path("../lib/rails_event_store_active_record/legacy/generators/templates", __dir__))
+    eval(m.migration_code('migrate_res_schema_v1_to_v2'))
     MigrateResSchemaV1ToV2.class_eval do
       def preserve_positions?(stream_name)
         stream_name == "Order-1"
       end
     end
     MigrateResSchemaV1ToV2.new.up
-  end
-
-  def reset_columns_information
     RailsEventStoreActiveRecord::Event.reset_column_information
     RailsEventStoreActiveRecord::EventInStream.reset_column_information
   end

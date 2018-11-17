@@ -45,17 +45,13 @@ module SchemaHelper
       Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
         .run_migration('create_event_store_events', 'migration')
     EOF
-    reset_schema_cache
+    RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
+    RailsEventStoreActiveRecord::Event.reset_column_information
   end
 
   def drop_legacy_database
     ActiveRecord::Migration.drop_table("event_store_events")
   rescue ActiveRecord::StatementInvalid
-  end
-
-  def reset_schema_cache
-    RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
-    RailsEventStoreActiveRecord::Event.reset_column_information
   end
 
   def dump_schema
