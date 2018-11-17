@@ -11,6 +11,9 @@ RSpec.describe "index_by_event_type_migration" do
   specify do
     begin
       establish_database_connection
+      load_database_schema
+      current_schema = dump_schema
+      drop_database
       run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_33_0')
         require 'rails/generators'
         require 'rails_event_store_active_record'
@@ -27,19 +30,8 @@ RSpec.describe "index_by_event_type_migration" do
         Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
           .run_migration('create_event_store_events', 'migration')
       EOF
-
-      before =
-        ActiveRecord::Base.connection.indexes('event_store_events')
-          .find { |c| c.name == 'index_event_store_events_on_event_type' }
-      expect(before).to eq(nil)
-
       run_migration('index_by_event_type')
-
-      after =
-        ActiveRecord::Base.connection.indexes('event_store_events')
-          .find { |c| c.name == 'index_event_store_events_on_event_type' }
-      expect(after.columns).to eq(['event_type'])
-      expect(after.unique).to eq(false)
+      expect(dump_schema).to eq(current_schema)
     ensure
       drop_database
     end

@@ -20,7 +20,6 @@ RSpec.describe "v1_v2_migration" do
       skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
       current_schema = dump_schema
       drop_database
-
       run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_18_2')
         require 'rails/generators'
         require 'rails_event_store_active_record'
@@ -107,7 +106,6 @@ RSpec.describe "v1_v2_migration" do
 
         puts "filled" if $verbose
       EOF
-
       run_the_migration
       reset_columns_information
       verify_all_events_stream
