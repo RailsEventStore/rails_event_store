@@ -21,7 +21,6 @@ remove-lock:
 
 reinstall: remove-lock install ## Removing resolved dependency versions
 
-
 test: ## Run unit tests
 	@echo "Running unit tests"
 	@BUNDLE_GEMFILE=Gemfile bundle exec rspec
