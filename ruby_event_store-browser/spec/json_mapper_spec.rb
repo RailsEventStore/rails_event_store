@@ -10,7 +10,11 @@ RSpec.describe "JSON serializer" do
     expect(last_response).to be_ok
 
     metadata = JSON.parse(last_response.body)["data"][0]["attributes"]["metadata"]
-    expect(metadata["timestamp"]).to eq(dummy_event.metadata[:timestamp].iso8601(3))
+    expect(metadata["timestamp"]).to eq(skip_fractional(dummy_event.metadata[:timestamp]).iso8601(3))
+  end
+
+  def skip_fractional(time)
+    Time.utc(time.year, time.month, time.day, time.hour, time.min, time.sec)
   end
 
   let(:event_store) do
