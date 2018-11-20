@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sqlite3', '1.3.13'
   spec.add_development_dependency 'pg', '0.21'
   spec.add_development_dependency 'mysql2', '0.4.10'
-  spec.add_development_dependency 'mutant-rspec', '~> 0.8.17'
+  spec.add_development_dependency 'mutant-rspec', '= 0.8.17'
   spec.add_development_dependency 'fakefs', '~> 0.11.2'
   spec.add_development_dependency 'childprocess'
   spec.add_development_dependency 'google-protobuf', '~> 3.5.1.2'
