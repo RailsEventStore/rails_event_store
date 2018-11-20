@@ -201,10 +201,9 @@ module RubyEventStore
       expect(parsed_body["data"].size).to eq(0)
     end
 
-    def dummy_event(id = nil)
-      @dummy_events ||= {}
-      @dummy_events[id] ||= DummyEvent.new(
-        event_id: id || SecureRandom.uuid,
+    def dummy_event(id = SecureRandom.uuid)
+      @dummy_event ||= DummyEvent.new(
+        event_id: id,
         data: {
           foo: 1,
           bar: 2.0,
