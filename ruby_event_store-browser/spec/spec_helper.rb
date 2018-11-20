@@ -6,6 +6,8 @@ require_relative '../../lib/mutant_timeout'
 
 ENV['RACK_ENV'] = 'test'
 
+DummyEvent = Class.new(::RubyEventStore::Event)
+
 APP_BUILDER = -> (event_store) do
   RubyEventStore::Browser::App.for(
     event_store_locator: -> { event_store },

@@ -1,7 +1,6 @@
 require "spec_helper"
 require "support/json_api_lint"
 
-DummyEvent = Class.new(::RubyEventStore::Event)
 
 module RubyEventStore
   RSpec.describe Browser do
