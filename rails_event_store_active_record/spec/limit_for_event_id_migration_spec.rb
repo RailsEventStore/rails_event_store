@@ -3,6 +3,7 @@ require 'active_record'
 require 'ruby_event_store'
 require_relative '../../lib/subprocess_helper'
 
+
 RSpec.describe "limit_for_event_id_migration" do
   include SchemaHelper
   include SubprocessHelper
@@ -13,6 +14,7 @@ RSpec.describe "limit_for_event_id_migration" do
       load_database_schema
       current_schema = dump_schema
       drop_database
+      close_database_connection
       run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_33_0')
         require 'rails/generators'
         require 'rails_event_store_active_record'
@@ -29,6 +31,8 @@ RSpec.describe "limit_for_event_id_migration" do
         Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
           .run_migration('create_event_store_events', 'migration')
       EOF
+      establish_database_connection
+      run_migration('index_by_event_type')
       run_migration('limit_for_event_id')
       expect(dump_schema).to eq(current_schema)
     ensure
