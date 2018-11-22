@@ -3,8 +3,7 @@ require 'spec_helper'
 module RubyEventStore
   RSpec.describe Browser do
     it "takes path from request" do
-      events = 21.times.map { DummyEvent.new }
-      event_store.publish(events)
+      event_store.publish(events = 21.times.map { DummyEvent.new })
       test_client.get('/res/streams/all')
 
       expect(test_client.parsed_body["links"]).to eq({

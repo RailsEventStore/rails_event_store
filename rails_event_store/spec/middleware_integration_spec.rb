@@ -6,8 +6,6 @@ require 'support/test_application'
 
 module RailsEventStore
   RSpec.describe Middleware do
-    DummyEvent = Class.new(RailsEventStore::Event)
-
     specify 'works without event store instance' do
       event_store = Client.new
       request = ::Rack::MockRequest.new(middleware)
