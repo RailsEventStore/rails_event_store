@@ -1,19 +1,10 @@
 require "ruby_event_store"
 require "ruby_event_store/browser/app"
-require "rack/test"
+require "support/test_client"
 require_relative '../../lib/rspec_defaults'
 require_relative '../../lib/mutant_timeout'
 
 ENV['RACK_ENV'] = 'test'
-
-DummyEvent = Class.new(::RubyEventStore::Event)
-
-APP_BUILDER = -> (event_store) do
-  RubyEventStore::Browser::App.for(
-    event_store_locator: -> { event_store },
-    host: 'http://www.example.com'
-  )
-end
 
 require "capybara/rspec"
 require "selenium-webdriver"
@@ -25,3 +16,5 @@ Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
 Capybara.javascript_driver = :chrome
+
+DummyEvent = Class.new(::RubyEventStore::Event)

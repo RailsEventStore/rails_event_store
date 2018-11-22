@@ -5,7 +5,7 @@ FooBarEvent = Class.new(::RubyEventStore::Event)
 module RubyEventStore
   RSpec.describe Browser, type: :feature, js: true do
     before do
-      Capybara.app = APP_BUILDER.call(event_store)
+      Capybara.app = app_builder(event_store)
     end
 
     specify "main view", mutant: false do
@@ -47,5 +47,12 @@ module RubyEventStore
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+
+    def app_builder(event_store)
+      RubyEventStore::Browser::App.for(
+        event_store_locator: -> { event_store },
+        host: 'http://www.example.com'
+      )
+    end
   end
 end
