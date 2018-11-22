@@ -19,6 +19,8 @@ gem 'ruby_event_store-browser'
 Add this to your `routes.rb` to enable web interface in development:
 
 ```ruby
+require 'ruby_event_store/browser/app'
+
 Rails.application.routes.draw do
   mount RubyEventStore::Browser::App.for(
     event_store_locator: -> { Rails.configuration.event_store },
