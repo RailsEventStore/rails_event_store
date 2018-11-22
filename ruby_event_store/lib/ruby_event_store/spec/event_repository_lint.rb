@@ -1164,10 +1164,9 @@ module RubyEventStore
 
     specify do
       skip unless test_link_events_to_stream
-      event_1 = SRecord.new
-      event_2 = SRecord.new
-      event_3 = SRecord.new
-      event_4 = SRecord.new
+      event_1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea')
+      event_2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7')
+      event_3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e')
       stream_a = Stream.new('Stream A')
       stream_b = Stream.new('Stream B')
       stream_c = Stream.new('Stream C')
@@ -1175,10 +1174,10 @@ module RubyEventStore
       repository.append_to_stream([event_3], stream_b, version_any)
       repository.link_to_stream(event_1.event_id, stream_c, version_none)
 
-      expect(repository.streams_of(event_1.event_id)).to eq [stream_a, stream_c]
-      expect(repository.streams_of(event_2.event_id)).to eq [stream_a]
-      expect(repository.streams_of(event_3.event_id)).to eq [stream_b]
-      expect(repository.streams_of(event_4.event_id)).to eq []
+      expect(repository.streams_of('8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea')).to eq [Stream.new('Stream A'), Stream.new('Stream C')]
+      expect(repository.streams_of('8cee1139-4f96-483a-a175-2b947283c3c7')).to eq [Stream.new('Stream A')]
+      expect(repository.streams_of('d345f86d-b903-4d78-803f-38990c078d9e')).to eq [Stream.new('Stream B')]
+      expect(repository.streams_of('d10c8fe9-2163-418d-ba47-88c9a1f9391b')).to eq []
     end
 
     specify do
