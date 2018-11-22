@@ -4,8 +4,7 @@ require 'sinatra'
 module RubyEventStore
   module Browser
     class App < Sinatra::Application
-
-      def self.for(event_store_locator:, host:, path: nil)
+      def self.for(event_store_locator:, host: nil, path: nil)
         self.tap do |app|
           app.settings.instance_exec do
             set :event_store_locator, event_store_locator
@@ -33,18 +32,18 @@ module RubyEventStore
               <title>RubyEventStore::Browser</title>
             </head>
             <body>
-              <script type="text/javascript" src="<%= settings.root_path %>/ruby_event_store_browser.js"></script>
+              <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
               <script type="text/javascript">
                 RubyEventStore.Browser.Main.fullscreen({
-                  rootUrl:    "<%= settings.root_path %>",
-                  eventsUrl:  "<%= settings.root_path %>/events",
-                  streamsUrl: "<%= settings.root_path %>/streams",
+                  rootUrl:    "<%= path %>",
+                  eventsUrl:  "<%= path %>/events",
+                  streamsUrl: "<%= path %>/streams",
                   resVersion: "<%= RubyEventStore::VERSION %>"
                 });
               </script>
             </body>
           </html>
-        }
+        }, locals: { path: settings.root_path || request.script_name }
       end
 
       get '/events/:id' do
@@ -76,7 +75,9 @@ module RubyEventStore
         end
 
         def streams_url_for(options)
-          base = [ settings.host, settings.root_path ].compact.join
+          host = settings.host      || request.base_url
+          path = settings.root_path || request.script_name
+          base = [host, path].compact.join
           args = options.values_at(:id, :position, :direction, :count).compact
           args.map! { |a| Rack::Utils.escape(a) }
 
@@ -88,7 +89,6 @@ module RubyEventStore
           JSON.dump data.as_json
         end
       end
-
     end
   end
 end
