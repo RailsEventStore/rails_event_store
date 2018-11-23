@@ -61,7 +61,7 @@ Occurs when event of given id cannot be found. This can happen either when looki
 ```ruby
 none_such_id = SecureRandom.uuid
 expect do
-  client.read.stream('Order$1').from(none_such_id).each.to_a
+  client.read.stream('Order$1').from(none_such_id).to_a
 end.to raise_error(EventNotFound)
 ```
 
@@ -71,7 +71,7 @@ Occurs when reading a stream with invalid `start` parameter passed. Must not be 
 
 ```ruby
 expect do
-  client.read.stream('Order$1').from(nil).each.to_a
+  client.read.stream('Order$1').from(nil).to_a
 end.to raise_error(InvalidPageStart)
 ```
 
@@ -81,7 +81,7 @@ Occurs when expecting to read less than one event from a stream:
 
 ```ruby
 expect do
-  client.read.stream('Order$1').limit(-1).each.to_a
+  client.read.stream('Order$1').limit(-1).to_a
 end.to raise_error(InvalidPageSize)
 ```
 

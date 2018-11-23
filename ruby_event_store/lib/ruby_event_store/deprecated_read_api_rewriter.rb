@@ -40,7 +40,7 @@ module RubyEventStore
       query << ".from(#{start})" if start
       query << ".limit(#{count})" if count
 
-      replace(range, "#{query}.each.to_a")
+      replace(range, "#{query}.to_a")
     end
 
     def parse_args(args)

@@ -69,7 +69,7 @@ Providing `stream_name` is optional (but recommended).
 event_store.publish(event)
 ```
 
-If you don't provide the `stream_name` you can only read the events with `read.each.to_a` and `read.backward.each.to_a` queries (without filtering on particular stream name).
+If you don't provide the `stream_name` you can only read the events with `read.to_a` and `read.backward.to_a` queries (without filtering on particular stream name).
 
 ## Appending an event to stream
 

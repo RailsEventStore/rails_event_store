@@ -81,7 +81,7 @@ module RubyEventStore
       unsub.()
       client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
-      expect(client.read.each.to_a).to eq([event_1, event_2])
+      expect(client.read.to_a).to eq([event_1, event_2])
     end
 
     specify 'notifies subscribers listening on list of events - with lambda' do
@@ -132,7 +132,7 @@ module RubyEventStore
       unsub.()
       client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
-      expect(client.read.each.to_a).to eq([event_1, event_2])
+      expect(client.read.to_a).to eq([event_1, event_2])
     end
 
     specify 'dynamic subscription' do
@@ -144,7 +144,7 @@ module RubyEventStore
       end.subscribe(subscriber, to: [OrderCreated, ProductAdded]).call
       client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
-      expect(client.read.each.to_a).to eq([event_1, event_2])
+      expect(client.read.to_a).to eq([event_1, event_2])
     end
 
     specify 'subscribers receive event with enriched metadata' do
@@ -223,7 +223,7 @@ module RubyEventStore
       serialized_event_1 = mapper.event_to_serialized_record(event_1)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_event: serialized_event_1}]
       expect(result).to eq(:elo)
-      expect(client.read.each.to_a).to eq([event_1, event_2])
+      expect(client.read.to_a).to eq([event_1, event_2])
     end
 
     specify 'notifies subscriber in the order events were published' do
@@ -293,7 +293,7 @@ module RubyEventStore
         client.publish(event_2)
         serialized_event = mapper.event_to_serialized_record(event_1)
         expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_event: serialized_event}]
-        expect(client.read.each.to_a).to eq([event_1, event_2])
+        expect(client.read.to_a).to eq([event_1, event_2])
         expect(result).to eq(:yo)
       end
 
@@ -311,7 +311,7 @@ module RubyEventStore
         client.publish(event_3)
         expect(h.handled_events).to eq([event_1, event_2])
         expect(result).to eq(:result)
-        expect(client.read.each.to_a).to eq([event_1, event_2, event_3])
+        expect(client.read.to_a).to eq([event_1, event_2, event_3])
       end
 
       specify 'nested dynamic subscription' do
@@ -335,7 +335,7 @@ module RubyEventStore
         expect(h1.handled_events).to eq([e1,e3,e5])
         expect(h2.handled_events).to eq([e4])
         expect(result).to eq(:result2)
-        expect(client.read.each.to_a).to eq([e1,e2,e3,e4,e5,e6,e7,e8])
+        expect(client.read.to_a).to eq([e1,e2,e3,e4,e5,e6,e7,e8])
       end
 
       specify 'dynamic subscription with exception' do
@@ -351,7 +351,7 @@ module RubyEventStore
         end
         client.publish(event_2)
         expect(h.handled_events).to eq([event_1])
-        expect(client.read.each.to_a).to eq([event_1, event_2])
+        expect(client.read.to_a).to eq([event_1, event_2])
       end
 
       specify 'chained subscriptions' do
@@ -380,7 +380,7 @@ module RubyEventStore
         expect(h2.handled_events).to eq([event_1, event_2])
         expect(h4.handled_events).to eq([event_1, event_2])
         expect(result).to eq(:result)
-        expect(client.read.each.to_a).to eq([event_1, event_2, event_3])
+        expect(client.read.to_a).to eq([event_1, event_2, event_3])
       end
 
       specify "temporary subscriptions don't affect other threads" do
