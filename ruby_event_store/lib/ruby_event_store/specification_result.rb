@@ -90,7 +90,7 @@ module RubyEventStore
     #
     # @return [Boolean]
     def with_ids?
-      !(with_ids || []).empty?
+      !with_ids.nil?
     end
 
     # Event types to be read (if any given)
