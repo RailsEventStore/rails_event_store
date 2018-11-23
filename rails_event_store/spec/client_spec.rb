@@ -37,7 +37,7 @@ module RailsEventStore
       ) do
         client.publish(event)
       end
-      published = client.read.each.to_a
+      published = client.read.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:remote_ip]).to eq('dummy_ip')
       expect(published.first.metadata[:request_id]).to eq('dummy_id')

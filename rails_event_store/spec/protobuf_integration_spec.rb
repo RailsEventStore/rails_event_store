@@ -41,7 +41,7 @@ module RailsEventStore
       )
       client.publish(event, stream_name: 'test')
       expect(client.read.event(event.event_id)).to eq(event)
-      expect(client.read.stream('test').each.to_a).to eq([event])
+      expect(client.read.stream('test').to_a).to eq([event])
 
       expect(@ev).to eq(event)
       expect(AsyncProtoHandler.event).to eq(event)

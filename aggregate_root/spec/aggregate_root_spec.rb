@@ -70,7 +70,7 @@ RSpec.describe AggregateRoot do
     order.apply(order_created)
     order.store(stream, event_store: event_store)
 
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+    expect(event_store.read.stream(stream).to_a).to eq [order_created]
 
     restored_order = Order.new.load(stream, event_store: event_store)
     expect(restored_order.status).to eq :created
@@ -78,7 +78,7 @@ RSpec.describe AggregateRoot do
     restored_order.apply(order_expired)
     restored_order.store(stream, event_store: event_store)
 
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
+    expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
 
     restored_again_order = Order.new.load(stream, event_store: event_store)
     expect(restored_again_order.status).to eq :expired
@@ -95,7 +95,7 @@ RSpec.describe AggregateRoot do
     order.apply(order_created)
     order.store(stream)
 
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+    expect(event_store.read.stream(stream).to_a).to eq [order_created]
 
     restored_order = Order.new.load(stream)
     expect(restored_order.status).to eq :created
@@ -103,7 +103,7 @@ RSpec.describe AggregateRoot do
     restored_order.apply(order_expired)
     restored_order.store(stream)
 
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created, order_expired]
+    expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
 
     restored_again_order = Order.new.load(stream)
     expect(restored_again_order.status).to eq :expired
@@ -120,7 +120,7 @@ RSpec.describe AggregateRoot do
     order.apply(order_created)
     order.store
 
-    expect(event_store.read.stream(stream).each.to_a).to eq [order_created]
+    expect(event_store.read.stream(stream).to_a).to eq [order_created]
   end
 
   it "should receive a method call based on a default apply strategy" do

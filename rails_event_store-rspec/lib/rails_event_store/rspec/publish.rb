@@ -20,7 +20,7 @@ module RailsEventStore
         last_event_before_block = spec.last
         event_proc.call
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
-        @published_events = spec.each.to_a
+        @published_events = spec.to_a
         if match_events?
           ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@published_events)
         else

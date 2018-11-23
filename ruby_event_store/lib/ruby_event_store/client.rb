@@ -255,7 +255,7 @@ module RubyEventStore
     #
     # @example Add data and metadata to existing events
     #
-    #   events = event_store.read.limit(10).each.to_a
+    #   events = event_store.read.limit(10).to_a
     #   events.each do |ev|
     #     ev.data[:tenant_id] = 1
     #     ev.metadata[:server_id] = "eu-west-2"

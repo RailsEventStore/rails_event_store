@@ -276,31 +276,31 @@ module RubyEventStore
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.each.to_a).to eq([test_event])
+        expect(specification.to_a).to eq([test_event])
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.stream(stream_name).each.to_a).to eq([test_event])
+        expect(specification.stream(stream_name).to_a).to eq([test_event])
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.limit(1).each.to_a).to eq([test_event])
+        expect(specification.limit(1).to_a).to eq([test_event])
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.backward.each.to_a).to eq([test_event])
+        expect(specification.backward.to_a).to eq([test_event])
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.forward.each.to_a).to eq([test_event])
+        expect(specification.forward.to_a).to eq([test_event])
       end
     end
 
@@ -308,7 +308,7 @@ module RubyEventStore
       records = [test_record, test_record]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.from(records[0].event_id).each.to_a).to eq([TestEvent.new(event_id: records[1].event_id)])
+      expect(specification.from(records[0].event_id).to_a).to eq([TestEvent.new(event_id: records[1].event_id)])
     end
 
     specify do
@@ -324,7 +324,7 @@ module RubyEventStore
       records = (batch_size * 10).times.map { test_record }
       repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
 
-      expect(specification.stream("batch").in_batches.each.to_a.size).to eq(1000)
+      expect(specification.stream("batch").in_batches.to_a.size).to eq(1000)
     end
 
     #specify { expect(specification.in_batches.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
@@ -341,7 +341,7 @@ module RubyEventStore
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.in_batches.each.to_a).to eq([test_event])
+        expect(specification.in_batches.to_a).to eq([test_event])
       end
     end
 
@@ -415,6 +415,8 @@ module RubyEventStore
       expect(specification.event!(records[0].event_id)).to eq(TestEvent.new(event_id: records[0].event_id))
       expect(specification.event!(records[3].event_id)).to eq(TestEvent.new(event_id: records[3].event_id))
 
+      expect(specification.events([])).to be_kind_of(Enumerator)
+      expect(specification.events([0,2,4].map{|i| records[i].event_id})).to be_kind_of(Enumerator)
       expect(specification.events([0,2,4].map{|i| records[i].event_id}).to_a).to eq(
         [0,2,4].map{|i| TestEvent.new(event_id: records[i].event_id)})
       expect(specification.events([records[0].event_id, SecureRandom.uuid]).to_a).to eq(

@@ -17,7 +17,7 @@ module RailsEventStore
       event_store.publish(ev = OrderCreated.new(metadata:{
         city: "Paris",
       }))
-      expect(event_store.read.stream("$by_city_Paris").each.to_a).to eq([ev])
+      expect(event_store.read.stream("$by_city_Paris").to_a).to eq([ev])
     end
 
     specify "defaults to Rails.configuration.event_store and passes rest of options" do
@@ -28,7 +28,7 @@ module RailsEventStore
       event_store.publish(ev = OrderCreated.new(metadata:{
         city: "Paris",
       }))
-      expect(event_store.read.stream("sweet+Paris").each.to_a).to eq([ev])
+      expect(event_store.read.stream("sweet+Paris").to_a).to eq([ev])
     end
 
   end
@@ -51,13 +51,13 @@ module RailsEventStore
     specify "links" do
       event_store.subscribe_to_all_events(LinkByCorrelationId.new)
       event_store.publish(event)
-      expect(event_store.read.stream("$by_correlation_id_COR").each.to_a).to eq([event])
+      expect(event_store.read.stream("$by_correlation_id_COR").to_a).to eq([event])
     end
 
     specify "defaults to Rails.configuration.event_store and passes rest of options" do
       event_store.subscribe_to_all_events(LinkByCorrelationId.new(prefix: "sweet+"))
       event_store.publish(event)
-      expect(event_store.read.stream("sweet+COR").each.to_a).to eq([event])
+      expect(event_store.read.stream("sweet+COR").to_a).to eq([event])
     end
   end
 
@@ -79,13 +79,13 @@ module RailsEventStore
     specify "links" do
       event_store.subscribe_to_all_events(LinkByCausationId.new)
       event_store.publish(event)
-      expect(event_store.read.stream("$by_causation_id_CAU").each.to_a).to eq([event])
+      expect(event_store.read.stream("$by_causation_id_CAU").to_a).to eq([event])
     end
 
     specify "defaults to Rails.configuration.event_store and passes rest of options" do
       event_store.subscribe_to_all_events(LinkByCausationId.new(prefix: "sweet+"))
       event_store.publish(event)
-      expect(event_store.read.stream("sweet+CAU").each.to_a).to eq([event])
+      expect(event_store.read.stream("sweet+CAU").to_a).to eq([event])
     end
   end
 
@@ -102,13 +102,13 @@ module RailsEventStore
     specify "default prefix" do
       event_store.subscribe_to_all_events(LinkByEventType.new)
       event_store.publish(event)
-      expect(event_store.read.stream("$by_type_OrderCreated").each.to_a).to eq([event])
+      expect(event_store.read.stream("$by_type_OrderCreated").to_a).to eq([event])
     end
 
     specify "custom prefix" do
       event_store.subscribe_to_all_events(LinkByEventType.new(prefix: "e-"))
       event_store.publish(event)
-      expect(event_store.read.stream("e-OrderCreated").each.to_a).to eq([event])
+      expect(event_store.read.stream("e-OrderCreated").to_a).to eq([event])
     end
   end
 

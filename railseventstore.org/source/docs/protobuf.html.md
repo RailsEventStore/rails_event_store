@@ -87,7 +87,7 @@ event_store.publish(event, stream_name: "Order-K3THNX9")
 ## Retrieving
 
 ```ruby
-event = client.read.stream('test').each.to_a.last
+event = client.read.stream('test').last
 ```
 
 ## Subscribing

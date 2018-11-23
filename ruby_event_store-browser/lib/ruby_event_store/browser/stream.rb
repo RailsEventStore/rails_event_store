@@ -2,7 +2,7 @@ module RubyEventStore
   module Browser
     class Stream
       attr_reader :event_store, :params, :url_builder
-      
+
       def initialize(event_store:, params:, url_builder:)
         @event_store = event_store
         @params      = params
@@ -38,20 +38,20 @@ module RubyEventStore
           end
         end
       end
-      
+
       def events_forward(start)
         if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-          event_store.read.limit(count).from(start).each.to_a
+          event_store.read.limit(count).from(start).to_a
         else
-          event_store.read.limit(count).from(start).stream(stream_name).each.to_a
+          event_store.read.limit(count).from(start).stream(stream_name).to_a
         end
       end
 
       def events_backward(start)
         if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-          event_store.read.limit(count).from(start).backward.each.to_a
+          event_store.read.limit(count).from(start).backward.to_a
         else
-          event_store.read.limit(count).from(start).stream(stream_name).backward.each.to_a
+          event_store.read.limit(count).from(start).stream(stream_name).backward.to_a
         end
       end
 

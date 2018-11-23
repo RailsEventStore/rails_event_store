@@ -19,13 +19,13 @@ module RubyEventStore
         int: 2,
       }))
 
-      expect(event_store.read.stream("$by_string_city").each.to_a).to eq([ev])
-      expect(event_store.read.stream("$by_float_1.5").each.to_a).to   eq([ev])
-      expect(event_store.read.stream("$by_int_2").each.to_a).to       eq([ev])
+      expect(event_store.read.stream("$by_string_city").to_a).to eq([ev])
+      expect(event_store.read.stream("$by_float_1.5").to_a).to   eq([ev])
+      expect(event_store.read.stream("$by_int_2").to_a).to       eq([ev])
 
-      expect(event_store.read.stream("$by_missing").each.to_a).to     eq([])
-      expect(event_store.read.stream("$by_missing_").each.to_a).to    eq([])
-      expect(event_store.read.stream("$by_missing_nil").each.to_a).to eq([])
+      expect(event_store.read.stream("$by_missing").to_a).to     eq([])
+      expect(event_store.read.stream("$by_missing_").to_a).to    eq([])
+      expect(event_store.read.stream("$by_missing_nil").to_a).to eq([])
     end
 
     specify 'links to stream based on selected metadata (proto)' do
@@ -46,7 +46,7 @@ module RubyEventStore
         )
         event_store.publish(ev)
 
-        expect(event_store.read.stream("$by_city_Chicago").each.to_a).to eq([ev])
+        expect(event_store.read.stream("$by_city_Chicago").to_a).to eq([ev])
       rescue LoadError => exc
         skip if exc.message == "cannot load such file -- google/protobuf_c"
       end
@@ -63,7 +63,7 @@ module RubyEventStore
         city: "Paris",
       }))
 
-      expect(event_store.read.stream("sweet+Paris").each.to_a).to eq([ev])
+      expect(event_store.read.stream("sweet+Paris").to_a).to eq([ev])
     end
 
     specify "explicitly passes array of ids instead of a single id" do
@@ -90,13 +90,13 @@ module RubyEventStore
     specify "default prefix" do
       event_store.subscribe_to_all_events(LinkByCorrelationId.new(event_store: event_store))
       event_store.publish(event)
-      expect(event_store.read.stream("$by_correlation_id_COR").each.to_a).to eq([event])
+      expect(event_store.read.stream("$by_correlation_id_COR").to_a).to eq([event])
     end
 
     specify "custom prefix" do
       event_store.subscribe_to_all_events(LinkByCorrelationId.new(event_store: event_store, prefix: "c-"))
       event_store.publish(event)
-      expect(event_store.read.stream("c-COR").each.to_a).to eq([event])
+      expect(event_store.read.stream("c-COR").to_a).to eq([event])
     end
   end
 
@@ -114,13 +114,13 @@ module RubyEventStore
     specify "default prefix" do
       event_store.subscribe_to_all_events(LinkByCausationId.new(event_store: event_store))
       event_store.publish(event)
-      expect(event_store.read.stream("$by_causation_id_CAU").each.to_a).to eq([event])
+      expect(event_store.read.stream("$by_causation_id_CAU").to_a).to eq([event])
     end
 
     specify "custom prefix" do
       event_store.subscribe_to_all_events(LinkByCausationId.new(event_store: event_store, prefix: "c-"))
       event_store.publish(event)
-      expect(event_store.read.stream("c-CAU").each.to_a).to eq([event])
+      expect(event_store.read.stream("c-CAU").to_a).to eq([event])
     end
   end
 
@@ -133,13 +133,13 @@ module RubyEventStore
     specify "default prefix" do
       event_store.subscribe_to_all_events(LinkByEventType.new(event_store: event_store))
       event_store.publish(event)
-      expect(event_store.read.stream("$by_type_OrderCreated").each.to_a).to eq([event])
+      expect(event_store.read.stream("$by_type_OrderCreated").to_a).to eq([event])
     end
 
     specify "custom prefix" do
       event_store.subscribe_to_all_events(LinkByEventType.new(event_store: event_store, prefix: "e-"))
       event_store.publish(event)
-      expect(event_store.read.stream("e-OrderCreated").each.to_a).to eq([event])
+      expect(event_store.read.stream("e-OrderCreated").to_a).to eq([event])
     end
 
     specify "explicitly passes array of ids instead of a single id" do

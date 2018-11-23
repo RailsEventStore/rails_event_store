@@ -61,7 +61,7 @@ order_placed.run(event_store)
 Now going for `OrderPlaced` events in January is as simple as reading:
 
 ```ruby
-event_store.read.stream('OrderPlaced$2018-01').each.to_a
+event_store.read.stream('OrderPlaced$2018-01').to_a
 ```
 
 Linking can be even managed as soon as event is published, via event handler:

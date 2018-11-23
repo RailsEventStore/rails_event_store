@@ -27,7 +27,7 @@ If you publish an event, the special field called `metadata` will get filled in 
 ```ruby
 event_store.publish(MyEvent.new(data: {foo: 'bar'}))
 
-my_event = event_store.read.backward.limit(1).each.to_a.first
+my_event = event_store.read.last
 my_event.metadata[:remote_ip] # your IP
 my_event.metadata[:request_id] # unique ID
 ```
@@ -81,7 +81,7 @@ event_store.with_metadata(remote_ip: '1.2.3.4', request_id: SecureRandom.uuid) d
   event_store.publish(MyEvent.new(data: {foo: 'bar'}))
 end
 
-my_event = event_store.read.backward.limit(1).each.to_a.first
+my_event = event_store.read.last
 
 my_event.metadata[:remote_ip] #=> '1.2.3.4'
 my_event.metadata[:request_id] #=> unique ID
@@ -96,7 +96,7 @@ event_store.with_metadata(causation_id: 1234567890) do
   end
 end
 
-my_event = event_store.read.backward.limit(1).each.to_a.first
+my_event = event_store.read.last
 my_event.metadata[:remote_ip]      #=> your IP from request metadata proc
 my_event.metadata[:request_id      #=> unique ID from request metadata proc
 my_event.metadata[:causation_id]   #=> 1234567890 from with_metadata argument
