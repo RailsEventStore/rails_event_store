@@ -4,7 +4,7 @@ require 'ruby_event_store'
 require_relative '../../lib/subprocess_helper'
 
 
-RSpec.describe "index_by_event_type_migration" do
+RSpec.describe "limit_for_event_id_migration" do
   include SchemaHelper
   include SubprocessHelper
 
@@ -32,8 +32,8 @@ RSpec.describe "index_by_event_type_migration" do
           .run_migration('create_event_store_events', 'migration')
       EOF
       establish_database_connection
-      run_migration('limit_for_event_id')
       run_migration('index_by_event_type')
+      run_migration('limit_for_event_id')
       expect(dump_schema).to eq(current_schema)
     ensure
       drop_database
