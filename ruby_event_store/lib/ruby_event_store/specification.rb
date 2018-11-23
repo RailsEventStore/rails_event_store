@@ -196,7 +196,7 @@ module RubyEventStore
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @yield [Event, Proto] event
-    # @return [Enumerator, nil] Enumerator is returned when block not given
+    # @return [Enumerator] Enumerator is returned when block not given
     def events(event_ids)
       with_id(event_ids).each
     end

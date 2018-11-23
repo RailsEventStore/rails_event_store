@@ -414,6 +414,8 @@ module RubyEventStore
       expect(specification.event!(records[0].event_id)).to eq(TestEvent.new(event_id: records[0].event_id))
       expect(specification.event!(records[3].event_id)).to eq(TestEvent.new(event_id: records[3].event_id))
 
+      expect(specification.events([])).to be_kind_of(Enumerator)
+      expect(specification.events([0,2,4].map{|i| records[i].event_id})).to be_kind_of(Enumerator)
       expect(specification.events([0,2,4].map{|i| records[i].event_id}).to_a).to eq(
         [0,2,4].map{|i| TestEvent.new(event_id: records[i].event_id)})
       expect(specification.events([records[0].event_id, SecureRandom.uuid]).to_a).to eq(
