@@ -18,6 +18,14 @@ module RubyEventStore
       end
     end
 
+    def first
+      each.first
+    end
+
+    def to_a
+      each.to_a
+    end
+
     private
 
     attr_accessor :batch_size, :total_limit, :reader
