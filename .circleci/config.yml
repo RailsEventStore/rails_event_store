@@ -5,6 +5,7 @@ jobs:
       xcode: "9.3.0"
     steps:
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run: cd aggregate_root && make install mutate
 
   bounded_context:
@@ -12,6 +13,7 @@ jobs:
       xcode: "9.3.0"
     steps:
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run: cd bounded_context && make install mutate
 
   ruby_event_store:
@@ -19,6 +21,7 @@ jobs:
       xcode: "9.3.0"
     steps:
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run: cd ruby_event_store && make install mutate
 
   rails_event_store:
@@ -28,6 +31,7 @@ jobs:
     steps:
       - run: brew install sqlite3
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run: "date +'Cache for week: %U of %Y' >> rails_event_store/CacheBust"
       - restore_cache:
           keys:
@@ -57,6 +61,7 @@ jobs:
       xcode: "9.3.0"
     steps:
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run: cd rails_event_store-rspec && make install mutate
 
   ruby_event_store-browser:
@@ -68,6 +73,7 @@ jobs:
       - run: brew cask install chromedriver
       - run: brew cask install google-chrome
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run:
           name: make install mutate
           command: cd ruby_event_store-browser && make install mutate
@@ -82,6 +88,7 @@ jobs:
       - run: brew install sqlite3
       - run: brew install postgresql
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run:
           name: make install mutate
           command: cd rails_event_store_active_record && make install mutate
@@ -96,6 +103,7 @@ jobs:
       - run: brew install sqlite3
       - run: brew install postgresql
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run:
           name: make install mutate
           command: cd rails_event_store_active_record-legacy && make install mutate
@@ -110,6 +118,7 @@ jobs:
       - run: brew install sqlite3
       - run: brew install postgresql
       - checkout
+      - run: echo "2.5.3" > ~/.ruby-version
       - run:
           name: make install mutate
           command: cd ruby_event_store-rom && make install mutate
