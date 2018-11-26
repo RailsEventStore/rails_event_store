@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe TransformKeys do
-    include RubyEventStore::TransformKeys
+    include TransformKeys
 
     let(:hash_with_symbols) { {
       one: 1,
