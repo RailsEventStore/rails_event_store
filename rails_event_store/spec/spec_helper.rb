@@ -4,6 +4,7 @@ require 'support/fake_configuration'
 require_relative '../../lib/rspec_defaults'
 require_relative '../../lib/mutant_timeout'
 require_relative '../../lib/migrator'
+require_relative '../../lib/protobuf_helper'
 require 'pry'
 
 RSpec.configure do |config|

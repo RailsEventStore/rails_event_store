@@ -1,16 +1,10 @@
 require 'spec_helper'
 
-
 module RubyEventStore
   RSpec.describe Proto do
-    before(:each) do
-      begin
-        require_relative 'events_pb.rb'
-        require 'protobuf_nested_struct'
-      rescue LoadError => exc
-        skip if exc.message == "cannot load such file -- google/protobuf_c"
-      end
-    end
+    include ProtobufHelper
+
+    before(:each) { require_protobuf_dependencies }
 
     specify 'equality' do
       event_1 = RubyEventStore::Proto.new(
@@ -176,14 +170,9 @@ module RubyEventStore
 
   module Mappers
     RSpec.describe Protobuf do
-      before(:each) do
-        begin
-          require_relative 'events_pb.rb'
-          require 'protobuf_nested_struct'
-        rescue LoadError => exc
-          skip if exc.message == "cannot load such file -- google/protobuf_c"
-        end
-      end
+      include ProtobufHelper
+
+      before(:each) { require_protobuf_dependencies }
 
       let(:event_id)     { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }
       let(:metadata) { {

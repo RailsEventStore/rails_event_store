@@ -1,6 +1,7 @@
 require 'ruby_event_store'
 require_relative '../../lib/rspec_defaults'
 require_relative '../../lib/mutant_timeout'
+require_relative '../../lib/protobuf_helper'
 require 'support/correlatable'
 
 OrderCreated = Class.new(RubyEventStore::Event)
