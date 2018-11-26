@@ -4,11 +4,19 @@ module ProtobufHelper
       require_relative '../ruby_event_store/spec/mappers/events_pb'
       require 'protobuf_nested_struct'
     rescue LoadError => exc
-      skip if cannot_compile?(exc)
+      skip if unsupported_ruby_version
     end
   end
 
-  def cannot_compile?(exc)
-    exc.message == 'cannot load such file -- google/protobuf_c'
+  def unsupported_ruby_version
+    jruby || ruby_2_6_0
+  end
+
+  def jruby
+    RUBY_PLATFORM == "java"
+  end
+
+  def ruby_2_6_0
+    RUBY_VERSION == "2.6.0"
   end
 end
