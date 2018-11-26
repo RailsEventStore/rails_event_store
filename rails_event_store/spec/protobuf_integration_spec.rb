@@ -58,13 +58,9 @@ module RailsEventStore
   end
 
   RSpec.describe RubyEventStore::Proto do
-    before(:each) do
-      begin
-        require_relative '../../ruby_event_store/spec/mappers/events_pb'
-      rescue LoadError => exc
-        skip if exc.message == "cannot load such file -- google/protobuf_c"
-      end
-    end
+    include ProtobufHelper
+
+    before(:each) { require_protobuf_dependencies }
 
     specify "equality" do
       event1 = RubyEventStore::Proto.new(
