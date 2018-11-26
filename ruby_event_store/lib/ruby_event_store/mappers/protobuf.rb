@@ -1,5 +1,30 @@
 module RubyEventStore
+  module TransformKeys
+    private
+    def stringify_keys(data, initial = {})
+      transform_keys(data, initial) {|k| k.to_s}
+    end
+    def symbolize_keys(data, initial = {})
+      transform_keys(data, initial) {|k| k.to_sym}
+    end
+
+    def transform_keys(data, initial, &block)
+      data.each_with_object(initial) do |(k, v), h|
+        h[yield(k)] = case v
+          when Hash
+            transform_keys(v, {}, &block)
+          when Array
+            v.map{|i| Hash === i ? transform_keys(i, {}, &block) : i}
+          else
+            v
+        end
+      end
+    end
+  end
+
   class Proto < RubyEventStore::Event
+    include TransformKeys
+
     def type
       data.class.descriptor.name
     end
@@ -13,6 +38,8 @@ module RubyEventStore
 
   module Mappers
     class Protobuf
+      include TransformKeys
+
       def initialize(events_class_remapping: {})
         require_optional_dependency
         @events_class_remapping = events_class_remapping
@@ -21,7 +48,7 @@ module RubyEventStore
       def event_to_serialized_record(domain_event)
         SerializedRecord.new(
           event_id:   domain_event.event_id,
-          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(domain_event.metadata.each_with_object({}) {|(k, v), h| h[k.to_s] = v}),
+          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(stringify_keys(domain_event.metadata)),
           data:       encode_data(domain_event.data),
           event_type: domain_event.type
         )
@@ -41,9 +68,7 @@ module RubyEventStore
       attr_reader :event_id_getter, :events_class_remapping
 
       def load_metadata(protobuf_metadata)
-        ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata).each_with_object({}) do |(k, v), meta|
-          meta[k.to_sym] = v
-        end
+        symbolize_keys(ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata))
       end
 
       def load_data(event_type, protobuf_data)
