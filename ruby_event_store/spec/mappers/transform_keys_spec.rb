@@ -2,8 +2,6 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe TransformKeys do
-    include TransformKeys
-
     let(:hash_with_symbols) { {
       one: 1,
       two: 2.0,
@@ -31,10 +29,10 @@ module RubyEventStore
       'eleven' => [1,{'another' => 'hash', 'here' => 2},3],
     } }
 
-    it { expect(stringify_keys(hash_with_symbols)).to eq(hash_with_strings) }
-    it { expect(stringify_keys(hash_with_strings)).to eq(hash_with_strings) }
+    it { expect(TransformKeys.stringify(hash_with_symbols)).to eq(hash_with_strings) }
+    it { expect(TransformKeys.stringify(hash_with_strings)).to eq(hash_with_strings) }
 
-    it { expect(symbolize_keys(hash_with_strings)).to eq(hash_with_symbols) }
-    it { expect(symbolize_keys(hash_with_symbols)).to eq(hash_with_symbols) }
+    it { expect(TransformKeys.symbolize(hash_with_strings)).to eq(hash_with_symbols) }
+    it { expect(TransformKeys.symbolize(hash_with_symbols)).to eq(hash_with_symbols) }
   end
 end
