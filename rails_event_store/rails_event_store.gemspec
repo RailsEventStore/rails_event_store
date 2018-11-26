@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'mutant-rspec', '= 0.8.17'
+  spec.add_development_dependency 'mutant',       '= 0.8.17'
   spec.add_development_dependency 'google-protobuf', '~> 3.5.1.2'
   spec.add_development_dependency 'pry'
 

@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.6'
   spec.add_development_dependency 'mutant-rspec', '= 0.8.17'
+  spec.add_development_dependency 'mutant',       '= 0.8.17'
   spec.add_development_dependency 'parser'
   spec.add_development_dependency 'unparser'
   spec.add_development_dependency 'astrolabe'

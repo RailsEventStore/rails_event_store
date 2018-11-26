@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'fakefs', '~> 0.11.2'
   spec.add_development_dependency 'childprocess'
   spec.add_development_dependency 'mutant-rspec', '= 0.8.17'
+  spec.add_development_dependency 'mutant',       '= 0.8.17'
 
   spec.add_dependency 'ruby_event_store', '= 0.34.0'
   spec.add_dependency 'rails_event_store_active_record', '= 0.34.0'
