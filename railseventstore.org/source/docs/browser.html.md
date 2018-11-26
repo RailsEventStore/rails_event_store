@@ -10,27 +10,21 @@ Browser is a web interface that allows you to inspect existing streams and their
 
 ### Rails
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'ruby_event_store-browser'
+Browser is now an integral part of RailsEventStore bundle and comes as a dependency when you install `rails_event_store` gem. To enable it in your Rails project, add following line to `routes.rb`:
 ```
 
 Add this to your `routes.rb` to enable web interface in development:
 
 ```ruby
-require 'ruby_event_store/browser/app'
-
 Rails.application.routes.draw do
-  mount RubyEventStore::Browser::App.for(
-    event_store_locator: -> { Rails.configuration.event_store },
-    host: 'http://localhost:3000',
-    path: '/res'
-  ) => '/res' if Rails.env.development?
+  mount RailsEventStore::Browser => '/res' if Rails.env.development?
 end
 ```
 
-It is assumed that you have _Rails Event Store_ configured at `Rails.configuration.event_store` (like we recommend in [docs](https://railseventstore.org/docs/install/)).
+It is assumed that you have Rails Event Store configured at `Rails.configuration.event_store`, in [recommended](https://railseventstore.org/docs/install/) location.
+
+The `RailsEventStore::Browser` is just a wrapper around `RubyEventStore::Browser::App` with default options suitable for most applications. Read below the [Rack](#sinatra-rack), in case you need this browser outside as a standalone application or you have a different event store location.
+
 
 ### Sinatra / Rack
 
@@ -86,19 +80,9 @@ In a production environment you'll likely want to protect access to the browser.
 Allow any authenticated `User`:
 
 ```ruby
-browser = ->(env) do
-  request = Rack::Request.new(env)
-  app = RubyEventStore::Browser::App.for(
-    event_store_locator: -> { Rails.configuration.event_store },
-    host: request.base_url,
-    path: request.script_name
-  )
-  app.call(env)
-end
-
 Rails.application.routes.draw do
   authenticate :user do
-    mount browser => "/res"
+    mount RailsEventStore::Browser => "/res"
   end
 end
 ```
@@ -106,19 +90,9 @@ end
 Allow any authenticated `User` for whom `User#admin?` returns `true`:
 
 ```ruby
-browser = ->(env) do
-  request = Rack::Request.new(env)
-  app = RubyEventStore::Browser::App.for(
-    event_store_locator: -> { Rails.configuration.event_store },
-    host: request.base_url,
-    path: request.script_name
-  )
-  app.call(env)
-end
-
 Rails.application.routes.draw do
   authenticate :user, lambda { |u| u.admin? } do
-    mount browser => "/res"
+    mount RailsEventStore::Browser => "/res"
   end
 end
 ```
@@ -141,19 +115,11 @@ Rails.application.routes.draw do
     end
 
     map "/" do
-      run ->(env) do
-        request = Rack::Request.new(env)
-        app = RubyEventStore::Browser::App.for(
-          event_store_locator: -> { Rails.configuration.event_store },
-          host: request.base_url,
-          path: request.script_name
-        )
-        app.call(env)
-      end
+      run RailsEventStore::Browser
     end
   end
 
-  mount browser, at: "/res"
+  mount browser => "/res"
 end
 ```
 
