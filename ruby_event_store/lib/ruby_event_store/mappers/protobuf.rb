@@ -9,7 +9,7 @@ module RubyEventStore
     end
 
     def transform_keys(data, &block)
-      data.dup.each_with_object({}) do |(k, v), h|
+      data.each_with_object({}) do |(k, v), h|
         h[yield(k)] = case v
           when Hash
             transform_keys(v, &block)
