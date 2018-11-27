@@ -1,27 +1,55 @@
 require 'spec_helper'
-require 'pathname'
-require 'childprocess'
 require 'active_record'
-require 'logger'
 require 'ruby_event_store'
-require 'ruby_event_store/spec/event_repository_lint'
+require_relative '../../lib/subprocess_helper'
+
+DummyEvent = Class.new(RubyEventStore::Event)
 
 RSpec.describe "binary_data_and_metadata_migration" do
   include SchemaHelper
+  include SubprocessHelper
 
   specify do
     begin
       establish_database_connection
       load_database_schema
-      dump_current_schema
+      current_schema = dump_schema
       drop_database
-      fill_data_using_older_gem
-      clear_connection_schema_cache
+      close_database_connection
+      run_in_subprocess(<<~EOF, gemfile: 'Gemfile.0_34_0')
+        require 'rails/generators'
+        require 'rails_event_store_active_record'
+        require 'ruby_event_store'
+        require 'logger'
+        require '../lib/migrator'
+
+        $verbose = ENV.has_key?('VERBOSE') ? true : false
+        ActiveRecord::Schema.verbose = $verbose
+        ActiveRecord::Base.logger    = Logger.new(STDOUT) if $verbose
+        ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+
+        gem_path = $LOAD_PATH.find { |path| path.match(/rails_event_store_active_record/) }
+        Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
+          .run_migration('create_event_store_events')
+
+        DummyEvent = Class.new(RubyEventStore::Event)
+
+        client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
+        client.append(
+          DummyEvent.new(
+            event_id: "94b297a3-5a29-4942-9038-3efeceb4d905",
+            data: {
+              all: true,
+              a: 1,
+              text: "text",
+            }
+          )
+        )
+      EOF
+      establish_database_connection
       run_migration('binary_data_and_metadata')
-      run_migration('index_by_event_type')
-      reset_columns_information
       verify_event
-      compare_new_schema
+      expect(dump_schema).to eq(current_schema)
     ensure
       drop_database
     end
@@ -29,70 +57,13 @@ RSpec.describe "binary_data_and_metadata_migration" do
 
   private
 
-  def clear_connection_schema_cache
-    RailsEventStoreActiveRecord::Event.connection.schema_cache.clear!
-  end
-
-  def mapper
-    RubyEventStore::Mappers::NullMapper.new
-  end
-
-  def repository
-    @repository ||= RailsEventStoreActiveRecord::EventRepository.new
-  end
-
-  def specification
-    @specification ||= RubyEventStore::Specification.new(
-      RubyEventStore::SpecificationReader.new(repository, mapper)
-    )
-  end
-
   def verify_event
-    event = repository.read(specification.with_id("94b297a3-5a29-4942-9038-3efeceb4d905").result).first
-    expect(YAML.load(event.data)).to eq({
+    client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
+    event  = client.read.event("94b297a3-5a29-4942-9038-3efeceb4d905")
+    expect(event.data).to eq({
       all: true,
       a: 1,
       text: "text",
     })
-  end
-
-  def reset_columns_information
-    RailsEventStoreActiveRecord::Event.reset_column_information
-    RailsEventStoreActiveRecord::EventInStream.reset_column_information
-  end
-
-  def dump_current_schema
-    @schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, @schema)
-    @schema.rewind
-    @schema = @schema.read
-  end
-
-  def compare_new_schema
-    schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
-    schema.rewind
-    schema = schema.read
-    expect(schema).to eq(@schema)
-  end
-
-  def fill_data_using_older_gem
-    pathname = Pathname.new(__FILE__).dirname
-    cwd = pathname.join("before_binary_data_and_metadata")
-    FileUtils.rm(cwd.join("Gemfile.lock")) if File.exists?(cwd.join("Gemfile.lock"))
-    process = ChildProcess.build("bundle", "exec", "ruby", "fill_data.rb")
-    process.environment['BUNDLE_GEMFILE'] = cwd.join('Gemfile')
-    process.environment['DATABASE_URL']   = ENV['DATABASE_URL']
-    process.environment['RAILS_VERSION']  = ENV['RAILS_VERSION']
-    process.cwd = cwd
-    process.io.stdout = $stdout
-    process.io.stderr = $stderr
-    process.start
-    begin
-      process.poll_for_exit(10)
-    rescue ChildProcess::TimeoutError
-      process.stop
-    end
-    expect(process.exit_code).to eq(0)
   end
 end
