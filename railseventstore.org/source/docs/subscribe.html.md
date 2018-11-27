@@ -160,7 +160,7 @@ event_store.publish(OrderPlaced.new(data: {customer_id: 3}))
 Those handlers are executed immediately after events are stored in the DB.
 
 ```ruby
-ActiveRecord::Base.transction do
+ActiveRecord::Base.transaction do
   order = Order.new(...).save!
   event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
@@ -348,7 +348,7 @@ event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 The default behaviour and examples above use `RubyEventStore::ImmediateAsyncDispatcher`, which schedule handlers immediately after events are stored in the database.
 
 ```ruby
-ActiveRecord::Base.transction do
+ActiveRecord::Base.transaction do
   order = Order.new(...).save!
   event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
@@ -385,7 +385,7 @@ event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 
 # ...
 
-ActiveRecord::Base.transction do
+ActiveRecord::Base.transaction do
   order = Order.new(...).save!
   event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
