@@ -23,12 +23,7 @@ test: $(JS_BUNDLE) ## Run unit tests
 	@cd elm; yarn test; cd -
 	@bundle exec rspec
 
-mutate: test ## Run mutation tests
-	@echo "Running mutation tests"
-	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
-		$(addprefix --require ,$(REQUIRE)) \
-		$(addprefix --ignore-subject ,$(IGNORE)) \
-		--use rspec "$(SUBJECT)"
+include ../lib/mutant.mk
 
 $(JS_BUNDLE):
 	@echo "Building browser frontend"
@@ -48,9 +43,6 @@ clean:
 	@echo "Removing previously built package and bundle"
 	-rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem $(JS_BUNDLE)
 
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+include ../lib/help.mk
 
-.PHONY: help
-.DEFAULT_GOAL := help
 
