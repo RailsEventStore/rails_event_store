@@ -124,22 +124,6 @@ module RubyEventStore
       expect(event_1).not_to eq(event_2)
     end
 
-    specify 'yaml serialization' do
-      event = RubyEventStore::Proto.new(
-        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data: ResTesting::OrderCreated.new(
-          customer_id: 123,
-          order_id: "K3THNX9",
-        ),
-        metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
-        }
-      )
-      copy = YAML.load(YAML.dump(event))
-      expect(copy).to eq(event)
-      expect(copy.metadata.to_h).to eq(event.metadata.to_h)
-    end
-
     specify 'type' do
       event = RubyEventStore::Proto.new(
         data: ResTesting::OrderCreated.new(

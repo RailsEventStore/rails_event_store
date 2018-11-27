@@ -4,30 +4,10 @@ module RubyEventStore
       data.class.descriptor.name
     end
 
-    def encode_with(coder)
-      coder['event_id']   = event_id
-      coder['metadata']   = ProtobufNestedStruct::HashMapStringValue.dump(metadata.each_with_object({}){|(k,v),h| h[k.to_s] =v })
-      coder['data.proto'] = data.class.encode(data)
-      coder['data.type']  = type
-    end
-
-    def init_with(coder)
-      @event_id = coder['event_id']
-      @metadata = Metadata.new
-      ProtobufNestedStruct::HashMapStringValue.load(coder['metadata']).each_with_object(metadata){|(k,v),meta| meta[k.to_sym] = v }
-      @data = pool.lookup(coder['data.type']).msgclass.decode(coder['data.proto'])
-    end
-
     def ==(other_event)
       other_event.instance_of?(self.class) &&
         other_event.event_id.eql?(event_id) &&
         other_event.data == data # https://github.com/google/protobuf/issues/4455
-    end
-
-    private
-
-    def pool
-      Google::Protobuf::DescriptorPool.generated_pool
     end
   end
 
