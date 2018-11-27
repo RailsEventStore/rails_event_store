@@ -42,11 +42,6 @@ DATABASE_URL ?= sqlite::memory:
 
 include ../lib/install.mk
 include ../lib/test.mk
-
-test-fast: ## Run unit tests with --fail-fast
-	@echo "Running unit tests with --fail-fast"
-	@bundle exec rspec --fail-fast --order defined --backtrace
-
 include ../lib/mutant.mk
 include ../lib/gem.mk
 include ../lib/help.mk
