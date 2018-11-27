@@ -6,43 +6,32 @@ SUBJECT      ?= RubyEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
 JS_BUNDLE    = public/ruby_event_store_browser.js
 
-install: ## Install gem dependencies
-	@echo "Installing gem dependencies"
-	@bundle install
-	@echo "Installing npm dependencies"
+include ../lib/install.mk
+include ../lib/test.mk
+include ../lib/mutant.mk
+include ../lib/gem.mk
+include ../lib/help.mk
+
+install: install-yarn
+
+test: $(JS_BUNDLE) test-yarn
+
+build: $(JS_BUNDLE)
+
+push: $(JS_BUNDLE)
+
+clean: clean-yarn
+
+install-yarn:
+	@echo "Installing yarn dependencies"
 	@cd elm; yarn install
 
-remove-lock:
-	@echo "Removing resolved dependency versions"
-	-rm Gemfile.lock
-
-reinstall: remove-lock install ## Removing resolved dependency versions
-
-test: $(JS_BUNDLE) ## Run unit tests
-	@echo "Running unit and integration tests"
+test-yarn:
 	@cd elm; yarn test; cd -
-	@bundle exec rspec
 
-include ../lib/mutant.mk
+clean-yarn:
+	-rm $(JS_BUNDLE)
 
 $(JS_BUNDLE):
 	@echo "Building browser frontend"
 	@cd elm; yarn build
-
-build: $(JS_BUNDLE)
-	@echo "Building gem package"
-	@gem build -V $(GEM_NAME).gemspec
-	@mkdir -p pkg/
-	@mv $(GEM_NAME)-$(GEM_VERSION).gem pkg/
-
-push: $(JS_BUNDLE)
-	@echo "Pushing package to RubyGems"
-	@gem push -k dev_arkency pkg/$(GEM_NAME)-$(GEM_VERSION).gem
-
-clean:
-	@echo "Removing previously built package and bundle"
-	-rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem $(JS_BUNDLE)
-
-include ../lib/help.mk
-
-
