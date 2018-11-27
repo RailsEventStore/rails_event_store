@@ -37,6 +37,12 @@ module RubyEventStore
       m[:key] = nil
       expect(m[:key]).to eq(nil)
 
+      m[:key] = {some: 'hash', with: {nested: 'values'}}
+      expect(m[:key]).to eq({some: 'hash', with: {nested: 'values'}})
+
+      m[:key] = [1,2,3]
+      expect(m[:key]).to eq([1,2,3])
+
       expect do
         m[:key] = Object.new
       end.to raise_error(ArgumentError)

@@ -21,7 +21,7 @@ module RubyEventStore
       def event_to_serialized_record(domain_event)
         SerializedRecord.new(
           event_id:   domain_event.event_id,
-          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(domain_event.metadata.each_with_object({}) {|(k, v), h| h[k.to_s] = v}),
+          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(TransformKeys.stringify(domain_event.metadata)),
           data:       encode_data(domain_event.data),
           event_type: domain_event.type
         )
@@ -41,9 +41,7 @@ module RubyEventStore
       attr_reader :event_id_getter, :events_class_remapping
 
       def load_metadata(protobuf_metadata)
-        ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata).each_with_object({}) do |(k, v), meta|
-          meta[k.to_sym] = v
-        end
+        TransformKeys.symbolize(ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata))
       end
 
       def load_data(event_type, protobuf_data)

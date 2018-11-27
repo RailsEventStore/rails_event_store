@@ -21,20 +21,13 @@ module RubyEventStore
         event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
         Object.const_get(event_type).new(
           event_id: record.event_id,
-          metadata: symbolize(serializer.load(record.metadata)),
+          metadata: TransformKeys.symbolize(serializer.load(record.metadata)),
           data:     serializer.load(record.data)
         )
       end
 
       private
-
       attr_reader :serializer, :events_class_remapping
-
-      def symbolize(hash)
-        hash.each_with_object({}) do |(k, v), memo|
-          memo[k.to_sym] = v
-        end
-      end
     end
   end
 end

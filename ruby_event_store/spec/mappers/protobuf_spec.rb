@@ -169,6 +169,8 @@ module RubyEventStore
         seven: true,
         eight: false,
         nein: nil,
+        ten: {some: 'hash', with: {nested: 'values'}},
+        eleven: [1,2,3],
       } }
       let(:data) do
         ResTesting::OrderCreated.new(
