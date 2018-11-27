@@ -1,4 +1,3 @@
-
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
 	@MUTATING=true bundle exec mutant --include lib \
@@ -12,4 +11,12 @@ mutate-fast: ## Run mutation tests with --fail-fast
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \
+		--use rspec "$(SUBJECT)"
+
+mutate-changes: ## Run mutation tests for all changes since origin/HEAD
+	@echo "Running mutation tests"
+	@MUTATING=true bundle exec mutant --include lib \
+		$(addprefix --require ,$(REQUIRE)) \
+		$(addprefix --ignore-subject ,$(IGNORE)) \
+		--since origin/HEAD \
 		--use rspec "$(SUBJECT)"
