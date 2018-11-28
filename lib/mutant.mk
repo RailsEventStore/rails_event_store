@@ -1,13 +1,13 @@
 mutate: test ## Run mutation tests
 	@echo "Running mutation tests"
-	@MUTATING=true bundle exec mutant --include lib \
+	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--use rspec "$(SUBJECT)"
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests"
-	@MUTATING=true bundle exec mutant --include lib \
+	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--fail-fast \
@@ -15,7 +15,7 @@ mutate-fast: ## Run mutation tests with --fail-fast
 
 mutate-changes: ## Run mutation tests for all changes since origin/HEAD
 	@echo "Running mutation tests"
-	@MUTATING=true bundle exec mutant --include lib \
+	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		--since origin/HEAD \
