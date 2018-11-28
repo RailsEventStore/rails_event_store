@@ -11,15 +11,7 @@ module RailsEventStoreActiveRecord
     end
 
     def read(spec)
-      raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
-
-      stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
-      stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
-      stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
-      stream = stream.order(position: order(spec)) unless spec.stream.global?
-      stream = stream.limit(spec.limit) if spec.limit?
-      stream = stream.where(start_condition(spec)) unless spec.head?
-      stream = stream.order(id: order(spec))
+      stream = read_scope(spec)
 
       if spec.batched?
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
@@ -35,7 +27,24 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    def count(spec)
+      read_scope(spec).count
+    end
+
     private
+
+    def read_scope(spec)
+      raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
+
+      stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
+      stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
+      stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
+      stream = stream.order(position: order(spec)) unless spec.stream.global?
+      stream = stream.limit(spec.limit) if spec.limit?
+      stream = stream.where(start_condition(spec)) unless spec.head?
+      stream = stream.order(id: order(spec))
+      stream
+    end
 
     def normalize_stream_name(specification)
       specification.stream.global? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream.name
