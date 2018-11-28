@@ -1,6 +1,6 @@
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
-	@bundle install
+	@bundle check || bundle install
 
 remove-lock:
 	@echo "Removing resolved dependency versions"

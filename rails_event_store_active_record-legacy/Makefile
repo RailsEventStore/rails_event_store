@@ -16,7 +16,7 @@ install: install-gemfiles
 remove-lock: remove-lockfiles
 
 install-gemfiles:
-	@BUNDLE_GEMFILE=../lib/Gemfile.0_18_2 bundle install
+	@BUNDLE_GEMFILE=../lib/Gemfile.0_18_2 bundle check || bundle install
 
 remove-lockfiles:
 	-rm ../lib/Gemfile.0_18_2.lock
