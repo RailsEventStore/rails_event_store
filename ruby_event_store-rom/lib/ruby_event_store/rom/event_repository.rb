@@ -81,6 +81,12 @@ module RubyEventStore
         @events.read(specification)
       end
 
+      def count(specification)
+        raise ReservedInternalName if specification.stream.name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
+
+        @events.count(specification)
+      end
+
       def streams_of(event_id)
         @stream_entries.streams_of(event_id)
           .map{|name| Stream.new(name)}
