@@ -1242,7 +1242,8 @@ module RubyEventStore
       expect(repository.count(specification.in_batches(2).result)).to eq(4)
 
       expect(repository.count(specification.with_id([event_id]).result)).to eq(1)
-      expect(repository.count(specification.with_id(['not-existing-event-uuid']).result)).to eq(0)
+      not_existing_uuid = SecureRandom.uuid
+      expect(repository.count(specification.with_id([not_existing_uuid]).result)).to eq(0)
 
       expect(repository.count(specification.stream(stream.name).result)).to eq(3)
       expect(repository.count(specification.stream('Dummy').result)).to eq(1)
