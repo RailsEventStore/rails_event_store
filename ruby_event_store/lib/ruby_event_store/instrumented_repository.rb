@@ -37,6 +37,12 @@ module RubyEventStore
       end
     end
 
+    def count(specification)
+      instrumentation.instrument("count.repository.rails_event_store", specification: specification) do
+        repository.count(specification)
+      end
+    end
+
     def update_messages(messages)
       instrumentation.instrument("update_messages.repository.rails_event_store", messages: messages) do
         repository.update_messages(messages)
