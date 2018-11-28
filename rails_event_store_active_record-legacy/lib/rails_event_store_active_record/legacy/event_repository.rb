@@ -56,12 +56,7 @@ instead:
       end
 
       def read(spec)
-        stream = LegacyEvent.order(id: order(spec))
-        stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
-        stream = stream.where(event_type: spec.with_types) if spec.with_types?
-        stream = stream.limit(spec.limit) if spec.limit?
-        stream = stream.where(start_condition(spec)) unless spec.head?
-        stream = stream.where(stream: spec.stream.name) unless spec.stream.global?
+        stream = read_scope(spec)
 
         if spec.batched?
           batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_entity)) }
@@ -75,6 +70,10 @@ instead:
         end
       end
 
+      def count(spec)
+        read_scope(spec).count
+      end
+
       def streams_of(event_id)
         LegacyEvent.where(event_id: event_id)
           .pluck(:stream)
@@ -82,6 +81,16 @@ instead:
       end
 
       private
+
+      def read_scope(spec)
+        stream = LegacyEvent.order(id: order(spec))
+        stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
+        stream = stream.where(event_type: spec.with_types) if spec.with_types?
+        stream = stream.limit(spec.limit) if spec.limit?
+        stream = stream.where(start_condition(spec)) unless spec.head?
+        stream = stream.where(stream: spec.stream.name) unless spec.stream.global?
+        stream
+      end
 
       def start_condition(specification)
         event_record =
