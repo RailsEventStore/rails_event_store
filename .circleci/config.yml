@@ -3,6 +3,7 @@ jobs:
   aggregate_root:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - checkout
       - run: echo "ruby-2.5.3" > ~/.ruby-version
@@ -11,6 +12,7 @@ jobs:
   bounded_context:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - checkout
       - run: echo "ruby-2.5.3" > ~/.ruby-version
@@ -19,6 +21,7 @@ jobs:
   ruby_event_store:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - checkout
       - run: echo "ruby-2.5.3" > ~/.ruby-version
@@ -27,6 +30,7 @@ jobs:
   rails_event_store:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     working_directory: ~/res
     steps:
       - run: brew install sqlite3
@@ -59,6 +63,7 @@ jobs:
   rails_event_store-rspec:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - checkout
       - run: echo "ruby-2.5.3" > ~/.ruby-version
@@ -67,6 +72,7 @@ jobs:
   ruby_event_store-browser:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - run: brew tap caskroom/cask
       - run: brew install sqlite3
@@ -83,6 +89,7 @@ jobs:
   rails_event_store_active_record:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - run: brew install mysql
       - run: brew install sqlite3
@@ -98,6 +105,7 @@ jobs:
   rails_event_store_active_record-legacy:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - run: brew install mysql
       - run: brew install sqlite3
@@ -113,6 +121,7 @@ jobs:
   ruby_event_store-rom:
     macos:
       xcode: "9.3.0"
+    shell: /bin/bash --login -eo pipefail
     steps:
       - run: brew install mysql
       - run: brew install sqlite3
