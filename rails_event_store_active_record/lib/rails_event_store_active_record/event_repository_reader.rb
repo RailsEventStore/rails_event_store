@@ -11,6 +11,8 @@ module RailsEventStoreActiveRecord
     end
 
     def read(spec)
+      raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
+
       stream = read_scope(spec)
 
       if spec.batched?
@@ -28,14 +30,14 @@ module RailsEventStoreActiveRecord
     end
 
     def count(spec)
+      raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
+
       read_scope(spec).count
     end
 
     private
 
     def read_scope(spec)
-      raise RubyEventStore::ReservedInternalName if spec.stream.name.eql?(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
-
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
       stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
