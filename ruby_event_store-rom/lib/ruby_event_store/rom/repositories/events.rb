@@ -66,8 +66,7 @@ module RubyEventStore
 
         def count(specification)
           query = read_scope(specification)
-          limit = specification.limit if specification.limit?
-          query = query_builder(query, limit: limit)
+          query = query.take(specification.limit) if specification.limit?
           query.count
         end
 
