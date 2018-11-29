@@ -122,6 +122,31 @@ module RubyEventStore
       end
     end
 
+    describe "#count" do
+      specify "wraps around original implementation" do
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        specification = double
+
+        instrumented_repository.count(specification)
+
+        expect(some_repository).to have_received(:count).with(specification)
+      end
+
+      specify "instruments" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("count.repository.rails_event_store") do |notification_calls|
+          specification = double
+
+          instrumented_repository.count(specification)
+
+          expect(notification_calls).to eq([
+            { specification: specification }
+          ])
+        end
+      end
+    end
+
     describe "#update_messages" do
       specify "wraps around original implementation" do
         some_repository = spy

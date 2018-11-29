@@ -25,6 +25,12 @@ module RubyEventStore
 
     # @api private
     # @private
+    def count(specification_result)
+      repository.count(specification_result)
+    end
+
+    # @api private
+    # @private
     def has_event?(event_id)
       repository.has_event?(event_id)
     end

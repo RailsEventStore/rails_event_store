@@ -32,12 +32,7 @@ module RubyEventStore
     end
 
     def read(spec)
-      events = spec.stream.global? ? global : stream_of(spec.stream.name)
-      events = events.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
-      events = events.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
-      events = events.reverse if spec.backward?
-      events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
-      events = events[0...spec.limit] if spec.limit?
+      events = read_scope(spec)
       if spec.batched?
         batch_reader = ->(offset, limit) { events.drop(offset).take(limit) }
         BatchEnumerator.new(spec.batch_size, events.size, batch_reader).each
@@ -48,6 +43,10 @@ module RubyEventStore
       else
         events.each
       end
+    end
+
+    def count(spec)
+      read_scope(spec).count
     end
 
     def update_messages(messages)
@@ -68,6 +67,15 @@ module RubyEventStore
     end
 
     private
+    def read_scope(spec)
+      events = spec.stream.global? ? global : stream_of(spec.stream.name)
+      events = events.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
+      events = events.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
+      events = events.reverse if spec.backward?
+      events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
+      events = events[0...spec.limit] if spec.limit?
+      events
+    end
 
     def read_event(event_id)
       global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)

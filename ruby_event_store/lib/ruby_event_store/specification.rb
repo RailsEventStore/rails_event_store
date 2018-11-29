@@ -91,6 +91,14 @@ module RubyEventStore
       end
     end
 
+    # Calculates the size of result set based on the specification build up to this point.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Integer] Number of events to read
+    def count
+      reader.count(result)
+    end
+
     # Executes the query based on the specification built up to this point.
     # Returns array of domain events.
     # {http://railseventstore.org/docs/read/ Find out more}.

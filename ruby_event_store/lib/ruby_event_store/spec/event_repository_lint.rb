@@ -1225,5 +1225,47 @@ module RubyEventStore
       expect(repository.read(specification.of_type([Type3]).result).to_a).to eq([])
       expect(repository.read(specification.of_type([Type1, Type2, Type3]).result).to_a).to eq([e1,e2,e3])
     end
+
+    specify do
+      stream = Stream.new('Stream A')
+      dummy  = Stream.new('Dummy')
+
+      expect(repository.count(specification.result)).to eq(0)
+      (1..3).each do
+        repository.append_to_stream([SRecord.new(event_type: Type1.to_s)], stream, version_any)
+      end
+      expect(repository.count(specification.result)).to eq(3)
+      event_id = SecureRandom.uuid
+      repository.append_to_stream([SRecord.new(event_type: Type1.to_s, event_id: event_id)], dummy, version_any)
+      expect(repository.count(specification.result)).to eq(4)
+      expect(repository.count(specification.in_batches.result)).to eq(4)
+      expect(repository.count(specification.in_batches(2).result)).to eq(4)
+
+      expect(repository.count(specification.with_id([event_id]).result)).to eq(1)
+      not_existing_uuid = SecureRandom.uuid
+      expect(repository.count(specification.with_id([not_existing_uuid]).result)).to eq(0)
+
+      expect(repository.count(specification.stream(stream.name).result)).to eq(3)
+      expect(repository.count(specification.stream('Dummy').result)).to eq(1)
+      expect(repository.count(specification.stream('not-existing-stream').result)).to eq(0)
+
+      repository.append_to_stream([SRecord.new(event_type: Type1.to_s)], dummy, version_any)
+      expect(repository.count(specification.from(:head).result)).to eq(5)
+      expect(repository.count(specification.from(event_id).result)).to eq(1)
+      expect(repository.count(specification.stream("Dummy").from(:head).result)).to eq(2)
+      expect(repository.count(specification.stream("Dummy").from(event_id).result)).to eq(1)
+
+      expect(repository.count(specification.limit(100).result)).to eq(5)
+      expect(repository.count(specification.limit(2).result)).to eq(2)
+
+      repository.append_to_stream([SRecord.new(event_type: Type2.to_s)], dummy, version_any)
+      repository.append_to_stream([SRecord.new(event_type: Type3.to_s)], dummy, version_any)
+      repository.append_to_stream([SRecord.new(event_type: Type3.to_s)], dummy, version_any)
+      expect(repository.count(specification.of_type([Type1]).result)).to eq(5)
+      expect(repository.count(specification.of_type([Type2]).result)).to eq(1)
+      expect(repository.count(specification.of_type([Type3]).result)).to eq(2)
+      expect(repository.count(specification.stream("Dummy").of_type([Type3]).result)).to eq(2)
+      expect(repository.count(specification.stream(stream.name).of_type([Type3]).result)).to eq(0)
+    end
   end
 end

@@ -52,6 +52,10 @@ module RailsEventStoreActiveRecord
       expect do
         repository.read(specification.stream("all").from(:head).limit(5).backward.result)
       end.to raise_error(RubyEventStore::ReservedInternalName)
+
+      expect do
+        repository.count(specification.stream("all").result)
+      end.to raise_error(RubyEventStore::ReservedInternalName)
     end
 
     specify "using preload()" do

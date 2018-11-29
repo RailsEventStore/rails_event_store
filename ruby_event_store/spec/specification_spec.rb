@@ -516,6 +516,46 @@ module RubyEventStore
       end
     end
 
+    specify "#count" do
+      expect(specification.count).to eq(0)
+      (1..3).each do
+        repository.append_to_stream([test_record], Stream.new(stream_name), ExpectedVersion.any)
+      end
+      expect(specification.count).to eq(3)
+
+      repository.append_to_stream([test_record(event_id)], Stream.new("Dummy"), ExpectedVersion.any)
+      expect(specification.count).to eq(4)
+      expect(specification.in_batches.count).to eq(4)
+      expect(specification.in_batches(2).count).to eq(4)
+
+      expect(specification.with_id([event_id]).count).to eq(1)
+      not_existing_uuid = SecureRandom.uuid
+      expect(specification.with_id([not_existing_uuid]).count).to eq(0)
+
+      expect(specification.stream(stream_name).count).to eq(3)
+      expect(specification.stream('Dummy').count).to eq(1)
+      expect(specification.stream('not-existing-stream').count).to eq(0)
+
+      repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.any)
+      expect(specification.from(:head).count).to eq(5)
+      expect(specification.from(event_id).count).to eq(1)
+      expect(specification.stream("Dummy").from(:head).count).to eq(2)
+      expect(specification.stream("Dummy").from(event_id).count).to eq(1)
+
+      expect(specification.limit(100).count).to eq(5)
+      expect(specification.limit(2).count).to eq(2)
+
+      repository.append_to_stream([test_record(event_type: OrderCreated)], Stream.new("Dummy"), ExpectedVersion.any)
+      repository.append_to_stream([test_record(event_type: ProductAdded)], Stream.new("Dummy"), ExpectedVersion.any)
+      repository.append_to_stream([test_record(event_type: ProductAdded)], Stream.new("Dummy"), ExpectedVersion.any)
+      expect(specification.of_type([TestEvent]).count).to eq(5)
+      expect(specification.of_type([OrderCreated]).count).to eq(1)
+      expect(specification.of_type([ProductAdded]).count).to eq(2)
+      expect(specification.stream("Dummy").of_type([ProductAdded]).count).to eq(2)
+      expect(specification.stream(stream_name).of_type([ProductAdded]).count).to eq(0)
+    end
+
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
     let(:reader)        { SpecificationReader.new(repository, mapper) }
@@ -525,12 +565,12 @@ module RubyEventStore
     let(:stream_name)   { SecureRandom.hex }
     let(:test_event)    { TestEvent.new(event_id: event_id) }
 
-    def test_record(event_id = SecureRandom.uuid)
+    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent)
         RubyEventStore::SerializedRecord.new(
         event_id: event_id,
         data: "{}",
         metadata: "{}",
-        event_type: "TestEvent",
+        event_type: event_type.name,
       )
     end
 

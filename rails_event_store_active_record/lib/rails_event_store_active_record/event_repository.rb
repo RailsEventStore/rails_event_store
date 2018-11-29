@@ -42,6 +42,10 @@ module RailsEventStoreActiveRecord
       @repo_reader.read(specification)
     end
 
+    def count(specification)
+      @repo_reader.count(specification)
+    end
+
     def update_messages(messages)
       hashes = messages.map(&:to_h)
       hashes.each{|h| h[:id] = h.delete(:event_id) }
