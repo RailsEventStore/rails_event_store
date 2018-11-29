@@ -59,6 +59,8 @@ module RubyEventStore::ROM
       expect{ repository.read(specification.stream("all").backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
       expect{ repository.read(specification.stream("all").from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
       expect{ repository.read(specification.stream("all").from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+
+      expect{ repository.count(specification.stream("all").result) }.to raise_error(RubyEventStore::ReservedInternalName)
     end
 
     specify "explicit sorting by position rather than accidental" do
