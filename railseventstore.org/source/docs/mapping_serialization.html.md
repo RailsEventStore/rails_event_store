@@ -35,14 +35,14 @@ end
 
 The provided `serializer` must respond to `load` and `dump`.
 
-Bear in mind that serializers have their limitations. For example `JSON` would convert symbol keys to strings and you have to prepare for that when retrieving events.
+Bear in mind that serializers have their limitations. For example `JSON` would convert symbols to strings and you have to prepare for that when retrieving events.
 
 ```ruby
-JSON.load(JSON.dump({a: 1}))
-=> {"a"=>1}
+JSON.load(JSON.dump({foo: :bar}))
+=> {"foo"=>"bar"}
 ```
 
-One way to approach this is to have your own event adapter, specific for the project you're working on.
+One way to approach this is to have your own event adapter, specific for the project you're working on. 
 
 ```ruby
 class MyEvent < RailsEventStore::Event
@@ -52,6 +52,19 @@ class MyEvent < RailsEventStore::Event
 end
 
 OrderPlaced = Class.new(MyEvent)
+```
+
+That shields you from data keys being transformed from symbols into strings. It doesn't do anything with data values though so beware.
+
+```ruby
+event_store.publish(OrderPlaced.new(event_id: 'e34fc19a-a92f-4c21-8932-a10f6fb2602b', data: { foo: :bar }))
+event = event_store.read.event('e34fc19a-a92f-4c21-8932-a10f6fb2602b')
+
+event.data[:foo]
+# => "bar"
+
+event.data['foo']
+# => "bar"
 ```
 
 ## Configuring a different mapper
