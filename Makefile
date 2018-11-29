@@ -30,6 +30,9 @@ $(addprefix reinstall-, $(GEMS)):
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
 
+$(addprefix mutate-changes-, $(GEMS)):
+	@make -C $(subst mutate-changes-,,$@) mutate-changes
+
 $(addprefix mutate-, $(GEMS)):
 	@make -C $(subst mutate-,,$@) mutate
 
@@ -81,6 +84,8 @@ reinstall: $(addprefix reinstall-, $(GEMS)) ## Reinstall (with new resolve) depe
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
 mutate: $(addprefix mutate-, $(GEMS)) ## Run all mutation tests
+
+mutate-changes: $(addprefix mutate-changes-, $(GEMS)) ## Run mutation tests for all changes since origin/HEAD
 
 build: $(addprefix build-, $(GEMS)) ## Build all gem packages
 
