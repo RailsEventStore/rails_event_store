@@ -8,7 +8,8 @@ IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
               RailsEventStore::RSpec::Matchers\#publish \
               RailsEventStore::RSpec::Matchers\#be_an_event \
               RailsEventStore::RSpec::Publish\#last_event
-SUBJECT     ?= RailsEventStore::RSpec*
+SUBJECT      ?= RailsEventStore::RSpec*
+DATABASE_URL ?= sqlite3::memory:
 
 include ../lib/install.mk
 include ../lib/test.mk

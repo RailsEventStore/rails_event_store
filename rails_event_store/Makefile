@@ -5,7 +5,8 @@ IGNORE      = RailsEventStore::Client\#initialize \
               RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord\#rolledback! \
               RailsEventStore::AsyncProxyStrategy::AfterCommit* \
               RailsEventStore::ActiveJobDispatcher*
-SUBJECT     ?= RailsEventStore*
+SUBJECT      ?= RailsEventStore*
+DATABASE_URL ?= sqlite3::memory:
 
 include ../lib/install.mk
 include ../lib/test.mk
