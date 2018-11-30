@@ -4,7 +4,7 @@ title: Publishing events
 
 ## Defining an event
 
-Firstly you have to define own event model extending `RailsEventStore::Event` class.
+Firstly you have to define your own event model extending `RailsEventStore::Event` class.
 
 ```ruby
 class OrderPlaced < RailsEventStore::Event
