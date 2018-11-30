@@ -2,3 +2,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'protobuf_nested_struct'
+
+eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
