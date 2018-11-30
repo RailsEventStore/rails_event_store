@@ -4,7 +4,6 @@ require_relative '../../lib/rspec_defaults'
 require_relative '../../lib/mutant_timeout'
 require 'rails'
 
-ENV['RAILS_VERSION'] ||= Rails::VERSION::STRING
 DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].split('.').take(2).join('_')}"
 TMP_ROOT   = File.join(__dir__, 'tmp')
 DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)

@@ -1,16 +1,12 @@
 source "https://rubygems.org"
 gemspec
 
-gem 'rails_event_store',               path: '../rails_event_store'
-gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
-gem 'ruby_event_store',                path: '../ruby_event_store'
-gem 'ruby_event_store-browser',        path: '../ruby_event_store-browser'
-gem 'aggregate_root',                  path: '../aggregate_root'
-gem 'bounded_context',                 path: '../bounded_context'
-gem 'rails', '~> 5.1'
-
-if v = ENV['RAILS_VERSION']
-  gem 'rails', v
-end
-
 eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
+
+gem 'rails_event_store', path: '../rails_event_store'
+gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
+gem 'ruby_event_store', path: '../ruby_event_store'
+gem 'ruby_event_store-browser', path: '../ruby_event_store-browser'
+gem 'aggregate_root', path: '../aggregate_root'
+gem 'bounded_context', path: '../bounded_context'
+gem 'rails', ENV['RAILS_VERSION']

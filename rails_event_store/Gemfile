@@ -1,21 +1,17 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'ruby_event_store',                path: '../ruby_event_store'
-gem 'ruby_event_store-browser',        path: '../ruby_event_store-browser'
+eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
+
+gem 'ruby_event_store', path: '../ruby_event_store'
+gem 'ruby_event_store-browser', path: '../ruby_event_store-browser'
 gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
-gem 'aggregate_root',                  path: '../aggregate_root'
-gem 'bounded_context',                 path: '../bounded_context'
+gem 'aggregate_root', path: '../aggregate_root'
+gem 'bounded_context', path: '../bounded_context'
 gem 'protobuf_nested_struct'
 gem 'sidekiq'
-gem 'rails', '~> 5.2'
 gem 'sqlite3'
 gem 'rack-test'
 gem 'google-protobuf', '~> 3.5.1.2'
 gem 'pry'
-
-if v = ENV['RAILS_VERSION']
-  gem 'rails', v
-end
-
-eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
+gem 'rails', ENV['RAILS_VERSION']

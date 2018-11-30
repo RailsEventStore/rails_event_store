@@ -1,10 +1,6 @@
 source "https://rubygems.org"
 gemspec
 
-gem 'rails', '~> 5.2'
-
-if v = ENV['RAILS_VERSION']
-  gem 'rails', v
-end
-
 eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
+
+gem 'rails', ENV['RAILS_VERSION']

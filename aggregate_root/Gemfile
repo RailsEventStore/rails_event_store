@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'ruby_event_store', path: '../ruby_event_store'
-
 eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
+
+gem 'ruby_event_store', path: '../ruby_event_store'
