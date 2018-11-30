@@ -2,5 +2,10 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'ruby_event_store', path: '../ruby_event_store'
+gem 'sqlite3', '1.3.13'
+gem 'pg', '>= 0.21'
+gem 'mysql2', '>= 0.4.10'
+gem 'fakefs', '~> 0.11.2'
+gem 'childprocess'
 
 eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)

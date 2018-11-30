@@ -7,6 +7,7 @@ gem 'ruby_event_store',                path: '../ruby_event_store'
 gem 'ruby_event_store-browser',        path: '../ruby_event_store-browser'
 gem 'aggregate_root',                  path: '../aggregate_root'
 gem 'bounded_context',                 path: '../bounded_context'
+gem 'rails', '~> 5.1'
 
 if v = ENV['RAILS_VERSION']
   gem 'rails', v

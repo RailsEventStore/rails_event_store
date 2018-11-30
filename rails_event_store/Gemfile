@@ -8,6 +8,11 @@ gem 'aggregate_root',                  path: '../aggregate_root'
 gem 'bounded_context',                 path: '../bounded_context'
 gem 'protobuf_nested_struct'
 gem 'sidekiq'
+gem 'rails', '~> 5.2'
+gem 'sqlite3'
+gem 'rack-test'
+gem 'google-protobuf', '~> 3.5.1.2'
+gem 'pry'
 
 if v = ENV['RAILS_VERSION']
   gem 'rails', v

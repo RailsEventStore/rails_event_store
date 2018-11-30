@@ -2,5 +2,10 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'protobuf_nested_struct'
+gem 'parser'
+gem 'unparser'
+gem 'astrolabe'
+gem 'google-protobuf', '~> 3.5.1.2'
+gem 'activesupport',   '~> 5.0'
 
 eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)

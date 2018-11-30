@@ -1,6 +1,8 @@
 source "https://rubygems.org"
 gemspec
 
+gem 'rails', '~> 5.2'
+
 if v = ENV['RAILS_VERSION']
   gem 'rails', v
 end

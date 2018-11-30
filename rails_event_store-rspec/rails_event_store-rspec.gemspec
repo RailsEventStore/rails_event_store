@@ -26,9 +26,5 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-
-  spec.add_development_dependency 'rails', '~> 5.1'
-  spec.add_development_dependency 'rails_event_store', '= 0.34.0'
-
   spec.add_runtime_dependency 'rspec', '~> 3.0'
 end

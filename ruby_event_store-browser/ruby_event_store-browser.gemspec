@@ -23,9 +23,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'ruby_event_store', '= 0.34.0'
   spec.add_dependency 'sinatra'
-
-  spec.add_development_dependency 'rack-test'
-  spec.add_development_dependency 'capybara', '< 3.0.0'
-  spec.add_development_dependency 'selenium-webdriver'
-  spec.add_development_dependency 'json-schema'
 end

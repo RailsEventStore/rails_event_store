@@ -25,12 +25,6 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'sqlite3', '1.3.13'
-  spec.add_development_dependency 'pg', '>= 0.21'
-  spec.add_development_dependency 'mysql2', '>= 0.4.10'
-  spec.add_development_dependency 'fakefs', '~> 0.11.2'
-  spec.add_development_dependency 'childprocess'
-
   spec.add_dependency 'ruby_event_store', '= 0.34.0'
   spec.add_dependency 'sequel', '>= 4.49'
   spec.add_dependency 'dry-types', '~> 0.12.2'
