@@ -2,7 +2,53 @@
 title: Reading events
 ---
 
-## Reading from stream
+## Specification of read scope
+
+You could use a speciffication pattern to prepare a read scope.
+The read scope defines what domain events will be read.
+
+The available specification methods are:
+
+* `stream(stream_name)` - specify name of a stream to read,
+   if no stream will be specified a global stream (all domain events)
+   will be read.
+* `from(start)` - specify a starting point for read operation, possible values:
+    * `:head`  - read from the beggining of the stream,
+    * event id - read all domain events after specified domain event id.
+* `forward`  - reading direction, from oldest to newest domain events.
+* `backward` - reading direction, from newest to oldest  domain events.
+* `limit(count)` - total number of events to read (could be less).
+* `in_batches(batch_size)` - read will be performed in batches of specified size.
+   RailsEventStore newer reads all domain events at once - event if you not specify
+   batch size the read operation will read in batches of size 100.
+* `of_type(types)` - read only specified types of domain events ignoring all others.
+
+The read scope could be defined by chaining the specification methods, i.e.:
+
+```ruby
+scope = client.read
+  .stream('GoldCustomers')
+  .backward
+  .limit(100)
+  .of_type([Customer::GoldStatusGranted])
+```
+
+When the read scope will be defined several methods could be used to get the data:
+
+* `count` - returns total number of domain events to be read.
+* `each` - returns enumerator for all domain events in the read scope.
+* `each_batch` - returns enumerator of batches of specified size (or 100 if no
+   batch size have been specified).
+* `to_a` - returns an array with all domain events from the scope, equals to `each.to_a`.
+* `first` - returns first domain event from the read scope.
+* `last` - returns last domain event from the read scope.
+* `event(event_id)` - return event of given id if found in the read scope, otherwise `nil`.
+* `event!(event_id)` - return event of given id if found in the read scope,
+  otherwise raises `RubyEventStore::EventNotfound` error.
+* `events(event_ids)` - returns list of domain events of given ids found in read scope,
+  if there is no event of some event id it is ignored (not all domain events must be found).
+
+## Examples
 
 ### Reading stream's events forward in batch — starting from first event
 
