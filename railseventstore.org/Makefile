@@ -1,0 +1,13 @@
+contributors: ## Update contributors list
+	@echo "Updating contributors list"
+	@./bin/contributors
+
+install: contributors ## Install all dependencies
+	@bundle install
+	@yarn install
+
+serve: ## Serve documentation files locally at http://localhost:4567
+	@echo "You can check the docs locally at http://localhost:4567"
+	@bundle exec middleman server
+
+include ../lib/help.mk
