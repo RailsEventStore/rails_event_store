@@ -7,4 +7,5 @@ RUN apk update && \
         mysql-dev \
         postgresql-dev \
         mariadb-dev \
-        sqlite-dev
+        sqlite-dev \
+        ncurses
