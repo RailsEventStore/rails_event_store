@@ -9,7 +9,11 @@ module ProtobufHelper
   end
 
   def unsupported_ruby_version
-    jruby || ruby_2_6_0
+    truffleruby || jruby || ruby_2_6_0
+  end
+
+  def truffleruby
+    RUBY_ENGINE == "truffleruby"
   end
 
   def jruby
