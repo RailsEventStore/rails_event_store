@@ -3,7 +3,5 @@ services:
   res:
     build: .
     volumes:
-      - type: bind
-        source: .
-        target: /res
+      - .:/res
     working_dir: /res
