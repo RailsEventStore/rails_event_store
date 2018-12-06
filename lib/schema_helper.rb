@@ -67,4 +67,20 @@ module SchemaHelper
         .run_migration('create_event_store_events', 'migration')
     EOF
   end
+
+  def validate_migration(source_gemfile, &block)
+    begin
+      establish_database_connection
+      load_database_schema
+      target_schema = dump_schema
+      drop_database
+      close_database_connection
+      build_schema(source_gemfile)
+      establish_database_connection
+      yield
+      expect(dump_schema).to eq(target_schema)
+    ensure
+      drop_database
+    end
+  end
 end
