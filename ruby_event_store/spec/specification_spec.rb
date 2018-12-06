@@ -38,7 +38,6 @@ module RubyEventStore
 
     specify { expect{specification.from(nil)}.to raise_error(InvalidPageStart) }
     specify { expect{specification.from('')}.to raise_error(InvalidPageStart) }
-    specify { expect{specification.from(:head)}.to raise_error(EventNotFound, /head/) }
     specify { expect{specification.from(:dummy)}.to raise_error(EventNotFound, /dummy/) }
     specify { expect{specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 

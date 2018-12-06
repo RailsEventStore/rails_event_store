@@ -5,6 +5,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
     sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
     rails_42 = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0")
+
     enable_extension "pgcrypto" if postgres
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
@@ -21,15 +22,15 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
     add_index :event_store_events_in_streams, [:stream, :event_id], unique: true
 
     if postgres
-      create_table(:event_store_events, id: :uuid, default: 'gen_random_uuid()', force: false) do |t|
+      create_table(:event_store_events, force: false) do |t|
         t.string      :event_type,  null: false
         t.<%= data_type %>      :metadata
         t.<%= data_type %>      :data,        null: false
         t.datetime    :created_at,  null: false
       end
     else
-      create_table(:event_store_events, id: false, force: false) do |t|
-        t.string :id, limit: 36, primary_key: true, null: false
+      create_table(:event_store_events, force: false) do |t|
+        t.references  :event, null: false, type: :string, limit: 36
         t.string      :event_type,  null: false
         t.binary      :metadata
         t.binary      :data,        null: false
@@ -39,6 +40,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         add_index :event_store_events, :id, unique: true
       end
     end
+    add_index :event_store_events, :event_id, unique: true
     add_index :event_store_events, :created_at
     add_index :event_store_events, :event_type
   end
