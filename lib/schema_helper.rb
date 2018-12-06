@@ -48,4 +48,23 @@ module SchemaHelper
     schema.rewind
     schema.read
   end
+
+  def build_schema(gemfile)
+    run_in_subprocess(<<~EOF, gemfile: gemfile)
+      require 'rails/generators'
+      require 'rails_event_store_active_record'
+      require 'ruby_event_store'
+      require 'logger'
+      require '../lib/migrator'
+
+      $verbose = ENV.has_key?('VERBOSE') ? true : false
+      ActiveRecord::Schema.verbose = $verbose
+      ActiveRecord::Base.logger    = Logger.new(STDOUT) if $verbose
+      ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+
+      gem_path = $LOAD_PATH.find { |path| path.match(/rails_event_store_active_record/) }
+      Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
+        .run_migration('create_event_store_events', 'migration')
+    EOF
+  end
 end
