@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe "index_by_event_type_migration" do
+RSpec.describe "test migration from v0.33.0" do
   include SchemaHelper
 
   specify do
