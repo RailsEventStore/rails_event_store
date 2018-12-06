@@ -49,7 +49,7 @@ module SchemaHelper
     schema.read
   end
 
-  def build_schema(gemfile, name: 'create_event_store_events', template_name: nil)
+  def build_schema(gemfile, template_name: nil)
     run_in_subprocess(<<~EOF, gemfile: gemfile)
       require 'rails/generators'
       require 'rails_event_store_active_record'
@@ -64,13 +64,15 @@ module SchemaHelper
 
       gem_path = $LOAD_PATH.find { |path| path.match(/rails_event_store_active_record/) }
       Migrator.new(File.expand_path('rails_event_store_active_record/generators/templates', gem_path))
-        .run_migration('#{name}', #{template_name ? "'#{template_name}'" : "nil"})
+        .run_migration('create_event_store_events', #{template_name ? "'#{template_name}'" : "nil"})
     EOF
   end
 
-  def validate_migration(source_gemfile, target_gemfile, &block)
+  def validate_migration(source_gemfile, target_gemfile,
+                         source_template_name: nil,
+                         &block)
     begin
-      build_schema(source_gemfile, template_name: 'migration')
+      build_schema(source_gemfile, template_name: source_template_name)
       establish_database_connection
       yield
       actual_schema = dump_schema
