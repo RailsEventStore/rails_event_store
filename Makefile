@@ -75,7 +75,7 @@ set-version: git-check-clean git-check-committed
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@sed $(SED_OPTS) "s/\(gem 'rails_event_store', '~>\)\(.*\)/\1 $(RES_VERSION)'/" APP_TEMPLATE
-	@git add -A **/*.gemspec **/version.rb RES_VERSION
+	@git add -A **/*.gemspec **/version.rb RES_VERSION APP_TEMPLATE
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
