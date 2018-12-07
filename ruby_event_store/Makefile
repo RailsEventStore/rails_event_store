@@ -14,7 +14,8 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::SpecificationResult\#count \
               RubyEventStore::SpecificationResult\#direction \
               RubyEventStore::SpecificationResult\#stream_name \
-              RubyEventStore::SpecificationResult\#global_stream?
+              RubyEventStore::SpecificationResult\#global_stream? \
+              RubyEventStore::Client::Within\#call
 SUBJECT     ?= RubyEventStore*
 
 include ../lib/install.mk
