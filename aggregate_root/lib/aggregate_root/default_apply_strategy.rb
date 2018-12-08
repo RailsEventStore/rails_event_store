@@ -23,16 +23,11 @@ module AggregateRoot
     end
 
     def handler_name_by_class(event_class)
-      "apply_#{to_snake_case(event_class.name)}"
+      "apply_#{Transform.to_snake_case(class_name(event_class))}"
     end
 
-    def to_snake_case(class_name)
-      class_name
-        .split("::")
-        .last
-        .gsub(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
-        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-        .downcase
+    def class_name(event_class)
+      event_class.name.split("::").last
     end
 
     private

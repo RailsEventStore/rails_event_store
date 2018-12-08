@@ -15,7 +15,6 @@ module Orders
   module Events
     OrderCreated = Class.new(RubyEventStore::Event)
     OrderExpired = Class.new(RubyEventStore::Event)
-    OrderA1BcdEFghI2Jz = Class.new(RubyEventStore::Event)
     SpanishInquisition = Class.new(RubyEventStore::Event)
   end
 end
@@ -37,10 +36,6 @@ class Order
 
   def apply_order_expired(_event)
     @status = :expired
-  end
-
-  def apply_order_a1_bcd_e_fgh_i2_jz(_event)
-    @status = :all_your_base_are_belong_to_us
   end
 end
 

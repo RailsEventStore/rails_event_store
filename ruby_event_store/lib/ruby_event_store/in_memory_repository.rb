@@ -63,7 +63,7 @@ module RubyEventStore
     def streams_of(event_id)
       streams.select do |_, stream_events|
         stream_events.any? { |event| event.event_id.eql?(event_id) }
-      end.map { |name, _| Stream.new(name) }
+      end.map { |name, | Stream.new(name) }
     end
 
     private
