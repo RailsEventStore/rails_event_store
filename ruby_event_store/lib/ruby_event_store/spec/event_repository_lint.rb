@@ -1210,6 +1210,15 @@ module RubyEventStore
         '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea',
         'd345f86d-b903-4d78-803f-38990c078d9e'
       ]).in_batches.result).to_a[0]).to eq([e1,e3])
+      expect(repository.read(specification.stream('Stream A').with_id([
+        '8cee1139-4f96-483a-a175-2b947283c3c7'
+      ]).read_first.result)).to eq(e2)
+      expect(repository.read(specification.stream('Stream B').with_id([
+        '8cee1139-4f96-483a-a175-2b947283c3c7'
+      ]).read_first.result)).to eq(nil)
+      expect(repository.read(specification.stream('Stream B').with_id([
+        'c31b327c-0da1-4178-a3cd-d2f6bb5d0688'
+      ]).read_first.result)).to eq(nil)
       expect(repository.read(specification.with_id([]).result).to_a).to eq([])
     end
 
