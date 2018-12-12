@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+
 RSpec.describe "database schema migrations" do
   include SchemaHelper
 
