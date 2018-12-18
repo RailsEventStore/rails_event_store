@@ -6,7 +6,6 @@ module RubyEventStore
   InvalidPageStart          = Class.new(ArgumentError)
   InvalidPageSize           = Class.new(ArgumentError)
   EventDuplicatedInStream   = Class.new(StandardError)
-  NotSupported              = Class.new(StandardError)
   ReservedInternalName      = Class.new(StandardError)
   InvalidHandler            = Class.new(StandardError)
   ProtobufEncodingFailed    = Class.new(StandardError)

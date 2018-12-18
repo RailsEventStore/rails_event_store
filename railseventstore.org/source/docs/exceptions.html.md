@@ -106,10 +106,6 @@ expect do
 end.to raise_error(InvalidHandler)
 ```
 
-### RubyEventStore::NotSupported
-
-Raised when using `RailsEventStoreActiveRecord::Legacy` repository on unsupported `link` operation.
-
 ### RubyEventStore::ReservedInternalName
 
 Occurs when passing stream name of `all` when using `RailsEventStoreActiveRecord` of `RubyEventStore::ROM` repository. This stream name is used internally to implement global stream. Use dedicated global stream readers in order to read events from it.
