@@ -8,7 +8,6 @@ gems = %w(
   ruby_event_store-rom
   rails_event_store
   rails_event_store_active_record
-  rails_event_store_active_record-legacy
   rails_event_store-rspec
 )
 
