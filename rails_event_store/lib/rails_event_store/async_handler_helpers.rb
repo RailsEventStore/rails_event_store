@@ -1,5 +1,4 @@
 module RailsEventStore
-
   module AsyncHandler
     def perform(payload)
       super(Rails.configuration.event_store.deserialize(payload))
@@ -16,5 +15,4 @@ module RailsEventStore
       end
     end
   end
-
 end

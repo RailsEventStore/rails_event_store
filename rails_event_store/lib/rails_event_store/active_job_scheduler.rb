@@ -1,3 +1,5 @@
+require 'active_job'
+
 module RailsEventStore
   class ActiveJobScheduler
     def call(klass, serialized_event)

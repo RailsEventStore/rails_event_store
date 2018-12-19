@@ -1,6 +1,4 @@
 require 'ruby_event_store'
-require 'rails_event_store/async_proxy_strategy'
-require 'rails_event_store/active_job_dispatcher'
 require 'rails_event_store/async_handler_helpers'
 require 'rails_event_store/link_by_metadata'
 require 'rails_event_store/after_commit_async_dispatcher'
@@ -26,7 +24,5 @@ module RailsEventStore
   CorrelatedCommands          = RubyEventStore::CorrelatedCommands
   GLOBAL_STREAM               = RubyEventStore::GLOBAL_STREAM
   PAGE_SIZE                   = RubyEventStore::PAGE_SIZE
-  AsyncProxyStrategy::Inline  = RubyEventStore::AsyncProxyStrategy::Inline
-  AsyncDispatcher             = RubyEventStore::AsyncDispatcher
   ImmediateAsyncDispatcher    = RubyEventStore::ImmediateAsyncDispatcher
 end
