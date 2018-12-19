@@ -32,7 +32,7 @@ module RailsEventStore
         @schedule_proc = schedule_proc
       end
 
-      def committed!
+      def committed!(*)
         schedule_proc.call
       end
 
