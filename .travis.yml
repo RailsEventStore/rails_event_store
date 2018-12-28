@@ -37,23 +37,23 @@ matrix:
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
   - rvm: 2.4.4
     env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: TARGET=ruby_event_store-browser SCRIPT=test
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: TARGET=bounded_context SCRIPT=test
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: TARGET=rails_event_store-rspec SCRIPT=test
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: TARGET=aggregate_root SCRIPT=test
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: TARGET=ruby_event_store SCRIPT=test
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: TARGET=rails_event_store SCRIPT=test
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: "TARGET=rails_event_store_active_record-legacy SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3"
-  - rvm: 2.6.0-preview2
+  - rvm: 2.6.0
     env: "TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=sqlite:db.sqlite3"
   - rvm: 2.5.1
     env: TARGET=aggregate_root SCRIPT=test
