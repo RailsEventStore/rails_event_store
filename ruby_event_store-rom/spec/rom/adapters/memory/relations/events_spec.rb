@@ -20,9 +20,9 @@ module RubyEventStore::ROM::Memory
 
     specify '#for_stream_entries filters events on :event_id in stream entries' do
       events = [
-        {id: id1 = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
-        {id: id2 = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
-        {id: id3 = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now}
+        {id: id1 = SecureRandom.uuid, event_type: "TestEvent", data: '{}', metadata: '{}', created_at: Time.now},
+        {id: id2 = SecureRandom.uuid, event_type: "TestEvent", data: '{}', metadata: '{}', created_at: Time.now},
+        {id: id3 = SecureRandom.uuid, event_type: "TestEvent", data: '{}', metadata: '{}', created_at: Time.now}
       ]
   
       stream_entries = [
@@ -37,9 +37,9 @@ module RubyEventStore::ROM::Memory
 
     specify '#pluck returns an array with single value for each tuple' do
       events = [
-        {id: id1 = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
-        {id: id2 = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now},
-        {id: id3 = SecureRandom.uuid, event_type: "TestEvent", data: "", metadata: "", created_at: Time.now}
+        {id: id1 = SecureRandom.uuid, event_type: "TestEvent", data: '{}', metadata: '{}', created_at: Time.now},
+        {id: id2 = SecureRandom.uuid, event_type: "TestEvent", data: '{}', metadata: '{}', created_at: Time.now},
+        {id: id3 = SecureRandom.uuid, event_type: "TestEvent", data: '{}', metadata: '{}', created_at: Time.now}
       ]
   
       relation.command(:create).call(events)

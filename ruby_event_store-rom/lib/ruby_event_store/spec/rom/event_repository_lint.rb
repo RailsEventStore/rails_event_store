@@ -65,24 +65,9 @@ module RubyEventStore::ROM
 
     specify "explicit sorting by position rather than accidental" do
       events = [
-        RubyEventStore::SRecord.new(
-          event_id: u1 = SecureRandom.uuid,
-          data: YAML.dump({}),
-          metadata: YAML.dump({}),
-          event_type: "TestDomainEvent"
-        ),
-        RubyEventStore::SRecord.new(
-          event_id: u2 = SecureRandom.uuid,
-          data: YAML.dump({}),
-          metadata: YAML.dump({}),
-          event_type: "TestDomainEvent"
-        ),
-        RubyEventStore::SRecord.new(
-          event_id: u3 = SecureRandom.uuid,
-          data: YAML.dump({}),
-          metadata: YAML.dump({}),
-          event_type: "TestDomainEvent"
-        )
+        RubyEventStore::SRecord.new(event_id: u1 = SecureRandom.uuid),
+        RubyEventStore::SRecord.new(event_id: u2 = SecureRandom.uuid),
+        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
       ]
 
       repo = Repositories::Events.new(container)
@@ -112,24 +97,9 @@ module RubyEventStore::ROM
 
     specify "explicit sorting by id rather than accidental for all events" do
       events = [
-        RubyEventStore::SRecord.new(
-          event_id: u1 = SecureRandom.uuid,
-          data: YAML.dump({}),
-          metadata: YAML.dump({}),
-          event_type: "TestDomainEvent"
-        ),
-        RubyEventStore::SRecord.new(
-          event_id: u2 = SecureRandom.uuid,
-          data: YAML.dump({}),
-          metadata: YAML.dump({}),
-          event_type: "TestDomainEvent"
-        ),
-        RubyEventStore::SRecord.new(
-          event_id: u3 = SecureRandom.uuid,
-          data: YAML.dump({}),
-          metadata: YAML.dump({}),
-          event_type: "TestDomainEvent"
-        )
+        RubyEventStore::SRecord.new(event_id: u1 = SecureRandom.uuid),
+        RubyEventStore::SRecord.new(event_id: u2 = SecureRandom.uuid),
+        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
       ]
 
       repo = Repositories::Events.new(container)
@@ -157,9 +127,7 @@ module RubyEventStore::ROM
       env.unit_of_work do
         expect do
           repository.append_to_stream([
-            RubyEventStore::SRecord.new(
-              event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
-            ),
+            RubyEventStore::SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'),
           ], default_stream, RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
