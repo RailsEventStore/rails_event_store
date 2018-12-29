@@ -12,7 +12,6 @@ require 'rom/sql'
     raise ArgumentError, "DATA_TYPE must be one of: #{data_types.join(', ')}" unless data_types.include?(data_type)
 
     postgres = database_type =~ /postgres/
-    sqlite   = database_type =~ /sqlite/
 
     run 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' if postgres
 

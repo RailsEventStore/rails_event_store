@@ -27,8 +27,8 @@ module RubyEventStore
               # constraint: 'index_name',
               target: :id,
               update: {
-                data:       Sequel[:excluded][:data],
-                metadata:   Sequel[:excluded][:metadata],
+                data: Sequel[:excluded][:data],
+                metadata: Sequel[:excluded][:metadata],
                 event_type: Sequel[:excluded][:event_type],
                 created_at: Sequel[:excluded][:created_at]
               }
