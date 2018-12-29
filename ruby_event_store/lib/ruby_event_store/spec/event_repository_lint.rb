@@ -1151,10 +1151,10 @@ module RubyEventStore
         )
         repository.update_messages([
           a = SRecord.new(event_id: events[0].event_id.clone, data: events[0].data, metadata: events[0].metadata, event_type: events[0].event_type),
-          b = SRecord.new(event_id: events[1].event_id.dup,   data: "data1",        metadata: events[1].metadata, event_type: events[1].event_type),
-          c = SRecord.new(event_id: events[2].event_id,       data: events[2].data, metadata: "metadata2",        event_type: events[2].event_type),
+          b = SRecord.new(event_id: events[1].event_id.dup, data: '{"test":1}', metadata: events[1].metadata, event_type: events[1].event_type),
+          c = SRecord.new(event_id: events[2].event_id, data: events[2].data, metadata: '{"test":2}', event_type: events[2].event_type),
           d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data, metadata: events[3].metadata, event_type: "event_type3"),
-          e = SRecord.new(event_id: events[4].event_id.dup,   data: "data4",        metadata: "metadata4",        event_type: "event_type4"),
+          e = SRecord.new(event_id: events[4].event_id.dup, data: '{"test":4}', metadata: '{"test":42}', event_type: "event_type4"),
         ])
         expect(repository.read(specification.result).to_a).to eq([a,b,c,d,e])
         expect(repository.read(specification.stream("whatever").result).to_a).to eq([a,b,c])
