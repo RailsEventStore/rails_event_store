@@ -45,13 +45,19 @@ require 'ruby_event_store/rom/adapters/sql/rake_task'
 Then run Rake tasks to get your database setup:
 
 ```shell
-# Copies the migrations to your project (in db/migrate)
-DATABASE_URL=postgres://localhost/database bundle exec rake db:migrations:copy
+# Copies the migrations to your project (in db/migrate)s
+bundle exec rake db:migrations:copy DATABASE_URL=postgres://localhost/database
 # <= migration file created db/migrate/20180417201709_create_ruby_event_store_tables.rb
 
 # Run the migrations in your project (in db/migrate)
-DATABASE_URL=postgres://localhost/database bundle exec rake db:migrate
+bundle exec rake db:migrate DATABASE_URL=postgres://localhost/database
 # <= db:migrate executed
+```
+
+By default, `data` and `metadata` are stored in text columns. You can specify the `DATA_TYPE` environment variable when copying migrations to use a JSON or JSONB column in Postgres.
+
+```shell
+bundle exec rake db:migrations:copy DATABASE_URL=postgres://localhost/database DATA_TYPE=jsonb
 ```
 
 You can run `bundle exec rake -T` to get a list of all available tasks. You can also programmatically run migrations (see examples above).
