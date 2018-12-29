@@ -6,7 +6,7 @@ module RubyEventStore
       class StreamEntries < ::ROM::Repository[:stream_entries]
         class Create < ::ROM::Changeset::Create
           map do |tuple|
-            Hash(created_at: Time.now).merge(tuple)
+            Hash(created_at: RubyEventStore::ROM::Types::DateTime.call(nil)).merge(tuple)
           end
         end
 

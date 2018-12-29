@@ -4,7 +4,11 @@ module RubyEventStore
       module Relations
         class Events < ::ROM::Relation[:sql]
           schema(:event_store_events, as: :events, infer: true) do
-            attribute :created_at, ::ROM::Types::Strict::Time.default { Time.now }
+            attribute :data, RubyEventStore::ROM::Types::SerializedRecordSerializer,
+              read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
+            attribute :metadata, RubyEventStore::ROM::Types::SerializedRecordSerializer,
+              read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
+            attribute :created_at, RubyEventStore::ROM::Types::DateTime
           end
         end
       end
