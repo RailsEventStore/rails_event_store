@@ -1,4 +1,4 @@
-RSpec.shared_examples :stream_entries_relation do |relation_class|
+RSpec.shared_examples :stream_entries_relation do |_relation_class|
   subject(:relation) { container.relations[:stream_entries] }
 
   let(:env) { rom_helper.env }
@@ -15,21 +15,21 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
 
   specify '#insert verifies tuple is unique steam and event_id' do
     stream_entries = [
-      {stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid},
-      {stream: 'stream', position: 1, event_id: SecureRandom.uuid},
-      {stream: 'stream', position: 2, event_id: SecureRandom.uuid}
+      { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
+      { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
+      { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
 
-    conflicting_event_id = {stream: 'stream', position: 3, event_id: id1, created_at: Time.now}
+    conflicting_event_id = { stream: 'stream', position: 3, event_id: id1, created_at: Time.now }
 
     expect(relation.to_a.size).to eq(3)
     expect do
       env.handle_error(:unique_violation) { relation.insert(conflicting_event_id) }
     end.to raise_error(RubyEventStore::EventDuplicatedInStream)
 
-    conflicting_position = {stream: 'stream', position: 2, event_id: SecureRandom.uuid, created_at: Time.now}
+    conflicting_position = { stream: 'stream', position: 2, event_id: SecureRandom.uuid, created_at: Time.now }
 
     expect do
       env.handle_error(:unique_violation) { relation.insert(conflicting_position) }
@@ -38,9 +38,9 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
 
   specify '#take ignores nil' do
     stream_entries = [
-      {stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid},
-      {stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid},
-      {stream: 'stream', position: 2, event_id: id3 = SecureRandom.uuid}
+      { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
+      { stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid },
+      { stream: 'stream', position: 2, event_id: id3 = SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -52,9 +52,9 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
 
   specify '#take returns specified number of tuples' do
     stream_entries = [
-      {stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid},
-      {stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid},
-      {stream: 'stream', position: 2, event_id: SecureRandom.uuid}
+      { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
+      { stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid },
+      { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -66,9 +66,9 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
 
   specify '#by_stream returns tuples for the specified stream' do
     stream_entries = [
-      {stream: 'stream', position: 0, event_id: SecureRandom.uuid},
-      {stream: 'stream', position: 1, event_id: SecureRandom.uuid},
-      {stream: 'stream2', position: 2, event_id: SecureRandom.uuid}
+      { stream: 'stream', position: 0, event_id: SecureRandom.uuid },
+      { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
+      { stream: 'stream2', position: 2, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -82,16 +82,16 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
     stream2 = RubyEventStore::Stream.new('stream2')
 
     stream_entries = [
-      {stream: stream.name, position: 0, event_id: id = SecureRandom.uuid},
-      {stream: stream.name, position: 1, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 2, event_id: SecureRandom.uuid}
+      { stream: stream.name, position: 0, event_id: id = SecureRandom.uuid },
+      { stream: stream.name, position: 1, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
 
     expect(relation.to_a.size).to eq(3)
     expect(relation.by_stream_and_event_id(stream, id)[:event_id]).to eq(id)
-    expect{relation.by_stream_and_event_id(stream2, id)}.to raise_error(ROM::TupleCountMismatchError)
+    expect { relation.by_stream_and_event_id(stream2, id) }.to raise_error(ROM::TupleCountMismatchError)
   end
 
   specify '#max_position gets the largest position value' do
@@ -100,13 +100,13 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
     stream3 = RubyEventStore::Stream.new('stream3')
 
     stream_entries = [
-      {stream: stream.name, position: 0, event_id: SecureRandom.uuid},
-      {stream: stream.name, position: 2, event_id: id = SecureRandom.uuid},
-      {stream: stream.name, position: 1, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 1, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 0, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 3, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 2, event_id: SecureRandom.uuid}
+      { stream: stream.name, position: 0, event_id: SecureRandom.uuid },
+      { stream: stream.name, position: 2, event_id: SecureRandom.uuid },
+      { stream: stream.name, position: 1, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 1, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 0, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -123,13 +123,13 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
     stream2 = RubyEventStore::Stream.new('stream2')
 
     stream_entries = [
-      {stream: stream.name, position: 0, event_id: SecureRandom.uuid},
-      {stream: stream.name, position: 1, event_id: id1 = SecureRandom.uuid},
-      {stream: stream.name, position: 2, event_id: id2 = SecureRandom.uuid},
-      {stream: stream2.name, position: 0, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 1, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 2, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 3, event_id: SecureRandom.uuid}
+      { stream: stream.name, position: 0, event_id: SecureRandom.uuid },
+      { stream: stream.name, position: 1, event_id: id1 = SecureRandom.uuid },
+      { stream: stream.name, position: 2, event_id: id2 = SecureRandom.uuid },
+      { stream: stream2.name, position: 0, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 1, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -150,13 +150,13 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
     stream2 = RubyEventStore::Stream.new('stream2')
 
     stream_entries = [
-      {stream: stream.name, position: 0, event_id: id1 = SecureRandom.uuid},
-      {stream: stream.name, position: 1, event_id: id2 = SecureRandom.uuid},
-      {stream: stream.name, position: 2, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 0, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 1, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 2, event_id: SecureRandom.uuid},
-      {stream: stream2.name, position: 3, event_id: SecureRandom.uuid}
+      { stream: stream.name, position: 0, event_id: id1 = SecureRandom.uuid },
+      { stream: stream.name, position: 1, event_id: id2 = SecureRandom.uuid },
+      { stream: stream.name, position: 2, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 0, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 1, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid },
+      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -175,9 +175,9 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
   specify 'each method returns proper type' do
     stream = RubyEventStore::Stream.new('stream')
     stream_entries = [
-      {stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid},
-      {stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid},
-      {stream: 'stream', position: 2, event_id: id3 = SecureRandom.uuid}
+      { stream: 'stream', position: 0, event_id: SecureRandom.uuid },
+      { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
+      { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
     ]
 
     relation.command(:create).call(stream_entries)
@@ -189,7 +189,7 @@ RSpec.shared_examples :stream_entries_relation do |relation_class|
     # expect(relation.by_stream(stream).take(1).one).to be_a(::ROM::Struct)
 
     # expect(relation.by_stream_and_event_id(stream, id1)).to be_a(::ROM::Struct)
-    
+
     # expect(relation.max_position(stream)).to be_a(::ROM::Struct)
 
     expect(relation.ordered(:forward, stream)).to be_a(relation.class)

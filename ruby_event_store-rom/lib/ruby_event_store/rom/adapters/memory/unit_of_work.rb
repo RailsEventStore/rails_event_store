@@ -6,18 +6,18 @@ module RubyEventStore
           @mutex ||= Mutex.new
         end
 
-        def commit!(gateway, changesets, **options)
+        def commit!(_gateway, changesets, **_options)
           self.class.mutex.synchronize do
             committed = []
-            
+
             begin
-              while changesets.size > 0
+              until changesets.empty?
                 changeset = changesets.shift
                 relation = env.container.relations[changeset.relation.name]
 
                 case changeset
                 when ROM::Repositories::Events::Create
-                  relation.by_pk(changeset.to_a.map{ |e| e[:id] }).each do |tuple|
+                  relation.by_pk(changeset.to_a.map { |e| e[:id] }).each do |tuple|
                     raise TupleUniquenessError.for_event_id(tuple[:id])
                   end
                 when ROM::Repositories::StreamEntries::Create
@@ -33,12 +33,10 @@ module RubyEventStore
                 changeset.commit
               end
             rescue StandardError
-              committed.reverse.each do |changeset, relation|
-                relation
-                  .restrict(id: changeset.to_a.map { |e| e[:id] })
-                  .command(:delete, result: :many).call
+              committed.reverse_each do |c, r|
+                r.restrict(id: c.to_a.map { |e| e[:id] }).command(:delete, result: :many).call
               end
-              
+
               raise
             end
           end

@@ -9,9 +9,7 @@ require 'rom/sql'
     data_type = ENV['DATA_TYPE'].to_sym
     data_types = %i[text json jsonb]
 
-    unless data_types.include?(data_type)
-      raise ArgumentError, "DATA_TYPE must be one of: #{data_types.join(', ')}"
-    end
+    raise ArgumentError, "DATA_TYPE must be one of: #{data_types.join(', ')}" unless data_types.include?(data_type)
 
     postgres = database_type =~ /postgres/
     sqlite   = database_type =~ /sqlite/
@@ -31,7 +29,7 @@ require 'rom/sql'
       end
 
       column :created_at, DateTime, null: false, index: 'index_event_store_events_in_streams_on_created_at'
-      
+
       index %i[stream position], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_position'
       index %i[stream event_id], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_event_id'
     end
@@ -55,9 +53,7 @@ require 'rom/sql'
 
       column :created_at, DateTime, null: false, index: 'index_event_store_events_on_created_at'
 
-      if sqlite # TODO: Is this relevant without ActiveRecord?
-        index :id, unique: true
-      end
+      index :id, unique: true if sqlite # TODO: Is this relevant without ActiveRecord?
     end
   end
 end

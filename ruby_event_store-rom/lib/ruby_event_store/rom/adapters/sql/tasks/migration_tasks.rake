@@ -1,6 +1,6 @@
 require 'ruby_event_store/rom/sql'
 
-MIGRATIONS_PATH = 'db/migrate'
+MIGRATIONS_PATH = 'db/migrate'.freeze
 
 desc 'Setup ROM EventRespository environment'
 task 'db:setup' do
@@ -21,7 +21,7 @@ task 'db:migrations:copy' => 'db:setup' do
 
     if data_type && contents =~ re_data_type
       # Search/replace this string: ENV['DATA_TYPE'] ||= 'text'
-      contents = contents.sub(re_data_type, '\1"%{data_type}"' % { data_type: data_type })
+      contents = contents.sub(re_data_type, format('\1"%<data_type>s"', data_type: data_type))
       name    += "_with_#{data_type}"
     end
 

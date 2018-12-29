@@ -18,13 +18,11 @@ module RubyEventStore
           # For this reason we need to manually insert changeset records to avoid
           # MySQL deadlocks or to allow Sequel to retry transactions
           # when the :retry_on option is specified.
-          options.merge!(
-            retry_on: Sequel::SerializationFailure,
-            before_retry: -> (num, ex) {
-              env.logger.warn("RETRY TRANSACTION [#{self.class.name} => #{ex.class.name}] #{ex.message}")
-            }
-          )
-  
+          options[:retry_on] = Sequel::SerializationFailure
+          options[:before_retry] = lambda { |_num, ex|
+            env.logger.warn("RETRY TRANSACTION [#{self.class.name} => #{ex.class.name}] #{ex.message}")
+          }
+
           gateway.transaction(options) do
             changesets.each do |changeset|
               changeset.relation.multi_insert(changeset.to_a)

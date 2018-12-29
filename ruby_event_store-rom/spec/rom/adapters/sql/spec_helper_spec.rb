@@ -15,15 +15,11 @@ module RubyEventStore::ROM::SQL
     end
 
     specify '#connection_pool_size is 1 when has_connection_pooling? is false' do
-      unless rom_helper.has_connection_pooling?
-        expect(subject.connection_pool_size).to eq(1)
-      end
+      expect(subject.connection_pool_size).to eq(1) unless rom_helper.has_connection_pooling?
     end
 
     specify '#connection_pool_size is 5 when has_connection_pooling? is true' do
-      if rom_helper.has_connection_pooling?
-        expect(subject.connection_pool_size).to eq(5)
-      end
+      expect(subject.connection_pool_size).to eq(5) if rom_helper.has_connection_pooling?
     end
   end
 end

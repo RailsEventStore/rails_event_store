@@ -4,7 +4,7 @@ module RubyEventStore
       module Relations
         class StreamEntries < ::ROM::Relation[:memory]
           schema(:stream_entries) do
-            attribute :id, ::ROM::Types::Strict::Int.meta(primary_key: true).default { RubyEventStore::ROM::Memory.fetch_next_id }
+            attribute(:id, ::ROM::Types::Strict::Int.meta(primary_key: true).default { RubyEventStore::ROM::Memory.fetch_next_id })
             attribute :stream, ::ROM::Types::Strict::String
             attribute :position, ::ROM::Types::Strict::Int.optional
             attribute :event_id, ::ROM::Types::Strict::String.meta(foreign_key: true, relation: :events)
@@ -61,7 +61,7 @@ module RubyEventStore
           end
 
           DIRECTION_MAP = {
-            forward:  [false,  :>],
+            forward: [false, :>],
             backward: [true, :<]
           }.freeze
 
@@ -81,7 +81,7 @@ module RubyEventStore
             query
           end
 
-        private
+          private
 
           # Verifies uniqueness of [stream, event_id] and [stream, position]
           def verify_uniquness!(tuple)

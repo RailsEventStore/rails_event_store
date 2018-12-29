@@ -24,6 +24,7 @@ module RubyEventStore
 
         def find_nonexistent_pks(event_ids)
           return event_ids unless event_ids.any?
+
           event_ids - events.by_pk(event_ids).pluck(:id)
         end
 
@@ -45,21 +46,19 @@ module RubyEventStore
           query = read_scope(specification)
 
           if specification.batched?
-            reader = ->(offset, limit) do
-              query_builder(query, offset: offset, limit: limit).to_ary
-            end
-            BatchEnumerator.new(specification.batch_size, specification.limit, reader).each
+            BatchEnumerator.new(
+              specification.batch_size,
+              specification.limit,
+              ->(offset, limit) { query_builder(query, offset: offset, limit: limit).to_ary }
+            ).each
           else
-            limit = specification.limit if specification.limit?
-            query = query_builder(query, limit: limit)
+            query = query_builder(query, limit: (specification.limit if specification.limit?))
             if specification.head?
               specification.first? || specification.last? ? query.first : query.each
+            elsif specification.last?
+              query.to_ary.last
             else
-              if specification.last?
-                query.to_ary.last
-              else
-                specification.first? ? query.first : query.each
-              end
+              specification.first? ? query.first : query.each
             end
           end
         end
@@ -70,12 +69,10 @@ module RubyEventStore
           query.count
         end
 
-      protected
+        protected
 
         def read_scope(specification)
-          unless specification.head?
-            offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id)
-          end
+          offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id) unless specification.head?
 
           direction = specification.forward? ? :forward : :backward
 
@@ -84,7 +81,6 @@ module RubyEventStore
           end
 
           query = stream_entries.ordered(direction, specification.stream, offset_entry_id)
-
           query = query.by_event_id(specification.with_ids) if specification.with_ids
           query = query.by_event_type(specification.with_types) if specification.with_types?
           query

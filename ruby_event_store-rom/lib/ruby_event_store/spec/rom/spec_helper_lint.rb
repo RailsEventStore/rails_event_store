@@ -1,5 +1,5 @@
 module RubyEventStore::ROM
-  RSpec.shared_examples :rom_spec_helper do |rom_spec_helper_class|
+  RSpec.shared_examples :rom_spec_helper do |_rom_spec_helper_class|
     let(:env) { rom_helper.env }
     let(:container) { env.container }
     let(:rom_db) { container.gateways[:default] }

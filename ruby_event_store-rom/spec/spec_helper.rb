@@ -19,7 +19,7 @@ module RomHelpers
   def container
     env.container
   end
-  
+
   def rom_db
     container.gateways[:default]
   end
