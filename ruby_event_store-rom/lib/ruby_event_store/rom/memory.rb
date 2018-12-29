@@ -22,10 +22,11 @@ module RubyEventStore
         def configure(env)
           env.register_unit_of_work_options(class: UnitOfWork)
 
-          env.register_error_handler :unique_violation, -> ex {
+          env.register_error_handler :unique_violation, lambda { |ex|
             case ex
             when TupleUniquenessError
               raise EventDuplicatedInStream if ex.message =~ /event_id/
+
               raise WrongExpectedEventVersion
             end
           }
@@ -35,7 +36,7 @@ module RubyEventStore
       class SpecHelper
         attr_reader :env
         attr_reader :connection_pool_size, :close_pool_connection
-        
+
         def initialize
           @connection_pool_size = 5
           @env = ROM.setup(:memory)
@@ -54,7 +55,7 @@ module RubyEventStore
         def drop_gateway_schema
           gateway.connection.data.values.each { |v| v.data.clear }
         end
-      
+
         def close_gateway_connection
           gateway.disconnect
         end

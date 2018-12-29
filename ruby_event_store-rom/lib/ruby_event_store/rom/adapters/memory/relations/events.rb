@@ -8,18 +8,18 @@ module RubyEventStore
             attribute :event_type, ::ROM::Types::Strict::String
             attribute :metadata, ::ROM::Types::Strict::String.optional
             attribute :data, ::ROM::Types::Strict::String
-            attribute :created_at, ::ROM::Types::Strict::Time.default { Time.now }
+            attribute :created_at, RubyEventStore::ROM::Types::DateTime
           end
 
           def insert(tuple)
             verify_uniquness!(tuple)
             super
           end
-          
+
           def for_stream_entries(_assoc, stream_entries)
             restrict(id: stream_entries.map { |e| e[:event_id] })
           end
-    
+
           def by_pk(id)
             restrict(id: id)
           end
@@ -31,11 +31,12 @@ module RubyEventStore
           def pluck(name)
             map { |e| e[name] }
           end
-      
-        private
+
+          private
 
           def verify_uniquness!(tuple)
             return unless by_pk(tuple[:id]).exist?
+
             raise TupleUniquenessError.for_event_id(tuple[:id])
           end
         end

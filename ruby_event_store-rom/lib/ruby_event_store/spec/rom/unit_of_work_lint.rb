@@ -15,7 +15,7 @@ module RubyEventStore::ROM
     end
 
     specify '#call to throw an exeption' do
-      expect{subject.call(gateway: nil) {}}.to raise_error(KeyError)
+      expect { subject.call(gateway: nil) {} }.to raise_error(KeyError)
     end
 
     specify '#env is the instance we specified' do

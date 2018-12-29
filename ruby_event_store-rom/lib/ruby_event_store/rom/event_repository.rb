@@ -10,7 +10,7 @@ module RubyEventStore
       def_delegators :@rom, :unit_of_work
 
       def initialize(rom: ROM.env)
-        raise ArgumentError, "Must specify rom" unless rom && rom.instance_of?(Env)
+        raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
 
         @rom = rom
         @events = Repositories::Events.new(rom.container)
@@ -46,7 +46,7 @@ module RubyEventStore
         # Validate event IDs
         @events
           .find_nonexistent_pks(event_ids)
-          .each { |id| raise EventNotFound.new(id) }
+          .each { |id| raise EventNotFound, id }
 
         guard_for(:unique_violation) do
           unit_of_work do |changesets|
@@ -66,9 +66,7 @@ module RubyEventStore
       end
 
       def has_event?(event_id)
-        !! guard_for(:not_found, event_id, swallow: EventNotFound) do
-          @events.exist?(event_id)
-        end
+        guard_for(:not_found, event_id, swallow: EventNotFound) { @events.exist?(event_id) } || false
       end
 
       def last_stream_event(stream)
@@ -89,13 +87,14 @@ module RubyEventStore
 
       def streams_of(event_id)
         @stream_entries.streams_of(event_id)
-          .map{|name| Stream.new(name)}
+                       .map { |name| Stream.new(name) }
       end
 
       private
 
       def normalize_to_array(events)
         return events if events.is_a?(Enumerable)
+
         [events]
       end
     end

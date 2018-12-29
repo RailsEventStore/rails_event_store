@@ -3,9 +3,9 @@ module RubyEventStore
   class SRecord
     def self.new(
       event_id:   SecureRandom.uuid,
-      data:       SecureRandom.uuid,
-      metadata:   SecureRandom.uuid,
-      event_type: SecureRandom.uuid
+      data:       '{}',
+      metadata:   '{}',
+      event_type: 'SRecordTestEvent'
     )
       SerializedRecord.new(
         event_id:   event_id,
@@ -643,31 +643,31 @@ module RubyEventStore
     end
 
     it 'data attributes are retrieved' do
-      event = SRecord.new(data: "{ order_id: 3 }")
+      event = SRecord.new(data: '{"order_id":3}')
       repository.append_to_stream(event, stream, version_any)
       retrieved_event = read_all_streams_forward(repository, :head, 1).first
-      expect(retrieved_event.data).to eq("{ order_id: 3 }")
+      expect(retrieved_event.data).to eq('{"order_id":3}')
     end
 
     it 'metadata attributes are retrieved' do
-      event = SRecord.new(metadata: "{ request_id: 3 }")
+      event = SRecord.new(metadata: '{"request_id":3}')
       repository.append_to_stream(event, stream, version_any)
       retrieved_event = read_all_streams_forward(repository, :head, 1).first
-      expect(retrieved_event.metadata).to eq("{ request_id: 3 }")
+      expect(retrieved_event.metadata).to eq('{"request_id":3}')
     end
 
     it 'data and metadata attributes are retrieved when linking' do
       skip unless test_link_events_to_stream
       event = SRecord.new(
-        data: "{ order_id: 3 }",
-        metadata: "{ request_id: 4 }",
+        data: '{"order_id":3}',
+        metadata: '{"request_id":4}',
       )
       repository.
         append_to_stream(event, stream, version_any).
         link_to_stream(event.event_id, stream_flow, version_any)
       retrieved_event = read_stream_events_forward(repository, stream_flow).first
-      expect(retrieved_event.metadata).to eq("{ request_id: 4 }")
-      expect(retrieved_event.data).to eq("{ order_id: 3 }")
+      expect(retrieved_event.metadata).to eq('{"request_id":4}')
+      expect(retrieved_event.data).to eq('{"order_id":3}')
       expect(event).to eq(retrieved_event)
     end
 
