@@ -9,9 +9,9 @@ module RubyEventStore::ROM::SQL
     it_behaves_like :rom_spec_helper, SpecHelper
 
     specify '#has_connection_pooling? is disabled for SQLite' do
-      helper = SpecHelper.new('sqlite:db.sqlite3')
+      skip unless rom_helper.gateway_type?(:sqlite)
 
-      expect(helper.has_connection_pooling?).to eq(false)
+      expect(rom_helper.has_connection_pooling?).to eq(false)
     end
 
     specify '#connection_pool_size is 1 when has_connection_pooling? is false' do

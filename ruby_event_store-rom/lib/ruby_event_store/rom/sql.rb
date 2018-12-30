@@ -72,9 +72,9 @@ module RubyEventStore
 
         def supports_insert_conflict_update?(db)
           case db.adapter_scheme
-          when /postgres/
+          when :postgres
             true
-          when /sqlite/
+          when :sqlite
             # Sqlite 3.24.0+ supports PostgreSQL upsert syntax
             db.sqlite_version >= 32400
           else
@@ -116,8 +116,12 @@ module RubyEventStore
           env.container.gateways.fetch(:default)
         end
 
+        def gateway_type?(name)
+          gateway.connection.database_type.eql?(name)
+        end
+
         def has_connection_pooling?
-          !gateway.connection.database_type.eql?(:sqlite)
+          !gateway_type?(:sqlite)
         end
 
         def connection_pool_size

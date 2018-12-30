@@ -63,6 +63,10 @@ module RubyEventStore
           gateway.disconnect
         end
 
+        def gateway_type?(name)
+          name == :memory
+        end
+
         def has_connection_pooling?
           true
         end
