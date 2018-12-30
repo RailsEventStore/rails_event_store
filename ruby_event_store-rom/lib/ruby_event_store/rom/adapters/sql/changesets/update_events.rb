@@ -5,14 +5,15 @@ module RubyEventStore
         class UpdateEvents < ::ROM::Changeset::Create
           include ROM::Changesets::UpdateEvents::Defaults
 
+          UPSERT_COLUMNS = %i[event_type data metadata created_at]
+
           def commit
-            case relation.dataset.db.adapter_scheme
-            when /mysql/
+            if SQL.supports_on_duplicate_key_update?(relation.dataset.db)
               commit_on_duplicate_key_update
-            when /postgres/, /sqlite/
-              commit_insert_conflict
+            elsif SQL.supports_insert_conflict_update?(relation.dataset.db)
+              commit_insert_conflict_update
             else
-              raise "Database doesn't support upserts: #{gateway.database_type}"
+              raise "Database doesn't support upserts: #{relation.dataset.db.adapter_scheme}"
             end
           end
 
@@ -22,16 +23,13 @@ module RubyEventStore
             relation.dataset.on_duplicate_key_update(*UPSERT_COLUMNS).multi_insert(to_a)
           end
 
-          def commit_insert_conflict
+          def commit_insert_conflict_update
             relation.dataset.insert_conflict(
               # constraint: 'index_name',
               target: :id,
-              update: {
-                data: Sequel[:excluded][:data],
-                metadata: Sequel[:excluded][:metadata],
-                event_type: Sequel[:excluded][:event_type],
-                created_at: Sequel[:excluded][:created_at]
-              }
+              update: UPSERT_COLUMNS.each_with_object({}) do |column, memo|
+                memo[column] = Sequel[:excluded][column]
+              end
             ).multi_insert(to_a)
           end
         end
