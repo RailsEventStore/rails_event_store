@@ -6,6 +6,8 @@ Sometimes it is convenient to update existing historical events. Instead of intr
 
 Another valid use-case can be when you decide to migrate to a different mapper (ie from YAML to Protobuf).
 
+Note that events are updated using "upsert" capabilities of your MySQL, PostgreSQL or Sqlite 3.24.0+ database.
+
 ### Add data and metadata to existing events
 
 ```ruby
