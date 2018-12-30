@@ -66,6 +66,10 @@ module RubyEventStore
         def has_connection_pooling?
           true
         end
+
+        def supports_upsert?
+          true
+        end
       end
     end
   end

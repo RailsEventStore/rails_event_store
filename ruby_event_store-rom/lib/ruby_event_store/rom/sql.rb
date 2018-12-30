@@ -128,6 +128,10 @@ module RubyEventStore
           gateway.connection.pool.disconnect
         end
 
+        def supports_upsert?
+          SQL.supports_upsert?(gateway.connection)
+        end
+
         protected
 
         def establish_gateway_connection
