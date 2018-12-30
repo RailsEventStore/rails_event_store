@@ -2,16 +2,14 @@ require 'rom/sql'
 
 ::ROM::SQL.migration do
   change do
+    postgres = database_type =~ /postgres/
+
     # set when copying migrations
     # or when running tests
     ENV['DATA_TYPE'] ||= 'text'
-
     data_type = ENV['DATA_TYPE'].to_sym
-    data_types = %i[text json jsonb]
-
-    raise ArgumentError, "DATA_TYPE must be one of: #{data_types.join(', ')}" unless data_types.include?(data_type)
-
-    postgres = database_type =~ /postgres/
+    data_types = postgres ? %i[text json jsonb] : %i[text]
+    raise ArgumentError, "DATA_TYPE must be: #{data_types.join(', ')}" unless data_types.include?(data_type)
 
     run 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' if postgres
 
