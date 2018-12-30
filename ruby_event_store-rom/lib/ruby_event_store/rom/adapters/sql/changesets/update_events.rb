@@ -19,7 +19,7 @@ module RubyEventStore
           private
 
           def commit_on_duplicate_key_update
-            relation.dataset.on_duplicate_key_update(:id).multi_insert(to_a)
+            relation.dataset.on_duplicate_key_update(*UPSERT_COLUMNS).multi_insert(to_a)
           end
 
           def commit_insert_conflict
