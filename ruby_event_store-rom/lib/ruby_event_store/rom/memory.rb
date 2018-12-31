@@ -3,6 +3,9 @@ require 'rom/memory'
 require_relative 'adapters/memory/unit_of_work'
 require_relative 'adapters/memory/relations/events'
 require_relative 'adapters/memory/relations/stream_entries'
+require_relative 'adapters/memory/changesets/create_events'
+require_relative 'adapters/memory/changesets/update_events'
+require_relative 'adapters/memory/changesets/create_stream_entries'
 
 module RubyEventStore
   module ROM
@@ -60,7 +63,15 @@ module RubyEventStore
           gateway.disconnect
         end
 
+        def gateway_type?(name)
+          name == :memory
+        end
+
         def has_connection_pooling?
+          true
+        end
+
+        def supports_upsert?
           true
         end
       end

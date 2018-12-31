@@ -10,6 +10,14 @@ module RubyEventStore
                       read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
             attribute :created_at, RubyEventStore::ROM::Types::DateTime
           end
+
+          def create_changeset(tuples)
+            events.changeset(Changesets::CreateEvents, tuples)
+          end
+
+          def update_changeset(tuples)
+            events.changeset(Changesets::UpdateEvents, tuples)
+          end
         end
       end
     end

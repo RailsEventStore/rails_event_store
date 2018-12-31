@@ -8,6 +8,9 @@ IGNORE       = RubyEventStore::ROM::EventRepository\#initialize \
                RubyEventStore::ROM::EventRepository\#last_stream_event \
                RubyEventStore::ROM::Repositories::Events\#find_nonexistent_pks \
                RubyEventStore::ROM::Repositories::StreamEntries\#create_changeset \
+               RubyEventStore::ROM::Changesets::CreateStreamEntries::Defaults.included \
+               RubyEventStore::ROM::Changesets::CreateEvents::Defaults.included \
+               RubyEventStore::ROM::Changesets::UpdateEvents::Defaults.included \
                RubyEventStore::ROM::Env\#handle_error \
                RubyEventStore::ROM::Env\#initialize \
                RubyEventStore::ROM::Env\#register_error_handler \

@@ -20,3 +20,4 @@ ruby_event_store_browser.js
 rails_event_store_browser.js
 contributors.json
 config/master.key
+*.orig

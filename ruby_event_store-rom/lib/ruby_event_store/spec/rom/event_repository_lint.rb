@@ -18,7 +18,7 @@ module RubyEventStore::ROM
     let(:test_expected_version_auto) { true }
     let(:test_link_events_to_stream) { true }
     let(:test_binary) { false }
-    let(:test_change) { false }
+    let(:test_change) { rom_helper.supports_upsert? }
 
     let(:default_stream) { RubyEventStore::Stream.new('stream') }
     let(:global_stream) { RubyEventStore::Stream.new('all') }
@@ -74,7 +74,7 @@ module RubyEventStore::ROM
 
       expect(repo.events.to_a.size).to eq(3)
 
-      repo.stream_entries.changeset(Repositories::StreamEntries::Create, [
+      repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
                                       { stream: default_stream.name, event_id: events[1].event_id, position: 1 },
                                       { stream: default_stream.name, event_id: events[0].event_id, position: 0 },
                                       { stream: default_stream.name, event_id: events[2].event_id, position: 2 }
@@ -106,7 +106,7 @@ module RubyEventStore::ROM
 
       expect(repo.events.to_a.size).to eq(3)
 
-      repo.stream_entries.changeset(Repositories::StreamEntries::Create, [
+      repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
                                       { stream: global_stream.name, event_id: events[0].event_id, position: 1 },
                                       { stream: global_stream.name, event_id: events[1].event_id, position: 0 },
                                       { stream: global_stream.name, event_id: events[2].event_id, position: 2 }
