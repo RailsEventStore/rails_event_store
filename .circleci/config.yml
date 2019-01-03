@@ -14,55 +14,73 @@ jobs:
           && test "$WAS" == "$(md5sum .circleci/config.yml)"
   aggregate_root:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd aggregate_root && make install mutate
   bounded_context:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd bounded_context && make install mutate
   ruby_event_store:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd ruby_event_store && make install mutate
   ruby_event_store-browser:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd ruby_event_store-browser && make install mutate
   ruby_event_store-rom:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd ruby_event_store-rom && make install mutate
   rails_event_store:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd rails_event_store && make install mutate
   rails_event_store_active_record:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install mutate
   rails_event_store_active_record-legacy:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd rails_event_store_active_record-legacy && make install mutate
   rails_event_store-rspec:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - environment:
+        MUTANT_JOBS: 4
+      image: circleci/ruby:2.6.0-node-browsers
     steps:
     - checkout
     - run: cd rails_event_store-rspec && make install mutate

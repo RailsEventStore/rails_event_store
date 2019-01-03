@@ -16,7 +16,12 @@ mutate_gem = ->(gem_name) do
   {
     gem_name => {
       "docker" => [
-        { "image" => "circleci/ruby:2.6.0-node-browsers" }
+        {
+          "environment" => {
+            "MUTANT_JOBS" => 4
+          },
+          "image" => "circleci/ruby:2.6.0-node-browsers"
+        }
       ],
       "steps" => [
         "checkout",
