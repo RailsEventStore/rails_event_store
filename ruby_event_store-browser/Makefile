@@ -27,7 +27,7 @@ install-yarn:
 	@cd elm; yarn install
 
 test-yarn:
-	@cd elm; yarn test; cd -
+	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn test, yarn test); cd -
 
 clean-yarn:
 	-rm $(JS_BUNDLE)
