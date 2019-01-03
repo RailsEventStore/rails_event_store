@@ -12,15 +12,40 @@ gems = %w(
   rails_event_store-rspec
 )
 
-mutate_gem = ->(gem_name) do
+test_gem_job_name = ->(gem_name, ruby_version) { "test_#{gem_name}_#{ruby_version}".gsub('-', '_').gsub('.', '_') }
+test_gem_job = ->(gem_name, ruby_version, docker_image) do
   {
-    gem_name => {
+    test_gem_job_name.(gem_name, ruby_version) => {
+      "docker" => [
+        {
+          "environment" => {
+            "DATABASE_URL" => "sqlite:db.sqlite3"
+          },
+          "image" => docker_image
+        }
+      ],
+      "steps" => [
+        "checkout",
+        { "run" => "cd #{gem_name} && make install test" }
+      ]
+    }
+  }
+end
+ruby_2_3_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.3', 'circleci/ruby:2.3.8-node-browsers')) }
+ruby_2_4_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.4', 'circleci/ruby:2.4.5-node-browsers')) }
+ruby_2_5_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.5', 'circleci/ruby:2.5.3-node-browsers')) }
+current_ruby = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.6', 'circleci/ruby:2.6.0-node-browsers')) }
+
+mutate_gem_job_name = ->(gem_name, ruby_version) { "mutate_#{gem_name}_#{ruby_version}".gsub('-', '_').gsub('.', '_') }
+mutate_gem_job = ->(gem_name, ruby_version, docker_image) do
+  {
+    mutate_gem_job_name.(gem_name, ruby_version) => {
       "docker" => [
         {
           "environment" => {
             "MUTANT_JOBS" => 4
           },
-          "image" => "circleci/ruby:2.6.0-node-browsers"
+          "image" => docker_image
         }
       ],
       "steps" => [
@@ -29,6 +54,11 @@ mutate_gem = ->(gem_name) do
       ]
     }
   }
+end
+mutation_jobs = gems.inject({}) { |config, gem_name| config.merge(mutate_gem_job.(gem_name, '2.6', 'circleci/ruby:2.6.0-node-browsers')) }
+
+dependent_job = ->(name, requires) do
+  { name => { 'requires' => Array(requires) } }
 end
 
 check_config = {
@@ -48,12 +78,29 @@ check_config = {
 
 config =
   {
-    "version" => 2,
-    "jobs" => gems.inject(check_config) { |acc, item| acc.merge(mutate_gem.(item)) },
+    "version" => '2.1',
+    "jobs" => check_config
+                .merge(mutation_jobs)
+                .merge(current_ruby)
+                .merge(ruby_2_3_compatibility)
+                .merge(ruby_2_4_compatibility)
+                .merge(ruby_2_5_compatibility),
     "workflows" => {
       "version" => 2,
-      "test_mutate" => {
-        "jobs" => %w(check_config) + gems
+      "Check configuration" => {
+        "jobs" => %w(check_config)
+      },
+      "Current Ruby" => {
+        "jobs" => gems.flat_map { |name| [test_gem_job_name.(name, '2.6'), dependent_job.(mutate_gem_job_name.(name, '2.6'), test_gem_job_name.(name, '2.6'))] }
+      },
+      "Ruby 2.5" => {
+        "jobs" => gems.map { |name| test_gem_job_name.(name, '2.5') }
+      },
+      "Ruby 2.4" => {
+        "jobs" => gems.map { |name| test_gem_job_name.(name, '2.4') }
+      },
+      "Ruby 2.3" => {
+        "jobs" => gems.map { |name| test_gem_job_name.(name, '2.3') }
       }
     }
   }
