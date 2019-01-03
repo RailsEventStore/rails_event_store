@@ -31,10 +31,10 @@ test_gem_job = ->(gem_name, ruby_version, docker_image) do
     }
   }
 end
-ruby_2_3_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.3', 'circleci/ruby:2.3.8-node-browsers')) }
-ruby_2_4_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.4', 'circleci/ruby:2.4.5-node-browsers')) }
-ruby_2_5_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.5', 'circleci/ruby:2.5.3-node-browsers')) }
-current_ruby = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.6', 'circleci/ruby:2.6.0-node-browsers')) }
+ruby_2_3_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.3', 'pawelpacana/res:2.3.8')) }
+ruby_2_4_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.4', 'pawelpacana/res:2.4.5')) }
+ruby_2_5_compatibility = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.5', 'pawelpacana/res:2.5.3')) }
+current_ruby = gems.inject({}) { |config, gem_name| config.merge(test_gem_job.(gem_name, '2.6', 'pawelpacana/res:2.6.0')) }
 
 mutate_gem_job_name = ->(gem_name, ruby_version) { "mutate_#{gem_name}_#{ruby_version}".gsub('-', '_').gsub('.', '_') }
 mutate_gem_job = ->(gem_name, ruby_version, docker_image) do
@@ -64,7 +64,7 @@ end
 check_config = {
   "check_config" => {
     "docker" => [
-      { "image" => "circleci/ruby:2.6.0-node-browsers" }
+      { "image" => "pawelpacana/res:2.6.0" }
     ],
     "steps" => [
       "checkout",

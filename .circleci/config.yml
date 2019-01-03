@@ -5,7 +5,7 @@ version: '2.1'
 jobs:
   check_config:
     docker:
-    - image: circleci/ruby:2.6.0-node-browsers
+    - image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run:
@@ -88,7 +88,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd aggregate_root && make install test
@@ -96,7 +96,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd bounded_context && make install test
@@ -104,7 +104,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd ruby_event_store && make install test
@@ -112,7 +112,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd ruby_event_store-browser && make install test
@@ -120,7 +120,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd ruby_event_store-rom && make install test
@@ -128,7 +128,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store && make install test
@@ -136,7 +136,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
@@ -144,7 +144,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store_active_record-legacy && make install test
@@ -152,7 +152,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store-rspec && make install test
@@ -160,7 +160,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd aggregate_root && make install test
@@ -168,7 +168,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd bounded_context && make install test
@@ -176,7 +176,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd ruby_event_store && make install test
@@ -184,7 +184,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd ruby_event_store-browser && make install test
@@ -192,7 +192,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd ruby_event_store-rom && make install test
@@ -200,7 +200,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd rails_event_store && make install test
@@ -208,7 +208,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
@@ -216,7 +216,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd rails_event_store_active_record-legacy && make install test
@@ -224,7 +224,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.3.8-node-browsers
+      image: pawelpacana/res:2.3.8
     steps:
     - checkout
     - run: cd rails_event_store-rspec && make install test
@@ -232,7 +232,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd aggregate_root && make install test
@@ -240,7 +240,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd bounded_context && make install test
@@ -248,7 +248,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd ruby_event_store && make install test
@@ -256,7 +256,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd ruby_event_store-browser && make install test
@@ -264,7 +264,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd ruby_event_store-rom && make install test
@@ -272,7 +272,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd rails_event_store && make install test
@@ -280,7 +280,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
@@ -288,7 +288,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd rails_event_store_active_record-legacy && make install test
@@ -296,7 +296,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.4.5-node-browsers
+      image: pawelpacana/res:2.4.5
     steps:
     - checkout
     - run: cd rails_event_store-rspec && make install test
@@ -304,7 +304,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd aggregate_root && make install test
@@ -312,7 +312,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd bounded_context && make install test
@@ -320,7 +320,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd ruby_event_store && make install test
@@ -328,7 +328,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd ruby_event_store-browser && make install test
@@ -336,7 +336,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd ruby_event_store-rom && make install test
@@ -344,7 +344,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd rails_event_store && make install test
@@ -352,7 +352,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
@@ -360,7 +360,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd rails_event_store_active_record-legacy && make install test
@@ -368,7 +368,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: circleci/ruby:2.5.3-node-browsers
+      image: pawelpacana/res:2.5.3
     steps:
     - checkout
     - run: cd rails_event_store-rspec && make install test
