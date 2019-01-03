@@ -34,4 +34,4 @@ clean-yarn:
 
 $(JS_BUNDLE):
 	@echo "Building browser frontend"
-	@cd elm; yarn build
+	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn build, yarn build)
