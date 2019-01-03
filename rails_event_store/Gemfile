@@ -12,6 +12,6 @@ gem 'protobuf_nested_struct'
 gem 'sidekiq'
 gem 'sqlite3'
 gem 'rack-test'
-gem 'google-protobuf', '~> 3.5.1.2'
+gem 'google-protobuf', '= 3.6.1', source: 'https://gem.fury.io/pawelpacana/'
 gem 'pry'
 gem 'rails', ENV['RAILS_VERSION']
