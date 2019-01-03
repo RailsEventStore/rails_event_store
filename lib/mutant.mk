@@ -1,6 +1,4 @@
-
-
-mutate: test ## Run mutation tests
+mutate: ## Run mutation tests
 	@echo "Running mutation tests"
 	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
