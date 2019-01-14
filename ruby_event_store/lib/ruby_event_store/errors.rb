@@ -4,6 +4,7 @@ module RubyEventStore
   IncorrectStreamData       = Class.new(StandardError)
   SubscriberNotExist        = Class.new(StandardError)
   InvalidPageStart          = Class.new(ArgumentError)
+  InvalidPageStop           = Class.new(ArgumentError)
   InvalidPageSize           = Class.new(ArgumentError)
   EventDuplicatedInStream   = Class.new(StandardError)
   ReservedInternalName      = Class.new(StandardError)

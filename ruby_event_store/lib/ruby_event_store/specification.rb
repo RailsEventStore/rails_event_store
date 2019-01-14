@@ -37,6 +37,24 @@ module RubyEventStore
       Specification.new(reader, result.dup { |r| r.start = start })
     end
 
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param start [:tail, String] id of event to start reading from.
+    #   :tail can mean the end or beginning of the stream, depending on the
+    #   #direction
+    # @return [Specification]
+    def to(stop)
+      case stop
+      when Symbol
+        raise InvalidPageStop unless [:tail].include?(stop)
+      else
+        raise InvalidPageStop if stop.nil? || stop.empty?
+        raise EventNotFound.new(stop) unless reader.has_event?(stop)
+      end
+      Specification.new(reader, result.dup { |r| r.stop = stop })
+    end
+
     # Sets the order of reading events to ascending (forward from the start).
     # {http://railseventstore.org/docs/read/ Find out more}.
     #

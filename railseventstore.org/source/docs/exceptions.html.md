@@ -75,6 +75,16 @@ expect do
 end.to raise_error(InvalidPageStart)
 ```
 
+### RubyEventStore::InvalidPageStop
+
+Occurs when reading a stream with invalid `to` parameter passed. Must not be `nil` or empty string. Special case of `:tail` is accepted as a beginning of a stream in given direction.
+
+```ruby
+expect do
+  client.read.stream('Order$1').to(nil).to_a
+end.to raise_error(InvalidPageStop)
+```
+
 ### RubyEventStore::InvalidPageSize
 
 Occurs when expecting to read less than one event from a stream:

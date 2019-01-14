@@ -15,6 +15,9 @@ The available specification methods are:
 * `from(start)` - specify a starting point for read operation, possible values:
     * `:head`  - read from the beggining of the stream,
     * event id - read all domain events after specified domain event id.
+* `to(stop)` - specify the stop point for the read operation, possible values:
+    * `:tail` - read to the the end of the stream,
+    * event id - read all domain events until (not including) the specified domain event id.
 * `forward`  - reading direction, from oldest to newest domain events.
 * `backward` - reading direction, from newest to oldest  domain events.
 * `limit(count)` - total number of events to read (could be less).
