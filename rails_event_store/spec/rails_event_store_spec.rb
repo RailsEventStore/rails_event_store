@@ -17,6 +17,18 @@ RSpec.describe RailsEventStore do
     end
   end
 
+  class SidekiqHandlerWithHelper
+    include Sidekiq::Worker
+
+    cattr_accessor :event
+
+    prepend RailsEventStore::AsyncHandler
+
+    def perform(event)
+      self.class.event = event
+    end
+  end
+
   class HandlerWithHelper < ActiveJob::Base
     cattr_accessor :event
 
@@ -35,6 +47,16 @@ RSpec.describe RailsEventStore do
 
     def perform(event)
       self.metadata = Rails.configuration.event_store.metadata
+    end
+  end
+
+  class CustomSidekiqScheduler
+    def call(klass, serialized_event)
+      klass.perform_async(serialized_event.to_h)
+    end
+
+    def verify(subscriber)
+      Class === subscriber && subscriber.respond_to?(:perform_async)
     end
   end
 
@@ -100,6 +122,20 @@ RSpec.describe RailsEventStore do
       Thread.new{ Sidekiq::Worker.drain_all }.join
     end
     expect(MyLovelyAsyncHandler.event).to eq(ev)
+  end
+
+  specify 'Sidekiq::Worker without ActiveJob that requires serialization' do
+    event_store = RailsEventStore::Client.new(
+      dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomSidekiqScheduler.new)
+    )
+    ev = RailsEventStore::Event.new
+    Sidekiq::Testing.fake! do
+      SidekiqHandlerWithHelper.event = nil
+      event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
+      event_store.publish(ev)
+      Thread.new{ Sidekiq::Worker.drain_all }.join
+    end
+    expect(SidekiqHandlerWithHelper.event).to eq(ev)
   end
 
   private
