@@ -7,9 +7,7 @@ module RailsEventStoreActiveRecord
   class CorrectSchemaVerifier
     def verify
       return unless connected? && table_exists?(:event_store_events)
-      return if correct_events_schema? &&
-        table_exists?(:event_store_events_in_streams) &&
-        correct_streams_schema?
+      return if correct_events_schema? && correct_streams_schema?
       raise_invalid_db_schema
     end
 
