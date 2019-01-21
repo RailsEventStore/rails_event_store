@@ -77,6 +77,49 @@ module RailsEventStoreActiveRecord
       end
     end
 
+
+    specify 'ensure adapter cannot be used without event_store_events table' do
+      begin
+        establish_database_connection
+        load_database_schema
+        drop_table('event_store_events')
+        expect { EventRepository.new }.to raise_error do |error|
+          expect(error).to be_kind_of(EventRepository::InvalidDatabaseSchema)
+          expect(error.message).to eq(<<~MESSAGE)
+            Oh no!
+
+            It seems you're using RailsEventStoreActiveRecord::EventRepository
+            with incompatible database schema.
+
+            See release notes how to migrate to current database schema.
+          MESSAGE
+        end
+      ensure
+        drop_table("event_store_events_in_streams")
+      end
+    end
+
+    specify 'ensure adapter cannot be used without event_store_events_in_streams table' do
+      begin
+        establish_database_connection
+        load_database_schema
+        drop_table("event_store_events_in_streams")
+        expect { EventRepository.new }.to raise_error do |error|
+          expect(error).to be_kind_of(EventRepository::InvalidDatabaseSchema)
+          expect(error.message).to eq(<<~MESSAGE)
+            Oh no!
+
+            It seems you're using RailsEventStoreActiveRecord::EventRepository
+            with incompatible database schema.
+
+            See release notes how to migrate to current database schema.
+          MESSAGE
+        end
+      ensure
+        drop_table("event_store_events")
+      end
+    end
+
     specify 'no message when no connection to database' do
       close_database_connection
       expect { EventRepository.new }.not_to raise_error
