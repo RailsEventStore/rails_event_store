@@ -37,7 +37,7 @@ module RailsEventStoreActiveRecord
       begin
         establish_database_connection
         load_database_schema
-        ActiveRecord::Migration.remove_column(:event_store_events, :event_type)
+        ActiveRecord::Migration.remove_column(:event_store_events, :id)
         expect { EventRepository.new }.to raise_error do |error|
           expect(error).to be_kind_of(EventRepository::InvalidDatabaseSchema)
           expect(error.message).to eq(<<~MESSAGE)
