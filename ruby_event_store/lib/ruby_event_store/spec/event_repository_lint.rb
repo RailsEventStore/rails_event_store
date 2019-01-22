@@ -541,7 +541,7 @@ module RubyEventStore
       end
     end
 
-    specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered' do
+    specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
       skip unless test_expected_version_auto
       skip unless test_race_conditions_auto
       verify_conncurency_assumptions
@@ -583,7 +583,7 @@ module RubyEventStore
       end
     end
 
-    specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered' do
+    specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
       skip unless test_expected_version_auto
       skip unless test_race_conditions_auto
       skip unless test_link_events_to_stream
