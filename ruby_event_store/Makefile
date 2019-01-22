@@ -7,8 +7,6 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::Client::Within\#normalize_to_array \
               RubyEventStore::Client::Within\#add_thread_subscribers \
               RubyEventStore::Client::Within\#add_thread_global_subscribers \
-              RubyEventStore::DeprecatedReadAPIRunner* \
-              RubyEventStore::DeprecatedReadAPIRewriter* \
               RubyEventStore::Client::Within\#call
 SUBJECT     ?= RubyEventStore*
 
