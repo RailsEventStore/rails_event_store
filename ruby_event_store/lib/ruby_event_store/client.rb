@@ -70,16 +70,6 @@ module RubyEventStore
       self
     end
 
-    # @deprecated Use {#read.event!(event_id)} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.33.0 More info}
-    def read_event(event_id)
-      warn <<~EOW
-        RubyEventStore::Client#read_event(event_id) has been deprecated.
-        Use `client.read.event!(event_id)` instead. Also available without
-        bang - return nil when no event is found.
-      EOW
-      read.event!(event_id)
-    end
-
     # Starts building a query specification for reading events.
     # {http://railseventstore.org/docs/read/ More info.}
     #
