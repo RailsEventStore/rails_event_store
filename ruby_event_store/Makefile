@@ -9,10 +9,6 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::Client::Within\#add_thread_global_subscribers \
               RubyEventStore::DeprecatedReadAPIRunner* \
               RubyEventStore::DeprecatedReadAPIRewriter* \
-              RubyEventStore::SpecificationResult\#count \
-              RubyEventStore::SpecificationResult\#direction \
-              RubyEventStore::SpecificationResult\#stream_name \
-              RubyEventStore::SpecificationResult\#global_stream? \
               RubyEventStore::Client::Within\#call
 SUBJECT     ?= RubyEventStore*
 
