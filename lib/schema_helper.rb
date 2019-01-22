@@ -33,15 +33,6 @@ module SchemaHelper
   rescue ActiveRecord::StatementInvalid
   end
 
-  def load_legacy_database_schema
-    run_support_migration('create_event_store_events', '0_18_2_migration')
-  end
-
-  def drop_legacy_database
-    ActiveRecord::Migration.drop_table("event_store_events")
-  rescue ActiveRecord::StatementInvalid
-  end
-
   def dump_schema
     schema = StringIO.new
     ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)

@@ -6,38 +6,60 @@ module RailsEventStoreActiveRecord
 
   class CorrectSchemaVerifier
     def verify
-      return unless connected? && table_exists?
-      raise_invalid_db_schema if legacy_columns.eql?(current_columns)
+      with_connection do
+        return if no_tables_yet? || correct_schema?
+        raise_invalid_db_schema
+      end
     end
 
     private
+
+    def with_connection(&block)
+      return unless connected?
+      block.call
+    end
 
     def connected?
       ActiveRecord::Base.connected?
     end
 
-    def table_exists?
-      ActiveRecord::Base.connection.table_exists?(:event_store_events)
+    def correct_schema?
+      correct_events_schema? && correct_streams_schema?
+    end
+
+    def correct_events_schema?
+      table_exists?(:event_store_events) &&
+        event_store_events_columns.eql?(current_columns(:event_store_events))
+    end
+
+    def correct_streams_schema?
+      table_exists?(:event_store_events_in_streams) &&
+        event_store_events_in_streams_columns.eql?(current_columns(:event_store_events_in_streams))
+    end
+
+    def table_exists?(table_name)
+      ActiveRecord::Base.connection.table_exists?(table_name)
     end
 
     def raise_invalid_db_schema
       raise EventRepository::InvalidDatabaseSchema.new(incorrect_schema_message)
     end
 
-    def legacy_columns
-      [
-        "id",
-        "stream",
-        "event_type",
-        "event_id",
-        "metadata",
-        "data",
-        "created_at"
-      ]
+    def no_tables_yet?
+      !table_exists?('event_store_events') &&
+        !table_exists?('event_store_events_in_streams')
     end
 
-    def current_columns
-      ActiveRecord::Base.connection.columns("event_store_events").map(&:name)
+    def event_store_events_columns
+      %w(id event_type metadata data created_at)
+    end
+
+    def event_store_events_in_streams_columns
+      %w(id stream position event_id created_at)
+    end
+
+    def current_columns(table_name)
+      ActiveRecord::Base.connection.columns(table_name).map(&:name)
     end
 
     def incorrect_schema_message
@@ -45,30 +67,9 @@ module RailsEventStoreActiveRecord
 Oh no!
 
 It seems you're using RailsEventStoreActiveRecord::EventRepository
-with incompaible database schema.
+with incompatible database schema.
 
-We've redesigned database structure in order to fix several concurrency-related
-bugs. This repository is intended to work on that improved data layout.
-
-We've prepared migration that would take you from old schema to new one.
-This migration must be run offline -- take that into consideration:
-
-  rails g rails_event_store_active_record:v1_v2_migration
-  rake db:migrate
-
-
-If you cannot migrate right now -- you can for some time continue using
-old repository. In order to do so:
-1. install 'rails_event_store_active_record-legacy' gem
-2. change configuration accordingly:
-
-  require 'rails_event_store_active_record/legacy'
-
-  config.event_store = RailsEventStore::Client.new(
-                         repository: RailsEventStoreActiveRecord::Legacy::EventRepository.new
-                       )
-
-
+See release notes how to migrate to current database schema.
       MESSAGE
     end
   end

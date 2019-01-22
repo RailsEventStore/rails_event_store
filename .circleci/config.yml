@@ -68,14 +68,6 @@ jobs:
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install mutate
-  mutate_rails_event_store_active_record_legacy_2_6:
-    docker:
-    - environment:
-        MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
-    steps:
-    - checkout
-    - run: cd rails_event_store_active_record-legacy && make install mutate
   mutate_rails_event_store_rspec_2_6:
     docker:
     - environment:
@@ -140,14 +132,6 @@ jobs:
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
-  test_rails_event_store_active_record_legacy_2_6:
-    docker:
-    - environment:
-        DATABASE_URL: sqlite3:db.sqlite3
-      image: pawelpacana/res:2.6.0
-    steps:
-    - checkout
-    - run: cd rails_event_store_active_record-legacy && make install test
   test_rails_event_store_rspec_2_6:
     docker:
     - environment:
@@ -212,14 +196,6 @@ jobs:
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
-  test_rails_event_store_active_record_legacy_2_3:
-    docker:
-    - environment:
-        DATABASE_URL: sqlite3:db.sqlite3
-      image: pawelpacana/res:2.3.8
-    steps:
-    - checkout
-    - run: cd rails_event_store_active_record-legacy && make install test
   test_rails_event_store_rspec_2_3:
     docker:
     - environment:
@@ -284,14 +260,6 @@ jobs:
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
-  test_rails_event_store_active_record_legacy_2_4:
-    docker:
-    - environment:
-        DATABASE_URL: sqlite3:db.sqlite3
-      image: pawelpacana/res:2.4.5
-    steps:
-    - checkout
-    - run: cd rails_event_store_active_record-legacy && make install test
   test_rails_event_store_rspec_2_4:
     docker:
     - environment:
@@ -356,14 +324,6 @@ jobs:
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install test
-  test_rails_event_store_active_record_legacy_2_5:
-    docker:
-    - environment:
-        DATABASE_URL: sqlite3:db.sqlite3
-      image: pawelpacana/res:2.5.3
-    steps:
-    - checkout
-    - run: cd rails_event_store_active_record-legacy && make install test
   test_rails_event_store_rspec_2_5:
     docker:
     - environment:
@@ -407,10 +367,6 @@ workflows:
     - mutate_rails_event_store_active_record_2_6:
         requires:
         - test_rails_event_store_active_record_2_6
-    - test_rails_event_store_active_record_legacy_2_6
-    - mutate_rails_event_store_active_record_legacy_2_6:
-        requires:
-        - test_rails_event_store_active_record_legacy_2_6
     - test_rails_event_store_rspec_2_6
     - mutate_rails_event_store_rspec_2_6:
         requires:
@@ -424,7 +380,6 @@ workflows:
     - test_ruby_event_store_rom_2_5
     - test_rails_event_store_2_5
     - test_rails_event_store_active_record_2_5
-    - test_rails_event_store_active_record_legacy_2_5
     - test_rails_event_store_rspec_2_5
   Ruby 2.4:
     jobs:
@@ -435,7 +390,6 @@ workflows:
     - test_ruby_event_store_rom_2_4
     - test_rails_event_store_2_4
     - test_rails_event_store_active_record_2_4
-    - test_rails_event_store_active_record_legacy_2_4
     - test_rails_event_store_rspec_2_4
   Ruby 2.3:
     jobs:
@@ -446,5 +400,4 @@ workflows:
     - test_ruby_event_store_rom_2_3
     - test_rails_event_store_2_3
     - test_rails_event_store_active_record_2_3
-    - test_rails_event_store_active_record_legacy_2_3
     - test_rails_event_store_rspec_2_3
