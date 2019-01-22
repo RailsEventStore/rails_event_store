@@ -197,43 +197,6 @@ module RubyEventStore
       ].hash ^ BIG_VALUE
     end
 
-    # @deprecated Use {#limit} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
-    def count
-      warn <<~EOW
-        RubyEventStore::SpecificationResult#count has been deprecated.
-        Use RubyEventStore::SpecificationResult#limit instead.
-      EOW
-      limit
-    end
-
-    # @deprecated Use {#forward?} or {#backward?} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
-    def direction
-      warn <<~EOW
-        RubyEventStore::SpecificationResult#direction has been deprecated.
-        Use RubyEventStore::SpecificationResult#forward? or
-        RubyEventStore::SpecificationResult#backward? instead.
-      EOW
-      get_direction
-    end
-
-    # @deprecated Use {#stream.name} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
-    def stream_name
-      warn <<~EOW
-        RubyEventStore::SpecificationResult#stream_name has been deprecated.
-        Use RubyEventStore::SpecificationResult#stream.name instead.
-      EOW
-      stream.name
-    end
-
-    # @deprecated Use {#stream.global?} instead. {https://github.com/RailsEventStore/rails_event_store/releases/tag/v0.32.0 More info}
-    def global_stream?
-      warn <<~EOW
-        RubyEventStore::SpecificationResult#global_stream? has been deprecated.
-        Use RubyEventStore::SpecificationResult#stream.global? instead.
-      EOW
-      stream.global?
-    end
-
     private
     attr_reader :attributes
 
