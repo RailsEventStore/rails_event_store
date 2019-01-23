@@ -38,7 +38,7 @@ test_gem_job      = ->(gem_name, ruby_version, docker_image) do
       ],
       "steps"  => [
         "checkout",
-        { "run" => "cd #{gem_name} && make install test" }
+        { "run" => "make -C #{gem_name} install test" }
       ]
     }
   }
@@ -62,7 +62,7 @@ mutate_gem_job      = ->(gem_name, ruby_version, docker_image) do
       ],
       "steps"  => [
         "checkout",
-        { "run" => "cd #{gem_name} && make install mutate" }
+        { "run" => "make -C #{gem_name} install mutate" }
       ]
     }
   }
