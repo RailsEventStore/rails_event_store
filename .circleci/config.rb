@@ -65,7 +65,7 @@ mutate_gem_job      = ->(gem_name, ruby_version, docker_image) do
     }
   }
 end
-mutation_jobs       = gems.inject({}) {|config, gem_name| config.merge(mutate_gem_job.(gem_name, '2.6', 'circleci/ruby:2.6.0-node-browsers'))}
+mutation_jobs       = gems.inject({}) {|config, gem_name| config.merge(mutate_gem_job.(gem_name, '2.6', 'pawelpacana/res:2.6.0'))}
 
 dependent_job = ->(name, requires) do
   { name => { 'requires' => Array(requires) } }

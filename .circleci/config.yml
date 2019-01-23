@@ -16,7 +16,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd aggregate_root && make install mutate
@@ -24,7 +24,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd bounded_context && make install mutate
@@ -32,7 +32,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd ruby_event_store && make install mutate
@@ -40,7 +40,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd ruby_event_store-browser && make install mutate
@@ -48,7 +48,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd ruby_event_store-rom && make install mutate
@@ -56,7 +56,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store && make install mutate
@@ -64,7 +64,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store_active_record && make install mutate
@@ -72,7 +72,7 @@ jobs:
     docker:
     - environment:
         MUTANT_JOBS: 4
-      image: circleci/ruby:2.6.0-node-browsers
+      image: pawelpacana/res:2.6.0
     steps:
     - checkout
     - run: cd rails_event_store-rspec && make install mutate
