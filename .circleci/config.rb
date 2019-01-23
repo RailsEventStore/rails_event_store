@@ -22,7 +22,9 @@ database_url = ->(gem_name) {
   end
 }
 
-test_gem_job_name = ->(gem_name, ruby_version) {"test_#{gem_name}_#{ruby_version}".gsub('-', '_').gsub('.', '_')}
+normalize = ->(gem_name) { gem_name.gsub('-', '_').gsub('.', '_') }
+
+test_gem_job_name = ->(gem_name, ruby_version) { normalize["test_#{gem_name}_#{ruby_version}"] }
 test_gem_job      = ->(gem_name, ruby_version, docker_image) do
   {
     test_gem_job_name.(gem_name, ruby_version) => {
@@ -46,7 +48,7 @@ ruby_2_4_compatibility = gems.inject({}) {|config, gem_name| config.merge(test_g
 ruby_2_5_compatibility = gems.inject({}) {|config, gem_name| config.merge(test_gem_job.(gem_name, '2.5', 'pawelpacana/res:2.5.3'))}
 current_ruby           = gems.inject({}) {|config, gem_name| config.merge(test_gem_job.(gem_name, '2.6', 'pawelpacana/res:2.6.0'))}
 
-mutate_gem_job_name = ->(gem_name, ruby_version) {"mutate_#{gem_name}_#{ruby_version}".gsub('-', '_').gsub('.', '_')}
+mutate_gem_job_name = ->(gem_name, ruby_version) { normalize["mutate_#{gem_name}_#{ruby_version}"] }
 mutate_gem_job      = ->(gem_name, ruby_version, docker_image) do
   {
     mutate_gem_job_name.(gem_name, ruby_version) => {
