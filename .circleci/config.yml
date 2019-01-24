@@ -332,6 +332,134 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
+  test_bounded_context_4_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 4.2.11
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C bounded_context install test
+  test_rails_event_store_4_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 4.2.11
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store install test
+  test_rails_event_store_active_record_4_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 4.2.11
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_rails_event_store_rspec_4_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 4.2.11
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store-rspec install test
+  test_bounded_context_5_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.0.7
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C bounded_context install test
+  test_rails_event_store_5_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.0.7
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store install test
+  test_rails_event_store_active_record_5_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.0.7
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_rails_event_store_rspec_5_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.0.7
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store-rspec install test
+  test_bounded_context_5_1:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.1.6.1
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C bounded_context install test
+  test_rails_event_store_5_1:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.1.6.1
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store install test
+  test_rails_event_store_active_record_5_1:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.1.6.1
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_rails_event_store_rspec_5_1:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.1.6.1
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store-rspec install test
+  test_bounded_context_5_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.2.2
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C bounded_context install test
+  test_rails_event_store_5_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.2.2
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store install test
+  test_rails_event_store_active_record_5_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.2.2
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_rails_event_store_rspec_5_2:
+    docker:
+    - environment:
+        RAILS_VERSION: 5.2.2
+      image: pawelpacana/res:2.5.3
+    steps:
+    - checkout
+    - run: make -C rails_event_store-rspec install test
 workflows:
   version: '2'
   Check configuration:
@@ -401,3 +529,27 @@ workflows:
     - test_rails_event_store_2_3
     - test_rails_event_store_active_record_2_3
     - test_rails_event_store_rspec_2_3
+  Rails 4.2:
+    jobs:
+    - test_bounded_context_4_2
+    - test_rails_event_store_4_2
+    - test_rails_event_store_active_record_4_2
+    - test_rails_event_store_rspec_4_2
+  Rails 5.0:
+    jobs:
+    - test_bounded_context_5_0
+    - test_rails_event_store_5_0
+    - test_rails_event_store_active_record_5_0
+    - test_rails_event_store_rspec_5_0
+  Rails 5.1:
+    jobs:
+    - test_bounded_context_5_1
+    - test_rails_event_store_5_1
+    - test_rails_event_store_active_record_5_1
+    - test_rails_event_store_rspec_5_1
+  Rails 5.2:
+    jobs:
+    - test_bounded_context_5_2
+    - test_rails_event_store_5_2
+    - test_rails_event_store_active_record_5_2
+    - test_rails_event_store_rspec_5_2
