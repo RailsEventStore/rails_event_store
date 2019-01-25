@@ -35,6 +35,15 @@ module RubyEventStore
 
     # @api private
     # @private
+    def reduce(specification_result, accumulator, &block)
+      each(specification_result) do |batch|
+        accumulator = batch.reduce(accumulator) {|acc, ev| block.call(acc, ev)}
+      end
+      accumulator
+    end
+
+    # @api private
+    # @private
     def count(specification_result)
       repository.count(specification_result)
     end

@@ -563,6 +563,21 @@ module RubyEventStore
       expect(specification.in_batches(2).map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
     end
 
+    specify "#reduce" do
+      events = (1..3).map{|idx| test_record(data: { here: { will: { be: { dragon: idx }}}})}
+      repository.append_to_stream(events, Stream.new(stream_name), ExpectedVersion.any)
+      expect{ specification.reduce }.to raise_error(ArgumentError, "Block must be given")
+      expect{ specification.reduce([]) }.to raise_error(ArgumentError, "Block must be given")
+      expect(specification.reduce([]) {|acc, ev| acc << ev.event_id}).to eq events.map(&:event_id)
+      expect(specification.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
+      expect(specification.backward.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
+      expect(specification.stream('Dummy').reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 0
+
+      expected = specification.in_batches(2).result
+      expect(repository).to receive(:read).with(expected).and_call_original
+      expect(specification.in_batches(2).reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
+    end
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
     let(:reader)        { SpecificationReader.new(repository, mapper) }
