@@ -327,12 +327,6 @@ module RubyEventStore
       expect(specification.stream("batch").in_batches.to_a.size).to eq(1000)
     end
 
-    #specify { expect(specification.in_batches.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
-
-    #specify { expect(specification.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
-
-    #specify { expect(specification.in_batches(1000).batch_size).to eq(1000) }
-
     specify do
       with_event_of_id(event_id) do
         expect(specification.in_batches.each_batch.to_a).to eq([[test_event]])
