@@ -98,7 +98,7 @@ module RubyEventStore
     # @return [Array] of mapped result
     def map(&block)
       raise ArgumentError.new("Block must be given") unless block_given?
-      reader.map(in_batches(result.batch_size).result, &block)
+      each.map(&block)
     end
 
     # Reduces the results of the query based on the specification
@@ -109,7 +109,7 @@ module RubyEventStore
     # @return reduce result as defined by block given
     def reduce(accumulator = nil, &block)
       raise ArgumentError.new("Block must be given") unless block_given?
-      reader.reduce(in_batches(result.batch_size).result, accumulator, &block)
+      each.reduce(accumulator, &block)
     end
 
     # Calculates the size of result set based on the specification build up to this point.

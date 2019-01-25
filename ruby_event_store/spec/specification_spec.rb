@@ -557,10 +557,6 @@ module RubyEventStore
       expect(specification.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
       expect(specification.backward.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [3,2,1]
       expect(specification.stream('Dummy').map(&:event_id)).to eq []
-
-      expected = specification.in_batches(2).result
-      expect(repository).to receive(:read).with(expected).and_call_original
-      expect(specification.in_batches(2).map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
     end
 
     specify "#reduce" do
@@ -572,10 +568,6 @@ module RubyEventStore
       expect(specification.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
       expect(specification.backward.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
       expect(specification.stream('Dummy').reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 0
-
-      expected = specification.in_batches(2).result
-      expect(repository).to receive(:read).with(expected).and_call_original
-      expect(specification.in_batches(2).reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
     end
 
     let(:repository)    { InMemoryRepository.new }
