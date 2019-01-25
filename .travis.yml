@@ -2,38 +2,6 @@ language: ruby
 matrix:
   include:
   - rvm: 2.5.3
-    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.5.3
-    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.5.3
-    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.5.3
-    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.5.3
-    env: TARGET=bounded_context SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.2.0
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.1.4
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=5.0.6
-  - rvm: 2.5.3
-    env: TARGET=rails_event_store-rspec SCRIPT=test RAILS_VERSION=4.2.10
-  - rvm: 2.5.3
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.2.0"
-  - rvm: 2.5.3
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.1.4"
-  - rvm: 2.5.3
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=5.0.6"
-  - rvm: 2.5.3
-    env: "TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=sqlite3:db.sqlite3 RAILS_VERSION=4.2.10"
-  - rvm: 2.5.3
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
   - rvm: 2.5.3
     env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
@@ -52,11 +20,6 @@ before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
 - psql -c 'create database rails_event_store_active_record;' -U postgres
 - mysql -e 'CREATE DATABASE rails_event_store_active_record;'
-before_install:
-- wget -N http://chromedriver.storage.googleapis.com/2.35/chromedriver_linux64.zip -P /tmp
-- unzip /tmp/chromedriver_linux64.zip -d /tmp
-- chmod +x /tmp/chromedriver
-- sudo mv /tmp/chromedriver /usr/local/bin/chromedriver
 gemfile: "$TARGET/Gemfile"
 script: make -C $TARGET install $SCRIPT
 services:
