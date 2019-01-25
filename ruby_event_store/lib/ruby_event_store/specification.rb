@@ -91,6 +91,16 @@ module RubyEventStore
       end
     end
 
+    # Executes the query based on the specification built up to this point
+    # and maps the result using provided block.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Array] of mapped result
+    def map(&block)
+      raise ArgumentError.new("Block must be given") unless block_given?
+      reader.map(in_batches(result.batch_size).result, &block)
+    end
+
     # Calculates the size of result set based on the specification build up to this point.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #

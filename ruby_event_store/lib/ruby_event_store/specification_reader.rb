@@ -25,6 +25,16 @@ module RubyEventStore
 
     # @api private
     # @private
+    def map(specification_result, &block)
+      result = []
+      each(specification_result) do |batch|
+        batch.each{|ev| result << block.call(ev)}
+      end
+      result
+    end
+
+    # @api private
+    # @private
     def count(specification_result)
       repository.count(specification_result)
     end

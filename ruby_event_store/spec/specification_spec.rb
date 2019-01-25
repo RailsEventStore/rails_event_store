@@ -549,6 +549,19 @@ module RubyEventStore
       expect(specification.stream(stream_name).of_type([ProductAdded]).count).to eq(0)
     end
 
+    specify "#map" do
+      events = (1..3).map{|idx| test_record(data: { here: { will: { be: { dragon: idx }}}})}
+      repository.append_to_stream(events, Stream.new(stream_name), ExpectedVersion.any)
+      expect{ specification.map }.to raise_error(ArgumentError, "Block must be given")
+      expect(specification.map(&:event_id)).to eq events.map(&:event_id)
+      expect(specification.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
+      expect(specification.backward.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [3,2,1]
+      expect(specification.stream('Dummy').map(&:event_id)).to eq []
+
+      expected = specification.in_batches(2).result
+      expect(repository).to receive(:read).with(expected).and_call_original
+      expect(specification.in_batches(2).map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
+    end
 
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
