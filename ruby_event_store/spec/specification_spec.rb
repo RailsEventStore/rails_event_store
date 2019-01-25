@@ -327,12 +327,6 @@ module RubyEventStore
       expect(specification.stream("batch").in_batches.to_a.size).to eq(1000)
     end
 
-    #specify { expect(specification.in_batches.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
-
-    #specify { expect(specification.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
-
-    #specify { expect(specification.in_batches(1000).batch_size).to eq(1000) }
-
     specify do
       with_event_of_id(event_id) do
         expect(specification.in_batches.each_batch.to_a).to eq([[test_event]])
@@ -555,6 +549,26 @@ module RubyEventStore
       expect(specification.stream(stream_name).of_type([ProductAdded]).count).to eq(0)
     end
 
+    specify "#map" do
+      events = (1..3).map{|idx| test_record(data: { here: { will: { be: { dragon: idx }}}})}
+      repository.append_to_stream(events, Stream.new(stream_name), ExpectedVersion.any)
+      expect{ specification.map }.to raise_error(ArgumentError, "Block must be given")
+      expect(specification.map(&:event_id)).to eq events.map(&:event_id)
+      expect(specification.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
+      expect(specification.backward.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [3,2,1]
+      expect(specification.stream('Dummy').map(&:event_id)).to eq []
+    end
+
+    specify "#reduce" do
+      events = (1..3).map{|idx| test_record(data: { here: { will: { be: { dragon: idx }}}})}
+      repository.append_to_stream(events, Stream.new(stream_name), ExpectedVersion.any)
+      expect{ specification.reduce }.to raise_error(ArgumentError, "Block must be given")
+      expect{ specification.reduce([]) }.to raise_error(ArgumentError, "Block must be given")
+      expect(specification.reduce([]) {|acc, ev| acc << ev.event_id}).to eq events.map(&:event_id)
+      expect(specification.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
+      expect(specification.backward.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
+      expect(specification.stream('Dummy').reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 0
+    end
 
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
@@ -565,12 +579,11 @@ module RubyEventStore
     let(:stream_name)   { SecureRandom.hex }
     let(:test_event)    { TestEvent.new(event_id: event_id) }
 
-    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent)
-        RubyEventStore::SerializedRecord.new(
-        event_id: event_id,
-        data: "{}",
-        metadata: "{}",
-        event_type: event_type.name,
+    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {})
+      mapper.event_to_serialized_record(
+        event_type.new(event_id: event_id,
+                       data: data,
+                      )
       )
     end
 

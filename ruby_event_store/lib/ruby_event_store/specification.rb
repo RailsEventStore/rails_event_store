@@ -91,6 +91,27 @@ module RubyEventStore
       end
     end
 
+    # Executes the query based on the specification built up to this point
+    # and maps the result using provided block.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Array] of mapped result
+    def map(&block)
+      raise ArgumentError.new("Block must be given") unless block_given?
+      each.map(&block)
+    end
+
+    # Reduces the results of the query based on the specification
+    # built up to this point result using provided block.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @accumulator starting state for reduce operation
+    # @return reduce result as defined by block given
+    def reduce(accumulator = nil, &block)
+      raise ArgumentError.new("Block must be given") unless block_given?
+      each.reduce(accumulator, &block)
+    end
+
     # Calculates the size of result set based on the specification build up to this point.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
