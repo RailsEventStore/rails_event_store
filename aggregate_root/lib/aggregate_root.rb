@@ -37,10 +37,8 @@ module AggregateRoot
 
   def load(stream_name, event_store: default_event_store)
     @loaded_from_stream_name = stream_name
-    events_enumerator(event_store, stream_name).with_index do |event, index|
-      apply(event)
-      @version = index
-    end
+    event_store.read.stream(stream_name).reduce {|_, ev| apply(ev) }
+    @version = unpublished.size - 1
     @unpublished_events = nil
     self
   end
@@ -71,10 +69,6 @@ module AggregateRoot
 
   def default_event_store
     AggregateRoot.configuration.default_event_store
-  end
-
-  def events_enumerator(event_store, stream_name)
-    event_store.read.in_batches.stream(stream_name).each
   end
 
   attr_reader :loaded_from_stream_name
