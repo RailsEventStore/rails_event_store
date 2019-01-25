@@ -559,12 +559,11 @@ module RubyEventStore
     let(:stream_name)   { SecureRandom.hex }
     let(:test_event)    { TestEvent.new(event_id: event_id) }
 
-    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent)
-        RubyEventStore::SerializedRecord.new(
-        event_id: event_id,
-        data: "{}",
-        metadata: "{}",
-        event_type: event_type.name,
+    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {})
+      mapper.event_to_serialized_record(
+        event_type.new(event_id: event_id,
+                       data: data,
+                      )
       )
     end
 
