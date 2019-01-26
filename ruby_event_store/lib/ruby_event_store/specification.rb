@@ -29,7 +29,7 @@ module RubyEventStore
     def from(start)
       case start
       when Symbol
-        raise InvalidPageStart unless [:head].include?(start)
+        raise InvalidPageStart unless start.equal?(:head)
       else
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless reader.has_event?(start)
@@ -47,7 +47,7 @@ module RubyEventStore
     def to(stop)
       case stop
       when Symbol
-        raise InvalidPageStop unless [:tail].include?(stop)
+        raise InvalidPageStop unless stop.equal?(:tail)
       else
         raise InvalidPageStop if stop.nil? || stop.empty?
         raise EventNotFound.new(stop) unless reader.has_event?(stop)
