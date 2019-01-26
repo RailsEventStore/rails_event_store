@@ -40,14 +40,14 @@ module RubyEventStore
     # Limits the query to events before or after another event.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param start [:tail, String] id of event to start reading from.
-    #   :tail can mean the end or beginning of the stream, depending on the
+    # @param start [:end, String] id of event to start reading from.
+    #   :end can mean the end or beginning of the stream, depending on the
     #   #direction
     # @return [Specification]
     def to(stop)
       case stop
       when Symbol
-        raise InvalidPageStop unless stop.equal?(:tail)
+        raise InvalidPageStop unless stop.equal?(:end)
       else
         raise InvalidPageStop if stop.nil? || stop.empty?
         raise EventNotFound.new(stop) unless reader.has_event?(stop)

@@ -78,7 +78,7 @@ end.to raise_error(InvalidPageStart)
 <% if version_above('0.36.0') %>
 ### RubyEventStore::InvalidPageStop
 
-Occurs when reading a stream with invalid `to` parameter passed. Must not be `nil` or empty string. Special case of `:tail` is accepted as a beginning of a stream in given direction.
+Occurs when reading a stream with invalid `to` parameter passed. Must not be `nil` or empty string. Special case of `:end` is accepted as a beginning of a stream in given direction.
 
 ```ruby
 expect do
