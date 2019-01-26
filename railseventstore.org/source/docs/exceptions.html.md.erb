@@ -75,6 +75,7 @@ expect do
 end.to raise_error(InvalidPageStart)
 ```
 
+<% if version_above('0.36.0') %>
 ### RubyEventStore::InvalidPageStop
 
 Occurs when reading a stream with invalid `to` parameter passed. Must not be `nil` or empty string. Special case of `:tail` is accepted as a beginning of a stream in given direction.
@@ -85,6 +86,7 @@ expect do
 end.to raise_error(InvalidPageStop)
 ```
 
+<% end %>
 ### RubyEventStore::InvalidPageSize
 
 Occurs when expecting to read less than one event from a stream:
