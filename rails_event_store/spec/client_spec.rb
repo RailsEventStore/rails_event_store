@@ -57,6 +57,22 @@ module RailsEventStore
       expect(received_notifications).to eq(1)
     end
 
+    specify 'wraps mapper into instrumentation' do
+      client = Client.new(
+        repository: InMemoryRepository.new,
+        mapper: RubyEventStore::Mappers::NullMapper.new
+      )
+
+      received_notifications = 0
+      ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") do
+        received_notifications += 1
+      end
+
+      client.publish(TestEvent.new)
+
+      expect(received_notifications).to eq(1)
+    end
+
     specify "#inspect" do
       client    = Client.new
       object_id = client.object_id.to_s(16)
