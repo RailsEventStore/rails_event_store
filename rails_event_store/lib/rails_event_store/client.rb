@@ -10,7 +10,7 @@ module RailsEventStore
                      RubyEventStore::PubSub::Dispatcher.new),
                    request_metadata: default_request_metadata)
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
-            mapper: mapper,
+            mapper: RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
             subscriptions: subscriptions,
             dispatcher: RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
             )
