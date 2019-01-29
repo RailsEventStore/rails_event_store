@@ -9,6 +9,9 @@ module RailsEventStore
 
       def diff(expected, actual)
         result = SuperDiff::EqualityMatcher.call(expected: expected, actual: actual)
+        return result if result.blank?
+
+        result = "#{result}\n"
         color ? result : color_blind(result)
       end
 
@@ -17,7 +20,7 @@ module RailsEventStore
       attr_reader :color
 
       def color_blind(output)
-        output.gsub(/\e\[([;\d]+)?m/, '')
+        output.gsub(/\e\[(?:[;\d]+)?m/, '')
       end
     end
   end
