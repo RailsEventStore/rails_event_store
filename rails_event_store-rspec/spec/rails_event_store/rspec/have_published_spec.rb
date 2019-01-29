@@ -16,7 +16,7 @@ module RailsEventStore
       end
 
       def colorless_differ
-        ::RSpec::Support::Differ.new(color: false)
+        ::RailsEventStore::RSpec::SuperDiffStructuralDiffer.new(color: false)
       end
 
       def formatter
@@ -35,6 +35,7 @@ module RailsEventStore
         event_store.publish(FooEvent.new)
         expect(event_store).to matcher(matchers.an_event(FooEvent))
       end
+
 
       specify do
         event_store.publish(BarEvent.new)
@@ -211,23 +212,105 @@ module RailsEventStore
         _matcher.matches?(event_store)
 
         expect(_matcher.failure_message.to_s).to eq(<<~EOS)
-          expected [#{expected.inspect}] to be published, diff:
-          @@ -1,2 +1,2 @@
-          -[#{actual.inspect}]
-          +[#{expected.inspect}]
+          expected BarEvent to be published, diff:
+          Differing arrays.
+
+          Expected: [FooEvent, BarEvent]
+            Actual: [FooEvent]
+
+          Diff:
+
+            [
+              FooEvent
+          -   BarEvent
+            ]
+        EOS
+      end
+
+      specify do
+        event_store.publish(actual = FooEvent.new(data: {}))
+        event_store.publish(actual = BarEvent.new(data: {some: 5}))
+        _matcher = matcher(
+            matchers.an_event(FooEvent).with_data(another: 5),
+            matchers.an_event(BarEvent).with_data(other: 5)
+        )
+        _matcher.matches?(event_store)
+
+        expect(_matcher.failure_message.to_s).to eq(<<~EOS)
+          expected FooEvent to be published with:
+          Differing hashes.
+
+          Expected: { data: { another: 5 } }
+            Actual: { data: {  } }
+
+          Diff:
+
+            {
+              data: {
+          -     another: 5
+              }
+            }
+          expected BarEvent to be published with:
+          Differing hashes.
+
+          Expected: { data: { other: 5 } }
+            Actual: { data: { some: 5 } }
+
+          Diff:
+
+            {
+              data: {
+          -     other: 5
+          +     some: 5
+              }
+            }
+        EOS
+      end
+
+      specify do
+        event_store.publish(actual = FooEvent.new(data: {}))
+        event_store.publish(actual = BarEvent.new(data: {some: 5}))
+        _matcher = matcher(
+            matchers.an_event(FooEvent).with_data(another: 5),
+            matchers.an_event(BarEvent).with_data(some: 5)
+        )
+        _matcher.matches?(event_store)
+
+        expect(_matcher.failure_message.to_s).to eq(<<~EOS)
+          expected FooEvent to be published with:
+          Differing hashes.
+
+          Expected: { data: { another: 5 } }
+            Actual: { data: {  } }
+
+          Diff:
+
+            {
+              data: {
+          -     another: 5
+              }
+            }
+
         EOS
       end
 
       specify do
         event_store.publish(actual = FooEvent.new)
-        _matcher = matcher(expected = matchers.an_event(BarEvent))
+        _matcher = matcher(expected = matchers.an_event(FooEvent))
         _matcher.matches?(event_store)
 
         expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
-          expected [#{expected.inspect}] not to be published, diff:
-          @@ -1,2 +1,2 @@
-          -[#{actual.inspect}]
-          +[#{expected.inspect}]
+          expected FooEvent not to be published, diff:
+          Differing arrays.
+
+          Expected: []
+            Actual: [FooEvent]
+
+          Diff:
+
+            [
+          +   FooEvent
+            ]
         EOS
       end
 
@@ -239,7 +322,7 @@ module RailsEventStore
           matchers.an_event(BazEvent)
         )
         expect(_matcher.description)
-          .to eq("have published events that have to (be an event FooEvent and be an event BazEvent)")
+          .to eq("have published events: FooEvent, BazEvent")
       end
 
       specify do
@@ -248,7 +331,7 @@ module RailsEventStore
           BazEvent
         )
         expect(_matcher.description)
-          .to eq("have published events that have to (be a FooEvent and be a BazEvent)")
+          .to eq("have published events: FooEvent, BazEvent")
       end
    end
   end

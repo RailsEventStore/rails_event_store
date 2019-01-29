@@ -1,3 +1,5 @@
+require 'super_diff'
+
 module RailsEventStore
   module RSpec
     module Matchers
@@ -31,7 +33,7 @@ module RailsEventStore
       alias :event    :be_an_event
 
       def have_published(*expected)
-        HavePublished.new(*expected, differ: differ, phraser: phraser)
+        HavePublished.new(*expected, differ: structural_differ, phraser: phraser)
       end
 
       def have_applied(*expected)
@@ -50,6 +52,10 @@ module RailsEventStore
 
       def differ
         ::RSpec::Support::Differ.new(color: ::RSpec::Matchers.configuration.color?)
+      end
+
+      def structural_differ
+        RailsEventStore::RSpec::SuperDiffStructuralDiffer.new
       end
 
       def phraser

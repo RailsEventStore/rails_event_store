@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'rspec', '~> 3.0'
+  spec.add_runtime_dependency 'super_diff', '~> 0.1.0'
 end
