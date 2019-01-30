@@ -97,7 +97,7 @@ module RailsEventStore
           elsif differences.present?
             "expected #{event_class} to be published with:\n#{differences}"
           end
-        end.join("\n") + "\n"
+        end.join("\n")
       end
 
       def format_negated_output(diff)
@@ -108,7 +108,7 @@ module RailsEventStore
           else
             ''
           end
-        end.join("\n") + "\n"
+        end.join("\n")
       end
 
       def simplify_expected(input)

@@ -1,8 +1,9 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store-rspec
 REQUIRE     = rails_event_store/rspec
-IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
-			  RailsEventStore::Rspec::Matchers\#structural_differ \
+IGNORE      = RailsEventStore::RSpec::SuperDiffStructuralDiffer\#without_colors \
+			  RailsEventStore::RSpec::Matchers\#differ \
+			  RailsEventStore::RSpec::Matchers\#structural_differ \
               RailsEventStore::RSpec::Matchers\#formatter \
               RailsEventStore::RSpec::Matchers\#have_published \
               RailsEventStore::RSpec::Matchers\#have_applied \

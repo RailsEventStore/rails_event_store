@@ -250,6 +250,7 @@ module RailsEventStore
           -     another: 5
               }
             }
+
           expected BarEvent to be published with:
           Differing hashes.
 

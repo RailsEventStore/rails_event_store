@@ -12,15 +12,15 @@ module RailsEventStore
         return result if result.blank?
 
         result = "#{result}\n"
-        color ? result : color_blind(result)
+        color ? result : without_colors(result)
       end
 
       private
 
       attr_reader :color
 
-      def color_blind(output)
-        output.gsub(/\e\[(?:[;\d]+)?m/, '')
+      def without_colors(output)
+        output.gsub(/\e\[([;\d]+)?m/, '')
       end
     end
   end
