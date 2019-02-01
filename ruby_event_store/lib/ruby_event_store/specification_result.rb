@@ -2,14 +2,15 @@ module RubyEventStore
   class SpecificationResult
     def initialize(direction: :forward,
                    start: :head,
+                   stop: :end,
                    count: nil,
                    stream: Stream.new(GLOBAL_STREAM),
                    read_as: :all,
                    batch_size: Specification::DEFAULT_BATCH_SIZE,
                    with_ids: nil,
                    with_types: nil)
-      @attributes = Struct.new(:direction, :start, :count, :stream, :read_as, :batch_size, :with_ids, :with_types)
-        .new(direction, start, count, stream, read_as, batch_size, with_ids, with_types)
+      @attributes = Struct.new(:direction, :start, :stop, :count, :stream, :read_as, :batch_size, :with_ids, :with_types)
+        .new(direction, start, stop, count, stream, read_as, batch_size, with_ids, with_types)
       freeze
     end
 
@@ -45,12 +46,28 @@ module RubyEventStore
       start.equal?(:head)
     end
 
+    # Stop position. True is ending from tail
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Boolean]
+    def end?
+      stop.equal?(:end)
+    end
+
     # Starting position. Event id of starting event or :head
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [String|Symbol]
     def start
       attributes.start
+    end
+
+    # Stop position. Event id of stopping event or :end
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [String|Symbol]
+    def stop
+      attributes.stop
     end
 
     # Read direction. True is reading forward
@@ -175,6 +192,7 @@ module RubyEventStore
     # * class
     # * direction
     # * start
+    # * stop
     # * count
     # * stream
     # * read_as
@@ -188,6 +206,7 @@ module RubyEventStore
         self.class,
         get_direction,
         start,
+        stop,
         limit,
         stream,
         attributes.read_as,

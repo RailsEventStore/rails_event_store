@@ -29,12 +29,30 @@ module RubyEventStore
     def from(start)
       case start
       when Symbol
-        raise InvalidPageStart unless [:head].include?(start)
+        raise InvalidPageStart unless start.equal?(:head)
       else
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless reader.has_event?(start)
       end
       Specification.new(reader, result.dup { |r| r.start = start })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param start [:end, String] id of event to start reading from.
+    #   :end can mean the end or beginning of the stream, depending on the
+    #   #direction
+    # @return [Specification]
+    def to(stop)
+      case stop
+      when Symbol
+        raise InvalidPageStop unless stop.equal?(:end)
+      else
+        raise InvalidPageStop if stop.nil? || stop.empty?
+        raise EventNotFound.new(stop) unless reader.has_event?(stop)
+      end
+      Specification.new(reader, result.dup { |r| r.stop = stop })
     end
 
     # Sets the order of reading events to ascending (forward from the start).

@@ -20,6 +20,7 @@ module RailsEventStore
   SubscriberNotExist          = RubyEventStore::SubscriberNotExist
   InvalidHandler              = RubyEventStore::InvalidHandler
   InvalidPageStart            = RubyEventStore::InvalidPageStart
+  InvalidPageStop             = RubyEventStore::InvalidPageStop
   InvalidPageSize             = RubyEventStore::InvalidPageSize
   CorrelatedCommands          = RubyEventStore::CorrelatedCommands
   GLOBAL_STREAM               = RubyEventStore::GLOBAL_STREAM

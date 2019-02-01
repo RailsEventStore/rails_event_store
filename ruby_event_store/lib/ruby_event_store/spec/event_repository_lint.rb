@@ -59,40 +59,44 @@ module RubyEventStore
       ).to_a
     end
 
-    def read_events_forward(repository, stream, start, count)
+    def read_events_forward(repository, stream, start, stop, count)
       repository.read(
         specification
           .stream(stream.name)
           .from(start)
+          .to(stop)
           .limit(count)
           .result
       ).to_a
     end
 
-    def read_events_backward(repository, stream, start, count)
+    def read_events_backward(repository, stream, start, stop, count)
       repository.read(
         specification
           .stream(stream.name)
           .from(start)
+          .to(stop)
           .limit(count)
           .backward
           .result
       ).to_a
     end
 
-    def read_all_streams_forward(repository, start, count)
+    def read_all_streams_forward(repository, start, stop, count)
       repository.read(
         specification
           .from(start)
+          .to(stop)
           .limit(count)
           .result
       ).to_a
     end
 
-    def read_all_streams_backward(repository, start, count)
+    def read_all_streams_backward(repository, start, stop, count)
       repository.read(
         specification
           .from(start)
+          .to(stop)
           .limit(count)
           .backward
           .result
@@ -100,7 +104,7 @@ module RubyEventStore
     end
 
     it 'just created is empty' do
-      expect(read_all_streams_forward(repository, :head, 1)).to be_empty
+      expect(read_all_streams_forward(repository, :head, :end, 1)).to be_empty
     end
 
     specify 'append_to_stream returns self' do
@@ -121,7 +125,7 @@ module RubyEventStore
 
     specify 'adds an initial event to a new stream' do
       repository.append_to_stream(event = SRecord.new, stream, version_none)
-      expect(read_all_streams_forward(repository, :head, 1).first).to eq(event)
+      expect(read_all_streams_forward(repository, :head, :end, 1).first).to eq(event)
       expect(read_stream_events_forward(repository, stream).first).to eq(event)
       expect(read_stream_events_forward(repository, stream_other)).to be_empty
     end
@@ -132,7 +136,7 @@ module RubyEventStore
         append_to_stream(event = SRecord.new, stream, version_none).
         link_to_stream(event.event_id, stream_flow, version_none)
 
-      expect(read_all_streams_forward(repository, :head, 1).first).to eq(event)
+      expect(read_all_streams_forward(repository, :head, :end, 1).first).to eq(event)
       expect(read_stream_events_forward(repository, stream).first).to eq(event)
       expect(read_stream_events_forward(repository, stream_flow)).to eq([event])
       expect(read_stream_events_forward(repository, stream_other)).to be_empty
@@ -143,7 +147,7 @@ module RubyEventStore
         event0 = SRecord.new,
         event1 = SRecord.new,
       ], stream, version_none)
-      expect(read_all_streams_forward(repository, :head, 2)).to eq([event0, event1])
+      expect(read_all_streams_forward(repository, :head, :end, 2)).to eq([event0, event1])
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1])
     end
 
@@ -156,7 +160,7 @@ module RubyEventStore
         event0.event_id,
         event1.event_id,
       ], stream_flow, version_none)
-      expect(read_all_streams_forward(repository, :head, 2)).to eq([event0, event1])
+      expect(read_all_streams_forward(repository, :head, :end, 2)).to eq([event0, event1])
       expect(read_stream_events_forward(repository, stream_flow)).to eq([event0, event1])
     end
 
@@ -169,7 +173,7 @@ module RubyEventStore
         event2 = SRecord.new,
         event3 = SRecord.new,
       ], stream, version_1)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1, event2, event3])
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1, event2, event3])
     end
 
@@ -185,7 +189,7 @@ module RubyEventStore
         event0.event_id,
         event1.event_id,
       ], stream_flow, version_1)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1, event2, event3])
       expect(read_stream_events_forward(repository, stream_flow)).to eq([event2, event3, event0, event1])
     end
 
@@ -201,7 +205,7 @@ module RubyEventStore
         ], stream, version_0)
       end.to raise_error(WrongExpectedEventVersion)
 
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1])
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1])
     end
 
@@ -222,7 +226,7 @@ module RubyEventStore
         ], stream, version_0)
       end.to raise_error(WrongExpectedEventVersion)
 
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1, event2, event3])
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1])
     end
 
@@ -235,7 +239,7 @@ module RubyEventStore
           eventB = SRecord.new,
         ], stream, version_none)
       end.to raise_error(WrongExpectedEventVersion)
-      expect(read_all_streams_forward(repository, :head, 1)).to eq([eventA])
+      expect(read_all_streams_forward(repository, :head, :end, 1)).to eq([eventA])
       expect(read_stream_events_forward(repository, stream)).to eq([eventA])
     end
 
@@ -251,7 +255,7 @@ module RubyEventStore
         repository.link_to_stream([eventB.event_id], stream_flow, version_none)
       end.to raise_error(WrongExpectedEventVersion)
 
-      expect(read_all_streams_forward(repository, :head, 1)).to eq([eventA])
+      expect(read_all_streams_forward(repository, :head, :end, 1)).to eq([eventA])
       expect(read_stream_events_forward(repository, stream_flow)).to eq([eventA])
     end
 
@@ -264,7 +268,7 @@ module RubyEventStore
         event2 = SRecord.new,
         event3 = SRecord.new,
       ], stream, version_any)
-      expect(read_all_streams_forward(repository, :head, 4).to_set).to eq(Set.new([event0, event1, event2, event3]))
+      expect(read_all_streams_forward(repository, :head, :end, 4).to_set).to eq(Set.new([event0, event1, event2, event3]))
       expect(read_stream_events_forward(repository, stream).to_set).to eq(Set.new([event0, event1, event2, event3]))
     end
 
@@ -284,7 +288,7 @@ module RubyEventStore
         event2.event_id, event3.event_id,
       ], stream_flow, version_any)
 
-      expect(read_all_streams_forward(repository, :head, 4).to_set).to eq(Set.new([event0, event1, event2, event3]))
+      expect(read_all_streams_forward(repository, :head, :end, 4).to_set).to eq(Set.new([event0, event1, event2, event3]))
       expect(read_stream_events_forward(repository, stream_flow).to_set).to eq(Set.new([event0, event1, event2, event3]))
     end
 
@@ -364,7 +368,7 @@ module RubyEventStore
         event2 = SRecord.new,
         event3 = SRecord.new,
       ], stream, version_auto)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([
         event0, event1,
         event2, event3
       ])
@@ -386,7 +390,7 @@ module RubyEventStore
       repository.link_to_stream([
         event2.event_id, event3.event_id,
       ], stream_flow, version_auto)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([
         event0, event1,
         event2, event3
       ])
@@ -403,7 +407,7 @@ module RubyEventStore
         event2 = SRecord.new,
         event3 = SRecord.new,
       ], stream, version_1)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1, event2, event3])
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1, event2, event3])
     end
 
@@ -420,7 +424,7 @@ module RubyEventStore
       repository.link_to_stream([
         event1.event_id,
       ], stream_flow, version_0)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1,])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1,])
       expect(read_stream_events_forward(repository, stream_flow)).to eq([event0, event1,])
     end
 
@@ -434,7 +438,7 @@ module RubyEventStore
         event2 = SRecord.new,
         event3 = SRecord.new,
       ], stream, version_auto)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1, event2, event3])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1, event2, event3])
       expect(read_stream_events_forward(repository, stream)).to eq([event0, event1, event2, event3])
     end
 
@@ -451,7 +455,7 @@ module RubyEventStore
       repository.link_to_stream([
         event1.event_id,
       ], stream_flow, version_auto)
-      expect(read_all_streams_forward(repository, :head, 4)).to eq([event0, event1])
+      expect(read_all_streams_forward(repository, :head, :end, 4)).to eq([event0, event1])
       expect(read_stream_events_forward(repository, stream_flow)).to eq([event0, event1])
     end
 
@@ -637,7 +641,7 @@ module RubyEventStore
     it 'appended event is stored in given stream' do
       expected_event = SRecord.new
       repository.append_to_stream(expected_event, stream, version_any)
-      expect(read_all_streams_forward(repository, :head, 1).first).to eq(expected_event)
+      expect(read_all_streams_forward(repository, :head, :end, 1).first).to eq(expected_event)
       expect(read_stream_events_forward(repository, stream).first).to eq(expected_event)
       expect(read_stream_events_forward(repository, stream_other)).to be_empty
     end
@@ -645,14 +649,14 @@ module RubyEventStore
     it 'data attributes are retrieved' do
       event = SRecord.new(data: '{"order_id":3}')
       repository.append_to_stream(event, stream, version_any)
-      retrieved_event = read_all_streams_forward(repository, :head, 1).first
+      retrieved_event = read_all_streams_forward(repository, :head, :end, 1).first
       expect(retrieved_event.data).to eq('{"order_id":3}')
     end
 
     it 'metadata attributes are retrieved' do
       event = SRecord.new(metadata: '{"request_id":3}')
       repository.append_to_stream(event, stream, version_any)
-      retrieved_event = read_all_streams_forward(repository, :head, 1).first
+      retrieved_event = read_all_streams_forward(repository, :head, :end, 1).first
       expect(retrieved_event.metadata).to eq('{"request_id":3}')
     end
 
@@ -678,7 +682,7 @@ module RubyEventStore
       repository.delete_stream(stream)
       expect(read_stream_events_forward(repository, stream)).to be_empty
       expect(read_stream_events_forward(repository, stream_other)).to eq([e2])
-      expect(read_all_streams_forward(repository, :head, 10)).to eq([e1,e2])
+      expect(read_all_streams_forward(repository, :head, :end, 10)).to eq([e1,e2])
     end
 
     it 'does not have deleted streams with linked events' do
@@ -689,7 +693,7 @@ module RubyEventStore
 
       repository.delete_stream(stream_flow)
       expect(read_stream_events_forward(repository, stream_flow)).to be_empty
-      expect(read_all_streams_forward(repository, :head, 10)).to eq([e1])
+      expect(read_all_streams_forward(repository, :head, :end, 10)).to eq([e1])
     end
 
     it 'has or has not domain event' do
@@ -744,16 +748,20 @@ module RubyEventStore
       end
       repository.append_to_stream(SRecord.new, stream_other, version_0)
 
-      expect(read_events_forward(repository, stream, :head, 3)).to eq(events.first(3))
-      expect(read_events_forward(repository, stream, :head, 100)).to eq(events)
+      expect(read_events_forward(repository, stream, :head, :end, 3)).to eq(events.first(3))
+      expect(read_events_forward(repository, stream, :head, :end, 100)).to eq(events)
       expect(repository.read(specification.stream(stream.name).from(events[4].event_id).result).to_a).to eq(events[5..9])
-      expect(read_events_forward(repository, stream, events[4].event_id, 4)).to eq(events[5..8])
-      expect(read_events_forward(repository, stream, events[4].event_id, 100)).to eq(events[5..9])
+      expect(read_events_forward(repository, stream, events[4].event_id, :end, 4)).to eq(events[5..8])
+      expect(read_events_forward(repository, stream, events[4].event_id, :end, 100)).to eq(events[5..9])
+      expect(read_events_forward(repository, stream, :head, events[4].event_id, 3)).to eq(events[0..2])
+      expect(read_events_forward(repository, stream, :head, events[4].event_id, 100)).to eq(events[0..3])
 
-      expect(read_events_backward(repository, stream, :head, 3)).to eq(events.last(3).reverse)
-      expect(read_events_backward(repository, stream, :head, 100)).to eq(events.reverse)
-      expect(read_events_backward(repository, stream, events[4].event_id, 4)).to eq(events.first(4).reverse)
-      expect(read_events_backward(repository, stream, events[4].event_id, 100)).to eq(events.first(4).reverse)
+      expect(read_events_backward(repository, stream, :head, :end, 3)).to eq(events.last(3).reverse)
+      expect(read_events_backward(repository, stream, :head, :end, 100)).to eq(events.reverse)
+      expect(read_events_backward(repository, stream, events[4].event_id, :end, 4)).to eq(events.first(4).reverse)
+      expect(read_events_backward(repository, stream, events[4].event_id, :end, 100)).to eq(events.first(4).reverse)
+      expect(read_events_backward(repository, stream, :head, events[4].event_id, 4)).to eq(events.last(4).reverse)
+      expect(read_events_backward(repository, stream, :head, events[4].event_id, 100)).to eq(events.last(5).reverse)
     end
 
     it 'reads batch of linked events from stream forward & backward' do
@@ -778,15 +786,19 @@ module RubyEventStore
       end
       repository.append_to_stream(SRecord.new, stream_other, version_0)
 
-      expect(read_events_forward(repository, stream_flow, :head, 3)).to eq(events.first(3))
-      expect(read_events_forward(repository, stream_flow, :head, 100)).to eq(events)
-      expect(read_events_forward(repository, stream_flow, events[4].event_id, 4)).to eq(events[5..8])
-      expect(read_events_forward(repository, stream_flow, events[4].event_id, 100)).to eq(events[5..9])
+      expect(read_events_forward(repository, stream_flow, :head, :end, 3)).to eq(events.first(3))
+      expect(read_events_forward(repository, stream_flow, :head, :end, 100)).to eq(events)
+      expect(read_events_forward(repository, stream_flow, events[4].event_id, :end, 4)).to eq(events[5..8])
+      expect(read_events_forward(repository, stream_flow, events[4].event_id, :end, 100)).to eq(events[5..9])
+      expect(read_events_forward(repository, stream_flow, :head, events[4].event_id, 3)).to eq(events[0..2])
+      expect(read_events_forward(repository, stream_flow, :head, events[4].event_id, 100)).to eq(events[0..3])
 
-      expect(read_events_backward(repository, stream_flow, :head, 3)).to eq(events.last(3).reverse)
-      expect(read_events_backward(repository, stream_flow, :head, 100)).to eq(events.reverse)
-      expect(read_events_backward(repository, stream_flow, events[4].event_id, 4)).to eq(events.first(4).reverse)
-      expect(read_events_backward(repository, stream_flow, events[4].event_id, 100)).to eq(events.first(4).reverse)
+      expect(read_events_backward(repository, stream_flow, :head, :end, 3)).to eq(events.last(3).reverse)
+      expect(read_events_backward(repository, stream_flow, :head, :end, 100)).to eq(events.reverse)
+      expect(read_events_backward(repository, stream_flow, events[4].event_id, :end, 4)).to eq(events.first(4).reverse)
+      expect(read_events_backward(repository, stream_flow, events[4].event_id, :end, 100)).to eq(events.first(4).reverse)
+      expect(read_events_backward(repository, stream_flow, :head, events[4].event_id, 4)).to eq(events[6..9].reverse)
+      expect(read_events_backward(repository, stream_flow, :head, events[4].event_id, 100)).to eq(events[5..9].reverse)
     end
 
     it 'reads all stream events forward & backward' do
@@ -839,15 +851,19 @@ module RubyEventStore
         repository.append_to_stream(ev, Stream.new(SecureRandom.uuid), version_none)
       end
 
-      expect(read_all_streams_forward(repository, :head, 3)).to eq(events.first(3))
-      expect(read_all_streams_forward(repository, :head, 100)).to eq(events)
-      expect(read_all_streams_forward(repository, events[4].event_id, 4)).to eq(events[5..8])
-      expect(read_all_streams_forward(repository, events[4].event_id, 100)).to eq(events[5..9])
+      expect(read_all_streams_forward(repository, :head, :end, 3)).to eq(events.first(3))
+      expect(read_all_streams_forward(repository, :head, :end, 100)).to eq(events)
+      expect(read_all_streams_forward(repository, events[4].event_id, :end, 4)).to eq(events[5..8])
+      expect(read_all_streams_forward(repository, events[4].event_id, :end, 100)).to eq(events[5..9])
+      expect(read_all_streams_forward(repository, :head, events[4].event_id, 3)).to eq(events[0..2])
+      expect(read_all_streams_forward(repository, :head, events[4].event_id, 100)).to eq(events[0..3])
 
-      expect(read_all_streams_backward(repository, :head, 3)).to eq(events.last(3).reverse)
-      expect(read_all_streams_backward(repository, :head, 100)).to eq(events.reverse)
-      expect(read_all_streams_backward(repository, events[4].event_id, 4)).to eq(events.first(4).reverse)
-      expect(read_all_streams_backward(repository, events[4].event_id, 100)).to eq(events.first(4).reverse)
+      expect(read_all_streams_backward(repository, :head, :end, 3)).to eq(events.last(3).reverse)
+      expect(read_all_streams_backward(repository, :head, :end, 100)).to eq(events.reverse)
+      expect(read_all_streams_backward(repository, events[4].event_id, :end, 4)).to eq(events.first(4).reverse)
+      expect(read_all_streams_backward(repository, events[4].event_id, :end, 100)).to eq(events.first(4).reverse)
+      expect(read_all_streams_backward(repository, :head, events[4].event_id, 4)).to eq(events.last(4).reverse)
+      expect(read_all_streams_backward(repository, :head, events[4].event_id, 100)).to eq(events.last(5).reverse)
     end
 
     it 'linked events do not affect reading from all streams - no duplicates' do
@@ -870,15 +886,19 @@ module RubyEventStore
           link_to_stream(ev.event_id, Stream.new(SecureRandom.uuid), version_none)
       end
 
-      expect(read_all_streams_forward(repository, :head, 3)).to eq(events.first(3))
-      expect(read_all_streams_forward(repository, :head, 100)).to eq(events)
-      expect(read_all_streams_forward(repository, events[4].event_id, 4)).to eq(events[5..8])
-      expect(read_all_streams_forward(repository, events[4].event_id, 100)).to eq(events[5..9])
+      expect(read_all_streams_forward(repository, :head, :end, 3)).to eq(events.first(3))
+      expect(read_all_streams_forward(repository, :head, :end, 100)).to eq(events)
+      expect(read_all_streams_forward(repository, events[4].event_id, :end, 4)).to eq(events[5..8])
+      expect(read_all_streams_forward(repository, events[4].event_id, :end, 100)).to eq(events[5..9])
+      expect(read_all_streams_forward(repository, :head, events[4].event_id, 3)).to eq(events[0..2])
+      expect(read_all_streams_forward(repository, :head, events[4].event_id, 100)).to eq(events[0..3])
 
-      expect(read_all_streams_backward(repository, :head, 3)).to eq(events.last(3).reverse)
-      expect(read_all_streams_backward(repository, :head, 100)).to eq(events.reverse)
-      expect(read_all_streams_backward(repository, events[4].event_id, 4)).to eq(events.first(4).reverse)
-      expect(read_all_streams_backward(repository, events[4].event_id, 100)).to eq(events.first(4).reverse)
+      expect(read_all_streams_backward(repository, :head, :end, 3)).to eq(events.last(3).reverse)
+      expect(read_all_streams_backward(repository, :head, :end, 100)).to eq(events.reverse)
+      expect(read_all_streams_backward(repository, events[4].event_id, :end, 4)).to eq(events.first(4).reverse)
+      expect(read_all_streams_backward(repository, events[4].event_id, :end, 100)).to eq(events.first(4).reverse)
+      expect(read_all_streams_backward(repository, :head, events[4].event_id, 4)).to eq(events.last(4).reverse)
+      expect(read_all_streams_backward(repository, :head, events[4].event_id, 100)).to eq(events.last(5).reverse)
     end
 
     it 'reads events different uuid object but same content' do
@@ -889,11 +909,15 @@ module RubyEventStore
       repository.append_to_stream(events.first, stream, version_none)
       repository.append_to_stream(events.last,  stream,  version_0)
 
-      expect(read_all_streams_forward(repository, "96c920b1-cdd0-40f4-907c-861b9fff7d02", 1)).to eq([events.last])
-      expect(read_all_streams_backward(repository, "56404f79-0ba0-4aa0-8524-dc3436368ca0", 1)).to eq([events.first])
+      expect(read_all_streams_forward(repository, "96c920b1-cdd0-40f4-907c-861b9fff7d02", :end, 1)).to eq([events.last])
+      expect(read_all_streams_backward(repository, "56404f79-0ba0-4aa0-8524-dc3436368ca0", :end, 1)).to eq([events.first])
+      expect(read_all_streams_forward(repository, :head, "56404f79-0ba0-4aa0-8524-dc3436368ca0", 1)).to eq([events.first])
+      expect(read_all_streams_backward(repository, :head, "96c920b1-cdd0-40f4-907c-861b9fff7d02", 1)).to eq([events.last])
 
-      expect(read_events_forward(repository, stream, "96c920b1-cdd0-40f4-907c-861b9fff7d02", 1)).to eq([events.last])
-      expect(read_events_backward(repository, stream, "56404f79-0ba0-4aa0-8524-dc3436368ca0", 1)).to eq([events.first])
+      expect(read_events_forward(repository, stream, "96c920b1-cdd0-40f4-907c-861b9fff7d02", :end, 1)).to eq([events.last])
+      expect(read_events_backward(repository, stream, "56404f79-0ba0-4aa0-8524-dc3436368ca0", :end, 1)).to eq([events.first])
+      expect(read_events_forward(repository, stream, :head, "56404f79-0ba0-4aa0-8524-dc3436368ca0", 1)).to eq([events.first])
+      expect(read_events_backward(repository, stream, :head, "96c920b1-cdd0-40f4-907c-861b9fff7d02", 1)).to eq([events.last])
     end
 
     it 'does not allow same event twice in a stream' do
@@ -942,7 +966,7 @@ module RubyEventStore
       event = SRecord.new(event_id: "df8b2ba3-4e2c-4888-8d14-4364855fa80e")
       repository.append_to_stream(event, global_stream, version_any)
 
-      expect(read_all_streams_forward(repository, :head, 10)).to eq([event])
+      expect(read_all_streams_forward(repository, :head, :end, 10)).to eq([event])
     end
 
     specify "events not persisted if append failed" do
@@ -1133,6 +1157,18 @@ module RubyEventStore
 
       expect(repository.read(specification.from(events[0].event_id).backward.read_first.result)).to be_nil
       expect(repository.read(specification.from(events[0].event_id).backward.read_last.result)).to be_nil
+
+      expect(repository.read(specification.to(events[3].event_id).read_first.result)).to eq(events[0])
+      expect(repository.read(specification.to(events[3].event_id).read_last.result)).to eq(events[2])
+
+      expect(repository.read(specification.to(events[2].event_id).backward.read_first.result)).to eq(events[4])
+      expect(repository.read(specification.to(events[2].event_id).backward.read_last.result)).to eq(events[3])
+
+      expect(repository.read(specification.to(events[0].event_id).read_first.result)).to be_nil
+      expect(repository.read(specification.to(events[0].event_id).read_last.result)).to be_nil
+
+      expect(repository.read(specification.to(events[4].event_id).backward.read_first.result)).to be_nil
+      expect(repository.read(specification.to(events[4].event_id).backward.read_last.result)).to be_nil
     end
 
     context "#update_messages" do
@@ -1263,6 +1299,8 @@ module RubyEventStore
       expect(repository.count(specification.from(event_id).result)).to eq(1)
       expect(repository.count(specification.stream("Dummy").from(:head).result)).to eq(2)
       expect(repository.count(specification.stream("Dummy").from(event_id).result)).to eq(1)
+      expect(repository.count(specification.stream("Dummy").to(:end).result)).to eq(2)
+      expect(repository.count(specification.stream("Dummy").to(event_id).result)).to eq(0)
 
       expect(repository.count(specification.limit(100).result)).to eq(5)
       expect(repository.count(specification.limit(2).result)).to eq(2)
