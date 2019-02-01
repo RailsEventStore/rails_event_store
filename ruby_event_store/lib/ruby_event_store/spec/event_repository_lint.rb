@@ -1223,6 +1223,21 @@ module RubyEventStore
       expect(repository.read(specification.with_id([]).result).to_a).to eq([])
     end
 
+    specify 'add_to_stream accepts Enumerator' do
+      events = [SRecord.new, SRecord.new]
+      repository.append_to_stream(events.to_enum, stream, version_none)
+      expect(read_stream_events_forward(repository, stream)).to eq(events)
+    end
+
+    specify 'link_to_stream accepts Enumerator' do
+      skip unless test_link_events_to_stream
+      events = [SRecord.new, SRecord.new]
+      event_ids = events.map(&:event_id)
+      repository.append_to_stream(events.to_enum, stream, version_none)
+        .link_to_stream(event_ids.to_enum, stream_flow, version_none)
+      expect(read_stream_events_forward(repository, stream_flow)).to eq(events)
+    end
+
     specify do
       e1 = SRecord.new(event_type: Type1.to_s)
       e2 = SRecord.new(event_type: Type2.to_s)
