@@ -22,14 +22,14 @@ module RubyEventStore
     # Limits the query to events before or after another event.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param start [:head, String] id of event to start reading from.
-    #   :head can mean the beginning or end of the stream, depending on the
+    # @param start [:begin, String] id of event to start reading from.
+    #   :begin can mean the beginning or end of the stream, depending on the
     #   #direction
     # @return [Specification]
     def from(start)
       case start
       when Symbol
-        raise InvalidPageStart unless start.equal?(:head)
+        raise InvalidPageStart unless start.equal?(:begin)
       else
         raise InvalidPageStart if start.nil? || start.empty?
         raise EventNotFound.new(start) unless reader.has_event?(start)
