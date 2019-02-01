@@ -5,8 +5,6 @@ module RubyEventStore
   RSpec.describe InMemoryRepository do
     let(:test_race_conditions_any)   { true }
     let(:test_race_conditions_auto)  { true }
-    let(:test_expected_version_auto) { true }
-    let(:test_link_events_to_stream) { true }
     let(:test_binary) { true }
     let(:test_change) { true }
 

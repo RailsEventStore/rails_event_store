@@ -114,7 +114,6 @@ module RubyEventStore
     end
 
     specify 'link_to_stream returns self' do
-      skip unless test_link_events_to_stream
       event0 = SRecord.new
       event1 = SRecord.new
       repository.
@@ -131,7 +130,6 @@ module RubyEventStore
     end
 
     specify 'links an initial event to a new stream' do
-      skip unless test_link_events_to_stream
       repository.
         append_to_stream(event = SRecord.new, stream, version_none).
         link_to_stream(event.event_id, stream_flow, version_none)
@@ -152,7 +150,6 @@ module RubyEventStore
     end
 
     specify 'links multiple initial events to a new stream' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -178,7 +175,6 @@ module RubyEventStore
     end
 
     specify 'correct expected version on second link' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -210,7 +206,6 @@ module RubyEventStore
     end
 
     specify 'incorrect expected version on second link' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -244,7 +239,6 @@ module RubyEventStore
     end
 
     specify ':none on first and subsequent link' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         eventA = SRecord.new,
         eventB = SRecord.new,
@@ -273,7 +267,6 @@ module RubyEventStore
     end
 
     specify ':any allows linking in stream with best-effort order and no guarantee' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -293,7 +286,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position in given stream' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         eventA = SRecord.new,
         eventB = SRecord.new,
@@ -310,8 +302,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position in given stream when linking' do
-      skip unless test_expected_version_auto
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         eventA = SRecord.new,
         eventB = SRecord.new,
@@ -329,7 +319,6 @@ module RubyEventStore
     end
 
     specify ':auto starts from 0' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
       ], stream, version_auto)
@@ -341,8 +330,6 @@ module RubyEventStore
     end
 
     specify ':auto linking starts from 0' do
-      skip unless test_expected_version_auto
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
       ], stream_other, version_auto)
@@ -357,7 +344,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position and follows in incremental way' do
-      skip unless test_expected_version_auto
       # It is expected that there is higher level lock
       # So this query is safe from race conditions
       repository.append_to_stream([
@@ -376,8 +362,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position and follows in incremental way when linking' do
-      skip unless test_expected_version_auto
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -398,7 +382,6 @@ module RubyEventStore
     end
 
     specify ':auto is compatible with manual expectation' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -412,8 +395,6 @@ module RubyEventStore
     end
 
     specify ':auto is compatible with manual expectation when linking' do
-      skip unless test_expected_version_auto
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -429,7 +410,6 @@ module RubyEventStore
     end
 
     specify 'manual is compatible with auto expectation' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -443,8 +423,6 @@ module RubyEventStore
     end
 
     specify 'manual is compatible with auto expectation when linking' do
-      skip unless test_expected_version_auto
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -500,7 +478,6 @@ module RubyEventStore
 
     specify 'unlimited concurrency for :any - everything should succeed when linking', timeout: 10, mutant: false do
       skip unless test_race_conditions_any
-      skip unless test_link_events_to_stream
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
@@ -546,7 +523,6 @@ module RubyEventStore
     end
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
-      skip unless test_expected_version_auto
       skip unless test_race_conditions_auto
       verify_conncurency_assumptions
       begin
@@ -588,9 +564,7 @@ module RubyEventStore
     end
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
-      skip unless test_expected_version_auto
       skip unless test_race_conditions_auto
-      skip unless test_link_events_to_stream
 
       verify_conncurency_assumptions
       begin
@@ -661,7 +635,6 @@ module RubyEventStore
     end
 
     it 'data and metadata attributes are retrieved when linking' do
-      skip unless test_link_events_to_stream
       event = SRecord.new(
         data: '{"order_id":3}',
         metadata: '{"request_id":4}',
@@ -686,7 +659,6 @@ module RubyEventStore
     end
 
     it 'does not have deleted streams with linked events' do
-      skip unless test_link_events_to_stream
       repository.
         append_to_stream(e1 = SRecord.new, stream, version_none).
         link_to_stream(e1.event_id, stream_flow, version_none)
@@ -718,7 +690,6 @@ module RubyEventStore
     end
 
     it 'knows last event in stream when linked' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
           e0 = SRecord.new(event_id: '00000000-0000-0000-0000-000000000001'),
           e1 = SRecord.new(event_id: '00000000-0000-0000-0000-000000000002'),
@@ -765,7 +736,6 @@ module RubyEventStore
     end
 
     it 'reads batch of linked events from stream forward & backward' do
-      skip unless test_link_events_to_stream
       events = %w[
         96c920b1-cdd0-40f4-907c-861b9fff7d02
         56404f79-0ba0-4aa0-8524-dc3436368ca0
@@ -816,7 +786,6 @@ module RubyEventStore
     end
 
     it 'reads all stream linked events forward & backward' do
-      skip unless test_link_events_to_stream
       s1, fs1, fs2 = stream, stream_flow, stream_other
       repository.
         append_to_stream(a = SRecord.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, version_none).
@@ -867,7 +836,6 @@ module RubyEventStore
     end
 
     it 'linked events do not affect reading from all streams - no duplicates' do
-      skip unless test_link_events_to_stream
       events = %w[
         96c920b1-cdd0-40f4-907c-861b9fff7d02
         56404f79-0ba0-4aa0-8524-dc3436368ca0
@@ -951,7 +919,6 @@ module RubyEventStore
     end
 
     it 'does not allow linking same event twice in a stream' do
-      skip unless test_link_events_to_stream
       repository.append_to_stream([
           SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
         ], stream,
@@ -985,7 +952,6 @@ module RubyEventStore
     end
 
     specify 'linking non-existent event' do
-      skip unless test_link_events_to_stream
       expect do
         repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', stream_flow, version_none)
       end.to raise_error do |err|
@@ -1209,7 +1175,6 @@ module RubyEventStore
     end
 
     specify do
-      skip unless test_link_events_to_stream
       event_1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea')
       event_2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7')
       event_3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e')
