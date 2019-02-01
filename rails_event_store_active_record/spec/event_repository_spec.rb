@@ -19,7 +19,6 @@ module RailsEventStoreActiveRecord
 
     let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
-    let(:test_expected_version_auto) { true }
     let(:test_binary)                { true }
     let(:test_change)                { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }

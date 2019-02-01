@@ -15,7 +15,6 @@ module RubyEventStore::ROM
 
     let(:test_race_conditions_auto)  { rom_helper.has_connection_pooling? }
     let(:test_race_conditions_any)   { rom_helper.has_connection_pooling? }
-    let(:test_expected_version_auto) { true }
     let(:test_binary) { false }
     let(:test_change) { rom_helper.supports_upsert? }
 

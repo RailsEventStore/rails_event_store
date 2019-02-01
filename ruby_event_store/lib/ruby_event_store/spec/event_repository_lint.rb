@@ -282,7 +282,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position in given stream' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         eventA = SRecord.new,
         eventB = SRecord.new,
@@ -299,7 +298,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position in given stream when linking' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         eventA = SRecord.new,
         eventB = SRecord.new,
@@ -317,7 +315,6 @@ module RubyEventStore
     end
 
     specify ':auto starts from 0' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
       ], stream, version_auto)
@@ -329,7 +326,6 @@ module RubyEventStore
     end
 
     specify ':auto linking starts from 0' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
       ], stream_other, version_auto)
@@ -344,7 +340,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position and follows in incremental way' do
-      skip unless test_expected_version_auto
       # It is expected that there is higher level lock
       # So this query is safe from race conditions
       repository.append_to_stream([
@@ -363,7 +358,6 @@ module RubyEventStore
     end
 
     specify ':auto queries for last position and follows in incremental way when linking' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -384,7 +378,6 @@ module RubyEventStore
     end
 
     specify ':auto is compatible with manual expectation' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -398,7 +391,6 @@ module RubyEventStore
     end
 
     specify ':auto is compatible with manual expectation when linking' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -414,7 +406,6 @@ module RubyEventStore
     end
 
     specify 'manual is compatible with auto expectation' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -428,7 +419,6 @@ module RubyEventStore
     end
 
     specify 'manual is compatible with auto expectation when linking' do
-      skip unless test_expected_version_auto
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new,
@@ -529,7 +519,6 @@ module RubyEventStore
     end
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
-      skip unless test_expected_version_auto
       skip unless test_race_conditions_auto
       verify_conncurency_assumptions
       begin
@@ -571,7 +560,6 @@ module RubyEventStore
     end
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
-      skip unless test_expected_version_auto
       skip unless test_race_conditions_auto
 
       verify_conncurency_assumptions
