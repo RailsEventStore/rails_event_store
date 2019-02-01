@@ -659,6 +659,22 @@ module RubyEventStore
       expect(specification.stream('Dummy').reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 0
     end
 
+    specify "#of_type(s)" do
+      expect(specification.count).to eq(0)
+      repository.append_to_stream([test_record(event_type: TestEvent)], Stream.new("Dummy"), ExpectedVersion.any)
+      repository.append_to_stream([test_record(event_type: OrderCreated)], Stream.new("Dummy"), ExpectedVersion.any)
+      repository.append_to_stream([test_record(event_type: ProductAdded)], Stream.new("Dummy"), ExpectedVersion.any)
+      repository.append_to_stream([test_record(event_type: ProductAdded)], Stream.new("Dummy"), ExpectedVersion.any)
+      expect(specification.of_type(TestEvent).count).to eq(1)
+      expect(specification.of_type([TestEvent]).count).to eq(1)
+      expect(specification.of_types(TestEvent).count).to eq(1)
+      expect(specification.of_types([TestEvent]).count).to eq(1)
+
+      expect(specification.of_type([OrderCreated, ProductAdded]).count).to eq(3)
+      expect(specification.of_types([OrderCreated, ProductAdded]).count).to eq(3)
+      expect(specification.of_types(OrderCreated, ProductAdded).count).to eq(3)
+    end
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
     let(:reader)        { SpecificationReader.new(repository, mapper) }

@@ -199,14 +199,15 @@ module RubyEventStore
       reader.one(read_last.result)
     end
 
-    # Limits the query to certain event types.
+    # Limits the query to certain event type(s).
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @types [Array(Class)] types of event to look for.
+    # @types [Class, Array(Class)] types of event to look for.
     # @return [Specification]
-    def of_type(types)
-      Specification.new(reader, result.dup{ |r| r.with_types = types })
+    def of_type(*types)
+      Specification.new(reader, result.dup{ |r| r.with_types = types.flatten })
     end
+    alias_method :of_types, :of_type
 
     # Limits the query to certain events by given even ids.
     # {http://railseventstore.org/docs/read/ Find out more}.
