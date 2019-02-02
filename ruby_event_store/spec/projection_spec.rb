@@ -38,13 +38,13 @@ module RubyEventStore
       projection = Projection.from_stream("Customer$1", "Customer$2")
       expect {
         projection.run(event_store, start: :last)
-      }.to raise_error ArgumentError, 'Start must be an array with event ids or :head'
+      }.to raise_error ArgumentError, 'Start must be an array with event ids or :begin'
       expect {
         projection.run(event_store, start: 0.7)
-      }.to raise_error ArgumentError, 'Start must be an array with event ids or :head'
+      }.to raise_error ArgumentError, 'Start must be an array with event ids or :begin'
       expect {
         projection.run(event_store, start: [SecureRandom.uuid])
-      }.to raise_error ArgumentError, 'Start must be an array with event ids or :head'
+      }.to raise_error ArgumentError, 'Start must be an array with event ids or :begin'
     end
 
     specify "take events from all streams" do
@@ -66,13 +66,13 @@ module RubyEventStore
       projection = Projection.from_all_streams
       expect {
         projection.run(event_store, start: :last)
-      }.to raise_error ArgumentError, 'Start must be valid event id or :head'
+      }.to raise_error ArgumentError, 'Start must be valid event id or :begin'
       expect {
         projection.run(event_store, start: 0.7)
-      }.to raise_error ArgumentError, 'Start must be valid event id or :head'
+      }.to raise_error ArgumentError, 'Start must be valid event id or :begin'
       expect {
         projection.run(event_store, start: [SecureRandom.uuid])
-      }.to raise_error ArgumentError, 'Start must be valid event id or :head'
+      }.to raise_error ArgumentError, 'Start must be valid event id or :begin'
     end
 
     specify "empty hash is default inital state" do
@@ -145,7 +145,7 @@ module RubyEventStore
         init( -> { { total: 0 } }).
         when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
         when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, start: :head, count: 2)
+        run(event_store, start: :begin, count: 2)
       expect(balance).to eq(total: 14)
     end
 
@@ -176,7 +176,7 @@ module RubyEventStore
         init( -> { { total: 0 } }).
         when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
         when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, start: :head, count: 2)
+        run(event_store, start: :begin, count: 2)
       expect(balance).to eq(total: 14)
     end
 
