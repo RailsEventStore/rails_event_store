@@ -11,17 +11,17 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(events, stream, expected_version)
-      add_to_stream(normalize_to_array(events), stream, expected_version, true) do |event|
+      add_to_stream(Array(events), stream, expected_version, true) do |event|
         build_event_record(event).save!
         event.event_id
       end
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      (normalize_to_array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
+      (Array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
-      add_to_stream(normalize_to_array(event_ids), stream, expected_version, nil) do |event_id|
+      add_to_stream(Array(event_ids), stream, expected_version, nil) do |event_id|
         event_id
       end
     end
@@ -119,11 +119,6 @@ module RailsEventStoreActiveRecord
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type
       )
-    end
-
-    def normalize_to_array(events)
-      return events if events.is_a?(Enumerable)
-      [events]
     end
 
     def verify_correct_schema_present
