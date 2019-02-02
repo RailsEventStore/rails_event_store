@@ -160,7 +160,7 @@ module RubyEventStore
       #   @return [self]
       def subscribe(handler=nil, to:, &handler2)
         raise ArgumentError if handler && handler2
-        @subscribers[handler || handler2] += normalize_to_array(to)
+        @subscribers[handler || handler2] += Array(to)
         self
       end
 
@@ -189,10 +189,6 @@ module RubyEventStore
         @global_subscribers.map do |subscriber|
           @broker.add_thread_global_subscription(subscriber)
         end
-      end
-
-      def normalize_to_array(objs)
-        return *objs
       end
     end
 
@@ -266,7 +262,7 @@ module RubyEventStore
     # @param events [Array<Event, Proto>, Event, Proto] event(s) to serialize and overwrite again
     # @return [self]
     def overwrite(events_or_event)
-      events = normalize_to_array(events_or_event)
+      events = Array(events_or_event)
       serialized_events = serialize_events(events)
       repository.update_messages(serialized_events)
       self
@@ -287,12 +283,8 @@ module RubyEventStore
       end
     end
 
-    def normalize_to_array(events)
-      return *events
-    end
-
     def enrich_events_metadata(events)
-      events = normalize_to_array(events)
+      events = Array(events)
       events.each{|event| enrich_event_metadata(event) }
       events
     end

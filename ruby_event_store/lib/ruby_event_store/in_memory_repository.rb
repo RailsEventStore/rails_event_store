@@ -15,7 +15,7 @@ module RubyEventStore
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      events = normalize_to_array(event_ids).map {|eid| read_event(eid)}
+      events = Array(event_ids).map {|eid| read_event(eid)}
       add_to_stream(events, expected_version, stream, nil)
     end
 
@@ -86,12 +86,8 @@ module RubyEventStore
       streams.fetch(name, Array.new)
     end
 
-    def normalize_to_array(events)
-      return *events
-    end
-
     def add_to_stream(events, expected_version, stream, include_global)
-      events = normalize_to_array(events)
+      events = Array(events)
       append_with_synchronize(events, expected_version, stream, include_global)
     end
 
