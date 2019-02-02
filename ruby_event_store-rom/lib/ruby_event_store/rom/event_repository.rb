@@ -18,7 +18,7 @@ module RubyEventStore
       end
 
       def append_to_stream(events, stream, expected_version)
-        events = normalize_to_array(events)
+        events = Array(events)
         event_ids = events.map(&:event_id)
 
         guard_for(:unique_violation) do
@@ -41,7 +41,7 @@ module RubyEventStore
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-        event_ids = normalize_to_array(event_ids)
+        event_ids = Array(event_ids)
 
         # Validate event IDs
         @events
@@ -99,14 +99,6 @@ module RubyEventStore
       def streams_of(event_id)
         @stream_entries.streams_of(event_id)
                        .map { |name| Stream.new(name) }
-      end
-
-      private
-
-      def normalize_to_array(events)
-        return events if events.is_a?(Enumerable)
-
-        [events]
       end
     end
   end
