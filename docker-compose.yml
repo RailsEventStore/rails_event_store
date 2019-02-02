@@ -8,3 +8,19 @@ services:
       - .:/res
       - gems:/usr/local/bundle
     working_dir: /res
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+    ports:
+      - "3306:3306"
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - "5432:5432"
