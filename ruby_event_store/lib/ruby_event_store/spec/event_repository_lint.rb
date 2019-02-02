@@ -531,7 +531,6 @@ module RubyEventStore
 
         threads = concurrency_level.times.map do |i|
           Thread.new do
-            Thread.current.report_on_exception = false
             true while wait_for_it
             100.times do |j|
               begin
@@ -582,7 +581,6 @@ module RubyEventStore
 
         threads = concurrency_level.times.map do |i|
           Thread.new do
-            Thread.current.report_on_exception = false
             true while wait_for_it
             100.times do |j|
               begin
