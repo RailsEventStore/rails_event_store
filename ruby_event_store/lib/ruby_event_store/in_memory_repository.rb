@@ -87,8 +87,7 @@ module RubyEventStore
     end
 
     def add_to_stream(events, expected_version, stream, include_global)
-      events = Array(events)
-      append_with_synchronize(events, expected_version, stream, include_global)
+      append_with_synchronize(Array(events), expected_version, stream, include_global)
     end
 
     def last_stream_version(stream)

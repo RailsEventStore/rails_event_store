@@ -18,10 +18,11 @@ module RailsEventStoreActiveRecord
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      (Array(event_ids) - Event.where(id: event_ids).pluck(:id)).each do |id|
+      event_ids = Array(event_ids)
+      (event_ids - Event.where(id: event_ids).pluck(:id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
-      add_to_stream(Array(event_ids), stream, expected_version, nil) do |event_id|
+      add_to_stream(event_ids, stream, expected_version, nil) do |event_id|
         event_id
       end
     end
