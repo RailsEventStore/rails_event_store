@@ -25,7 +25,8 @@ module RubyEventStore::ROM
     let(:reader) { RubyEventStore::SpecificationReader.new(repository, mapper) }
     let(:specification) { RubyEventStore::Specification.new(reader) }
 
-    it_behaves_like :event_repository, repository_class
+    require 'ruby_event_store/rom/sql'
+    it_behaves_like :event_repository, repository_class, [ROM::SQL::Error]
 
     specify '#initialize requires ROM::Env' do
       expect { repository_class.new(rom: nil) }.to raise_error do |err|

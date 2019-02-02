@@ -25,7 +25,7 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  RSpec.shared_examples :event_repository do |repository_class|
+  RSpec.shared_examples :event_repository do |repository_class, rescuable_concurrency_test_errors = []|
     let(:repository)    { subject || repository_class.new }
     let(:mapper)        { Mappers::NullMapper.new }
     let(:specification) { Specification.new(SpecificationReader.new(repository, mapper)) }
@@ -442,9 +442,8 @@ module RubyEventStore
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
-
-        fail_occurred = false
-        wait_for_it  = true
+        fail_occurred     = false
+        wait_for_it       = true
 
         threads = concurrency_level.times.map do |i|
           Thread.new do
@@ -481,9 +480,8 @@ module RubyEventStore
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
-
-        fail_occurred = false
-        wait_for_it  = true
+        fail_occurred     = false
+        wait_for_it       = true
 
         concurrency_level.times.map do |i|
           100.times do |j|
@@ -533,6 +531,7 @@ module RubyEventStore
 
         threads = concurrency_level.times.map do |i|
           Thread.new do
+            Thread.current.report_on_exception = false
             true while wait_for_it
             100.times do |j|
               begin
@@ -541,7 +540,7 @@ module RubyEventStore
                   SRecord.new(event_id: eid),
                 ], stream, version_auto)
                 sleep(rand(concurrency_level) / 1000.0)
-              rescue WrongExpectedEventVersion
+              rescue WrongExpectedEventVersion, *rescuable_concurrency_test_errors
                 fail_occurred +=1
               end
             end
@@ -565,7 +564,6 @@ module RubyEventStore
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
       skip unless test_race_conditions_auto
-
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
@@ -584,13 +582,14 @@ module RubyEventStore
 
         threads = concurrency_level.times.map do |i|
           Thread.new do
+            Thread.current.report_on_exception = false
             true while wait_for_it
             100.times do |j|
               begin
                 eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
                 repository.link_to_stream(eid, stream, version_auto)
                 sleep(rand(concurrency_level) / 1000.0)
-              rescue WrongExpectedEventVersion
+              rescue WrongExpectedEventVersion, *rescuable_concurrency_test_errors
                 fail_occurred +=1
               end
             end
