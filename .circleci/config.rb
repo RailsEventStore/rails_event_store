@@ -57,8 +57,8 @@ def Docker(image, environment = {})
   {
     "docker" => [
       docker,
-      { "image" => "postgres", "environment" => %w(POSTGRES_DB=rails_event_store POSTGRES_PASSWORD=secret) },
-      { "image" => "mysql", "environment" => %w(MYSQL_DATABASE=rails_event_store MYSQL_ROOT_PASSWORD=secret), "command" => "--default-authentication-plugin=mysql_native_password" }
+      { "image" => "postgres:11", "environment" => %w(POSTGRES_DB=rails_event_store POSTGRES_PASSWORD=secret) },
+      { "image" => "mysql:8", "environment" => %w(MYSQL_DATABASE=rails_event_store MYSQL_ROOT_PASSWORD=secret), "command" => "--default-authentication-plugin=mysql_native_password" }
     ]
   }
 end

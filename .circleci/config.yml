@@ -6,11 +6,11 @@ jobs:
   check_config:
     docker:
     - image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -26,11 +26,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -43,11 +43,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -60,11 +60,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -77,11 +77,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -94,11 +94,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -111,11 +111,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -128,11 +128,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -145,11 +145,11 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -162,11 +162,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -179,11 +179,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -196,11 +196,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -213,11 +213,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -230,11 +230,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -247,11 +247,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -264,11 +264,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -281,11 +281,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -298,11 +298,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -315,11 +315,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -332,11 +332,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -349,11 +349,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -366,11 +366,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -383,11 +383,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -400,11 +400,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -417,11 +417,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -434,11 +434,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -451,11 +451,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -468,11 +468,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -485,11 +485,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -502,11 +502,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -519,11 +519,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -536,11 +536,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -553,11 +553,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -570,11 +570,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -587,11 +587,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -604,11 +604,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -621,11 +621,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -638,11 +638,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -655,11 +655,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -672,11 +672,11 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -689,11 +689,11 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -706,11 +706,11 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -723,11 +723,11 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -740,11 +740,11 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -757,11 +757,11 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -774,11 +774,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -791,11 +791,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -808,11 +808,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -825,11 +825,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -842,11 +842,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -859,11 +859,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -876,11 +876,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -893,11 +893,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -910,11 +910,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -927,11 +927,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -944,11 +944,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -961,11 +961,11 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -978,11 +978,11 @@ jobs:
     - environment:
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -995,11 +995,11 @@ jobs:
     - environment:
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -1012,11 +1012,11 @@ jobs:
     - environment:
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
@@ -1029,11 +1029,11 @@ jobs:
     - environment:
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
       image: pawelpacana/res:2.6.0
-    - image: postgres
+    - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
-    - image: mysql
+    - image: mysql:8
       environment:
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
