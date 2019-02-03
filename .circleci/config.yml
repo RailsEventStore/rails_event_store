@@ -20,7 +20,7 @@ jobs:
         name: Verify .circleci/config.yml is generated from .circleci/config.rb
         command: WAS="$(md5sum .circleci/config.yml)" && ruby .circleci/config.rb
           && test "$WAS" == "$(md5sum .circleci/config.yml)"
-  mutate_aggregate_root_2_6:
+  mutate_aggregate_root_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -36,7 +36,7 @@ jobs:
     steps:
     - checkout
     - run: make -C aggregate_root install mutate
-  mutate_bounded_context_2_6:
+  mutate_bounded_context_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -52,7 +52,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install mutate
-  mutate_ruby_event_store_2_6:
+  mutate_ruby_event_store_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -68,7 +68,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store install mutate
-  mutate_ruby_event_store_browser_2_6:
+  mutate_ruby_event_store_browser_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -84,7 +84,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install mutate
-  mutate_ruby_event_store_rom_2_6:
+  mutate_ruby_event_store_rom_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -100,7 +100,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install mutate
-  mutate_rails_event_store_2_6:
+  mutate_rails_event_store_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -116,7 +116,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install mutate
-  mutate_rails_event_store_active_record_2_6:
+  mutate_rails_event_store_active_record_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -132,7 +132,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install mutate
-  mutate_rails_event_store_rspec_2_6:
+  mutate_rails_event_store_rspec_ruby_2_6:
     docker:
     - environment:
         MUTANT_JOBS: 4
@@ -148,7 +148,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install mutate
-  test_aggregate_root_2_6:
+  test_aggregate_root_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -164,7 +164,7 @@ jobs:
     steps:
     - checkout
     - run: make -C aggregate_root install test
-  test_bounded_context_2_6:
+  test_bounded_context_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -180,7 +180,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_ruby_event_store_2_6:
+  test_ruby_event_store_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -196,7 +196,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store install test
-  test_ruby_event_store_browser_2_6:
+  test_ruby_event_store_browser_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -212,7 +212,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
-  test_ruby_event_store_rom_2_6:
+  test_ruby_event_store_rom_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
@@ -228,7 +228,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
-  test_rails_event_store_2_6:
+  test_rails_event_store_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -244,7 +244,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_2_6:
+  test_rails_event_store_active_record_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
@@ -260,7 +260,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_2_6:
+  test_rails_event_store_rspec_ruby_2_6:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -276,7 +276,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_aggregate_root_2_3:
+  test_aggregate_root_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -292,7 +292,7 @@ jobs:
     steps:
     - checkout
     - run: make -C aggregate_root install test
-  test_bounded_context_2_3:
+  test_bounded_context_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -308,7 +308,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_ruby_event_store_2_3:
+  test_ruby_event_store_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -324,7 +324,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store install test
-  test_ruby_event_store_browser_2_3:
+  test_ruby_event_store_browser_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -340,7 +340,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
-  test_ruby_event_store_rom_2_3:
+  test_ruby_event_store_rom_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
@@ -356,7 +356,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
-  test_rails_event_store_2_3:
+  test_rails_event_store_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -372,7 +372,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_2_3:
+  test_rails_event_store_active_record_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
@@ -388,7 +388,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_2_3:
+  test_rails_event_store_rspec_ruby_2_3:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -404,7 +404,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_aggregate_root_2_4:
+  test_aggregate_root_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -420,7 +420,7 @@ jobs:
     steps:
     - checkout
     - run: make -C aggregate_root install test
-  test_bounded_context_2_4:
+  test_bounded_context_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -436,7 +436,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_ruby_event_store_2_4:
+  test_ruby_event_store_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -452,7 +452,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store install test
-  test_ruby_event_store_browser_2_4:
+  test_ruby_event_store_browser_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -468,7 +468,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
-  test_ruby_event_store_rom_2_4:
+  test_ruby_event_store_rom_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
@@ -484,7 +484,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
-  test_rails_event_store_2_4:
+  test_rails_event_store_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -500,7 +500,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_2_4:
+  test_rails_event_store_active_record_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
@@ -516,7 +516,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_2_4:
+  test_rails_event_store_rspec_ruby_2_4:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -532,7 +532,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_aggregate_root_2_5:
+  test_aggregate_root_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -548,7 +548,7 @@ jobs:
     steps:
     - checkout
     - run: make -C aggregate_root install test
-  test_bounded_context_2_5:
+  test_bounded_context_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -564,7 +564,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_ruby_event_store_2_5:
+  test_ruby_event_store_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -580,7 +580,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store install test
-  test_ruby_event_store_browser_2_5:
+  test_ruby_event_store_browser_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -596,7 +596,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
-  test_ruby_event_store_rom_2_5:
+  test_ruby_event_store_rom_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
@@ -612,7 +612,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
-  test_rails_event_store_2_5:
+  test_rails_event_store_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -628,7 +628,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_2_5:
+  test_rails_event_store_active_record_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
@@ -644,7 +644,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_2_5:
+  test_rails_event_store_rspec_ruby_2_5:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
@@ -660,7 +660,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_4_2:
+  test_bounded_context_rails_4_2:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11
@@ -676,7 +676,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_rails_event_store_4_2:
+  test_rails_event_store_rails_4_2:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11
@@ -692,7 +692,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_4_2:
+  test_rails_event_store_active_record_rails_4_2:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11
@@ -708,7 +708,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_4_2:
+  test_rails_event_store_rspec_rails_4_2:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11
@@ -724,7 +724,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_5_0:
+  test_bounded_context_rails_5_0:
     docker:
     - environment:
         RAILS_VERSION: 5.0.7
@@ -740,7 +740,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_rails_event_store_5_0:
+  test_rails_event_store_rails_5_0:
     docker:
     - environment:
         RAILS_VERSION: 5.0.7
@@ -756,7 +756,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_5_0:
+  test_rails_event_store_active_record_rails_5_0:
     docker:
     - environment:
         RAILS_VERSION: 5.0.7
@@ -772,7 +772,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_5_0:
+  test_rails_event_store_rspec_rails_5_0:
     docker:
     - environment:
         RAILS_VERSION: 5.0.7
@@ -788,7 +788,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_5_1:
+  test_bounded_context_rails_5_1:
     docker:
     - environment:
         RAILS_VERSION: 5.1.6.1
@@ -804,7 +804,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_rails_event_store_5_1:
+  test_rails_event_store_rails_5_1:
     docker:
     - environment:
         RAILS_VERSION: 5.1.6.1
@@ -820,7 +820,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_5_1:
+  test_rails_event_store_active_record_rails_5_1:
     docker:
     - environment:
         RAILS_VERSION: 5.1.6.1
@@ -836,7 +836,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_5_1:
+  test_rails_event_store_rspec_rails_5_1:
     docker:
     - environment:
         RAILS_VERSION: 5.1.6.1
@@ -852,7 +852,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_5_2:
+  test_bounded_context_rails_5_2:
     docker:
     - environment:
         RAILS_VERSION: 5.2.2
@@ -868,7 +868,7 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_rails_event_store_5_2:
+  test_rails_event_store_rails_5_2:
     docker:
     - environment:
         RAILS_VERSION: 5.2.2
@@ -884,7 +884,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_5_2:
+  test_rails_event_store_active_record_rails_5_2:
     docker:
     - environment:
         RAILS_VERSION: 5.2.2
@@ -900,7 +900,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_5_2:
+  test_rails_event_store_rspec_rails_5_2:
     docker:
     - environment:
         RAILS_VERSION: 5.2.2
@@ -916,6 +916,70 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
+  test_rails_event_store_active_record_mysql:
+    docker:
+    - environment:
+        DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
+      image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_ruby_event_store_rom_mysql:
+    docker:
+    - environment:
+        DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
+      image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+    steps:
+    - checkout
+    - run: make -C ruby_event_store-rom install test
+  test_rails_event_store_active_record_postgres:
+    docker:
+    - environment:
+        DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
+      image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_ruby_event_store_rom_postgres:
+    docker:
+    - environment:
+        DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
+      image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+    steps:
+    - checkout
+    - run: make -C ruby_event_store-rom install test
 workflows:
   version: '2'
   Check configuration:
@@ -923,89 +987,97 @@ workflows:
     - check_config
   Current Ruby:
     jobs:
-    - test_aggregate_root_2_6
-    - mutate_aggregate_root_2_6:
+    - test_aggregate_root_ruby_2_6
+    - mutate_aggregate_root_ruby_2_6:
         requires:
-        - test_aggregate_root_2_6
-    - test_bounded_context_2_6
-    - mutate_bounded_context_2_6:
+        - test_aggregate_root_ruby_2_6
+    - test_bounded_context_ruby_2_6
+    - mutate_bounded_context_ruby_2_6:
         requires:
-        - test_bounded_context_2_6
-    - test_ruby_event_store_2_6
-    - mutate_ruby_event_store_2_6:
+        - test_bounded_context_ruby_2_6
+    - test_ruby_event_store_ruby_2_6
+    - mutate_ruby_event_store_ruby_2_6:
         requires:
-        - test_ruby_event_store_2_6
-    - test_ruby_event_store_browser_2_6
-    - mutate_ruby_event_store_browser_2_6:
+        - test_ruby_event_store_ruby_2_6
+    - test_ruby_event_store_browser_ruby_2_6
+    - mutate_ruby_event_store_browser_ruby_2_6:
         requires:
-        - test_ruby_event_store_browser_2_6
-    - test_ruby_event_store_rom_2_6
-    - mutate_ruby_event_store_rom_2_6:
+        - test_ruby_event_store_browser_ruby_2_6
+    - test_ruby_event_store_rom_ruby_2_6
+    - mutate_ruby_event_store_rom_ruby_2_6:
         requires:
-        - test_ruby_event_store_rom_2_6
-    - test_rails_event_store_2_6
-    - mutate_rails_event_store_2_6:
+        - test_ruby_event_store_rom_ruby_2_6
+    - test_rails_event_store_ruby_2_6
+    - mutate_rails_event_store_ruby_2_6:
         requires:
-        - test_rails_event_store_2_6
-    - test_rails_event_store_active_record_2_6
-    - mutate_rails_event_store_active_record_2_6:
+        - test_rails_event_store_ruby_2_6
+    - test_rails_event_store_active_record_ruby_2_6
+    - mutate_rails_event_store_active_record_ruby_2_6:
         requires:
-        - test_rails_event_store_active_record_2_6
-    - test_rails_event_store_rspec_2_6
-    - mutate_rails_event_store_rspec_2_6:
+        - test_rails_event_store_active_record_ruby_2_6
+    - test_rails_event_store_rspec_ruby_2_6
+    - mutate_rails_event_store_rspec_ruby_2_6:
         requires:
-        - test_rails_event_store_rspec_2_6
+        - test_rails_event_store_rspec_ruby_2_6
   Ruby 2.5:
     jobs:
-    - test_aggregate_root_2_5
-    - test_bounded_context_2_5
-    - test_ruby_event_store_2_5
-    - test_ruby_event_store_browser_2_5
-    - test_ruby_event_store_rom_2_5
-    - test_rails_event_store_2_5
-    - test_rails_event_store_active_record_2_5
-    - test_rails_event_store_rspec_2_5
+    - test_aggregate_root_ruby_2_5
+    - test_bounded_context_ruby_2_5
+    - test_ruby_event_store_ruby_2_5
+    - test_ruby_event_store_browser_ruby_2_5
+    - test_ruby_event_store_rom_ruby_2_5
+    - test_rails_event_store_ruby_2_5
+    - test_rails_event_store_active_record_ruby_2_5
+    - test_rails_event_store_rspec_ruby_2_5
   Ruby 2.4:
     jobs:
-    - test_aggregate_root_2_4
-    - test_bounded_context_2_4
-    - test_ruby_event_store_2_4
-    - test_ruby_event_store_browser_2_4
-    - test_ruby_event_store_rom_2_4
-    - test_rails_event_store_2_4
-    - test_rails_event_store_active_record_2_4
-    - test_rails_event_store_rspec_2_4
+    - test_aggregate_root_ruby_2_4
+    - test_bounded_context_ruby_2_4
+    - test_ruby_event_store_ruby_2_4
+    - test_ruby_event_store_browser_ruby_2_4
+    - test_ruby_event_store_rom_ruby_2_4
+    - test_rails_event_store_ruby_2_4
+    - test_rails_event_store_active_record_ruby_2_4
+    - test_rails_event_store_rspec_ruby_2_4
   Ruby 2.3:
     jobs:
-    - test_aggregate_root_2_3
-    - test_bounded_context_2_3
-    - test_ruby_event_store_2_3
-    - test_ruby_event_store_browser_2_3
-    - test_ruby_event_store_rom_2_3
-    - test_rails_event_store_2_3
-    - test_rails_event_store_active_record_2_3
-    - test_rails_event_store_rspec_2_3
+    - test_aggregate_root_ruby_2_3
+    - test_bounded_context_ruby_2_3
+    - test_ruby_event_store_ruby_2_3
+    - test_ruby_event_store_browser_ruby_2_3
+    - test_ruby_event_store_rom_ruby_2_3
+    - test_rails_event_store_ruby_2_3
+    - test_rails_event_store_active_record_ruby_2_3
+    - test_rails_event_store_rspec_ruby_2_3
   Rails 4.2:
     jobs:
-    - test_bounded_context_4_2
-    - test_rails_event_store_4_2
-    - test_rails_event_store_active_record_4_2
-    - test_rails_event_store_rspec_4_2
+    - test_bounded_context_rails_4_2
+    - test_rails_event_store_rails_4_2
+    - test_rails_event_store_active_record_rails_4_2
+    - test_rails_event_store_rspec_rails_4_2
   Rails 5.0:
     jobs:
-    - test_bounded_context_5_0
-    - test_rails_event_store_5_0
-    - test_rails_event_store_active_record_5_0
-    - test_rails_event_store_rspec_5_0
+    - test_bounded_context_rails_5_0
+    - test_rails_event_store_rails_5_0
+    - test_rails_event_store_active_record_rails_5_0
+    - test_rails_event_store_rspec_rails_5_0
   Rails 5.1:
     jobs:
-    - test_bounded_context_5_1
-    - test_rails_event_store_5_1
-    - test_rails_event_store_active_record_5_1
-    - test_rails_event_store_rspec_5_1
+    - test_bounded_context_rails_5_1
+    - test_rails_event_store_rails_5_1
+    - test_rails_event_store_active_record_rails_5_1
+    - test_rails_event_store_rspec_rails_5_1
   Rails 5.2:
     jobs:
-    - test_bounded_context_5_2
-    - test_rails_event_store_5_2
-    - test_rails_event_store_active_record_5_2
-    - test_rails_event_store_rspec_5_2
+    - test_bounded_context_rails_5_2
+    - test_rails_event_store_rails_5_2
+    - test_rails_event_store_active_record_rails_5_2
+    - test_rails_event_store_rspec_rails_5_2
+  MySQL:
+    jobs:
+    - test_rails_event_store_active_record_mysql
+    - test_ruby_event_store_rom_mysql
+  PostgreSQL:
+    jobs:
+    - test_rails_event_store_active_record_postgres
+    - test_ruby_event_store_rom_postgres

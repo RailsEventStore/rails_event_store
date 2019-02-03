@@ -2,30 +2,19 @@ language: ruby
 matrix:
   include:
   - rvm: 2.5.3
-    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
+    env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store?pool=5 DATA_TYPE=jsonb
   - rvm: 2.5.3
-    env: TARGET=rails_event_store_active_record SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
-  - rvm: 2.5.3
-    env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5
-  - rvm: 2.5.3
-    env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5 DATA_TYPE=jsonb
-  - rvm: 2.5.3
-    env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store_active_record?pool=5 DATA_TYPE=json
-  - rvm: 2.5.3
-    env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=mysql2://root:@127.0.0.1/rails_event_store_active_record?pool=5
+    env: TARGET=ruby_event_store-rom SCRIPT=test DATABASE_URL=postgres://localhost/rails_event_store?pool=5 DATA_TYPE=json
 
 before_script:
 - psql -c 'create extension pgcrypto;' -U postgres
-- psql -c 'create database rails_event_store_active_record;' -U postgres
-- mysql -e 'CREATE DATABASE rails_event_store_active_record;'
+- psql -c 'create database rails_event_store;' -U postgres
 gemfile: "$TARGET/Gemfile"
 script: make -C $TARGET install $SCRIPT
 services:
 - postgresql
-- mysql
 addons:
   postgresql: '9.6'
 notifications:
   slack:
     secure: WSd0EBBRArJZvbubmmJ3eBrV0sVoHYNwd+FXLh+y1nkgxtgTas7Ki5xWpizkjsuouiibsQHc91wqHiGwdED2XVDN3zF5XTajg86Hejb4oxp57knbAkko5QmL6eTu7E6YfKxxw9XZJpO7HA3Wywlg8ZwJj2OzHChr3DfMepCavjc=
-cache: yarn
