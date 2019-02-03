@@ -22,7 +22,6 @@ Documentation, tutorials and code samples are available at [https://railseventst
 
 ## Code status
 
-[![Build Status](https://travis-ci.com/RailsEventStore/rails_event_store.svg?branch=master)](https://travis-ci.com/RailsEventStore/rails_event_store)
 [![CircleCI](https://circleci.com/gh/RailsEventStore/rails_event_store.svg?style=shield)](https://circleci.com/gh/RailsEventStore/rails_event_store)
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
 
