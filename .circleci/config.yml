@@ -6,6 +6,14 @@ jobs:
   check_config:
     docker:
     - image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run:
@@ -17,6 +25,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C aggregate_root install mutate
@@ -25,6 +41,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install mutate
@@ -33,6 +57,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store install mutate
@@ -41,6 +73,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install mutate
@@ -49,6 +89,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install mutate
@@ -57,6 +105,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install mutate
@@ -65,6 +121,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install mutate
@@ -73,6 +137,14 @@ jobs:
     - environment:
         MUTANT_JOBS: 4
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install mutate
@@ -81,6 +153,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C aggregate_root install test
@@ -89,6 +169,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -97,6 +185,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store install test
@@ -105,6 +201,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
@@ -113,6 +217,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
@@ -121,6 +233,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -129,6 +249,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -137,6 +265,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.6.0
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -145,6 +281,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C aggregate_root install test
@@ -153,6 +297,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -161,6 +313,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store install test
@@ -169,6 +329,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
@@ -177,6 +345,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
@@ -185,6 +361,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -193,6 +377,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -201,6 +393,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.3.8
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -209,6 +409,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C aggregate_root install test
@@ -217,6 +425,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -225,6 +441,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store install test
@@ -233,6 +457,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
@@ -241,6 +473,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
@@ -249,6 +489,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -257,6 +505,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -265,6 +521,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.4.5
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -273,6 +537,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C aggregate_root install test
@@ -281,6 +553,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -289,6 +569,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store install test
@@ -297,6 +585,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
@@ -305,6 +601,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
@@ -313,6 +617,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -321,6 +633,14 @@ jobs:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -329,6 +649,14 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -337,6 +665,14 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -345,6 +681,14 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -353,6 +697,14 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -361,6 +713,14 @@ jobs:
     - environment:
         RAILS_VERSION: 4.2.11
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -369,6 +729,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -377,6 +745,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -385,6 +761,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -393,6 +777,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.0.7
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -401,6 +793,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -409,6 +809,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -417,6 +825,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -425,6 +841,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.1.6.1
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
@@ -433,6 +857,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -441,6 +873,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -449,6 +889,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -457,6 +905,14 @@ jobs:
     - environment:
         RAILS_VERSION: 5.2.2
       image: pawelpacana/res:2.5.3
+    - image: postgres
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+    - image: mysql
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test

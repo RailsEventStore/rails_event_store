@@ -49,7 +49,13 @@ end
 def Docker(image, environment = {})
   docker = { "image" => image }
   docker = { "environment" => environment }.merge(docker) unless environment.empty?
-  { "docker" => [docker] }
+  {
+    "docker" => [
+      docker,
+      { "image" => "postgres", "environment" => %w(POSTGRES_DB=rails_event_store POSTGRES_PASSWORD=secret) },
+      { "image" => "mysql", "environment" => %w(MYSQL_DATABASE=rails_event_store MYSQL_ROOT_PASSWORD=secret) }
+    ]
+  }
 end
 
 def Job(name, docker, steps)
@@ -71,12 +77,12 @@ database_url =
       "sqlite3::memory:"
     end
   end
-identity  = ->(item) { item }
+identity = ->(item) { item }
 normalize = ->(name) { name.gsub("-", "_").gsub(".", "_") }
-merge     = ->(array, transform = identity) { array.reduce({}) { |memo, item| memo.merge(transform.(item)) } }
-mutate    = ->(name, gem_name) { GemJob('mutate', Docker('pawelpacana/res:2.6.0', { 'MUTANT_JOBS' => 4 }), gem_name, name) }
-test      = ->(docker, name, gem_name) { GemJob('test', docker, gem_name, name) }
-job_name  = ->(task, ruby_version, gem_name) { [task, gem_name, ruby_version].map(&normalize).join('_') }
+merge = ->(array, transform = identity) { array.reduce({}) { |memo, item| memo.merge(transform.(item)) } }
+mutate = ->(name, gem_name) { GemJob('mutate', Docker('pawelpacana/res:2.6.0', { 'MUTANT_JOBS' => 4 }), gem_name, name) }
+test = ->(docker, name, gem_name) { GemJob('test', docker, gem_name, name) }
+job_name = ->(task, ruby_version, gem_name) { [task, gem_name, ruby_version].map(&normalize).join('_') }
 
 check_config =
   Job(
@@ -91,28 +97,28 @@ check_config =
     ]
   )
 
-ruby_2_3_compat  = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.3.8", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.3'][gem_name], gem_name) })
-ruby_2_4_compat  = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.4.5", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.4'][gem_name], gem_name) })
-ruby_2_5_compat  = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.5'][gem_name], gem_name) })
-current_ruby     = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.6'][gem_name], gem_name) })
-mutations        = merge.(GEMS, ->(gem_name) { mutate.(job_name.curry['mutate', '2.6'][gem_name], gem_name) })
-rails_4_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "4.2.11" }),  job_name.curry['test', '4.2'][gem_name], gem_name) })
-rails_5_0_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "5.0.7" }),   job_name.curry['test', '5.0'][gem_name], gem_name) })
+ruby_2_3_compat = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.3.8", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.3'][gem_name], gem_name) })
+ruby_2_4_compat = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.4.5", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.4'][gem_name], gem_name) })
+ruby_2_5_compat = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.5'][gem_name], gem_name) })
+current_ruby = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', '2.6'][gem_name], gem_name) })
+mutations = merge.(GEMS, ->(gem_name) { mutate.(job_name.curry['mutate', '2.6'][gem_name], gem_name) })
+rails_4_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "4.2.11" }), job_name.curry['test', '4.2'][gem_name], gem_name) })
+rails_5_0_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "5.0.7" }), job_name.curry['test', '5.0'][gem_name], gem_name) })
 rails_5_1_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "5.1.6.1" }), job_name.curry['test', '5.1'][gem_name], gem_name) })
-rails_5_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "5.2.2" }),   job_name.curry['test', '5.2'][gem_name], gem_name) })
+rails_5_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "5.2.2" }), job_name.curry['test', '5.2'][gem_name], gem_name) })
 
 jobs = [
-    check_config,
-    mutations,
-    current_ruby,
-    ruby_2_3_compat,
-    ruby_2_4_compat,
-    ruby_2_5_compat,
-    rails_4_2_compat,
-    rails_5_0_compat,
-    rails_5_1_compat,
-    rails_5_2_compat,
-  ]
+  check_config,
+  mutations,
+  current_ruby,
+  ruby_2_3_compat,
+  ruby_2_4_compat,
+  ruby_2_5_compat,
+  rails_4_2_compat,
+  rails_5_0_compat,
+  rails_5_1_compat,
+  rails_5_2_compat,
+]
 workflows =
   [
     Workflow("Check configuration", %w[check_config]),
