@@ -23,6 +23,10 @@ RDBMS_GEMS = %w[
   ruby_event_store-rom
 ]
 
+DATATYPE_GEMS = %w[
+  ruby_event_store-rom
+]
+
 def Config(jobs, workflows)
   {
     "version" => "2.1",
@@ -113,7 +117,8 @@ rails_5_1_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/r
 rails_5_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "RAILS_VERSION" => "5.2.2" }), job_name.curry['test', 'rails_5_2'][gem_name], gem_name) })
 mysql_compat = merge.(RDBMS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATABASE_URL" => "mysql2://root:secret@127.0.0.1/rails_event_store?pool=5" }), job_name.curry['test', 'mysql'][gem_name], gem_name) })
 postgres_compat = merge.(RDBMS_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATABASE_URL" => "postgres://postgres:secret@localhost/rails_event_store?pool=5" }), job_name.curry['test', 'postgres'][gem_name], gem_name) })
-
+json_compat = merge.(DATATYPE_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATA_TYPE" => "json", "DATABASE_URL" => "postgres://postgres:secret@localhost/rails_event_store?pool=5" }), job_name.curry['test', 'data_type_json'][gem_name], gem_name) })
+jsonb_compat = merge.(DATATYPE_GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATA_TYPE" => "jsonb", "DATABASE_URL" => "postgres://postgres:secret@localhost/rails_event_store?pool=5" }), job_name.curry['test', 'data_type_jsonb'][gem_name], gem_name) })
 
 jobs = [
   check_config,
@@ -127,7 +132,9 @@ jobs = [
   rails_5_1_compat,
   rails_5_2_compat,
   mysql_compat,
-  postgres_compat
+  postgres_compat,
+  json_compat,
+  jsonb_compat
 ]
 workflows =
   [
@@ -144,6 +151,8 @@ workflows =
     Workflow("Rails 5.2", RAILS_GEMS.map(&job_name.curry['test', 'rails_5_2'])),
     Workflow("MySQL", RDBMS_GEMS.map(&job_name.curry['test', 'mysql'])),
     Workflow("PostgreSQL", RDBMS_GEMS.map(&job_name.curry['test', 'postgres'])),
+    Workflow("JSONB data type", DATATYPE_GEMS.map(&job_name.curry['test', 'data_type_json'])),
+    Workflow("JSON data type", DATATYPE_GEMS.map(&job_name.curry['test', 'data_type_jsonb']))
   ]
 
 File.open(".circleci/config.yml", "w") do |f|
