@@ -2,6 +2,7 @@ require 'aggregate_root/version'
 require 'aggregate_root/configuration'
 require 'aggregate_root/transform'
 require 'aggregate_root/default_apply_strategy'
+require 'aggregate_root/repository'
 
 module AggregateRoot
   module ClassMethods
@@ -35,18 +36,13 @@ module AggregateRoot
     end
   end
 
-  def load(stream_name, event_store: default_event_store)
-    @loaded_from_stream_name = stream_name
-    event_store.read.stream(stream_name).reduce {|_, ev| apply(ev) }
-    @version = unpublished.size - 1
-    @unpublished_events = nil
-    self
+  def version
+    @version ||= -1
   end
 
-  def store(stream_name = loaded_from_stream_name, event_store: default_event_store)
-    event_store.publish(unpublished, stream_name: stream_name, expected_version: version)
-    @version += unpublished_events.size
+  def version=(value)
     @unpublished_events = nil
+    @version = value
   end
 
   def unpublished_events
@@ -59,17 +55,7 @@ module AggregateRoot
     @unpublished_events ||= []
   end
 
-  def version
-    @version ||= -1
-  end
-
   def apply_strategy
     DefaultApplyStrategy.new(on_methods: self.class.on_methods)
   end
-
-  def default_event_store
-    AggregateRoot.configuration.default_event_store
-  end
-
-  attr_reader :loaded_from_stream_name
 end

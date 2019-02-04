@@ -23,7 +23,8 @@ RSpec.describe AggregateRoot do
     order_created = Orders::Events::OrderCreated.new
     event_store.publish(order_created, stream_name: stream)
 
-    order = Order.new.load(stream, event_store: event_store)
+    repository = AggregateRoot::Repository.new(event_store)
+    order = repository.load(Order.new, stream)
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to be_empty
   end
@@ -33,12 +34,14 @@ RSpec.describe AggregateRoot do
     order_created = Orders::Events::OrderCreated.new
     order_expired = Orders::Events::OrderExpired.new
 
+    repository = AggregateRoot::Repository.new(event_store)
     order = Order.new
     order.apply(order_created)
     order.apply(order_expired)
     expect(event_store).not_to receive(:publish).with(kind_of(Enumerator), any_args)
+    expect(event_store).not_to receive(:publish).with(kind_of(Set), any_args)
     expect(event_store).to receive(:publish).with([order_created, order_expired], stream_name: stream, expected_version: -1).and_call_original
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
     expect(order.unpublished_events.to_a).to be_empty
   end
 
@@ -46,15 +49,16 @@ RSpec.describe AggregateRoot do
     stream = "any-order-stream"
     order_created = Orders::Events::OrderCreated.new
 
+    repository = AggregateRoot::Repository.new(event_store)
     order = Order.new
     order.apply(order_created)
     expect(event_store).to receive(:publish).with([order_created], stream_name: stream, expected_version: -1).and_call_original
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
 
     order_expired = Orders::Events::OrderExpired.new
     order.apply(order_expired)
     expect(event_store).to receive(:publish).with([order_expired], stream_name: stream, expected_version: 0).and_call_original
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
   end
 
   it "should work with provided event_store" do
@@ -63,22 +67,23 @@ RSpec.describe AggregateRoot do
     end
 
     stream = "any-order-stream"
-    order = Order.new.load(stream, event_store: event_store)
+    repository = AggregateRoot::Repository.new(event_store)
+    order = repository.load(Order.new, stream)
     order_created = Orders::Events::OrderCreated.new
     order.apply(order_created)
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
 
     expect(event_store.read.stream(stream).to_a).to eq [order_created]
 
-    restored_order = Order.new.load(stream, event_store: event_store)
+    restored_order = repository.load(Order.new, stream)
     expect(restored_order.status).to eq :created
     order_expired = Orders::Events::OrderExpired.new
     restored_order.apply(order_expired)
-    restored_order.store(stream, event_store: event_store)
+    repository.store(restored_order, stream)
 
     expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
 
-    restored_again_order = Order.new.load(stream, event_store: event_store)
+    restored_again_order = repository.load(Order.new, stream)
     expect(restored_again_order.status).to eq :expired
   end
 
@@ -88,22 +93,23 @@ RSpec.describe AggregateRoot do
     end
 
     stream = "any-order-stream"
-    order = Order.new.load(stream)
+    repository = AggregateRoot::Repository.new
+    order = repository.load(Order.new, stream)
     order_created = Orders::Events::OrderCreated.new
     order.apply(order_created)
-    order.store(stream)
+    repository.store(order, stream)
 
     expect(event_store.read.stream(stream).to_a).to eq [order_created]
 
-    restored_order = Order.new.load(stream)
+    restored_order = repository.load(Order.new, stream)
     expect(restored_order.status).to eq :created
     order_expired = Orders::Events::OrderExpired.new
     restored_order.apply(order_expired)
-    restored_order.store(stream)
+    repository.store(restored_order, stream)
 
     expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
 
-    restored_again_order = Order.new.load(stream)
+    restored_again_order = repository.load(Order.new, stream)
     expect(restored_again_order.status).to eq :expired
   end
 
@@ -113,10 +119,11 @@ RSpec.describe AggregateRoot do
     end
 
     stream = "any-order-stream"
-    order = Order.new.load(stream)
+    repository = AggregateRoot::Repository.new
+    order = repository.load(Order.new, stream)
     order_created = Orders::Events::OrderCreated.new
     order.apply(order_created)
-    order.store
+    repository.store(order, stream)
 
     expect(event_store.read.stream(stream).to_a).to eq [order_created]
   end
@@ -195,7 +202,8 @@ RSpec.describe AggregateRoot do
     event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
     event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$2")
 
-    order = Order.new.load("Order$1", event_store: event_store)
+    repository = AggregateRoot::Repository.new(event_store)
+    order = repository.load(Order.new, "Order$1")
     expect(order.status).to eq :created
   end
 
