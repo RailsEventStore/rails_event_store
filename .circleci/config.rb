@@ -61,8 +61,8 @@ def Docker(image, environment = {})
   {
     "docker" => [
       docker,
-      { "image" => "postgres:11", "environment" => %w(POSTGRES_DB=rails_event_store POSTGRES_PASSWORD=secret), "command" => "-c max_connections=200" },
-      { "image" => "mysql:8", "environment" => %w(MYSQL_DATABASE=rails_event_store MYSQL_ROOT_PASSWORD=secret), "command" => "--default-authentication-plugin=mysql_native_password --max-connections=200" }
+      { "image" => "postgres:11", "environment" => %w(POSTGRES_DB=rails_event_store POSTGRES_PASSWORD=secret), "command" => "-c max_connections=2000" },
+      { "image" => "mysql:8", "environment" => %w(MYSQL_DATABASE=rails_event_store MYSQL_ROOT_PASSWORD=secret), "command" => "--default-authentication-plugin=mysql_native_password --max-connections=2000" }
     ]
   }
 end
