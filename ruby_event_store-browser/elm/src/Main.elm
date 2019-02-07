@@ -1,5 +1,6 @@
 module Main exposing (Event, Flags, Model, Msg(..), Page(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, model, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
 
+import Browser
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
@@ -7,18 +8,19 @@ import Http
 import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, value)
 import Json.Decode.Pipeline exposing (decode, optional, required, requiredAt)
 import Json.Encode exposing (encode)
-import Navigation
 import OpenedEventUI
+import Url
 import Url.Parser exposing ((</>))
 
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags ChangeUrl
+    Browser.application
         { init = model
         , view = view
         , update = update
         , subscriptions = subscriptions
+        , onChangeUrl = ChangeUrl
         }
 
 
@@ -33,7 +35,7 @@ type alias Model =
 type Msg
     = GetEvents (Result Http.Error (PaginatedList Event))
     | GetEvent (Result Http.Error Event)
-    | ChangeUrl Navigation.Location
+    | ChangeUrl Url.Url
     | GoToPage PaginationLink
     | OpenedEventUIChanged OpenedEventUI.Msg
 
@@ -84,7 +86,7 @@ subscriptions model =
     Sub.none
 
 
-model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
+model : Flags -> Url.Url -> ( Model, Cmd Msg )
 model flags location =
     let
         initLinks =
@@ -143,7 +145,7 @@ buildUrl baseUrl id =
     baseUrl ++ "/" ++ Http.encodeUri id
 
 
-urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
+urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
         decodeLocation location =
