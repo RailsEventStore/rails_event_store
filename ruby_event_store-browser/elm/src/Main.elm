@@ -184,13 +184,19 @@ routeParser =
         ]
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div [ class "frame" ]
-        [ header [ class "frame__header" ] [ browserNavigation model ]
-        , main_ [ class "frame__body" ] [ browserBody model ]
-        , footer [ class "frame__footer" ] [ browserFooter model ]
-        ]
+    let
+        body =
+            div [ class "frame" ]
+                [ header [ class "frame__header" ] [ browserNavigation model ]
+                , main_ [ class "frame__body" ] [ browserBody model ]
+                , footer [ class "frame__footer" ] [ browserFooter model ]
+                ]
+    in
+    { body = [ body ]
+    , title = "RubyEventStore::Browser"
+    }
 
 
 browserNavigation : Model -> Html Msg
