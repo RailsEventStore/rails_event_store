@@ -5,8 +5,8 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, value)
-import Json.Decode.Pipeline exposing (decode, optional, required, requiredAt)
+import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
+import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import OpenedEventUI
 import Url
@@ -358,14 +358,14 @@ getEvents url =
 
 eventsDecoder : Decoder (PaginatedList Event)
 eventsDecoder =
-    decode PaginatedList
+    succeed PaginatedList
         |> required "data" (list eventDecoder_)
         |> required "links" linksDecoder
 
 
 linksDecoder : Decoder PaginationLinks
 linksDecoder =
-    decode PaginationLinks
+    succeed PaginationLinks
         |> optional "next" (maybe string) Nothing
         |> optional "prev" (maybe string) Nothing
         |> optional "first" (maybe string) Nothing
@@ -380,7 +380,7 @@ eventDecoder =
 
 eventDecoder_ : Decoder Event
 eventDecoder_ =
-    decode Event
+    succeed Event
         |> requiredAt [ "attributes", "event_type" ] string
         |> requiredAt [ "id" ] string
         |> requiredAt [ "attributes", "metadata", "timestamp" ] string
