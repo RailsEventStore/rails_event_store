@@ -142,18 +142,18 @@ update msg model =
 
 buildUrl : String -> String -> String
 buildUrl baseUrl id =
-    baseUrl ++ "/" ++ Http.encodeUri id
+    baseUrl ++ "/" ++ Url.percentEncode id
 
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
         decodeLocation loc =
-            Url.Parser.parseHash routeParser loc
+            Url.Parser.parse routeParser loc
     in
     case decodeLocation location of
         Just (BrowseEvents encodedStreamId) ->
-            case Http.decodeUri encodedStreamId of
+            case Url.percentDecode encodedStreamId of
                 Just streamId ->
                     ( { model | page = BrowseEvents streamId }, getEvents (buildUrl model.flags.streamsUrl streamId) )
 
@@ -161,7 +161,7 @@ urlUpdate model location =
                     ( { model | page = NotFound }, Cmd.none )
 
         Just (ShowEvent encodedEventId) ->
-            case Http.decodeUri encodedEventId of
+            case Url.percentDecode encodedEventId of
                 Just eventId ->
                     ( { model | page = ShowEvent eventId }, getEvent (buildUrl model.flags.eventsUrl eventId) )
 
