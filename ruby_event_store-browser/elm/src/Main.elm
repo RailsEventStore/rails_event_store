@@ -1,4 +1,4 @@
-module Main exposing (Event, Flags, Model, Msg(..), Page(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, model, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Event, Flags, Model, Msg(..), Page(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Html exposing (..)
