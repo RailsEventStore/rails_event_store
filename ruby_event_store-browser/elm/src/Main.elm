@@ -9,7 +9,7 @@ import Json.Decode.Pipeline exposing (decode, optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import Navigation
 import OpenedEventUI
-import UrlParser exposing ((</>))
+import Url.Parser exposing ((</>))
 
 
 main : Program Flags Model Msg
@@ -147,7 +147,7 @@ urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
         decodeLocation location =
-            UrlParser.parseHash routeParser location
+            Url.Parser.parseHash routeParser location
     in
     case decodeLocation location of
         Just (BrowseEvents encodedStreamId) ->
@@ -173,12 +173,12 @@ urlUpdate model location =
             ( { model | page = NotFound }, Cmd.none )
 
 
-routeParser : UrlParser.Parser (Page -> a) a
+routeParser : Url.Parser.Parser (Page -> a) a
 routeParser =
-    UrlParser.oneOf
-        [ UrlParser.map (BrowseEvents "all") UrlParser.top
-        , UrlParser.map BrowseEvents (UrlParser.s "streams" </> UrlParser.string)
-        , UrlParser.map ShowEvent (UrlParser.s "events" </> UrlParser.string)
+    Url.Parser.oneOf
+        [ Url.Parser.map (BrowseEvents "all") Url.Parser.top
+        , Url.Parser.map BrowseEvents (Url.Parser.s "streams" </> Url.Parser.string)
+        , Url.Parser.map ShowEvent (Url.Parser.s "events" </> Url.Parser.string)
         ]
 
 
