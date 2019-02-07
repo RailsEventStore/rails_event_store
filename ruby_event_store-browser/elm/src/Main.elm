@@ -1,15 +1,15 @@
-module Main exposing (..)
+module Main exposing (Event, Flags, Model, Msg(..), Page(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, model, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
 
 import Html exposing (..)
-import Html.Attributes exposing (placeholder, disabled, href, class)
+import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, Value, field, list, string, at, value, maybe, oneOf)
-import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional)
+import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, value)
+import Json.Decode.Pipeline exposing (decode, optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import Navigation
-import UrlParser exposing ((</>))
 import OpenedEventUI
+import UrlParser exposing ((</>))
 
 
 main : Program Flags Model Msg
@@ -101,7 +101,7 @@ model flags location =
             , flags = flags
             }
     in
-        urlUpdate initModel location
+    urlUpdate initModel location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -132,7 +132,7 @@ update msg model =
                         ( newModel, cmd ) =
                             OpenedEventUI.update openedEventUIMsg openedEvent
                     in
-                        ( { model | event = Just newModel }, Cmd.none )
+                    ( { model | event = Just newModel }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -140,7 +140,7 @@ update msg model =
 
 buildUrl : String -> String -> String
 buildUrl baseUrl id =
-    baseUrl ++ "/" ++ (Http.encodeUri id)
+    baseUrl ++ "/" ++ Http.encodeUri id
 
 
 urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
@@ -149,28 +149,28 @@ urlUpdate model location =
         decodeLocation location =
             UrlParser.parseHash routeParser location
     in
-        case decodeLocation location of
-            Just (BrowseEvents encodedStreamId) ->
-                case (Http.decodeUri encodedStreamId) of
-                    Just streamId ->
-                        ( { model | page = (BrowseEvents streamId) }, getEvents (buildUrl model.flags.streamsUrl streamId) )
+    case decodeLocation location of
+        Just (BrowseEvents encodedStreamId) ->
+            case Http.decodeUri encodedStreamId of
+                Just streamId ->
+                    ( { model | page = BrowseEvents streamId }, getEvents (buildUrl model.flags.streamsUrl streamId) )
 
-                    Nothing ->
-                        ( { model | page = NotFound }, Cmd.none )
+                Nothing ->
+                    ( { model | page = NotFound }, Cmd.none )
 
-            Just (ShowEvent encodedEventId) ->
-                case (Http.decodeUri encodedEventId) of
-                    Just eventId ->
-                        ( { model | page = (ShowEvent eventId) }, getEvent (buildUrl model.flags.eventsUrl eventId) )
+        Just (ShowEvent encodedEventId) ->
+            case Http.decodeUri encodedEventId of
+                Just eventId ->
+                    ( { model | page = ShowEvent eventId }, getEvent (buildUrl model.flags.eventsUrl eventId) )
 
-                    Nothing ->
-                        ( { model | page = NotFound }, Cmd.none )
+                Nothing ->
+                    ( { model | page = NotFound }, Cmd.none )
 
-            Just page ->
-                ( { model | page = page }, Cmd.none )
+        Just page ->
+            ( { model | page = page }, Cmd.none )
 
-            Nothing ->
-                ( { model | page = NotFound }, Cmd.none )
+        Nothing ->
+            ( { model | page = NotFound }, Cmd.none )
 
 
 routeParser : UrlParser.Parser (Page -> a) a

@@ -1,8 +1,8 @@
-module OpenedEventUI exposing (..)
+module OpenedEventUI exposing (Event, Model, Msg(..), initModel, showEvent, showJsonTree, update)
 
-import JsonTree
 import Html exposing (..)
-import Html.Attributes exposing (placeholder, disabled, href, class)
+import Html.Attributes exposing (class, disabled, href, placeholder)
+import JsonTree
 
 
 type alias Event =
@@ -60,8 +60,8 @@ showEvent model =
                 , tbody []
                     [ tr []
                         [ td [] [ text model.event.eventId ]
-                        , td [] [ showJsonTree model.event.rawData model.dataTreeState (\s -> (ChangeOpenedEventDataTreeState s)) ]
-                        , td [] [ showJsonTree model.event.rawMetadata model.metadataTreeState (\s -> (ChangeOpenedEventMetadataTreeState s)) ]
+                        , td [] [ showJsonTree model.event.rawData model.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                        , td [] [ showJsonTree model.event.rawMetadata model.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                         ]
                     ]
                 ]
@@ -72,5 +72,5 @@ showEvent model =
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg
 showJsonTree rawJson treeState changeState =
     JsonTree.parseString rawJson
-        |> Result.map (\tree -> JsonTree.view tree ({ onSelect = Nothing, toMsg = changeState }) treeState)
+        |> Result.map (\tree -> JsonTree.view tree { onSelect = Nothing, toMsg = changeState } treeState)
         |> Result.withDefault (pre [] [ text rawJson ])
