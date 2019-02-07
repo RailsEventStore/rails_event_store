@@ -16,7 +16,7 @@ import Url.Parser exposing ((</>))
 main : Program Flags Model Msg
 main =
     Browser.application
-        { init = model
+        { init = buildModel
         , view = view
         , update = update
         , subscriptions = subscriptions
@@ -86,8 +86,8 @@ subscriptions model =
     Sub.none
 
 
-model : Flags -> Url.Url -> ( Model, Cmd Msg )
-model flags location =
+buildModel : Flags -> Url.Url -> ( Model, Cmd Msg )
+buildModel flags location =
     let
         initLinks =
             { prev = Nothing
@@ -112,13 +112,13 @@ update msg model =
         GetEvents (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
-        GetEvents (Err msg) ->
+        GetEvents (Err errorMessage) ->
             ( model, Cmd.none )
 
         GetEvent (Ok result) ->
             ( { model | event = Just (OpenedEventUI.initModel result) }, Cmd.none )
 
-        GetEvent (Err msg) ->
+        GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
 
         ChangeUrl location ->
@@ -148,8 +148,8 @@ buildUrl baseUrl id =
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
-        decodeLocation location =
-            Url.Parser.parseHash routeParser location
+        decodeLocation loc =
+            Url.Parser.parseHash routeParser loc
     in
     case decodeLocation location of
         Just (BrowseEvents encodedStreamId) ->
@@ -230,8 +230,8 @@ browserBody model =
 
 
 showEvent : Maybe OpenedEventUI.Model -> Html Msg
-showEvent event =
-    case event of
+showEvent maybeEvent =
+    case maybeEvent of
         Just event ->
             Html.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.showEvent event)
 
