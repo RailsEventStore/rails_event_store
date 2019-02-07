@@ -22,6 +22,7 @@ main =
         , update = update
         , subscriptions = subscriptions
         , onUrlChange = ChangeUrl
+        , onUrlRequest = ClickedLink
         }
 
 
@@ -37,6 +38,7 @@ type Msg
     = GetEvents (Result Http.Error (PaginatedList Event))
     | GetEvent (Result Http.Error Event)
     | ChangeUrl Url.Url
+    | ClickedLink Browser.UrlRequest
     | GoToPage PaginationLink
     | OpenedEventUIChanged OpenedEventUI.Msg
 
@@ -124,6 +126,9 @@ update msg model =
 
         ChangeUrl location ->
             urlUpdate model location
+
+        ClickedLink _ ->
+            ( model, Cmd.none )
 
         GoToPage paginationLink ->
             ( model, getEvents paginationLink )
