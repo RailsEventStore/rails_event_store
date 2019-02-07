@@ -658,7 +658,7 @@ binstall@1.2.0:
     request "2.79.0"
     tar "2.2.1"
 
-binwrap@^0.2.0:
+binwrap@0.2.0, binwrap@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/binwrap/-/binwrap-0.2.0.tgz#572d0f48c4e767d72d622f0b805ed7ce1db16f9a"
   integrity sha512-HUspivC8zPE37KJQ0S4zsNHUpymzQBinmpdMoa+JwmB6Mi+p30ywVZJcillYpbQmiX2wLykaaDJxXmwZkbaZGA==
@@ -1853,10 +1853,10 @@ elliptic@^6.0.0:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-elm-format@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/elm-format/-/elm-format-0.8.0.tgz#f0d59efd0414c081d3759c35e52d466cc5f7d62c"
-  integrity sha512-4L5POdYmLGTtAjc1a9C6l22xpPqcXF0aiDX+c49SX90sl+Mq4Y76pe542pRuIHZuYc5RQfKSfs7YjHk2pr2dTQ==
+elm-format@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/elm-format/-/elm-format-0.8.1.tgz#37796fc06b8460a6d76a054a1216d86d8481155e"
+  integrity sha512-uLcDICdmEoRBaCp3PobcvHtUej2RJFHRYfMd7i3CSH+RsajJYTdiPkviKIq823Kd4gfjQMpNajEyM1lLFez7+A==
   dependencies:
     binwrap "^0.2.0"
 
@@ -1910,6 +1910,13 @@ elm@^0.18.0:
     promise "7.1.1"
     request "2.74.0"
     tar "2.2.1"
+
+elm@^0.19.0-bugfix6:
+  version "0.19.0-bugfix6"
+  resolved "https://registry.yarnpkg.com/elm/-/elm-0.19.0-bugfix6.tgz#ebba8a9a57346b0abf96f36231df51999d9ecc53"
+  integrity sha512-nD/oK/nG26ULh94GREsILA9aQa3Gon+KKBmS0Z0MstywLWwrhuWKba8gfiIWLdnpQWHFIf+UsThk6Z71UWi6TQ==
+  dependencies:
+    binwrap "0.2.0"
 
 emojis-list@^2.0.0:
   version "2.1.0"
