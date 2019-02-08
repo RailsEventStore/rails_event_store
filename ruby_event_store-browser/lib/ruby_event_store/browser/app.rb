@@ -23,7 +23,7 @@ module RubyEventStore
 
         mime_type :json, 'application/vnd.api+json'
       end
-      
+
       get '/' do
         erb %{
           <!DOCTYPE html>

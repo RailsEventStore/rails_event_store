@@ -10,6 +10,8 @@
     "elm-format": "^0.8.1",
     "elm-test": "0.19.0-rev4",
     "open-color": "^1.5.1",
+    "sass": "^1.17.0",
+    "elm-hot": "^1.0.1",
     "parcel-bundler": "^1.11.0"
   },
   "scripts": {
