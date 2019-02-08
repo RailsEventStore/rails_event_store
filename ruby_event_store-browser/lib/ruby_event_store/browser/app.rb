@@ -35,11 +35,13 @@ module RubyEventStore
             <body>
               <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
               <script type="text/javascript">
-                RubyEventStore.Browser.Main.fullscreen({
-                  rootUrl:    "<%= path %>",
-                  eventsUrl:  "<%= path %>/events",
-                  streamsUrl: "<%= path %>/streams",
-                  resVersion: "<%= RubyEventStore::VERSION %>"
+                RubyEventStore.Browser.Elm.Main.init({
+                  flags: {
+                    rootUrl:    "<%= path %>",
+                    eventsUrl:  "<%= path %>/events",
+                    streamsUrl: "<%= path %>/streams",
+                    resVersion: "<%= RubyEventStore::VERSION %>"
+                  }
                 });
               </script>
             </body>
