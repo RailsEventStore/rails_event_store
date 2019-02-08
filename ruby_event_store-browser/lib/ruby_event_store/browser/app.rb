@@ -30,6 +30,7 @@ module RubyEventStore
           <html>
             <head>
               <title>RubyEventStore::Browser</title>
+              <link type="text/css" rel="stylesheet" href="<%= path %>/ruby_event_store_browser.css">
             </head>
             <body>
               <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
