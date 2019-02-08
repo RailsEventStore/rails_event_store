@@ -19,7 +19,11 @@ module RubyEventStore
         set :root_path, nil
         set :event_store_locator, -> {}
         set :protection, except: :path_traversal
-        set :public_folder, "#{__dir__}/../../../public"
+        if settings.development?
+          set :public_folder, "#{__dir__}/../../../devserver/public"
+        else
+          set :public_folder, "#{__dir__}/../../../public"
+        end
 
         mime_type :json, 'application/vnd.api+json'
       end

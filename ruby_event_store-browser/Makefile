@@ -22,6 +22,12 @@ push: $(JS_BUNDLE)
 
 clean: clean-yarn
 
+watch-elm:
+	@cd elm; yarn watch
+
+dev-server:
+	@bundle exec rackup --port 9393 devserver/config.ru
+
 install-yarn:
 	@echo "Installing yarn dependencies"
 	@cd elm; yarn install

@@ -23,4 +23,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'ruby_event_store', '= 0.36.0'
   spec.add_dependency 'sinatra'
+
+  spec.add_development_dependency 'rack'
 end
