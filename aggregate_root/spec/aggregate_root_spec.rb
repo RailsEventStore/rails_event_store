@@ -23,7 +23,8 @@ RSpec.describe AggregateRoot do
     order_created = Orders::Events::OrderCreated.new
     event_store.publish(order_created, stream_name: stream)
 
-    order = Order.new.load(stream, event_store: event_store)
+    repository = AggregateRoot::Repository.new(event_store)
+    order = repository.load(Order.new, stream)
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to be_empty
   end
@@ -33,12 +34,14 @@ RSpec.describe AggregateRoot do
     order_created = Orders::Events::OrderCreated.new
     order_expired = Orders::Events::OrderExpired.new
 
+    repository = AggregateRoot::Repository.new(event_store)
     order = Order.new
     order.apply(order_created)
     order.apply(order_expired)
     expect(event_store).not_to receive(:publish).with(kind_of(Enumerator), any_args)
+    expect(event_store).not_to receive(:publish).with(kind_of(Set), any_args)
     expect(event_store).to receive(:publish).with([order_created, order_expired], stream_name: stream, expected_version: -1).and_call_original
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
     expect(order.unpublished_events.to_a).to be_empty
   end
 
@@ -46,79 +49,77 @@ RSpec.describe AggregateRoot do
     stream = "any-order-stream"
     order_created = Orders::Events::OrderCreated.new
 
+    repository = AggregateRoot::Repository.new(event_store)
     order = Order.new
     order.apply(order_created)
     expect(event_store).to receive(:publish).with([order_created], stream_name: stream, expected_version: -1).and_call_original
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
 
     order_expired = Orders::Events::OrderExpired.new
     order.apply(order_expired)
     expect(event_store).to receive(:publish).with([order_expired], stream_name: stream, expected_version: 0).and_call_original
-    order.store(stream, event_store: event_store)
+    repository.store(order, stream)
   end
 
   it "should work with provided event_store" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = double(:some_other_event_store)
+    with_default_event_store(double(:some_other_event_store)) do
+      stream = "any-order-stream"
+      repository = AggregateRoot::Repository.new(event_store)
+      order = repository.load(Order.new, stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      repository.store(order, stream)
+
+      expect(event_store.read.stream(stream).to_a).to eq [order_created]
+
+      restored_order = repository.load(Order.new, stream)
+      expect(restored_order.status).to eq :created
+      order_expired = Orders::Events::OrderExpired.new
+      restored_order.apply(order_expired)
+      repository.store(restored_order, stream)
+
+      expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
+
+      restored_again_order = repository.load(Order.new, stream)
+      expect(restored_again_order.status).to eq :expired
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream, event_store: event_store)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store(stream, event_store: event_store)
-
-    expect(event_store.read.stream(stream).to_a).to eq [order_created]
-
-    restored_order = Order.new.load(stream, event_store: event_store)
-    expect(restored_order.status).to eq :created
-    order_expired = Orders::Events::OrderExpired.new
-    restored_order.apply(order_expired)
-    restored_order.store(stream, event_store: event_store)
-
-    expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
-
-    restored_again_order = Order.new.load(stream, event_store: event_store)
-    expect(restored_again_order.status).to eq :expired
   end
 
   it "should use default client if event_store not provided" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = event_store
+    with_default_event_store(event_store) do
+      stream = "any-order-stream"
+      repository = AggregateRoot::Repository.new
+      order = repository.load(Order.new, stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      repository.store(order, stream)
+
+      expect(event_store.read.stream(stream).to_a).to eq [order_created]
+
+      restored_order = repository.load(Order.new, stream)
+      expect(restored_order.status).to eq :created
+      order_expired = Orders::Events::OrderExpired.new
+      restored_order.apply(order_expired)
+      repository.store(restored_order, stream)
+
+      expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
+
+      restored_again_order = repository.load(Order.new, stream)
+      expect(restored_again_order.status).to eq :expired
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store(stream)
-
-    expect(event_store.read.stream(stream).to_a).to eq [order_created]
-
-    restored_order = Order.new.load(stream)
-    expect(restored_order.status).to eq :created
-    order_expired = Orders::Events::OrderExpired.new
-    restored_order.apply(order_expired)
-    restored_order.store(stream)
-
-    expect(event_store.read.stream(stream).to_a).to eq [order_created, order_expired]
-
-    restored_again_order = Order.new.load(stream)
-    expect(restored_again_order.status).to eq :expired
   end
 
   it "if loaded from some stream should store to the same stream is no other stream specified" do
-    AggregateRoot.configure do |config|
-      config.default_event_store = event_store
+    with_default_event_store(event_store) do
+      stream = "any-order-stream"
+      repository = AggregateRoot::Repository.new
+      order = repository.load(Order.new, stream)
+      order_created = Orders::Events::OrderCreated.new
+      order.apply(order_created)
+      repository.store(order, stream)
+
+      expect(event_store.read.stream(stream).to_a).to eq [order_created]
     end
-
-    stream = "any-order-stream"
-    order = Order.new.load(stream)
-    order_created = Orders::Events::OrderCreated.new
-    order.apply(order_created)
-    order.store
-
-    expect(event_store.read.stream(stream).to_a).to eq [order_created]
   end
 
   it "should receive a method call based on a default apply strategy" do
@@ -195,7 +196,8 @@ RSpec.describe AggregateRoot do
     event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
     event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$2")
 
-    order = Order.new.load("Order$1", event_store: event_store)
+    repository = AggregateRoot::Repository.new(event_store)
+    order = repository.load(Order.new, "Order$1")
     expect(order.status).to eq :created
   end
 
@@ -290,6 +292,118 @@ RSpec.describe AggregateRoot do
     it 'extend class with AggregateRoot::ClassMethods' do
       expect(Order).to receive(:extend).with(AggregateRoot::ClassMethods)
       Order.include(AggregateRoot)
+    end
+  end
+
+  it "still loads events using deprecated load method on aggregate" do
+    event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
+    event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$1")
+
+    expect {
+      order = Order.new.load("Order$1", event_store: event_store)
+      expect(order.status).to eq :expired
+    }.to output(<<~EOS).to_stderr
+      Method `load` on aggregate is deprecated. Use AggregateRoot::Repository instead.
+      Instead of: `order = Order.new.load("OrderStreamHere")`
+      you need to have code:
+      ```
+      repository = AggregateRoot::Repository.new
+      order = repository.load(Order.new, "OrderStreamHere")
+      ```
+    EOS
+  end
+
+  it "still stores events using deprecated store method on aggregate" do
+    stream = "any-order-stream"
+    order_created = Orders::Events::OrderCreated.new
+
+    order = Order.new
+    silence_warnings do
+      order.load(stream, event_store: event_store)
+    end
+    order.apply(order_created)
+    expect(event_store).to receive(:publish).with([order_created], stream_name: stream, expected_version: -1).and_call_original
+
+    expect {
+      order.store(event_store: event_store)
+    }.to output(<<~EOS).to_stderr
+      Method `store` on aggregate is deprecated. Use AggregateRoot::Repository instead.
+      Instead of: `order.store("OrderStreamHere")`
+      you need to have code:
+      ```
+      repository = AggregateRoot::Repository.new
+      # load and order and execute some operation on it here
+      repository.store(order, "OrderStreamHere")
+      ```
+    EOS
+  end
+
+  it "still loads events using deprecated load method on aggregate - with default event store" do
+    with_default_event_store(event_store) do
+
+      event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
+      event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$1")
+
+      expect {
+        order = Order.new.load("Order$1")
+        expect(order.status).to eq :expired
+      }.to output(<<~EOS).to_stderr
+      Method `load` on aggregate is deprecated. Use AggregateRoot::Repository instead.
+      Instead of: `order = Order.new.load("OrderStreamHere")`
+      you need to have code:
+      ```
+      repository = AggregateRoot::Repository.new
+      order = repository.load(Order.new, "OrderStreamHere")
+      ```
+      EOS
+    end
+  end
+
+  it "still stores events using deprecated store method on aggregate - with default event store" do
+    with_default_event_store(event_store) do
+      stream = "any-order-stream"
+      order_created = Orders::Events::OrderCreated.new
+
+      order = Order.new
+      silence_warnings do
+        order.load(stream)
+      end
+      order.apply(order_created)
+      expect(event_store).to receive(:publish).with([order_created], stream_name: "Order$2", expected_version: -1).and_call_original
+
+      expect {
+        order.store("Order$2")
+      }.to output(<<~EOS).to_stderr
+      Method `store` on aggregate is deprecated. Use AggregateRoot::Repository instead.
+      Instead of: `order.store("OrderStreamHere")`
+      you need to have code:
+      ```
+      repository = AggregateRoot::Repository.new
+      # load and order and execute some operation on it here
+      repository.store(order, "OrderStreamHere")
+      ```
+      EOS
+    end
+  end
+
+  it "uses with_aggregate to simplify aggregate usage" do
+    event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
+    order_expired = Orders::Events::OrderExpired.new
+    expect(event_store).to receive(:publish).with([order_expired], stream_name: "Order$1", expected_version: 0).and_call_original
+    repository = AggregateRoot::Repository.new(event_store)
+    repository.with_aggregate(Order.new, "Order$1") do |order|
+      order.apply(order_expired)
+    end
+  end
+
+  def with_default_event_store(store)
+    previous = AggregateRoot.configuration.default_event_store
+    AggregateRoot.configure do |config|
+      config.default_event_store = store
+    end
+    yield
+    AggregateRoot.configure do |config|
+      config.default_event_store = previous
     end
   end
 end
