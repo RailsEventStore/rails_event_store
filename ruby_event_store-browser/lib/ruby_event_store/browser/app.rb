@@ -4,12 +4,18 @@ require 'sinatra'
 module RubyEventStore
   module Browser
     class App < Sinatra::Application
-      def self.for(event_store_locator:, host: nil, path: nil)
+      def self.for(event_store_locator:, host: nil, path: nil, environment: :production)
         self.tap do |app|
           app.settings.instance_exec do
             set :event_store_locator, event_store_locator
             set :host, host
             set :root_path, path
+            set :environment, environment
+            if settings.development?
+              set :public_folder, "#{__dir__}/../../../devserver/public"
+            else
+              set :public_folder, "#{__dir__}/../../../public"
+            end
           end
         end
       end
@@ -19,11 +25,6 @@ module RubyEventStore
         set :root_path, nil
         set :event_store_locator, -> {}
         set :protection, except: :path_traversal
-        if settings.development?
-          set :public_folder, "#{__dir__}/../../../devserver/public"
-        else
-          set :public_folder, "#{__dir__}/../../../public"
-        end
 
         mime_type :json, 'application/vnd.api+json'
       end
