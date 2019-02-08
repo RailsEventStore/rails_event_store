@@ -31,6 +31,7 @@ type alias Model =
     , event : Maybe OpenedEventUI.Model
     , page : Page
     , flags : Flags
+    , key : Browser.Navigation.Key
     }
 
 
@@ -104,6 +105,7 @@ buildModel flags location key =
             , page = NotFound
             , event = Nothing
             , flags = flags
+            , key = key
             }
     in
     urlUpdate initModel location
@@ -127,8 +129,17 @@ update msg model =
         ChangeUrl location ->
             urlUpdate model location
 
-        ClickedLink _ ->
-            ( model, Cmd.none )
+        ClickedLink urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model
+                    , Browser.Navigation.pushUrl model.key (Url.toString url)
+                    )
+
+                Browser.External url ->
+                    ( model
+                    , Browser.Navigation.load url
+                    )
 
         GoToPage paginationLink ->
             ( model, getEvents paginationLink )
@@ -155,7 +166,7 @@ urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
         decodeLocation loc =
-            Url.Parser.parse routeParser loc
+            Url.Parser.parse routeParser (urlFragmentToPath loc)
     in
     case decodeLocation location of
         Just (BrowseEvents encodedStreamId) ->
@@ -188,6 +199,11 @@ routeParser =
         , Url.Parser.map BrowseEvents (Url.Parser.s "streams" </> Url.Parser.string)
         , Url.Parser.map ShowEvent (Url.Parser.s "events" </> Url.Parser.string)
         ]
+
+
+urlFragmentToPath : Url.Url -> Url.Url
+urlFragmentToPath url =
+    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
 
 
 view : Model -> Browser.Document Msg
