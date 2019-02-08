@@ -386,6 +386,16 @@ RSpec.describe AggregateRoot do
     end
   end
 
+  it "uses with_aggregate to simplify aggregate usage" do
+    event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
+    order_expired = Orders::Events::OrderExpired.new
+    expect(event_store).to receive(:publish).with([order_expired], stream_name: "Order$1", expected_version: 0).and_call_original
+    repository = AggregateRoot::Repository.new(event_store)
+    repository.with_aggregate(Order.new, "Order$1") do |order|
+      order.apply(order_expired)
+    end
+  end
+
   def with_default_event_store(store)
     previous = AggregateRoot.configuration.default_event_store
     AggregateRoot.configure do |config|

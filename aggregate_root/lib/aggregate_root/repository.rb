@@ -17,6 +17,11 @@ module AggregateRoot
       aggregate.version = aggregate.version + aggregate.unpublished_events.count
     end
 
+    def with_aggregate(aggregate, stream_name, &block)
+      block.call(load(aggregate, stream_name))
+      store(aggregate, stream_name)
+    end
+
     private
     attr_reader :event_store
 
