@@ -180,7 +180,7 @@ module RubyEventStore
 
     specify 'immutable specification' do
       with_event_of_id(event_id) do
-        spec = specification.backward
+        spec = backward_specifcation = specification.backward
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.backward?).to eq(true)
         expect(spec.result.start).to eq(:begin)
