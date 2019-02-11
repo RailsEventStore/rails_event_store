@@ -22,7 +22,7 @@ push: $(BUNDLE)
 
 clean: clean-yarn
 
-watch-elm:
+watch-elm: clean-yarn
 	@cd elm; yarn watch
 
 dev-server:

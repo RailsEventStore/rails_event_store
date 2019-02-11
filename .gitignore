@@ -21,6 +21,3 @@ rails_event_store_browser.js
 contributors.json
 config/master.key
 *.orig
-ruby_event_store-browser/devserver/public/ruby_event_store_browser.css
-ruby_event_store-browser/devserver/public/ruby_event_store_browser.js
-ruby_event_store-browser/devserver/public/ruby_event_store_browser.map

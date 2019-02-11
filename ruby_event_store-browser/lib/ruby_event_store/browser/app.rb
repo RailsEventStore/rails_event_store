@@ -11,11 +11,7 @@ module RubyEventStore
             set :host, host
             set :root_path, path
             set :environment, environment
-            if settings.development?
-              set :public_folder, "#{__dir__}/../../../devserver/public"
-            else
-              set :public_folder, "#{__dir__}/../../../public"
-            end
+            set :public_folder, "#{__dir__}/../../../public"
           end
         end
       end
