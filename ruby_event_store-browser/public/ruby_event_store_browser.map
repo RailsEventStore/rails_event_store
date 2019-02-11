@@ -1,1 +1,0 @@
-{"version":3,"sources":["index.js"],"names":["require","window","RubyEventStore","Browser"],"mappings":";;;;;AAAAA,QAAQ,sBAERC,OAAOC,eAAiB,GACxBD,OAAOC,eAAeC,QAAUH,QAAQ","file":"ruby_event_store_browser.map","sourceRoot":"../elm/src","sourcesContent":["require(\"./style/style.scss\");\n\nwindow.RubyEventStore = {};\nwindow.RubyEventStore.Browser = require(\"./Main.elm\");"]}
