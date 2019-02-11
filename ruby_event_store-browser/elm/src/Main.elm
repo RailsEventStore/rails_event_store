@@ -1,24 +1,28 @@
-module Main exposing (..)
+module Main exposing (Event, Flags, Model, Msg(..), Page(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
 
+import Browser
+import Browser.Navigation
 import Html exposing (..)
-import Html.Attributes exposing (placeholder, disabled, href, class)
+import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, Value, field, list, string, at, value, maybe, oneOf)
-import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional)
+import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
+import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
-import Navigation
-import UrlParser exposing ((</>))
 import OpenedEventUI
+import Url
+import Url.Parser exposing ((</>))
 
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags ChangeUrl
-        { init = model
+    Browser.application
+        { init = buildModel
         , view = view
         , update = update
         , subscriptions = subscriptions
+        , onUrlChange = ChangeUrl
+        , onUrlRequest = ClickedLink
         }
 
 
@@ -27,13 +31,15 @@ type alias Model =
     , event : Maybe OpenedEventUI.Model
     , page : Page
     , flags : Flags
+    , key : Browser.Navigation.Key
     }
 
 
 type Msg
     = GetEvents (Result Http.Error (PaginatedList Event))
     | GetEvent (Result Http.Error Event)
-    | ChangeUrl Navigation.Location
+    | ChangeUrl Url.Url
+    | ClickedLink Browser.UrlRequest
     | GoToPage PaginationLink
     | OpenedEventUIChanged OpenedEventUI.Msg
 
@@ -84,8 +90,8 @@ subscriptions model =
     Sub.none
 
 
-model : Flags -> Navigation.Location -> ( Model, Cmd Msg )
-model flags location =
+buildModel : Flags -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+buildModel flags location key =
     let
         initLinks =
             { prev = Nothing
@@ -99,9 +105,10 @@ model flags location =
             , page = NotFound
             , event = Nothing
             , flags = flags
+            , key = key
             }
     in
-        urlUpdate initModel location
+    urlUpdate initModel location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -110,17 +117,29 @@ update msg model =
         GetEvents (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
-        GetEvents (Err msg) ->
+        GetEvents (Err errorMessage) ->
             ( model, Cmd.none )
 
         GetEvent (Ok result) ->
             ( { model | event = Just (OpenedEventUI.initModel result) }, Cmd.none )
 
-        GetEvent (Err msg) ->
+        GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
 
         ChangeUrl location ->
             urlUpdate model location
+
+        ClickedLink urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model
+                    , Browser.Navigation.pushUrl model.key (Url.toString url)
+                    )
+
+                Browser.External url ->
+                    ( model
+                    , Browser.Navigation.load url
+                    )
 
         GoToPage paginationLink ->
             ( model, getEvents paginationLink )
@@ -132,7 +151,7 @@ update msg model =
                         ( newModel, cmd ) =
                             OpenedEventUI.update openedEventUIMsg openedEvent
                     in
-                        ( { model | event = Just newModel }, Cmd.none )
+                    ( { model | event = Just newModel }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -140,55 +159,66 @@ update msg model =
 
 buildUrl : String -> String -> String
 buildUrl baseUrl id =
-    baseUrl ++ "/" ++ (Http.encodeUri id)
+    baseUrl ++ "/" ++ Url.percentEncode id
 
 
-urlUpdate : Model -> Navigation.Location -> ( Model, Cmd Msg )
+urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
-        decodeLocation location =
-            UrlParser.parseHash routeParser location
+        decodeLocation loc =
+            Url.Parser.parse routeParser (urlFragmentToPath loc)
     in
-        case decodeLocation location of
-            Just (BrowseEvents encodedStreamId) ->
-                case (Http.decodeUri encodedStreamId) of
-                    Just streamId ->
-                        ( { model | page = (BrowseEvents streamId) }, getEvents (buildUrl model.flags.streamsUrl streamId) )
+    case decodeLocation location of
+        Just (BrowseEvents encodedStreamId) ->
+            case Url.percentDecode encodedStreamId of
+                Just streamId ->
+                    ( { model | page = BrowseEvents streamId }, getEvents (buildUrl model.flags.streamsUrl streamId) )
 
-                    Nothing ->
-                        ( { model | page = NotFound }, Cmd.none )
+                Nothing ->
+                    ( { model | page = NotFound }, Cmd.none )
 
-            Just (ShowEvent encodedEventId) ->
-                case (Http.decodeUri encodedEventId) of
-                    Just eventId ->
-                        ( { model | page = (ShowEvent eventId) }, getEvent (buildUrl model.flags.eventsUrl eventId) )
+        Just (ShowEvent encodedEventId) ->
+            case Url.percentDecode encodedEventId of
+                Just eventId ->
+                    ( { model | page = ShowEvent eventId }, getEvent (buildUrl model.flags.eventsUrl eventId) )
 
-                    Nothing ->
-                        ( { model | page = NotFound }, Cmd.none )
+                Nothing ->
+                    ( { model | page = NotFound }, Cmd.none )
 
-            Just page ->
-                ( { model | page = page }, Cmd.none )
+        Just page ->
+            ( { model | page = page }, Cmd.none )
 
-            Nothing ->
-                ( { model | page = NotFound }, Cmd.none )
+        Nothing ->
+            ( { model | page = NotFound }, Cmd.none )
 
 
-routeParser : UrlParser.Parser (Page -> a) a
+routeParser : Url.Parser.Parser (Page -> a) a
 routeParser =
-    UrlParser.oneOf
-        [ UrlParser.map (BrowseEvents "all") UrlParser.top
-        , UrlParser.map BrowseEvents (UrlParser.s "streams" </> UrlParser.string)
-        , UrlParser.map ShowEvent (UrlParser.s "events" </> UrlParser.string)
+    Url.Parser.oneOf
+        [ Url.Parser.map (BrowseEvents "all") Url.Parser.top
+        , Url.Parser.map BrowseEvents (Url.Parser.s "streams" </> Url.Parser.string)
+        , Url.Parser.map ShowEvent (Url.Parser.s "events" </> Url.Parser.string)
         ]
 
 
-view : Model -> Html Msg
+urlFragmentToPath : Url.Url -> Url.Url
+urlFragmentToPath url =
+    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+
+
+view : Model -> Browser.Document Msg
 view model =
-    div [ class "frame" ]
-        [ header [ class "frame__header" ] [ browserNavigation model ]
-        , main_ [ class "frame__body" ] [ browserBody model ]
-        , footer [ class "frame__footer" ] [ browserFooter model ]
-        ]
+    let
+        body =
+            div [ class "frame" ]
+                [ header [ class "frame__header" ] [ browserNavigation model ]
+                , main_ [ class "frame__body" ] [ browserBody model ]
+                , footer [ class "frame__footer" ] [ browserFooter model ]
+                ]
+    in
+    { body = [ body ]
+    , title = "RubyEventStore::Browser"
+    }
 
 
 browserNavigation : Model -> Html Msg
@@ -228,8 +258,8 @@ browserBody model =
 
 
 showEvent : Maybe OpenedEventUI.Model -> Html Msg
-showEvent event =
-    case event of
+showEvent maybeEvent =
+    case maybeEvent of
         Just event ->
             Html.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.showEvent event)
 
@@ -356,14 +386,14 @@ getEvents url =
 
 eventsDecoder : Decoder (PaginatedList Event)
 eventsDecoder =
-    decode PaginatedList
+    succeed PaginatedList
         |> required "data" (list eventDecoder_)
         |> required "links" linksDecoder
 
 
 linksDecoder : Decoder PaginationLinks
 linksDecoder =
-    decode PaginationLinks
+    succeed PaginationLinks
         |> optional "next" (maybe string) Nothing
         |> optional "prev" (maybe string) Nothing
         |> optional "first" (maybe string) Nothing
@@ -378,7 +408,7 @@ eventDecoder =
 
 eventDecoder_ : Decoder Event
 eventDecoder_ =
-    decode Event
+    succeed Event
         |> requiredAt [ "attributes", "event_type" ] string
         |> requiredAt [ "id" ] string
         |> requiredAt [ "attributes", "metadata", "timestamp" ] string

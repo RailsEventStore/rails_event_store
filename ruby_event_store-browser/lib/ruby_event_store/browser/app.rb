@@ -4,12 +4,14 @@ require 'sinatra'
 module RubyEventStore
   module Browser
     class App < Sinatra::Application
-      def self.for(event_store_locator:, host: nil, path: nil)
+      def self.for(event_store_locator:, host: nil, path: nil, environment: :production)
         self.tap do |app|
           app.settings.instance_exec do
             set :event_store_locator, event_store_locator
             set :host, host
             set :root_path, path
+            set :environment, environment
+            set :public_folder, "#{__dir__}/../../../public"
           end
         end
       end
@@ -19,26 +21,28 @@ module RubyEventStore
         set :root_path, nil
         set :event_store_locator, -> {}
         set :protection, except: :path_traversal
-        set :public_folder, "#{__dir__}/../../../public"
 
         mime_type :json, 'application/vnd.api+json'
       end
-      
+
       get '/' do
         erb %{
           <!DOCTYPE html>
           <html>
             <head>
               <title>RubyEventStore::Browser</title>
+              <link type="text/css" rel="stylesheet" href="<%= path %>/ruby_event_store_browser.css">
             </head>
             <body>
               <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
               <script type="text/javascript">
-                RubyEventStore.Browser.Main.fullscreen({
-                  rootUrl:    "<%= path %>",
-                  eventsUrl:  "<%= path %>/events",
-                  streamsUrl: "<%= path %>/streams",
-                  resVersion: "<%= RubyEventStore::VERSION %>"
+                RubyEventStore.Browser.Elm.Main.init({
+                  flags: {
+                    rootUrl:    "<%= path %>",
+                    eventsUrl:  "<%= path %>/events",
+                    streamsUrl: "<%= path %>/streams",
+                    resVersion: "<%= RubyEventStore::VERSION %>"
+                  }
                 });
               </script>
             </body>

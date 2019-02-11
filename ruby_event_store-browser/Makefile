@@ -4,7 +4,7 @@ REQUIRE      = ruby_event_store/browser
 IGNORE       =
 SUBJECT      ?= RubyEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
-JS_BUNDLE    = public/ruby_event_store_browser.js
+BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css public/ruby_event_store_browser.map
 
 include ../lib/install.mk
 include ../lib/test.mk
@@ -14,13 +14,19 @@ include ../lib/help.mk
 
 install: install-yarn
 
-test: $(JS_BUNDLE) test-yarn
+test: $(BUNDLE) test-yarn
 
-build: $(JS_BUNDLE)
+build: $(BUNDLE)
 
-push: $(JS_BUNDLE)
+push: $(BUNDLE)
 
 clean: clean-yarn
+
+watch-elm: clean-yarn
+	@cd elm; yarn watch
+
+dev-server:
+	@bundle exec rackup --port 9393 devserver/config.ru
 
 install-yarn:
 	@echo "Installing yarn dependencies"
@@ -30,8 +36,8 @@ test-yarn:
 	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn test, yarn test)
 
 clean-yarn:
-	-rm $(JS_BUNDLE)
+	-rm $(BUNDLE)
 
-$(JS_BUNDLE):
+$(BUNDLE):
 	@echo "Building browser frontend"
 	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn build, yarn build)

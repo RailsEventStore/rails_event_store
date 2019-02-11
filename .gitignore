@@ -16,8 +16,8 @@ db.sqlite3
 node_modules/
 elm-stuff/
 build/
-ruby_event_store_browser.js
 rails_event_store_browser.js
 contributors.json
 config/master.key
 *.orig
+ruby_event_store-browser/public/*

@@ -6,20 +6,17 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "dependencies": {
-    "@webpack-blocks/elm": "^1.0.0",
-    "elm-format": "^0.8.0",
-    "elm-test": "0.18.12",
-    "html-webpack-plugin": "^3.2.0",
+    "elm": "^0.19.0-bugfix6",
+    "elm-format": "^0.8.1",
+    "elm-test": "0.19.0-rev4",
     "open-color": "^1.5.1",
-    "webpack": "^4.20.2",
-    "webpack-blocks": "^1.0.0",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.9"
+    "sass": "^1.17.0",
+    "elm-hot": "^1.0.1",
+    "parcel-bundler": "^1.11.0"
   },
   "scripts": {
-    "start": "NODE_ENV=development webpack-dev-server --mode=development",
-    "build": "NODE_ENV=production webpack -p --bail --mode=production",
-    "test": "elm-test",
-    "postinstall": "elm-package install -y"
+    "watch": "NODE_ENV=development parcel watch --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
+    "build": "NODE_ENV=production parcel build --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
+    "test": "elm-test"
   }
 }
