@@ -75,9 +75,9 @@ See [Using Ruby Event Store without Rails](https://railseventstore.org/docs/with
 
 # Using PgLinearizedEventRepository for linearized writes
 
-`rails_event_store_active_record` comes with additional version of repository named `RubyEventStore::PgLinearizedEventRepository`.
+`rails_event_store_active_record` comes with additional version of repository named `RailsEventStoreActiveRecord::PgLinearizedEventRepository`.
 It is almost the same as regular active record repository, but has linearized writes to the database and is only restricted to work in `PostgreSQL` database (as the name suggests).
 
 There are usecases, where you may want to use event store as a queue. For example, you may want to build some read models on separate server and in order to build them correctly, you need to process the facts in the order they were written. In general case it is not that easy, because SQL databases auto-increment rows in the moment of insertion, not commit. So that allows event numbered 42 be already committed, but event numbered 40 still be somewhere in transaction, not readable from outside world. Therefore, the easiest implementation of such queue: "Remember the last processed event id" would not work in that case.
 
-There are many subtleties in this topic, but one of the simplest solutions is to linearize all writes to event store. That's what `RubyEventStore::PgLinearizedEventRepository` is for. Of course by linearizing your writes you lose performance and you make it impossible to scale your application above certain level. As usually, your mileage may vary, but such solution is undoubtedly the simplest and _good enough_ in some usecases.
+There are many subtleties in this topic, but one of the simplest solutions is to linearize all writes to event store. That's what `RailsEventStoreActiveRecord::PgLinearizedEventRepository` is for. Of course by linearizing your writes you lose performance and you make it impossible to scale your application above certain level. As usually, your mileage may vary, but such solution is undoubtedly the simplest and _good enough_ in some usecases.
