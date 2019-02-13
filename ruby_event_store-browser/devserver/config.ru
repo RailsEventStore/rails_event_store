@@ -17,5 +17,4 @@ end
 
 run RubyEventStore::Browser::App.for(
   event_store_locator: -> { event_store },
-  environment: :development
 )
