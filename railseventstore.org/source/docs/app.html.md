@@ -206,44 +206,6 @@ def apply_strategy
   end
 ```
 
-## API
-
-### Instance methods
-
-#### Public
-
-```ruby
-apply(*events)
-```
-
-```ruby
-load(stream_name, event_store: AggregateRoot.configuration.default_event_store)
-```
-
-```ruby
-store(stream_name = @loaded_from_stream_name, event_store: AggregateRoot.configuration.default_event_store)
-```
-
-```ruby
-unpublished_events()
-```
-
-#### Private
-
-```ruby
-apply_strategy()
-```
-
-```ruby
-default_event_store()
-```
-
-#### Class methods
-
-```ruby
-on(event_class, &method)
-```
-
 ## Resources
 
 There're already few blog posts about building an event sourced applications with [rails_event_store](https://github.com/RailsEventStore/rails_event_store) and `aggregate_root` gems:
