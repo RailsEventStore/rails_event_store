@@ -14,7 +14,7 @@ AggregateRoot.configure do |config|
 end
 ```
 
-Remember that this is only a default event store used by `AggregateRoot` module when no event store is given in `load` / `store` methods parameters.
+Remember that this is only a default event store used by `AggregateRoot` module to initialize `AggregateRoot::Repository` when no event store is given in repository's constructor as argument.
 
 ## Usage
 
@@ -113,6 +113,67 @@ class Order
 end
 ```
 
+<% if version_above('0.36.0') %>
+#### Loading an aggregate root object from event store
+
+```ruby
+stream_name = "Order$123"
+order = AggregateRoot::Repository.new.load(Order.new, stream_name)
+```
+
+To restore the state of your aggregate you need to use `AggregateRoot::Repository`. Repository's `#load` gets all domain events stored for the aggregate in event store stream `Order$123` and applies them to newly created order object in order to rebuild aggregate's state.
+
+#### Storing an aggregate root's changes in event store
+
+```ruby
+stream_name = "Order$123"
+repository = AggregateRoot::Repository.new
+order = repository.load(Order.new, stream_name)
+order.submit
+repository.store(order, stream_name)
+```
+
+Also storing (publishing) aggregate changes is performed by `AggregateRoot::Repository` object. Repository's `#store` gets all unpublished aggregate's domain events (added by executing a domain logic method like `submit`) from `unpublished_events` and publishes them in order of creation to event store.
+
+#### Simplify loading/storing aggregates
+
+`AggregateRoot::Repository` delivers convinient method to handle typical flow of work with aggregates. The `with_aggregate` method will load an aggregate from given stream, yield block to allow perform action on aggregate object (aggregate object will be yielded as block argument) and then publish all changes in aggregate to event store provided to repository.
+
+```ruby
+stream_name = "Order$123"
+repository = AggregateRoot::Repository.new
+repository.with_aggregate(Order.new, stream_name) do |order|
+  order.submit
+end
+```
+
+You could also privide specific repository for `Order` aggregate to make this code event better:
+
+```ruby
+class OrderRepository
+  def initialize(event_store = Rails.configuration.event_store)
+    @repository = AggregateRoot::Repository.new(event_store)
+  end
+
+  def with_order(order_id, &block)
+    stream_name = "Order$#{order_id}"
+    repository.with_aggregate(Order.new, stream_name, &block)
+  end
+
+  private
+  attr_reader :repository
+end
+```
+
+And then you code to submit order maight look like:
+
+```ruby
+repository = OrderRepository.new
+repository.with_order(123) do |order|
+  order.submit
+end
+```
+<% else %>
 #### Loading an aggregate root object from event store
 
 ```ruby
@@ -132,6 +193,7 @@ order.store
 ```
 
 `#store` gets all unpublished aggregate's domain events (added by executing a domain logic method like `submit`) from `unpublished_events` and publishes them in order of creation to event store. If `stream_name` is not specified events will be stored in the same stream from which the aggregate has been loaded.
+<% end %>
 
 ## Overwriting default apply_strategy
 
