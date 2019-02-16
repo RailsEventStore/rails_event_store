@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'ruby_event_store/spec/event_lint'
 
 module Test
   TestCreated = Class.new(RubyEventStore::Event)
@@ -7,6 +8,7 @@ end
 
 module RubyEventStore
   RSpec.describe Event do
+    it_behaves_like :event, Event
 
     specify 'default values' do
       event = Test::TestCreated.new
