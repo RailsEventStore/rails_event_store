@@ -27,7 +27,7 @@ module RubyEventStore
 
     def when(events, handler)
       Array(events).each do |event|
-        handlers[event] = handler
+        handlers[event.to_s] = handler
       end
 
       self
@@ -42,7 +42,7 @@ module RubyEventStore
     end
 
     def call(event)
-      handlers.fetch(event.class).(current_state, event)
+      handlers.fetch(event.type).(current_state, event)
     end
 
     def handled_events
@@ -85,7 +85,7 @@ module RubyEventStore
     end
 
     def transition(state, event)
-      handlers[event.class].(state, event)
+      handlers[event.type].(state, event)
       state
     end
   end
