@@ -15,10 +15,10 @@ module RubyEventStore::ROM
                                     RubyEventStore::SRecord.new,
                                     RubyEventStore::SRecord.new
                                   ], default_stream, RubyEventStore::ExpectedVersion.auto)
-      c1 = count_queries { repository.read(RubyEventStore::Specification.new(repository).from(:begin).limit(2).result) }
+      c1 = count_queries { repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).result) }
       expect(c1).to eq(2)
 
-      c2 = count_queries { repository.read(RubyEventStore::Specification.new(repository).from(:begin).limit(2).backward.result) }
+      c2 = count_queries { repository.read(RubyEventStore::Specification.new(repository).from(:head).limit(2).backward.result) }
       expect(c2).to eq(2)
 
       c3 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').result) }
@@ -27,10 +27,10 @@ module RubyEventStore::ROM
       c4 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').backward.result) }
       expect(c4).to eq(2)
 
-      c5 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').from(:begin).limit(2).result) }
+      c5 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').from(:head).limit(2).result) }
       expect(c5).to eq(2)
 
-      c6 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').from(:begin).limit(2).backward.result) }
+      c6 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').from(:head).limit(2).backward.result) }
       expect(c6).to eq(2)
     end
   end

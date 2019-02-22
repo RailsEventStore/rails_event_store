@@ -21,7 +21,7 @@ suite =
                             """
                             {
                             "links": {
-                                "last": "/streams/all/begin/forward/20",
+                                "last": "/streams/all/head/forward/20",
                                 "next": "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
                             },
                             "data": [
@@ -61,7 +61,7 @@ suite =
                                     { next = Just "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
                                     , prev = Nothing
                                     , first = Nothing
-                                    , last = Just "/streams/all/begin/forward/20"
+                                    , last = Just "/streams/all/head/forward/20"
                                     }
                                 }
                                 )

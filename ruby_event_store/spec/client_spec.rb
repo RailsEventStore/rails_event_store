@@ -476,7 +476,7 @@ module RubyEventStore
       client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
       client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
       client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
-      response = client.read.from(:begin).limit(2).to_a
+      response = client.read.from(:head).limit(2).to_a
 
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
@@ -508,7 +508,7 @@ module RubyEventStore
       client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
       client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
       client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
-      response = client.read.backward.from(:begin).limit(2).to_a
+      response = client.read.backward.from(:head).limit(2).to_a
 
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 345

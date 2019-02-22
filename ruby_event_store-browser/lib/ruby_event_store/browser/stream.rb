@@ -74,11 +74,11 @@ module RubyEventStore
       end
 
       def first_page_link
-        url_builder.call(id: stream_name, position: :begin, direction: :backward, count: count)
+        url_builder.call(id: stream_name, position: :head, direction: :backward, count: count)
       end
 
       def last_page_link
-        url_builder.call(id: stream_name, position: :begin, direction: :forward, count: count)
+        url_builder.call(id: stream_name, position: :head, direction: :forward, count: count)
       end
 
       def count
@@ -96,8 +96,8 @@ module RubyEventStore
 
       def position
         case params[:position]
-        when nil, 'begin'
-          :begin
+        when nil, 'head'
+          :head
         else
           params.fetch(:position)
         end
