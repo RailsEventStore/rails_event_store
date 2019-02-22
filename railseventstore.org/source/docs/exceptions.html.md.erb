@@ -67,11 +67,7 @@ end.to raise_error(EventNotFound)
 
 ### RubyEventStore::InvalidPageStart
 
-<% if version_above('0.36.0') %>
-Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string. Special case of `:begin` is accepted as a beginning of a stream in given direction.
-<% else %>
 Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string. Special case of `:head` is accepted as a beginning of a stream in given direction.
-<% end %>
 
 ```ruby
 expect do
