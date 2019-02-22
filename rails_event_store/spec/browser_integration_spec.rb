@@ -19,7 +19,7 @@ module RailsEventStore
       response = request.get('/res/streams/all')
 
       expect(JSON.parse(response.body)["links"]).to eq({
-        "last" => "http://example.org/res/streams/all/begin/forward/20",
+        "last" => "http://example.org/res/streams/all/head/forward/20",
         "next" => "http://example.org/res/streams/all/#{events[1].event_id}/backward/20"
       })
     end
