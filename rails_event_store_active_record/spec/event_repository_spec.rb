@@ -52,14 +52,6 @@ module RailsEventStoreActiveRecord
       end.to raise_error(RubyEventStore::ReservedInternalName)
 
       expect do
-        repository.read(specification.stream("all").to(:end).limit(5).result)
-      end.to raise_error(RubyEventStore::ReservedInternalName)
-
-      expect do
-        repository.read(specification.stream("all").to(:end).limit(5).backward.result)
-      end.to raise_error(RubyEventStore::ReservedInternalName)
-
-      expect do
         repository.count(specification.stream("all").result)
       end.to raise_error(RubyEventStore::ReservedInternalName)
     end
@@ -208,8 +200,6 @@ module RailsEventStoreActiveRecord
         event_id: e3.id,
       )
 
-      expect(repository.read(specification.to(:end).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read(specification.to(:end).limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
       expect(repository.read(specification.to(u3).limit(3).result).map(&:event_id)).to eq([u1,u2])
       expect(repository.read(specification.to(u1).limit(3).backward.result).map(&:event_id)).to eq([u3,u2])
     end
