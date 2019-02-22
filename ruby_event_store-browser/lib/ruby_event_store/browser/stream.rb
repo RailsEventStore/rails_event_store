@@ -1,6 +1,8 @@
 module RubyEventStore
   module Browser
     class Stream
+      HEAD = Object.new
+
       attr_reader :event_store, :params, :url_builder
 
       def initialize(event_store:, params:, url_builder:)
@@ -39,20 +41,18 @@ module RubyEventStore
         end
       end
 
-      def events_forward(start)
-        if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-          event_store.read.limit(count).from(start).to_a
-        else
-          event_store.read.limit(count).from(start).stream(stream_name).to_a
-        end
+      def events_forward(position)
+        spec = event_store.read.limit(count)
+        spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
+        spec = spec.from(position)      unless position.equal?(HEAD)
+        spec.to_a
       end
 
-      def events_backward(start)
-        if stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-          event_store.read.limit(count).from(start).backward.to_a
-        else
-          event_store.read.limit(count).from(start).stream(stream_name).backward.to_a
-        end
+      def events_backward(position)
+        spec = event_store.read.limit(count).backward
+        spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
+        spec = spec.from(position)      unless position.equal?(HEAD)
+        spec.to_a
       end
 
       def next_event?
@@ -96,8 +96,8 @@ module RubyEventStore
 
       def position
         case params[:position]
-        when nil, 'head'
-          :head
+        when 'head', nil
+          HEAD
         else
           params.fetch(:position)
         end
