@@ -27,6 +27,11 @@ module RubyEventStore
     #   #direction
     # @return [Specification]
     def from(start)
+      if start.equal?(:head)
+        warn <<~EOW
+          `:head` has been deprecated. Use event_id or skip from instead.
+        EOW
+      end
       case start
       when Symbol
         raise InvalidPageStart unless start.equal?(:head)
