@@ -675,14 +675,6 @@ module RubyEventStore
       expect(specification.of_types(OrderCreated, ProductAdded).count).to eq(3)
     end
 
-    specify ":head is deprecated" do
-      expect { specification.from(:head) }.to output(<<~EOS).to_stderr
-        `:head` has been deprecated. Use `:begin` instead.
-      EOS
-    end
-
-    specify { expect(specification.from(:head).result.start).to eq(:begin) }
-
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }
     let(:reader)        { SpecificationReader.new(repository, mapper) }

@@ -45,7 +45,6 @@ module RubyEventStore
     def begin?
       start.equal?(:begin)
     end
-    alias_method :head?, :begin?
 
     # Stop position. True is ending from end of stream
     # {http://railseventstore.org/docs/read/ Find out more}.
