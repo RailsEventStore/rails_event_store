@@ -532,6 +532,8 @@ module RubyEventStore
       with_event_of_id(event_id) do
         expect(specification.result.hash).to eq(specification.from(:head).result.hash)
         expect(specification.from(event_id).result.hash).not_to eq(specification.from(:head).result.hash)
+
+        expect(specification.to(event_id).result.hash).not_to eq(specification.result.hash)
       end
 
       expect(specification.result.hash).not_to eq([
@@ -663,6 +665,9 @@ module RubyEventStore
       expect { specification.from(:head) }.to output(<<~EOS).to_stderr
         `:head` has been deprecated. Use event_id or skip from instead.
       EOS
+      with_event_of_id(event_id) do
+        expect { specification.from(event_id) }.not_to output.to_stderr
+      end
     end
 
     let(:repository)    { InMemoryRepository.new }
