@@ -72,8 +72,8 @@ module RubyEventStore
       events = events.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       events = events.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       events = events.reverse if spec.backward?
-      events = events.drop(index_of(events, spec.start) + 1) unless spec.begin?
-      events = events.take(index_of(events, spec.stop)) unless spec.end?
+      events = events.drop(index_of(events, spec.start) + 1) unless spec.head?
+      events = events.take(index_of(events, spec.stop)) if spec.stop
       events = events[0...spec.limit] if spec.limit?
       events
     end

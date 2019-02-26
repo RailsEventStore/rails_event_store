@@ -36,21 +36,18 @@ module RubyEventStore
     specify { expect(specification.stream(GLOBAL_STREAM).result.stream.name).to eq( GLOBAL_STREAM) }
     specify { expect(specification.stream(GLOBAL_STREAM).result.stream.global?).to eq(true) }
 
-    specify { expect(specification.result.begin?).to eq(true) }
-    specify { expect(specification.from(:begin).result.start).to eq(:begin) }
+    specify { expect(specification.result.head?).to eq(true) }
+    specify { expect(specification.from(:head).result.start).to eq(:head) }
     specify { expect{specification.from(nil)}.to raise_error(InvalidPageStart) }
     specify { expect{specification.from('')}.to raise_error(InvalidPageStart) }
     specify { expect{specification.from(:dummy)}.to raise_error(InvalidPageStart) }
     specify { expect{specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
-    specify { expect(specification.from(:begin).result.begin?).to eq(true) }
+    specify { expect(specification.from(:head).result.head?).to eq(true) }
 
-    specify { expect(specification.result.end?).to eq(true) }
-    specify { expect(specification.to(:end).result.stop).to eq(:end) }
     specify { expect{specification.to(nil)}.to raise_error(InvalidPageStop) }
     specify { expect{specification.to('')}.to raise_error(InvalidPageStop) }
-    specify { expect{specification.to(:dummy)}.to raise_error(InvalidPageStop) }
+    specify { expect{specification.to(:dummy) }.to raise_error(EventNotFound, /dummy/) }
     specify { expect{specification.to(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
-    specify { expect(specification.to(:end).result.end?).to eq(true) }
 
     specify { expect(specification.result.with_ids).to be_nil }
     specify { expect(specification.with_id([event_id]).result.with_ids).to eq([event_id]) }
@@ -66,16 +63,14 @@ module RubyEventStore
     specify do
       with_event_of_id(event_id) do
         expect(specification.from(event_id).result.start).to eq(event_id)
-        expect(specification.from(event_id).result.begin?).to eq(false)
-        expect(specification.from(:begin).from(event_id).result.start).to eq(event_id)
+        expect(specification.from(event_id).result.head?).to eq(false)
+        expect(specification.from(:head).from(event_id).result.start).to eq(event_id)
       end
     end
 
     specify do
       with_event_of_id(event_id) do
         expect(specification.to(event_id).result.stop).to eq(event_id)
-        expect(specification.to(event_id).result.end?).to eq(false)
-        expect(specification.to(:end).to(event_id).result.stop).to eq(event_id)
       end
     end
 
@@ -86,7 +81,6 @@ module RubyEventStore
         expect(spec.result.stream.global?).to eq(false)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.start).to eq(event_id)
-        expect(spec.result.stop).to eq(:end)
         expect(spec.result.backward?).to eq(true)
       end
     end
@@ -97,7 +91,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(stream_name)
         expect(spec.result.stream.global?).to eq(false)
         expect(spec.result.limit).to eq(10)
-        expect(spec.result.start).to eq(:begin)
+        expect(spec.result.start).to eq(:head)
         expect(spec.result.stop).to eq(event_id)
         expect(spec.result.backward?).to eq(true)
       end
@@ -122,8 +116,7 @@ module RubyEventStore
       end
     end
 
-    specify { expect(specification.in_batches(3).from(:begin).result.batch_size).to eq(3) }
-    specify { expect(specification.in_batches(3).to(:end).result.batch_size).to eq(3) }
+    specify { expect(specification.in_batches(3).from(:head).result.batch_size).to eq(3) }
     specify { expect(specification.in_batches(3).in_batches.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE) }
     specify { expect(specification.in_batches(3).forward.result.batch_size).to eq(3) }
     specify { expect(specification.in_batches(3).backward.result.batch_size).to eq(3) }
@@ -140,7 +133,6 @@ module RubyEventStore
         expect(specification.from(event_id).read_last.result.start).to eq(event_id)
         expect(specification.from(event_id).forward.result.start).to eq(event_id)
         expect(specification.from(event_id).backward.result.start).to eq(event_id)
-        expect(specification.from(event_id).to(:end).result.start).to eq(event_id)
         expect(specification.read_first.from(event_id).result.first?).to eq(true)
       end
     end
@@ -153,7 +145,7 @@ module RubyEventStore
         expect(specification.to(event_id).read_last.result.stop).to eq(event_id)
         expect(specification.to(event_id).forward.result.stop).to eq(event_id)
         expect(specification.to(event_id).backward.result.stop).to eq(event_id)
-        expect(specification.to(event_id).from(:begin).result.stop).to eq(event_id)
+        expect(specification.to(event_id).from(:head).result.stop).to eq(event_id)
         expect(specification.read_last.to(event_id).result.last?).to eq(true)
       end
     end
@@ -183,8 +175,8 @@ module RubyEventStore
         spec = backward_specifcation = specification.backward
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.backward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -195,7 +187,7 @@ module RubyEventStore
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
         expect(spec.result.start).to eq(event_id)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -205,7 +197,7 @@ module RubyEventStore
         spec = specification.to(event_id)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
+        expect(spec.result.start).to eq(:head)
         expect(spec.result.stop).to eq(event_id)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
@@ -216,8 +208,8 @@ module RubyEventStore
         spec = specification.limit(10)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -227,8 +219,8 @@ module RubyEventStore
         spec = specification.stream(stream_name)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(stream_name)
         expect(spec.result.stream.global?).to eq(false)
@@ -238,8 +230,8 @@ module RubyEventStore
         spec = specification.in_batches
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -248,8 +240,8 @@ module RubyEventStore
 
         spec = specification
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -259,8 +251,8 @@ module RubyEventStore
         spec = backward_specifcation.forward
         expect(spec.result.object_id).not_to eq(backward_specifcation.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -270,8 +262,8 @@ module RubyEventStore
         spec = backward_specifcation
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.backward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -281,8 +273,8 @@ module RubyEventStore
         spec = specification.read_first
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -291,8 +283,8 @@ module RubyEventStore
 
         spec = specification
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -302,8 +294,8 @@ module RubyEventStore
         spec = specification.read_last
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -313,8 +305,8 @@ module RubyEventStore
         spec = specification.with_id([event_id])
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -324,8 +316,8 @@ module RubyEventStore
         spec = specification.of_type([TestEvent])
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -334,8 +326,8 @@ module RubyEventStore
 
         spec = specification
         expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(:begin)
-        expect(spec.result.stop).to eq(:end)
+        expect(spec.result.start).to eq(:head)
+        expect(spec.result.stop).to eq(nil)
         expect(spec.result.limit?).to eq(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
@@ -538,18 +530,17 @@ module RubyEventStore
       expect(specification.of_type([TestEvent]).result.hash).not_to eq(specification.of_type([OrderCreated]).result.hash)
 
       with_event_of_id(event_id) do
-        expect(specification.result.hash).to eq(specification.from(:begin).result.hash)
-        expect(specification.from(event_id).result.hash).not_to eq(specification.from(:begin).result.hash)
+        expect(specification.result.hash).to eq(specification.from(:head).result.hash)
+        expect(specification.from(event_id).result.hash).not_to eq(specification.from(:head).result.hash)
 
-        expect(specification.result.hash).to eq(specification.to(:end).result.hash)
-        expect(specification.to(event_id).result.hash).not_to eq(specification.to(:end).result.hash)
+        expect(specification.to(event_id).result.hash).not_to eq(specification.result.hash)
       end
 
       expect(specification.result.hash).not_to eq([
           SpecificationResult,
           :forward,
-          :begin,
-          :end,
+          :head,
+          nil,
           Float::INFINITY,
           Stream.new(GLOBAL_STREAM),
           :all,
@@ -579,11 +570,8 @@ module RubyEventStore
       expect(specification.with_id(event_id).result).not_to eq(specification.with_id(SecureRandom.uuid).result)
 
       with_event_of_id(event_id) do
-        expect(specification.result).to eq(specification.from(:begin).result)
-        expect(specification.from(event_id).result).not_to eq(specification.from(:begin).result)
-
-        expect(specification.result).to eq(specification.to(:end).result)
-        expect(specification.to(event_id).result).not_to eq(specification.to(:end).result)
+        expect(specification.result).to eq(specification.from(:head).result)
+        expect(specification.from(event_id).result).not_to eq(specification.from(:head).result)
       end
     end
 
@@ -615,14 +603,12 @@ module RubyEventStore
       expect(specification.stream('not-existing-stream').count).to eq(0)
 
       repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.any)
-      expect(specification.from(:begin).count).to eq(5)
+      expect(specification.from(:head).count).to eq(5)
       expect(specification.from(event_id).count).to eq(1)
-      expect(specification.stream("Dummy").from(:begin).count).to eq(2)
+      expect(specification.stream("Dummy").from(:head).count).to eq(2)
       expect(specification.stream("Dummy").from(event_id).count).to eq(1)
 
-      expect(specification.to(:end).count).to eq(5)
       expect(specification.to(event_id).count).to eq(3)
-      expect(specification.stream("Dummy").to(:end).count).to eq(2)
       expect(specification.stream("Dummy").to(event_id).count).to eq(0)
 
       expect(specification.limit(100).count).to eq(5)
@@ -677,11 +663,12 @@ module RubyEventStore
 
     specify ":head is deprecated" do
       expect { specification.from(:head) }.to output(<<~EOS).to_stderr
-        `:head` has been deprecated. Use `:begin` instead.
+        `:head` has been deprecated. Use event_id or skip from instead.
       EOS
+      with_event_of_id(event_id) do
+        expect { specification.from(event_id) }.not_to output.to_stderr
+      end
     end
-
-    specify { expect(specification.from(:head).result.start).to eq(:begin) }
 
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::Default.new }

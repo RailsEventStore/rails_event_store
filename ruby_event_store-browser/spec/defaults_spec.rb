@@ -7,7 +7,7 @@ module RubyEventStore
       test_client.get('/res/streams/all')
 
       expect(test_client.parsed_body["links"]).to eq({
-        "last" => "http://railseventstore.org/res/streams/all/begin/forward/20",
+        "last" => "http://railseventstore.org/res/streams/all/head/forward/20",
         "next" => "http://railseventstore.org/res/streams/all/#{events[1].event_id}/backward/20"
       })
     end
