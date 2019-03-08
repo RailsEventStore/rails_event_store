@@ -161,6 +161,11 @@ module RubyEventStore
         expect(event.metadata.to_h).to eq(metadata)
       end
 
+      specify 'no encryption metadata without encryption schema' do
+        record = encrypt(ticket_cancelled)
+        expect(serializer.load(record.metadata)).to eq(metadata)
+      end
+
       specify 'raises error on encryption with missing encryption key' do
         expect do
           encrypt(ticket_transferred)
