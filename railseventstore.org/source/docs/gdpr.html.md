@@ -78,9 +78,20 @@ For `TicketHolderEmailProvided` we want an `email` to be encrypted with key iden
 
 Each encrypted attribute of a persisted event has a corresponding description of a cipher, key identifier and an IV used to encrypt it. This allows decrypting it at a later time despite changing default cipher to a new one. [IV](https://security.stackexchange.com/questions/6058/is-real-salt-the-same-as-initialization-vectors/6059#6059) is chosen randomly for each encrypt operation. Encrypting same data with the same key will result in different cryptograms.
 
+When decryption key is lost and an attribute can no longer be read, an instance of `RubyEventStore::Mappers::ForgottenData` is returned instead. This Null Object responds to any method and is able to coerce to string via `#to_s` method. It is possible to change this to a custom one:
+
+```ruby
+RailsEventStore::Client.new(
+  mapper: RubyEventStore::Mappers::EncryptionMapper.new(
+    key_repository,
+    forgotten_data: MyCustomObject.new
+  )
+)
+```
+
 #### Implementing EncryptionKeyRepository
 
-RailsEventStore comes with an in-memory implementation of key repository. This  `RubyEventStore::Mappers::InMemoryEncryptionKeyRepository` is good for testing and as a reference implementation.
+RailsEventStore comes with an in-memory implementation of key repository. This `RubyEventStore::Mappers::InMemoryEncryptionKeyRepository` is good for testing and as a reference implementation.
 
 You will have to implement your own key repository to meet security demands of your organization. Whether it is an ActiveRecord backed model or an adapter for [Vault](https://www.vaultproject.io), a following interface is needed:
 
