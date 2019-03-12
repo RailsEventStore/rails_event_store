@@ -70,7 +70,7 @@ module RubyEventStore
         crypto     = prepare_decrypt(cipher)
         crypto.iv  = iv
         crypto.key = key
-        crypto.update(message) + crypto.final
+        (crypto.update(message) + crypto.final).force_encoding("UTF-8")
       end
 
       def random_iv

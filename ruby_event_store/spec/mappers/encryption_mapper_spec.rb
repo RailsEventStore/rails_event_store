@@ -331,6 +331,16 @@ module RubyEventStore
         })
         expect(event.metadata.to_h).to eq(metadata)
       end
+
+      specify 'decrypted message is UTF-8 encoded' do
+        key = key_repository.create('dummy')
+        iv  = key.random_iv
+        source_message    = 'zażółć gęślą jaźń'
+        decrypted_message = key.decrypt(key.encrypt(source_message, iv), iv)
+
+        expect(decrypted_message).to eq(source_message)
+        expect(decrypted_message.encoding).to eq(Encoding::UTF_8)
+      end
     end
 
     RSpec.describe ForgottenData do
