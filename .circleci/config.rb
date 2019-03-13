@@ -106,7 +106,6 @@ check_config =
     ]
   )
 
-ruby_2_3_compat = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.3.8", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', 'ruby_2_3'][gem_name], gem_name) })
 ruby_2_4_compat = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.4.5", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', 'ruby_2_4'][gem_name], gem_name) })
 ruby_2_5_compat = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.5.3", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', 'ruby_2_5'][gem_name], gem_name) })
 current_ruby = merge.(GEMS, ->(gem_name) { test.(Docker("pawelpacana/res:2.6.0", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', 'ruby_2_6'][gem_name], gem_name) })
@@ -123,7 +122,6 @@ jobs = [
   check_config,
   mutations,
   current_ruby,
-  ruby_2_3_compat,
   ruby_2_4_compat,
   ruby_2_5_compat,
   rails_4_2_compat,
@@ -142,7 +140,6 @@ workflows =
     }),
     Workflow("Ruby 2.5", GEMS.map(&job_name.curry['test', 'ruby_2_5'])),
     Workflow("Ruby 2.4", GEMS.map(&job_name.curry['test', 'ruby_2_4'])),
-    Workflow("Ruby 2.3", GEMS.map(&job_name.curry['test', 'ruby_2_3'])),
     Workflow("Rails 4.2", RAILS_GEMS.map(&job_name.curry['test', 'rails_4_2'])),
     Workflow("Rails 5.0", RAILS_GEMS.map(&job_name.curry['test', 'rails_5_0'])),
     Workflow("Rails 5.1", RAILS_GEMS.map(&job_name.curry['test', 'rails_5_1'])),
