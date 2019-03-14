@@ -44,7 +44,7 @@ module RubyEventStore
           event_id:   domain_event.event_id,
           metadata:   domain_event.metadata.to_s,
           data:       domain_event.data.to_s,
-          event_type: domain_event.class.name
+          event_type: domain_event.type
         )
       end
     end

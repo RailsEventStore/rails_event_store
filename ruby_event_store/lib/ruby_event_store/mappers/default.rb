@@ -10,10 +10,10 @@ module RubyEventStore
 
       def event_to_serialized_record(domain_event)
         SerializedRecord.new(
-          event_id:         domain_event.event_id,
+          event_id:   domain_event.event_id,
           metadata:   serializer.dump(domain_event.metadata.to_h),
           data:       serializer.dump(domain_event.data),
-          event_type: domain_event.class.name
+          event_type: domain_event.type
         )
       end
 
