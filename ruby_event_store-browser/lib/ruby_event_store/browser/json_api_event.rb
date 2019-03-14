@@ -10,7 +10,7 @@ module RubyEventStore
           id: event.event_id,
           type: "events",
           attributes: {
-            event_type: event.class.to_s,
+            event_type: event.type,
             data: event.data,
             metadata: metadata
           }

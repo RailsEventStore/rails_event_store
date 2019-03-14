@@ -46,6 +46,50 @@ module RubyEventStore
         expect(event).to eq(domain_event)
       end
 
+      specify '#serialized_record_to_event its using events class remapping prints deprecation message' do
+        expect { described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'}) }.to output(<<~EOS).to_stderr
+          events_class_remapping is deprecated. Provide custom event builder instead.
+        EOS
+      end
+
+      specify '#serialized_record_to_event using default event builder returns event instance' do
+        record = SerializedRecord.new(
+          event_id:   domain_event.event_id,
+          data:       "---\n:some_attribute: 5\n",
+          metadata:   "---\n:some_meta: 1\n",
+          event_type: SomethingHappened.name
+        )
+        subject = described_class.new(event_builder: RubyEventStore::Mappers::TypeToClass.new)
+        event = subject.serialized_record_to_event(record)
+        expect(event).to              eq(domain_event)
+        expect(event.event_id).to     eq domain_event.event_id
+        expect(event.data).to         eq(data)
+        expect(event.metadata.to_h).to     eq(metadata)
+      end
+
+      specify '#serialized_record_to_event using custom event builder' do
+        class CustomEventBuilder
+          def call(event_type)
+            ->(**args) {
+                case event_type
+                  when 'EventNameBeforeRefactor'
+                    return SomethingHappened.new(args)
+                  else raise ArgumentError
+                end
+            }
+          end
+        end
+        subject = described_class.new(event_builder: CustomEventBuilder.new)
+        record = SerializedRecord.new(
+          event_id:   domain_event.event_id,
+          data:       "---\n:some_attribute: 5\n",
+          metadata:   "---\n:some_meta: 1\n",
+          event_type: "EventNameBeforeRefactor"
+        )
+        event = subject.serialized_record_to_event(record)
+        expect(event).to eq(domain_event)
+      end
+
       context 'when custom serializer is provided' do
         class ExampleYamlSerializer
           def self.load(value)

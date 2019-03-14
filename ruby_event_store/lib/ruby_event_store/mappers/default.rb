@@ -3,9 +3,9 @@ require 'yaml'
 module RubyEventStore
   module Mappers
     class Default
-      def initialize(serializer: YAML, events_class_remapping: {})
+      def initialize(serializer: YAML, event_builder: TypeToClass.new, events_class_remapping: {})
         @serializer = serializer
-        @events_class_remapping = events_class_remapping
+        @event_builder = events_class_remapping.empty? ? event_builder : BackwardCompatibleBuilderWithEventRemapping.new(events_class_remapping)
       end
 
       def event_to_serialized_record(domain_event)
@@ -18,8 +18,7 @@ module RubyEventStore
       end
 
       def serialized_record_to_event(record)
-        event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
-        Object.const_get(event_type).new(
+        event_builder.call(record.event_type).call(
           event_id: record.event_id,
           metadata: TransformKeys.symbolize(serializer.load(record.metadata)),
           data:     serializer.load(record.data)
@@ -27,7 +26,23 @@ module RubyEventStore
       end
 
       private
-      attr_reader :serializer, :events_class_remapping
+      attr_reader :serializer, :event_builder
+
+      class BackwardCompatibleBuilderWithEventRemapping
+        def initialize(events_class_remapping)
+          unless events_class_remapping.empty?
+            warn <<~EOW
+              events_class_remapping is deprecated. Provide custom event builder instead.
+            EOW
+          end
+          @events_class_remapping = events_class_remapping
+        end
+
+        def call(event_type)
+          type = @events_class_remapping.fetch(event_type) { event_type }
+          ->(args) { Object.const_get(type).new(args) }
+        end
+      end
     end
   end
 end

@@ -124,7 +124,7 @@ module RubyEventStore
           event_id: domain_event.event_id,
           metadata: serializer.dump(metadata),
           data: serializer.dump(encrypt_data(deep_dup(domain_event.data), crypto_description)),
-          event_type: domain_event.class.to_s
+          event_type: domain_event.type
         )
       end
 
