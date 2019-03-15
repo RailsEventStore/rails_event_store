@@ -5,7 +5,7 @@ module RubyEventStore
     class Default
       def initialize(serializer: YAML, event_builder: TypeToClass.new, events_class_remapping: {})
         @serializer = serializer
-        @event_builder = events_class_remapping.empty? ? event_builder : BackwardCompatibleBuilderWithEventRemapping.new(events_class_remapping)
+        @event_builder = events_class_remapping.empty? ? event_builder : TypeToClass.new(events_class_remapping)
       end
 
       def event_to_serialized_record(domain_event)
