@@ -12,9 +12,7 @@ The available specification methods are:
 * `stream(stream_name)` - specify name of a stream to read,
    if no stream will be specified a global stream (all domain events)
    will be read.
-* `from(start)` - specify a starting point for read operation, possible values:
-    * `:head`  - read from the beggining of the stream,
-    * event id - read all domain events after specified domain event id.
+* `from(start)` - specify the starting point (event id) for read operation. This will read all domain events after (not including) the specified domain event id.
 <% if version_above('0.36.0') %>
 * `to(stop)` - specify the stop point (event id) for the read operation. This will
     read all domain events until (not including) the specified domain event id.
@@ -59,10 +57,8 @@ When the read scope will be defined several methods could be used to get the dat
 ```ruby
 stream_name = "order_1"
 count = 40
-client.read.stream(stream_name).from(:head).limit(count).to_a
+client.read.stream(stream_name).limit(count).to_a
 ```
-
-In this case `:head` means first event of the stream.
 
 ### Reading stream's events forward in batch — starting from given event
 
@@ -78,7 +74,6 @@ client.read.stream(stream_name).from(start).limit(count).to_a
 ### Reading stream's events backward in batch
 
 As in examples above, just append `.backward` instead before `.each`.
-In this case `:head` means last event of the stream.
 
 ```ruby
 stream_name = "order_1"
@@ -112,11 +107,11 @@ This method allows us to load all stored events ascending.
 This will read first 100 domain events stored in event store.
 
 ```ruby
-client.read.from(:head).limit(100).to_a
+client.read.limit(100).to_a
 ```
 
-When not specified it reads events starting from `:head` (first domain event
-stored in event store) and without limit.
+When not specified otherwise it reads events starting from first domain event
+stored in event store and without limit.
 
 ```ruby
 client.read.to_a
@@ -135,11 +130,11 @@ This method allows us to load all stored events descending.
 This will read last 100 domain events stored in event store.
 
 ```ruby
-client.read.backward.from(:head).limit(100).to_a
+client.read.backward.limit(100).to_a
 ```
 
-When not specified it reads events starting from `:head` (last domain event
-stored in event store) and without limit.
+When not specified otherwise it reads events starting from last domain event
+stored in event store and without limit.
 
 ```ruby
 client.read.backward.to_a

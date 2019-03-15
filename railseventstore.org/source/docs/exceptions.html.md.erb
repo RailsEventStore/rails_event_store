@@ -67,7 +67,7 @@ end.to raise_error(EventNotFound)
 
 ### RubyEventStore::InvalidPageStart
 
-Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string. Special case of `:head` is accepted as a beginning of a stream in given direction.
+Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string.
 
 ```ruby
 expect do
