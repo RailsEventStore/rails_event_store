@@ -1,7 +1,7 @@
 module RubyEventStore
   class SpecificationResult
     def initialize(direction: :forward,
-                   start: :head,
+                   start: nil,
                    stop: nil,
                    count: nil,
                    stream: Stream.new(GLOBAL_STREAM),
@@ -38,18 +38,10 @@ module RubyEventStore
       attributes.stream
     end
 
-    # Starting position. True is starting from head
+    # Starting position. Event id of starting event
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Boolean]
-    def head?
-      start.equal?(:head)
-    end
-
-    # Starting position. Event id of starting event or :head
-    # {http://railseventstore.org/docs/read/ Find out more}.
-    #
-    # @return [String|Symbol]
+    # @return [String]
     def start
       attributes.start
     end

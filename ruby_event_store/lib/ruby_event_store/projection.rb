@@ -49,7 +49,7 @@ module RubyEventStore
       handlers.keys
     end
 
-    def run(event_store, start: :head, count: PAGE_SIZE)
+    def run(event_store, start: nil, count: PAGE_SIZE)
       if streams.any?
         reduce_from_streams(event_store, start, count)
       else
@@ -60,7 +60,7 @@ module RubyEventStore
     private
 
     def valid_starting_point?(start)
-      return true if start === :head
+      return true unless start
       if streams.any?
         (start.instance_of?(Array) && start.size === streams.size)
       else
@@ -69,19 +69,26 @@ module RubyEventStore
     end
 
     def reduce_from_streams(event_store, start, count)
-      raise ArgumentError.new('Start must be an array with event ids or :head') unless valid_starting_point?(start)
+      raise ArgumentError.new('Start must be an array with event ids') unless valid_starting_point?(start)
       streams.zip(start_events(start)).reduce(initial_state) do |state, (stream_name, start_event_id)|
-        event_store.read.in_batches(count).stream(stream_name).from(start_event_id).reduce(state, &method(:transition))
+        read_scope(event_store, stream_name, count, start_event_id).reduce(state, &method(:transition))
       end
     end
 
     def reduce_from_all_streams(event_store, start, count)
-      raise ArgumentError.new('Start must be valid event id or :head') unless valid_starting_point?(start)
-      event_store.read.in_batches(count).from(start).reduce(initial_state, &method(:transition))
+      raise ArgumentError.new('Start must be valid event id') unless valid_starting_point?(start)
+      read_scope(event_store, nil, count, start).reduce(initial_state, &method(:transition))
+    end
+
+    def read_scope(event_store, stream, count, start)
+      scope = event_store.read.in_batches(count)
+      scope = scope.stream(stream) if stream
+      scope = scope.from(start) if start
+      scope
     end
 
     def start_events(start)
-      start === :head ? Array.new(streams.size) { :head } : start
+      start ? start : Array.new(streams.size) { nil }
     end
 
     def transition(state, event)
