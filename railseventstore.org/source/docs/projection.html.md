@@ -23,7 +23,7 @@ account_balance.run(client) # => {total: 25}
 In order to narrow the results, simply pass `event_id` to `run` method.
 
 ```ruby
-account_balance.run(client, custom_event.event_id) # => {total: -5}
+account_balance.run(client, start: custom_event.event_id) # => {total: -5}
 ```
 
 You may also subscribe one handler to multiple events by passing an array to `#when` method:
@@ -54,10 +54,10 @@ account_balance = RailsEventStore::Projection.
 account_balance.run(client) # => {total: -15}
 ```
 
-In order to narrow the results, you have to pass array with `event_id` for each stream. So, in example below we start from beggining of stream for `Customer$1` and `custom_event.event_id` for `Customer$3`.
+In order to narrow the results, you have to pass array with `event_id` for each stream or nil to start from beggining of the stream. So, in example below we start from beggining of stream for `Customer$1` and `custom_event.event_id` for `Customer$3`.
 
 ```ruby
-account_balance.run(client, [nil, custom_event.event_id]) # => {total: -5}
+account_balance.run(client, start: [nil, custom_event.event_id]) # => {total: -5}
 ```
 
 ## Projection based on all streams
@@ -75,5 +75,5 @@ account_balance = RailsEventStore::Projection.
   when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
 account_balance.run(client) # => {total: 10}
-account_balance.run(client, custom_event.event_id) # => {total: -20}
+account_balance.run(client, start: custom_event.event_id) # => {total: -20}
 ```
