@@ -12,7 +12,7 @@ module RubyEventStore
 
       def call(event_type)
         type = @events_class_remapping.fetch(event_type) { event_type }
-        ->(args) { Object.const_get(type).new(args) }
+        Object.const_get(type)
       end
     end
 

@@ -74,15 +74,13 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event using custom event builder' do
-        class CustomEventBuilder
+        class CustomEventBuilder < TypeToClass
           def call(event_type)
-            ->(**args) {
-                case event_type
-                  when 'EventNameBeforeRefactor'
-                    return SomethingHappened.new(args)
-                  else raise ArgumentError
-                end
-            }
+            case event_type
+              when 'EventNameBeforeRefactor'
+                return SomethingHappened
+              else super
+            end
           end
         end
         subject = described_class.new(event_builder: CustomEventBuilder.new)

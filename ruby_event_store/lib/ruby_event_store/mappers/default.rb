@@ -18,7 +18,7 @@ module RubyEventStore
       end
 
       def serialized_record_to_event(record)
-        event_builder.call(record.event_type).call(
+        event_builder.call(record.event_type).new(
           event_id: record.event_id,
           metadata: TransformKeys.symbolize(serializer.load(record.metadata)),
           data:     serializer.load(record.data)
