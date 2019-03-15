@@ -35,15 +35,17 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event its using events class remapping' do
-        subject = described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'})
-        record = SerializedRecord.new(
-          event_id:   domain_event.event_id,
-          data:       "---\n:some_attribute: 5\n",
-          metadata:   "---\n:some_meta: 1\n",
-          event_type: "EventNameBeforeRefactor"
-        )
-        event = subject.serialized_record_to_event(record)
-        expect(event).to eq(domain_event)
+        silence_warnings do
+          subject = described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'})
+          record = SerializedRecord.new(
+            event_id:   domain_event.event_id,
+            data:       "---\n:some_attribute: 5\n",
+            metadata:   "---\n:some_meta: 1\n",
+            event_type: "EventNameBeforeRefactor"
+          )
+          event = subject.serialized_record_to_event(record)
+          expect(event).to eq(domain_event)
+        end
       end
 
       specify '#serialized_record_to_event its using events class remapping prints deprecation message' do
