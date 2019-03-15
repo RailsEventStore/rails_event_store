@@ -54,6 +54,10 @@ module RubyEventStore
         EOS
       end
 
+      specify '#serialized_record_to_event its using default (empty) events class remapping does not print deprecation message' do
+        expect { described_class.new }.not_to output.to_stderr
+      end
+
       specify '#serialized_record_to_event using default event builder returns event instance' do
         record = SerializedRecord.new(
           event_id:   domain_event.event_id,
