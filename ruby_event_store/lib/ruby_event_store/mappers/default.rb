@@ -27,22 +27,6 @@ module RubyEventStore
 
       private
       attr_reader :serializer, :event_builder
-
-      class BackwardCompatibleBuilderWithEventRemapping
-        def initialize(events_class_remapping)
-          unless events_class_remapping.empty?
-            warn <<~EOW
-              events_class_remapping is deprecated. Provide custom event builder instead.
-            EOW
-          end
-          @events_class_remapping = events_class_remapping
-        end
-
-        def call(event_type)
-          type = @events_class_remapping.fetch(event_type) { event_type }
-          ->(args) { Object.const_get(type).new(args) }
-        end
-      end
     end
   end
 end
