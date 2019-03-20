@@ -4,5 +4,5 @@ gemspec
 eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
 
 gem 'protobuf_nested_struct'
-gem 'google-protobuf', '= 3.6.1', source: 'https://gem.fury.io/pawelpacana/'
+gem 'google-protobuf', '~> 3.7.0'
 gem 'activesupport', '~> 5.0'
