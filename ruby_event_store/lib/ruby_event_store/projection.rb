@@ -88,7 +88,7 @@ module RubyEventStore
     end
 
     def start_events(start)
-      start ? start : Array.new(streams.size)
+      start ? start : Array.new
     end
 
     def transition(state, event)
