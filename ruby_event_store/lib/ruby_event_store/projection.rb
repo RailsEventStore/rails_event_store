@@ -51,7 +51,7 @@ module RubyEventStore
     end
 
     def handled_event_classes
-      handlers.keys.map { |event| Object.const_get(event) }
+      handled_events.map { |event| Object.const_get(event) }
     end
 
     def run(event_store, start: nil, count: PAGE_SIZE)
