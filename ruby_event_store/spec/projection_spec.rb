@@ -34,7 +34,7 @@ module RubyEventStore
       expect(account_balance).to eq(total: 5)
     end
 
-    specify "raises proper errors when wrong argument were pass (stream mode)" do
+    specify "raises proper errors when wrong argument were passed (stream mode)" do
       projection = Projection.from_stream("Customer$1", "Customer$2")
       expect {
         projection.run(event_store, start: :last)
@@ -195,11 +195,35 @@ module RubyEventStore
       expect(balance).to eq(total: 6)
     end
 
+    specify "only events that have handlers must be read" do
+      EventWithoutHandler = Class.new(RubyEventStore::Event)
+      EventWithHandler = Class.new(RubyEventStore::Event)
+
+      event_store.publish(EventWithoutHandler.new(data: { amount: 1 }), stream_name: "Customer$234")
+      event_store.publish(EventWithHandler.new(data: { amount: 1 }), stream_name: "Customer$234")
+      event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$123")
+      event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$234")
+
+      repository = event_store.send(:repository)
+      mapper     = event_store.send(:mapper)
+      specification = Specification.new(SpecificationReader.new(repository, mapper))
+      expected = specification.in_batches(2).of_type([MoneyDeposited, MoneyWithdrawn, EventWithHandler]).result
+
+      expect(repository).to receive(:read).with(expected).and_call_original
+      balance = Projection.
+        from_all_streams.
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn, EventWithHandler], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, count: 2)
+      expect(balance).to eq(total: 6)
+    end
+
     specify do
       repository = event_store.send(:repository)
       mapper     = event_store.send(:mapper)
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected = specification.in_batches(2).result
+      expected = specification.in_batches(2).of_type([]).result
       expect(repository).to receive(:read).with(expected).and_return([])
       Projection.from_all_streams.run(event_store, count: 2)
     end
@@ -208,7 +232,7 @@ module RubyEventStore
       repository = event_store.send(:repository)
       mapper     = event_store.send(:mapper)
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected = specification.in_batches(2).stream("FancyStream").result
+      expected = specification.in_batches(2).of_type([]).stream("FancyStream").result
       expect(repository).to receive(:read).with(expected).and_return([])
       Projection.from_stream("FancyStream").run(event_store, count: 2)
     end
