@@ -15,8 +15,8 @@ module RubyEventStore
 
     def initialize(streams: [])
       @streams  = streams
-      @handlers = Hash.new { ->(_, _) {} }
-      @init     = -> { Hash.new }
+      @handlers = {}
+      @init     = -> { {} }
     end
 
     attr_reader :streams, :handlers
@@ -98,7 +98,7 @@ module RubyEventStore
     end
 
     def transition(state, event)
-      handlers[event.type].(state, event)
+      handlers.fetch(event.type).call(state, event)
       state
     end
   end
