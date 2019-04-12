@@ -12,33 +12,25 @@ module RubyEventStore
   end
 
   module Mappers
-    class Protobuf
-      def initialize(events_class_remapping: {})
-        require_optional_dependency
-        @events_class_remapping = events_class_remapping
-      end
-
-      def event_to_serialized_record(domain_event)
-        SerializedRecord.new(
+    class DomainEventProtoMapper
+      def dump(domain_event)
+        {
           event_id:   domain_event.event_id,
-          metadata:   ProtobufNestedStruct::HashMapStringValue.dump(TransformKeys.stringify(domain_event.metadata)),
-          data:       encode_data(domain_event.data),
+          metadata:   domain_event.metadata.to_h,
+          data:       domain_event.data,
           event_type: domain_event.type
-        )
+        }
+      rescue NoMethodError
+        raise ProtobufEncodingFailed
       end
 
-      def serialized_record_to_event(record)
-        event_type = events_class_remapping.fetch(record.event_type) { record.event_type }
+      def load(item)
         Proto.new(
-          event_id: record.event_id,
-          data:     load_data(event_type, record.data),
-          metadata: load_metadata(record.metadata)
+          event_id: item.fetch(:event_id),
+          data:     load_data(item.fetch(:event_type), item.fetch(:data)),
+          metadata: load_metadata(item.fetch(:metadata))
         )
       end
-
-      private
-
-      attr_reader :event_id_getter, :events_class_remapping
 
       def load_metadata(protobuf_metadata)
         TransformKeys.symbolize(ProtobufNestedStruct::HashMapStringValue.load(protobuf_metadata))
@@ -47,13 +39,51 @@ module RubyEventStore
       def load_data(event_type, protobuf_data)
         Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(protobuf_data)
       end
+    end
 
-      def encode_data(domain_event_data)
+    class SerializedRecordProtoMapper
+      def dump(item)
+        SerializedRecord.new(
+          event_id:   item.fetch(:event_id),
+          metadata:   encode_metadata(item.fetch(:metadata)),
+          data:       encode_data(item.fetch(:data)),
+          event_type: item.fetch(:event_type)
+        )
+      end
+
+      def load(serialized_record)
+        {
+          event_id:   serialized_record.event_id,
+          metadata:   serialized_record.metadata,
+          data:       serialized_record.data,
+          event_type: serialized_record.event_type
+        }
+      end
+
+      private
+      def encode_data(data)
         begin
-          domain_event_data.class.encode(domain_event_data)
+          data.class.encode(data)
         rescue NoMethodError
           raise ProtobufEncodingFailed
         end
+      end
+
+      def encode_metadata(metadata)
+        ProtobufNestedStruct::HashMapStringValue.dump(TransformKeys.stringify(metadata))
+      end
+    end
+
+    class Protobuf
+      include PipelineMapper
+
+      def initialize(events_class_remapping: {})
+        require_optional_dependency
+        @pipeline = Pipeline.new([
+          DomainEventProtoMapper.new,
+          EventClassRemapper.new(events_class_remapping),
+          SerializedRecordProtoMapper.new
+        ])
       end
 
       def require_optional_dependency
