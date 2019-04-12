@@ -7,6 +7,7 @@ module RubyEventStore
         @pipeline = Pipeline.new([
           DomainEventMapper.new,
           EventClassRemapper.new(events_class_remapping),
+          SymbolizeKeys.new(symbolize_data: false),
           SerializedRecordMapper.new(serializer: serializer)
         ])
       end

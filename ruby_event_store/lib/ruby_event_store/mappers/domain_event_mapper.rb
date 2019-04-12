@@ -13,7 +13,7 @@ module RubyEventStore
       def load(item)
         Object.const_get(item.fetch(:event_type)).new(
           event_id: item.fetch(:event_id),
-          metadata: TransformKeys.symbolize(item.fetch(:metadata)),
+          metadata: item.fetch(:metadata),
           data:     item.fetch(:data)
         )
       end
