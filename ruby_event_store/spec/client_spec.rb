@@ -331,7 +331,7 @@ module RubyEventStore
 
     specify 'raise exception if event_id is not given or invalid' do
       expect { client.read.stream("stream_name").from(nil).limit(100).to_a }.to raise_error(InvalidPageStart)
-      expect { client.read.backward.stream("stream_name").from(:invalid).limit(100).to_a }.to raise_error(InvalidPageStart)
+      expect { client.read.backward.stream("stream_name").from(:invalid).limit(100).to_a }.to raise_error(EventNotFound)
     end
 
     specify 'fails when page size is invalid' do
@@ -476,7 +476,7 @@ module RubyEventStore
       client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
       client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
       client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
-      response = client.read.from(:head).limit(2).to_a
+      response = client.read.limit(2).to_a
 
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
@@ -508,7 +508,7 @@ module RubyEventStore
       client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
       client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
       client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
-      response = client.read.backward.from(:head).limit(2).to_a
+      response = client.read.backward.limit(2).to_a
 
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 345

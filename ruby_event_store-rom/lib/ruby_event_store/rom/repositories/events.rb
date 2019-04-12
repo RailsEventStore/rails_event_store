@@ -45,7 +45,7 @@ module RubyEventStore
             ).each
           else
             query = query_builder(query, limit: (specification.limit if specification.limit?))
-            if specification.head? && !specification.stop
+            if !specification.start && !specification.stop
               specification.first? || specification.last? ? query.first : query.each
             elsif specification.last?
               query.to_ary.last
@@ -64,12 +64,12 @@ module RubyEventStore
         protected
 
         def read_scope(specification)
-          offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id) unless specification.head?
+          offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id) if specification.start
           stop_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.stop).fetch(:id) if specification.stop
 
           direction = specification.forward? ? :forward : :backward
 
-          if specification.last? && specification.head? && !specification.stop
+          if specification.last? && !specification.start && !specification.stop
             direction = specification.forward? ? :backward : :forward
           end
 
