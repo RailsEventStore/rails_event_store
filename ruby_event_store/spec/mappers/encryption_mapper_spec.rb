@@ -320,16 +320,18 @@ module RubyEventStore
         key_repository.create(recipient_id)
 
         record = encrypt(ticket_transferred)
-        silence_warnings { InMemoryEncryptionKeyRepository::DEFAULT_CIPHER = 'aes-128-cbc' }
-        event = decrypt(record)
 
-        expect(event.event_id).to eq(event_id)
-        expect(event.data).to eq({
-          ticket_id: ticket_id,
-          sender: sender,
-          recipient: recipient
-        })
-        expect(event.metadata.to_h).to eq(metadata)
+        with_default_cipher('aes-128-cbc') do
+          event = decrypt(record)
+
+          expect(event.event_id).to eq(event_id)
+          expect(event.data).to eq({
+            ticket_id: ticket_id,
+            sender: sender,
+            recipient: recipient
+          })
+          expect(event.metadata.to_h).to eq(metadata)
+        end
       end
 
       specify 'decrypted message is UTF-8 encoded' do
@@ -340,6 +342,16 @@ module RubyEventStore
 
         expect(decrypted_message).to eq(source_message)
         expect(decrypted_message.encoding).to eq(Encoding::UTF_8)
+      end
+
+      def with_default_cipher(cipher, &block)
+        cipher_ = InMemoryEncryptionKeyRepository::DEFAULT_CIPHER
+        InMemoryEncryptionKeyRepository.send(:remove_const, :DEFAULT_CIPHER)
+        InMemoryEncryptionKeyRepository.const_set(:DEFAULT_CIPHER, cipher)
+        block.call
+      ensure
+        InMemoryEncryptionKeyRepository.send(:remove_const, :DEFAULT_CIPHER)
+        InMemoryEncryptionKeyRepository.const_set(:DEFAULT_CIPHER, cipher_)
       end
     end
 
