@@ -7,7 +7,10 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::Client::Within\#call \
               RubyEventStore::Mappers::InMemoryEncryptionKeyRepository\#prepare_encrypt \
               RubyEventStore::Mappers::EncryptionKey\#prepare_encrypt \
-              RubyEventStore::Mappers::EncryptionKey\#prepare_decrypt
+              RubyEventStore::Mappers::EncryptionKey\#prepare_decrypt \
+              RubyEventStore::Mappers::EncryptionKey\#prepare_auth_data \
+              RubyEventStore::Mappers::EncryptionKey\#encrypt_authenticated \
+              RubyEventStore::Mappers::EncryptionKey\#ciphertext_from_authenticated
 
 SUBJECT     ?= RubyEventStore*
 
