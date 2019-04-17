@@ -60,21 +60,31 @@ module RubyEventStore
       end
 
       def encrypt(message, iv)
-        crypto           = prepare_encrypt(cipher)
-        crypto.iv        = iv
-        crypto.key       = key
-        crypto.auth_data = ""
-        crypto.update(message) + crypto.final + crypto.auth_tag
+        crypto     = prepare_encrypt(cipher)
+        crypto.iv  = iv
+        crypto.key = key
+
+        if crypto.authenticated?
+          crypto.auth_data = ""
+          crypto.update(message) + crypto.final + crypto.auth_tag
+        else
+          crypto.update(message) + crypto.final
+        end
       end
 
       def decrypt(message, iv)
-        ciphertext, auth_tag = message[0...-16], message[-16...]
-        crypto           = prepare_decrypt(cipher)
-        crypto.iv        = iv
-        crypto.key       = key
-        crypto.auth_tag  = auth_tag
-        crypto.auth_data = ""
-        (crypto.update(ciphertext) + crypto.final).force_encoding("UTF-8")
+        crypto     = prepare_decrypt(cipher)
+        crypto.iv  = iv
+        crypto.key = key
+
+        if crypto.authenticated?
+          ciphertext, auth_tag = message[0...-16], message[-16...]
+          crypto.auth_tag      = auth_tag
+          crypto.auth_data     = ""
+          (crypto.update(ciphertext) + crypto.final).force_encoding("UTF-8")
+        else
+          (crypto.update(message) + crypto.final).force_encoding("UTF-8")
+        end
       end
 
       def random_iv

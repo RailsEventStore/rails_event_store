@@ -344,6 +344,23 @@ module RubyEventStore
         expect(decrypted_message.encoding).to eq(Encoding::UTF_8)
       end
 
+      specify 'allow use of non-authenticated cipher' do
+        with_default_cipher('aes-256-cbc') do
+          key_repository.create(sender_id)
+          key_repository.create(recipient_id)
+
+          event = decrypt(encrypt(ticket_transferred))
+
+          expect(event.event_id).to eq(event_id)
+          expect(event.data).to eq({
+            ticket_id: ticket_id,
+            sender: sender,
+            recipient: recipient
+          })
+          expect(event.metadata.to_h).to eq(metadata)
+        end
+      end
+
       def with_default_cipher(cipher, &block)
         cipher_ = InMemoryEncryptionKeyRepository::DEFAULT_CIPHER
         InMemoryEncryptionKeyRepository.send(:remove_const, :DEFAULT_CIPHER)
