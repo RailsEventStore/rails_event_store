@@ -78,7 +78,7 @@ module RubyEventStore
         crypto.key = key
 
         if crypto.authenticated?
-          ciphertext, auth_tag = message[0...-16], message[-16...]
+          ciphertext, auth_tag = message[0...-16], message[-16...message.length]
           crypto.auth_tag      = auth_tag
           crypto.auth_data     = ""
           (crypto.update(ciphertext) + crypto.final).force_encoding("UTF-8")
