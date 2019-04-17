@@ -25,7 +25,7 @@ module RubyEventStore
     end
 
     class InMemoryEncryptionKeyRepository
-      DEFAULT_CIPHER = 'aes-256-cbc'.freeze
+      DEFAULT_CIPHER = 'aes-256-gcm'.freeze
 
       def initialize
         @keys = {}
@@ -60,17 +60,21 @@ module RubyEventStore
       end
 
       def encrypt(message, iv)
-        crypto     = prepare_encrypt(cipher)
-        crypto.iv  = iv
-        crypto.key = key
-        crypto.update(message) + crypto.final
+        crypto           = prepare_encrypt(cipher)
+        crypto.iv        = iv
+        crypto.key       = key
+        crypto.auth_data = ""
+        crypto.update(message) + crypto.final + crypto.auth_tag
       end
 
       def decrypt(message, iv)
-        crypto     = prepare_decrypt(cipher)
-        crypto.iv  = iv
-        crypto.key = key
-        (crypto.update(message) + crypto.final).force_encoding("UTF-8")
+        ciphertext, auth_tag = message[0...-16], message[-16...]
+        crypto           = prepare_decrypt(cipher)
+        crypto.iv        = iv
+        crypto.key       = key
+        crypto.auth_tag  = auth_tag
+        crypto.auth_data = ""
+        (crypto.update(ciphertext) + crypto.final).force_encoding("UTF-8")
       end
 
       def random_iv

@@ -321,7 +321,7 @@ module RubyEventStore
 
         record = encrypt(ticket_transferred)
 
-        with_default_cipher('aes-128-cbc') do
+        with_default_cipher('aes-128-gcm') do
           event = decrypt(record)
 
           expect(event.event_id).to eq(event_id)
