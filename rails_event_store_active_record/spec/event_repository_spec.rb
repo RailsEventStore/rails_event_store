@@ -20,7 +20,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_binary)                { true }
-    let(:test_change)                { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_change)                { true }
     let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }
     let(:repository)                 { EventRepository.new }
     let(:reader)                     { RubyEventStore::SpecificationReader.new(repository, mapper) }
