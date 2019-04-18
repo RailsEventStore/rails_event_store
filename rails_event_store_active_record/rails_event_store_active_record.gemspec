@@ -28,5 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ruby_event_store', '= 0.38.1'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
-  spec.add_dependency 'activerecord-import', '~> 0.21'
+  spec.add_dependency 'activerecord-import', '~> 0.26'
 end
