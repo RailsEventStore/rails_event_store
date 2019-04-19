@@ -1,1 +1,1 @@
-FROM ruby:2.6
+FROM circleci/ruby:2.6-node-browsers
