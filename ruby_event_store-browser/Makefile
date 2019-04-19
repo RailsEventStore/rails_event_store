@@ -40,4 +40,4 @@ clean-yarn:
 
 $(BUNDLE):
 	@echo "Building browser frontend"
-	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn build, yarn build)
+	@cd elm; yarn build
