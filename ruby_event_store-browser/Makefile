@@ -33,7 +33,7 @@ install-yarn:
 	@cd elm; yarn install
 
 test-yarn:
-	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn test, yarn test)
+	@cd elm; yarn test
 
 clean-yarn:
 	-rm $(BUNDLE)
