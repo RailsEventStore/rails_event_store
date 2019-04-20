@@ -5,8 +5,10 @@ module RubyEventStore
 
       def initialize(key_repository, serializer: YAML, forgotten_data: ForgottenData.new)
         @pipeline = Pipeline.new(
-          to_serialized_record: SerializedRecordMapper.new(serializer: serializer),
-          transformations: Encryption.new(key_repository, forgotten_data: forgotten_data)
+          transformations: [
+            Encryption.new(key_repository, forgotten_data: forgotten_data),
+            SerializationMapper.new(serializer: serializer),
+          ]
         )
       end
     end

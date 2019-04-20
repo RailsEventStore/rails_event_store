@@ -71,27 +71,6 @@ module RubyEventStore
           metadata: item.metadata
         )
       end
-
-    end
-
-    class SerializedRecordProtoMapper
-      def dump(item)
-        SerializedRecord.new(
-          event_id:   item.event_id,
-          metadata:   item.metadata,
-          data:       item.data,
-          event_type: item.event_type
-        )
-      end
-
-      def load(serialized_record)
-        TransformationItem.new(
-          event_id:   serialized_record.event_id,
-          metadata:   serialized_record.metadata,
-          data:       serialized_record.data,
-          event_type: serialized_record.event_type
-        )
-      end
     end
 
     class Protobuf
@@ -101,7 +80,6 @@ module RubyEventStore
         require_optional_dependency
         @pipeline = Pipeline.new(
           to_domain_event: DomainEventProtoMapper.new,
-          to_serialized_record: SerializedRecordProtoMapper.new,
           transformations: [
             ProtoMapper.new,
             EventClassRemapper.new(events_class_remapping),

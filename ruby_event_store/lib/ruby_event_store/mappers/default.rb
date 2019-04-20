@@ -7,10 +7,10 @@ module RubyEventStore
 
       def initialize(serializer: YAML, events_class_remapping: {})
         @pipeline = Pipeline.new(
-          to_serialized_record: SerializedRecordMapper.new(serializer: serializer),
           transformations: [
             EventClassRemapper.new(events_class_remapping),
             SymbolizeMetadataKeys.new,
+            SerializationMapper.new(serializer: serializer),
           ]
         )
       end
