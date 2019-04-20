@@ -10,12 +10,12 @@ module RubyEventStore
                       metadata: {some: 'meta'})
       }
       let(:item)  {
-        {
+        TransformationItem.new(
           event_id:   uuid,
           metadata:   {some: 'meta'},
           data:       {some: 'value'},
           event_type: 'TestEvent',
-        }
+        )
       }
 
       specify "#dump" do

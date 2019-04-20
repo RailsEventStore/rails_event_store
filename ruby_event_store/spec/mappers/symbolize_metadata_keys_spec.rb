@@ -6,20 +6,20 @@ module RubyEventStore
     RSpec.describe SymbolizeMetadataKeys do
       let(:uuid)  { SecureRandom.uuid }
       let(:item)  {
-        {
+        TransformationItem.new(
           event_id:   uuid,
           metadata:   {some: 'meta'},
           data:       JSON.parse(JSON.dump({some: 'value'})),
           event_type: 'TestEvent',
-        }
+        )
       }
       let(:changed_item)  {
-        {
+        TransformationItem.new(
           event_id:   uuid,
           metadata:   JSON.parse(JSON.dump({some: 'meta'})),
           data:       JSON.parse(JSON.dump({some: 'value'})),
           event_type: 'TestEvent',
-        }
+        )
       }
 
       specify "#dump" do

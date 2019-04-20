@@ -12,7 +12,7 @@ module RubyEventStore
       private
       def symbolize(item)
         item.merge(
-          metadata: TransformKeys.symbolize(item.fetch(:metadata)),
+          metadata: TransformKeys.symbolize(item.metadata),
         )
       end
     end

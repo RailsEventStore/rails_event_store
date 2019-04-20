@@ -143,9 +143,9 @@ module RubyEventStore
       end
 
       def dump(item)
-        data        = item.fetch(:data)
-        metadata    = item.fetch(:metadata)
-        event_class = Object.const_get(item.fetch(:event_type))
+        data        = item.data
+        metadata    = item.metadata
+        event_class = Object.const_get(item.event_type)
 
         crypto_description    = encryption_metadata(data, encryption_schema(event_class))
         metadata[:encryption] = crypto_description unless crypto_description.empty?
@@ -157,11 +157,11 @@ module RubyEventStore
       end
 
       def load(item)
-        metadata = item.fetch(:metadata)
+        metadata = item.metadata
         crypto_description = Hash(metadata.delete(:encryption))
 
         item.merge(
-          data: decrypt_data(item.fetch(:data), crypto_description),
+          data: decrypt_data(item.data, crypto_description),
           metadata: metadata
         )
       end

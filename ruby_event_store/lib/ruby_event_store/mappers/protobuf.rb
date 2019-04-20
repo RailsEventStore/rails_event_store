@@ -19,23 +19,23 @@ module RubyEventStore
       attr_reader :serializer
 
       def dump(item)
-        metadata = serializer.dump(item.fetch(:metadata))
+        metadata = serializer.dump(item.metadata)
         item.merge(metadata: metadata)
       end
 
       def load(item)
-        metadata = serializer.load(item.fetch(:metadata))
+        metadata = serializer.load(item.metadata)
         item.merge(metadata: metadata)
       end
     end
 
     class ProtoMapper
       def dump(item)
-        item.merge(data: encode_data(item.fetch(:data)))
+        item.merge(data: encode_data(item.data))
       end
 
       def load(item)
-        item.merge(data: load_data(item.fetch(:event_type), item.fetch(:data)))
+        item.merge(data: load_data(item.event_type, item.data))
       end
 
       private
@@ -54,21 +54,21 @@ module RubyEventStore
 
     class DomainEventProtoMapper
       def dump(domain_event)
-        {
+        TransformationItem.new(
           event_id:   domain_event.event_id,
           metadata:   domain_event.metadata,
           data:       domain_event.data,
           event_type: domain_event.type
-        }
+        )
       rescue NoMethodError
         raise ProtobufEncodingFailed
       end
 
       def load(item)
         Proto.new(
-          event_id: item.fetch(:event_id),
-          data:     item.fetch(:data),
-          metadata: item.fetch(:metadata)
+          event_id: item.event_id,
+          data:     item.data,
+          metadata: item.metadata
         )
       end
 
@@ -77,20 +77,20 @@ module RubyEventStore
     class SerializedRecordProtoMapper
       def dump(item)
         SerializedRecord.new(
-          event_id:   item.fetch(:event_id),
-          metadata:   item.fetch(:metadata),
-          data:       item.fetch(:data),
-          event_type: item.fetch(:event_type)
+          event_id:   item.event_id,
+          metadata:   item.metadata,
+          data:       item.data,
+          event_type: item.event_type
         )
       end
 
       def load(serialized_record)
-        {
+        TransformationItem.new(
           event_id:   serialized_record.event_id,
           metadata:   serialized_record.metadata,
           data:       serialized_record.data,
           event_type: serialized_record.event_type
-        }
+        )
       end
     end
 

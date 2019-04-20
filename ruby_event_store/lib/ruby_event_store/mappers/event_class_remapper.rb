@@ -10,7 +10,7 @@ module RubyEventStore
       end
 
       def load(item)
-        item.merge(event_type: class_map.fetch(item.fetch(:event_type)) { item.fetch(:event_type) })
+        item.merge(event_type: class_map.fetch(item.event_type) { item.event_type })
       end
 
       private

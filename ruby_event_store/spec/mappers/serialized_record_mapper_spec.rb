@@ -13,12 +13,12 @@ module RubyEventStore
         event_type: 'TestEvent',
       ) }
       let(:item)   {
-        {
+        TransformationItem.new(
           event_id:   uuid,
           data:       {some: 'value'},
           metadata:   {some: 'meta'},
           event_type: 'TestEvent',
-        }
+        )
       }
 
       specify "#initialize" do

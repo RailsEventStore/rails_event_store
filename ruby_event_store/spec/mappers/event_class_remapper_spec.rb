@@ -5,15 +5,15 @@ module RubyEventStore
     RSpec.describe EventClassRemapper do
       let(:uuid)  { SecureRandom.uuid }
       let(:item)  {
-        {
+        TransformationItem.new(
           event_id:   uuid,
           metadata:   {some: 'meta'},
           data:       {some: 'value'},
           event_type: 'TestEvent',
-        }
+        )
       }
-      let(:changeable_item) { item.dup.merge(event_type: 'EventNameBeforeRefactor') }
-      let(:changed_item)    { item.dup.merge(event_type: 'SomethingHappened') }
+      let(:changeable_item) { item.merge(event_type: 'EventNameBeforeRefactor') }
+      let(:changed_item)    { item.merge(event_type: 'SomethingHappened') }
       let(:class_map) { {'EventNameBeforeRefactor' => 'SomethingHappened'} }
 
       specify "#dump" do

@@ -12,7 +12,7 @@ module RubyEventStore
       private
       def stringify(item)
         item.merge(
-          metadata: TransformKeys.stringify(item.fetch(:metadata)),
+          metadata: TransformKeys.stringify(item.metadata),
         )
       end
     end
