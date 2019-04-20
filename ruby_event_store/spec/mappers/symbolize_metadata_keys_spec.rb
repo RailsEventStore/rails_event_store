@@ -23,7 +23,9 @@ module RubyEventStore
       }
 
       specify "#dump" do
-        expect(SymbolizeMetadataKeys.new.dump(item)).to eq(item)
+        result = SymbolizeMetadataKeys.new.dump(changed_item)
+        expect(result).to eq(item)
+        expect(result[:metadata].keys.map(&:class).uniq).to eq([Symbol])
       end
 
       specify "#load" do
