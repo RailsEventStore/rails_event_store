@@ -99,15 +99,17 @@ module RubyEventStore
 
       def initialize(events_class_remapping: {})
         require_optional_dependency
-        @pipeline = Pipeline.new([
-          DomainEventProtoMapper.new,
-          ProtoMapper.new,
-          EventClassRemapper.new(events_class_remapping),
-          SymbolizeMetadataKeys.new,
-          StringifyMetadataKeys.new,
-          ProtobufNestedStructMetadataMapper.new,
-          SerializedRecordProtoMapper.new
-        ])
+        @pipeline = Pipeline.new(
+          to_domain_event: DomainEventProtoMapper.new,
+          to_serialized_record: SerializedRecordProtoMapper.new,
+          transformations: [
+            ProtoMapper.new,
+            EventClassRemapper.new(events_class_remapping),
+            SymbolizeMetadataKeys.new,
+            StringifyMetadataKeys.new,
+            ProtobufNestedStructMetadataMapper.new,
+          ]
+        )
       end
 
       def require_optional_dependency

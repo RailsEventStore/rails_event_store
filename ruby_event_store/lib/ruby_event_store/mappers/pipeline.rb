@@ -1,8 +1,14 @@
 module RubyEventStore
   module Mappers
     class Pipeline
-      def initialize(transformations)
-        @transformations = transformations
+      def initialize(to_domain_event: DomainEventMapper.new,
+                     to_serialized_record: SerializedRecordMapper.new,
+                     transformations: [])
+        @transformations = [
+          to_domain_event,
+          Array(transformations),
+          to_serialized_record
+        ].flatten
       end
 
       def dump(domain_event)

@@ -6,12 +6,13 @@ module RubyEventStore
       include PipelineMapper
 
       def initialize(serializer: YAML, events_class_remapping: {})
-        @pipeline = Pipeline.new([
-          DomainEventMapper.new,
-          EventClassRemapper.new(events_class_remapping),
-          SymbolizeMetadataKeys.new,
-          SerializedRecordMapper.new(serializer: serializer)
-        ])
+        @pipeline = Pipeline.new(
+          to_serialized_record: SerializedRecordMapper.new(serializer: serializer),
+          transformations: [
+            EventClassRemapper.new(events_class_remapping),
+            SymbolizeMetadataKeys.new,
+          ]
+        )
       end
     end
   end
