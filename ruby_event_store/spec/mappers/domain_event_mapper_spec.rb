@@ -23,7 +23,9 @@ module RubyEventStore
       end
 
       specify "#load" do
-        expect(DomainEventMapper.new.load(item)).to eq(event)
+        loaded = DomainEventMapper.new.load(item)
+        expect(loaded).to eq(event)
+        expect(loaded.metadata.to_h).to eq(event.metadata.to_h)
       end
     end
   end
