@@ -3,12 +3,12 @@ module RubyEventStore
     class Pipeline
       def initialize(to_domain_event: DomainEventMapper.new,
                      to_serialized_record: SerializedRecordMapper.new,
-                     transformations: [])
+                     transformations: nil)
         @transformations = [
           to_domain_event,
           Array(transformations),
           to_serialized_record
-        ].flatten
+        ].flatten.freeze
       end
 
       def dump(domain_event)
@@ -23,7 +23,6 @@ module RubyEventStore
         end
       end
 
-      private
       attr_reader :transformations
     end
   end
