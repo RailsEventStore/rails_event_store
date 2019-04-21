@@ -6,27 +6,27 @@ module RubyEventStore
       include Enumerable
       extend  Forwardable
 
-      def initialize(h = self)
+      def initialize(h)
         @h = {}
         h.each do |k, v|
-          self[k] = (v)
+          @h[k] = (v)
         end
       end
 
       def event_id
-        @h[:event_id]
+        fetch(:event_id)
       end
 
       def metadata
-        @h[:metadata]
+        fetch(:metadata)
       end
 
       def data
-        @h[:data]
+        fetch(:data)
       end
 
       def event_type
-        @h[:event_type]
+        fetch(:event_type)
       end
 
       def ==(other_event)
@@ -35,15 +35,15 @@ module RubyEventStore
       end
       alias_method :eql?, :==
 
-      def to_h
-        @h
-      end
-
       def merge(args)
         TransformationItem.new(@h.merge(args))
       end
 
-      SAFE_HASH_METHODS = [:[], :[]=]
+      def to_h
+        @h.dup
+      end
+
+      SAFE_HASH_METHODS = [:[], :fetch]
       delegate SAFE_HASH_METHODS => :@h
 
       private
