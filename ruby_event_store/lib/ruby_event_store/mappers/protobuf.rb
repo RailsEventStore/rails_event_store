@@ -12,67 +12,6 @@ module RubyEventStore
   end
 
   module Mappers
-    class ProtobufNestedStructMetadataMapper
-      def initialize(serializer = ProtobufNestedStruct::HashMapStringValue)
-        @serializer = serializer
-      end
-      attr_reader :serializer
-
-      def dump(item)
-        metadata = serializer.dump(item.metadata)
-        item.merge(metadata: metadata)
-      end
-
-      def load(item)
-        metadata = serializer.load(item.metadata)
-        item.merge(metadata: metadata)
-      end
-    end
-
-    class ProtoMapper
-      def dump(item)
-        item.merge(data: encode_data(item.data))
-      end
-
-      def load(item)
-        item.merge(data: load_data(item.event_type, item.data))
-      end
-
-      private
-      def encode_data(data)
-        begin
-          data.class.encode(data)
-        rescue NoMethodError
-          raise ProtobufEncodingFailed
-        end
-      end
-
-      def load_data(event_type, protobuf_data)
-        Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(protobuf_data)
-      end
-    end
-
-    class DomainEventProtoMapper
-      def dump(domain_event)
-        TransformationItem.new(
-          event_id:   domain_event.event_id,
-          metadata:   domain_event.metadata,
-          data:       domain_event.data,
-          event_type: domain_event.type
-        )
-      rescue NoMethodError
-        raise ProtobufEncodingFailed
-      end
-
-      def load(item)
-        Proto.new(
-          event_id: item.event_id,
-          data:     item.data,
-          metadata: item.metadata
-        )
-      end
-    end
-
     class Protobuf
       include PipelineMapper
 
