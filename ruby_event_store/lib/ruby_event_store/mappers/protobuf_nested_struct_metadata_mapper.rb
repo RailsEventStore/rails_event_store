@@ -7,13 +7,15 @@ module RubyEventStore
       attr_reader :serializer
 
       def dump(item)
-        metadata = serializer.dump(item.metadata)
+        stringify = StringifyMetadataKeys.new
+        metadata = ProtobufNestedStruct::HashMapStringValue.dump(stringify.dump(item).metadata)
         item.merge(metadata: metadata)
       end
 
       def load(item)
-        metadata = serializer.load(item.metadata)
-        item.merge(metadata: metadata)
+        metadata = ProtobufNestedStruct::HashMapStringValue.load(item.metadata)
+        symbolize = SymbolizeMetadataKeys.new
+        symbolize.load(item.merge(metadata: metadata))
       end
     end
   end

@@ -22,8 +22,6 @@ module RubyEventStore
           transformations: [
             ProtoMapper.new,
             EventClassRemapper.new(events_class_remapping),
-            SymbolizeMetadataKeys.new,
-            StringifyMetadataKeys.new,
             ProtobufNestedStructMetadataMapper.new,
           ]
         )
