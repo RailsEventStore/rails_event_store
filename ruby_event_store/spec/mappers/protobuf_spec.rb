@@ -198,16 +198,6 @@ module RubyEventStore
           )
       end
 
-      specify "initialize requires protobuf_nested_struct" do
-        p = Protobuf.allocate
-        def p.require(_name)
-          raise LoadError
-        end
-        expect do
-          p.send(:initialize)
-        end.to raise_error(LoadError, "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile")
-      end
-
       specify '#event_to_serialized_record returns proto serialized record' do
         record = subject.event_to_serialized_record(domain_event)
         expect(record).to              be_a(SerializedRecord)

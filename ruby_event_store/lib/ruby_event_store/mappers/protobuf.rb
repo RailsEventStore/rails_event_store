@@ -16,7 +16,6 @@ module RubyEventStore
       include PipelineMapper
 
       def initialize(events_class_remapping: {})
-        require_optional_dependency
         @pipeline = Pipeline.new(
           to_domain_event: DomainEventProtoMapper.new,
           transformations: [
@@ -25,12 +24,6 @@ module RubyEventStore
             ProtobufNestedStructMetadataMapper.new,
           ]
         )
-      end
-
-      def require_optional_dependency
-        require 'protobuf_nested_struct'
-      rescue LoadError
-        raise LoadError, "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile"
       end
     end
   end
