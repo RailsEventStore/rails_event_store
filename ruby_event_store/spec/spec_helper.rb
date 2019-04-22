@@ -24,6 +24,16 @@ module Subscribers
   end
 end
 
+class ReverseYamlSerializer
+  def self.load(value)
+    YAML.load(value.reverse)
+  end
+
+  def self.dump(value)
+    YAML.dump(value).reverse
+  end
+end
+
 RSpec::Matchers.define :contains_ids do |expected_ids|
   match do |enum|
     @actual = enum.map(&:event_id)
