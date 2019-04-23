@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'json'
+require 'ruby_event_store/spec/mapper_lint'
 
 SomethingHappened = Class.new(RubyEventStore::Event)
 
@@ -10,6 +11,8 @@ module RubyEventStore
       let(:metadata)     { {some_meta: 1} }
       let(:event_id)     { SecureRandom.uuid }
       let(:domain_event) { SomethingHappened.new(data: data, metadata: metadata, event_id: event_id) }
+
+      it_behaves_like :mapper, Default.new, SomethingHappened.new
 
       specify '#event_to_serialized_record returns YAML serialized record' do
         record = subject.event_to_serialized_record(domain_event)

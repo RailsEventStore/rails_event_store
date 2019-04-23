@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'ruby_event_store/spec/mapper_lint'
 
 module RubyEventStore
   module Mappers
@@ -7,6 +8,8 @@ module RubyEventStore
       let(:metadata)     { {some_meta: 1} }
       let(:event_id)     { SecureRandom.uuid }
       let(:domain_event) { SomethingHappened.new(data: data, metadata: metadata, event_id: event_id) }
+
+      it_behaves_like :mapper, NullMapper.new, SomethingHappened.new
 
       specify '#event_to_serialized_record' do
         record = subject.event_to_serialized_record(domain_event)
