@@ -1,23 +1,26 @@
+require 'forwardable'
+
 module RubyEventStore
   module Mappers
     class NullMapper
-      class AlmostLikeSerializedRecord < Struct.new(:domain_event)
-        extend Forwardable
-        def_delegators :domain_event, :event_id, :data, :metadata
+      extend Forwardable
+      class NULL
+        def self.dump(event)
+          event
+        end
 
-        def event_type
-          domain_event.type
+        def self.load(record)
+          record
         end
       end
-      private_constant :AlmostLikeSerializedRecord
+      private_constant :NULL
 
-      def event_to_serialized_record(domain_event)
-        AlmostLikeSerializedRecord.new(domain_event)
+
+      def initialize
+        @mapper = Default.new(serializer: NULL)
       end
 
-      def serialized_record_to_event(record)
-        record.domain_event
-      end
+      def_delegators :@mapper, :event_to_serialized_record, :serialized_record_to_event
     end
   end
 end

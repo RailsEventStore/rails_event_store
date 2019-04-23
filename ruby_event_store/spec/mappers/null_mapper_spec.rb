@@ -11,28 +11,21 @@ module RubyEventStore
       specify '#event_to_serialized_record' do
         record = subject.event_to_serialized_record(domain_event)
 
-        expect(record.event_id).to   eq(domain_event.event_id)
-        expect(record.data).to       eq(domain_event.data)
-        expect(record.metadata).to   eq(domain_event.metadata)
-        expect(record.event_type).to eq("SomethingHappened")
+        expect(record.event_id).to      eq(domain_event.event_id)
+        expect(record.data).to          eq(domain_event.data)
+        expect(record.metadata.to_h).to eq(domain_event.metadata.to_h)
+        expect(record.event_type).to    eq("SomethingHappened")
       end
 
       specify '#serialized_record_to_event' do
         record = subject.event_to_serialized_record(domain_event)
         event  = subject.serialized_record_to_event(record)
 
-        expect(event).to           eq(domain_event)
-        expect(event.event_id).to  eq(domain_event.event_id)
-        expect(event.data).to      eq(domain_event.data)
-        expect(event.metadata).to  eq(domain_event.metadata)
-        expect(event.type).to      eq("SomethingHappened")
-      end
-
-      specify "returns same object" do
-        event = subject.serialized_record_to_event(
-          subject.event_to_serialized_record(domain_event)
-        )
-        expect(event.object_id).to eq(domain_event.object_id)
+        expect(event).to               eq(domain_event)
+        expect(event.event_id).to      eq(domain_event.event_id)
+        expect(event.data).to          eq(domain_event.data)
+        expect(event.metadata.to_h).to eq(domain_event.metadata.to_h)
+        expect(event.type).to          eq("SomethingHappened")
       end
     end
   end
