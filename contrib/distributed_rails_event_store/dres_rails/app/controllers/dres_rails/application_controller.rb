@@ -1,5 +1,12 @@
 module DresRails
   class ApplicationController < ActionController::Base
+    class NULL
+      def self.serialized_record_to_event(record)
+        record
+      end
+    end
+    private_constant :NULL
+
     def index
       spec   = build_initial_spec
       spec   = spec.limit(1000)
@@ -15,15 +22,12 @@ module DresRails
     private
 
     def build_initial_spec
-      repository = Rails.configuration.event_store.instance_variable_get(:@repository)
-      mapper     = RubyEventStore::Mappers::NullMapper.new
-
-      RubyEventStore::Specification.new(RubyEventStore::SpecificationReader.new(repository, mapper))
+      repository = Rails.configuration.event_store.send(:repository)
+      RubyEventStore::Specification.new(RubyEventStore::SpecificationReader.new(repository, NULL))
     end
 
     def after
       params[:after_event_id]
     end
-
   end
 end
