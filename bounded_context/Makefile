@@ -4,8 +4,8 @@ REQUIRE     = $(GEM_NAME)
 IGNORE      =
 SUBJECT     ?= BoundedContext*
 
-include ../lib/install.mk
-include ../lib/test.mk
-include ../lib/mutant.mk
-include ../lib/gem.mk
-include ../lib/help.mk
+include ../lib/make/install.mk
+include ../lib/make/test.mk
+include ../lib/make/mutant.mk
+include ../lib/make/gem.mk
+include ../lib/make/help.mk

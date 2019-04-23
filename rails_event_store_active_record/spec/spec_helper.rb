@@ -1,8 +1,8 @@
 require 'rails_event_store_active_record'
-require_relative '../../lib/rspec_defaults'
-require_relative '../../lib/mutant_timeout'
-require_relative '../../lib/migrator'
-require_relative '../../lib/schema_helper'
+require_relative '../../lib/helpers/rspec_defaults'
+require_relative '../../lib/helpers/mutant_timeout'
+require_relative '../../lib/helpers/migrator'
+require_relative '../../lib/helpers/schema_helper'
 require 'rails'
 
 

@@ -1,6 +1,6 @@
 require 'ruby_event_store/rom'
-require_relative '../../lib/rspec_defaults'
-require_relative '../../lib/mutant_timeout'
+require_relative '../../lib/helpers/rspec_defaults'
+require_relative '../../lib/helpers/mutant_timeout'
 require 'dry/inflector'
 
 begin

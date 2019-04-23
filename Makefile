@@ -101,4 +101,4 @@ rebase: git-rebase-from-upstream
 	@echo "  origin/master   at $(ORIGIN_REV)"
 	@echo "  current branch  at $(CURRENT_REV)"
 
-include lib/help.mk
+include lib/make/help.mk

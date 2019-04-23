@@ -2,11 +2,11 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gemspec
 
-eval_gemfile File.expand_path('../lib/Gemfile.shared', __dir__)
+eval_gemfile File.expand_path('../lib/bundler/Gemfile.shared', __dir__)
 
 gem 'ruby_event_store', path: '../ruby_event_store'
-gem 'aggregate_root', path: '../aggregate_root'
-gem 'bounded_context', path: '../bounded_context'
+gem 'aggregate_root',   path: '../aggregate_root'
+gem 'bounded_context',  path: '../bounded_context'
 gem 'rack-test'
 gem 'capybara', '~> 3.18'
 gem 'selenium-webdriver', '~> 3.141'

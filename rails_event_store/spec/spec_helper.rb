@@ -1,10 +1,10 @@
 require 'rails_event_store'
 require 'example_invoicing_app'
 require 'support/fake_configuration'
-require_relative '../../lib/rspec_defaults'
-require_relative '../../lib/mutant_timeout'
-require_relative '../../lib/migrator'
-require_relative '../../lib/protobuf_helper'
+require_relative '../../lib/helpers/rspec_defaults'
+require_relative '../../lib/helpers/mutant_timeout'
+require_relative '../../lib/helpers/migrator'
+require_relative '../../lib/helpers/protobuf_helper'
 require 'pry'
 
 RSpec.configure do |config|

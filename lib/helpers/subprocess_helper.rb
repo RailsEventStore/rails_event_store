@@ -27,7 +27,7 @@ module SubprocessHelper
     Tempfile.open do |script|
       script.write(code)
       script.close
-      run_subprocess(File.join(__dir__, gemfile), script.path, cwd)
+      run_subprocess(File.join(__dir__, '../bundler', gemfile), script.path, cwd)
     end
   end
 end

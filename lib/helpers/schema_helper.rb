@@ -6,7 +6,7 @@ module SchemaHelper
   include SubprocessHelper
 
   def run_migration(name)
-    m = Migrator.new(File.expand_path('../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates', __dir__))
+    m = Migrator.new(File.expand_path('../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates', __dir__))
     m.run_migration(name)
   end
 
@@ -46,7 +46,7 @@ module SchemaHelper
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
       require 'logger'
-      require '../lib/migrator'
+      require '../lib/helpers/migrator'
 
       $verbose = ENV.has_key?('VERBOSE') ? true : false
       ActiveRecord::Schema.verbose = $verbose
