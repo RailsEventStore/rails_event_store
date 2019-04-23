@@ -14,6 +14,7 @@ module RubyEventStore
         expect(record.event_id).to   eq(domain_event.event_id)
         expect(record.data).to       eq(domain_event.data)
         expect(record.metadata).to   eq(domain_event.metadata)
+        expect(record.event_type).to eq("SomethingHappened")
       end
 
       specify '#serialized_record_to_event' do
@@ -23,6 +24,7 @@ module RubyEventStore
         expect(event.event_id).to  eq(domain_event.event_id)
         expect(event.data).to      eq(domain_event.data)
         expect(event.metadata).to  eq(domain_event.metadata)
+        expect(event.type).to      eq("SomethingHappened")
       end
 
       specify "returns same object" do
