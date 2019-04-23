@@ -3,11 +3,13 @@ module DresRails
     NEWER_PRIVATE_API = RubyEventStore::Specification.instance_method(:initialize).parameters.first.second == :reader
 
     def index
-      spec = build_initial_spec
-      spec = spec.from(after).limit(1000)
+      spec   = build_initial_spec
+      spec   = spec.limit(1000)
+      spec   = spec.from(after) if after
       events = spec.each.map(&:to_h)
+
       render json: {
-        after: after,
+        after:  after || "head",
         events: events,
       }
     end
@@ -27,7 +29,7 @@ module DresRails
     end
 
     def after
-      params[:after_event_id] || :head
+      params[:after_event_id]
     end
 
   end
