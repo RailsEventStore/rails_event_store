@@ -26,9 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "ruby_event_store"
   spec.add_dependency "rails_event_store"
 
-  spec.add_development_dependency "bundler-audit", "~> 0.6"
-  spec.add_development_dependency "gemsmith", "~> 12.0"
-  spec.add_development_dependency "git-cop", "~> 2.2"
   spec.add_development_dependency "pry", "~> 0.10"
   spec.add_development_dependency "pry-byebug", "~> 3.5"
   spec.add_development_dependency "rake", "~> 12.3"

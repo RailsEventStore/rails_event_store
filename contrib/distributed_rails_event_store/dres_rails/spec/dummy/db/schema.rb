@@ -13,9 +13,15 @@
 ActiveRecord::Schema.define(version: 2018_08_09_123950) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pageinspect"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "dres_rails_queue_jobs", force: :cascade do |t|
+    t.integer "queue_id", null: false
+    t.string "event_id", null: false
+    t.string "state", null: false
+    t.index ["queue_id", "event_id"], name: "index_dres_rails_queue_jobs_on_queue_id_and_event_id"
+  end
 
   create_table "dres_rails_queues", force: :cascade do |t|
     t.string "name", null: false
@@ -23,13 +29,6 @@ ActiveRecord::Schema.define(version: 2018_08_09_123950) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_dres_rails_queues_on_name", unique: true
-  end
-
-  create_table "dres_rails_queue_jobs", force: :cascade do |t|
-    t.integer "queue_id", null: false
-    t.string "event_id", null: false
-    t.string "state", null: false
-    t.index ["queue_id", "event_id"], name: "index_queue_jobs_on_queue_id_and_event_id"
   end
 
 end
