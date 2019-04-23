@@ -18,7 +18,8 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event' do
-        event = subject.serialized_record_to_event(domain_event)
+        record = subject.event_to_serialized_record(domain_event)
+        event  = subject.serialized_record_to_event(record)
 
         expect(event).to           eq(domain_event)
         expect(event.event_id).to  eq(domain_event.event_id)
