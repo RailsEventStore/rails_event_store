@@ -4,8 +4,8 @@ volumes:
 services:
   res:
     build:
-      context: ./lib
-      dockerfile: lib/docker/Dockerfile.2_6
+      context: ./support/docker
+      dockerfile: support/docker/Dockerfile.2_6
     volumes:
       - .:/res
       - gems:/usr/local/bundle

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pathname'
 require 'fileutils'
-require_relative '../../lib/helpers/subprocess_helper'
+require_relative '../../support/helpers/subprocess_helper'
 
 RSpec.describe RailsEventStoreActiveRecord do
   include SchemaHelper

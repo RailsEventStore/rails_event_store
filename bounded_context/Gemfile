@@ -2,6 +2,6 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gemspec
 
-eval_gemfile File.expand_path('../lib/bundler/Gemfile.shared', __dir__)
+eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 
 gem 'rails', ENV['RAILS_VERSION']

@@ -6,11 +6,11 @@ SUBJECT      ?= RubyEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
 BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css public/ruby_event_store_browser.map
 
-include ../lib/make/install.mk
-include ../lib/make/test.mk
-include ../lib/make/mutant.mk
-include ../lib/make/gem.mk
-include ../lib/make/help.mk
+include ../support/make/install.mk
+include ../support/make/test.mk
+include ../support/make/mutant.mk
+include ../support/make/gem.mk
+include ../support/make/help.mk
 
 install: install-yarn
 

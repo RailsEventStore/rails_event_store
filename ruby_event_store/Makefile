@@ -14,8 +14,8 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
 
 SUBJECT     ?= RubyEventStore*
 
-include ../lib/make/install.mk
-include ../lib/make/test.mk
-include ../lib/make/mutant.mk
-include ../lib/make/gem.mk
-include ../lib/make/help.mk
+include ../support/make/install.mk
+include ../support/make/test.mk
+include ../support/make/mutant.mk
+include ../support/make/gem.mk
+include ../support/make/help.mk

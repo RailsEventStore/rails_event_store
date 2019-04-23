@@ -46,7 +46,7 @@ module SchemaHelper
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
       require 'logger'
-      require '../lib/helpers/migrator'
+      require '../support/helpers/migrator'
 
       $verbose = ENV.has_key?('VERBOSE') ? true : false
       ActiveRecord::Schema.verbose = $verbose
