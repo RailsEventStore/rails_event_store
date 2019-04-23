@@ -1,0 +1,2 @@
+web: bundle exec rails s -p 5001
+dres: bundle exec rails r dres_start.rb
