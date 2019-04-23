@@ -10,10 +10,12 @@ module RubyEventStore
           sender: {
             name:  ->(data) { data.dig(:sender, :user_id) },
             email: ->(data) { data.dig(:sender, :user_id) },
+            twitter: ->(data) { data.dig(:sender, :user_id) },
           },
           recipient: {
             name:  ->(data) { data.dig(:recipient, :user_id) },
             email: ->(data) { data.dig(:recipient, :user_id) },
+            twitter: ->(data) { data.dig(:sender, :user_id) },
           }
         }
       end
@@ -46,13 +48,15 @@ module RubyEventStore
           user_id: recipient_id,
           name: 'Bob',
           email: 'bob@universe',
+          twitter: nil
         }
       end
       let(:sender) do
         {
           user_id: sender_id,
           name: 'Alice',
-          email: sender_email
+          email: sender_email,
+          twitter: '@alice'
         }
       end
       let(:data) do
@@ -128,6 +132,7 @@ module RubyEventStore
             user_id: sender_id,
             name: ForgottenData::FORGOTTEN_DATA,
             email: ForgottenData::FORGOTTEN_DATA,
+            twitter: ForgottenData::FORGOTTEN_DATA,
           },
           recipient: recipient
         })
@@ -150,6 +155,7 @@ module RubyEventStore
             user_id: sender_id,
             name: ForgottenData::FORGOTTEN_DATA,
             email: ForgottenData::FORGOTTEN_DATA,
+            twitter: ForgottenData::FORGOTTEN_DATA,
           },
           recipient: recipient
         })
