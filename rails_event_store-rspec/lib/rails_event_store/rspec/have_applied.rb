@@ -5,7 +5,7 @@ module RailsEventStore
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @differ    = differ
-        @phraser    = phraser
+        @phraser   = phraser
       end
 
       def matches?(aggregate_root)

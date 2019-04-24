@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'ruby_event_store/spec/mapper_lint'
 
 module RubyEventStore
   RSpec.describe Proto do
@@ -155,6 +156,7 @@ module RubyEventStore
   module Mappers
     RSpec.describe Protobuf do
       include ProtobufHelper
+      extend  ProtobufHelper
 
       before(:each) { require_protobuf_dependencies }
 
@@ -184,6 +186,16 @@ module RubyEventStore
           data: data,
           metadata: metadata,
         )
+      end
+
+      require_protobuf_dependencies do
+        it_behaves_like :mapper, Protobuf.new,
+          RubyEventStore::Proto.new(
+            data: ResTesting::OrderCreated.new(
+              customer_id: 123,
+              order_id: "K3THNX9",
+            )
+          )
       end
 
       specify "initialize requires protobuf_nested_struct" do

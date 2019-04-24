@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'openssl'
+require 'ruby_event_store/spec/mapper_lint'
 
 module RubyEventStore
   module Mappers
@@ -92,6 +93,8 @@ module RubyEventStore
       def decrypt(r)
         mapper.serialized_record_to_event(r)
       end
+
+      it_behaves_like :mapper, EncryptionMapper.new(InMemoryEncryptionKeyRepository.new), TicketCancelled.new
 
       specify 'decrypts encrypted fields in presence of encryption keys' do
         key_repository.create(sender_id)
