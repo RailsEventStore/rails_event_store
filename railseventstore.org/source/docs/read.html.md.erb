@@ -21,8 +21,8 @@ The available specification methods are:
 * `backward` - reading direction, from newest to oldest  domain events.
 * `limit(count)` - total number of events to read (could be less).
 * `in_batches(batch_size)` - read will be performed in batches of specified size.
-   RailsEventStore newer reads all domain events at once - event if you not specify
-   batch size the read operation will read in batches of size 100.
+   RailsEventStore never reads all domain events at once. Even if you don't specify
+   batch size, the read operation will be performed in batches of size 100.
 * `of_type(types)` - read only specified types of domain events ignoring all others.
 
 The read scope could be defined by chaining the specification methods, i.e.:
