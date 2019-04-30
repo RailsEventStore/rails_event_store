@@ -24,7 +24,7 @@ end
 
 ```ruby
 event_store.read.in_batches.each_batch do |events|
-  events.select{|ev| OldType === ev }.map do |ev|
+  events = events.select{|ev| OldType === ev }.map do |ev|
     NewType.new(
       event_id: ev.event_id,
       data: ev.data,
