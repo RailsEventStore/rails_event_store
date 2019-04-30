@@ -13,10 +13,8 @@ The available specification methods are:
    if no stream will be specified a global stream (all domain events)
    will be read.
 * `from(start)` - specify the starting point (event id) for read operation. This will read all domain events after (not including) the specified domain event id.
-<% if version_above('0.36.0') %>
 * `to(stop)` - specify the stop point (event id) for the read operation. This will
     read all domain events until (not including) the specified domain event id.
-<% end %>
 * `forward`  - reading direction, from oldest to newest domain events.
 * `backward` - reading direction, from newest to oldest  domain events.
 * `limit(count)` - total number of events to read (could be less).
