@@ -6,14 +6,14 @@ Sometimes it is convenient to update existing historical events. Instead of intr
 
 Another valid use-case can be when you decide to migrate to a different mapper (ie from YAML to Protobuf).
 
-Note that events are updated using "upsert" capabilities of your MySQL, PostgreSQL or Sqlite 3.24.0+ database.
+Note that events are updated using upsert capabilities of your MySQL, PostgreSQL or Sqlite 3.24.0+ database.
 
 ### Add data and metadata to existing events
 
 ```ruby
-event_store.read.in_batches.each_batch do |events|
+event_store.read.each_batch do |events|
   events.each do |ev|
-    ev.data[:tenant_id] = 1
+    ev.data[:tenant_id]     = 1
     ev.metadata[:server_id] = "eu-west-2"
   end
   event_store.overwrite(events)
@@ -23,14 +23,13 @@ end
 ### Change event type
 
 ```ruby
-event_store.read.in_batches.each_batch do |events|
-  events = events.select{|ev| OldType === ev }.map do |ev|
-    NewType.new(
-      event_id: ev.event_id,
-      data: ev.data,
-      metadata: ev.metadata,
-    )
-  end
-  event_store.overwrite(events)
+event_store.read.of_type([OldType]).each_batch do |events|
+  event_store.overwrite(events.map { |ev|
+      NewType.new(
+        event_id: ev.event_id,
+        data: ev.data,
+        metadata: ev.metadata,
+      )
+   })
 end
 ```
