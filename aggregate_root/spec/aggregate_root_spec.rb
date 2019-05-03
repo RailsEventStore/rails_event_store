@@ -229,8 +229,8 @@ RSpec.describe AggregateRoot do
       order.apply(Orders::Events::OrderExpired.new)
       expect(order.status).to eq(:expired)
 
-      expect(order.private_methods).to include(:"on_Orders::Events::OrderCreated")
-      expect(order.private_methods).to include(:"on_Orders::Events::OrderExpired")
+      expect(order.private_methods).to include(:"on_order_created")
+      expect(order.private_methods).to include(:"on_order_expired")
 
       order = inherited_order_with_ons.new
       order.apply(Orders::Events::OrderCreated.new)

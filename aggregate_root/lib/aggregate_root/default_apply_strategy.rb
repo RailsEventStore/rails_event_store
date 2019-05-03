@@ -19,11 +19,12 @@ module AggregateRoot
     private
 
     def handler_name(event)
-      on_methods.fetch(event.type) { handler_name_by_type(event.type) }
+      normalized_type = Transform.to_snake_case(event_type(event.type))
+      on_methods.fetch(normalized_type) { handler_name_by_type(normalized_type) }
     end
 
     def handler_name_by_type(event_type)
-      "apply_#{Transform.to_snake_case(event_type(event_type))}"
+      "apply_#{event_type}"
     end
 
     def event_type(event_type)

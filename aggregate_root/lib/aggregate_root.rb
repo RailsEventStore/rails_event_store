@@ -10,10 +10,11 @@ module AggregateRoot
     def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
         name = event_klass.name || raise(ArgumentError, "Anonymous class is missing name")
-        handler_name = "on_#{name}"
+        normalized_type = Transform.to_snake_case(name.split(%r{::|\.}).last)
+        handler_name = "on_#{normalized_type}"
         define_method(handler_name, &block)
         @on_methods ||= {}
-        on_methods[name] = handler_name
+        on_methods[normalized_type] = handler_name
         private(handler_name)
       end
     end
