@@ -27,7 +27,7 @@ module AggregateRoot
     end
 
     def event_type(event_type)
-      event_type.split("::").last
+      event_type.split(%r{::|\.}).last
     end
 
     private
