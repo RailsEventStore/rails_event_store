@@ -5,3 +5,5 @@ gemspec
 eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 
 gem 'ruby_event_store', path: '../ruby_event_store'
+gem 'protobuf_nested_struct'
+gem 'google-protobuf', '~> 3.7.0'
