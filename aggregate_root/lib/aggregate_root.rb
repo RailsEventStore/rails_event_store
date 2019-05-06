@@ -19,10 +19,10 @@ module AggregateRoot
     end
 
     def on_methods
-      ancestors.
-        select{|k| k.instance_variables.include?(:@on_methods)}.
-        map{|k| k.instance_variable_get(:@on_methods) }.
-        inject({}, &:merge)
+      ancestors
+        .select { |k| k.instance_variables.include?(:@on_methods) }
+        .map    { |k| k.instance_variable_get(:@on_methods) }
+        .inject({}, &:merge)
     end
   end
 
