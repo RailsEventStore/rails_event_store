@@ -56,14 +56,10 @@ class CustomOrderApplyStrategy
 end
 
 class OrderWithCustomStrategy
-  include AggregateRoot
+  include AggregateRoot.with_strategy(->{ CustomOrderApplyStrategy.new })
 
   def initialize
     @status = :draft
-  end
-
-  def apply_strategy
-    @apply_strategy ||= CustomOrderApplyStrategy.new
   end
 
   attr_accessor :status
