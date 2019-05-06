@@ -14,6 +14,7 @@ module RubyEventStore
       def ==(other)
         @string == other
       end
+      alias_method :eql?, :==
 
       def method_missing(*)
         self
