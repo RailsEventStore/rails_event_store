@@ -7,9 +7,9 @@ module RubyEventStore
       let(:data)         { {some_attribute: 5} }
       let(:metadata)     { {some_meta: 1} }
       let(:event_id)     { SecureRandom.uuid }
-      let(:domain_event) { SomethingHappened.new(data: data, metadata: metadata, event_id: event_id) }
+      let(:domain_event) { TestEvent.new(data: data, metadata: metadata, event_id: event_id) }
 
-      it_behaves_like :mapper, NullMapper.new, SomethingHappened.new
+      it_behaves_like :mapper, NullMapper.new, TestEvent.new
 
       specify '#event_to_serialized_record' do
         record = subject.event_to_serialized_record(domain_event)
@@ -17,7 +17,7 @@ module RubyEventStore
         expect(record.event_id).to      eq(domain_event.event_id)
         expect(record.data).to          eq(domain_event.data)
         expect(record.metadata.to_h).to eq(domain_event.metadata.to_h)
-        expect(record.event_type).to    eq("SomethingHappened")
+        expect(record.event_type).to    eq("TestEvent")
       end
 
       specify '#serialized_record_to_event' do
@@ -28,7 +28,7 @@ module RubyEventStore
         expect(event.event_id).to      eq(domain_event.event_id)
         expect(event.data).to          eq(domain_event.data)
         expect(event.metadata.to_h).to eq(domain_event.metadata.to_h)
-        expect(event.type).to          eq("SomethingHappened")
+        expect(event.type).to          eq("TestEvent")
       end
     end
   end
