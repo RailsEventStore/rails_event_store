@@ -58,11 +58,19 @@ module AggregateRoot
     Module.new do
       def self.included(host_class)
         host_class.extend  OnDSL
+        host_class.include AggregateRoot.with_strategy(->{ DefaultApplyStrategy.new(on_methods: host_class.on_methods) })
+      end
+    end
+  end
+
+  def self.with_strategy(strategy)
+    Module.new do
+      def self.included(host_class)
         host_class.include AggregateMethods
       end
 
-      def apply_strategy
-        DefaultApplyStrategy.new(on_methods: self.class.on_methods)
+      define_method :apply_strategy do
+        strategy.call
       end
     end
   end
