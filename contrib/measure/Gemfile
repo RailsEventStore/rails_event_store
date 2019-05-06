@@ -1,0 +1,15 @@
+source "https://rubygems.org"
+
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+# Specify your gem's dependencies in measure.gemspec
+gemspec
+
+gem 'rspec'
+gem 'rails_event_store', path: '../../rails_event_store'
+gem 'ruby_event_store',  path: '../../ruby_event_store'
+gem 'rails_event_store_active_record', path: '../../rails_event_store_active_record'
+gem 'bounded_context', path: '../../bounded_context'
+gem 'aggregate_root', path: '../../aggregate_root'
+gem 'ruby_event_store-browser', path: '../../ruby_event_store-browser'
+gem 'rails'

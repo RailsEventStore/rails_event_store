@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'measure'
+require 'ruby_event_store'
+require 'active_support/notifications'
+require 'aggregate_root'
+
+asn = ActiveSupport::Notifications
+event_store = RubyEventStore::Client.new(
+  repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, asn),
+  mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, asn),
+  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::PubSub::Dispatcher.new, asn)
+)
+DummyEvent  = Class.new(RubyEventStore::Event)
+dummy = DummyEvent.new
+repo  = AggregateRoot::Repository.new(event_store)
+
+class Bazinga
+  include AggregateRoot
+
+  def do_the_dummy
+    apply(DummyEvent.new)
+  end
+
+  on DummyEvent do |event|
+  end
+end
+
+
+Measure.measure do
+  aggregate = repo.load(Bazinga.new, 'bazinga')
+  100.times { aggregate.do_the_dummy }
+  repo.store(aggregate, 'bazinga')
+end
