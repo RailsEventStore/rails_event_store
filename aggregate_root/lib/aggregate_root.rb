@@ -6,7 +6,7 @@ require 'aggregate_root/repository'
 
 
 module AggregateRoot
-  module ClassMethods
+  module OnDSL
     def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
         name = event_klass.name || raise(ArgumentError, "Anonymous class is missing name")
@@ -27,7 +27,7 @@ module AggregateRoot
   end
 
   def self.included(host_class)
-    host_class.extend(ClassMethods)
+    host_class.extend OnDSL
   end
 
   def apply(*events)

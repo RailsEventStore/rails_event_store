@@ -290,7 +290,7 @@ RSpec.describe AggregateRoot do
 
   describe '.include' do
     it 'extend class with AggregateRoot::ClassMethods' do
-      expect(Order).to receive(:extend).with(AggregateRoot::ClassMethods)
+      expect(Order).to receive(:extend).with(AggregateRoot::OnDSL)
       Order.include(AggregateRoot)
     end
   end
