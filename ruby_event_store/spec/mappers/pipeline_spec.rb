@@ -35,7 +35,7 @@ module RubyEventStore
 
       specify '#initialize - change in transformations not allowed' do
         pipe = Pipeline.new
-        expect { pipe.transformations << Object.new}.to raise_error(FrozenError)
+        expect { pipe.transformations << Object.new}.to raise_error(RuntimeError)
       end
 
       specify '#dump' do
