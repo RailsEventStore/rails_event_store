@@ -26,37 +26,48 @@ module AggregateRoot
     end
   end
 
-  def self.included(host_class)
-    host_class.extend OnDSL
-  end
+  module AggregateMethods
+    def apply(*events)
+      events.each do |event|
+        apply_strategy.(self, event)
+        unpublished << event
+      end
+    end
 
-  def apply(*events)
-    events.each do |event|
-      apply_strategy.(self, event)
-      unpublished << event
+    def version
+      @version ||= -1
+    end
+
+    def version=(value)
+      @unpublished_events = nil
+      @version = value
+    end
+
+    def unpublished_events
+      unpublished.each
+    end
+
+    private
+
+    def unpublished
+      @unpublished_events ||= []
     end
   end
 
-  def version
-    @version ||= -1
+  def self.with_default_apply_strategy
+    Module.new do
+      def self.included(host_class)
+        host_class.extend  OnDSL
+        host_class.include AggregateMethods
+      end
+
+      def apply_strategy
+        DefaultApplyStrategy.new(on_methods: self.class.on_methods)
+      end
+    end
   end
 
-  def version=(value)
-    @unpublished_events = nil
-    @version = value
-  end
-
-  def unpublished_events
-    unpublished.each
-  end
-
-  private
-
-  def unpublished
-    @unpublished_events ||= []
-  end
-
-  def apply_strategy
-    DefaultApplyStrategy.new(on_methods: self.class.on_methods)
+  def self.included(host_class)
+    host_class.include with_default_apply_strategy
   end
 end
