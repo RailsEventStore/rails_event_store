@@ -13,16 +13,13 @@ module AggregateRoot
         handler_name = "on_#{name}"
         define_method(handler_name, &block)
         @on_methods ||= {}
-        @on_methods[name]=handler_name
+        on_methods[name] = handler_name
         private(handler_name)
       end
     end
 
     def on_methods
-      ancestors
-        .select { |k| k.instance_variables.include?(:@on_methods) }
-        .map    { |k| k.instance_variable_get(:@on_methods) }
-        .inject({}, &:merge)
+      @on_methods || {}
     end
   end
 
