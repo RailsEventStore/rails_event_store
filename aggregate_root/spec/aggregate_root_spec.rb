@@ -288,13 +288,6 @@ RSpec.describe AggregateRoot do
     end
   end
 
-  describe '.include' do
-    it 'extend class with AggregateRoot::ClassMethods' do
-      expect(Order).to receive(:extend).with(AggregateRoot::OnDSL)
-      Order.include(AggregateRoot)
-    end
-  end
-
   it "uses with_aggregate to simplify aggregate usage" do
     event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
     order_expired = Orders::Events::OrderExpired.new

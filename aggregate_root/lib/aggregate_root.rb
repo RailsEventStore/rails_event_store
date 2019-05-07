@@ -23,31 +23,34 @@ module AggregateRoot
     end
   end
 
+  module Constructor
+    def new(*)
+      super.tap do |instance|
+        instance.instance_variable_set(:@version, -1)
+        instance.instance_variable_set(:@unpublished_events, [])
+      end
+    end
+  end
+
   module AggregateMethods
     def apply(*events)
       events.each do |event|
         apply_strategy.(self, event)
-        unpublished << event
+        @unpublished_events << event
       end
     end
 
     def version
-      @version ||= -1
+      @version
     end
 
     def version=(value)
-      @unpublished_events = nil
+      @unpublished_events = []
       @version = value
     end
 
     def unpublished_events
-      unpublished.each
-    end
-
-    private
-
-    def unpublished
-      @unpublished_events ||= []
+      @unpublished_events.each
     end
   end
 
@@ -63,6 +66,7 @@ module AggregateRoot
   def self.with_strategy(strategy)
     Module.new do
       def self.included(host_class)
+        host_class.extend  Constructor
         host_class.include AggregateMethods
       end
 
