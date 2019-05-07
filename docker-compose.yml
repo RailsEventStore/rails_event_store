@@ -5,7 +5,7 @@ services:
   res:
     build:
       context: ./support/docker
-      dockerfile: support/docker/Dockerfile.2_6
+      dockerfile: Dockerfile.2_6
     volumes:
       - .:/res
       - gems:/usr/local/bundle
