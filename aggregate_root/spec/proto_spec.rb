@@ -35,7 +35,7 @@ RSpec.describe 'proto compatibility' do
           @status = :created
         end
 
-        on OrderPaid do |_event|
+        on 'res_testing.OrderPaid' do |_event|
           @status = :paid
         end
       end
