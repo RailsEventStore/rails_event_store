@@ -9,7 +9,8 @@ module AggregateRoot
   module OnDSL
     def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
-        name = event_klass.name || raise(ArgumentError, "Anonymous class is missing name")
+        name = event_klass.to_s
+        raise(ArgumentError, "Anonymous class is missing name") if name.start_with? "#<Class:"
         handler_name = "on_#{name}"
         define_method(handler_name, &block)
         @on_methods ||= {}

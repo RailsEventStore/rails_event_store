@@ -12,8 +12,14 @@ RSpec.describe 'proto compatibility' do
       end
     end
 
+    Google::Protobuf::DescriptorPool.generated_pool.build do
+      add_message "res_testing.OrderPaid" do
+      end
+    end
+
     module ResTesting
       SpanishInquisition = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.SpanishInquisition").msgclass
+      OrderPaid          = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderPaid").msgclass
 
       class Order
         include AggregateRoot
@@ -27,6 +33,10 @@ RSpec.describe 'proto compatibility' do
 
         def apply_order_created(*)
           @status = :created
+        end
+
+        on 'res_testing.OrderPaid' do |_event|
+          @status = :paid
         end
       end
     end
@@ -47,6 +57,18 @@ RSpec.describe 'proto compatibility' do
 
     order.apply(order_created)
     expect(order.status).to eq :created
+  end
+
+  it "should receive a method call based on a default apply strategy via on handler" do
+    order = ResTesting::Order.new
+    order_paid =
+      RubyEventStore::Proto.new(
+        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data: ResTesting::OrderPaid.new
+      )
+
+    order.apply(order_paid)
+    expect(order.status).to eq :paid
   end
 
   it "should raise error for missing apply method based on a default apply strategy" do

@@ -210,7 +210,7 @@ RSpec.describe AggregateRoot do
           @status = :created
         end
 
-        on Orders::Events::OrderExpired do |_ev|
+        on 'Orders::Events::OrderExpired' do |_ev|
           @status = :expired
         end
 
