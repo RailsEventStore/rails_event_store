@@ -2,5 +2,6 @@ ENV['RAILS_VERSION'] ||= '5.2.1.1'
 
 gem 'rake',         '~> 10.0'
 gem 'rspec',        '~> 3.6'
-gem 'mutant-rspec', github: 'mbj/mutant', ref: '90d103dc323eded68a7e80439def069f18b5e990'
-gem 'mutant',       github: 'mbj/mutant', ref: '90d103dc323eded68a7e80439def069f18b5e990'
+gem 'mutant-rspec',   github: 'mbj/mutant', ref: 'e07953e'
+gem 'mutant',         github: 'mbj/mutant', ref: 'e07953e'
+gem 'mutant-license', source: 'https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev'
