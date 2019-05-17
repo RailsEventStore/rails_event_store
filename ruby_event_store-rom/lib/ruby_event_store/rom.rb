@@ -45,8 +45,12 @@ module RubyEventStore
       def handle_error(type, *args, swallow: [])
         yield
       rescue StandardError => e
-        resolve(:"#{type}_error_handlers").each { |h| h.call(e, *args) }
-        raise e
+        begin
+          resolve(:"#{type}_error_handlers").each { |h| h.call(e, *args) }
+          raise e
+        rescue *swallow
+          # swallow
+        end
       end
     end
 
