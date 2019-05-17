@@ -170,6 +170,47 @@ module RailsEventStoreActiveRecord
         id: u1 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
+        event_type: "TestDomainEvent"
+      )
+      e2 = Event.create!(
+        id: u2 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
+        event_type: "TestDomainEvent",
+      )
+      e3 = Event.create!(
+        id: u3 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
+        event_type: "TestDomainEvent",
+      )
+      EventInStream.create!(
+        stream:   "all",
+        position: 1,
+        event_id: e1.id,
+      )
+      EventInStream.create!(
+        stream:   "all",
+        position: 0,
+        event_id: e2.id,
+      )
+      EventInStream.create!(
+        stream:   "all",
+        position: 2,
+        event_id: e3.id,
+      )
+
+      expect(repository.read(specification.older_than(e3.created_at).result).map(&:event_id)).to eq([u1,u2])
+      expect(repository.read(specification.newer_than(e1.created_at).result).map(&:event_id)).to eq([u2,u3])
+      expect(repository.read(specification.older_than(e3.created_at).backward.result).map(&:event_id)).to eq([u2,u1])
+      expect(repository.read(specification.newer_than(e1.created_at).backward.result).map(&:event_id)).to eq([u3,u2])
+    end
+
+    specify do
+      e1 = Event.create!(
+        id: u1 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e2 = Event.create!(

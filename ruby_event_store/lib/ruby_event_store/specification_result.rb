@@ -3,14 +3,16 @@ module RubyEventStore
     def initialize(direction: :forward,
                    start: nil,
                    stop: nil,
+                   older_than: nil,
+                   newer_than: nil,
                    count: nil,
                    stream: Stream.new(GLOBAL_STREAM),
                    read_as: :all,
                    batch_size: Specification::DEFAULT_BATCH_SIZE,
                    with_ids: nil,
                    with_types: nil)
-      @attributes = Struct.new(:direction, :start, :stop, :count, :stream, :read_as, :batch_size, :with_ids, :with_types)
-        .new(direction, start, stop, count, stream, read_as, batch_size, with_ids, with_types)
+      @attributes = Struct.new(:direction, :start, :stop, :older_than, :newer_than, :count, :stream, :read_as, :batch_size, :with_ids, :with_types)
+        .new(direction, start, stop, older_than, newer_than, count, stream, read_as, batch_size, with_ids, with_types)
       freeze
     end
 
@@ -52,6 +54,22 @@ module RubyEventStore
     # @return [String|Symbol]
     def stop
       attributes.stop
+    end
+
+    # Ending date.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Array<Date, Boolean>]
+    def older_than
+      attributes.older_than
+    end
+
+    # Starting date.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Array<Date, Boolean>]
+    def newer_than
+      attributes.newer_than
     end
 
     # Read direction. True is reading forward
@@ -177,6 +195,8 @@ module RubyEventStore
     # * direction
     # * start
     # * stop
+    # * older_than,
+    # * newer_than
     # * count
     # * stream
     # * read_as
@@ -191,6 +211,8 @@ module RubyEventStore
         get_direction,
         start,
         stop,
+        older_than.join(''),
+        newer_than.join(''),
         limit,
         stream,
         attributes.read_as,

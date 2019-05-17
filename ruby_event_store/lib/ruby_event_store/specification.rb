@@ -33,12 +33,34 @@ module RubyEventStore
     # Limits the query to events before or after another event.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param start [String] id of event to start reading from.
+    # @param stop [String] id of event to start reading from.
     # @return [Specification]
     def to(stop)
       raise InvalidPageStop if stop.nil? || stop.empty?
       raise EventNotFound.new(stop) unless reader.has_event?(stop)
       Specification.new(reader, result.dup { |r| r.stop = stop })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Date]
+    # @param equals [Boolean] whether you want to include events on that date
+    # @return [Specification]
+    def older_than(date, equals = false)
+      raise InvalidPageStart if date.nil? || date.empty?
+      Specification.new(reader, result.dup { |r| r.older_than = [date, equals] })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Date]
+    # @param equals [Boolean] whether you want to include events on that date
+    # @return [Specification]
+    def newer_than(date, equals = false)
+      raise InvalidPageStop if date.nil? || date.empty?
+      Specification.new(reader, result.dup { |r| r.newer_than = [date, equals] })
     end
 
     # Sets the order of reading events to ascending (forward from the start).

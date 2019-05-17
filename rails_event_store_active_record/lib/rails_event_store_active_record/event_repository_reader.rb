@@ -45,6 +45,8 @@ module RailsEventStoreActiveRecord
       stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) if spec.start
       stream = stream.where(stop_condition(spec)) if spec.stop
+      stream = stream.where(older_condition(spec)) if spec.older_than
+      stream = stream.where(newer_condition(spec)) if spec.newer_than
       stream = stream.order(id: order(spec))
       stream
     end
@@ -65,6 +67,26 @@ module RailsEventStoreActiveRecord
         EventInStream.find_by!(event_id: specification.stop, stream: normalize_stream_name(specification))
       condition = specification.forward? ? 'event_store_events_in_streams.id < ?' : 'event_store_events_in_streams.id > ?'
       [condition, event_record]
+    end
+
+    def older_condition(specification)
+      date, equal = specification.older_than
+      condition = if equal
+                    'event_store_events_in_streams.created_at <= ?'
+                  else
+                    'event_store_events_in_streams.created_at < ?'
+                  end
+      [condition, date]
+    end
+
+    def newer_condition(specification)
+      date, equal = specification.newer_than
+      condition = if equal
+                    'event_store_events_in_streams.created_at >= ?'
+                  else
+                    'event_store_events_in_streams.created_at > ?'
+                  end
+      [condition, date]
     end
 
     def order(spec)
