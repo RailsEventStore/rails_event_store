@@ -3,6 +3,7 @@ require 'aggregate_root/configuration'
 require 'aggregate_root/transform'
 require 'aggregate_root/default_apply_strategy'
 require 'aggregate_root/repository'
+require 'aggregate_root/instrumented_repository'
 
 
 module AggregateRoot
