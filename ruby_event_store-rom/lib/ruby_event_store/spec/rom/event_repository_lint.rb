@@ -6,8 +6,8 @@ module RubyEventStore::ROM
     subject(:repository) { repository_class.new(rom: env) }
 
     let(:env) { rom_helper.env }
-    let(:container) { env.container }
-    let(:rom_db) { container.gateways[:default] }
+    let(:rom_container) { env.rom_container }
+    let(:rom_db) { rom_container.gateways[:default] }
 
     around(:each) do |example|
       rom_helper.run_lifecycle { example.run }
@@ -68,7 +68,7 @@ module RubyEventStore::ROM
         RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
       ]
 
-      repo = Repositories::Events.new(container)
+      repo = Repositories::Events.new(rom_container)
       repo.create_changeset(events).commit
 
       expect(repo.events.to_a.size).to eq(3)
@@ -100,7 +100,7 @@ module RubyEventStore::ROM
         RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
       ]
 
-      repo = Repositories::Events.new(container)
+      repo = Repositories::Events.new(rom_container)
       repo.create_changeset(events).commit
 
       expect(repo.events.to_a.size).to eq(3)
@@ -145,9 +145,9 @@ module RubyEventStore::ROM
 
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
-      positions = container.relations[:stream_entries]
-                           .ordered(:forward, default_stream)
-                           .map { |entity| entity[:position] }
+      positions = rom_container.relations[:stream_entries]
+                               .ordered(:forward, default_stream)
+                               .map { |entity| entity[:position] }
       expect(positions).to eq((0..positions.size - 1).to_a)
     end
 

@@ -1,5 +1,4 @@
 require 'rom-changeset'
-require 'rom-mapper'
 require 'rom-repository'
 require 'ruby_event_store'
 require 'ruby_event_store/rom/types'
@@ -14,41 +13,40 @@ require 'ruby_event_store/rom/version'
 module RubyEventStore
   module ROM
     class Env
-      attr_accessor :container
+      include Dry::Container::Mixin
 
-      def initialize(container)
-        @container = container
+      attr_accessor :rom_container
 
-        container.register(:unique_violation_error_handlers, Set.new)
-        container.register(:not_found_error_handlers, Set.new)
-        container.register(:logger, Logger.new(STDOUT).tap { |logger| logger.level = Logger::WARN })
+      def initialize(rom_container)
+        @rom_container = rom_container
+
+        register(:unique_violation_error_handlers, Set.new)
+        register(:not_found_error_handlers, Set.new)
+        register(:logger, Logger.new(STDOUT).tap { |logger| logger.level = Logger::WARN })
       end
 
       def logger
-        container[:logger]
+        resolve(:logger)
       end
 
       def unit_of_work(&block)
-        options = container[:unit_of_work_options].dup
+        options = resolve(:unit_of_work_options).dup
         options.delete(:class) { UnitOfWork }.new(rom: self).call(**options, &block)
       end
 
       def register_unit_of_work_options(options)
-        container.register(:unit_of_work_options, options)
+        register(:unit_of_work_options, options)
       end
 
       def register_error_handler(type, handler)
-        container[:"#{type}_error_handlers"] << handler
+        resolve(:"#{type}_error_handlers") << handler
       end
 
       def handle_error(type, *args, swallow: [])
         yield
-      rescue StandardError => ex
-        begin
-          container[:"#{type}_error_handlers"].each { |h| h.call(ex, *args) }
-          raise ex
-        rescue *swallow
-        end
+      rescue StandardError => e
+        resolve(:"#{type}_error_handlers").each { |h| h.call(e, *args) }
+        raise e
       end
     end
 
@@ -94,7 +92,7 @@ module RubyEventStore
           end
         }
 
-        find_adapters(env.container.gateways).each do |adapter|
+        find_adapters(env.rom_container.gateways).each do |adapter|
           adapter.configure(env)
         end
       end

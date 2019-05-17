@@ -3,15 +3,15 @@ module RubyEventStore::ROM
     subject(:unit_of_work) { unit_of_work_class.new(rom: env) }
 
     let(:env) { rom_helper.env }
-    let(:container) { env.container }
-    let(:rom_db) { container.gateways[:default] }
+    let(:v) { env.rom_container }
+    let(:rom_db) { rom_container.gateways[:default] }
 
     around(:each) do |example|
       rom_helper.run_lifecycle { example.run }
     end
 
     specify '#env gives access to ROM container' do
-      expect(subject.env.container).to be_a(::ROM::Container)
+      expect(subject.env.rom_container).to be_a(::ROM::Container)
     end
 
     specify '#call to throw an exeption' do

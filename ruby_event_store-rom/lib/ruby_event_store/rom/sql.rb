@@ -63,7 +63,7 @@ module RubyEventStore
 
         def supports_upsert?(db)
           supports_on_duplicate_key_update?(db) ||
-          supports_insert_conflict_update?(db)
+            supports_insert_conflict_update?(db)
         end
 
         def supports_on_duplicate_key_update?(db)
@@ -76,7 +76,7 @@ module RubyEventStore
             true
           when :sqlite
             # Sqlite 3.24.0+ supports PostgreSQL upsert syntax
-            db.sqlite_version >= 32400
+            db.sqlite_version >= 32_400
           else
             false
           end
@@ -91,7 +91,7 @@ module RubyEventStore
             :sql,
             database_uri,
             max_connections: database_uri =~ /sqlite/ ? 1 : 5,
-            preconnect: :concurrently,
+            preconnect: :concurrently
             # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
           )
           # $stdout.sync = true
@@ -113,7 +113,7 @@ module RubyEventStore
         end
 
         def gateway
-          env.container.gateways.fetch(:default)
+          env.rom_container.gateways.fetch(:default)
         end
 
         def gateway_type?(name)

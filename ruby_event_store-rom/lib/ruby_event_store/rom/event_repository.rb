@@ -13,8 +13,8 @@ module RubyEventStore
         raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
 
         @rom = rom
-        @events = Repositories::Events.new(rom.container)
-        @stream_entries = Repositories::StreamEntries.new(rom.container)
+        @events = Repositories::Events.new(rom.rom_container)
+        @stream_entries = Repositories::StreamEntries.new(rom.rom_container)
       end
 
       def append_to_stream(events, stream, expected_version)

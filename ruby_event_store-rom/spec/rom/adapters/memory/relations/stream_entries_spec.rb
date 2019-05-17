@@ -9,7 +9,7 @@ module RubyEventStore::ROM::Memory
     it_behaves_like :stream_entries_relation, Relations::StreamEntries
 
     specify '#insert raises errors' do
-      relation = rom_helper.env.container.relations[:stream_entries]
+      relation = rom_helper.env.rom_container.relations[:stream_entries]
 
       stream_entries = [
         { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
