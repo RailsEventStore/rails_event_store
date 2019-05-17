@@ -12,18 +12,16 @@ module RubyEventStore
   end
 
   module Mappers
-    class Protobuf
-      include PipelineMapper
-
+    class Protobuf < PipelineMapper
       def initialize(events_class_remapping: {})
-        @pipeline = Pipeline.new(
+        super(Pipeline.new(
           to_domain_event: DomainEventProtoMapper.new,
           transformations: [
             ProtoMapper.new,
             EventClassRemapper.new(events_class_remapping),
             ProtobufNestedStructMetadataMapper.new,
           ]
-        )
+        ))
       end
     end
   end

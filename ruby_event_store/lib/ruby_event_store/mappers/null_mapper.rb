@@ -1,10 +1,9 @@
 module RubyEventStore
   module Mappers
-    class NullMapper
-      include PipelineMapper
+    class NullMapper < PipelineMapper
 
       def initialize
-        @pipeline = Pipeline.new
+        super(Pipeline.new)
       end
     end
   end
