@@ -5,7 +5,7 @@ MIGRATIONS_PATH = 'db/migrate'.freeze
 desc 'Setup ROM EventRespository environment'
 task 'db:setup' do
   Dir.chdir(Dir.pwd)
-  ROM::SQL::RakeSupport.env = ::RubyEventStore::ROM.configure(:sql).container
+  ROM::SQL::RakeSupport.env = ::RubyEventStore::ROM.configure(:sql).rom_container
 end
 
 desc 'Copy RubyEventStore SQL migrations to db/migrate'

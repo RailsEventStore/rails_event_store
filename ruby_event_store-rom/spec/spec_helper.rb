@@ -16,11 +16,11 @@ module RomHelpers
     rom_helper.env
   end
 
-  def container
-    env.container
+  def rom_container
+    env.rom_container
   end
 
   def rom_db
-    container.gateways[:default]
+    rom_container.gateways[:default]
   end
 end

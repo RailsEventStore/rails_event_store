@@ -13,7 +13,7 @@ module RubyEventStore
             begin
               until changesets.empty?
                 changeset = changesets.shift
-                relation = env.container.relations[changeset.relation.name]
+                relation = env.rom_container.relations[changeset.relation.name]
 
                 committed << [changeset, relation]
 

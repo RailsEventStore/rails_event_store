@@ -24,12 +24,14 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'dry-initializer', '= 2.5.0'
-  spec.add_dependency 'dry-types', '~> 0.12.2'
-  spec.add_dependency 'dry-container', '< 0.7.0'
-  spec.add_dependency 'rom-changeset', '>= 1.0'
-  spec.add_dependency 'rom-repository', '>= 2.0'
-  spec.add_dependency 'rom-sql', '>= 2.4'
+  spec.required_ruby_version = '>= 2.4'
+
+  spec.add_dependency 'dry-container', '>= 0.6'
+  spec.add_dependency 'dry-initializer', '>= 3.0'
+  spec.add_dependency 'dry-types', '>= 1.0'
+  spec.add_dependency 'rom-changeset', '>= 5.0'
+  spec.add_dependency 'rom-repository', '>= 5.0'
+  spec.add_dependency 'rom-sql', '>= 3.0'
   spec.add_dependency 'ruby_event_store', '= 0.39.0'
   spec.add_dependency 'sequel', '>= 5.11.0'
 end
