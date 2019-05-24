@@ -21,8 +21,8 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
     if postgres
       create_table(:event_store_events, id: :uuid, default: 'gen_random_uuid()', force: false) do |t|
         t.string      :event_type,  null: false
-        t.binary      :metadata
-        t.binary      :data,        null: false
+        t.<%= data_type %>      :metadata
+        t.<%= data_type %>      :data,        null: false
         t.datetime    :created_at,  null: false
       end
     else
