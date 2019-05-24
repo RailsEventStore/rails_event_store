@@ -3,7 +3,9 @@ volumes:
   gems:
 services:
   res:
-    build: .
+    build:
+      context: ./support/docker
+      dockerfile: Dockerfile.2_6
     volumes:
       - .:/res
       - gems:/usr/local/bundle

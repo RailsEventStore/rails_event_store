@@ -210,7 +210,7 @@ RSpec.describe AggregateRoot do
           @status = :created
         end
 
-        on Orders::Events::OrderExpired do |_ev|
+        on 'Orders::Events::OrderExpired' do |_ev|
           @status = :expired
         end
 
@@ -285,104 +285,6 @@ RSpec.describe AggregateRoot do
           end
         end
       end.to raise_error(ArgumentError, "Anonymous class is missing name")
-    end
-  end
-
-  describe '.include' do
-    it 'extend class with AggregateRoot::ClassMethods' do
-      expect(Order).to receive(:extend).with(AggregateRoot::ClassMethods)
-      Order.include(AggregateRoot)
-    end
-  end
-
-  it "still loads events using deprecated load method on aggregate" do
-    event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
-    event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$1")
-
-    expect {
-      order = Order.new.load("Order$1", event_store: event_store)
-      expect(order.status).to eq :expired
-    }.to output(<<~EOS).to_stderr
-      Method `load` on aggregate is deprecated. Use AggregateRoot::Repository instead.
-      Instead of: `order = Order.new.load("OrderStreamHere")`
-      you need to have code:
-      ```
-      repository = AggregateRoot::Repository.new
-      order = repository.load(Order.new, "OrderStreamHere")
-      ```
-    EOS
-  end
-
-  it "still stores events using deprecated store method on aggregate" do
-    stream = "any-order-stream"
-    order_created = Orders::Events::OrderCreated.new
-
-    order = Order.new
-    silence_warnings do
-      order.load(stream, event_store: event_store)
-    end
-    order.apply(order_created)
-    expect(event_store).to receive(:publish).with([order_created], stream_name: stream, expected_version: -1).and_call_original
-
-    expect {
-      order.store(event_store: event_store)
-    }.to output(<<~EOS).to_stderr
-      Method `store` on aggregate is deprecated. Use AggregateRoot::Repository instead.
-      Instead of: `order.store("OrderStreamHere")`
-      you need to have code:
-      ```
-      repository = AggregateRoot::Repository.new
-      # load and order and execute some operation on it here
-      repository.store(order, "OrderStreamHere")
-      ```
-    EOS
-  end
-
-  it "still loads events using deprecated load method on aggregate - with default event store" do
-    with_default_event_store(event_store) do
-
-      event_store.publish(Orders::Events::OrderCreated.new, stream_name: "Order$1")
-      event_store.publish(Orders::Events::OrderExpired.new, stream_name: "Order$1")
-
-      expect {
-        order = Order.new.load("Order$1")
-        expect(order.status).to eq :expired
-      }.to output(<<~EOS).to_stderr
-      Method `load` on aggregate is deprecated. Use AggregateRoot::Repository instead.
-      Instead of: `order = Order.new.load("OrderStreamHere")`
-      you need to have code:
-      ```
-      repository = AggregateRoot::Repository.new
-      order = repository.load(Order.new, "OrderStreamHere")
-      ```
-      EOS
-    end
-  end
-
-  it "still stores events using deprecated store method on aggregate - with default event store" do
-    with_default_event_store(event_store) do
-      stream = "any-order-stream"
-      order_created = Orders::Events::OrderCreated.new
-
-      order = Order.new
-      silence_warnings do
-        order.load(stream)
-      end
-      order.apply(order_created)
-      expect(event_store).to receive(:publish).with([order_created], stream_name: "Order$2", expected_version: -1).and_call_original
-
-      expect {
-        order.store("Order$2")
-      }.to output(<<~EOS).to_stderr
-      Method `store` on aggregate is deprecated. Use AggregateRoot::Repository instead.
-      Instead of: `order.store("OrderStreamHere")`
-      you need to have code:
-      ```
-      repository = AggregateRoot::Repository.new
-      # load and order and execute some operation on it here
-      repository.store(order, "OrderStreamHere")
-      ```
-      EOS
     end
   end
 

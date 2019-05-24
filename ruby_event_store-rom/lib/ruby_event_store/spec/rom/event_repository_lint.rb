@@ -6,8 +6,8 @@ module RubyEventStore::ROM
     subject(:repository) { repository_class.new(rom: env) }
 
     let(:env) { rom_helper.env }
-    let(:container) { env.container }
-    let(:rom_db) { container.gateways[:default] }
+    let(:rom_container) { env.rom_container }
+    let(:rom_db) { rom_container.gateways[:default] }
 
     around(:each) do |example|
       rom_helper.run_lifecycle { example.run }
@@ -55,8 +55,8 @@ module RubyEventStore::ROM
 
       expect { repository.read(specification.stream('all').result) }.to raise_error(RubyEventStore::ReservedInternalName)
       expect { repository.read(specification.stream('all').backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect { repository.read(specification.stream('all').from(:head).limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect { repository.read(specification.stream('all').from(:head).limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect { repository.read(specification.stream('all').limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      expect { repository.read(specification.stream('all').limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
 
       expect { repository.count(specification.stream('all').result) }.to raise_error(RubyEventStore::ReservedInternalName)
     end
@@ -68,7 +68,7 @@ module RubyEventStore::ROM
         RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
       ]
 
-      repo = Repositories::Events.new(container)
+      repo = Repositories::Events.new(rom_container)
       repo.create_changeset(events).commit
 
       expect(repo.events.to_a.size).to eq(3)
@@ -86,10 +86,10 @@ module RubyEventStore::ROM
       #   remove_index :event_store_events_in_streams, [:stream, :position]
       # end
 
-      expect(repository.read(specification.stream('stream').from(:head).limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
+      expect(repository.read(specification.stream('stream').limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
       expect(repository.read(specification.stream('stream').result).map(&:event_id)).to eq([u1, u2, u3])
 
-      expect(repository.read(specification.stream('stream').backward.from(:head).limit(3).result).map(&:event_id)).to eq([u3, u2, u1])
+      expect(repository.read(specification.stream('stream').backward.limit(3).result).map(&:event_id)).to eq([u3, u2, u1])
       expect(repository.read(specification.stream('stream').backward.result).map(&:event_id)).to eq([u3, u2, u1])
     end
 
@@ -100,7 +100,7 @@ module RubyEventStore::ROM
         RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
       ]
 
-      repo = Repositories::Events.new(container)
+      repo = Repositories::Events.new(rom_container)
       repo.create_changeset(events).commit
 
       expect(repo.events.to_a.size).to eq(3)
@@ -113,8 +113,8 @@ module RubyEventStore::ROM
 
       expect(repo.stream_entries.to_a.size).to eq(3)
 
-      expect(repository.read(specification.from(:head).limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
-      expect(repository.read(specification.from(:head).limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
+      expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
+      expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
     end
 
     specify 'nested transaction - events still not persisted if append failed' do
@@ -129,10 +129,10 @@ module RubyEventStore::ROM
                                       ], default_stream, RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-        expect(repository.read(specification.from(:head).limit(2).result).to_a).to eq([event])
+        expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-      expect(repository.read(specification.from(:head).limit(2).result).to_a).to eq([event])
+      expect(repository.read(specification.limit(2).result).to_a).to eq([event])
     end
 
     def cleanup_concurrency_test
@@ -145,9 +145,9 @@ module RubyEventStore::ROM
 
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
-      positions = container.relations[:stream_entries]
-                           .ordered(:forward, default_stream)
-                           .map { |entity| entity[:position] }
+      positions = rom_container.relations[:stream_entries]
+                               .ordered(:forward, default_stream)
+                               .map { |entity| entity[:position] }
       expect(positions).to eq((0..positions.size - 1).to_a)
     end
 

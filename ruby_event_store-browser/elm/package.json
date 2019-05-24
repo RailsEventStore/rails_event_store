@@ -8,11 +8,11 @@
   "dependencies": {
     "elm": "^0.19.0-bugfix6",
     "elm-format": "^0.8.1",
-    "elm-test": "0.19.0-rev4",
-    "open-color": "^1.5.1",
-    "sass": "^1.17.0",
     "elm-hot": "^1.0.1",
-    "parcel-bundler": "^1.11.0"
+    "elm-test": "0.19.0-rev6",
+    "open-color": "^1.5.1",
+    "parcel-bundler": "^1.11.0",
+    "sass": "^1.17.0"
   },
   "scripts": {
     "watch": "NODE_ENV=development parcel watch --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",

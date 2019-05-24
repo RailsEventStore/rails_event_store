@@ -1212,9 +1212,7 @@ module RubyEventStore
       expect(repository.count(specification.stream('not-existing-stream').result)).to eq(0)
 
       repository.append_to_stream([SRecord.new(event_type: Type1.to_s)], dummy, version_any)
-      expect(repository.count(specification.from(:head).result)).to eq(5)
       expect(repository.count(specification.from(event_id).result)).to eq(1)
-      expect(repository.count(specification.stream("Dummy").from(:head).result)).to eq(2)
       expect(repository.count(specification.stream("Dummy").from(event_id).result)).to eq(1)
       expect(repository.count(specification.stream("Dummy").to(event_id).result)).to eq(0)
 

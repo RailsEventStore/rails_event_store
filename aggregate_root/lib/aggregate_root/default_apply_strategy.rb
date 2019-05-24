@@ -19,15 +19,15 @@ module AggregateRoot
     private
 
     def handler_name(event)
-      on_methods.fetch(event.class) { handler_name_by_class(event.class) }
+      on_methods.fetch(event.type) { handler_name_by_type(event.type) }
     end
 
-    def handler_name_by_class(event_class)
-      "apply_#{Transform.to_snake_case(class_name(event_class))}"
+    def handler_name_by_type(event_type)
+      "apply_#{Transform.to_snake_case(event_type(event_type))}"
     end
 
-    def class_name(event_class)
-      event_class.name.split("::").last
+    def event_type(event_type)
+      event_type.split(%r{::|\.}).last
     end
 
     private

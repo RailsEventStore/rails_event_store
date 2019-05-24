@@ -20,7 +20,7 @@ module RailsEventStoreActiveRecord
     let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
     let(:test_binary)                { true }
-    let(:test_change)                { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_change)                { true }
     let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }
     let(:repository)                 { EventRepository.new }
     let(:reader)                     { RubyEventStore::SpecificationReader.new(repository, mapper) }
@@ -44,11 +44,11 @@ module RailsEventStoreActiveRecord
       end.to raise_error(RubyEventStore::ReservedInternalName)
 
       expect do
-        repository.read(specification.stream("all").from(:head).limit(5).result)
+        repository.read(specification.stream("all").limit(5).result)
       end.to raise_error(RubyEventStore::ReservedInternalName)
 
       expect do
-        repository.read(specification.stream("all").from(:head).limit(5).backward.result)
+        repository.read(specification.stream("all").limit(5).backward.result)
       end.to raise_error(RubyEventStore::ReservedInternalName)
 
       expect do
@@ -61,10 +61,10 @@ module RailsEventStoreActiveRecord
         event0 = RubyEventStore::SRecord.new,
         event1 = RubyEventStore::SRecord.new,
       ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
-      c1 = count_queries{ repository.read(specification.from(:head).limit(2).result) }
+      c1 = count_queries{ repository.read(specification.limit(2).result) }
       expect(c1).to eq(2)
 
-      c2 = count_queries{ repository.read(specification.from(:head).limit(2).backward.result) }
+      c2 = count_queries{ repository.read(specification.limit(2).backward.result) }
       expect(c2).to eq(2)
 
       c3 = count_queries{ repository.read(specification.stream("stream").result) }
@@ -73,10 +73,10 @@ module RailsEventStoreActiveRecord
       c4 = count_queries{ repository.read(specification.stream("stream").backward.result) }
       expect(c4).to eq(2)
 
-      c5 = count_queries{ repository.read(specification.stream("stream").from(:head).limit(2).result) }
+      c5 = count_queries{ repository.read(specification.stream("stream").limit(2).result) }
       expect(c5).to eq(2)
 
-      c6 = count_queries{ repository.read(specification.stream("stream").from(:head).limit(2).backward.result) }
+      c6 = count_queries{ repository.read(specification.stream("stream").limit(2).backward.result) }
       expect(c6).to eq(2)
     end
 
@@ -119,10 +119,10 @@ module RailsEventStoreActiveRecord
         remove_index :event_store_events_in_streams, [:stream, :position]
       end
 
-      expect(repository.read(specification.stream("stream").from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(specification.stream("stream").limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
       expect(repository.read(specification.stream("stream").result).map(&:event_id)).to eq([u1,u2,u3])
 
-      expect(repository.read(specification.stream("stream").backward.from(:head).limit(3).result).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read(specification.stream("stream").backward.limit(3).result).map(&:event_id)).to eq([u3,u2,u1])
       expect(repository.read(specification.stream("stream").backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
@@ -161,8 +161,8 @@ module RailsEventStoreActiveRecord
         event_id: e3.id,
       )
 
-      expect(repository.read(specification.from(:head).limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read(specification.from(:head).limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify do
@@ -206,13 +206,13 @@ module RailsEventStoreActiveRecord
 
     specify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*id.* ASC LIMIT.*/) do
-        repository.read(specification.from(:head).limit(3).result)
+        repository.read(specification.limit(3).result)
       end
     end
 
     specify do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY .*event_store_events_in_streams.*id.* DESC LIMIT.*/) do
-        repository.read(specification.from(:head).limit(3).backward.result)
+        repository.read(specification.limit(3).backward.result)
       end
     end
 
@@ -238,10 +238,10 @@ module RailsEventStoreActiveRecord
           ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-        expect(repository.read(specification.from(:head).limit(2).result).to_a).to eq([event])
+        expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-      expect(repository.read(specification.from(:head).limit(2).result).to_a).to eq([event])
+      expect(repository.read(specification.limit(2).result).to_a).to eq([event])
     end
 
     specify "limited query when looking for unexisting events during linking" do

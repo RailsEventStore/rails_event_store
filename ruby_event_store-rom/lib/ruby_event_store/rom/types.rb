@@ -2,7 +2,16 @@ module RubyEventStore
   module ROM
     module Types
       DateTime = ::ROM::Types::DateTime
-                 .constructor { |value| value.is_a?(::String) ? ::DateTime.iso8601(value) : value }
+                 .constructor do |value|
+                   case value
+                   when nil
+                     Dry::Core::Constants::Undefined
+                   when ::String
+                     ::DateTime.iso8601(value)
+                   else
+                     value
+                   end
+                 end
                  .default { ::DateTime.now.new_offset(0) }
 
       SerializedRecordSerializer = ::ROM::Types::String

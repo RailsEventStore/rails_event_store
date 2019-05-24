@@ -1,0 +1,8 @@
+Description:
+    Upgrades previously installed Dres Rails resources.
+
+Example:
+    rails generate dres_rails:upgrade
+
+    This will create:
+        what/will/it/create

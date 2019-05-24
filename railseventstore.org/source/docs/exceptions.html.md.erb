@@ -67,7 +67,7 @@ end.to raise_error(EventNotFound)
 
 ### RubyEventStore::InvalidPageStart
 
-Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string. Special case of `:head` is accepted as a beginning of a stream in given direction.
+Occurs when reading a stream with invalid `start` parameter passed. Must not be `nil` or empty string.
 
 ```ruby
 expect do
@@ -75,7 +75,6 @@ expect do
 end.to raise_error(InvalidPageStart)
 ```
 
-<% if version_above('0.36.0') %>
 ### RubyEventStore::InvalidPageStop
 
 Occurs when reading a stream with invalid `to` parameter passed. Must not be `nil` or empty string.
@@ -86,7 +85,6 @@ expect do
 end.to raise_error(InvalidPageStop)
 ```
 
-<% end %>
 ### RubyEventStore::InvalidPageSize
 
 Occurs when expecting to read less than one event from a stream:

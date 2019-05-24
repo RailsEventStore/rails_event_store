@@ -6,11 +6,11 @@ SUBJECT      ?= RubyEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
 BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css public/ruby_event_store_browser.map
 
-include ../lib/install.mk
-include ../lib/test.mk
-include ../lib/mutant.mk
-include ../lib/gem.mk
-include ../lib/help.mk
+include ../support/make/install.mk
+include ../support/make/test.mk
+include ../support/make/mutant.mk
+include ../support/make/gem.mk
+include ../support/make/help.mk
 
 install: install-yarn
 
@@ -33,11 +33,11 @@ install-yarn:
 	@cd elm; yarn install
 
 test-yarn:
-	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn test, yarn test)
+	@cd elm; yarn test
 
 clean-yarn:
 	-rm $(BUNDLE)
 
 $(BUNDLE):
 	@echo "Building browser frontend"
-	@cd elm; $(if $(CI), sysconfcpus -n 2 yarn build, yarn build)
+	@cd elm; yarn build

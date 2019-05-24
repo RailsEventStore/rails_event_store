@@ -4,13 +4,13 @@ require 'sinatra'
 module RubyEventStore
   module Browser
     class App < Sinatra::Application
-      def self.for(event_store_locator:, host: nil, path: nil)
+      def self.for(event_store_locator:, host: nil, path: nil, environment: :production)
         self.tap do |app|
           app.settings.instance_exec do
             set :event_store_locator, event_store_locator
             set :host, host
             set :root_path, path
-            set :environment, :production
+            set :environment, environment
             set :public_folder, "#{__dir__}/../../../public"
           end
         end

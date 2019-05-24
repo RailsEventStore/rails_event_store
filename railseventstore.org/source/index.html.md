@@ -1,3 +1,7 @@
+---
+title: Rails Event Store
+---
+
 <p class="mb-6 mt-12 text-lg sm:text-2xl leading-normal">
     Rails Event Store is a library for publishing, consuming, storing and retrieving events. It's&nbspyour best companion for going with an Event-Driven Architecture for your Rails application.
 </p>

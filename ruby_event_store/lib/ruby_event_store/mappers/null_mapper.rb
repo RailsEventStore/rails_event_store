@@ -1,13 +1,26 @@
+require 'forwardable'
+
 module RubyEventStore
   module Mappers
     class NullMapper
-      def event_to_serialized_record(domain_event)
-        domain_event
+      extend Forwardable
+      class NULL
+        def self.dump(event)
+          event
+        end
+
+        def self.load(record)
+          record
+        end
+      end
+      private_constant :NULL
+
+
+      def initialize
+        @mapper = Default.new(serializer: NULL)
       end
 
-      def serialized_record_to_event(record)
-        record
-      end
+      def_delegators :@mapper, :event_to_serialized_record, :serialized_record_to_event
     end
   end
 end

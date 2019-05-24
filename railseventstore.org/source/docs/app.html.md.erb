@@ -113,7 +113,6 @@ class Order
 end
 ```
 
-<% if version_above('0.36.0') %>
 #### Loading an aggregate root object from event store
 
 ```ruby
@@ -173,27 +172,6 @@ repository.with_order(123) do |order|
   order.submit
 end
 ```
-<% else %>
-#### Loading an aggregate root object from event store
-
-```ruby
-stream_name = "Order$123"
-order = Order.new.load(stream_name)
-```
-
-`#load` gets all domain events stored for the aggregate in event store and applies them in order to rebuild aggregate's state.
-
-#### Storing an aggregate root's changes in event store
-
-```ruby
-stream_name = "Order$123"
-order = Order.new.load(stream_name)
-order.submit
-order.store
-```
-
-`#store` gets all unpublished aggregate's domain events (added by executing a domain logic method like `submit`) from `unpublished_events` and publishes them in order of creation to event store. If `stream_name` is not specified events will be stored in the same stream from which the aggregate has been loaded.
-<% end %>
 
 ## Overwriting default apply_strategy
 

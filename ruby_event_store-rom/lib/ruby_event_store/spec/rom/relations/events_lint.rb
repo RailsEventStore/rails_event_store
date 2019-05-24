@@ -1,9 +1,9 @@
 RSpec.shared_examples :events_relation do |_relation_class|
-  subject(:relation) { container.relations[:events] }
+  subject(:relation) { rom_container.relations[:events] }
 
   let(:env) { rom_helper.env }
-  let(:container) { env.container }
-  let(:rom_db) { container.gateways[:default] }
+  let(:rom_container) { env.rom_container }
+  let(:rom_db) { rom_container.gateways[:default] }
 
   around(:each) do |example|
     rom_helper.run_lifecycle { example.run }

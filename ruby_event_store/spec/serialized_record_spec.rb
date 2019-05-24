@@ -20,8 +20,6 @@ module RubyEventStore
     specify 'constructor raised SerializedRecord::StringsRequired when argument is not a String' do
       [[1, 1, 1, 1],
        [1, "string", "string", "string"],
-       ["string", 1, "string", "string"],
-       ["string", "string", 1, "string"],
        ["string", "string", "string", 1]].each do |sample|
         event_id, data, metadata, event_type = sample
         expect do

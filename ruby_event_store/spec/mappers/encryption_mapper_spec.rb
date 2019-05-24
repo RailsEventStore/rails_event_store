@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'openssl'
+require 'ruby_event_store/spec/mapper_lint'
 
 module RubyEventStore
   module Mappers
@@ -92,6 +93,8 @@ module RubyEventStore
       def decrypt(r)
         mapper.serialized_record_to_event(r)
       end
+
+      it_behaves_like :mapper, EncryptionMapper.new(InMemoryEncryptionKeyRepository.new), TicketCancelled.new
 
       specify 'decrypts encrypted fields in presence of encryption keys' do
         key_repository.create(sender_id)
@@ -320,16 +323,18 @@ module RubyEventStore
         key_repository.create(recipient_id)
 
         record = encrypt(ticket_transferred)
-        silence_warnings { InMemoryEncryptionKeyRepository::DEFAULT_CIPHER = 'aes-128-cbc' }
-        event = decrypt(record)
 
-        expect(event.event_id).to eq(event_id)
-        expect(event.data).to eq({
-          ticket_id: ticket_id,
-          sender: sender,
-          recipient: recipient
-        })
-        expect(event.metadata.to_h).to eq(metadata)
+        with_default_cipher('aes-128-gcm') do
+          event = decrypt(record)
+
+          expect(event.event_id).to eq(event_id)
+          expect(event.data).to eq({
+            ticket_id: ticket_id,
+            sender: sender,
+            recipient: recipient
+          })
+          expect(event.metadata.to_h).to eq(metadata)
+        end
       end
 
       specify 'decrypted message is UTF-8 encoded' do
@@ -340,6 +345,33 @@ module RubyEventStore
 
         expect(decrypted_message).to eq(source_message)
         expect(decrypted_message.encoding).to eq(Encoding::UTF_8)
+      end
+
+      specify 'allow use of non-authenticated cipher' do
+        with_default_cipher('aes-256-cbc') do
+          key_repository.create(sender_id)
+          key_repository.create(recipient_id)
+
+          event = decrypt(encrypt(ticket_transferred))
+
+          expect(event.event_id).to eq(event_id)
+          expect(event.data).to eq({
+            ticket_id: ticket_id,
+            sender: sender,
+            recipient: recipient
+          })
+          expect(event.metadata.to_h).to eq(metadata)
+        end
+      end
+
+      def with_default_cipher(cipher, &block)
+        cipher_ = InMemoryEncryptionKeyRepository::DEFAULT_CIPHER
+        InMemoryEncryptionKeyRepository.send(:remove_const, :DEFAULT_CIPHER)
+        InMemoryEncryptionKeyRepository.const_set(:DEFAULT_CIPHER, cipher)
+        block.call
+      ensure
+        InMemoryEncryptionKeyRepository.send(:remove_const, :DEFAULT_CIPHER)
+        InMemoryEncryptionKeyRepository.const_set(:DEFAULT_CIPHER, cipher_)
       end
     end
 
