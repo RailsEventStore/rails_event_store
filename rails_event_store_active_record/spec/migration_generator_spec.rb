@@ -11,30 +11,39 @@ module RailsEventStoreActiveRecord
       $stdout = current_stdout
     end
 
-    specify do
+    around do |example|
       FakeFS.with_fresh do
         FakeFS::FileSystem.clone(File.expand_path('../../', __FILE__))
-        stub_const("Rails::VERSION::STRING", "4.2.8")
-
-        generator = MigrationGenerator.new
-        allow(Time).to receive(:now).and_return(Time.new(2016,8,9,22,22,22))
-        generator.create_migration
-
-        expect(File.read("db/migrate/20160809222222_create_event_store_events.rb")).to match(/ActiveRecord::Migration$/)
+        example.run
       end
     end
 
-    specify do
-      FakeFS.with_fresh do
-        FakeFS::FileSystem.clone(File.expand_path('../../', __FILE__))
-        stub_const("Rails::VERSION::STRING", "5.0.0")
+    before do
+      allow(Time).to receive(:now).and_return(
+        Time.new(2016, 8, 9, 22, 22, 22)
+      )
+    end
 
-        generator = MigrationGenerator.new
-        allow(Time).to receive(:now).and_return(Time.new(2016,8,9,22,22,22))
-        generator.create_migration
+    subject do
+      generator = MigrationGenerator.new
+      generator.create_migration
+      File.read('db/migrate/20160809222222_create_event_store_events.rb')
+    end
 
-        expect(File.read("db/migrate/20160809222222_create_event_store_events.rb")).to match(/ActiveRecord::Migration\[4\.2\]$/)
+    context 'with Rails 4' do
+      before do
+        stub_const('Rails::VERSION::STRING', '4.2.8')
       end
+
+      it { is_expected.to match(/ActiveRecord::Migration$/) }
+    end
+
+    context 'with Rails 5' do
+      before do
+        stub_const('Rails::VERSION::STRING', '5.0.0')
+      end
+
+      it { is_expected.to match(/ActiveRecord::Migration\[4\.2\]$/) }
     end
   end
 end
