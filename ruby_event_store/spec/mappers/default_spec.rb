@@ -50,27 +50,7 @@ module RubyEventStore
       end
 
       context 'when custom serializer is provided' do
-        class ExampleYamlSerializer
-          def self.load(value)
-            YAML.load(decrypt(value))
-          end
-
-          def self.dump(value)
-            encrypt(YAML.dump(value))
-          end
-
-          private
-
-          def self.encrypt(value)
-            value.reverse
-          end
-
-          def self.decrypt(value)
-            value.reverse
-          end
-        end
-
-        let(:custom_serializer) { ExampleYamlSerializer }
+        let(:custom_serializer) { ReverseYamlSerializer }
         subject { described_class.new(serializer: custom_serializer) }
 
         specify '#event_to_serialized_record returns serialized record' do

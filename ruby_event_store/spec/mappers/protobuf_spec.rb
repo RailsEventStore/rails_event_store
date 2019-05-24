@@ -198,18 +198,8 @@ module RubyEventStore
           )
       end
 
-      specify "initialize requires protobuf_nested_struct" do
-        p = Protobuf.allocate
-        def p.require(_name)
-          raise LoadError
-        end
-        expect do
-          p.send(:initialize)
-        end.to raise_error(LoadError, "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile")
-      end
-
       specify '#event_to_serialized_record returns proto serialized record' do
-        record = subject.event_to_serialized_record(domain_event)
+        record = Protobuf.new.event_to_serialized_record(domain_event)
         expect(record).to              be_a(SerializedRecord)
         expect(record.event_id).to     eq(event_id)
         expect(record.data).not_to     be_empty
@@ -218,8 +208,8 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event returns event instance' do
-        record = subject.event_to_serialized_record(domain_event)
-        event  = subject.serialized_record_to_event(record)
+        record = Protobuf.new.event_to_serialized_record(domain_event)
+        event  = Protobuf.new.serialized_record_to_event(record)
         expect(event).to                eq(domain_event)
         expect(event.event_id).to       eq(event_id)
         expect(event.data).to           eq(data)
@@ -227,11 +217,11 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event is using events class remapping' do
-        subject = described_class.new(
+        subject = Protobuf.new(
           events_class_remapping: {'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated"}
         )
         record = SerializedRecord.new(
-          event_id:   event_id,
+          event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data:       "",
           metadata:   "",
           event_type: "res_testing.OrderCreatedBeforeRefactor",
@@ -239,31 +229,6 @@ module RubyEventStore
         event = subject.serialized_record_to_event(record)
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.type).to eq("res_testing.OrderCreated")
-      end
-
-      specify '#event_to_serialized_record raises error when no data' do
-        domain_event =
-          RubyEventStore::Proto.new(
-            event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-            data:     nil,
-            metadata: metadata,
-          )
-        expect do
-          subject.event_to_serialized_record(domain_event)
-        end.to raise_error(ProtobufEncodingFailed)
-      end
-
-      specify '#event_to_serialized_record raises error when wrong data' do
-        domain_event =
-          RubyEventStore::Proto.new(
-            event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-            data:     {},
-            metadata: metadata,
-            )
-
-        expect do
-          subject.event_to_serialized_record(domain_event)
-        end.to raise_error(ProtobufEncodingFailed)
       end
     end
   end
