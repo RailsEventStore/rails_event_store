@@ -6,9 +6,9 @@ module RubyEventStore
       def initialize(serializer: YAML, events_class_remapping: {})
         super(Pipeline.new(
           transformations: [
-            EventClassRemapper.new(events_class_remapping),
-            SymbolizeMetadataKeys.new,
-            SerializationMapper.new(serializer: serializer),
+            Transformation::EventClassRemapper.new(events_class_remapping),
+            Transformation::SymbolizeMetadataKeys.new,
+            Transformation::Serialization.new(serializer: serializer),
           ]
         ))
       end
