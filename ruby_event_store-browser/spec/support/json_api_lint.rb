@@ -37,6 +37,7 @@ class JsonApiLint
   private
 
   def validate_response(response)
+    return if response.body.empty?
     raise InvalidContentType.new(response.content_type) unless match_content_type(response.content_type)
 
     document = JSON.parse(response.body.dup.join)
