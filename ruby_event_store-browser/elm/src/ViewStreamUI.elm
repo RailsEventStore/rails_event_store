@@ -1,10 +1,15 @@
-module ViewStreamUI exposing (Event, Model, Msg(..), PaginatedList, PaginationLink, PaginationLinks, view)
+module ViewStreamUI exposing (Event, Model, Msg(..), PaginatedList, PaginationLink, PaginationLinks, initCmd, update, view)
 
+import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
-import Url
+import Http
+import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
+import Json.Decode.Pipeline exposing (optional, required, requiredAt)
+import Json.Encode exposing (encode)
 import Route
+import Url
 
 
 type alias Event =
@@ -42,6 +47,25 @@ type alias Model =
 
 type Msg
     = GoToPage PaginationLink
+    | GetEvents (Result Http.Error (PaginatedList Event))
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        GoToPage paginationLink ->
+            ( model, getEvents paginationLink )
+
+        GetEvents (Ok result) ->
+            ( { model | events = result }, Cmd.none )
+
+        GetEvents (Err errorMessage) ->
+            ( model, Cmd.none )
+
+
+initCmd : Flags -> String -> Cmd Msg
+initCmd flags streamId =
+    getEvents (Route.buildUrl flags.streamsUrl streamId)
 
 
 view : Model -> Html Msg
@@ -152,3 +176,35 @@ itemRow { eventType, createdAt, eventId } =
             [ text createdAt
             ]
         ]
+
+
+getEvents : String -> Cmd Msg
+getEvents url =
+    Http.get url eventsDecoder
+        |> Http.send GetEvents
+
+
+eventsDecoder : Decoder (PaginatedList Event)
+eventsDecoder =
+    succeed PaginatedList
+        |> required "data" (list eventDecoder_)
+        |> required "links" linksDecoder
+
+
+linksDecoder : Decoder PaginationLinks
+linksDecoder =
+    succeed PaginationLinks
+        |> optional "next" (maybe string) Nothing
+        |> optional "prev" (maybe string) Nothing
+        |> optional "first" (maybe string) Nothing
+        |> optional "last" (maybe string) Nothing
+
+
+eventDecoder_ : Decoder Event
+eventDecoder_ =
+    succeed Event
+        |> requiredAt [ "attributes", "event_type" ] string
+        |> requiredAt [ "id" ] string
+        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
+        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))

@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, eventDecoder_, eventsDecoder, getEvents, linksDecoder, main, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, main, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -39,8 +39,7 @@ type alias Model =
 
 
 type Msg
-    = GetEvents (Result Http.Error (ViewStreamUI.PaginatedList ViewStreamUI.Event))
-    | ChangeUrl Url.Url
+    = ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
     | OpenedEventUIChanged OpenedEventUI.Msg
     | ViewStreamUIChanged ViewStreamUI.Msg
@@ -75,12 +74,6 @@ buildModel flags location key =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GetEvents (Ok result) ->
-            ( { model | events = { events = result, streamName = model.events.streamName } }, Cmd.none )
-
-        GetEvents (Err errorMessage) ->
-            ( model, Cmd.none )
-
         ChangeUrl location ->
             urlUpdate model location
 
@@ -96,10 +89,12 @@ update msg model =
                     , Browser.Navigation.load url
                     )
 
-        ViewStreamUIChanged viewEventUIMsg ->
-            case viewEventUIMsg of
-                ViewStreamUI.GoToPage paginationLink ->
-                    ( model, getEvents paginationLink )
+        ViewStreamUIChanged viewStreamUIMsg ->
+            let
+                ( newModel, cmd ) =
+                    ViewStreamUI.update viewStreamUIMsg model.events
+            in
+            ( { model | events = newModel }, Cmd.map ViewStreamUIChanged cmd )
 
         OpenedEventUIChanged openedEventUIMsg ->
             case model.event of
@@ -125,7 +120,7 @@ urlUpdate model location =
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = Route.BrowseEvents streamId, events = { events = model.events.events, streamName = streamId } }, getEvents (buildUrl model.flags.streamsUrl streamId) )
+                    ( { model | page = Route.BrowseEvents streamId, events = { events = model.events.events, streamName = streamId } }, Cmd.map ViewStreamUIChanged (ViewStreamUI.initCmd model.flags streamId) )
 
                 Nothing ->
                     ( { model | page = Route.NotFound }, Cmd.none )
@@ -207,35 +202,3 @@ showEvent maybeEvent =
         Nothing ->
             div [ class "event" ]
                 [ text "There's no event of given ID" ]
-
-
-getEvents : String -> Cmd Msg
-getEvents url =
-    Http.get url eventsDecoder
-        |> Http.send GetEvents
-
-
-eventsDecoder : Decoder (ViewStreamUI.PaginatedList ViewStreamUI.Event)
-eventsDecoder =
-    succeed ViewStreamUI.PaginatedList
-        |> required "data" (list eventDecoder_)
-        |> required "links" linksDecoder
-
-
-linksDecoder : Decoder ViewStreamUI.PaginationLinks
-linksDecoder =
-    succeed ViewStreamUI.PaginationLinks
-        |> optional "next" (maybe string) Nothing
-        |> optional "prev" (maybe string) Nothing
-        |> optional "first" (maybe string) Nothing
-        |> optional "last" (maybe string) Nothing
-
-
-eventDecoder_ : Decoder ViewStreamUI.Event
-eventDecoder_ =
-    succeed ViewStreamUI.Event
-        |> requiredAt [ "attributes", "event_type" ] string
-        |> requiredAt [ "id" ] string
-        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
