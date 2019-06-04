@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
 import Url
+import Route
 
 
 type alias Event =
@@ -142,7 +143,7 @@ itemRow { eventType, createdAt, eventId } =
         [ td []
             [ a
                 [ class "results__link"
-                , href (buildUrl "#events" eventId)
+                , href (Route.buildUrl "#events" eventId)
                 ]
                 [ text eventType ]
             ]
@@ -151,8 +152,3 @@ itemRow { eventType, createdAt, eventId } =
             [ text createdAt
             ]
         ]
-
-
-buildUrl : String -> String -> String
-buildUrl baseUrl id =
-    baseUrl ++ "/" ++ Url.percentEncode id
