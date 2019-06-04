@@ -43,7 +43,7 @@ type alias ViewStream =
 
 type Msg
     = GetEvents (Result Http.Error (PaginatedList Event))
-    | GetEvent (Result Http.Error Event)
+    | GetEvent (Result Http.Error OpenedEventUI.Event)
     | ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
     | GoToPage PaginationLink
