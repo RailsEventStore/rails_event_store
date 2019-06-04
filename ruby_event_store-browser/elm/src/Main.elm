@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, main, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, main, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -30,9 +30,7 @@ main =
 
 
 type alias Model =
-    { events : ViewStreamUI.Model
-    , event : Maybe OpenedEventUI.Model
-    , page : Route.Route
+    { page : Page
     , flags : Flags
     , key : Browser.Navigation.Key
     }
@@ -45,6 +43,12 @@ type Msg
     | ViewStreamUIChanged ViewStreamUI.Msg
 
 
+type Page
+    = NotFound
+    | ShowEvent OpenedEventUI.Model
+    | ViewStream ViewStreamUI.Model
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
@@ -53,17 +57,8 @@ subscriptions model =
 buildModel : Flags -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 buildModel flags location key =
     let
-        initLinks =
-            { prev = Nothing
-            , next = Nothing
-            , first = Nothing
-            , last = Nothing
-            }
-
         initModel =
-            { events = { streamName = "none", events = ViewStreamUI.PaginatedList [] initLinks }
-            , page = Route.NotFound
-            , event = Nothing
+            { page = NotFound
             , flags = flags
             , key = key
             }
@@ -90,22 +85,27 @@ update msg model =
                     )
 
         ViewStreamUIChanged viewStreamUIMsg ->
-            let
-                ( newModel, cmd ) =
-                    ViewStreamUI.update viewStreamUIMsg model.events
-            in
-            ( { model | events = newModel }, Cmd.map ViewStreamUIChanged cmd )
+            case model.page of
+                ViewStream viewStreamModel ->
+                    let
+                        ( newViewStreamModel, cmd ) =
+                            ViewStreamUI.update viewStreamUIMsg viewStreamModel
+                    in
+                    ( { model | page = ViewStream newViewStreamModel }, Cmd.map ViewStreamUIChanged cmd )
+
+                _ ->
+                    ( model, Cmd.none )
 
         OpenedEventUIChanged openedEventUIMsg ->
-            case model.event of
-                Just openedEvent ->
+            case model.page of
+                ShowEvent showEventModel ->
                     let
-                        ( newModel, cmd ) =
-                            OpenedEventUI.update openedEventUIMsg openedEvent
+                        ( newShowEventModel, cmd ) =
+                            OpenedEventUI.update openedEventUIMsg showEventModel
                     in
-                    ( { model | event = Just newModel }, Cmd.none )
+                    ( { model | page = ShowEvent newShowEventModel }, Cmd.map OpenedEventUIChanged cmd )
 
-                Nothing ->
+                _ ->
                     ( model, Cmd.none )
 
 
@@ -120,26 +120,25 @@ urlUpdate model location =
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = Route.BrowseEvents streamId, events = { events = model.events.events, streamName = streamId } }, Cmd.map ViewStreamUIChanged (ViewStreamUI.initCmd model.flags streamId) )
+                    ( { model | page = ViewStream (ViewStreamUI.initModel streamId) }
+                    , Cmd.map ViewStreamUIChanged (ViewStreamUI.initCmd model.flags streamId)
+                    )
 
                 Nothing ->
-                    ( { model | page = Route.NotFound }, Cmd.none )
+                    ( { model | page = NotFound }, Cmd.none )
 
         Just (Route.ShowEvent encodedEventId) ->
             case Url.percentDecode encodedEventId of
                 Just eventId ->
-                    ( { model | page = Route.ShowEvent eventId, event = Just (OpenedEventUI.initModel eventId) }
+                    ( { model | page = ShowEvent (OpenedEventUI.initModel eventId) }
                     , Cmd.map OpenedEventUIChanged (OpenedEventUI.initCmd model.flags eventId)
                     )
 
                 Nothing ->
-                    ( { model | page = Route.NotFound }, Cmd.none )
-
-        Just page ->
-            ( { model | page = page }, Cmd.none )
+                    ( { model | page = NotFound }, Cmd.none )
 
         Nothing ->
-            ( { model | page = Route.NotFound }, Cmd.none )
+            ( { model | page = NotFound }, Cmd.none )
 
 
 view : Model -> Browser.Document Msg
@@ -183,22 +182,11 @@ browserFooter model =
 browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
-        Route.BrowseEvents streamName ->
-            Html.map (\msg -> ViewStreamUIChanged msg) (ViewStreamUI.view model.events)
+        ViewStream viewStreamUIModel ->
+            Html.map ViewStreamUIChanged (ViewStreamUI.view viewStreamUIModel)
 
-        Route.ShowEvent eventId ->
-            showEvent model.event
+        ShowEvent openedEventUIModel ->
+            Html.map OpenedEventUIChanged (OpenedEventUI.showEvent openedEventUIModel)
 
-        Route.NotFound ->
+        NotFound ->
             h1 [] [ text "404" ]
-
-
-showEvent : Maybe OpenedEventUI.Model -> Html Msg
-showEvent maybeEvent =
-    case maybeEvent of
-        Just event ->
-            Html.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.showEvent event)
-
-        Nothing ->
-            div [ class "event" ]
-                [ text "There's no event of given ID" ]

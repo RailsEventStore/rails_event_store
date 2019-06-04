@@ -7,7 +7,6 @@ import Url.Parser exposing ((</>))
 type Route
     = BrowseEvents String
     | ShowEvent String
-    | NotFound
 
 
 decodeLocation : Url.Url -> Maybe Route

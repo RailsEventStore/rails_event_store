@@ -114,7 +114,8 @@ showEvent model =
             showEvent_ treedEvent
 
         Nothing ->
-            div [ class "event" ] []
+            div [ class "event" ]
+                [ text "There's no event of given ID" ]
 
 
 showEvent_ : TreedEvent -> Html Msg

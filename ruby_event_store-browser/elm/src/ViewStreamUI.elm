@@ -1,4 +1,4 @@
-module ViewStreamUI exposing (Event, Model, Msg(..), PaginatedList, PaginationLink, PaginationLinks, initCmd, update, view)
+module ViewStreamUI exposing (Model, Msg(..), initCmd, initModel, update, view)
 
 import Flags exposing (Flags)
 import Html exposing (..)
@@ -48,6 +48,21 @@ type alias Model =
 type Msg
     = GoToPage PaginationLink
     | GetEvents (Result Http.Error (PaginatedList Event))
+
+
+initModel : String -> Model
+initModel streamName =
+    let
+        initLinks =
+            { prev = Nothing
+            , next = Nothing
+            , first = Nothing
+            , last = Nothing
+            }
+    in
+    { streamName = streamName
+    , events = PaginatedList [] initLinks
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
