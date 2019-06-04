@@ -1,4 +1,4 @@
-module Route exposing (Route(..), routeParser, urlFragmentToPath)
+module Route exposing (Route(..), decodeLocation)
 
 import Url
 import Url.Parser exposing ((</>))
@@ -8,6 +8,11 @@ type Route
     = BrowseEvents String
     | ShowEvent String
     | NotFound
+
+
+decodeLocation : Url.Url -> Maybe Route
+decodeLocation loc =
+    Url.Parser.parse routeParser (urlFragmentToPath loc)
 
 
 routeParser : Url.Parser.Parser (Route -> a) a

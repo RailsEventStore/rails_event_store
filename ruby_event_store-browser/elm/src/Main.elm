@@ -159,11 +159,7 @@ buildUrl baseUrl id =
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
-    let
-        decodeLocation loc =
-            Url.Parser.parse Route.routeParser (Route.urlFragmentToPath loc)
-    in
-    case decodeLocation location of
+    case Route.decodeLocation location of
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
