@@ -1,4 +1,4 @@
-module OpenedEventUI exposing (Model, Msg(..), initCmd, initModel, update, view)
+module OpenedEventUI exposing (Model, Msg(..), initCmd, initModel, update, view, showJsonTree, eventDecoder)
 
 import Flags exposing (Flags)
 import Html exposing (..)
