@@ -1,4 +1,4 @@
-module ViewStreamUI exposing (Model, Msg(..), initCmd, initModel, update, view, eventsDecoder)
+module Page.ViewStreamUI exposing (Model, Msg(..), eventsDecoder, initCmd, initModel, update, view)
 
 import Flags exposing (Flags)
 import Html exposing (..)
