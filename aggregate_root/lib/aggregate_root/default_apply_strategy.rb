@@ -2,13 +2,12 @@ module AggregateRoot
   MissingHandler = Class.new(StandardError)
 
   class DefaultApplyStrategy
-    def initialize(strict: true, on_methods: {})
+    def initialize(strict: true)
       @strict = strict
-      @on_methods = on_methods
     end
 
     def call(aggregate, event)
-      name = handler_name(event)
+      name = handler_name(aggregate, event)
       if aggregate.respond_to?(name, true)
         aggregate.method(name).call(event)
       else
@@ -18,8 +17,8 @@ module AggregateRoot
 
     private
 
-    def handler_name(event)
-      on_methods.fetch(event.type) { handler_name_by_type(event.type) }
+    def handler_name(aggregate, event)
+      aggregate.class.on_methods.fetch(event.type) { handler_name_by_type(event.type) }
     end
 
     def handler_name_by_type(event_type)

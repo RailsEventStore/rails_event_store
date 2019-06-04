@@ -221,6 +221,10 @@ RSpec.describe AggregateRoot do
         on Orders::Events::OrderCreated do |_ev|
           @status = :created_inherited
         end
+
+        on Orders::Events::OrderCanceled do |_ev|
+          @status = :canceled_inherited
+        end
       end
 
       order = order_with_ons.new
@@ -232,11 +236,24 @@ RSpec.describe AggregateRoot do
       expect(order.private_methods).to include(:"on_Orders::Events::OrderCreated")
       expect(order.private_methods).to include(:"on_Orders::Events::OrderExpired")
 
+      expect(order_with_ons.on_methods.keys).to include("Orders::Events::OrderCreated")
+      expect(order_with_ons.on_methods.keys).to include("Orders::Events::OrderExpired")
+
       order = inherited_order_with_ons.new
       order.apply(Orders::Events::OrderCreated.new)
       expect(order.status).to eq(:created_inherited)
       order.apply(Orders::Events::OrderExpired.new)
       expect(order.status).to eq(:expired)
+      order.apply(Orders::Events::OrderCanceled.new)
+      expect(order.status).to eq(:canceled_inherited)
+
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderCreated")
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderExpired")
+      expect(order.private_methods).to include(:"on_Orders::Events::OrderCanceled")
+
+      expect(inherited_order_with_ons.on_methods.keys).to include("Orders::Events::OrderCreated")
+      expect(inherited_order_with_ons.on_methods.keys).to include("Orders::Events::OrderExpired")
+      expect(inherited_order_with_ons.on_methods.keys).to include("Orders::Events::OrderCanceled")
     end
 
     it "handles super() with inheritance" do

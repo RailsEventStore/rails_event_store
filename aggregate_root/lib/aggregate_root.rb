@@ -14,13 +14,14 @@ module AggregateRoot
         handler_name = "on_#{name}"
         define_method(handler_name, &block)
         @on_methods ||= {}
-        on_methods[name] = handler_name
+        @on_methods[name] = handler_name
         private(handler_name)
       end
     end
 
     def on_methods
-      @on_methods || {}
+      @on_methods ||= {}
+      (superclass.respond_to?(:on_methods) ? superclass.on_methods : {}).merge(@on_methods)
     end
   end
 
@@ -59,7 +60,7 @@ module AggregateRoot
     Module.new do
       def self.included(host_class)
         host_class.extend  OnDSL
-        host_class.include AggregateRoot.with_strategy(->{ DefaultApplyStrategy.new(on_methods: host_class.on_methods) })
+        host_class.include AggregateRoot.with_strategy(->{ DefaultApplyStrategy.new })
       end
     end
   end
