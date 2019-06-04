@@ -28,11 +28,16 @@ main =
 
 
 type alias Model =
-    { events : PaginatedList Event
+    { events : ViewStream
     , event : Maybe OpenedEventUI.Model
     , page : Route.Route
     , flags : Flags
     , key : Browser.Navigation.Key
+    }
+
+
+type alias ViewStream =
+    { events : PaginatedList Event
     }
 
 
@@ -96,7 +101,7 @@ buildModel flags location key =
             }
 
         initModel =
-            { events = PaginatedList [] initLinks
+            { events = { events = PaginatedList [] initLinks }
             , page = Route.NotFound
             , event = Nothing
             , flags = flags
@@ -110,7 +115,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GetEvents (Ok result) ->
-            ( { model | events = result }, Cmd.none )
+            ( { model | events = { events = result } }, Cmd.none )
 
         GetEvents (Err errorMessage) ->
             ( model, Cmd.none )
@@ -225,7 +230,7 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         Route.BrowseEvents streamName ->
-            browseEvents ("Events in " ++ streamName) model.events
+            browseEvents ("Events in " ++ streamName) model.events.events
 
         Route.ShowEvent eventId ->
             showEvent model.event
