@@ -6,10 +6,6 @@ import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
-import Http
-import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
-import Json.Decode.Pipeline exposing (optional, required, requiredAt)
-import Json.Encode exposing (encode)
 import OpenedEventUI
 import Route
 import Url
@@ -186,7 +182,7 @@ browserBody model =
             Html.map ViewStreamUIChanged (ViewStreamUI.view viewStreamUIModel)
 
         ShowEvent openedEventUIModel ->
-            Html.map OpenedEventUIChanged (OpenedEventUI.showEvent openedEventUIModel)
+            Html.map OpenedEventUIChanged (OpenedEventUI.view openedEventUIModel)
 
         NotFound ->
             h1 [] [ text "404" ]

@@ -12,6 +12,10 @@ import Route
 import Url
 
 
+
+-- MODEL
+
+
 type alias Event =
     { eventType : String
     , eventId : String
@@ -45,11 +49,6 @@ type alias Model =
     }
 
 
-type Msg
-    = GoToPage PaginationLink
-    | GetEvents (Result Http.Error (PaginatedList Event))
-
-
 initModel : String -> Model
 initModel streamName =
     let
@@ -65,6 +64,20 @@ initModel streamName =
     }
 
 
+
+-- UPDATE
+
+
+type Msg
+    = GoToPage PaginationLink
+    | GetEvents (Result Http.Error (PaginatedList Event))
+
+
+initCmd : Flags -> String -> Cmd Msg
+initCmd flags streamId =
+    getEvents (Route.buildUrl flags.streamsUrl streamId)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -78,9 +91,40 @@ update msg model =
             ( model, Cmd.none )
 
 
-initCmd : Flags -> String -> Cmd Msg
-initCmd flags streamId =
-    getEvents (Route.buildUrl flags.streamsUrl streamId)
+getEvents : String -> Cmd Msg
+getEvents url =
+    Http.get url eventsDecoder
+        |> Http.send GetEvents
+
+
+eventsDecoder : Decoder (PaginatedList Event)
+eventsDecoder =
+    succeed PaginatedList
+        |> required "data" (list eventDecoder_)
+        |> required "links" linksDecoder
+
+
+linksDecoder : Decoder PaginationLinks
+linksDecoder =
+    succeed PaginationLinks
+        |> optional "next" (maybe string) Nothing
+        |> optional "prev" (maybe string) Nothing
+        |> optional "first" (maybe string) Nothing
+        |> optional "last" (maybe string) Nothing
+
+
+eventDecoder_ : Decoder Event
+eventDecoder_ =
+    succeed Event
+        |> requiredAt [ "attributes", "event_type" ] string
+        |> requiredAt [ "id" ] string
+        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
+        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
@@ -191,35 +235,3 @@ itemRow { eventType, createdAt, eventId } =
             [ text createdAt
             ]
         ]
-
-
-getEvents : String -> Cmd Msg
-getEvents url =
-    Http.get url eventsDecoder
-        |> Http.send GetEvents
-
-
-eventsDecoder : Decoder (PaginatedList Event)
-eventsDecoder =
-    succeed PaginatedList
-        |> required "data" (list eventDecoder_)
-        |> required "links" linksDecoder
-
-
-linksDecoder : Decoder PaginationLinks
-linksDecoder =
-    succeed PaginationLinks
-        |> optional "next" (maybe string) Nothing
-        |> optional "prev" (maybe string) Nothing
-        |> optional "first" (maybe string) Nothing
-        |> optional "last" (maybe string) Nothing
-
-
-eventDecoder_ : Decoder Event
-eventDecoder_ =
-    succeed Event
-        |> requiredAt [ "attributes", "event_type" ] string
-        |> requiredAt [ "id" ] string
-        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))

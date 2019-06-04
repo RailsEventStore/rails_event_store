@@ -1,4 +1,4 @@
-module OpenedEventUI exposing (Event, Model, Msg(..), getEvent, initCmd, initModel, showEvent, showJsonTree, update)
+module OpenedEventUI exposing (Model, Msg(..), initCmd, initModel, update, view)
 
 import Flags exposing (Flags)
 import Html exposing (..)
@@ -9,6 +9,10 @@ import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import JsonTree
 import Route
+
+
+
+-- MODEL
 
 
 type alias Event =
@@ -33,12 +37,6 @@ type alias Model =
     }
 
 
-type Msg
-    = ChangeOpenedEventDataTreeState JsonTree.State
-    | ChangeOpenedEventMetadataTreeState JsonTree.State
-    | GetEvent (Result Http.Error Event)
-
-
 initModel : String -> Model
 initModel eventId =
     { eventId = eventId
@@ -46,12 +44,19 @@ initModel eventId =
     }
 
 
-initTreedEvent : Event -> TreedEvent
-initTreedEvent e =
-    { event = e
-    , dataTreeState = JsonTree.defaultState
-    , metadataTreeState = JsonTree.defaultState
-    }
+
+-- UPDATE
+
+
+type Msg
+    = ChangeOpenedEventDataTreeState JsonTree.State
+    | ChangeOpenedEventMetadataTreeState JsonTree.State
+    | GetEvent (Result Http.Error Event)
+
+
+initCmd : Flags -> String -> Cmd Msg
+initCmd flags eventId =
+    getEvent (Route.buildUrl flags.eventsUrl eventId)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,9 +85,12 @@ update msg model =
             ( model, Cmd.none )
 
 
-initCmd : Flags -> String -> Cmd Msg
-initCmd flags eventId =
-    getEvent (Route.buildUrl flags.eventsUrl eventId)
+initTreedEvent : Event -> TreedEvent
+initTreedEvent e =
+    { event = e
+    , dataTreeState = JsonTree.defaultState
+    , metadataTreeState = JsonTree.defaultState
+    }
 
 
 getEvent : String -> Cmd Msg
@@ -107,19 +115,23 @@ eventDecoder_ =
         |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
 
 
-showEvent : Model -> Html Msg
-showEvent model =
+
+-- VIEW
+
+
+view : Model -> Html Msg
+view model =
     case model.treedEvent of
         Just treedEvent ->
-            showEvent_ treedEvent
+            showEvent treedEvent
 
         Nothing ->
             div [ class "event" ]
                 [ text "There's no event of given ID" ]
 
 
-showEvent_ : TreedEvent -> Html Msg
-showEvent_ treedEvent =
+showEvent : TreedEvent -> Html Msg
+showEvent treedEvent =
     div [ class "event" ]
         [ h1 [ class "event__title" ] [ text treedEvent.event.eventType ]
         , div [ class "event__body" ]
