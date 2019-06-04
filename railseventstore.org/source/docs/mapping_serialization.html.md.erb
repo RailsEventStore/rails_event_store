@@ -42,7 +42,7 @@ JSON.load(JSON.dump({foo: :bar}))
 => {"foo"=>"bar"}
 ```
 
-One way to approach this is to have your own event adapter, specific for the project you're working on. 
+One way to approach this is to have your own event adapter, specific for the project you're working on.
 
 ```ruby
 class MyEvent < RailsEventStore::Event
@@ -67,13 +67,15 @@ event.data['foo']
 # => "bar"
 ```
 
+<% in_version_above('0.39.0') do %>
 Additionally, if you are using Postgres, you can configure the migration
-to use JSON or JSONB data types for the `data` and `metadata` fields by 
+to use JSON or JSONB data types for the `data` and `metadata` fields by
 passing in a `--data_type` to the generator
 
 ```console
 $ rails generate rails_event_store_active_record:migration --data_type=jsonb
 ```
+<% end %>
 
 ## Configuring a different mapper
 
