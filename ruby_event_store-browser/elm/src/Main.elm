@@ -1,4 +1,4 @@
-module Main exposing (Event, Flags, Model, Msg(..), Route(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Event, Flags, Model, Msg(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -10,6 +10,7 @@ import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, stri
 import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import OpenedEventUI
+import Route
 import Url
 import Url.Parser exposing ((</>))
 
@@ -29,7 +30,7 @@ main =
 type alias Model =
     { events : PaginatedList Event
     , event : Maybe OpenedEventUI.Model
-    , page : Route
+    , page : Route.Route
     , flags : Flags
     , key : Browser.Navigation.Key
     }
@@ -42,12 +43,6 @@ type Msg
     | ClickedLink Browser.UrlRequest
     | GoToPage PaginationLink
     | OpenedEventUIChanged OpenedEventUI.Msg
-
-
-type Route
-    = BrowseEvents String
-    | ShowEvent String
-    | NotFound
 
 
 type alias Event =
@@ -102,7 +97,7 @@ buildModel flags location key =
 
         initModel =
             { events = PaginatedList [] initLinks
-            , page = NotFound
+            , page = Route.NotFound
             , event = Nothing
             , flags = flags
             , key = key
@@ -166,44 +161,30 @@ urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
     let
         decodeLocation loc =
-            Url.Parser.parse routeParser (urlFragmentToPath loc)
+            Url.Parser.parse Route.routeParser (Route.urlFragmentToPath loc)
     in
     case decodeLocation location of
-        Just (BrowseEvents encodedStreamId) ->
+        Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = BrowseEvents streamId }, getEvents (buildUrl model.flags.streamsUrl streamId) )
+                    ( { model | page = Route.BrowseEvents streamId }, getEvents (buildUrl model.flags.streamsUrl streamId) )
 
                 Nothing ->
-                    ( { model | page = NotFound }, Cmd.none )
+                    ( { model | page = Route.NotFound }, Cmd.none )
 
-        Just (ShowEvent encodedEventId) ->
+        Just (Route.ShowEvent encodedEventId) ->
             case Url.percentDecode encodedEventId of
                 Just eventId ->
-                    ( { model | page = ShowEvent eventId }, getEvent (buildUrl model.flags.eventsUrl eventId) )
+                    ( { model | page = Route.ShowEvent eventId }, getEvent (buildUrl model.flags.eventsUrl eventId) )
 
                 Nothing ->
-                    ( { model | page = NotFound }, Cmd.none )
+                    ( { model | page = Route.NotFound }, Cmd.none )
 
         Just page ->
             ( { model | page = page }, Cmd.none )
 
         Nothing ->
-            ( { model | page = NotFound }, Cmd.none )
-
-
-routeParser : Url.Parser.Parser (Route -> a) a
-routeParser =
-    Url.Parser.oneOf
-        [ Url.Parser.map (BrowseEvents "all") Url.Parser.top
-        , Url.Parser.map BrowseEvents (Url.Parser.s "streams" </> Url.Parser.string)
-        , Url.Parser.map ShowEvent (Url.Parser.s "events" </> Url.Parser.string)
-        ]
-
-
-urlFragmentToPath : Url.Url -> Url.Url
-urlFragmentToPath url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+            ( { model | page = Route.NotFound }, Cmd.none )
 
 
 view : Model -> Browser.Document Msg
@@ -247,13 +228,13 @@ browserFooter model =
 browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
-        BrowseEvents streamName ->
+        Route.BrowseEvents streamName ->
             browseEvents ("Events in " ++ streamName) model.events
 
-        ShowEvent eventId ->
+        Route.ShowEvent eventId ->
             showEvent model.event
 
-        NotFound ->
+        Route.NotFound ->
             h1 [] [ text "404" ]
 
 
