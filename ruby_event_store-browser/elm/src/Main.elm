@@ -80,21 +80,22 @@ update msg model =
                     )
 
         ( ViewStreamUIChanged viewStreamUIMsg, ViewStream viewStreamModel ) ->
-            let
-                ( newViewStreamModel, cmd ) =
-                    ViewStreamUI.update viewStreamUIMsg viewStreamModel
-            in
-            ( { model | page = ViewStream newViewStreamModel }, Cmd.map ViewStreamUIChanged cmd )
+            ViewStreamUI.update viewStreamUIMsg viewStreamModel
+                |> updateWith ViewStream ViewStreamUIChanged model
 
         ( OpenedEventUIChanged openedEventUIMsg, ShowEvent showEventModel ) ->
-            let
-                ( newShowEventModel, cmd ) =
-                    OpenedEventUI.update openedEventUIMsg showEventModel
-            in
-            ( { model | page = ShowEvent newShowEventModel }, Cmd.map OpenedEventUIChanged cmd )
+            OpenedEventUI.update openedEventUIMsg showEventModel
+                |> updateWith ShowEvent OpenedEventUIChanged model
 
         ( _, _ ) ->
             ( model, Cmd.none )
+
+
+updateWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toPageModel toMsg model ( subModel, subCmd ) =
+    ( { model | page = toPageModel subModel }
+    , Cmd.map toMsg subCmd
+    )
 
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
