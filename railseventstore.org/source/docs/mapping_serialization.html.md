@@ -67,6 +67,14 @@ event.data['foo']
 # => "bar"
 ```
 
+Additionally, if you are using Postgres, you can configure the migration
+to use JSON or JSONB data types for the `data` and `metadata` fields by 
+passing in a `--data_type` to the generator
+
+```console
+$ rails generate rails_event_store_active_record:migration --data_type=jsonb
+```
+
 ## Configuring a different mapper
 
 Configuring a different mapper makes it possible to define events however you want and store in them in the database.
