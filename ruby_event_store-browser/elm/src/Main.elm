@@ -1,7 +1,8 @@
-module Main exposing (Flags, Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, eventDecoder_, eventsDecoder, getEvents, linksDecoder, main, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, eventDecoder_, eventsDecoder, getEvents, linksDecoder, main, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
+import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
@@ -43,14 +44,6 @@ type Msg
     | ClickedLink Browser.UrlRequest
     | OpenedEventUIChanged OpenedEventUI.Msg
     | ViewStreamUIChanged ViewStreamUI.Msg
-
-
-type alias Flags =
-    { rootUrl : String
-    , streamsUrl : String
-    , eventsUrl : String
-    , resVersion : String
-    }
 
 
 subscriptions : Model -> Sub Msg
