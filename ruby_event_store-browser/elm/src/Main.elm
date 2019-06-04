@@ -264,7 +264,8 @@ showEvent maybeEvent =
             Html.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.showEvent event)
 
         Nothing ->
-            div [ class "event" ] []
+            div [ class "event" ]
+                [ text "There's no event of given ID" ]
 
 
 browseEvents : String -> PaginatedList Event -> Html Msg

@@ -51,10 +51,14 @@ module RubyEventStore
       end
 
       get '/events/:id' do
-        json Event.new(
-          event_store: settings.event_store_locator,
-          params: symbolized_params
-        )
+        begin
+          json Event.new(
+            event_store: settings.event_store_locator,
+            params: symbolized_params
+          )
+        rescue RubyEventStore::EventNotFound => e
+          404
+        end
       end
 
       get '/streams/:id' do

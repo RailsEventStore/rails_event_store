@@ -23,6 +23,14 @@ module RubyEventStore
       expect(test_client.parsed_body["data"]).to match(event_resource)
     end
 
+    specify "requesting non-existing event" do
+      test_client.get "/events/73947fbd-90d7-4e1c-be2a-d7ff1900c409"
+
+      test_client.last_response
+      expect(test_client.last_response).to be_not_found
+      expect(test_client.last_response.body).to be_empty
+    end
+
     specify do
       json = Browser::JsonApiEvent.new(dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f")).to_h
 
