@@ -4,7 +4,8 @@ import Expect
 import Test exposing (..)
 import Json.Decode exposing (list)
 import Main exposing (..)
-import OpenedEventUI
+import ViewStreamUI exposing (eventsDecoder)
+import OpenedEventUI exposing (eventDecoder)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (text, tag)
 import JsonTree
