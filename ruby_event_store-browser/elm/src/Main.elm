@@ -34,8 +34,8 @@ type alias Model =
 type Msg
     = ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
-    | OpenedEventUIChanged OpenedEventUI.Msg
-    | ViewStreamUIChanged ViewStreamUI.Msg
+    | GotShowEventMsg OpenedEventUI.Msg
+    | GotViewStreamMsg ViewStreamUI.Msg
 
 
 type Page
@@ -79,13 +79,13 @@ update msg model =
                     , Browser.Navigation.load url
                     )
 
-        ( ViewStreamUIChanged viewStreamUIMsg, ViewStream viewStreamModel ) ->
+        ( GotViewStreamMsg viewStreamUIMsg, ViewStream viewStreamModel ) ->
             ViewStreamUI.update viewStreamUIMsg viewStreamModel
-                |> updateWith ViewStream ViewStreamUIChanged model
+                |> updateWith ViewStream GotViewStreamMsg model
 
-        ( OpenedEventUIChanged openedEventUIMsg, ShowEvent showEventModel ) ->
+        ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
             OpenedEventUI.update openedEventUIMsg showEventModel
-                |> updateWith ShowEvent OpenedEventUIChanged model
+                |> updateWith ShowEvent GotShowEventMsg model
 
         ( _, _ ) ->
             ( model, Cmd.none )
@@ -105,7 +105,7 @@ urlUpdate model location =
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
                     ( { model | page = ViewStream (ViewStreamUI.initModel streamId) }
-                    , Cmd.map ViewStreamUIChanged (ViewStreamUI.initCmd model.flags streamId)
+                    , Cmd.map GotViewStreamMsg (ViewStreamUI.initCmd model.flags streamId)
                     )
 
                 Nothing ->
@@ -115,7 +115,7 @@ urlUpdate model location =
             case Url.percentDecode encodedEventId of
                 Just eventId ->
                     ( { model | page = ShowEvent (OpenedEventUI.initModel eventId) }
-                    , Cmd.map OpenedEventUIChanged (OpenedEventUI.initCmd model.flags eventId)
+                    , Cmd.map GotShowEventMsg (OpenedEventUI.initCmd model.flags eventId)
                     )
 
                 Nothing ->
@@ -136,10 +136,10 @@ viewPage : Page -> Html Msg
 viewPage page =
     case page of
         ViewStream viewStreamUIModel ->
-            Html.map ViewStreamUIChanged (ViewStreamUI.view viewStreamUIModel)
+            Html.map GotViewStreamMsg (ViewStreamUI.view viewStreamUIModel)
 
         ShowEvent openedEventUIModel ->
-            Html.map OpenedEventUIChanged (OpenedEventUI.view openedEventUIModel)
+            Html.map GotShowEventMsg (OpenedEventUI.view openedEventUIModel)
 
         NotFound ->
             Layout.viewNotFound
