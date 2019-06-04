@@ -1,11 +1,10 @@
-module Main exposing (Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, main, subscriptions, update, urlUpdate, view)
+module Main exposing (Model, Msg(..), buildModel, buildUrl, main, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
 import Flags exposing (Flags)
-import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href, placeholder)
-import Html.Events exposing (onClick)
+import Html exposing (Html)
+import Layout
 import OpenedEventUI
 import Route
 import Url
@@ -139,45 +138,14 @@ urlUpdate model location =
 
 view : Model -> Browser.Document Msg
 view model =
-    let
-        body =
-            div [ class "frame" ]
-                [ header [ class "frame__header" ] [ browserNavigation model ]
-                , main_ [ class "frame__body" ] [ browserBody model ]
-                , footer [ class "frame__footer" ] [ browserFooter model ]
-                ]
-    in
-    { body = [ body ]
+    { body = [ Layout.view model.flags (viewPage model.page) ]
     , title = "RubyEventStore::Browser"
     }
 
 
-browserNavigation : Model -> Html Msg
-browserNavigation model =
-    nav [ class "navigation" ]
-        [ div [ class "navigation__brand" ]
-            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
-            ]
-        , div [ class "navigation__links" ]
-            [ a [ href model.flags.rootUrl, class "navigation__link" ] [ text "Stream Browser" ]
-            ]
-        ]
-
-
-browserFooter : Model -> Html Msg
-browserFooter model =
-    footer [ class "footer" ]
-        [ div [ class "footer__links" ]
-            [ text ("RubyEventStore v" ++ model.flags.resVersion)
-            , a [ href "https://railseventstore.org/docs/install/", class "footer__link" ] [ text "Documentation" ]
-            , a [ href "https://railseventstore.org/support/", class "footer__link" ] [ text "Support" ]
-            ]
-        ]
-
-
-browserBody : Model -> Html Msg
-browserBody model =
-    case model.page of
+viewPage : Page -> Html Msg
+viewPage page =
+    case page of
         ViewStream viewStreamUIModel ->
             Html.map ViewStreamUIChanged (ViewStreamUI.view viewStreamUIModel)
 
@@ -185,4 +153,4 @@ browserBody model =
             Html.map OpenedEventUIChanged (OpenedEventUI.view openedEventUIModel)
 
         NotFound ->
-            h1 [] [ text "404" ]
+            Layout.viewNotFound
