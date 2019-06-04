@@ -1,4 +1,4 @@
-module Main exposing (Flags, Model, Msg(..), browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Flags, Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, eventDecoder, eventDecoder_, eventsDecoder, getEvent, getEvents, linksDecoder, main, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -10,10 +10,10 @@ import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, stri
 import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import OpenedEventUI
-import ViewStreamUI
 import Route
 import Url
 import Url.Parser exposing ((</>))
+import ViewStreamUI
 
 
 main : Program Flags Model Msg
@@ -42,8 +42,8 @@ type Msg
     | GetEvent (Result Http.Error OpenedEventUI.Event)
     | ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
-    | GoToPage ViewStreamUI.PaginationLink
     | OpenedEventUIChanged OpenedEventUI.Msg
+    | ViewStreamUIChanged ViewStreamUI.Msg
 
 
 type alias Flags =
@@ -110,8 +110,10 @@ update msg model =
                     , Browser.Navigation.load url
                     )
 
-        GoToPage paginationLink ->
-            ( model, getEvents paginationLink )
+        ViewStreamUIChanged viewEventUIMsg ->
+            case viewEventUIMsg of
+                ViewStreamUI.GoToPage paginationLink ->
+                    ( model, getEvents paginationLink )
 
         OpenedEventUIChanged openedEventUIMsg ->
             case model.event of
@@ -199,7 +201,7 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         Route.BrowseEvents streamName ->
-            browseEvents ("Events in " ++ streamName) model.events.events
+            Html.map (\msg -> ViewStreamUIChanged msg) (ViewStreamUI.view model.events streamName)
 
         Route.ShowEvent eventId ->
             showEvent model.event
@@ -217,111 +219,6 @@ showEvent maybeEvent =
         Nothing ->
             div [ class "event" ]
                 [ text "There's no event of given ID" ]
-
-
-browseEvents : String -> ViewStreamUI.PaginatedList ViewStreamUI.Event -> Html Msg
-browseEvents title { links, events } =
-    div [ class "browser" ]
-        [ h1 [ class "browser__title" ] [ text title ]
-        , div [ class "browser__pagination" ] [ displayPagination links ]
-        , div [ class "browser__results" ] [ renderResults events ]
-        ]
-
-
-displayPagination : ViewStreamUI.PaginationLinks -> Html Msg
-displayPagination { first, last, next, prev } =
-    ul [ class "pagination" ]
-        [ paginationItem firstPageButton first
-        , paginationItem lastPageButton last
-        , paginationItem nextPageButton next
-        , paginationItem prevPageButton prev
-        ]
-
-
-paginationItem : (ViewStreamUI.PaginationLink -> Html Msg) -> Maybe ViewStreamUI.PaginationLink -> Html Msg
-paginationItem button link =
-    case link of
-        Just url ->
-            li [] [ button url ]
-
-        Nothing ->
-            li [] []
-
-
-nextPageButton : ViewStreamUI.PaginationLink -> Html Msg
-nextPageButton url =
-    button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--next"
-        ]
-        [ text "next" ]
-
-
-prevPageButton : ViewStreamUI.PaginationLink -> Html Msg
-prevPageButton url =
-    button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--prev"
-        ]
-        [ text "previous" ]
-
-
-lastPageButton : ViewStreamUI.PaginationLink -> Html Msg
-lastPageButton url =
-    button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--last"
-        ]
-        [ text "last" ]
-
-
-firstPageButton : ViewStreamUI.PaginationLink -> Html Msg
-firstPageButton url =
-    button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--first"
-        ]
-        [ text "first" ]
-
-
-renderResults : List ViewStreamUI.Event -> Html Msg
-renderResults events =
-    case events of
-        [] ->
-            p [ class "results__empty" ] [ text "No items" ]
-
-        _ ->
-            table []
-                [ thead []
-                    [ tr []
-                        [ th [] [ text "Event name" ]
-                        , th [] [ text "Event id" ]
-                        , th [ class "u-align-right" ] [ text "Created at" ]
-                        ]
-                    ]
-                , tbody [] (List.map itemRow events)
-                ]
-
-
-itemRow : ViewStreamUI.Event -> Html Msg
-itemRow { eventType, createdAt, eventId } =
-    tr []
-        [ td []
-            [ a
-                [ class "results__link"
-                , href (buildUrl "#events" eventId)
-                ]
-                [ text eventType ]
-            ]
-        , td [] [ text eventId ]
-        , td [ class "u-align-right" ]
-            [ text createdAt
-            ]
-        ]
 
 
 getEvent : String -> Cmd Msg
