@@ -5,7 +5,7 @@ import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (Html)
 import Layout
-import Page.OpenedEventUI
+import Page.ShowEvent
 import Page.ViewStreamUI
 import Route
 import Url
@@ -34,13 +34,13 @@ type alias Model =
 type Msg
     = ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
-    | GotShowEventMsg Page.OpenedEventUI.Msg
+    | GotShowEventMsg Page.ShowEvent.Msg
     | GotViewStreamMsg Page.ViewStreamUI.Msg
 
 
 type Page
     = NotFound
-    | ShowEvent Page.OpenedEventUI.Model
+    | ShowEvent Page.ShowEvent.Model
     | ViewStream Page.ViewStreamUI.Model
 
 
@@ -84,7 +84,7 @@ update msg model =
                 |> updateWith ViewStream GotViewStreamMsg model
 
         ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
-            Page.OpenedEventUI.update openedEventUIMsg showEventModel
+            Page.ShowEvent.update openedEventUIMsg showEventModel
                 |> updateWith ShowEvent GotShowEventMsg model
 
         ( _, _ ) ->
@@ -114,8 +114,8 @@ urlUpdate model location =
         Just (Route.ShowEvent encodedEventId) ->
             case Url.percentDecode encodedEventId of
                 Just eventId ->
-                    ( { model | page = ShowEvent (Page.OpenedEventUI.initModel eventId) }
-                    , Cmd.map GotShowEventMsg (Page.OpenedEventUI.initCmd model.flags eventId)
+                    ( { model | page = ShowEvent (Page.ShowEvent.initModel eventId) }
+                    , Cmd.map GotShowEventMsg (Page.ShowEvent.initCmd model.flags eventId)
                     )
 
                 Nothing ->
@@ -139,7 +139,7 @@ viewPage page =
             Html.map GotViewStreamMsg (Page.ViewStreamUI.view viewStreamUIModel)
 
         ShowEvent openedEventUIModel ->
-            Html.map GotShowEventMsg (Page.OpenedEventUI.view openedEventUIModel)
+            Html.map GotShowEventMsg (Page.ShowEvent.view openedEventUIModel)
 
         NotFound ->
             Layout.viewNotFound

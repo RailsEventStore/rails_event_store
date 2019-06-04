@@ -1,4 +1,4 @@
-module Page.OpenedEventUI exposing (Model, Msg(..), eventDecoder, initCmd, initModel, showJsonTree, update, view)
+module Page.ShowEvent exposing (Model, Msg(..), eventDecoder, initCmd, initModel, showJsonTree, update, view)
 
 import Flags exposing (Flags)
 import Html exposing (..)
