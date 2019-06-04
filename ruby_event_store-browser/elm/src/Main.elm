@@ -70,7 +70,7 @@ buildModel flags location key =
             }
 
         initModel =
-            { events = { events = ViewStreamUI.PaginatedList [] initLinks }
+            { events = { streamName = "none", events = ViewStreamUI.PaginatedList [] initLinks }
             , page = Route.NotFound
             , event = Nothing
             , flags = flags
@@ -84,7 +84,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GetEvents (Ok result) ->
-            ( { model | events = { events = result } }, Cmd.none )
+            ( { model | events = { events = result, streamName = model.events.streamName } }, Cmd.none )
 
         GetEvents (Err errorMessage) ->
             ( model, Cmd.none )
@@ -139,7 +139,7 @@ urlUpdate model location =
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = Route.BrowseEvents streamId }, getEvents (buildUrl model.flags.streamsUrl streamId) )
+                    ( { model | page = Route.BrowseEvents streamId, events = { events = model.events.events, streamName = streamId } }, getEvents (buildUrl model.flags.streamsUrl streamId) )
 
                 Nothing ->
                     ( { model | page = Route.NotFound }, Cmd.none )
@@ -201,7 +201,7 @@ browserBody : Model -> Html Msg
 browserBody model =
     case model.page of
         Route.BrowseEvents streamName ->
-            Html.map (\msg -> ViewStreamUIChanged msg) (ViewStreamUI.view model.events streamName)
+            Html.map (\msg -> ViewStreamUIChanged msg) (ViewStreamUI.view model.events)
 
         Route.ShowEvent eventId ->
             showEvent model.event

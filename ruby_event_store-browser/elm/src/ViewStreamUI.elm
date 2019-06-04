@@ -35,6 +35,7 @@ type alias PaginationLinks =
 
 type alias Model =
     { events : PaginatedList Event
+    , streamName : String
     }
 
 
@@ -42,9 +43,9 @@ type Msg
     = GoToPage PaginationLink
 
 
-view : Model -> String -> Html Msg
-view model streamName =
-    browseEvents ("Events in " ++ streamName) model.events
+view : Model -> Html Msg
+view model =
+    browseEvents ("Events in " ++ model.streamName) model.events
 
 
 browseEvents : String -> PaginatedList Event -> Html Msg
