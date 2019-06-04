@@ -9,6 +9,7 @@ import OpenedEventUI exposing (eventDecoder)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (text, tag)
 import JsonTree
+import Route exposing (buildUrl)
 
 
 suite : Test

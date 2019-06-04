@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), buildModel, buildUrl, main, subscriptions, update, urlUpdate, view)
+module Main exposing (Model, Msg(..), buildModel, main, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -95,11 +95,6 @@ update msg model =
 
         ( _, _ ) ->
             ( model, Cmd.none )
-
-
-buildUrl : String -> String -> String
-buildUrl baseUrl id =
-    baseUrl ++ "/" ++ Url.percentEncode id
 
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
