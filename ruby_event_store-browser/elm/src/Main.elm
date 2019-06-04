@@ -1,4 +1,4 @@
-module Main exposing (Event, Flags, Model, Msg(..), Page(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Event, Flags, Model, Msg(..), Route(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, routeParser, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -29,7 +29,7 @@ main =
 type alias Model =
     { events : PaginatedList Event
     , event : Maybe OpenedEventUI.Model
-    , page : Page
+    , page : Route
     , flags : Flags
     , key : Browser.Navigation.Key
     }
@@ -44,7 +44,7 @@ type Msg
     | OpenedEventUIChanged OpenedEventUI.Msg
 
 
-type Page
+type Route
     = BrowseEvents String
     | ShowEvent String
     | NotFound
@@ -192,7 +192,7 @@ urlUpdate model location =
             ( { model | page = NotFound }, Cmd.none )
 
 
-routeParser : Url.Parser.Parser (Page -> a) a
+routeParser : Url.Parser.Parser (Route -> a) a
 routeParser =
     Url.Parser.oneOf
         [ Url.Parser.map (BrowseEvents "all") Url.Parser.top
