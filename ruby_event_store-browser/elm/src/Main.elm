@@ -1,4 +1,4 @@
-module Main exposing (Event, Flags, Model, Msg(..), PaginatedList, PaginationLink, PaginationLinks, browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Flags, Model, Msg(..), browseEvents, browserBody, browserFooter, browserNavigation, buildModel, buildUrl, displayPagination, eventDecoder, eventDecoder_, eventsDecoder, firstPageButton, getEvent, getEvents, itemRow, lastPageButton, linksDecoder, main, nextPageButton, paginationItem, prevPageButton, renderResults, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -10,6 +10,7 @@ import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, stri
 import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import OpenedEventUI
+import ViewStreamUI
 import Route
 import Url
 import Url.Parser exposing ((</>))
@@ -28,7 +29,7 @@ main =
 
 
 type alias Model =
-    { events : ViewStream
+    { events : ViewStreamUI.Model
     , event : Maybe OpenedEventUI.Model
     , page : Route.Route
     , flags : Flags
@@ -36,45 +37,13 @@ type alias Model =
     }
 
 
-type alias ViewStream =
-    { events : PaginatedList Event
-    }
-
-
 type Msg
-    = GetEvents (Result Http.Error (PaginatedList Event))
+    = GetEvents (Result Http.Error (ViewStreamUI.PaginatedList ViewStreamUI.Event))
     | GetEvent (Result Http.Error OpenedEventUI.Event)
     | ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
-    | GoToPage PaginationLink
+    | GoToPage ViewStreamUI.PaginationLink
     | OpenedEventUIChanged OpenedEventUI.Msg
-
-
-type alias Event =
-    { eventType : String
-    , eventId : String
-    , createdAt : String
-    , rawData : String
-    , rawMetadata : String
-    }
-
-
-type alias PaginationLink =
-    String
-
-
-type alias PaginationLinks =
-    { next : Maybe PaginationLink
-    , prev : Maybe PaginationLink
-    , first : Maybe PaginationLink
-    , last : Maybe PaginationLink
-    }
-
-
-type alias PaginatedList a =
-    { events : List a
-    , links : PaginationLinks
-    }
 
 
 type alias Flags =
@@ -101,7 +70,7 @@ buildModel flags location key =
             }
 
         initModel =
-            { events = { events = PaginatedList [] initLinks }
+            { events = { events = ViewStreamUI.PaginatedList [] initLinks }
             , page = Route.NotFound
             , event = Nothing
             , flags = flags
@@ -250,7 +219,7 @@ showEvent maybeEvent =
                 [ text "There's no event of given ID" ]
 
 
-browseEvents : String -> PaginatedList Event -> Html Msg
+browseEvents : String -> ViewStreamUI.PaginatedList ViewStreamUI.Event -> Html Msg
 browseEvents title { links, events } =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
@@ -259,7 +228,7 @@ browseEvents title { links, events } =
         ]
 
 
-displayPagination : PaginationLinks -> Html Msg
+displayPagination : ViewStreamUI.PaginationLinks -> Html Msg
 displayPagination { first, last, next, prev } =
     ul [ class "pagination" ]
         [ paginationItem firstPageButton first
@@ -269,7 +238,7 @@ displayPagination { first, last, next, prev } =
         ]
 
 
-paginationItem : (PaginationLink -> Html Msg) -> Maybe PaginationLink -> Html Msg
+paginationItem : (ViewStreamUI.PaginationLink -> Html Msg) -> Maybe ViewStreamUI.PaginationLink -> Html Msg
 paginationItem button link =
     case link of
         Just url ->
@@ -279,7 +248,7 @@ paginationItem button link =
             li [] []
 
 
-nextPageButton : PaginationLink -> Html Msg
+nextPageButton : ViewStreamUI.PaginationLink -> Html Msg
 nextPageButton url =
     button
         [ href url
@@ -289,7 +258,7 @@ nextPageButton url =
         [ text "next" ]
 
 
-prevPageButton : PaginationLink -> Html Msg
+prevPageButton : ViewStreamUI.PaginationLink -> Html Msg
 prevPageButton url =
     button
         [ href url
@@ -299,7 +268,7 @@ prevPageButton url =
         [ text "previous" ]
 
 
-lastPageButton : PaginationLink -> Html Msg
+lastPageButton : ViewStreamUI.PaginationLink -> Html Msg
 lastPageButton url =
     button
         [ href url
@@ -309,7 +278,7 @@ lastPageButton url =
         [ text "last" ]
 
 
-firstPageButton : PaginationLink -> Html Msg
+firstPageButton : ViewStreamUI.PaginationLink -> Html Msg
 firstPageButton url =
     button
         [ href url
@@ -319,7 +288,7 @@ firstPageButton url =
         [ text "first" ]
 
 
-renderResults : List Event -> Html Msg
+renderResults : List ViewStreamUI.Event -> Html Msg
 renderResults events =
     case events of
         [] ->
@@ -338,7 +307,7 @@ renderResults events =
                 ]
 
 
-itemRow : Event -> Html Msg
+itemRow : ViewStreamUI.Event -> Html Msg
 itemRow { eventType, createdAt, eventId } =
     tr []
         [ td []
@@ -367,31 +336,31 @@ getEvents url =
         |> Http.send GetEvents
 
 
-eventsDecoder : Decoder (PaginatedList Event)
+eventsDecoder : Decoder (ViewStreamUI.PaginatedList ViewStreamUI.Event)
 eventsDecoder =
-    succeed PaginatedList
+    succeed ViewStreamUI.PaginatedList
         |> required "data" (list eventDecoder_)
         |> required "links" linksDecoder
 
 
-linksDecoder : Decoder PaginationLinks
+linksDecoder : Decoder ViewStreamUI.PaginationLinks
 linksDecoder =
-    succeed PaginationLinks
+    succeed ViewStreamUI.PaginationLinks
         |> optional "next" (maybe string) Nothing
         |> optional "prev" (maybe string) Nothing
         |> optional "first" (maybe string) Nothing
         |> optional "last" (maybe string) Nothing
 
 
-eventDecoder : Decoder Event
+eventDecoder : Decoder ViewStreamUI.Event
 eventDecoder =
     eventDecoder_
         |> field "data"
 
 
-eventDecoder_ : Decoder Event
+eventDecoder_ : Decoder ViewStreamUI.Event
 eventDecoder_ =
-    succeed Event
+    succeed ViewStreamUI.Event
         |> requiredAt [ "attributes", "event_type" ] string
         |> requiredAt [ "id" ] string
         |> requiredAt [ "attributes", "metadata", "timestamp" ] string
