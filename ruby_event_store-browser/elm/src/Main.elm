@@ -1,4 +1,4 @@
-module Main exposing (Flags, Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, eventDecoder, eventDecoder_, eventsDecoder, getEvent, getEvents, linksDecoder, main, showEvent, subscriptions, update, urlUpdate, view)
+module Main exposing (Flags, Model, Msg(..), browserBody, browserFooter, browserNavigation, buildModel, buildUrl, eventDecoder_, eventsDecoder, getEvents, linksDecoder, main, showEvent, subscriptions, update, urlUpdate, view)
 
 import Browser
 import Browser.Navigation
@@ -39,7 +39,6 @@ type alias Model =
 
 type Msg
     = GetEvents (Result Http.Error (ViewStreamUI.PaginatedList ViewStreamUI.Event))
-    | GetEvent (Result Http.Error OpenedEventUI.Event)
     | ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
     | OpenedEventUIChanged OpenedEventUI.Msg
@@ -87,12 +86,6 @@ update msg model =
             ( { model | events = { events = result, streamName = model.events.streamName } }, Cmd.none )
 
         GetEvents (Err errorMessage) ->
-            ( model, Cmd.none )
-
-        GetEvent (Ok result) ->
-            ( { model | event = Just (OpenedEventUI.initModel result) }, Cmd.none )
-
-        GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
 
         ChangeUrl location ->
@@ -147,7 +140,9 @@ urlUpdate model location =
         Just (Route.ShowEvent encodedEventId) ->
             case Url.percentDecode encodedEventId of
                 Just eventId ->
-                    ( { model | page = Route.ShowEvent eventId }, getEvent (buildUrl model.flags.eventsUrl eventId) )
+                    ( { model | page = Route.ShowEvent eventId, event = Just (OpenedEventUI.initModel eventId) }
+                    , Cmd.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.getEvent (buildUrl model.flags.eventsUrl eventId))
+                    )
 
                 Nothing ->
                     ( { model | page = Route.NotFound }, Cmd.none )
@@ -221,12 +216,6 @@ showEvent maybeEvent =
                 [ text "There's no event of given ID" ]
 
 
-getEvent : String -> Cmd Msg
-getEvent url =
-    Http.get url eventDecoder
-        |> Http.send GetEvent
-
-
 getEvents : String -> Cmd Msg
 getEvents url =
     Http.get url eventsDecoder
@@ -247,12 +236,6 @@ linksDecoder =
         |> optional "prev" (maybe string) Nothing
         |> optional "first" (maybe string) Nothing
         |> optional "last" (maybe string) Nothing
-
-
-eventDecoder : Decoder ViewStreamUI.Event
-eventDecoder =
-    eventDecoder_
-        |> field "data"
 
 
 eventDecoder_ : Decoder ViewStreamUI.Event
