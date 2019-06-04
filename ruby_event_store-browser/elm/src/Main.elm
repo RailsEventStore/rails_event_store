@@ -63,11 +63,11 @@ buildModel flags location key =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        ChangeUrl location ->
+    case ( msg, model.page ) of
+        ( ChangeUrl location, _ ) ->
             urlUpdate model location
 
-        ClickedLink urlRequest ->
+        ( ClickedLink urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
                     ( model
@@ -79,29 +79,22 @@ update msg model =
                     , Browser.Navigation.load url
                     )
 
-        ViewStreamUIChanged viewStreamUIMsg ->
-            case model.page of
-                ViewStream viewStreamModel ->
-                    let
-                        ( newViewStreamModel, cmd ) =
-                            ViewStreamUI.update viewStreamUIMsg viewStreamModel
-                    in
-                    ( { model | page = ViewStream newViewStreamModel }, Cmd.map ViewStreamUIChanged cmd )
+        ( ViewStreamUIChanged viewStreamUIMsg, ViewStream viewStreamModel ) ->
+            let
+                ( newViewStreamModel, cmd ) =
+                    ViewStreamUI.update viewStreamUIMsg viewStreamModel
+            in
+            ( { model | page = ViewStream newViewStreamModel }, Cmd.map ViewStreamUIChanged cmd )
 
-                _ ->
-                    ( model, Cmd.none )
+        ( OpenedEventUIChanged openedEventUIMsg, ShowEvent showEventModel ) ->
+            let
+                ( newShowEventModel, cmd ) =
+                    OpenedEventUI.update openedEventUIMsg showEventModel
+            in
+            ( { model | page = ShowEvent newShowEventModel }, Cmd.map OpenedEventUIChanged cmd )
 
-        OpenedEventUIChanged openedEventUIMsg ->
-            case model.page of
-                ShowEvent showEventModel ->
-                    let
-                        ( newShowEventModel, cmd ) =
-                            OpenedEventUI.update openedEventUIMsg showEventModel
-                    in
-                    ( { model | page = ShowEvent newShowEventModel }, Cmd.map OpenedEventUIChanged cmd )
-
-                _ ->
-                    ( model, Cmd.none )
+        ( _, _ ) ->
+            ( model, Cmd.none )
 
 
 buildUrl : String -> String -> String
