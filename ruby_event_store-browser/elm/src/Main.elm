@@ -6,7 +6,7 @@ import Flags exposing (Flags)
 import Html exposing (Html)
 import Layout
 import Page.ShowEvent
-import Page.ViewStreamUI
+import Page.ViewStream
 import Route
 import Url
 import Url.Parser exposing ((</>))
@@ -35,13 +35,13 @@ type Msg
     = ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
     | GotShowEventMsg Page.ShowEvent.Msg
-    | GotViewStreamMsg Page.ViewStreamUI.Msg
+    | GotViewStreamMsg Page.ViewStream.Msg
 
 
 type Page
     = NotFound
     | ShowEvent Page.ShowEvent.Model
-    | ViewStream Page.ViewStreamUI.Model
+    | ViewStream Page.ViewStream.Model
 
 
 subscriptions : Model -> Sub Msg
@@ -80,7 +80,7 @@ update msg model =
                     )
 
         ( GotViewStreamMsg viewStreamUIMsg, ViewStream viewStreamModel ) ->
-            Page.ViewStreamUI.update viewStreamUIMsg viewStreamModel
+            Page.ViewStream.update viewStreamUIMsg viewStreamModel
                 |> updateWith ViewStream GotViewStreamMsg model
 
         ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
@@ -104,8 +104,8 @@ urlUpdate model location =
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = ViewStream (Page.ViewStreamUI.initModel streamId) }
-                    , Cmd.map GotViewStreamMsg (Page.ViewStreamUI.initCmd model.flags streamId)
+                    ( { model | page = ViewStream (Page.ViewStream.initModel streamId) }
+                    , Cmd.map GotViewStreamMsg (Page.ViewStream.initCmd model.flags streamId)
                     )
 
                 Nothing ->
@@ -136,7 +136,7 @@ viewPage : Page -> Html Msg
 viewPage page =
     case page of
         ViewStream viewStreamUIModel ->
-            Html.map GotViewStreamMsg (Page.ViewStreamUI.view viewStreamUIModel)
+            Html.map GotViewStreamMsg (Page.ViewStream.view viewStreamUIModel)
 
         ShowEvent openedEventUIModel ->
             Html.map GotShowEventMsg (Page.ShowEvent.view openedEventUIModel)
