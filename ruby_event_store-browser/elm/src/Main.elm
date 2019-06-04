@@ -134,7 +134,7 @@ urlUpdate model location =
             case Url.percentDecode encodedEventId of
                 Just eventId ->
                     ( { model | page = Route.ShowEvent eventId, event = Just (OpenedEventUI.initModel eventId) }
-                    , Cmd.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.getEvent (buildUrl model.flags.eventsUrl eventId))
+                    , Cmd.map (\msg -> OpenedEventUIChanged msg) (OpenedEventUI.initCmd model.flags eventId)
                     )
 
                 Nothing ->

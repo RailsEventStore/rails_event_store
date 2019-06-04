@@ -1,4 +1,4 @@
-module Route exposing (Route(..), decodeLocation)
+module Route exposing (Route(..), buildUrl, decodeLocation)
 
 import Url
 import Url.Parser exposing ((</>))
@@ -27,3 +27,8 @@ routeParser =
 urlFragmentToPath : Url.Url -> Url.Url
 urlFragmentToPath url =
     { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+
+
+buildUrl : String -> String -> String
+buildUrl baseUrl id =
+    baseUrl ++ "/" ++ Url.percentEncode id

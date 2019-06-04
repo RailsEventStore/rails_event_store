@@ -1,5 +1,6 @@
-module OpenedEventUI exposing (Event, Model, Msg(..), getEvent, initModel, showEvent, showJsonTree, update)
+module OpenedEventUI exposing (Event, Model, Msg(..), getEvent, initCmd, initModel, showEvent, showJsonTree, update)
 
+import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Http
@@ -7,6 +8,7 @@ import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, stri
 import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import JsonTree
+import Route
 
 
 type alias Event =
@@ -76,6 +78,11 @@ update msg model =
 
         GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
+
+
+initCmd : Flags -> String -> Cmd Msg
+initCmd flags eventId =
+    getEvent (Route.buildUrl flags.eventsUrl eventId)
 
 
 getEvent : String -> Cmd Msg
