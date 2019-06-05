@@ -70,10 +70,10 @@ event.data['foo']
 <% in_version_above('0.39.0') do %>
 Additionally, if you are using Postgres, you can configure the migration
 to use JSON or JSONB data types for the `data` and `metadata` fields by
-passing in a `--data_type` to the generator
+passing in a `--data-type` to the generator
 
 ```console
-$ rails generate rails_event_store_active_record:migration --data_type=jsonb
+$ rails generate rails_event_store_active_record:migration --data-type=jsonb
 ```
 <% end %>
 
