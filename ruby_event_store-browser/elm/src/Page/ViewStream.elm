@@ -1,5 +1,6 @@
 module Page.ViewStream exposing (Model, Msg(..), eventsDecoder, initCmd, initModel, update, view)
 
+import Api
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
@@ -14,15 +15,6 @@ import Url
 
 
 -- MODEL
-
-
-type alias Event =
-    { eventType : String
-    , eventId : String
-    , createdAt : String
-    , rawData : String
-    , rawMetadata : String
-    }
 
 
 type alias PaginatedList a =
@@ -44,7 +36,7 @@ type alias PaginationLinks =
 
 
 type alias Model =
-    { events : PaginatedList Event
+    { events : PaginatedList Api.Event
     , streamName : String
     }
 
@@ -70,7 +62,7 @@ initModel streamName =
 
 type Msg
     = GoToPage PaginationLink
-    | GetEvents (Result Http.Error (PaginatedList Event))
+    | GetEvents (Result Http.Error (PaginatedList Api.Event))
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -97,10 +89,10 @@ getEvents url =
         |> Http.send GetEvents
 
 
-eventsDecoder : Decoder (PaginatedList Event)
+eventsDecoder : Decoder (PaginatedList Api.Event)
 eventsDecoder =
     succeed PaginatedList
-        |> required "data" (list eventDecoder_)
+        |> required "data" (list Api.eventDecoder_)
         |> required "links" linksDecoder
 
 
@@ -113,16 +105,6 @@ linksDecoder =
         |> optional "last" (maybe string) Nothing
 
 
-eventDecoder_ : Decoder Event
-eventDecoder_ =
-    succeed Event
-        |> requiredAt [ "attributes", "event_type" ] string
-        |> requiredAt [ "id" ] string
-        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
-
-
 
 -- VIEW
 
@@ -132,7 +114,7 @@ view model =
     browseEvents ("Events in " ++ model.streamName) model.events
 
 
-browseEvents : String -> PaginatedList Event -> Html Msg
+browseEvents : String -> PaginatedList Api.Event -> Html Msg
 browseEvents title { links, events } =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
@@ -201,7 +183,7 @@ firstPageButton url =
         [ text "first" ]
 
 
-renderResults : List Event -> Html Msg
+renderResults : List Api.Event -> Html Msg
 renderResults events =
     case events of
         [] ->
@@ -220,7 +202,7 @@ renderResults events =
                 ]
 
 
-itemRow : Event -> Html Msg
+itemRow : Api.Event -> Html Msg
 itemRow { eventType, createdAt, eventId } =
     tr []
         [ td []

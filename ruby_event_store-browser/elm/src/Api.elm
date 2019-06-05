@@ -1,4 +1,4 @@
-module Api exposing (Event, eventDecoder, getEvent)
+module Api exposing (Event, eventDecoder, eventDecoder_, getEvent)
 
 import Flags exposing (Flags)
 import Http
