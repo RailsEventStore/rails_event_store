@@ -34,12 +34,12 @@ suite =
                                 "attributes": {
                                     "event_type": "DummyEvent",
                                     "data": {
-                                    "foo": 1,
-                                    "bar": 2.0,
-                                    "baz": "3"
+                                        "foo": 1,
+                                        "bar": 2.0,
+                                        "baz": "3"
                                     },
                                     "metadata": {
-                                    "timestamp": "2017-12-20T23:49:45.273Z"
+                                        "timestamp": "2017-12-20T23:49:45.273Z"
                                     }
                                 }
                                 }
@@ -84,15 +84,15 @@ suite =
                                 "id": "664ada1e-2f01-4ed0-9c16-63dbc82269d2",
                                 "type": "events",
                                 "attributes": {
-                                "event_type": "DummyEvent",
-                                "data": {
-                                    "foo": 1,
-                                    "bar": 3.4,
-                                    "baz": "3"
-                                },
-                                "metadata": {
-                                    "timestamp": "2017-12-20T23:49:45.273Z"
-                                }
+                                    "event_type": "DummyEvent",
+                                    "data": {
+                                        "foo": 1,
+                                        "bar": 3.4,
+                                        "baz": "3"
+                                    },
+                                    "metadata": {
+                                        "timestamp": "2017-12-20T23:49:45.273Z"
+                                    }
                                 }
                             }
                             }
