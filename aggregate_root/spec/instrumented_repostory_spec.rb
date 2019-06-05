@@ -6,20 +6,21 @@ module AggregateRoot
 
     describe "#load" do
       specify "wraps around original implementation" do
-        some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        repository = instance_double(Repository)
+        instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         aggregate = Order.new
 
+        expect(repository).to receive(:load).with(aggregate, 'SomeStream')
         instrumented_repository.load(aggregate, 'SomeStream')
-
-        expect(some_repository).to have_received(:load).with(aggregate, 'SomeStream')
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        repository = instance_double(Repository)
+        instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("load.repository.aggregate_root") do |notification_calls|
           aggregate = Order.new
 
+          expect(repository).to receive(:load).with(aggregate, 'SomeStream')
           instrumented_repository.load(aggregate, 'SomeStream')
 
           expect(notification_calls).to eq([{
@@ -32,24 +33,24 @@ module AggregateRoot
 
     describe "#store" do
       specify "wraps around original implementation" do
-        some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        repository = instance_double(Repository)
+        instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         aggregate = Order.new
 
+        expect(repository).to receive(:store).with(aggregate, 'SomeStream')
         instrumented_repository.store(aggregate, 'SomeStream')
-
-        expect(some_repository).to have_received(:store).with(aggregate, 'SomeStream')
       end
 
       specify "instruments" do
-        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        repository = instance_double(Repository)
+        instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("store.repository.aggregate_root") do |notification_calls|
           aggregate = Order.new
           aggregate.create
           aggregate.expire
           events = aggregate.unpublished_events.to_a
 
-          expect(repository).to have_received(:store).with(aggregate, 'SomeStream')
+          expect(repository).to receive(:store).with(aggregate, 'SomeStream')
           instrumented_repository.store(aggregate, 'SomeStream')
 
           expect(notification_calls).to eq([{
@@ -64,16 +65,15 @@ module AggregateRoot
 
     describe "#with_aggregate" do
       specify "wraps around original implementation" do
-        some_repository = spy
-        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        repository = instance_double(Repository)
+        instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         aggregate = Order.new
         specific_block = Proc.new { }
 
-        instrumented_repository.with_aggregate(aggregate, 'SomeStream', &specific_block)
-
-        expect(some_repository).to have_received(:with_aggregate).with(aggregate, 'SomeStream') do |&block|
+        expect(repository).to receive(:with_aggregate).with(aggregate, 'SomeStream') do |&block|
           expect(block).to be(specific_block)
         end
+        instrumented_repository.with_aggregate(aggregate, 'SomeStream', &specific_block)
       end
     end
 
