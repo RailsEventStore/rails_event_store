@@ -23,8 +23,8 @@ module AggregateRoot
           instrumented_repository.load(aggregate, 'SomeStream')
 
           expect(notification_calls).to eq([{
-            aggregate_class: Order,
-            stream_name: 'SomeStream',
+            aggregate: aggregate,
+            stream: 'SomeStream',
           }])
         end
       end
@@ -47,14 +47,16 @@ module AggregateRoot
           aggregate = Order.new
           aggregate.create
           aggregate.expire
+          events = aggregate.unpublished_events.to_a
 
+          expect(repository).to have_received(:store).with(aggregate, 'SomeStream')
           instrumented_repository.store(aggregate, 'SomeStream')
 
           expect(notification_calls).to eq([{
-            aggregate_class: Order,
-            aggregate_version: -1,
-            stored_events: 2,
-            stream_name: 'SomeStream',
+            aggregate: aggregate,
+            version: -1,
+            stored_events: events,
+            stream: 'SomeStream',
           }])
         end
       end
