@@ -1,16 +1,13 @@
-module Example exposing (suite)
+module DecodersTest exposing (suite)
 
 import Api exposing (eventDecoder)
 import Expect
 import Json.Decode exposing (list)
-import JsonTree
 import Main exposing (..)
 import Page.ShowEvent
 import Page.ViewStream exposing (eventsDecoder)
 import Route exposing (buildUrl)
 import Test exposing (..)
-import Test.Html.Query as Query
-import Test.Html.Selector exposing (tag, text)
 
 
 suite : Test
