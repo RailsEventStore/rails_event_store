@@ -1,12 +1,10 @@
-module OpenedEventUI exposing (Model, Msg(..), initCmd, initModel, update, view, showJsonTree, eventDecoder)
+module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
 
+import Api
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Http
-import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
-import Json.Decode.Pipeline exposing (optional, required, requiredAt)
-import Json.Encode exposing (encode)
 import JsonTree
 import Route
 
@@ -15,17 +13,8 @@ import Route
 -- MODEL
 
 
-type alias Event =
-    { eventType : String
-    , eventId : String
-    , createdAt : String
-    , rawData : String
-    , rawMetadata : String
-    }
-
-
 type alias TreedEvent =
-    { event : Event
+    { event : Api.Event
     , dataTreeState : JsonTree.State
     , metadataTreeState : JsonTree.State
     }
@@ -51,12 +40,12 @@ initModel eventId =
 type Msg
     = ChangeOpenedEventDataTreeState JsonTree.State
     | ChangeOpenedEventMetadataTreeState JsonTree.State
-    | GetEvent (Result Http.Error Event)
+    | GetEvent (Result Http.Error Api.Event)
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags eventId =
-    getEvent (Route.buildUrl flags.eventsUrl eventId)
+    Api.getEvent GetEvent flags eventId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -85,34 +74,12 @@ update msg model =
             ( model, Cmd.none )
 
 
-initTreedEvent : Event -> TreedEvent
+initTreedEvent : Api.Event -> TreedEvent
 initTreedEvent e =
     { event = e
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     }
-
-
-getEvent : String -> Cmd Msg
-getEvent url =
-    Http.get url eventDecoder
-        |> Http.send GetEvent
-
-
-eventDecoder : Decoder Event
-eventDecoder =
-    eventDecoder_
-        |> field "data"
-
-
-eventDecoder_ : Decoder Event
-eventDecoder_ =
-    succeed Event
-        |> requiredAt [ "attributes", "event_type" ] string
-        |> requiredAt [ "id" ] string
-        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
-        |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
-        |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
 
 
 

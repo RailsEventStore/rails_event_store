@@ -1,15 +1,15 @@
-module Main exposing (Model, Msg(..), buildModel, buildUrl, main, subscriptions, update, urlUpdate, view)
+module Main exposing (main)
 
 import Browser
 import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (Html)
 import Layout
-import OpenedEventUI
+import Page.ShowEvent
+import Page.ViewStream
 import Route
 import Url
 import Url.Parser exposing ((</>))
-import ViewStreamUI
 
 
 main : Program Flags Model Msg
@@ -34,14 +34,14 @@ type alias Model =
 type Msg
     = ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
-    | OpenedEventUIChanged OpenedEventUI.Msg
-    | ViewStreamUIChanged ViewStreamUI.Msg
+    | GotShowEventMsg Page.ShowEvent.Msg
+    | GotViewStreamMsg Page.ViewStream.Msg
 
 
 type Page
     = NotFound
-    | ShowEvent OpenedEventUI.Model
-    | ViewStream ViewStreamUI.Model
+    | ShowEvent Page.ShowEvent.Model
+    | ViewStream Page.ViewStream.Model
 
 
 subscriptions : Model -> Sub Msg
@@ -63,11 +63,11 @@ buildModel flags location key =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        ChangeUrl location ->
+    case ( msg, model.page ) of
+        ( ChangeUrl location, _ ) ->
             urlUpdate model location
 
-        ClickedLink urlRequest ->
+        ( ClickedLink urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
                     ( model
@@ -79,34 +79,23 @@ update msg model =
                     , Browser.Navigation.load url
                     )
 
-        ViewStreamUIChanged viewStreamUIMsg ->
-            case model.page of
-                ViewStream viewStreamModel ->
-                    let
-                        ( newViewStreamModel, cmd ) =
-                            ViewStreamUI.update viewStreamUIMsg viewStreamModel
-                    in
-                    ( { model | page = ViewStream newViewStreamModel }, Cmd.map ViewStreamUIChanged cmd )
+        ( GotViewStreamMsg viewStreamUIMsg, ViewStream viewStreamModel ) ->
+            Page.ViewStream.update viewStreamUIMsg viewStreamModel
+                |> updateWith ViewStream GotViewStreamMsg model
 
-                _ ->
-                    ( model, Cmd.none )
+        ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
+            Page.ShowEvent.update openedEventUIMsg showEventModel
+                |> updateWith ShowEvent GotShowEventMsg model
 
-        OpenedEventUIChanged openedEventUIMsg ->
-            case model.page of
-                ShowEvent showEventModel ->
-                    let
-                        ( newShowEventModel, cmd ) =
-                            OpenedEventUI.update openedEventUIMsg showEventModel
-                    in
-                    ( { model | page = ShowEvent newShowEventModel }, Cmd.map OpenedEventUIChanged cmd )
-
-                _ ->
-                    ( model, Cmd.none )
+        ( _, _ ) ->
+            ( model, Cmd.none )
 
 
-buildUrl : String -> String -> String
-buildUrl baseUrl id =
-    baseUrl ++ "/" ++ Url.percentEncode id
+updateWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toPageModel toMsg model ( subModel, subCmd ) =
+    ( { model | page = toPageModel subModel }
+    , Cmd.map toMsg subCmd
+    )
 
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
@@ -115,8 +104,8 @@ urlUpdate model location =
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = ViewStream (ViewStreamUI.initModel streamId) }
-                    , Cmd.map ViewStreamUIChanged (ViewStreamUI.initCmd model.flags streamId)
+                    ( { model | page = ViewStream (Page.ViewStream.initModel streamId) }
+                    , Cmd.map GotViewStreamMsg (Page.ViewStream.initCmd model.flags streamId)
                     )
 
                 Nothing ->
@@ -125,8 +114,8 @@ urlUpdate model location =
         Just (Route.ShowEvent encodedEventId) ->
             case Url.percentDecode encodedEventId of
                 Just eventId ->
-                    ( { model | page = ShowEvent (OpenedEventUI.initModel eventId) }
-                    , Cmd.map OpenedEventUIChanged (OpenedEventUI.initCmd model.flags eventId)
+                    ( { model | page = ShowEvent (Page.ShowEvent.initModel eventId) }
+                    , Cmd.map GotShowEventMsg (Page.ShowEvent.initCmd model.flags eventId)
                     )
 
                 Nothing ->
@@ -147,10 +136,10 @@ viewPage : Page -> Html Msg
 viewPage page =
     case page of
         ViewStream viewStreamUIModel ->
-            Html.map ViewStreamUIChanged (ViewStreamUI.view viewStreamUIModel)
+            Html.map GotViewStreamMsg (Page.ViewStream.view viewStreamUIModel)
 
         ShowEvent openedEventUIModel ->
-            Html.map OpenedEventUIChanged (OpenedEventUI.view openedEventUIModel)
+            Html.map GotShowEventMsg (Page.ShowEvent.view openedEventUIModel)
 
         NotFound ->
             Layout.viewNotFound
