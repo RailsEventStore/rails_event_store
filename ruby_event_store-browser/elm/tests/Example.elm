@@ -1,16 +1,16 @@
-module Example exposing (..)
+module Example exposing (suite)
 
-import Expect
-import Test exposing (..)
-import Json.Decode exposing (list)
-import Main exposing (..)
 import Api exposing (eventDecoder)
-import Page.ViewStream exposing (eventsDecoder)
-import Page.ShowEvent
-import Test.Html.Query as Query
-import Test.Html.Selector exposing (text, tag)
+import Expect
+import Json.Decode exposing (list)
 import JsonTree
+import Main exposing (..)
+import Page.ShowEvent
+import Page.ViewStream exposing (eventsDecoder)
 import Route exposing (buildUrl)
+import Test exposing (..)
+import Test.Html.Query as Query
+import Test.Html.Selector exposing (tag, text)
 
 
 suite : Test
@@ -50,25 +50,24 @@ suite =
                         output =
                             Json.Decode.decodeString eventsDecoder input
                     in
-                        Expect.equal output
-                            (Ok
-                                ({ events =
-                                    [ { eventType = "DummyEvent"
-                                    , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
-                                    , createdAt = "2017-12-20T23:49:45.273Z"
-                                    , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
-                                    , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
-                                    }
-                                    ]
-                                , links =
-                                    { next = Just "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
-                                    , prev = Nothing
-                                    , first = Nothing
-                                    , last = Just "/streams/all/head/forward/20"
-                                    }
+                    Expect.equal output
+                        (Ok
+                            { events =
+                                [ { eventType = "DummyEvent"
+                                  , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
+                                  , createdAt = "2017-12-20T23:49:45.273Z"
+                                  , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
+                                  , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                                  }
+                                ]
+                            , links =
+                                { next = Just "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
+                                , prev = Nothing
+                                , first = Nothing
+                                , last = Just "/streams/all/head/forward/20"
                                 }
-                                )
-                            )
+                            }
+                        )
             , test "handles slashes properly in urls" <|
                 \_ ->
                     Expect.equal
@@ -101,22 +100,14 @@ suite =
                         output =
                             Json.Decode.decodeString eventDecoder input
                     in
-                        Expect.equal output
-                            (Ok
-                                { eventType = "DummyEvent"
-                                , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
-                                , createdAt = "2017-12-20T23:49:45.273Z"
-                                , rawData = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
-                                , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
-                                }
-                            )
-            ]
-        , describe "Changing tree state"
-            [ test "showJsonTree fallbacks to regular html if parsing went wrong" <|
-                \_ -> 
-                    let faultyJsonResult = Page.ShowEvent.showJsonTree "{ its not correct }" JsonTree.defaultState (always ())
-                    in faultyJsonResult
-                        |> Query.fromHtml
-                        |> Query.has [ text "{ its not correct }" ]
+                    Expect.equal output
+                        (Ok
+                            { eventType = "DummyEvent"
+                            , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
+                            , createdAt = "2017-12-20T23:49:45.273Z"
+                            , rawData = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
+                            , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                            }
+                        )
             ]
         ]
