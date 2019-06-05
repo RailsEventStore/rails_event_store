@@ -64,16 +64,36 @@ module AggregateRoot
     end
 
     describe "#with_aggregate" do
-      specify "wraps around original implementation" do
+      specify "instruments both load & store" do
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
-        aggregate = Order.new
-        specific_block = Proc.new { }
+        subscribe_to("load.repository.aggregate_root") do |load_notification_calls|
+          aggregate = Order.new
 
-        expect(repository).to receive(:with_aggregate).with(aggregate, 'SomeStream') do |&block|
-          expect(block).to be(specific_block)
+          subscribe_to("store.repository.aggregate_root") do |store_notification_calls|
+            events = nil
+
+            expect(repository).to receive(:load).with(aggregate, 'SomeStream')
+            expect(repository).to receive(:store).with(aggregate, 'SomeStream')
+            instrumented_repository.with_aggregate(aggregate, 'SomeStream') do
+              aggregate.create
+              aggregate.expire
+              events = aggregate.unpublished_events.to_a
+            end
+
+            expect(store_notification_calls).to eq([{
+              aggregate: aggregate,
+              version: -1,
+              stored_events: events,
+              stream: 'SomeStream',
+            }])
+          end
+
+          expect(load_notification_calls).to eq([{
+            aggregate: aggregate,
+            stream: 'SomeStream',
+          }])
         end
-        instrumented_repository.with_aggregate(aggregate, 'SomeStream', &specific_block)
       end
     end
 

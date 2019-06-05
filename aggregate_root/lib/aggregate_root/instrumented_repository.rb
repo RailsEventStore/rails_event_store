@@ -24,7 +24,8 @@ module AggregateRoot
     end
 
     def with_aggregate(aggregate, stream_name, &block)
-      repository.with_aggregate(aggregate, stream_name, &block)
+      block.call(load(aggregate, stream_name))
+      store(aggregate, stream_name)
     end
 
     private
