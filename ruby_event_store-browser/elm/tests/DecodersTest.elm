@@ -1,11 +1,9 @@
 module DecodersTest exposing (suite)
 
-import Api exposing (eventDecoder)
+import Api exposing (eventDecoder, eventsDecoder)
 import Expect
 import Json.Decode exposing (list)
 import Main exposing (..)
-import Page.ShowEvent
-import Page.ViewStream exposing (eventsDecoder)
 import Route exposing (buildUrl)
 import Test exposing (..)
 

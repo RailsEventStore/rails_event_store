@@ -1,4 +1,4 @@
-module Api exposing (Event, eventDecoder, eventDecoder_, getEvent)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, emptyPaginatedList, eventDecoder, eventDecoder_, eventsDecoder, getEvent, getEvents)
 
 import Flags exposing (Flags)
 import Http
@@ -14,6 +14,24 @@ type alias Event =
     , createdAt : String
     , rawData : String
     , rawMetadata : String
+    }
+
+
+type alias PaginatedList a =
+    { events : List a
+    , links : PaginationLinks
+    }
+
+
+type alias PaginationLink =
+    String
+
+
+type alias PaginationLinks =
+    { next : Maybe PaginationLink
+    , prev : Maybe PaginationLink
+    , first : Maybe PaginationLink
+    , last : Maybe PaginationLink
     }
 
 
@@ -37,3 +55,38 @@ eventDecoder_ =
         |> requiredAt [ "attributes", "metadata", "timestamp" ] string
         |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
         |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
+
+
+getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg
+getEvents msgBuilder url =
+    Http.get url eventsDecoder
+        |> Http.send msgBuilder
+
+
+eventsDecoder : Decoder (PaginatedList Event)
+eventsDecoder =
+    succeed PaginatedList
+        |> required "data" (list eventDecoder_)
+        |> required "links" linksDecoder
+
+
+linksDecoder : Decoder PaginationLinks
+linksDecoder =
+    succeed PaginationLinks
+        |> optional "next" (maybe string) Nothing
+        |> optional "prev" (maybe string) Nothing
+        |> optional "first" (maybe string) Nothing
+        |> optional "last" (maybe string) Nothing
+
+
+emptyPaginatedList : PaginatedList Event
+emptyPaginatedList =
+    let
+        initLinks =
+            { prev = Nothing
+            , next = Nothing
+            , first = Nothing
+            , last = Nothing
+            }
+    in
+    PaginatedList [] initLinks
