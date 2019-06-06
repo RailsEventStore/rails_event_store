@@ -54,6 +54,7 @@ suite =
                                   , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
                                   , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                                   , correlationStreamName = Nothing
+                                  , causationStreamName = Nothing
                                   }
                                 ]
                             , links =
@@ -88,7 +89,8 @@ suite =
                                     "metadata": {
                                         "timestamp": "2017-12-20T23:49:45.273Z"
                                     },
-                                    "correlation_stream_name": "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad"
+                                    "correlation_stream_name": "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad",
+                                    "causation_stream_name": "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2"
                                 }
                             }
                             }
@@ -105,6 +107,7 @@ suite =
                             , rawData = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
                             , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                             , correlationStreamName = Just "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad"
+                            , causationStreamName = Just "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2"
                             }
                         )
             ]

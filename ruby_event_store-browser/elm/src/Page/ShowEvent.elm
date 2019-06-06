@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Http
 import JsonTree
+import Maybe.Extra exposing (values)
 import Route
 
 
@@ -18,6 +19,7 @@ type alias Event =
     , eventId : String
     , createdAt : String
     , correlationStreamName : Maybe String
+    , causationStreamName : Maybe String
     , rawData : String
     , rawMetadata : String
     , dataTreeState : JsonTree.State
@@ -87,6 +89,7 @@ apiEventToEvent e =
     , rawData = e.rawData
     , rawMetadata = e.rawMetadata
     , correlationStreamName = e.correlationStreamName
+    , causationStreamName = e.causationStreamName
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     }
@@ -151,16 +154,34 @@ relatedStreams event =
 
 relatedStreamsList : Event -> List (Html Msg)
 relatedStreamsList event =
-    case event.correlationStreamName of
-        Just streamName ->
-            [ li []
+    values
+        [ correlationStreamLink event
+        , causationStreamLink event
+        ]
+
+
+correlationStreamLink : Event -> Maybe (Html Msg)
+correlationStreamLink event =
+    Maybe.map
+        (\streamName ->
+            li []
                 [ text "Correlation stream: "
                 , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
                 ]
-            ]
+        )
+        event.correlationStreamName
 
-        Nothing ->
-            []
+
+causationStreamLink : Event -> Maybe (Html Msg)
+causationStreamLink event =
+    Maybe.map
+        (\streamName ->
+            li []
+                [ text "Causation stream: "
+                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                ]
+        )
+        event.causationStreamName
 
 
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg
