@@ -1,11 +1,9 @@
 module DecodersTest exposing (suite)
 
-import Api exposing (eventDecoder)
+import Api exposing (eventDecoder, eventsDecoder)
 import Expect
 import Json.Decode exposing (list)
 import Main exposing (..)
-import Page.ShowEvent
-import Page.ViewStream exposing (eventsDecoder)
 import Route exposing (buildUrl)
 import Test exposing (..)
 
@@ -55,6 +53,7 @@ suite =
                                   , createdAt = "2017-12-20T23:49:45.273Z"
                                   , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
                                   , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                                  , correlationStreamName = Nothing
                                   }
                                 ]
                             , links =
@@ -88,7 +87,8 @@ suite =
                                     },
                                     "metadata": {
                                         "timestamp": "2017-12-20T23:49:45.273Z"
-                                    }
+                                    },
+                                    "correlation_stream_name": "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad"
                                 }
                             }
                             }
@@ -104,6 +104,7 @@ suite =
                             , createdAt = "2017-12-20T23:49:45.273Z"
                             , rawData = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
                             , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
+                            , correlationStreamName = Just "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad"
                             }
                         )
             ]

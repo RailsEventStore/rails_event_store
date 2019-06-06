@@ -12,8 +12,9 @@ module RubyEventStore
           attributes: {
             event_type: event.class.to_s,
             data: event.data,
-            metadata: metadata
-          }
+            metadata: metadata,
+            correlation_stream_name: correlation_stream_name,
+          },
         }
       end
 
@@ -33,6 +34,10 @@ module RubyEventStore
         else
           value
         end
+      end
+
+      def correlation_stream_name
+        "$by_correlation_id_#{event.metadata.fetch(:correlation_id)}" if event.metadata.has_key?(:correlation_id)
       end
     end
   end

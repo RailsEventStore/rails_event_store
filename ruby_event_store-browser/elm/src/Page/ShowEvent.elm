@@ -13,8 +13,13 @@ import Route
 -- MODEL
 
 
-type alias TreedEvent =
-    { event : Api.Event
+type alias Event =
+    { eventType : String
+    , eventId : String
+    , createdAt : String
+    , correlationStreamName : Maybe String
+    , rawData : String
+    , rawMetadata : String
     , dataTreeState : JsonTree.State
     , metadataTreeState : JsonTree.State
     }
@@ -22,14 +27,14 @@ type alias TreedEvent =
 
 type alias Model =
     { eventId : String
-    , treedEvent : Maybe TreedEvent
+    , event : Maybe Event
     }
 
 
 initModel : String -> Model
 initModel eventId =
     { eventId = eventId
-    , treedEvent = Nothing
+    , event = Nothing
     }
 
 
@@ -52,31 +57,36 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeOpenedEventDataTreeState newState ->
-            case model.treedEvent of
-                Just treedEvent ->
-                    ( { model | treedEvent = Just { treedEvent | dataTreeState = newState } }, Cmd.none )
+            case model.event of
+                Just event ->
+                    ( { model | event = Just { event | dataTreeState = newState } }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
         ChangeOpenedEventMetadataTreeState newState ->
-            case model.treedEvent of
-                Just treedEvent ->
-                    ( { model | treedEvent = Just { treedEvent | metadataTreeState = newState } }, Cmd.none )
+            case model.event of
+                Just event ->
+                    ( { model | event = Just { event | metadataTreeState = newState } }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
         GetEvent (Ok result) ->
-            ( { model | treedEvent = Just (initTreedEvent result) }, Cmd.none )
+            ( { model | event = Just (apiEventToEvent result) }, Cmd.none )
 
         GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
 
 
-initTreedEvent : Api.Event -> TreedEvent
-initTreedEvent e =
-    { event = e
+apiEventToEvent : Api.Event -> Event
+apiEventToEvent e =
+    { eventType = e.eventType
+    , eventId = e.eventId
+    , createdAt = e.createdAt
+    , rawData = e.rawData
+    , rawMetadata = e.rawMetadata
+    , correlationStreamName = e.correlationStreamName
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     }
@@ -88,19 +98,19 @@ initTreedEvent e =
 
 view : Model -> Html Msg
 view model =
-    case model.treedEvent of
-        Just treedEvent ->
-            showEvent treedEvent
+    case model.event of
+        Just event ->
+            showEvent event
 
         Nothing ->
             div [ class "event" ]
                 [ text "There's no event of given ID" ]
 
 
-showEvent : TreedEvent -> Html Msg
-showEvent treedEvent =
+showEvent : Event -> Html Msg
+showEvent event =
     div [ class "event" ]
-        [ h1 [ class "event__title" ] [ text treedEvent.event.eventType ]
+        [ h1 [ class "event__title" ] [ text event.eventType ]
         , div [ class "event__body" ]
             [ table []
                 [ thead []
@@ -112,14 +122,45 @@ showEvent treedEvent =
                     ]
                 , tbody []
                     [ tr []
-                        [ td [] [ text treedEvent.event.eventId ]
-                        , td [] [ showJsonTree treedEvent.event.rawData treedEvent.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
-                        , td [] [ showJsonTree treedEvent.event.rawMetadata treedEvent.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
+                        [ td [] [ text event.eventId ]
+                        , td [] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                        , td [] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                         ]
                     ]
                 ]
             ]
+        , relatedStreams event
         ]
+
+
+relatedStreams : Event -> Html Msg
+relatedStreams event =
+    let
+        links =
+            relatedStreamsList event
+    in
+    if links == [] then
+        text ""
+
+    else
+        div [ class "event__related-streams" ]
+            [ h2 [] [ text "Related streams" ]
+            , ul [] (relatedStreamsList event)
+            ]
+
+
+relatedStreamsList : Event -> List (Html Msg)
+relatedStreamsList event =
+    case event.correlationStreamName of
+        Just streamName ->
+            [ li []
+                [ text "Correlation stream: "
+                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                ]
+            ]
+
+        Nothing ->
+            []
 
 
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg

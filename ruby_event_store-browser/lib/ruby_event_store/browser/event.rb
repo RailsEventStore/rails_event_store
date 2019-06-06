@@ -2,7 +2,7 @@ module RubyEventStore
   module Browser
     class Event
       attr_reader :event_store, :params
-      
+
       def initialize(event_store:, params:)
         @event_store = event_store
         @params      = params
@@ -10,7 +10,7 @@ module RubyEventStore
 
       def as_json
         {
-          data: JsonApiEvent.new(event).to_h
+          data: JsonApiEvent.new(event).to_h,
         }
       end
 
