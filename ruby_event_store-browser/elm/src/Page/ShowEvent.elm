@@ -132,18 +132,22 @@ showEvent event =
         , relatedStreams event
         ]
 
+
 relatedStreams : Event -> Html Msg
 relatedStreams event =
     let
-        links = relatedStreamsList event
+        links =
+            relatedStreamsList event
     in
-        if links == []
-        then text ""
-        else
-            div [ class "event__related-streams" ]
-                [ h2 [] [ text "Related streams" ]
-                , ul [] (relatedStreamsList event)
-                ]
+    if links == [] then
+        text ""
+
+    else
+        div [ class "event__related-streams" ]
+            [ h2 [] [ text "Related streams" ]
+            , ul [] (relatedStreamsList event)
+            ]
+
 
 relatedStreamsList : Event -> List (Html Msg)
 relatedStreamsList event =
@@ -151,9 +155,12 @@ relatedStreamsList event =
         Just streamName ->
             [ li []
                 [ text "Correlation stream: "
-                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ] ]
+                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                ]
             ]
-        Nothing -> []
+
+        Nothing ->
+            []
 
 
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg
