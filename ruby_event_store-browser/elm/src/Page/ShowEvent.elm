@@ -17,6 +17,7 @@ type alias Event =
     { eventType : String
     , eventId : String
     , createdAt : String
+    , correlationStreamLink : Maybe String
     , rawData : String
     , rawMetadata : String
     , dataTreeState : JsonTree.State
@@ -85,6 +86,7 @@ apiEventToEvent e =
     , createdAt = e.createdAt
     , rawData = e.rawData
     , rawMetadata = e.rawMetadata
+    , correlationStreamLink = e.correlationStreamLink
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     }
@@ -127,7 +129,30 @@ showEvent event =
                     ]
                 ]
             ]
+        , relatedStreams event
         ]
+
+relatedStreams : Event -> Html Msg
+relatedStreams event =
+    let
+        links = relatedStreamsList event
+    in
+        if links == []
+        then text ""
+        else
+            div [ class "event__related-streams" ]
+                [ h2 [] [ text "Related streams" ]
+                , ul [] (relatedStreamsList event)
+                ]
+
+relatedStreamsList : Event -> List (Html Msg)
+relatedStreamsList event =
+    case event.correlationStreamLink of
+        Just link ->
+            [
+                li [] [ a [ href link ] [ text "Correlation stream" ] ]
+            ]
+        Nothing -> []
 
 
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg

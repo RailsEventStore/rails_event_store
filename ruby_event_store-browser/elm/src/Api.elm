@@ -2,8 +2,8 @@ module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, empt
 
 import Flags exposing (Flags)
 import Http
-import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
-import Json.Decode.Pipeline exposing (optional, required, requiredAt)
+import Json.Decode exposing (Decoder, Value, nullable, at, field, list, maybe, oneOf, string, succeed, value)
+import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
 import Route exposing (buildUrl)
 
@@ -14,6 +14,7 @@ type alias Event =
     , createdAt : String
     , rawData : String
     , rawMetadata : String
+    , correlationStreamLink : Maybe String
     }
 
 
@@ -55,6 +56,7 @@ eventDecoder_ =
         |> requiredAt [ "attributes", "metadata", "timestamp" ] string
         |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
         |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
+        |> optionalAt [ "links", "correlation_stream" ] (maybe string) Nothing
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg
