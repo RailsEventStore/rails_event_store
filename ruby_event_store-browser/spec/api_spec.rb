@@ -23,21 +23,6 @@ module RubyEventStore
       expect(test_client.parsed_body["data"]).to match(event_resource)
     end
 
-    specify do
-      event = DummyEvent.new(
-        event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-        data: {},
-        metadata: {
-          correlation_id: "a7243789-999f-4ef2-8511-b1c686b83fad"
-        }
-      )
-      event_store.publish(event)
-      test_client.get "/streams/all"
-
-      expect(test_client.last_response).to be_ok
-      expect(test_client.parsed_body["data"][0]["links"]).to have_key("correlation_stream")
-    end
-
     specify "requesting event with correlation stream" do
       event = DummyEvent.new(
         event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
@@ -50,9 +35,9 @@ module RubyEventStore
       test_client.get "/events/#{event.event_id}"
 
       expect(test_client.last_response).to be_ok
-      expect(test_client.parsed_body["data"]["links"]).to include({
-        "correlation_stream" => "http://www.example.com/streams/%24by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad",
-      })
+      expect(test_client.parsed_body["data"]["attributes"]["correlation_stream_name"]).to eq(
+        "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad",
+      )
     end
 
     specify "requesting non-existing event" do
@@ -64,7 +49,7 @@ module RubyEventStore
     end
 
     specify do
-      json = Browser::JsonApiEvent.new(dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f"), nil).to_h
+      json = Browser::JsonApiEvent.new(dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f")).to_h
 
       expect(json).to match(
         id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
@@ -76,9 +61,9 @@ module RubyEventStore
             bar: 2.0,
             baz: "3"
           },
-          metadata: {}
+          metadata: {},
+          correlation_stream_name: nil,
         },
-        links: {},
       )
     end
 
@@ -262,8 +247,8 @@ module RubyEventStore
           "metadata" => {
             "timestamp" => dummy_event.metadata[:timestamp].iso8601(3)
           },
+          "correlation_stream_name" => nil,
         },
-        "links" => {},
       }
     end
 

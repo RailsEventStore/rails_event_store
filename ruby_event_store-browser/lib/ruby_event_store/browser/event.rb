@@ -1,17 +1,16 @@
 module RubyEventStore
   module Browser
     class Event
-      attr_reader :event_store, :params, :url_builder
+      attr_reader :event_store, :params
 
-      def initialize(event_store:, params:, url_builder:)
+      def initialize(event_store:, params:)
         @event_store = event_store
         @params      = params
-        @url_builder = url_builder
       end
 
       def as_json
         {
-          data: JsonApiEvent.new(event, url_builder).to_h,
+          data: JsonApiEvent.new(event).to_h,
         }
       end
 

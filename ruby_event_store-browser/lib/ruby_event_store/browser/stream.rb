@@ -13,7 +13,7 @@ module RubyEventStore
 
       def as_json
         {
-          data:  events.map { |e| JsonApiEvent.new(e, url_builder).to_h },
+          data:  events.map { |e| JsonApiEvent.new(e).to_h },
           links: links
         }
       end

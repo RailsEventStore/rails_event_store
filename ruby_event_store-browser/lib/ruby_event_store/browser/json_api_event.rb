@@ -1,9 +1,8 @@
 module RubyEventStore
   module Browser
     class JsonApiEvent
-      def initialize(event, url_builder)
+      def initialize(event)
         @event = event
-        @url_builder = url_builder
       end
 
       def to_h
@@ -13,14 +12,14 @@ module RubyEventStore
           attributes: {
             event_type: event.class.to_s,
             data: event.data,
-            metadata: metadata
+            metadata: metadata,
+            correlation_stream_name: correlation_stream_name,
           },
-          links: links,
         }
       end
 
       private
-      attr_reader :event, :url_builder
+      attr_reader :event
 
       def metadata
         event.metadata.to_h.tap do |m|
@@ -37,12 +36,8 @@ module RubyEventStore
         end
       end
 
-      def links
-        {}.tap do |h|
-          h[:correlation_stream] = url_builder.call(
-            id: "$by_correlation_id_#{event.metadata.fetch(:correlation_id)}",
-          ) if event.metadata.has_key?(:correlation_id)
-        end
+      def correlation_stream_name
+        "$by_correlation_id_#{event.metadata.fetch(:correlation_id)}" if event.metadata.has_key?(:correlation_id)
       end
     end
   end
