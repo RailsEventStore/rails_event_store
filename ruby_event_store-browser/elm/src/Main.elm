@@ -114,7 +114,7 @@ urlUpdate model location =
         Just (Route.ShowEvent encodedEventId) ->
             case Url.percentDecode encodedEventId of
                 Just eventId ->
-                    ( { model | page = ShowEvent (Page.ShowEvent.initModel eventId) }
+                    ( { model | page = ShowEvent (Page.ShowEvent.initModel model.flags eventId) }
                     , Cmd.map GotShowEventMsg (Page.ShowEvent.initCmd model.flags eventId)
                     )
 

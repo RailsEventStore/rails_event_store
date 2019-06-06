@@ -30,13 +30,15 @@ type alias Event =
 type alias Model =
     { eventId : String
     , event : Maybe Event
+    , flags : Flags
     }
 
 
-initModel : String -> Model
-initModel eventId =
+initModel : Flags -> String -> Model
+initModel flags eventId =
     { eventId = eventId
     , event = Nothing
+    , flags = flags
     }
 
 
@@ -76,9 +78,10 @@ update msg model =
 
         GetEvent (Ok result) ->
             let
-                event = apiEventToEvent result
+                event =
+                    apiEventToEvent result
             in
-                ( { model | event = Just event }, Cmd.none )
+            ( { model | event = Just event }, Cmd.none )
 
         GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
@@ -101,6 +104,7 @@ apiEventToEvent e =
 getEvent : Flags -> String -> Cmd Msg
 getEvent flags eventId =
     Api.getEvent GetEvent flags eventId
+
 
 
 -- VIEW
