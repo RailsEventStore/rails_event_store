@@ -13,8 +13,12 @@ import Route
 -- MODEL
 
 
-type alias TreedEvent =
-    { event : Api.Event
+type alias Event =
+    { eventType : String
+    , eventId : String
+    , createdAt : String
+    , rawData : String
+    , rawMetadata : String
     , dataTreeState : JsonTree.State
     , metadataTreeState : JsonTree.State
     }
@@ -22,7 +26,7 @@ type alias TreedEvent =
 
 type alias Model =
     { eventId : String
-    , treedEvent : Maybe TreedEvent
+    , treedEvent : Maybe Event
     }
 
 
@@ -68,15 +72,19 @@ update msg model =
                     ( model, Cmd.none )
 
         GetEvent (Ok result) ->
-            ( { model | treedEvent = Just (initTreedEvent result) }, Cmd.none )
+            ( { model | treedEvent = Just (apiEventToEvent result) }, Cmd.none )
 
         GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
 
 
-initTreedEvent : Api.Event -> TreedEvent
-initTreedEvent e =
-    { event = e
+apiEventToEvent : Api.Event -> Event
+apiEventToEvent e =
+    { eventType = e.eventType
+    , eventId = e.eventId
+    , createdAt = e.createdAt
+    , rawData = e.rawData
+    , rawMetadata = e.rawMetadata
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     }
@@ -97,10 +105,10 @@ view model =
                 [ text "There's no event of given ID" ]
 
 
-showEvent : TreedEvent -> Html Msg
+showEvent : Event -> Html Msg
 showEvent treedEvent =
     div [ class "event" ]
-        [ h1 [ class "event__title" ] [ text treedEvent.event.eventType ]
+        [ h1 [ class "event__title" ] [ text treedEvent.eventType ]
         , div [ class "event__body" ]
             [ table []
                 [ thead []
@@ -112,9 +120,9 @@ showEvent treedEvent =
                     ]
                 , tbody []
                     [ tr []
-                        [ td [] [ text treedEvent.event.eventId ]
-                        , td [] [ showJsonTree treedEvent.event.rawData treedEvent.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
-                        , td [] [ showJsonTree treedEvent.event.rawMetadata treedEvent.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
+                        [ td [] [ text treedEvent.eventId ]
+                        , td [] [ showJsonTree treedEvent.rawData treedEvent.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                        , td [] [ showJsonTree treedEvent.rawMetadata treedEvent.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                         ]
                     ]
                 ]
