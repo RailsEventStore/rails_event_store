@@ -104,7 +104,7 @@ view model =
 
         Nothing ->
             div [ class "event" ]
-                [ text "There's no event of given ID" ]
+                [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
 
 
 showEvent : Event -> Html Msg

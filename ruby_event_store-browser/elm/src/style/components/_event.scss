@@ -5,7 +5,7 @@ $browser-layout: (columns: 2);
   padding: 2rem 0;
 }
 
-.event__title {
+.event__title, .event__missing {
   @include grid-column(2, $browser-layout);
   font-size: 2.2rem;
 }
