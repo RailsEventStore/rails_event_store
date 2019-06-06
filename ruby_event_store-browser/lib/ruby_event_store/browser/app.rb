@@ -54,7 +54,8 @@ module RubyEventStore
         begin
           json Event.new(
             event_store: settings.event_store_locator,
-            params: symbolized_params
+            params: symbolized_params,
+            url_builder: method(:streams_url_for),
           )
         rescue RubyEventStore::EventNotFound => e
           404
