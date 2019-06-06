@@ -26,14 +26,14 @@ type alias Event =
 
 type alias Model =
     { eventId : String
-    , treedEvent : Maybe Event
+    , event : Maybe Event
     }
 
 
 initModel : String -> Model
 initModel eventId =
     { eventId = eventId
-    , treedEvent = Nothing
+    , event = Nothing
     }
 
 
@@ -56,23 +56,23 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeOpenedEventDataTreeState newState ->
-            case model.treedEvent of
-                Just treedEvent ->
-                    ( { model | treedEvent = Just { treedEvent | dataTreeState = newState } }, Cmd.none )
+            case model.event of
+                Just event ->
+                    ( { model | event = Just { event | dataTreeState = newState } }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
         ChangeOpenedEventMetadataTreeState newState ->
-            case model.treedEvent of
-                Just treedEvent ->
-                    ( { model | treedEvent = Just { treedEvent | metadataTreeState = newState } }, Cmd.none )
+            case model.event of
+                Just event ->
+                    ( { model | event = Just { event | metadataTreeState = newState } }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
         GetEvent (Ok result) ->
-            ( { model | treedEvent = Just (apiEventToEvent result) }, Cmd.none )
+            ( { model | event = Just (apiEventToEvent result) }, Cmd.none )
 
         GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
@@ -96,9 +96,9 @@ apiEventToEvent e =
 
 view : Model -> Html Msg
 view model =
-    case model.treedEvent of
-        Just treedEvent ->
-            showEvent treedEvent
+    case model.event of
+        Just event ->
+            showEvent event
 
         Nothing ->
             div [ class "event" ]
@@ -106,9 +106,9 @@ view model =
 
 
 showEvent : Event -> Html Msg
-showEvent treedEvent =
+showEvent event =
     div [ class "event" ]
-        [ h1 [ class "event__title" ] [ text treedEvent.eventType ]
+        [ h1 [ class "event__title" ] [ text event.eventType ]
         , div [ class "event__body" ]
             [ table []
                 [ thead []
@@ -120,9 +120,9 @@ showEvent treedEvent =
                     ]
                 , tbody []
                     [ tr []
-                        [ td [] [ text treedEvent.eventId ]
-                        , td [] [ showJsonTree treedEvent.rawData treedEvent.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
-                        , td [] [ showJsonTree treedEvent.rawMetadata treedEvent.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
+                        [ td [] [ text event.eventId ]
+                        , td [] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                        , td [] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                         ]
                     ]
                 ]
