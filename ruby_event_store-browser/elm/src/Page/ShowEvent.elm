@@ -149,7 +149,9 @@ relatedStreamsList : Event -> List (Html Msg)
 relatedStreamsList event =
     case event.correlationStreamName of
         Just streamName ->
-            [ li [] [ a [ href ("/#streams/" ++ streamName) ] [ text "Correlation stream" ] ]
+            [ li []
+                [ text "Correlation stream: "
+                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ] ]
             ]
         Nothing -> []
 
