@@ -14,6 +14,7 @@ module RubyEventStore
             data: event.data,
             metadata: metadata,
             correlation_stream_name: correlation_stream_name,
+            causation_stream_name: causation_stream_name,
           },
         }
       end
@@ -38,6 +39,10 @@ module RubyEventStore
 
       def correlation_stream_name
         "$by_correlation_id_#{event.metadata.fetch(:correlation_id)}" if event.metadata.has_key?(:correlation_id)
+      end
+
+      def causation_stream_name
+        "$by_causation_id_#{event.event_id}"
       end
     end
   end
