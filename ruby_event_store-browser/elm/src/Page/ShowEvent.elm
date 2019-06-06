@@ -75,7 +75,10 @@ update msg model =
                     ( model, Cmd.none )
 
         GetEvent (Ok result) ->
-            ( { model | event = Just (apiEventToEvent result) }, Cmd.none )
+            let
+                event = apiEventToEvent result
+            in
+                ( { model | event = Just event }, Cmd.none )
 
         GetEvent (Err errorMessage) ->
             ( model, Cmd.none )
