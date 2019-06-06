@@ -52,7 +52,7 @@ type Msg
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags eventId =
-    Api.getEvent GetEvent flags eventId
+    getEvent flags eventId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -97,6 +97,10 @@ apiEventToEvent e =
     , metadataTreeState = JsonTree.defaultState
     }
 
+
+getEvent : Flags -> String -> Cmd Msg
+getEvent flags eventId =
+    Api.getEvent GetEvent flags eventId
 
 
 -- VIEW
