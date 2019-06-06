@@ -14,7 +14,7 @@ type alias Event =
     , createdAt : String
     , rawData : String
     , rawMetadata : String
-    , correlationStreamLink : Maybe String
+    , correlationStreamName : Maybe String
     }
 
 
@@ -56,7 +56,7 @@ eventDecoder_ =
         |> requiredAt [ "attributes", "metadata", "timestamp" ] string
         |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
         |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
-        |> optionalAt [ "links", "correlation_stream" ] (maybe string) Nothing
+        |> optionalAt [ "attributes", "correlation_stream_name" ] (maybe string) Nothing
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg
