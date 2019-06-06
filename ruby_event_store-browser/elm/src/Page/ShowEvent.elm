@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Http
 import JsonTree
+import Maybe exposing (withDefault)
 import Maybe.Extra exposing (values)
 import Route
 
@@ -31,6 +32,7 @@ type alias Model =
     { eventId : String
     , event : Maybe Event
     , flags : Flags
+    , causedEvents : Maybe (List Api.Event)
     }
 
 
@@ -39,6 +41,7 @@ initModel flags eventId =
     { eventId = eventId
     , event = Nothing
     , flags = flags
+    , causedEvents = Nothing
     }
 
 
@@ -50,6 +53,7 @@ type Msg
     = ChangeOpenedEventDataTreeState JsonTree.State
     | ChangeOpenedEventMetadataTreeState JsonTree.State
     | GetEvent (Result Http.Error Api.Event)
+    | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -81,9 +85,15 @@ update msg model =
                 event =
                     apiEventToEvent result
             in
-            ( { model | event = Just event }, Cmd.none )
+            ( { model | event = Just event }, getCausedEvents model.flags event )
 
         GetEvent (Err errorMessage) ->
+            ( model, Cmd.none )
+
+        CausedEventsFetched (Ok result) ->
+            ( { model | causedEvents = Just result.events }, Cmd.none )
+
+        CausedEventsFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
 
@@ -106,6 +116,16 @@ getEvent flags eventId =
     Api.getEvent GetEvent flags eventId
 
 
+getCausedEvents : Flags -> Event -> Cmd Msg
+getCausedEvents flags event =
+    case event.causationStreamName of
+        Just streamName ->
+            Api.getEvents CausedEventsFetched (Route.buildUrl flags.streamsUrl streamName)
+
+        Nothing ->
+            Cmd.none
+
+
 
 -- VIEW
 
@@ -114,15 +134,15 @@ view : Model -> Html Msg
 view model =
     case model.event of
         Just event ->
-            showEvent event
+            showEvent event model.causedEvents
 
         Nothing ->
             div [ class "event" ]
                 [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
 
 
-showEvent : Event -> Html Msg
-showEvent event =
+showEvent : Event -> Maybe (List Api.Event) -> Html Msg
+showEvent event maybeCausedEvents =
     div [ class "event" ]
         [ h1 [ class "event__title" ] [ text event.eventType ]
         , div [ class "event__body" ]
@@ -144,6 +164,22 @@ showEvent event =
                 ]
             ]
         , relatedStreams event
+        , case maybeCausedEvents of
+            Just causedEvents ->
+                case causedEvents of
+                    [] ->
+                        div [ class "event__caused-events" ]
+                            [ h2 [] [ text "Events caused by this event: none" ]
+                            ]
+
+                    _ ->
+                        div [ class "event__caused-events" ]
+                            [ h2 [] [ text "Events caused by this event:" ]
+                            , renderCausedEvents causedEvents
+                            ]
+
+            Nothing ->
+                text ""
         ]
 
 
@@ -158,7 +194,7 @@ relatedStreams event =
 
     else
         div [ class "event__related-streams" ]
-            [ h2 [] [ text "Related streams" ]
+            [ h2 [] [ text "Related streams:" ]
             , ul [] (relatedStreamsList event)
             ]
 
@@ -193,6 +229,38 @@ causationStreamLink event =
                 ]
         )
         event.causationStreamName
+
+
+renderCausedEvents : List Api.Event -> Html Msg
+renderCausedEvents causedEvents =
+    case causedEvents of
+        [] ->
+            p [ class "results__empty" ] [ text "No items" ]
+
+        _ ->
+            table []
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Event name" ]
+                        , th [] [ text "Event id" ]
+                        ]
+                    ]
+                , tbody [] (List.map renderCausedEvent causedEvents)
+                ]
+
+
+renderCausedEvent : Api.Event -> Html Msg
+renderCausedEvent { eventType, eventId } =
+    tr []
+        [ td []
+            [ a
+                [ class "results__link"
+                , href (Route.buildUrl "#events" eventId)
+                ]
+                [ text eventType ]
+            ]
+        , td [] [ text eventId ]
+        ]
 
 
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg

@@ -26,3 +26,13 @@ $browser-layout: (columns: 2);
     padding-left: 3rem;
   }
 }
+
+.event__caused-events {
+  @include grid-column(2, $browser-layout);
+
+  margin-top: 3.0rem;
+
+  h2 {
+    font-size: 2.0rem;
+  }
+}
