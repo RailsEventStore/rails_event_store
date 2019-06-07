@@ -13,6 +13,7 @@
             "elm/http": "1.0.0",
             "elm/json": "1.1.3",
             "elm/url": "1.0.0",
+            "elm-community/maybe-extra": "5.0.0",
             "klazuka/elm-json-tree-view": "1.0.0"
         },
         "indirect": {

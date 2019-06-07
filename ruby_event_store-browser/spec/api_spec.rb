@@ -40,6 +40,20 @@ module RubyEventStore
       )
     end
 
+    specify "requesting event with causation stream" do
+      event = DummyEvent.new(
+        event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+        data: {},
+      )
+      event_store.publish(event, stream_name: "dummy")
+      test_client.get "/events/#{event.event_id}"
+
+      expect(test_client.last_response).to be_ok
+      expect(test_client.parsed_body["data"]["attributes"]["causation_stream_name"]).to eq(
+        "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+      )
+    end
+
     specify "requesting non-existing event" do
       test_client.get "/events/73947fbd-90d7-4e1c-be2a-d7ff1900c409"
 
@@ -63,6 +77,7 @@ module RubyEventStore
           },
           metadata: {},
           correlation_stream_name: nil,
+          causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
         },
       )
     end
@@ -248,6 +263,7 @@ module RubyEventStore
             "timestamp" => dummy_event.metadata[:timestamp].iso8601(3)
           },
           "correlation_stream_name" => nil,
+          "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
         },
       }
     end

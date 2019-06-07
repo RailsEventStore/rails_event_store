@@ -5,7 +5,7 @@ $browser-layout: (columns: 2);
   padding: 2rem 0;
 }
 
-.event__title {
+.event__title, .event__missing {
   @include grid-column(2, $browser-layout);
   font-size: 2.2rem;
 }
@@ -24,5 +24,15 @@ $browser-layout: (columns: 2);
   ul {
     list-style-type: disc;
     padding-left: 3rem;
+  }
+}
+
+.event__caused-events {
+  @include grid-column(2, $browser-layout);
+
+  margin-top: 3.0rem;
+
+  h2 {
+    font-size: 2.0rem;
   }
 }
