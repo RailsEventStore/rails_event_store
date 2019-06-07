@@ -28,6 +28,14 @@ class Order
     @status = :draft
   end
 
+  def create
+    apply OrderCreated.new
+  end
+
+  def expire
+    apply OrderExpired.new
+  end
+
   attr_accessor :status
   private
 
