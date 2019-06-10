@@ -1,7 +1,6 @@
 module Page.ViewStream exposing (Model, Msg(..), initCmd, initModel, update, view)
 
 import Api
-import DateFormat
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
@@ -11,7 +10,7 @@ import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, stri
 import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import Route
-import Time
+import TimeHelpers exposing (formatTimestamp)
 import Url
 
 
@@ -171,24 +170,3 @@ itemRow { eventType, createdAt, eventId } =
             [ text (formatTimestamp createdAt)
             ]
         ]
-
-
-formatTimestamp : Time.Posix -> String
-formatTimestamp time =
-    DateFormat.format
-        [ DateFormat.dayOfMonthFixed
-        , DateFormat.text "."
-        , DateFormat.monthFixed
-        , DateFormat.text "."
-        , DateFormat.yearNumber
-        , DateFormat.text ", "
-        , DateFormat.hourMilitaryFixed
-        , DateFormat.text ":"
-        , DateFormat.minuteFixed
-        , DateFormat.text ":"
-        , DateFormat.secondFixed
-        , DateFormat.text "."
-        , DateFormat.millisecondFixed
-        ]
-        Time.utc
-        time
