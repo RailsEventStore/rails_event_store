@@ -3,7 +3,7 @@ module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree
 import Api
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href, placeholder)
+import Html.Attributes exposing (class, colspan, disabled, href, placeholder)
 import Http
 import JsonTree
 import Maybe exposing (withDefault)
@@ -228,6 +228,7 @@ causationStreamLink event =
         )
         event.causationStreamName
 
+
 streamLink : String -> Html Msg
 streamLink streamName =
     a [ class "event__stream-link", href ("/#streams/" ++ streamName) ] [ text streamName ]
@@ -248,6 +249,17 @@ renderCausedEvents causedEvents =
                         ]
                     ]
                 , tbody [] (List.map renderCausedEvent causedEvents)
+                , tfoot []
+                    [ tr []
+                        [ td [ colspan 2 ]
+                            [ if List.length causedEvents == 20 then
+                                text "The results may be truncated, check stream for full information."
+
+                              else
+                                text ""
+                            ]
+                        ]
+                    ]
                 ]
 
 

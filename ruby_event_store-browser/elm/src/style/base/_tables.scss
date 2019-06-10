@@ -28,3 +28,9 @@ th {
 td {
   padding: 0.75rem 0 0 0;
 }
+
+tfoot td {
+  padding: 0 0 0.75rem 0;
+  font-size: 1.2rem;
+  color: $oc-gray-5;
+}
