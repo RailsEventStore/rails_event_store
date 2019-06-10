@@ -52,7 +52,7 @@ initModel flags eventId =
 type Msg
     = ChangeOpenedEventDataTreeState JsonTree.State
     | ChangeOpenedEventMetadataTreeState JsonTree.State
-    | GetEvent (Result Http.Error Api.Event)
+    | EventFetched (Result Http.Error Api.Event)
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
 
 
@@ -80,14 +80,14 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        GetEvent (Ok result) ->
+        EventFetched (Ok result) ->
             let
                 event =
                     apiEventToEvent result
             in
             ( { model | event = Just event }, getCausedEvents model.flags event )
 
-        GetEvent (Err errorMessage) ->
+        EventFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
         CausedEventsFetched (Ok result) ->
@@ -113,7 +113,7 @@ apiEventToEvent e =
 
 getEvent : Flags -> String -> Cmd Msg
 getEvent flags eventId =
-    Api.getEvent GetEvent flags eventId
+    Api.getEvent EventFetched flags eventId
 
 
 getCausedEvents : Flags -> Event -> Cmd Msg
