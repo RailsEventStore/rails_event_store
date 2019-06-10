@@ -36,24 +36,24 @@ initModel streamName =
 
 type Msg
     = GoToPage Api.PaginationLink
-    | GetEvents (Result Http.Error (Api.PaginatedList Api.Event))
+    | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getEvents GetEvents (Route.buildUrl flags.streamsUrl streamId)
+    Api.getEvents EventsFetched (Route.buildUrl flags.streamsUrl streamId)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToPage paginationLink ->
-            ( model, Api.getEvents GetEvents paginationLink )
+            ( model, Api.getEvents EventsFetched paginationLink )
 
-        GetEvents (Ok result) ->
+        EventsFetched (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
-        GetEvents (Err errorMessage) ->
+        EventsFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
 
