@@ -128,8 +128,13 @@ getCausedEvents flags event =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> ( String, Html Msg )
 view model =
+    ( "Event " ++ model.eventId, view_ model )
+
+
+view_ : Model -> Html Msg
+view_ model =
     case model.event of
         Just event ->
             showEvent event model.causedEvents

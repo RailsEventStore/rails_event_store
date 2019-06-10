@@ -62,9 +62,9 @@ update msg model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> ( String, Html Msg )
 view model =
-    browseEvents ("Events in " ++ model.streamName) model.events
+    ( "Stream " ++ model.streamName, browseEvents ("Events in " ++ model.streamName) model.events )
 
 
 browseEvents : String -> Api.PaginatedList Api.Event -> Html Msg
