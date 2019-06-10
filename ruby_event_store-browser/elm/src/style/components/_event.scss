@@ -37,6 +37,6 @@ $browser-layout: (columns: 2);
   }
 }
 
-.event__stream-link {
+.event__stream-link, .event__event-link {
   text-decoration: none;
 }
