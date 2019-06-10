@@ -211,7 +211,7 @@ correlationStreamLink event =
         (\streamName ->
             li []
                 [ text "Correlation stream: "
-                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                , streamLink streamName
                 ]
         )
         event.correlationStreamName
@@ -223,10 +223,14 @@ causationStreamLink event =
         (\streamName ->
             li []
                 [ text "Causation stream: "
-                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                , streamLink streamName
                 ]
         )
         event.causationStreamName
+
+streamLink : String -> Html Msg
+streamLink streamName =
+    a [ class "event__stream-link", href ("/#streams/" ++ streamName) ] [ text streamName ]
 
 
 renderCausedEvents : List Api.Event -> Html Msg
