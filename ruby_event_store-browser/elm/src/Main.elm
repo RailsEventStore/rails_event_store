@@ -150,18 +150,19 @@ viewPage : Page -> ( Maybe String, Html Msg )
 viewPage page =
     case page of
         ViewStream viewStreamUIModel ->
-            let
-                ( pageTitle, pageContent ) =
-                    Page.ViewStream.view viewStreamUIModel
-            in
-            ( Just pageTitle, Html.map GotViewStreamMsg pageContent )
+            viewOnePage GotViewStreamMsg Page.ViewStream.view viewStreamUIModel
 
         ShowEvent openedEventUIModel ->
-            let
-                ( pageTitle, pageContent ) =
-                    Page.ShowEvent.view openedEventUIModel
-            in
-            ( Just pageTitle, Html.map GotShowEventMsg pageContent )
+            viewOnePage GotShowEventMsg Page.ShowEvent.view openedEventUIModel
 
         NotFound ->
             ( Nothing, Layout.viewNotFound )
+
+
+viewOnePage : (pageMsg -> Msg) -> (model -> ( String, Html pageMsg )) -> model -> ( Maybe String, Html Msg )
+viewOnePage pageMsgBuilder pageViewFunction pageModel =
+    let
+        ( pageTitle, pageContent ) =
+            pageViewFunction pageModel
+    in
+    ( Just pageTitle, Html.map pageMsgBuilder pageContent )
