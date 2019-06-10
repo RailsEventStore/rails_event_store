@@ -199,7 +199,7 @@ relatedStreams event =
 
     else
         div [ class "event__related-streams" ]
-            [ h2 [] [ text "Related streams:" ]
+            [ h2 [] [ text "Related streams / events:" ]
             , ul [] (relatedStreamsList event)
             ]
 
