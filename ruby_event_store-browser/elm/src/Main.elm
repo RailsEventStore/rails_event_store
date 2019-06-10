@@ -132,14 +132,18 @@ view model =
             viewPage model.page
     in
     { body = [ Layout.view model.flags pageContent ]
-    , title =
-        case maybePageTitle of
-            Just pageTitle ->
-                "RubyEventStore::Browser - " ++ pageTitle
-
-            Nothing ->
-                "RubyEventStore::Browser"
+    , title = fullTitle maybePageTitle
     }
+
+
+fullTitle : Maybe String -> String
+fullTitle maybePageTitle =
+    case maybePageTitle of
+        Just pageTitle ->
+            "RubyEventStore::Browser - " ++ pageTitle
+
+        Nothing ->
+            "RubyEventStore::Browser"
 
 
 viewPage : Page -> ( Maybe String, Html Msg )
