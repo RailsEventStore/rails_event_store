@@ -2,16 +2,18 @@ module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, empt
 
 import Flags exposing (Flags)
 import Http
+import Iso8601
 import Json.Decode exposing (Decoder, Value, at, field, list, maybe, nullable, oneOf, string, succeed, value)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
 import Route exposing (buildUrl)
+import Time
 
 
 type alias Event =
     { eventType : String
     , eventId : String
-    , createdAt : String
+    , createdAt : Time.Posix
     , rawData : String
     , rawMetadata : String
     , correlationStreamName : Maybe String
@@ -54,7 +56,7 @@ eventDecoder_ =
     succeed Event
         |> requiredAt [ "attributes", "event_type" ] string
         |> requiredAt [ "id" ] string
-        |> requiredAt [ "attributes", "metadata", "timestamp" ] string
+        |> requiredAt [ "attributes", "metadata", "timestamp" ] Iso8601.decoder
         |> requiredAt [ "attributes", "data" ] (value |> Json.Decode.map (encode 2))
         |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
         |> optionalAt [ "attributes", "correlation_stream_name" ] (maybe string) Nothing

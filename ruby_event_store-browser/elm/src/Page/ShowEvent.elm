@@ -9,6 +9,7 @@ import JsonTree
 import Maybe exposing (withDefault)
 import Maybe.Extra exposing (values)
 import Route
+import Time
 
 
 
@@ -18,7 +19,7 @@ import Route
 type alias Event =
     { eventType : String
     , eventId : String
-    , createdAt : String
+    , createdAt : Time.Posix
     , correlationStreamName : Maybe String
     , causationStreamName : Maybe String
     , rawData : String

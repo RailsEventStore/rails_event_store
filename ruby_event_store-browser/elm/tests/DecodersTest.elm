@@ -6,6 +6,7 @@ import Json.Decode exposing (list)
 import Main exposing (..)
 import Route exposing (buildUrl)
 import Test exposing (..)
+import Time
 
 
 suite : Test
@@ -50,7 +51,7 @@ suite =
                             { events =
                                 [ { eventType = "DummyEvent"
                                   , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
-                                  , createdAt = "2017-12-20T23:49:45.273Z"
+                                  , createdAt = Time.millisToPosix 1513813785273
                                   , rawData = "{\n  \"foo\": 1,\n  \"bar\": 2,\n  \"baz\": \"3\"\n}"
                                   , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                                   , correlationStreamName = Nothing
@@ -103,7 +104,7 @@ suite =
                         (Ok
                             { eventType = "DummyEvent"
                             , eventId = "664ada1e-2f01-4ed0-9c16-63dbc82269d2"
-                            , createdAt = "2017-12-20T23:49:45.273Z"
+                            , createdAt = Time.millisToPosix 1513813785273
                             , rawData = "{\n  \"foo\": 1,\n  \"bar\": 3.4,\n  \"baz\": \"3\"\n}"
                             , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                             , correlationStreamName = Just "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad"
