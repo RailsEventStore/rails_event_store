@@ -127,19 +127,42 @@ urlUpdate model location =
 
 view : Model -> Browser.Document Msg
 view model =
-    { body = [ Layout.view model.flags (viewPage model.page) ]
-    , title = "RubyEventStore::Browser"
+    let
+        ( maybePageTitle, pageContent ) =
+            viewPage model.page
+    in
+    { body = [ Layout.view model.flags pageContent ]
+    , title = fullTitle maybePageTitle
     }
 
 
-viewPage : Page -> Html Msg
+fullTitle : Maybe String -> String
+fullTitle maybePageTitle =
+    case maybePageTitle of
+        Just pageTitle ->
+            "RubyEventStore::Browser - " ++ pageTitle
+
+        Nothing ->
+            "RubyEventStore::Browser"
+
+
+viewPage : Page -> ( Maybe String, Html Msg )
 viewPage page =
     case page of
         ViewStream viewStreamUIModel ->
-            Html.map GotViewStreamMsg (Page.ViewStream.view viewStreamUIModel)
+            viewOnePage GotViewStreamMsg Page.ViewStream.view viewStreamUIModel
 
         ShowEvent openedEventUIModel ->
-            Html.map GotShowEventMsg (Page.ShowEvent.view openedEventUIModel)
+            viewOnePage GotShowEventMsg Page.ShowEvent.view openedEventUIModel
 
         NotFound ->
-            Layout.viewNotFound
+            ( Nothing, Layout.viewNotFound )
+
+
+viewOnePage : (pageMsg -> Msg) -> (model -> ( String, Html pageMsg )) -> model -> ( Maybe String, Html Msg )
+viewOnePage pageMsgBuilder pageViewFunction pageModel =
+    let
+        ( pageTitle, pageContent ) =
+            pageViewFunction pageModel
+    in
+    ( Just pageTitle, Html.map pageMsgBuilder pageContent )

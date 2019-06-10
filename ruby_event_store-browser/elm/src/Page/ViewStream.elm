@@ -10,6 +10,7 @@ import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, stri
 import Json.Decode.Pipeline exposing (optional, required, requiredAt)
 import Json.Encode exposing (encode)
 import Route
+import TimeHelpers exposing (formatTimestamp)
 import Url
 
 
@@ -36,24 +37,24 @@ initModel streamName =
 
 type Msg
     = GoToPage Api.PaginationLink
-    | GetEvents (Result Http.Error (Api.PaginatedList Api.Event))
+    | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getEvents GetEvents (Route.buildUrl flags.streamsUrl streamId)
+    Api.getEvents EventsFetched (Route.buildUrl flags.streamsUrl streamId)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToPage paginationLink ->
-            ( model, Api.getEvents GetEvents paginationLink )
+            ( model, Api.getEvents EventsFetched paginationLink )
 
-        GetEvents (Ok result) ->
+        EventsFetched (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
-        GetEvents (Err errorMessage) ->
+        EventsFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
 
@@ -61,9 +62,9 @@ update msg model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> ( String, Html Msg )
 view model =
-    browseEvents ("Events in " ++ model.streamName) model.events
+    ( "Stream " ++ model.streamName, browseEvents ("Events in " ++ model.streamName) model.events )
 
 
 browseEvents : String -> Api.PaginatedList Api.Event -> Html Msg
@@ -166,6 +167,6 @@ itemRow { eventType, createdAt, eventId } =
             ]
         , td [] [ text eventId ]
         , td [ class "u-align-right" ]
-            [ text createdAt
+            [ text (formatTimestamp createdAt)
             ]
         ]

@@ -33,7 +33,7 @@ other_event = OtherEvent.new(
   },
 )
 event_store.publish(other_event, stream_name: "OtherStream$91")
-3.times do
+21.times do
   event_store.with_metadata(
     correlation_id: other_event.metadata[:correlation_id] || other_event.event_id,
     causation_id: other_event.event_id

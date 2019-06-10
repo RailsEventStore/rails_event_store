@@ -3,7 +3,7 @@ module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree
 import Api
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href, placeholder)
+import Html.Attributes exposing (class, colspan, disabled, href, placeholder)
 import Http
 import JsonTree
 import Maybe exposing (withDefault)
@@ -18,7 +18,6 @@ import Route
 type alias Event =
     { eventType : String
     , eventId : String
-    , createdAt : String
     , correlationStreamName : Maybe String
     , causationStreamName : Maybe String
     , rawData : String
@@ -52,7 +51,7 @@ initModel flags eventId =
 type Msg
     = ChangeOpenedEventDataTreeState JsonTree.State
     | ChangeOpenedEventMetadataTreeState JsonTree.State
-    | GetEvent (Result Http.Error Api.Event)
+    | EventFetched (Result Http.Error Api.Event)
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
 
 
@@ -80,14 +79,14 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        GetEvent (Ok result) ->
+        EventFetched (Ok result) ->
             let
                 event =
                     apiEventToEvent result
             in
             ( { model | event = Just event }, getCausedEvents model.flags event )
 
-        GetEvent (Err errorMessage) ->
+        EventFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
         CausedEventsFetched (Ok result) ->
@@ -101,7 +100,6 @@ apiEventToEvent : Api.Event -> Event
 apiEventToEvent e =
     { eventType = e.eventType
     , eventId = e.eventId
-    , createdAt = e.createdAt
     , rawData = e.rawData
     , rawMetadata = e.rawMetadata
     , correlationStreamName = e.correlationStreamName
@@ -113,7 +111,7 @@ apiEventToEvent e =
 
 getEvent : Flags -> String -> Cmd Msg
 getEvent flags eventId =
-    Api.getEvent GetEvent flags eventId
+    Api.getEvent EventFetched flags eventId
 
 
 getCausedEvents : Flags -> Event -> Cmd Msg
@@ -130,8 +128,13 @@ getCausedEvents flags event =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> ( String, Html Msg )
 view model =
+    ( "Event " ++ model.eventId, view_ model )
+
+
+view_ : Model -> Html Msg
+view_ model =
     case model.event of
         Just event ->
             showEvent event model.causedEvents
@@ -213,7 +216,7 @@ correlationStreamLink event =
         (\streamName ->
             li []
                 [ text "Correlation stream: "
-                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                , streamLink streamName
                 ]
         )
         event.correlationStreamName
@@ -225,10 +228,15 @@ causationStreamLink event =
         (\streamName ->
             li []
                 [ text "Causation stream: "
-                , a [ href ("/#streams/" ++ streamName) ] [ text streamName ]
+                , streamLink streamName
                 ]
         )
         event.causationStreamName
+
+
+streamLink : String -> Html Msg
+streamLink streamName =
+    a [ class "event__stream-link", href ("/#streams/" ++ streamName) ] [ text streamName ]
 
 
 renderCausedEvents : List Api.Event -> Html Msg
@@ -246,6 +254,17 @@ renderCausedEvents causedEvents =
                         ]
                     ]
                 , tbody [] (List.map renderCausedEvent causedEvents)
+                , tfoot []
+                    [ tr []
+                        [ td [ colspan 2 ]
+                            [ if List.length causedEvents == 20 then
+                                text "The results may be truncated, check stream for full information."
+
+                              else
+                                text ""
+                            ]
+                        ]
+                    ]
                 ]
 
 
