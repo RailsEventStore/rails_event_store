@@ -1,8 +1,9 @@
 module RubyEventStore
   module Browser
     class JsonApiEvent
-      def initialize(event)
+      def initialize(event, parent_event_id)
         @event = event
+        @parent_event_id = parent_event_id
       end
 
       def to_h
@@ -15,12 +16,13 @@ module RubyEventStore
             metadata: metadata,
             correlation_stream_name: correlation_stream_name,
             causation_stream_name: causation_stream_name,
+            parent_event_id: parent_event_id,
           },
         }
       end
 
       private
-      attr_reader :event
+      attr_reader :event, :parent_event_id
 
       def metadata
         event.metadata.to_h.tap do |m|
