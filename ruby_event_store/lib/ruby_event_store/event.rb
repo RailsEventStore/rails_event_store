@@ -133,6 +133,7 @@ module RubyEventStore
     def correlate_with(other_message)
       self.correlation_id = other_message.correlation_id || other_message.message_id
       self.causation_id   = other_message.message_id
+      self
     end
 
     alias_method :eql?, :==
