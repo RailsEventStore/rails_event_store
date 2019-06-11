@@ -29,6 +29,14 @@ RSpec.shared_examples :correlatable do |klass|
     expect(event.causation_id).to   eq("cau")
   end
 
+  specify "chainable" do
+    e0 = klass.new(event_id: "doh", data: nil)
+    e1 = klass.new(event_id: "yay", data: nil)
+    chained = e1.correlate_with(e0)
+    
+    expect(chained).to eq(e1)
+  end
+
   specify "correlate_with a command" do
     command = Struct.new(:correlation_id, :message_id).new("correlation", "command_id")
     event = klass.new(event_id: "event", data: nil)
