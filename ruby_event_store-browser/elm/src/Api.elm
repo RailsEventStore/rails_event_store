@@ -18,6 +18,7 @@ type alias Event =
     , rawMetadata : String
     , correlationStreamName : Maybe String
     , causationStreamName : Maybe String
+    , parentEventId : Maybe String
     }
 
 
@@ -61,6 +62,7 @@ eventDecoder_ =
         |> requiredAt [ "attributes", "metadata" ] (value |> Json.Decode.map (encode 2))
         |> optionalAt [ "attributes", "correlation_stream_name" ] (maybe string) Nothing
         |> optionalAt [ "attributes", "causation_stream_name" ] (maybe string) Nothing
+        |> optionalAt [ "attributes", "parent_event_id" ] (maybe string) Nothing
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg

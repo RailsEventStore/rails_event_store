@@ -20,6 +20,7 @@ type alias Event =
     , eventId : String
     , correlationStreamName : Maybe String
     , causationStreamName : Maybe String
+    , parentEventId : Maybe String
     , rawData : String
     , rawMetadata : String
     , dataTreeState : JsonTree.State
@@ -104,6 +105,7 @@ apiEventToEvent e =
     , rawMetadata = e.rawMetadata
     , correlationStreamName = e.correlationStreamName
     , causationStreamName = e.causationStreamName
+    , parentEventId = e.parentEventId
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     }
@@ -197,7 +199,7 @@ relatedStreams event =
 
     else
         div [ class "event__related-streams" ]
-            [ h2 [] [ text "Related streams:" ]
+            [ h2 [] [ text "Related streams / events:" ]
             , ul [] (relatedStreamsList event)
             ]
 
@@ -205,7 +207,8 @@ relatedStreams event =
 relatedStreamsList : Event -> List (Html Msg)
 relatedStreamsList event =
     values
-        [ correlationStreamLink event
+        [ parentEventLink event
+        , correlationStreamLink event
         , causationStreamLink event
         ]
 
@@ -234,9 +237,26 @@ causationStreamLink event =
         event.causationStreamName
 
 
+parentEventLink : Event -> Maybe (Html Msg)
+parentEventLink event =
+    Maybe.map
+        (\parentEventId ->
+            li []
+                [ text "Parent event: "
+                , eventLink parentEventId
+                ]
+        )
+        event.parentEventId
+
+
 streamLink : String -> Html Msg
 streamLink streamName =
     a [ class "event__stream-link", href ("/#streams/" ++ streamName) ] [ text streamName ]
+
+
+eventLink : String -> Html Msg
+eventLink eventId =
+    a [ class "event__event-link", href ("/#events/" ++ eventId) ] [ text eventId ]
 
 
 renderCausedEvents : List Api.Event -> Html Msg
