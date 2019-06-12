@@ -42,6 +42,6 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-gem 'rails_event_store'
+gem 'rails_event_store', '~> 0.36.0'
 gem 'dres_client', '~> 0.6.0', path: '../dres_client'
 gem 'dres_rails',  '~> 0.6.0', path: '../dres_rails'
