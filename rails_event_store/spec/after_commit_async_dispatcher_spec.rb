@@ -179,6 +179,30 @@ module RailsEventStore
       end
     end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
 
+    context "within a non-joinable transaction" do
+      around do |example|
+        ActiveRecord::Base.transaction(joinable: false) do
+          example.run
+        end
+      end
+
+      it "dispatches the job" do
+        expect_to_have_enqueued_job(MyAsyncHandler) do
+          dispatcher.call(MyAsyncHandler, event, serialized_event)
+        end
+      end
+
+      it "dispatches the job after a nested transaction commits" do
+        expect_to_have_enqueued_job(MyAsyncHandler) do
+          ActiveRecord::Base.transaction do
+            expect_no_enqueued_job(MyAsyncHandler) do
+              dispatcher.call(MyAsyncHandler, event, serialized_event)
+            end
+          end
+        end
+      end
+    end
+
     describe "#verify" do
       specify do
         expect(dispatcher.verify(MyAsyncHandler)).to eq(true)

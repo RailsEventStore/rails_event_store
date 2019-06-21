@@ -13,11 +13,12 @@ module RailsEventStore
     end
 
     def run(&schedule_proc)
-      if ActiveRecord::Base.connection.transaction_open?
-        ActiveRecord::Base
-          .connection
-          .current_transaction
-          .add_record(AsyncRecord.new(self, schedule_proc))
+      transaction = ActiveRecord::Base.connection.current_transaction
+
+      if transaction.joinable?
+        transaction.add_record(
+          AsyncRecord.new(self, schedule_proc)
+        )
       else
         yield
       end
