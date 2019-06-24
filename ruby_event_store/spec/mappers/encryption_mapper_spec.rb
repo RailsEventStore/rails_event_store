@@ -1,9 +1,11 @@
 require 'spec_helper'
 require 'openssl'
 require 'json'
+require 'ruby_event_store/spec/mapper_lint'
 
 module RubyEventStore
   module Mappers
+    SomeEventWithoutPersonalInfo = Class.new(RubyEventStore::Event)
     SomeEventWithPersonalInfo = Class.new(RubyEventStore::Event) do
       def self.encryption_schema
         {
@@ -18,9 +20,11 @@ module RubyEventStore
       let(:metadata)        { {some_meta: 1} }
       let(:event_id)        { SecureRandom.uuid }
       let(:domain_event)    { SomeEventWithPersonalInfo.new(data: data, metadata: metadata, event_id: event_id) }
-      let(:coder)           { Encryption.new(key_repository) }
-      let(:encrypted_item)  { coder.dump(DomainEventMapper.new.dump(domain_event)) }
+      let(:coder)           { Transformation::Encryption.new(key_repository) }
+      let(:encrypted_item)  { coder.dump(Transformation::DomainEvent.new.dump(domain_event)) }
       subject { described_class.new(key_repository) }
+
+      it_behaves_like :mapper, EncryptionMapper.new(InMemoryEncryptionKeyRepository.new), SomeEventWithoutPersonalInfo.new
 
       before(:each) {
         key = key_repository.create(123)
@@ -96,7 +100,7 @@ module RubyEventStore
       end
 
       context 'when ReverseYamlSerializer serializer is provided' do
-        let(:coder) { Encryption.new(key_repository, serializer: ReverseYamlSerializer) }
+        let(:coder) { Transformation::Encryption.new(key_repository, serializer: ReverseYamlSerializer) }
         subject { described_class.new(key_repository, serializer: ReverseYamlSerializer) }
 
         specify '#event_to_serialized_record returns serialized record' do
