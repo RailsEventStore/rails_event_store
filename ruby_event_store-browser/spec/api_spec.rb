@@ -116,6 +116,7 @@ module RubyEventStore
           correlation_stream_name: nil,
           causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
+          type_stream_name: "$by_type_DummyEvent",
         },
       )
     end
@@ -303,6 +304,7 @@ module RubyEventStore
           "correlation_stream_name" => nil,
           "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
           "parent_event_id" => nil,
+          "type_stream_name" => "$by_type_DummyEvent",
         },
       }
     end
