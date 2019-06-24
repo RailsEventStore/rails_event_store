@@ -895,8 +895,15 @@ module RubyEventStore
     end
 
     specify "#inspect" do
-      object_id = client.object_id.to_s(16)
-      expect(client.inspect).to eq("#<RubyEventStore::Client:0x#{object_id}>")
+      repository = InMemoryRepository.new
+      client = RubyEventStore::Client.new(repository: repository)
+      client_id = client.object_id.to_s(16)
+      expect(client.inspect).to eq(
+        <<~EOS.strip
+          #<RubyEventStore::Client:0x#{client_id}>
+            - repository: #{repository.inspect}
+        EOS
+      )
     end
 
     specify "transform Record to SerializedRecord is only once when using the same serializer" do

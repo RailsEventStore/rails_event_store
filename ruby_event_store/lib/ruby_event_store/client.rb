@@ -299,6 +299,7 @@ module RubyEventStore
     def inspect
       <<~EOS.strip
         #<#{self.class}:0x#{__id__.to_s(16)}>
+          - repository: #{repository.inspect}
       EOS
     end
 
