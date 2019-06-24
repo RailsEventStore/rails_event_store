@@ -297,7 +297,9 @@ module RubyEventStore
     end
 
     def inspect
-      "#<#{self.class}:0x#{__id__.to_s(16)}>"
+      <<~EOS.strip
+        #<#{self.class}:0x#{__id__.to_s(16)}>
+      EOS
     end
 
     EMPTY_HASH = {}.freeze
