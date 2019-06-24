@@ -6,6 +6,7 @@ event_store = RubyEventStore::Client.new(repository: repository)
 
 event_store.subscribe_to_all_events(RubyEventStore::LinkByCorrelationId.new(event_store: event_store))
 event_store.subscribe_to_all_events(RubyEventStore::LinkByCausationId.new(event_store: event_store))
+event_store.subscribe_to_all_events(RubyEventStore::LinkByEventType.new(event_store: event_store))
 
 DummyEvent = Class.new(::RubyEventStore::Event)
 OtherEvent = Class.new(::RubyEventStore::Event)

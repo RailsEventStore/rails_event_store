@@ -20,6 +20,7 @@ type alias Event =
     , eventId : String
     , correlationStreamName : Maybe String
     , causationStreamName : Maybe String
+    , typeStreamName : String
     , parentEventId : Maybe String
     , rawData : String
     , rawMetadata : String
@@ -105,6 +106,7 @@ apiEventToEvent e =
     , rawMetadata = e.rawMetadata
     , correlationStreamName = e.correlationStreamName
     , causationStreamName = e.causationStreamName
+    , typeStreamName = e.typeStreamName
     , parentEventId = e.parentEventId
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
@@ -208,6 +210,7 @@ relatedStreamsList : Event -> List (Html Msg)
 relatedStreamsList event =
     values
         [ parentEventLink event
+        , Just (typeStreamLink event)
         , correlationStreamLink event
         , causationStreamLink event
         ]
@@ -223,6 +226,14 @@ correlationStreamLink event =
                 ]
         )
         event.correlationStreamName
+
+
+typeStreamLink : Event -> Html Msg
+typeStreamLink event =
+    li []
+        [ text "Type stream: "
+        , streamLink event.typeStreamName
+        ]
 
 
 causationStreamLink : Event -> Maybe (Html Msg)
