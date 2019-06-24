@@ -121,7 +121,5 @@ module RubyEventStore
         end
       end
     end
-
-    MissingEncryptionKey = Transformation::Encryption::MissingEncryptionKey
   end
 end

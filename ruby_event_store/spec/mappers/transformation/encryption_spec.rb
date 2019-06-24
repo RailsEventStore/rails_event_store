@@ -178,7 +178,7 @@ module RubyEventStore
         specify 'raises error on encryption with missing encryption key' do
           expect do
             encrypt(ticket_transferred)
-          end.to raise_error(MissingEncryptionKey, "Could not find encryption key for '#{sender_id}'")
+          end.to raise_error(Encryption::MissingEncryptionKey, "Could not find encryption key for '#{sender_id}'")
         end
 
         specify 'does not modify original event' do
