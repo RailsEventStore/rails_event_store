@@ -37,7 +37,8 @@ suite =
                                     "metadata": {
                                         "timestamp": "2017-12-20T23:49:45.273Z"
                                     },
-                                    "parent_event_id": null
+                                    "parent_event_id": null,
+                                    "type_stream_name": "$by_type_DummyEvent"
                                 }
                                 }
                             ]
@@ -57,6 +58,7 @@ suite =
                                   , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                                   , correlationStreamName = Nothing
                                   , causationStreamName = Nothing
+                                  , typeStreamName = "$by_type_DummyEvent"
                                   , parentEventId = Nothing
                                   }
                                 ]
@@ -94,6 +96,7 @@ suite =
                                     },
                                     "correlation_stream_name": "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad",
                                     "causation_stream_name": "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2",
+                                    "type_stream_name": "$by_type_DummyEvent",
                                     "parent_event_id": "cb12f84b-b9e4-439b-8442-50fae6244dc9"
                                 }
                             }
@@ -112,6 +115,7 @@ suite =
                             , rawMetadata = "{\n  \"timestamp\": \"2017-12-20T23:49:45.273Z\"\n}"
                             , correlationStreamName = Just "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad"
                             , causationStreamName = Just "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2"
+                            , typeStreamName = "$by_type_DummyEvent"
                             , parentEventId = Just "cb12f84b-b9e4-439b-8442-50fae6244dc9"
                             }
                         )

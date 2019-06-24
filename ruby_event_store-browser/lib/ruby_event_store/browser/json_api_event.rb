@@ -16,6 +16,7 @@ module RubyEventStore
             metadata: metadata,
             correlation_stream_name: correlation_stream_name,
             causation_stream_name: causation_stream_name,
+            type_stream_name: type_stream_name,
             parent_event_id: parent_event_id,
           },
         }
@@ -45,6 +46,10 @@ module RubyEventStore
 
       def causation_stream_name
         "$by_causation_id_#{event.event_id}"
+      end
+
+      def type_stream_name
+        "$by_type_#{event.type}"
       end
     end
   end
