@@ -42,8 +42,10 @@ type alias PaginationLinks =
 
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
-    Http.get (Route.buildUrl flags.eventsUrl eventId) eventDecoder
-        |> Http.send msgBuilder
+    Http.get
+        { url = Route.buildUrl flags.eventsUrl eventId
+        , expect = Http.expectJson msgBuilder eventDecoder
+        }
 
 
 eventDecoder : Decoder Event
@@ -67,8 +69,10 @@ eventDecoder_ =
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg
 getEvents msgBuilder url =
-    Http.get url eventsDecoder
-        |> Http.send msgBuilder
+    Http.get
+        { url = url
+        , expect = Http.expectJson msgBuilder eventsDecoder
+        }
 
 
 eventsDecoder : Decoder (PaginatedList Event)
