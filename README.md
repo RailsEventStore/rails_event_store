@@ -26,7 +26,7 @@ Documentation, tutorials and code samples are available at [https://railseventst
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
 [![Downloads](https://badgen.net/rubygems/dt/ruby_event_store)](https://rubygems.org/gems/ruby_event_store)
 [![Maintainability](https://badgen.net/codeclimate/maintainability/RailsEventStore/rails_event_store)](https://codeclimate.com/github/RailsEventStore/rails_event_store/maintainability)
-[![Documentation](https://inch-ci.org/github/RailsEventStore/rails_event_store.svg?branch=master)](https://inch-ci.org/github/RailsEventStore/rails_event_store.svg?branch=master)
+[![Documentation](https://inch-ci.org/github/RailsEventStore/rails_event_store.svg?branch=master)](https://inch-ci.org/github/RailsEventStore/rails_event_store)
 
 We're aiming for 100% mutation coverage in this project. This is why:
 
