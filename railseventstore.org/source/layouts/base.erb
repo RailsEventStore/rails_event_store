@@ -41,7 +41,9 @@
         </div>
       </footer>
     </div>
-    <%= javascript_include_tag :all %>
+    <% unless config[:mode] == :server %>
+      <%= javascript_include_tag :all %>
+    <% end %>
     <%= partial "partials/tracking" %>
   </body>
 </html>
