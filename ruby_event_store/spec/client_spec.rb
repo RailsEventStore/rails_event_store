@@ -897,13 +897,15 @@ module RubyEventStore
     specify "#inspect" do
       repository = InMemoryRepository.new
       dispatcher = PubSub::Dispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher)
+      mapper = Mappers::Default.new
+      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher, mapper: mapper)
       client_id = client.object_id.to_s(16)
       expect(client.inspect).to eq(
         <<~EOS.strip
           #<RubyEventStore::Client:0x#{client_id}>
             - repository: #{repository.inspect}
             - dispatcher: #{dispatcher.inspect}
+            - mapper: #{mapper.inspect}
         EOS
       )
     end

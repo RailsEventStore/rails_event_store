@@ -301,6 +301,7 @@ module RubyEventStore
         #<#{self.class}:0x#{__id__.to_s(16)}>
           - repository: #{repository.inspect}
           - dispatcher: #{broker.dispatcher.inspect}
+          - mapper: #{mapper.inspect}
       EOS
     end
 

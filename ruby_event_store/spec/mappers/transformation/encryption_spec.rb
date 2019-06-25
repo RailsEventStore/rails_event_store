@@ -414,6 +414,14 @@ module RubyEventStore
           end
         end
 
+        specify "#inspect" do
+          key_repository = InMemoryEncryptionKeyRepository.new
+          serializer = YAML
+          transformation = Encryption.new(key_repository, serializer: serializer)
+          object_id = transformation.object_id.to_s(16)
+          expect(transformation.inspect).to eq("#<RubyEventStore::Mappers::Transformation::Encryption:0x#{object_id} serializer=#{serializer.inspect} key_repository=#{key_repository.inspect}>")
+        end
+
         def with_default_cipher(cipher, &block)
           cipher_ = InMemoryEncryptionKeyRepository::DEFAULT_CIPHER
           InMemoryEncryptionKeyRepository.send(:remove_const, :DEFAULT_CIPHER)
