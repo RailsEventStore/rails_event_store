@@ -2,8 +2,8 @@ RSpec.shared_examples :broker do |broker_klass|
   let(:event) { instance_double(::RubyEventStore::Event, type: 'EventType') }
   let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
   let(:handler) { HandlerClass.new }
-  let(:subscriptions) { ::RubyEventStore::PubSub::Subscriptions.new }
-  let(:dispatcher) { ::RubyEventStore::PubSub::Dispatcher.new }
+  let(:subscriptions) { ::RubyEventStore::Subscriptions.new }
+  let(:dispatcher) { ::RubyEventStore::Dispatcher.new }
   let(:broker) { broker_klass.new(subscriptions: subscriptions, dispatcher: dispatcher) }
 
   specify "no dispatch when no subscriptions" do
@@ -42,7 +42,7 @@ RSpec.shared_examples :broker do |broker_klass|
     allow(dispatcher).to receive(:verify).and_return(false)
     expect do
       broker.add_subscription(HandlerClass, [])
-    end.to raise_error(RubyEventStore::InvalidHandler, /Handler HandlerClass is invalid for dispatcher .*PubSub::Dispatcher/)
+    end.to raise_error(RubyEventStore::InvalidHandler, /Handler HandlerClass is invalid for dispatcher .*Dispatcher/)
     expect do
       broker.add_global_subscription(HandlerClass)
     end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)

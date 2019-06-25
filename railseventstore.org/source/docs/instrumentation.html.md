@@ -18,7 +18,7 @@ That having said, if you want to instrument your event store with `ActiveSupport
 
 ```ruby
 repository = RailsEventStoreActiveRecord::EventRepository.new # or other repo you use
-dispatcher = RubyEventStore::PubSub::Dispatcher.new # or other dispatcher you use
+dispatcher = RubyEventStore::Dispatcher.new # or other dispatcher you use
 RubyEventStore::Client.new(
   repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications),
   dispatcher: InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)

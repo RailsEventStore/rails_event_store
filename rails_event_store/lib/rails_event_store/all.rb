@@ -11,7 +11,7 @@ require 'rails_event_store/browser'
 module RailsEventStore
   Event                       = RubyEventStore::Event
   InMemoryRepository          = RubyEventStore::InMemoryRepository
-  Subscriptions               = RubyEventStore::PubSub::Subscriptions
+  Subscriptions               = RubyEventStore::Subscriptions
   Projection                  = RubyEventStore::Projection
   WrongExpectedEventVersion   = RubyEventStore::WrongExpectedEventVersion
   InvalidExpectedVersion      = RubyEventStore::InvalidExpectedVersion
