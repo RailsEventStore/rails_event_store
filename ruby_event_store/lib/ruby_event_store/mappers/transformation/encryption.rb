@@ -1,11 +1,5 @@
 module RubyEventStore
   module Mappers
-    class MissingEncryptionKey < StandardError
-      def initialize(key_identifier)
-        super %Q|Could not find encryption key for '#{key_identifier}'|
-      end
-    end
-
     module Transformation
       class Encryption
         class Leaf
@@ -14,6 +8,12 @@ module RubyEventStore
           end
         end
         private_constant :Leaf
+
+        class MissingEncryptionKey < StandardError
+          def initialize(key_identifier)
+            super %Q|Could not find encryption key for '#{key_identifier}'|
+          end
+        end
 
         def initialize(key_repository, serializer: YAML, forgotten_data: ForgottenData.new)
           @key_repository = key_repository
