@@ -316,5 +316,5 @@ renderCausedEvent { eventType, eventId } =
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg
 showJsonTree rawJson treeState changeState =
     JsonTree.parseString rawJson
-        |> Result.map (\tree -> JsonTree.view tree { onSelect = Nothing, toMsg = changeState } treeState)
+        |> Result.map (\tree -> JsonTree.view tree { onSelect = Nothing, toMsg = changeState, colors = JsonTree.defaultColors } treeState)
         |> Result.withDefault (pre [] [ text rawJson ])
