@@ -1,0 +1,3 @@
+files:
+  included:
+    - ruby_event_store/lib/**/*.rb
