@@ -7,7 +7,7 @@ const config = {
     path: path.resolve(__dirname, ".tmp/dist"),
     filename: "javascripts/all.js"
   },
-  entry: ["./stylesheets/styles.css"],
+  entry: ["./stylesheets/styles.css", "./stats.js"],
   module: {
     rules: []
   },
