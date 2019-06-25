@@ -24,6 +24,7 @@ Documentation, tutorials and code samples are available at [https://railseventst
 
 [![CircleCI](https://circleci.com/gh/RailsEventStore/rails_event_store.svg?style=shield)](https://circleci.com/gh/RailsEventStore/rails_event_store)
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2efd87b704b2636bd7ec/maintainability)](https://codeclimate.com/github/RailsEventStore/rails_event_store/maintainability)
 
 We're aiming for 100% mutation coverage in this project. This is why:
 
