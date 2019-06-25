@@ -19,6 +19,10 @@ const config = {
 };
 
 module.exports = (env, argv) => {
+  config.module.rules.push(
+    {test: /\.js$/, exclude: /node_modules/, loader: "babel-loader"}
+  );
+
   if (argv.mode === "production") {
     config.module.rules.push({
       test: /\.css$/,
