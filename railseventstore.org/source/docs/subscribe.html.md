@@ -300,7 +300,7 @@ Often you will want to be able to specify both asynchronous and synchronous disp
 event_store = RailsEventStore::Client.new(
   dispatcher: RubyEventStore::ComposedDispatcher.new(
     RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
-    RubyEventStore::PubSub::Dispatcher.new # regular synchronous dispatcher
+    RubyEventStore::Dispatcher.new # regular synchronous dispatcher
   )
 )
 ```
@@ -377,7 +377,7 @@ end
 event_store = RailsEventStore::Client.new(
   dispatcher: RubyEventStore::ComposedDispatcher.new(
     RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
-    RubyEventStore::PubSub::Dispatcher.new
+    RubyEventStore::Dispatcher.new
   )
 )
 

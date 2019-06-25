@@ -10,7 +10,7 @@ asn = ActiveSupport::Notifications
 event_store = RubyEventStore::Client.new(
   repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, asn),
   mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, asn),
-  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::PubSub::Dispatcher.new, asn)
+  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, asn)
 )
 DummyEvent  = Class.new(RubyEventStore::Event)
 dummy = DummyEvent.new

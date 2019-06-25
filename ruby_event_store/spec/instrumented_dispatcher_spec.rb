@@ -4,7 +4,7 @@ require 'active_support/notifications'
 
 module RubyEventStore
   RSpec.describe InstrumentedDispatcher do
-    it_behaves_like :dispatcher, InstrumentedDispatcher.new(PubSub::Dispatcher.new, ActiveSupport::Notifications)
+    it_behaves_like :dispatcher, InstrumentedDispatcher.new(Dispatcher.new, ActiveSupport::Notifications)
 
     describe "#call" do
       specify "wraps around original implementation" do

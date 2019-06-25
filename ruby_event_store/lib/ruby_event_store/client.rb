@@ -5,12 +5,12 @@ module RubyEventStore
 
     def initialize(repository:,
                    mapper: Mappers::Default.new,
-                   subscriptions: PubSub::Subscriptions.new,
-                   dispatcher: PubSub::Dispatcher.new,
+                   subscriptions: Subscriptions.new,
+                   dispatcher: Dispatcher.new,
                    clock: ->{ Time.now.utc })
       @repository     = repository
       @mapper         = mapper
-      @broker         = PubSub::Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
+      @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
     end
