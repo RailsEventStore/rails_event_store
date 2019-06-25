@@ -8,7 +8,7 @@ title: Community
       Stargazers
     </dt>
     <dd class="text-left md:text-center text-4xl text-grey-darker order-1">
-      549
+      <%= stargazers_count %>
     </dd>
   </dl>
 
@@ -17,7 +17,7 @@ title: Community
       Contributors
     </dt>
     <dd class="text-left md:text-center text-4xl text-grey-darker order-1">
-      39
+      <%= contributors_count %>
     </dd>
   </dl>
 
@@ -26,7 +26,7 @@ title: Community
       Releases
     </dt>
     <dd class="text-left md:text-center text-4xl text-grey-darker order-1">
-      57
+      <%= releases_count %>
     </dd>
   </dl>
 
@@ -35,7 +35,7 @@ title: Community
       Downloads
     </dt>
     <dd class="text-left md:text-center text-4xl text-grey-darker order-1">
-      165665
+      <%= total_downloads %>
     </dd>
   </dl>
 </section>
@@ -52,7 +52,7 @@ title: Community
 </p>
 
 <ul class="mb-12 list-reset flex flex-wrap">
-  <% data.contributors.each do |contributor| %>
+  <% contributors.each do |contributor| %>
     <li class="mr-2">
       <a class="bg-none" href="<%= contributor.html_url %>">
         <img class="h-16 w-16 rounded" src="<%= contributor.avatar_url %>" />

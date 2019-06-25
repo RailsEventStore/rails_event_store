@@ -1,4 +1,0 @@
-#!/bin/sh
-
-URL=https://api.github.com/repos/RailsEventStore/rails_event_store/contributors
-curl -H "Accept: application/json" -H "Content-Type: application/json" -X GET $URL > data/contributors.json
