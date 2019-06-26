@@ -51,7 +51,7 @@ When the read scope is defined, several methods can be used to get the data:
 
 ## Examples
 
-### Reading a stream's events forward in batches — starting from the first event
+### Reading a stream's events forward — starting from the first event
 
 ```ruby
 stream_name = "order_1"
@@ -59,7 +59,7 @@ count = 40
 client.read.stream(stream_name).limit(count).to_a
 ```
 
-### Reading a stream's events forward in batches — starting from a given event
+### Reading a stream's events forward — starting from a given event
 
 ```ruby
 # last_read_event is any domain event read or published by rails_event_store
@@ -70,7 +70,7 @@ count = 40
 client.read.stream(stream_name).from(start).limit(count).to_a
 ```
 
-### Reading a stream's events backward in batches
+### Reading a stream's events backward
 
 As in examples above, just append `.backward` before `.each`.
 
