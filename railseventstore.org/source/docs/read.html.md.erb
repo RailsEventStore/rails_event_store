@@ -139,6 +139,29 @@ stored in event store, with no limit applied.
 client.read.backward.to_a
 ```
 
+### Reading events using batches explicitly
+
+```ruby
+client.read.in_batches.each do |event|
+  # do something with event
+end
+```
+
+### Reading events and iterating over each batch
+
+```ruby
+client.read..in_batches.each_batch do |batch|
+  # do something with given batch of events of default size
+end
+```
+
+### Reading events using batches of custom size and iterating over each batch
+
+```ruby
+client.read.in_batches(42).each_batch do |batch|
+  # do something with batch of events of size 42
+end
+```
 
 ## Reading specific events
 
