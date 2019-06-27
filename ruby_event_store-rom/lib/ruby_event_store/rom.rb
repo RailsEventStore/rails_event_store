@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rom-changeset'
 require 'rom-repository'
 require 'ruby_event_store'

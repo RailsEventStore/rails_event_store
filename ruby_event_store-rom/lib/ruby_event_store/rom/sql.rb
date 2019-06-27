@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ruby_event_store/rom'
 require 'rom/sql'
 require_relative 'adapters/sql/index_violation_detector'

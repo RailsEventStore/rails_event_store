@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ruby_event_store/rom'
 require 'rom/memory'
 require_relative 'adapters/memory/unit_of_work'
