@@ -209,11 +209,33 @@ module RailsEventStore
         end
       end
 
-      it "dispatches the job after a nested transaction commits" do
-        expect_to_have_enqueued_job(MyAsyncHandler) do
-          ActiveRecord::Base.transaction do
-            expect_no_enqueued_job(MyAsyncHandler) do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
+      context "with < Rails 5" do
+        before do
+          skip if ActiveRecord.version >= Gem::Version.new("5")
+        end
+
+        it "does not dispatch the job after a nested transaction commits" do
+          expect_no_enqueued_job(MyAsyncHandler) do
+            ActiveRecord::Base.transaction do
+              expect_no_enqueued_job(MyAsyncHandler) do
+                dispatcher.call(MyAsyncHandler, event, serialized_event)
+              end
+            end
+          end
+        end
+      end
+
+      context "with Rails 5+" do
+        before do
+          skip if ActiveRecord.version < Gem::Version.new("5")
+        end
+
+        it "dispatches the job after a nested transaction commits" do
+          expect_to_have_enqueued_job(MyAsyncHandler) do
+            ActiveRecord::Base.transaction do
+              expect_no_enqueued_job(MyAsyncHandler) do
+                dispatcher.call(MyAsyncHandler, event, serialized_event)
+              end
             end
           end
         end
