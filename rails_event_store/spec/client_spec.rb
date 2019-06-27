@@ -7,23 +7,23 @@ module RailsEventStore
     specify 'has default request metadata proc if no custom one provided' do
       client = Client.new
       expect(client.request_metadata.call({
-                                            'action_dispatch.request_id' => 'dummy_id',
-                                            'action_dispatch.remote_ip'  => 'dummy_ip',
-                                          })).to eq({
-                                                      remote_ip:  'dummy_ip',
-                                                      request_id: 'dummy_id',
-                                                    })
+        'action_dispatch.request_id' => 'dummy_id',
+        'action_dispatch.remote_ip'  => 'dummy_ip'
+      })).to eq({
+        remote_ip: 'dummy_ip',
+        request_id: 'dummy_id'
+      })
     end
 
     specify 'allows to set custom request metadata proc' do
       client = Client.new(
-        request_metadata: ->env { { server_name: env['SERVER_NAME'] } },
+        request_metadata: -> env { {server_name: env['SERVER_NAME']} }
       )
       expect(client.request_metadata.call({
-                                            'SERVER_NAME' => 'example.org',
-                                          })).to eq({
-                                                      server_name: 'example.org',
-                                                    })
+        'SERVER_NAME' => 'example.org'
+      })).to eq({
+        server_name: 'example.org'
+      })
     end
 
     specify 'published event metadata will be enriched by metadata provided in request metadata when executed inside a with_request_metadata block' do
@@ -33,7 +33,7 @@ module RailsEventStore
       event = TestEvent.new
       client.with_request_metadata(
         'action_dispatch.request_id' => 'dummy_id',
-        'action_dispatch.remote_ip'  => 'dummy_ip',
+        'action_dispatch.remote_ip'  => 'dummy_ip'
       ) do
         client.publish(event)
       end
@@ -60,7 +60,7 @@ module RailsEventStore
     specify 'wraps mapper into instrumentation' do
       client = Client.new(
         repository: InMemoryRepository.new,
-        mapper:     RubyEventStore::Mappers::NullMapper.new,
+        mapper: RubyEventStore::Mappers::NullMapper.new
       )
 
       received_notifications = 0

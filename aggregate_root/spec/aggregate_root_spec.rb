@@ -133,13 +133,13 @@ RSpec.describe AggregateRoot do
   it "should raise error for missing apply method based on a default apply strategy" do
     order = Order.new(SecureRandom.uuid)
     spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
+    expect{ order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method apply_spanish_inquisition on aggregate Order")
   end
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
     order = OrderWithNonStrictApplyStrategy.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to_not raise_error
+    expect{ order.apply(spanish_inquisition) }.to_not raise_error
   end
 
   it "should receive a method call based on a custom strategy" do

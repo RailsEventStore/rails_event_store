@@ -7,7 +7,7 @@ module RubyEventStore
     def initialize
       @local  = LocalSubscriptions.new
       @global = GlobalSubscriptions.new
-      @thread = ThreadSubscriptions.new
+      @thread  = ThreadSubscriptions.new
     end
 
     def add_subscription(subscriber, event_types)
@@ -27,11 +27,10 @@ module RubyEventStore
     end
 
     def all_for(event_type)
-      [local, global, thread].map { |r| r.all_for(event_type) }.reduce(&:+)
+      [local, global, thread].map{|r| r.all_for(event_type)}.reduce(&:+)
     end
 
     private
-
     attr_reader :local, :global, :thread
 
     class ThreadSubscriptions
@@ -42,18 +41,18 @@ module RubyEventStore
       attr_reader :local, :global
 
       def all_for(event_type)
-        [global, local].map { |r| r.all_for(event_type) }.reduce(&:+)
+        [global, local].map{|r| r.all_for(event_type)}.reduce(&:+)
       end
     end
 
     class LocalSubscriptions
       def initialize
-        @subscriptions = Hash.new { |hsh, key| hsh[key] = [] }
+        @subscriptions = Hash.new {|hsh, key| hsh[key] = [] }
       end
 
       def add(subscription, event_types)
-        event_types.each { |type| @subscriptions[type.to_s] << subscription }
-        ->() { event_types.each { |type| @subscriptions.fetch(type.to_s).delete(subscription) } }
+        event_types.each{ |type| @subscriptions[type.to_s] << subscription }
+        ->() {event_types.each{ |type| @subscriptions.fetch(type.to_s).delete(subscription) } }
       end
 
       def all_for(event_type)
@@ -79,13 +78,13 @@ module RubyEventStore
     class ThreadLocalSubscriptions
       def initialize
         @subscriptions = Concurrent::ThreadLocalVar.new do
-          Hash.new { |hsh, key| hsh[key] = [] }
+          Hash.new {|hsh, key| hsh[key] = [] }
         end
       end
 
       def add(subscription, event_types)
-        event_types.each { |type| @subscriptions.value[type.to_s] << subscription }
-        ->() { event_types.each { |type| @subscriptions.value.fetch(type.to_s).delete(subscription) } }
+        event_types.each{ |type| @subscriptions.value[type.to_s] << subscription }
+        ->() {event_types.each{ |type| @subscriptions.value.fetch(type.to_s).delete(subscription) } }
       end
 
       def all_for(event_type)

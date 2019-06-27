@@ -18,7 +18,7 @@ module RailsEventStore
       let(:event_store) do
         RailsEventStore::Client.new(
           repository: RailsEventStore::InMemoryRepository.new,
-          mapper:     mapper_for_object_comparison,
+          mapper: mapper_for_object_comparison
         )
       end
 
@@ -118,7 +118,7 @@ module RailsEventStore
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         )
       end
 
@@ -127,7 +127,7 @@ module RailsEventStore
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         )
       end
 
@@ -137,7 +137,7 @@ module RailsEventStore
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         )
       end
 
@@ -148,7 +148,7 @@ module RailsEventStore
 
         expect(event_store).not_to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent),
+          matchers.an_event(BarEvent)
         ).strict
       end
 
@@ -158,7 +158,7 @@ module RailsEventStore
 
         expect(event_store).not_to matcher(
           matchers.an_event(BarEvent),
-          matchers.an_event(FooEvent),
+          matchers.an_event(FooEvent)
         ).strict
       end
 
@@ -168,7 +168,7 @@ module RailsEventStore
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent),
+          matchers.an_event(BarEvent)
         ).strict
       end
 
@@ -179,7 +179,7 @@ module RailsEventStore
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent),
+          matchers.an_event(BarEvent)
         ).strict.in_stream("Foo")
       end
 
@@ -190,7 +190,7 @@ module RailsEventStore
 
         expect(event_store).to matcher(
           matchers.an_event(BarEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         ).from(start_id)
       end
 
@@ -200,7 +200,7 @@ module RailsEventStore
         event_store.publish(BazEvent.new)
 
         expect(event_store).not_to matcher(
-          matchers.an_event(FooEvent),
+          matchers.an_event(FooEvent)
         ).from(start_id)
       end
 
@@ -208,10 +208,10 @@ module RailsEventStore
         event_store.publish(FooEvent.new)
         event_store.publish(BazEvent.new)
 
-        expect {
+        expect{
           expect(event_store).to matcher(
             matchers.an_event(FooEvent),
-            matchers.an_event(BazEvent),
+            matchers.an_event(BazEvent)
           ).exactly(2).times
         }.to raise_error(NotSupported)
       end
@@ -242,12 +242,12 @@ module RailsEventStore
         EOS
       end
 
-      specify { expect { HavePublished.new() }.to raise_error(ArgumentError) }
+      specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
 
       specify do
         matcher_ = matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         )
         expect(matcher_.description)
           .to eq("have published events that have to (be an event FooEvent and be an event BazEvent)")
@@ -256,11 +256,11 @@ module RailsEventStore
       specify do
         matcher_ = matcher(
           FooEvent,
-          BazEvent,
+          BazEvent
         )
         expect(matcher_.description)
           .to eq("have published events that have to (be a FooEvent and be a BazEvent)")
       end
-    end
+   end
   end
 end

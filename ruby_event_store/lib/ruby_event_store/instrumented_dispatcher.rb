@@ -18,7 +18,6 @@ module RubyEventStore
     end
 
     private
-
     attr_reader :instrumentation, :dispatcher
   end
 end

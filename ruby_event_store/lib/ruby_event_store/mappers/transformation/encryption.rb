@@ -32,8 +32,8 @@ module RubyEventStore
           metadata[:encryption] = crypto_description unless crypto_description.empty?
 
           item.merge(
-            data:     encrypt_data(deep_dup(data), crypto_description),
-            metadata: metadata,
+            data: encrypt_data(deep_dup(data), crypto_description),
+            metadata: metadata
           )
         end
 
@@ -42,13 +42,12 @@ module RubyEventStore
           crypto_description = Hash(metadata.delete(:encryption))
 
           item.merge(
-            data:     decrypt_data(item.data, crypto_description),
-            metadata: metadata,
+            data: decrypt_data(item.data, crypto_description),
+            metadata: metadata
           )
         end
 
         private
-
         attr_reader :key_repository, :serializer, :forgotten_data
 
         def encryption_schema(event_class)
@@ -72,8 +71,8 @@ module RubyEventStore
               key_identifier = value.call(data)
               encryption_key = key_repository.key_of(key_identifier) or raise MissingEncryptionKey.new(key_identifier)
               acc[key] = {
-                cipher:     encryption_key.cipher,
-                iv:         encryption_key.random_iv,
+                cipher: encryption_key.cipher,
+                iv: encryption_key.random_iv,
                 identifier: key_identifier,
               }
             end

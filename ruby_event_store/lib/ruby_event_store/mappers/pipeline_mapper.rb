@@ -16,7 +16,6 @@ module RubyEventStore
       end
 
       private
-
       attr_reader :pipeline
     end
   end

@@ -73,7 +73,7 @@ RSpec.describe RailsEventStore do
     MyLovelyAsyncHandler.event = nil
     event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
     event_store.publish(ev = RailsEventStore::Event.new)
-    wait_until { MyLovelyAsyncHandler.event }
+    wait_until{ MyLovelyAsyncHandler.event }
     expect(MyLovelyAsyncHandler.event).to eq(ev)
   end
 
@@ -81,7 +81,7 @@ RSpec.describe RailsEventStore do
     HandlerWithHelper.event = nil
     event_store.subscribe_to_all_events(HandlerWithHelper)
     event_store.publish(ev = RailsEventStore::Event.new)
-    wait_until { HandlerWithHelper.event }
+    wait_until{ HandlerWithHelper.event }
     expect(HandlerWithHelper.event).to eq(ev)
   end
 
@@ -89,11 +89,11 @@ RSpec.describe RailsEventStore do
     MetadataHandler.metadata = nil
     event_store.subscribe_to_all_events(MetadataHandler)
     event_store.publish(ev = RailsEventStore::Event.new)
-    wait_until { MetadataHandler.metadata }
+    wait_until{ MetadataHandler.metadata }
     expect(MetadataHandler.metadata).to eq({
-                                             correlation_id: ev.event_id,
-                                             causation_id:   ev.event_id,
-                                           })
+      correlation_id: ev.event_id,
+      causation_id:   ev.event_id,
+    })
   end
 
   specify 'ActiveJob with CorrelatedHandler prepended (2)' do
@@ -103,13 +103,13 @@ RSpec.describe RailsEventStore do
       metadata: {
         correlation_id: "COID",
         causation_id:   "CAID",
-      },
+      }
     ))
-    wait_until { MetadataHandler.metadata }
+    wait_until{ MetadataHandler.metadata }
     expect(MetadataHandler.metadata).to eq({
-                                             correlation_id: "COID",
-                                             causation_id:   ev.event_id,
-                                           })
+      correlation_id: "COID",
+      causation_id:   ev.event_id,
+    })
   end
 
   specify 'ActiveJob with sidekiq adapter that requires serialization', mutant: false do
@@ -119,21 +119,21 @@ RSpec.describe RailsEventStore do
       MyLovelyAsyncHandler.event = nil
       event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
       event_store.publish(ev)
-      Thread.new { Sidekiq::Worker.drain_all }.join
+      Thread.new{ Sidekiq::Worker.drain_all }.join
     end
     expect(MyLovelyAsyncHandler.event).to eq(ev)
   end
 
   specify 'Sidekiq::Worker without ActiveJob that requires serialization' do
     event_store = RailsEventStore::Client.new(
-      dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomSidekiqScheduler.new),
+      dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomSidekiqScheduler.new)
     )
     ev = RailsEventStore::Event.new
     Sidekiq::Testing.fake! do
       SidekiqHandlerWithHelper.event = nil
       event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
       event_store.publish(ev)
-      Thread.new { Sidekiq::Worker.drain_all }.join
+      Thread.new{ Sidekiq::Worker.drain_all }.join
     end
     expect(SidekiqHandlerWithHelper.event).to eq(ev)
   end
@@ -144,9 +144,9 @@ RSpec.describe RailsEventStore do
     Timeout.timeout(1) do
       loop do
         break if block.call
-
         sleep(0.001)
       end
     end
   end
+
 end

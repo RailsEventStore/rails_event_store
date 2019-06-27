@@ -1,6 +1,7 @@
 require_relative 'migrator'
 require_relative 'subprocess_helper'
 
+
 module SchemaHelper
   include SubprocessHelper
 
@@ -74,7 +75,7 @@ module SchemaHelper
   end
 
   def validate_migration(source_gemfile, target_gemfile,
-    source_template_name: nil)
+                         source_template_name: nil)
     begin
       build_schema(source_gemfile, template_name: source_template_name)
       establish_database_connection

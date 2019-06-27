@@ -9,17 +9,17 @@ module RubyEventStore
         let(:uuid)   { SecureRandom.uuid }
         let(:serialized) {
           Item.new(
-            event_id:   uuid,
-            data:       "---\n:some: value\n",
-            metadata:   "---\n:some: meta\n",
+            event_id: uuid,
+            data: "---\n:some: value\n",
+            metadata: "---\n:some: meta\n",
             event_type: 'TestEvent',
           )
         }
-        let(:item) {
+        let(:item)   {
           Item.new(
             event_id:   uuid,
-            data:       { some: 'value' },
-            metadata:   { some: 'meta' },
+            data:       {some: 'value'},
+            metadata:   {some: 'meta'},
             event_type: 'TestEvent',
           )
         }

@@ -17,7 +17,7 @@ module RailsEventStoreActiveRecord
         stub_const("Rails::VERSION::STRING", "4.2.8")
 
         generator = IndexByEventTypeGenerator.new
-        allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22))
+        allow(Time).to receive(:now).and_return(Time.new(2016,8,9,22,22,22))
         generator.create_migration
 
         expect(File.read("db/migrate/20160809222222_index_by_event_type.rb")).to match(/ActiveRecord::Migration$/)
@@ -30,7 +30,7 @@ module RailsEventStoreActiveRecord
         stub_const("Rails::VERSION::STRING", "5.0.0")
 
         generator = IndexByEventTypeGenerator.new
-        allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22))
+        allow(Time).to receive(:now).and_return(Time.new(2016,8,9,22,22,22))
         generator.create_migration
 
         expect(File.read("db/migrate/20160809222222_index_by_event_type.rb")).to match(/ActiveRecord::Migration\[4\.2\]$/)

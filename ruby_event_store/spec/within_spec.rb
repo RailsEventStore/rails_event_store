@@ -17,5 +17,6 @@ module RubyEventStore
         client.within()
       end.to raise_error(ArgumentError)
     end
+
   end
 end

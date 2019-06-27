@@ -7,6 +7,7 @@ require 'aggregate_root/default_apply_strategy'
 require 'aggregate_root/repository'
 require 'aggregate_root/instrumented_repository'
 
+
 module AggregateRoot
   module OnDSL
     ANONYMOUS_CLASS = "#<Class:".freeze
@@ -15,7 +16,6 @@ module AggregateRoot
       event_klasses.each do |event_klass|
         name = event_klass.to_s
         raise(ArgumentError, "Anonymous class is missing name") if name.start_with? ANONYMOUS_CLASS
-
         handler_name = "on_#{name}"
         define_method(handler_name, &block)
         @on_methods ||= {}
@@ -65,7 +65,7 @@ module AggregateRoot
     Module.new do
       def self.included(host_class)
         host_class.extend  OnDSL
-        host_class.include AggregateRoot.with_strategy(-> { DefaultApplyStrategy.new })
+        host_class.include AggregateRoot.with_strategy(->{ DefaultApplyStrategy.new })
       end
     end
   end

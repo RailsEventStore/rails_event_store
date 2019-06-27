@@ -56,7 +56,7 @@ module RubyEventStore
         begin
           json Event.new(
             event_store: settings.event_store_locator,
-            params:      symbolized_params,
+            params: symbolized_params,
           )
         rescue RubyEventStore::EventNotFound
           404
@@ -66,16 +66,16 @@ module RubyEventStore
       get '/streams/:id' do
         json Stream.new(
           event_store: settings.event_store_locator,
-          params:      symbolized_params,
-          url_builder: method(:streams_url_for),
+          params: symbolized_params,
+          url_builder: method(:streams_url_for)
         )
       end
 
       get '/streams/:id/:position/:direction/:count' do
         json Stream.new(
           event_store: settings.event_store_locator,
-          params:      symbolized_params,
-          url_builder: method(:streams_url_for),
+          params: symbolized_params,
+          url_builder: method(:streams_url_for)
         )
       end
 

@@ -17,7 +17,6 @@ module RubyEventStore
         end
 
         private
-
         attr_reader :class_map
       end
     end

@@ -1,6 +1,7 @@
 require 'childprocess'
 require 'tempfile'
 
+
 module SubprocessHelper
   def run_subprocess(gemfile_path, script, cwd)
     gemfile_lock_path = gemfile_path + ".lock"

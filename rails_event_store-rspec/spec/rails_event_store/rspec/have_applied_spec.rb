@@ -82,7 +82,7 @@ module RailsEventStore
 
         expect(aggregate_root).to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent),
+          matchers.an_event(BarEvent)
         )
       end
 
@@ -91,7 +91,7 @@ module RailsEventStore
 
         expect(aggregate_root).not_to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         )
       end
 
@@ -101,7 +101,7 @@ module RailsEventStore
 
         expect(aggregate_root).not_to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent),
+          matchers.an_event(BazEvent)
         )
       end
 
@@ -112,7 +112,7 @@ module RailsEventStore
 
         expect(aggregate_root).not_to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent),
+          matchers.an_event(BarEvent)
         ).strict
       end
 
@@ -122,7 +122,7 @@ module RailsEventStore
 
         expect(aggregate_root).not_to matcher(
           matchers.an_event(BarEvent),
-          matchers.an_event(FooEvent),
+          matchers.an_event(FooEvent)
         ).strict
       end
 
@@ -132,7 +132,7 @@ module RailsEventStore
 
         expect(aggregate_root).to matcher(
           matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent),
+          matchers.an_event(BarEvent)
         ).strict
       end
 
@@ -140,15 +140,15 @@ module RailsEventStore
         aggregate_root.foo
         aggregate_root.bar
 
-        expect {
+        expect{
           expect(aggregate_root).to matcher(
             matchers.an_event(FooEvent),
-            matchers.an_event(BarEvent),
+            matchers.an_event(BarEvent)
           ).exactly(2).times
         }.to raise_error(NotSupported)
       end
 
-      specify { expect { HaveApplied.new() }.to raise_error(ArgumentError) }
+      specify { expect{ HaveApplied.new() }.to raise_error(ArgumentError) }
 
       specify do
         expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
@@ -183,7 +183,7 @@ module RailsEventStore
       specify do
         matcher_ = matcher(
           matchers.an_event(FooEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
-          matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
+          matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
         )
         expect(matcher_.description)
           .to eq("have applied events that have to (be an event FooEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}) and be an event BazEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}))")
@@ -192,20 +192,18 @@ module RailsEventStore
       specify do
         matcher_ = matcher(
           FooEvent,
-          BazEvent,
-        )
+          BazEvent)
         expect(matcher_.description)
           .to eq("have applied events that have to (be a FooEvent and be a BazEvent)")
       end
 
       specify do
         matcher_ = matcher(
-          FooEvent,
-          BarEvent,
-          BazEvent,
-        )
+            FooEvent,
+            BarEvent,
+            BazEvent)
         expect(matcher_.description)
-          .to eq("have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)")
+            .to eq("have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)")
       end
     end
   end

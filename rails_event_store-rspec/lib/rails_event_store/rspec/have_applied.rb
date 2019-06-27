@@ -41,7 +41,7 @@ module RailsEventStore
 
       def failure_message_when_negated
         "expected #{expected} not to be applied, diff:" +
-          differ.diff_as_string(expected.inspect, events.inspect)
+            differ.diff_as_string(expected.inspect, events.inspect)
       end
 
       def description
@@ -63,3 +63,4 @@ module RailsEventStore
     end
   end
 end
+

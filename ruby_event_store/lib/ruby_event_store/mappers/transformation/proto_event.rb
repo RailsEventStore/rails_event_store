@@ -8,7 +8,7 @@ module RubyEventStore
           Proto.new(
             event_id: item.event_id,
             data:     item.data,
-            metadata: item.metadata,
+            metadata: item.metadata
           )
         end
       end

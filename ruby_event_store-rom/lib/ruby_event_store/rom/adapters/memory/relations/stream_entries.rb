@@ -67,8 +67,8 @@ module RubyEventStore
           end
 
           DIRECTION_MAP = {
-            forward:  [false, :>, :<],
-            backward: [true, :<, :>],
+            forward: [false, :>, :<],
+            backward: [true, :<, :>]
           }.freeze
 
           def ordered(direction, stream, offset_entry_id = nil, stop_entry_id = nil)

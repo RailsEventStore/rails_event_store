@@ -3,6 +3,7 @@ require 'spec_helper'
 module RubyEventStore
   module Mappers
     RSpec.describe Pipeline do
+
       specify '#initialize - default values' do
         pipe = Pipeline.new
         expect(pipe.transformations.map(&:class)).to eq [Transformation::DomainEvent, Transformation::SerializedRecord]
@@ -34,7 +35,7 @@ module RubyEventStore
 
       specify '#initialize - change in transformations not allowed' do
         pipe = Pipeline.new
-        expect { pipe.transformations << Object.new }.to raise_error(RuntimeError)
+        expect { pipe.transformations << Object.new}.to raise_error(RuntimeError)
       end
 
       specify '#dump' do
@@ -51,7 +52,7 @@ module RubyEventStore
         expect(some_mapper1).to receive(:dump).with(item1).and_return(item2)
         expect(some_mapper2).to receive(:dump).with(item2).and_return(item3)
         expect(record_mapper).to receive(:dump).with(item3)
-        expect { pipe.dump(domain_event) }.not_to raise_error
+        expect{ pipe.dump(domain_event) }.not_to raise_error
       end
 
       specify '#dump' do
@@ -60,7 +61,7 @@ module RubyEventStore
         some_mapper1 = Transformation::SymbolizeMetadataKeys.new
         some_mapper2 = Transformation::StringifyMetadataKeys.new
         pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: [some_mapper1, some_mapper2])
-        record = SerializedRecord.new(event_id: SecureRandom.uuid, data: '', metadata: '', event_type: 'TestEvent')
+        record  = SerializedRecord.new(event_id: SecureRandom.uuid, data: '', metadata: '', event_type: 'TestEvent')
         item1 = Transformation::Item.new(event_id: record.event_id, item: 1)
         item2 = Transformation::Item.new(event_id: record.event_id, item: 2)
         item3 = Transformation::Item.new(event_id: record.event_id, item: 3)
@@ -68,7 +69,7 @@ module RubyEventStore
         expect(some_mapper2).to receive(:load).with(item1).and_return(item2)
         expect(some_mapper1).to receive(:load).with(item2).and_return(item3)
         expect(domain_mapper).to receive(:load).with(item3)
-        expect { pipe.load(record) }.not_to raise_error
+        expect{ pipe.load(record) }.not_to raise_error
       end
     end
   end

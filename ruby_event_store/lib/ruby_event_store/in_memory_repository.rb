@@ -3,6 +3,7 @@
 require 'ostruct'
 module RubyEventStore
   class InMemoryRepository
+
     def initialize
       @streams = Hash.new
       @mutex = Mutex.new
@@ -14,7 +15,7 @@ module RubyEventStore
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      events = Array(event_ids).map { |eid| read_event(eid) }
+      events = Array(event_ids).map {|eid| read_event(eid)}
       add_to_stream(events, expected_version, stream, nil)
     end
 
@@ -23,7 +24,7 @@ module RubyEventStore
     end
 
     def has_event?(event_id)
-      global.any? { |item| item.event_id.eql?(event_id) }
+       global.any?{ |item| item.event_id.eql?(event_id) }
     end
 
     def last_stream_event(stream)
@@ -50,10 +51,10 @@ module RubyEventStore
 
     def update_messages(messages)
       messages.each do |new_msg|
-        location = global.index { |m| new_msg.event_id.eql?(m.event_id) } or raise EventNotFound.new(new_msg.event_id)
+        location = global.index{|m| new_msg.event_id.eql?(m.event_id)} or raise EventNotFound.new(new_msg.event_id)
         global[location] = new_msg
         streams.values.each do |str|
-          location = str.index { |m| new_msg.event_id.eql?(m.event_id) }
+          location = str.index{|m| new_msg.event_id.eql?(m.event_id)}
           str[location] = new_msg if location
         end
       end
@@ -62,15 +63,14 @@ module RubyEventStore
     def streams_of(event_id)
       streams.select do |_, stream_events|
         stream_events.any? { |event| event.event_id.eql?(event_id) }
-      end.map { |name,| Stream.new(name) }
+      end.map { |name, | Stream.new(name) }
     end
 
     private
-
     def read_scope(spec)
       events = spec.stream.global? ? global : stream_of(spec.stream.name)
-      events = events.select { |e| spec.with_ids.any? { |x| x.eql?(e.event_id) } } if spec.with_ids?
-      events = events.select { |e| spec.with_types.any? { |x| x.eql?(e.event_type) } } if spec.with_types?
+      events = events.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
+      events = events.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       events = events.reverse if spec.backward?
       events = events.drop(index_of(events, spec.start) + 1) if spec.start
       events = events.take(index_of(events, spec.stop)) if spec.stop
@@ -79,7 +79,7 @@ module RubyEventStore
     end
 
     def read_event(event_id)
-      global.find { |e| event_id.eql?(e.event_id) } or raise EventNotFound.new(event_id)
+      global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
     end
 
     def stream_of(name)
@@ -116,11 +116,9 @@ module RubyEventStore
       raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
       events.each do |event|
-        raise EventDuplicatedInStream if stream_events.any? { |ev| ev.event_id.eql?(event.event_id) }
-
+        raise EventDuplicatedInStream if stream_events.any? {|ev| ev.event_id.eql?(event.event_id)}
         if include_global
           raise EventDuplicatedInStream if has_event?(event.event_id)
-
           global.push(event)
         end
         stream_events.push(event)
@@ -130,7 +128,7 @@ module RubyEventStore
     end
 
     def index_of(source, event_id)
-      source.index { |item| item.event_id.eql?(event_id) }
+      source.index {|item| item.event_id.eql?(event_id)}
     end
 
     attr_reader :streams, :mutex, :global

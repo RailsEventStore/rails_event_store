@@ -7,21 +7,19 @@ module RubyEventStore
         include ProtobufHelper
         before(:each) { require_protobuf_dependencies }
 
-        let(:metadata) {
-          {
-            one:    1,
-            two:    2.0,
-            three:  true,
-            four:   Date.new(2018, 4, 17),
-            five:   "five",
-            six:    Time.utc(2018, 12, 13, 11),
-            seven:  true,
-            eight:  false,
-            nein:   nil,
-            ten:    { some: 'hash', with: { nested: 'values' } },
-            eleven: [1, 2, 3],
-          }
-        }
+        let(:metadata) { {
+          one: 1,
+          two: 2.0,
+          three: true,
+          four: Date.new(2018, 4, 17),
+          five: "five",
+          six: Time.utc(2018, 12, 13, 11 ),
+          seven: true,
+          eight: false,
+          nein: nil,
+          ten: {some: 'hash', with: {nested: 'values'}},
+          eleven: [1,2,3],
+        } }
         let(:uuid) { SecureRandom.uuid }
         let(:item) { Item.new(event_id: uuid, data: "anything", metadata: metadata) }
 

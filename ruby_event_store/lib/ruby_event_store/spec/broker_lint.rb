@@ -1,6 +1,6 @@
 RSpec.shared_examples :broker do |broker_klass|
   let(:event) { instance_double(::RubyEventStore::Event, type: 'EventType') }
-  let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord) }
+  let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
   let(:handler) { HandlerClass.new }
   let(:subscriptions) { ::RubyEventStore::Subscriptions.new }
   let(:dispatcher) { ::RubyEventStore::Dispatcher.new }
@@ -32,10 +32,10 @@ RSpec.shared_examples :broker do |broker_klass|
   end
 
   specify 'raise error when no subscriber' do
-    expect { broker.add_subscription(nil, []) }.to raise_error(RubyEventStore::SubscriberNotExist, "subscriber must be first argument or block")
-    expect { broker.add_global_subscription(nil) }.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
-    expect { broker.add_thread_subscription(nil, []).call }.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
-    expect { broker.add_thread_global_subscription(nil).call }.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
+    expect { broker.add_subscription(nil, [])}.to raise_error(RubyEventStore::SubscriberNotExist, "subscriber must be first argument or block")
+    expect { broker.add_global_subscription(nil)}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
+    expect { broker.add_thread_subscription(nil, []).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
+    expect { broker.add_thread_global_subscription(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
   end
 
   specify 'raise error when wrong subscriber' do
@@ -85,7 +85,6 @@ RSpec.shared_examples :broker do |broker_klass|
     def self.received
       @@received
     end
-
     def call(event)
       @@received = event
     end

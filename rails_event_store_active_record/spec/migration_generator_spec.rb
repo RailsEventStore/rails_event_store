@@ -20,7 +20,7 @@ module RailsEventStoreActiveRecord
 
     before do
       allow(Time).to receive(:now).and_return(
-        Time.new(2016, 8, 9, 22, 22, 22),
+        Time.new(2016, 8, 9, 22, 22, 22)
       )
     end
 
@@ -84,7 +84,7 @@ module RailsEventStoreActiveRecord
         it 'raises an error' do
           expect { subject }.to raise_error(
             described_class::Error,
-            'Invalid value for --data-type option. Supported for options are: binary, json, jsonb.',
+            'Invalid value for --data-type option. Supported for options are: binary, json, jsonb.'
           )
         end
       end

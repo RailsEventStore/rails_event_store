@@ -4,8 +4,8 @@ require 'ruby_event_store/spec/mapper_lint'
 module RubyEventStore
   module Mappers
     RSpec.describe NullMapper do
-      let(:data)         { { some_attribute: 5 } }
-      let(:metadata)     { { some_meta: 1 } }
+      let(:data)         { {some_attribute: 5} }
+      let(:metadata)     { {some_meta: 1} }
       let(:event_id)     { SecureRandom.uuid }
       let(:domain_event) { TestEvent.new(data: data, metadata: metadata, event_id: event_id) }
 

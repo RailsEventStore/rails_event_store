@@ -21,7 +21,6 @@ module RailsEventStore
 
         def matches?(actual)
           return true unless @expected
-
           matcher = @strict ? ::RSpec::Matchers::BuiltIn::Match : ::RSpec::Matchers::BuiltIn::Include
           matcher.new(@expected).matches?(actual)
         end
@@ -110,7 +109,7 @@ module RailsEventStore
             ExpectedLine.new(@expected_klass, @expected_metadata, @expected_data),
             ActualLine.new(@actual_klass, @actual_metadata.to_h, @actual_data, @expected_metadata, @expected_data),
             Diff.new(@actual_metadata.to_h, @expected_metadata, "Metadata", differ: @differ),
-            Diff.new(@actual_data, @expected_data, "Data", differ: @differ),
+            Diff.new(@actual_data, @expected_data, "Data", differ: @differ)
           ].map(&:to_s).join
         end
       end
@@ -188,3 +187,4 @@ expected: not a kind of #{expected}
     end
   end
 end
+

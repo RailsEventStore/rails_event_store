@@ -3,6 +3,7 @@ require 'time'
 
 module RubyEventStore
   RSpec.describe CorrelatedCommands do
+
     module CorrelableCommand
       attr_accessor :correlation_id, :causation_id
 
@@ -30,14 +31,14 @@ module RubyEventStore
       RubyEventStore::Client.new(repository: InMemoryRepository.new)
     end
     let(:command_bus) do
-      ->(cmd) do
+      -> (cmd) do
         {
-          AddProductCommand => ->(c) do
-            event_store.publish(ProductAdded.new(data: {
-                                                   product_id: c.product_id,
-                                                 }))
+          AddProductCommand => -> (c) do
+            event_store.publish(ProductAdded.new(data:{
+              product_id: c.product_id,
+            }))
           end,
-          TestCommand       => ->(_c) do
+          TestCommand => -> (_c) do
             event_store.publish(TestEvent.new())
           end,
         }.fetch(cmd.class).call(cmd)
@@ -119,5 +120,6 @@ module RubyEventStore
         expect(cmd.causation_id).to be_nil
       end
     end
+
   end
 end

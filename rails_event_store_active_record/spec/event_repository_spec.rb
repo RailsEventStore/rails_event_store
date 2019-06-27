@@ -32,7 +32,7 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream(
         [RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any,
+        RubyEventStore::ExpectedVersion.any
       )
 
       expect do
@@ -58,45 +58,45 @@ module RailsEventStoreActiveRecord
 
     specify "using preload()" do
       repository.append_to_stream([
-                                    event0 = RubyEventStore::SRecord.new,
-                                    event1 = RubyEventStore::SRecord.new,
-                                  ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
-      c1 = count_queries { repository.read(specification.limit(2).result) }
+        event0 = RubyEventStore::SRecord.new,
+        event1 = RubyEventStore::SRecord.new,
+      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
+      c1 = count_queries{ repository.read(specification.limit(2).result) }
       expect(c1).to eq(2)
 
-      c2 = count_queries { repository.read(specification.limit(2).backward.result) }
+      c2 = count_queries{ repository.read(specification.limit(2).backward.result) }
       expect(c2).to eq(2)
 
-      c3 = count_queries { repository.read(specification.stream("stream").result) }
+      c3 = count_queries{ repository.read(specification.stream("stream").result) }
       expect(c3).to eq(2)
 
-      c4 = count_queries { repository.read(specification.stream("stream").backward.result) }
+      c4 = count_queries{ repository.read(specification.stream("stream").backward.result) }
       expect(c4).to eq(2)
 
-      c5 = count_queries { repository.read(specification.stream("stream").limit(2).result) }
+      c5 = count_queries{ repository.read(specification.stream("stream").limit(2).result) }
       expect(c5).to eq(2)
 
-      c6 = count_queries { repository.read(specification.stream("stream").limit(2).backward.result) }
+      c6 = count_queries{ repository.read(specification.stream("stream").limit(2).backward.result) }
       expect(c6).to eq(2)
     end
 
     specify "explicit sorting by position rather than accidental" do
       e1 = Event.create!(
-        id:         u1 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u1 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
-        id:         u2 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u2 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
-        id:         u3 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u3 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       EventInStream.create!(
@@ -119,30 +119,30 @@ module RailsEventStoreActiveRecord
         remove_index :event_store_events_in_streams, [:stream, :position]
       end
 
-      expect(repository.read(specification.stream("stream").limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
-      expect(repository.read(specification.stream("stream").result).map(&:event_id)).to eq([u1, u2, u3])
+      expect(repository.read(specification.stream("stream").limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(specification.stream("stream").result).map(&:event_id)).to eq([u1,u2,u3])
 
-      expect(repository.read(specification.stream("stream").backward.limit(3).result).map(&:event_id)).to eq([u3, u2, u1])
-      expect(repository.read(specification.stream("stream").backward.result).map(&:event_id)).to eq([u3, u2, u1])
+      expect(repository.read(specification.stream("stream").backward.limit(3).result).map(&:event_id)).to eq([u3,u2,u1])
+      expect(repository.read(specification.stream("stream").backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify "explicit sorting by id rather than accidental for all events" do
       e1 = Event.create!(
-        id:         u1 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u1 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
-        id:         u2 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u2 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
-        id:         u3 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u3 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       EventInStream.create!(
@@ -161,27 +161,27 @@ module RailsEventStoreActiveRecord
         event_id: e3.id,
       )
 
-      expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
-      expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
+      expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
+      expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3,u2,u1])
     end
 
     specify do
       e1 = Event.create!(
-        id:         u1 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u1 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e2 = Event.create!(
-        id:         u2 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u2 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       e3 = Event.create!(
-        id:         u3 = SecureRandom.uuid,
-        data:       '{}',
-        metadata:   '{}',
+        id: u3 = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
         event_type: "TestDomainEvent",
       )
       EventInStream.create!(
@@ -200,8 +200,8 @@ module RailsEventStoreActiveRecord
         event_id: e3.id,
       )
 
-      expect(repository.read(specification.to(u3).limit(3).result).map(&:event_id)).to eq([u1, u2])
-      expect(repository.read(specification.to(u1).limit(3).backward.result).map(&:event_id)).to eq([u3, u2])
+      expect(repository.read(specification.to(u3).limit(3).result).map(&:event_id)).to eq([u1,u2])
+      expect(repository.read(specification.to(u1).limit(3).backward.result).map(&:event_id)).to eq([u3,u2])
     end
 
     specify do
@@ -219,23 +219,23 @@ module RailsEventStoreActiveRecord
     specify "explicit ORDER BY position" do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
         repository.append_to_stream([
-                                      RubyEventStore::SRecord.new,
-                                    ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
+          RubyEventStore::SRecord.new,
+        ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       end
     end
 
     specify "nested transaction - events still not persisted if append failed" do
       repository.append_to_stream([
-                                    event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
-                                  ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+        event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
+      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
 
       ActiveRecord::Base.transaction do
         expect do
           repository.append_to_stream([
-                                        RubyEventStore::SRecord.new(
-                                          event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763',
-                                        ),
-                                      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+            RubyEventStore::SRecord.new(
+              event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
+            ),
+          ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
         expect(repository.read(specification.limit(2).result).to_a).to eq([event])
@@ -266,7 +266,7 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new('stream'),
-        RubyEventStore::ExpectedVersion.any,
+        RubyEventStore::ExpectedVersion.any
       )
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
@@ -278,7 +278,7 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any,
+        RubyEventStore::ExpectedVersion.any
       )
 
       expect(EventInStream.find(987_654_321).stream).to eq(EventRepository::SERIALIZED_GLOBAL_STREAM_NAME)
@@ -289,12 +289,12 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new('stream'),
-        RubyEventStore::ExpectedVersion.any,
+        RubyEventStore::ExpectedVersion.any
       )
       repository.link_to_stream(
         [event.event_id],
         RubyEventStore::Stream.new("whoo"),
-        RubyEventStore::ExpectedVersion.any,
+        RubyEventStore::ExpectedVersion.any
       )
 
       expect(EventInStream.find(987_654_321).stream).to eq("stream")
@@ -312,10 +312,10 @@ module RailsEventStoreActiveRecord
 
     def additional_limited_concurrency_for_auto_check
       positions = RailsEventStoreActiveRecord::EventInStream
-                    .where(stream: "stream")
-                    .order("position ASC")
-                    .map(&:position)
-      expect(positions).to eq((0..positions.size - 1).to_a)
+        .where(stream: "stream")
+        .order("position ASC")
+        .map(&:position)
+      expect(positions).to eq((0..positions.size-1).to_a)
     end
 
     private
@@ -323,7 +323,7 @@ module RailsEventStoreActiveRecord
     def count_queries(&block)
       count = 0
       counter_f = ->(_name, _started, _finished, _unique_id, payload) {
-        unless %w[CACHE SCHEMA].include?(payload[:name])
+        unless %w[ CACHE SCHEMA ].include?(payload[:name])
           count += 1
         end
       }
@@ -334,7 +334,7 @@ module RailsEventStoreActiveRecord
     def expect_query(match, &block)
       count = 0
       counter_f = ->(_name, _started, _finished, _unique_id, payload) {
-        count += 1 if match === payload[:sql]
+        count +=1 if match === payload[:sql]
       }
       ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
       expect(count).to eq(1)

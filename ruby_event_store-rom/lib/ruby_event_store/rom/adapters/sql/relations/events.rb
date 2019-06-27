@@ -7,9 +7,9 @@ module RubyEventStore
         class Events < ::ROM::Relation[:sql]
           schema(:event_store_events, as: :events, infer: true) do
             attribute :data, RubyEventStore::ROM::Types::SerializedRecordSerializer,
-              read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
+                      read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
             attribute :metadata, RubyEventStore::ROM::Types::SerializedRecordSerializer,
-              read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
+                      read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
             attribute :created_at, RubyEventStore::ROM::Types::DateTime
           end
 

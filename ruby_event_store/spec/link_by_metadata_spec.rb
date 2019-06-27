@@ -2,6 +2,7 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe LinkByMetadata do
+
     let(:event_store) do
       RubyEventStore::Client.new(repository: InMemoryRepository.new)
     end
@@ -12,11 +13,11 @@ module RubyEventStore
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :int))
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :missing))
 
-      event_store.publish(ev = OrderCreated.new(metadata: {
-                                                  string: "city",
-                                                  float:  1.5,
-                                                  int:    2,
-                                                }))
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        string: "city",
+        float: 1.5,
+        int: 2,
+      }))
 
       expect(event_store.read.stream("$by_string_city").to_a).to eq([ev])
       expect(event_store.read.stream("$by_float_1.5").to_a).to   eq([ev])
@@ -32,16 +33,16 @@ module RubyEventStore
         require_relative 'mappers/events_pb.rb'
 
         event_store = RubyEventStore::Client.new(
-          mapper:     RubyEventStore::Mappers::Protobuf.new,
-          repository: InMemoryRepository.new,
+          mapper: RubyEventStore::Mappers::Protobuf.new,
+          repository: InMemoryRepository.new
         )
         event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
         ev = RubyEventStore::Proto.new(
-          data:     ResTesting::OrderCreated.new(
+          data: ResTesting::OrderCreated.new(
             customer_id: 123,
-            order_id:    "K3THNX9",
+            order_id: "K3THNX9",
           ),
-          metadata: { city: "Chicago" },
+          metadata: {city: "Chicago"}
         )
         event_store.publish(ev)
 
@@ -53,14 +54,14 @@ module RubyEventStore
 
     specify "custom prefix" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(
-                                            event_store: event_store,
-                                            key:         :city,
-                                            prefix:      "sweet+",
-                                          ))
+        event_store: event_store,
+        key: :city,
+        prefix: "sweet+")
+      )
 
-      event_store.publish(ev = OrderCreated.new(metadata: {
-                                                  city: "Paris",
-                                                }))
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        city: "Paris",
+      }))
 
       expect(event_store.read.stream("sweet+Paris").to_a).to eq([ev])
     end
@@ -68,10 +69,11 @@ module RubyEventStore
     specify "explicitly passes array of ids instead of a single id" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
       expect(event_store).to receive(:link).with(instance_of(Array), any_args)
-      event_store.publish(ev = OrderCreated.new(metadata: {
-                                                  city: "Paris",
-                                                }))
+      event_store.publish(ev = OrderCreated.new(metadata:{
+        city: "Paris",
+      }))
     end
+
   end
 
   RSpec.describe LinkByCorrelationId do
@@ -146,4 +148,6 @@ module RubyEventStore
       event_store.publish(ev = OrderCreated.new())
     end
   end
+
 end
+

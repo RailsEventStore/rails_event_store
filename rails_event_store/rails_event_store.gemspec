@@ -1,5 +1,4 @@
 # coding: utf-8
-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rails_event_store/version'
@@ -14,9 +13,9 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Event Store in Ruby}
   spec.description   = %q{Implementation of Event Store in Ruby}
   spec.homepage      = 'https://railseventstore.org'
-  spec.metadata = {
-    "homepage_uri"    => "https://railseventstore.org/",
-    "changelog_uri"   => "https://github.com/RailsEventStore/rails_event_store/releases",
+  spec.metadata    = {
+    "homepage_uri" => "https://railseventstore.org/",
+    "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
     "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }

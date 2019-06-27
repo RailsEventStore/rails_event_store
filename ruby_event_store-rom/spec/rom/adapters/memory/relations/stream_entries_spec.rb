@@ -14,7 +14,7 @@ module RubyEventStore::ROM::Memory
       stream_entries = [
         { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
         { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
-        { stream: 'stream', position: 2, event_id: SecureRandom.uuid },
+        { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
       ]
 
       relation.command(:create).call(stream_entries)

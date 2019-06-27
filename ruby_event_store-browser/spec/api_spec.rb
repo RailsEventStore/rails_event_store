@@ -26,10 +26,10 @@ module RubyEventStore
     specify "requesting event with correlation stream" do
       event = DummyEvent.new(
         event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-        data:     {},
+        data: {},
         metadata: {
-          correlation_id: "a7243789-999f-4ef2-8511-b1c686b83fad",
-        },
+          correlation_id: "a7243789-999f-4ef2-8511-b1c686b83fad"
+        }
       )
       event_store.publish(event, stream_name: "dummy")
       test_client.get "/events/#{event.event_id}"
@@ -43,7 +43,7 @@ module RubyEventStore
     specify "requesting event with causation stream" do
       event = DummyEvent.new(
         event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-        data:     {},
+        data: {},
       )
       event_store.publish(event, stream_name: "dummy")
       test_client.get "/events/#{event.event_id}"
@@ -57,15 +57,15 @@ module RubyEventStore
     specify "requesting event with parent event id" do
       parent_event = DummyEvent.new(
         event_id: "44427ded-e8a7-4ee4-bf31-09f34433d506",
-        data:     {},
+        data: {},
       )
       event_store.publish(parent_event, stream_name: "dummy")
       caused_event = DummyEvent.new(
         event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-        data:     {},
+        data: {},
         metadata: {
           causation_id: parent_event.event_id,
-        },
+        }
       )
       event_store.publish(caused_event, stream_name: "dummy")
       test_client.get "/events/#{caused_event.event_id}"
@@ -79,10 +79,10 @@ module RubyEventStore
     specify "requesting event which is caused by something other than event" do
       caused_event = DummyEvent.new(
         event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-        data:     {},
+        data: {},
         metadata: {
           causation_id: "44427ded-e8a7-4ee4-bf31-09f34433d506",
-        },
+        }
       )
       event_store.publish(caused_event, stream_name: "dummy")
       test_client.get "/events/#{caused_event.event_id}"
@@ -103,20 +103,20 @@ module RubyEventStore
       json = Browser::JsonApiEvent.new(dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f"), nil).to_h
 
       expect(json).to match(
-        id:         "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-        type:       "events",
+        id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+        type: "events",
         attributes: {
-          event_type:              "DummyEvent",
-          data:                    {
+          event_type: "DummyEvent",
+          data: {
             foo: 1,
             bar: 2.0,
-            baz: "3",
+            baz: "3"
           },
-          metadata:                {},
+          metadata: {},
           correlation_stream_name: nil,
-          causation_stream_name:   "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
-          parent_event_id:         nil,
-          type_stream_name:        "$by_type_DummyEvent",
+          causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+          parent_event_id: nil,
+          type_stream_name: "$by_type_DummyEvent",
         },
       )
     end
@@ -128,21 +128,17 @@ module RubyEventStore
       event_store.publish([DummyEvent.new])
 
       test_client.get "/streams/dummy"
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "last" => "http://www.example.com/streams/dummy/head/forward/20",
-          "next" => "http://www.example.com/streams/dummy/#{first_page[19].event_id}/backward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "last"  => "http://www.example.com/streams/dummy/head/forward/20",
+        "next"  => "http://www.example.com/streams/dummy/#{first_page[19].event_id}/backward/20"
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
 
       test_client.get "/streams/all"
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "last" => "http://www.example.com/streams/all/head/forward/20",
-          "next" => "http://www.example.com/streams/all/#{first_page[18].event_id}/backward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "last"  => "http://www.example.com/streams/all/head/forward/20",
+        "next"  => "http://www.example.com/streams/all/#{first_page[18].event_id}/backward/20"
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
 
@@ -152,12 +148,10 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
       test_client.get "/streams/dummy/head/backward/20"
 
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "last" => "http://www.example.com/streams/dummy/head/forward/20",
-          "next" => "http://www.example.com/streams/dummy/#{first_page.last.event_id}/backward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "last"  => "http://www.example.com/streams/dummy/head/forward/20",
+        "next"  => "http://www.example.com/streams/dummy/#{first_page.last.event_id}/backward/20"
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
 
@@ -168,12 +162,10 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
       test_client.get "/streams/dummy/#{last_page.first.event_id}/forward/20"
 
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "last" => "http://www.example.com/streams/dummy/head/forward/20",
-          "next" => "http://www.example.com/streams/dummy/#{first_page.last.event_id}/backward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "last"  => "http://www.example.com/streams/dummy/head/forward/20",
+        "next"  => "http://www.example.com/streams/dummy/#{first_page.last.event_id}/backward/20"
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
 
@@ -185,23 +177,19 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
 
       test_client.get "/streams/dummy/#{first_page.last.event_id}/backward/20"
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "first" => "http://www.example.com/streams/dummy/head/backward/20",
-          "prev"  => "http://www.example.com/streams/dummy/#{last_page.first.event_id}/forward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/streams/dummy/head/backward/20",
+        "prev"  => "http://www.example.com/streams/dummy/#{last_page.first.event_id}/forward/20" ,
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
 
       test_client.get "/streams/all/#{first_page.last.event_id}/backward/20"
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "first" => "http://www.example.com/streams/all/head/backward/20",
-          "last"  => "http://www.example.com/streams/all/head/forward/20",
-          "next"  => "http://www.example.com/streams/all/#{last_page.last.event_id}/backward/20",
-          "prev"  => "http://www.example.com/streams/all/#{last_page.first.event_id}/forward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/streams/all/head/backward/20",
+        "last"  => "http://www.example.com/streams/all/head/forward/20",
+        "next"  => "http://www.example.com/streams/all/#{last_page.last.event_id}/backward/20",
+        "prev"  => "http://www.example.com/streams/all/#{last_page.first.event_id}/forward/20" ,
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
 
@@ -211,12 +199,10 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
       test_client.get "/streams/dummy/head/forward/20"
 
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "first" => "http://www.example.com/streams/dummy/head/backward/20",
-          "prev"  => "http://www.example.com/streams/dummy/#{last_page.first.event_id}/forward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/streams/dummy/head/backward/20",
+        "prev"  => "http://www.example.com/streams/dummy/#{last_page.first.event_id}/forward/20",
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
 
@@ -227,14 +213,12 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
       test_client.get "/streams/dummy/#{first_page.last.event_id}/backward/20"
 
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "first" => "http://www.example.com/streams/dummy/head/backward/20",
-          "last"  => "http://www.example.com/streams/dummy/head/forward/20",
-          "next"  => "http://www.example.com/streams/dummy/#{next_page.last.event_id}/backward/20",
-          "prev"  => "http://www.example.com/streams/dummy/#{next_page.first.event_id}/forward/20",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/streams/dummy/head/backward/20",
+        "last"  => "http://www.example.com/streams/dummy/head/forward/20",
+        "next"  => "http://www.example.com/streams/dummy/#{next_page.last.event_id}/backward/20",
+        "prev"  => "http://www.example.com/streams/dummy/#{next_page.first.event_id}/forward/20"
+      })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
 
@@ -255,14 +239,12 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
       test_client.get "/streams/dummy/#{first_page.last.event_id}/backward/5"
 
-      expect(test_client.parsed_body["links"]).to eq(
-        {
-          "first" => "http://www.example.com/streams/dummy/head/backward/5",
-          "last"  => "http://www.example.com/streams/dummy/head/forward/5",
-          "next"  => "http://www.example.com/streams/dummy/#{next_page.last.event_id}/backward/5",
-          "prev"  => "http://www.example.com/streams/dummy/#{next_page.first.event_id}/forward/5",
-        }
-      )
+      expect(test_client.parsed_body["links"]).to eq({
+        "first" => "http://www.example.com/streams/dummy/head/backward/5",
+        "last"  => "http://www.example.com/streams/dummy/head/forward/5",
+        "next"  => "http://www.example.com/streams/dummy/#{next_page.last.event_id}/backward/5",
+        "prev"  => "http://www.example.com/streams/dummy/#{next_page.first.event_id}/forward/5"
+      })
       expect(test_client.parsed_body["data"].size).to eq(5)
     end
 
@@ -297,32 +279,32 @@ module RubyEventStore
     def dummy_event(id = SecureRandom.uuid)
       @dummy_event ||= DummyEvent.new(
         event_id: id,
-        data:     {
+        data: {
           foo: 1,
           bar: 2.0,
-          baz: "3",
-        },
+          baz: "3"
+        }
       )
     end
 
     def event_resource
       {
-        "id"         => dummy_event.event_id,
-        "type"       => "events",
+        "id" => dummy_event.event_id,
+        "type" => "events",
         "attributes" => {
-          "event_type"              => "DummyEvent",
-          "data"                    => {
+          "event_type" => "DummyEvent",
+          "data" => {
             "foo" => 1,
             "bar" => 2.0,
-            "baz" => "3",
+            "baz" => "3"
           },
-          "metadata"                => {
-            "timestamp" => dummy_event.metadata[:timestamp].iso8601(3),
+          "metadata" => {
+            "timestamp" => dummy_event.metadata[:timestamp].iso8601(3)
           },
           "correlation_stream_name" => nil,
-          "causation_stream_name"   => "$by_causation_id_#{dummy_event.event_id}",
-          "parent_event_id"         => nil,
-          "type_stream_name"        => "$by_type_DummyEvent",
+          "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
+          "parent_event_id" => nil,
+          "type_stream_name" => "$by_type_DummyEvent",
         },
       }
     end
@@ -334,7 +316,7 @@ module RubyEventStore
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(
         event_store_locator: -> { event_store },
-        host:                'http://www.example.com',
+        host: 'http://www.example.com'
       )
     end
   end

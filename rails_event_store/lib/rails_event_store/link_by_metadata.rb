@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module RailsEventStore
+
   class LinkByMetadata < RubyEventStore::LinkByMetadata
     def initialize(event_store: Rails.configuration.event_store, key:, prefix: nil)
       super
@@ -24,4 +25,5 @@ module RailsEventStore
       super
     end
   end
+
 end

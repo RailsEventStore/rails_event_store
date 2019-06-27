@@ -31,7 +31,7 @@ module RubyEventStore
               target: :id,
               update: UPSERT_COLUMNS.each_with_object({}) do |column, memo|
                 memo[column] = Sequel[:excluded][column]
-              end,
+              end
             ).multi_insert(to_a)
           end
         end

@@ -2,9 +2,10 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Metadata do
+
     specify 'default values' do
       expect(Metadata.new.each.to_a).to be_empty
-      expect(Metadata.new({ a: 'b' }).each.to_a).to eq([[:a, 'b']])
+      expect(Metadata.new({a: 'b'}).each.to_a).to eq([[:a, 'b']])
     end
 
     specify 'allowed values' do
@@ -36,11 +37,11 @@ module RubyEventStore
       m[:key] = nil
       expect(m[:key]).to eq(nil)
 
-      m[:key] = { some: 'hash', with: { nested: 'values' } }
-      expect(m[:key]).to eq({ some: 'hash', with: { nested: 'values' } })
+      m[:key] = {some: 'hash', with: {nested: 'values'}}
+      expect(m[:key]).to eq({some: 'hash', with: {nested: 'values'}})
 
-      m[:key] = [1, 2, 3]
-      expect(m[:key]).to eq([1, 2, 3])
+      m[:key] = [1,2,3]
+      expect(m[:key]).to eq([1,2,3])
 
       expect do
         m[:key] = Object.new
@@ -77,7 +78,7 @@ module RubyEventStore
       m = Metadata.new
       m[:a] = 1
       m[:b] = "2"
-      expect(m.to_h).to eq({ a: 1, b: "2" })
+      expect(m.to_h).to eq({a: 1, b: "2"})
 
       h = m.to_h
       h[:x] = "leaked?"
@@ -87,7 +88,7 @@ module RubyEventStore
     specify 'Enumerable' do
       m = Metadata.new
       m[:a] = 1
-      expect(m.map { |k, v| [k, v] }).to eq([[:a, 1]])
+      expect(m.map{|k,v| [k,v] }).to eq([[:a, 1]])
     end
 
     specify 'safe Hash methods' do
@@ -95,5 +96,6 @@ module RubyEventStore
       m[:a] = 1
       expect(m.key?(:a)).to eq(true)
     end
+
   end
 end

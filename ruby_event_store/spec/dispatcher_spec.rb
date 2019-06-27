@@ -5,7 +5,7 @@ module RubyEventStore
   RSpec.describe Dispatcher do
     it_behaves_like :dispatcher, Dispatcher.new
     let(:event) { instance_double(::RubyEventStore::Event) }
-    let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord) }
+    let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
     let(:handler) { HandlerClass.new }
 
     specify "does not allow silly subscribers" do
@@ -44,7 +44,7 @@ module RubyEventStore
     specify "allows callable classes and instances" do
       expect(Dispatcher.new.verify(HandlerClass)).to eq(true)
       expect(Dispatcher.new.verify(HandlerClass.new)).to eq(true)
-      expect(Dispatcher.new.verify(Proc.new { "yo" })).to eq(true)
+      expect(Dispatcher.new.verify(Proc.new{ "yo" })).to eq(true)
     end
 
     private
@@ -54,7 +54,6 @@ module RubyEventStore
       def self.received
         @@received
       end
-
       def call(event)
         @@received = event
       end

@@ -10,8 +10,8 @@ module RubyEventStore
       end
 
       specify "prints as string" do
-        expect { print(ForgottenData.new) }.to            output(ForgottenData::FORGOTTEN_DATA).to_stdout
-        expect { print(ForgottenData.new('bazinga')) }.to output('bazinga').to_stdout
+        expect{ print(ForgottenData.new) }.to            output(ForgottenData::FORGOTTEN_DATA).to_stdout
+        expect{ print(ForgottenData.new('bazinga')) }.to output('bazinga').to_stdout
       end
 
       specify 'behaves like null object' do

@@ -23,8 +23,8 @@ module RubyEventStore
           instrumented_repository.append_to_stream([event1], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
 
           expect(notification_calls).to eq([
-                                             { events: [event1], stream: "SomeStream" },
-                                           ])
+            { events: [event1], stream: "SomeStream" }
+          ])
         end
       end
     end
@@ -42,11 +42,12 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("link_to_stream.repository.rails_event_store") do |notification_calls|
+
           instrumented_repository.link_to_stream([42], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
 
           expect(notification_calls).to eq([
-                                             { event_ids: [42], stream: "SomeStream" },
-                                           ])
+            { event_ids: [42], stream: "SomeStream" }
+          ])
         end
       end
     end
@@ -64,11 +65,12 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("delete_stream.repository.rails_event_store") do |notification_calls|
+
           instrumented_repository.delete_stream("SomeStream")
 
           expect(notification_calls).to eq([
-                                             { stream: "SomeStream" },
-                                           ])
+            { stream: "SomeStream" }
+          ])
         end
       end
     end
@@ -114,8 +116,8 @@ module RubyEventStore
           instrumented_repository.read(specification)
 
           expect(notification_calls).to eq([
-                                             { specification: specification },
-                                           ])
+            { specification: specification }
+          ])
         end
       end
     end
@@ -139,8 +141,8 @@ module RubyEventStore
           instrumented_repository.count(specification)
 
           expect(notification_calls).to eq([
-                                             { specification: specification },
-                                           ])
+            { specification: specification }
+          ])
         end
       end
     end
@@ -164,8 +166,8 @@ module RubyEventStore
           instrumented_repository.update_messages(messages)
 
           expect(notification_calls).to eq([
-                                             { messages: messages },
-                                           ])
+            { messages: messages }
+          ])
         end
       end
     end
@@ -184,12 +186,13 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("streams_of.repository.rails_event_store") do |notification_calls|
+
           uuid = SecureRandom.uuid
           instrumented_repository.streams_of(uuid)
 
           expect(notification_calls).to eq([
-                                             { event_id: uuid },
-                                           ])
+            { event_id: uuid }
+          ])
         end
       end
     end

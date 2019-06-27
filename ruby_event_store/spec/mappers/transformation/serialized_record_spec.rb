@@ -5,19 +5,17 @@ module RubyEventStore
     module Transformation
       RSpec.describe Transformation::SerializedRecord do
         let(:uuid)   { SecureRandom.uuid }
-        let(:record) {
-          RubyEventStore::SerializedRecord.new(
-            event_id:   uuid,
-            data:       "---\n:some: value\n",
-            metadata:   "---\n:some: meta\n",
-            event_type: 'TestEvent',
-          )
-        }
-        let(:item) {
+        let(:record) { RubyEventStore::SerializedRecord.new(
+          event_id: uuid,
+          data: "---\n:some: value\n",
+          metadata: "---\n:some: meta\n",
+          event_type: 'TestEvent',
+        ) }
+        let(:item)   {
           Item.new(
             event_id:   uuid,
-            data:       "---\n:some: value\n",
-            metadata:   "---\n:some: meta\n",
+            data: "---\n:some: value\n",
+            metadata: "---\n:some: meta\n",
             event_type: 'TestEvent',
           )
         }

@@ -34,7 +34,7 @@ module RubyEventStore
       end
 
       def call(subscriber, event, serialized_event)
-        @dispatched << { subscriber: subscriber, event: event, serialized_event: serialized_event }
+        @dispatched << {subscriber: subscriber, event: event, serialized_event: serialized_event}
       end
     end
 
@@ -44,7 +44,7 @@ module RubyEventStore
           event_id:   domain_event.event_id,
           metadata:   domain_event.metadata.to_s,
           data:       domain_event.data.to_s,
-          event_type: domain_event.class.name,
+          event_type: domain_event.class.name
         )
       end
     end
@@ -68,9 +68,9 @@ module RubyEventStore
         client.publish(ev)
       end
 
-      expect(handler.events).to eq([event1, event3])
+      expect(handler.events).to eq([event1,event3])
       expect(another_handler.events).to eq([event2])
-      expect(global_handler.events).to eq([event1, event2, event3])
+      expect(global_handler.events).to eq([event1,event2,event3])
     end
 
     it 'notifies subscribed thread handlers' do
@@ -92,9 +92,9 @@ module RubyEventStore
         .subscribe_to_all_events(global_handler)
         .call
 
-      expect(handler.events).to eq([event1, event3])
+      expect(handler.events).to eq([event1,event3])
       expect(another_handler.events).to eq([event2])
-      expect(global_handler.events).to eq([event1, event2, event3])
+      expect(global_handler.events).to eq([event1,event2,event3])
     end
 
     it 'raises error when no valid method on handler' do
@@ -114,19 +114,19 @@ module RubyEventStore
     it 'raises error when no valid method on thread handler' do
       subscriber = InvalidTestHandler.new
       expect do
-        client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call
+        client.within{}.subscribe(subscriber, to: [Test1DomainEvent]).call
       end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
     it 'raises error when no valid method on global thread handler' do
       subscriber = InvalidTestHandler.new
       expect do
-        client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call
+        client.within{}.subscribe(subscriber, to: [Test1DomainEvent]).call
       end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
     it 'returns lambda as an output of global subscribe methods' do
-      handler = TestHandler.new
+      handler   = TestHandler.new
       result = client.subscribe_to_all_events(handler)
       expect(result).to respond_to(:call)
     end
@@ -201,12 +201,12 @@ module RubyEventStore
 
       client_with_custom_dispatcher = RubyEventStore::Client.new(
         repository: InMemoryRepository.new,
-        mapper:     TestMapper.new,
+        mapper: TestMapper.new,
         dispatcher: dispatcher,
       )
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
-      expect(dispatcher.dispatched).to eq([{ subscriber: handler, event: event1, serialized_event: serialized_event1 }])
+      expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, serialized_event:serialized_event1}])
     end
 
     it 'subscribes by type of event which is a String' do

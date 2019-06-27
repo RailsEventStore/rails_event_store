@@ -10,23 +10,23 @@ module RubyEventStore
     specify 'equality' do
       event_1 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       event_2 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       expect(event_1).to eq(event_2)
     end
@@ -34,19 +34,19 @@ module RubyEventStore
     specify 'equality - metadata does not need to be the same' do
       event_1 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       event_2 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
       )
       expect(event_1).to eq(event_2)
@@ -55,47 +55,48 @@ module RubyEventStore
     specify 'equality - class must be the same' do
       event_1 = Class.new(RubyEventStore::Proto).new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
-        ),
+          order_id: "K3THNX9",
+          ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       event_2 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
-        ),
+          order_id: "K3THNX9",
+          ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       expect(event_1).not_to eq(event_2)
     end
 
+
     specify 'equality - event_id must be the same' do
       event_1 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       event_2 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622c",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       expect(event_1).not_to eq(event_2)
     end
@@ -103,23 +104,23 @@ module RubyEventStore
     specify 'equality - data must be the same' do
       event_1 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
-        ),
+          order_id: "K3THNX9",
+          ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       event_2 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:     ResTesting::OrderCreated.new(
+        data: ResTesting::OrderCreated.new(
           customer_id: 124,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11),
-        },
+          time: Time.new(2018, 12, 13, 11 ),
+        }
       )
       expect(event_1).not_to eq(event_2)
     end
@@ -128,7 +129,7 @@ module RubyEventStore
       event = RubyEventStore::Proto.new(
         data: ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         ),
       )
       expect(event.type).to eq("res_testing.OrderCreated")
@@ -142,7 +143,7 @@ module RubyEventStore
     end
 
     specify 'metadata' do
-      event = RubyEventStore::Proto.new(data: nil, metadata: { one: 1 })
+      event = RubyEventStore::Proto.new(data: nil, metadata: {one: 1})
       expect(event.metadata[:one]).to eq(1)
       expect do
         event.metadata['doh']
@@ -159,32 +160,30 @@ module RubyEventStore
 
       before(:each) { require_protobuf_dependencies }
 
-      let(:event_id) { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }
-      let(:metadata) {
-        {
-          one:    1,
-          two:    2.0,
-          three:  true,
-          four:   Date.new(2018, 4, 17),
-          five:   "five",
-          six:    Time.utc(2018, 12, 13, 11),
-          seven:  true,
-          eight:  false,
-          nein:   nil,
-          ten:    { some: 'hash', with: { nested: 'values' } },
-          eleven: [1, 2, 3],
-        }
-      }
+      let(:event_id)     { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }
+      let(:metadata) { {
+        one: 1,
+        two: 2.0,
+        three: true,
+        four: Date.new(2018, 4, 17),
+        five: "five",
+        six: Time.utc(2018, 12, 13, 11 ),
+        seven: true,
+        eight: false,
+        nein: nil,
+        ten: {some: 'hash', with: {nested: 'values'}},
+        eleven: [1,2,3],
+      } }
       let(:data) do
         ResTesting::OrderCreated.new(
           customer_id: 123,
-          order_id:    "K3THNX9",
+          order_id: "K3THNX9",
         )
       end
       let(:domain_event) do
         RubyEventStore::Proto.new(
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data:     data,
+          data: data,
           metadata: metadata,
         )
       end
@@ -194,8 +193,8 @@ module RubyEventStore
           RubyEventStore::Proto.new(
             data: ResTesting::OrderCreated.new(
               customer_id: 123,
-              order_id:    "K3THNX9",
-            ),
+              order_id: "K3THNX9",
+            )
           )
       end
 
@@ -219,7 +218,7 @@ module RubyEventStore
 
       specify '#serialized_record_to_event is using events class remapping' do
         subject = Protobuf.new(
-          events_class_remapping: { 'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated" },
+          events_class_remapping: {'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated"}
         )
         record = SerializedRecord.new(
           event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",

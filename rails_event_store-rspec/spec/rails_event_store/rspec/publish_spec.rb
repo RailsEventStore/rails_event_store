@@ -18,7 +18,7 @@ module RailsEventStore
       let(:event_store) do
         RailsEventStore::Client.new(
           repository: RailsEventStore::InMemoryRepository.new,
-          mapper:     mapper_for_object_comparison,
+          mapper: mapper_for_object_comparison
         )
       end
 
@@ -121,7 +121,7 @@ module RailsEventStore
 
       specify do
         matcher_ = matcher.in(event_store)
-        matcher_.matches?(Proc.new {})
+        matcher_.matches?(Proc.new { })
 
         expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS.strip)
           expected block not to have published any events
@@ -130,7 +130,7 @@ module RailsEventStore
 
       specify do
         matcher_ = matcher.in(event_store)
-        matcher_.matches?(Proc.new {})
+        matcher_.matches?(Proc.new { })
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS.strip)
           expected block to have published any events
@@ -139,7 +139,7 @@ module RailsEventStore
 
       specify do
         matcher_ = matcher(actual = matchers.an_event(FooEvent)).in(event_store)
-        matcher_.matches?(Proc.new {})
+        matcher_.matches?(Proc.new { })
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
           expected block to have published:
@@ -154,7 +154,7 @@ module RailsEventStore
 
       specify do
         matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
-        matcher_.matches?(Proc.new {})
+        matcher_.matches?(Proc.new { })
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
           expected block to have published:

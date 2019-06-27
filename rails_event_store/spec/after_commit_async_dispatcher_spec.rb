@@ -194,14 +194,12 @@ module RailsEventStore
 
     def expect_no_enqueued_job(job)
       raise unless block_given?
-
       yield
       expect(job.queued).to be_nil
     end
 
     def expect_to_have_enqueued_job(job)
       raise unless block_given?
-
       yield
       expect(job.queued).not_to be_nil
     end
@@ -213,21 +211,17 @@ module RailsEventStore
         @@received = nil
         @@queued = nil
       end
-
       def self.queued
         @@queued
       end
-
       def self.received
         @@received
       end
-
       def self.perform_enqueued_jobs
         @@received = @@queued
       end
-
       def self.perform_async(event)
-        @@queued = event
+        @@queued  = event
       end
     end
   end

@@ -7,17 +7,15 @@ module AggregateRoot
     end
 
     def load(aggregate, stream_name)
-      event_store.read.stream(stream_name).reduce { |_, ev| aggregate.apply(ev) }
+      event_store.read.stream(stream_name).reduce {|_, ev| aggregate.apply(ev) }
       aggregate.version = aggregate.unpublished_events.count - 1
       aggregate
     end
 
     def store(aggregate, stream_name)
-      event_store.publish(
-        aggregate.unpublished_events.to_a,
-        stream_name:      stream_name,
-        expected_version: aggregate.version,
-      )
+      event_store.publish(aggregate.unpublished_events.to_a,
+                          stream_name: stream_name,
+                          expected_version: aggregate.version)
       aggregate.version = aggregate.version + aggregate.unpublished_events.count
     end
 
@@ -27,7 +25,6 @@ module AggregateRoot
     end
 
     private
-
     attr_reader :event_store
 
     def default_event_store

@@ -4,8 +4,9 @@ module RubyEventStore
   module Mappers
     module Transformation
       RSpec.describe Item do
+
         specify 'initial values' do
-          expect(Item.new(a: 1, b: 'any').to_h).to eq({ a: 1, b: 'any' })
+          expect(Item.new(a: 1, b: 'any').to_h).to eq({a: 1, b: 'any'})
         end
 
         specify '#event_id' do
@@ -13,11 +14,11 @@ module RubyEventStore
         end
 
         specify '#data' do
-          expect(Item.new(data: { any: 'thing' }).data).to eq({ any: 'thing' })
+          expect(Item.new(data: {any: 'thing'}).data).to eq({any: 'thing'})
         end
 
         specify '#metadata' do
-          expect(Item.new(metadata: { any: 'thing' }).metadata).to eq({ any: 'thing' })
+          expect(Item.new(metadata: {any: 'thing'}).metadata).to eq({any: 'thing'})
         end
 
         specify '#event_type' do
@@ -30,8 +31,8 @@ module RubyEventStore
         end
 
         specify '#to_h' do
-          item = Item.new({ a: 1, b: '2' })
-          expect(item.to_h).to eq({ a: 1, b: '2' })
+          item = Item.new({a: 1, b: '2'})
+          expect(item.to_h).to eq({a: 1, b: '2'})
 
           h = item.to_h
           h[:x] = "leaked?"
@@ -39,9 +40,9 @@ module RubyEventStore
         end
 
         specify "#eql?" do
-          item1 = Item.new({ a: 1, b: '2' })
-          item2 = Item.new({ a: 1, b: '2' })
-          item3 = Item.new({ a: '1', b: 2 })
+          item1 = Item.new({a: 1, b: '2'})
+          item2 = Item.new({a: 1, b: '2'})
+          item3 = Item.new({a: '1', b: 2})
 
           expect(item1).to eq(item2)
           expect(item1).not_to eq(item3)
@@ -53,7 +54,7 @@ module RubyEventStore
           item2 = item1.merge(b: 'any')
           expect(item2.class).to eq(Item)
           expect(item1.object_id).not_to eq(item2.object_id)
-          expect(item2.to_h).to eq({ a: 1, b: 'any' })
+          expect(item2.to_h).to eq({a: 1, b: 'any'})
           item3 = item2.merge(b: 'changed')
           expect(item3[:b]).to eq("changed")
         end

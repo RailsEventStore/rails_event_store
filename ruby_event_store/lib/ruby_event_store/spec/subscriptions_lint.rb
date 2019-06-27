@@ -46,7 +46,7 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
   end
 
   it 'returns lambda as an output of global subscribe methods' do
-    handler = TestHandler.new
+    handler   = TestHandler.new
     result = subscriptions.add_global_subscription(handler)
     expect(result).to respond_to(:call)
   end
@@ -91,9 +91,9 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
   end
 
   it 'revokes thread subscription' do
-    handler = TestHandler.new
+    handler           = TestHandler.new
 
-    revoke = subscriptions.add_thread_subscription(handler, [Test1DomainEvent, Test2DomainEvent])
+    revoke    = subscriptions.add_thread_subscription(handler, [Test1DomainEvent, Test2DomainEvent])
     expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler])
     expect(subscriptions.all_for('Test2DomainEvent')).to eq([handler])
     revoke.()
@@ -102,7 +102,7 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
   end
 
   it 'subscribes by type of event which is a String' do
-    handler = TestHandler.new
+    handler         = TestHandler.new
     subscriptions.add_subscription(handler, ["Test1DomainEvent"])
     subscriptions.add_thread_subscription(handler, ["Test1DomainEvent"])
 

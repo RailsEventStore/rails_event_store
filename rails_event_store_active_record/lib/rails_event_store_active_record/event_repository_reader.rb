@@ -2,6 +2,7 @@
 
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
+
     def has_event?(event_id)
       Event.exists?(id: event_id)
     end
@@ -41,7 +42,7 @@ module RailsEventStoreActiveRecord
     def read_scope(spec)
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
-      stream = stream.joins(:event).where(event_store_events: { event_type: spec.with_types }) if spec.with_types?
+      stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
       stream = stream.order(position: order(spec)) unless spec.stream.global?
       stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) if spec.start
@@ -74,10 +75,10 @@ module RailsEventStoreActiveRecord
 
     def build_event_instance(record)
       RubyEventStore::SerializedRecord.new(
-        event_id:   record.event.id,
-        metadata:   record.event.metadata,
-        data:       record.event.data,
-        event_type: record.event.event_type,
+        event_id: record.event.id,
+        metadata: record.event.metadata,
+        data: record.event.data,
+        event_type: record.event.event_type
       )
     end
   end

@@ -38,7 +38,6 @@ class Order
   end
 
   attr_accessor :status
-
   private
 
   def apply_order_created(_event)
@@ -67,14 +66,13 @@ class CustomOrderApplyStrategy
 end
 
 class OrderWithCustomStrategy
-  include AggregateRoot.with_strategy(-> { CustomOrderApplyStrategy.new })
+  include AggregateRoot.with_strategy(->{ CustomOrderApplyStrategy.new })
 
   def initialize
     @status = :draft
   end
 
   attr_accessor :status
-
   private
 
   def custom_created(_event)

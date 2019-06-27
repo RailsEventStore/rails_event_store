@@ -35,7 +35,6 @@ module RubyEventStore
     end
 
     private
-
     attr_reader :subscriptions, :dispatcher
 
     def verify_subscription(subscriber)

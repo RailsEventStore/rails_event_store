@@ -20,7 +20,7 @@ module RubyEventStore
         def configure(env)
           # See: https://github.com/jeremyevans/sequel/blob/master/doc/transactions.rdoc
           env.register_unit_of_work_options(
-            savepoint:    true,
+            savepoint: true,
             # Committing changesets concurrently causes MySQL deadlocks
             # which are not caught and retried by Sequel's built-in
             # :retry_on option. This appears to be a result of how ROM
@@ -36,10 +36,10 @@ module RubyEventStore
             # For this reason we need to manually insert changeset records to avoid
             # MySQL deadlocks or to allow Sequel to retry transactions
             # when the :retry_on option is specified.
-            retry_on:     Sequel::SerializationFailure,
+            retry_on: Sequel::SerializationFailure,
             before_retry: lambda { |_num, ex|
               env.logger.warn("RETRY TRANSACTION [#{self.class.name} => #{ex.class.name}] #{ex.message}")
-            },
+            }
           )
 
           env.register_error_handler :unique_violation, lambda { |ex|
@@ -93,7 +93,7 @@ module RubyEventStore
             :sql,
             database_uri,
             max_connections: database_uri =~ /sqlite/ ? 1 : 5,
-            preconnect:      :concurrently,
+            preconnect: :concurrently
             # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
           )
           # $stdout.sync = true

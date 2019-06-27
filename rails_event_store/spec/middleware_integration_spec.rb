@@ -19,7 +19,7 @@ module RailsEventStore
 
     specify 'sets domain events metadata for events published with global event store instance' do
       event_store = Client.new(
-        request_metadata: ->env { { server_name: env['SERVER_NAME'] } },
+        request_metadata: -> env { {server_name: env['SERVER_NAME']} }
       )
       app.config.event_store = event_store
 
@@ -38,8 +38,10 @@ module RailsEventStore
 
     def app
       TestApplication.tap do |app|
-        app.routes.draw { root(to: ->(_env) { event_store.publish(DummyEvent.new); [200, {}, ['']] }) }
+        app.routes.draw { root(to: ->(_env) {event_store.publish(DummyEvent.new); [200, {}, ['']]}) }
       end
     end
   end
 end
+
+
