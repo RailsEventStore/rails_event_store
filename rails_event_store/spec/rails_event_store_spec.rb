@@ -45,7 +45,7 @@ RSpec.describe RailsEventStore do
     prepend RailsEventStore::CorrelatedHandler
     prepend RailsEventStore::AsyncHandler
 
-    def perform(event)
+    def perform(_event)
       self.metadata = Rails.configuration.event_store.metadata
     end
   end

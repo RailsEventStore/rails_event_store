@@ -50,11 +50,11 @@ module RubyEventStore
       repository.read(scope.result).to_a
     end
 
-    def read_events_forward(repository, stream = nil, from: nil, to: nil, count: nil)
+    def read_events_forward(_repository, stream = nil, from: nil, to: nil, count: nil)
       read_events(specification, stream, from: from, to: to, count: count)
     end
 
-    def read_events_backward(repository, stream = nil, from: nil, to: nil, count: nil)
+    def read_events_backward(_repository, stream = nil, from: nil, to: nil, count: nil)
       read_events(specification.backward, stream, from: from, to: to, count: count)
     end
 

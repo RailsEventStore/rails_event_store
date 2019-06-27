@@ -4,11 +4,11 @@ require 'ruby_event_store/spec/dispatcher_lint'
 module RubyEventStore
   RSpec.describe ComposedDispatcher do
     skippy_dispatcher = Class.new do
-      def call(subscriber, event, serialized_event)
+      def call(_subscriber, _event, _serialized_event)
         @called = true
       end
 
-      def verify(subscriber)
+      def verify(_subscriber)
         false
       end
       attr_reader :called
@@ -16,11 +16,11 @@ module RubyEventStore
     it_behaves_like :dispatcher, skippy_dispatcher.new
 
     real_dispatcher = Class.new do
-      def call(subscriber, event, serialized_event)
+      def call(_subscriber, _event, _serialized_event)
         @called = true
       end
 
-      def verify(subscriber)
+      def verify(_subscriber)
         true
       end
       attr_reader :called

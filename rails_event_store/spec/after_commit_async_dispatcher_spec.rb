@@ -192,13 +192,13 @@ module RailsEventStore
       end
     end
 
-    def expect_no_enqueued_job(job, &proc)
+    def expect_no_enqueued_job(job)
       raise unless block_given?
       yield
       expect(job.queued).to be_nil
     end
 
-    def expect_to_have_enqueued_job(job, &proc)
+    def expect_to_have_enqueued_job(job)
       raise unless block_given?
       yield
       expect(job.queued).not_to be_nil

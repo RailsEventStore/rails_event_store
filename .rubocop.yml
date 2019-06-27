@@ -29,3 +29,9 @@ Lint/LiteralInInterpolation:
 
 Lint/UnneededRequireStatement:
   Enabled: true
+
+Lint/UnusedBlockArgument:
+  Enabled: true
+
+Lint/UnusedMethodArgument:
+  Enabled: true

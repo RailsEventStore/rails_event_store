@@ -75,11 +75,11 @@ class OrderWithCustomStrategy
   attr_accessor :status
   private
 
-  def custom_created(event)
+  def custom_created(_event)
     @status = :created
   end
 
-  def custom_expired(event)
+  def custom_expired(_event)
     @status = :expired
   end
 end

@@ -75,8 +75,7 @@ module SchemaHelper
   end
 
   def validate_migration(source_gemfile, target_gemfile,
-                         source_template_name: nil,
-                         &block)
+                         source_template_name: nil)
     begin
       build_schema(source_gemfile, template_name: source_template_name)
       establish_database_connection
