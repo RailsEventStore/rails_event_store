@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ruby_event_store'
 require 'rails_event_store/async_handler_helpers'
 require 'rails_event_store/link_by_metadata'

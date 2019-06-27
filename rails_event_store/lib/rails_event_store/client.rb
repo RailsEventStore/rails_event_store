@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsEventStore
   class Client < RubyEventStore::Client
     attr_reader :request_metadata

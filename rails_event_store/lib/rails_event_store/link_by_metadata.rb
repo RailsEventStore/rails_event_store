@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsEventStore
 
   class LinkByMetadata < RubyEventStore::LinkByMetadata

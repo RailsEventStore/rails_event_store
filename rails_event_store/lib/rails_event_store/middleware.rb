@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsEventStore
   class Middleware
     def initialize(app)
