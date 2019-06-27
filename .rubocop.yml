@@ -1,5 +1,4 @@
 AllCops:
-  DisabledByDefault: true
   DisplayCopNames: true
   Exclude:
     - rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/*
@@ -7,43 +6,36 @@ AllCops:
     - support/helpers/0_18_2_migration_template.rb
     - contrib/**/*
     - railseventstore.org/**/*
+    - bounded_context/spec/dummy_*/**/*
+    - '**/bin/*'
   TargetRubyVersion: 2.4
 
-Layout/DotPosition:
-  Enabled: true
-
-Lint/DeprecatedClassMethods:
-  Enabled: true
-
-Lint/IneffectiveAccessModifier:
-  Enabled: true
-
-Lint/UselessAccessModifier:
-  Enabled: true
-
-Lint/UriEscapeUnescape:
-  Enabled: true
-
-Lint/LiteralInInterpolation:
-  Enabled: true
-
-Lint/UnneededRequireStatement:
-  Enabled: true
-
-Lint/UnusedBlockArgument:
-  Enabled: true
-
-Lint/UnusedMethodArgument:
-  Enabled: true
-
-Lint/ShadowingOuterLocalVariable:
-  Enabled: true
-
-Lint/UnderscorePrefixedVariableName:
-  Enabled: true
-
 Lint/UselessAssignment:
-  Enabled: true
   Exclude:
     - ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb
-    - '**/*_spec.rb'
+    - '**/spec/*'
+
+Lint/HandleExceptions:
+  Enabled: false
+
+Layout/AlignHash:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/AlignArguments:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented_relative_to_receiver
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
