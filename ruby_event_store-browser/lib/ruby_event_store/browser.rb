@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   module Browser
     PAGE_SIZE = 20
