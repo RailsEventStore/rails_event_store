@@ -57,22 +57,8 @@ module RailsEventStore
       expect(MyAsyncHandler.received).to eq(serialized_event)
     end
 
-    it "does not dispatch job after transaction rollback" do
-      expect_no_enqueued_job(MyAsyncHandler) do
-        ActiveRecord::Base.transaction do
-          dispatcher.call(MyAsyncHandler, event, serialized_event)
-          raise ActiveRecord::Rollback
-        end
-      end
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to be_nil
-    end
-
-    it "does not dispatch job after transaction rollback (with raises)" do
-      was = ActiveRecord::Base.raise_in_transactional_callbacks
-      begin
-        ActiveRecord::Base.raise_in_transactional_callbacks = true
-
+    context "when transaction is rolledback" do
+      it "does not dispatch job" do
         expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
             dispatcher.call(MyAsyncHandler, event, serialized_event)
@@ -81,10 +67,32 @@ module RailsEventStore
         end
         MyAsyncHandler.perform_enqueued_jobs
         expect(MyAsyncHandler.received).to be_nil
-      ensure
-        ActiveRecord::Base.raise_in_transactional_callbacks = was
       end
-    end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+      context "when raise_in_transactional_callbacks is enabled" do
+        around do |example|
+          skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+          old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
+          ActiveRecord::Base.raise_in_transactional_callbacks = true
+
+          example.run
+
+          ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
+        end
+
+        it "does not dispatch job" do
+          expect_no_enqueued_job(MyAsyncHandler) do
+            ActiveRecord::Base.transaction do
+              dispatcher.call(MyAsyncHandler, event, serialized_event)
+              raise ActiveRecord::Rollback
+            end
+          end
+          MyAsyncHandler.perform_enqueued_jobs
+          expect(MyAsyncHandler.received).to be_nil
+        end
+      end
+    end
 
     it "dispatch job only after top-level transaction (nested is not new) commit" do
       expect_to_have_enqueued_job(MyAsyncHandler) do
@@ -131,33 +139,12 @@ module RailsEventStore
       expect(MyAsyncHandler.received).to be_nil
     end
 
-    it "dispatch job after transaction commit when there was raise in after_commit callback" do
-      ActiveRecord::Schema.define { create_table(:dummy_records) }
-
-      expect_to_have_enqueued_job(MyAsyncHandler) do
-        begin
-          ActiveRecord::Base.transaction do
-            DummyRecord.new.save!
-            expect_no_enqueued_job(MyAsyncHandler) do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
-            end
-          end
-        rescue DummyError
-        end
-      end
-      expect(DummyRecord.count).to eq(1)
-      expect(MyAsyncHandler.received).to be_nil
-
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_event)
-    end
-
-    it "dispatch job after transaction commit when there was raise in after_commit callback (with raises)" do
-      was = ActiveRecord::Base.raise_in_transactional_callbacks
-      begin
-        ActiveRecord::Base.raise_in_transactional_callbacks = true
+    context "when an exception is raised within after commit callback" do
+      before do
         ActiveRecord::Schema.define { create_table(:dummy_records) }
+      end
 
+      it "dispatches the job after commit" do
         expect_to_have_enqueued_job(MyAsyncHandler) do
           begin
             ActiveRecord::Base.transaction do
@@ -174,10 +161,40 @@ module RailsEventStore
 
         MyAsyncHandler.perform_enqueued_jobs
         expect(MyAsyncHandler.received).to eq(serialized_event)
-      ensure
-        ActiveRecord::Base.raise_in_transactional_callbacks = was
       end
-    end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+      context "when raise_in_transactional_callbacks is enabled" do
+        around do |example|
+          skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+          old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
+          ActiveRecord::Base.raise_in_transactional_callbacks = true
+
+          example.run
+
+          ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
+        end
+
+        it "dispatches the job after commit" do
+          expect_to_have_enqueued_job(MyAsyncHandler) do
+            begin
+              ActiveRecord::Base.transaction do
+                DummyRecord.new.save!
+                expect_no_enqueued_job(MyAsyncHandler) do
+                  dispatcher.call(MyAsyncHandler, event, serialized_event)
+                end
+              end
+            rescue DummyError
+            end
+          end
+          expect(DummyRecord.count).to eq(1)
+          expect(MyAsyncHandler.received).to be_nil
+
+          MyAsyncHandler.perform_enqueued_jobs
+          expect(MyAsyncHandler.received).to eq(serialized_event)
+        end
+      end
+    end
 
     context "within a non-joinable transaction" do
       around do |example|
