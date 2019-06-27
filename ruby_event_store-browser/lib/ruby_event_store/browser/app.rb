@@ -58,7 +58,7 @@ module RubyEventStore
             event_store: settings.event_store_locator,
             params: symbolized_params,
           )
-        rescue RubyEventStore::EventNotFound => e
+        rescue RubyEventStore::EventNotFound
           404
         end
       end

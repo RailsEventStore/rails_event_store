@@ -41,3 +41,9 @@ Lint/ShadowingOuterLocalVariable:
 
 Lint/UnderscorePrefixedVariableName:
   Enabled: true
+
+Lint/UselessAssignment:
+  Enabled: true
+  Exclude:
+    - ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb
+    - '**/*_spec.rb'
