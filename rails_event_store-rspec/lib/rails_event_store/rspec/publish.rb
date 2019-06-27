@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rspec/matchers/built_in/base_matcher'
 
 module RailsEventStore
