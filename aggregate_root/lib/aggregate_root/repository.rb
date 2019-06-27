@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AggregateRoot
   class Repository
     def initialize(event_store = default_event_store)

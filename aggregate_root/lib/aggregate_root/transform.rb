@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AggregateRoot
   class Transform
     def self.to_snake_case(name)

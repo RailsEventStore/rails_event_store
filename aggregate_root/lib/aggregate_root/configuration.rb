@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AggregateRoot
   class << self
     attr_accessor :configuration
