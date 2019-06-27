@@ -35,3 +35,6 @@ Lint/UnusedBlockArgument:
 
 Lint/UnusedMethodArgument:
   Enabled: true
+
+Lint/ShadowingOuterLocalVariable:
+  Enabled: true
