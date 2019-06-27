@@ -120,28 +120,28 @@ module RailsEventStore
       end
 
       specify do
-        _matcher = matcher.in(event_store)
-        _matcher.matches?(Proc.new { })
+        matcher_ = matcher.in(event_store)
+        matcher_.matches?(Proc.new { })
 
-        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS.strip)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS.strip)
           expected block not to have published any events
         EOS
       end
 
       specify do
-        _matcher = matcher.in(event_store)
-        _matcher.matches?(Proc.new { })
+        matcher_ = matcher.in(event_store)
+        matcher_.matches?(Proc.new { })
 
-        expect(_matcher.failure_message.to_s).to eq(<<~EOS.strip)
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS.strip)
           expected block to have published any events
         EOS
       end
 
       specify do
-        _matcher = matcher(actual = matchers.an_event(FooEvent)).in(event_store)
-        _matcher.matches?(Proc.new { })
+        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in(event_store)
+        matcher_.matches?(Proc.new { })
 
-        expect(_matcher.failure_message.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
           expected block to have published:
 
           #{[actual].inspect}
@@ -153,10 +153,10 @@ module RailsEventStore
       end
 
       specify do
-        _matcher = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
-        _matcher.matches?(Proc.new { })
+        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
+        matcher_.matches?(Proc.new { })
 
-        expect(_matcher.failure_message.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
           expected block to have published:
 
           #{[actual].inspect}
@@ -169,10 +169,10 @@ module RailsEventStore
 
       specify do
         foo_event = FooEvent.new
-        _matcher = matcher(actual = matchers.an_event(FooEvent)).in(event_store)
-        _matcher.matches?(Proc.new { event_store.publish(foo_event) })
+        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in(event_store)
+        matcher_.matches?(Proc.new { event_store.publish(foo_event) })
 
-        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected block not to have published:
 
           #{[actual].inspect}
@@ -185,10 +185,10 @@ module RailsEventStore
 
       specify do
         foo_event = FooEvent.new
-        _matcher = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
-        _matcher.matches?(Proc.new { event_store.publish(foo_event, stream_name: 'foo') })
+        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
+        matcher_.matches?(Proc.new { event_store.publish(foo_event, stream_name: 'foo') })
 
-        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected block not to have published:
 
           #{[actual].inspect}
@@ -200,8 +200,8 @@ module RailsEventStore
       end
 
       specify do
-        _matcher = matcher
-        expect(_matcher.description).to eq("publish events")
+        matcher_ = matcher
+        expect(matcher_.description).to eq("publish events")
       end
     end
   end

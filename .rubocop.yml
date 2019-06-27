@@ -38,3 +38,6 @@ Lint/UnusedMethodArgument:
 
 Lint/ShadowingOuterLocalVariable:
   Enabled: true
+
+Lint/UnderscorePrefixedVariableName:
+  Enabled: true

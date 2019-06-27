@@ -154,10 +154,10 @@ module RailsEventStore
         expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
 
         aggregate_root.foo
-        _matcher = matcher(expected = matchers.an_event(BarEvent))
-        _matcher.matches?(aggregate_root)
+        matcher_ = matcher(expected = matchers.an_event(BarEvent))
+        matcher_.matches?(aggregate_root)
 
-        expect(_matcher.failure_message.to_s).to match(<<~EOS)
+        expect(matcher_.failure_message.to_s).to match(<<~EOS)
           expected [#{expected.inspect}] to be applied, diff:
           @@ -1,2 +1,2 @@
           -[#{actual.inspect}]
@@ -169,10 +169,10 @@ module RailsEventStore
         expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
 
         aggregate_root.foo
-        _matcher = matcher(expected = matchers.an_event(BarEvent))
-        _matcher.matches?(aggregate_root)
+        matcher_ = matcher(expected = matchers.an_event(BarEvent))
+        matcher_.matches?(aggregate_root)
 
-        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected [#{expected.inspect}] not to be applied, diff:
           @@ -1,2 +1,2 @@
           -[#{actual.inspect}]
@@ -181,28 +181,28 @@ module RailsEventStore
       end
 
       specify do
-        _matcher = matcher(
+        matcher_ = matcher(
           matchers.an_event(FooEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
           matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
         )
-        expect(_matcher.description)
+        expect(matcher_.description)
           .to eq("have applied events that have to (be an event FooEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}) and be an event BazEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}))")
       end
 
       specify do
-        _matcher = matcher(
+        matcher_ = matcher(
           FooEvent,
           BazEvent)
-        expect(_matcher.description)
+        expect(matcher_.description)
           .to eq("have applied events that have to (be a FooEvent and be a BazEvent)")
       end
 
       specify do
-        _matcher = matcher(
+        matcher_ = matcher(
             FooEvent,
             BarEvent,
             BazEvent)
-        expect(_matcher.description)
+        expect(matcher_.description)
             .to eq("have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)")
       end
     end

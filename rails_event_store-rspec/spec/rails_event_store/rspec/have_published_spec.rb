@@ -218,10 +218,10 @@ module RailsEventStore
 
       specify do
         event_store.publish(actual = FooEvent.new)
-        _matcher = matcher(expected = matchers.an_event(BarEvent))
-        _matcher.matches?(event_store)
+        matcher_ = matcher(expected = matchers.an_event(BarEvent))
+        matcher_.matches?(event_store)
 
-        expect(_matcher.failure_message.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
           expected [#{expected.inspect}] to be published, diff:
           @@ -1,2 +1,2 @@
           -[#{actual.inspect}]
@@ -231,10 +231,10 @@ module RailsEventStore
 
       specify do
         event_store.publish(actual = FooEvent.new)
-        _matcher = matcher(expected = matchers.an_event(BarEvent))
-        _matcher.matches?(event_store)
+        matcher_ = matcher(expected = matchers.an_event(BarEvent))
+        matcher_.matches?(event_store)
 
-        expect(_matcher.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected [#{expected.inspect}] not to be published, diff:
           @@ -1,2 +1,2 @@
           -[#{actual.inspect}]
@@ -245,20 +245,20 @@ module RailsEventStore
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
 
       specify do
-        _matcher = matcher(
+        matcher_ = matcher(
           matchers.an_event(FooEvent),
           matchers.an_event(BazEvent)
         )
-        expect(_matcher.description)
+        expect(matcher_.description)
           .to eq("have published events that have to (be an event FooEvent and be an event BazEvent)")
       end
 
       specify do
-        _matcher = matcher(
+        matcher_ = matcher(
           FooEvent,
           BazEvent
         )
-        expect(_matcher.description)
+        expect(matcher_.description)
           .to eq("have published events that have to (be a FooEvent and be a BazEvent)")
       end
    end
