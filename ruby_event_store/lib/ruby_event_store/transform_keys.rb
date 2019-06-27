@@ -4,11 +4,11 @@ module RubyEventStore
   class TransformKeys
     class << self
       def stringify(data)
-        transform(data) {|k| k.to_s}
+        transform(data) { |k| k.to_s }
       end
 
       def symbolize(data)
-        transform(data) {|k| k.to_sym}
+        transform(data) { |k| k.to_sym }
       end
 
       private
@@ -20,7 +20,7 @@ module RubyEventStore
             when Hash
               transform(v, &block)
             when Array
-              v.map{|i| Hash === i ? transform(i, &block) : i}
+              v.map { |i| Hash === i ? transform(i, &block) : i }
             else
               v
             end

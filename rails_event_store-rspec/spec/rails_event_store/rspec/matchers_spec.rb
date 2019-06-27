@@ -15,10 +15,12 @@ module RailsEventStore
       specify { expect(matchers.have_published(matchers.an_event(FooEvent))).to be_an(HavePublished) }
 
       specify do
-        expect(matchers.have_published(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )).to be_an(HavePublished)
+        expect(
+          matchers.have_published(
+            matchers.an_event(FooEvent),
+            matchers.an_event(BazEvent),
+          ),
+        ).to be_an(HavePublished)
       end
 
       specify do
@@ -50,10 +52,12 @@ module RailsEventStore
       end
 
       specify do
-        expect(matchers.have_applied(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )).to be_an(HaveApplied)
+        expect(
+          matchers.have_applied(
+            matchers.an_event(FooEvent),
+            matchers.an_event(BazEvent),
+          ),
+        ).to be_an(HaveApplied)
       end
 
       specify do

@@ -19,33 +19,33 @@ module RubyEventStore
     specify { expect(specification.result.first?).to eq(false) }
     specify { expect(specification.result.last?).to eq(false) }
 
-    specify { expect{specification.limit(nil) }.to raise_error(InvalidPageSize) }
-    specify { expect{specification.limit(0)}.to raise_error(InvalidPageSize) }
+    specify { expect { specification.limit(nil) }.to raise_error(InvalidPageSize) }
+    specify { expect { specification.limit(0) }.to raise_error(InvalidPageSize) }
     specify { expect(specification.limit(1).result.limit).to eq(1) }
     specify { expect(specification.result.limit?).to eq(false) }
     specify { expect(specification.limit(100).result.limit?).to eq(true) }
 
     specify { expect(specification.result.stream.name).to eq(GLOBAL_STREAM) }
     specify { expect(specification.result.stream.global?).to eq(true) }
-    specify { expect{specification.stream(nil)}.to raise_error(IncorrectStreamData) }
-    specify { expect{specification.stream('')}.to raise_error(IncorrectStreamData) }
+    specify { expect { specification.stream(nil) }.to raise_error(IncorrectStreamData) }
+    specify { expect { specification.stream('') }.to raise_error(IncorrectStreamData) }
     specify { expect(specification.stream('stream').result.stream.name).to eq('stream') }
     specify { expect(specification.stream('nope').result.stream.global?).to eq(false) }
     specify { expect(specification.stream('all').result.stream.name).to eq('all') }
     specify { expect(specification.stream('all').result.stream.global?).to eq(false) }
-    specify { expect(specification.stream(GLOBAL_STREAM).result.stream.name).to eq( GLOBAL_STREAM) }
+    specify { expect(specification.stream(GLOBAL_STREAM).result.stream.name).to eq(GLOBAL_STREAM) }
     specify { expect(specification.stream(GLOBAL_STREAM).result.stream.global?).to eq(true) }
 
-    specify { expect{specification.from(nil)}.to raise_error(InvalidPageStart) }
-    specify { expect{specification.from('')}.to raise_error(InvalidPageStart) }
-    specify { expect{specification.from(:head)}.to raise_error(EventNotFound, /head/) }
-    specify { expect{specification.from(:dummy)}.to raise_error(EventNotFound, /dummy/) }
-    specify { expect{specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
+    specify { expect { specification.from(nil) }.to raise_error(InvalidPageStart) }
+    specify { expect { specification.from('') }.to raise_error(InvalidPageStart) }
+    specify { expect { specification.from(:head) }.to raise_error(EventNotFound, /head/) }
+    specify { expect { specification.from(:dummy) }.to raise_error(EventNotFound, /dummy/) }
+    specify { expect { specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 
-    specify { expect{specification.to(nil)}.to raise_error(InvalidPageStop) }
-    specify { expect{specification.to('')}.to raise_error(InvalidPageStop) }
-    specify { expect{specification.to(:dummy) }.to raise_error(EventNotFound, /dummy/) }
-    specify { expect{specification.to(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
+    specify { expect { specification.to(nil) }.to raise_error(InvalidPageStop) }
+    specify { expect { specification.to('') }.to raise_error(InvalidPageStop) }
+    specify { expect { specification.to(:dummy) }.to raise_error(EventNotFound, /dummy/) }
+    specify { expect { specification.to(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 
     specify { expect(specification.result.with_ids).to be_nil }
     specify { expect(specification.with_id([event_id]).result.with_ids).to eq([event_id]) }
@@ -107,7 +107,7 @@ module RubyEventStore
           specification.with_id([event_id]),
           specification.of_type([TestEvent]),
         ]
-        expect(specs.map{|s| s.send(:reader)}.uniq).to eq([reader])
+        expect(specs.map { |s| s.send(:reader) }.uniq).to eq([reader])
       end
     end
 
@@ -460,7 +460,7 @@ module RubyEventStore
 
     specify do
       expect(specification.event(event_id)).to be_nil
-      expect{specification.event!(event_id)}.to raise_error(EventNotFound, "Event not found: #{event_id}")
+      expect { specification.event!(event_id) }.to raise_error(EventNotFound, "Event not found: #{event_id}")
 
       records = 5.times.map { test_record }
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
@@ -472,11 +472,13 @@ module RubyEventStore
       expect(specification.event!(records[3].event_id)).to eq(TestEvent.new(event_id: records[3].event_id))
 
       expect(specification.events([])).to be_kind_of(Enumerator)
-      expect(specification.events([0,2,4].map{|i| records[i].event_id})).to be_kind_of(Enumerator)
-      expect(specification.events([0,2,4].map{|i| records[i].event_id}).to_a).to eq(
-        [0,2,4].map{|i| TestEvent.new(event_id: records[i].event_id)})
+      expect(specification.events([0, 2, 4].map { |i| records[i].event_id })).to be_kind_of(Enumerator)
+      expect(specification.events([0, 2, 4].map { |i| records[i].event_id }).to_a).to eq(
+        [0, 2, 4].map { |i| TestEvent.new(event_id: records[i].event_id) },
+      )
       expect(specification.events([records[0].event_id, SecureRandom.uuid]).to_a).to eq(
-        [TestEvent.new(event_id: records[0].event_id)])
+        [TestEvent.new(event_id: records[0].event_id)],
+      )
     end
 
     specify do
@@ -499,8 +501,8 @@ module RubyEventStore
       expect(specification.in_batches.result.last?).to eq(false)
     end
 
-    specify{ expect(specification.result.frozen?).to eq(true) }
-    specify{ expect(specification.backward.result.frozen?).to eq(true) }
+    specify { expect(specification.result.frozen?).to eq(true) }
+    specify { expect(specification.backward.result.frozen?).to eq(true) }
 
     specify "#hash" do
       expect(specification.result.hash).to eq(specification.forward.result.hash)
@@ -529,17 +531,17 @@ module RubyEventStore
       end
 
       expect(specification.result.hash).not_to eq([
-          SpecificationResult,
-          :forward,
-          nil,
-          nil,
-          Float::INFINITY,
-          Stream.new(GLOBAL_STREAM),
-          :all,
-          Specification::DEFAULT_BATCH_SIZE,
-          nil,
-          nil,
-        ].hash)
+        SpecificationResult,
+        :forward,
+        nil,
+        nil,
+        Float::INFINITY,
+        Stream.new(GLOBAL_STREAM),
+        :all,
+        Specification::DEFAULT_BATCH_SIZE,
+        nil,
+        nil,
+      ].hash)
 
       expect(Class.new(SpecificationResult).new.hash).not_to eq(specification.result.hash)
     end
@@ -614,24 +616,24 @@ module RubyEventStore
     end
 
     specify "#map" do
-      events = (1..3).map{|idx| test_record(data: { here: { will: { be: { dragon: idx }}}})}
+      events = (1..3).map { |idx| test_record(data: { here: { will: { be: { dragon: idx } } } }) }
       repository.append_to_stream(events, Stream.new(stream_name), ExpectedVersion.any)
-      expect{ specification.map }.to raise_error(ArgumentError, "Block must be given")
+      expect { specification.map }.to raise_error(ArgumentError, "Block must be given")
       expect(specification.map(&:event_id)).to eq events.map(&:event_id)
-      expect(specification.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [1,2,3]
-      expect(specification.backward.map{|ev| ev.data.dig(:here, :will, :be, :dragon)}).to eq [3,2,1]
+      expect(specification.map { |ev| ev.data.dig(:here, :will, :be, :dragon) }).to eq [1, 2, 3]
+      expect(specification.backward.map { |ev| ev.data.dig(:here, :will, :be, :dragon) }).to eq [3, 2, 1]
       expect(specification.stream('Dummy').map(&:event_id)).to eq []
     end
 
     specify "#reduce" do
-      events = (1..3).map{|idx| test_record(data: { here: { will: { be: { dragon: idx }}}})}
+      events = (1..3).map { |idx| test_record(data: { here: { will: { be: { dragon: idx } } } }) }
       repository.append_to_stream(events, Stream.new(stream_name), ExpectedVersion.any)
-      expect{ specification.reduce }.to raise_error(ArgumentError, "Block must be given")
-      expect{ specification.reduce([]) }.to raise_error(ArgumentError, "Block must be given")
-      expect(specification.reduce([]) {|acc, ev| acc << ev.event_id}).to eq events.map(&:event_id)
-      expect(specification.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
-      expect(specification.backward.reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 6
-      expect(specification.stream('Dummy').reduce(0) {|acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon)}).to eq 0
+      expect { specification.reduce }.to raise_error(ArgumentError, "Block must be given")
+      expect { specification.reduce([]) }.to raise_error(ArgumentError, "Block must be given")
+      expect(specification.reduce([]) { |acc, ev| acc << ev.event_id }).to eq events.map(&:event_id)
+      expect(specification.reduce(0) { |acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
+      expect(specification.backward.reduce(0) { |acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
+      expect(specification.stream('Dummy').reduce(0) { |acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon) }).to eq 0
     end
 
     specify "#of_type(s)" do
@@ -662,8 +664,7 @@ module RubyEventStore
     def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {})
       mapper.event_to_serialized_record(
         event_type.new(event_id: event_id,
-                       data: data,
-                      )
+                       data:     data),
       )
     end
 
@@ -671,7 +672,7 @@ module RubyEventStore
       repository.append_to_stream(
         [test_record(event_id)],
         Stream.new(stream_name),
-        ExpectedVersion.none
+        ExpectedVersion.none,
       )
       block.call
     end

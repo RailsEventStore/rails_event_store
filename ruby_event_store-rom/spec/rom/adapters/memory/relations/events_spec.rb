@@ -22,12 +22,12 @@ module RubyEventStore::ROM::Memory
       events = [
         { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
         { id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-        { id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+        { id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
       ]
 
       stream_entries = [
         { id: 1, event_id: id2 },
-        { id: 2, event_id: id3 }
+        { id: 2, event_id: id3 },
       ]
 
       relation.command(:create).call(events)
@@ -39,7 +39,7 @@ module RubyEventStore::ROM::Memory
       events = [
         { id: id1 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
         { id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-        { id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+        { id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
       ]
 
       relation.command(:create).call(events)

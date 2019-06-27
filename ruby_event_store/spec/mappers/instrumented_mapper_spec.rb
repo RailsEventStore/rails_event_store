@@ -5,7 +5,6 @@ require 'active_support/notifications'
 module RubyEventStore
   module Mappers
     RSpec.describe InstrumentedMapper do
-
       describe "#event_to_serialized_record" do
         specify "wraps around original implementation" do
           domain_event, serialized_record = Object.new, Object.new
@@ -21,8 +20,8 @@ module RubyEventStore
           subscribe_to("serialize.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.event_to_serialized_record(domain_event = Object.new)
             expect(notification_calls).to eq([
-              { domain_event: domain_event}
-            ])
+                                               { domain_event: domain_event },
+                                             ])
           end
         end
       end
@@ -42,8 +41,8 @@ module RubyEventStore
           subscribe_to("deserialize.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.serialized_record_to_event(serialized_record = Object.new)
             expect(notification_calls).to eq([
-              { record: serialized_record}
-            ])
+                                               { record: serialized_record },
+                                             ])
           end
         end
       end

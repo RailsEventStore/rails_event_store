@@ -12,11 +12,11 @@ Gem::Specification.new do |spec|
   spec.summary       = 'ROM events repository for Ruby Event Store'
   spec.description   = "Implementation of events repository based on ROM for Ruby Event Store'"
   spec.homepage      = 'https://railseventstore.org'
-  spec.metadata    = {
-    'homepage_uri' => 'https://railseventstore.org/',
-    'changelog_uri' => 'https://github.com/RailsEventStore/rails_event_store/releases',
+  spec.metadata = {
+    'homepage_uri'    => 'https://railseventstore.org/',
+    'changelog_uri'   => 'https://github.com/RailsEventStore/rails_event_store/releases',
     'source_code_uri' => 'https://github.com/RailsEventStore/rails_event_store',
-    'bug_tracker_uri' => 'https://github.com/RailsEventStore/rails_event_store/issues'
+    'bug_tracker_uri' => 'https://github.com/RailsEventStore/rails_event_store/issues',
   }
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

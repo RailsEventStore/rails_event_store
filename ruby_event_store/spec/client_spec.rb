@@ -75,8 +75,8 @@ module RubyEventStore
     specify 'append many events' do
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
-        stream_name: stream,
-        expected_version: -1
+        stream_name:      stream,
+        expected_version: -1,
       )
       expect(client.read.stream(stream).to_a).to eq([first_event, second_event])
     end
@@ -175,7 +175,7 @@ module RubyEventStore
 
     specify "event's  metadata takes precedence over with_metadata" do
       client.with_metadata(request_ip: '127.0.0.1') do
-        client.publish(@event = TestEvent.new(metadata: {request_ip: '1.2.3.4'}))
+        client.publish(@event = TestEvent.new(metadata: { request_ip: '1.2.3.4' }))
       end
       expect(@event.metadata.fetch(:request_ip)).to eq('1.2.3.4')
     end
@@ -239,10 +239,10 @@ module RubyEventStore
       end
       client.subscribe(to: [OrderCreated]) do
         client.publish(@three = TestEvent.new)
-        client.publish(@four  = TestEvent.new(metadata:{
-          correlation_id: 'COID',
-          causation_id:   'CAID',
-        }))
+        client.publish(@four  = TestEvent.new(metadata: {
+                                                correlation_id: 'COID',
+                                                causation_id:   'CAID',
+                                              }))
       end
       client.publish(one = ProductAdded.new)
 
@@ -255,10 +255,10 @@ module RubyEventStore
       expect(@four.correlation_id).to eq('COID')
       expect(@four.causation_id).to   eq('CAID')
 
-      client.publish(one = ProductAdded.new(metadata:{
-        correlation_id: "COID",
-        causation_id:   "CAID",
-      }))
+      client.publish(one = ProductAdded.new(metadata: {
+                                              correlation_id: "COID",
+                                              causation_id:   "CAID",
+                                            }))
       expect(@two.correlation_id).to eq("COID")
       expect(@two.causation_id).to   eq(one.event_id)
     end
@@ -277,12 +277,12 @@ module RubyEventStore
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
-        stream_name: 'stream'
+        stream_name: 'stream',
       )
       client.link(
         [first_event.event_id, second_event.event_id],
-        stream_name: 'flow',
-        expected_version: -1
+        stream_name:      'flow',
+        expected_version: -1,
       ).link(
         [first_event.event_id],
         stream_name: 'cars',
@@ -298,15 +298,15 @@ module RubyEventStore
         require_relative 'mappers/events_pb.rb'
 
         client = RubyEventStore::Client.new(
-          mapper: RubyEventStore::Mappers::Protobuf.new,
-          repository: InMemoryRepository.new
+          mapper:     RubyEventStore::Mappers::Protobuf.new,
+          repository: InMemoryRepository.new,
         )
         event = RubyEventStore::Proto.new(
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data: ResTesting::OrderCreated.new(
+          data:     ResTesting::OrderCreated.new(
             customer_id: 123,
-            order_id: "K3THNX9",
-          )
+            order_id:    "K3THNX9",
+          ),
         )
         client.publish(event, stream_name: 'test')
 
@@ -464,8 +464,8 @@ module RubyEventStore
     end
 
     specify 'return all events ordered forward' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
       response = client.read.limit(100).to_a
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
@@ -473,9 +473,9 @@ module RubyEventStore
     end
 
     specify 'return batch of events from the beginging ordered forward' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read.limit(2).to_a
 
       expect(response.length).to eq 2
@@ -485,9 +485,9 @@ module RubyEventStore
 
     specify 'return batch of events from given event ordered forward' do
       uid = SecureRandom.uuid
-      client.publish(OrderCreated.new(event_id: uid, data: {order_id: 123}), stream_name: 'order_1')
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      client.publish(OrderCreated.new(event_id: uid, data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read.from(uid).limit(1).to_a
 
       expect(response.length).to eq 1
@@ -495,8 +495,8 @@ module RubyEventStore
     end
 
     specify 'return all events ordered backward' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_1')
       response = client.read.backward.limit(100).to_a
 
       expect(response.length).to eq 2
@@ -505,9 +505,9 @@ module RubyEventStore
     end
 
     specify 'return batch of events from the end ordered backward' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: 'order_2')
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read.backward.limit(2).to_a
 
       expect(response.length).to eq 2
@@ -516,9 +516,9 @@ module RubyEventStore
     end
 
     specify 'return batch of events from given event ordered backward' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
-      client.publish(OrderCreated.new(event_id: uid = SecureRandom.uuid, data: {order_id: 234}), stream_name: 'order_2')
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: 'order_3')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
+      client.publish(OrderCreated.new(event_id: uid = SecureRandom.uuid, data: { order_id: 234 }), stream_name: 'order_2')
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: 'order_3')
       response = client.read.backward.from(uid).limit(1).to_a
 
       expect(response.length).to eq 1
@@ -526,14 +526,14 @@ module RubyEventStore
     end
 
     specify 'fails when starting event not exists' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
 
       expect { client.read.from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
       expect { client.read.backward.from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
     end
 
     specify 'fails when page size is invalid' do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: 'order_1')
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: 'order_1')
 
       expect { client.read.limit(0).to_a }.to raise_error(InvalidPageSize)
       expect { client.read.backward.limit(0).to_a }.to raise_error(InvalidPageSize)
@@ -544,7 +544,7 @@ module RubyEventStore
     specify 'create successfully event' do
       client.append(
         event = OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'),
-        stream_name: 'stream_name'
+        stream_name: 'stream_name',
       )
       saved_events = client.read.stream("stream_name").to_a
 
@@ -567,12 +567,12 @@ module RubyEventStore
       expect do
         client.append(
           OrderCreated.new(event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd'),
-          stream_name: 'stream_name'
+          stream_name: 'stream_name',
         )
         client.append(
           OrderCreated.new(event_id: '724dd49d-6e20-40e6-bc32-ed75258f886b'),
-          stream_name: 'stream_name',
-          expected_version: 0
+          stream_name:      'stream_name',
+          expected_version: 0,
         )
       end.not_to raise_error
     end
@@ -615,7 +615,6 @@ module RubyEventStore
     end
 
     specify 'append fail if expected version is nil' do
-
       expect do
         client.append(event = OrderCreated.new, stream_name: 'stream', expected_version: nil)
       end.to raise_error(RubyEventStore::InvalidExpectedVersion)
@@ -648,25 +647,23 @@ module RubyEventStore
     end
 
     specify "only :none, :any, :auto and Integer allowed as expected_version" do
-
       [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
         expect do
           client.append(
             OrderCreated.new(event_id: SecureRandom.uuid),
-            stream_name: "some_stream",
-            expected_version: invalid_expected_version
+            stream_name:      "some_stream",
+            expected_version: invalid_expected_version,
           )
         end.to raise_error(RubyEventStore::InvalidExpectedVersion)
       end
     end
 
     specify "only :none, :any, :auto and Integer allowed as expected_version when linking" do
-
       [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
         client.append(
           OrderCreated.new(event_id: evid = SecureRandom.uuid),
-          stream_name: SecureRandom.uuid,
-          expected_version: :none
+          stream_name:      SecureRandom.uuid,
+          expected_version: :none,
         )
         expect do
           client.link(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
@@ -682,18 +679,18 @@ module RubyEventStore
     specify 'can load serialized event when using Default mapper' do
       client = RubyEventStore::Client.new(
         mapper:     RubyEventStore::Mappers::Default.new,
-        repository: InMemoryRepository.new
+        repository: InMemoryRepository.new,
       )
       event = OrderCreated.new(
-          event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
-          data:     { foo: 'bar' },
-          metadata: { bar: 'baz' }
+        event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+        data:     { foo: 'bar' },
+        metadata: { bar: 'baz' },
       )
       serialized_event = {
         event_type: "OrderCreated",
         event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data:       "---\n:foo: bar\n",
-        metadata:   "---\n:bar: baz\n"
+        metadata:   "---\n:bar: baz\n",
       }
       expect(client.deserialize(serialized_event)).to eq(event)
     end
@@ -703,24 +700,24 @@ module RubyEventStore
         require_relative 'mappers/events_pb.rb'
 
         client = RubyEventStore::Client.new(
-          mapper: RubyEventStore::Mappers::Protobuf.new,
-          repository: InMemoryRepository.new
+          mapper:     RubyEventStore::Mappers::Protobuf.new,
+          repository: InMemoryRepository.new,
         )
         event = RubyEventStore::Proto.new(
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data: ResTesting::OrderCreated.new(
+          data:     ResTesting::OrderCreated.new(
             customer_id: 123,
-            order_id: "K3THNX9",
+            order_id:    "K3THNX9",
           ),
           metadata: {
             time: Time.new(2018, 12, 13, 11),
-          }
+          },
         )
         serialized_event = {
           event_type: "res_testing.OrderCreated",
-          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data: "\n\aK3THNX9\x10{",
-          metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
+          event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+          data:       "\n\aK3THNX9\x10{",
+          metadata:   "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05",
         }
         expect(client.deserialize(serialized_event)).to eq(event)
       rescue LoadError => exc
@@ -729,16 +726,16 @@ module RubyEventStore
     end
 
     specify 'raise error when no subscriber' do
-      expect { client.subscribe(nil, to: [])}.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.subscribe_to_all_events(nil)}.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.within{}.subscribe(nil, to: []).call}.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.within{}.subscribe_to_all_events(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.subscribe(nil, to: []) }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil) }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.within {}.subscribe(nil, to: []).call }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.within {}.subscribe_to_all_events(nil).call }.to raise_error(RubyEventStore::SubscriberNotExist)
     end
 
     describe '#overwrite' do
       specify 'overwrites events data and metadata' do
         client.publish(
-          old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}),
+          old = OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }),
           stream_name: "some_stream",
         )
         old.data[:amount] = 12
@@ -757,7 +754,7 @@ module RubyEventStore
 
       specify 'overwrites event type' do
         client.publish(
-          old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}, metadata: {server: "eu-west"}),
+          old = OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }, metadata: { server: "eu-west" }),
           stream_name: "some_stream",
         )
         client.overwrite([ProductAdded.new(event_id: old.event_id, data: old.data, metadata: old.metadata)])

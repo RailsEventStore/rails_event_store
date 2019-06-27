@@ -27,7 +27,7 @@ RSpec.shared_examples :events_relation do |_relation_class|
     events = [
       { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
       { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
     ]
 
     relation.command(:create).call(events[0..1])
@@ -48,7 +48,7 @@ RSpec.shared_examples :events_relation do |_relation_class|
     events = [
       { id: id = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
       { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
     ]
 
     relation.command(:create).call(events)
@@ -61,7 +61,7 @@ RSpec.shared_examples :events_relation do |_relation_class|
     events = [
       { id: id = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
       { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
     ]
 
     relation.command(:create).call(events)

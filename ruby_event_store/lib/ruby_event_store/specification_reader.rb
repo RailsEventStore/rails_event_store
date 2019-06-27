@@ -38,6 +38,7 @@ module RubyEventStore
     end
 
     private
+
     attr_reader :repository, :mapper
   end
 end

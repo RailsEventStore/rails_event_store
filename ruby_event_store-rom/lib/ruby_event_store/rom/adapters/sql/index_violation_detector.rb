@@ -13,7 +13,7 @@ module RubyEventStore
         SQLITE3_INDEX_ERROR  = 'event_store_events_in_streams.stream, event_store_events_in_streams.event_id'.freeze
 
         def detect(message)
-          message.include?(MYSQL_PKEY_ERROR) ||
+          message.include?(MYSQL_PKEY_ERROR)       ||
             message.include?(POSTGRES_PKEY_ERROR)  ||
             message.include?(SQLITE3_PKEY_ERROR)   ||
 

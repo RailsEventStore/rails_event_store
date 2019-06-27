@@ -3,7 +3,6 @@
 require 'securerandom'
 
 module RubyEventStore
-
   # Data structure representing an event
   class Event
     # Instantiates a new event
@@ -41,10 +40,10 @@ module RubyEventStore
     # @return [Hash] with :event_id, :metadata, :data, :type keys
     def to_h
       {
-          event_id:   event_id,
-          metadata:   metadata.to_h,
-          data:       data,
-          type:       type,
+        event_id: event_id,
+        metadata: metadata.to_h,
+        data:     data,
+        type:     type,
       }
     end
 
@@ -88,7 +87,7 @@ module RubyEventStore
       [
         self.class,
         event_id,
-        data
+        data,
       ].hash ^ BIG_VALUE
     end
 
@@ -123,7 +122,7 @@ module RubyEventStore
     # @param val [String]
     # @return [String]
     def causation_id=(val)
-      metadata[:causation_id]= val
+      metadata[:causation_id] = val
     end
 
     # Sets correlation_id and causation_id in metadata based

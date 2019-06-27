@@ -44,12 +44,12 @@ module RailsEventStore
 
       def failure_message
         "expected #{expected} to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_a.to_s)
+          differ.diff_as_string(expected.to_s, events.to_a.to_s)
       end
 
       def failure_message_when_negated
         "expected #{expected} not to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_a.to_s)
+          differ.diff_as_string(expected.to_s, events.to_a.to_s)
       end
 
       def description

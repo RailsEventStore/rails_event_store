@@ -15,18 +15,18 @@ module RubyEventStore
           event_ids.each_with_index do |event_id, index|
             unless stream.global?
               tuples << {
-                stream: stream.name,
+                stream:   stream.name,
                 position: resolved_version && resolved_version + index + POSITION_SHIFT,
-                event_id: event_id
+                event_id: event_id,
               }
             end
 
             next unless global_stream
 
             tuples << {
-              stream: stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME,
+              stream:   stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME,
               position: nil,
-              event_id: event_id
+              event_id: event_id,
             }
           end
 
@@ -45,7 +45,7 @@ module RubyEventStore
 
         def streams_of(event_id)
           stream_entries.by_event_id(event_id).map { |e| e[:stream] }
-                        .reject { |s| s == stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME }
+            .reject { |s| s == stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME }
         end
       end
     end

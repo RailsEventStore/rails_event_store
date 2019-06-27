@@ -32,15 +32,15 @@ module RailsEventStore
 
       def failure_message
         if match_events?
-          <<-EOS
-expected block to have published:
+          <<~EOS
+            expected block to have published:
 
-#{@expected}
+            #{@expected}
 
-#{"in stream #{@stream} " if @stream}but published:
+            #{"in stream #{@stream} " if @stream}but published:
 
-#{@published_events}
-EOS
+            #{@published_events}
+          EOS
         else
           "expected block to have published any events"
         end
@@ -48,15 +48,15 @@ EOS
 
       def failure_message_when_negated
         if match_events?
-          <<-EOS
-expected block not to have published:
+          <<~EOS
+            expected block not to have published:
 
-#{@expected}
+            #{@expected}
 
-#{"in stream #{@stream} " if @stream}but published:
+            #{"in stream #{@stream} " if @stream}but published:
 
-#{@published_events}
-EOS
+            #{@published_events}
+          EOS
         else
           "expected block not to have published any events"
         end

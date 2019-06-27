@@ -69,7 +69,7 @@ expected: not a kind of FooEvent
       end
 
       specify do
-        matcher_ = matcher(FooEvent).with_data({ foo: "bar"})
+        matcher_ = matcher(FooEvent).with_data({ foo: "bar" })
         matcher_.matches?(FooEvent.new)
         expect(matcher_.failure_message).to eq(%q{
 expected: FooEvent with data: {:foo=>"bar"}
@@ -99,7 +99,7 @@ Data diff:
       end
 
       specify do
-        matcher_ = matcher(FooEvent).with_metadata({ foo: "bar"})
+        matcher_ = matcher(FooEvent).with_metadata({ foo: "bar" })
         matcher_.matches?(FooEvent.new)
         expect(matcher_.failure_message).to eq(%q{
 expected: FooEvent with metadata: {:foo=>"bar"}
@@ -113,7 +113,7 @@ Metadata diff:
       end
 
       specify do
-        matcher_ = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz"})
+        matcher_ = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz" })
         matcher_.matches?(FooEvent.new)
         expect(matcher_.failure_message).to eq(%q{
 expected: FooEvent with metadata: {:bar=>"baz"} data: {:foo=>"bar"}
@@ -132,7 +132,7 @@ Data diff:
       end
 
       specify do
-        matcher_ = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz"})
+        matcher_ = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz" })
         matcher_.matches?(FooEvent.new(data: { bar: "baz" }, metadata: { baz: "foo" }))
         expect(matcher_.failure_message).to eq(%q{
 expected: FooEvent with metadata: {:bar=>"baz"} data: {:foo=>"bar"}
@@ -179,7 +179,7 @@ Data diff:
 
       specify do
         expect(matcher(FooEvent).with_data(foo: kind_of(String)).description)
-            .to eq("be an event FooEvent (with data including {:foo=>kind of String})")
+          .to eq("be an event FooEvent (with data including {:foo=>kind of String})")
       end
 
       specify do
@@ -194,7 +194,7 @@ Data diff:
 
       specify do
         expect(matcher(FooEvent).with_metadata(foo: kind_of(String)).description)
-            .to eq("be an event FooEvent (with metadata including {:foo=>kind of String})")
+          .to eq("be an event FooEvent (with metadata including {:foo=>kind of String})")
       end
 
       specify do
@@ -214,7 +214,7 @@ Data diff:
 
       specify do
         expect(matcher(FooEvent).with_data(bar: "foo").with_metadata(foo: "baz").strict.description)
-            .to eq("be an event FooEvent (with data matching {:bar=>\"foo\"} and with metadata matching {:foo=>\"baz\"})")
+          .to eq("be an event FooEvent (with data matching {:bar=>\"foo\"} and with metadata matching {:foo=>\"baz\"})")
       end
     end
   end

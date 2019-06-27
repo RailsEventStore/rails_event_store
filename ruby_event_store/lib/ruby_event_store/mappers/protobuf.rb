@@ -22,7 +22,7 @@ module RubyEventStore
             Transformation::ProtobufEncoder.new,
             Transformation::EventClassRemapper.new(events_class_remapping),
             Transformation::ProtobufNestedStructMetadata.new,
-          ]
+          ],
         ))
       end
     end

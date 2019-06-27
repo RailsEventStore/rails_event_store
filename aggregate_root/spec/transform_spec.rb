@@ -1,5 +1,5 @@
 require 'spec_helper'
-    #  = Class.new(RubyEventStore::Event)
+#  = Class.new(RubyEventStore::Event)
 
 module AggregateRoot
   RSpec.describe Transform do

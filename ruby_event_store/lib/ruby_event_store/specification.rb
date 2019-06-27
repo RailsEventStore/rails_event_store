@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-
   # Used for building and executing the query specification.
   class Specification
     DEFAULT_BATCH_SIZE = 100
@@ -29,6 +28,7 @@ module RubyEventStore
     def from(start)
       raise InvalidPageStart if start.nil? || start.empty?
       raise EventNotFound.new(start) unless reader.has_event?(start)
+
       Specification.new(reader, result.dup { |r| r.start = start })
     end
 
@@ -40,6 +40,7 @@ module RubyEventStore
     def to(stop)
       raise InvalidPageStop if stop.nil? || stop.empty?
       raise EventNotFound.new(stop) unless reader.has_event?(stop)
+
       Specification.new(reader, result.dup { |r| r.stop = stop })
     end
 
@@ -66,6 +67,7 @@ module RubyEventStore
     # @return [Specification]
     def limit(count)
       raise InvalidPageSize unless count && count > 0
+
       Specification.new(reader, result.dup { |r| r.count = count })
     end
 
@@ -104,6 +106,7 @@ module RubyEventStore
     # @return [Array] of mapped result
     def map(&block)
       raise ArgumentError.new("Block must be given") unless block_given?
+
       each.map(&block)
     end
 
@@ -115,6 +118,7 @@ module RubyEventStore
     # @return reduce result as defined by block given
     def reduce(accumulator = nil, &block)
       raise ArgumentError.new("Block must be given") unless block_given?
+
       each.reduce(accumulator, &block)
     end
 
@@ -193,7 +197,7 @@ module RubyEventStore
     # @types [Class, Array(Class)] types of event to look for.
     # @return [Specification]
     def of_type(*types)
-      Specification.new(reader, result.dup{ |r| r.with_types = types.flatten })
+      Specification.new(reader, result.dup { |r| r.with_types = types.flatten })
     end
     alias_method :of_types, :of_type
 
@@ -203,7 +207,7 @@ module RubyEventStore
     # @param even_ids [Array(String)] ids of event to look for.
     # @return [Specification]
     def with_id(event_ids)
-      Specification.new(reader, result.dup{ |r| r.with_ids = event_ids })
+      Specification.new(reader, result.dup { |r| r.with_ids = event_ids })
     end
 
     # Reads single event from repository.
@@ -238,7 +242,9 @@ module RubyEventStore
     end
 
     attr_reader :result
+
     private
+
     attr_reader :reader
   end
 end

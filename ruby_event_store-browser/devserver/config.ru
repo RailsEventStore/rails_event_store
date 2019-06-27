@@ -13,21 +13,20 @@ OtherEvent = Class.new(::RubyEventStore::Event)
 
 90.times do
   event_store.publish(DummyEvent.new(
-    data: {
-      some_integer_attribute: 42,
-      some_string_attribute: "foobar",
-      some_float_attribute: 3.14,
-    }
-  ), stream_name: "DummyStream$78")
+                        data: {
+                          some_integer_attribute: 42,
+                          some_string_attribute:  "foobar",
+                          some_float_attribute:   3.14,
+                        },
+                      ), stream_name: "DummyStream$78")
 end
-
 
 some_correlation_id = "469904c5-46ee-43a3-857f-16a455cfe337"
 other_event = OtherEvent.new(
-  data: {
+  data:     {
     some_integer_attribute: 42,
-    some_string_attribute: "foobar",
-    some_float_attribute: 3.14,
+    some_string_attribute:  "foobar",
+    some_float_attribute:   3.14,
   },
   metadata: {
     correlation_id: some_correlation_id,
@@ -37,15 +36,15 @@ event_store.publish(other_event, stream_name: "OtherStream$91")
 21.times do
   event_store.with_metadata(
     correlation_id: other_event.metadata[:correlation_id] || other_event.event_id,
-    causation_id: other_event.event_id
+    causation_id:   other_event.event_id,
   ) do
     event_store.publish(DummyEvent.new(
-      data: {
-        some_integer_attribute: 42,
-        some_string_attribute: "foobar",
-        some_float_attribute: 3.14,
-      },
-    ), stream_name: "DummyStream$79")
+                          data: {
+                            some_integer_attribute: 42,
+                            some_string_attribute:  "foobar",
+                            some_float_attribute:   3.14,
+                          },
+                        ), stream_name: "DummyStream$79")
   end
 end
 

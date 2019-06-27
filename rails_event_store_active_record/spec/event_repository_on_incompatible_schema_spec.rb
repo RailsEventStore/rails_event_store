@@ -77,7 +77,6 @@ module RailsEventStoreActiveRecord
       end
     end
 
-
     specify 'ensure adapter cannot be used without event_store_events table' do
       begin
         establish_database_connection

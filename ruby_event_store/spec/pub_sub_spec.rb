@@ -4,7 +4,7 @@ module RubyEventStore
   RSpec.describe PubSub do
     describe "Subscriptions" do
       specify do
-        expect{RubyEventStore::PubSub::Subscriptions}.to output(<<~MSG).to_stderr
+        expect { RubyEventStore::PubSub::Subscriptions }.to output(<<~MSG).to_stderr
           `RubyEventStore::PubSub::Subscriptions` has been deprecated. Use `RubyEventStore::Subscriptions` instead.
         MSG
       end
@@ -16,9 +16,9 @@ module RubyEventStore
 
     describe "Broker" do
       specify do
-        expect{RubyEventStore::PubSub::Broker}.to output(<<~MSG).to_stderr
-        `RubyEventStore::PubSub::Broker` has been deprecated. Use `RubyEventStore::Broker` instead.
-          MSG
+        expect { RubyEventStore::PubSub::Broker }.to output(<<~MSG).to_stderr
+          `RubyEventStore::PubSub::Broker` has been deprecated. Use `RubyEventStore::Broker` instead.
+        MSG
       end
 
       specify do
@@ -28,9 +28,9 @@ module RubyEventStore
 
     describe "Dispatcher" do
       specify do
-        expect{RubyEventStore::PubSub::Dispatcher}.to output(<<~MSG).to_stderr
-        `RubyEventStore::PubSub::Dispatcher` has been deprecated. Use `RubyEventStore::Dispatcher` instead.
-          MSG
+        expect { RubyEventStore::PubSub::Dispatcher }.to output(<<~MSG).to_stderr
+          `RubyEventStore::PubSub::Dispatcher` has been deprecated. Use `RubyEventStore::Dispatcher` instead.
+        MSG
       end
 
       specify do

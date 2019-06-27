@@ -10,4 +10,3 @@ module RailsEventStore
     end
   end
 end
-

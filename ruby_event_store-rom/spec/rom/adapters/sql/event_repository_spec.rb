@@ -13,7 +13,7 @@ module RubyEventStore::ROM
       repository = repository
       repository.append_to_stream([
                                     RubyEventStore::SRecord.new,
-                                    RubyEventStore::SRecord.new
+                                    RubyEventStore::SRecord.new,
                                   ], default_stream, RubyEventStore::ExpectedVersion.auto)
       c1 = count_queries { repository.read(RubyEventStore::Specification.new(repository).limit(2).result) }
       expect(c1).to eq(2)

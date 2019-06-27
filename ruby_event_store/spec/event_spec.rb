@@ -21,10 +21,10 @@ module RubyEventStore
     end
 
     specify 'constructor attributes are used as event data' do
-      event = Test::TestCreated.new(data: {sample: 123})
+      event = Test::TestCreated.new(data: { sample: 123 })
       expect(event.event_id).to_not  be_nil
       expect(event.data[:sample]).to eq(123)
-      expect(event.data).to          eq({sample: 123})
+      expect(event.data).to          eq({ sample: 123 })
       expect(event.metadata.to_h).to eq({})
       expect(event.timestamp).to     be_nil
     end
@@ -38,7 +38,7 @@ module RubyEventStore
 
     specify 'constructor metadata attribute is used as event metadata (with timestamp changed)' do
       timestamp = Time.utc(2016, 3, 10, 15, 20)
-      event = Test::TestCreated.new(metadata: {created_by: 'Someone', timestamp: timestamp})
+      event = Test::TestCreated.new(metadata: { created_by: 'Someone', timestamp: timestamp })
       expect(event.event_id).to_not          be_nil
       expect(event.data).to                  eq({})
       expect(event.timestamp).to             eq(timestamp)
@@ -58,7 +58,7 @@ module RubyEventStore
     end
 
     specify 'UUID should be String' do
-      event_1 = Test::TestCreated.new({event_id: 1})
+      event_1 = Test::TestCreated.new({ event_id: 1 })
       event_2 = Test::TestCreated.new
       expect(event_1.event_id).to be_an_instance_of(String)
       expect(event_2.event_id).to be_an_instance_of(String)
@@ -108,9 +108,9 @@ module RubyEventStore
 
     specify 'convert to hash' do
       hash = {
-          data: { data: 'sample' },
-          event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd',
-          metadata: { meta: 'test'},
+        data:     { data: 'sample' },
+        event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd',
+        metadata: { meta: 'test' },
       }
       event = Test::TestCreated.new(hash)
       expect(event.to_h).to eq(hash.merge(type: 'Test::TestCreated'))
@@ -121,16 +121,16 @@ module RubyEventStore
       event_2 = Test::TestCreated.new
       expect(event_1 == event_2).to be_falsey
 
-      event_1 = Test::TestCreated.new(event_id: 1, data: {test: 123})
-      event_2 = Test::TestDeleted.new(event_id: 1, data: {test: 123})
+      event_1 = Test::TestCreated.new(event_id: 1, data: { test: 123 })
+      event_2 = Test::TestDeleted.new(event_id: 1, data: { test: 123 })
       expect(event_1 == event_2).to be_falsey
 
-      event_1 = Test::TestCreated.new(event_id: 1, data: {test: 123})
-      event_2 = Test::TestCreated.new(event_id: 1, data: {test: 234})
+      event_1 = Test::TestCreated.new(event_id: 1, data: { test: 123 })
+      event_2 = Test::TestCreated.new(event_id: 1, data: { test: 234 })
       expect(event_1 == event_2).to be_falsey
 
-      event_1 = Test::TestCreated.new(event_id: 1, data: {test: 123}, metadata: {does: 'not matter'})
-      event_2 = Test::TestCreated.new(event_id: 1, data: {test: 123}, metadata: {really: 'yes'})
+      event_1 = Test::TestCreated.new(event_id: 1, data: { test: 123 }, metadata: { does: 'not matter' })
+      event_2 = Test::TestCreated.new(event_id: 1, data: { test: 123 }, metadata: { really: 'yes' })
       expect(event_1 == event_2).to be_truthy
     end
 
@@ -139,42 +139,41 @@ module RubyEventStore
       expect(Event.new(event_id: "doh").hash).not_to eq(Event.new(event_id: "bye").hash)
 
       expect(
-        Event.new(event_id: "doh", data: {}).hash
+        Event.new(event_id: "doh", data: {}).hash,
       ).to eq(Event.new(event_id: "doh", data: {}).hash)
 
       expect(
-        Event.new(event_id: "doh", data: {}).hash
-      ).not_to eq(Event.new(event_id: "doh", data: {a: 1}).hash)
+        Event.new(event_id: "doh", data: {}).hash,
+      ).not_to eq(Event.new(event_id: "doh", data: { a: 1 }).hash)
 
       klass = Class.new(Event)
       expect(
-        klass.new(event_id: "doh").hash
+        klass.new(event_id: "doh").hash,
       ).not_to eq(Event.new(event_id: "doh").hash)
       expect(
-        klass.new(event_id: "doh").hash
+        klass.new(event_id: "doh").hash,
       ).to eq(klass.new(event_id: "doh").hash)
 
       expect({
-        klass.new(event_id: "doh") => :YAY
+        klass.new(event_id: "doh") => :YAY,
       }[ klass.new(event_id: "doh") ]).to eq(:YAY)
       expect(Set.new([
-        klass.new(event_id: "doh")
-      ])).to eq(Set.new([klass.new(event_id: "doh")]))
+                       klass.new(event_id: "doh"),
+                     ])).to eq(Set.new([klass.new(event_id: "doh")]))
 
       expect(klass.new(event_id: "doh").hash).not_to eq([
         klass,
         "doh",
-        {}
+        {},
       ].hash)
     end
 
     specify "uses Metadata and its restrictions" do
       expect do
-        Test::TestCreated.new(metadata: {key: Object.new})
+        Test::TestCreated.new(metadata: { key: Object.new })
       end.to raise_error(ArgumentError)
     end
 
     it_behaves_like :correlatable, Event
   end
-
 end

@@ -50,7 +50,7 @@ module RubyEventStore::ROM
       repository.append_to_stream(
         [RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any
+        RubyEventStore::ExpectedVersion.any,
       )
 
       expect { repository.read(specification.stream('all').result) }.to raise_error(RubyEventStore::ReservedInternalName)
@@ -65,7 +65,7 @@ module RubyEventStore::ROM
       events = [
         RubyEventStore::SRecord.new(event_id: u1 = SecureRandom.uuid),
         RubyEventStore::SRecord.new(event_id: u2 = SecureRandom.uuid),
-        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
+        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid),
       ]
 
       repo = Repositories::Events.new(rom_container)
@@ -76,7 +76,7 @@ module RubyEventStore::ROM
       repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
                                       { stream: default_stream.name, event_id: events[1].event_id, position: 1 },
                                       { stream: default_stream.name, event_id: events[0].event_id, position: 0 },
-                                      { stream: default_stream.name, event_id: events[2].event_id, position: 2 }
+                                      { stream: default_stream.name, event_id: events[2].event_id, position: 2 },
                                     ]).commit
 
       expect(repo.stream_entries.to_a.size).to eq(3)
@@ -97,7 +97,7 @@ module RubyEventStore::ROM
       events = [
         RubyEventStore::SRecord.new(event_id: u1 = SecureRandom.uuid),
         RubyEventStore::SRecord.new(event_id: u2 = SecureRandom.uuid),
-        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
+        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid),
       ]
 
       repo = Repositories::Events.new(rom_container)
@@ -108,7 +108,7 @@ module RubyEventStore::ROM
       repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
                                       { stream: global_stream.name, event_id: events[0].event_id, position: 1 },
                                       { stream: global_stream.name, event_id: events[1].event_id, position: 0 },
-                                      { stream: global_stream.name, event_id: events[2].event_id, position: 2 }
+                                      { stream: global_stream.name, event_id: events[2].event_id, position: 2 },
                                     ]).commit
 
       expect(repo.stream_entries.to_a.size).to eq(3)
@@ -119,13 +119,13 @@ module RubyEventStore::ROM
 
     specify 'nested transaction - events still not persisted if append failed' do
       repository.append_to_stream([
-                                    event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid)
+                                    event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
                                   ], default_stream, RubyEventStore::ExpectedVersion.none)
 
       env.unit_of_work do
         expect do
           repository.append_to_stream([
-                                        RubyEventStore::SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
+                                        RubyEventStore::SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'),
                                       ], default_stream, RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
@@ -146,8 +146,8 @@ module RubyEventStore::ROM
     # TODO: Port from AR to ROM
     def additional_limited_concurrency_for_auto_check
       positions = rom_container.relations[:stream_entries]
-                               .ordered(:forward, default_stream)
-                               .map { |entity| entity[:position] }
+                    .ordered(:forward, default_stream)
+                    .map { |entity| entity[:position] }
       expect(positions).to eq((0..positions.size - 1).to_a)
     end
 

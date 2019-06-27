@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 module RubyEventStore
-
   RSpec.describe SerializedRecord do
     let(:event_id)   { "event_id" }
     let(:data)       { "data" }
@@ -42,13 +41,13 @@ module RubyEventStore
         expect(a).not_to eq(b)
         expect(a).not_to eql(b)
         expect(a.hash).not_to eq(b.hash)
-        h = {a => :val}
+        h = { a => :val }
         expect(h[b]).to be_nil
 
         expect(a).not_to eq(c)
         expect(a).not_to eql(c)
         expect(a.hash).not_to eq(c.hash)
-        h = {a => :val}
+        h = { a => :val }
         expect(h[c]).to be_nil
       end
     end
@@ -59,7 +58,7 @@ module RubyEventStore
       expect(a).to eq(b)
       expect(a).to eql(b)
       expect(a.hash).to eql(b.hash)
-      h = {a => :val}
+      h = { a => :val }
       expect(h[b]).to eq(:val)
     end
 
@@ -71,11 +70,11 @@ module RubyEventStore
     specify "to_h" do
       a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
       expect(a.to_h).to eq({
-        event_id: "a",
-        data: "b",
-        metadata: "c",
-        event_type: "d",
-      })
+                             event_id:   "a",
+                             data:       "b",
+                             metadata:   "c",
+                             event_type: "d",
+                           })
     end
 
     specify 'constructor raised when required args are missing' do
@@ -85,4 +84,3 @@ module RubyEventStore
     end
   end
 end
-

@@ -16,7 +16,7 @@ module RubyEventStore
       def as_json
         {
           data:  events.map { |e| JsonApiEvent.new(e, nil).to_h },
-          links: links
+          links: links,
         }
       end
 
@@ -59,11 +59,13 @@ module RubyEventStore
 
       def next_event?
         return if events.empty?
+
         events_backward(events.last.event_id).any?
       end
 
       def prev_event?
         return if events.empty?
+
         events_forward(events.first.event_id).any?
       end
 

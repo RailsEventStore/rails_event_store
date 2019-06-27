@@ -75,7 +75,7 @@ module RailsEventStoreActiveRecord
               RubyEventStore::SRecord.new,
             ],
             RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-            RubyEventStore::ExpectedVersion.any
+            RubyEventStore::ExpectedVersion.any,
           )
         end.not_to raise_error
       end
@@ -91,10 +91,10 @@ module RailsEventStoreActiveRecord
 
     def additional_limited_concurrency_for_auto_check
       positions = RailsEventStoreActiveRecord::EventInStream
-        .where(stream: "stream")
-        .order("position ASC")
-        .map(&:position)
-      expect(positions).to eq((0..positions.size-1).to_a)
+                    .where(stream: "stream")
+                    .order("position ASC")
+                    .map(&:position)
+      expect(positions).to eq((0..positions.size - 1).to_a)
     end
 
     private
@@ -109,9 +109,8 @@ module RailsEventStoreActiveRecord
       repository.append_to_stream(
         [RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any
+        RubyEventStore::ExpectedVersion.any,
       )
     end
-
   end if ENV['DATABASE_URL'].include?("postgres")
 end

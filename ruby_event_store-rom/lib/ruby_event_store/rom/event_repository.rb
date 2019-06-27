@@ -34,7 +34,7 @@ module RubyEventStore
               event_ids,
               stream,
               @stream_entries.resolve_version(stream, expected_version),
-              global_stream: true
+              global_stream: true,
             )
           end
         end
@@ -55,7 +55,7 @@ module RubyEventStore
             changesets << @stream_entries.create_changeset(
               event_ids,
               stream,
-              @stream_entries.resolve_version(stream, expected_version)
+              @stream_entries.resolve_version(stream, expected_version),
             )
           end
         end
@@ -100,7 +100,7 @@ module RubyEventStore
 
       def streams_of(event_id)
         @stream_entries.streams_of(event_id)
-                       .map { |name| Stream.new(name) }
+          .map { |name| Stream.new(name) }
       end
     end
   end

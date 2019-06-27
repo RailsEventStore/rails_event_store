@@ -4,8 +4,8 @@ class JsonApiLint
   class InvalidContentType < StandardError
     def initialize(content_type)
       super(<<~EOS)
-          expected: Content-Type: application/vnd.api+json
-          got:      Content-Type: #{content_type}
+        expected: Content-Type: application/vnd.api+json
+        got:      Content-Type: #{content_type}
       EOS
     end
   end
@@ -21,7 +21,7 @@ class JsonApiLint
   end
 
   def call(env)
-    request  = Rack::Request.new(env)
+    request = Rack::Request.new(env)
     status, headers, body = @app.call(env)
 
     response = Rack::Response.new(body, status, headers)
@@ -55,6 +55,7 @@ class JsonApiLint
 
   def valid_schema(document)
     return true unless document.to_s.size > 0
+
     JSON::Validator.validate(File.join(__dir__, "schema.json"), document)
   end
 

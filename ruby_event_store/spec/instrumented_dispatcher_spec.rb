@@ -12,7 +12,7 @@ module RubyEventStore
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
         event = Object.new
         serialized_event = Object.new
-        subscriber = -> { }
+        subscriber = -> {}
 
         instrumented_dispatcher.call(subscriber, event, serialized_event)
 
@@ -24,13 +24,13 @@ module RubyEventStore
         subscribe_to("call.dispatcher.rails_event_store") do |notification_calls|
           event = Object.new
           serialized_event = Object.new
-          subscriber = -> { }
+          subscriber = -> {}
 
           instrumented_dispatcher.call(subscriber, event, serialized_event)
 
           expect(notification_calls).to eq([
-            { event: event, subscriber: subscriber }
-          ])
+                                             { event: event, subscriber: subscriber },
+                                           ])
         end
       end
     end
@@ -39,7 +39,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_dispatcher = spy
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
-        subscriber = -> { }
+        subscriber = -> {}
 
         instrumented_dispatcher.verify(subscriber)
 

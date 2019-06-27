@@ -8,14 +8,14 @@ module RubyEventStore
         let(:item)  {
           Item.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
-            data:       {some: 'value'},
+            metadata:   { some: 'meta' },
+            data:       { some: 'value' },
             event_type: 'TestEvent',
           )
         }
         let(:changeable_item) { item.merge(event_type: 'EventNameBeforeRefactor') }
         let(:changed_item)    { item.merge(event_type: 'SomethingHappened') }
-        let(:class_map) { {'EventNameBeforeRefactor' => 'SomethingHappened'} }
+        let(:class_map) { { 'EventNameBeforeRefactor' => 'SomethingHappened' } }
 
         specify "#dump" do
           expect(EventClassRemapper.new(class_map).dump(item)).to eq(item)

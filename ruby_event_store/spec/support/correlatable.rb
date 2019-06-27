@@ -19,11 +19,12 @@ RSpec.shared_examples :correlatable do |klass|
 
     event = klass.new(
       event_id: "mem",
-      data: nil,
+      data:     nil,
       metadata: {
         correlation_id: "cor",
-        causation_id: "cau"
-    })
+        causation_id:   "cau",
+      },
+    )
     expect(event.event_id).to       eq("mem")
     expect(event.correlation_id).to eq("cor")
     expect(event.causation_id).to   eq("cau")
@@ -33,7 +34,7 @@ RSpec.shared_examples :correlatable do |klass|
     e0 = klass.new(event_id: "doh", data: nil)
     e1 = klass.new(event_id: "yay", data: nil)
     chained = e1.correlate_with(e0)
-    
+
     expect(chained).to eq(e1)
   end
 

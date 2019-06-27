@@ -43,7 +43,7 @@ module RubyEventStore
             BatchEnumerator.new(
               specification.batch_size,
               specification.limit,
-              ->(offset, limit) { query_builder(query, offset: offset, limit: limit).to_ary }
+              ->(offset, limit) { query_builder(query, offset: offset, limit: limit).to_ary },
             ).each
           else
             query = query_builder(query, limit: (specification.limit if specification.limit?))

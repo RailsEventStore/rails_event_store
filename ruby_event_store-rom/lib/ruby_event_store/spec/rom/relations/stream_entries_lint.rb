@@ -17,7 +17,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
     stream_entries = [
       { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
       { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
-      { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
+      { stream: 'stream', position: 2, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -40,7 +40,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
     stream_entries = [
       { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
       { stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid },
-      { stream: 'stream', position: 2, event_id: id3 = SecureRandom.uuid }
+      { stream: 'stream', position: 2, event_id: id3 = SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -54,7 +54,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
     stream_entries = [
       { stream: 'stream', position: 0, event_id: id1 = SecureRandom.uuid },
       { stream: 'stream', position: 1, event_id: id2 = SecureRandom.uuid },
-      { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
+      { stream: 'stream', position: 2, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -68,7 +68,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
     stream_entries = [
       { stream: 'stream', position: 0, event_id: SecureRandom.uuid },
       { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
-      { stream: 'stream2', position: 2, event_id: SecureRandom.uuid }
+      { stream: 'stream2', position: 2, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -84,7 +84,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
     stream_entries = [
       { stream: stream.name, position: 0, event_id: id = SecureRandom.uuid },
       { stream: stream.name, position: 1, event_id: SecureRandom.uuid },
-      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid }
+      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -106,7 +106,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
       { stream: stream2.name, position: 1, event_id: SecureRandom.uuid },
       { stream: stream2.name, position: 0, event_id: SecureRandom.uuid },
       { stream: stream2.name, position: 3, event_id: SecureRandom.uuid },
-      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid }
+      { stream: stream2.name, position: 2, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -129,7 +129,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
       { stream: stream2.name, position: 0, event_id: SecureRandom.uuid },
       { stream: stream2.name, position: 1, event_id: SecureRandom.uuid },
       { stream: stream2.name, position: 2, event_id: SecureRandom.uuid },
-      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid }
+      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -156,7 +156,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
       { stream: stream2.name, position: 0, event_id: SecureRandom.uuid },
       { stream: stream2.name, position: 1, event_id: SecureRandom.uuid },
       { stream: stream2.name, position: 2, event_id: SecureRandom.uuid },
-      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid }
+      { stream: stream2.name, position: 3, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)
@@ -177,7 +177,7 @@ RSpec.shared_examples :stream_entries_relation do |_relation_class|
     stream_entries = [
       { stream: 'stream', position: 0, event_id: SecureRandom.uuid },
       { stream: 'stream', position: 1, event_id: SecureRandom.uuid },
-      { stream: 'stream', position: 2, event_id: SecureRandom.uuid }
+      { stream: 'stream', position: 2, event_id: SecureRandom.uuid },
     ]
 
     relation.command(:create).call(stream_entries)

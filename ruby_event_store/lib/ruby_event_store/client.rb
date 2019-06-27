@@ -4,19 +4,17 @@ require 'concurrent'
 
 module RubyEventStore
   class Client
-
     def initialize(repository:,
-                   mapper: Mappers::Default.new,
-                   subscriptions: Subscriptions.new,
-                   dispatcher: Dispatcher.new,
-                   clock: ->{ Time.now.utc })
+      mapper: Mappers::Default.new,
+      subscriptions: Subscriptions.new,
+      dispatcher: Dispatcher.new,
+      clock: -> { Time.now.utc })
       @repository     = repository
       @mapper         = mapper
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
     end
-
 
     # Persists events and notifies subscribed handlers about them
     #
@@ -101,6 +99,7 @@ module RubyEventStore
     #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
+
       subscriber ||= proc
       broker.add_subscription(subscriber, to)
     end
@@ -117,6 +116,7 @@ module RubyEventStore
     #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe_to_all_events(subscriber = nil, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
+
       broker.add_global_subscription(subscriber || proc)
     end
 
@@ -128,7 +128,7 @@ module RubyEventStore
         @block = block
         @broker = broker
         @global_subscribers = []
-        @subscribers = Hash.new {[]}
+        @subscribers = Hash.new { [] }
       end
 
       # Subscribes temporary handlers that
@@ -160,8 +160,9 @@ module RubyEventStore
       #   @param to [Array<Class>] types of events to subscribe
       #   @param handler [Proc] handler passed as proc
       #   @return [self]
-      def subscribe(handler=nil, to:, &handler2)
+      def subscribe(handler = nil, to:, &handler2)
         raise ArgumentError if handler && handler2
+
         @subscribers[handler || handler2] += Array(to)
         self
       end
@@ -201,6 +202,7 @@ module RubyEventStore
     # @return [Within] builder object which collects temporary subscriptions
     def within(&block)
       raise ArgumentError if block.nil?
+
       Within.new(block, broker)
     end
 
@@ -287,7 +289,7 @@ module RubyEventStore
 
     def enrich_events_metadata(events)
       events = Array(events)
-      events.each{|event| enrich_event_metadata(event) }
+      events.each { |event| enrich_event_metadata(event) }
       events
     end
 

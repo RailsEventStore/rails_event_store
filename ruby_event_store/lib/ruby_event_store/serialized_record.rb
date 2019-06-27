@@ -5,6 +5,7 @@ module RubyEventStore
     StringsRequired = Class.new(StandardError)
     def initialize(event_id:, data:, metadata:, event_type:)
       raise StringsRequired unless [event_id, event_type].all? { |v| v.instance_of?(String) }
+
       @event_id   = event_id
       @data       = data
       @metadata   = metadata
@@ -35,9 +36,9 @@ module RubyEventStore
 
     def to_h
       {
-        event_id: event_id,
-        data: data,
-        metadata: metadata,
+        event_id:   event_id,
+        data:       data,
+        metadata:   metadata,
         event_type: event_type,
       }
     end

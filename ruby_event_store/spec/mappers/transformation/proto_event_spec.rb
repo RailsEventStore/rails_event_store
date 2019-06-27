@@ -10,13 +10,13 @@ module RubyEventStore
         let(:uuid)  { SecureRandom.uuid }
         let(:event) {
           TestEvent.new(event_id: uuid,
-                        data: {some: 'value'},
-                        metadata: {some: 'meta'})
+                        data:     { some: 'value' },
+                        metadata: { some: 'meta' })
         }
-        let(:item)  {
+        let(:item) {
           Item.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
+            metadata:   { some: 'meta' },
             data:       ResTesting::OrderCreated.new(customer_id: 123, order_id: 'K3THNX9'),
             event_type: 'res_testing.OrderCreated',
           )

@@ -13,6 +13,7 @@ module RubyEventStore
         end
 
         private
+
         def encode_data(data)
           begin
             data.class.encode(data)

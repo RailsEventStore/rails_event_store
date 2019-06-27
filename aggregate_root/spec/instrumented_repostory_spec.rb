@@ -3,7 +3,6 @@ require 'active_support/notifications'
 
 module AggregateRoot
   RSpec.describe InstrumentedRepository do
-
     describe "#load" do
       specify "wraps around original implementation" do
         repository = instance_double(Repository)
@@ -24,9 +23,9 @@ module AggregateRoot
           instrumented_repository.load(aggregate, 'SomeStream')
 
           expect(notification_calls).to eq([{
-            aggregate: aggregate,
-            stream: 'SomeStream',
-          }])
+                                             aggregate: aggregate,
+                                             stream:    'SomeStream',
+                                           }])
         end
       end
     end
@@ -54,11 +53,11 @@ module AggregateRoot
           instrumented_repository.store(aggregate, 'SomeStream')
 
           expect(notification_calls).to eq([{
-            aggregate: aggregate,
-            version: -1,
-            stored_events: events,
-            stream: 'SomeStream',
-          }])
+                                             aggregate:     aggregate,
+                                             version:       -1,
+                                             stored_events: events,
+                                             stream:        'SomeStream',
+                                           }])
         end
       end
     end
@@ -82,17 +81,17 @@ module AggregateRoot
             end
 
             expect(store_notification_calls).to eq([{
-              aggregate: aggregate,
-              version: -1,
-              stored_events: events,
-              stream: 'SomeStream',
-            }])
+                                                     aggregate:     aggregate,
+                                                     version:       -1,
+                                                     stored_events: events,
+                                                     stream:        'SomeStream',
+                                                   }])
           end
 
           expect(load_notification_calls).to eq([{
-            aggregate: aggregate,
-            stream: 'SomeStream',
-          }])
+                                                  aggregate: aggregate,
+                                                  stream:    'SomeStream',
+                                                }])
         end
       end
     end

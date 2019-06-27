@@ -51,4 +51,3 @@ RSpec.configure do |config|
     nuke_destination_root
   end
 end
-

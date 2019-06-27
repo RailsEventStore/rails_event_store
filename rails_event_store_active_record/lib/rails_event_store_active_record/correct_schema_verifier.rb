@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module RailsEventStoreActiveRecord
-
   class EventRepository
     InvalidDatabaseSchema = Class.new(StandardError)
   end
@@ -10,6 +9,7 @@ module RailsEventStoreActiveRecord
     def verify
       with_connection do
         return if no_tables_yet? || correct_schema?
+
         raise_invalid_db_schema
       end
     end
@@ -18,6 +18,7 @@ module RailsEventStoreActiveRecord
 
     def with_connection(&block)
       return unless connected?
+
       block.call
     end
 
@@ -65,13 +66,13 @@ module RailsEventStoreActiveRecord
     end
 
     def incorrect_schema_message
-      <<-MESSAGE
-Oh no!
+      <<~MESSAGE
+        Oh no!
 
-It seems you're using RailsEventStoreActiveRecord::EventRepository
-with incompatible database schema.
+        It seems you're using RailsEventStoreActiveRecord::EventRepository
+        with incompatible database schema.
 
-See release notes how to migrate to current database schema.
+        See release notes how to migrate to current database schema.
       MESSAGE
     end
   end

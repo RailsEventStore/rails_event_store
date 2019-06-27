@@ -3,16 +3,16 @@
 module RubyEventStore
   class SpecificationResult
     def initialize(direction: :forward,
-                   start: nil,
-                   stop: nil,
-                   count: nil,
-                   stream: Stream.new(GLOBAL_STREAM),
-                   read_as: :all,
-                   batch_size: Specification::DEFAULT_BATCH_SIZE,
-                   with_ids: nil,
-                   with_types: nil)
+      start: nil,
+      stop: nil,
+      count: nil,
+      stream: Stream.new(GLOBAL_STREAM),
+      read_as: :all,
+      batch_size: Specification::DEFAULT_BATCH_SIZE,
+      with_ids: nil,
+      with_types: nil)
       @attributes = Struct.new(:direction, :start, :stop, :count, :stream, :read_as, :batch_size, :with_ids, :with_types)
-        .new(direction, start, stop, count, stream, read_as, batch_size, with_ids, with_types)
+                      .new(direction, start, stop, count, stream, read_as, batch_size, with_ids, with_types)
       freeze
     end
 
@@ -203,6 +203,7 @@ module RubyEventStore
     end
 
     private
+
     attr_reader :attributes
 
     def get_direction

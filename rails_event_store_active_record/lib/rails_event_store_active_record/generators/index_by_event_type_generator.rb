@@ -21,6 +21,7 @@ module RailsEventStoreActiveRecord
 
     def migration_version
       return nil if Gem::Version.new(rails_version) < Gem::Version.new("5.0.0")
+
       "[4.2]"
     end
 

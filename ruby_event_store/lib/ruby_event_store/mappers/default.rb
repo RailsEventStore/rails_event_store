@@ -11,7 +11,7 @@ module RubyEventStore
             Transformation::EventClassRemapper.new(events_class_remapping),
             Transformation::SymbolizeMetadataKeys.new,
             Transformation::Serialization.new(serializer: serializer),
-          ]
+          ],
         ))
       end
     end

@@ -9,16 +9,16 @@ module RubyEventStore
         let(:item)  {
           Item.new(
             event_id:   uuid,
-            metadata:   JSON.parse(JSON.dump({some: 'meta'})),
-            data:       JSON.parse(JSON.dump({some: 'value'})),
+            metadata:   JSON.parse(JSON.dump({ some: 'meta' })),
+            data:       JSON.parse(JSON.dump({ some: 'value' })),
             event_type: 'TestEvent',
           )
         }
-        let(:changed_item)  {
+        let(:changed_item) {
           Item.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
-            data:       JSON.parse(JSON.dump({some: 'value'})),
+            metadata:   { some: 'meta' },
+            data:       JSON.parse(JSON.dump({ some: 'value' })),
             event_type: 'TestEvent',
           )
         }

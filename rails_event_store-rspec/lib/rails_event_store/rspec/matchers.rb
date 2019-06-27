@@ -8,6 +8,7 @@ module RailsEventStore
           def call(object)
             items = Array(object).compact.map { |o| format(o) }
             return "" if items.empty?
+
             if items.one?
               items.join
             else

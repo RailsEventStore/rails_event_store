@@ -9,15 +9,15 @@ module RubyEventStore
     SomeEventWithPersonalInfo = Class.new(RubyEventStore::Event) do
       def self.encryption_schema
         {
-          email: ->(data) { data.fetch(:user_id) }
+          email: ->(data) { data.fetch(:user_id) },
         }
       end
     end
 
     RSpec.describe EncryptionMapper do
       let(:key_repository)  { InMemoryEncryptionKeyRepository.new }
-      let(:data)            { {email: 'test@example.com', user_id: 123} }
-      let(:metadata)        { {some_meta: 1} }
+      let(:data)            { { email: 'test@example.com', user_id: 123 } }
+      let(:metadata)        { { some_meta: 1 } }
       let(:event_id)        { SecureRandom.uuid }
       let(:domain_event)    { SomeEventWithPersonalInfo.new(data: data, metadata: metadata, event_id: event_id) }
       let(:coder)           { Transformation::Encryption.new(key_repository) }
@@ -45,7 +45,7 @@ module RubyEventStore
           event_id:   domain_event.event_id,
           data:       YAML.dump(encrypted_item.data),
           metadata:   YAML.dump(encrypted_item.metadata),
-          event_type: SomeEventWithPersonalInfo.name
+          event_type: SomeEventWithPersonalInfo.name,
         )
         event = subject.serialized_record_to_event(record)
         expect(event).to                eq(domain_event)
@@ -60,14 +60,14 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
             metadata:   YAML.dump(encrypted_item.metadata),
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
           )
           key_repository.forget(123)
           event = subject.serialized_record_to_event(record)
           expected_event = SomeEventWithPersonalInfo.new(
-            data: data.merge(email: ForgottenData.new),
+            data:     data.merge(email: ForgottenData.new),
             metadata: metadata,
-            event_id: event_id
+            event_id: event_id,
           )
           expect(event).to                eq(expected_event)
           expect(event.metadata.to_h).to  eq(metadata)
@@ -84,14 +84,14 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
             metadata:   YAML.dump(encrypted_item.metadata),
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
           )
           key_repository.forget(123)
           event = subject.serialized_record_to_event(record)
           expected_event = SomeEventWithPersonalInfo.new(
-            data: data.merge(email: forgotten_data),
+            data:     data.merge(email: forgotten_data),
             metadata: metadata,
-            event_id: event_id
+            event_id: event_id,
           )
           expect(event).to                eq(expected_event)
           expect(event.metadata.to_h).to  eq(metadata)
@@ -117,12 +117,12 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       ReverseYamlSerializer.dump(encrypted_item.data),
             metadata:   ReverseYamlSerializer.dump(encrypted_item.metadata),
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
           )
           domain_event = SomeEventWithPersonalInfo.new(
-            data: data,
+            data:     data,
             metadata: metadata,
-            event_id: event_id
+            event_id: event_id,
           )
           event = subject.serialized_record_to_event(record)
           expect(event).to                eq(domain_event)

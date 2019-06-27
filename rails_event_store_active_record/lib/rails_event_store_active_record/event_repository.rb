@@ -51,11 +51,11 @@ module RailsEventStoreActiveRecord
 
     def update_messages(messages)
       hashes = messages.map(&:to_h)
-      hashes.each{|h| h[:id] = h.delete(:event_id) }
+      hashes.each { |h| h[:id] = h.delete(:event_id) }
       for_update = messages.map(&:event_id)
       start_transaction do
         existing = Event.where(id: for_update).pluck(:id)
-        (for_update - existing).each{|id| raise RubyEventStore::EventNotFound.new(id) }
+        (for_update - existing).each { |id| raise RubyEventStore::EventNotFound.new(id) }
         Event.import(hashes, on_duplicate_key_update: [:data, :metadata, :event_type])
       end
     end
@@ -64,7 +64,7 @@ module RailsEventStoreActiveRecord
       EventInStream.where(event_id: event_id)
         .where.not(stream: SERIALIZED_GLOBAL_STREAM_NAME)
         .pluck(:stream)
-        .map{|name| RubyEventStore::Stream.new(name)}
+        .map { |name| RubyEventStore::Stream.new(name) }
     end
 
     private
@@ -79,15 +79,15 @@ module RailsEventStoreActiveRecord
           event_id = to_event_id.call(element)
           collection = []
           collection.unshift({
-            stream: SERIALIZED_GLOBAL_STREAM_NAME,
-            position: nil,
-            event_id: event_id,
-          }) if include_global
+                               stream:   SERIALIZED_GLOBAL_STREAM_NAME,
+                               position: nil,
+                               event_id: event_id,
+                             }) if include_global
           collection.unshift({
-            stream:   stream.name,
-            position: position,
-            event_id: event_id
-          }) unless stream.global?
+                               stream:   stream.name,
+                               position: position,
+                               event_id: event_id,
+                             }) unless stream.global?
           collection
         end
         fill_ids(in_stream)
@@ -102,6 +102,7 @@ module RailsEventStoreActiveRecord
       if detect_index_violated(e.message)
         raise RubyEventStore::EventDuplicatedInStream
       end
+
       raise RubyEventStore::WrongExpectedEventVersion
     end
 
@@ -120,7 +121,7 @@ module RailsEventStoreActiveRecord
         id:         serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
-        event_type: serialized_record.event_type
+        event_type: serialized_record.event_type,
       )
     end
 
@@ -136,5 +137,4 @@ module RailsEventStoreActiveRecord
       ActiveRecord::Base.transaction(requires_new: true, &block)
     end
   end
-
 end

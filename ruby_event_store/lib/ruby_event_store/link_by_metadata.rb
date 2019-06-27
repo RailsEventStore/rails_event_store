@@ -2,7 +2,6 @@
 
 module RubyEventStore
   class LinkByMetadata
-
     def initialize(event_store:, key:, prefix: nil)
       @event_store = event_store
       @key = key
@@ -14,10 +13,9 @@ module RubyEventStore
 
       @event_store.link(
         [event.message_id],
-        stream_name: "#{@prefix}#{event.metadata.fetch(@key)}"
+        stream_name: "#{@prefix}#{event.metadata.fetch(@key)}",
       )
     end
-
   end
 
   class LinkByCorrelationId < LinkByMetadata
@@ -49,9 +47,8 @@ module RubyEventStore
     def call(event)
       @event_store.link(
         [event.message_id],
-        stream_name: "#{@prefix}#{event.type}"
+        stream_name: "#{@prefix}#{event.type}",
       )
     end
   end
-
 end

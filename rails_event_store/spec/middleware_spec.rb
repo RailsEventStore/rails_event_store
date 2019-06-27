@@ -24,7 +24,7 @@ module RailsEventStore
     def dummy_env
       {
         'action_dispatch.request_id' => 'dummy_id',
-        'action_dispatch.remote_ip'  => 'dummy_ip'
+        'action_dispatch.remote_ip'  => 'dummy_ip',
       }
     end
 
@@ -33,8 +33,7 @@ module RailsEventStore
     end
 
     def app
-      @app ||= -> _ { [204, {}, ['']] }
+      @app ||= ->_ { [204, {}, ['']] }
     end
   end
 end
-

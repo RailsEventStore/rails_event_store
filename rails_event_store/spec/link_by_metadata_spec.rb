@@ -3,7 +3,6 @@ require 'action_controller/railtie'
 
 module RailsEventStore
   RSpec.describe LinkByMetadata do
-
     before do
       rails = double("Rails", configuration: Rails::Application::Configuration.new)
       stub_const("Rails", rails)
@@ -14,23 +13,22 @@ module RailsEventStore
 
     specify "links" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(key: :city))
-      event_store.publish(ev = OrderCreated.new(metadata:{
-        city: "Paris",
-      }))
+      event_store.publish(ev = OrderCreated.new(metadata: {
+                                                  city: "Paris",
+                                                }))
       expect(event_store.read.stream("$by_city_Paris").to_a).to eq([ev])
     end
 
     specify "defaults to Rails.configuration.event_store and passes rest of options" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(
-        key: :city,
-        prefix: "sweet+")
-      )
-      event_store.publish(ev = OrderCreated.new(metadata:{
-        city: "Paris",
-      }))
+                                            key:    :city,
+                                            prefix: "sweet+",
+                                          ))
+      event_store.publish(ev = OrderCreated.new(metadata: {
+                                                  city: "Paris",
+                                                }))
       expect(event_store.read.stream("sweet+Paris").to_a).to eq([ev])
     end
-
   end
 
   RSpec.describe LinkByCorrelationId do
@@ -111,5 +109,4 @@ module RailsEventStore
       expect(event_store.read.stream("e-OrderCreated").to_a).to eq([event])
     end
   end
-
 end

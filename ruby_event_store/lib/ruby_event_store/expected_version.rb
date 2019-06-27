@@ -21,7 +21,7 @@ module RubyEventStore
 
     def initialize(version)
       @version = version
-      invalid_version! unless [Integer, :any, :none, :auto].any? {|i| i === version}
+      invalid_version! unless [Integer, :any, :none, :auto].any? { |i| i === version }
     end
 
     def any?
@@ -55,7 +55,7 @@ module RubyEventStore
     def hash
       [
         self.class,
-        version
+        version,
       ].hash ^ BIG_VALUE
     end
 

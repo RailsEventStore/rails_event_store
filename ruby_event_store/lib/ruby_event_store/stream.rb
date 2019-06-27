@@ -4,6 +4,7 @@ module RubyEventStore
   class Stream
     def initialize(name)
       raise IncorrectStreamData if !name.equal?(GLOBAL_STREAM) && (name.nil? || name.empty?)
+
       @name = name
     end
 
@@ -17,7 +18,7 @@ module RubyEventStore
     def hash
       [
         self.class,
-        name
+        name,
       ].hash ^ BIG_VALUE
     end
 
