@@ -14,9 +14,6 @@
     "parcel-bundler": "^1.11.0",
     "sass": "^1.17.0"
   },
-  "resolutions": {
-    "fsevents": "^1.2.9"
-  },
   "scripts": {
     "watch": "NODE_ENV=development parcel watch --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
     "build": "NODE_ENV=production parcel build --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
