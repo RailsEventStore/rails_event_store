@@ -7,7 +7,7 @@ require 'rails'
 DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].split('.').take(2).join('_')}"
 TMP_ROOT   = File.join(__dir__, 'tmp')
 DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)
-raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exists?(DUMMY_ROOT)
+raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exist?(DUMMY_ROOT)
 
 module StdoutHelper
   def silence_stdout(&block)

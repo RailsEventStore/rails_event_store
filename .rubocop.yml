@@ -5,9 +5,14 @@ AllCops:
     - rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/*
     - bounded_context/lib/generators/templates/*
     - support/helpers/0_18_2_migration_template.rb
+    - contrib/**/*
+    - railseventstore.org/**/*
   TargetRubyVersion: 2.4
 
 Layout/DotPosition:
+  Enabled: true
+
+Lint/DeprecatedClassMethods:
   Enabled: true
 
 

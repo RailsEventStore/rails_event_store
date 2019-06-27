@@ -5,7 +5,7 @@ require 'tempfile'
 module SubprocessHelper
   def run_subprocess(gemfile_path, script, cwd)
     gemfile_lock_path = gemfile_path + ".lock"
-    FileUtils.rm(gemfile_lock_path) if File.exists?(gemfile_lock_path)
+    FileUtils.rm(gemfile_lock_path) if File.exist?(gemfile_lock_path)
 
     process = ChildProcess.build("bundle", "exec", "ruby", script)
     process.environment['BUNDLE_GEMFILE'] = gemfile_path
