@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   module Mappers
     def self.const_missing(const_name)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   # Used for fetching events based on given query specification.
   class SpecificationReader

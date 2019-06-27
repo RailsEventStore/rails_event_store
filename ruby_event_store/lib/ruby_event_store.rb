@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ruby_event_store/dispatcher'
 require 'ruby_event_store/subscriptions'
 require 'ruby_event_store/broker'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   Error                     = Class.new(StandardError)
   WrongExpectedEventVersion = Class.new(Error)

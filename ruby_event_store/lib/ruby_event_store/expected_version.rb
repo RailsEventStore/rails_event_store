@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class ExpectedVersion
     POSITION_DEFAULT = -1.freeze

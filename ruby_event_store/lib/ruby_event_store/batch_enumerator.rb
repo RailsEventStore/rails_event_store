@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class BatchEnumerator
     def initialize(batch_size, total_limit, reader)

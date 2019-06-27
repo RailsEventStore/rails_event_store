@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class SerializedRecord
     StringsRequired = Class.new(StandardError)
