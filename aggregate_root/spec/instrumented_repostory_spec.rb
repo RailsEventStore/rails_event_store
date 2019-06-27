@@ -8,7 +8,7 @@ module AggregateRoot
       specify "wraps around original implementation" do
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
-        aggregate = Order.new
+        aggregate = Order.new(SecureRandom.uuid)
 
         expect(repository).to receive(:load).with(aggregate, 'SomeStream')
         instrumented_repository.load(aggregate, 'SomeStream')
@@ -18,7 +18,7 @@ module AggregateRoot
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("load.repository.aggregate_root") do |notification_calls|
-          aggregate = Order.new
+          aggregate = Order.new(SecureRandom.uuid)
 
           expect(repository).to receive(:load).with(aggregate, 'SomeStream')
           instrumented_repository.load(aggregate, 'SomeStream')
@@ -35,7 +35,7 @@ module AggregateRoot
       specify "wraps around original implementation" do
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
-        aggregate = Order.new
+        aggregate = Order.new(SecureRandom.uuid)
 
         expect(repository).to receive(:store).with(aggregate, 'SomeStream')
         instrumented_repository.store(aggregate, 'SomeStream')
@@ -45,7 +45,7 @@ module AggregateRoot
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("store.repository.aggregate_root") do |notification_calls|
-          aggregate = Order.new
+          aggregate = Order.new(SecureRandom.uuid)
           aggregate.create
           aggregate.expire
           events = aggregate.unpublished_events.to_a
@@ -68,7 +68,7 @@ module AggregateRoot
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("load.repository.aggregate_root") do |load_notification_calls|
-          aggregate = Order.new
+          aggregate = Order.new(SecureRandom.uuid)
 
           subscribe_to("store.repository.aggregate_root") do |store_notification_calls|
             events = nil

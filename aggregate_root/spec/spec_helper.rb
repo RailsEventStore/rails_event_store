@@ -24,8 +24,9 @@ class Order
   include AggregateRoot
   include Orders::Events
 
-  def initialize
+  def initialize(uuid)
     @status = :draft
+    @uuid   = uuid
   end
 
   def create

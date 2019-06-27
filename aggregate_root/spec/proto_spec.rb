@@ -24,8 +24,9 @@ RSpec.describe 'proto compatibility' do
       class Order
         include AggregateRoot
 
-        def initialize
+        def initialize(uuid)
           @status = :draft
+          @uuid   = uuid
         end
 
         attr_accessor :status
@@ -45,7 +46,7 @@ RSpec.describe 'proto compatibility' do
   before(:each) { require_protobuf_dependencies }
 
   it "should receive a method call based on a default apply strategy" do
-    order = ResTesting::Order.new
+    order = ResTesting::Order.new(SecureRandom.uuid)
     order_created =
       RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
@@ -60,7 +61,7 @@ RSpec.describe 'proto compatibility' do
   end
 
   it "should receive a method call based on a default apply strategy via on handler" do
-    order = ResTesting::Order.new
+    order = ResTesting::Order.new(SecureRandom.uuid)
     order_paid =
       RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
@@ -72,7 +73,7 @@ RSpec.describe 'proto compatibility' do
   end
 
   it "should raise error for missing apply method based on a default apply strategy" do
-    order = ResTesting::Order.new
+    order = ResTesting::Order.new(SecureRandom.uuid)
     spanish_inquisition =
       RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
