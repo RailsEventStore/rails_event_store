@@ -27,8 +27,8 @@ module AggregateRoot
   end
 
   module Constructor
-    def new
-      super().tap do |instance|
+    def new(*)
+      super.tap do |instance|
         instance.instance_variable_set(:@version, -1)
         instance.instance_variable_set(:@unpublished_events, [])
       end
