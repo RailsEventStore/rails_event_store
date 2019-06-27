@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class InstrumentedDispatcher
     def initialize(dispatcher, instrumentation)

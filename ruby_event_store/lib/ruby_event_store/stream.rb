@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class Stream
     def initialize(name)

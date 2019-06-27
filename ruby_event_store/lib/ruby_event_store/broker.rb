@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class Broker
     def initialize(subscriptions:, dispatcher:)

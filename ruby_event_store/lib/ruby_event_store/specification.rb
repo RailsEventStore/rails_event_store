@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
 
   # Used for building and executing the query specification.
