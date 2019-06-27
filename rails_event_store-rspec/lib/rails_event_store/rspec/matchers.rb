@@ -11,7 +11,7 @@ module RailsEventStore
             if items.one?
               items.join
             else
-              "#{items[0...-1].join(", ")}#{" and "}#{items.fetch(-1)}"
+              "#{items[0...-1].join(", ")} and #{items.fetch(-1)}"
             end
           end
 
