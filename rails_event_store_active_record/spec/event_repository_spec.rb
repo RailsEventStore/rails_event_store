@@ -311,10 +311,10 @@ module RailsEventStoreActiveRecord
     end
 
     def additional_limited_concurrency_for_auto_check
-      positions = RailsEventStoreActiveRecord::EventInStream.
-        where(stream: "stream").
-        order("position ASC").
-        map(&:position)
+      positions = RailsEventStoreActiveRecord::EventInStream
+        .where(stream: "stream")
+        .order("position ASC")
+        .map(&:position)
       expect(positions).to eq((0..positions.size-1).to_a)
     end
 

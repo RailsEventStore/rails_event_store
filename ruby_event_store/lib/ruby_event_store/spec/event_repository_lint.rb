@@ -63,18 +63,18 @@ module RubyEventStore
     end
 
     specify 'append_to_stream returns self' do
-      repository.
-        append_to_stream(event = SRecord.new, stream, version_none).
-        append_to_stream(event = SRecord.new, stream, version_0)
+      repository
+        .append_to_stream(event = SRecord.new, stream, version_none)
+        .append_to_stream(event = SRecord.new, stream, version_0)
     end
 
     specify 'link_to_stream returns self' do
       event0 = SRecord.new
       event1 = SRecord.new
-      repository.
-        append_to_stream([event0, event1], stream, version_none).
-        link_to_stream(event0.event_id, stream_flow, version_none).
-        link_to_stream(event1.event_id, stream_flow, version_0)
+      repository
+        .append_to_stream([event0, event1], stream, version_none)
+        .link_to_stream(event0.event_id, stream_flow, version_none)
+        .link_to_stream(event1.event_id, stream_flow, version_0)
     end
 
     specify 'adds an initial event to a new stream' do
@@ -85,9 +85,9 @@ module RubyEventStore
     end
 
     specify 'links an initial event to a new stream' do
-      repository.
-        append_to_stream(event = SRecord.new, stream, version_none).
-        link_to_stream(event.event_id, stream_flow, version_none)
+      repository
+        .append_to_stream(event = SRecord.new, stream, version_none)
+        .link_to_stream(event.event_id, stream_flow, version_none)
 
       expect(read_events_forward(repository, count: 1).first).to eq(event)
       expect(read_events_forward(repository, stream).first).to eq(event)
@@ -591,9 +591,9 @@ module RubyEventStore
         data: '{"order_id":3}',
         metadata: '{"request_id":4}',
       )
-      repository.
-        append_to_stream(event, stream, version_any).
-        link_to_stream(event.event_id, stream_flow, version_any)
+      repository
+        .append_to_stream(event, stream, version_any)
+        .link_to_stream(event.event_id, stream_flow, version_any)
       retrieved_event = read_events_forward(repository, stream_flow).first
       expect(retrieved_event.metadata).to eq('{"request_id":4}')
       expect(retrieved_event.data).to eq('{"order_id":3}')
@@ -611,9 +611,9 @@ module RubyEventStore
     end
 
     it 'does not have deleted streams with linked events' do
-      repository.
-        append_to_stream(e1 = SRecord.new, stream, version_none).
-        link_to_stream(e1.event_id, stream_flow, version_none)
+      repository
+        .append_to_stream(e1 = SRecord.new, stream, version_none)
+        .link_to_stream(e1.event_id, stream_flow, version_none)
 
       repository.delete_stream(stream_flow)
       expect(read_events_forward(repository, stream_flow)).to be_empty
@@ -702,9 +702,9 @@ module RubyEventStore
       ].map { |id| SRecord.new(event_id: id) }
       repository.append_to_stream(SRecord.new, stream_other, version_none)
       events.each.with_index do |event, index|
-        repository.
-          append_to_stream(event, stream, ExpectedVersion.new(index - 1)).
-          link_to_stream(event.event_id, stream_flow, ExpectedVersion.new(index - 1))
+        repository
+          .append_to_stream(event, stream, ExpectedVersion.new(index - 1))
+          .link_to_stream(event.event_id, stream_flow, ExpectedVersion.new(index - 1))
       end
       repository.append_to_stream(SRecord.new, stream_other, version_0)
 
@@ -726,12 +726,12 @@ module RubyEventStore
     it 'reads all stream events forward & backward' do
       s1 = stream
       s2 = stream_other
-      repository.
-        append_to_stream(a = SRecord.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, version_none).
-        append_to_stream(b = SRecord.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s2, version_none).
-        append_to_stream(c = SRecord.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, version_0).
-        append_to_stream(d = SRecord.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s2, version_0).
-        append_to_stream(e = SRecord.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s2, version_1)
+      repository
+        .append_to_stream(a = SRecord.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, version_none)
+        .append_to_stream(b = SRecord.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s2, version_none)
+        .append_to_stream(c = SRecord.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, version_0)
+        .append_to_stream(d = SRecord.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s2, version_0)
+        .append_to_stream(e = SRecord.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s2, version_1)
 
       expect(read_events_forward(repository, s1)).to eq [a,c]
       expect(read_events_backward(repository, s1)).to eq [c,a]
@@ -739,17 +739,17 @@ module RubyEventStore
 
     it 'reads all stream linked events forward & backward' do
       s1, fs1, fs2 = stream, stream_flow, stream_other
-      repository.
-        append_to_stream(a = SRecord.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, version_none).
-        append_to_stream(b = SRecord.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s1, version_0).
-        append_to_stream(c = SRecord.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, version_1).
-        append_to_stream(d = SRecord.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s1, version_2).
-        append_to_stream(e = SRecord.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s1, version_3).
-        link_to_stream('7010d298-ab69-4bb1-9251-f3466b5d1282', fs1, version_none).
-        link_to_stream('34f88aca-aaba-4ca0-9256-8017b47528c5', fs2, version_none).
-        link_to_stream('8e61c864-ceae-4684-8726-97c34eb8fc4f', fs1, version_0).
-        link_to_stream('30963ed9-6349-450b-ac9b-8ea50115b3bd', fs2, version_0).
-        link_to_stream('5bdc58b7-e8a7-4621-afd6-ccb828d72457', fs2, version_1)
+      repository
+        .append_to_stream(a = SRecord.new(event_id: '7010d298-ab69-4bb1-9251-f3466b5d1282'), s1, version_none)
+        .append_to_stream(b = SRecord.new(event_id: '34f88aca-aaba-4ca0-9256-8017b47528c5'), s1, version_0)
+        .append_to_stream(c = SRecord.new(event_id: '8e61c864-ceae-4684-8726-97c34eb8fc4f'), s1, version_1)
+        .append_to_stream(d = SRecord.new(event_id: '30963ed9-6349-450b-ac9b-8ea50115b3bd'), s1, version_2)
+        .append_to_stream(e = SRecord.new(event_id: '5bdc58b7-e8a7-4621-afd6-ccb828d72457'), s1, version_3)
+        .link_to_stream('7010d298-ab69-4bb1-9251-f3466b5d1282', fs1, version_none)
+        .link_to_stream('34f88aca-aaba-4ca0-9256-8017b47528c5', fs2, version_none)
+        .link_to_stream('8e61c864-ceae-4684-8726-97c34eb8fc4f', fs1, version_0)
+        .link_to_stream('30963ed9-6349-450b-ac9b-8ea50115b3bd', fs2, version_0)
+        .link_to_stream('5bdc58b7-e8a7-4621-afd6-ccb828d72457', fs2, version_1)
 
       expect(read_events_forward(repository, fs1)).to eq [a,c]
       expect(read_events_backward(repository, fs1)).to eq [c,a]
@@ -801,9 +801,9 @@ module RubyEventStore
         868cac42-3d19-4b39-84e8-cd32d65c2445
       ].map { |id| SRecord.new(event_id: id) }
       events.each do |ev|
-        repository.
-          append_to_stream(ev, Stream.new(SecureRandom.uuid), version_none).
-          link_to_stream(ev.event_id, Stream.new(SecureRandom.uuid), version_none)
+        repository
+          .append_to_stream(ev, Stream.new(SecureRandom.uuid), version_none)
+          .link_to_stream(ev.event_id, Stream.new(SecureRandom.uuid), version_none)
       end
 
       expect(read_events_forward(repository, count: 3)).to eq(events.first(3))

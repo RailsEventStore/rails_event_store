@@ -6,3 +6,8 @@ AllCops:
     - bounded_context/lib/generators/templates/*
     - support/helpers/0_18_2_migration_template.rb
   TargetRubyVersion: 2.4
+
+Layout/DotPosition:
+  Enabled: true
+
+

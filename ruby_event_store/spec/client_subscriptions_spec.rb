@@ -363,16 +363,16 @@ module RubyEventStore
           client.publish(event_1)
           client.publish(event_2)
           :result
-        end.
-        subscribe(h1, to: OrderCreated).
-        subscribe_to_all_events(h2).
-        subscribe(to: [ProductAdded]) do |ev|
+        end
+        .subscribe(h1, to: OrderCreated)
+        .subscribe_to_all_events(h2)
+        .subscribe(to: [ProductAdded]) do |ev|
           h3.call(ev)
-        end.
-        subscribe_to_all_events do |ev|
+        end
+        .subscribe_to_all_events do |ev|
           h4.call(ev)
-        end.
-        call
+        end
+        .call
 
         client.publish(event_3)
         expect(h1.handled_events).to eq([event_1])

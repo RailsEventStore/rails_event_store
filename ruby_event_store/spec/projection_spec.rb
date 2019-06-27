@@ -12,12 +12,12 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
       event_store.publish(MoneyDeposited.new(data: { amount: 20 }), stream_name: stream_name)
       event_store.publish(MoneyWithdrawn.new(data: { amount: 5 }),  stream_name: stream_name)
-      account_balance = Projection.
-        from_stream(stream_name).
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store)
+      account_balance = Projection
+        .from_stream(stream_name)
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store)
       expect(account_balance).to eq(total: 25)
     end
 
@@ -25,12 +25,12 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
       event_store.publish(MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
       event_store.publish(MoneyWithdrawn.new(data: { amount: 5 }),  stream_name: "Customer$3")
-      account_balance = Projection.
-        from_stream("Customer$1", "Customer$3").
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store)
+      account_balance = Projection
+        .from_stream("Customer$1", "Customer$3")
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store)
       expect(account_balance).to eq(total: 5)
     end
 
@@ -53,11 +53,11 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$3")
       event_store.publish(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: "Customer$4")
 
-      account_balance = Projection.
-        from_all_streams.
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+      account_balance = Projection
+        .from_all_streams
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
       expect(account_balance.run(event_store)).to eq(total: 1)
     end
@@ -80,11 +80,11 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
       event_store.publish(MoneyDeposited.new(data: { amount: 20 }), stream_name: stream_name)
       event_store.publish(MoneyWithdrawn.new(data: { amount: 5 }),  stream_name: stream_name)
-      stats = Projection.
-        from_stream(stream_name).
-        when(MoneyDeposited, ->(state, event) { state[:last_deposit]    = event.data[:amount] }).
-        when(MoneyWithdrawn, ->(state, event) { state[:last_withdrawal] = event.data[:amount] }).
-        run(event_store)
+      stats = Projection
+        .from_stream(stream_name)
+        .when(MoneyDeposited, ->(state, event) { state[:last_deposit]    = event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:last_withdrawal] = event.data[:amount] })
+        .run(event_store)
       expect(stats).to eq(last_deposit: 20, last_withdrawal: 5)
     end
 
@@ -92,11 +92,11 @@ module RubyEventStore
       stream_name = "Customer$123"
       event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
       event_store.publish(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
-      deposits = Projection.
-        from_stream(stream_name).
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-        run(event_store)
+      deposits = Projection
+        .from_stream(stream_name)
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .run(event_store)
       expect(deposits).to eq(total: 10)
     end
 
@@ -104,20 +104,20 @@ module RubyEventStore
       stream_name = "Customer$123"
       event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
       event_store.publish(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
-      cashflow = Projection.
-        from_stream(stream_name).
-        init( -> { { total: 0 } }).
-        when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] }).
-        run(event_store)
+      cashflow = Projection
+        .from_stream(stream_name)
+        .init( -> { { total: 0 } })
+        .when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] })
+        .run(event_store)
       expect(cashflow).to eq(total: 12)
     end
 
     specify "subscribe to events" do
       stream_name = "Customer$123"
-      deposits = Projection.
-        from_stream(stream_name).
-        init( -> { { total: 0 } }).
-        when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+      deposits = Projection
+        .from_stream(stream_name)
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
       event_store.subscribe(deposits, to: deposits.handled_events)
       event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
       event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: stream_name)
@@ -129,8 +129,8 @@ module RubyEventStore
     end
 
     specify "at least one stream must be given" do
-      expect { Projection.from_stream }.
-        to raise_error(ArgumentError, "At least one stream must be given")
+      expect { Projection.from_stream }
+        .to raise_error(ArgumentError, "At least one stream must be given")
     end
 
     specify "all events from the stream must be read (starting from begining of the stream)" do
@@ -140,12 +140,12 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 4 }), stream_name: stream_name)
       event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: stream_name)
       event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: stream_name)
-      balance = Projection.
-        from_stream(stream_name).
-        init( -> { { total: 0 } }).
-        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
-        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, count: 2)
+      balance = Projection
+        .from_stream(stream_name)
+        .init( -> { { total: 0 } })
+        .when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] })
+        .when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store, count: 2)
       expect(balance).to eq(total: 14)
     end
 
@@ -156,12 +156,12 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 4 }), stream_name: stream_name)
       event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: stream_name)
       event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: stream_name)
-      balance = Projection.
-        from_stream(stream_name).
-        init( -> { { total: 0 } }).
-        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
-        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, start: [starting.event_id], count: 2)
+      balance = Projection
+        .from_stream(stream_name)
+        .init( -> { { total: 0 } })
+        .when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] })
+        .when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store, start: [starting.event_id], count: 2)
       expect(balance).to eq(total: 6)
     end
 
@@ -171,12 +171,12 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$234")
       event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$234")
       event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$345")
-      balance = Projection.
-        from_all_streams.
-        init( -> { { total: 0 } }).
-        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
-        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, count: 2)
+      balance = Projection
+        .from_all_streams
+        .init( -> { { total: 0 } })
+        .when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] })
+        .when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store, count: 2)
       expect(balance).to eq(total: 14)
     end
 
@@ -186,12 +186,12 @@ module RubyEventStore
       event_store.publish(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$234")
       event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$234")
       event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$345")
-      balance = Projection.
-        from_all_streams.
-        init( -> { { total: 0 } }).
-        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
-        when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, start: starting.event_id, count: 2)
+      balance = Projection
+        .from_all_streams
+        .init( -> { { total: 0 } })
+        .when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] })
+        .when([MoneyWithdrawn], ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store, start: starting.event_id, count: 2)
       expect(balance).to eq(total: 6)
     end
 
