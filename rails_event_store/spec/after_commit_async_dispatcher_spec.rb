@@ -21,18 +21,21 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
-    let(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
-    let(:serialized_event) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
     it_behaves_like :scheduler, CustomScheduler.new
 
     it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
+
+    let(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
+    let(:serialized_event) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
+    let(:dispatcher) do
+      described_class.new(scheduler: CustomScheduler.new)
+    end
 
     before(:each) do
       MyAsyncHandler.reset
     end
 
     it "dispatch job immediately when no transaction is open" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         dispatcher.call(MyAsyncHandler, event, serialized_event)
       end
@@ -42,7 +45,6 @@ module RailsEventStore
     end
 
     it "dispatch job only after transaction commit" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -56,7 +58,6 @@ module RailsEventStore
     end
 
     it "does not dispatch job after transaction rollback" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           dispatcher.call(MyAsyncHandler, event, serialized_event)
@@ -72,7 +73,6 @@ module RailsEventStore
       begin
         ActiveRecord::Base.raise_in_transactional_callbacks = true
 
-        dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
         expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
             dispatcher.call(MyAsyncHandler, event, serialized_event)
@@ -87,7 +87,6 @@ module RailsEventStore
     end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
 
     it "dispatch job only after top-level transaction (nested is not new) commit" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -103,7 +102,6 @@ module RailsEventStore
     end
 
     it "dispatch job only after top-level transaction commit" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -119,7 +117,6 @@ module RailsEventStore
     end
 
     it "does not dispatch job after nested transaction rollback" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -136,7 +133,6 @@ module RailsEventStore
 
     it "dispatch job after transaction commit when there was raise in after_commit callback" do
       ActiveRecord::Schema.define { create_table(:dummy_records) }
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
 
       expect_to_have_enqueued_job(MyAsyncHandler) do
         begin
@@ -161,7 +157,6 @@ module RailsEventStore
       begin
         ActiveRecord::Base.raise_in_transactional_callbacks = true
         ActiveRecord::Schema.define { create_table(:dummy_records) }
-        dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
 
         expect_to_have_enqueued_job(MyAsyncHandler) do
           begin
@@ -186,8 +181,6 @@ module RailsEventStore
 
     describe "#verify" do
       specify do
-        dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
-
         expect(dispatcher.verify(MyAsyncHandler)).to eq(true)
       end
     end
