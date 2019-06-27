@@ -49,7 +49,6 @@ module RubyEventStore
         SAFE_HASH_METHODS = [:[], :fetch]
         delegate SAFE_HASH_METHODS => :@h
 
-        private
         private_constant :SAFE_HASH_METHODS
       end
     end

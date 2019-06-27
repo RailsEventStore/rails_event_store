@@ -4,23 +4,25 @@ module RailsEventStore
   module RSpec
     module Matchers
       class ListPhraser
-        def self.call(object)
-          items = Array(object).compact.map { |o| format(o) }
-          return "" if items.empty?
-          if items.one?
-            items.join
-          else
-            "#{items[0...-1].join(", ")}#{" and "}#{items.fetch(-1)}"
+        class << self
+          def call(object)
+            items = Array(object).compact.map { |o| format(o) }
+            return "" if items.empty?
+            if items.one?
+              items.join
+            else
+              "#{items[0...-1].join(", ")}#{" and "}#{items.fetch(-1)}"
+            end
           end
-        end
 
-        private
+          private
 
-        def self.format(object)
-          if object.respond_to?(:description)
-            ::RSpec::Support::ObjectFormatter.format(object)
-          else
-            "be a #{object}"
+          def format(object)
+            if object.respond_to?(:description)
+              ::RSpec::Support::ObjectFormatter.format(object)
+            else
+              "be a #{object}"
+            end
           end
         end
       end

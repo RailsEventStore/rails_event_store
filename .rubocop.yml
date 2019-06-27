@@ -15,4 +15,8 @@ Layout/DotPosition:
 Lint/DeprecatedClassMethods:
   Enabled: true
 
+Lint/IneffectiveAccessModifier:
+  Enabled: true
 
+Lint/UselessAccessModifier:
+  Enabled: true

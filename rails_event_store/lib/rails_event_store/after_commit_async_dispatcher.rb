@@ -27,7 +27,6 @@ module RailsEventStore
       @scheduler.verify(subscriber)
     end
 
-    private
     class AsyncRecord
       def initialize(dispatcher, schedule_proc)
         @dispatcher = dispatcher

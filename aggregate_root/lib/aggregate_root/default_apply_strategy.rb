@@ -31,7 +31,6 @@ module AggregateRoot
       event_type.split(%r{::|\.}).last
     end
 
-    private
     attr_reader :strict, :on_methods
   end
 end
