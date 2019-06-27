@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'ostruct'
-require 'thread'
-
 module RubyEventStore
   class InMemoryRepository
 

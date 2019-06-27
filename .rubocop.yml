@@ -26,3 +26,6 @@ Lint/UriEscapeUnescape:
 
 Lint/LiteralInInterpolation:
   Enabled: true
+
+Lint/UnneededRequireStatement:
+  Enabled: true
