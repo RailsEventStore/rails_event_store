@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LimitForEventId < ActiveRecord::Migration<%= migration_version %>
   def change
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"

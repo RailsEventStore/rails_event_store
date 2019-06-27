@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BinaryDataAndMetadata < ActiveRecord::Migration<%= migration_version %>
   def change
     rails_42 = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0")

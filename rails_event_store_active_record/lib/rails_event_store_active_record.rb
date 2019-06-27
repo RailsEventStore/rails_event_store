@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_event_store_active_record/generators/migration_generator'
 require 'rails_event_store_active_record/generators/index_by_event_type_generator'
 require 'rails_event_store_active_record/generators/limit_for_event_id_generator'
