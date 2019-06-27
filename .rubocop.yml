@@ -20,3 +20,6 @@ Lint/IneffectiveAccessModifier:
 
 Lint/UselessAccessModifier:
   Enabled: true
+
+Lint/UriEscapeUnescape:
+  Enabled: true
