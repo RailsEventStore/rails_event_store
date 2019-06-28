@@ -49,7 +49,7 @@ module RubyEventStore
       end
     end
 
-    subject(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    subject(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
 
     it 'notifies subscribed handlers' do
       handler         = TestHandler.new

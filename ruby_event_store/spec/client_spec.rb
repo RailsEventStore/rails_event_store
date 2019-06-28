@@ -3,7 +3,7 @@ require 'time'
 
 module RubyEventStore
   RSpec.describe Client do
-    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
     let(:stream) { SecureRandom.uuid }
 
     specify 'publish returns self when success' do

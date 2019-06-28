@@ -5,7 +5,7 @@ module RubyEventStore
     MoneyDeposited = Class.new(RubyEventStore::Event)
     MoneyWithdrawn = Class.new(RubyEventStore::Event)
 
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
 
     specify "reduce events from one stream" do
       stream_name = "Customer$123"
