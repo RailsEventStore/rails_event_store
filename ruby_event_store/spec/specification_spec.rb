@@ -375,18 +375,18 @@ module RubyEventStore
 
     specify do
       batch_size = 100
-      records = (batch_size * 10).times.map { test_record }
+      records = (batch_size * 2).times.map { test_record }
       repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
 
-      expect(specification.stream("batch").in_batches.each_batch.to_a.size).to eq(10)
+      expect(specification.stream("batch").in_batches.each_batch.to_a.size).to eq(2)
     end
 
     specify do
       batch_size = 100
-      records = (batch_size * 10).times.map { test_record }
+      records = (batch_size * 2).times.map { test_record }
       repository.append_to_stream(records, Stream.new("batch"), ExpectedVersion.none)
 
-      expect(specification.stream("batch").in_batches.to_a.size).to eq(1000)
+      expect(specification.stream("batch").in_batches.to_a.size).to eq(200)
     end
 
     specify do
