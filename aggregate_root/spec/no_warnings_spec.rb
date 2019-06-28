@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module RubyEventStore
+module AggregateRoot
   RSpec.describe 'no warnings' do
     specify do
       expect(aggregate_root_warnings).to eq([])
