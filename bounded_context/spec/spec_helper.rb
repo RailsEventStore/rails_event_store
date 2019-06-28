@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bounded_context'
 require 'securerandom'
 require_relative '../../support/helpers/rspec_defaults'
