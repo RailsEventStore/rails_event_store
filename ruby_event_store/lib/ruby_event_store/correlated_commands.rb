@@ -12,7 +12,10 @@ module RubyEventStore
     end
 
     def call(command)
-      if (correlation_id = event_store.metadata[:correlation_id]) && (causation_id = event_store.metadata[:causation_id])
+      correlation_id = event_store.metadata[:correlation_id]
+      causation_id   = event_store.metadata[:causation_id]
+
+      if correlation_id && causation_id
         command.correlate_with(MiniEvent.new(
           correlation_id,
           causation_id,
