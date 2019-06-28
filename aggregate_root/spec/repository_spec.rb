@@ -99,7 +99,7 @@ module AggregateRoot
 
         expect(event_store).to receive(:publish).with(
           [order_created],
-          stream_name: stream_name,
+          stream_name:      stream_name,
           expected_version: -1
         ).and_call_original
         repository.store(order, stream_name)
@@ -109,7 +109,7 @@ module AggregateRoot
 
         expect(event_store).to receive(:publish).with(
           [order_expired],
-          stream_name: stream_name,
+          stream_name:      stream_name,
           expected_version: 0
         ).and_call_original
         repository.store(order, stream_name)
