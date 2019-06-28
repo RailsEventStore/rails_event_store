@@ -24,10 +24,12 @@ module AggregateRoot
           expect(repository).to receive(:load).with(aggregate, 'SomeStream')
           instrumented_repository.load(aggregate, 'SomeStream')
 
-          expect(notification_calls).to eq([{
-                                             aggregate: aggregate,
-                                             stream:    'SomeStream',
-                                           }])
+          expect(notification_calls).to eq(
+            [{
+              aggregate: aggregate,
+              stream:    'SomeStream',
+            }]
+          )
         end
       end
     end
@@ -54,12 +56,14 @@ module AggregateRoot
           expect(repository).to receive(:store).with(aggregate, 'SomeStream')
           instrumented_repository.store(aggregate, 'SomeStream')
 
-          expect(notification_calls).to eq([{
-                                             aggregate:     aggregate,
-                                             version:       -1,
-                                             stored_events: events,
-                                             stream:        'SomeStream',
-                                           }])
+          expect(notification_calls).to eq(
+            [{
+              aggregate:     aggregate,
+              version:       -1,
+              stored_events: events,
+              stream:        'SomeStream',
+            }]
+          )
         end
       end
     end
@@ -82,18 +86,22 @@ module AggregateRoot
               events = aggregate.unpublished_events.to_a
             end
 
-            expect(store_notification_calls).to eq([{
-                                                     aggregate:     aggregate,
-                                                     version:       -1,
-                                                     stored_events: events,
-                                                     stream:        'SomeStream',
-                                                   }])
+            expect(store_notification_calls).to eq(
+              [{
+                aggregate:     aggregate,
+                version:       -1,
+                stored_events: events,
+                stream:        'SomeStream',
+              }]
+            )
           end
 
-          expect(load_notification_calls).to eq([{
-                                                  aggregate: aggregate,
-                                                  stream:    'SomeStream',
-                                                }])
+          expect(load_notification_calls).to eq(
+            [{
+              aggregate: aggregate,
+              stream:    'SomeStream',
+            }]
+          )
         end
       end
     end
