@@ -64,7 +64,7 @@ module AggregateRoot
     end
 
     describe "#with_aggregate" do
-      specify "instruments both load & store" do
+      specify "instruments both load and store" do
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("load.repository.aggregate_root") do |load_notification_calls|
