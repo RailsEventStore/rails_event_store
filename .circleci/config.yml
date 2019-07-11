@@ -814,6 +814,78 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
+  test_bounded_context_rails_6_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 6.0.0.rc1
+      image: railseventstore/ruby:2.5
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C bounded_context install test
+  test_rails_event_store_rails_6_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 6.0.0.rc1
+      image: railseventstore/ruby:2.5
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store install test
+  test_rails_event_store_active_record_rails_6_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 6.0.0.rc1
+      image: railseventstore/ruby:2.5
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_rails_event_store_rspec_rails_6_0:
+    docker:
+    - environment:
+        RAILS_VERSION: 6.0.0.rc1
+      image: railseventstore/ruby:2.5
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store-rspec install test
   test_rails_event_store_active_record_mysql:
     docker:
     - environment:
@@ -1001,6 +1073,12 @@ workflows:
     - test_rails_event_store_rails_5_1
     - test_rails_event_store_active_record_rails_5_1
     - test_rails_event_store_rspec_rails_5_1
+  Rails 6.0:
+    jobs:
+    - test_bounded_context_rails_6_0
+    - test_rails_event_store_rails_6_0
+    - test_rails_event_store_active_record_rails_6_0
+    - test_rails_event_store_rspec_rails_6_0
   MySQL:
     jobs:
     - test_rails_event_store_active_record_mysql
