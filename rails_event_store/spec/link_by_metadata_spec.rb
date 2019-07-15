@@ -4,11 +4,7 @@ require 'action_controller/railtie'
 module RailsEventStore
   RSpec.describe LinkByMetadata do
 
-    before do
-      rails = double("Rails", configuration: Rails::Application::Configuration.new)
-      stub_const("Rails", rails)
-      Rails.configuration.event_store = event_store
-    end
+    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
 
     let(:event_store) { RailsEventStore::Client.new }
 
@@ -34,11 +30,7 @@ module RailsEventStore
   end
 
   RSpec.describe LinkByCorrelationId do
-    before do
-      rails = double("Rails", configuration: Rails::Application::Configuration.new)
-      stub_const("Rails", rails)
-      Rails.configuration.event_store = event_store
-    end
+    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
 
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) do
@@ -62,11 +54,7 @@ module RailsEventStore
   end
 
   RSpec.describe LinkByCausationId do
-    before do
-      rails = double("Rails", configuration: Rails::Application::Configuration.new)
-      stub_const("Rails", rails)
-      Rails.configuration.event_store = event_store
-    end
+    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
 
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) do
@@ -93,11 +81,7 @@ module RailsEventStore
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) { OrderCreated.new }
 
-    before do
-      rails = double("Rails", configuration: Rails::Application::Configuration.new)
-      stub_const("Rails", rails)
-      Rails.configuration.event_store = event_store
-    end
+    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
 
     specify "default prefix" do
       event_store.subscribe_to_all_events(LinkByEventType.new)
