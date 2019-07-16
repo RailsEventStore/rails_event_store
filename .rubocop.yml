@@ -1,5 +1,5 @@
 AllCops:
-  DisplayCopNames: true
+  TargetRubyVersion: 2.4
   Exclude:
     - rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/*
     - bounded_context/lib/generators/templates/*
@@ -8,7 +8,7 @@ AllCops:
     - railseventstore.org/**/*
     - bounded_context/spec/dummy_*/**/*
     - '**/bin/*'
-  TargetRubyVersion: 2.4
+    - ruby_event_store-browser/elm/node_modules/**/*
 
 Lint/UselessAssignment:
   Exclude:
