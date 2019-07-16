@@ -10,11 +10,6 @@ module SchemaHelper
     m.run_migration(name)
   end
 
-  def run_support_migration(name, template_name)
-    m = Migrator.new(File.expand_path(__dir__))
-    m.run_migration(name, template_name)
-  end
-
   def establish_database_connection
     ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
   end
