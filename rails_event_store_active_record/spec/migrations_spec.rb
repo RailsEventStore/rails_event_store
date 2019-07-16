@@ -12,8 +12,9 @@ RSpec.describe "database schema migrations" do
     end
   end
 
-
   specify "migrate from v0.34.0 to v0.35.0" do
+    skip("incompatible version of activerecord-import") if rails_6? && sqlite?
+
     validate_migration('Gemfile.0_34_0', 'Gemfile.0_35_0',
       source_template_name: 'create_event_store_events') do
       run_code(<<~EOF, gemfile: 'Gemfile.0_34_0')
@@ -39,5 +40,13 @@ RSpec.describe "database schema migrations" do
         }
       EOF
     end
+  end
+
+  def rails_6?
+    Gem::Version.new(ENV['RAILS_VERSION']) >= Gem::Version.new('6.0.0.rc1')
+  end
+
+  def sqlite?
+    ENV['DATABASE_URL'].start_with?('sqlite')
   end
 end
