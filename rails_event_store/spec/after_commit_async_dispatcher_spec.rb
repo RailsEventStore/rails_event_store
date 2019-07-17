@@ -21,18 +21,21 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
-    let(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
-    let(:serialized_event) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
     it_behaves_like :scheduler, CustomScheduler.new
 
     it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
+
+    let(:event) { RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8") }
+    let(:serialized_event) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
+    let(:dispatcher) do
+      described_class.new(scheduler: CustomScheduler.new)
+    end
 
     before(:each) do
       MyAsyncHandler.reset
     end
 
     it "dispatch job immediately when no transaction is open" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         dispatcher.call(MyAsyncHandler, event, serialized_event)
       end
@@ -42,7 +45,6 @@ module RailsEventStore
     end
 
     it "dispatch job only after transaction commit" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -55,24 +57,8 @@ module RailsEventStore
       expect(MyAsyncHandler.received).to eq(serialized_event)
     end
 
-    it "does not dispatch job after transaction rollback" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
-      expect_no_enqueued_job(MyAsyncHandler) do
-        ActiveRecord::Base.transaction do
-          dispatcher.call(MyAsyncHandler, event, serialized_event)
-          raise ActiveRecord::Rollback
-        end
-      end
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to be_nil
-    end
-
-    it "does not dispatch job after transaction rollback (with raises)" do
-      was = ActiveRecord::Base.raise_in_transactional_callbacks
-      begin
-        ActiveRecord::Base.raise_in_transactional_callbacks = true
-
-        dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
+    context "when transaction is rolledback" do
+      it "does not dispatch job" do
         expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
             dispatcher.call(MyAsyncHandler, event, serialized_event)
@@ -81,13 +67,34 @@ module RailsEventStore
         end
         MyAsyncHandler.perform_enqueued_jobs
         expect(MyAsyncHandler.received).to be_nil
-      ensure
-        ActiveRecord::Base.raise_in_transactional_callbacks = was
       end
-    end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+      context "when raise_in_transactional_callbacks is enabled" do
+        around do |example|
+          skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+          old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
+          ActiveRecord::Base.raise_in_transactional_callbacks = true
+
+          example.run
+
+          ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
+        end
+
+        it "does not dispatch job" do
+          expect_no_enqueued_job(MyAsyncHandler) do
+            ActiveRecord::Base.transaction do
+              dispatcher.call(MyAsyncHandler, event, serialized_event)
+              raise ActiveRecord::Rollback
+            end
+          end
+          MyAsyncHandler.perform_enqueued_jobs
+          expect(MyAsyncHandler.received).to be_nil
+        end
+      end
+    end
 
     it "dispatch job only after top-level transaction (nested is not new) commit" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -103,7 +110,6 @@ module RailsEventStore
     end
 
     it "dispatch job only after top-level transaction commit" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -119,7 +125,6 @@ module RailsEventStore
     end
 
     it "does not dispatch job after nested transaction rollback" do
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
       expect_no_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
@@ -134,35 +139,12 @@ module RailsEventStore
       expect(MyAsyncHandler.received).to be_nil
     end
 
-    it "dispatch job after transaction commit when there was raise in after_commit callback" do
-      ActiveRecord::Schema.define { create_table(:dummy_records) }
-      dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
-
-      expect_to_have_enqueued_job(MyAsyncHandler) do
-        begin
-          ActiveRecord::Base.transaction do
-            DummyRecord.new.save!
-            expect_no_enqueued_job(MyAsyncHandler) do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
-            end
-          end
-        rescue DummyError
-        end
-      end
-      expect(DummyRecord.count).to eq(1)
-      expect(MyAsyncHandler.received).to be_nil
-
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_event)
-    end
-
-    it "dispatch job after transaction commit when there was raise in after_commit callback (with raises)" do
-      was = ActiveRecord::Base.raise_in_transactional_callbacks
-      begin
-        ActiveRecord::Base.raise_in_transactional_callbacks = true
+    context "when an exception is raised within after commit callback" do
+      before do
         ActiveRecord::Schema.define { create_table(:dummy_records) }
-        dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
+      end
 
+      it "dispatches the job after commit" do
         expect_to_have_enqueued_job(MyAsyncHandler) do
           begin
             ActiveRecord::Base.transaction do
@@ -179,15 +161,89 @@ module RailsEventStore
 
         MyAsyncHandler.perform_enqueued_jobs
         expect(MyAsyncHandler.received).to eq(serialized_event)
-      ensure
-        ActiveRecord::Base.raise_in_transactional_callbacks = was
       end
-    end if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+      context "when raise_in_transactional_callbacks is enabled" do
+        around do |example|
+          skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+          old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
+          ActiveRecord::Base.raise_in_transactional_callbacks = true
+
+          example.run
+
+          ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
+        end
+
+        it "dispatches the job after commit" do
+          expect_to_have_enqueued_job(MyAsyncHandler) do
+            begin
+              ActiveRecord::Base.transaction do
+                DummyRecord.new.save!
+                expect_no_enqueued_job(MyAsyncHandler) do
+                  dispatcher.call(MyAsyncHandler, event, serialized_event)
+                end
+              end
+            rescue DummyError
+            end
+          end
+          expect(DummyRecord.count).to eq(1)
+          expect(MyAsyncHandler.received).to be_nil
+
+          MyAsyncHandler.perform_enqueued_jobs
+          expect(MyAsyncHandler.received).to eq(serialized_event)
+        end
+      end
+    end
+
+    context "within a non-joinable transaction" do
+      around do |example|
+        ActiveRecord::Base.transaction(joinable: false) do
+          example.run
+        end
+      end
+
+      it "dispatches the job" do
+        expect_to_have_enqueued_job(MyAsyncHandler) do
+          dispatcher.call(MyAsyncHandler, event, serialized_event)
+        end
+      end
+
+      context "with < Rails 5" do
+        before do
+          skip if ActiveRecord.version >= Gem::Version.new("5")
+        end
+
+        it "does not dispatch the job after a nested transaction commits" do
+          expect_no_enqueued_job(MyAsyncHandler) do
+            ActiveRecord::Base.transaction do
+              expect_no_enqueued_job(MyAsyncHandler) do
+                dispatcher.call(MyAsyncHandler, event, serialized_event)
+              end
+            end
+          end
+        end
+      end
+
+      context "with Rails 5+" do
+        before do
+          skip if ActiveRecord.version < Gem::Version.new("5")
+        end
+
+        it "dispatches the job after a nested transaction commits" do
+          expect_to_have_enqueued_job(MyAsyncHandler) do
+            ActiveRecord::Base.transaction do
+              expect_no_enqueued_job(MyAsyncHandler) do
+                dispatcher.call(MyAsyncHandler, event, serialized_event)
+              end
+            end
+          end
+        end
+      end
+    end
 
     describe "#verify" do
       specify do
-        dispatcher = AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
-
         expect(dispatcher.verify(MyAsyncHandler)).to eq(true)
       end
     end
