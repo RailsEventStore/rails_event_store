@@ -9,6 +9,7 @@ services:
     volumes:
       - .:/res
       - gems:/usr/local/bundle
+      - /res/ruby_event_store-browser/elm/elm-stuff/
     working_dir: /res
   mysql:
     image: mysql
