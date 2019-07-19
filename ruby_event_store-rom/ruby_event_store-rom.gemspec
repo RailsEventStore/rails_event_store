@@ -32,6 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rom-changeset', '>= 5.0'
   spec.add_dependency 'rom-repository', '>= 5.0'
   spec.add_dependency 'rom-sql', '>= 3.0'
-  spec.add_dependency 'ruby_event_store', '= 0.40.1'
+  spec.add_dependency 'ruby_event_store', '= 0.41.0'
   spec.add_dependency 'sequel', '>= 5.11.0'
 end
