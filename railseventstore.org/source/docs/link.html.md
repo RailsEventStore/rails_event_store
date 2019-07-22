@@ -36,9 +36,9 @@ order = Order.new('68a5214d-3194-4cfd-8997-5033bcb7e68a')
 order.place
 ```
 
-Now imagine you'd like to see in one place all facts about placed orders in Jan 2018. This can be done processing all events collected so far in the event store. Each time you want such report, it runs from beginning -- filtering irrelevant events out.
+Now imagine you'd like to see in one place all facts about placed orders in Jan 2018. This can be done processing all events collected so far in the event store. Each time you want such report, it runs from beginning — filtering irrelevant events out.
 
-For repeated use it would be much better process events only once and store them in some sort of a collection -- the stream:
+For repeated use it would be much better process events only once and store them in some sort of a collection — the stream:
 
 ```ruby
 order_placed = RailsEventStore::Projection
@@ -48,7 +48,7 @@ order_placed = RailsEventStore::Projection
     time = event.metadata[:timestamp]
     if time.year == 2018 && time.month == 1
       event_store.link(
-        event.id,
+        event.event_id,
         stream_name: 'OrderPlaced$2018-01',
         expected_version: :any
       )
@@ -70,7 +70,7 @@ Linking can be even managed as soon as event is published, via event handler:
 class OrderPlacedReport
   def call(event)
     event_store.link(
-      event.id,
+      event.event_id,
       stream_name: stream_name(event.metadata[:timestamp]),
       expected_version: :any
     )
