@@ -26,9 +26,7 @@ browserNavigation flags =
         [ div [ class "navigation__brand" ]
             [ a [ href flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
             ]
-        , div [ class "navigation__links" ]
-            [ a [ href flags.rootUrl, class "navigation__link" ] [ text "Stream Browser" ]
-            ]
+        , div [ class "navigation__links" ] []
         ]
 
 
