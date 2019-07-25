@@ -1,0 +1,4 @@
+source "https://rubygems.org"
+
+# Specify your gem's dependencies in minitest-rails_event_store.gemspec
+gemspec
