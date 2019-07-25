@@ -6,3 +6,5 @@ module Minitest
     # Your code goes here...
   end
 end
+
+require "minitest/rails_event_store/assertions"
