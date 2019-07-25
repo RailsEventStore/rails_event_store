@@ -41,17 +41,17 @@ module RubyEventStore
       attr_reader :local, :global
 
       def all_for(event_type)
-        [global, local].map{|r| r.all_for(event_type)}.reduce(&:+)
+        [global, local].map { |r| r.all_for(event_type) }.reduce(&:+)
       end
     end
 
     class LocalSubscriptions
       def initialize
-        @subscriptions = Hash.new {|hsh, key| hsh[key] = [] }
+        @subscriptions = Hash.new { |hsh, key| hsh[key] = [] }
       end
 
       def add(subscription, event_types)
-        event_types.each{ |type| @subscriptions[type.to_s] << subscription }
+        event_types.each{ |type| @subscriptions[type.to_s].push(subscription).uniq! }
         ->() {event_types.each{ |type| @subscriptions.fetch(type.to_s).delete(subscription) } }
       end
 
@@ -66,7 +66,7 @@ module RubyEventStore
       end
 
       def add(subscription)
-        @subscriptions << subscription
+        @subscriptions.push(subscription).uniq!
         ->() { @subscriptions.delete(subscription) }
       end
 
@@ -83,7 +83,7 @@ module RubyEventStore
       end
 
       def add(subscription, event_types)
-        event_types.each{ |type| @subscriptions.value[type.to_s] << subscription }
+        event_types.each{ |type| @subscriptions.value[type.to_s].push(subscription).uniq! }
         ->() {event_types.each{ |type| @subscriptions.value.fetch(type.to_s).delete(subscription) } }
       end
 
@@ -98,7 +98,7 @@ module RubyEventStore
       end
 
       def add(subscription)
-        @subscriptions.value += [subscription]
+        @subscriptions.value |= [subscription]
         ->() { @subscriptions.value -= [subscription] }
       end
 
