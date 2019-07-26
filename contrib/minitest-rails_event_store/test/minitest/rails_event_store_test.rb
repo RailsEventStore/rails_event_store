@@ -1,5 +1,4 @@
 require "test_helper"
-require "ruby_event_store"
 
 DummyEvent = Class.new(RubyEventStore::Event)
 
@@ -10,22 +9,30 @@ class Minitest::RailsEventStoreTest < Minitest::Test
     @event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
   end
 
-  def test_assert_published
-    assert_published(event_store, [DummyEvent]) do
-      event_store.publish(DummyEvent.new)
+  def assert_triggered(expected, klass = Minitest::Assertion)
+    e = assert_raises(klass) do
+      yield
+    end
+
+    case expected
+    when Regexp
+      assert_match expected, e.message
+    else
+      assert_equal expected, e.message
     end
   end
 
+  def test_assert_published
+    assert_published(event_store, [DummyEvent]) { event_store.publish(DummyEvent.new) }
+  end
+
   def test_assert_published_failure
-    assert_raises(Minitest::Assertion, /bazinga/) do
-      assert_published(event_store, [DummyEvent]) do
-      end
+    assert_triggered "bazinga" do
+      assert_published(event_store, [DummyEvent]) { }
     end
   end
 
   def test_assert_published_singular_argument
-    assert_published(event_store, DummyEvent) do
-      event_store.publish(DummyEvent.new)
-    end
+    assert_published(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
   end
 end
