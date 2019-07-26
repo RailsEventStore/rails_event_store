@@ -7,7 +7,7 @@ module Minitest::Assertions
       collected_events << event.type
     end.call
 
-    expected_events.each do |expected|
+    Array(expected_events).each do |expected|
       assert_includes(collected_events, expected.to_s, "bazinga")
     end
   end

@@ -20,4 +20,12 @@ class Minitest::RailsEventStoreTest < Minitest::Test
       end
     end
   end
+
+  def test_assert_published_singular_argument
+    event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+
+    assert_published(event_store, DummyEvent) do
+      event_store.publish(DummyEvent.new)
+    end
+  end
 end
