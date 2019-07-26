@@ -22,17 +22,17 @@ class Minitest::RailsEventStoreTest < Minitest::Test
     end
   end
 
-  def test_assert_published
-    assert_published(event_store, [DummyEvent]) { event_store.publish(DummyEvent.new) }
+  def test_assert_dispatched
+    assert_dispatched(event_store, [DummyEvent]) { event_store.publish(DummyEvent.new) }
   end
 
-  def test_assert_published_failure
+  def test_assert_dispatched_failure
     assert_triggered "bazinga" do
-      assert_published(event_store, [DummyEvent]) { }
+      assert_dispatched(event_store, [DummyEvent]) { }
     end
   end
 
-  def test_assert_published_singular_argument
-    assert_published(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
+  def test_assert_dispatched_singular_argument
+    assert_dispatched(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
   end
 end
