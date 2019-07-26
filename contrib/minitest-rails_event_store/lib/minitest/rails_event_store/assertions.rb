@@ -1,5 +1,5 @@
 module Minitest::Assertions
-  def assert_published(event_store, expected_events, &block)
+  def assert_dispatched(event_store, expected_events, &block)
     collected_events = []
     event_store.within do
       block.call
