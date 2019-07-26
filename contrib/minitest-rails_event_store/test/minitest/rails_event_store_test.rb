@@ -35,4 +35,18 @@ class Minitest::RailsEventStoreTest < Minitest::Test
   def test_assert_dispatched_singular_argument
     assert_dispatched(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
   end
+
+  def test_assert_not_dispatched
+    assert_not_dispatched(event_store, [DummyEvent]) { }
+  end
+
+  def test_assert_not_dispatched_failure
+    assert_triggered "bazinga" do
+      assert_not_dispatched(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
+    end
+  end
+
+  def test_assert_not_dispatched_singular
+    assert_not_dispatched(event_store, DummyEvent) { }
+  end
 end
