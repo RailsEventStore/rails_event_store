@@ -4,17 +4,19 @@ require "ruby_event_store"
 DummyEvent = Class.new(RubyEventStore::Event)
 
 class Minitest::RailsEventStoreTest < Minitest::Test
-  def test_assert_published
-    event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+  attr_reader :event_store
 
+  def setup
+    @event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+  end
+
+  def test_assert_published
     assert_published(event_store, [DummyEvent]) do
       event_store.publish(DummyEvent.new)
     end
   end
 
   def test_assert_published_failure
-    event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-
     assert_raises(Minitest::Assertion, /bazinga/) do
       assert_published(event_store, [DummyEvent]) do
       end
@@ -22,8 +24,6 @@ class Minitest::RailsEventStoreTest < Minitest::Test
   end
 
   def test_assert_published_singular_argument
-    event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-
     assert_published(event_store, DummyEvent) do
       event_store.publish(DummyEvent.new)
     end
