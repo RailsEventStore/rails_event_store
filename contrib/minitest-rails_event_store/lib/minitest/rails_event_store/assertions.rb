@@ -8,7 +8,7 @@ module Minitest::Assertions
     end.call
 
     Array(expected_events).each do |expected|
-      assert_includes(collected_events, expected.to_s, "bazinga")
+      assert collected_events.include?(expected.to_s), "bazinga"
     end
   end
 end
