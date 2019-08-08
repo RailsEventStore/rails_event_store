@@ -102,7 +102,7 @@ event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order
 expect(event_store).to have_published(an_event(OrderPlaced)).in_stream("Order$42")
 ```
 
-It is sometimes important to ensure no additional events have been published. Luckily there's a modifier to cover that usecase.
+It is sometimes important to ensure that specific amount of events of given type have been published. Luckily there's a modifier to cover that usecase.
 
 ```ruby
 expect(event_store).not_to have_published(an_event(OrderPlaced)).once
