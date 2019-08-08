@@ -4,9 +4,10 @@ import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
+import Msg exposing (Msg)
 
 
-view : Flags -> Html a -> Html a
+view : Flags -> Html Msg -> Html Msg
 view flags pageView =
     div [ class "frame" ]
         [ header [ class "frame__header" ] [ browserNavigation flags ]
@@ -15,12 +16,12 @@ view flags pageView =
         ]
 
 
-viewNotFound : Html a
+viewNotFound : Html Msg
 viewNotFound =
     h1 [] [ text "404" ]
 
 
-browserNavigation : Flags -> Html a
+browserNavigation : Flags -> Html Msg
 browserNavigation flags =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
@@ -35,7 +36,7 @@ browserNavigation flags =
         ]
 
 
-browserFooter : Flags -> Html a
+browserFooter : Flags -> Html Msg
 browserFooter flags =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
