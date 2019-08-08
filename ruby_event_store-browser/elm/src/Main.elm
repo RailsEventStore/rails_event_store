@@ -83,25 +83,12 @@ update msg model =
             Page.ShowEvent.update openedEventUIMsg showEventModel
                 |> updateWith ShowEvent GotShowEventMsg model
 
-        ( GoToStream, _ ) ->
+        ( GotLayoutMsg layoutMsg, _ ) ->
             let
-                oldLayoutModel =
-                    model.layout
-
-                newLayoutModel =
-                    { oldLayoutModel | goToStream = "" }
+                ( layoutModel, layoutCmd ) =
+                    Layout.update layoutMsg model.layout model.key
             in
-            ( { model | layout = newLayoutModel }, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.layout.goToStream) )
-
-        ( GoToStreamChanged newValue, _ ) ->
-            let
-                oldLayoutModel =
-                    model.layout
-
-                newLayoutModel =
-                    { oldLayoutModel | goToStream = newValue }
-            in
-            ( { model | layout = newLayoutModel }, Cmd.none )
+            ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
         ( _, _ ) ->
             ( model, Cmd.none )

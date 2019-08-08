@@ -1,10 +1,12 @@
-module Layout exposing (Model, buildModel, view, viewNotFound)
+module Layout exposing (Model, buildModel, update, view, viewNotFound)
 
+import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (value, class, disabled, href, placeholder)
+import Html.Attributes exposing (class, disabled, href, placeholder, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
-import Msg exposing (Msg)
+import Msg exposing (LayoutMsg(..), Msg)
+import Route
 
 
 type alias Model =
@@ -16,6 +18,16 @@ buildModel : Model
 buildModel =
     { goToStream = ""
     }
+
+
+update : LayoutMsg -> Model -> Browser.Navigation.Key -> ( Model, Cmd LayoutMsg )
+update msg model key =
+    case msg of
+        GoToStream ->
+            ( { goToStream = "" }, Browser.Navigation.pushUrl key (Route.buildUrl "#streams" model.goToStream) )
+
+        GoToStreamChanged newValue ->
+            ( { goToStream = newValue }, Cmd.none )
 
 
 view : Model -> Flags -> Html Msg -> Html Msg
@@ -40,8 +52,8 @@ browserNavigation model flags =
             ]
         , div [ class "navigation__links" ] []
         , div [ class "navigation__go-to-stream" ]
-            [ form [ onSubmit Msg.GoToStream ]
-                [ input [ value model.goToStream, onInput Msg.GoToStreamChanged, placeholder "Go to stream..." ] []
+            [ form [ onSubmit (Msg.GotLayoutMsg GoToStream) ]
+                [ input [ value model.goToStream, onInput (\s -> Msg.GotLayoutMsg (GoToStreamChanged s)), placeholder "Go to stream..." ] []
                 ]
             ]
         ]
