@@ -2,7 +2,7 @@ module Layout exposing (Model, buildModel, view, viewNotFound)
 
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href, placeholder)
+import Html.Attributes exposing (value, class, disabled, href, placeholder)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Msg exposing (Msg)
 
@@ -41,7 +41,7 @@ browserNavigation model flags =
         , div [ class "navigation__links" ] []
         , div [ class "navigation__go-to-stream" ]
             [ form [ onSubmit Msg.GoToStream ]
-                [ input [ onInput Msg.GoToStreamChanged, placeholder "Go to stream..." ] []
+                [ input [ value model.goToStream, onInput Msg.GoToStreamChanged, placeholder "Go to stream..." ] []
                 ]
             ]
         ]

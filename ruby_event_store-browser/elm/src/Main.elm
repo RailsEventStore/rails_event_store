@@ -84,7 +84,14 @@ update msg model =
                 |> updateWith ShowEvent GotShowEventMsg model
 
         ( GoToStream, _ ) ->
-            ( model, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.layout.goToStream) )
+            let
+                oldLayoutModel =
+                    model.layout
+
+                newLayoutModel =
+                    { oldLayoutModel | goToStream = "" }
+            in
+            ( { model | layout = newLayoutModel }, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.layout.goToStream) )
 
         ( GoToStreamChanged newValue, _ ) ->
             let
