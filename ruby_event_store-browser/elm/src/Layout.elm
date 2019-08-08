@@ -29,7 +29,7 @@ update : Msg -> WrappedModel Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToStream ->
-            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.internal.goToStream) )
+            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.internal.goToStream) )
 
         GoToStreamChanged newValue ->
             ( { goToStream = newValue }, Cmd.none )

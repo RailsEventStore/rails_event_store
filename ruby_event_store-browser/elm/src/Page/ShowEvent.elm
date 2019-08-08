@@ -262,7 +262,7 @@ parentEventLink event =
 
 streamLink : String -> Html Msg
 streamLink streamName =
-    a [ class "event__stream-link", href (Route.buildUrl "#streams" streamName) ] [ text streamName ]
+    a [ class "event__stream-link", href (Route.streamUrl streamName) ] [ text streamName ]
 
 
 eventLink : String -> Html Msg
