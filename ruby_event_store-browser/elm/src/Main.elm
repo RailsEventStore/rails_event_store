@@ -5,7 +5,6 @@ import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (Html)
 import Layout
-import Msg exposing (Msg(..))
 import Page.ShowEvent
 import Page.ViewStream
 import Route
@@ -31,6 +30,14 @@ type alias Model =
     , key : Browser.Navigation.Key
     , layout : Layout.Model
     }
+
+
+type Msg
+    = ChangeUrl Url.Url
+    | ClickedLink Browser.UrlRequest
+    | GotLayoutMsg Layout.Msg
+    | GotShowEventMsg Page.ShowEvent.Msg
+    | GotViewStreamMsg Page.ViewStream.Msg
 
 
 type Page

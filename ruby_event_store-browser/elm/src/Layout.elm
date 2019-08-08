@@ -1,12 +1,16 @@
-module Layout exposing (Model, buildModel, update, view, viewNotFound)
+module Layout exposing (Model, Msg, buildModel, update, view, viewNotFound)
 
 import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
-import Msg exposing (LayoutMsg(..), Msg)
 import Route
+
+
+type Msg
+    = GoToStream
+    | GoToStreamChanged String
 
 
 type alias Model =
@@ -20,7 +24,7 @@ buildModel =
     }
 
 
-update : LayoutMsg -> Model -> Browser.Navigation.Key -> ( Model, Cmd LayoutMsg )
+update : Msg -> Model -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 update msg model key =
     case msg of
         GoToStream ->
@@ -30,7 +34,7 @@ update msg model key =
             ( { goToStream = newValue }, Cmd.none )
 
 
-view : (LayoutMsg -> Msg) -> Model -> Flags -> Html Msg -> Html Msg
+view : (Msg -> a) -> Model -> Flags -> Html a -> Html a
 view layoutMsgBuilder model flags pageView =
     div [ class "frame" ]
         [ header [ class "frame__header" ] [ Html.map layoutMsgBuilder (browserNavigation model flags) ]
@@ -39,12 +43,12 @@ view layoutMsgBuilder model flags pageView =
         ]
 
 
-viewNotFound : Html Msg
+viewNotFound : Html a
 viewNotFound =
     h1 [] [ text "404" ]
 
 
-browserNavigation : Model -> Flags -> Html LayoutMsg
+browserNavigation : Model -> Flags -> Html Msg
 browserNavigation model flags =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
@@ -59,7 +63,7 @@ browserNavigation model flags =
         ]
 
 
-browserFooter : Flags -> Html LayoutMsg
+browserFooter : Flags -> Html Msg
 browserFooter flags =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
