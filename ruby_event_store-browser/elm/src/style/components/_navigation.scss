@@ -29,8 +29,13 @@ $navigation-layout: (columns: 4);
   justify-content: flex-end;
   align-items: center;
 
-  input {
-    margin: 0;
+  form {
+    width: 100%;
+
+    input {
+      width: 100%;
+      margin: 0;
+    }
   }
 }
 
