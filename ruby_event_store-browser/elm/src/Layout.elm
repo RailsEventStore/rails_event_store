@@ -30,12 +30,12 @@ update msg model key =
             ( { goToStream = newValue }, Cmd.none )
 
 
-view : Model -> Flags -> Html Msg -> Html Msg
-view model flags pageView =
+view : (LayoutMsg -> Msg) -> Model -> Flags -> Html Msg -> Html Msg
+view layoutMsgBuilder model flags pageView =
     div [ class "frame" ]
-        [ header [ class "frame__header" ] [ browserNavigation model flags ]
+        [ header [ class "frame__header" ] [ Html.map layoutMsgBuilder (browserNavigation model flags) ]
         , main_ [ class "frame__body" ] [ pageView ]
-        , footer [ class "frame__footer" ] [ browserFooter flags ]
+        , footer [ class "frame__footer" ] [ Html.map layoutMsgBuilder (browserFooter flags) ]
         ]
 
 
@@ -44,7 +44,7 @@ viewNotFound =
     h1 [] [ text "404" ]
 
 
-browserNavigation : Model -> Flags -> Html Msg
+browserNavigation : Model -> Flags -> Html LayoutMsg
 browserNavigation model flags =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
@@ -52,14 +52,14 @@ browserNavigation model flags =
             ]
         , div [ class "navigation__links" ] []
         , div [ class "navigation__go-to-stream" ]
-            [ form [ onSubmit (Msg.GotLayoutMsg GoToStream) ]
-                [ input [ value model.goToStream, onInput (\s -> Msg.GotLayoutMsg (GoToStreamChanged s)), placeholder "Go to stream..." ] []
+            [ form [ onSubmit GoToStream ]
+                [ input [ value model.goToStream, onInput GoToStreamChanged, placeholder "Go to stream..." ] []
                 ]
             ]
         ]
 
 
-browserFooter : Flags -> Html Msg
+browserFooter : Flags -> Html LayoutMsg
 browserFooter flags =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]

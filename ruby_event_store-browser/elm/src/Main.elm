@@ -134,7 +134,7 @@ view model =
         ( maybePageTitle, pageContent ) =
             viewPage model.page
     in
-    { body = [ Layout.view model.layout model.flags pageContent ]
+    { body = [ Layout.view GotLayoutMsg model.layout model.flags pageContent ]
     , title = fullTitle maybePageTitle
     }
 
