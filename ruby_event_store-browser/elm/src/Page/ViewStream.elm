@@ -161,7 +161,7 @@ itemRow { eventType, createdAt, eventId } =
         [ td []
             [ a
                 [ class "results__link"
-                , href (Route.buildUrl "#events" eventId)
+                , href (Route.eventUrl eventId)
                 ]
                 [ text eventType ]
             ]

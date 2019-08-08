@@ -267,7 +267,7 @@ streamLink streamName =
 
 eventLink : String -> Html Msg
 eventLink eventId =
-    a [ class "event__event-link", href (Route.buildUrl "#events" eventId) ] [ text eventId ]
+    a [ class "event__event-link", href (Route.eventUrl eventId) ] [ text eventId ]
 
 
 renderCausedEvents : List Api.Event -> Html Msg
@@ -305,7 +305,7 @@ renderCausedEvent { eventType, eventId } =
         [ td []
             [ a
                 [ class "results__link"
-                , href (Route.buildUrl "#events" eventId)
+                , href (Route.eventUrl eventId)
                 ]
                 [ text eventType ]
             ]

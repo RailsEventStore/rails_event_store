@@ -1,4 +1,4 @@
-module Route exposing (Route(..), buildUrl, streamUrl, decodeLocation)
+module Route exposing (Route(..), buildUrl, streamUrl, eventUrl, decodeLocation)
 
 import Url
 import Url.Parser exposing ((</>))
@@ -36,3 +36,7 @@ buildUrl baseUrl id =
 streamUrl : String -> String
 streamUrl streamName =
     buildUrl "#streams" streamName
+
+eventUrl : String -> String
+eventUrl eventId =
+    buildUrl "#events" eventId
