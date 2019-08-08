@@ -29,6 +29,7 @@ type alias Model =
     { page : Page
     , flags : Flags
     , key : Browser.Navigation.Key
+    , goToStream : String
     }
 
 
@@ -50,6 +51,7 @@ buildModel flags location key =
             { page = NotFound
             , flags = flags
             , key = key
+            , goToStream = ""
             }
     in
     urlUpdate initModel location
@@ -80,6 +82,9 @@ update msg model =
         ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
             Page.ShowEvent.update openedEventUIMsg showEventModel
                 |> updateWith ShowEvent GotShowEventMsg model
+
+        ( GoToStreamChanged newValue, _ ) ->
+            ( { model | goToStream = newValue }, Cmd.none )
 
         ( _, _ ) ->
             ( model, Cmd.none )
