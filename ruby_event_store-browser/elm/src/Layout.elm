@@ -1,4 +1,4 @@
-module Layout exposing (view, viewNotFound)
+module Layout exposing (Model, buildModel, view, viewNotFound)
 
 import Flags exposing (Flags)
 import Html exposing (..)
@@ -7,10 +7,21 @@ import Html.Events exposing (onClick, onInput, onSubmit)
 import Msg exposing (Msg)
 
 
-view : Flags -> Html Msg -> Html Msg
-view flags pageView =
+type alias Model =
+    { goToStream : String
+    }
+
+
+buildModel : Model
+buildModel =
+    { goToStream = ""
+    }
+
+
+view : Model -> Flags -> Html Msg -> Html Msg
+view model flags pageView =
     div [ class "frame" ]
-        [ header [ class "frame__header" ] [ browserNavigation flags ]
+        [ header [ class "frame__header" ] [ browserNavigation model flags ]
         , main_ [ class "frame__body" ] [ pageView ]
         , footer [ class "frame__footer" ] [ browserFooter flags ]
         ]
@@ -21,8 +32,8 @@ viewNotFound =
     h1 [] [ text "404" ]
 
 
-browserNavigation : Flags -> Html Msg
-browserNavigation flags =
+browserNavigation : Model -> Flags -> Html Msg
+browserNavigation model flags =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
             [ a [ href flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]

@@ -29,7 +29,7 @@ type alias Model =
     { page : Page
     , flags : Flags
     , key : Browser.Navigation.Key
-    , goToStream : String
+    , layout : Layout.Model
     }
 
 
@@ -51,7 +51,7 @@ buildModel flags location key =
             { page = NotFound
             , flags = flags
             , key = key
-            , goToStream = ""
+            , layout = Layout.buildModel
             }
     in
     urlUpdate initModel location
@@ -84,10 +84,17 @@ update msg model =
                 |> updateWith ShowEvent GotShowEventMsg model
 
         ( GoToStream, _ ) ->
-            ( model, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.goToStream) )
+            ( model, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.layout.goToStream) )
 
         ( GoToStreamChanged newValue, _ ) ->
-            ( { model | goToStream = newValue }, Cmd.none )
+            let
+                oldLayoutModel =
+                    model.layout
+
+                newLayoutModel =
+                    { oldLayoutModel | goToStream = newValue }
+            in
+            ( { model | layout = newLayoutModel }, Cmd.none )
 
         ( _, _ ) ->
             ( model, Cmd.none )
@@ -133,7 +140,7 @@ view model =
         ( maybePageTitle, pageContent ) =
             viewPage model.page
     in
-    { body = [ Layout.view model.flags pageContent ]
+    { body = [ Layout.view model.layout model.flags pageContent ]
     , title = fullTitle maybePageTitle
     }
 
