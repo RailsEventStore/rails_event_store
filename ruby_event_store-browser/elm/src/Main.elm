@@ -83,6 +83,9 @@ update msg model =
             Page.ShowEvent.update openedEventUIMsg showEventModel
                 |> updateWith ShowEvent GotShowEventMsg model
 
+        ( GoToStream, _ ) ->
+            ( model, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.goToStream) )
+
         ( GoToStreamChanged newValue, _ ) ->
             ( { model | goToStream = newValue }, Cmd.none )
 
