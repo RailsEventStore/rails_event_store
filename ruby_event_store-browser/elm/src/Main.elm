@@ -94,7 +94,7 @@ update msg model =
         ( GotLayoutMsg layoutMsg, _ ) ->
             let
                 ( layoutModel, layoutCmd ) =
-                    Layout.update layoutMsg (wrapModel model model.layout) model.key
+                    Layout.update layoutMsg (wrapModel model model.layout)
             in
             ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
@@ -142,7 +142,7 @@ view model =
         ( maybePageTitle, pageContent ) =
             viewPage model.page
     in
-    { body = [ Layout.view GotLayoutMsg (wrapModel model model.layout) model.flags pageContent ]
+    { body = [ Layout.view GotLayoutMsg (wrapModel model model.layout) pageContent ]
     , title = fullTitle maybePageTitle
     }
 

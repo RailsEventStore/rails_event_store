@@ -25,22 +25,22 @@ buildModel =
     }
 
 
-update : Msg -> WrappedModel Model -> Browser.Navigation.Key -> ( Model, Cmd Msg )
-update msg model key =
+update : Msg -> WrappedModel Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         GoToStream ->
-            ( { goToStream = "" }, Browser.Navigation.pushUrl key (Route.buildUrl "#streams" model.internal.goToStream) )
+            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.buildUrl "#streams" model.internal.goToStream) )
 
         GoToStreamChanged newValue ->
             ( { goToStream = newValue }, Cmd.none )
 
 
-view : (Msg -> a) -> WrappedModel Model -> Flags -> Html a -> Html a
-view layoutMsgBuilder model flags pageView =
+view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
+view layoutMsgBuilder model pageView =
     div [ class "frame" ]
-        [ header [ class "frame__header" ] [ Html.map layoutMsgBuilder (browserNavigation model.internal flags) ]
+        [ header [ class "frame__header" ] [ Html.map layoutMsgBuilder (browserNavigation model) ]
         , main_ [ class "frame__body" ] [ pageView ]
-        , footer [ class "frame__footer" ] [ Html.map layoutMsgBuilder (browserFooter flags) ]
+        , footer [ class "frame__footer" ] [ Html.map layoutMsgBuilder (browserFooter model.flags) ]
         ]
 
 
@@ -49,16 +49,16 @@ viewNotFound =
     h1 [] [ text "404" ]
 
 
-browserNavigation : Model -> Flags -> Html Msg
-browserNavigation model flags =
+browserNavigation : WrappedModel Model -> Html Msg
+browserNavigation model =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
-            [ a [ href flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
+            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
             ]
         , div [ class "navigation__links" ] []
         , div [ class "navigation__go-to-stream" ]
             [ form [ onSubmit GoToStream ]
-                [ input [ value model.goToStream, onInput GoToStreamChanged, placeholder "Go to stream..." ] []
+                [ input [ value model.internal.goToStream, onInput GoToStreamChanged, placeholder "Go to stream..." ] []
                 ]
             ]
         ]
