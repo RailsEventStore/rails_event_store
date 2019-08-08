@@ -35,6 +35,24 @@ $navigation-layout: (columns: 4);
     input {
       width: 100%;
       margin: 0;
+
+      &:focus {
+        &::-webkit-input-placeholder {
+          color: white;
+        }
+
+        &:-moz-placeholder { /* Firefox 18- */
+          color: white;
+        }
+
+        &::-moz-placeholder {  /* Firefox 19+ */
+          color: white;
+        }
+
+        &:-ms-input-placeholder {
+          color: white;
+        }
+      }
     }
   }
 }
