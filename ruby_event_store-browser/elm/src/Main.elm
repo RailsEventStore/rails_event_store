@@ -10,6 +10,7 @@ import Page.ViewStream
 import Route
 import Url
 import Url.Parser exposing ((</>))
+import WrappedModel exposing (..)
 
 
 main : Program Flags Model Msg
@@ -93,7 +94,7 @@ update msg model =
         ( GotLayoutMsg layoutMsg, _ ) ->
             let
                 ( layoutModel, layoutCmd ) =
-                    Layout.update layoutMsg model.layout model.key
+                    Layout.update layoutMsg (wrapModel model model.layout) model.key
             in
             ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
@@ -141,7 +142,7 @@ view model =
         ( maybePageTitle, pageContent ) =
             viewPage model.page
     in
-    { body = [ Layout.view GotLayoutMsg model.layout model.flags pageContent ]
+    { body = [ Layout.view GotLayoutMsg (wrapModel model model.layout) model.flags pageContent ]
     , title = fullTitle maybePageTitle
     }
 
@@ -176,3 +177,11 @@ viewOnePage pageMsgBuilder pageViewFunction pageModel =
             pageViewFunction pageModel
     in
     ( Just pageTitle, Html.map pageMsgBuilder pageContent )
+
+
+wrapModel : Model -> a -> WrappedModel a
+wrapModel globalModel internalModel =
+    { internal = internalModel
+    , key = globalModel.key
+    , flags = globalModel.flags
+    }
