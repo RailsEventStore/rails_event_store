@@ -27,6 +27,11 @@ browserNavigation flags =
             [ a [ href flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
             ]
         , div [ class "navigation__links" ] []
+        , div [ class "navigation__go-to-stream" ]
+            [ form []
+                [ input [ placeholder "Go to stream..." ] []
+                ]
+            ]
         ]
 
 

@@ -1,4 +1,4 @@
-$navigation-layout: (columns: 3);
+$navigation-layout: (columns: 4);
 
 .navigation {
   @include grid-container;
@@ -20,6 +20,18 @@ $navigation-layout: (columns: 3);
   height: 100%;
   justify-content: flex-end;
   align-items: center;
+}
+
+.navigation__go-to-stream {
+  @include grid-column(1, $navigation-layout);
+  display: flex;
+  height: 100%;
+  justify-content: flex-end;
+  align-items: center;
+
+  input {
+    margin: 0;
+  }
 }
 
 .navigation__link {
