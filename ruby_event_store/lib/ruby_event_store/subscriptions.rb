@@ -4,10 +4,10 @@ require 'concurrent'
 
 module RubyEventStore
   class Subscriptions
-    def initialize
-      @local  = LocalSubscriptions.new
-      @global = GlobalSubscriptions.new
-      @thread = ThreadSubscriptions.new
+    def initialize(local_store: Store, global_store: GlobalStore)
+      @local  = LocalSubscriptions.new(local_store.new)
+      @global = GlobalSubscriptions.new(global_store.new)
+      @thread = ThreadSubscriptions.new(local_store, global_store)
     end
 
     def add_subscription(subscriber, event_types)
@@ -49,6 +49,10 @@ module RubyEventStore
       def all_for(event_type)
         @subscriptions[event_type]
       end
+
+      def value
+        self
+      end
     end
 
     class GlobalStore
@@ -67,52 +71,35 @@ module RubyEventStore
       def all
         @subscriptions
       end
+
+      def value
+        self
+      end
     end
 
     class ThreadSubscriptions
-      def initialize
-        @local  = ThreadLocalSubscriptions.new
-        @global = ThreadGlobalSubscriptions.new
+      def initialize(local_store, global_store)
+        @local  = LocalSubscriptions.new(build_store(local_store))
+        @global = GlobalSubscriptions.new(build_store(global_store))
       end
       attr_reader :local, :global
 
       def all_for(event_type)
         [global, local].map{|r| r.all_for(event_type)}.reduce(&:+)
       end
+
+      private
+
+      def build_store(klass)
+        var = Concurrent::ThreadLocalVar.new(klass.new)
+        var.value = klass.new
+        var
+      end
     end
 
     class LocalSubscriptions
-      def initialize
-        @store = Store.new
-      end
-
-      def add(subscription, event_types)
-        Subscription.new(subscription, event_types, @store)
-      end
-
-      def all_for(event_type)
-        @store.all_for(event_type)
-      end
-    end
-
-    class GlobalSubscriptions
-      def initialize
-        @store = GlobalStore.new
-      end
-
-      def add(subscription)
-        GlobalSubscription.new(subscription, @store)
-      end
-
-      def all_for(_event_type)
-        @store.all
-      end
-    end
-
-    class ThreadLocalSubscriptions
-      def initialize
-        @store = Concurrent::ThreadLocalVar.new(Store.new)
-        @store.value = Store.new
+      def initialize(store)
+        @store = store
       end
 
       def add(subscription, event_types)
@@ -124,10 +111,9 @@ module RubyEventStore
       end
     end
 
-    class ThreadGlobalSubscriptions
-      def initialize
-        @store = Concurrent::ThreadLocalVar.new(GlobalStore.new)
-        @store.value = GlobalStore.new
+    class GlobalSubscriptions
+      def initialize(store)
+        @store = store
       end
 
       def add(subscription)
