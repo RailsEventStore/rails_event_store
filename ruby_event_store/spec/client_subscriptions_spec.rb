@@ -7,7 +7,8 @@ class CustomDispatcher
     @dispatched_events = []
   end
 
-  def call(subscriber, event, serialized_event)
+  def call(subscription, event, serialized_event)
+    subscriber = subscription.subscriber
     subscriber = subscriber.new if Class === subscriber
     @dispatched_events << {to: subscriber.class, event: event, serialized_event: serialized_event}
   end
@@ -74,11 +75,11 @@ module RubyEventStore
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
-      unsub = client.subscribe_to_all_events do |ev|
+      sub = client.subscribe_to_all_events do |ev|
         subscriber.call(ev)
       end
       client.publish(event_1)
-      unsub.()
+      sub.unsubscribe
       client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(client.read.to_a).to eq([event_1, event_2])
@@ -129,7 +130,7 @@ module RubyEventStore
       subscriber = Subscribers::ValidHandler.new
       unsub = client.subscribe(subscriber, to: [OrderCreated])
       client.publish(event_1)
-      unsub.()
+      unsub.unsubscribe
       client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(client.read.to_a).to eq([event_1, event_2])

@@ -33,8 +33,8 @@ module RubyEventStore
         true
       end
 
-      def call(subscriber, event, serialized_event)
-        @dispatched << {subscriber: subscriber, event: event, serialized_event: serialized_event}
+      def call(subscription, event, serialized_event)
+        @dispatched << {subscriber: subscription.subscriber, event: event, serialized_event: serialized_event}
       end
     end
 
@@ -142,10 +142,10 @@ module RubyEventStore
       event1    = Test1DomainEvent.new
       event2    = Test2DomainEvent.new
 
-      revoke    = client.subscribe_to_all_events(handler)
+      subscription = client.subscribe_to_all_events(handler)
       client.publish(event1)
       expect(handler.events).to eq([event1])
-      revoke.()
+      subscription.unsubscribe
       client.publish(event2)
       expect(handler.events).to eq([event1])
     end
@@ -155,10 +155,10 @@ module RubyEventStore
       event1    = Test1DomainEvent.new
       event2    = Test2DomainEvent.new
 
-      revoke    = client.subscribe(handler, to: [Test1DomainEvent, Test2DomainEvent])
+      subscription = client.subscribe(handler, to: [Test1DomainEvent, Test2DomainEvent])
       client.publish(event1)
       expect(handler.events).to eq([event1])
-      revoke.()
+      subscription.unsubscribe
       client.publish(event2)
       expect(handler.events).to eq([event1])
     end

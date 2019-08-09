@@ -176,7 +176,7 @@ module RubyEventStore
         unsubs += add_thread_subscribers
         @block.call
       ensure
-        unsubs.each(&:call) if unsubs
+        unsubs.each(&:unsubscribe) if unsubs
       end
 
       private

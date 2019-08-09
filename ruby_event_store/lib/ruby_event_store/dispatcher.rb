@@ -2,9 +2,8 @@
 
 module RubyEventStore
   class Dispatcher
-    def call(subscriber, event, _)
-      subscriber = subscriber.new if Class === subscriber
-      subscriber.call(event)
+    def call(subscription, event, _)
+      subscription.call(event)
     end
 
     def verify(subscriber)

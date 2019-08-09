@@ -7,7 +7,7 @@ module RubyEventStore
     def initialize
       @local  = LocalSubscriptions.new
       @global = GlobalSubscriptions.new
-      @thread  = ThreadSubscriptions.new
+      @thread = ThreadSubscriptions.new
     end
 
     def add_subscription(subscriber, event_types)
@@ -33,6 +33,42 @@ module RubyEventStore
     private
     attr_reader :local, :global, :thread
 
+    class Store
+      def initialize
+        @subscriptions = Hash.new {|hsh, key| hsh[key] = [] }
+      end
+
+      def add(type, subscription)
+        @subscriptions[type.to_s] << subscription
+      end
+
+      def delete(type, subscription)
+        @subscriptions.fetch(type.to_s).delete(subscription)
+      end
+
+      def all_for(event_type)
+        @subscriptions[event_type]
+      end
+    end
+
+    class GlobalStore
+      def initialize
+        @subscriptions = []
+      end
+
+      def add(subscription)
+        @subscriptions << subscription
+      end
+
+      def delete(subscription)
+        @subscriptions.delete(subscription)
+      end
+
+      def all
+        @subscriptions
+      end
+    end
+
     class ThreadSubscriptions
       def initialize
         @local  = ThreadLocalSubscriptions.new
@@ -47,63 +83,59 @@ module RubyEventStore
 
     class LocalSubscriptions
       def initialize
-        @subscriptions = Hash.new {|hsh, key| hsh[key] = [] }
+        @store = Store.new
       end
 
       def add(subscription, event_types)
-        event_types.each{ |type| @subscriptions[type.to_s] << subscription }
-        ->() {event_types.each{ |type| @subscriptions.fetch(type.to_s).delete(subscription) } }
+        Subscription.new(subscription, event_types, @store)
       end
 
       def all_for(event_type)
-        @subscriptions[event_type]
+        @store.all_for(event_type)
       end
     end
 
     class GlobalSubscriptions
       def initialize
-        @subscriptions = []
+        @store = GlobalStore.new
       end
 
       def add(subscription)
-        @subscriptions << subscription
-        ->() { @subscriptions.delete(subscription) }
+        GlobalSubscription.new(subscription, @store)
       end
 
       def all_for(_event_type)
-        @subscriptions
+        @store.all
       end
     end
 
     class ThreadLocalSubscriptions
       def initialize
-        @subscriptions = Concurrent::ThreadLocalVar.new do
-          Hash.new {|hsh, key| hsh[key] = [] }
-        end
+        @store = Concurrent::ThreadLocalVar.new(Store.new)
+        @store.value = Store.new
       end
 
       def add(subscription, event_types)
-        event_types.each{ |type| @subscriptions.value[type.to_s] << subscription }
-        ->() {event_types.each{ |type| @subscriptions.value.fetch(type.to_s).delete(subscription) } }
+        Subscription.new(subscription, event_types, @store.value)
       end
 
       def all_for(event_type)
-        @subscriptions.value[event_type]
+        @store.value.all_for(event_type)
       end
     end
 
     class ThreadGlobalSubscriptions
       def initialize
-        @subscriptions = Concurrent::ThreadLocalVar.new([])
+        @store = Concurrent::ThreadLocalVar.new(GlobalStore.new)
+        @store.value = GlobalStore.new
       end
 
       def add(subscription)
-        @subscriptions.value += [subscription]
-        ->() { @subscriptions.value -= [subscription] }
+        GlobalSubscription.new(subscription, @store.value)
       end
 
       def all_for(_event_type)
-        @subscriptions.value
+        @store.value.all
       end
     end
   end

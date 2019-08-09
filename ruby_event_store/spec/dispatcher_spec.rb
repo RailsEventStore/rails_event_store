@@ -32,13 +32,19 @@ module RubyEventStore
 
     specify "calls subscribed instance" do
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(handler, event, serialized_event)
+      store = double(:store)
+      allow(store).to receive(:add)
+      subscription = GlobalSubscription.new(handler, store)
+      Dispatcher.new.call(subscription, event, serialized_event)
     end
 
     specify "calls subscribed class" do
       expect(HandlerClass).to receive(:new).and_return(handler)
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(HandlerClass, event, serialized_event)
+      store = double(:store)
+      allow(store).to receive(:add)
+      subscription = GlobalSubscription.new(HandlerClass, store)
+      Dispatcher.new.call(subscription, event, serialized_event)
     end
 
     specify "allows callable classes and instances" do
