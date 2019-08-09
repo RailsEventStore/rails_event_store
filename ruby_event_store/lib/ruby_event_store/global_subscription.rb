@@ -1,9 +1,9 @@
 module RubyEventStore
   class GlobalSubscription
-    def initialize(subscriber, store)
+    def initialize(subscriber, store: nil)
       @subscriber = subscriber
       @store = store
-      @store.add(self)
+      @store.add(self) if @store
     end
 
     def call(event)
@@ -11,7 +11,7 @@ module RubyEventStore
     end
 
     def unsubscribe
-      @store.delete(self)
+      @store.delete(self) if @store
     end
 
     def inspect

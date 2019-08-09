@@ -1,10 +1,10 @@
 module RubyEventStore
   class Subscription
-    def initialize(subscriber, event_types, store)
+    def initialize(subscriber, event_types, store: nil)
       @subscriber = subscriber
-      @store = store
       @event_types = event_types
-      event_types.each{ |type| @store.add(type, self) }
+      @store = store
+      event_types.each{ |type| @store.add(type, self) } if @store
     end
 
     def call(event)
@@ -12,7 +12,7 @@ module RubyEventStore
     end
 
     def unsubscribe
-      event_types.each{ |type| @store.delete(type, self) }
+      event_types.each{ |type| @store.delete(type, self) } if @store
     end
 
     def inspect

@@ -103,7 +103,7 @@ module RubyEventStore
       end
 
       def add(subscription, event_types)
-        Subscription.new(subscription, event_types, @store.value)
+        Subscription.new(subscription, event_types, store: @store.value)
       end
 
       def all_for(event_type)
@@ -117,7 +117,7 @@ module RubyEventStore
       end
 
       def add(subscription)
-        GlobalSubscription.new(subscription, @store.value)
+        GlobalSubscription.new(subscription, store: @store.value)
       end
 
       def all_for(_event_type)
