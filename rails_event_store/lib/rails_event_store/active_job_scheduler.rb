@@ -4,7 +4,8 @@ require 'active_job'
 
 module RailsEventStore
   class ActiveJobScheduler
-    def call(klass, serialized_event)
+    def call(subscription, serialized_event)
+      klass = subscription.subscriber
       klass.perform_later(serialized_event.to_h)
     end
 

@@ -13,10 +13,11 @@ module RubyEventStore
         event = Object.new
         serialized_event = Object.new
         subscriber = -> { }
+        subscription = GlobalSubscription.new(subscriber)
 
-        instrumented_dispatcher.call(subscriber, event, serialized_event)
+        instrumented_dispatcher.call(subscription, event, serialized_event)
 
-        expect(some_dispatcher).to have_received(:call).with(subscriber, event, serialized_event)
+        expect(some_dispatcher).to have_received(:call).with(subscription, event, serialized_event)
       end
 
       specify "instruments" do
@@ -25,11 +26,12 @@ module RubyEventStore
           event = Object.new
           serialized_event = Object.new
           subscriber = -> { }
+          subscription = GlobalSubscription.new(subscriber)
 
-          instrumented_dispatcher.call(subscriber, event, serialized_event)
+          instrumented_dispatcher.call(subscription, event, serialized_event)
 
           expect(notification_calls).to eq([
-            { event: event, subscriber: subscriber }
+            { event: event, subscription: subscription }
           ])
         end
       end

@@ -54,7 +54,8 @@ module RailsEventStore
     describe "#call" do
       specify do
         scheduler = ActiveJobScheduler.new
-        scheduler.call(MyAsyncHandler, serialized_event)
+        subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+        scheduler.call(subscription, serialized_event)
 
         enqueued_jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
         expect(enqueued_jobs.size).to eq(1)

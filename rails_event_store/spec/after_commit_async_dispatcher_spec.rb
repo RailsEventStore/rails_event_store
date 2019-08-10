@@ -37,7 +37,8 @@ module RailsEventStore
 
     it "dispatch job immediately when no transaction is open" do
       expect_to_have_enqueued_job(MyAsyncHandler) do
-        dispatcher.call(MyAsyncHandler, event, serialized_event)
+        subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+        dispatcher.call(subscription, event, serialized_event)
       end
       expect(MyAsyncHandler.received).to be_nil
       MyAsyncHandler.perform_enqueued_jobs
@@ -48,7 +49,8 @@ module RailsEventStore
       expect_to_have_enqueued_job(MyAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
-            dispatcher.call(MyAsyncHandler, event, serialized_event)
+            subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+            dispatcher.call(subscription, event, serialized_event)
           end
         end
       end
@@ -61,7 +63,8 @@ module RailsEventStore
       it "does not dispatch job" do
         expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
-            dispatcher.call(MyAsyncHandler, event, serialized_event)
+            subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+            dispatcher.call(subscription, event, serialized_event)
             raise ActiveRecord::Rollback
           end
         end
@@ -84,7 +87,8 @@ module RailsEventStore
         it "does not dispatch job" do
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
+              subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+              dispatcher.call(subscription, event, serialized_event)
               raise ActiveRecord::Rollback
             end
           end
@@ -99,7 +103,8 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction(requires_new: false) do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
+              subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+              dispatcher.call(subscription, event, serialized_event)
             end
           end
         end
@@ -114,7 +119,8 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
+              subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+              dispatcher.call(subscription, event, serialized_event)
             end
           end
         end
@@ -129,7 +135,8 @@ module RailsEventStore
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(MyAsyncHandler, event, serialized_event)
+              subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+              dispatcher.call(subscription, event, serialized_event)
               raise ActiveRecord::Rollback
             end
           end
@@ -150,7 +157,8 @@ module RailsEventStore
             ActiveRecord::Base.transaction do
               DummyRecord.new.save!
               expect_no_enqueued_job(MyAsyncHandler) do
-                dispatcher.call(MyAsyncHandler, event, serialized_event)
+                subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+                dispatcher.call(subscription, event, serialized_event)
               end
             end
           rescue DummyError
@@ -181,7 +189,8 @@ module RailsEventStore
               ActiveRecord::Base.transaction do
                 DummyRecord.new.save!
                 expect_no_enqueued_job(MyAsyncHandler) do
-                  dispatcher.call(MyAsyncHandler, event, serialized_event)
+                  subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+                  dispatcher.call(subscription, event, serialized_event)
                 end
               end
             rescue DummyError
@@ -205,7 +214,8 @@ module RailsEventStore
 
       it "dispatches the job" do
         expect_to_have_enqueued_job(MyAsyncHandler) do
-          dispatcher.call(MyAsyncHandler, event, serialized_event)
+          subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+          dispatcher.call(subscription, event, serialized_event)
         end
       end
 
@@ -218,7 +228,8 @@ module RailsEventStore
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction do
               expect_no_enqueued_job(MyAsyncHandler) do
-                dispatcher.call(MyAsyncHandler, event, serialized_event)
+                subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+                dispatcher.call(subscription, event, serialized_event)
               end
             end
           end
@@ -234,7 +245,8 @@ module RailsEventStore
           expect_to_have_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction do
               expect_no_enqueued_job(MyAsyncHandler) do
-                dispatcher.call(MyAsyncHandler, event, serialized_event)
+                subscription = RubyEventStore::GlobalSubscription.new(MyAsyncHandler)
+                dispatcher.call(subscription, event, serialized_event)
               end
             end
           end

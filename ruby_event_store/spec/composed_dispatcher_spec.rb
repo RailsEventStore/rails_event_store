@@ -61,12 +61,12 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(dispatcher)
         event = instance_double(::RubyEventStore::Event)
         serialized_event = instance_double(::RubyEventStore::SerializedRecord)
-        subscriber = double
+        subscription = GlobalSubscription.new(-> { })
 
-        composed_dispatcher.call(subscriber, event, serialized_event)
+        composed_dispatcher.call(subscription, event, serialized_event)
 
-        expect(dispatcher).to have_received(:verify).with(subscriber)
-        expect(dispatcher).to have_received(:call).with(subscriber, event, serialized_event)
+        expect(dispatcher).to have_received(:verify).with(subscription.subscriber)
+        expect(dispatcher).to have_received(:call).with(subscription, event, serialized_event)
       end
 
       specify "calls only verified dispatcher" do
@@ -75,9 +75,9 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(skippy, real)
         event = instance_double(::RubyEventStore::Event)
         serialized_event = instance_double(::RubyEventStore::SerializedRecord)
-        subscriber = double
+        subscription = GlobalSubscription.new(-> { })
 
-        composed_dispatcher.call(subscriber, event, serialized_event)
+        composed_dispatcher.call(subscription, event, serialized_event)
 
         expect(skippy.called).to be_falsey
         expect(real.called).to be_truthy
@@ -89,9 +89,9 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(real1, real2)
         event = instance_double(::RubyEventStore::Event)
         serialized_event = instance_double(::RubyEventStore::SerializedRecord)
-        subscriber = double
+        subscription = GlobalSubscription.new(-> { })
 
-        composed_dispatcher.call(subscriber, event, serialized_event)
+        composed_dispatcher.call(subscription, event, serialized_event)
 
         expect(real1.called).to be_truthy
         expect(real2.called).to be_falsey

@@ -6,10 +6,10 @@ module RubyEventStore
       @dispatchers = dispatchers
     end
 
-    def call(subscriber, event, serialized_event)
+    def call(subscription, event, serialized_event)
       @dispatchers.each do |dispatcher|
-        if dispatcher.verify(subscriber)
-          dispatcher.call(subscriber, event, serialized_event)
+        if dispatcher.verify(subscription.subscriber)
+          dispatcher.call(subscription, event, serialized_event)
           break
         end
       end

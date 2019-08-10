@@ -51,7 +51,8 @@ RSpec.describe RailsEventStore do
   end
 
   class CustomSidekiqScheduler
-    def call(klass, serialized_event)
+    def call(subscription, serialized_event)
+      klass = subscription.subscriber
       klass.perform_async(serialized_event.to_h)
     end
 
