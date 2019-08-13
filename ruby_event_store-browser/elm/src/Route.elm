@@ -1,4 +1,4 @@
-module Route exposing (Route(..), buildUrl, decodeLocation)
+module Route exposing (Route(..), buildUrl, streamUrl, eventUrl, decodeLocation)
 
 import Url
 import Url.Parser exposing ((</>))
@@ -31,3 +31,12 @@ urlFragmentToPath url =
 buildUrl : String -> String -> String
 buildUrl baseUrl id =
     baseUrl ++ "/" ++ Url.percentEncode id
+
+
+streamUrl : String -> String
+streamUrl streamName =
+    buildUrl "#streams" streamName
+
+eventUrl : String -> String
+eventUrl eventId =
+    buildUrl "#events" eventId

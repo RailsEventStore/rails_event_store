@@ -10,6 +10,7 @@ import Page.ViewStream
 import Route
 import Url
 import Url.Parser exposing ((</>))
+import WrappedModel exposing (..)
 
 
 main : Program Flags Model Msg
@@ -28,12 +29,14 @@ type alias Model =
     { page : Page
     , flags : Flags
     , key : Browser.Navigation.Key
+    , layout : Layout.Model
     }
 
 
 type Msg
     = ChangeUrl Url.Url
     | ClickedLink Browser.UrlRequest
+    | GotLayoutMsg Layout.Msg
     | GotShowEventMsg Page.ShowEvent.Msg
     | GotViewStreamMsg Page.ViewStream.Msg
 
@@ -56,6 +59,7 @@ buildModel flags location key =
             { page = NotFound
             , flags = flags
             , key = key
+            , layout = Layout.buildModel
             }
     in
     urlUpdate initModel location
@@ -86,6 +90,13 @@ update msg model =
         ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
             Page.ShowEvent.update openedEventUIMsg showEventModel
                 |> updateWith ShowEvent GotShowEventMsg model
+
+        ( GotLayoutMsg layoutMsg, _ ) ->
+            let
+                ( layoutModel, layoutCmd ) =
+                    Layout.update layoutMsg (wrapModel model model.layout)
+            in
+            ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
         ( _, _ ) ->
             ( model, Cmd.none )
@@ -131,7 +142,7 @@ view model =
         ( maybePageTitle, pageContent ) =
             viewPage model.page
     in
-    { body = [ Layout.view model.flags pageContent ]
+    { body = [ Layout.view GotLayoutMsg (wrapModel model model.layout) pageContent ]
     , title = fullTitle maybePageTitle
     }
 
@@ -166,3 +177,11 @@ viewOnePage pageMsgBuilder pageViewFunction pageModel =
             pageViewFunction pageModel
     in
     ( Just pageTitle, Html.map pageMsgBuilder pageContent )
+
+
+wrapModel : Model -> a -> WrappedModel a
+wrapModel globalModel internalModel =
+    { internal = internalModel
+    , key = globalModel.key
+    , flags = globalModel.flags
+    }

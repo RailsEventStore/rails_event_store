@@ -1,17 +1,46 @@
-module Layout exposing (view, viewNotFound)
+module Layout exposing (Model, Msg, buildModel, update, view, viewNotFound)
 
+import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href, placeholder)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, disabled, href, placeholder, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
+import Route
+import WrappedModel exposing (..)
 
 
-view : Flags -> Html a -> Html a
-view flags pageView =
+type Msg
+    = GoToStream
+    | GoToStreamChanged String
+
+
+type alias Model =
+    { goToStream : String
+    }
+
+
+buildModel : Model
+buildModel =
+    { goToStream = ""
+    }
+
+
+update : Msg -> WrappedModel Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        GoToStream ->
+            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.internal.goToStream) )
+
+        GoToStreamChanged newValue ->
+            ( { goToStream = newValue }, Cmd.none )
+
+
+view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
+view layoutMsgBuilder model pageView =
     div [ class "frame" ]
-        [ header [ class "frame__header" ] [ browserNavigation flags ]
+        [ header [ class "frame__header" ] [ Html.map layoutMsgBuilder (browserNavigation model) ]
         , main_ [ class "frame__body" ] [ pageView ]
-        , footer [ class "frame__footer" ] [ browserFooter flags ]
+        , footer [ class "frame__footer" ] [ Html.map layoutMsgBuilder (browserFooter model.flags) ]
         ]
 
 
@@ -20,17 +49,22 @@ viewNotFound =
     h1 [] [ text "404" ]
 
 
-browserNavigation : Flags -> Html a
-browserNavigation flags =
+browserNavigation : WrappedModel Model -> Html Msg
+browserNavigation model =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
-            [ a [ href flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
+            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
             ]
         , div [ class "navigation__links" ] []
+        , div [ class "navigation__go-to-stream" ]
+            [ form [ onSubmit GoToStream ]
+                [ input [ value model.internal.goToStream, onInput GoToStreamChanged, placeholder "Go to stream..." ] []
+                ]
+            ]
         ]
 
 
-browserFooter : Flags -> Html a
+browserFooter : Flags -> Html Msg
 browserFooter flags =
     footer [ class "footer" ]
         [ div [ class "footer__links" ]
