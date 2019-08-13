@@ -15,10 +15,10 @@
   border-color: $brand-color;
   font-weight: normal;
   font-size: 90%;
-}
 
-.pagination__page:focus {
-  outline: none;
+  &:focus {
+    outline: none;
+  }
 }
 
 .pagination__page--previous {
