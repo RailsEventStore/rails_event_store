@@ -80,9 +80,9 @@ displayPagination : Api.PaginationLinks -> Html Msg
 displayPagination { first, last, next, prev } =
     ul [ class "pagination" ]
         [ li [] [ firstPageButton first ]
-        , li [] [ lastPageButton last ]
-        , li [] [ nextPageButton next ]
         , li [] [ prevPageButton prev ]
+        , li [] [ nextPageButton next ]
+        , li [] [ lastPageButton last ]
         ]
 
 
