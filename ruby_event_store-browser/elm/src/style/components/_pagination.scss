@@ -19,6 +19,12 @@
   &:focus {
     outline: none;
   }
+
+  &:disabled {
+    &:hover {
+      background: none;
+    }
+  }
 }
 
 .pagination__page--previous {
