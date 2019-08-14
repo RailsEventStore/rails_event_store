@@ -79,60 +79,63 @@ browseEvents title { links, events } =
 displayPagination : Api.PaginationLinks -> Html Msg
 displayPagination { first, last, next, prev } =
     ul [ class "pagination" ]
-        [ paginationItem firstPageButton first
-        , paginationItem lastPageButton last
-        , paginationItem nextPageButton next
-        , paginationItem prevPageButton prev
+        [ li [] [ firstPageButton first ]
+        , li [] [ prevPageButton prev ]
+        , li [] [ nextPageButton next ]
+        , li [] [ lastPageButton last ]
         ]
 
 
-paginationItem : (Api.PaginationLink -> Html Msg) -> Maybe Api.PaginationLink -> Html Msg
-paginationItem button link =
+maybeHref : Maybe Api.PaginationLink -> List (Attribute Msg)
+maybeHref link =
     case link of
         Just url ->
-            li [] [ button url ]
+            [ href url
+            , onClick (GoToPage url)
+            ]
 
         Nothing ->
-            li [] []
+            [ disabled True
+            ]
 
 
-nextPageButton : Api.PaginationLink -> Html Msg
-nextPageButton url =
+nextPageButton : Maybe Api.PaginationLink -> Html Msg
+nextPageButton link =
     button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--next"
-        ]
+        ([ class "pagination__page pagination__page--next"
+         ]
+            ++ maybeHref link
+        )
         [ text "next" ]
 
 
-prevPageButton : Api.PaginationLink -> Html Msg
-prevPageButton url =
+prevPageButton : Maybe Api.PaginationLink -> Html Msg
+prevPageButton link =
     button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--prev"
-        ]
+        ([ class "pagination__page pagination__page--prev"
+         ]
+            ++ maybeHref link
+        )
         [ text "previous" ]
 
 
-lastPageButton : Api.PaginationLink -> Html Msg
-lastPageButton url =
+lastPageButton : Maybe Api.PaginationLink -> Html Msg
+lastPageButton link =
     button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--last"
-        ]
+        ([ class "pagination__page pagination__page--last"
+         ]
+            ++ maybeHref link
+        )
         [ text "last" ]
 
 
-firstPageButton : Api.PaginationLink -> Html Msg
-firstPageButton url =
+firstPageButton : Maybe Api.PaginationLink -> Html Msg
+firstPageButton link =
     button
-        [ href url
-        , onClick (GoToPage url)
-        , class "pagination__page pagination__page--first"
-        ]
+        ([ class "pagination__page pagination__page--first"
+         ]
+            ++ maybeHref link
+        )
         [ text "first" ]
 
 
