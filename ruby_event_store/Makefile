@@ -5,6 +5,7 @@ IGNORE      = RubyEventStore::InMemoryRepository\#append_with_synchronize \
               RubyEventStore::Client::Within\#add_thread_subscribers \
               RubyEventStore::Client::Within\#add_thread_global_subscribers \
               RubyEventStore::Client::Within\#call \
+              RubyEventStore::Subscriptions::ThreadSubscriptions\#build_store \
               RubyEventStore::Mappers::InMemoryEncryptionKeyRepository\#prepare_encrypt \
               RubyEventStore::Mappers::EncryptionKey\#prepare_encrypt \
               RubyEventStore::Mappers::EncryptionKey\#prepare_decrypt \
