@@ -76,6 +76,18 @@ module RubyEventStore
       expect(sub3.global?).to eq true
     end
 
+    specify '#subscribed_for' do
+      sub1 = Subscription.new(-> { }, [OrderCreated, ProductAdded])
+      sub2 = Subscription.new(-> { }, [OrderCreated])
+      sub3 = Subscription.new(-> { })
+
+      expect(sub1.subscribed_for).to eq [OrderCreated, ProductAdded]
+      expect(sub2.subscribed_for).to eq [OrderCreated]
+      expect(sub3.subscribed_for).to eq [GLOBAL_SUBSCRIPTION]
+
+      expect { sub1.subscribed_for << [TestEvent] }.to raise_error(FrozenError)
+    end
+
     specify '#inspect' do
       sub1 = Subscription.new(Subscriber.new(1), [OrderCreated, ProductAdded])
       sub2 = Subscription.new(Subscriber.new(2), [OrderCreated])

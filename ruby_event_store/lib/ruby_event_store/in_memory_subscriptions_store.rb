@@ -12,23 +12,23 @@ module RubyEventStore
 
     # Stores subscription in the store
     # @param subscription [Subscription] subscription to store
-    # @param type [String, Class, GLOBAL_SUBSCRIPTION] a type of [Event]
-    #        or global subscription for for which subscription should be stored
     #
     # @return [self]
-    def add(subscription, type = GLOBAL_SUBSCRIPTION)
-      @subscriptions[type.to_s] << subscription
+    def add(subscription)
+      subscription.subscribed_for.each do |type|
+        @subscriptions[type.to_s] << subscription
+      end
       self
     end
 
     # Removed subscription from the store
     # @param subscription [Subscription] subscription to remove
-    # @param type [String, Class, GLOBAL_SUBSCRIPTION] a type of [Event]
-    #        or global subscription for for which subscription should be removed
     #
     # @return [self]
-    def delete(subscription, type = GLOBAL_SUBSCRIPTION)
-      @subscriptions.fetch(type.to_s).delete(subscription)
+    def delete(subscription)
+      subscription.subscribed_for.each do |type|
+        @subscriptions.fetch(type.to_s).delete(subscription)
+      end
       self
     end
 

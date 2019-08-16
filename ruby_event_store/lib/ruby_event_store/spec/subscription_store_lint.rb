@@ -23,7 +23,6 @@ RSpec.shared_examples :subscription_store do |subscription_store|
     expect(subscription_store.all).to match_array [first, second]
 
     first.unsubscribe
-    subscription_store.delete(first, FirstEvent)
     expect(subscription_store.all_for(FirstEvent)).to match_array [second]
     expect(subscription_store.all_for(SecondEvent)).to match_array [second]
     expect(subscription_store.all).to match_array [second]
@@ -32,5 +31,9 @@ RSpec.shared_examples :subscription_store do |subscription_store|
     expect(subscription_store.all_for(FirstEvent)).to eq []
     expect(subscription_store.all_for(SecondEvent)).to eq []
     expect(subscription_store.all).to eq []
+
+    sub = RubyEventStore::Subscription.new(-> { })
+    expect(subscription_store.add(sub)).to eq subscription_store
+    expect(subscription_store.delete(sub)).to eq subscription_store
   end
 end

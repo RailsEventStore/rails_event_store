@@ -14,9 +14,9 @@ module RubyEventStore
       raise SubscriberNotExist, 'subscriber must exists' unless subscriber
 
       @subscriber = subscriber
-      @event_types = event_types
+      @event_types = event_types.freeze
       @store = store
-      event_types.each{ |type| @store.add(self, type) } if persisted?
+      @store.add(self) if persisted?
     end
 
     # Triggers the defined subscribed
@@ -30,7 +30,7 @@ module RubyEventStore
     # Unsubscribe subscription for all defined event types
     # No-op when subscription store is nil
     def unsubscribe
-      event_types.each{ |type| @store.delete(self, type) } if persisted?
+      @store.delete(self) if persisted?
     end
 
     # Return true is this is a global subscription
@@ -39,6 +39,13 @@ module RubyEventStore
     # @return [TrueClass, FalseClass]
     def global?
       event_types.include?(GLOBAL_SUBSCRIPTION)
+    end
+
+    # Provider a list of event types for which subscription is subscribed
+    #
+    # @return [Array<Class, String>] - types of events for which subscription should be triggered
+    def subscribed_for
+      event_types
     end
 
     # Return true is this subscription is stored
