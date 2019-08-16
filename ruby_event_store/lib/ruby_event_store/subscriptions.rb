@@ -5,79 +5,55 @@ require 'concurrent'
 module RubyEventStore
   class Subscriptions
     def initialize(store: InMemorySubscriptionsStore.new, temp_store_class: InMemorySubscriptionsStore)
-      @local  = LocalSubscriptions.new(store)
-      @global = GlobalSubscriptions.new(store)
+      @store = store
       @thread = ThreadSubscriptions.new(temp_store_class)
     end
 
     def add_subscription(subscriber, event_types)
-      local.add(subscriber, event_types)
+      Subscription.new(subscriber, event_types, store: store)
     end
 
     def add_global_subscription(subscriber)
-      global.add(subscriber)
+      Subscription.new(subscriber, [GLOBAL_SUBSCRIPTION], store: store)
     end
 
     def add_thread_subscription(subscriber, event_types)
-      thread.local.add(subscriber, event_types)
+      thread.add(subscriber, event_types)
     end
 
     def add_thread_global_subscription(subscriber)
-      thread.global.add(subscriber)
+      thread.add(subscriber, [GLOBAL_SUBSCRIPTION])
     end
 
     def all_for(event_type)
-      [local, global, thread].map{|r| r.all_for(event_type)}.reduce(&:+)
+      [event_type, GLOBAL_SUBSCRIPTION].map do |type|
+        [store, thread].map { |r| r.all_for(type) }
+      end.flatten
     end
 
     private
-    attr_reader :local, :global, :thread
+    attr_reader :store, :thread
 
     class ThreadSubscriptions
       def initialize(store_klass)
-        @local  = LocalSubscriptions.new(build_store(store_klass))
-        @global = GlobalSubscriptions.new(build_store(store_klass))
+        @store = build_store(store_klass)
       end
-      attr_reader :local, :global
+
+      def add(subscriber, event_types)
+        Subscription.new(subscriber, event_types, store: store.value)
+      end
 
       def all_for(event_type)
-        [global, local].map{|r| r.all_for(event_type)}.reduce(&:+)
+        store.value.all_for(event_type)
       end
 
       private
+      attr_reader :store
 
       def build_store(klass)
         var = Concurrent::ThreadLocalVar.new(klass.new)
         var.value = klass.new
         var
-      end
-    end
-
-    class LocalSubscriptions
-      def initialize(store)
-        @store = store
-      end
-
-      def add(subscription, event_types)
-        Subscription.new(subscription, event_types, store: @store.value)
-      end
-
-      def all_for(event_type)
-        @store.value.all_for(event_type)
-      end
-    end
-
-    class GlobalSubscriptions
-      def initialize(store)
-        @store = store
-      end
-
-      def add(subscription)
-        Subscription.new(subscription, [GLOBAL_SUBSCRIPTION], store: @store.value)
-      end
-
-      def all_for(_event_type)
-        @store.value.all_for(GLOBAL_SUBSCRIPTION)
       end
     end
   end
