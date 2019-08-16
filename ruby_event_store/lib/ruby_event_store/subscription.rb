@@ -4,7 +4,7 @@ module RubyEventStore
       @subscriber = subscriber
       @event_types = event_types
       @store = store
-      event_types.each{ |type| @store.add(type, self) } if @store
+      event_types.each{ |type| @store.add(self, type) } if @store
     end
 
     def call(event)
@@ -12,7 +12,7 @@ module RubyEventStore
     end
 
     def unsubscribe
-      event_types.each{ |type| @store.delete(type, self) } if @store
+      event_types.each{ |type| @store.delete(self, type) } if @store
     end
 
     def inspect

@@ -3,6 +3,7 @@
 require 'ruby_event_store/dispatcher'
 require 'ruby_event_store/subscription'
 require 'ruby_event_store/global_subscription'
+require 'ruby_event_store/in_memory_subscriptions_store'
 require 'ruby_event_store/subscriptions'
 require 'ruby_event_store/broker'
 require 'ruby_event_store/in_memory_repository'

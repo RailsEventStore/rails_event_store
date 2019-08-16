@@ -4,10 +4,10 @@ require 'concurrent'
 
 module RubyEventStore
   class Subscriptions
-    def initialize(local_store: Store, global_store: GlobalStore)
-      @local  = LocalSubscriptions.new(local_store.new)
-      @global = GlobalSubscriptions.new(global_store.new)
-      @thread = ThreadSubscriptions.new(local_store, global_store)
+    def initialize(store: InMemorySubscriptionsStore.new, temp_store_class: InMemorySubscriptionsStore)
+      @local  = LocalSubscriptions.new(store)
+      @global = GlobalSubscriptions.new(store)
+      @thread = ThreadSubscriptions.new(temp_store_class)
     end
 
     def add_subscription(subscriber, event_types)
@@ -33,54 +33,10 @@ module RubyEventStore
     private
     attr_reader :local, :global, :thread
 
-    class Store
-      def initialize
-        @subscriptions = Hash.new {|hsh, key| hsh[key] = [] }
-      end
-
-      def add(type, subscription)
-        @subscriptions[type.to_s] << subscription
-      end
-
-      def delete(type, subscription)
-        @subscriptions.fetch(type.to_s).delete(subscription)
-      end
-
-      def all_for(event_type)
-        @subscriptions[event_type]
-      end
-
-      def value
-        self
-      end
-    end
-
-    class GlobalStore
-      def initialize
-        @subscriptions = []
-      end
-
-      def add(subscription)
-        @subscriptions << subscription
-      end
-
-      def delete(subscription)
-        @subscriptions.delete(subscription)
-      end
-
-      def all
-        @subscriptions
-      end
-
-      def value
-        self
-      end
-    end
-
     class ThreadSubscriptions
-      def initialize(local_store, global_store)
-        @local  = LocalSubscriptions.new(build_store(local_store))
-        @global = GlobalSubscriptions.new(build_store(global_store))
+      def initialize(store_klass)
+        @local  = LocalSubscriptions.new(build_store(store_klass))
+        @global = GlobalSubscriptions.new(build_store(store_klass))
       end
       attr_reader :local, :global
 
@@ -121,7 +77,7 @@ module RubyEventStore
       end
 
       def all_for(_event_type)
-        @store.value.all
+        @store.value.all_global
       end
     end
   end
