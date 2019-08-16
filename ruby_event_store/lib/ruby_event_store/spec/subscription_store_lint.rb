@@ -33,8 +33,4 @@ RSpec.shared_examples :subscription_store do |subscription_store|
     expect(subscription_store.all_for(SecondEvent)).to eq []
     expect(subscription_store.all).to eq []
   end
-
-  specify "#value" do
-    expect(subscription_store.value).to eq(subscription_store)
-  end
 end

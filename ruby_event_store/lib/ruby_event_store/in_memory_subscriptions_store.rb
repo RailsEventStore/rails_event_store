@@ -47,13 +47,5 @@ module RubyEventStore
     def all
       @subscriptions.values.flatten.uniq
     end
-
-    # Gets this instance of subscription store
-    # Required for internal implementation of thread subscriptions
-    #
-    # @return [self]
-    def value
-      self
-    end
   end
 end
