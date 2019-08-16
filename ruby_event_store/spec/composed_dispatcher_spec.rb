@@ -61,7 +61,7 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(dispatcher)
         event = instance_double(::RubyEventStore::Event)
         serialized_event = instance_double(::RubyEventStore::SerializedRecord)
-        subscription = GlobalSubscription.new(-> { })
+        subscription = Subscription.new(-> { })
 
         composed_dispatcher.call(subscription, event, serialized_event)
 
@@ -75,7 +75,7 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(skippy, real)
         event = instance_double(::RubyEventStore::Event)
         serialized_event = instance_double(::RubyEventStore::SerializedRecord)
-        subscription = GlobalSubscription.new(-> { })
+        subscription = Subscription.new(-> { })
 
         composed_dispatcher.call(subscription, event, serialized_event)
 
@@ -89,7 +89,7 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(real1, real2)
         event = instance_double(::RubyEventStore::Event)
         serialized_event = instance_double(::RubyEventStore::SerializedRecord)
-        subscription = GlobalSubscription.new(-> { })
+        subscription = Subscription.new(-> { })
 
         composed_dispatcher.call(subscription, event, serialized_event)
 

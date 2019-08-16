@@ -1,6 +1,6 @@
 module RubyEventStore
   class Subscription
-    def initialize(subscriber, event_types, store: nil)
+    def initialize(subscriber, event_types = [GLOBAL_SUBSCRIPTION], store: nil)
       @subscriber = subscriber
       @event_types = event_types
       @store = store
@@ -18,7 +18,7 @@ module RubyEventStore
     def inspect
       <<~EOS.strip
           #<#{self.class}:0x#{__id__.to_s(16)}>
-            - event types: #{event_types.inspect}
+            - #{ event_types != [GLOBAL_SUBSCRIPTION] ? "event types: #{event_types.inspect}" : "global subscription"}
             - subscriber: #{subscriber.inspect}
       EOS
     end

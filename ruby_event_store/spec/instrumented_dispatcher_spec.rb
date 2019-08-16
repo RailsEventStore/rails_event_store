@@ -13,7 +13,7 @@ module RubyEventStore
         event = Object.new
         serialized_event = Object.new
         subscriber = -> { }
-        subscription = GlobalSubscription.new(subscriber)
+        subscription = Subscription.new(subscriber)
 
         instrumented_dispatcher.call(subscription, event, serialized_event)
 
@@ -26,7 +26,7 @@ module RubyEventStore
           event = Object.new
           serialized_event = Object.new
           subscriber = -> { }
-          subscription = GlobalSubscription.new(subscriber)
+          subscription = Subscription.new(subscriber)
 
           instrumented_dispatcher.call(subscription, event, serialized_event)
 
