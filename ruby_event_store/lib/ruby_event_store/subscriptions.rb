@@ -4,9 +4,10 @@ require 'concurrent'
 
 module RubyEventStore
   class Subscriptions
-    def initialize(store: InMemorySubscriptionsStore.new, temp_store_class: InMemorySubscriptionsStore)
+    def initialize(store: InMemorySubscriptionsStore.new,
+                   thread_store_factory: -> { InMemorySubscriptionsStore.new })
       @store = store
-      @thread = ThreadSubscriptions.new(temp_store_class)
+      @thread = ThreadSubscriptions.new(thread_store_factory)
     end
 
     def add_subscription(subscriber, event_types)
@@ -35,8 +36,8 @@ module RubyEventStore
     attr_reader :store, :thread
 
     class ThreadSubscriptions
-      def initialize(store_klass)
-        @store = build_store(store_klass)
+      def initialize(store_factory)
+        @store = build_store(store_factory)
       end
 
       def add(subscriber, event_types)
@@ -50,9 +51,9 @@ module RubyEventStore
       private
       attr_reader :store
 
-      def build_store(klass)
-        var = Concurrent::ThreadLocalVar.new(klass.new)
-        var.value = klass.new
+      def build_store(store_factory)
+        var = Concurrent::ThreadLocalVar.new(store_factory.call)
+        var.value = store_factory.call
         var
       end
     end
