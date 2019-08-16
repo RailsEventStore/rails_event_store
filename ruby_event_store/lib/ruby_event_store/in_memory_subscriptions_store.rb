@@ -21,7 +21,7 @@ module RubyEventStore
       self
     end
 
-    # Removed subscription from the store
+    # Removes subscription from the store
     # @param subscription [Subscription] subscription to remove
     #
     # @return [self]
