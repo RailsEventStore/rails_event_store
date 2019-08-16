@@ -12,24 +12,18 @@ module RubyEventStore
 
     # Stores subscription in the store
     # @param subscription [Subscription] subscription to store
-    #
-    # @return [self]
     def add(subscription)
       subscription.subscribed_for.each do |type|
         @subscriptions[type.to_s] << subscription
       end
-      self
     end
 
     # Removes subscription from the store
     # @param subscription [Subscription] subscription to remove
-    #
-    # @return [self]
     def delete(subscription)
       subscription.subscribed_for.each do |type|
         @subscriptions.fetch(type.to_s).delete(subscription)
       end
-      self
     end
 
     # Gets all subscriptions stored for given event type
