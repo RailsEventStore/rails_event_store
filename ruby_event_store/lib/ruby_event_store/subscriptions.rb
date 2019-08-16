@@ -14,7 +14,7 @@ module RubyEventStore
     end
 
     def add_global_subscription(subscriber)
-      Subscription.new(subscriber, [GLOBAL_SUBSCRIPTION], store: store)
+      Subscription.new(subscriber, store: store)
     end
 
     def add_thread_subscription(subscriber, event_types)
