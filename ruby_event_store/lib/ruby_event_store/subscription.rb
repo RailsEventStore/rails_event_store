@@ -1,6 +1,8 @@
 module RubyEventStore
   class Subscription
     def initialize(subscriber, event_types = [GLOBAL_SUBSCRIPTION], store: nil)
+      raise SubscriberNotExist, "subscriber must exists" unless subscriber
+
       @subscriber = subscriber
       @event_types = event_types
       @store = store
@@ -13,6 +15,10 @@ module RubyEventStore
 
     def unsubscribe
       event_types.each{ |type| @store.delete(self, type) } if @store
+    end
+
+    def global?
+      event_types.include?(GLOBAL_SUBSCRIPTION)
     end
 
     def inspect
@@ -37,6 +43,7 @@ module RubyEventStore
         other.event_types.eql?(event_types) &&
         other.subscriber.eql?(subscriber)
     end
+    alias_method :eql?, :==
 
     # @private
     BIG_VALUE = 0b11010000100100100101110000000010011110000110101011010001001110
@@ -50,9 +57,8 @@ module RubyEventStore
     # This hash is based on
     # * class
     # * event types
-    # * subscriber objecy id
+    # * subscriber object id
     def hash
-      # We don't use metadata because == does not use metadata
       [
         self.class,
         event_types,
