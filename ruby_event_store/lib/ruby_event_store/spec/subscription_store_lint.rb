@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   # @private
   FirstEvent = Class.new(RubyEventStore::Event)
