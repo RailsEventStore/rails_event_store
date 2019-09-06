@@ -85,7 +85,7 @@ module RubyEventStore
       expect(sub2.subscribed_for).to eq [OrderCreated]
       expect(sub3.subscribed_for).to eq [GLOBAL_SUBSCRIPTION]
 
-      expect { sub1.subscribed_for << [TestEvent] }.to raise_error(FrozenError)
+      expect { sub1.subscribed_for << [TestEvent] }.to raise_error(RuntimeError)
     end
 
     specify '#inspect' do
