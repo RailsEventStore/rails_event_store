@@ -72,7 +72,11 @@ def Job(name, docker, steps)
 end
 
 def GemJob(task, docker, gem_name, name)
-  Job(name, docker, ["checkout", Run("make -C #{gem_name} install #{task}")])
+  Job(name, docker, [
+    "checkout",
+    Run(%q[find ~ -type d -regextype posix-egrep -regex "(.*elm/elm-stuff|.*\.elm)" -exec ls -alR {} \;]),
+    Run("make -C #{gem_name} install #{task}")
+  ])
 end
 
 database_url =
