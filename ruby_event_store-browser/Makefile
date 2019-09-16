@@ -4,7 +4,7 @@ REQUIRE      = ruby_event_store/browser
 IGNORE       =
 SUBJECT      ?= RubyEventStore::Browser*
 DATABASE_URL ?= sqlite3::memory:
-BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css public/ruby_event_store_browser.map
+BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css public/ruby_event_store_browser.js.map public/ruby_event_store_browser.css.map
 
 include ../support/make/install.mk
 include ../support/make/test.mk
