@@ -5,7 +5,7 @@ require 'sinatra'
 
 module RubyEventStore
   module Browser
-    class App < Sinatra::Application
+    class App < Sinatra::Base
       def self.for(event_store_locator:, host: nil, path: nil, environment: :production)
         self.tap do |app|
           app.settings.instance_exec do
