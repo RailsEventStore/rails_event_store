@@ -1,13 +1,13 @@
 source 'https://rubygems.org'
 
-ENV['RAILS_VERSION'] ||= '5.2.1.1'
+ENV['RAILS_VERSION'] ||= '5.2.3'
 
 gem 'rails_event_store', '0.33.0'
 gem 'rails', ENV['RAILS_VERSION']
 gem 'pg', '0.21'
 gem 'mysql2', '0.4.10'
 
-if Gem::Version.new(ENV['RAILS_VERSION']) >= Gem::Version.new('6.0.0.rc1')
+if Gem::Version.new(ENV['RAILS_VERSION']) >= Gem::Version.new('6.0.0')
   gem 'sqlite3', '1.4.1'
 else
   gem 'sqlite3', '1.3.13'

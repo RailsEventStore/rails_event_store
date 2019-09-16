@@ -601,7 +601,7 @@ jobs:
   test_bounded_context_rails_4_2:
     docker:
     - environment:
-        RAILS_VERSION: 4.2.11
+        RAILS_VERSION: 4.2.11.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -619,7 +619,7 @@ jobs:
   test_rails_event_store_rails_4_2:
     docker:
     - environment:
-        RAILS_VERSION: 4.2.11
+        RAILS_VERSION: 4.2.11.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -637,7 +637,7 @@ jobs:
   test_rails_event_store_active_record_rails_4_2:
     docker:
     - environment:
-        RAILS_VERSION: 4.2.11
+        RAILS_VERSION: 4.2.11.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -655,7 +655,7 @@ jobs:
   test_rails_event_store_rspec_rails_4_2:
     docker:
     - environment:
-        RAILS_VERSION: 4.2.11
+        RAILS_VERSION: 4.2.11.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -673,7 +673,7 @@ jobs:
   test_bounded_context_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7
+        RAILS_VERSION: 5.0.7.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -691,7 +691,7 @@ jobs:
   test_rails_event_store_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7
+        RAILS_VERSION: 5.0.7.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -709,7 +709,7 @@ jobs:
   test_rails_event_store_active_record_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7
+        RAILS_VERSION: 5.0.7.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -727,7 +727,7 @@ jobs:
   test_rails_event_store_rspec_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7
+        RAILS_VERSION: 5.0.7.1
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -745,7 +745,7 @@ jobs:
   test_bounded_context_rails_5_1:
     docker:
     - environment:
-        RAILS_VERSION: 5.1.6.1
+        RAILS_VERSION: 5.1.7
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -763,7 +763,7 @@ jobs:
   test_rails_event_store_rails_5_1:
     docker:
     - environment:
-        RAILS_VERSION: 5.1.6.1
+        RAILS_VERSION: 5.1.7
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -781,7 +781,7 @@ jobs:
   test_rails_event_store_active_record_rails_5_1:
     docker:
     - environment:
-        RAILS_VERSION: 5.1.6.1
+        RAILS_VERSION: 5.1.7
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -799,7 +799,7 @@ jobs:
   test_rails_event_store_rspec_rails_5_1:
     docker:
     - environment:
-        RAILS_VERSION: 5.1.6.1
+        RAILS_VERSION: 5.1.7
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -817,7 +817,7 @@ jobs:
   test_bounded_context_rails_6_0:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0.rc1
+        RAILS_VERSION: 6.0.0
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -835,7 +835,7 @@ jobs:
   test_rails_event_store_rails_6_0:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0.rc1
+        RAILS_VERSION: 6.0.0
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -853,7 +853,7 @@ jobs:
   test_rails_event_store_active_record_rails_6_0:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0.rc1
+        RAILS_VERSION: 6.0.0
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
@@ -871,7 +871,7 @@ jobs:
   test_rails_event_store_rspec_rails_6_0:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0.rc1
+        RAILS_VERSION: 6.0.0
       image: railseventstore/ruby:2.5
     - image: postgres:11
       environment:
