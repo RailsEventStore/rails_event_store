@@ -12,8 +12,7 @@ module RubyEventStore
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(
         event_store_locator: -> { event_store },
-        host: 'http://www.example.com',
-        environment: :test
+        host: 'http://www.example.com'
       )
     end
   end

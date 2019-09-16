@@ -24,7 +24,7 @@ module RubyEventStore
     def app_builder(event_store)
       Rack::Builder.new do
         map "/res" do
-          run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, environment: :test)
+          run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
         end
       end
     end
