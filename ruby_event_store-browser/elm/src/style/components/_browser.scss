@@ -8,6 +8,8 @@ $browser-layout: (columns: 2);
 .browser__title {
   @include grid-column(2, $browser-layout);
   font-size: 2.2rem;
+
+  @apply font-bold;
 }
 
 .browser__pagination {

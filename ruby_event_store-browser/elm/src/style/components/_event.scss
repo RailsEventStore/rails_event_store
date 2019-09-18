@@ -8,6 +8,8 @@ $browser-layout: (columns: 2);
 .event__title, .event__missing {
   @include grid-column(2, $browser-layout);
   font-size: 2.2rem;
+
+  @apply font-bold;
 }
 
 .event__body {
@@ -19,6 +21,7 @@ $browser-layout: (columns: 2);
 
   h2 {
     font-size: 2.0rem;
+    @apply font-bold;
   }
 
   ul {
@@ -34,6 +37,7 @@ $browser-layout: (columns: 2);
 
   h2 {
     font-size: 2.0rem;
+    @apply font-bold;
   }
 }
 

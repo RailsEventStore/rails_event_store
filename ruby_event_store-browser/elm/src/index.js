@@ -1,3 +1,4 @@
+require("./style/tailwind.css");
 require("./style/style.scss");
 
 window.RubyEventStore = {};
