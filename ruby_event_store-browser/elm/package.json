@@ -11,7 +11,6 @@
     "elm-format": "^0.8.1",
     "elm-hot": "^1.0.1",
     "elm-test": "https://github.com/rtfeldman/node-test-runner",
-    "open-color": "^1.5.1",
     "parcel-bundler": "^1.11.0",
     "postcss-modules": "^1.4.1",
     "sass": "^1.17.0",

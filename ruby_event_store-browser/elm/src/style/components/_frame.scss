@@ -1,7 +1,8 @@
 .frame {
   min-height: 100vh;
   width: 100%;
-  background-color: $oc-gray-0;
+
+  @apply bg-gray-100;
 }
 
 .frame__header {
@@ -11,5 +12,5 @@
 }
 
 .frame__body {
-  background-color: white;
+  @apply bg-white;
 }

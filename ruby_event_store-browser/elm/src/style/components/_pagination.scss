@@ -6,15 +6,14 @@
 .pagination__page {
   height: 3.6rem;
   background: none;
-  border: $base-border;
   text-align: center;
   padding: 1rem;
   margin-right: 0.5rem;
 
-  color: $brand-color;
-  border-color: $brand-color;
   font-weight: normal;
   font-size: 90%;
+
+  @apply border-red-700 text-red-700 border;
 
   &:focus {
     outline: none;

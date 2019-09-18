@@ -24,8 +24,9 @@ input,
 select,
 textarea {
   display: block;
-  font-family: $base-font-family;
   font-size: 16px;
+
+  @apply font-sans;
 }
 
 input[type="color"],
@@ -45,9 +46,6 @@ input[type="week"],
 input:not([type]),
 textarea {
   appearance: none;
-  background-color: $base-background-color;
-  border: $base-border;
-  border-radius: $base-border-radius;
   box-shadow: $_form-box-shadow;
   box-sizing: border-box;
   margin-bottom: $small-spacing;
@@ -55,8 +53,10 @@ textarea {
   transition: border-color $base-duration $base-timing;
   width: 100%;
 
+  @apply border-gray-400 border rounded bg-white;
+
   &:hover {
-    border-color: shade($base-border-color, 20%);
+    @apply border-gray-600;
   }
 
   &:focus {
@@ -66,16 +66,16 @@ textarea {
   }
 
   &:disabled {
-    background-color: shade($base-background-color, 5%);
+    @apply bg-gray-100;
     cursor: not-allowed;
 
     &:hover {
-      border: $base-border;
+      @apply border-gray-400 border;
     }
   }
 
   &::placeholder {
-    color: tint($base-font-color, 40%);
+    @apply text-gray-500;
   }
 }
 

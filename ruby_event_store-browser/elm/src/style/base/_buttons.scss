@@ -7,12 +7,9 @@ input[type="reset"],
 input[type="submit"] {
   appearance: none;
   background-color: $_button-background-color;
-  border: 0;
-  border-radius: $base-border-radius;
   color: contrast-switch($_button-background-color);
   cursor: pointer;
   display: inline-block;
-  font-family: $base-font-family;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   font-weight: 600;
@@ -24,6 +21,8 @@ input[type="submit"] {
   user-select: none;
   vertical-align: middle;
   white-space: nowrap;
+
+  @apply rounded font-sans;
 
   &:hover {
     background-color: $_button-background-color-hover;

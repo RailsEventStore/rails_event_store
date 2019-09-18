@@ -3,7 +3,7 @@ $navigation-layout: (columns: 4);
 .navigation {
   @include grid-container;
   height: 6rem;
-  background-color: $brand-color;
+  @apply bg-red-700;
 }
 
 .navigation__brand {
@@ -37,49 +37,15 @@ $navigation-layout: (columns: 4);
       margin: 0;
 
       &:focus {
-        &::-webkit-input-placeholder {
-          color: white;
-        }
-
-        &:-moz-placeholder { /* Firefox 18- */
-          color: white;
-        }
-
-        &::-moz-placeholder {  /* Firefox 19+ */
-          color: white;
-        }
-
-        &:-ms-input-placeholder {
-          color: white;
-        }
+        @apply text-white;
       }
     }
   }
 }
 
-.navigation__link {
-  margin-left: 1rem;
-  padding: 0.5rem;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 1.4rem;
-  color: $oc-gray-1;
-
-  &:hover {
-    border-radius: 4px;
-    background-color: darken($brand-color, 10);
-    color: $oc-gray-0;
-  }
-}
-
-.navigation__link--active {
-  border-radius: 4px;
-  background-color: darken($brand-color, 10);
-  color: $oc-gray-0;
-}
-
 .navigation__logo {
   text-decoration: none;
   font-weight: 600;
-  color: $oc-gray-0;
+
+  @apply text-gray-100;
 }

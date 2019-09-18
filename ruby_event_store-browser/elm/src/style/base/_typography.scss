@@ -1,8 +1,7 @@
 html {
-  color: $base-font-color;
-  font-family: $base-font-family;
+  @apply text-gray-800 font-sans;
   font-size: 62.5%;
-  line-height: $base-line-height;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -16,7 +15,6 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: $heading-font-family;
   font-size: 2em;
   line-height: $heading-line-height;
   margin: 0 0 $small-spacing;
@@ -42,9 +40,10 @@ a {
 }
 
 hr {
-  border-bottom: $base-border;
   border-left: 0;
   border-right: 0;
   border-top: 0;
   margin: $base-spacing 0;
+
+  @apply border-gray-400 border-b;
 }
