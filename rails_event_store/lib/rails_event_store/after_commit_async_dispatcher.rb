@@ -48,6 +48,9 @@ module RailsEventStore
         dispatcher.run(&schedule_proc)
       end
 
+      def trigger_transactional_callbacks?
+      end
+
       attr_reader :schedule_proc, :dispatcher
     end
   end
