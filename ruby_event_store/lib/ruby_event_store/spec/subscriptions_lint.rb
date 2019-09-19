@@ -108,4 +108,13 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
 
     expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler, handler])
   end
+
+  it 'returns subscription by type of event which is a String or Class' do
+    handler         = TestHandler.new
+    subscriptions.add_subscription(handler, [Test1DomainEvent])
+    subscriptions.add_thread_subscription(handler, ["Test1DomainEvent"])
+
+    expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler, handler])
+    expect(subscriptions.all_for(Test1DomainEvent)).to eq([handler, handler])
+  end
 end
