@@ -33,9 +33,9 @@ RSpec.shared_examples :broker do |broker_klass|
 
   specify 'raise error when no subscriber' do
     expect { broker.add_subscription(nil, [])}.to raise_error(RubyEventStore::SubscriberNotExist, "subscriber must be first argument or block")
-    expect { broker.add_global_subscription(nil)}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
-    expect { broker.add_thread_subscription(nil, []).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
-    expect { broker.add_thread_global_subscription(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
+    expect { broker.add_subscription(nil)}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
+    expect { broker.add_subscription(nil, []).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
+    expect { broker.add_subscription(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist), "subscriber must be first argument or block"
   end
 
   specify 'raise error when wrong subscriber' do
@@ -44,38 +44,24 @@ RSpec.shared_examples :broker do |broker_klass|
       broker.add_subscription(HandlerClass, [])
     end.to raise_error(RubyEventStore::InvalidHandler, /Handler HandlerClass is invalid for dispatcher .*Dispatcher/)
     expect do
-      broker.add_global_subscription(HandlerClass)
+      broker.add_subscription(HandlerClass)
     end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)
     expect do
-      broker.add_thread_subscription(HandlerClass, [])
+      broker.add_subscription(HandlerClass, [])
     end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)
     expect do
-      broker.add_thread_global_subscription(HandlerClass)
+      broker.add_subscription(HandlerClass)
     end.to raise_error(RubyEventStore::InvalidHandler, /is invalid for dispatcher/)
   end
 
-  specify "verify and add - local subscriptions" do
+  specify "verify and add" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
     expect(subscriptions).to receive(:add).with(handler, ['EventType'])
     broker.add_subscription(handler, ['EventType'])
-  end
 
-  specify "verify and add - global subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add).with(handler)
-    broker.add_global_subscription(handler)
-  end
-
-  specify "verify and add - thread local subscriptions" do
-    expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add).with(handler, ['EventType'])
-    broker.add_thread_subscription(handler, ['EventType'])
-  end
-
-  specify "verify and add - thread global subscriptions" do
-    expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add).with(handler)
-    broker.add_thread_global_subscription(handler)
+    expect(subscriptions).to receive(:add).with(handler, [RubyEventStore::ANY_EVENT_TYPE])
+    broker.add_subscription(handler)
   end
 
   private

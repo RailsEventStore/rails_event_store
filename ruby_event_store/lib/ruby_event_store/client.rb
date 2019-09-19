@@ -117,7 +117,7 @@ module RubyEventStore
     #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe_to_all_events(subscriber = nil, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-      broker.add_global_subscription(subscriber || proc)
+      broker.add_subscription(subscriber || proc)
     end
 
     # Builder object for collecting temporary handlers (subscribers)
@@ -183,13 +183,13 @@ module RubyEventStore
 
       def add_thread_subscribers
         @subscribers.map do |subscriber, types|
-          @broker.add_thread_subscription(subscriber, types)
+          @broker.add_subscription(subscriber, types)
         end
       end
 
       def add_thread_global_subscribers
         @global_subscribers.map do |subscriber|
-          @broker.add_thread_global_subscription(subscriber)
+          @broker.add_subscription(subscriber)
         end
       end
     end

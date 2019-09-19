@@ -14,24 +14,9 @@ module RubyEventStore
       end
     end
 
-    def add_subscription(subscriber, event_types)
+    def add_subscription(subscriber, event_types = [ANY_EVENT_TYPE])
       verify_subscription(subscriber)
       subscriptions.add(subscriber, event_types)
-    end
-
-    def add_global_subscription(subscriber)
-      verify_subscription(subscriber)
-      subscriptions.add(subscriber)
-    end
-
-    def add_thread_subscription(subscriber, event_types)
-      verify_subscription(subscriber)
-      subscriptions.add(subscriber, event_types)
-    end
-
-    def add_thread_global_subscription(subscriber)
-      verify_subscription(subscriber)
-      subscriptions.add(subscriber)
     end
 
     private
