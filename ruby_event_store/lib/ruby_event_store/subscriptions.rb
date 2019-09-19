@@ -37,6 +37,7 @@ module RubyEventStore
 
     def all_for(event_type)
       [event_type, ANY_EVENT_TYPE]
+        .uniq
         .map(&:to_s)
         .map{ |type| subscriptions.fetch(type, []) }
         .reduce(&:+)

@@ -29,6 +29,7 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
     expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler, global_handler])
     expect(subscriptions.all_for('Test2DomainEvent')).to eq([another_handler, global_handler])
     expect(subscriptions.all_for('Test3DomainEvent')).to eq([handler, global_handler])
+    expect(subscriptions.all_for(RubyEventStore::ANY_EVENT_TYPE)).to eq([global_handler])
   end
 
   it 'returns subscribed thread handlers' do
