@@ -56,25 +56,25 @@ RSpec.shared_examples :broker do |broker_klass|
 
   specify "verify and add - local subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add_subscription).with(handler, ['EventType'])
+    expect(subscriptions).to receive(:add).with(handler, ['EventType'])
     broker.add_subscription(handler, ['EventType'])
   end
 
   specify "verify and add - global subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add_global_subscription).with(handler)
+    expect(subscriptions).to receive(:add).with(handler)
     broker.add_global_subscription(handler)
   end
 
   specify "verify and add - thread local subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add_thread_subscription).with(handler, ['EventType'])
+    expect(subscriptions).to receive(:add).with(handler, ['EventType'])
     broker.add_thread_subscription(handler, ['EventType'])
   end
 
   specify "verify and add - thread global subscriptions" do
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
-    expect(subscriptions).to receive(:add_thread_global_subscription).with(handler)
+    expect(subscriptions).to receive(:add).with(handler)
     broker.add_thread_global_subscription(handler)
   end
 

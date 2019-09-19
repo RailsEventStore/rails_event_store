@@ -11,19 +11,28 @@ module RubyEventStore
     end
 
     def add_subscription(subscriber, event_types)
+      warn "Method `add_subscription` has been deprecated. Use `add` method instead."
       add(subscriber, event_types)
     end
 
     def add_global_subscription(subscriber)
+      warn "Method `add_global_subscription` has been deprecated. Use `add` method instead."
       add(subscriber)
     end
 
     def add_thread_subscription(subscriber, event_types)
+      warn "Method `add_thread_subscription` has been deprecated. Use `add` method instead."
       add(subscriber, event_types)
     end
 
     def add_thread_global_subscription(subscriber)
+      warn "Method `add_thread_global_subscription` has been deprecated. Use `add` method instead."
       add(subscriber)
+    end
+
+    def add(subscription, event_types = [ANY_EVENT_TYPE])
+      event_types.each { |type| subscriptions[type.to_s] << subscription }
+      -> { event_types.each { |type| subscriptions.fetch(type.to_s).delete(subscription) } }
     end
 
     def all_for(event_type)
@@ -37,11 +46,6 @@ module RubyEventStore
 
     def subscriptions
       @subscriptions.value
-    end
-
-    def add(subscription, event_types = [ANY_EVENT_TYPE])
-      event_types.each { |type| subscriptions[type.to_s] << subscription }
-      -> { event_types.each { |type| subscriptions.fetch(type.to_s).delete(subscription) } }
     end
   end
 end
