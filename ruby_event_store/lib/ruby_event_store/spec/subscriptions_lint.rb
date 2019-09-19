@@ -40,9 +40,9 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
     subscriptions.add_thread_subscription(another_handler, [Test2DomainEvent])
     subscriptions.add_thread_global_subscription(global_handler)
 
-    expect(subscriptions.all_for('Test1DomainEvent')).to eq([global_handler, handler])
-    expect(subscriptions.all_for('Test2DomainEvent')).to eq([global_handler, another_handler])
-    expect(subscriptions.all_for('Test3DomainEvent')).to eq([global_handler, handler])
+    expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler, global_handler])
+    expect(subscriptions.all_for('Test2DomainEvent')).to eq([another_handler, global_handler])
+    expect(subscriptions.all_for('Test3DomainEvent')).to eq([handler, global_handler])
   end
 
   it 'returns lambda as an output of global subscribe methods' do
