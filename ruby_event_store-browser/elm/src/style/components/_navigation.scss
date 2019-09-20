@@ -14,8 +14,8 @@
   @apply flex items-center;
 }
 
-.navigation__go-to-stream input, .navigation__go-to-stream form {
-  @apply h-12;
+.navigation__go-to-stream input {
+  @apply rounded px-4 py-2;
 }
 
 .navigation__logo {
