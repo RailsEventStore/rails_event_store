@@ -151,7 +151,7 @@ renderResults events =
                     [ tr []
                         [ th [] [ text "Event name" ]
                         , th [] [ text "Event id" ]
-                        , th [ class "u-align-right" ] [ text "Created at" ]
+                        , th [ class "text-right" ] [ text "Created at" ]
                         ]
                     ]
                 , tbody [] (List.map itemRow events)
@@ -169,7 +169,7 @@ itemRow { eventType, createdAt, eventId } =
                 [ text eventType ]
             ]
         , td [] [ text eventId ]
-        , td [ class "u-align-right" ]
+        , td [ class "text-right" ]
             [ text (formatTimestamp createdAt)
             ]
         ]
