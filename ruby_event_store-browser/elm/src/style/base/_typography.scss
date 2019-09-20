@@ -9,41 +9,10 @@ body {
   font-size: 1.6rem;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: 2em;
-  line-height: $heading-line-height;
-  margin: 0 0 $small-spacing;
-}
-
-p {
-  margin: 0 0 $small-spacing;
+hr {
+  @apply border-gray-400 border-b m-4;
 }
 
 a {
-  color: $action-color;
-  text-decoration-skip: ink;
-  transition: color $base-duration $base-timing;
-
-  &:hover {
-    color: shade($action-color, 25%);
-  }
-
-  &:focus {
-    outline: $focus-outline;
-    outline-offset: $focus-outline-offset;
-  }
-}
-
-hr {
-  border-left: 0;
-  border-right: 0;
-  border-top: 0;
-  margin: $base-spacing 0;
-
-  @apply border-gray-400 border-b;
+  @apply text-red-700;
 }
