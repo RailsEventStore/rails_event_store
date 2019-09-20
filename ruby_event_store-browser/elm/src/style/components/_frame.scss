@@ -1,8 +1,5 @@
 .frame {
-  min-height: 100vh;
-  width: 100%;
-
-  @apply bg-gray-100;
+  @apply bg-gray-100 min-h-screen w-full;
 }
 
 .frame__header {

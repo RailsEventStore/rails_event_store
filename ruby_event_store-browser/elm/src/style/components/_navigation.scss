@@ -1,51 +1,23 @@
-$navigation-layout: (columns: 4);
-
 .navigation {
-  @include grid-container;
-  height: 6rem;
-  @apply bg-red-700;
+  @apply flex bg-red-700 px-8 h-24;
 }
 
 .navigation__brand {
-  @include grid-column(1, $navigation-layout);
-  display: flex;
-  height: 100%;
-  justify-content: flex-start;
-  align-items: center;
+  @apply flex items-center;
 }
 
 .navigation__links {
-  @include grid-column(2, $navigation-layout);
-  display: flex;
-  height: 100%;
-  justify-content: flex-end;
-  align-items: center;
+  @apply flex-1;
 }
 
 .navigation__go-to-stream {
-  @include grid-column(1, $navigation-layout);
-  display: flex;
-  height: 100%;
-  justify-content: flex-end;
-  align-items: center;
+  @apply flex items-center;
+}
 
-  form {
-    width: 100%;
-
-    input {
-      width: 100%;
-      margin: 0;
-
-      &:focus {
-        @apply text-white;
-      }
-    }
-  }
+.navigation__go-to-stream input, .navigation__go-to-stream form {
+  @apply h-12;
 }
 
 .navigation__logo {
-  text-decoration: none;
-  font-weight: 600;
-
-  @apply text-gray-100;
+  @apply text-gray-100 font-semibold;
 }
