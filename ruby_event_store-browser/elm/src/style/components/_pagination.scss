@@ -1,39 +1,13 @@
 .pagination {
-  display: flex;
-  margin-bottom: $small-spacing;
+  @apply flex mb-4;
 }
 
 .pagination__page {
-  height: 3.6rem;
-  background: none;
-  text-align: center;
-  padding: 1rem;
-  margin-right: 0.5rem;
-
-  font-weight: normal;
   font-size: 90%;
 
-  @apply border-red-700 text-red-700 border;
-
-  &:focus {
-    outline: none;
-  }
-
-  &:disabled {
-    &:hover {
-      background: none;
-    }
-  }
+  @apply text-center border-red-700 text-red-700 border rounded px-4 py-2 mx-1;
 }
 
-.pagination__page--previous {
-}
-
-.pagination__page--next {
-}
-
-.pagination__page--first {
-}
-
-.pagination__page--last {
+.pagination__page:disabled {
+  @apply opacity-50 cursor-not-allowed;
 }

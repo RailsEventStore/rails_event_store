@@ -102,7 +102,7 @@ maybeHref link =
 nextPageButton : Maybe Api.PaginationLink -> Html Msg
 nextPageButton link =
     button
-        ([ class "pagination__page pagination__page--next"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -112,7 +112,7 @@ nextPageButton link =
 prevPageButton : Maybe Api.PaginationLink -> Html Msg
 prevPageButton link =
     button
-        ([ class "pagination__page pagination__page--prev"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -122,7 +122,7 @@ prevPageButton link =
 lastPageButton : Maybe Api.PaginationLink -> Html Msg
 lastPageButton link =
     button
-        ([ class "pagination__page pagination__page--last"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -132,7 +132,7 @@ lastPageButton link =
 firstPageButton : Maybe Api.PaginationLink -> Html Msg
 firstPageButton link =
     button
-        ([ class "pagination__page pagination__page--first"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
