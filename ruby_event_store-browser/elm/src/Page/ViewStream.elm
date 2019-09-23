@@ -102,7 +102,7 @@ maybeHref link =
 nextPageButton : Maybe Api.PaginationLink -> Html Msg
 nextPageButton link =
     button
-        ([ class "pagination__page pagination__page--next"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -112,7 +112,7 @@ nextPageButton link =
 prevPageButton : Maybe Api.PaginationLink -> Html Msg
 prevPageButton link =
     button
-        ([ class "pagination__page pagination__page--prev"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -122,7 +122,7 @@ prevPageButton link =
 lastPageButton : Maybe Api.PaginationLink -> Html Msg
 lastPageButton link =
     button
-        ([ class "pagination__page pagination__page--last"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -132,7 +132,7 @@ lastPageButton link =
 firstPageButton : Maybe Api.PaginationLink -> Html Msg
 firstPageButton link =
     button
-        ([ class "pagination__page pagination__page--first"
+        ([ class "pagination__page"
          ]
             ++ maybeHref link
         )
@@ -151,7 +151,7 @@ renderResults events =
                     [ tr []
                         [ th [] [ text "Event name" ]
                         , th [] [ text "Event id" ]
-                        , th [ class "u-align-right" ] [ text "Created at" ]
+                        , th [ class "text-right" ] [ text "Created at" ]
                         ]
                     ]
                 , tbody [] (List.map itemRow events)
@@ -169,7 +169,7 @@ itemRow { eventType, createdAt, eventId } =
                 [ text eventType ]
             ]
         , td [] [ text eventId ]
-        , td [ class "u-align-right" ]
+        , td [ class "text-right" ]
             [ text (formatTimestamp createdAt)
             ]
         ]
