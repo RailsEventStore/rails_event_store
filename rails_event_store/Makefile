@@ -2,7 +2,8 @@ GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = rails_event_store
 REQUIRE     = $(GEM_NAME)
 IGNORE      = RailsEventStore::Client\#initialize \
-              RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord\#rolledback!
+              RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord* \
+              RailsEventStore::AfterCommitAsyncDispatcher\#async_record
 SUBJECT      ?= RailsEventStore*
 DATABASE_URL ?= sqlite3::memory:
 

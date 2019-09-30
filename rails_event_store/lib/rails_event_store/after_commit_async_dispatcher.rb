@@ -16,12 +16,14 @@ module RailsEventStore
       transaction = ActiveRecord::Base.connection.current_transaction
 
       if transaction.joinable?
-        transaction.add_record(
-          AsyncRecord.new(self, schedule_proc)
-        )
+        transaction.add_record(async_record(schedule_proc))
       else
         yield
       end
+    end
+
+    def async_record(schedule_proc)
+      AsyncRecord.new(self, schedule_proc)
     end
 
     def verify(subscriber)
