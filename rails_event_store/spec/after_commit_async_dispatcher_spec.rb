@@ -71,14 +71,9 @@ module RailsEventStore
 
       context "when raise_in_transactional_callbacks is enabled" do
         around do |example|
-          skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
-
-          old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
-          ActiveRecord::Base.raise_in_transactional_callbacks = true
-
-          example.run
-
-          ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
+          with_raise_in_transactional_callbacks do
+            example.run
+          end
         end
 
         it "does not dispatch job" do
@@ -165,14 +160,9 @@ module RailsEventStore
 
       context "when raise_in_transactional_callbacks is enabled" do
         around do |example|
-          skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
-
-          old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
-          ActiveRecord::Base.raise_in_transactional_callbacks = true
-
-          example.run
-
-          ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
+          with_raise_in_transactional_callbacks do
+            example.run
+          end
         end
 
         it "dispatches the job after commit" do
@@ -258,6 +248,17 @@ module RailsEventStore
       raise unless block_given?
       yield
       expect(job.queued).not_to be_nil
+    end
+
+    def with_raise_in_transactional_callbacks
+      skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
+
+      old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
+      ActiveRecord::Base.raise_in_transactional_callbacks = true
+
+      yield
+
+      ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
     end
 
     class MyAsyncHandler
