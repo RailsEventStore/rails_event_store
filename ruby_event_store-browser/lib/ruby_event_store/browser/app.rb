@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../browser'
-require 'sinatra'
+require 'sinatra/base'
 
 module RubyEventStore
   module Browser
