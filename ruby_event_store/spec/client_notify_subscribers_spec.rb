@@ -38,17 +38,6 @@ module RubyEventStore
       end
     end
 
-    class TestMapper
-      def event_to_serialized_record(domain_event)
-        SerializedRecord.new(
-          event_id:   domain_event.event_id,
-          metadata:   domain_event.metadata.to_s,
-          data:       domain_event.data.to_s,
-          event_type: domain_event.class.name
-        )
-      end
-    end
-
     subject(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
 
     it 'notifies subscribed handlers' do
@@ -197,11 +186,11 @@ module RubyEventStore
       dispatcher        = TestDispatcher.new
       handler           = TestHandler.new
       event1            = TimestampEnrichment.with_timestamp(Test1DomainEvent.new)
-      serialized_event1 = TestMapper.new.event_to_serialized_record(event1)
+      serialized_event1 = Mappers::NullMapper.new.event_to_serialized_record(event1)
 
       client_with_custom_dispatcher = RubyEventStore::Client.new(
         repository: InMemoryRepository.new,
-        mapper: TestMapper.new,
+        mapper: Mappers::NullMapper.new,
         dispatcher: dispatcher,
       )
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
