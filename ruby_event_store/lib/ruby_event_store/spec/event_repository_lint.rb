@@ -5,13 +5,15 @@ module RubyEventStore
       event_id:   SecureRandom.uuid,
       data:       {},
       metadata:   {},
-      event_type: 'SRecordTestEvent'
+      event_type: 'SRecordTestEvent',
+      timestamp:  Time.at(0)
     )
       Record.new(
         event_id:   event_id,
         data:       data,
         metadata:   metadata,
         event_type: event_type,
+        timestamp:  timestamp,
       )
     end
   end
