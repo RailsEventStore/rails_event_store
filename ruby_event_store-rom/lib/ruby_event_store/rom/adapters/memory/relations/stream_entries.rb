@@ -10,7 +10,7 @@ module RubyEventStore
             attribute :stream, ::ROM::Types::Strict::String
             attribute :position, ::ROM::Types::Strict::Integer.optional
             attribute :event_id, ::ROM::Types::Strict::String.meta(foreign_key: true, relation: :events)
-            attribute :created_at, RubyEventStore::ROM::Types::DateTime
+            attribute :created_at, RubyEventStore::ROM::Types::Time
 
             associations do
               belongs_to :events, as: :event, foreign_key: :event_id, override: true, view: :for_stream_entries

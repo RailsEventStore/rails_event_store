@@ -18,7 +18,7 @@ module RubyEventStore
               end
 
               map do |tuple|
-                Hash(created_at: RubyEventStore::ROM::Types::DateTime.call(nil)).merge(tuple)
+                Hash(created_at: RubyEventStore::ROM::Types::Time.call(nil)).merge(tuple)
               end
             end
           end

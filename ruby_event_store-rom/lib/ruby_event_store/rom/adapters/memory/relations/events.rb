@@ -10,7 +10,7 @@ module RubyEventStore
             attribute :event_type, ::ROM::Types::Strict::String
             attribute :metadata, ::ROM::Types::Strict::String.optional
             attribute :data, ::ROM::Types::Strict::String
-            attribute :created_at, RubyEventStore::ROM::Types::DateTime
+            attribute :created_at, RubyEventStore::ROM::Types::Time
           end
 
           def create_changeset(tuples)

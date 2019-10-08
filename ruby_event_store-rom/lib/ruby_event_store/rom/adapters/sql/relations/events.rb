@@ -10,7 +10,7 @@ module RubyEventStore
                       read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
             attribute :metadata, RubyEventStore::ROM::Types::SerializedRecordSerializer,
                       read: RubyEventStore::ROM::Types::SerializedRecordDeserializer
-            attribute :created_at, RubyEventStore::ROM::Types::DateTime
+            attribute :created_at, RubyEventStore::ROM::Types::Time
           end
 
           def create_changeset(tuples)
