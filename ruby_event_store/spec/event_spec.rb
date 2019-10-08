@@ -78,7 +78,7 @@ module RubyEventStore
 
     specify 'two events are equal if their attributes are equal' do
       event_data = { foo: 'bar' }
-      event_metadata = { timestamp: Time.now }
+      event_metadata = { timestamp: Time.now.utc }
       event = Test::TestCreated.new(event_id: '1', data: event_data, metadata: event_metadata)
       same_event = Test::TestCreated.new(event_id: '1', data: event_data, metadata: event_metadata)
       expect(event).to eq(same_event)
@@ -86,7 +86,7 @@ module RubyEventStore
 
     specify 'two events are not equal if their payload is different' do
       event_data = { foo: 'bar' }
-      event_metadata = { timestamp: Time.now }
+      event_metadata = { timestamp: Time.now.utc }
       event = Test::TestCreated.new(event_id: '1', data: event_data, metadata: event_metadata)
       different_event = Test::TestCreated.new(event_id: '1', data: event_data.merge(price: 123), metadata: event_metadata)
       expect(event).not_to eq(different_event)
@@ -94,7 +94,7 @@ module RubyEventStore
 
     specify 'two events are not equal if their types are different' do
       TestDeleted = Class.new(RubyEventStore::Event)
-      event_metadata = { timestamp: Time.now }
+      event_metadata = { timestamp: Time.now.utc }
       event = Test::TestCreated.new(event_id: '1', metadata: event_metadata)
       different_event = TestDeleted.new(event_id: '1', metadata: event_metadata)
       expect(event).not_to eq(different_event)
