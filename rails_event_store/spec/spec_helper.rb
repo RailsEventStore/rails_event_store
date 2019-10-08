@@ -26,3 +26,11 @@ ActiveJob::Base.logger = nil unless $verbose
 ActiveRecord::Schema.verbose = $verbose
 
 DummyEvent = Class.new(RailsEventStore::Event)
+
+module TimestampEnrichment
+  def with_timestamp(event, timestamp = Time.now.utc)
+    event.metadata[:timestamp] ||= timestamp
+    event
+  end
+  module_function :with_timestamp
+end
