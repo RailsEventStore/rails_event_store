@@ -196,7 +196,7 @@ module RubyEventStore
     it 'allows to provide a custom dispatcher' do
       dispatcher        = TestDispatcher.new
       handler           = TestHandler.new
-      event1            = Test1DomainEvent.new
+      event1            = TimestampEnrichment.with_timestamp(Test1DomainEvent.new)
       serialized_event1 = TestMapper.new.event_to_serialized_record(event1)
 
       client_with_custom_dispatcher = RubyEventStore::Client.new(
