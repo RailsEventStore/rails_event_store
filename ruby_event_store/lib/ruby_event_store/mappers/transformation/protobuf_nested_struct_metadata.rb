@@ -13,7 +13,8 @@ module RubyEventStore
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       record.data,
-            metadata:   ProtobufNestedStruct::HashMapStringValue.dump(record.metadata)
+            metadata:   ProtobufNestedStruct::HashMapStringValue.dump(record.metadata),
+            timestamp:  record.timestamp,
           )
         end
 
@@ -23,7 +24,8 @@ module RubyEventStore
               event_id:   record.event_id,
               event_type: record.event_type,
               data:       record.data,
-              metadata:   ProtobufNestedStruct::HashMapStringValue.load(record.metadata)
+              metadata:   ProtobufNestedStruct::HashMapStringValue.load(record.metadata),
+              timestamp:  record.timestamp,
             )
           )
         end

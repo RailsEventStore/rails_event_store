@@ -19,6 +19,7 @@ module RubyEventStore
             event_type: record.event_type,
             data:       record.data,
             metadata:   TransformKeys.stringify(record.metadata),
+            timestamp:  record.timestamp,
           )
         end
       end

@@ -6,9 +6,9 @@ module RubyEventStore
       class ProtoEvent < DomainEvent
         def load(record)
           Proto.new(
-            event_id: record.event_id,
-            data:     record.data,
-            metadata: record.metadata
+            event_id:  record.event_id,
+            data:      record.data,
+            metadata:  record.metadata.merge(timestamp: record.timestamp),
           )
         end
       end

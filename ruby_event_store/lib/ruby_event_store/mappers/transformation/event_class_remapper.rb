@@ -17,7 +17,8 @@ module RubyEventStore
             event_id:   record.event_id,
             event_type: class_map[record.event_type] || record.event_type,
             data:       record.data,
-            metadata:   record.metadata
+            metadata:   record.metadata,
+            timestamp:  record.timestamp,
           )
         end
 

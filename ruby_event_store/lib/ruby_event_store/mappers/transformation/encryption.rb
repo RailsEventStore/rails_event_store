@@ -35,7 +35,8 @@ module RubyEventStore
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       encrypt_data(deep_dup(data), crypto_description),
-            metadata:   metadata
+            metadata:   metadata,
+            timestamp:  record.timestamp,
           )
         end
 
@@ -47,7 +48,8 @@ module RubyEventStore
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       decrypt_data(record.data, crypto_description),
-            metadata:   metadata
+            metadata:   metadata,
+            timestamp:  record.timestamp,
           )
         end
 

@@ -34,6 +34,7 @@ module RubyEventStore
 
     module Transformation
       RSpec.describe Encryption do
+        let(:time)           { Time.now.utc }
         let(:key_repository) { InMemoryEncryptionKeyRepository.new }
         let(:serializer)     { YAML }
         let(:mapper)         { Encryption.new(key_repository, serializer: serializer) }
@@ -77,7 +78,8 @@ module RubyEventStore
             event_id: event_id,
             data: data,
             metadata: metadata,
-            event_type: 'RubyEventStore::Mappers::TicketTransferred'
+            event_type: 'RubyEventStore::Mappers::TicketTransferred',
+            timestamp: time,
           )
         end
 
@@ -88,7 +90,8 @@ module RubyEventStore
               ticket_id: ticket_id,
             },
             metadata: metadata,
-            event_type: 'RubyEventStore::Mappers::TicketCancelled'
+            event_type: 'RubyEventStore::Mappers::TicketCancelled',
+            timestamp: time,
           )
         end
 
@@ -247,7 +250,8 @@ module RubyEventStore
                 recipient: sender
               },
               metadata: metadata,
-              event_type: 'RubyEventStore::Mappers::TicketTransferred'
+              event_type: 'RubyEventStore::Mappers::TicketTransferred',
+              timestamp: time,
             )
           )
           data = record.data
@@ -270,7 +274,8 @@ module RubyEventStore
                     email: sender_email
                   },
                   metadata: metadata,
-                  event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided'
+                  event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided',
+                  timestamp: time,
                 )
               )
           )
@@ -298,7 +303,8 @@ module RubyEventStore
                     email: [sender_email]
                   },
                   metadata: metadata,
-                  event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided'
+                  event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided',
+                  timestamp: time,
                 )
               )
           )
@@ -325,7 +331,8 @@ module RubyEventStore
                   email: nil
                 },
                 metadata: metadata,
-                event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided'
+                event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided',
+                timestamp: time,
               )
           )
           event = decrypt(record)

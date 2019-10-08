@@ -4,6 +4,7 @@ module RubyEventStore
   module Mappers
     module Transformation
       RSpec.describe EventClassRemapper do
+        let(:time)  { Time.now.utc }
         let(:uuid)  { SecureRandom.uuid }
         def record(event_type: 'TestEvent')
           Record.new(
@@ -11,6 +12,7 @@ module RubyEventStore
             metadata:   {some: 'meta'},
             data:       {some: 'value'},
             event_type: event_type,
+            timestamp:  time,
           )
         end
         let(:changeable_record) { record(event_type: 'EventNameBeforeRefactor') }

@@ -5,6 +5,7 @@ module RubyEventStore
   module Mappers
     module Transformation
       RSpec.describe SymbolizeMetadataKeys do
+        let(:time)  { Time.now.utc }
         let(:uuid)  { SecureRandom.uuid }
         let(:record)  {
           Record.new(
@@ -12,6 +13,7 @@ module RubyEventStore
             metadata:   {some: 'meta'},
             data:       JSON.parse(JSON.dump({some: 'value'})),
             event_type: 'TestEvent',
+            timestamp:  time
           )
         }
         let(:changed_record)  {
@@ -20,6 +22,7 @@ module RubyEventStore
             metadata:   JSON.parse(JSON.dump({some: 'meta'})),
             data:       JSON.parse(JSON.dump({some: 'value'})),
             event_type: 'TestEvent',
+            timestamp:  time
           )
         }
 

@@ -7,6 +7,7 @@ module RubyEventStore
         include ProtobufHelper
         before(:each) { require_protobuf_dependencies }
 
+        let(:time) { Time.new.utc }
         let(:event_id)     { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }
         let(:metadata) { {
           one: 1,
@@ -20,6 +21,7 @@ module RubyEventStore
           nein: nil,
           ten: {some: 'hash', with: {nested: 'values'}},
           eleven: [1,2,3],
+          timestamp: time
         } }
         let(:data) do
           ResTesting::OrderCreated.new(
@@ -40,7 +42,8 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             metadata:   domain_event.metadata.to_h,
             data:       nil,
-            event_type: domain_event.event_type
+            event_type: domain_event.event_type,
+            timestamp: time
           )
           expect do
             ProtobufEncoder.new.dump(record)
@@ -52,7 +55,8 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             metadata:   domain_event.metadata.to_h,
             data:       {},
-            event_type: domain_event.event_type
+            event_type: domain_event.event_type,
+            timestamp: time
           )
 
           expect do
@@ -68,6 +72,7 @@ module RubyEventStore
           expect(result.data).not_to     be_empty
           expect(result.metadata).not_to be_empty
           expect(result.event_type).to   eq("res_testing.OrderCreated")
+          expect(result.timestamp).to    eq(time)
         end
 
         specify '#load returns event instance in data attribute' do
@@ -79,7 +84,8 @@ module RubyEventStore
           expect(result).to                be_a(Record)
           expect(result.event_id).to       eq(domain_event.event_id)
           expect(result.data).to           eq(data)
-          expect(result.metadata).to       eq(metadata)
+          expect(result.metadata).to       eq(metadata.reject { |k, _| k == :timestamp })
+          expect(result.timestamp).to      eq(time)
         end
       end
     end
