@@ -211,14 +211,14 @@ module RubyEventStore
     end
 
     specify 'timestamp can be overwritten by using with_metadata' do
-      client.with_metadata(timestamp: '2018-01-01T00:00:00Z') do
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) do
         client.append(event = TestEvent.new)
       end
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
       expect(published.first.metadata.to_h.keys).to eq([:timestamp])
-      expect(published.first.metadata[:timestamp]).to eq('2018-01-01T00:00:00Z')
+      expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
     end
 
     specify 'timestamp is utc time' do
