@@ -12,7 +12,7 @@ module RubyEventStore
       let(:event_id)     { SecureRandom.uuid }
       let(:domain_event) { SomethingHappened.new(data: data, metadata: metadata, event_id: event_id) }
 
-      it_behaves_like :mapper, Default.new, SomethingHappened.new
+      it_behaves_like :mapper, Default.new, TimestampEnrichment.with_timestamp(SomethingHappened.new)
 
       specify '#event_to_serialized_record returns YAML serialized record' do
         record = subject.event_to_serialized_record(domain_event)

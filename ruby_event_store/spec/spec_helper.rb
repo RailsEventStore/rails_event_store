@@ -8,6 +8,14 @@ OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
 TestEvent = Class.new(RubyEventStore::Event)
 
+module TimestampEnrichment
+  def with_timestamp(event, timestamp = Time.now.utc)
+    event.metadata[:timestamp] ||= timestamp
+    event
+  end
+  module_function :with_timestamp
+end
+
 module Subscribers
   class InvalidHandler
   end

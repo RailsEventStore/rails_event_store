@@ -24,7 +24,7 @@ module RubyEventStore
       let(:encrypted_item)  { coder.dump(Transformation::DomainEvent.new.dump(domain_event)) }
       subject { described_class.new(key_repository) }
 
-      it_behaves_like :mapper, EncryptionMapper.new(InMemoryEncryptionKeyRepository.new), SomeEventWithoutPersonalInfo.new
+      it_behaves_like :mapper, EncryptionMapper.new(InMemoryEncryptionKeyRepository.new), TimestampEnrichment.with_timestamp(SomeEventWithoutPersonalInfo.new)
 
       before(:each) {
         key = key_repository.create(123)

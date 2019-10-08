@@ -9,7 +9,7 @@ module RubyEventStore
       let(:event_id)     { SecureRandom.uuid }
       let(:domain_event) { TestEvent.new(data: data, metadata: metadata, event_id: event_id) }
 
-      it_behaves_like :mapper, NullMapper.new, TestEvent.new
+      it_behaves_like :mapper, NullMapper.new, TimestampEnrichment.with_timestamp(TestEvent.new)
 
       specify '#event_to_serialized_record' do
         record = subject.event_to_serialized_record(domain_event)

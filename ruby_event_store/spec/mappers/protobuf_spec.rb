@@ -190,10 +190,12 @@ module RubyEventStore
 
       require_protobuf_dependencies do
         it_behaves_like :mapper, Protobuf.new,
-          RubyEventStore::Proto.new(
-            data: ResTesting::OrderCreated.new(
-              customer_id: 123,
-              order_id: "K3THNX9",
+          TimestampEnrichment.with_timestamp(
+            RubyEventStore::Proto.new(
+              data: ResTesting::OrderCreated.new(
+                customer_id: 123,
+                order_id: "K3THNX9",
+              )
             )
           )
       end
