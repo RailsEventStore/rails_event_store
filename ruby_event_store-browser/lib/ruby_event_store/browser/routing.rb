@@ -6,7 +6,7 @@ module RubyEventStore
         @root_path = root_path
       end
 
-      def paginated_events_from_stream_url(id:, position:, direction:, count:)
+      def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
         base = [host, root_path].compact.join
         args = [position, direction, count].compact
         args.map! { |a| Rack::Utils.escape(a) }

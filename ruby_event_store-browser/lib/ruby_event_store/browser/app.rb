@@ -63,6 +63,13 @@ module RubyEventStore
         end
       end
 
+      get '/streams/:id' do
+        json GetStream.new(
+          stream_name: params[:id],
+          routing: routing,
+        )
+      end
+
       get '/streams/:id/relationships/events' do
         json Stream.new(
           event_store: settings.event_store_locator,

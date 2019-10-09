@@ -2,6 +2,23 @@ require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Browser do
+    specify "requsting stream resource" do
+      test_client.get "/streams/all"
+
+      expect(test_client.last_response).to be_ok
+      expect(test_client.parsed_body["data"]).to eq({
+        "id" => "all",
+        "type" => "streams",
+        "relationships" => {
+          "events" => {
+            "links" => {
+              "self" => "http://www.example.com/streams/all/relationships/events/",
+            }
+          }
+        }
+      })
+    end
+
     specify do
       event_store.publish(dummy_event, stream_name: "dummy")
       test_client.get "/streams/all/relationships/events"
