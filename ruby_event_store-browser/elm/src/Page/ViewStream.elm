@@ -38,11 +38,12 @@ initModel streamName =
 type Msg
     = GoToPage Api.PaginationLink
     | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
+    | StreamFetched (Result Http.Error Api.Stream)
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getEvents EventsFetched (flags.streamsUrl ++ "/" ++ Url.percentEncode streamId ++ "/relationships/events")
+    Api.getStream StreamFetched (flags.streamsUrl ++ "/" ++ Url.percentEncode streamId)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -55,6 +56,12 @@ update msg model =
             ( { model | events = result }, Cmd.none )
 
         EventsFetched (Err errorMessage) ->
+            ( model, Cmd.none )
+
+        StreamFetched (Ok streamResource) ->
+            ( model, Api.getEvents EventsFetched streamResource.eventsRelationshipLink )
+
+        StreamFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
 

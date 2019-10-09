@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -41,11 +41,24 @@ type alias PaginationLinks =
     }
 
 
+type alias Stream =
+    { eventsRelationshipLink : String
+    }
+
+
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
     Http.get
         { url = Route.buildUrl flags.eventsUrl eventId
         , expect = Http.expectJson msgBuilder eventDecoder
+        }
+
+
+getStream : (Result Http.Error Stream -> msg) -> String -> Cmd msg
+getStream msgBuilder url =
+    Http.get
+        { url = url
+        , expect = Http.expectJson msgBuilder streamDecoder
         }
 
 
@@ -67,6 +80,18 @@ eventDecoder_ =
         |> optionalAt [ "attributes", "causation_stream_name" ] (maybe string) Nothing
         |> requiredAt [ "attributes", "type_stream_name" ] string
         |> optionalAt [ "attributes", "parent_event_id" ] (maybe string) Nothing
+
+
+streamDecoder : Decoder Stream
+streamDecoder =
+    streamDecoder_
+        |> field "data"
+
+
+streamDecoder_ : Decoder Stream
+streamDecoder_ =
+    succeed Stream
+        |> requiredAt [ "relationships", "events", "links", "self" ] string
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg
