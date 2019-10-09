@@ -11,7 +11,11 @@ module RubyEventStore
         args = [position, direction, count].compact
         args.map! { |a| Rack::Utils.escape(a) }
 
-        "#{base}/streams/#{id}/relationships/events/#{args.join('/')}"
+        if args.empty?
+          "#{base}/streams/#{id}/relationships/events"
+        else
+          "#{base}/streams/#{id}/relationships/events/#{args.join('/')}"
+        end
       end
 
       private

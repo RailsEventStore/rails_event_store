@@ -12,7 +12,7 @@ module RubyEventStore
         "relationships" => {
           "events" => {
             "links" => {
-              "self" => "http://www.example.com/streams/all/relationships/events/",
+              "self" => "http://www.example.com/streams/all/relationships/events",
             }
           }
         }
