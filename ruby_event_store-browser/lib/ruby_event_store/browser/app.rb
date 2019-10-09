@@ -71,7 +71,7 @@ module RubyEventStore
       end
 
       get '/streams/:id/relationships/events' do
-        json Stream.new(
+        json GetEventsFromStream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
           routing: routing,
@@ -79,7 +79,7 @@ module RubyEventStore
       end
 
       get '/streams/:id/relationships/events/:position/:direction/:count' do
-        json Stream.new(
+        json GetEventsFromStream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
           routing: routing,
