@@ -67,7 +67,7 @@ module RubyEventStore
         json Stream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
-          url_builder: method(:streams_url_for)
+          routing: routing,
         )
       end
 
@@ -75,7 +75,7 @@ module RubyEventStore
         json Stream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
-          url_builder: method(:streams_url_for)
+          routing: routing,
         )
       end
 
@@ -89,10 +89,6 @@ module RubyEventStore
             settings.host || request.base_url,
             settings.root_path || request.script_name
           )
-        end
-
-        def streams_url_for(options)
-          routing.paginated_events_from_stream_url(**options)
         end
 
         def json(data)

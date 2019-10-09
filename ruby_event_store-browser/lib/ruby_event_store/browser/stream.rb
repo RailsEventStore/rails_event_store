@@ -5,12 +5,12 @@ module RubyEventStore
     class Stream
       HEAD = Object.new
 
-      attr_reader :event_store, :params, :url_builder
+      attr_reader :event_store, :params, :routing
 
-      def initialize(event_store:, params:, url_builder:)
+      def initialize(event_store:, params:, routing:)
         @event_store = event_store
         @params      = params
-        @url_builder = url_builder
+        @routing = routing
       end
 
       def as_json
@@ -68,19 +68,19 @@ module RubyEventStore
       end
 
       def prev_page_link(event_id)
-        url_builder.call(id: stream_name, position: event_id, direction: :forward, count: count)
+        routing.paginated_events_from_stream_url(id: stream_name, position: event_id, direction: :forward, count: count)
       end
 
       def next_page_link(event_id)
-        url_builder.call(id: stream_name, position: event_id, direction: :backward, count: count)
+        routing.paginated_events_from_stream_url(id: stream_name, position: event_id, direction: :backward, count: count)
       end
 
       def first_page_link
-        url_builder.call(id: stream_name, position: :head, direction: :backward, count: count)
+        routing.paginated_events_from_stream_url(id: stream_name, position: :head, direction: :backward, count: count)
       end
 
       def last_page_link
-        url_builder.call(id: stream_name, position: :head, direction: :forward, count: count)
+        routing.paginated_events_from_stream_url(id: stream_name, position: :head, direction: :forward, count: count)
       end
 
       def count
