@@ -84,14 +84,15 @@ module RubyEventStore
           params.each_with_object({}) { |(k, v), h| v.nil? ? next : h[k.to_sym] = v }
         end
 
-        def streams_url_for(options)
-          host = settings.host      || request.base_url
-          path = settings.root_path || request.script_name
-          base = [host, path].compact.join
-          args = options.values_at(:position, :direction, :count).compact
-          args.map! { |a| Rack::Utils.escape(a) }
+        def routing
+          Routing.new(
+            settings.host || request.base_url,
+            settings.root_path || request.script_name
+          )
+        end
 
-          "#{base}/streams/#{options[:id]}/relationships/events/#{args.join('/')}"
+        def streams_url_for(options)
+          routing.paginated_events_from_stream_url(**options)
         end
 
         def json(data)

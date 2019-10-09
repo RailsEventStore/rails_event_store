@@ -10,3 +10,4 @@ end
 require_relative 'browser/event'
 require_relative 'browser/json_api_event'
 require_relative 'browser/stream'
+require_relative 'browser/routing'
