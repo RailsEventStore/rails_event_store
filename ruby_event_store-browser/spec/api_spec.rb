@@ -9,6 +9,9 @@ module RubyEventStore
       expect(test_client.parsed_body["data"]).to eq({
         "id" => "all",
         "type" => "streams",
+        "attributes" => {
+          "related_streams" => [],
+        },
         "relationships" => {
           "events" => {
             "links" => {
@@ -17,6 +20,23 @@ module RubyEventStore
           }
         }
       })
+    end
+
+    specify "requsting stream resource with related streams" do
+      app = RubyEventStore::Browser::App.for(
+        event_store_locator: -> { event_store },
+        related_streams_query: ->(stream_name) { stream_name == "dummy" ? ["even-dummier"] : [] },
+        host: 'http://www.example.com'
+      )
+      test_client = TestClient.with_linter(app)
+
+      test_client.get "/streams/all"
+      expect(test_client.last_response).to be_ok
+      expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq([])
+
+      test_client.get "/streams/dummy"
+      expect(test_client.last_response).to be_ok
+      expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(["even-dummier"])
     end
 
     specify do

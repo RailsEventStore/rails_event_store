@@ -4,6 +4,7 @@ module RubyEventStore
   module Browser
     PAGE_SIZE = 20
     SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
+    DEFAULT_RELATED_STREAMS_QUERY = ->(stream_name) { [] }
   end
 end
 

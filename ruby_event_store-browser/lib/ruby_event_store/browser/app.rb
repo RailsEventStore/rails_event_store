@@ -6,10 +6,11 @@ require 'sinatra/base'
 module RubyEventStore
   module Browser
     class App < Sinatra::Base
-      def self.for(event_store_locator:, host: nil, path: nil, environment: :production)
+      def self.for(event_store_locator:, host: nil, path: nil, environment: :production, related_streams_query: DEFAULT_RELATED_STREAMS_QUERY)
         self.tap do |app|
           app.settings.instance_exec do
             set :event_store_locator, event_store_locator
+            set :related_streams_query, -> { related_streams_query }
             set :host, host
             set :root_path, path
             set :environment, environment
@@ -22,6 +23,7 @@ module RubyEventStore
         set :host, nil
         set :root_path, nil
         set :event_store_locator, -> {}
+        set :related_streams_query, nil
         set :protection, except: :path_traversal
 
         mime_type :json, 'application/vnd.api+json'
@@ -67,6 +69,7 @@ module RubyEventStore
         json GetStream.new(
           stream_name: params[:id],
           routing: routing,
+          related_streams_query: settings.related_streams_query,
         )
       end
 
