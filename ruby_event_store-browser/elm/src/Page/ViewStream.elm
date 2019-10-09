@@ -42,7 +42,7 @@ type Msg
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getEvents EventsFetched (Route.buildUrl flags.streamsUrl streamId)
+    Api.getEvents EventsFetched (flags.streamsUrl ++ "/" ++ Url.percentEncode streamId ++ "/relationships/events")
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

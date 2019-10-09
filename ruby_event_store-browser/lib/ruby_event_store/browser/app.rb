@@ -63,7 +63,7 @@ module RubyEventStore
         end
       end
 
-      get '/streams/:id' do
+      get '/streams/:id/relationships/events' do
         json Stream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
@@ -71,7 +71,7 @@ module RubyEventStore
         )
       end
 
-      get '/streams/:id/:position/:direction/:count' do
+      get '/streams/:id/relationships/events/:position/:direction/:count' do
         json Stream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
@@ -88,10 +88,10 @@ module RubyEventStore
           host = settings.host      || request.base_url
           path = settings.root_path || request.script_name
           base = [host, path].compact.join
-          args = options.values_at(:id, :position, :direction, :count).compact
+          args = options.values_at(:position, :direction, :count).compact
           args.map! { |a| Rack::Utils.escape(a) }
 
-          "#{base}/streams/#{args.join('/')}"
+          "#{base}/streams/#{options[:id]}/relationships/events/#{args.join('/')}"
         end
 
         def json(data)
