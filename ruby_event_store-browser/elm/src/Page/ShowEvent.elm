@@ -129,7 +129,7 @@ getCausedEvents : Flags -> Event -> Cmd Msg
 getCausedEvents flags event =
     case event.causationStreamName of
         Just streamName ->
-            Api.getStream CausedStreamFetched (Route.buildUrl flags.streamsUrl streamName)
+            Api.getStream CausedStreamFetched flags streamName
 
         Nothing ->
             Cmd.none

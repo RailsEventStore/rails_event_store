@@ -43,7 +43,7 @@ type Msg
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getStream StreamFetched (flags.streamsUrl ++ "/" ++ Url.percentEncode streamId)
+    Api.getStream StreamFetched flags streamId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
