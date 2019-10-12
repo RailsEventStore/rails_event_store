@@ -49,6 +49,18 @@ event_store.publish(other_event, stream_name: "OtherStream$91")
   end
 end
 
+RELATED_STREAMS_QUERY = ->(stream_name) do
+  if stream_name.start_with?("$by_type_DummyEvent")
+    [
+      "all",
+      "$by_type_OtherEvent"
+    ]
+  else
+    []
+  end
+end
+
 run RubyEventStore::Browser::App.for(
   event_store_locator: -> { event_store },
+  related_streams_query: RELATED_STREAMS_QUERY,
 )
