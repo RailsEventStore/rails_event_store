@@ -41,6 +41,12 @@ RSpec.describe AggregateRoot do
     expect { order.apply(spanish_inquisition) }.to_not raise_error
   end
 
+  it "should ignore missing apply method based on a custom non-strict apply strategy" do
+    order = OrderWithNonStrictDefaultStrategy.new
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect { order.apply(spanish_inquisition) }.not_to raise_error
+  end
+
   it "should receive a method call based on a custom strategy" do
     order = OrderWithCustomStrategy.new
     order_created = Orders::Events::OrderCreated.new

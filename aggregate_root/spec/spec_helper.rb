@@ -87,3 +87,23 @@ class OrderWithCustomStrategy
     @status = :expired
   end
 end
+
+class OrderWithNonStrictDefaultStrategy
+  include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) })
+
+  def initialize
+    @status = :draft
+  end
+
+  attr_accessor :status
+
+  private
+
+  def custom_created(_event)
+    @status = :created
+  end
+
+  def custom_expired(_event)
+    @status = :expired
+  end
+end
