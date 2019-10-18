@@ -3,18 +3,18 @@
 module RubyEventStore
   module ROM
     module Types
-      Time = ::ROM::Types::Time
+      DateTime = ::ROM::Types::DateTime
                  .constructor do |value|
                    case value
                    when nil
                      Dry::Core::Constants::Undefined
                    when ::String
-                     ::Time.iso8601(value)
+                     ::DateTime.iso8601(value)
                    else
                      value
                    end
                  end
-                 .default { ::Time.now.utc }
+                 .default { ::DateTime.now.new_offset(0) }
 
       SerializedRecordSerializer = ::ROM::Types::String
       # detects if the value is a Sequel::Postgres::JSONHash or Sequel::Postgres::JSONBHash
