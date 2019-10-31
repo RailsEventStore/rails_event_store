@@ -82,7 +82,7 @@ module RubyEventStore
     end
 
     def read_scope(event_store, stream, count, start)
-      scope = event_store.read.in_batches(count)
+      scope = event_store.read.in_batches(count).of_type(*handlers.keys.uniq)
       scope = scope.stream(stream) if stream
       scope = scope.from(start) if start
       scope

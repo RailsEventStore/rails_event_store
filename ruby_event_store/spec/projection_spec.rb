@@ -195,11 +195,25 @@ module RubyEventStore
       expect(balance).to eq(total: 6)
     end
 
+    specify "only handled events must be read" do
+      expect_any_instance_of(Specification).to receive(:of_type).with('RubyEventStore::MoneyDeposited', 'RubyEventStore::MoneyWithdrawn').and_call_original
+
+      event_store.publish(MoneyDeposited.new(data: { amount: 1 }))
+      event_store.publish(MoneyWithdrawn.new(data: { amount: 1 }))
+
+      balance = Projection
+        .from_all_streams
+        .init( -> { {} })
+        .when([MoneyDeposited, MoneyWithdrawn], ->(state, event) {})
+        .when([MoneyDeposited, MoneyWithdrawn], ->(state, event) {})
+        .run(event_store)
+    end
+
     specify do
       repository = event_store.send(:repository)
       mapper     = event_store.send(:mapper)
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected = specification.in_batches(2).result
+      expected = specification.in_batches(2).of_type([]).result
       expect(repository).to receive(:read).with(expected).and_return([])
       Projection.from_all_streams.run(event_store, count: 2)
     end
@@ -208,7 +222,7 @@ module RubyEventStore
       repository = event_store.send(:repository)
       mapper     = event_store.send(:mapper)
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected = specification.in_batches(2).stream("FancyStream").result
+      expected = specification.in_batches(2).stream("FancyStream").of_type([]).result
       expect(repository).to receive(:read).with(expected).and_return([])
       Projection.from_stream("FancyStream").run(event_store, count: 2)
     end
