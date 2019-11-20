@@ -8,7 +8,7 @@ For that, you can use 2 metadata attributes associated with events you are going
 
 Let's hear what Greg Young says about `correlation_id` and `causation_id`:
 
-> Let's say every message has 3 ids. 1 is its id. Another is correlation the last it causation.
+> Let's say every message has 3 ids. 1 is its id. Another is correlation, the last is causation.
 > If you are responding to a message, you copy its correlation id as your correlation id, its message id is your causation id.
 > This allows you to see an entire conversation (correlation id) or to see what causes what (causation id).
 
