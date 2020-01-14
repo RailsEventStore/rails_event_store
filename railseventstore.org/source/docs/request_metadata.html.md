@@ -63,6 +63,7 @@ module YourAppName
         { remote_ip:  request.remote_ip,
           request_id: request.uuid,
         }
+      end
     )
 
     # ...
