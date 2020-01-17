@@ -19,6 +19,8 @@ module RubyEventStore
             metadata: item.metadata,
             data:     item.data
           )
+        rescue NameError => e
+          raise e unless ENV.fetch('RAILS_ENV_STORE_ALLOW_MISSING_EVENTS', false)
         end
       end
     end
