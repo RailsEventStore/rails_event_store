@@ -12,7 +12,7 @@ services:
       - /res/ruby_event_store-browser/elm/elm-stuff/
     working_dir: /res
   mysql:
-    image: mysql
+    image: mysql:5.7
     restart: always
     environment:
       - MYSQL_DATABASE=rails_event_store
@@ -20,7 +20,7 @@ services:
     ports:
       - "3306:3306"
   postgres:
-    image: postgres
+    image: postgres:11
     restart: always
     environment:
       - POSTGRES_DB=rails_event_store
