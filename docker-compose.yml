@@ -12,7 +12,7 @@ services:
       - /res/ruby_event_store-browser/elm/elm-stuff/
     working_dir: /res
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: always
     environment:
       - MYSQL_DATABASE=rails_event_store
