@@ -10,7 +10,7 @@ module ProtobufHelper
   end
 
   def unsupported_ruby_version
-    truffleruby || jruby
+    truffleruby || jruby || ruby_2_7_0
   end
 
   def truffleruby
@@ -19,5 +19,9 @@ module ProtobufHelper
 
   def jruby
     RUBY_PLATFORM == "java"
+  end
+
+  def ruby_2_7_0
+    RUBY_VERSION == "2.7.0"
   end
 end

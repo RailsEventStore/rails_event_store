@@ -5,7 +5,7 @@ version: '2.1'
 jobs:
   check_config:
     docker:
-    - image: railseventstore/ruby:2.6
+    - image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -166,11 +166,11 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install mutate
-  test_aggregate_root_ruby_2_6:
+  test_aggregate_root_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -184,11 +184,11 @@ jobs:
     steps:
     - checkout
     - run: make -C aggregate_root install test
-  test_bounded_context_ruby_2_6:
+  test_bounded_context_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -202,11 +202,11 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_ruby_event_store_ruby_2_6:
+  test_ruby_event_store_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -220,11 +220,11 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store install test
-  test_ruby_event_store_browser_ruby_2_6:
+  test_ruby_event_store_browser_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -238,11 +238,11 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
-  test_ruby_event_store_rom_ruby_2_6:
+  test_ruby_event_store_rom_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: sqlite:db.sqlite3
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -256,11 +256,11 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
-  test_rails_event_store_ruby_2_6:
+  test_rails_event_store_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -274,11 +274,11 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_ruby_2_6:
+  test_rails_event_store_active_record_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: sqlite3:db.sqlite3
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -292,11 +292,11 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_ruby_2_6:
+  test_rails_event_store_rspec_ruby_2_7:
     docker:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -585,6 +585,150 @@ jobs:
     - environment:
         DATABASE_URL: 'sqlite3::memory:'
       image: railseventstore/ruby:2.5
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store-rspec install test
+  test_aggregate_root_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: 'sqlite3::memory:'
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C aggregate_root install test
+  test_bounded_context_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: 'sqlite3::memory:'
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C bounded_context install test
+  test_ruby_event_store_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: 'sqlite3::memory:'
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C ruby_event_store install test
+  test_ruby_event_store_browser_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: 'sqlite3::memory:'
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C ruby_event_store-browser install test
+  test_ruby_event_store_rom_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: sqlite:db.sqlite3
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C ruby_event_store-rom install test
+  test_rails_event_store_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: 'sqlite3::memory:'
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store install test
+  test_rails_event_store_active_record_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: sqlite3:db.sqlite3
+      image: railseventstore/ruby:2.6
+    - image: postgres:11
+      environment:
+      - POSTGRES_DB=rails_event_store
+      - POSTGRES_PASSWORD=secret
+      command: "-c max_connections=2000"
+    - image: mysql:8
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_rails_event_store_rspec_ruby_2_6:
+    docker:
+    - environment:
+        DATABASE_URL: 'sqlite3::memory:'
+      image: railseventstore/ruby:2.6
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -890,7 +1034,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -908,7 +1052,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -926,7 +1070,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -944,7 +1088,7 @@ jobs:
     docker:
     - environment:
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -963,7 +1107,7 @@ jobs:
     - environment:
         DATA_TYPE: json
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -982,7 +1126,7 @@ jobs:
     - environment:
         DATA_TYPE: jsonb
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
-      image: railseventstore/ruby:2.6
+      image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -1003,48 +1147,38 @@ workflows:
     - check_config
   Current Ruby:
     jobs:
-    - test_aggregate_root_ruby_2_6
+    - test_aggregate_root_ruby_2_7
     - mutate_aggregate_root_ruby_2_6:
         requires:
-        - test_aggregate_root_ruby_2_6
-    - test_bounded_context_ruby_2_6
+        - test_aggregate_root_ruby_2_7
+    - test_bounded_context_ruby_2_7
     - mutate_bounded_context_ruby_2_6:
         requires:
-        - test_bounded_context_ruby_2_6
-    - test_ruby_event_store_ruby_2_6
+        - test_bounded_context_ruby_2_7
+    - test_ruby_event_store_ruby_2_7
     - mutate_ruby_event_store_ruby_2_6:
         requires:
-        - test_ruby_event_store_ruby_2_6
-    - test_ruby_event_store_browser_ruby_2_6
+        - test_ruby_event_store_ruby_2_7
+    - test_ruby_event_store_browser_ruby_2_7
     - mutate_ruby_event_store_browser_ruby_2_6:
         requires:
-        - test_ruby_event_store_browser_ruby_2_6
-    - test_ruby_event_store_rom_ruby_2_6
+        - test_ruby_event_store_browser_ruby_2_7
+    - test_ruby_event_store_rom_ruby_2_7
     - mutate_ruby_event_store_rom_ruby_2_6:
         requires:
-        - test_ruby_event_store_rom_ruby_2_6
-    - test_rails_event_store_ruby_2_6
+        - test_ruby_event_store_rom_ruby_2_7
+    - test_rails_event_store_ruby_2_7
     - mutate_rails_event_store_ruby_2_6:
         requires:
-        - test_rails_event_store_ruby_2_6
-    - test_rails_event_store_active_record_ruby_2_6
+        - test_rails_event_store_ruby_2_7
+    - test_rails_event_store_active_record_ruby_2_7
     - mutate_rails_event_store_active_record_ruby_2_6:
         requires:
-        - test_rails_event_store_active_record_ruby_2_6
-    - test_rails_event_store_rspec_ruby_2_6
+        - test_rails_event_store_active_record_ruby_2_7
+    - test_rails_event_store_rspec_ruby_2_7
     - mutate_rails_event_store_rspec_ruby_2_6:
         requires:
-        - test_rails_event_store_rspec_ruby_2_6
-  Ruby 2.5:
-    jobs:
-    - test_aggregate_root_ruby_2_5
-    - test_bounded_context_ruby_2_5
-    - test_ruby_event_store_ruby_2_5
-    - test_ruby_event_store_browser_ruby_2_5
-    - test_ruby_event_store_rom_ruby_2_5
-    - test_rails_event_store_ruby_2_5
-    - test_rails_event_store_active_record_ruby_2_5
-    - test_rails_event_store_rspec_ruby_2_5
+        - test_rails_event_store_rspec_ruby_2_7
   Ruby 2.4:
     jobs:
     - test_aggregate_root_ruby_2_4
@@ -1055,6 +1189,26 @@ workflows:
     - test_rails_event_store_ruby_2_4
     - test_rails_event_store_active_record_ruby_2_4
     - test_rails_event_store_rspec_ruby_2_4
+  Ruby 2.5:
+    jobs:
+    - test_aggregate_root_ruby_2_5
+    - test_bounded_context_ruby_2_5
+    - test_ruby_event_store_ruby_2_5
+    - test_ruby_event_store_browser_ruby_2_5
+    - test_ruby_event_store_rom_ruby_2_5
+    - test_rails_event_store_ruby_2_5
+    - test_rails_event_store_active_record_ruby_2_5
+    - test_rails_event_store_rspec_ruby_2_5
+  Ruby 2.6:
+    jobs:
+    - test_aggregate_root_ruby_2_6
+    - test_bounded_context_ruby_2_6
+    - test_ruby_event_store_ruby_2_6
+    - test_ruby_event_store_browser_ruby_2_6
+    - test_ruby_event_store_rom_ruby_2_6
+    - test_rails_event_store_ruby_2_6
+    - test_rails_event_store_active_record_ruby_2_6
+    - test_rails_event_store_rspec_ruby_2_6
   Rails 4.2:
     jobs:
     - test_bounded_context_rails_4_2
