@@ -6,7 +6,7 @@ eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 
 gem 'childprocess'
 gem 'fakefs', '~> 0.11.2'
-gem 'mysql2', '>= 0.4.10'
-gem 'pg', '>= 0.21'
+gem 'mysql2', '>= 0.5.3'
+gem 'pg', '>= 1.2.2'
 gem 'ruby_event_store', path: '../ruby_event_store'
 gem 'sqlite3', '1.3.13'
