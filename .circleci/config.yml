@@ -746,7 +746,7 @@ jobs:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
+      image: railseventstore/ruby:2.6
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -764,7 +764,7 @@ jobs:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
+      image: railseventstore/ruby:2.6
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -782,7 +782,7 @@ jobs:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
+      image: railseventstore/ruby:2.6
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
@@ -800,7 +800,7 @@ jobs:
     docker:
     - environment:
         RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
+      image: railseventstore/ruby:2.6
     - image: postgres:11
       environment:
       - POSTGRES_DB=rails_event_store
