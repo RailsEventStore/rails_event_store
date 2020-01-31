@@ -111,7 +111,7 @@ ruby_2_5_compat = merge.(GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby
 ruby_2_6_compat = merge.(GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.6", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', 'ruby_2_6'][gem_name], gem_name) })
 current_ruby = merge.(GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.7", { "DATABASE_URL" => database_url[gem_name] }), job_name.curry['test', 'ruby_2_7'][gem_name], gem_name) })
 mutations = merge.(GEMS, ->(gem_name) { mutate.(job_name.curry['mutate', 'ruby_2_6'][gem_name], gem_name) })
-rails_4_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.7", { "RAILS_VERSION" => "4.2.11.1" }), job_name.curry['test', 'rails_5_0'][gem_name], gem_name) })
+rails_4_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.7", { "RAILS_VERSION" => "4.2.11.1" }), job_name.curry['test', 'rails_4_2'][gem_name], gem_name) })
 rails_5_0_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.7", { "RAILS_VERSION" => "5.0.7.2" }), job_name.curry['test', 'rails_5_0'][gem_name], gem_name) })
 rails_5_1_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.7", { "RAILS_VERSION" => "5.1.7" }), job_name.curry['test', 'rails_5_1'][gem_name], gem_name) })
 rails_5_2_compat = merge.(RAILS_GEMS, ->(gem_name) { test.(Docker("railseventstore/ruby:2.7", { "RAILS_VERSION" => "5.2.4.1" }), job_name.curry['test', 'rails_5_2'][gem_name], gem_name) })
