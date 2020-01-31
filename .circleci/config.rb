@@ -89,7 +89,7 @@ database_url =
 identity = ->(item) { item }
 normalize = ->(name) { name.gsub("-", "_").gsub(".", "_") }
 merge = ->(array, transform = identity) { array.reduce({}) { |memo, item| memo.merge(transform.(item)) } }
-mutate = ->(name, gem_name) { GemJob('mutate', Docker('railseventstore/ruby:2.7', { 'MUTANT_JOBS' => 4 }), gem_name, name) }
+mutate = ->(name, gem_name) { GemJob('mutate', Docker('railseventstore/ruby:2.6', { 'MUTANT_JOBS' => 4 }), gem_name, name) }
 test = ->(docker, name, gem_name) { GemJob('test', docker, gem_name, name) }
 job_name = ->(task, ruby_version, gem_name) { [task, gem_name, ruby_version].map(&normalize).join('_') }
 
