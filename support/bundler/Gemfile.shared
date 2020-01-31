@@ -1,4 +1,4 @@
-ENV['RAILS_VERSION'] ||= '5.2.3'
+ENV['RAILS_VERSION'] ||= '6.0.2'
 
 gem 'rake',         '~> 10.0'
 gem 'rspec',        '~> 3.6'

@@ -742,82 +742,10 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_rails_4_2:
-    docker:
-    - environment:
-        RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
-    steps:
-    - checkout
-    - run: make -C bounded_context install test
-  test_rails_event_store_rails_4_2:
-    docker:
-    - environment:
-        RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
-    steps:
-    - checkout
-    - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_rails_4_2:
-    docker:
-    - environment:
-        RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
-    steps:
-    - checkout
-    - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_rails_4_2:
-    docker:
-    - environment:
-        RAILS_VERSION: 4.2.11.1
-      image: railseventstore/ruby:2.7
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
-    steps:
-    - checkout
-    - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7.1
+        RAILS_VERSION: 5.0.7.2
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -835,7 +763,7 @@ jobs:
   test_rails_event_store_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7.1
+        RAILS_VERSION: 5.0.7.2
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -853,7 +781,7 @@ jobs:
   test_rails_event_store_active_record_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7.1
+        RAILS_VERSION: 5.0.7.2
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -871,7 +799,7 @@ jobs:
   test_rails_event_store_rspec_rails_5_0:
     docker:
     - environment:
-        RAILS_VERSION: 5.0.7.1
+        RAILS_VERSION: 5.0.7.2
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -958,10 +886,10 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_rails_6_0:
+  test_bounded_context_rails_5_2:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0
+        RAILS_VERSION: 5.2.4.1
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -976,10 +904,10 @@ jobs:
     steps:
     - checkout
     - run: make -C bounded_context install test
-  test_rails_event_store_rails_6_0:
+  test_rails_event_store_rails_5_2:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0
+        RAILS_VERSION: 5.2.4.1
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -994,10 +922,10 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_rails_6_0:
+  test_rails_event_store_active_record_rails_5_2:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0
+        RAILS_VERSION: 5.2.4.1
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -1012,10 +940,10 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_rails_6_0:
+  test_rails_event_store_rspec_rails_5_2:
     docker:
     - environment:
-        RAILS_VERSION: 6.0.0
+        RAILS_VERSION: 5.2.4.1
       image: railseventstore/ruby:2.7
     - image: postgres:11
       environment:
@@ -1227,12 +1155,12 @@ workflows:
     - test_rails_event_store_rails_5_1
     - test_rails_event_store_active_record_rails_5_1
     - test_rails_event_store_rspec_rails_5_1
-  Rails 6.0:
+  Rails 5.2:
     jobs:
-    - test_bounded_context_rails_6_0
-    - test_rails_event_store_rails_6_0
-    - test_rails_event_store_active_record_rails_6_0
-    - test_rails_event_store_rspec_rails_6_0
+    - test_bounded_context_rails_5_2
+    - test_rails_event_store_rails_5_2
+    - test_rails_event_store_active_record_rails_5_2
+    - test_rails_event_store_rspec_rails_5_2
   MySQL:
     jobs:
     - test_rails_event_store_active_record_mysql
