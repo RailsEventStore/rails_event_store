@@ -17,16 +17,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C aggregate_root install mutate
@@ -35,16 +25,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C bounded_context install mutate
@@ -53,16 +33,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C ruby_event_store install mutate
@@ -71,16 +41,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install mutate
@@ -89,16 +49,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install mutate
@@ -107,16 +57,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C rails_event_store install mutate
@@ -125,16 +65,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install mutate
@@ -143,16 +73,6 @@ jobs:
     - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
-    - image: postgres:11
-      environment:
-      - POSTGRES_DB=rails_event_store
-      - POSTGRES_PASSWORD=secret
-      command: "-c max_connections=2000"
-    - image: mysql:8
-      environment:
-      - MYSQL_DATABASE=rails_event_store
-      - MYSQL_ROOT_PASSWORD=secret
-      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install mutate
