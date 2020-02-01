@@ -27,6 +27,18 @@ DATATYPE_GEMS = %w[
   ruby_event_store-rom
 ]
 
+RAILS_VERSIONS = {
+  "5.2" => "5.2.4.1",
+  "5.1" => "5.1.7",
+  "5.0" => "5.0.7.2",
+  "4.2" => "4.2.11.1",
+}
+
+DATABASE_URLS = {
+  "mysql" => "mysql2://root:secret@127.0.0.1/rails_event_store?pool=5",
+  "postgres" => "postgres://postgres:secret@localhost/rails_event_store?pool=5"
+}
+
 Docker =
   Struct.new(:image, :environment, :command) do
     def to_h
@@ -133,7 +145,7 @@ def Merge(array, transform = ->(item) { item })
   array.reduce({}) { |memo, item| memo.merge(transform.(item)) }
 end
 
-database_url =
+sqlite3_url =
   ->(gem_name) do
     case gem_name
     when /active_record/
@@ -162,7 +174,7 @@ ruby_2_4_compat =
     ->(gem_name) do
       Test(
         "ruby_2_4",
-        Ruby("2.4", "DATABASE_URL" => database_url[gem_name])
+        Ruby("2.4", "DATABASE_URL" => sqlite3_url[gem_name])
       )[gem_name]
     end
   )
@@ -172,7 +184,7 @@ ruby_2_5_compat =
     ->(gem_name) do
       Test(
         "ruby_2_5",
-        Ruby("2.5", "DATABASE_URL" => database_url[gem_name])
+        Ruby("2.5", "DATABASE_URL" => sqlite3_url[gem_name])
       )[gem_name]
     end
   )
@@ -182,7 +194,7 @@ ruby_2_6_compat =
     ->(gem_name) do
       Test(
         "ruby_2_6",
-        Ruby("2.6", "DATABASE_URL" => database_url[gem_name])
+        Ruby("2.6", "DATABASE_URL" => sqlite3_url[gem_name])
       )[gem_name]
     end
   )
@@ -192,7 +204,7 @@ current_ruby =
     ->(gem_name) do
       Test(
         "ruby_2_7",
-        Ruby("2.7", "DATABASE_URL" => database_url[gem_name])
+        Ruby("2.7", "DATABASE_URL" => sqlite3_url[gem_name])
       )[gem_name]
     end
   )
@@ -206,7 +218,7 @@ rails_4_2_compat =
     RAILS_GEMS,
     Test(
       "rails_4_2",
-      Ruby("2.6", "RAILS_VERSION" => "4.2.11.1")
+      Ruby("2.6", "RAILS_VERSION" => RAILS_VERSIONS["4.2"])
     )
   )
 rails_5_0_compat =
@@ -214,7 +226,7 @@ rails_5_0_compat =
     RAILS_GEMS,
     Test(
       "rails_5_0",
-      Ruby("2.7", "RAILS_VERSION" => "5.0.7.2")
+      Ruby("2.7", "RAILS_VERSION" => RAILS_VERSIONS["5.0"])
     )
   )
 rails_5_1_compat =
@@ -222,7 +234,7 @@ rails_5_1_compat =
     RAILS_GEMS,
     Test(
       "rails_5_1",
-      Ruby("2.7", "RAILS_VERSION" => "5.1.7")
+      Ruby("2.7", "RAILS_VERSION" => RAILS_VERSIONS["5.1"])
     )
   )
 rails_5_2_compat =
@@ -230,7 +242,7 @@ rails_5_2_compat =
     RAILS_GEMS,
     Test(
       "rails_5_2",
-      Ruby("2.7", "RAILS_VERSION" => "5.2.4.1")
+      Ruby("2.7", "RAILS_VERSION" => RAILS_VERSIONS["5.2"])
     )
   )
 mysql_5_compat =
@@ -238,7 +250,7 @@ mysql_5_compat =
     DATABASE_GEMS,
     Test(
       "mysql_5",
-      Ruby("2.7", "DATABASE_URL" => "mysql2://root:secret@127.0.0.1/rails_event_store?pool=5"),
+      Ruby("2.7", "DATABASE_URL" => DATABASE_URLS["mysql"]),
       MySQL("5")
     )
   )
@@ -247,7 +259,7 @@ mysql_8_compat =
     DATABASE_GEMS,
     Test(
       "mysql_8",
-      Ruby("2.7", "DATABASE_URL" => "mysql2://root:secret@127.0.0.1/rails_event_store?pool=5"),
+      Ruby("2.7", "DATABASE_URL" => DATABASE_URLS["mysql"]),
       MySQL("8")
     )
   )
@@ -256,7 +268,7 @@ postgres_11_compat =
     DATABASE_GEMS,
     Test(
       "postgres_11",
-      Ruby("2.7", "DATABASE_URL" => "postgres://postgres:secret@localhost/rails_event_store?pool=5"),
+      Ruby("2.7", "DATABASE_URL" => DATABASE_URLS["postgres"]),
       Postgres("11")
     )
   )
@@ -265,7 +277,7 @@ json_compat =
     DATATYPE_GEMS,
     Test(
       "data_type_json",
-      Ruby("2.7", "DATA_TYPE" => "json", "DATABASE_URL" => "postgres://postgres:secret@localhost/rails_event_store?pool=5"),
+      Ruby("2.7", "DATA_TYPE" => "json", "DATABASE_URL" => DATABASE_URLS["postgres"]),
       Postgres("11")
     )
   )
@@ -274,7 +286,7 @@ jsonb_compat =
     DATATYPE_GEMS,
     Test(
       "data_type_jsonb",
-      Ruby("2.7", "DATA_TYPE" => "jsonb", "DATABASE_URL" => "postgres://postgres:secret@localhost/rails_event_store?pool=5"),
+      Ruby("2.7", "DATA_TYPE" => "jsonb", "DATABASE_URL" => DATABASE_URLS["postgres"]),
       Postgres("11")
     )
   )
