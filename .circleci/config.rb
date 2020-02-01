@@ -284,6 +284,24 @@ rails_5_2_compat =
       )
     end
   )
+mysql_5_compat =
+  merge.(
+    RDBMS_GEMS,
+      ->(gem_name) do
+        test.(
+          [
+            Ruby(
+              "2.7",
+              "DATABASE_URL" =>
+                "mysql2://root:secret@127.0.0.1/rails_event_store?pool=5"
+            ),
+            MySQL("5")
+          ],
+            job_name.curry["test", "mysql_5"][gem_name],
+            gem_name
+        )
+      end
+  )
 mysql_8_compat =
   merge.(
     RDBMS_GEMS,
@@ -370,6 +388,7 @@ jobs =
     rails_5_0_compat,
     rails_5_1_compat,
     rails_5_2_compat,
+    mysql_5_compat,
     mysql_8_compat,
     postgres_11_compat,
     json_compat,
@@ -394,6 +413,7 @@ workflows =
     Workflow("Rails 5.0", RAILS_GEMS.map(&job_name.curry["test", "rails_5_0"])),
     Workflow("Rails 5.1", RAILS_GEMS.map(&job_name.curry["test", "rails_5_1"])),
     Workflow("Rails 5.2", RAILS_GEMS.map(&job_name.curry["test", "rails_5_2"])),
+    Workflow("MySQL 5", RDBMS_GEMS.map(&job_name.curry["test", "mysql_5"])),
     Workflow("MySQL 8", RDBMS_GEMS.map(&job_name.curry["test", "mysql_8"])),
     Workflow("Postgres 11", RDBMS_GEMS.map(&job_name.curry["test", "postgres_11"])),
     Workflow(

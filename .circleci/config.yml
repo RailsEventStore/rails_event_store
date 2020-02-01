@@ -460,6 +460,32 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
+  test_rails_event_store_active_record_mysql_5:
+    docker:
+    - image: railseventstore/ruby:2.7
+      environment:
+        DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
+    - image: mysql:5
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C rails_event_store_active_record install test
+  test_ruby_event_store_rom_mysql_5:
+    docker:
+    - image: railseventstore/ruby:2.7
+      environment:
+        DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
+    - image: mysql:5
+      environment:
+      - MYSQL_DATABASE=rails_event_store
+      - MYSQL_ROOT_PASSWORD=secret
+      command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
+    steps:
+    - checkout
+    - run: make -C ruby_event_store-rom install test
   test_rails_event_store_active_record_mysql_8:
     docker:
     - image: railseventstore/ruby:2.7
@@ -633,6 +659,10 @@ workflows:
     - test_rails_event_store_rails_5_2
     - test_rails_event_store_active_record_rails_5_2
     - test_rails_event_store_rspec_rails_5_2
+  MySQL 5:
+    jobs:
+    - test_rails_event_store_active_record_mysql_5
+    - test_ruby_event_store_rom_mysql_5
   MySQL 8:
     jobs:
     - test_rails_event_store_active_record_mysql_8
