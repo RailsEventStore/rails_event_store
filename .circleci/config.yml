@@ -145,6 +145,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: 'sqlite3::memory:'
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C aggregate_root install test
@@ -153,6 +154,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: 'sqlite3::memory:'
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -161,6 +163,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: 'sqlite3::memory:'
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C ruby_event_store install test
@@ -169,6 +172,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: 'sqlite3::memory:'
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install test
@@ -177,6 +181,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: sqlite:db.sqlite3
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
@@ -185,6 +190,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: 'sqlite3::memory:'
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C rails_event_store install test
@@ -193,6 +199,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: sqlite3:db.sqlite3
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
@@ -201,6 +208,7 @@ jobs:
     - image: railseventstore/ruby:2.4
       environment:
         DATABASE_URL: 'sqlite3::memory:'
+        RAILS_VERSION: 5.2.4.1
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test

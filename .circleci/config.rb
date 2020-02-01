@@ -174,7 +174,7 @@ ruby_2_4_compat =
     ->(gem_name) do
       Test(
         "ruby_2_4",
-        Ruby("2.4", "DATABASE_URL" => sqlite3_url[gem_name])
+        Ruby("2.4", "DATABASE_URL" => sqlite3_url[gem_name], "RAILS_VERSION" => RAILS_VERSIONS["5.2"])
       )[gem_name]
     end
   )
