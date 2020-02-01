@@ -144,6 +144,7 @@ database_url =
       "sqlite3::memory:"
     end
   end
+
 identity = ->(item) { item }
 normalize = ->(name) { name.gsub("-", "_").gsub(".", "_") }
 merge = ->(array, transform = identity) { array.reduce({}) { |memo, item| memo.merge(transform.(item)) } }
@@ -208,7 +209,7 @@ workflows =
     Workflow("Rails 5.1", RAILS_GEMS.map(&job_name.curry['test', 'rails_5_1'])),
     Workflow("Rails 5.2", RAILS_GEMS.map(&job_name.curry['test', 'rails_5_2'])),
     Workflow("MySQL", RDBMS_GEMS.map(&job_name.curry['test', 'mysql'])),
-    Workflow("PostgreSQL", RDBMS_GEMS.map(&job_name.curry['test', 'postgres'])),
+    Workflow("Postgres", RDBMS_GEMS.map(&job_name.curry['test', 'postgres'])),
     Workflow("JSONB data type", DATATYPE_GEMS.map(&job_name.curry['test', 'data_type_json'])),
     Workflow("JSON data type", DATATYPE_GEMS.map(&job_name.curry['test', 'data_type_jsonb']))
   ]
