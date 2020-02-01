@@ -154,7 +154,7 @@ job_name = ->(task, ruby_version, gem_name) { [task, gem_name, ruby_version].map
 check_config =
   Job(
     "check_config",
-    Images([Ruby("2.7"), Postgres("11"), MySQL("8")]),
+    Images([Ruby("2.7")]),
     [
       "checkout",
       NamedRun(
