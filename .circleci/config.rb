@@ -284,7 +284,7 @@ rails_5_2_compat =
       )
     end
   )
-mysql_compat =
+mysql_8_compat =
   merge.(
     RDBMS_GEMS,
     ->(gem_name) do
@@ -297,12 +297,12 @@ mysql_compat =
           ),
           MySQL("8")
         ]),
-        job_name.curry["test", "mysql"][gem_name],
+        job_name.curry["test", "mysql_8"][gem_name],
         gem_name
       )
     end
   )
-postgres_compat =
+postgres_11_compat =
   merge.(
     RDBMS_GEMS,
     ->(gem_name) do
@@ -315,7 +315,7 @@ postgres_compat =
           ),
           Postgres("11"),
         ]),
-        job_name.curry["test", "postgres"][gem_name],
+        job_name.curry["test", "postgres_11"][gem_name],
         gem_name
       )
     end
@@ -370,8 +370,8 @@ jobs =
     rails_5_0_compat,
     rails_5_1_compat,
     rails_5_2_compat,
-    mysql_compat,
-    postgres_compat,
+    mysql_8_compat,
+    postgres_11_compat,
     json_compat,
     jsonb_compat
   ]
@@ -394,8 +394,8 @@ workflows =
     Workflow("Rails 5.0", RAILS_GEMS.map(&job_name.curry["test", "rails_5_0"])),
     Workflow("Rails 5.1", RAILS_GEMS.map(&job_name.curry["test", "rails_5_1"])),
     Workflow("Rails 5.2", RAILS_GEMS.map(&job_name.curry["test", "rails_5_2"])),
-    Workflow("MySQL", RDBMS_GEMS.map(&job_name.curry["test", "mysql"])),
-    Workflow("Postgres", RDBMS_GEMS.map(&job_name.curry["test", "postgres"])),
+    Workflow("MySQL 8", RDBMS_GEMS.map(&job_name.curry["test", "mysql_8"])),
+    Workflow("Postgres 11", RDBMS_GEMS.map(&job_name.curry["test", "postgres_11"])),
     Workflow(
       "JSONB data type",
       DATATYPE_GEMS.map(&job_name.curry["test", "data_type_json"])

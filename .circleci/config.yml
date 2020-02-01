@@ -460,7 +460,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_rails_event_store_active_record_mysql:
+  test_rails_event_store_active_record_mysql_8:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
@@ -473,7 +473,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_ruby_event_store_rom_mysql:
+  test_ruby_event_store_rom_mysql_8:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
@@ -486,7 +486,7 @@ jobs:
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install test
-  test_rails_event_store_active_record_postgres:
+  test_rails_event_store_active_record_postgres_11:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
@@ -499,7 +499,7 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
-  test_ruby_event_store_rom_postgres:
+  test_ruby_event_store_rom_postgres_11:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
@@ -633,14 +633,14 @@ workflows:
     - test_rails_event_store_rails_5_2
     - test_rails_event_store_active_record_rails_5_2
     - test_rails_event_store_rspec_rails_5_2
-  MySQL:
+  MySQL 8:
     jobs:
-    - test_rails_event_store_active_record_mysql
-    - test_ruby_event_store_rom_mysql
-  Postgres:
+    - test_rails_event_store_active_record_mysql_8
+    - test_ruby_event_store_rom_mysql_8
+  Postgres 11:
     jobs:
-    - test_rails_event_store_active_record_postgres
-    - test_ruby_event_store_rom_postgres
+    - test_rails_event_store_active_record_postgres_11
+    - test_ruby_event_store_rom_postgres_11
   JSONB data type:
     jobs:
     - test_ruby_event_store_rom_data_type_json
