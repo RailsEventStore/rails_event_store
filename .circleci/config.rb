@@ -272,6 +272,15 @@ postgres_11_compat =
       Postgres("11")
     )
   )
+postgres_12_compat =
+  Merge(
+    DATABASE_GEMS,
+    Test(
+      "postgres_12",
+      Ruby("2.7", "DATABASE_URL" => DATABASE_URLS["postgres"]),
+      Postgres("12")
+    )
+  )
 json_compat =
   Merge(
     DATATYPE_GEMS,
@@ -305,6 +314,7 @@ jobs =
     mysql_5_compat,
     mysql_8_compat,
     postgres_11_compat,
+    postgres_12_compat,
     json_compat,
     jsonb_compat
   ]
