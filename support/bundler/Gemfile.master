@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ENV['RAILS_VERSION'] ||= '6.0.2'
+ENV['RAILS_VERSION'] ||= File.read(File.join(__dir__, '../..', 'RAILS_VERSION'))
 
 gem 'activerecord', ENV['RAILS_VERSION']
 gem 'ruby_event_store', path: '../../ruby_event_store'

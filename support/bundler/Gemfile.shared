@@ -1,4 +1,4 @@
-ENV['RAILS_VERSION'] ||= '6.0.2'
+ENV['RAILS_VERSION'] ||= File.read(File.join(__dir__, '../..', 'RAILS_VERSION'))
 
 gem 'rake',         '~> 10.0'
 gem 'rspec',        '~> 3.6'
