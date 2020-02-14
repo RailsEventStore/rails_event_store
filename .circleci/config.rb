@@ -134,7 +134,7 @@ def Mutate(name)
   ->(gem_name) do
     GemJob(
       "mutate",
-      Images([Ruby("2.7", "MUTANT_JOBS" => 4)]),
+      Images([Ruby("2.6", "MUTANT_JOBS" => 4)]),
       gem_name,
       JobName("mutate", name)[gem_name]
     )
@@ -211,7 +211,7 @@ current_ruby =
 mutations =
   Merge(
     GEMS,
-    Mutate("ruby_2_7")
+    Mutate("ruby_2_6")
   )
 rails_4_2_compat =
   Merge(
@@ -328,7 +328,7 @@ workflows          =
       "Current Ruby",
       GEMS.flat_map do |gem_name|
         Requires(
-          JobName("mutate", "ruby_2_7")[gem_name] =>
+          JobName("mutate", "ruby_2_6")[gem_name] =>
             JobName("test", "ruby_2_7")[gem_name]
         )
       end

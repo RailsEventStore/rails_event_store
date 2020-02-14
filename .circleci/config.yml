@@ -12,65 +12,65 @@ jobs:
         name: Verify .circleci/config.yml is generated from .circleci/config.rb
         command: WAS="$(md5sum .circleci/config.yml)" && ruby .circleci/config.rb
           && test "$WAS" == "$(md5sum .circleci/config.yml)"
-  mutate_aggregate_root_ruby_2_7:
+  mutate_aggregate_root_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C aggregate_root install mutate
-  mutate_bounded_context_ruby_2_7:
+  mutate_bounded_context_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C bounded_context install mutate
-  mutate_ruby_event_store_ruby_2_7:
+  mutate_ruby_event_store_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C ruby_event_store install mutate
-  mutate_ruby_event_store_browser_ruby_2_7:
+  mutate_ruby_event_store_browser_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C ruby_event_store-browser install mutate
-  mutate_ruby_event_store_rom_ruby_2_7:
+  mutate_ruby_event_store_rom_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C ruby_event_store-rom install mutate
-  mutate_rails_event_store_ruby_2_7:
+  mutate_rails_event_store_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C rails_event_store install mutate
-  mutate_rails_event_store_active_record_ruby_2_7:
+  mutate_rails_event_store_active_record_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install mutate
-  mutate_rails_event_store_rspec_ruby_2_7:
+  mutate_rails_event_store_rspec_ruby_2_6:
     docker:
-    - image: railseventstore/ruby:2.7
+    - image: railseventstore/ruby:2.6
       environment:
         MUTANT_JOBS: 4
     steps:
@@ -584,35 +584,35 @@ workflows:
   Current Ruby:
     jobs:
     - test_aggregate_root_ruby_2_7
-    - mutate_aggregate_root_ruby_2_7:
+    - mutate_aggregate_root_ruby_2_6:
         requires:
         - test_aggregate_root_ruby_2_7
     - test_bounded_context_ruby_2_7
-    - mutate_bounded_context_ruby_2_7:
+    - mutate_bounded_context_ruby_2_6:
         requires:
         - test_bounded_context_ruby_2_7
     - test_ruby_event_store_ruby_2_7
-    - mutate_ruby_event_store_ruby_2_7:
+    - mutate_ruby_event_store_ruby_2_6:
         requires:
         - test_ruby_event_store_ruby_2_7
     - test_ruby_event_store_browser_ruby_2_7
-    - mutate_ruby_event_store_browser_ruby_2_7:
+    - mutate_ruby_event_store_browser_ruby_2_6:
         requires:
         - test_ruby_event_store_browser_ruby_2_7
     - test_ruby_event_store_rom_ruby_2_7
-    - mutate_ruby_event_store_rom_ruby_2_7:
+    - mutate_ruby_event_store_rom_ruby_2_6:
         requires:
         - test_ruby_event_store_rom_ruby_2_7
     - test_rails_event_store_ruby_2_7
-    - mutate_rails_event_store_ruby_2_7:
+    - mutate_rails_event_store_ruby_2_6:
         requires:
         - test_rails_event_store_ruby_2_7
     - test_rails_event_store_active_record_ruby_2_7
-    - mutate_rails_event_store_active_record_ruby_2_7:
+    - mutate_rails_event_store_active_record_ruby_2_6:
         requires:
         - test_rails_event_store_active_record_ruby_2_7
     - test_rails_event_store_rspec_ruby_2_7
-    - mutate_rails_event_store_rspec_ruby_2_7:
+    - mutate_rails_event_store_rspec_ruby_2_6:
         requires:
         - test_rails_event_store_rspec_ruby_2_7
   Ruby 2.4:
