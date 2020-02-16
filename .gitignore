@@ -21,3 +21,4 @@ config/master.key
 *.orig
 ruby_event_store-browser/public/*
 .inch/
+.tmp
