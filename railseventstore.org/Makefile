@@ -1,8 +1,4 @@
-contributors: ## Update contributors list
-	@echo "Updating contributors list"
-	@./bin/contributors
-
-install: contributors ## Install all dependencies
+install: ## Install all dependencies
 	@bundle install
 	@yarn install
 
