@@ -14,7 +14,7 @@ After running `bundle install`, Rails Event Store should be ready to be used.
 
 <div class="bg-blue-lightest border-l-4 border-blue text-blue-dark px-4" role="alert">
   <p class="text-base font-bold">Kickstarting new Rails application with RailsEventStore</p>
-  <p class="text-base inline-block">If you're setting up a new Rails app, there is even a faster way to begin with RailsEventStore. The <a href="https://railseventstore.org/new">template</a> will install required gems, perform initial database migration, pre-configure event browser and more — <code class="bg-transparent">rails new -m https://railseventstore.org/new APP_NAME</code>.</p>
+  <p class="text-base inline-block">If you're setting up a new Rails app, there is even a faster way to begin with RailsEventStore. The <a href="https://railseventstore.org/new">template</a> will install required gems, perform initial database migration, pre-configure event browser and more — <code class="bg-transparent">rails new -m https://railseventstore.org/new APP_NAME</code></p>
 
   <p class="text-base inline-block">
     Make sure to check generated <code class="bg-transparent">config/initializers/rails_event_store.rb</code> for initial configuration.
