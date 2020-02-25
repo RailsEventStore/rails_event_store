@@ -2,6 +2,7 @@
 
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
+    FakeEventInStream = Struct.new(:event)
 
     def has_event?(event_id)
       Event.exists?(id: event_id)
@@ -40,6 +41,8 @@ module RailsEventStoreActiveRecord
     private
 
     def read_scope(spec)
+      return of_type_optimization(spec) if of_type_optimization?(spec)
+
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
       stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
@@ -49,6 +52,19 @@ module RailsEventStoreActiveRecord
       stream = stream.where(stop_condition(spec)) if spec.stop
       stream = stream.order(id: order(spec))
       stream
+    end
+
+    def of_type_optimization(spec)
+      events = Event.where(event_type: spec.with_types)
+      events = events.limit(spec.limit) if spec.limit?
+      events = events.where(id: spec.with_ids) if spec.with_ids?
+      events = events.distinct.joins(:event_in_streams).order("event_store_events_in_streams.id #{order(spec)}")
+
+      events.map { |event| FakeEventInStream.new(event) }
+    end
+
+    def of_type_optimization?(spec)
+      spec.stream.global? && spec.with_types?
     end
 
     def normalize_stream_name(specification)
