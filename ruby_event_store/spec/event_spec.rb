@@ -58,7 +58,7 @@ module RubyEventStore
     end
 
     specify 'UUID should be String' do
-      event_1 = Test::TestCreated.new({event_id: 1})
+      event_1 = Test::TestCreated.new(event_id: 1)
       event_2 = Test::TestCreated.new
       expect(event_1.event_id).to be_an_instance_of(String)
       expect(event_2.event_id).to be_an_instance_of(String)
@@ -112,7 +112,7 @@ module RubyEventStore
           event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd',
           metadata: { meta: 'test'},
       }
-      event = Test::TestCreated.new(hash)
+      event = Test::TestCreated.new(**hash)
       expect(event.to_h).to eq(hash.merge(type: 'Test::TestCreated'))
     end
 

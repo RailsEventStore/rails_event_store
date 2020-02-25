@@ -151,7 +151,7 @@ module RubyEventStore
     def dup
       new_attributes = attributes.dup
       yield new_attributes if block_given?
-      SpecificationResult.new(new_attributes.to_h)
+      SpecificationResult.new(**new_attributes.to_h)
     end
 
     # Two specification attributess are equal if:

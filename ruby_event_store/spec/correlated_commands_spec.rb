@@ -13,17 +13,24 @@ module RubyEventStore
       end
     end
 
-    class AddProductCommand < Struct.new(:message_id, :product_id)
+    class AddProductCommand
       include CorrelableCommand
+
+      attr_accessor :message_id, :product_id
+
       def initialize(product_id:, message_id: SecureRandom.uuid)
-        super(message_id, product_id)
+        self.product_id = product_id
+        self.message_id = message_id
       end
     end
 
-    class TestCommand < Struct.new(:message_id)
+    class TestCommand
       include CorrelableCommand
+
+      attr_accessor :message_id
+
       def initialize(message_id: SecureRandom.uuid)
-        super(message_id)
+        self.message_id = message_id
       end
     end
 
