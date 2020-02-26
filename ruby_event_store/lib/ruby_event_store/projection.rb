@@ -50,10 +50,6 @@ module RubyEventStore
       handlers.keys
     end
 
-    def handled_event_classes
-      handled_events.map { |event| Object.const_get(event) }
-    end
-
     def run(event_store, start: nil, count: PAGE_SIZE)
       if streams.any?
         reduce_from_streams(event_store, start, count)
@@ -87,7 +83,7 @@ module RubyEventStore
 
     def read_scope(event_store, stream, count, start)
       scope = event_store.read.in_batches(count)
-      scope = scope.of_type(handled_event_classes)
+      scope = scope.of_type(handled_events)
       scope = scope.stream(stream) if stream
       scope = scope.from(start) if start
       scope
