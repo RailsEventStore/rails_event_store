@@ -11,7 +11,7 @@ module RubyEventStore
     let(:stream_name) { "Customer$123" }
 
     specify "reduce events from one stream" do
-      event_store.publish([
+      event_store.append([
         MoneyDeposited.new(data: { amount: 10 }),
         MoneyDeposited.new(data: { amount: 20 }),
         MoneyWithdrawn.new(data: { amount: 5 }),
@@ -27,9 +27,9 @@ module RubyEventStore
     end
 
     specify "reduce events from many streams" do
-      event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
-      event_store.publish(MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
-      event_store.publish(MoneyWithdrawn.new(data: { amount: 5 }),  stream_name: "Customer$3")
+      event_store.append(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
+      event_store.append(MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
+      event_store.append(MoneyWithdrawn.new(data: { amount: 5 }),  stream_name: "Customer$3")
 
       account_balance = Projection
         .from_stream("Customer$1", "Customer$3")
@@ -54,10 +54,10 @@ module RubyEventStore
     end
 
     specify "take events from all streams" do
-      event_store.publish(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$1")
-      event_store.publish(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$2")
-      event_store.publish(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$3")
-      event_store.publish(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: "Customer$4")
+      event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$1")
+      event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$2")
+      event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$3")
+      event_store.append(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: "Customer$4")
 
       account_balance = Projection
         .from_all_streams
@@ -82,7 +82,7 @@ module RubyEventStore
     end
 
     specify "empty hash is default inital state" do
-      event_store.publish([
+      event_store.append([
         MoneyDeposited.new(data: { amount: 10 }),
         MoneyDeposited.new(data: { amount: 20 }),
         MoneyWithdrawn.new(data: { amount: 5 }),
@@ -97,7 +97,7 @@ module RubyEventStore
     end
 
     specify "ignore unhandled events" do
-      event_store.publish([
+      event_store.append([
         MoneyDeposited.new(data: { amount: 10 }),
         MoneyWithdrawn.new(data: { amount: 2 })
       ], stream_name: stream_name)
@@ -111,7 +111,7 @@ module RubyEventStore
     end
 
     specify "subsrcibe one handler to many events" do
-      event_store.publish([
+      event_store.append([
         MoneyDeposited.new(data: { amount: 10 }),
         MoneyWithdrawn.new(data: { amount: 2 })
       ], stream_name: stream_name)
@@ -148,7 +148,7 @@ module RubyEventStore
     end
 
     specify "all events from the stream must be read (starting from begining of the stream)" do
-      event_store.publish([
+      event_store.append([
         MoneyDeposited.new(data: { amount: 10 }),
         MoneyWithdrawn.new(data: { amount: 2 }),
         MoneyDeposited.new(data: { amount: 4 }),
@@ -166,7 +166,7 @@ module RubyEventStore
     end
 
     specify "all events from the stream must be read (starting from given event)" do
-      event_store.publish([
+      event_store.append([
         MoneyDeposited.new(data: { amount: 10 }),
         starting = MoneyWithdrawn.new(data: { amount: 2 }),
         MoneyDeposited.new(data: { amount: 4 }),
@@ -184,11 +184,11 @@ module RubyEventStore
     end
 
     specify "all events from all streams must be read (starting from begining of each stream)" do
-      event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
-      event_store.publish(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
-      event_store.publish(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$2")
-      event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$2")
-      event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$3")
+      event_store.append(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
+      event_store.append(MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
+      event_store.append(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$2")
+      event_store.append(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$2")
+      event_store.append(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$3")
 
       balance = Projection
         .from_all_streams
@@ -200,11 +200,11 @@ module RubyEventStore
     end
 
     specify "all events from all streams must be read (starting from given event)" do
-      event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
-      event_store.publish(starting = MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
-      event_store.publish(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$2")
-      event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$2")
-      event_store.publish(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$3")
+      event_store.append(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
+      event_store.append(starting = MoneyWithdrawn.new(data: { amount: 2 }), stream_name: stream_name)
+      event_store.append(MoneyDeposited.new(data: { amount: 4 }), stream_name: "Customer$2")
+      event_store.append(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$2")
+      event_store.append(MoneyDeposited.new(data: { amount: 5 }), stream_name: "Customer$3")
 
       balance = Projection
         .from_all_streams
