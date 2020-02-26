@@ -20,10 +20,14 @@ module AggregateRoot
     private
 
     def handler_name(aggregate, event)
-      aggregate.class.on_methods.fetch(event.type) { handler_name_by_type(event.type) }
+      on_dsl_handler_name(aggregate, event.type) || apply_handler_name(event.type)
     end
 
-    def handler_name_by_type(event_type)
+    def on_dsl_handler_name(aggregate, event_type)
+      aggregate.class.on_methods[event_type] if aggregate.class.respond_to?(:on_methods)
+    end
+
+    def apply_handler_name(event_type)
       "apply_#{Transform.to_snake_case(event_type(event_type))}"
     end
 

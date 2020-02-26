@@ -53,10 +53,7 @@ class Order
 end
 
 class OrderWithNonStrictApplyStrategy
-  include AggregateRoot
-  def apply_strategy
-    DefaultApplyStrategy.new(strict: false)
-  end
+  include AggregateRoot.with_strategy(->{ AggregateRoot::DefaultApplyStrategy.new(strict: false) })
 end
 
 class CustomOrderApplyStrategy
