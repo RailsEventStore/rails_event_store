@@ -2,8 +2,10 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Projection do
-    MoneyDeposited = Class.new(RubyEventStore::Event)
-    MoneyWithdrawn = Class.new(RubyEventStore::Event)
+    MoneyDeposited   = Class.new(RubyEventStore::Event)
+    MoneyWithdrawn   = Class.new(RubyEventStore::Event)
+    EventToBeSkipped = Class.new(RubyEventStore::Event)
+    MoneyLost        = Class.new(RubyEventStore::Event)
 
     let(:event_store) { RubyEventStore::Client.new(repository: repository, mapper: mapper) }
     let(:mapper)      { Mappers::NullMapper.new }
@@ -216,24 +218,23 @@ module RubyEventStore
     end
 
     specify "only events that have handlers must be read" do
-      EventWithoutHandler = Class.new(RubyEventStore::Event)
-      EventWithHandler = Class.new(RubyEventStore::Event)
-
-      event_store.publish(EventWithoutHandler.new(data: { amount: 1 }), stream_name: "Customer$234")
-      event_store.publish(EventWithHandler.new(data: { amount: 1 }), stream_name: "Customer$234")
-      event_store.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$123")
-      event_store.publish(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$234")
+      event_store.publish([
+        EventToBeSkipped.new,
+        MoneyDeposited.new(data: { amount: 10 }),
+        MoneyLost.new(data: { amount: 1 }),
+        MoneyWithdrawn.new(data: { amount: 3 })
+      ], stream_name: "Customer$234")
 
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected      = specification.in_batches(2).of_type([MoneyDeposited, MoneyWithdrawn, EventWithHandler]).result
+      expected      = specification.in_batches(100).of_type([MoneyDeposited, MoneyWithdrawn, MoneyLost]).result
 
       expect(repository).to receive(:read).with(expected).and_call_original
       balance = Projection.
         from_all_streams.
         init( -> { { total: 0 } }).
-        when([MoneyDeposited], ->(state, event) { state[:total] += event.data[:amount] }).
-        when([MoneyWithdrawn, EventWithHandler], ->(state, event) { state[:total] -= event.data[:amount] }).
-        run(event_store, count: 2)
+        when([MoneyDeposited],            ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn, MoneyLost], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, count: 100)
       expect(balance).to eq(total: 6)
     end
 
