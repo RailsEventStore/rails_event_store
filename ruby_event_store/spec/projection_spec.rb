@@ -227,8 +227,8 @@ module RubyEventStore
 
       specification = Specification.new(SpecificationReader.new(repository, mapper))
       expected      = specification.in_batches(100).of_type([MoneyDeposited, MoneyWithdrawn, MoneyLost]).result
-
       expect(repository).to receive(:read).with(expected).and_call_original
+
       balance = Projection.
         from_all_streams.
         init( -> { { total: 0 } }).
