@@ -15,8 +15,8 @@ module RubyEventStore
 
     def initialize(streams: [])
       @streams  = streams
-      @handlers = Hash.new { ->(_, _) {} }
-      @init     = -> { Hash.new }
+      @handlers = {}
+      @init     = -> { {} }
     end
 
     attr_reader :streams, :handlers
@@ -83,6 +83,7 @@ module RubyEventStore
 
     def read_scope(event_store, stream, count, start)
       scope = event_store.read.in_batches(count)
+      scope = scope.of_type(handled_events)
       scope = scope.stream(stream) if stream
       scope = scope.from(start) if start
       scope
@@ -93,7 +94,7 @@ module RubyEventStore
     end
 
     def transition(state, event)
-      handlers[event.type].(state, event)
+      handlers.fetch(event.type).call(state, event)
       state
     end
   end

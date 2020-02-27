@@ -2,8 +2,10 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Projection do
-    MoneyDeposited = Class.new(RubyEventStore::Event)
-    MoneyWithdrawn = Class.new(RubyEventStore::Event)
+    MoneyDeposited   = Class.new(RubyEventStore::Event)
+    MoneyWithdrawn   = Class.new(RubyEventStore::Event)
+    EventToBeSkipped = Class.new(RubyEventStore::Event)
+    MoneyLost        = Class.new(RubyEventStore::Event)
 
     let(:event_store) { RubyEventStore::Client.new(repository: repository, mapper: mapper) }
     let(:mapper)      { Mappers::NullMapper.new }
@@ -40,7 +42,7 @@ module RubyEventStore
       expect(account_balance).to eq(total: 5)
     end
 
-    specify "raises proper errors when wrong argument were pass (stream mode)" do
+    specify "raises proper errors when wrong argument were passed (stream mode)" do
       projection = Projection.from_stream("Customer$1", "Customer$2")
       expect {
         projection.run(event_store, start: :last)
@@ -215,9 +217,30 @@ module RubyEventStore
       expect(balance).to eq(total: 6)
     end
 
+    specify "only events that have handlers must be read" do
+      event_store.publish([
+        EventToBeSkipped.new,
+        MoneyDeposited.new(data: { amount: 10 }),
+        MoneyLost.new(data: { amount: 1 }),
+        MoneyWithdrawn.new(data: { amount: 3 })
+      ], stream_name: "Customer$234")
+
+      specification = Specification.new(SpecificationReader.new(repository, mapper))
+      expected      = specification.in_batches(100).of_type([MoneyDeposited, MoneyWithdrawn, MoneyLost]).result
+      expect(repository).to receive(:read).with(expected).and_call_original
+
+      balance = Projection.
+        from_all_streams.
+        init( -> { { total: 0 } }).
+        when([MoneyDeposited],            ->(state, event) { state[:total] += event.data[:amount] }).
+        when([MoneyWithdrawn, MoneyLost], ->(state, event) { state[:total] -= event.data[:amount] }).
+        run(event_store, count: 100)
+      expect(balance).to eq(total: 6)
+    end
+
     specify do
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected      = specification.in_batches(2).result
+      expected      = specification.in_batches(2).of_type([]).result
       expect(repository).to receive(:read).with(expected).and_return([])
 
       Projection.from_all_streams.run(event_store, count: 2)
@@ -225,7 +248,7 @@ module RubyEventStore
 
     specify do
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected      = specification.in_batches(2).stream("FancyStream").result
+      expected      = specification.in_batches(2).of_type([]).stream("FancyStream").result
       expect(repository).to receive(:read).with(expected).and_return([])
 
       Projection.from_stream("FancyStream").run(event_store, count: 2)
