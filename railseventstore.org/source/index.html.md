@@ -56,24 +56,32 @@ title: Rails Event Store
 
 <h2 class="mt-24 mb-12 -mr-6">Join growing list of companies using Rails Event Store</h2>
 <div class="flex flex-wrap mb-32 -mr-4">
-    <div class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+    <div class="flex items-stretch h-48 md:w-1/4 w-1/2 my-2 pr-4 text-xl">
         <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
             <a class="bg-none" href="https://billetto.co.uk">
                 <img class="w-full" src="/images/billetto_logo.svg" />
             </a>
         </div>
     </div>
-    <div class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+    <div class="flex items-stretch h-48 md:w-1/4 w-1/2 my-2 pr-4 text-xl">
         <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
             <a class="bg-none" href="https://zencargo.com">
                 <img class="w-full" src="/images/zencargo_logo.png" />
             </a>
         </div>
     </div>
-    <div class="flex items-stretch h-48 md:w-1/3 w-full my-2 pr-4 text-xl">
+    <div class="flex items-stretch h-48 md:w-1/4 w-1/2 my-2 pr-4 text-xl">
         <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
             <a class="bg-none" href="https://acatus.com">
                 <img class="w-full" src="/images/acatus_logo.svg" />
+            </a>
+        </div>
+    </div>
+    
+    <div class="flex items-stretch h-48 md:w-1/4 w-1/2 my-2 pr-4 text-xl">
+        <div class="bg-grey-lightest rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-grey text-center">
+            <a class="bg-none" href="https://assist-software.net">
+                <img class="w-full" src="/images/assist_logo.png" />
             </a>
         </div>
     </div>
