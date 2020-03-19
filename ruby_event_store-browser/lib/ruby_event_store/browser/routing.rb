@@ -7,14 +7,14 @@ module RubyEventStore
       end
 
       def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
-        base = [host, root_path].compact.join
+        base = [host, root_path].join
         args = [position, direction, count].compact
-        args.map! { |a| Rack::Utils.escape(a) }
+        stream_name = Rack::Utils.escape(id)
 
         if args.empty?
-          "#{base}/streams/#{id}/relationships/events"
+          "#{base}/streams/#{stream_name}/relationships/events"
         else
-          "#{base}/streams/#{id}/relationships/events/#{args.join('/')}"
+          "#{base}/streams/#{stream_name}/relationships/events/#{args.join('/')}"
         end
       end
 
