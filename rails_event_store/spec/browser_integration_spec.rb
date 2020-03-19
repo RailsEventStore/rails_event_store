@@ -16,11 +16,11 @@ module RailsEventStore
     specify 'api' do
       event_store.publish(events = 21.times.map { DummyEvent.new })
       request  = ::Rack::MockRequest.new(app)
-      response = request.get('/res/streams/all')
+      response = request.get('/res/streams/all/relationships/events')
 
       expect(JSON.parse(response.body)["links"]).to eq({
-        "last" => "http://example.org/res/streams/all/head/forward/20",
-        "next" => "http://example.org/res/streams/all/#{events[1].event_id}/backward/20"
+        "last" => "http://example.org/res/streams/all/relationships/events/head/forward/20",
+        "next" => "http://example.org/res/streams/all/relationships/events/#{events[1].event_id}/backward/20"
       })
     end
 
