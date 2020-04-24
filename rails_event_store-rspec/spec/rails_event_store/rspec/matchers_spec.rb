@@ -72,6 +72,24 @@ module RailsEventStore
       specify do
         expect(matchers.publish).to be_a(Publish)
       end
+
+      specify do
+        aggregate = TestAggregate.new
+        expect {
+          aggregate.foo
+        }.to apply(matchers.an_event(FooEvent)).in(aggregate)
+      end
+
+      specify do
+        aggregate = TestAggregate.new
+        expect {
+          aggregate.foo
+        }.not_to apply(matchers.an_event(BarEvent)).in(aggregate)
+      end
+
+      specify do
+        expect(matchers.apply).to be_a(Apply)
+      end
     end
 
     module Matchers
