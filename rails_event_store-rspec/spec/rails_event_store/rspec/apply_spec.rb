@@ -102,9 +102,27 @@ module RailsEventStore
       end
 
       specify do
-        foo_event = an_event(FooEvent).with_data(any: :thing)
-        matcher_ = matcher(actual = matchers.an_event(foo_event)).in(aggregate)
+        foo_event = matchers.an_event(FooEvent).with_data(any: :thing)
+        matcher_ = matcher(foo_event).in(aggregate)
         matcher_.matches?(Proc.new { aggregate.foo })
+        actual = aggregate.unpublished_events.first
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+          expected block to have applied:
+
+          #{[foo_event].inspect}
+
+          but applied:
+
+          #{[actual].inspect}
+        EOS
+      end
+
+      specify do
+        foo_event = matchers.an_event(FooEvent)
+        matcher_ = matcher(foo_event).in(aggregate)
+        matcher_.matches?(Proc.new { aggregate.foo })
+        actual = aggregate.unpublished_events.first
 
         expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected block not to have applied:
