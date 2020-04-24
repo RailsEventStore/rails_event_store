@@ -8,13 +8,18 @@ module RailsEventStore
         self
       end
 
+      def strict
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(@expected)
+        self
+      end
+
       def matches?(event_proc)
         raise_aggregate_not_set unless @aggregate
         before = @aggregate.unpublished_events.to_a
         event_proc.call
         @applied_events = @aggregate.unpublished_events.to_a - before
         if match_events?
-          ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@applied_events)
+          @matcher.matches?(@applied_events)
         else
           !@applied_events.empty?
         end
@@ -64,6 +69,7 @@ EOS
 
       def initialize(*expected)
         @expected = expected
+        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
       end
 
       def match_events?

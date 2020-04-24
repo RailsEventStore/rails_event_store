@@ -136,6 +136,20 @@ module RailsEventStore
       end
 
       specify do
+        expect {
+          aggregate.foo
+          aggregate.bar
+        }.to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).in(aggregate).strict
+      end
+
+      specify do
+        expect {
+          aggregate.foo
+          aggregate.bar
+        }.not_to matcher(matchers.an_event(BarEvent)).in(aggregate).strict
+      end
+
+      specify do
         matcher_ = matcher
         expect(matcher_.description).to eq("apply events")
       end
