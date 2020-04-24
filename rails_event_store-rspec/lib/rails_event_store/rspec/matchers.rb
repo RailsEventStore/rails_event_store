@@ -46,6 +46,10 @@ module RailsEventStore
         Publish.new(*expected)
       end
 
+      def apply(*expected)
+        Apply.new(*expected)
+      end
+
       private
 
       def formatter
