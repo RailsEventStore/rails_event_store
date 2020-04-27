@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -6,8 +6,8 @@ import Iso8601
 import Json.Decode exposing (Decoder, Value, at, field, list, maybe, nullable, oneOf, string, succeed, value)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
-import Route exposing (buildUrl)
 import Time
+import Url
 
 
 type alias Event =
@@ -41,11 +41,30 @@ type alias PaginationLinks =
     }
 
 
+type alias Stream =
+    { eventsRelationshipLink : String
+    , relatedStreams : List String
+    }
+
+
+buildUrl : String -> String -> String
+buildUrl baseUrl id =
+    baseUrl ++ "/" ++ Url.percentEncode id
+
+
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
     Http.get
-        { url = Route.buildUrl flags.eventsUrl eventId
+        { url = buildUrl flags.eventsUrl eventId
         , expect = Http.expectJson msgBuilder eventDecoder
+        }
+
+
+getStream : (Result Http.Error Stream -> msg) -> Flags -> String -> Cmd msg
+getStream msgBuilder flags streamId =
+    Http.get
+        { url = buildUrl flags.streamsUrl streamId
+        , expect = Http.expectJson msgBuilder streamDecoder
         }
 
 
@@ -67,6 +86,19 @@ eventDecoder_ =
         |> optionalAt [ "attributes", "causation_stream_name" ] (maybe string) Nothing
         |> requiredAt [ "attributes", "type_stream_name" ] string
         |> optionalAt [ "attributes", "parent_event_id" ] (maybe string) Nothing
+
+
+streamDecoder : Decoder Stream
+streamDecoder =
+    streamDecoder_
+        |> field "data"
+
+
+streamDecoder_ : Decoder Stream
+streamDecoder_ =
+    succeed Stream
+        |> requiredAt [ "relationships", "events", "links", "self" ] string
+        |> requiredAt [ "attributes", "related_streams" ] (list string)
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg

@@ -21,6 +21,7 @@ import Url
 type alias Model =
     { events : Api.PaginatedList Api.Event
     , streamName : String
+    , relatedStreams : List String
     }
 
 
@@ -28,6 +29,7 @@ initModel : String -> Model
 initModel streamName =
     { streamName = streamName
     , events = Api.emptyPaginatedList
+    , relatedStreams = []
     }
 
 
@@ -38,11 +40,12 @@ initModel streamName =
 type Msg
     = GoToPage Api.PaginationLink
     | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
+    | StreamFetched (Result Http.Error Api.Stream)
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getEvents EventsFetched (Route.buildUrl flags.streamsUrl streamId)
+    Api.getStream StreamFetched flags streamId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -57,6 +60,12 @@ update msg model =
         EventsFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
+        StreamFetched (Ok streamResource) ->
+            ( { model | relatedStreams = streamResource.relatedStreams }, Api.getEvents EventsFetched streamResource.eventsRelationshipLink )
+
+        StreamFetched (Err errorMessage) ->
+            ( model, Cmd.none )
+
 
 
 -- VIEW
@@ -64,16 +73,30 @@ update msg model =
 
 view : Model -> ( String, Html Msg )
 view model =
-    ( "Stream " ++ model.streamName, browseEvents ("Events in " ++ model.streamName) model.events )
+    ( "Stream " ++ model.streamName, browseEvents ("Events in " ++ model.streamName) model.events model.relatedStreams )
 
 
-browseEvents : String -> Api.PaginatedList Api.Event -> Html Msg
-browseEvents title { links, events } =
+browseEvents : String -> Api.PaginatedList Api.Event -> List String -> Html Msg
+browseEvents title { links, events } relatedStreams =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
         , div [ class "browser__pagination" ] [ displayPagination links ]
         , div [ class "browser__results" ] [ renderResults events ]
+        , div [] [ renderRelatedStreams relatedStreams ]
         ]
+
+
+renderRelatedStreams : List String -> Html Msg
+renderRelatedStreams relatedStreams =
+    div [ class "event__related-streams" ]
+        [ h2 [] [ text "Related streams:" ]
+        , ul [] (List.map (\relatedStream -> li [] [ streamLink relatedStream ]) relatedStreams)
+        ]
+
+
+streamLink : String -> Html Msg
+streamLink streamName =
+    a [ class "event__stream-link", href (Route.streamUrl streamName) ] [ text streamName ]
 
 
 displayPagination : Api.PaginationLinks -> Html Msg

@@ -55,6 +55,7 @@ type Msg
     | ChangeOpenedEventMetadataTreeState JsonTree.State
     | EventFetched (Result Http.Error Api.Event)
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
+    | CausedStreamFetched (Result Http.Error Api.Stream)
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -91,6 +92,12 @@ update msg model =
         EventFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
+        CausedStreamFetched (Ok streamResource) ->
+            ( model, Api.getEvents CausedEventsFetched streamResource.eventsRelationshipLink )
+
+        CausedStreamFetched (Err errorMessage) ->
+            ( model, Cmd.none )
+
         CausedEventsFetched (Ok result) ->
             ( { model | causedEvents = Just result.events }, Cmd.none )
 
@@ -122,7 +129,7 @@ getCausedEvents : Flags -> Event -> Cmd Msg
 getCausedEvents flags event =
     case event.causationStreamName of
         Just streamName ->
-            Api.getEvents CausedEventsFetched (Route.buildUrl flags.streamsUrl streamName)
+            Api.getStream CausedStreamFetched flags streamName
 
         Nothing ->
             Cmd.none
