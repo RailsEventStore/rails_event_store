@@ -13,7 +13,7 @@ module RubyEventStore
           id: event.event_id,
           type: "events",
           attributes: {
-            event_type: event.class.to_s,
+            event_type: event.event_type,
             data: event.data,
             metadata: metadata,
             correlation_stream_name: correlation_stream_name,
