@@ -144,9 +144,11 @@ expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([
 ])
 ```
 
-### have_applied
+## AggregateRoot matchers
 
-This matcher is intended to be used on [aggregate root](https://github.com/RailsEventStore/rails_event_store/tree/master/aggregate_root#usage). Behaviour is almost identical to `have_published` counterpart, except the concept of stream. Expecations are made against internal unpublished events collection.
+The matchers described below are intended to be used on [aggregate root](https://github.com/RailsEventStore/rails_event_store/tree/master/aggregate_root#usage).
+
+To explain the usage of matchers sample aggregate class is defined:
 
 ```ruby
 class Order
@@ -182,9 +184,53 @@ class Order
 end
 ```
 
+The matchers behaviour is almost identical to `have_published` & `publish` counterparts, except the concept of stream. Expecations are made against internal unpublished events collection.
+
+### have_applied
+
+This matcher check if an expected event has been applied in `aggregate_root` object.
+
 ```ruby
 aggregate_root = Order.new
 aggregate_root.submit
 
+expect(aggregate_root).to have_applied(event(OrderSubmitted))
+```
+
+You could define expectations how many events have been applied by using:
+
+```ruby
 expect(aggregate_root).to have_applied(event(OrderSubmitted)).once
+expect(aggregate_root).to have_applied(event(OrderSubmitted)).exactly(3).times
+```
+
+With `strict` option it checks if only expected events have been applied.
+
+```ruby
+expect(aggregate_root).to have_applied(event(OrderSubmitted)).strict
+```
+
+### apply
+
+This matcher is similar to `have_applied`. It check if expected event is applied
+in given `aggregate_root` object but only during execution of code block.
+
+```ruby
+aggregate_root = Order.new
+aggregate_root.submit
+
+expect {
+  aggregate_root.expire
+}.to apply(event(OrderExpired)).in(aggregate_root)
+```
+
+With `strict` option it checks if only expected events have been applied in given execution block.
+
+```ruby
+aggregate_root = Order.new
+aggregate_root.submit
+
+expect {
+  aggregate_root.expire
+}.to apply(event(OrderExpired)).in(aggregate_root).strict
 ```
