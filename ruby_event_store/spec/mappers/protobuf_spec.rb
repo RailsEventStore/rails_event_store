@@ -125,14 +125,14 @@ module RubyEventStore
       expect(event_1).not_to eq(event_2)
     end
 
-    specify 'type' do
+    specify 'event type' do
       event = RubyEventStore::Proto.new(
         data: ResTesting::OrderCreated.new(
           customer_id: 123,
           order_id: "K3THNX9",
         ),
       )
-      expect(event.type).to eq("res_testing.OrderCreated")
+      expect(event.event_type).to eq("res_testing.OrderCreated")
     end
 
     specify 'defaults' do
@@ -230,7 +230,7 @@ module RubyEventStore
         )
         event = subject.serialized_record_to_event(record)
         expect(event.data.class).to eq(ResTesting::OrderCreated)
-        expect(event.type).to eq("res_testing.OrderCreated")
+        expect(event.event_type).to eq("res_testing.OrderCreated")
       end
     end
   end
