@@ -106,16 +106,6 @@ module RubyEventStore
       expect(event).not_to eq(object)
     end
 
-    specify 'convert to hash' do
-      hash = {
-          data: { data: 'sample' },
-          event_id: 'b2d506fd-409d-4ec7-b02f-c6d2295c7edd',
-          metadata: { meta: 'test'},
-      }
-      event = Test::TestCreated.new(**hash)
-      expect(event.to_h).to eq(hash.merge(type: 'Test::TestCreated'))
-    end
-
     specify 'only events with the same class, event_id & data are equal' do
       event_1 = Test::TestCreated.new
       event_2 = Test::TestCreated.new

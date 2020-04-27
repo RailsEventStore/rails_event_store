@@ -34,20 +34,6 @@ module RubyEventStore
       self.class.name
     end
 
-    # Returns a hash representation of the event.
-    #
-    # Metadata is converted to hash as well
-    #
-    # @return [Hash] with :event_id, :metadata, :data, :type keys
-    def to_h
-      {
-          event_id:   event_id,
-          metadata:   metadata.to_h,
-          data:       data,
-          type:       type,
-      }
-    end
-
     # Timestamp from metadata
     #
     # @return [Time, nil]
