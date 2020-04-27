@@ -6,13 +6,6 @@ module RubyEventStore
       data.class.descriptor.name
     end
 
-    def type
-      warn <<~EOW
-        `type` has been deprecated. Use `event_type` instead.
-      EOW
-      event_type
-    end
-
     def ==(other_event)
       other_event.instance_of?(self.class) &&
         other_event.event_id.eql?(event_id) &&
