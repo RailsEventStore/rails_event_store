@@ -29,11 +29,11 @@ RSpec.shared_examples :event do |event_class|
     expect(event.event_id).to eq '1234567890'
   end
 
-  it 'provides type as string' do
+  it 'provides event type as string' do
     event = event_class.new
-    expect(event.type).to be_an_instance_of(String)
-    expect(event.type).not_to eq ''
-    expect(event.type).not_to eq nil
+    expect(event.event_type).to be_an_instance_of(String)
+    expect(event.event_type).not_to eq ''
+    expect(event.event_type).not_to eq nil
   end
 
   it "provides data" do

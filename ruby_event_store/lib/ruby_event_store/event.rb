@@ -30,7 +30,7 @@ module RubyEventStore
 
     # Type of event. Used when matching with subscribed handlers.
     # @return [String]
-    def type
+    def event_type
       self.class.name
     end
 

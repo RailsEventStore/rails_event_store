@@ -5,7 +5,7 @@ module RubyEventStore
 
       expect(record).to            be_kind_of(SerializedRecord)
       expect(record.event_id).to   eq(domain_event.event_id)
-      expect(record.event_type).to eq(domain_event.type)
+      expect(record.event_type).to eq(domain_event.event_type)
     end
 
     specify "serialize and deserialize gives equal event" do

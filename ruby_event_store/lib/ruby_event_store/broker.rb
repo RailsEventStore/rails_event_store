@@ -8,7 +8,7 @@ module RubyEventStore
     end
 
     def call(event, serialized_event)
-      subscribers = subscriptions.all_for(event.type)
+      subscribers = subscriptions.all_for(event.event_type)
       subscribers.each do |subscriber|
         dispatcher.call(subscriber, event, serialized_event)
       end

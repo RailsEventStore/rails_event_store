@@ -20,7 +20,7 @@ module AggregateRoot
     private
 
     def handler_name(aggregate, event)
-      on_dsl_handler_name(aggregate, event.type) || apply_handler_name(event.type)
+      on_dsl_handler_name(aggregate, event.event_type) || apply_handler_name(event.event_type)
     end
 
     def on_dsl_handler_name(aggregate, event_type)

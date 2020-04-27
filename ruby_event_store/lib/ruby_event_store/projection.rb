@@ -43,7 +43,7 @@ module RubyEventStore
     end
 
     def call(event)
-      handlers.fetch(event.type).(current_state, event)
+      handlers.fetch(event.event_type).(current_state, event)
     end
 
     def handled_events
@@ -94,7 +94,7 @@ module RubyEventStore
     end
 
     def transition(state, event)
-      handlers.fetch(event.type).call(state, event)
+      handlers.fetch(event.event_type).call(state, event)
       state
     end
   end

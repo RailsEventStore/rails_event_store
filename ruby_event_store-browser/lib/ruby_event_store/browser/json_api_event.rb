@@ -51,7 +51,7 @@ module RubyEventStore
       end
 
       def type_stream_name
-        "$by_type_#{event.type}"
+        "$by_type_#{event.event_type}"
       end
     end
   end
