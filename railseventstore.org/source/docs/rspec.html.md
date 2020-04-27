@@ -144,6 +144,39 @@ expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([
 ])
 ```
 
+### publish
+
+This matcher is similar to `have_published` one, but targets only events published in given execution block.
+
+```ruby
+event_store = RailsEventStore::Client.new
+expect {
+  event_store.publish(OrderPlaced.new(data: { order_id: 42 }))
+}.to publish(an_event(OrderPlaced)).in(event_store)
+```
+
+Expectation can be narrowed to the specific stream.
+
+```ruby
+event_store = RailsEventStore::Client.new
+expect {
+  event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+}.to publish(an_event(OrderPlaced)).in(event_store).in_stream("Order$42")
+
+```
+
+You can make expectation on several events at once.
+
+```ruby
+expect {
+  # ...tested code here
+}.to publish(
+  an_event(OrderPlaced),
+  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
+).in(event_store)
+```
+
+
 ## AggregateRoot matchers
 
 The matchers described below are intended to be used on [aggregate root](https://github.com/RailsEventStore/rails_event_store/tree/master/aggregate_root#usage).
