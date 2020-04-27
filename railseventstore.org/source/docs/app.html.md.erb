@@ -71,7 +71,7 @@ class Order
 end
 ```
 
-The convention is to use `apply_` plus an underscored event class name for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called.
+The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name)for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called.
 
 #### Alternative syntax for event handler methods.
 
@@ -231,9 +231,9 @@ The `case` statement is one way to implement such a dispatch. The following exam
 def apply_strategy
     ->(aggregate, event) do
       {
-        OrderExpired => method(:order_has_been_submitted),
-        OrderSubmitted => method(:order_has_expired),
-      }.fetch(event.class, ->(event) { raise }).call(event)
+        'OrderExpired' => method(:order_has_been_submitted),
+        'OrderSubmitted' => method(:order_has_expired),
+      }.fetch(event.event_type , ->(event) { raise }).call(event)
     end
   end
 

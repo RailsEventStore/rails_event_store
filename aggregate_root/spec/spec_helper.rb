@@ -59,9 +59,9 @@ end
 class CustomOrderApplyStrategy
   def call(aggregate, event)
     {
-      Orders::Events::OrderCreated => aggregate.method(:custom_created),
-      Orders::Events::OrderExpired => aggregate.method(:custom_expired),
-    }.fetch(event.class, ->(ev) {}).call(event)
+      'Orders::Events::OrderCreated' => aggregate.method(:custom_created),
+      'Orders::Events::OrderExpired' => aggregate.method(:custom_expired),
+    }.fetch(event.event_type, ->(ev) {}).call(event)
   end
 end
 
