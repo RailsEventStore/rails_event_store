@@ -2,7 +2,7 @@
 
 module RubyEventStore
   class Proto < RubyEventStore::Event
-    def type
+    def event_type
       data.class.descriptor.name
     end
 

@@ -203,7 +203,7 @@ class EventsLogger
   end
 
   def call(event)
-    logger.info("#{event.class.to_s} published. Data: #{event.data.inspect}")
+    logger.info("#{event.event_type} published. Data: #{event.data.inspect}")
   end
 
   private

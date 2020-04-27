@@ -49,7 +49,7 @@ module RubyEventStore
     def call(event)
       @event_store.link(
         [event.event_id],
-        stream_name: "#{@prefix}#{event.type}"
+        stream_name: "#{@prefix}#{event.event_type}"
       )
     end
   end

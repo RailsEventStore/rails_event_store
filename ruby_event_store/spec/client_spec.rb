@@ -73,6 +73,10 @@ module RubyEventStore
     end
 
     specify 'append many events' do
+      client = RubyEventStore::Client.new(
+        repository: InMemoryRepository.new,
+        mapper: Mappers::Default.new
+      )
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: stream,
@@ -737,6 +741,11 @@ module RubyEventStore
 
     describe '#overwrite' do
       specify 'overwrites events data and metadata' do
+        client = RubyEventStore::Client.new(
+          repository: InMemoryRepository.new,
+          mapper: Mappers::Default.new
+        )
+
         client.publish(
           old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}),
           stream_name: "some_stream",

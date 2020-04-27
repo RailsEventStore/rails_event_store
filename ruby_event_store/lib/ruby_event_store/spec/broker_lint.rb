@@ -1,5 +1,5 @@
 RSpec.shared_examples :broker do |broker_klass|
-  let(:event) { instance_double(::RubyEventStore::Event, type: 'EventType') }
+  let(:event) { instance_double(::RubyEventStore::Event, event_type: 'EventType') }
   let(:serialized_event) { instance_double(::RubyEventStore::SerializedRecord)  }
   let(:handler) { HandlerClass.new }
   let(:subscriptions) { ::RubyEventStore::Subscriptions.new }

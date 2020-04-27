@@ -28,7 +28,7 @@ module RubyEventStore
         expect(event.event_id).to      eq(domain_event.event_id)
         expect(event.data).to          eq(domain_event.data)
         expect(event.metadata.to_h).to eq(domain_event.metadata.to_h)
-        expect(event.type).to          eq("TestEvent")
+        expect(event.event_type).to    eq("TestEvent")
       end
     end
   end

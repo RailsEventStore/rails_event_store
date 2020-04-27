@@ -9,7 +9,7 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             metadata:   domain_event.metadata.to_h,
             data:       domain_event.data,
-            event_type: domain_event.type
+            event_type: domain_event.event_type
           )
         end
 
