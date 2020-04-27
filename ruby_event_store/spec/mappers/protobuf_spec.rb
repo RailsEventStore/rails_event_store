@@ -232,6 +232,14 @@ module RubyEventStore
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.event_type).to eq("res_testing.OrderCreated")
       end
+
+      specify "type has been deprecated" do
+        expect { domain_event.type }.to output(<<~EOS).to_stderr
+          `type` has been deprecated. Use `event_type` instead.
+        EOS
+        expect { domain_event.event_type }.not_to output.to_stderr
+        silence_warnings { expect(domain_event.type).to eq domain_event.event_type }
+      end
     end
   end
 end
