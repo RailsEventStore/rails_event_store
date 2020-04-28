@@ -164,15 +164,6 @@ module RubyEventStore
       end.to raise_error(ArgumentError)
     end
 
-    specify "type has been deprecated" do
-      event = Test::TestCreated.new
-      expect { event.type }.to output(<<~EOS).to_stderr
-        `type` has been deprecated. Use `event_type` instead.
-      EOS
-      expect { event.event_type }.not_to output.to_stderr
-      silence_warnings { expect(event.type).to eq event.event_type }
-    end
-
     it_behaves_like :correlatable, Event
   end
 

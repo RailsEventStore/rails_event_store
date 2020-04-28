@@ -34,15 +34,6 @@ module RubyEventStore
       self.class.name
     end
 
-    # Type of event. Used when matching with subscribed handlers.
-    # @return [String]
-    def type
-      warn <<~EOW
-        `type` has been deprecated. Use `event_type` instead.
-      EOW
-      event_type
-    end
-
     # Timestamp from metadata
     #
     # @return [Time, nil]
