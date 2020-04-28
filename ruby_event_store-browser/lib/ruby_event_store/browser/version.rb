@@ -2,6 +2,6 @@
 
 module RubyEventStore
   module Browser
-    VERSION = "0.44.0"
+    VERSION = "1.0.0"
   end
 end
