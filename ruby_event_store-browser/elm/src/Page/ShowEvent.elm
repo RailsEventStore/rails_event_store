@@ -34,7 +34,7 @@ type alias Model =
     { eventId : String
     , event : Api.RemoteResource Event
     , flags : Flags
-    , causedEvents : Maybe (List Api.Event)
+    , causedEvents : Api.RemoteResource (List Api.Event)
     }
 
 
@@ -43,7 +43,7 @@ initModel flags eventId =
     { eventId = eventId
     , event = Api.Loading
     , flags = flags
-    , causedEvents = Nothing
+    , causedEvents = Api.Loading
     }
 
 
@@ -100,13 +100,13 @@ update msg model =
             ( model, Api.getEvents CausedEventsFetched streamResource.eventsRelationshipLink )
 
         CausedStreamFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+            ( { model | causedEvents = Api.Failure }, Cmd.none )
 
         CausedEventsFetched (Ok result) ->
-            ( { model | causedEvents = Just result.events }, Cmd.none )
+            ( { model | causedEvents = Api.Loaded result.events }, Cmd.none )
 
         CausedEventsFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+            ( { model | causedEvents = Api.Failure }, Cmd.none )
 
 
 apiEventToEvent : Api.Event -> Event
@@ -167,7 +167,7 @@ view_ model =
                 [ h1 [ class "event__missing" ] [ text "Unexpected request failure happened when fetching the event" ] ]
 
 
-showEvent : Url.Url -> Event -> Maybe (List Api.Event) -> Html Msg
+showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> Html Msg
 showEvent baseUrl event maybeCausedEvents =
     div [ class "event" ]
         [ h1 [ class "event__title" ] [ text event.eventType ]
@@ -191,7 +191,13 @@ showEvent baseUrl event maybeCausedEvents =
             ]
         , relatedStreams baseUrl event
         , case maybeCausedEvents of
-            Just causedEvents ->
+            Api.Loading ->
+                div [ class "event__caused-events" ]
+                    [ h2 [] [ text "Events caused by this event:" ]
+                    , text "Loading..."
+                    ]
+
+            Api.Loaded causedEvents ->
                 case causedEvents of
                     [] ->
                         div [ class "event__caused-events" ]
@@ -204,7 +210,7 @@ showEvent baseUrl event maybeCausedEvents =
                             , renderCausedEvents baseUrl causedEvents
                             ]
 
-            Nothing ->
+            _ ->
                 text ""
         ]
 
