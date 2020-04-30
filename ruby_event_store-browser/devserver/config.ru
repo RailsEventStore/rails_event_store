@@ -64,4 +64,9 @@ browser_app = RubyEventStore::Browser::App.for(
   event_store_locator: -> { event_store },
   related_streams_query: RELATED_STREAMS_QUERY,
 )
-run browser_app
+mount_point = "/"
+run (Rack::Builder.new do
+  map mount_point do
+    run browser_app
+  end
+end)
