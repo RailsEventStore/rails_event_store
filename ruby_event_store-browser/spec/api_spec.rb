@@ -10,7 +10,7 @@ module RubyEventStore
         "id" => "all",
         "type" => "streams",
         "attributes" => {
-          "related_streams" => [],
+          "related_streams" => nil,
         },
         "relationships" => {
           "events" => {
@@ -37,6 +37,18 @@ module RubyEventStore
       test_client.get "/streams/dummy"
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(["even-dummier"])
+    end
+
+    specify "default related streams query returns nil" do
+      app = RubyEventStore::Browser::App.for(
+        event_store_locator: -> { event_store },
+        host: 'http://www.example.com'
+      )
+      test_client = TestClient.with_linter(app)
+
+      test_client.get "/streams/all"
+      expect(test_client.last_response).to be_ok
+      expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(nil)
     end
 
     specify do
