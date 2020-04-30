@@ -9,6 +9,7 @@ import JsonTree
 import Maybe exposing (withDefault)
 import Maybe.Extra exposing (values)
 import Route
+import Url
 
 
 
@@ -148,15 +149,25 @@ view_ : Model -> Html Msg
 view_ model =
     case model.event of
         Just event ->
-            showEvent event model.causedEvents
+            showEvent (stringIntoUrl model.flags.rootUrl) event model.causedEvents
 
         Nothing ->
             div [ class "event" ]
                 [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
 
 
-showEvent : Event -> Maybe (List Api.Event) -> Html Msg
-showEvent event maybeCausedEvents =
+stringIntoUrl : String -> Url.Url
+stringIntoUrl stringUrl =
+    case Url.fromString stringUrl of
+        Just url ->
+            url
+
+        Nothing ->
+            { protocol = Url.Http, host = "railseventstore.org", port_ = Nothing, path = "/", query = Nothing, fragment = Nothing }
+
+
+showEvent : Url.Url -> Event -> Maybe (List Api.Event) -> Html Msg
+showEvent baseUrl event maybeCausedEvents =
     div [ class "event" ]
         [ h1 [ class "event__title" ] [ text event.eventType ]
         , div [ class "event__body" ]
@@ -177,7 +188,7 @@ showEvent event maybeCausedEvents =
                     ]
                 ]
             ]
-        , relatedStreams event
+        , relatedStreams baseUrl event
         , case maybeCausedEvents of
             Just causedEvents ->
                 case causedEvents of
@@ -189,7 +200,7 @@ showEvent event maybeCausedEvents =
                     _ ->
                         div [ class "event__caused-events" ]
                             [ h2 [] [ text "Events caused by this event:" ]
-                            , renderCausedEvents causedEvents
+                            , renderCausedEvents baseUrl causedEvents
                             ]
 
             Nothing ->
@@ -197,11 +208,11 @@ showEvent event maybeCausedEvents =
         ]
 
 
-relatedStreams : Event -> Html Msg
-relatedStreams event =
+relatedStreams : Url.Url -> Event -> Html Msg
+relatedStreams baseUrl event =
     let
         links =
-            relatedStreamsList event
+            relatedStreamsList baseUrl event
     in
     if links == [] then
         text ""
@@ -209,76 +220,76 @@ relatedStreams event =
     else
         div [ class "event__related-streams" ]
             [ h2 [] [ text "Related streams / events:" ]
-            , ul [] (relatedStreamsList event)
+            , ul [] (relatedStreamsList baseUrl event)
             ]
 
 
-relatedStreamsList : Event -> List (Html Msg)
-relatedStreamsList event =
+relatedStreamsList : Url.Url -> Event -> List (Html Msg)
+relatedStreamsList baseUrl event =
     values
-        [ parentEventLink event
-        , Just (typeStreamLink event)
-        , correlationStreamLink event
-        , causationStreamLink event
+        [ parentEventLink baseUrl event
+        , Just (typeStreamLink baseUrl event)
+        , correlationStreamLink baseUrl event
+        , causationStreamLink baseUrl event
         ]
 
 
-correlationStreamLink : Event -> Maybe (Html Msg)
-correlationStreamLink event =
+correlationStreamLink : Url.Url -> Event -> Maybe (Html Msg)
+correlationStreamLink baseUrl event =
     Maybe.map
         (\streamName ->
             li []
                 [ text "Correlation stream: "
-                , streamLink streamName
+                , streamLink baseUrl streamName
                 ]
         )
         event.correlationStreamName
 
 
-typeStreamLink : Event -> Html Msg
-typeStreamLink event =
+typeStreamLink : Url.Url -> Event -> Html Msg
+typeStreamLink baseUrl event =
     li []
         [ text "Type stream: "
-        , streamLink event.typeStreamName
+        , streamLink baseUrl event.typeStreamName
         ]
 
 
-causationStreamLink : Event -> Maybe (Html Msg)
-causationStreamLink event =
+causationStreamLink : Url.Url -> Event -> Maybe (Html Msg)
+causationStreamLink baseUrl event =
     Maybe.map
         (\streamName ->
             li []
                 [ text "Causation stream: "
-                , streamLink streamName
+                , streamLink baseUrl streamName
                 ]
         )
         event.causationStreamName
 
 
-parentEventLink : Event -> Maybe (Html Msg)
-parentEventLink event =
+parentEventLink : Url.Url -> Event -> Maybe (Html Msg)
+parentEventLink baseUrl event =
     Maybe.map
         (\parentEventId ->
             li []
                 [ text "Parent event: "
-                , eventLink parentEventId
+                , eventLink baseUrl parentEventId
                 ]
         )
         event.parentEventId
 
 
-streamLink : String -> Html Msg
-streamLink streamName =
-    a [ class "event__stream-link", href (Route.streamUrl streamName) ] [ text streamName ]
+streamLink : Url.Url -> String -> Html Msg
+streamLink baseUrl streamName =
+    a [ class "event__stream-link", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
 
 
-eventLink : String -> Html Msg
-eventLink eventId =
-    a [ class "event__event-link", href (Route.eventUrl eventId) ] [ text eventId ]
+eventLink : Url.Url -> String -> Html Msg
+eventLink baseUrl eventId =
+    a [ class "event__event-link", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
 
 
-renderCausedEvents : List Api.Event -> Html Msg
-renderCausedEvents causedEvents =
+renderCausedEvents : Url.Url -> List Api.Event -> Html Msg
+renderCausedEvents baseUrl causedEvents =
     case causedEvents of
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
@@ -291,7 +302,7 @@ renderCausedEvents causedEvents =
                         , th [] [ text "Event id" ]
                         ]
                     ]
-                , tbody [] (List.map renderCausedEvent causedEvents)
+                , tbody [] (List.map (renderCausedEvent baseUrl) causedEvents)
                 , tfoot []
                     [ tr []
                         [ td [ colspan 2 ]
@@ -306,13 +317,13 @@ renderCausedEvents causedEvents =
                 ]
 
 
-renderCausedEvent : Api.Event -> Html Msg
-renderCausedEvent { eventType, eventId } =
+renderCausedEvent : Url.Url -> Api.Event -> Html Msg
+renderCausedEvent baseUrl { eventType, eventId } =
     tr []
         [ td []
             [ a
                 [ class "results__link"
-                , href (Route.eventUrl eventId)
+                , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]

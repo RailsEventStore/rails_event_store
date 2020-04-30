@@ -111,11 +111,11 @@ updateWith toPageModel toMsg model ( subModel, subCmd ) =
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
 urlUpdate model location =
-    case Route.decodeLocation location of
+    case Route.decodeLocation model.flags.rootUrl location of
         Just (Route.BrowseEvents encodedStreamId) ->
             case Url.percentDecode encodedStreamId of
                 Just streamId ->
-                    ( { model | page = ViewStream (Page.ViewStream.initModel streamId) }
+                    ( { model | page = ViewStream (Page.ViewStream.initModel model.flags streamId) }
                     , Cmd.map GotViewStreamMsg (Page.ViewStream.initCmd model.flags streamId)
                     )
 

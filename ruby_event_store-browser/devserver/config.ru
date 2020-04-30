@@ -60,7 +60,8 @@ RELATED_STREAMS_QUERY = ->(stream_name) do
   end
 end
 
-run RubyEventStore::Browser::App.for(
+browser_app = RubyEventStore::Browser::App.for(
   event_store_locator: -> { event_store },
   related_streams_query: RELATED_STREAMS_QUERY,
 )
+run browser_app

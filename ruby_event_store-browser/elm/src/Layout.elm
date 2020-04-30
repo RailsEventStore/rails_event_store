@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Route
+import Url
 import WrappedModel exposing (..)
 
 
@@ -29,10 +30,20 @@ update : Msg -> WrappedModel Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToStream ->
-            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.internal.goToStream) )
+            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl (stringIntoUrl model.flags.rootUrl) model.internal.goToStream) )
 
         GoToStreamChanged newValue ->
             ( { goToStream = newValue }, Cmd.none )
+
+
+stringIntoUrl : String -> Url.Url
+stringIntoUrl stringUrl =
+    case Url.fromString stringUrl of
+        Just url ->
+            url
+
+        Nothing ->
+            { protocol = Url.Http, host = "railseventstore.org", port_ = Nothing, path = "/", query = Nothing, fragment = Nothing }
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a

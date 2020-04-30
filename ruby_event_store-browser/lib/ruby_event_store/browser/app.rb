@@ -29,7 +29,7 @@ module RubyEventStore
         mime_type :json, 'application/vnd.api+json'
       end
 
-      get '/' do
+      get '/(events/*|streams/*)?' do
         erb %{
           <!DOCTYPE html>
           <html>

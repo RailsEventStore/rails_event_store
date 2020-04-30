@@ -9,9 +9,9 @@ type Route
     | ShowEvent String
 
 
-decodeLocation : Url.Url -> Maybe Route
-decodeLocation loc =
-    Url.Parser.parse routeParser (urlFragmentToPath loc)
+decodeLocation : String -> Url.Url -> Maybe Route
+decodeLocation baseUrl loc =
+    Url.Parser.parse routeParser (urlWithoutBase baseUrl loc)
 
 
 routeParser : Url.Parser.Parser (Route -> a) a
@@ -23,9 +23,19 @@ routeParser =
         ]
 
 
-urlFragmentToPath : Url.Url -> Url.Url
-urlFragmentToPath url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+urlWithoutBase : String -> Url.Url -> Url.Url
+urlWithoutBase baseUrl url =
+    { url | path = String.dropLeft (basePathLength baseUrl) url.path }
+
+
+basePathLength : String -> Int
+basePathLength stringUrl =
+    case Url.fromString stringUrl of
+        Just url ->
+            String.length url.path
+
+        Nothing ->
+            0
 
 
 buildUrl : String -> String -> String
@@ -33,11 +43,11 @@ buildUrl baseUrl id =
     baseUrl ++ "/" ++ Url.percentEncode id
 
 
-streamUrl : String -> String
-streamUrl streamName =
-    buildUrl "#streams" streamName
+streamUrl : Url.Url -> String -> String
+streamUrl baseUrl streamName =
+    buildUrl (Url.toString baseUrl ++ "/streams") streamName
 
 
-eventUrl : String -> String
-eventUrl eventId =
-    buildUrl "#events" eventId
+eventUrl : Url.Url -> String -> String
+eventUrl baseUrl eventId =
+    buildUrl (Url.toString baseUrl ++ "/events") eventId

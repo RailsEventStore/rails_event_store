@@ -21,15 +21,17 @@ import Url
 type alias Model =
     { events : Api.PaginatedList Api.Event
     , streamName : String
+    , flags : Flags
     , relatedStreams : Maybe (List String)
     }
 
 
-initModel : String -> Model
-initModel streamName =
+initModel : Flags -> String -> Model
+initModel flags streamName =
     { streamName = streamName
     , events = Api.emptyPaginatedList
     , relatedStreams = Nothing
+    , flags = flags
     }
 
 
@@ -73,26 +75,36 @@ update msg model =
 
 view : Model -> ( String, Html Msg )
 view model =
-    ( "Stream " ++ model.streamName, browseEvents ("Events in " ++ model.streamName) model.events model.relatedStreams )
+    ( "Stream " ++ model.streamName, browseEvents (stringIntoUrl model.flags.rootUrl) ("Events in " ++ model.streamName) model.events model.relatedStreams )
 
 
-browseEvents : String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
-browseEvents title { links, events } relatedStreams =
+stringIntoUrl : String -> Url.Url
+stringIntoUrl stringUrl =
+    case Url.fromString stringUrl of
+        Just url ->
+            url
+
+        Nothing ->
+            { protocol = Url.Http, host = "railseventstore.org", port_ = Nothing, path = "/", query = Nothing, fragment = Nothing }
+
+
+browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
+browseEvents baseUrl title { links, events } relatedStreams =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
         , div [ class "browser__pagination" ] [ displayPagination links ]
-        , div [ class "browser__results" ] [ renderResults events ]
-        , div [] [ renderRelatedStreams relatedStreams ]
+        , div [ class "browser__results" ] [ renderResults baseUrl events ]
+        , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
 
 
-renderRelatedStreams : Maybe (List String) -> Html Msg
-renderRelatedStreams relatedStreams_ =
+renderRelatedStreams : Url.Url -> Maybe (List String) -> Html Msg
+renderRelatedStreams baseUrl relatedStreams_ =
     case relatedStreams_ of
         Just relatedStreams ->
             div [ class "event__related-streams" ]
                 [ h2 [] [ text "Related streams:" ]
-                , ul [] (List.map (\relatedStream -> li [] [ streamLink relatedStream ]) relatedStreams)
+                , ul [] (List.map (\relatedStream -> li [] [ streamLink baseUrl relatedStream ]) relatedStreams)
                 ]
 
         Nothing ->
@@ -104,9 +116,9 @@ emptyHtml =
     text ""
 
 
-streamLink : String -> Html Msg
-streamLink streamName =
-    a [ class "event__stream-link", href (Route.streamUrl streamName) ] [ text streamName ]
+streamLink : Url.Url -> String -> Html Msg
+streamLink baseUrl streamName =
+    a [ class "event__stream-link", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
 
 
 displayPagination : Api.PaginationLinks -> Html Msg
@@ -172,8 +184,8 @@ firstPageButton link =
         [ text "first" ]
 
 
-renderResults : List Api.Event -> Html Msg
-renderResults events =
+renderResults : Url.Url -> List Api.Event -> Html Msg
+renderResults baseUrl events =
     case events of
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
@@ -187,17 +199,17 @@ renderResults events =
                         , th [ class "text-right" ] [ text "Created at" ]
                         ]
                     ]
-                , tbody [] (List.map itemRow events)
+                , tbody [] (List.map (itemRow baseUrl) events)
                 ]
 
 
-itemRow : Api.Event -> Html Msg
-itemRow { eventType, createdAt, eventId } =
+itemRow : Url.Url -> Api.Event -> Html Msg
+itemRow baseUrl { eventType, createdAt, eventId } =
     tr []
         [ td []
             [ a
                 [ class "results__link"
-                , href (Route.eventUrl eventId)
+                , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
