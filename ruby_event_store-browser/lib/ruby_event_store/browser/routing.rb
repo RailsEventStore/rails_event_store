@@ -12,9 +12,9 @@ module RubyEventStore
         stream_name = Rack::Utils.escape(id)
 
         if args.empty?
-          "#{base}/streams/#{stream_name}/relationships/events"
+          "#{base}/api/streams/#{stream_name}/relationships/events"
         else
-          "#{base}/streams/#{stream_name}/relationships/events/#{args.join('/')}"
+          "#{base}/api/streams/#{stream_name}/relationships/events/#{args.join('/')}"
         end
       end
 

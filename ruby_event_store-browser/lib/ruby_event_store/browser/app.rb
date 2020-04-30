@@ -43,8 +43,8 @@ module RubyEventStore
                 RubyEventStore.Browser.Elm.Main.init({
                   flags: {
                     rootUrl:    "<%= path %>",
-                    eventsUrl:  "<%= path %>/events",
-                    streamsUrl: "<%= path %>/streams",
+                    eventsUrl:  "<%= path %>/api/events",
+                    streamsUrl: "<%= path %>/api/streams",
                     resVersion: "<%= RubyEventStore::VERSION %>"
                   }
                 });
@@ -54,7 +54,7 @@ module RubyEventStore
         }, locals: { path: settings.root_path || request.script_name }
       end
 
-      get '/events/:id' do
+      get '/api/events/:id' do
         begin
           json Event.new(
             event_store: settings.event_store_locator,
@@ -65,7 +65,7 @@ module RubyEventStore
         end
       end
 
-      get '/streams/:id' do
+      get '/api/streams/:id' do
         json GetStream.new(
           stream_name: params[:id],
           routing: routing,
@@ -73,7 +73,7 @@ module RubyEventStore
         )
       end
 
-      get '/streams/:id/relationships/events' do
+      get '/api/streams/:id/relationships/events' do
         json GetEventsFromStream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,
@@ -81,7 +81,7 @@ module RubyEventStore
         )
       end
 
-      get '/streams/:id/relationships/events/:position/:direction/:count' do
+      get '/api/streams/:id/relationships/events/:position/:direction/:count' do
         json GetEventsFromStream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,

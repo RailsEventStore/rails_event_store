@@ -8,17 +8,17 @@ module RubyEventStore
       event_store.publish(events, stream_name: "dummy")
       event_store.publish([DummyEvent.new])
 
-      test_client.get "/streams/dummy/relationships/events"
+      test_client.get "/api/streams/dummy/relationships/events"
       expect(test_client.parsed_body["links"]).to eq({
-        "last"  => "http://www.example.com/streams/dummy/relationships/events/head/forward/20",
-        "next"  => "http://www.example.com/streams/dummy/relationships/events/#{first_page[19].event_id}/backward/20"
+        "last"  => "http://www.example.com/api/streams/dummy/relationships/events/head/forward/20",
+        "next"  => "http://www.example.com/api/streams/dummy/relationships/events/#{first_page[19].event_id}/backward/20"
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
 
-      test_client.get "/streams/all/relationships/events"
+      test_client.get "/api/streams/all/relationships/events"
       expect(test_client.parsed_body["links"]).to eq({
-        "last"  => "http://www.example.com/streams/all/relationships/events/head/forward/20",
-        "next"  => "http://www.example.com/streams/all/relationships/events/#{first_page[18].event_id}/backward/20"
+        "last"  => "http://www.example.com/api/streams/all/relationships/events/head/forward/20",
+        "next"  => "http://www.example.com/api/streams/all/relationships/events/#{first_page[18].event_id}/backward/20"
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
@@ -27,11 +27,11 @@ module RubyEventStore
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/head/backward/20"
+      test_client.get "/api/streams/dummy/relationships/events/head/backward/20"
 
       expect(test_client.parsed_body["links"]).to eq({
-        "last"  => "http://www.example.com/streams/dummy/relationships/events/head/forward/20",
-        "next"  => "http://www.example.com/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
+        "last"  => "http://www.example.com/api/streams/dummy/relationships/events/head/forward/20",
+        "next"  => "http://www.example.com/api/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
@@ -41,11 +41,11 @@ module RubyEventStore
       first_page = events.reverse.take(20)
       last_page  = events.reverse.drop(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/#{last_page.first.event_id}/forward/20"
+      test_client.get "/api/streams/dummy/relationships/events/#{last_page.first.event_id}/forward/20"
 
       expect(test_client.parsed_body["links"]).to eq({
-        "last"  => "http://www.example.com/streams/dummy/relationships/events/head/forward/20",
-        "next"  => "http://www.example.com/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
+        "last"  => "http://www.example.com/api/streams/dummy/relationships/events/head/forward/20",
+        "next"  => "http://www.example.com/api/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
@@ -57,19 +57,19 @@ module RubyEventStore
       event_store.publish([DummyEvent.new])
       event_store.publish(events, stream_name: "dummy")
 
-      test_client.get "/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
+      test_client.get "/api/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
       expect(test_client.parsed_body["links"]).to eq({
-        "first" => "http://www.example.com/streams/dummy/relationships/events/head/backward/20",
-        "prev"  => "http://www.example.com/streams/dummy/relationships/events/#{last_page.first.event_id}/forward/20" ,
+        "first" => "http://www.example.com/api/streams/dummy/relationships/events/head/backward/20",
+        "prev"  => "http://www.example.com/api/streams/dummy/relationships/events/#{last_page.first.event_id}/forward/20" ,
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
 
-      test_client.get "/streams/all/relationships/events/#{first_page.last.event_id}/backward/20"
+      test_client.get "/api/streams/all/relationships/events/#{first_page.last.event_id}/backward/20"
       expect(test_client.parsed_body["links"]).to eq({
-        "first" => "http://www.example.com/streams/all/relationships/events/head/backward/20",
-        "last"  => "http://www.example.com/streams/all/relationships/events/head/forward/20",
-        "next"  => "http://www.example.com/streams/all/relationships/events/#{last_page.last.event_id}/backward/20",
-        "prev"  => "http://www.example.com/streams/all/relationships/events/#{last_page.first.event_id}/forward/20" ,
+        "first" => "http://www.example.com/api/streams/all/relationships/events/head/backward/20",
+        "last"  => "http://www.example.com/api/streams/all/relationships/events/head/forward/20",
+        "next"  => "http://www.example.com/api/streams/all/relationships/events/#{last_page.last.event_id}/backward/20",
+        "prev"  => "http://www.example.com/api/streams/all/relationships/events/#{last_page.first.event_id}/forward/20" ,
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
@@ -78,11 +78,11 @@ module RubyEventStore
       events    = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/head/forward/20"
+      test_client.get "/api/streams/dummy/relationships/events/head/forward/20"
 
       expect(test_client.parsed_body["links"]).to eq({
-        "first" => "http://www.example.com/streams/dummy/relationships/events/head/backward/20",
-        "prev"  => "http://www.example.com/streams/dummy/relationships/events/#{last_page.first.event_id}/forward/20",
+        "first" => "http://www.example.com/api/streams/dummy/relationships/events/head/backward/20",
+        "prev"  => "http://www.example.com/api/streams/dummy/relationships/events/#{last_page.first.event_id}/forward/20",
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
@@ -92,13 +92,13 @@ module RubyEventStore
       first_page = events.reverse.take(20)
       next_page  = events.reverse.drop(20).take(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
+      test_client.get "/api/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/20"
 
       expect(test_client.parsed_body["links"]).to eq({
-        "first" => "http://www.example.com/streams/dummy/relationships/events/head/backward/20",
-        "last"  => "http://www.example.com/streams/dummy/relationships/events/head/forward/20",
-        "next"  => "http://www.example.com/streams/dummy/relationships/events/#{next_page.last.event_id}/backward/20",
-        "prev"  => "http://www.example.com/streams/dummy/relationships/events/#{next_page.first.event_id}/forward/20"
+        "first" => "http://www.example.com/api/streams/dummy/relationships/events/head/backward/20",
+        "last"  => "http://www.example.com/api/streams/dummy/relationships/events/head/forward/20",
+        "next"  => "http://www.example.com/api/streams/dummy/relationships/events/#{next_page.last.event_id}/backward/20",
+        "prev"  => "http://www.example.com/api/streams/dummy/relationships/events/#{next_page.first.event_id}/forward/20"
       })
       expect(test_client.parsed_body["data"].size).to eq(20)
     end
@@ -106,7 +106,7 @@ module RubyEventStore
     specify "smaller than page size" do
       events = [DummyEvent.new, DummyEvent.new]
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events"
+      test_client.get "/api/streams/dummy/relationships/events"
 
       expect(test_client.parsed_body["links"]).to eq({})
       expect(test_client.parsed_body["data"].size).to eq(2)
@@ -118,13 +118,13 @@ module RubyEventStore
       next_page  = events.reverse.drop(5).take(5)
 
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/5"
+      test_client.get "/api/streams/dummy/relationships/events/#{first_page.last.event_id}/backward/5"
 
       expect(test_client.parsed_body["links"]).to eq({
-        "first" => "http://www.example.com/streams/dummy/relationships/events/head/backward/5",
-        "last"  => "http://www.example.com/streams/dummy/relationships/events/head/forward/5",
-        "next"  => "http://www.example.com/streams/dummy/relationships/events/#{next_page.last.event_id}/backward/5",
-        "prev"  => "http://www.example.com/streams/dummy/relationships/events/#{next_page.first.event_id}/forward/5"
+        "first" => "http://www.example.com/api/streams/dummy/relationships/events/head/backward/5",
+        "last"  => "http://www.example.com/api/streams/dummy/relationships/events/head/forward/5",
+        "next"  => "http://www.example.com/api/streams/dummy/relationships/events/#{next_page.last.event_id}/backward/5",
+        "prev"  => "http://www.example.com/api/streams/dummy/relationships/events/#{next_page.first.event_id}/forward/5"
       })
       expect(test_client.parsed_body["data"].size).to eq(5)
     end
@@ -132,7 +132,7 @@ module RubyEventStore
     specify "custom page size" do
       events = 40.times.map { DummyEvent.new }
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/all/relationships/events/head/forward/5"
+      test_client.get "/api/streams/all/relationships/events/head/forward/5"
 
       expect(test_client.parsed_body["data"].size).to eq(5)
     end
@@ -141,7 +141,7 @@ module RubyEventStore
       events    = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/#{last_page.last.event_id}/backward/20"
+      test_client.get "/api/streams/dummy/relationships/events/#{last_page.last.event_id}/backward/20"
 
       expect(test_client.parsed_body["links"]).to eq({})
       expect(test_client.parsed_body["data"].size).to eq(0)
@@ -151,7 +151,7 @@ module RubyEventStore
       events     = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/streams/dummy/relationships/events/#{first_page.first.event_id}/forward/20"
+      test_client.get "/api/streams/dummy/relationships/events/#{first_page.first.event_id}/forward/20"
 
       expect(test_client.parsed_body["links"]).to eq({})
       expect(test_client.parsed_body["data"].size).to eq(0)
