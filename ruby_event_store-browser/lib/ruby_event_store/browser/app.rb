@@ -42,9 +42,9 @@ module RubyEventStore
               <script type="text/javascript">
                 RubyEventStore.Browser.Elm.Main.init({
                   flags: {
-                    rootUrl:    "<%= path %>",
-                    eventsUrl:  "<%= path %>/api/events",
-                    streamsUrl: "<%= path %>/api/streams",
+                    rootUrl:    "<%= routing.root_url %>",
+                    eventsUrl:  "<%= routing.events_url %>",
+                    streamsUrl: "<%= routing.streams_url %>",
                     resVersion: "<%= RubyEventStore::VERSION %>"
                   }
                 });

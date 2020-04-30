@@ -6,6 +6,20 @@ module RubyEventStore
         @root_path = root_path
       end
 
+      def root_url
+        [host, root_path].join
+      end
+
+      def events_url
+        base = [host, root_path].join
+        "#{base}/api/events"
+      end
+
+      def streams_url
+        base = [host, root_path].join
+        "#{base}/api/streams"
+      end
+
       def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
         base = [host, root_path].join
         args = [position, direction, count].compact
