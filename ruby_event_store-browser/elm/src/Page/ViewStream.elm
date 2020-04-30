@@ -75,17 +75,7 @@ update msg model =
 
 view : Model -> ( String, Html Msg )
 view model =
-    ( "Stream " ++ model.streamName, browseEvents (stringIntoUrl model.flags.rootUrl) ("Events in " ++ model.streamName) model.events model.relatedStreams )
-
-
-stringIntoUrl : String -> Url.Url
-stringIntoUrl stringUrl =
-    case Url.fromString stringUrl of
-        Just url ->
-            url
-
-        Nothing ->
-            { protocol = Url.Http, host = "railseventstore.org", port_ = Nothing, path = "/", query = Nothing, fragment = Nothing }
+    ( "Stream " ++ model.streamName, browseEvents model.flags.rootUrl ("Events in " ++ model.streamName) model.events model.relatedStreams )
 
 
 browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg

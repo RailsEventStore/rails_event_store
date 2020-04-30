@@ -46,13 +46,14 @@ buildUrl baseUrl id =
 
 streamUrl : Url.Url -> String -> String
 streamUrl baseUrl streamName =
-    Url.Builder.absolute ((pathSegments baseUrl) ++ ["streams", streamName]) []
+    Url.Builder.absolute (pathSegments baseUrl ++ [ "streams", streamName ]) []
 
 
 eventUrl : Url.Url -> String -> String
 eventUrl baseUrl eventId =
-    Url.Builder.absolute ((pathSegments baseUrl) ++ ["events", eventId]) []
+    Url.Builder.absolute (pathSegments baseUrl ++ [ "events", eventId ]) []
 
 
 pathSegments : Url.Url -> List String
-pathSegments baseUrl = List.filter (\e -> e /= "") (String.split "/" baseUrl.path)
+pathSegments baseUrl =
+    List.filter (\e -> e /= "") (String.split "/" baseUrl.path)

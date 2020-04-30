@@ -149,21 +149,11 @@ view_ : Model -> Html Msg
 view_ model =
     case model.event of
         Just event ->
-            showEvent (stringIntoUrl model.flags.rootUrl) event model.causedEvents
+            showEvent model.flags.rootUrl event model.causedEvents
 
         Nothing ->
             div [ class "event" ]
                 [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
-
-
-stringIntoUrl : String -> Url.Url
-stringIntoUrl stringUrl =
-    case Url.fromString stringUrl of
-        Just url ->
-            url
-
-        Nothing ->
-            { protocol = Url.Http, host = "railseventstore.org", port_ = Nothing, path = "/", query = Nothing, fragment = Nothing }
 
 
 showEvent : Url.Url -> Event -> Maybe (List Api.Event) -> Html Msg

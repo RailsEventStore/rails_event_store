@@ -55,7 +55,7 @@ buildUrl baseUrl id =
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
     Http.get
-        { url = buildUrl flags.eventsUrl eventId
+        { url = buildUrl (Url.toString flags.eventsUrl) eventId
         , expect = Http.expectJson msgBuilder eventDecoder
         }
 
@@ -63,7 +63,7 @@ getEvent msgBuilder flags eventId =
 getStream : (Result Http.Error Stream -> msg) -> Flags -> String -> Cmd msg
 getStream msgBuilder flags streamId =
     Http.get
-        { url = buildUrl flags.streamsUrl streamId
+        { url = buildUrl (Url.toString flags.streamsUrl) streamId
         , expect = Http.expectJson msgBuilder streamDecoder
         }
 
