@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -8,6 +8,13 @@ import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt
 import Json.Encode exposing (encode)
 import Time
 import Url
+
+
+type RemoteResource a
+    = Loading
+    | Loaded a
+    | NotFound
+    | Failure
 
 
 type alias Event =

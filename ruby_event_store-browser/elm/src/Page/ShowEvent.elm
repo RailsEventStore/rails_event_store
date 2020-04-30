@@ -32,7 +32,7 @@ type alias Event =
 
 type alias Model =
     { eventId : String
-    , event : Maybe Event
+    , event : Api.RemoteResource Event
     , flags : Flags
     , causedEvents : Maybe (List Api.Event)
     }
@@ -41,7 +41,7 @@ type alias Model =
 initModel : Flags -> String -> Model
 initModel flags eventId =
     { eventId = eventId
-    , event = Nothing
+    , event = Api.Loading
     , flags = flags
     , causedEvents = Nothing
     }
@@ -69,18 +69,18 @@ update msg model =
     case msg of
         ChangeOpenedEventDataTreeState newState ->
             case model.event of
-                Just event ->
-                    ( { model | event = Just { event | dataTreeState = newState } }, Cmd.none )
+                Api.Loaded event ->
+                    ( { model | event = Api.Loaded { event | dataTreeState = newState } }, Cmd.none )
 
-                Nothing ->
+                _ ->
                     ( model, Cmd.none )
 
         ChangeOpenedEventMetadataTreeState newState ->
             case model.event of
-                Just event ->
-                    ( { model | event = Just { event | metadataTreeState = newState } }, Cmd.none )
+                Api.Loaded event ->
+                    ( { model | event = Api.Loaded { event | metadataTreeState = newState } }, Cmd.none )
 
-                Nothing ->
+                _ ->
                     ( model, Cmd.none )
 
         EventFetched (Ok result) ->
@@ -88,10 +88,13 @@ update msg model =
                 event =
                     apiEventToEvent result
             in
-            ( { model | event = Just event }, getCausedEvents model.flags event )
+            ( { model | event = Api.Loaded event }, getCausedEvents model.flags event )
 
-        EventFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+        EventFetched (Err (Http.BadStatus 404)) ->
+            ( { model | event = Api.NotFound }, Cmd.none )
+
+        EventFetched (Err _) ->
+            ( { model | event = Api.Failure }, Cmd.none )
 
         CausedStreamFetched (Ok streamResource) ->
             ( model, Api.getEvents CausedEventsFetched streamResource.eventsRelationshipLink )
@@ -148,12 +151,20 @@ view model =
 view_ : Model -> Html Msg
 view_ model =
     case model.event of
-        Just event ->
-            showEvent model.flags.rootUrl event model.causedEvents
-
-        Nothing ->
+        Api.NotFound ->
             div [ class "event" ]
                 [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
+
+        Api.Loading ->
+            div [ class "event" ]
+                [ h1 [ class "event__missing" ] [ text "Loading event..." ] ]
+
+        Api.Loaded event ->
+            showEvent model.flags.rootUrl event model.causedEvents
+
+        Api.Failure ->
+            div [ class "event" ]
+                [ h1 [ class "event__missing" ] [ text "Unexpected request failure happened when fetching the event" ] ]
 
 
 showEvent : Url.Url -> Event -> Maybe (List Api.Event) -> Html Msg
