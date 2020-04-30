@@ -7,7 +7,7 @@ import Html exposing (Html)
 import Layout
 import Maybe exposing (andThen)
 import Page.ShowEvent
-import Page.ViewStream
+import Page.ShowStream
 import Route
 import Url
 import Url.Parser exposing ((</>))
@@ -39,13 +39,13 @@ type Msg
     | ClickedLink Browser.UrlRequest
     | GotLayoutMsg Layout.Msg
     | GotShowEventMsg Page.ShowEvent.Msg
-    | GotViewStreamMsg Page.ViewStream.Msg
+    | GotShowStreamMsg Page.ShowStream.Msg
 
 
 type Page
     = NotFound
     | ShowEvent Page.ShowEvent.Model
-    | ViewStream Page.ViewStream.Model
+    | ShowStream Page.ShowStream.Model
 
 
 subscriptions : Model -> Sub Msg
@@ -84,9 +84,9 @@ update msg model =
                     , Browser.Navigation.load url
                     )
 
-        ( GotViewStreamMsg viewStreamUIMsg, ViewStream viewStreamModel ) ->
-            Page.ViewStream.update viewStreamUIMsg viewStreamModel
-                |> updateWith ViewStream GotViewStreamMsg model
+        ( GotShowStreamMsg showStreamUIMsg, ShowStream showStreamModel ) ->
+            Page.ShowStream.update showStreamUIMsg showStreamModel
+                |> updateWith ShowStream GotShowStreamMsg model
 
         ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
             Page.ShowEvent.update openedEventUIMsg showEventModel
@@ -126,8 +126,8 @@ urlUpdate model location =
                 Just (Route.BrowseEvents encodedStreamId) ->
                     case Url.percentDecode encodedStreamId of
                         Just streamId ->
-                            ( { model | page = ViewStream (Page.ViewStream.initModel flags streamId) }
-                            , Cmd.map GotViewStreamMsg (Page.ViewStream.initCmd flags streamId)
+                            ( { model | page = ShowStream (Page.ShowStream.initModel flags streamId) }
+                            , Cmd.map GotShowStreamMsg (Page.ShowStream.initCmd flags streamId)
                             )
 
                         Nothing ->
@@ -178,8 +178,8 @@ fullTitle maybePageTitle =
 viewPage : Page -> ( Maybe String, Html Msg )
 viewPage page =
     case page of
-        ViewStream viewStreamUIModel ->
-            viewOnePage GotViewStreamMsg Page.ViewStream.view viewStreamUIModel
+        ShowStream showStreamUIModel ->
+            viewOnePage GotShowStreamMsg Page.ShowStream.view showStreamUIModel
 
         ShowEvent openedEventUIModel ->
             viewOnePage GotShowEventMsg Page.ShowEvent.view openedEventUIModel

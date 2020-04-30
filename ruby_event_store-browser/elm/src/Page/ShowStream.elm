@@ -1,4 +1,4 @@
-module Page.ViewStream exposing (Model, Msg(..), initCmd, initModel, update, view)
+module Page.ShowStream exposing (Model, Msg(..), initCmd, initModel, update, view)
 
 import Api
 import Flags exposing (Flags)
