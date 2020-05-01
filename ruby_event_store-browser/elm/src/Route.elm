@@ -24,14 +24,14 @@ routeParser =
         ]
 
 
-buildUrl : Url.Url -> List String -> String
-buildUrl baseUrl segments =
-    Url.Builder.absolute (pathSegments baseUrl ++ segments) []
-
-
 urlWithoutBase : Url.Url -> Url.Url -> Url.Url
 urlWithoutBase baseUrl url =
     { url | path = String.dropLeft (String.length baseUrl.path) url.path }
+
+
+buildUrl : Url.Url -> List String -> String
+buildUrl baseUrl segments =
+    Url.Builder.absolute (pathSegments baseUrl ++ segments) []
 
 
 streamUrl : Url.Url -> String -> String
