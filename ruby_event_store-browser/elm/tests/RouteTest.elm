@@ -1,7 +1,7 @@
 module RouteTest exposing (suite)
 
 import Expect
-import Route exposing (eventUrl, streamUrl)
+import Route exposing (buildUrl, eventUrl, streamUrl)
 import Test exposing (..)
 import Url
 
@@ -31,5 +31,45 @@ suite =
                         Expect.equal
                             (eventUrl baseUrl "why/would-anyone-do-that")
                             "/events/why%2Fwould-anyone-do-that"
+                    )
+        , test "buildUrl generates proper url when subdirectory absent" <|
+            \_ ->
+                withUrl "https://example.org"
+                    (\baseUrl ->
+                        Expect.equal
+                            (buildUrl baseUrl [ "something" ])
+                            "/something"
+                    )
+        , test "buildUrl generates proper url when subdirectory absent, but with slash" <|
+            \_ ->
+                withUrl "https://example.org/"
+                    (\baseUrl ->
+                        Expect.equal
+                            (buildUrl baseUrl [ "something" ])
+                            "/something"
+                    )
+        , test "buildUrl generates proper url with subdirectory" <|
+            \_ ->
+                withUrl "https://example.org/res"
+                    (\baseUrl ->
+                        Expect.equal
+                            (buildUrl baseUrl [ "something" ])
+                            "/res/something"
+                    )
+        , test "buildUrl generates proper url with subdirectory and slash" <|
+            \_ ->
+                withUrl "https://example.org/res/"
+                    (\baseUrl ->
+                        Expect.equal
+                            (buildUrl baseUrl [ "something" ])
+                            "/res/something"
+                    )
+        , test "buildUrl generates proper url with double subdirectory" <|
+            \_ ->
+                withUrl "https://example.org/res/foo"
+                    (\baseUrl ->
+                        Expect.equal
+                            (buildUrl baseUrl [ "something" ])
+                            "/res/foo/something"
                     )
         ]

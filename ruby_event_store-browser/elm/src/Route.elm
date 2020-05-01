@@ -1,4 +1,4 @@
-module Route exposing (Route(..), decodeLocation, eventUrl, streamUrl)
+module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
 
 import Url
 import Url.Builder
@@ -24,6 +24,11 @@ routeParser =
         ]
 
 
+buildUrl : Url.Url -> List String -> String
+buildUrl baseUrl segments =
+    Url.Builder.absolute (pathSegments baseUrl ++ segments) []
+
+
 urlWithoutBase : Url.Url -> Url.Url -> Url.Url
 urlWithoutBase baseUrl url =
     { url | path = String.dropLeft (String.length baseUrl.path) url.path }
@@ -31,12 +36,12 @@ urlWithoutBase baseUrl url =
 
 streamUrl : Url.Url -> String -> String
 streamUrl baseUrl streamName =
-    Url.Builder.absolute (pathSegments baseUrl ++ [ "streams", Url.percentEncode streamName ]) []
+    buildUrl baseUrl [ "streams", Url.percentEncode streamName ]
 
 
 eventUrl : Url.Url -> String -> String
 eventUrl baseUrl eventId =
-    Url.Builder.absolute (pathSegments baseUrl ++ [ "events", Url.percentEncode eventId ]) []
+    buildUrl baseUrl [ "events", Url.percentEncode eventId ]
 
 
 pathSegments : Url.Url -> List String
