@@ -10,7 +10,7 @@ type Route
     | ShowEvent String
 
 
-decodeLocation : String -> Url.Url -> Maybe Route
+decodeLocation : Url.Url -> Url.Url -> Maybe Route
 decodeLocation baseUrl loc =
     Url.Parser.parse routeParser (urlWithoutBase baseUrl loc)
 
@@ -24,19 +24,9 @@ routeParser =
         ]
 
 
-urlWithoutBase : String -> Url.Url -> Url.Url
+urlWithoutBase : Url.Url -> Url.Url -> Url.Url
 urlWithoutBase baseUrl url =
-    { url | path = String.dropLeft (basePathLength baseUrl) url.path }
-
-
-basePathLength : String -> Int
-basePathLength stringUrl =
-    case Url.fromString stringUrl of
-        Just url ->
-            String.length url.path
-
-        Nothing ->
-            0
+    { url | path = String.dropLeft (String.length baseUrl.path) url.path }
 
 
 buildUrl : String -> String -> String
@@ -46,12 +36,12 @@ buildUrl baseUrl id =
 
 streamUrl : Url.Url -> String -> String
 streamUrl baseUrl streamName =
-    Url.Builder.absolute (pathSegments baseUrl ++ [ "streams", streamName ]) []
+    Url.Builder.absolute (pathSegments baseUrl ++ [ "streams", Url.percentEncode streamName ]) []
 
 
 eventUrl : Url.Url -> String -> String
 eventUrl baseUrl eventId =
-    Url.Builder.absolute (pathSegments baseUrl ++ [ "events", eventId ]) []
+    Url.Builder.absolute (pathSegments baseUrl ++ [ "events", Url.percentEncode eventId ]) []
 
 
 pathSegments : Url.Url -> List String

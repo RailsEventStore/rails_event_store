@@ -122,7 +122,7 @@ urlUpdate model location =
             ( model, Cmd.none )
 
         Just flags ->
-            case Route.decodeLocation (Url.toString flags.rootUrl) location of
+            case Route.decodeLocation flags.rootUrl location of
                 Just (Route.BrowseEvents encodedStreamId) ->
                     case Url.percentDecode encodedStreamId of
                         Just streamId ->
