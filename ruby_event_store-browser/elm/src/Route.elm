@@ -1,4 +1,4 @@
-module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
+module Route exposing (Route(..), decodeLocation, eventUrl, streamUrl)
 
 import Url
 import Url.Builder
@@ -27,11 +27,6 @@ routeParser =
 urlWithoutBase : Url.Url -> Url.Url -> Url.Url
 urlWithoutBase baseUrl url =
     { url | path = String.dropLeft (String.length baseUrl.path) url.path }
-
-
-buildUrl : String -> String -> String
-buildUrl baseUrl id =
-    baseUrl ++ "/" ++ Url.percentEncode id
 
 
 streamUrl : Url.Url -> String -> String

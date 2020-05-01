@@ -1,7 +1,7 @@
 module RouteTest exposing (suite)
 
 import Expect
-import Route exposing (buildUrl, eventUrl, streamUrl)
+import Route exposing (eventUrl, streamUrl)
 import Test exposing (..)
 import Url
 
@@ -16,12 +16,7 @@ withUrl url callback =
 suite : Test
 suite =
     describe "Route"
-        [ test "handles slashes properly in urls" <|
-            \_ ->
-                Expect.equal
-                    (buildUrl "https://example.org" "resource/uuid")
-                    "https://example.org/resource%2Fuuid"
-        , test "handles slashes properly in stream url" <|
+        [ test "handles slashes properly in stream url" <|
             \_ ->
                 withUrl "https://example.org"
                     (\baseUrl ->
