@@ -76,6 +76,9 @@ module Foo
     attribute  :coercible, Types::Coercible::Integer.optional
     attribute? :nullable,  Types::Strict::Integer.optional
   end
+  class Baz < Event
+    attribute  :id,        Types::Strict::String
+  end
 
   RSpec.describe 'dry-event' do
     it_behaves_like :event, ::Event
@@ -83,6 +86,9 @@ module Foo
     it do
       bar = Foo::Bar.new(id: 'xxx', coercible: 123)
       expect(bar.event_type).to eq('foo-bar')
+
+      baz = Foo::Baz.new(id: 'xxx')
+      expect(baz.event_type).to eq('Foo::Baz')
     end
 
     it do
