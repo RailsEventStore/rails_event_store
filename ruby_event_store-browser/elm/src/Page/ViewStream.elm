@@ -21,7 +21,7 @@ import Url
 type alias Model =
     { events : Api.PaginatedList Api.Event
     , streamName : String
-    , relatedStreams : List String
+    , relatedStreams : Maybe (List String)
     }
 
 
@@ -29,7 +29,7 @@ initModel : String -> Model
 initModel streamName =
     { streamName = streamName
     , events = Api.emptyPaginatedList
-    , relatedStreams = []
+    , relatedStreams = Nothing
     }
 
 
@@ -76,7 +76,7 @@ view model =
     ( "Stream " ++ model.streamName, browseEvents ("Events in " ++ model.streamName) model.events model.relatedStreams )
 
 
-browseEvents : String -> Api.PaginatedList Api.Event -> List String -> Html Msg
+browseEvents : String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
 browseEvents title { links, events } relatedStreams =
     div [ class "browser" ]
         [ h1 [ class "browser__title" ] [ text title ]
@@ -86,12 +86,22 @@ browseEvents title { links, events } relatedStreams =
         ]
 
 
-renderRelatedStreams : List String -> Html Msg
-renderRelatedStreams relatedStreams =
-    div [ class "event__related-streams" ]
-        [ h2 [] [ text "Related streams:" ]
-        , ul [] (List.map (\relatedStream -> li [] [ streamLink relatedStream ]) relatedStreams)
-        ]
+renderRelatedStreams : Maybe (List String) -> Html Msg
+renderRelatedStreams relatedStreams_ =
+    case relatedStreams_ of
+        Just relatedStreams ->
+            div [ class "event__related-streams" ]
+                [ h2 [] [ text "Related streams:" ]
+                , ul [] (List.map (\relatedStream -> li [] [ streamLink relatedStream ]) relatedStreams)
+                ]
+
+        Nothing ->
+            emptyHtml
+
+
+emptyHtml : Html a
+emptyHtml =
+    text ""
 
 
 streamLink : String -> Html Msg

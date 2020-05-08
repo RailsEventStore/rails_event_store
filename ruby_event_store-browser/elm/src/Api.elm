@@ -43,7 +43,7 @@ type alias PaginationLinks =
 
 type alias Stream =
     { eventsRelationshipLink : String
-    , relatedStreams : List String
+    , relatedStreams : Maybe (List String)
     }
 
 
@@ -98,7 +98,7 @@ streamDecoder_ : Decoder Stream
 streamDecoder_ =
     succeed Stream
         |> requiredAt [ "relationships", "events", "links", "self" ] string
-        |> requiredAt [ "attributes", "related_streams" ] (list string)
+        |> optionalAt [ "attributes", "related_streams" ] (maybe (list string)) Nothing
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg

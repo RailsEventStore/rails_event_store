@@ -126,3 +126,30 @@ end
 ### Sinatra
 
 You can use Rack-based middleware such as HTTP Basic Auth (as illustrated in the Rails example above) to control access to the browser Rack app.
+
+### Related Streams
+
+Often you have streams, which are closely related to each other. To ease debugging, you may want to create custom links between streams. For example, if you are viewing stream `Ordering::Order$123`, you may want to link to stream `Payments::Transaction$456`.
+
+You can do that by passing related streams query object to browser configuration. Related streams query object can be anything, which reponds to `call(stream_name)` and always return an array (i.e. it can be simple lambda).
+
+Related streams will be displayed in stream view, at the bottom.
+
+Example usage:
+
+```
+class RelatedStreamsQuery
+  def call(stream_name)
+    prefix, suffix = stream_name.split("$")
+    if prefix == "Ordering::Order"
+      transaction_id = # some way to fetch transaction id for that order
+      return ["Payments::Transaction$#{transaction_id}"]
+    end
+    return []
+  end
+end
+
+RubyEventStore::Browser::App.for(
+  related_streams_query: RelatedStreamsQuery.new
+)
+```
