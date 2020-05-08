@@ -25,39 +25,36 @@ module Types
   include Dry::Types()
 
   UUID          = Types::Strict::String.constrained(format: /\A[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\z/i)
-  Metadata      = Types::Hash.schema(timestamp: Types::Params::DateTime.meta(omittable: true))
+  EventId   = Types::Coercible::String.default { SecureRandom.uuid }
+  Metadata  = Types.Constructor(RubyEventStore::Metadata) { |value| RubyEventStore::Metadata.new(value.to_h) }.default { RubyEventStore::Metadata.new }
 end
-
 
 class Event < Dry::Struct
   transform_keys(&:to_sym)
 
-  def self.new(data: {}, metadata: {}, **rest)
-    timestamp = Time.parse(metadata.delete(:timestamp)) rescue nil
-    super(rest.merge(data).merge(metadata: metadata.merge(timestamp: timestamp)))
+  attribute :event_id, Types::EventId
+  attribute :metadata, Types::Metadata
+  alias :message_id :event_id
+
+  def self.new(data: {}, metadata: {}, **args)
+    super(args.merge(data: data).merge(metadata: metadata))
   end
 
   def self.inherited(klass)
     super
-    klass.attribute :metadata, Types.Constructor(RubyEventStore::Metadata).default { RubyEventStore::Metadata.new }
-    klass.attribute :event_id, Types::UUID.default { SecureRandom.uuid }
-  end
-
-  def to_h
-    data = super
-    {
-      event_id: data.delete(:event_id),
-      metadata: data.delete(:metadata),
-      data:     data
-    }
+    klass.define_singleton_method(:event_type) do |value|
+      klass.define_method(:event_type) do
+        value
+      end
+    end
   end
 
   def timestamp
-    metadata[:timestamp]
+    metadata[:timestamp] && Time.parse(metadata[:timestamp])
   end
 
   def data
-    to_h[:data]
+    to_h.reject{|k,_| [:event_id, :metadata].include?(k) }
   end
 
   def event_type
@@ -74,22 +71,18 @@ class Event < Dry::Struct
 end
 
 class FooEvent < Event
+  event_type  'some'
   attribute   :shared,          Types::UUID
   attribute   :different_type,  Types::Coercible::Integer
   attribute   :with_default,    Types::Strict::Integer.optional
   attribute?  :only_in_foo,     Types::Strict::Integer.optional
-  def event_type
-    'some'
-  end
 end
 class BarEvent < Event
+  event_type  'some'
   attribute   :shared,          Types::UUID
   attribute   :different_type,  Types::Coercible::String
   attribute   :with_default,    Types::Constructor(Integer) {|value| Integer(value || 0)}
   attribute?  :only_in_bar,     Types::Strict::Integer.optional
-  def event_type
-    'some'
-  end
 end
 
 require 'minitest/autorun'

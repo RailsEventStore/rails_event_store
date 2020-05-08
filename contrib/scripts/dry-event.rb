@@ -9,6 +9,7 @@ gemfile(true) do
   source "https://rubygems.org"
 
   gem 'ruby_event_store', '~> 1.0.0'
+  gem 'rails_event_store-rspec'
   gem 'dry-struct'
   gem 'dry-types'
   gem 'rspec'
@@ -17,6 +18,7 @@ end
 
 require "ruby_event_store"
 require 'time'
+require 'json'
 require 'dry-struct'
 require 'dry-types'
 require 'rspec/core'
@@ -35,6 +37,10 @@ class Event < Dry::Struct
   attribute :event_id, Types::EventId
   attribute :metadata, Types::Metadata
   alias :message_id :event_id
+
+  def self.new(data: {}, metadata: {}, **args)
+    super(args.merge(data).merge(metadata: metadata))
+  end
 
   def self.inherited(klass)
     super
@@ -111,6 +117,28 @@ module Foo
       expect(bar.id).to eq(uuid)
       expect(bar.coercible).to be_nil
       expect(bar.nullable).to eq(123)
+    end
+
+    it do
+      res = RubyEventStore::Client.new(
+        mapper: RubyEventStore::Mappers::Default.new(
+          serializer: JSON,
+          events_class_remapping: {
+            'foo-bar' => 'Foo::Bar'
+          }
+        ),
+        repository: RubyEventStore::InMemoryRepository.new
+      )
+      uuid = SecureRandom.uuid
+      bar = Foo::Bar.new(id: uuid, coercible: nil, nullable: 123)
+      res.publish(bar)
+      expect(res).to have_published(
+        an_event(Foo::Bar).with_data(
+          id: uuid,
+          coercible: nil,
+          nullable: 123,
+        ).strict
+      )
     end
   end
 end
