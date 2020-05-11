@@ -73,7 +73,16 @@ class Event < Dry::Struct
 end
 
 require 'ruby_event_store/spec/event_lint'
-require_relative '../../support/helpers/rspec_defaults'
+
+RSpec.configure do |config|
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+  config.disable_monkey_patching!
+
+  config.order = :random
+  Kernel.srand config.seed
+end
 
 module Foo
   class Bar < Event
