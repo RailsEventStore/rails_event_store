@@ -96,7 +96,7 @@ module Foo
   end
 
   RSpec.describe 'dry-event' do
-    it_behaves_like :event, ::Event
+    it_behaves_like :event, ::Event, {}, RubyEventStore::Metadata::new
 
     it do
       bar = Foo::Bar.new(id: 'xxx', coercible: 123)
