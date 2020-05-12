@@ -7,23 +7,22 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
-    def initialize(base_klass = ::ActiveRecord::Base, serializer:)
+    def initialize(base_klass = ActiveRecord::Base, serializer:)
       @base_klass = base_klass
       @serializer  = serializer
 
       instance_uuid = SecureRandom.uuid.gsub('-','')
-      eklass = Class.new(base_klass) do
-        self.primary_key = :id
-        self.table_name = 'event_store_events'
-      end
-      @event_klass = Object.const_set("Event_"+instance_uuid, eklass)
-      sklass = Class.new(base_klass) do
-        self.primary_key = :id
-        self.table_name = 'event_store_events_in_streams'
-        belongs_to :event, class_name: "Event_"+instance_uuid,
-          foreign_key: 'event_id', primary_key: 'id'
-      end
-      @stream_klass = Object.const_set("EventInStream_"+instance_uuid, sklass)
+      @event_klass = Object.const_set("Event_"+instance_uuid,
+        Class.new(base_klass) do
+          self.table_name = 'event_store_events'
+        end
+      )
+      @stream_klass = Object.const_set("EventInStream_"+instance_uuid,
+        Class.new(base_klass) do
+          self.table_name = 'event_store_events_in_streams'
+          belongs_to :event, class_name: "Event_"+instance_uuid
+        end
+      )
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
     end
 

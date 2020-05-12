@@ -369,6 +369,39 @@ module RailsEventStoreActiveRecord
       expect(batches[1]).to eq([events[99]])
     end
 
+    specify 'allows custom base class' do
+      CustomApplicationRecord = Class.new(ActiveRecord::Base)
+      repository = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
+      expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
+    end
+
+    specify 'reading/writting works with custom base class' do
+      CustomApplicationRecord = Class.new(ActiveRecord::Base)
+      repository = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      repository.append_to_stream(
+        [event = RubyEventStore::SRecord.new],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+      specification = RubyEventStore::Specification.new(reader)
+      read_event = repository.read(specification.result).first
+      expect(read_event).to eq(event)
+    end
+
+    specify 'each repository must have different AR classes' do
+      CustomApplicationRecord = Class.new(ActiveRecord::Base)
+      repository1 = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      repository2 = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      event_klass_1 = repository1.instance_variable_get(:@event_klass).name
+      event_klass_2 = repository2.instance_variable_get(:@event_klass).name
+      stream_klass_1 = repository1.instance_variable_get(:@stream_klass).name
+      stream_klass_2 = repository2.instance_variable_get(:@stream_klass).name
+      expect(event_klass_1).not_to eq(event_klass_2)
+      expect(stream_klass_1).not_to eq(stream_klass_2)
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
