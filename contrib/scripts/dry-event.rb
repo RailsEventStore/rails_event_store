@@ -8,8 +8,8 @@ end
 gemfile(true) do
   source "https://rubygems.org"
 
-  gem 'ruby_event_store', '~> 1.0.0'
-  gem 'rails_event_store-rspec'
+  gem 'ruby_event_store', path: File.join(__dir__, '../../ruby_event_store')
+  gem 'rails_event_store-rspec', path: File.join(__dir__, '../../rails_event_store-rspec')
   gem 'dry-struct'
   gem 'dry-types'
   gem 'rspec'
