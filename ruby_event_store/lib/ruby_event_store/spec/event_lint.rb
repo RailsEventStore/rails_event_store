@@ -1,9 +1,7 @@
-RSpec.shared_examples :event do |event_class|
+RSpec.shared_examples :event do |event_class, data, metadata|
   it 'allows initialization' do
     expect {
-      metadata = double(:metadata)
-      allow(metadata).to receive(:to_h).and_return({})
-      event_class.new(event_id: Object.new, data: Object.new, metadata: metadata)
+      event_class.new(event_id: Object.new, data: data || Object.new, metadata: metadata || {})
     }.not_to raise_error
   end
 
