@@ -4,6 +4,7 @@ require_relative '../../support/helpers/mutant_timeout'
 require_relative '../../support/helpers/migrator'
 require_relative '../../support/helpers/schema_helper'
 require 'rails'
+require 'active_record'
 
 
 $verbose = ENV.has_key?('VERBOSE') ? true : false

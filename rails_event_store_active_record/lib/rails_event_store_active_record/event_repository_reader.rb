@@ -3,16 +3,18 @@
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
 
-    def initialize(serializer)
+    def initialize(event_klass, stream_klass, serializer)
+      @event_klass = event_klass
+      @stream_klass = stream_klass
       @serializer = serializer
     end
 
     def has_event?(event_id)
-      Event.exists?(id: event_id)
+      @event_klass.exists?(id: event_id)
     end
 
     def last_stream_event(stream)
-      record_ = EventInStream.where(stream: stream.name).order('position DESC, id DESC').first
+      record_ = @stream_klass.where(stream: stream.name).order('position DESC, id DESC').first
       record(record_) if record_
     end
 
@@ -48,7 +50,7 @@ module RailsEventStoreActiveRecord
     attr_reader :serializer
 
     def read_scope(spec)
-      stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
+      stream = @stream_klass.preload(:event).where(stream: normalize_stream_name(spec))
       stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
       stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
       stream = stream.order(position: order(spec)) unless spec.stream.global?
@@ -75,12 +77,12 @@ module RailsEventStoreActiveRecord
 
     def start_condition(specification)
       start_offset_condition(specification,
-        EventInStream.find_by!(event_id: specification.start, stream: normalize_stream_name(specification)))
+        @stream_klass.find_by!(event_id: specification.start, stream: normalize_stream_name(specification)))
     end
 
     def stop_condition(specification)
       stop_offset_condition(specification,
-        EventInStream.find_by!(event_id: specification.stop, stream: normalize_stream_name(specification)))
+        @stream_klass.find_by!(event_id: specification.stop, stream: normalize_stream_name(specification)))
     end
 
     def order(spec)

@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
-require 'rails_event_store_active_record/event'
 
 module RailsEventStoreActiveRecord
   class PgLinearizedEventRepository
