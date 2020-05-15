@@ -23,13 +23,17 @@ module RubyEventStore
       end
 
       def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
-        args = [position, direction, count].compact
         stream_name = Rack::Utils.escape(id)
+        query_string = URI.encode_www_form({
+          "page[position]" => position,
+          "page[direction]" => direction,
+          "page[count]" => count,
+        }.compact)
 
-        if args.empty?
+        if query_string.empty?
           "#{api_url}/streams/#{stream_name}/relationships/events"
         else
-          "#{api_url}/streams/#{stream_name}/relationships/events/#{args.join('/')}"
+          "#{api_url}/streams/#{stream_name}/relationships/events?#{query_string}"
         end
       end
 

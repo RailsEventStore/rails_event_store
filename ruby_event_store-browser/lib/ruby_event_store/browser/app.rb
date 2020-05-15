@@ -82,14 +82,6 @@ module RubyEventStore
         )
       end
 
-      get '/api/streams/:id/relationships/events/:position/:direction/:count' do
-        json GetEventsFromStream.new(
-          event_store: settings.event_store_locator,
-          params: symbolized_params,
-          routing: routing,
-        )
-      end
-
       helpers do
         def symbolized_params
           params.each_with_object({}) { |(k, v), h| v.nil? ? next : h[k.to_sym] = v }

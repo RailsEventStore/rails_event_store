@@ -84,11 +84,11 @@ module RubyEventStore
       end
 
       def count
-        Integer(params.fetch(:count, PAGE_SIZE))
+        Integer(pagination_param[:count] || PAGE_SIZE)
       end
 
       def direction
-        case params[:direction]
+        case pagination_param[:direction]
         when 'forward'
           :forward
         else
@@ -97,16 +97,20 @@ module RubyEventStore
       end
 
       def position
-        case params[:position]
+        case pagination_param[:position]
         when 'head', nil
           HEAD
         else
-          params.fetch(:position)
+          pagination_param.fetch(:position)
         end
       end
 
       def stream_name
         params.fetch(:id)
+      end
+
+      def pagination_param
+        params[:page] || {}
       end
     end
   end
