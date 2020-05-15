@@ -45,6 +45,7 @@ module RubyEventStore
                     rootUrl:    "<%= routing.root_url %>",
                     eventsUrl:  "<%= routing.events_url %>",
                     streamsUrl: "<%= routing.streams_url %>",
+                    apiUrl:     "<%= routing.api_url %>",
                     resVersion: "<%= RubyEventStore::VERSION %>"
                   }
                 });

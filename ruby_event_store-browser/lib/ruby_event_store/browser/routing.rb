@@ -11,11 +11,15 @@ module RubyEventStore
       end
 
       def events_url
-        "#{base_url}/api/events"
+        "#{api_url}/events"
+      end
+
+      def api_url
+        "#{base_url}/api"
       end
 
       def streams_url
-        "#{base_url}/api/streams"
+        "#{api_url}/streams"
       end
 
       def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
@@ -23,9 +27,9 @@ module RubyEventStore
         stream_name = Rack::Utils.escape(id)
 
         if args.empty?
-          "#{base_url}/api/streams/#{stream_name}/relationships/events"
+          "#{api_url}/streams/#{stream_name}/relationships/events"
         else
-          "#{base_url}/api/streams/#{stream_name}/relationships/events/#{args.join('/')}"
+          "#{api_url}/streams/#{stream_name}/relationships/events/#{args.join('/')}"
         end
       end
 
