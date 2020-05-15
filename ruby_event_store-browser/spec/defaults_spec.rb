@@ -18,6 +18,25 @@ module RubyEventStore
       expect(response.body).to match %r{<script type="text/javascript" src="/res/ruby_event_store_browser.js"></script>}
     end
 
+    it "builds api url based on the settings" do
+      app = Rack::Builder.new do
+        map "/res" do
+          run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, api_url: "https://example.com/some/custom/api/url")
+        end
+      end
+      test_client = TestClient.new(app, 'railseventstore.org')
+
+      response = test_client.get '/res'
+
+      expect(response.body).to match %r{apiUrl:\s*"https://example.com/some/custom/api/url"}
+    end
+
+    it "default #api_url is based on root_path" do
+      response = test_client.get '/res'
+
+      expect(response.body).to match %r{apiUrl:\s*"http://railseventstore.org/res/api"}
+    end
+
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:test_client) { TestClient.new(app_builder(event_store), 'railseventstore.org') }
 
