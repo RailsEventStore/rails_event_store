@@ -148,6 +148,16 @@ view model =
     ( "Event " ++ model.eventId, view_ model )
 
 
+centralSpinner : Html Msg
+centralSpinner =
+    div [ class "central-spinner" ] [ spinner ]
+
+
+spinner : Html Msg
+spinner =
+    div [ class "lds-dual-ring" ] []
+
+
 view_ : Model -> Html Msg
 view_ model =
     case model.event of
@@ -156,8 +166,7 @@ view_ model =
                 [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
 
         Api.Loading ->
-            div [ class "event" ]
-                [ h1 [ class "event__missing" ] [ text "Loading event..." ] ]
+            centralSpinner
 
         Api.Loaded event ->
             showEvent model.flags.rootUrl event model.causedEvents
