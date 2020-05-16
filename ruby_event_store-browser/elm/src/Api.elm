@@ -60,11 +60,13 @@ buildUrl baseUrl id =
 
 
 eventUrl : Flags -> String -> String
-eventUrl flags eventId = buildUrl ((Url.toString flags.apiUrl) ++ "/events") eventId
+eventUrl flags eventId =
+    buildUrl (Url.toString flags.apiUrl ++ "/events") eventId
 
 
 streamUrl : Flags -> String -> String
-streamUrl flags streamId = buildUrl ((Url.toString flags.apiUrl) ++ "/streams") streamId
+streamUrl flags streamId =
+    buildUrl (Url.toString flags.apiUrl ++ "/streams") streamId
 
 
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
