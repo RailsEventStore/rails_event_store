@@ -1,4 +1,4 @@
-require '../../support/helpers/rspec_defaults'
+require_relative '../../../support/helpers/rspec_defaults'
 require_relative '../../../support/helpers/schema_helper'
 require 'connected_active_record'
 
