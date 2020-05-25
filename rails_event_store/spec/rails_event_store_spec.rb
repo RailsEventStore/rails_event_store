@@ -13,7 +13,7 @@ RSpec.describe RailsEventStore do
     cattr_accessor :event
 
     def perform(payload)
-      self.class.event = Rails.configuration.event_store.deserialize(payload)
+      self.class.event = Rails.configuration.event_store.deserialize(**payload)
     end
   end
 
