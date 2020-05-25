@@ -14,7 +14,7 @@ module RubyEventStore
 
         yield(changesets = [])
 
-        commit!(gateway, changesets, options)
+        commit!(gateway, changesets, **options)
       end
 
       def commit!(gateway, changesets, **options)
