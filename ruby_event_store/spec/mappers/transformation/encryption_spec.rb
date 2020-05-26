@@ -112,6 +112,7 @@ module RubyEventStore
             sender: sender,
             recipient: recipient
           })
+
           expect(event.metadata).to eq(metadata)
         end
 
