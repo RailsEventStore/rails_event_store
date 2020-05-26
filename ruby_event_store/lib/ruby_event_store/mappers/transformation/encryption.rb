@@ -97,7 +97,7 @@ module RubyEventStore
         def encrypt_attribute(data, attribute, meta)
           case meta
           when Leaf
-            value = data.fetch(attribute)
+            value = data.fetch(attribute, nil)
             return unless value
 
             encryption_key = key_repository.key_of(meta.fetch(:identifier))
