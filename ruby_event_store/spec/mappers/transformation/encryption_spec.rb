@@ -138,6 +138,7 @@ module RubyEventStore
               sender: sender.merge(name: nil),
               recipient: recipient
             })
+
             expect(event.metadata).to eq(metadata)
           end
         end
