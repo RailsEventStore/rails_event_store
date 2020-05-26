@@ -115,6 +115,32 @@ module RubyEventStore
           expect(event.metadata).to eq(metadata)
         end
 
+        context "when encryptable event keys are missing" do
+          let(:sender) do
+            {
+              user_id: sender_id,
+              email: sender_email,
+              twitter: '@alice'
+            }
+          end
+
+          specify 'transforms missing data keys into nil values' do
+            key_repository.create(sender_id)
+            key_repository.create(recipient_id)
+
+            event = decrypt(encrypt(ticket_transferred))
+
+            expect(event.event_id).to eq(event_id)
+
+            expect(event.data).to eq({
+              ticket_id: ticket_id,
+              sender: sender.merge(name: nil),
+              recipient: recipient
+            })
+            expect(event.metadata).to eq(metadata)
+          end
+        end
+
         specify 'obfuscates data for missing keys on decryption' do
           key_repository.create(sender_id)
           key_repository.create(recipient_id)
