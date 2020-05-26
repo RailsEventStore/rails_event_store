@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'spec_helper'
 require 'ruby_event_store/spec/scheduler_lint'
 
@@ -26,10 +24,10 @@ module RailsEventStore
 
     it_behaves_like :scheduler, ActiveJobScheduler.new
 
-    let(:event) { TimestampEnrichment.with_timestamp(Event.new(event_id: '83c3187f-84f6-4da7-8206-73af5aca7cc8'), Time.utc(2019, 9, 30)) }
+    let(:event) { TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30)) }
     let(:serialized_event) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
 
-    describe '#verify' do
+    describe "#verify" do
       specify do
         scheduler = ActiveJobScheduler.new
         proper_handler = Class.new(ActiveJob::Base)
@@ -53,9 +51,7 @@ module RailsEventStore
       end
     end
 
-    describe '#call' do
-      before do
-      end
+    describe "#call" do
       specify do
         scheduler = ActiveJobScheduler.new
         scheduler.call(MyAsyncHandler, serialized_event)
@@ -64,17 +60,17 @@ module RailsEventStore
         expect(enqueued_jobs.size).to eq(1)
         expect(enqueued_jobs[0]).to include(
           {
-            job:   MyAsyncHandler,
-            args:  [
+            job: MyAsyncHandler,
+            args: [
               {
-                'event_id'        => '83c3187f-84f6-4da7-8206-73af5aca7cc8',
-                'event_type'      => 'RubyEventStore::Event',
-                'data'            => "--- {}\n",
-                'metadata'        => "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-                '_aj_symbol_keys' => %w[event_id data metadata event_type],
+                "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                "event_type"      => "RubyEventStore::Event",
+                "data"            => "--- {}\n",
+                "metadata"        => "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+                "_aj_symbol_keys" => %w[event_id data metadata event_type],
               },
             ],
-            queue: 'default',
+            queue: "default",
           },
         )
       end
@@ -85,11 +81,9 @@ module RailsEventStore
       def self.reset
         @@received = nil
       end
-
       def self.received
         @@received
       end
-
       def perform(event)
         @@received = event
       end
