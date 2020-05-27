@@ -58,19 +58,21 @@ module RailsEventStore
 
         enqueued_jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
         expect(enqueued_jobs.size).to eq(1)
-        expect(enqueued_jobs[0]).to eq({
-          job: MyAsyncHandler,
-          args: [
-            {
-              "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-              "event_type" => "RubyEventStore::Event",
-              "data" => "--- {}\n",
-              "metadata" => "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-              "_aj_symbol_keys" => ["event_id", "data", "metadata", "event_type"]
-            }
-          ],
-          queue: "default"
-        })
+        expect(enqueued_jobs[0]).to include(
+          {
+            job: MyAsyncHandler,
+            args: [
+              {
+                "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                "event_type"      => "RubyEventStore::Event",
+                "data"            => "--- {}\n",
+                "metadata"        => "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+                "_aj_symbol_keys" => %w[event_id data metadata event_type],
+              },
+            ],
+            queue: "default",
+          },
+        )
       end
     end
 
@@ -88,4 +90,3 @@ module RailsEventStore
     end
   end
 end
-
