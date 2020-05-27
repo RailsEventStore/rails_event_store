@@ -24,10 +24,11 @@ require 'minitest/assertions'
 module Types
   include Dry::Types()
 
-  UUID          = Types::Strict::String.constrained(format: /\A[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\z/i)
+  UUID      = Types::Strict::String.constrained(format: /\A[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\z/i)
   EventId   = Types::Coercible::String.default { SecureRandom.uuid }
   Metadata  = Types.Constructor(RubyEventStore::Metadata) { |value| RubyEventStore::Metadata.new(value.to_h) }.default { RubyEventStore::Metadata.new }
 end
+
 
 class Event < Dry::Struct
   transform_keys(&:to_sym)
@@ -37,7 +38,7 @@ class Event < Dry::Struct
   alias :message_id :event_id
 
   def self.new(data: {}, metadata: {}, **args)
-    super(args.merge(data: data).merge(metadata: metadata))
+    super(args.merge(data).merge(metadata: metadata))
   end
 
   def self.inherited(klass)
