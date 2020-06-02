@@ -16,10 +16,10 @@ module ConnectedActiveRecord
       end
     end
 
-    let(:test_race_conditions_any)   { false }
-    let(:test_race_conditions_auto)  { false }
-    let(:test_binary) { false }
-    let(:test_change) { false }
+    let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
+    let(:test_binary)                { true }
+    let(:test_change)                { true }
 
     it_behaves_like :event_repository, Repository
   end
