@@ -10,12 +10,15 @@ default: &default
   timeout: 5000
 
 development:
-  <<: *default
-  database: db/development.sqlite3
+  primary:
+    <<: *default
+    database: db/development.sqlite3
   orders:
+    <<: *default
     database: db/orders_development.sqlite3
     migrations_paths: db/orders
   payments:
+    <<: *default
     database: db/payments_development.sqlite3
     migrations_paths: db/payments
 
@@ -23,21 +26,27 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: db/test.sqlite3
+  primary:
+    <<: *default
+    database: db/test.sqlite3
   orders:
+    <<: *default
     database: db/orders_test.sqlite3
     migrations_paths: db/orders
   payments:
+    <<: *default
     database: db/payments_test.sqlite3
     migrations_paths: db/payments
 
 production:
-  <<: *default
-  database: db/production.sqlite3
+  primary:
+    <<: *default
+    database: db/production.sqlite3
   orders:
+    <<: *default
     database: db/orders_production.sqlite3
     migrations_paths: db/orders
   payments:
+    <<: *default
     database: db/payments_production.sqlite3
     migrations_paths: db/payments
