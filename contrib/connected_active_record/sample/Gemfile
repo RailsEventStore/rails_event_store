@@ -29,5 +29,5 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
+gem 'rails_event_store_active_record', path: '../../../rails_event_store_active_record'
 gem 'rails_event_store', path: '../../../rails_event_store'
-gem 'connected_active_record', path: '../'
