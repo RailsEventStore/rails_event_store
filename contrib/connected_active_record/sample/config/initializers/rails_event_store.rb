@@ -22,4 +22,7 @@ Rails.configuration.to_prepare do
   #   bus.register(PrintInvoice, Invoicing::OnPrint.new)
   #   bus.register(SubmitOrder,  ->(cmd) { Ordering::OnSubmitOrder.new.call(cmd) })
   # end
+
+  Orders.setup(Rails.configuration)
+  Payments.setup(Rails.configuration)
 end
