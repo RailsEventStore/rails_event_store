@@ -63,6 +63,8 @@ module RubyEventStore
 
           expect(Record.count).to eq(1)
           record = Record.first
+          expect(record.created_at).to be_present
+          expect(record.enqueued_at).to be_nil
           expect(record.split_key).to eq('default')
           expect(record.format).to eq('sidekiq5')
           expect(JSON.parse(record.payload).deep_symbolize_keys).to match({
