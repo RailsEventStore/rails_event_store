@@ -74,7 +74,7 @@ module RubyEventStore
           expect(record.enqueued_at).to be_nil
           expect(record.split_key).to eq('default')
           expect(record.format).to eq('sidekiq5')
-          expect(JSON.parse(record.payload).deep_symbolize_keys).to match({
+          expect(record.hash_payload).to match({
             class: "CorrectAsyncHandler",
             queue: "default",
             created_at: be_present,
@@ -102,7 +102,7 @@ module RubyEventStore
 
           record = Record.first
           expect(record.split_key).to eq('custom_queue')
-          expect(JSON.parse(record.payload).deep_symbolize_keys[:queue]).to eq("custom_queue")
+          expect(record.hash_payload[:queue]).to eq("custom_queue")
         end
       end
     end
