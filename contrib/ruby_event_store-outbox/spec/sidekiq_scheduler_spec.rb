@@ -88,6 +88,22 @@ module RubyEventStore
             }]
           })
         end
+
+        specify "custom queue name is taken into account" do
+          event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
+          serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          class ::CorrectAsyncHandler
+            include Sidekiq::Worker
+            sidekiq_options queue: 'custom_queue'
+            def through_outbox?; true; end
+          end
+
+          subject.call(CorrectAsyncHandler, serialized_event)
+
+          record = Record.first
+          expect(record.split_key).to eq('custom_queue')
+          expect(JSON.parse(record.payload).deep_symbolize_keys[:queue]).to eq("custom_queue")
+        end
       end
     end
   end
