@@ -80,16 +80,20 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json
         )
+        now = Time.utc(2019, 9, 30, 1, 0, 0)
+        expect(Time).to receive(:now).and_return(now).ordered
+        expect(Time).to receive(:now).and_return(now + 1).ordered
         consumer = Consumer.new
         consumer.one_loop
 
-        record.reload
-        expect(record.enqueued_at).to be_present
         Sidekiq.redis_pool.with do |redis|
           expect(redis.llen("queue:default")).to eq(1)
           payload_in_redis = JSON.parse(redis.lindex("queue:default", 0))
           expect(payload_in_redis).to include(payload.as_json)
+          expect(payload_in_redis["enqueued_at"]).to eq(now.to_f)
         end
+        record.reload
+        expect(record.enqueued_at).to eq(now + 1)
       end
     end
   end
