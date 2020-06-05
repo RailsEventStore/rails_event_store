@@ -14,7 +14,7 @@ module RubyEventStore
           'args' => [serialized_event.to_h],
         }
         normalized_item = sidekiq_client.send(:normalize_item, item)
-        payload = sidekiq_client.send(:process_single, normalized_item['class'], normalized_item)
+        payload = sidekiq_client.send(:process_single, normalized_item.fetch('class'), normalized_item)
         if payload
           Record.create!(
             format: SIDEKIQ5_FORMAT,

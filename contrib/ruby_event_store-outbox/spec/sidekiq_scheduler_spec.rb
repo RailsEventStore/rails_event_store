@@ -33,6 +33,12 @@ module RubyEventStore
 
           expect(subject.verify(handler_without_method)).to eq(false)
         end
+
+        specify do
+          object_responding_but_not_a_class = OpenStruct.new(through_outbox?: true)
+
+          expect(subject.verify(object_responding_but_not_a_class)).to eq(false)
+        end
       end
 
       describe "#call" do
