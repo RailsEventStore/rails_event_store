@@ -82,7 +82,6 @@ module RubyEventStore
           serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
-            sidekiq_options queue: 'default'
             def through_outbox?; true; end
           end
 
