@@ -52,7 +52,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json
         )
-        consumer = Consumer.new
+        consumer = Consumer.new(["default"])
         consumer.one_loop
 
         record.reload
@@ -81,7 +81,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(clock: clock)
+        consumer = Consumer.new(["default"], clock: clock)
         consumer.one_loop
 
         Sidekiq.redis_pool.with do |redis|
@@ -92,6 +92,17 @@ module RubyEventStore
         end
         record.reload
         expect(record.enqueued_at).to eq(clock.tick(0))
+      end
+
+      specify "initiating consumer ensures that queues exist" do
+        consumer = Consumer.new(["default"])
+
+        consumer.init
+
+        Sidekiq.redis_pool.with do |redis|
+          expect(redis.scard("queues")).to eq(1)
+          expect(redis.smembers("queues")).to match_array(["default"])
+        end
       end
     end
   end

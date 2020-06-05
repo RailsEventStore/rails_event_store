@@ -1,9 +1,16 @@
 module RubyEventStore
   module Outbox
     class Consumer
-      def initialize(clock: Time)
+      def initialize(split_keys, clock: Time)
+        @split_keys = split_keys
         @clock = clock
         @redis_pool = Sidekiq.redis_pool
+      end
+
+      def init
+        @redis_pool.with do |redis|
+          redis.sadd("queues", split_keys)
+        end
       end
 
       def one_loop
@@ -23,6 +30,9 @@ module RubyEventStore
           records.update_all(enqueued_at: now)
         end
       end
+
+      private
+      attr_reader :split_keys
     end
   end
 end
