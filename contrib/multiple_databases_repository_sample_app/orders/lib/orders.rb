@@ -14,14 +14,15 @@ module Orders
     )
 
     # Subscribe public event handlers below
-    # config.event_store.tap do |store|
-    #   store.subscribe(InvoiceReadModel.new, to: [InvoicePrinted])
-    # end
+    config.event_store.tap do |store|
+#      store.subscribe(MarkAsPaid.new, to: [Paid])
+#      store.subscribe(RequestPayment.new, to: [PaymentFailed])
+    end
 
     # Register commands handled by this module below
-    # config.command_bus.tap do |bus|
-    #   bus.register(SubmitOrder, Orders::OnSubmit.new)
-    # end
+    config.command_bus.tap do |bus|
+#      bus.register(SubmitOrder, Submit.new)
+    end
   end
 
   def self.public_event_store
@@ -33,6 +34,23 @@ module Orders
   end
 
   def self.events_class_remapping
-    {}
+    {
+      'order-submitted'               => Submitted,
+    }
+  end
+
+  class Paid < Event
+    event_type 'payment-completed'
+    attribute  :order_id, Types::Strict::String
+  end
+  class PaymentFailed < Event
+    event_type 'payment-failed'
+    attribute  :order_id, Types::Strict::String
+  end
+  class Submitted < Event
+    event_type 'order-submitted'
+    attribute  :order_id, Types::Strict::String
+    attribute  :customer_id, Types::Strict::String
+    attribute  :total_amount, Types::Strict::Float
   end
 end
