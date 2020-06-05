@@ -1,6 +1,22 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/scheduler_lint'
 
+def reset_sidekiq_middlewares
+  Sidekiq.configure_client do |config|
+    config.client_middleware do |chain|
+      chain.clear
+    end
+  end
+end
+
+def install_sidekiq_middleware(middleware_klass)
+  Sidekiq.configure_client do |config|
+    config.client_middleware do |chain|
+      chain.add(middleware_klass)
+    end
+  end
+end
+
 module RubyEventStore
   module Outbox
     RSpec.describe SidekiqScheduler do
@@ -57,6 +73,10 @@ module RubyEventStore
           end
         end
 
+        before(:each) do |example|
+          reset_sidekiq_middlewares
+        end
+
         specify do
           event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
           serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
@@ -103,6 +123,24 @@ module RubyEventStore
           record = Record.first
           expect(record.split_key).to eq('custom_queue')
           expect(record.hash_payload[:queue]).to eq("custom_queue")
+        end
+
+        specify "client middleware may abort scheduling" do
+          event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
+          serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          class ::AlwaysCancellingMiddleware
+            def call(_worker_class, _msg, _queue, _redis_pool)
+            end
+          end
+          install_sidekiq_middleware(::AlwaysCancellingMiddleware)
+          class ::CorrectAsyncHandler
+            include Sidekiq::Worker
+            def through_outbox?; true; end
+          end
+
+          subject.call(CorrectAsyncHandler, serialized_event)
+
+          expect(Record.count).to eq(0)
         end
       end
     end
