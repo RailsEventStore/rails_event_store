@@ -82,7 +82,6 @@ module RubyEventStore
         )
         now = Time.utc(2019, 9, 30, 1, 0, 0)
         expect(Time).to receive(:now).and_return(now).ordered
-        expect(Time).to receive(:now).and_return(now + 1).ordered
         consumer = Consumer.new
         consumer.one_loop
 
@@ -93,7 +92,7 @@ module RubyEventStore
           expect(payload_in_redis["enqueued_at"]).to eq(now.to_f)
         end
         record.reload
-        expect(record.enqueued_at).to eq(now + 1)
+        expect(record.enqueued_at).to eq(now)
       end
     end
   end
