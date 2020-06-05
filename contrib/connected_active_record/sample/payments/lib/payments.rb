@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'payments/application_record'
+require_relative '../../lib/event'
 
 module Payments
   def self.setup(config)

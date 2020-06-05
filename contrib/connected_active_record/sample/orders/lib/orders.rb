@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'orders/application_record'
+require_relative '../../lib/event'
 
 module Orders
   def self.setup(config)
