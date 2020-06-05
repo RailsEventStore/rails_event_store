@@ -4,3 +4,6 @@ module RubyEventStore
   module Outbox
   end
 end
+
+require_relative 'outbox/record'
+require_relative 'outbox/sidekiq_scheduler'
