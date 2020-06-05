@@ -55,10 +55,11 @@ module RubyEventStore
           event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
           serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
           class ::CorrectAsyncHandler
-            def through_outbox?; true; end
             include Sidekiq::Worker
             sidekiq_options queue: 'default'
+            def through_outbox?; true; end
           end
+
           subject.call(CorrectAsyncHandler, serialized_event)
 
           expect(Record.count).to eq(1)
