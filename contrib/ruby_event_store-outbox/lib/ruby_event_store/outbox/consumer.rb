@@ -1,7 +1,8 @@
 module RubyEventStore
   module Outbox
     class Consumer
-      def initialize
+      def initialize(clock: Time)
+        @clock = clock
         @redis_pool = Sidekiq.redis_pool
       end
 
@@ -9,7 +10,7 @@ module RubyEventStore
         Record.transaction do
           records = Record.lock.where(format: SidekiqScheduler::SIDEKIQ5_FORMAT, enqueued_at: nil).order("id ASC").limit(100)
 
-          now = Time.now.utc
+          now = @clock.now.utc
           records.each do |record|
             hash_payload = JSON.parse(record.payload)
             @redis_pool.with do |redis|
