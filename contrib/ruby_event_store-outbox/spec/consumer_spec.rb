@@ -1,0 +1,96 @@
+require 'spec_helper'
+require 'byebug'
+
+module RubyEventStore
+  module Outbox
+    RSpec.describe Consumer do
+      include SchemaHelper
+
+      around(:each) do |example|
+        begin
+          establish_database_connection
+          # load_database_schema
+          m = Migrator.new(File.expand_path('../lib/generators/templates', __dir__))
+          m.run_migration('create_event_store_outbox')
+          example.run
+        ensure
+          # drop_database
+          ActiveRecord::Migration.drop_table("event_store_outbox")
+        end
+      end
+
+      before(:each) do
+        Sidekiq.configure_client do |config|
+          config.redis = {
+            url: "redis://localhost:6379/1",
+          }
+        end
+
+        Sidekiq.redis_pool.with do |conn|
+          conn.flushdb
+        end
+      end
+
+      specify "updates enqueued_at" do
+        payload = {
+          class: "SomeAsyncHandler",
+          queue: "default",
+          created_at: Time.now.utc,
+          jid: Time.now.utc,
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        record = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload.to_json
+        )
+        consumer = Consumer.new
+        consumer.one_loop
+
+        record.reload
+        expect(record.enqueued_at).to be_present
+      end
+
+      specify "push the jobs to sidekiq" do
+        payload = {
+          class: "SomeAsyncHandler",
+          queue: "default",
+          created_at: Time.now.utc,
+          jid: Time.now.utc,
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        record = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload.to_json
+        )
+        consumer = Consumer.new
+        consumer.one_loop
+
+        record.reload
+        expect(record.enqueued_at).to be_present
+        Sidekiq.redis_pool.with do |redis|
+          expect(redis.llen("queue:default")).to eq(1)
+          payload_in_redis = JSON.parse(redis.lindex("queue:default", 0))
+          expect(payload_in_redis).to include(payload.as_json)
+        end
+      end
+    end
+  end
+end
