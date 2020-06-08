@@ -113,6 +113,32 @@ module RubyEventStore
 
         expect(result).to eq(false)
       end
+
+      specify "#run wait if nothing was changed" do
+        consumer = Consumer.new(["default"])
+        expect(consumer).to receive(:one_loop).and_return(false).ordered
+        expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
+        allow(consumer).to receive(:sleep)
+
+        expect do
+          consumer.run
+        end.to raise_error("End infinite loop")
+
+        expect(consumer).to have_received(:sleep).with(0.1)
+      end
+
+      specify "#run doesnt wait if something changed" do
+        consumer = Consumer.new(["default"])
+        expect(consumer).to receive(:one_loop).and_return(true).ordered
+        expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
+        allow(consumer).to receive(:sleep)
+
+        expect do
+          consumer.run
+        end.to raise_error("End infinite loop")
+
+        expect(consumer).not_to have_received(:sleep)
+      end
     end
   end
 end

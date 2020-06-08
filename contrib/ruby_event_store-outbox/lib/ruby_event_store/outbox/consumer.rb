@@ -13,6 +13,13 @@ module RubyEventStore
         end
       end
 
+      def run
+        loop do
+          was_something_changed = one_loop
+          sleep 0.1 if !was_something_changed
+        end
+      end
+
       def one_loop
         Record.transaction do
           records = Record.lock.where(format: SidekiqScheduler::SIDEKIQ5_FORMAT, enqueued_at: nil).order("id ASC").limit(100)
