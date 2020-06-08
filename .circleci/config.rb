@@ -168,16 +168,6 @@ check_config =
       )
     ]
   )
-ruby_2_4_compat =
-  Merge(
-    GEMS,
-    ->(gem_name) do
-      Test(
-        "ruby_2_4",
-        Ruby("2.4", "DATABASE_URL" => sqlite3_url[gem_name], "RAILS_VERSION" => RAILS_VERSIONS["5.2"])
-      )[gem_name]
-    end
-  )
 ruby_2_5_compat =
   Merge(
     GEMS,
@@ -304,7 +294,6 @@ jobs =
     check_config,
     mutations,
     current_ruby,
-    ruby_2_4_compat,
     ruby_2_5_compat,
     ruby_2_6_compat,
     rails_4_2_compat,
@@ -332,10 +321,6 @@ workflows          =
             JobName("test", "ruby_2_7")[gem_name]
         )
       end
-    ),
-    Workflow(
-      "Ruby 2.4",
-      GEMS.map(&JobName("test", "ruby_2_4"))
     ),
     Workflow(
       "Ruby 2.5",
