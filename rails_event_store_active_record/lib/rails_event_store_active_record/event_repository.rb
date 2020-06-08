@@ -16,17 +16,8 @@ module RailsEventStoreActiveRecord
       @serializer  = serializer
 
       instance_uuid = SecureRandom.uuid.gsub('-','')
-      @event_klass = Object.const_set("Event_"+instance_uuid,
-        Class.new(base_klass) do
-          self.table_name = 'event_store_events'
-        end
-      )
-      @stream_klass = Object.const_set("EventInStream_"+instance_uuid,
-        Class.new(base_klass) do
-          self.table_name = 'event_store_events_in_streams'
-          belongs_to :event, class_name: "Event_"+instance_uuid
-        end
-      )
+      @event_klass = build_event_klass(instance_uuid)
+      @stream_klass = build_stream_klass(instance_uuid)
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
     end
 
@@ -89,6 +80,24 @@ module RailsEventStoreActiveRecord
 
     private
     attr_reader :serializer
+
+    def build_event_klass(instance_uuid)
+      Object.const_set("Event_"+instance_uuid,
+        Class.new(@base_klass) do
+          self.table_name = 'event_store_events'
+          self.primary_key = 'id'
+        end
+      )
+    end
+
+    def build_stream_klass(instance_uuid)
+      Object.const_set("EventInStream_"+instance_uuid,
+        Class.new(@base_klass) do
+          self.table_name = 'event_store_events_in_streams'
+          belongs_to :event, class_name: "Event_"+instance_uuid
+        end
+      )
+    end
 
     def add_to_stream(event_ids, stream, expected_version, include_global)
       last_stream_version = ->(stream_) { @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position) }
