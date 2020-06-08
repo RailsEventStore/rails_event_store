@@ -9,8 +9,7 @@ module RubyEventStore
         end
 
         def dump(item)
-          stringify = StringifyMetadataKeys.new
-          metadata = ProtobufNestedStruct::HashMapStringValue.dump(stringify.dump(item).metadata)
+          metadata = ProtobufNestedStruct::HashMapStringValue.dump(item.metadata)
           item.merge(metadata: metadata)
         end
 
