@@ -5,6 +5,7 @@ module RubyEventStore
         @split_keys = split_keys
         @clock = clock
         @redis = Redis.new(url: ENV["REDIS_URL"])
+        ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
       end
 
       def init
