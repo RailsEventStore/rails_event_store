@@ -82,7 +82,7 @@ module RubyEventStore
         )
         clock = TickingClock.new
         consumer = Consumer.new(["default"], clock: clock)
-        consumer.one_loop
+        result = consumer.one_loop
 
         Sidekiq.redis_pool.with do |redis|
           expect(redis.llen("queue:default")).to eq(1)
@@ -92,6 +92,7 @@ module RubyEventStore
         end
         record.reload
         expect(record.enqueued_at).to eq(clock.tick(0))
+        expect(result).to eq(true)
       end
 
       specify "initiating consumer ensures that queues exist" do
@@ -103,6 +104,14 @@ module RubyEventStore
           expect(redis.scard("queues")).to eq(1)
           expect(redis.smembers("queues")).to match_array(["default"])
         end
+      end
+
+      specify "returns false if no records" do
+        consumer = Consumer.new(["default"])
+
+        result = consumer.one_loop
+
+        expect(result).to eq(false)
       end
     end
   end

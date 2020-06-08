@@ -16,6 +16,7 @@ module RubyEventStore
       def one_loop
         Record.transaction do
           records = Record.lock.where(format: SidekiqScheduler::SIDEKIQ5_FORMAT, enqueued_at: nil).order("id ASC").limit(100)
+          return false if records.empty?
 
           now = @clock.now.utc
           records.each do |record|
@@ -28,6 +29,7 @@ module RubyEventStore
           end
 
           records.update_all(enqueued_at: now)
+          return true
         end
       end
 
