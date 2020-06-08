@@ -20,7 +20,7 @@ Rails.configuration.to_prepare do
   # Register command handlers below
   # Rails.configuration.command_bus.tap do |bus|
   #   bus.register(PrintInvoice, Invoicing::OnPrint.new)
-  #   bus.register(SubmitOrder,  ->(cmd) { Ordering::OnSubmitOrder.new.call(cmd) })
+  #   bus.register(SubmitOrder,  ->(cmd) { Orders::OnSubmitOrder.new.call(cmd) })
   # end
 
   Orders.setup(Rails.configuration)

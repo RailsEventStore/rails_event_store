@@ -19,6 +19,7 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails'
   gem 'database_cleaner'
+  gem 'rails_event_store-rspec'
 end
 
 group :development do
