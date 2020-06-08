@@ -4,13 +4,11 @@ module RubyEventStore
       def initialize(split_keys, clock: Time)
         @split_keys = split_keys
         @clock = clock
-        @redis_pool = Sidekiq.redis_pool
+        @redis = Redis.new(url: ENV["REDIS_URL"])
       end
 
       def init
-        @redis_pool.with do |redis|
-          redis.sadd("queues", split_keys)
-        end
+        @redis.sadd("queues", split_keys)
       end
 
       def run
@@ -28,11 +26,9 @@ module RubyEventStore
           now = @clock.now.utc
           records.each do |record|
             hash_payload = JSON.parse(record.payload)
-            @redis_pool.with do |redis|
-              redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
-                "enqueued_at" => now.to_f,
-              })))
-            end
+            @redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
+              "enqueued_at" => now.to_f,
+            })))
           end
 
           records.update_all(enqueued_at: now)

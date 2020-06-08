@@ -21,9 +21,7 @@ module RubyEventStore
 
       before(:each) do
         Sidekiq.configure_client do |config|
-          config.redis = {
-            url: "redis://localhost:6379/1",
-          }
+          config.redis = { url: ENV["REDIS_URL"] }
         end
 
         Sidekiq.redis_pool.with do |conn|
