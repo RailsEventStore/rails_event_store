@@ -8,6 +8,10 @@ module RailsEventStoreActiveRecord
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
     def initialize(base_klass = ActiveRecord::Base, serializer:)
+      raise ArgumentError.new(
+        "#{base_klass} must be an abstract class or ActiveRecord::Base"
+      ) unless ActiveRecord::Base.equal?(base_klass) || base_klass.abstract_class?
+
       @base_klass = base_klass
       @serializer  = serializer
 
