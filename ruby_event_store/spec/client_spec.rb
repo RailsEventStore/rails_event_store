@@ -726,7 +726,7 @@ module RubyEventStore
           data: "\n\aK3THNX9\x10{",
           metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
         }
-        expect(client.deserialize(serialized_event)).to eq(event)
+        expect(client.deserialize(**serialized_event)).to eq(event)
       rescue LoadError => exc
         skip if exc.message == "cannot load such file -- google/protobuf_c"
       end
