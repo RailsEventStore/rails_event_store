@@ -10,9 +10,9 @@ def act(command, bus: Orders.command_bus)
   bus.call(command)
 end
 
-Configuration = Struct.new(:event_store, :command_bus, :number_generator)
+Configuration = Struct.new(:event_repository, :command_bus, :number_generator)
 Orders.setup(Configuration.new(
-  RailsEventStore::Client.new,
+  RubyEventStore::InMemoryRepository.new,
   Arkency::CommandBus.new,
   Orders::FakeNumberGenerator.new,
 ))

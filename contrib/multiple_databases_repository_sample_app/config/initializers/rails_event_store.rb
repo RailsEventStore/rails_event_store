@@ -3,7 +3,17 @@ require 'aggregate_root'
 require 'arkency/command_bus'
 
 Rails.configuration.to_prepare do
-  Rails.configuration.event_store = RailsEventStore::Client.new
+  events_class_remapping = {}
+
+  Rails.configuration.event_repository =
+    RailsEventStoreActiveRecord::EventRepository.new
+  Rails.configuration.event_store = RailsEventStore::Client.new(
+    repository: Rails.configuration.event_repository,
+    mapper: RubyEventStore::Mappers::Default.new(
+      serializer: JSON,
+      events_class_remapping: events_class_remapping
+    )
+  )
   Rails.configuration.command_bus = Arkency::CommandBus.new
 
   AggregateRoot.configure do |config|

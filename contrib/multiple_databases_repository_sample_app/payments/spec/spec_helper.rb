@@ -10,8 +10,8 @@ def act(command, bus: Orders.command_bus)
   bus.call(command)
 end
 
-Configuration = Struct.new(:event_store, :command_bus)
+Configuration = Struct.new(:event_repository, :command_bus)
 Payments.setup(Configuration.new(
-  RailsEventStore::Client.new,
+  RubyEventStore::InMemoryRepository.new,
   Arkency::CommandBus.new,
 ))

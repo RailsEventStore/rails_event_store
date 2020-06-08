@@ -28,8 +28,14 @@ require_dependency 'orders/submit_order'
 
 module Orders
   def self.setup(config)
-    @@public_event_store = config.event_store
     @@command_bus = config.command_bus
+    @@public_event_store = RailsEventStore::Client.new(
+      repository: config.event_repository,
+      mapper: RubyEventStore::Mappers::Default.new(
+        serializer: JSON,
+        events_class_remapping: events_class_remapping
+      )
+    )
     @@module_event_store = RailsEventStore::Client.new(
       repository: RailsEventStoreActiveRecord::EventRepository.new(
         Orders::ApplicationRecord),
@@ -37,19 +43,23 @@ module Orders
     )
 
     # Subscribe public event handlers below
-    config.event_store.tap do |store|
+    public_event_store.tap do |store|
 #      store.subscribe(MarkAsPaid.new, to: [Paid])
 #      store.subscribe(RequestPayment.new, to: [PaymentFailed])
     end
 
     # Register commands handled by this module below
-    config.command_bus.tap do |bus|
+    command_bus.tap do |bus|
       bus.register(Orders::SubmitOrder, Orders::OnSubmitOrder.new(event_store, number_generator: config.number_generator))
       bus.register(Orders::SetOrderAsExpired, Orders::OnSetOrderAsExpired.new(event_store))
       bus.register(Orders::MarkOrderAsPaid, Orders::OnMarkOrderAsPaid.new(event_store))
       bus.register(Orders::AddItemToBasket, Orders::OnAddItemToBasket.new(event_store))
       bus.register(Orders::RemoveItemFromBasket, Orders::OnRemoveItemFromBasket.new(event_store))
     end
+  end
+
+  def self.events_class_remapping
+    {}
   end
 
   def self.command_bus
