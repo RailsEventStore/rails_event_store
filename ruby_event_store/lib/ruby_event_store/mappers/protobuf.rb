@@ -5,12 +5,6 @@ module RubyEventStore
     def event_type
       data.class.descriptor.name
     end
-
-    def ==(other_event)
-      other_event.instance_of?(self.class) &&
-        other_event.event_id.eql?(event_id) &&
-        other_event.data == data # https://github.com/google/protobuf/issues/4455
-    end
   end
 
   module Mappers
