@@ -18,7 +18,7 @@ module RubyEventStore
         if payload
           Record.create!(
             format: SIDEKIQ5_FORMAT,
-            split_key: payload['queue'],
+            split_key: payload.fetch('queue'),
             payload: payload.to_json
           )
         end
