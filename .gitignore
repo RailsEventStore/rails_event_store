@@ -9,7 +9,8 @@ coverage/
 log/
 pkg/
 tmp/
-bin/
+bin/*
+!bin/res_outbox
 spec/reports/
 spec/tmp/
 db.sqlite3
