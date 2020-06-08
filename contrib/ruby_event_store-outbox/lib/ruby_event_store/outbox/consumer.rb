@@ -21,7 +21,7 @@ module RubyEventStore
           records.each do |record|
             hash_payload = JSON.parse(record.payload)
             @redis_pool.with do |redis|
-              redis.lpush("queue:#{record.split_key}", JSON.generate(JSON.parse(record.payload).merge({
+              redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
                 "enqueued_at" => now.to_f,
               })))
             end
