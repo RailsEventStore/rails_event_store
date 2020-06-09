@@ -1,10 +1,11 @@
 module RubyEventStore
   module Outbox
     class Consumer
-      def initialize(split_keys, clock: Time)
+      def initialize(split_keys, clock: Time, logger: Logger.new(STDOUT))
         @split_keys = split_keys
         @clock = clock
         @redis = Redis.new(url: ENV["REDIS_URL"])
+        @logger = logger
         ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
       end
 
@@ -33,12 +34,13 @@ module RubyEventStore
           end
 
           records.update_all(enqueued_at: now)
+          logger.info "Sent #{records.size} messages from outbox table"
           return true
         end
       end
 
       private
-      attr_reader :split_keys
+      attr_reader :split_keys, :logger
     end
   end
 end

@@ -61,6 +61,7 @@ module RubyEventStore
       end
 
       specify "push the jobs to sidekiq" do
+        logger_output = StringIO.new
         payload = {
           class: "SomeAsyncHandler",
           queue: "default",
@@ -82,7 +83,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(["default"], clock: clock)
+        consumer = Consumer.new(["default"], clock: clock, logger: Logger.new(logger_output))
         result = consumer.one_loop
 
         Sidekiq.redis_pool.with do |redis|
@@ -94,6 +95,7 @@ module RubyEventStore
         record.reload
         expect(record.enqueued_at).to eq(clock.tick(0))
         expect(result).to eq(true)
+        expect(logger_output.string).to include("Sent 1 messages from outbox table")
       end
 
       specify "initiating consumer ensures that queues exist" do
