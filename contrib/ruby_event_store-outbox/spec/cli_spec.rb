@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module RubyEventStore
   module Outbox
-    module CLI
+    class CLI
       RSpec.describe Parser do
         specify "#parse" do
           argv = [

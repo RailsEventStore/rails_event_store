@@ -1,8 +1,9 @@
 require "optparse"
+require "ruby_event_store/outbox/consumer"
 
 module RubyEventStore
   module Outbox
-    module CLI
+    class CLI
       Options = Struct.new(:database_url, :redis_url)
 
       class Parser
@@ -21,6 +22,13 @@ module RubyEventStore
           end.parse(argv)
           return options
         end
+      end
+
+      def run(argv)
+        options = Parser.parse(argv)
+        outbox_consumer = RubyEventStore::Outbox::Consumer.new(["default"])
+        outbox_consumer.init
+        outbox_consumer.run
       end
     end
   end

@@ -1,3 +1,9 @@
+require "logger"
+require "redis"
+require "active_record"
+require "ruby_event_store/outbox/record"
+require "ruby_event_store/outbox/sidekiq_scheduler"
+
 module RubyEventStore
   module Outbox
     class Consumer
