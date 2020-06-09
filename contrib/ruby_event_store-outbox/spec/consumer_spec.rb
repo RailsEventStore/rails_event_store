@@ -99,7 +99,8 @@ module RubyEventStore
       end
 
       specify "initiating consumer ensures that queues exist" do
-        consumer = Consumer.new(["default"])
+        logger_output = StringIO.new
+        consumer = Consumer.new(["default"], logger: Logger.new(logger_output))
 
         consumer.init
 
@@ -107,6 +108,7 @@ module RubyEventStore
           expect(redis.scard("queues")).to eq(1)
           expect(redis.smembers("queues")).to match_array(["default"])
         end
+        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v0.0.1")
       end
 
       specify "returns false if no records" do
