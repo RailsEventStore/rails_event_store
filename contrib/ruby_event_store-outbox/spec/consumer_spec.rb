@@ -34,7 +34,7 @@ module RubyEventStore
           class: "SomeAsyncHandler",
           queue: "default",
           created_at: Time.now.utc,
-          jid: Time.now.utc,
+          jid: SecureRandom.hex(12),
           retry: true,
           args: [{
             event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
@@ -64,7 +64,7 @@ module RubyEventStore
           class: "SomeAsyncHandler",
           queue: "default",
           created_at: Time.now.utc,
-          jid: Time.now.utc,
+          jid: SecureRandom.hex(12),
           retry: true,
           args: [{
             event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
