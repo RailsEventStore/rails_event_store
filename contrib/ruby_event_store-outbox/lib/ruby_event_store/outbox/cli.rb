@@ -26,7 +26,11 @@ module RubyEventStore
 
       def run(argv)
         options = Parser.parse(argv)
-        outbox_consumer = RubyEventStore::Outbox::Consumer.new(["default"])
+        outbox_consumer = RubyEventStore::Outbox::Consumer.new(
+          ["default"],
+          database_url: options.database_url,
+          redis_url: options.redis_url,
+        )
         outbox_consumer.init
         outbox_consumer.run
       end

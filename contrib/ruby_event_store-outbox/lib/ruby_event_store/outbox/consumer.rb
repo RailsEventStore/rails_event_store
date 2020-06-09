@@ -7,12 +7,12 @@ require "ruby_event_store/outbox/sidekiq_scheduler"
 module RubyEventStore
   module Outbox
     class Consumer
-      def initialize(split_keys, clock: Time, logger: Logger.new(STDOUT))
+      def initialize(split_keys, database_url:, redis_url:, clock: Time, logger: Logger.new(STDOUT))
         @split_keys = split_keys
         @clock = clock
-        @redis = Redis.new(url: ENV["REDIS_URL"])
+        @redis = Redis.new(url: redis_url)
         @logger = logger
-        ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+        ActiveRecord::Base.establish_connection(database_url)
       end
 
       def init

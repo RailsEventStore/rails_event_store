@@ -5,6 +5,10 @@ module RubyEventStore
     RSpec.describe Consumer do
       include SchemaHelper
 
+      let(:redis_url) { 'redis://localhost:6379/1' }
+      let(:database_url) { 'sqlite3:db.sqlite3' }
+      let(:redis) { Redis.new(url: redis_url) }
+
       around(:each) do |example|
         begin
           establish_database_connection
@@ -22,13 +26,7 @@ module RubyEventStore
       end
 
       before(:each) do
-        Sidekiq.configure_client do |config|
-          config.redis = { url: ENV["REDIS_URL"] }
-        end
-
-        Sidekiq.redis_pool.with do |conn|
-          conn.flushdb
-        end
+        redis.flushdb
       end
 
       specify "updates enqueued_at" do
@@ -52,7 +50,8 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json
         )
-        consumer = Consumer.new(["default"])
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
+
         consumer.one_loop
 
         record.reload
@@ -82,15 +81,13 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(["default"], clock: clock, logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: Logger.new(logger_output))
         result = consumer.one_loop
 
-        Sidekiq.redis_pool.with do |redis|
-          expect(redis.llen("queue:default")).to eq(1)
-          payload_in_redis = JSON.parse(redis.lindex("queue:default", 0))
-          expect(payload_in_redis).to include(payload.as_json)
-          expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(0).to_f)
-        end
+        expect(redis.llen("queue:default")).to eq(1)
+        payload_in_redis = JSON.parse(redis.lindex("queue:default", 0))
+        expect(payload_in_redis).to include(payload.as_json)
+        expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(0).to_f)
         record.reload
         expect(record.enqueued_at).to eq(clock.tick(0))
         expect(result).to eq(true)
@@ -99,19 +96,17 @@ module RubyEventStore
 
       specify "initiating consumer ensures that queues exist" do
         logger_output = StringIO.new
-        consumer = Consumer.new(["default"], logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
 
         consumer.init
 
-        Sidekiq.redis_pool.with do |redis|
-          expect(redis.scard("queues")).to eq(1)
-          expect(redis.smembers("queues")).to match_array(["default"])
-        end
+        expect(redis.scard("queues")).to eq(1)
+        expect(redis.smembers("queues")).to match_array(["default"])
         expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v0.0.1")
       end
 
       specify "returns false if no records" do
-        consumer = Consumer.new(["default"])
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
 
         result = consumer.one_loop
 
@@ -119,7 +114,7 @@ module RubyEventStore
       end
 
       specify "#run wait if nothing was changed" do
-        consumer = Consumer.new(["default"])
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
         expect(consumer).to receive(:one_loop).and_return(false).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -132,7 +127,7 @@ module RubyEventStore
       end
 
       specify "#run doesnt wait if something changed" do
-        consumer = Consumer.new(["default"])
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
         expect(consumer).to receive(:one_loop).and_return(true).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
