@@ -3,4 +3,5 @@
 require_relative "../lib/ruby_event_store/outbox"
 
 outbox_consumer = RubyEventStore::Outbox::Consumer.new(["default"])
+outbox_consumer.init
 outbox_consumer.run
