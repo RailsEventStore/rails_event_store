@@ -7,6 +7,8 @@ require "ruby_event_store/outbox/sidekiq_scheduler"
 module RubyEventStore
   module Outbox
     class Consumer
+      SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
+
       def initialize(split_keys, database_url:, redis_url:, clock: Time, logger: Logger.new(STDOUT))
         @split_keys = split_keys
         @clock = clock
@@ -24,7 +26,7 @@ module RubyEventStore
       def run
         loop do
           was_something_changed = one_loop
-          sleep 0.1 if !was_something_changed
+          sleep SLEEP_TIME_WHEN_NOTHING_TO_DO if !was_something_changed
         end
       end
 
