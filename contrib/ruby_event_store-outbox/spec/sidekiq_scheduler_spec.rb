@@ -1,21 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/scheduler_lint'
-
-def reset_sidekiq_middlewares
-  Sidekiq.configure_client do |config|
-    config.client_middleware do |chain|
-      chain.clear
-    end
-  end
-end
-
-def install_sidekiq_middleware(middleware_klass)
-  Sidekiq.configure_client do |config|
-    config.client_middleware do |chain|
-      chain.add(middleware_klass)
-    end
-  end
-end
+require_relative './support/sidekiq'
 
 module RubyEventStore
   module Outbox
