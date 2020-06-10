@@ -18,7 +18,7 @@ end
 $verbose = ENV.has_key?('VERBOSE') ? true : false
 ActiveRecord::Schema.verbose = $verbose
 
-ENV['DATABASE_URL'] ||= 'sqlite3:db.sqlite3'
+ENV['DATABASE_URL'] ||= 'sqlite3::memory:'
 ENV['REDIS_URL'] ||= 'redis://localhost:6379/1'
 
 

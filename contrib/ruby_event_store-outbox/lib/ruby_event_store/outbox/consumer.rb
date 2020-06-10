@@ -14,7 +14,7 @@ module RubyEventStore
         @clock = clock
         @redis = Redis.new(url: redis_url)
         @logger = logger
-        ActiveRecord::Base.establish_connection(database_url)
+        ActiveRecord::Base.establish_connection(database_url) unless ActiveRecord::Base.connected?
 
         raise "Unknown format" if format != SidekiqScheduler::SIDEKIQ5_FORMAT
         @message_format = SidekiqScheduler::SIDEKIQ5_FORMAT
