@@ -4,11 +4,11 @@ require "ruby_event_store/outbox/consumer"
 module RubyEventStore
   module Outbox
     class CLI
-      Options = Struct.new(:database_url, :redis_url, :log_level)
+      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys)
 
       class Parser
         def self.parse(argv)
-          options = Options.new(nil, nil, :warn)
+          options = Options.new(nil, nil, :warn, nil)
           OptionParser.new do |option_parser|
             option_parser.banner = "Usage: res_outbox [options]"
 
@@ -22,6 +22,10 @@ module RubyEventStore
 
             option_parser.on("--log-level=log_level", [:fatal, :error, :warn, :info, :debug], "Logging level, one of: fatal, error, warn, info, debug") do |log_level|
               options.log_level = log_level.to_sym
+            end
+
+            option_parser.on("--split-keys=split_keys", Array, "Split keys which should be handled, all if not specified") do |split_keys|
+              options.split_keys = split_keys if !split_keys.empty?
             end
 
             option_parser.on_tail("--version", "Show version") do
@@ -38,7 +42,7 @@ module RubyEventStore
         logger = Logger.new(STDOUT)
         logger.level = options.log_level
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
-          ["default"],
+          options.split_keys,
           database_url: options.database_url,
           redis_url: options.redis_url,
           logger: logger,

@@ -27,6 +27,13 @@ module RubyEventStore
             Parser.parse(["--log-level=rubbish"])
           end.to raise_error(OptionParser::InvalidArgument)
         end
+
+        specify "#parse split keys" do
+          expect(Parser.parse(["--split-keys=foo"]).split_keys).to eq(["foo"])
+          expect(Parser.parse(["--split-keys=foo,bar"]).split_keys).to eq(["foo", "bar"])
+          expect(Parser.parse(["--split-keys="]).split_keys).to eq(nil)
+          expect(Parser.parse([]).split_keys).to eq(nil)
+        end
       end
     end
   end

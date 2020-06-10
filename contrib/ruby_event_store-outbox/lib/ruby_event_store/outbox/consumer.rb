@@ -18,6 +18,7 @@ module RubyEventStore
       def init
         @redis.sadd("queues", split_keys)
         logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
+        logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
       end
 
       def run
