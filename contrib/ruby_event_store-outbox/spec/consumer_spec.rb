@@ -173,6 +173,66 @@ module RubyEventStore
         expect(logger_output.string).to be_empty
       end
 
+      specify "records from other split keys should be ignored" do
+        logger_output = StringIO.new
+        payload = {
+          class: "SomeAsyncHandler",
+          queue: "other_one",
+          created_at: Time.now.utc,
+          jid: SecureRandom.hex(12),
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        record = Record.create!(
+          split_key: "other_one",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload.to_json,
+        )
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+        result = consumer.one_loop
+
+        expect(result).to eq(false)
+        expect(redis.llen("queue:other_one")).to eq(0)
+        expect(logger_output.string).to be_empty
+      end
+
+      specify "all split keys should be taken if split_keys is nil" do
+        logger_output = StringIO.new
+        payload = {
+          class: "SomeAsyncHandler",
+          queue: "default",
+          created_at: Time.now.utc,
+          jid: SecureRandom.hex(12),
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        record = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload.to_json,
+        )
+        consumer = Consumer.new(nil, database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+
+        result = consumer.one_loop
+
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+      end
+
       specify "#run wait if nothing was changed" do
         consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
         expect(consumer).to receive(:one_loop).and_return(false).ordered

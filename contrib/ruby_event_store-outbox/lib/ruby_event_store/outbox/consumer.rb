@@ -30,7 +30,9 @@ module RubyEventStore
 
       def one_loop
         Record.transaction do
-          records = Record.lock.where(format: SidekiqScheduler::SIDEKIQ5_FORMAT, enqueued_at: nil).order("id ASC").limit(100)
+          records_scope = Record.lock.where(format: SidekiqScheduler::SIDEKIQ5_FORMAT, enqueued_at: nil)
+          records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
+          records = records_scope.order("id ASC").limit(100)
           return false if records.empty?
 
           now = @clock.now.utc
