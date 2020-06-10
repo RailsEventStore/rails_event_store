@@ -5,8 +5,8 @@ module RubyEventStore
     RSpec.describe Consumer do
       include SchemaHelper
 
-      let(:redis_url) { 'redis://localhost:6379/1' }
-      let(:database_url) { 'sqlite3:db.sqlite3' }
+      let(:redis_url) { ENV["REDIS_URL"] }
+      let(:database_url) { ENV["DATABASE_URL"] }
       let(:redis) { Redis.new(url: redis_url) }
 
       around(:each) do |example|
