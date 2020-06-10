@@ -18,6 +18,9 @@ module RubyEventStore
 
         raise "Unknown format" if format != SidekiqScheduler::SIDEKIQ5_FORMAT
         @message_format = SidekiqScheduler::SIDEKIQ5_FORMAT
+
+        @gracefully_shutting_down = false
+        prepare_traps
       end
 
       def init
@@ -27,10 +30,11 @@ module RubyEventStore
       end
 
       def run
-        loop do
+        while !@gracefully_shutting_down do
           was_something_changed = one_loop
           sleep SLEEP_TIME_WHEN_NOTHING_TO_DO if !was_something_changed
         end
+        logger.info "Gracefully shutting down"
       end
 
       def one_loop
@@ -71,6 +75,19 @@ module RubyEventStore
         @redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
           "enqueued_at" => now.to_f,
         })))
+      end
+
+      def prepare_traps
+        Signal.trap("INT") do
+          initiate_graceful_shutdown
+        end
+        Signal.trap("TERM") do
+          initiate_graceful_shutdown
+        end
+      end
+
+      def initiate_graceful_shutdown
+        @gracefully_shutting_down = true
       end
     end
   end
