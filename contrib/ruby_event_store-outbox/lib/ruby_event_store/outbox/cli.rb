@@ -45,6 +45,9 @@ module RubyEventStore
         )
         outbox_consumer.init
         outbox_consumer.run
+      rescue Interrupt
+        logger.info 'Interrupted, shutting down'
+        exit(0)
       end
     end
   end
