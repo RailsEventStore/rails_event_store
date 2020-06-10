@@ -43,8 +43,7 @@ module RubyEventStore
 
       def run(argv)
         options = Parser.parse(argv)
-        logger = Logger.new(STDOUT)
-        logger.level = options.log_level
+        logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox")
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
           options.message_format,
           options.split_keys,
