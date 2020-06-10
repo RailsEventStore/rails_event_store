@@ -9,7 +9,7 @@ module RubyEventStore
     class Consumer
       SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
 
-      def initialize(split_keys, database_url:, redis_url:, clock: Time, logger: Logger.new(STDOUT))
+      def initialize(split_keys, database_url:, redis_url:, clock: Time, logger:)
         @split_keys = split_keys
         @clock = clock
         @redis = Redis.new(url: redis_url)

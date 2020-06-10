@@ -230,7 +230,7 @@ module RubyEventStore
       end
 
       specify "#run wait if nothing was changed" do
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         expect(consumer).to receive(:one_loop).and_return(false).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -243,7 +243,7 @@ module RubyEventStore
       end
 
       specify "#run doesnt wait if something changed" do
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         expect(consumer).to receive(:one_loop).and_return(true).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
