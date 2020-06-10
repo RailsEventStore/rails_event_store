@@ -8,6 +8,8 @@ module RubyEventStore
       let(:redis_url) { ENV["REDIS_URL"] }
       let(:database_url) { ENV["DATABASE_URL"] }
       let(:redis) { Redis.new(url: redis_url) }
+      let(:logger_output) { StringIO.new }
+      let(:logger) { Logger.new(logger_output) }
 
       around(:each) do |example|
         begin
@@ -50,7 +52,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json
         )
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
 
         consumer.one_loop
 
@@ -59,7 +61,6 @@ module RubyEventStore
       end
 
       specify "push the jobs to sidekiq" do
-        logger_output = StringIO.new
         payload = {
           class: "SomeAsyncHandler",
           queue: "default",
@@ -81,7 +82,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
         result = consumer.one_loop
 
         expect(redis.llen("queue:default")).to eq(1)
@@ -95,8 +96,7 @@ module RubyEventStore
       end
 
       specify "initiating consumer ensures that queues exist" do
-        logger_output = StringIO.new
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
 
         consumer.init
 
@@ -106,7 +106,7 @@ module RubyEventStore
       end
 
       specify "returns false if no records" do
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url)
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
 
         result = consumer.one_loop
 
@@ -114,7 +114,6 @@ module RubyEventStore
       end
 
       specify "already processed should be ignored" do
-        logger_output = StringIO.new
         payload = {
           class: "SomeAsyncHandler",
           queue: "default",
@@ -135,7 +134,7 @@ module RubyEventStore
           enqueued_at: Time.now.utc,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -144,7 +143,6 @@ module RubyEventStore
       end
 
       specify "other format should be ignored" do
-        logger_output = StringIO.new
         payload = {
           class: "SomeAsyncHandler",
           queue: "default",
@@ -165,7 +163,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -174,7 +172,6 @@ module RubyEventStore
       end
 
       specify "records from other split keys should be ignored" do
-        logger_output = StringIO.new
         payload = {
           class: "SomeAsyncHandler",
           queue: "other_one",
@@ -195,7 +192,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+        consumer = Consumer.new(["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -204,7 +201,6 @@ module RubyEventStore
       end
 
       specify "all split keys should be taken if split_keys is nil" do
-        logger_output = StringIO.new
         payload = {
           class: "SomeAsyncHandler",
           queue: "default",
@@ -225,7 +221,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(nil, database_url: database_url, redis_url: redis_url, logger: Logger.new(logger_output))
+        consumer = Consumer.new(nil, database_url: database_url, redis_url: redis_url, logger: logger)
 
         result = consumer.one_loop
 
