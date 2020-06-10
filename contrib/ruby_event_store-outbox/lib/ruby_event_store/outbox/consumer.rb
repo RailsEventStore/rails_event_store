@@ -42,10 +42,7 @@ module RubyEventStore
 
           now = @clock.now.utc
           records.each do |record|
-            hash_payload = JSON.parse(record.payload)
-            @redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
-              "enqueued_at" => now.to_f,
-            })))
+            handle_one_record(now, record)
           end
 
           records.update_all(enqueued_at: now)
@@ -56,6 +53,13 @@ module RubyEventStore
 
       private
       attr_reader :split_keys, :logger, :message_format
+
+      def handle_one_record(now, record)
+        hash_payload = JSON.parse(record.payload)
+        @redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
+          "enqueued_at" => now.to_f,
+        })))
+      end
     end
   end
 end
