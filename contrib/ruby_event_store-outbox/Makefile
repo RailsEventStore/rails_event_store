@@ -1,4 +1,4 @@
-# GEM_VERSION  = $(shell cat ../RES_VERSION)
+GEM_VERSION  = $(shell cat lib/ruby_event_store/outbox/version.rb | grep VERSION | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
 GEM_NAME     = ruby_event_store-outbox
 REQUIRE      = ruby_event_store/outbox
 IGNORE       = 
