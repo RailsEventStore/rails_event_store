@@ -23,6 +23,11 @@ module RubyEventStore
             option_parser.on("--log-level=log_level", [:fatal, :error, :warn, :info, :debug], "Logging level, one of: fatal, error, warn, info, debug") do |log_level|
               options.log_level = log_level.to_sym
             end
+
+            option_parser.on_tail("--version", "Show version") do
+              puts VERSION
+              exit
+            end
           end.parse(argv)
           return options
         end
