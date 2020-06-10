@@ -238,6 +238,46 @@ module RubyEventStore
 
         expect(consumer).not_to have_received(:sleep)
       end
+
+      specify "incorrect payload wont cause later messages to schedule" do
+        payload = {
+          class: "SomeAsyncHandler",
+          queue: "default",
+          created_at: Time.now.utc,
+          jid: SecureRandom.hex(12),
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        record1 = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: "unparsable garbage",
+        )
+        record2 = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload.to_json
+        )
+        clock = TickingClock.new
+        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
+
+        result = consumer.one_loop
+
+        expect(result).to eq(true)
+        expect(record1.reload.enqueued_at).to be_nil
+        expect(record2.reload.enqueued_at).to be_present
+        expect(redis.llen("queue:default")).to eq(1)
+        expect(logger_output.string).to include("JSON::ParserError")
+      end
     end
   end
 end

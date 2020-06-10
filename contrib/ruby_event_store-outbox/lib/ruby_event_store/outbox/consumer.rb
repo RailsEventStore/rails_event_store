@@ -41,11 +41,23 @@ module RubyEventStore
           return false if records.empty?
 
           now = @clock.now.utc
+          failed_record_ids = []
           records.each do |record|
-            handle_one_record(now, record)
+            begin
+              handle_one_record(now, record)
+            rescue => e
+              failed_record_ids << record.id
+              e.full_message.split($/).each {|line| logger.error(line) }
+            end
           end
 
-          records.update_all(enqueued_at: now)
+          update_scope = if failed_record_ids.empty?
+            records
+          else
+            records.where("id NOT IN (?)", failed_record_ids)
+          end
+          update_scope.update_all(enqueued_at: now)
+
           logger.info "Sent #{records.size} messages from outbox table"
           return true
         end
