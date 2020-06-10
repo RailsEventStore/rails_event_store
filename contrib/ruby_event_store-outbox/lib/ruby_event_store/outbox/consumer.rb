@@ -9,12 +9,15 @@ module RubyEventStore
     class Consumer
       SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
 
-      def initialize(split_keys, database_url:, redis_url:, clock: Time, logger:)
+      def initialize(format, split_keys, database_url:, redis_url:, clock: Time, logger:)
         @split_keys = split_keys
         @clock = clock
         @redis = Redis.new(url: redis_url)
         @logger = logger
         ActiveRecord::Base.establish_connection(database_url)
+
+        raise "Unknown format" if format != SidekiqScheduler::SIDEKIQ5_FORMAT
+        @message_format = SidekiqScheduler::SIDEKIQ5_FORMAT
       end
 
       def init
@@ -32,7 +35,7 @@ module RubyEventStore
 
       def one_loop
         Record.transaction do
-          records_scope = Record.lock.where(format: SidekiqScheduler::SIDEKIQ5_FORMAT, enqueued_at: nil)
+          records_scope = Record.lock.where(format: message_format, enqueued_at: nil)
           records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
           records = records_scope.order("id ASC").limit(100)
           return false if records.empty?
@@ -52,7 +55,7 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger
+      attr_reader :split_keys, :logger, :message_format
     end
   end
 end

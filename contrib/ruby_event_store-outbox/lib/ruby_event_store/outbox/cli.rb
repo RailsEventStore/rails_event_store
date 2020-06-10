@@ -4,24 +4,28 @@ require "ruby_event_store/outbox/consumer"
 module RubyEventStore
   module Outbox
     class CLI
-      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys)
+      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format)
 
       class Parser
         def self.parse(argv)
-          options = Options.new(nil, nil, :warn, nil)
+          options = Options.new(nil, nil, :warn, nil, nil)
           OptionParser.new do |option_parser|
             option_parser.banner = "Usage: res_outbox [options]"
 
-            option_parser.on("--database-url=DATABASE_URL", "Database where outbox table is stored") do |database_url|
+            option_parser.on("--database-url DATABASE_URL", "Database where outbox table is stored") do |database_url|
               options.database_url = database_url
             end
 
-            option_parser.on("--redis-url=REDIS_URL", "URL to redis database") do |redis_url|
+            option_parser.on("--redis-url REDIS_URL", "URL to redis database") do |redis_url|
               options.redis_url = redis_url
             end
 
-            option_parser.on("--log-level=log_level", [:fatal, :error, :warn, :info, :debug], "Logging level, one of: fatal, error, warn, info, debug") do |log_level|
+            option_parser.on("--log-level LOG_LEVEL", [:fatal, :error, :warn, :info, :debug], "Logging level, one of: fatal, error, warn, info, debug") do |log_level|
               options.log_level = log_level.to_sym
+            end
+
+            option_parser.on("--message-format FORMAT", ["sidekiq5"], "Message format, supported: sidekiq5") do |message_format|
+              options.message_format = message_format
             end
 
             option_parser.on("--split-keys=split_keys", Array, "Split keys which should be handled, all if not specified") do |split_keys|
@@ -42,6 +46,7 @@ module RubyEventStore
         logger = Logger.new(STDOUT)
         logger.level = options.log_level
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
+          options.message_format,
           options.split_keys,
           database_url: options.database_url,
           redis_url: options.redis_url,

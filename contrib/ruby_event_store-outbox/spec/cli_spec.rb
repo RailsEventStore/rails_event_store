@@ -34,6 +34,13 @@ module RubyEventStore
           expect(Parser.parse(["--split-keys="]).split_keys).to eq(nil)
           expect(Parser.parse([]).split_keys).to eq(nil)
         end
+
+        specify "#parse format" do
+          expect(Parser.parse(["--message-format=sidekiq5"]).message_format).to eq("sidekiq5")
+          expect do
+            Parser.parse(["--message-format=rubbish"])
+          end.to raise_error(OptionParser::InvalidArgument)
+        end
       end
     end
   end
