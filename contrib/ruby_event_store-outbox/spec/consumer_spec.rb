@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module RubyEventStore
   module Outbox
-    RSpec.describe Consumer do
+    RSpec.describe Consumer, db: true do
       include SchemaHelper
 
       let(:redis_url) { ENV["REDIS_URL"] }
@@ -10,22 +10,6 @@ module RubyEventStore
       let(:redis) { Redis.new(url: redis_url) }
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
-
-      around(:each) do |example|
-        begin
-          establish_database_connection
-          # load_database_schema
-          m = Migrator.new(File.expand_path('../lib/generators/ruby_event_store/outbox/templates', __dir__))
-          m.run_migration('create_event_store_outbox')
-          example.run
-        ensure
-          # drop_database
-          begin
-            ActiveRecord::Migration.drop_table("event_store_outbox")
-          rescue ActiveRecord::StatementInvalid
-          end
-        end
-      end
 
       before(:each) do
         redis.flushdb

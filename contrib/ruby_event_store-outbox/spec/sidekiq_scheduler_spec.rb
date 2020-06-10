@@ -42,24 +42,8 @@ module RubyEventStore
         end
       end
 
-      describe "#call" do
+      describe "#call", db: true do
         include SchemaHelper
-
-        around(:each) do |example|
-          begin
-            establish_database_connection
-            # load_database_schema
-            m = Migrator.new(File.expand_path('../lib/generators/ruby_event_store/outbox/templates', __dir__))
-            m.run_migration('create_event_store_outbox')
-            example.run
-          ensure
-            # drop_database
-            begin
-              ActiveRecord::Migration.drop_table("event_store_outbox")
-            rescue ActiveRecord::StatementInvalid
-            end
-          end
-        end
 
         before(:each) do |example|
           reset_sidekiq_middlewares

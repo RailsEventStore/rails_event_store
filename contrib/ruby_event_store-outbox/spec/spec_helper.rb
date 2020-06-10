@@ -4,6 +4,7 @@ require "ruby_event_store/outbox/cli"
 require_relative '../../../support/helpers/rspec_defaults'
 require_relative '../../../support/helpers/mutant_timeout'
 require_relative '../../../support/helpers/schema_helper'
+require_relative './support/db'
 require 'rails'
 
 module TimestampEnrichment
