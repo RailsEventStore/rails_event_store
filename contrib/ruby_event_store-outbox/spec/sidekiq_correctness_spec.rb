@@ -3,7 +3,7 @@ require_relative './support/sidekiq'
 
 module RubyEventStore
   module Outbox
-    RSpec.describe "Sidekiq integration spec", db: true do
+    RSpec.describe "Sidekiq correctness spec", db: true do
       include SchemaHelper
       let(:redis_url) { ENV["REDIS_URL"] }
       let(:database_url) { ENV["DATABASE_URL"] }
