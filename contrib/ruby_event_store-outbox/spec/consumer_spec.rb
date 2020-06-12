@@ -36,7 +36,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json
         )
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
 
         consumer.one_loop
 
@@ -66,7 +66,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
         result = consumer.one_loop
 
         expect(redis.llen("queue:default")).to eq(1)
@@ -80,7 +80,7 @@ module RubyEventStore
       end
 
       specify "initiating consumer ensures that queues exist" do
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
 
         consumer.init
 
@@ -90,7 +90,7 @@ module RubyEventStore
       end
 
       specify "returns false if no records" do
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
 
         result = consumer.one_loop
 
@@ -118,7 +118,7 @@ module RubyEventStore
           enqueued_at: Time.now.utc,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -147,7 +147,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -176,7 +176,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -205,7 +205,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, nil, database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, nil, database_url: database_url, redis_url: redis_url, logger: logger)
 
         result = consumer.one_loop
 
@@ -214,7 +214,7 @@ module RubyEventStore
       end
 
       specify "#run wait if nothing was changed" do
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         expect(consumer).to receive(:one_loop).and_return(false).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -227,7 +227,7 @@ module RubyEventStore
       end
 
       specify "#run doesnt wait if something changed" do
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, logger: logger)
         expect(consumer).to receive(:one_loop).and_return(true).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -268,7 +268,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(SidekiqScheduler::SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
 
         result = consumer.one_loop
 

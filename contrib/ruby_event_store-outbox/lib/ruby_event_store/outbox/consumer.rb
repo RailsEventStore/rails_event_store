@@ -2,7 +2,7 @@ require "logger"
 require "redis"
 require "active_record"
 require "ruby_event_store/outbox/record"
-require "ruby_event_store/outbox/sidekiq_scheduler"
+require "ruby_event_store/outbox/sidekiq5_format"
 
 module RubyEventStore
   module Outbox
@@ -16,8 +16,8 @@ module RubyEventStore
         @logger = logger
         ActiveRecord::Base.establish_connection(database_url) unless ActiveRecord::Base.connected?
 
-        raise "Unknown format" if format != SidekiqScheduler::SIDEKIQ5_FORMAT
-        @message_format = SidekiqScheduler::SIDEKIQ5_FORMAT
+        raise "Unknown format" if format != SIDEKIQ5_FORMAT
+        @message_format = SIDEKIQ5_FORMAT
 
         @gracefully_shutting_down = false
         prepare_traps

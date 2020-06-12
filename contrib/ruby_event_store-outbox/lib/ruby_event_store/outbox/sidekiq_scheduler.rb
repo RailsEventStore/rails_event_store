@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require "ruby_event_store/outbox/sidekiq5_format"
 
 module RubyEventStore
   module Outbox
     class SidekiqScheduler
-      SIDEKIQ5_FORMAT = "sidekiq5"
-
       def call(klass, serialized_event)
         sidekiq_client = Sidekiq::Client.new(Sidekiq.redis_pool)
         item = {
