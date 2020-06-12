@@ -10,3 +10,13 @@ include ../../support/make/test.mk
 include ../../support/make/mutant.mk
 include ../../support/make/gem.mk
 include ../../support/make/help.mk
+
+docker-build: ## Build docker image
+	@docker build \
+		--file Dockerfile \
+		--build-arg GEM_VERSION=$(GEM_VERSION) \
+		--tag arkency/outbox:$(GEM_VERSION) \
+		.
+
+docker-push: ## Push docker image
+	@DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect arkency/outbox:0.0.2 > /dev/null || docker push arkency/outbox:$(GEM_VERSION)
