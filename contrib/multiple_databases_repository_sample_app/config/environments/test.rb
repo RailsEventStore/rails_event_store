@@ -36,5 +36,5 @@ Rails.application.configure do
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true
 
-  config.number_generator = nil # Orders::FakeNumberGenerator.new
+  config.number_generator_factory = ->{ Orders::FakeNumberGenerator.new }
 end

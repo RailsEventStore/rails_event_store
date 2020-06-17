@@ -45,5 +45,5 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.number_generator = nil # Orders::NumberGenerator.new
+  config.number_generator_factory = ->{ Orders::NumberGenerator.new }
 end

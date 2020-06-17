@@ -2,12 +2,12 @@ module Orders
   class OnSubmitOrder
     include CommandHandler
 
-    def initialize(event_store, number_generator:)
+    def initialize(event_store, number_generator_factory:)
       @repository = AggregateRoot::InstrumentedRepository.new(
         AggregateRoot::Repository.new(event_store),
         ActiveSupport::Notifications
       )
-      @number_generator = number_generator
+      @number_generator = number_generator_factory.call
     end
 
     def call(command)

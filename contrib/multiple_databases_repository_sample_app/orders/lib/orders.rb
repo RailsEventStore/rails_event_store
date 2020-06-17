@@ -50,7 +50,7 @@ module Orders
 
     # Register commands handled by this module below
     command_bus.tap do |bus|
-      bus.register(Orders::SubmitOrder, Orders::OnSubmitOrder.new(event_store, number_generator: config.number_generator))
+      bus.register(Orders::SubmitOrder, Orders::OnSubmitOrder.new(event_store, number_generator_factory: config.number_generator_factory))
       bus.register(Orders::SetOrderAsExpired, Orders::OnSetOrderAsExpired.new(event_store))
       bus.register(Orders::MarkOrderAsPaid, Orders::OnMarkOrderAsPaid.new(event_store))
       bus.register(Orders::AddItemToBasket, Orders::OnAddItemToBasket.new(event_store))

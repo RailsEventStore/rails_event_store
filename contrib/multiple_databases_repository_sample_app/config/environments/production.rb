@@ -90,5 +90,5 @@ Rails.application.configure do
   # config.active_record.database_resolver = ActiveRecord::Middleware::DatabaseSelector::Resolver
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
 
-  config.number_generator = nil # Orders::NumberGenerator.new
+  config.number_generator_factory = -> { Orders::NumberGenerator.new }
 end

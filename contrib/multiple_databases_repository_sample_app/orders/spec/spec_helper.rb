@@ -13,10 +13,10 @@ module Orders
 end
 
 unless Orders.setup?
-  Configuration = Struct.new(:event_repository, :command_bus, :number_generator)
+  Configuration = Struct.new(:event_repository, :command_bus, :number_generator_factory)
   Orders.setup(Configuration.new(
     RubyEventStore::InMemoryRepository.new,
     Arkency::CommandBus.new,
-    Orders::FakeNumberGenerator.new,
+    ->{ Orders::FakeNumberGenerator.new },
   ))
 end
