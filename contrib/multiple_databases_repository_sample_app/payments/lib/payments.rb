@@ -55,4 +55,8 @@ module Payments
   def self.event_store
     @@module_event_store
   end
+
+  def self.setup?
+    command_bus && event_store && public_event_store
+  end
 end

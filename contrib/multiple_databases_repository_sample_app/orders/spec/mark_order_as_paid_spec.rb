@@ -9,21 +9,21 @@ module Orders
     let(:order_number) { "2019/01/60" }
 
     it 'draft order could not be marked as paid' do
-      arrange(stream, [ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id})])
+      Orders.arrange(stream, [ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id})])
 
       expect do
-        act(MarkOrderAsPaid.new(order_id: aggregate_id, transaction_id: SecureRandom.hex(16)))
+        Orders.act(MarkOrderAsPaid.new(order_id: aggregate_id, transaction_id: SecureRandom.hex(16)))
       end.to raise_error(Order::NotSubmitted)
     end
 
     it 'submitted order will be marked as paid' do
-      arrange(stream, [
+      Orders.arrange(stream, [
         ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id}),
         OrderSubmitted.new(data: {order_id: aggregate_id, order_number: '2018/12/1', customer_id: customer_id}),
       ])
 
       transaction_id = SecureRandom.hex(16)
-      act(MarkOrderAsPaid.new(order_id: aggregate_id, transaction_id: transaction_id))
+      Orders.act(MarkOrderAsPaid.new(order_id: aggregate_id, transaction_id: transaction_id))
 
       expect(Orders.event_store).to have_published(
         an_event(OrderPaid)
@@ -32,14 +32,14 @@ module Orders
     end
 
     it 'expired order cannot be marked as paid' do
-      arrange(stream, [
+      Orders.arrange(stream, [
         ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id}),
         OrderSubmitted.new(data: {order_id: aggregate_id, order_number: '2018/12/1', customer_id: customer_id}),
         OrderExpired.new(data: {order_id: aggregate_id}),
       ])
 
       expect do
-        act(MarkOrderAsPaid.new(order_id: aggregate_id, transaction_id: SecureRandom.hex(16)))
+        Orders.act(MarkOrderAsPaid.new(order_id: aggregate_id, transaction_id: SecureRandom.hex(16)))
       end.to raise_error(Order::OrderHasExpired)
     end
   end

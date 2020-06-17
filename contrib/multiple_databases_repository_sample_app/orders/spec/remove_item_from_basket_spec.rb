@@ -9,8 +9,8 @@ module Orders
     let(:order_number) { "2019/01/60" }
 
     it 'item is removed from draft order' do
-      arrange(stream, [ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id})])
-      act(RemoveItemFromBasket.new(order_id: aggregate_id, product_id: product_id))
+      Orders.arrange(stream, [ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id})])
+      Orders.act(RemoveItemFromBasket.new(order_id: aggregate_id, product_id: product_id))
       expect(Orders.event_store).to have_published(
         an_event(ItemRemovedFromBasket)
           .with_data(order_id: aggregate_id, product_id: product_id)
@@ -18,12 +18,12 @@ module Orders
     end
 
     it 'no remove allowed to created order' do
-      arrange(stream, [
+      Orders.arrange(stream, [
         ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id}),
         OrderSubmitted.new(data: {order_id: aggregate_id, order_number: order_number, customer_id: customer_id})])
 
       expect do
-        act(RemoveItemFromBasket.new(order_id: aggregate_id, product_id: product_id))
+        Orders.act(RemoveItemFromBasket.new(order_id: aggregate_id, product_id: product_id))
       end.to raise_error(Order::AlreadySubmitted)
     end
   end

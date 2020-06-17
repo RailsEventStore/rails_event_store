@@ -9,8 +9,8 @@ module Orders
     let(:order_number) { "2019/01/60" }
 
     it 'order is submitted' do
-      arrange(stream, [ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id})])
-      act(SubmitOrder.new(order_id: aggregate_id, customer_id: customer_id))
+      Orders.arrange(stream, [ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id})])
+      Orders.act(SubmitOrder.new(order_id: aggregate_id, customer_id: customer_id))
 
       expect(Orders.event_store).to have_published(
         an_event(OrderSubmitted)
@@ -24,28 +24,28 @@ module Orders
 
     it 'could not create order where customer is not given' do
       expect do
-        act(SubmitOrder.new(order_id: aggregate_id, customer_id: nil))
+        Orders.act(SubmitOrder.new(order_id: aggregate_id, customer_id: nil))
       end.to raise_error(Command::Invalid)
     end
 
     it 'already created order could not be created again' do
       another_customer_id = 998
-      arrange(stream, [
+      Orders.arrange(stream, [
         ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id}),
         OrderSubmitted.new(data: {order_id: aggregate_id, order_number: order_number, customer_id: customer_id})])
 
       expect do
-        act(SubmitOrder.new(order_id: aggregate_id, customer_id: another_customer_id))
+        Orders.act(SubmitOrder.new(order_id: aggregate_id, customer_id: another_customer_id))
       end.to raise_error(Order::AlreadySubmitted)
     end
 
     it 'expired order could not be created' do
-      arrange(stream, [
+      Orders.arrange(stream, [
         ItemAddedToBasket.new(data: {order_id: aggregate_id, product_id: product_id}),
         OrderExpired.new(data: {order_id: aggregate_id})])
 
       expect do
-        act(SubmitOrder.new(order_id: aggregate_id, customer_id: customer_id))
+        Orders.act(SubmitOrder.new(order_id: aggregate_id, customer_id: customer_id))
       end.to raise_error(Order::OrderHasExpired)
     end
   end
