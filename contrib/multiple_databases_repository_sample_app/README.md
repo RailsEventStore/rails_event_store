@@ -1,24 +1,7 @@
-# README
+# Domain description
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+TDB
 
-Things you may want to cover:
+# Event storming
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+<iframe width="1024" height="480" src="https://miro.com/app/embed/o9J_krLAGIQ=/?" frameborder="0" scrolling="no" allowfullscreen></iframe>

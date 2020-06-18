@@ -9,6 +9,7 @@ require_relative '../../lib/command_handler'
 require_dependency 'payments/payment_authorized'
 require_dependency 'payments/payment_captured'
 require_dependency 'payments/payment_released'
+require_dependency 'payments/payment_expired'
 require_dependency 'payments/payment'
 
 module Payments
@@ -29,7 +30,16 @@ module Payments
 
     # Subscribe public event handlers below
     public_event_store.tap do |store|
-#      store.subscribe(Authorize.new, to: [Initiated])
+      store.subscribe(InitiatePayment.new(command_bus), to: [PaymentInitiated])
+    end
+
+    # Subscribe private event handlers below
+    event_store.tap do |store|
+      store.subscribe(PaymentProcess.new(store, command_bus), to: [
+        PaymentAuthorized,
+        PaymentCaptured,
+        PaymentExpired,
+      ])
     end
 
     # Register commands handled by this module below
@@ -37,11 +47,15 @@ module Payments
       bus.register(Payments::AuthorizePayment, Payments::OnAuthorizePayment.new(event_store))
       bus.register(Payments::CapturePayment, Payments::OnCapturePayment.new(event_store))
       bus.register(Payments::ReleasePayment, Payments::OnReleasePayment.new(event_store))
+      bus.register(Payments::CompletePayment, Payments::OnCompletePayment.new(public_event_store))
     end
   end
 
   def self.events_class_remapping
-    {}
+    {
+      'new-order' => PaymentInitiated,
+      'payment-completed' => PaymentCompleted,
+    }
   end
 
   def self.command_bus
@@ -58,5 +72,17 @@ module Payments
 
   def self.setup?
     command_bus && event_store && public_event_store
+  end
+
+  class PaymentInitiated < Event
+    event_type 'new-order'
+    attribute :order_id,    Types::UUID
+    attribute :amount,      Types::Decimal
+  end
+
+  class PaymentCompleted < Event
+    event_type 'payment-completed'
+    attribute :transaction_id,  Types::Coercible::String
+    attribute :order_id,        Types::UUID
   end
 end
