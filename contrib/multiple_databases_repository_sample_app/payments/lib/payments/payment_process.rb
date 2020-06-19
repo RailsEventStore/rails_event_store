@@ -18,33 +18,47 @@ module Payments
       def initialize(events)
         @data = {}
         @state = nil
+        @action = nil
         events.each{|e| apply(e)}
       end
 
       def done?
-        state == :captured
+        !!action
       end
 
       def command
-        Payments::CompletePayment.new(**data)
+        case action
+          when :complete
+            Payments::CompletePayment.new(**data)
+          when :release
+            Payments::ReleasePayment.new(**data.slice(:transaction_id))
+          else
+            raise ArgumentError.new("Unknown action")
+          end
       end
 
       private
-      attr_reader :data, :state
+      attr_reader :data, :state, :action
 
       def apply(event)
         case event
           when Payments::PaymentAuthorized
             data[:transaction_id] = event.transaction_id
             data[:order_id] = event.order_id
-            state = :authorized
+            @state = :authorized
           when Payments::PaymentCaptured
-            state = :captured
+            @action = :complete if authorized?
+            @state = :captured
           when Payments::PaymentExpired
-            state = :expired
+            @action = :release if authorized?
+            @state = :expired
           else
             raise ArgumentError.new("Not suported domain event")
         end
+      end
+
+      def authorized?
+        state == :authorized
       end
     end
 

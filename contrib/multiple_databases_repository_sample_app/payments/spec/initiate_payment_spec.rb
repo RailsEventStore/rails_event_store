@@ -16,6 +16,7 @@ module Payments
         an_event(PaymentAuthorized).with_data(
           transaction_id: kind_of(String),
           order_id: order_id,
+          amount: 20.to_d,
         )
       )
     end

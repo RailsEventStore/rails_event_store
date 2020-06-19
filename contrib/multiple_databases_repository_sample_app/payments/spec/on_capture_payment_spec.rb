@@ -8,11 +8,11 @@ module Payments
       stream = "Payments::Payment$#{transaction_id}"
 
       Payments.arrange(stream, [PaymentAuthorized.new(data: {transaction_id: transaction_id, order_id: order_id, amount: 20.to_d})])
-      Payments.act(CapturePayment.new(transaction_id: transaction_id, order_id: order_id))
+      Payments.act(CapturePayment.new(transaction_id: transaction_id))
 
       expect(Payments.event_store).to have_published(
         an_event(PaymentCaptured)
-          .with_data(transaction_id: transaction_id, order_id: order_id)
+          .with_data(transaction_id: transaction_id)
       )
     end
   end

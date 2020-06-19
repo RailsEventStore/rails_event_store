@@ -34,7 +34,6 @@ module Payments
       raise AlreadyCaptured if captured?
       apply(PaymentCaptured.new(data: {
         transaction_id: @transaction_id,
-        order_id: @order_id
       }))
     end
 
@@ -44,7 +43,6 @@ module Payments
       raise AlreadyReleased if released?
       apply(PaymentReleased.new(data: {
         transaction_id: @transaction_id,
-        order_id: @order_id
       }))
     end
 

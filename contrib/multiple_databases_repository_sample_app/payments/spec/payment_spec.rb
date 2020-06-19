@@ -29,7 +29,7 @@ module Payments
         payment.capture
       end.to apply(
         an_event(PaymentCaptured)
-          .with_data(transaction_id: transaction_id, order_id: order_id)
+          .with_data(transaction_id: transaction_id)
       ).in(payment)
     end
 
@@ -52,7 +52,7 @@ module Payments
         payment.release
       end.to apply(
         an_event(PaymentReleased)
-          .with_data(transaction_id: transaction_id, order_id: order_id)
+          .with_data(transaction_id: transaction_id)
       ).in(payment)
     end
 
@@ -94,7 +94,6 @@ module Payments
         payment.apply(
           PaymentCaptured.new(data: {
             transaction_id: transaction_id,
-            order_id: order_id,
           })
         )
       end
@@ -105,7 +104,6 @@ module Payments
         payment.apply(
           PaymentReleased.new(data: {
             transaction_id: transaction_id,
-            order_id: order_id,
           })
         )
       end
