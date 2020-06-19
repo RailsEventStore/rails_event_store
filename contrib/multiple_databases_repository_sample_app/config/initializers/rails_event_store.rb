@@ -35,4 +35,5 @@ Rails.configuration.to_prepare do
 
   Orders.setup(Rails.configuration)
   Payments.setup(Rails.configuration)
+  Shipping.setup(Rails.configuration)
 end

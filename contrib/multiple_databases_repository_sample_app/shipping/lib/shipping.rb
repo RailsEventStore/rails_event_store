@@ -33,8 +33,8 @@ module Shipping
 
     # Subscribe public event handlers below
     public_event_store.tap do |store|
-      store.subscribe(ShippingProcess.new(command_bus), to: ['new-order'])
-      store.subscribe(ShippingProcess.new(command_bus), to: ['payment-completed'])
+      store.subscribe(ShippingProcess.new(event_store, command_bus), to: ['new-order'])
+      store.subscribe(ShippingProcess.new(event_store, command_bus), to: ['payment-completed'])
     end
 
     # Subscribe private event handlers below
@@ -73,6 +73,8 @@ module Shipping
   class OrderPlaced < Event
     event_type 'new-order'
     attribute :order_id, Types::UUID
+    attribute :customer_id, Types::ID
+    attribute :delivery_address_id, Types::ID
   end
 
   class OrderPaid < Event
