@@ -30,6 +30,7 @@ module Sample
     # the framework and any gems in your application.
     config.paths.add 'orders/lib', eager_load: true
     config.paths.add 'payments/lib', eager_load: true
+    config.paths.add 'shipping/lib', eager_load: true
 
     # Don't generate system test files.
     config.generators.system_tests = nil

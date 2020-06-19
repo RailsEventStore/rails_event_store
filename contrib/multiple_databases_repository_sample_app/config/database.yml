@@ -21,6 +21,10 @@ development:
     <<: *default
     database: db/payments_development.sqlite3
     migrations_paths: db/payments
+  shipping:
+    <<: *default
+    database: db/shipping_development.sqlite3
+    migrations_paths: db/shipping
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -37,6 +41,10 @@ test:
     <<: *default
     database: db/payments_test.sqlite3
     migrations_paths: db/payments
+  shipping:
+    <<: *default
+    database: db/shipping_test.sqlite3
+    migrations_paths: db/shipping
 
 production:
   primary:
@@ -50,3 +58,7 @@ production:
     <<: *default
     database: db/payments_production.sqlite3
     migrations_paths: db/payments
+  shipping:
+    <<: *default
+    database: db/shipping_production.sqlite3
+    migrations_paths: db/shipping
