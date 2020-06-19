@@ -5,16 +5,20 @@ module Payments
     it 'authorize' do
       payment = Payment.new
       expect do
-        payment.authorize(transaction_id, order_id)
+        payment.authorize(transaction_id, order_id, 20.to_d)
       end.to apply(
         an_event(PaymentAuthorized)
-          .with_data(transaction_id: transaction_id, order_id: order_id)
+          .with_data(
+            transaction_id: transaction_id,
+            order_id: order_id,
+            amount: 20.to_d,
+          )
       ).in(payment)
     end
 
     it 'should not allow for double authorization' do
       expect do
-        authorized_payment.authorize(transaction_id, order_id)
+        authorized_payment.authorize(transaction_id, order_id, 20.to_d)
       end.to raise_error(Payment::AlreadyAuthorized)
     end
 
@@ -79,6 +83,7 @@ module Payments
           PaymentAuthorized.new(data: {
             transaction_id: transaction_id,
             order_id: order_id,
+            amount: 20.to_d,
           })
         )
       end

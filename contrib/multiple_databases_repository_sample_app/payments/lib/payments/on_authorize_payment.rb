@@ -4,7 +4,7 @@ module Payments
 
     def call(command)
       with_aggregate(Payment.new, command.transaction_id) do |payment|
-        payment.authorize(command.transaction_id, command.order_id)
+        payment.authorize(command.transaction_id, command.order_id, command.amount)
       end
     end
   end

@@ -7,11 +7,12 @@ module Payments
     AlreadyCaptured = Class.new(StandardError)
     AlreadyReleased = Class.new(StandardError)
 
-    def authorize(transaction_id, order_id)
+    def authorize(transaction_id, order_id, amount)
       raise AlreadyAuthorized if authorized?
       apply(PaymentAuthorized.new(data: {
         transaction_id: transaction_id,
-        order_id: order_id
+        order_id: order_id,
+        amount: amount
       }))
     end
 
@@ -38,8 +39,9 @@ module Payments
 
     on PaymentAuthorized do |event|
       @state = :authorized
-      @transaction_id = event.data.fetch(:transaction_id)
-      @order_id = event.data.fetch(:order_id)
+      @transaction_id = event.transaction_id
+      @order_id = event.order_id
+      @amount = event.amount
     end
 
     on PaymentCaptured do |event|

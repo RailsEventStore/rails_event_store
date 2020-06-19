@@ -5,10 +5,9 @@ module Payments
     end
 
     def call(event)
-      bus.call(AuthorizePayment.new(
+      @bus.call(AuthorizePayment.new(**event.data.merge(
         transaction_id: SecureRandom.hex(16),
-        order_id: event.data.order_id
-      ))
+      )))
     end
   end
 end

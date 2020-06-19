@@ -30,7 +30,7 @@ module Payments
 
     # Subscribe public event handlers below
     public_event_store.tap do |store|
-      store.subscribe(InitiatePayment.new(command_bus), to: [PaymentInitiated])
+      store.subscribe(InitiatePayment.new(command_bus), to: ['new-order'])
     end
 
     # Subscribe private event handlers below
@@ -53,8 +53,8 @@ module Payments
 
   def self.events_class_remapping
     {
-      'new-order' => PaymentInitiated,
-      'payment-completed' => PaymentCompleted,
+      'new-order' => 'Payments::PaymentInitiated',
+      'payment-completed' => 'Payments::PaymentCompleted',
     }
   end
 
@@ -77,7 +77,7 @@ module Payments
   class PaymentInitiated < Event
     event_type 'new-order'
     attribute :order_id,    Types::UUID
-    attribute :amount,      Types::Decimal
+    attribute :amount,      Types::Coercible::Decimal
   end
 
   class PaymentCompleted < Event
