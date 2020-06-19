@@ -57,12 +57,13 @@ module Orders
       bus.register(Orders::SubmitOrder, Orders::OnSubmitOrder.new(event_store, number_generator_factory: config.number_generator_factory))
       bus.register(Orders::AddItemToBasket, Orders::OnAddItemToBasket.new(event_store))
       bus.register(Orders::RemoveItemFromBasket, Orders::OnRemoveItemFromBasket.new(event_store))
+      bus.register(Orders::PlaceOrder, ->(cmd) { public_event_store.publish(OrderPlaced.new(**cmd)) })
     end
   end
 
   def self.events_class_remapping
     {
-      'new-order' => OrderPlaced,
+      'new-order' => 'Orders::OrderPlaced',
     }
   end
 
@@ -88,6 +89,6 @@ module Orders
     attribute :customer_id, Types::ID
     attribute :delivery_address_id, Types::ID
     attribute :payment_method_id, Types::ID
-    attribute :amount, Types::Decimal
+    attribute :amount, Types::Coercible::Decimal
   end
 end

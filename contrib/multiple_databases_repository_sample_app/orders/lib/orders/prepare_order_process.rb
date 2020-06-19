@@ -21,7 +21,7 @@ module Orders
       end
 
       def done?
-        data[:amount] > 0 && data[:customer_id]
+        data[:amount] > 0 && data[:order_id]
       end
 
       def command
@@ -38,7 +38,9 @@ module Orders
           when Orders::ItemRemovedFromBasket
             data[:amount] -= 10.to_d
           when Orders::OrderSubmitted
-            data.merge(event.data.slice(
+            data.merge!(event.data.slice(
+              :order_id,
+              :order_number,
               :customer_id,
               :delivery_address_id,
               :payment_method_id
