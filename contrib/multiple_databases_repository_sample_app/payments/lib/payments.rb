@@ -10,7 +10,21 @@ require_dependency 'payments/payment_authorized'
 require_dependency 'payments/payment_captured'
 require_dependency 'payments/payment_released'
 require_dependency 'payments/payment_expired'
+
+require_dependency 'payments/authorize_payment'
+require_dependency 'payments/capture_payment'
+require_dependency 'payments/release_payment'
+require_dependency 'payments/set_payment_as_expired'
+require_dependency 'payments/complete_payment'
+
+require_dependency 'payments/on_authorize_payment'
+require_dependency 'payments/on_capture_payment'
+require_dependency 'payments/on_release_payment'
+require_dependency 'payments/on_expire_payment'
+require_dependency 'payments/on_complete_payment'
+
 require_dependency 'payments/payment'
+require_dependency 'payments/payment_process'
 
 module Payments
   def self.setup(config)
@@ -45,6 +59,7 @@ module Payments
     # Register commands handled by this module below
     command_bus.tap do |bus|
       bus.register(Payments::AuthorizePayment, Payments::OnAuthorizePayment.new(event_store))
+      bus.register(Payments::SetPaymentAsExpired, Payments::OnExpirePayment.new(event_store))
       bus.register(Payments::CapturePayment, Payments::OnCapturePayment.new(event_store))
       bus.register(Payments::ReleasePayment, Payments::OnReleasePayment.new(event_store))
       bus.register(Payments::CompletePayment, Payments::OnCompletePayment.new(public_event_store))

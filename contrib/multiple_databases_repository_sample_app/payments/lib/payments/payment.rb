@@ -7,8 +7,12 @@ module Payments
     AlreadyCaptured = Class.new(StandardError)
     AlreadyReleased = Class.new(StandardError)
 
+    def initialize
+      @state = nil
+    end
+
     def authorize(transaction_id, order_id, amount)
-      raise AlreadyAuthorized if authorized?
+      raise AlreadyAuthorized unless initiated?
       apply(PaymentAuthorized.new(data: {
         transaction_id: transaction_id,
         order_id: order_id,
@@ -16,9 +20,18 @@ module Payments
       }))
     end
 
-    def capture
-      raise AlreadyCaptured if captured?
+    def expire
       raise NotAuthorized unless authorized?
+      raise AlreadyCaptured if captured?
+      raise AlreadyReleased if released?
+      apply(PaymentExpired.new(data: {
+        transaction_id: @transaction_id,
+      }))
+    end
+
+    def capture
+      raise NotAuthorized unless authorized?
+      raise AlreadyCaptured if captured?
       apply(PaymentCaptured.new(data: {
         transaction_id: @transaction_id,
         order_id: @order_id
@@ -26,9 +39,9 @@ module Payments
     end
 
     def release
-      raise AlreadyReleased if released?
-      raise AlreadyCaptured if captured?
       raise NotAuthorized unless authorized?
+      raise AlreadyCaptured if captured?
+      raise AlreadyReleased if released?
       apply(PaymentReleased.new(data: {
         transaction_id: @transaction_id,
         order_id: @order_id
@@ -44,6 +57,10 @@ module Payments
       @amount = event.amount
     end
 
+    on PaymentExpired do |event|
+      @state = :expired
+    end
+
     on PaymentCaptured do |event|
       @state = :captured
     end
@@ -52,8 +69,16 @@ module Payments
       @state = :released
     end
 
+    def initiated?
+      @state == nil
+    end
+
     def authorized?
-      @state == :authorized
+      @state != nil
+    end
+
+    def expired?
+      @state == :expired
     end
 
     def captured?
