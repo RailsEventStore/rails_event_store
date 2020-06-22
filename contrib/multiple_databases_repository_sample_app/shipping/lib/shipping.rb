@@ -39,6 +39,12 @@ module Shipping
 
     # Subscribe private event handlers below
     event_store.tap do |store|
+      store.subscribe(->(ev) {
+          public_event_store.publish(OrderSent.new(**ev.data.slice(
+            :order_id, :tracking_number, :estimated_delivery_date))
+          )
+        }, to: [Shipping::PackageShipped]
+      )
     end
 
     # Register commands handled by this module below
@@ -51,6 +57,7 @@ module Shipping
     {
       'new-order' => 'Shipping::OrderPlaced',
       'payment-completed' => 'Shipping::OrderPaid',
+      'order-sent' => 'Shipping::OrderSent',
     }
   end
 
@@ -80,5 +87,12 @@ module Shipping
   class OrderPaid < Event
     event_type 'payment-completed'
     attribute :order_id, Types::UUID
+  end
+
+  class OrderSent < Event
+    event_type 'order-sent'
+    attribute :order_id, Types::UUID
+    attribute :tracking_number, Types::String
+    attribute :estimated_delivery_date, Types::JSON::Date
   end
 end

@@ -2,8 +2,13 @@ module Shipping
   class Package
     include AggregateRoot
 
+    def initialize(order_id)
+      @order_id = order_id
+    end
+
     def ship_to(customer_id, address_id)
       apply(PackageShipped.new(data: {
+        order_id: order_id,
         customer_id: customer_id,
         delivery_address_id: address_id,
         tracking_number: SecureRandom.hex(16),
@@ -12,6 +17,7 @@ module Shipping
     end
 
     private
+    attr_reader :order_id
 
     on PackageShipped do |event|
       @state = :ready

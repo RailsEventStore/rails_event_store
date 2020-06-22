@@ -14,33 +14,34 @@ module Shipping
     private
     attr_reader :event_store, :bus
 
-    class State
-      def initialize(events)
-        @data = {}
-        @state = []
-        events.each{|e| apply(e)}
+    class State < ApplicationRecord
+      self.table_name = :shipping_process_state
+      serialize :states, Array
+
+      def intialize
+        self.states = []
       end
 
       def done?
-        state.include?(:placed) && state.include?(:paid)
+        states.include?(:placed) && states.include?(:paid)
       end
 
       def command
-        Shipping::CompleteShipping.new(**data)
+        Shipping::ShipPackage.new(
+          order_id: order_id,
+          customer_id: customer_id,
+          delivery_address_id: delivery_address_id,
+        )
       end
-
-      private
-      attr_reader :data, :state
 
       def apply(event)
         case event
           when Shipping::OrderPlaced
-            data[:order_id] = event.order_id
-            data[:customer_id] = event.customer_id
-            data[:delivery_address_id] = event.delivery_address_id
-            @state << :placed
+            self.customer_id = event.customer_id
+            self.delivery_address_id = event.delivery_address_id
+            states << :placed
           when Shipping::OrderPaid
-            @state << :paid
+            states << :paid
           else
             raise ArgumentError.new("Not suported domain event")
         end
@@ -48,13 +49,12 @@ module Shipping
     end
 
     def with_linked(event)
-      stream = "ShippingProcess$#{event.order_id}"
-      event_store.link(
-        event.event_id,
-        stream_name: stream
-      )
-      yield State.new(event_store.read.stream(stream))
-    rescue RubyEventStore::EventDuplicatedInStream
+      State.transaction do
+        state = State.lock.find_or_create_by!(order_id: event.order_id)
+        state.apply(event)
+        state.save!
+        yield state
+      end
     end
   end
 end

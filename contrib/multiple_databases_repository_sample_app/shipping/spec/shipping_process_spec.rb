@@ -25,6 +25,14 @@ module Shipping
           estimated_delivery_date: 2.days.from_now.to_date,
         )
       )
+
+      expect(Shipping.public_event_store).to have_published(
+        an_event(Shipping::OrderSent).with_data(
+          order_id: order_id,
+          tracking_number: kind_of(String),
+          estimated_delivery_date: 2.days.from_now.to_date,
+        )
+      )
     end
   end
 end

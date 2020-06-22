@@ -4,6 +4,6 @@ module Shipping
     attribute :customer_id, Types::ID
     attribute :delivery_address_id, Types::ID
     attribute :tracking_number, Types::String
-    attribute :estimated_delivery_date, Types::Date
+    attribute :estimated_delivery_date, Types::JSON::Date
   end
 end
