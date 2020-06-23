@@ -86,7 +86,7 @@ module RubyEventStore
 
         expect(redis.scard("queues")).to eq(1)
         expect(redis.smembers("queues")).to match_array(["default"])
-        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v0.0.1")
+        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
       end
 
       specify "returns false if no records" do
