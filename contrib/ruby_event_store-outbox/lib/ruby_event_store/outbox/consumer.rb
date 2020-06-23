@@ -32,7 +32,10 @@ module RubyEventStore
       def run
         while !@gracefully_shutting_down do
           was_something_changed = one_loop
-          sleep SLEEP_TIME_WHEN_NOTHING_TO_DO if !was_something_changed
+          if !was_something_changed
+            STDOUT.flush
+            sleep SLEEP_TIME_WHEN_NOTHING_TO_DO
+          end
         end
         logger.info "Gracefully shutting down"
       end
