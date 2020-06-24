@@ -19,4 +19,4 @@ docker-build: ## Build docker image
 		.
 
 docker-push: ## Push docker image
-	@DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect arkency/outbox:0.0.2 > /dev/null || docker push arkency/outbox:$(GEM_VERSION)
+	@DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect arkency/outbox:$(GEM_VERSION) > /dev/null || docker push arkency/outbox:$(GEM_VERSION)
