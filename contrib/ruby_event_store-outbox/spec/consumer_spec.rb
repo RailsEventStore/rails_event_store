@@ -291,6 +291,16 @@ module RubyEventStore
         expect(logger_output.string).to include("Outbox fetch deadlocked")
         expect(result).to eq(false)
       end
+
+      specify "lock timeout cause us only to sleep" do
+        expect(Record).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to include("Outbox fetch lock timeout")
+        expect(result).to eq(false)
+      end
     end
   end
 end

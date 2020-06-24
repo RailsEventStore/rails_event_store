@@ -103,6 +103,10 @@ module RubyEventStore
         logger.warn "Outbox fetch deadlocked"
         metrics.write_point_queue(status: "deadlocked")
         false
+      rescue ActiveRecord::LockWaitTimeout
+        logger.warn "Outbox fetch lock timeout"
+        metrics.write_point_queue(status: "lock_timeout")
+        false
       end
 
       private
