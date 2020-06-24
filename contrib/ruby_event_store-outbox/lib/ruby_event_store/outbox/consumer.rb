@@ -77,7 +77,7 @@ module RubyEventStore
           records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
           records = records_scope.order("id ASC").limit(batch_size).to_a
           if records.empty?
-            metrics.write_point_queue(deadlocked: false)
+            metrics.write_point_queue(status: "ok")
             return false
           end
 
@@ -94,14 +94,14 @@ module RubyEventStore
 
           updated_record_ids = records.map(&:id) - failed_record_ids
           Record.where(id: updated_record_ids).update_all(enqueued_at: now)
-          metrics.write_point_queue(deadlocked: false, enqueued: updated_record_ids.size, failed: failed_record_ids.size)
+          metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
 
           logger.info "Sent #{records.size} messages from outbox table"
           true
         end
       rescue ActiveRecord::Deadlocked
         logger.warn "Outbox fetch deadlocked"
-        metrics.write_point_queue(deadlocked: true)
+        metrics.write_point_queue(status: "deadlocked")
         false
       end
 
