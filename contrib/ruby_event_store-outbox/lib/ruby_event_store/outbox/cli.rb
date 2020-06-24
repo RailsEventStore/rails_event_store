@@ -1,11 +1,12 @@
 require "optparse"
 require "ruby_event_store/outbox/version"
 require "ruby_event_store/outbox/consumer"
+require "ruby_event_store/outbox/metrics"
 
 module RubyEventStore
   module Outbox
     class CLI
-      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format, :batch_size)
+      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format, :batch_size, :metrics_url)
 
       class Parser
         def self.parse(argv)
@@ -37,6 +38,10 @@ module RubyEventStore
               options.batch_size = batch_size
             end
 
+            option_parser.on("--metrics-url METRICS_URL", "URI to metrics collector") do |metrics_url|
+              options.metrics_url = metrics_url
+            end
+
             option_parser.on_tail("--version", "Show version") do
               puts VERSION
               exit
@@ -62,9 +67,11 @@ module RubyEventStore
           database_url: options.database_url,
           redis_url: options.redis_url,
         )
+        metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
           options,
           logger: logger,
+          metrics: metrics,
         )
       end
     end

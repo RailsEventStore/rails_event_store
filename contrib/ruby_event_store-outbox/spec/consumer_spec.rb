@@ -11,6 +11,7 @@ module RubyEventStore
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
       let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default"], message_format: SIDEKIQ5_FORMAT, batch_size: 100) }
+      let(:metrics) { Metrics::Null.new }
 
       before(:each) do
         redis.flushdb
@@ -37,7 +38,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json
         )
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 
         consumer.one_loop
 
@@ -67,7 +68,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(default_configuration, clock: clock, logger: logger)
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
         result = consumer.one_loop
 
         expect(redis.llen("queue:default")).to eq(1)
@@ -81,7 +82,7 @@ module RubyEventStore
       end
 
       specify "initiating consumer ensures that queues exist" do
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 
         consumer.init
 
@@ -91,7 +92,7 @@ module RubyEventStore
       end
 
       specify "returns false if no records" do
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 
         result = consumer.one_loop
 
@@ -119,7 +120,7 @@ module RubyEventStore
           enqueued_at: Time.now.utc,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -148,7 +149,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -177,7 +178,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -206,7 +207,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(default_configuration.with(split_keys: nil), logger: logger)
+        consumer = Consumer.new(default_configuration.with(split_keys: nil), logger: logger, metrics: metrics)
 
         result = consumer.one_loop
 
@@ -215,7 +216,7 @@ module RubyEventStore
       end
 
       specify "#run wait if nothing was changed" do
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         expect(consumer).to receive(:one_loop).and_return(false).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -228,7 +229,7 @@ module RubyEventStore
       end
 
       specify "#run doesnt wait if something changed" do
-        consumer = Consumer.new(default_configuration, logger: logger)
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         expect(consumer).to receive(:one_loop).and_return(true).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -269,7 +270,7 @@ module RubyEventStore
           payload: payload.to_json
         )
         clock = TickingClock.new
-        consumer = Consumer.new(default_configuration, clock: clock, logger: logger)
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
 
         result = consumer.one_loop
 
@@ -283,7 +284,7 @@ module RubyEventStore
       specify "deadlock cause us only to sleep" do
         expect(Record).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
         clock = TickingClock.new
-        consumer = Consumer.new(default_configuration, clock: clock, logger: logger)
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
 
         result = consumer.one_loop
 

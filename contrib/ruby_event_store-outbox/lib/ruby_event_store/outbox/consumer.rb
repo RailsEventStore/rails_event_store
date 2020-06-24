@@ -38,11 +38,12 @@ module RubyEventStore
         attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url
       end
 
-      def initialize(configuration, clock: Time, logger:)
+      def initialize(configuration, clock: Time, logger:, metrics:)
         @split_keys = configuration.split_keys
         @clock = clock
         @redis = Redis.new(url: configuration.redis_url)
         @logger = logger
+        @metrics = metrics
         @batch_size = configuration.batch_size
         ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
 
@@ -75,7 +76,10 @@ module RubyEventStore
           records_scope = Record.lock.where(format: message_format, enqueued_at: nil)
           records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
           records = records_scope.order("id ASC").limit(batch_size).to_a
-          return false if records.empty?
+          if records.empty?
+            metrics.write_point_queue(deadlocked: false)
+            return false
+          end
 
           now = @clock.now.utc
           failed_record_ids = []
@@ -88,18 +92,21 @@ module RubyEventStore
             end
           end
 
-          Record.where(id: records.map(&:id) - failed_record_ids).update_all(enqueued_at: now)
+          updated_record_ids = records.map(&:id) - failed_record_ids
+          Record.where(id: updated_record_ids).update_all(enqueued_at: now)
+          metrics.write_point_queue(deadlocked: false, enqueued: updated_record_ids.size, failed: failed_record_ids.size)
 
           logger.info "Sent #{records.size} messages from outbox table"
-          return true
+          true
         end
       rescue ActiveRecord::Deadlocked
         logger.warn "Outbox fetch deadlocked"
+        metrics.write_point_queue(deadlocked: true)
         false
       end
 
       private
-      attr_reader :split_keys, :logger, :message_format, :batch_size
+      attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
 
       def handle_one_record(now, record)
         hash_payload = JSON.parse(record.payload)

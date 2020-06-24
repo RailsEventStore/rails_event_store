@@ -46,6 +46,11 @@ module RubyEventStore
           expect(Parser.parse(["--batch-size=20"]).batch_size).to eq(20)
           expect(Parser.parse([]).batch_size).to eq(100)
         end
+
+        specify "#parse --metrics-url" do
+          expect(Parser.parse(["--metrics-url=http://username:password@host:1234/db"]).metrics_url).to eq("http://username:password@host:1234/db")
+          expect(Parser.parse([]).metrics_url).to eq(nil)
+        end
       end
     end
   end
