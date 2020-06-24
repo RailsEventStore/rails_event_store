@@ -9,11 +9,12 @@ module RubyEventStore
     class Consumer
       SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
 
-      def initialize(format, split_keys, database_url:, redis_url:, clock: Time, logger:)
+      def initialize(format, split_keys, batch_size, database_url:, redis_url:, clock: Time, logger:)
         @split_keys = split_keys
         @clock = clock
         @redis = Redis.new(url: redis_url)
         @logger = logger
+        @batch_size = batch_size
         ActiveRecord::Base.establish_connection(database_url) unless ActiveRecord::Base.connected?
 
         raise "Unknown format" if format != SIDEKIQ5_FORMAT
@@ -44,7 +45,7 @@ module RubyEventStore
         Record.transaction do
           records_scope = Record.lock.where(format: message_format, enqueued_at: nil)
           records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
-          records = records_scope.order("id ASC").limit(100).to_a
+          records = records_scope.order("id ASC").limit(batch_size).to_a
           return false if records.empty?
 
           now = @clock.now.utc
@@ -69,7 +70,7 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :message_format
+      attr_reader :split_keys, :logger, :message_format, :batch_size
 
       def handle_one_record(now, record)
         hash_payload = JSON.parse(record.payload)

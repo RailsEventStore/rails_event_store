@@ -41,6 +41,11 @@ module RubyEventStore
             Parser.parse(["--message-format=rubbish"])
           end.to raise_error(OptionParser::InvalidArgument)
         end
+
+        specify "#parse --batch-size" do
+          expect(Parser.parse(["--batch-size=20"]).batch_size).to eq(20)
+          expect(Parser.parse([]).batch_size).to eq(100)
+        end
       end
     end
   end

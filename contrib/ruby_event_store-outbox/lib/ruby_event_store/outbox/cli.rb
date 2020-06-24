@@ -5,11 +5,11 @@ require "ruby_event_store/outbox/consumer"
 module RubyEventStore
   module Outbox
     class CLI
-      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format)
+      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format, :batch_size)
 
       class Parser
         def self.parse(argv)
-          options = Options.new(nil, nil, :warn, nil, nil)
+          options = Options.new(nil, nil, :warn, nil, nil, 100)
           OptionParser.new do |option_parser|
             option_parser.banner = "Usage: res_outbox [options]"
 
@@ -33,6 +33,10 @@ module RubyEventStore
               options.split_keys = split_keys if !split_keys.empty?
             end
 
+            option_parser.on("--batch-size BATCH_SIZE", Integer, "Amount of records fetched in one fetch. Bigger value means more duplicated messages when network problems occur.") do |batch_size|
+              options.batch_size = batch_size
+            end
+
             option_parser.on_tail("--version", "Show version") do
               puts VERSION
               exit
@@ -48,6 +52,7 @@ module RubyEventStore
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
           options.message_format,
           options.split_keys,
+          options.batch_size,
           database_url: options.database_url,
           redis_url: options.redis_url,
           logger: logger,
