@@ -44,7 +44,7 @@ module RubyEventStore
         Record.transaction do
           records_scope = Record.lock.where(format: message_format, enqueued_at: nil)
           records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
-          records = records_scope.order("id ASC").limit(100)
+          records = records_scope.order("id ASC").limit(100).to_a
           return false if records.empty?
 
           now = @clock.now.utc
@@ -58,12 +58,7 @@ module RubyEventStore
             end
           end
 
-          update_scope = if failed_record_ids.empty?
-            records
-          else
-            records.where("id NOT IN (?)", failed_record_ids)
-          end
-          update_scope.update_all(enqueued_at: now)
+          Record.where(id: records.map(&:id) - failed_record_ids).update_all(enqueued_at: now)
 
           logger.info "Sent #{records.size} messages from outbox table"
           return true
