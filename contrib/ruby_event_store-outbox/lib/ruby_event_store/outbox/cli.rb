@@ -55,6 +55,13 @@ module RubyEventStore
 
       def build_consumer(options)
         logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox")
+        consumer_configuration = Consumer::Configuration.new(
+          split_keys: options.split_keys,
+          message_format: options.message_format,
+          batch_size: options.batch_size,
+          database_url: options.database_url,
+          redis_url: options.redis_url,
+        )
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
           options,
           logger: logger,
