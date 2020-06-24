@@ -48,17 +48,17 @@ module RubyEventStore
 
       def run(argv)
         options = Parser.parse(argv)
-        logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox")
-        outbox_consumer = RubyEventStore::Outbox::Consumer.new(
-          options.message_format,
-          options.split_keys,
-          options.batch_size,
-          database_url: options.database_url,
-          redis_url: options.redis_url,
-          logger: logger,
-        )
+        outbox_consumer = build_consumer(options)
         outbox_consumer.init
         outbox_consumer.run
+      end
+
+      def build_consumer(options)
+        logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox")
+        outbox_consumer = RubyEventStore::Outbox::Consumer.new(
+          options,
+          logger: logger,
+        )
       end
     end
   end

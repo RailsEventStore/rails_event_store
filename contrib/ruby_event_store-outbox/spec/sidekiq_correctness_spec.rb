@@ -9,6 +9,7 @@ module RubyEventStore
       let(:database_url) { ENV["DATABASE_URL"] }
       let(:redis) { Redis.new(url: redis_url) }
       let(:test_logger) { Logger.new(StringIO.new) }
+      let(:default_options) { CLI::Options.new(database_url, redis_url, :info, ["default"], SIDEKIQ5_FORMAT, 100) }
 
       before(:each) do |example|
         Sidekiq.configure_client do |config|
@@ -27,7 +28,7 @@ module RubyEventStore
         end
 
         SidekiqScheduler.new.call(CorrectAsyncHandler, serialized_event)
-        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], 100, database_url: database_url, redis_url: redis_url, logger: test_logger)
+        consumer = Consumer.new(default_options, logger: test_logger)
         consumer.one_loop
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 

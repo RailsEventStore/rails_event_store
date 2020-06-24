@@ -9,15 +9,15 @@ module RubyEventStore
     class Consumer
       SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
 
-      def initialize(format, split_keys, batch_size, database_url:, redis_url:, clock: Time, logger:)
-        @split_keys = split_keys
+      def initialize(options, clock: Time, logger:)
+        @split_keys = options.split_keys
         @clock = clock
-        @redis = Redis.new(url: redis_url)
+        @redis = Redis.new(url: options.redis_url)
         @logger = logger
-        @batch_size = batch_size
-        ActiveRecord::Base.establish_connection(database_url) unless ActiveRecord::Base.connected?
+        @batch_size = options.batch_size
+        ActiveRecord::Base.establish_connection(options.database_url) unless ActiveRecord::Base.connected?
 
-        raise "Unknown format" if format != SIDEKIQ5_FORMAT
+        raise "Unknown format" if options.message_format != SIDEKIQ5_FORMAT
         @message_format = SIDEKIQ5_FORMAT
 
         @gracefully_shutting_down = false
