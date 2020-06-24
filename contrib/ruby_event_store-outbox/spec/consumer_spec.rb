@@ -278,6 +278,17 @@ module RubyEventStore
         expect(redis.llen("queue:default")).to eq(1)
         expect(logger_output.string).to include("JSON::ParserError")
       end
+
+      specify "deadlock cause us only to sleep" do
+        expect(Record).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
+        clock = TickingClock.new
+        consumer = Consumer.new(SIDEKIQ5_FORMAT, ["default"], database_url: database_url, redis_url: redis_url, clock: clock, logger: logger)
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to include("Outbox fetch deadlocked")
+        expect(result).to eq(false)
+      end
     end
   end
 end

@@ -68,6 +68,9 @@ module RubyEventStore
           logger.info "Sent #{records.size} messages from outbox table"
           return true
         end
+      rescue ActiveRecord::Deadlocked
+        logger.warn "Outbox fetch deadlocked"
+        false
       end
 
       private
