@@ -15,8 +15,8 @@ docker-build: ## Build docker image
 	@docker build \
 		--file Dockerfile \
 		--build-arg GEM_VERSION=$(GEM_VERSION) \
-		--tag arkency/outbox:$(GEM_VERSION) \
+		--tag railseventstore/outbox:$(GEM_VERSION) \
 		.
 
 docker-push: ## Push docker image
-	@DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect arkency/outbox:$(GEM_VERSION) > /dev/null || docker push arkency/outbox:$(GEM_VERSION)
+	@DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect railseventstore/outbox:$(GEM_VERSION) > /dev/null || docker push railseventstore/outbox:$(GEM_VERSION)
