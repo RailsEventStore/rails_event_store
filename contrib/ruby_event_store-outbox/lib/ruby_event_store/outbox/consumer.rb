@@ -46,6 +46,7 @@ module RubyEventStore
         @metrics = metrics
         @batch_size = configuration.batch_size
         ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
+        ActiveRecord::Base.connection.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;")
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @message_format = SIDEKIQ5_FORMAT
