@@ -12,8 +12,8 @@ module RubyEventStore
             async: true,
             time_precision: 'ns',
           }
-          options[:username] = params["username"]&.first if params["username"].present?
-          options[:password] = params["password"]&.first if params["password"].present?
+          options[:username] = params.fetch("username").first if params.key?("username")
+          options[:password] = params.fetch("password").first if params.key?("password")
           @influxdb_client = InfluxDB::Client.new(**options)
         end
 
@@ -30,8 +30,8 @@ module RubyEventStore
         end
 
         def write_point(series, data)
-          data[:timestamp] ||= Process.clock_gettime(Process::CLOCK_REALTIME, :nanosecond).to_i
-          @influxdb_client.write_point(series, data)
+          data[:timestamp] = Process.clock_gettime(Process::CLOCK_REALTIME, :nanosecond)
+          influxdb_client.write_point(series, data)
         end
 
         attr_reader :influxdb_client
