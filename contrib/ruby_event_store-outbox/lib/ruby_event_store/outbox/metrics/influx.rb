@@ -5,7 +5,16 @@ module RubyEventStore
     module Metrics
       class Influx
         def initialize(url)
-          @influxdb_client = InfluxDB::Client.new(url: url, async: true, time_precision: 'ns')
+          uri = URI.parse(url)
+          params = CGI.parse(uri.query || "")
+          options = {
+            url: url,
+            async: true,
+            time_precision: 'ns',
+          }
+          options[:username] = params["username"]&.first if params["username"].present?
+          options[:password] = params["password"]&.first if params["password"].present?
+          @influxdb_client = InfluxDB::Client.new(**options)
         end
 
         def write_point_queue(status:, enqueued: 0, failed: 0)
@@ -25,7 +34,6 @@ module RubyEventStore
           @influxdb_client.write_point(series, data)
         end
 
-        private
         attr_reader :influxdb_client
       end
     end
