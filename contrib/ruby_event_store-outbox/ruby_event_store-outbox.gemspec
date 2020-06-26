@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'ruby_event_store', '= 1.0.0'
   spec.add_dependency 'activerecord', '>= 3.0'
+  spec.add_dependency 'influxdb', '>= 0.8.0'
 end
