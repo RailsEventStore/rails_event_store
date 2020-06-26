@@ -1,7 +1,8 @@
 require 'ruby_event_store'
 require "ruby_event_store/outbox"
 require "ruby_event_store/outbox/cli"
-require "ruby_event_store/outbox/metrics"
+require "ruby_event_store/outbox/metrics/null"
+require "ruby_event_store/outbox/metrics/influx"
 require_relative '../../../support/helpers/rspec_defaults'
 require_relative '../../../support/helpers/mutant_timeout'
 require_relative '../../../support/helpers/schema_helper'
