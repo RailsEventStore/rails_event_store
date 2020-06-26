@@ -87,11 +87,12 @@ module RubyEventStore
 
           now = @clock.now.utc
           failed_record_ids = []
-          records.each do |record|
+          records.group_by(&:split_key).each do |split_key, records2|
             begin
-              handle_one_record(now, record)
+              failed = handle_group_of_records(now, split_key, records2)
+              failed_record_ids.concat(failed.map(&:id))
             rescue => e
-              failed_record_ids << record.id
+              failed_record_ids.concat(records2.map(&:id))
               e.full_message.split($/).each {|line| logger.error(line) }
             end
           end
@@ -100,7 +101,7 @@ module RubyEventStore
           Record.where(id: updated_record_ids).update_all(enqueued_at: now)
           metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
 
-          logger.info "Sent #{records.size} messages from outbox table"
+          logger.info "Sent #{updated_record_ids.size} messages from outbox table"
           true
         end
       rescue ActiveRecord::Deadlocked
@@ -116,11 +117,21 @@ module RubyEventStore
       private
       attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
 
-      def handle_one_record(now, record)
-        hash_payload = JSON.parse(record.payload)
-        @redis.lpush("queue:#{hash_payload.fetch("queue")}", JSON.generate(JSON.parse(record.payload).merge({
-          "enqueued_at" => now.to_f,
-        })))
+      def handle_group_of_records(now, split_key, records)
+        failed = []
+        elements = []
+        records.each do |record|
+          begin
+            elements << JSON.generate(JSON.parse(record.payload).merge({
+              "enqueued_at" => now.to_f,
+            }))
+          rescue => e
+            failed << record
+            e.full_message.split($/).each {|line| logger.error(line) }
+          end
+        end
+        @redis.lpush("queue:#{split_key}", elements)
+        failed
       end
 
       def prepare_traps

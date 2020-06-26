@@ -10,7 +10,7 @@ module RubyEventStore
       let(:redis) { Redis.new(url: redis_url) }
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
-      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default"], message_format: SIDEKIQ5_FORMAT, batch_size: 100) }
+      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100) }
       let(:metrics) { Metrics::Null.new }
 
       before(:each) do
@@ -81,13 +81,57 @@ module RubyEventStore
         expect(logger_output.string).to include("Sent 1 messages from outbox table")
       end
 
+      specify "push multiple jobs to different queues" do
+        payload1 = {
+          class: "SomeAsyncHandler",
+          queue: "default",
+          created_at: Time.now.utc,
+          jid: SecureRandom.hex(12),
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        payload2 = payload1.merge("queue" => "default2")
+        record1 = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload1.to_json
+        )
+        record2 = Record.create!(
+          split_key: "default",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload1.to_json
+        )
+        record3 = Record.create!(
+          split_key: "default2",
+          created_at: Time.now.utc,
+          format: "sidekiq5",
+          enqueued_at: nil,
+          payload: payload2.to_json
+        )
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+        result = consumer.one_loop
+
+        expect(redis.llen("queue:default")).to eq(2)
+        expect(redis.llen("queue:default2")).to eq(1)
+      end
+
       specify "initiating consumer ensures that queues exist" do
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 
         consumer.init
 
-        expect(redis.scard("queues")).to eq(1)
-        expect(redis.smembers("queues")).to match_array(["default"])
+        expect(redis.scard("queues")).to eq(2)
+        expect(redis.smembers("queues")).to match_array(["default", "default2"])
         expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
       end
 
