@@ -115,7 +115,7 @@ module RubyEventStore
           created_at: Time.now.utc,
           format: "sidekiq5",
           enqueued_at: nil,
-          payload: payload2.to_json
+          payload: payload2.merge(queue: "default2").to_json
         )
         clock = TickingClock.new
         consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)

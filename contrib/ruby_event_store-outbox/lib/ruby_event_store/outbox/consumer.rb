@@ -87,13 +87,29 @@ module RubyEventStore
 
           now = @clock.now.utc
           failed_record_ids = []
-          records.group_by(&:split_key).each do |split_key, records2|
+          parsed_records = []
+          records.each do |record|
             begin
-              failed = handle_group_of_records(now, split_key, records2)
-              failed_record_ids.concat(failed.map(&:id))
+              parsed_records << JSON.parse(record.payload).merge({
+                "enqueued_at" => now.to_f,
+              })
             rescue => e
-              failed_record_ids.concat(records2.map(&:id))
+              failed_record_ids << record.id
               e.full_message.split($/).each {|line| logger.error(line) }
+            end
+          end
+          parsed_records.group_by do |parsed_record|
+            parsed_record["queue"]
+          end.each do |queue, records_for_queue|
+            if queue.nil?
+              failed.concat(records_for_queue.map(&:id))
+            else
+              begin
+                @redis.lpush("queue:#{queue}", records_for_queue.map {|r| JSON.generate(r) })
+              rescue => e
+                failed_record_ids.concat(records2.map(&:id))
+                e.full_message.split($/).each {|line| logger.error(line) }
+              end
             end
           end
 
@@ -116,23 +132,6 @@ module RubyEventStore
 
       private
       attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
-
-      def handle_group_of_records(now, split_key, records)
-        failed = []
-        elements = []
-        records.each do |record|
-          begin
-            elements << JSON.generate(JSON.parse(record.payload).merge({
-              "enqueued_at" => now.to_f,
-            }))
-          rescue => e
-            failed << record
-            e.full_message.split($/).each {|line| logger.error(line) }
-          end
-        end
-        @redis.lpush("queue:#{split_key}", elements)
-        failed
-      end
 
       def prepare_traps
         Signal.trap("INT") do
