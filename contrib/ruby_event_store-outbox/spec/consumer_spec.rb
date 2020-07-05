@@ -191,15 +191,40 @@ module RubyEventStore
         expect(logger_output.string).to include("JSON::ParserError")
       end
 
-      xspecify "deadlock cause us only to sleep" do
-        expect(Record).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
+      specify "deadlock when obtaining lock just skip that attempt" do
+        expect(Lock).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
         clock = TickingClock.new
-        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to include("Outbox fetch deadlocked")
+        expect(logger_output.string).to match(/Obtaining lock .* failed \(deadlock\)/)
         expect(result).to eq(false)
+        expect(redis.llen("queue:default")).to eq(0)
+      end
+
+      specify "lock timeout when obtaining lock just skip that attempt" do
+        expect(Lock).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to match(/Obtaining lock .* failed \(lock timeout\)/)
+        expect(result).to eq(false)
+        expect(redis.llen("queue:default")).to eq(0)
+      end
+
+      specify "obtaining taken lock just skip that attempt" do
+        clock = TickingClock.new
+        Lock.obtain("default", "other-process-uuid", clock: clock)
+        consumer = Consumer.new(default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to match(/Obtaining lock .* unsuccessful \(taken\)/)
+        expect(result).to eq(false)
+        expect(redis.llen("queue:default")).to eq(0)
       end
 
       xspecify "lock timeout cause us only to sleep" do
