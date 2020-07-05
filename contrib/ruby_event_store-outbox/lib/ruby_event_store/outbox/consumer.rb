@@ -135,45 +135,43 @@ module RubyEventStore
       attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
 
       def obtain_lock_for_process(split_key)
-        Lock.transaction do
-          lock = Lock.lock.find_by(split_key: split_key)
-          if lock.nil?
-            begin
-              lock = Lock.create!(split_key: split_key)
-            rescue ActiveRecord::RecordNotUnique
-            end
-            lock = Lock.lock.find_by(split_key: split_key)
-          end
-
-          return false unless lock.locked_by.nil?
-
-          lock.update!(
-            locked_by: @process_uuid,
-            locked_at: Time.now.utc,
-          )
+        result = Lock.obtain(split_key, @process_uuid, clock: @clock)
+        case result
+        when :ok
+          return true
+        when :deadlocked
+          logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
+          metrics.write_point_queue(status: "deadlocked")
+          return false
+        when :lock_timeout
+          logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
+          metrics.write_point_queue(status: "lock_timeout")
+          return false
+        when :taken
+          logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken) [#{@process_uuid}]"
+          metrics.write_point_queue(status: "taken")
+          return false
+        else
+          raise "Unexpected result #{result}"
         end
-        true
-      rescue ActiveRecord::Deadlocked
-        logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
-        metrics.write_point_queue(status: "deadlocked")
-        false
-      rescue ActiveRecord::LockWaitTimeout
-        logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
-        metrics.write_point_queue(status: "lock_timeout")
-        false
       end
 
       def release_lock_for_process(split_key)
-        Lock.transaction do
-          lock = Lock.lock.find_by(split_key: split_key)
-          return if lock.nil? || lock.locked_by != @process_uuid
-
-          lock.update!(locked_by: nil, locked_at: nil)
+        result = Lock.release(split_key, @process_uuid)
+        case result
+        when :ok
+        when :deadlocked
+          logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
+          metrics.write_point_queue(status: "deadlocked")
+        when :lock_timeout
+          logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
+          metrics.write_point_queue(status: "lock_timeout")
+        when :not_taken_by_this_process
+          logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process) [#{@process_uuid}]"
+          metrics.write_point_queue(status: "not_taken_by_this_process")
+        else
+          raise "Unexpected result #{result}"
         end
-      rescue ActiveRecord::Deadlocked
-        logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
-      rescue ActiveRecord::LockWaitTimeout
-        logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
       end
 
       def prepare_traps

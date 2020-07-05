@@ -74,9 +74,9 @@ module RubyEventStore
         expect(redis.llen("queue:default")).to eq(1)
         payload_in_redis = JSON.parse(redis.lindex("queue:default", 0))
         expect(payload_in_redis).to include(payload.as_json)
-        expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(0).to_f)
+        expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(1).to_f)
         record.reload
-        expect(record.enqueued_at).to eq(clock.tick(0))
+        expect(record.enqueued_at).to eq(clock.tick(1))
         expect(result).to eq(true)
         expect(logger_output.string).to include("Sent 1 messages from outbox table")
       end
