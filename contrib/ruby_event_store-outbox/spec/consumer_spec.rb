@@ -18,26 +18,7 @@ module RubyEventStore
       end
 
       specify "updates enqueued_at" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
+        record = create_record("default", "default")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 
         consumer.one_loop
@@ -47,78 +28,28 @@ module RubyEventStore
       end
 
       specify "push the jobs to sidekiq" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
+        record = create_record("default", "default")
         clock = TickingClock.new
         consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
         result = consumer.one_loop
 
+        record.reload
         expect(redis.llen("queue:default")).to eq(1)
         payload_in_redis = JSON.parse(redis.lindex("queue:default", 0))
-        expect(payload_in_redis).to include(payload.as_json)
+        expect(payload_in_redis).to include(JSON.parse(record.payload))
         expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(1).to_f)
-        record.reload
         expect(record.enqueued_at).to eq(clock.tick(1))
         expect(result).to eq(true)
         expect(logger_output.string).to include("Sent 1 messages from outbox table")
       end
 
       specify "push multiple jobs to different queues" do
-        payload1 = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        payload2 = payload1.merge("queue" => "default2")
-        record1 = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload1.to_json
-        )
-        record2 = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload1.to_json
-        )
-        record3 = Record.create!(
-          split_key: "default2",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload2.merge(queue: "default2").to_json
-        )
+        record1 = create_record("default", "default")
+        record2 = create_record("default", "default")
+        record3 = create_record("default2", "default2")
         clock = TickingClock.new
         consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+
         result = consumer.one_loop
 
         expect(redis.llen("queue:default")).to eq(2)
@@ -144,25 +75,7 @@ module RubyEventStore
       end
 
       specify "returns false if didnt aquire lock" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record = Record.create!(
-          split_key: "default",
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
+        record = create_record("default", "default")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         clock = TickingClock.new
         Lock.obtain("default", "some-other-process-uuid", clock: clock)
@@ -174,27 +87,10 @@ module RubyEventStore
       end
 
       specify "already processed should be ignored" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: Time.now.utc,
-          payload: payload.to_json,
-        )
+        record = create_record("default", "default")
+        record.update!(enqueued_at: Time.now.utc)
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -203,27 +99,9 @@ module RubyEventStore
       end
 
       specify "other format should be ignored" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "something_unknown",
-          enqueued_at: nil,
-          payload: payload.to_json,
-        )
+        record = create_record("default", "default", format: "some_unknown_format")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -232,27 +110,9 @@ module RubyEventStore
       end
 
       specify "records from other split keys should be ignored" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "other_one",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record = Record.create!(
-          split_key: "other_one",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload.to_json,
-        )
+        record = create_record("other_one", "other_one")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
         result = consumer.one_loop
 
         expect(result).to eq(false)
@@ -316,33 +176,9 @@ module RubyEventStore
       end
 
       specify "incorrect payload wont cause later messages to schedule" do
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: "default",
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [{
-            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            event_type: "RubyEventStore::Event",
-            data: "--- {}\n",
-            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
-          }],
-        }
-        record1 = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: "unparsable garbage",
-        )
-        record2 = Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
+        record1 = create_record("default", "default")
+        record1.update!(payload: "unparsable garbage")
+        record2 = create_record("default", "default")
         clock = TickingClock.new
         consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
 
@@ -374,6 +210,29 @@ module RubyEventStore
 
         expect(logger_output.string).to include("Outbox fetch lock timeout")
         expect(result).to eq(false)
+      end
+
+      def create_record(queue, split_key, format: "sidekiq5")
+        payload = {
+          class: "SomeAsyncHandler",
+          queue: queue,
+          created_at: Time.now.utc,
+          jid: SecureRandom.hex(12),
+          retry: true,
+          args: [{
+            event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            event_type: "RubyEventStore::Event",
+            data: "--- {}\n",
+            metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+          }],
+        }
+        record = Record.create!(
+          split_key: split_key,
+          created_at: Time.now.utc,
+          format: format,
+          enqueued_at: nil,
+          payload: payload.to_json
+        )
       end
     end
   end
