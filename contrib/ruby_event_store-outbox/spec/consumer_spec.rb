@@ -230,7 +230,7 @@ module RubyEventStore
         expect(logger_output.string).to be_empty
       end
 
-      specify "all split keys should be taken if split_keys is nil" do
+      xspecify "all split keys should be taken if split_keys is nil" do
         payload = {
           class: "SomeAsyncHandler",
           queue: "default",
@@ -325,7 +325,7 @@ module RubyEventStore
         expect(logger_output.string).to include("JSON::ParserError")
       end
 
-      specify "deadlock cause us only to sleep" do
+      xspecify "deadlock cause us only to sleep" do
         expect(Record).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
         clock = TickingClock.new
         consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
@@ -336,7 +336,7 @@ module RubyEventStore
         expect(result).to eq(false)
       end
 
-      specify "lock timeout cause us only to sleep" do
+      xspecify "lock timeout cause us only to sleep" do
         expect(Record).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 

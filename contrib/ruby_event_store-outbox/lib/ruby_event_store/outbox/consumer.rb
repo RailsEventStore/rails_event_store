@@ -45,6 +45,7 @@ module RubyEventStore
         @logger = logger
         @metrics = metrics
         @batch_size = configuration.batch_size
+        @process_uuid = SecureRandom.uuid
         ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
         if ActiveRecord::Base.connection.adapter_name == "Mysql2"
           ActiveRecord::Base.connection.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;")
@@ -76,62 +77,104 @@ module RubyEventStore
       end
 
       def one_loop
-        Record.transaction do
-          records_scope = Record.lock.where(format: message_format, enqueued_at: nil)
-          records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
-          records = records_scope.order("id ASC").limit(batch_size).to_a
-          if records.empty?
-            metrics.write_point_queue(status: "ok")
-            return false
-          end
+        remaining_split_keys = @split_keys.dup
 
-          now = @clock.now.utc
-          failed_record_ids = []
-          parsed_records = []
-          records.each do |record|
-            begin
-              parsed_records << JSON.parse(record.payload).merge({
-                "enqueued_at" => now.to_f,
-              })
-            rescue => e
-              failed_record_ids << record.id
-              e.full_message.split($/).each {|line| logger.error(line) }
-            end
-          end
-          parsed_records.group_by do |parsed_record|
-            parsed_record["queue"]
-          end.each do |queue, records_for_queue|
-            if queue.nil?
-              failed.concat(records_for_queue.map(&:id))
-            else
-              begin
-                @redis.lpush("queue:#{queue}", records_for_queue.map {|r| JSON.generate(r) })
-              rescue => e
-                failed_record_ids.concat(records2.map(&:id))
-                e.full_message.split($/).each {|line| logger.error(line) }
-              end
-            end
-          end
-
-          updated_record_ids = records.map(&:id) - failed_record_ids
-          Record.where(id: updated_record_ids).update_all(enqueued_at: now)
-          metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
-
-          logger.info "Sent #{updated_record_ids.size} messages from outbox table"
-          true
+        was_something_changed = false
+        while (split_key = remaining_split_keys.shift)
+          was_something_changed |= handle_split(split_key)
         end
-      rescue ActiveRecord::Deadlocked
-        logger.warn "Outbox fetch deadlocked"
-        metrics.write_point_queue(status: "deadlocked")
-        false
-      rescue ActiveRecord::LockWaitTimeout
-        logger.warn "Outbox fetch lock timeout"
-        metrics.write_point_queue(status: "lock_timeout")
-        false
+        was_something_changed
+      end
+
+      def handle_split(split_key)
+        lock_obtained = obtain_lock_for_process(split_key)
+        return false unless lock_obtained
+
+        records = Record.where(format: message_format, enqueued_at: nil, split_key: split_key).order("id ASC").limit(batch_size).to_a
+        if records.empty?
+          metrics.write_point_queue(status: "ok")
+          release_lock_for_process(split_key)
+          return false
+        end
+
+        failed_record_ids = []
+        updated_record_ids = []
+        records.each do |record|
+          begin
+            now = @clock.now.utc
+            parsed_record = JSON.parse(record.payload)
+            queue = parsed_record["queue"]
+            if queue.nil? || queue.empty?
+              failed_record_ids << record.id
+              next
+            end
+            payload = JSON.generate(parsed_record.merge({
+              "enqueued_at" => now.to_f,
+            }))
+
+            @redis.lpush("queue:#{queue}", payload)
+
+            record.update_column(:enqueued_at, now)
+            updated_record_ids << record.id
+          rescue => e
+            failed_record_ids << record.id
+            e.full_message.split($/).each {|line| logger.error(line) }
+          end
+        end
+
+        metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
+
+        logger.info "Sent #{updated_record_ids.size} messages from outbox table"
+
+        release_lock_for_process(split_key)
+
+        true
       end
 
       private
       attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
+
+      def obtain_lock_for_process(split_key)
+        Lock.transaction do
+          lock = Lock.lock.find_by(split_key: split_key)
+          if lock.nil?
+            begin
+              lock = Lock.create!(split_key: split_key)
+            rescue ActiveRecord::RecordNotUnique
+            end
+            lock = Lock.lock.find_by(split_key: split_key)
+          end
+
+          return false unless lock.locked_by.nil?
+
+          lock.update!(
+            locked_by: @process_uuid,
+            locked_at: Time.now.utc,
+          )
+        end
+        true
+      rescue ActiveRecord::Deadlocked
+        logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
+        metrics.write_point_queue(status: "deadlocked")
+        false
+      rescue ActiveRecord::LockWaitTimeout
+        logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
+        metrics.write_point_queue(status: "lock_timeout")
+        false
+      end
+
+      def release_lock_for_process(split_key)
+        Lock.transaction do
+          lock = Lock.lock.find_by(split_key: split_key)
+          return if lock.nil? || lock.locked_by != @process_uuid
+
+          lock.update!(locked_by: nil, locked_at: nil)
+        end
+      rescue ActiveRecord::Deadlocked
+        logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
+      rescue ActiveRecord::LockWaitTimeout
+        logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
+      end
 
       def prepare_traps
         Signal.trap("INT") do

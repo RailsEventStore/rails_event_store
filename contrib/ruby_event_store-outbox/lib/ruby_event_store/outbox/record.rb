@@ -12,5 +12,10 @@ module RubyEventStore
         JSON.parse(payload).deep_symbolize_keys
       end
     end
+
+    class Lock < ::ActiveRecord::Base
+      self.primary_key = :split_key
+      self.table_name = 'event_store_outbox_locks'
+    end
   end
 end
