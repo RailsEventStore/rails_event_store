@@ -159,7 +159,7 @@ module RailsEventStore
 
         expect(matcher_.failure_message.to_s).to match(<<~EOS)
           expected [#{expected.inspect}] to be applied, diff:
-          @@ -1,2 +1,2 @@
+          @@ -1 +1 @@
           -[#{actual.inspect}]
           +[#{expected.inspect}]
         EOS
@@ -174,7 +174,7 @@ module RailsEventStore
 
         expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected [#{expected.inspect}] not to be applied, diff:
-          @@ -1,2 +1,2 @@
+          @@ -1 +1 @@
           -[#{actual.inspect}]
           +[#{expected.inspect}]
         EOS

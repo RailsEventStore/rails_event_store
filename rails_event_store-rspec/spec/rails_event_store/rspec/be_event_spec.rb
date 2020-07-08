@@ -76,7 +76,7 @@ expected: FooEvent with data: {:foo=>"bar"}
      got: FooEvent with data: {}
 
 Data diff:
-@@ -1,2 +1,2 @@
+@@ -1 +1 @@
 -{:foo=>"bar"}
 +{}
 })
@@ -106,7 +106,7 @@ expected: FooEvent with metadata: {:foo=>"bar"}
      got: FooEvent with metadata: {}
 
 Metadata diff:
-@@ -1,2 +1,2 @@
+@@ -1 +1 @@
 -{:foo=>"bar"}
 +{}
 })
@@ -120,12 +120,12 @@ expected: FooEvent with metadata: {:bar=>"baz"} data: {:foo=>"bar"}
      got: FooEvent with metadata: {} data: {}
 
 Metadata diff:
-@@ -1,2 +1,2 @@
+@@ -1 +1 @@
 -{:bar=>"baz"}
 +{}
 
 Data diff:
-@@ -1,2 +1,2 @@
+@@ -1 +1 @@
 -{:foo=>"bar"}
 +{}
 })
@@ -139,12 +139,12 @@ expected: FooEvent with metadata: {:bar=>"baz"} data: {:foo=>"bar"}
      got: FooEvent with metadata: {:baz=>"foo"} data: {:bar=>"baz"}
 
 Metadata diff:
-@@ -1,2 +1,2 @@
+@@ -1 +1 @@
 -{:bar=>"baz"}
 +{:baz=>"foo"}
 
 Data diff:
-@@ -1,2 +1,2 @@
+@@ -1 +1 @@
 -{:foo=>"bar"}
 +{:bar=>"baz"}
 })
