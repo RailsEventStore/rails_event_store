@@ -277,6 +277,38 @@ module RubyEventStore
         expect(lock.locked_at).to be_nil
       end
 
+      specify "lock disappearing in the meantime, doesnt do anything" do
+        record = create_record("default", "default")
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+        allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
+          Lock.delete_all
+          m.call(*args)
+        end
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to match(/Releasing lock .* failed \(not taken by this process\)/)
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+      end
+
+      specify "lock stolen in the meantime, doesnt do anything" do
+        record = create_record("default", "default")
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+        allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
+          Lock.update_all(locked_by: SecureRandom.uuid)
+          m.call(*args)
+        end
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to match(/Releasing lock .* failed \(not taken by this process\)/)
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",
