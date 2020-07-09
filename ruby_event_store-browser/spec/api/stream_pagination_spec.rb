@@ -157,9 +157,8 @@ module RubyEventStore
       expect(test_client.parsed_body["data"].size).to eq(0)
     end
 
-    let(:app) { JsonApiLint.new(app_builder(event_store)) }
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { TestClient.with_linter(app_builder(event_store)) }
+    let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store)) }
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(
