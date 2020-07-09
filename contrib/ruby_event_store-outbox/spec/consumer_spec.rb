@@ -227,14 +227,42 @@ module RubyEventStore
         expect(redis.llen("queue:default")).to eq(0)
       end
 
-      xspecify "lock timeout cause us only to sleep" do
-        expect(Record).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
-        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+      specify "deadlock when releasing lock doesnt do anything" do
+        record = create_record("default", "default")
+        allow(Lock).to receive(:lock).and_wrap_original do |m, *args|
+          if caller.any? {|l| l.include? "`release'"}
+            raise ActiveRecord::Deadlocked
+          else
+            m.call(*args)
+          end
+        end
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to include("Outbox fetch lock timeout")
-        expect(result).to eq(false)
+        expect(logger_output.string).to match(/Releasing lock .* failed \(deadlock\)/)
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+      end
+
+      specify "lock timeout when releasing lock doesnt do anything" do
+        record = create_record("default", "default")
+        allow(Lock).to receive(:lock).and_wrap_original do |m, *args|
+          if caller.any? {|l| l.include? "`release'"}
+            raise ActiveRecord::LockWaitTimeout
+          else
+            m.call(*args)
+          end
+        end
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        expect(logger_output.string).to match(/Releasing lock .* failed \(lock timeout\)/)
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
       end
 
       def create_record(queue, split_key, format: "sidekiq5")

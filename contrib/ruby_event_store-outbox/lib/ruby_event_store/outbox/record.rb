@@ -43,11 +43,11 @@ module RubyEventStore
       end
 
       def self.release(split_key, process_uuid)
-        Lock.transaction do
-          lock = Lock.lock.find_by(split_key: split_key)
-          return :not_taken_by_this_process if lock.nil? || lock.locked_by != process_uuid
+        transaction do
+          l = lock.find_by(split_key: split_key)
+          return :not_taken_by_this_process if l.nil? || l.locked_by != process_uuid
 
-          lock.update!(locked_by: nil, locked_at: nil)
+          l.update!(locked_by: nil, locked_at: nil)
         end
         :ok
       rescue ActiveRecord::Deadlocked
