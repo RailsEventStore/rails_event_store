@@ -37,9 +37,9 @@ module RubyEventStore
         end
         :ok
       rescue ActiveRecord::Deadlocked
-        return :deadlocked
+        :deadlocked
       rescue ActiveRecord::LockWaitTimeout
-        return :lock_timeout
+        :lock_timeout
       end
 
       def self.release(split_key, process_uuid)
@@ -51,9 +51,9 @@ module RubyEventStore
         end
         :ok
       rescue ActiveRecord::Deadlocked
-        return :deadlocked
+        :deadlocked
       rescue ActiveRecord::LockWaitTimeout
-        return :lock_timeout
+        :lock_timeout
       end
     end
   end
