@@ -265,6 +265,18 @@ module RubyEventStore
         expect(redis.llen("queue:default")).to eq(1)
       end
 
+      specify "after successful loop, lock is released" do
+        record = create_record("default", "default")
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        lock = Lock.find_by!(split_key: "default")
+        expect(lock.locked_by).to be_nil
+        expect(lock.locked_at).to be_nil
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",
