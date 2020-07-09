@@ -1,5 +1,4 @@
 require "rack/test"
-require_relative "json_api_lint"
 
 class TestClient
   include Rack::Test::Methods
@@ -7,10 +6,6 @@ class TestClient
   def initialize(app, host = 'example.org')
     @app  = app
     @host = host
-  end
-
-  def self.with_linter(app)
-    self.new(JsonApiLint.new(app))
   end
 
   def get(*)

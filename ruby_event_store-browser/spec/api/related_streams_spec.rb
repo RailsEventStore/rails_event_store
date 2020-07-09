@@ -8,7 +8,7 @@ module RubyEventStore
         related_streams_query: ->(stream_name) { stream_name == "dummy" ? ["even-dummier"] : [] },
         host: 'http://www.example.com'
       )
-      test_client = TestClient.with_linter(app)
+      test_client = TestClientWithJsonApiLinter.new(app)
 
       test_client.get "/streams/all"
       expect(test_client.last_response).to be_ok
@@ -24,7 +24,7 @@ module RubyEventStore
         event_store_locator: -> { event_store },
         host: 'http://www.example.com'
       )
-      test_client = TestClient.with_linter(app)
+      test_client = TestClientWithJsonApiLinter.new(app)
 
       test_client.get "/streams/all"
       expect(test_client.last_response).to be_ok
