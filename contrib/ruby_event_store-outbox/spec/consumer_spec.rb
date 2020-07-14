@@ -309,6 +309,18 @@ module RubyEventStore
         expect(redis.llen("queue:default")).to eq(1)
       end
 
+      specify "old lock can be reobtained" do
+        Lock.obtain("default", "some-old-uuid", clock: TickingClock.new(start: 10.minutes.ago))
+        record = create_record("default", "default")
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+        expect(record.reload.enqueued_at).to be_present
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",

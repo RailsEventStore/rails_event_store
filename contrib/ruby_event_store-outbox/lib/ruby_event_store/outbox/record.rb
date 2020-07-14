@@ -28,7 +28,7 @@ module RubyEventStore
             l = lock.find_by(split_key: split_key)
           end
 
-          return :taken unless l.locked_by.nil?
+          return :taken if l.locked_by.present? && l.locked_at > 10.minutes.ago
 
           l.update!(
             locked_by: process_uuid,
