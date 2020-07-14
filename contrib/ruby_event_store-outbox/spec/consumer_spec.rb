@@ -321,6 +321,22 @@ module RubyEventStore
         expect(record.reload.enqueued_at).to be_present
       end
 
+      specify "when inserting lock, other process may do same concurrently" do
+        record = create_record("default", "default")
+        clock = TickingClock.new
+        consumer = Consumer.new(default_configuration, clock: clock, logger: logger, metrics: metrics)
+        allow(Lock).to receive(:create!).and_wrap_original do |m, *args|
+          m.call(*args) # To simulate someone inserting a record just before us
+          m.call(*args)
+        end
+
+        result = consumer.one_loop
+
+        expect(result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+        expect(record.reload.enqueued_at).to be_present
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",

@@ -24,8 +24,8 @@ module RubyEventStore
             begin
               l = create!(split_key: split_key)
             rescue ActiveRecord::RecordNotUnique
+              l = lock.find_by(split_key: split_key)
             end
-            l = lock.find_by(split_key: split_key)
           end
 
           return :taken if l.locked_by.present? && l.locked_at > 10.minutes.ago
