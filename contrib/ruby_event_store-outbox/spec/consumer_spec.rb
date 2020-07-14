@@ -337,6 +337,18 @@ module RubyEventStore
         expect(record.reload.enqueued_at).to be_present
       end
 
+      specify "more than one loop works" do
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+        consumer.one_loop
+        record = create_record("default", "default")
+
+        second_loop_result = consumer.one_loop
+
+        expect(second_loop_result).to eq(true)
+        expect(redis.llen("queue:default")).to eq(1)
+        expect(record.reload.enqueued_at).to be_present
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",

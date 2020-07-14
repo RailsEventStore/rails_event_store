@@ -28,7 +28,7 @@ module RubyEventStore
             end
           end
 
-          return :taken if l.locked_by.present? && l.locked_at > 10.minutes.ago
+          return :taken if l.locked_by && l.locked_at > 10.minutes.ago
 
           l.update!(
             locked_by: process_uuid,
