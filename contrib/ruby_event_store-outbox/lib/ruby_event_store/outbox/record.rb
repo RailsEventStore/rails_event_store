@@ -32,7 +32,7 @@ module RubyEventStore
 
           l.update!(
             locked_by: process_uuid,
-            locked_at: clock.now.utc,
+            locked_at: clock.now,
           )
         end
         :ok
@@ -45,7 +45,7 @@ module RubyEventStore
       def self.release(split_key, process_uuid)
         transaction do
           l = lock.find_by(split_key: split_key)
-          return :not_taken_by_this_process if l.nil? || l.locked_by != process_uuid
+          return :not_taken_by_this_process if l.nil? || !l.locked_by.eql?(process_uuid)
 
           l.update!(locked_by: nil, locked_at: nil)
         end
