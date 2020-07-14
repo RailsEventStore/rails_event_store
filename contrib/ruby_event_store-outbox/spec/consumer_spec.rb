@@ -321,6 +321,16 @@ module RubyEventStore
         expect(record.reload.enqueued_at).to be_present
       end
 
+      specify "relatively fresh locks are not reobtained" do
+        Lock.obtain("default", "some-old-uuid", clock: TickingClock.new(start: 9.minutes.ago))
+        create_record("default", "default")
+        consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
+        result = consumer.one_loop
+
+        expect(result).to eq(false)
+      end
+
       specify "when inserting lock, other process may do same concurrently" do
         record = create_record("default", "default")
         clock = TickingClock.new
