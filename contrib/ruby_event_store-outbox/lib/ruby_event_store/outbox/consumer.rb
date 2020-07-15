@@ -49,7 +49,6 @@ module RubyEventStore
         @consumer_uuid = consumer_uuid
         ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
         if ActiveRecord::Base.connection.adapter_name == "Mysql2"
-          ActiveRecord::Base.connection.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;")
           ActiveRecord::Base.connection.execute("SET SESSION innodb_lock_wait_timeout = 1;")
         end
 
