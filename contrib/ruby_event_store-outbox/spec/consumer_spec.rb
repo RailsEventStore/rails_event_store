@@ -371,6 +371,25 @@ module RubyEventStore
         expect(record.reload.enqueued_at).to be_nil
       end
 
+      specify "death of a consumer shouldnt prevent other processes from processing" do
+        consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        expect(Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
+        expect(Record).to receive(:where).and_call_original.ordered.twice
+        expect do
+          consumer_1.one_loop
+        end.to raise_error(/Unexpected error/)
+
+        record1 = create_record("default", "default")
+        record2 = create_record("default2", "default2")
+        consumer_2 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+
+        result = consumer_2.one_loop
+
+        # We don't expect both records to be processed (because one of the Locks may be obtained by crashed process, but we expect to do SOME work in ANY splits.
+        expect(result).to eq(true)
+        expect(Record.where("enqueued_at is not null").count).to be_positive
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",
