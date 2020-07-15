@@ -78,7 +78,7 @@ module RubyEventStore
         record = create_record("default", "default")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
         clock = TickingClock.new
-        Lock.obtain("default", "some-other-process-uuid", clock: clock)
+        Lock.obtain(SIDEKIQ5_FORMAT, "default", "some-other-process-uuid", clock: clock)
 
         result = consumer.one_loop
 
@@ -217,7 +217,7 @@ module RubyEventStore
 
       specify "obtaining taken lock just skip that attempt" do
         clock = TickingClock.new
-        Lock.obtain("default", "other-process-uuid", clock: clock)
+        Lock.obtain(SIDEKIQ5_FORMAT, "default", "other-process-uuid", clock: clock)
         consumer = Consumer.new(default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
 
         result = consumer.one_loop
@@ -310,7 +310,7 @@ module RubyEventStore
       end
 
       specify "old lock can be reobtained" do
-        Lock.obtain("default", "some-old-uuid", clock: TickingClock.new(start: 10.minutes.ago))
+        Lock.obtain(SIDEKIQ5_FORMAT, "default", "some-old-uuid", clock: TickingClock.new(start: 10.minutes.ago))
         record = create_record("default", "default")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 
@@ -322,7 +322,7 @@ module RubyEventStore
       end
 
       specify "relatively fresh locks are not reobtained" do
-        Lock.obtain("default", "some-old-uuid", clock: TickingClock.new(start: 9.minutes.ago))
+        Lock.obtain(SIDEKIQ5_FORMAT, "default", "some-old-uuid", clock: TickingClock.new(start: 9.minutes.ago))
         create_record("default", "default")
         consumer = Consumer.new(default_configuration, logger: logger, metrics: metrics)
 

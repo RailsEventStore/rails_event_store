@@ -17,10 +17,10 @@ module RubyEventStore
       self.primary_key = :split_key
       self.table_name = 'event_store_outbox_locks'
 
-      def self.obtain(split_key, process_uuid, clock:)
+      def self.obtain(message_format, split_key, process_uuid, clock:)
         l = nil
         transaction do
-          l = get_lock_record(split_key)
+          l = get_lock_record(message_format, split_key)
 
           return :taken if l.recently_locked?
 
@@ -36,9 +36,9 @@ module RubyEventStore
         :lock_timeout
       end
 
-      def self.release(split_key, process_uuid)
+      def self.release(message_format, split_key, process_uuid)
         transaction do
-          l = get_lock_record(split_key)
+          l = get_lock_record(message_format, split_key)
           return :not_taken_by_this_process if !l.locked_by?(process_uuid)
 
           l.update!(locked_by: nil, locked_at: nil)
@@ -59,17 +59,17 @@ module RubyEventStore
       end
 
       private
-      def self.lock_for_split_key(split_key)
-        lock.find_by(split_key: split_key)
+      def self.lock_for_split_key(message_format, split_key)
+        lock.find_by(format: message_format, split_key: split_key)
       end
 
-      def self.get_lock_record(split_key)
-        l = lock_for_split_key(split_key)
+      def self.get_lock_record(message_format, split_key)
+        l = lock_for_split_key(message_format, split_key)
         if l.nil?
           begin
-            l = create!(split_key: split_key)
+            l = create!(format: message_format, split_key: split_key)
           rescue ActiveRecord::RecordNotUnique
-            l = lock_for_split_key(split_key)
+            l = lock_for_split_key(message_format, split_key)
           end
         end
         l

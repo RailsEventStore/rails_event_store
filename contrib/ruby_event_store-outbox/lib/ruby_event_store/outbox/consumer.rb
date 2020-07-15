@@ -87,13 +87,13 @@ module RubyEventStore
       end
 
       def handle_split(split_key)
-        obtained_lock = obtain_lock_for_process(split_key)
+        obtained_lock = obtain_lock_for_process(message_format, split_key)
         return false unless obtained_lock
 
-        records = Record.where(format: message_format, enqueued_at: nil, split_key: obtained_lock.split_key).order("id ASC").limit(batch_size).to_a
+        records = Record.where(format: obtained_lock.format, enqueued_at: nil, split_key: obtained_lock.split_key).order("id ASC").limit(batch_size).to_a
         if records.empty?
           metrics.write_point_queue(status: "ok")
-          release_lock_for_process(obtained_lock.split_key)
+          release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
           return false
         end
 
@@ -126,7 +126,7 @@ module RubyEventStore
 
         logger.info "Sent #{updated_record_ids.size} messages from outbox table"
 
-        release_lock_for_process(obtained_lock.split_key)
+        release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
 
         true
       end
@@ -134,8 +134,8 @@ module RubyEventStore
       private
       attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
 
-      def obtain_lock_for_process(split_key)
-        result = Lock.obtain(split_key, @process_uuid, clock: @clock)
+      def obtain_lock_for_process(message_format, split_key)
+        result = Lock.obtain(message_format, split_key, @process_uuid, clock: @clock)
         case result
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
@@ -154,8 +154,8 @@ module RubyEventStore
         end
       end
 
-      def release_lock_for_process(split_key)
-        result = Lock.release(split_key, @process_uuid)
+      def release_lock_for_process(message_format, split_key)
+        result = Lock.release(message_format, split_key, @process_uuid)
         case result
         when :ok
         when :deadlocked
