@@ -19,12 +19,12 @@ module RubyEventStore
 
       def self.obtain(split_key, process_uuid, clock:)
         transaction do
-          l = lock.find_by(split_key: split_key)
+          l = lock_for_split_key(split_key)
           if l.nil?
             begin
               l = create!(split_key: split_key)
             rescue ActiveRecord::RecordNotUnique
-              l = lock.find_by(split_key: split_key)
+              l = lock_for_split_key(split_key)
             end
           end
 
@@ -44,7 +44,7 @@ module RubyEventStore
 
       def self.release(split_key, process_uuid)
         transaction do
-          l = lock.find_by(split_key: split_key)
+          l = lock_for_split_key(split_key)
           return :not_taken_by_this_process if l.nil? || !l.locked_by.eql?(process_uuid)
 
           l.update!(locked_by: nil, locked_at: nil)
@@ -54,6 +54,11 @@ module RubyEventStore
         :deadlocked
       rescue ActiveRecord::LockWaitTimeout
         :lock_timeout
+      end
+
+      private
+      def self.lock_for_split_key(split_key)
+        lock.find_by(split_key: split_key)
       end
     end
   end
