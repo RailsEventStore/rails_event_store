@@ -123,10 +123,10 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor
+      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid
 
       def obtain_lock_for_process(split_key)
-        result = Lock.obtain(processor.message_format, split_key, @consumer_uuid, clock: @clock)
+        result = Lock.obtain(processor.message_format, split_key, consumer_uuid, clock: @clock)
         case result
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock)"
@@ -146,7 +146,7 @@ module RubyEventStore
       end
 
       def release_lock_for_process(message_format, split_key)
-        result = Lock.release(message_format, split_key, @consumer_uuid)
+        result = Lock.release(message_format, split_key, consumer_uuid)
         case result
         when :ok
         when :deadlocked
