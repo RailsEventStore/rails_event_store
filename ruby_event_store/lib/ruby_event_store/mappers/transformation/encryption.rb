@@ -82,14 +82,14 @@ module RubyEventStore
 
         def encrypt_data(data, meta)
           meta.reduce(data) do |acc, (key, value)|
-            acc[key] = encrypt_attribute(acc, key, value)
+            acc[key] = encrypt_attribute(acc, key, value) if data.has_key?(key)
             acc
           end
         end
 
         def decrypt_data(data, meta)
           meta.reduce(data) do |acc, (key, value)|
-            acc[key] = decrypt_attribute(data, key, value)
+            acc[key] = decrypt_attribute(data, key, value) if data.has_key?(key)
             acc
           end
         end
