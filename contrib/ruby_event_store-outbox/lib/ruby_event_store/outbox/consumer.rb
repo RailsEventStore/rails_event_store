@@ -3,6 +3,7 @@ require "redis"
 require "active_record"
 require "ruby_event_store/outbox/record"
 require "ruby_event_store/outbox/sidekiq5_format"
+require "ruby_event_store/outbox/sidekiq_processor"
 
 module RubyEventStore
   module Outbox
@@ -54,6 +55,7 @@ module RubyEventStore
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @message_format = SIDEKIQ5_FORMAT
+        @processor = SidekiqProcessor.new(@redis)
 
         @gracefully_shutting_down = false
         prepare_traps
@@ -102,17 +104,7 @@ module RubyEventStore
         records.each do |record|
           begin
             now = @clock.now.utc
-            parsed_record = JSON.parse(record.payload)
-            queue = parsed_record["queue"]
-            if queue.nil? || queue.empty?
-              failed_record_ids << record.id
-              next
-            end
-            payload = JSON.generate(parsed_record.merge({
-              "enqueued_at" => now.to_f,
-            }))
-
-            @redis.lpush("queue:#{queue}", payload)
+            processor.process(record, now)
 
             record.update_column(:enqueued_at, now)
             updated_record_ids << record.id
@@ -132,7 +124,7 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
+      attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics, :processor
 
       def obtain_lock_for_process(message_format, split_key)
         result = Lock.obtain(message_format, split_key, @consumer_uuid, clock: @clock)
