@@ -9,6 +9,7 @@ module RubyEventStore
 
       def initialize(redis)
         @redis = redis
+        @recently_used_queues = Set.new
       end
 
       def process(record, now)
@@ -21,6 +22,15 @@ module RubyEventStore
         }))
 
         redis.lpush("queue:#{queue}", payload)
+
+        @recently_used_queues << queue
+      end
+
+      def after_batch
+        if !@recently_used_queues.empty?
+          redis.sadd("queues", @recently_used_queues.to_a)
+          @recently_used_queues.clear
+        end
       end
 
       def message_format

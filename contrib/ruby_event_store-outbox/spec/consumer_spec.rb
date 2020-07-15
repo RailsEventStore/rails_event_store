@@ -56,13 +56,22 @@ module RubyEventStore
         expect(redis.llen("queue:default2")).to eq(1)
       end
 
-      specify "initiating consumer ensures that queues exist" do
+      specify "sidekiq processor ensures that used queues do exist" do
+        create_record("queue", "default")
+        create_record("queue2", "default2")
+        create_record("other_queue", "other_split")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
 
-        consumer.init
+        consumer.one_loop
 
         expect(redis.scard("queues")).to eq(2)
-        expect(redis.smembers("queues")).to match_array(["default", "default2"])
+        expect(redis.smembers("queues")).to match_array(["queue", "queue2"])
+      end
+
+      specify "init logs" do
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer.init
+
         expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
       end
 

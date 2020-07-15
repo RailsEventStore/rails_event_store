@@ -60,7 +60,6 @@ module RubyEventStore
       end
 
       def init
-        @redis.sadd("queues", split_keys)
         logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
         logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
       end
@@ -117,6 +116,8 @@ module RubyEventStore
         logger.info "Sent #{updated_record_ids.size} messages from outbox table"
 
         release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
+
+        processor.after_batch
 
         true
       end
