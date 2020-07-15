@@ -138,15 +138,15 @@ module RubyEventStore
         result = Lock.obtain(message_format, split_key, @consumer_uuid, clock: @clock)
         case result
         when :deadlocked
-          logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@consumer_uuid}]"
+          logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock)"
           metrics.write_point_queue(status: "deadlocked")
           return false
         when :lock_timeout
-          logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout) [#{@consumer_uuid}]"
+          logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout)"
           metrics.write_point_queue(status: "lock_timeout")
           return false
         when :taken
-          logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken) [#{@consumer_uuid}]"
+          logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken)"
           metrics.write_point_queue(status: "taken")
           return false
         else
@@ -159,13 +159,13 @@ module RubyEventStore
         case result
         when :ok
         when :deadlocked
-          logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock) [#{@consumer_uuid}]"
+          logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock)"
           metrics.write_point_queue(status: "deadlocked")
         when :lock_timeout
-          logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout) [#{@consumer_uuid}]"
+          logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout)"
           metrics.write_point_queue(status: "lock_timeout")
         when :not_taken_by_this_process
-          logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process) [#{@consumer_uuid}]"
+          logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process)"
           metrics.write_point_queue(status: "not_taken_by_this_process")
         else
           raise "Unexpected result #{result}"
