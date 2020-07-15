@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ruby_event_store/outbox/sidekiq5_format"
+
 module RubyEventStore
   module Outbox
     class SidekiqProcessor
@@ -19,6 +21,10 @@ module RubyEventStore
         }))
 
         redis.lpush("queue:#{queue}", payload)
+      end
+
+      def message_format
+        SIDEKIQ5_FORMAT
       end
 
       private

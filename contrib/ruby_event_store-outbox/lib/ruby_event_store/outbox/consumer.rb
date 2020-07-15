@@ -54,7 +54,6 @@ module RubyEventStore
         end
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
-        @message_format = SIDEKIQ5_FORMAT
         @processor = SidekiqProcessor.new(@redis)
 
         @gracefully_shutting_down = false
@@ -89,7 +88,7 @@ module RubyEventStore
       end
 
       def handle_split(split_key)
-        obtained_lock = obtain_lock_for_process(message_format, split_key)
+        obtained_lock = obtain_lock_for_process(split_key)
         return false unless obtained_lock
 
         records = Record.where(format: obtained_lock.format, enqueued_at: nil, split_key: obtained_lock.split_key).order("id ASC").limit(batch_size).to_a
@@ -124,10 +123,10 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics, :processor
+      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor
 
-      def obtain_lock_for_process(message_format, split_key)
-        result = Lock.obtain(message_format, split_key, @consumer_uuid, clock: @clock)
+      def obtain_lock_for_process(split_key)
+        result = Lock.obtain(processor.message_format, split_key, @consumer_uuid, clock: @clock)
         case result
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock)"
