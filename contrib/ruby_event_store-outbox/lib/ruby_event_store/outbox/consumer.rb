@@ -38,14 +38,14 @@ module RubyEventStore
         attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url
       end
 
-      def initialize(configuration, clock: Time, logger:, metrics:)
+      def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
         @split_keys = configuration.split_keys
         @clock = clock
         @redis = Redis.new(url: configuration.redis_url)
         @logger = logger
         @metrics = metrics
         @batch_size = configuration.batch_size
-        @process_uuid = SecureRandom.uuid
+        @consumer_uuid = consumer_uuid
         ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
         if ActiveRecord::Base.connection.adapter_name == "Mysql2"
           ActiveRecord::Base.connection.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;")
@@ -135,18 +135,18 @@ module RubyEventStore
       attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
 
       def obtain_lock_for_process(message_format, split_key)
-        result = Lock.obtain(message_format, split_key, @process_uuid, clock: @clock)
+        result = Lock.obtain(message_format, split_key, @consumer_uuid, clock: @clock)
         case result
         when :deadlocked
-          logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
+          logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@consumer_uuid}]"
           metrics.write_point_queue(status: "deadlocked")
           return false
         when :lock_timeout
-          logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
+          logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout) [#{@consumer_uuid}]"
           metrics.write_point_queue(status: "lock_timeout")
           return false
         when :taken
-          logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken) [#{@process_uuid}]"
+          logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken) [#{@consumer_uuid}]"
           metrics.write_point_queue(status: "taken")
           return false
         else
@@ -155,17 +155,17 @@ module RubyEventStore
       end
 
       def release_lock_for_process(message_format, split_key)
-        result = Lock.release(message_format, split_key, @process_uuid)
+        result = Lock.release(message_format, split_key, @consumer_uuid)
         case result
         when :ok
         when :deadlocked
-          logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
+          logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock) [#{@consumer_uuid}]"
           metrics.write_point_queue(status: "deadlocked")
         when :lock_timeout
-          logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout) [#{@process_uuid}]"
+          logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout) [#{@consumer_uuid}]"
           metrics.write_point_queue(status: "lock_timeout")
         when :not_taken_by_this_process
-          logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process) [#{@process_uuid}]"
+          logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process) [#{@consumer_uuid}]"
           metrics.write_point_queue(status: "not_taken_by_this_process")
         else
           raise "Unexpected result #{result}"
