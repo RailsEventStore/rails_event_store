@@ -87,13 +87,13 @@ module RubyEventStore
       end
 
       def handle_split(split_key)
-        lock_obtained = obtain_lock_for_process(split_key)
-        return false unless lock_obtained
+        obtained_lock = obtain_lock_for_process(split_key)
+        return false unless obtained_lock
 
-        records = Record.where(format: message_format, enqueued_at: nil, split_key: split_key).order("id ASC").limit(batch_size).to_a
+        records = Record.where(format: message_format, enqueued_at: nil, split_key: obtained_lock.split_key).order("id ASC").limit(batch_size).to_a
         if records.empty?
           metrics.write_point_queue(status: "ok")
-          release_lock_for_process(split_key)
+          release_lock_for_process(obtained_lock.split_key)
           return false
         end
 
@@ -126,7 +126,7 @@ module RubyEventStore
 
         logger.info "Sent #{updated_record_ids.size} messages from outbox table"
 
-        release_lock_for_process(split_key)
+        release_lock_for_process(obtained_lock.split_key)
 
         true
       end
@@ -137,8 +137,6 @@ module RubyEventStore
       def obtain_lock_for_process(split_key)
         result = Lock.obtain(split_key, @process_uuid, clock: @clock)
         case result
-        when :ok
-          return true
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock) [#{@process_uuid}]"
           metrics.write_point_queue(status: "deadlocked")
@@ -152,7 +150,7 @@ module RubyEventStore
           metrics.write_point_queue(status: "taken")
           return false
         else
-          raise "Unexpected result #{result}"
+          return result
         end
       end
 

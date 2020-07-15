@@ -18,6 +18,7 @@ module RubyEventStore
       self.table_name = 'event_store_outbox_locks'
 
       def self.obtain(split_key, process_uuid, clock:)
+        l = nil
         transaction do
           l = get_lock_record(split_key)
 
@@ -28,7 +29,7 @@ module RubyEventStore
             locked_at: clock.now,
           )
         end
-        :ok
+        l
       rescue ActiveRecord::Deadlocked
         :deadlocked
       rescue ActiveRecord::LockWaitTimeout

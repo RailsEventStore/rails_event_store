@@ -359,6 +359,18 @@ module RubyEventStore
         expect(record.reload.enqueued_at).to be_present
       end
 
+      specify "split keys are respected" do
+        consumer_with_other = Consumer.new(default_configuration.with(split_keys: ["other"]), logger: logger, metrics: metrics)
+        consumer_with_other.one_loop
+        record = create_record("other", "other")
+        consumer_without_other = Consumer.new(default_configuration, logger: logger, metrics: metrics)
+
+        result = consumer_without_other.one_loop
+
+        expect(result).to eq(false)
+        expect(record.reload.enqueued_at).to be_nil
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",
