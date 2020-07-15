@@ -88,8 +88,8 @@ module RubyEventStore
         obtained_lock = obtain_lock_for_process(split_key)
         return false unless obtained_lock
 
-        records = Record.where(format: obtained_lock.format, enqueued_at: nil, split_key: obtained_lock.split_key).order("id ASC").limit(batch_size).to_a
-        if records.empty?
+        batch = retrieve_batch(obtained_lock.format, obtained_lock.split_key)
+        if batch.empty?
           metrics.write_point_queue(status: "ok")
           release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
           return false
@@ -97,7 +97,7 @@ module RubyEventStore
 
         failed_record_ids = []
         updated_record_ids = []
-        records.each do |record|
+        batch.each do |record|
           begin
             now = @clock.now.utc
             processor.process(record, now)
@@ -173,6 +173,11 @@ module RubyEventStore
 
       def initiate_graceful_shutdown
         @gracefully_shutting_down = true
+      end
+
+      def retrieve_batch(message_format, split_key)
+        records = Record.where(format: message_format, enqueued_at: nil, split_key: split_key).order("id ASC").limit(batch_size).to_a
+        records
       end
     end
   end
