@@ -21,7 +21,7 @@ module RubyEventStore
         transaction do
           l = get_lock_record(split_key)
 
-          return :taken if l.locked_by && l.locked_at > 10.minutes.ago
+          return :taken if l.recently_locked?
 
           l.update!(
             locked_by: process_uuid,
@@ -51,6 +51,10 @@ module RubyEventStore
 
       def locked_by?(process_uuid)
         locked_by.eql?(process_uuid)
+      end
+
+      def recently_locked?
+        locked_by && locked_at > 10.minutes.ago
       end
 
       private
