@@ -42,7 +42,6 @@ module RubyEventStore
       def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
         @split_keys = configuration.split_keys
         @clock = clock
-        @redis = Redis.new(url: configuration.redis_url)
         @logger = logger
         @metrics = metrics
         @batch_size = configuration.batch_size
@@ -53,7 +52,7 @@ module RubyEventStore
         end
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
-        @processor = SidekiqProcessor.new(@redis)
+        @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
         @gracefully_shutting_down = false
         prepare_traps
