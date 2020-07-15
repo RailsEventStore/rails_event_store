@@ -38,7 +38,7 @@ module RubyEventStore
       def self.release(split_key, process_uuid)
         transaction do
           l = get_lock_record(split_key)
-          return :not_taken_by_this_process if !l.locked_by.eql?(process_uuid)
+          return :not_taken_by_this_process if !l.locked_by?(process_uuid)
 
           l.update!(locked_by: nil, locked_at: nil)
         end
@@ -47,6 +47,10 @@ module RubyEventStore
         :deadlocked
       rescue ActiveRecord::LockWaitTimeout
         :lock_timeout
+      end
+
+      def locked_by?(process_uuid)
+        locked_by.eql?(process_uuid)
       end
 
       private
