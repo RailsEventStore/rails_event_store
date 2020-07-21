@@ -268,6 +268,14 @@ module RubyEventStore
           .init( -> { { total: 0 } })
           .when(MoneyLost, ->(state, event) { state[:total] -= event.data[:amount] })
           .run(event_store)
+      expect(balance).to eq(total: 0)
+
+      balance =
+        Projection
+          .from_all_streams
+          .init( -> { { total: 0 } })
+          .when([MoneyLost, MoneyInvested], ->(state, event) { state[:total] -= event.data[:amount] })
+          .run(event_store)
       expect(balance).to eq(total: -1)
     end
   end
