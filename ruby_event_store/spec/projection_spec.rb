@@ -44,6 +44,9 @@ module RubyEventStore
 
     specify "raises proper errors when wrong argument were passed (stream mode)" do
       projection = Projection.from_stream("Customer$1", "Customer$2")
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
       expect {
         projection.run(event_store, start: :last)
       }.to raise_error ArgumentError, 'Start must be an array with event ids'
@@ -72,6 +75,9 @@ module RubyEventStore
 
     specify "raises proper errors when wrong argument were pass (all streams mode)" do
       projection = Projection.from_all_streams
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
       expect {
         projection.run(event_store, start: :last)
       }.to raise_error ArgumentError, 'Start must be valid event id'
@@ -240,18 +246,45 @@ module RubyEventStore
 
     specify do
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected      = specification.in_batches(2).of_type([]).result
+      expected      = specification.in_batches(2).of_type([MoneyDeposited, MoneyWithdrawn]).result
       expect(repository).to receive(:read).with(expected).and_return([])
 
-      Projection.from_all_streams.run(event_store, count: 2)
+      Projection.from_all_streams
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store, count: 2)
     end
 
     specify do
       specification = Specification.new(SpecificationReader.new(repository, mapper))
-      expected      = specification.in_batches(2).of_type([]).stream("FancyStream").result
+      expected      = specification.in_batches(2).of_type([MoneyDeposited, MoneyWithdrawn]).stream("FancyStream").result
       expect(repository).to receive(:read).with(expected).and_return([])
 
-      Projection.from_stream("FancyStream").run(event_store, count: 2)
+      Projection.from_stream("FancyStream")
+        .init( -> { { total: 0 } })
+        .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+        .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+        .run(event_store, count: 2)
+    end
+
+    specify do
+      expect(repository).not_to receive(:read)
+
+      state = Projection.from_all_streams
+        .init( -> { { total: 0 } })
+        .run(event_store, count: 2)
+
+      expect(state).to eq({ total: 0 })
+    end
+
+    specify do
+      expect(repository).not_to receive(:read)
+
+      state = Projection.from_all_streams
+        .run(event_store)
+
+      expect(state).to eq({})
     end
   end
 end

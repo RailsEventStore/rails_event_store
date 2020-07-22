@@ -51,6 +51,7 @@ module RubyEventStore
     end
 
     def run(event_store, start: nil, count: PAGE_SIZE)
+      return initial_state if handled_events.empty?
       if streams.any?
         reduce_from_streams(event_store, start, count)
       else
