@@ -19,9 +19,10 @@ module RailsEventStoreActiveRecord
 
       if spec.batched?
         offset_condition = spec.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
-        initial_id = stream.first&.id.to_i + (spec.forward? ? -1 : +1)
-        batch_reader = ->(offset_id, limit) { stream.where([offset_condition, offset_id]).limit(limit) }
-        BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader, initial_id, method(:build_event_instance)).each
+        batch_reader = lambda do |offset_id, limit|
+          offset_id.nil? ? stream.limit(limit) : stream.where([offset_condition, offset_id]).limit(limit)
+        end
+        BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader, method(:build_event_instance)).each
       elsif spec.first?
         record = stream.first
         build_event_instance(record) if record
@@ -85,33 +86,5 @@ module RailsEventStoreActiveRecord
     end
   end
 
-  class BatchEnumerator
-    def initialize(batch_size, total_limit, reader, offset_id, builder)
-      @batch_size = batch_size
-      @total_limit = total_limit
-      @reader = reader
-      @builder = builder
-      @offset_id = offset_id
-    end
-
-    def each
-      return to_enum unless block_given?
-
-      0.step(total_limit - 1, batch_size) do |batch_offset|
-        batch_limit  = [batch_size, total_limit - batch_offset].min
-        records  = reader.call(@offset_id, batch_limit)
-
-        break if records.empty?
-        @offset_id = records.last.id
-        yield records.map(&builder)
-      end
-    end
-
-    private
-
-    attr_accessor :batch_size, :total_limit, :reader, :builder
-  end
-
   private_constant(:EventRepositoryReader)
-  private_constant(:BatchEnumerator)
 end
