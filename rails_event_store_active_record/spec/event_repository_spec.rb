@@ -302,6 +302,38 @@ module RailsEventStoreActiveRecord
       expect(EventInStream.find(987_654_324).stream).to eq("whoo")
     end
 
+    specify 'read in batches forward' do
+      events = Array.new(200) { RubyEventStore::SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      batches = repository.read(specification.forward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(events[0..99])
+      expect(batches[1]).to eq([events[100]])
+    end
+
+    specify 'read in batches backward' do
+      events = Array.new(200) { RubyEventStore::SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      batches = repository.read(specification.backward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(events[100..-1].reverse)
+      expect(batches[1]).to eq([events[99]])
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
