@@ -66,13 +66,13 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def add_to_stream(collection, stream, expected_version, include_global)
+    def add_to_stream(events_or_ids, stream, expected_version, include_global)
       last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       start_transaction do
         yield if block_given?
-        in_stream = collection.flat_map.with_index do |event_or_id, index|
+        in_stream = events_or_ids.flat_map.with_index do |event_or_id, index|
           position = compute_position(resolved_version, index)
           collection = []
           collection.unshift({
