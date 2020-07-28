@@ -14,7 +14,7 @@ module RailsEventStoreActiveRecord
     def append_to_stream(events, stream, expected_version)
       records, event_ids = [], []
       Array(events).each do |event|
-        records << build_event_record(event)
+        records << build_event_hash(event)
         event_ids << event.event_id
       end
       add_to_stream(event_ids, stream, expected_version, true) do
@@ -116,13 +116,13 @@ module RailsEventStoreActiveRecord
       IndexViolationDetector.new.detect(message)
     end
 
-    def build_event_record(serialized_record)
-      Event.new(
+    def build_event_hash(serialized_record)
+      {
         id:         serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type
-      )
+      }
     end
 
     # Overwritten in a sub-class
