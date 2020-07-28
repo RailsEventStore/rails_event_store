@@ -12,8 +12,12 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(events, stream, expected_version)
-      records = Array(events).map(&method(:build_event_record))
-      add_to_stream(records.map(&:id), stream, expected_version, true) do
+      records, event_ids = [], []
+      Array(events).each do |event|
+        records << build_event_record(event)
+        event_ids << event.event_id
+      end
+      add_to_stream(event_ids, stream, expected_version, true) do
         Event.import(records)
       end
     end
