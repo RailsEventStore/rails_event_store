@@ -74,15 +74,15 @@ module Payments
   end
 
   def self.command_bus
-    @@command_bus
+    @@command_bus rescue nil
   end
 
   def self.public_event_store
-    @@public_event_store
+    @@public_event_store rescue nil
   end
 
   def self.event_store
-    @@module_event_store
+    @@module_event_store rescue nil
   end
 
   def self.setup?
