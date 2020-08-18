@@ -29,6 +29,6 @@ module RubyEventStore
 
     private
 
-    attr_accessor :batch_size, :total_limit, :reader
+    attr_reader :batch_size, :total_limit, :reader
   end
 end
