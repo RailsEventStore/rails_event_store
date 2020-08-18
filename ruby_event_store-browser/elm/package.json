@@ -12,8 +12,8 @@
     "elm-hot": "^1.1.4",
     "elm-test": "^0.19.1-revision2",
     "parcel-bundler": "^1.11.0",
-    "postcss-modules": "^1.5.0",
-    "tailwindcss": "^1.2.0"
+    "postcss-modules": "^3.2.0",
+    "tailwindcss": "1.2.0"
   },
   "scripts": {
     "watch": "NODE_ENV=development parcel watch --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
