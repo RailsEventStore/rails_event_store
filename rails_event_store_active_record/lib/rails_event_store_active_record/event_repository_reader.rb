@@ -19,8 +19,8 @@ module RailsEventStoreActiveRecord
 
       if spec.batched?
         batch_reader = ->(offset_id, limit) do
-          records = offset_id.nil? ? stream.limit(limit) : stream.where(offset_condition(spec, offset_id)).limit(limit)
-          [records.map(&method(:build_serialized_record)), records.last&.id]
+          records = offset_id.nil? ? stream.limit(limit) : stream.where(start_offset_condition(spec, offset_id)).limit(limit)
+          [records.map(&method(:build_serialized_record)), records.last]
         end
         BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
       elsif spec.first?
@@ -58,23 +58,24 @@ module RailsEventStoreActiveRecord
       specification.stream.global? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream.name
     end
 
-    def offset_condition(specification, offset_id)
+    def start_offset_condition(specification, record_id)
       condition = specification.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
-      [condition, offset_id]
+      [condition, record_id]
+    end
+
+    def stop_offset_condition(specification, record_id)
+      condition = specification.forward? ? 'event_store_events_in_streams.id < ?' : 'event_store_events_in_streams.id > ?'
+      [condition, record_id]
     end
 
     def start_condition(specification)
-      event_record =
-        EventInStream.find_by!(event_id: specification.start, stream: normalize_stream_name(specification))
-      condition = specification.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
-      [condition, event_record]
+      start_offset_condition(specification,
+        EventInStream.find_by!(event_id: specification.start, stream: normalize_stream_name(specification)))
     end
 
     def stop_condition(specification)
-      event_record =
-        EventInStream.find_by!(event_id: specification.stop, stream: normalize_stream_name(specification))
-      condition = specification.forward? ? 'event_store_events_in_streams.id < ?' : 'event_store_events_in_streams.id > ?'
-      [condition, event_record]
+      stop_offset_condition(specification,
+        EventInStream.find_by!(event_id: specification.stop, stream: normalize_stream_name(specification)))
     end
 
     def order(spec)
