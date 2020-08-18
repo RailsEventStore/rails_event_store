@@ -9,7 +9,7 @@ module RailsEventStoreActiveRecord
 
     def last_stream_event(stream)
       record = EventInStream.where(stream: stream.name).order('position DESC, id DESC').first
-      record && build_event_instance(record)
+      record && build_serialized_record(record)
     end
 
     def read(spec)
@@ -21,17 +21,17 @@ module RailsEventStoreActiveRecord
         offset_condition = spec.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
         batch_reader = ->(offset_id, limit) do
           records = offset_id.nil? ? stream.limit(limit) : stream.where([offset_condition, offset_id]).limit(limit)
-          [records.map(&method(:build_event_instance)), records.last&.id]
+          [records.map(&method(:build_serialized_record)), records.last&.id]
         end
         BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
       elsif spec.first?
         record = stream.first
-        build_event_instance(record) if record
+        build_serialized_record(record) if record
       elsif spec.last?
         record = stream.last
-        build_event_instance(record) if record
+        build_serialized_record(record) if record
       else
-        stream.map(&method(:build_event_instance)).each
+        stream.map(&method(:build_serialized_record)).each
       end
     end
 
@@ -77,7 +77,7 @@ module RailsEventStoreActiveRecord
       spec.forward? ? 'ASC' : 'DESC'
     end
 
-    def build_event_instance(record)
+    def build_serialized_record(record)
       RubyEventStore::SerializedRecord.new(
         event_id: record.event.id,
         metadata: record.event.metadata,
