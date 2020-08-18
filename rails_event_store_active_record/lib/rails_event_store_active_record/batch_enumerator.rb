@@ -32,7 +32,7 @@ module RailsEventStoreActiveRecord
 
     private
 
-    attr_accessor :batch_size, :total_limit, :reader, :builder
+    attr_reader :batch_size, :total_limit, :reader, :builder
   end
 end
 
