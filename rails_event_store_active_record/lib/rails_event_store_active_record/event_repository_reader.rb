@@ -18,8 +18,11 @@ module RailsEventStoreActiveRecord
       stream = read_scope(spec)
 
       if spec.batched?
-        batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:build_event_instance)) }
-        RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
+        offset_condition = spec.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
+        batch_reader = lambda do |offset_id, limit|
+          offset_id.nil? ? stream.limit(limit) : stream.where([offset_condition, offset_id]).limit(limit)
+        end
+        BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader, method(:build_event_instance)).each
       elsif spec.first?
         record = stream.first
         build_event_instance(record) if record
