@@ -11,13 +11,14 @@ module RailsEventStoreActiveRecord
 
     def each
       return to_enum unless block_given?
+      offset_id = nil
 
       0.step(total_limit - 1, batch_size) do |batch_offset|
         batch_limit  = [batch_size, total_limit - batch_offset].min
-        records  = reader.call(@offset_id, batch_limit)
+        records  = reader.call(offset_id, batch_limit)
 
         break if records.empty?
-        @offset_id = records.last.id
+        offset_id = records.last.id
         yield records.map(&builder)
       end
     end
