@@ -18,9 +18,8 @@ module RailsEventStoreActiveRecord
       stream = read_scope(spec)
 
       if spec.batched?
-        offset_condition = spec.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
         batch_reader = ->(offset_id, limit) do
-          records = offset_id.nil? ? stream.limit(limit) : stream.where([offset_condition, offset_id]).limit(limit)
+          records = offset_id.nil? ? stream.limit(limit) : stream.where(offset_condition(spec, offset_id)).limit(limit)
           [records.map(&method(:build_serialized_record)), records.last&.id]
         end
         BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
@@ -57,6 +56,11 @@ module RailsEventStoreActiveRecord
 
     def normalize_stream_name(specification)
       specification.stream.global? ? EventRepository::SERIALIZED_GLOBAL_STREAM_NAME : specification.stream.name
+    end
+
+    def offset_condition(specification, offset_id)
+      condition = specification.forward? ? 'event_store_events_in_streams.id > ?' : 'event_store_events_in_streams.id < ?'
+      [condition, offset_id]
     end
 
     def start_condition(specification)
