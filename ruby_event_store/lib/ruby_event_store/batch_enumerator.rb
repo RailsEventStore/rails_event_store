@@ -10,9 +10,10 @@ module RubyEventStore
 
     def each
       return to_enum unless block_given?
+
       0.step(total_limit - 1, batch_size) do |batch_offset|
-        batch_limit  = [batch_size, total_limit - batch_offset].min
-        result       = reader.call(batch_offset, batch_limit)
+        batch_limit = [batch_size, total_limit - batch_offset].min
+        result      = reader.call(batch_offset, batch_limit)
 
         break if result.empty?
         yield result
