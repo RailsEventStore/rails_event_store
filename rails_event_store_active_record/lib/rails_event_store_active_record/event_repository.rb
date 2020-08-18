@@ -12,9 +12,13 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(events, stream, expected_version)
-      add_to_stream(Array(events), stream, expected_version, true) do |event|
-        build_event_record(event).save!
-        event.event_id
+      records, event_ids = [], []
+      Array(events).each do |event|
+        records << build_event_hash(event)
+        event_ids << event.event_id
+      end
+      add_to_stream(event_ids, stream, expected_version, true) do
+        Event.import(records)
       end
     end
 
@@ -23,9 +27,7 @@ module RailsEventStoreActiveRecord
       (event_ids - Event.where(id: event_ids).pluck(:id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
-      add_to_stream(event_ids, stream, expected_version, nil) do |event_id|
-        event_id
-      end
+      add_to_stream(event_ids, stream, expected_version, nil)
     end
 
     def delete_stream(stream)
@@ -68,14 +70,14 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def add_to_stream(collection, stream, expected_version, include_global, &to_event_id)
+    def add_to_stream(event_ids, stream, expected_version, include_global)
       last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       start_transaction do
-        in_stream = collection.flat_map.with_index do |element, index|
+        yield if block_given?
+        in_stream = event_ids.flat_map.with_index do |event_id, index|
           position = compute_position(resolved_version, index)
-          event_id = to_event_id.call(element)
           collection = []
           collection.unshift({
             stream: SERIALIZED_GLOBAL_STREAM_NAME,
@@ -114,13 +116,13 @@ module RailsEventStoreActiveRecord
       IndexViolationDetector.new.detect(message)
     end
 
-    def build_event_record(serialized_record)
-      Event.new(
+    def build_event_hash(serialized_record)
+      {
         id:         serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type
-      )
+      }
     end
 
     # Overwritten in a sub-class
