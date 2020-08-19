@@ -59,6 +59,29 @@ module RubyEventStore
         expect(event.metadata.to_h).to  eq(metadata)
       end
 
+      specify 'make sure encryption & decryption do not tamper event data' do
+        [
+          false,
+          true,
+          123,
+          'Any string value',
+          123.45,
+          nil,
+        ].each do |value|
+          source_event = domain_event(build_data(value))
+          encrypted = encrypted_item(source_event)
+          record = SerializedRecord.new(
+            event_id:   source_event.event_id,
+            data:       YAML.dump(encrypted.data),
+            metadata:   YAML.dump(encrypted.metadata),
+            event_type: SomeEventWithPersonalInfo.name
+          )
+          event = subject.serialized_record_to_event(record)
+          expect(event).to                eq(source_event)
+          expect(event.metadata.to_h).to  eq(metadata)
+        end
+      end
+
       context 'when key is forgotten' do
         subject { described_class.new(key_repository) }
 
