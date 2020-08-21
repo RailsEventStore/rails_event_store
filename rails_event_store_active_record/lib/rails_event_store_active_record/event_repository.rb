@@ -15,7 +15,7 @@ module RailsEventStoreActiveRecord
       @base_klass = base_klass
       @serializer  = serializer
 
-      instance_uuid = SecureRandom.uuid.gsub('-','')
+      instance_uuid = SecureRandom.hex(16)
       @event_klass = build_event_klass(instance_uuid)
       @stream_klass = build_stream_klass(instance_uuid)
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
