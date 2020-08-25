@@ -403,6 +403,16 @@ module RailsEventStoreActiveRecord
       expect(stream_klass_1).not_to eq(stream_klass_2)
     end
 
+    specify 'AR classes must have the same instance id' do
+      repository = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      event_klass = repository.instance_variable_get(:@event_klass).name
+      stream_klass = repository.instance_variable_get(:@stream_klass).name
+
+      expect(event_klass).to match(/^Event_[a-z,0-9]{32}$/)
+      expect(stream_klass).to match(/^EventInStream_[a-z,0-9]{32}$/)
+      expect(event_klass[6..-1]).to eq(stream_klass[14..-1])
+    end
+
     specify 'Base for event repository models must be an abstract class' do
       NonAbstractClass = Class.new(ActiveRecord::Base)
       expect {
