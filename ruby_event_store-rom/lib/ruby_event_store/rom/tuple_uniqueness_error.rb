@@ -13,7 +13,7 @@ module RubyEventStore
         end
 
         def for_stream_and_position(stream_name, position)
-          new "Uniquness violated for stream (#{stream_name.inspect}) and position (#{position.inspect})"
+          new "Uniquness violated for stream (#{stream_name.inspect}) and position (#{position})"
         end
       end
     end

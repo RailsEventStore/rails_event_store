@@ -49,5 +49,24 @@ module RubyEventStore::ROM::Memory
       expect(relation.by_pk(events[0][:id]).to_a.size).to eq(1)
       expect(relation.by_pk(events[0][:id]).pluck(:id)).to eq([id1])
     end
+
+    specify '#insert raises errors' do
+      events = [
+        { id: id1 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
+        { id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
+      ]
+
+      relation.command(:create).call(events)
+
+      conflicting_event_id =
+        { id: id1, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+
+      expect do
+        relation.insert(conflicting_event_id)
+      end.to raise_error do |ex|
+        expect(ex).to be_a(RubyEventStore::ROM::TupleUniquenessError)
+        expect(ex.message).to eq("Uniquness violated for event_id (\"#{id1}\")")
+      end
+    end
   end
 end
