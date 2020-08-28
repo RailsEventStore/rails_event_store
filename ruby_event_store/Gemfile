@@ -8,4 +8,3 @@ eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 gem 'protobuf_nested_struct'
 gem 'google-protobuf', '~> 3.12.2', '>= 3.12.2'
 gem 'activesupport', '~> 5.0'
-gem 'concurrent-ruby', '= 1.1.6'
