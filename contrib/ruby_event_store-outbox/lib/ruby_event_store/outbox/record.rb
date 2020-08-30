@@ -22,7 +22,6 @@ module RubyEventStore
     end
 
     class Lock < ::ActiveRecord::Base
-      self.primary_key = :split_key
       self.table_name = 'event_store_outbox_locks'
 
       def self.obtain(fetch_specification, process_uuid, clock:)
