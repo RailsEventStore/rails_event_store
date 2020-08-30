@@ -9,7 +9,7 @@ require "ruby_event_store/outbox/fetch_specification"
 module RubyEventStore
   module Outbox
     class Consumer
-      SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
+      SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.5
       MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK = 10
 
       class Configuration

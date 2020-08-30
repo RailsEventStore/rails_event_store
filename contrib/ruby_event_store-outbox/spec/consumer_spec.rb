@@ -168,7 +168,7 @@ module RubyEventStore
           consumer.run
         end.to raise_error("End infinite loop")
 
-        expect(consumer).to have_received(:sleep).with(0.1)
+        expect(consumer).to have_received(:sleep).with(0.5)
       end
 
       specify "#run doesnt wait if something changed" do
