@@ -1,31 +1,24 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require "ruby_event_store/outbox/sidekiq5_format"
+require "ruby_event_store/outbox/sidekiq_producer"
 
 module RubyEventStore
   module Outbox
     class SidekiqScheduler
+      def initialize
+        @sidekiq_producer = SidekiqProducer.new
+      end
+
       def call(klass, serialized_event)
-        sidekiq_client = Sidekiq::Client.new(Sidekiq.redis_pool)
-        item = {
-          'class' => klass,
-          'args' => [serialized_event.to_h],
-        }
-        normalized_item = sidekiq_client.__send__(:normalize_item, item)
-        payload = sidekiq_client.__send__(:process_single, normalized_item.fetch('class'), normalized_item)
-        if payload
-          Record.create!(
-            format: SIDEKIQ5_FORMAT,
-            split_key: payload.fetch('queue'),
-            payload: payload.to_json
-          )
-        end
+        sidekiq_producer.call(klass, [serialized_event.to_h])
       end
 
       def verify(subscriber)
         Class === subscriber && subscriber.respond_to?(:through_outbox?) && subscriber.through_outbox?
       end
+
+      private
+      attr_reader :sidekiq_producer
     end
   end
 end

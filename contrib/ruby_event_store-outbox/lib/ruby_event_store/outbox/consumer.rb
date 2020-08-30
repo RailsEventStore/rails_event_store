@@ -3,11 +3,13 @@ require "redis"
 require "active_record"
 require "ruby_event_store/outbox/record"
 require "ruby_event_store/outbox/sidekiq5_format"
+require "ruby_event_store/outbox/sidekiq_processor"
 
 module RubyEventStore
   module Outbox
     class Consumer
       SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
+      MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK = 10
 
       class Configuration
         def initialize(
@@ -38,28 +40,26 @@ module RubyEventStore
         attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url
       end
 
-      def initialize(configuration, clock: Time, logger:, metrics:)
+      def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
         @split_keys = configuration.split_keys
         @clock = clock
-        @redis = Redis.new(url: configuration.redis_url)
         @logger = logger
         @metrics = metrics
         @batch_size = configuration.batch_size
+        @consumer_uuid = consumer_uuid
         ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
         if ActiveRecord::Base.connection.adapter_name == "Mysql2"
-          ActiveRecord::Base.connection.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;")
           ActiveRecord::Base.connection.execute("SET SESSION innodb_lock_wait_timeout = 1;")
         end
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
-        @message_format = SIDEKIQ5_FORMAT
+        @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
         @gracefully_shutting_down = false
         prepare_traps
       end
 
       def init
-        @redis.sadd("queues", split_keys)
         logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
         logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
       end
@@ -76,62 +76,129 @@ module RubyEventStore
       end
 
       def one_loop
-        Record.transaction do
-          records_scope = Record.lock.where(format: message_format, enqueued_at: nil)
-          records_scope = records_scope.where(split_key: split_keys) if !split_keys.nil?
-          records = records_scope.order("id ASC").limit(batch_size).to_a
-          if records.empty?
-            metrics.write_point_queue(status: "ok")
-            return false
+        remaining_split_keys = @split_keys.dup
+
+        was_something_changed = false
+        while (split_key = remaining_split_keys.shift)
+          was_something_changed |= handle_split(FetchSpecification.new(processor.message_format, split_key))
+        end
+        was_something_changed
+      end
+
+      def handle_split(fetch_specification)
+        obtained_lock = obtain_lock_for_process(fetch_specification)
+        return false unless obtained_lock
+
+        something_processed = false
+
+        MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK.times do
+          batch = retrieve_batch(fetch_specification)
+          if batch.empty?
+            break
           end
 
-          now = @clock.now.utc
           failed_record_ids = []
-          records.group_by(&:split_key).each do |split_key, records2|
+          updated_record_ids = []
+          batch.each do |record|
             begin
-              failed = handle_group_of_records(now, split_key, records2)
-              failed_record_ids.concat(failed.map(&:id))
+              now = @clock.now.utc
+              processor.process(record, now)
+
+              record.update_column(:enqueued_at, now)
+              something_processed |= true
+              updated_record_ids << record.id
             rescue => e
-              failed_record_ids.concat(records2.map(&:id))
+              failed_record_ids << record.id
               e.full_message.split($/).each {|line| logger.error(line) }
             end
           end
 
-          updated_record_ids = records.map(&:id) - failed_record_ids
-          Record.where(id: updated_record_ids).update_all(enqueued_at: now)
-          metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
+          metrics.write_point_queue(
+            enqueued: updated_record_ids.size,
+            failed: failed_record_ids.size,
+            format: fetch_specification.message_format,
+            split_key: fetch_specification.split_key,
+            remaining: get_remaining_count(fetch_specification)
+          )
 
           logger.info "Sent #{updated_record_ids.size} messages from outbox table"
-          true
+
+          obtained_lock = refresh_lock_for_process(obtained_lock)
+          break unless obtained_lock
         end
-      rescue ActiveRecord::Deadlocked
-        logger.warn "Outbox fetch deadlocked"
-        metrics.write_point_queue(status: "deadlocked")
-        false
-      rescue ActiveRecord::LockWaitTimeout
-        logger.warn "Outbox fetch lock timeout"
-        metrics.write_point_queue(status: "lock_timeout")
-        false
+
+        metrics.write_point_queue(
+          format: fetch_specification.message_format,
+          split_key: fetch_specification.split_key,
+          remaining: get_remaining_count(fetch_specification)
+        ) unless something_processed
+
+        release_lock_for_process(fetch_specification)
+
+        processor.after_batch
+
+        something_processed
       end
 
       private
-      attr_reader :split_keys, :logger, :message_format, :batch_size, :metrics
+      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid
 
-      def handle_group_of_records(now, split_key, records)
-        failed = []
-        elements = []
-        records.each do |record|
-          begin
-            elements << JSON.generate(JSON.parse(record.payload).merge({
-              "enqueued_at" => now.to_f,
-            }))
-          rescue => e
-            failed << record
-            e.full_message.split($/).each {|line| logger.error(line) }
-          end
+      def obtain_lock_for_process(fetch_specification)
+        result = Lock.obtain(fetch_specification, consumer_uuid, clock: @clock)
+        case result
+        when :deadlocked
+          logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
+          metrics.write_operation_result("obtain", "deadlocked")
+          return false
+        when :lock_timeout
+          logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
+          metrics.write_operation_result("obtain", "lock_timeout")
+          return false
+        when :taken
+          logger.debug "Obtaining lock for split_key '#{fetch_specification.split_key}' unsuccessful (taken)"
+          metrics.write_operation_result("obtain", "taken")
+          return false
+        else
+          return result
         end
-        @redis.lpush("queue:#{split_key}", elements)
-        failed
+      end
+
+      def release_lock_for_process(fetch_specification)
+        result = Lock.release(fetch_specification, consumer_uuid)
+        case result
+        when :ok
+        when :deadlocked
+          logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
+          metrics.write_operation_result("release", "deadlocked")
+        when :lock_timeout
+          logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
+          metrics.write_operation_result("release", "lock_timeout")
+        when :not_taken_by_this_process
+          logger.debug "Releasing lock for split_key '#{fetch_specification.split_key}' failed (not taken by this process)"
+          metrics.write_operation_result("release", "not_taken_by_this_process")
+        else
+          raise "Unexpected result #{result}"
+        end
+      end
+
+      def refresh_lock_for_process(lock)
+        result = lock.refresh(clock: @clock)
+        case result
+        when :deadlocked
+          logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (deadlock)"
+          metrics.write_operation_result("refresh", "deadlocked")
+          return false
+        when :lock_timeout
+          logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (lock timeout)"
+          metrics.write_operation_result("refresh", "lock_timeout")
+          return false
+        when :stolen
+          logger.debug "Refreshing lock for split_key '#{lock.split_key}' unsuccessful (stolen)"
+          metrics.write_operation_result("refresh", "stolen")
+          return false
+        else
+          return result
+        end
       end
 
       def prepare_traps
@@ -145,6 +212,14 @@ module RubyEventStore
 
       def initiate_graceful_shutdown
         @gracefully_shutting_down = true
+      end
+
+      def retrieve_batch(fetch_specification)
+        Record.remaining_for(fetch_specification).order("id ASC").limit(batch_size).to_a
+      end
+
+      def get_remaining_count(fetch_specification)
+        Record.remaining_for(fetch_specification).count
       end
     end
   end

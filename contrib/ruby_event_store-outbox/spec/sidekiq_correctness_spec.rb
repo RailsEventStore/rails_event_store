@@ -29,7 +29,7 @@ module RubyEventStore
         end
 
         SidekiqScheduler.new.call(CorrectAsyncHandler, serialized_event)
-        consumer = Consumer.new(default_configuration, logger: test_logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
         consumer.one_loop
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 

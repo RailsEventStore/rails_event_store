@@ -59,7 +59,8 @@ module RubyEventStore
       end
 
       def build_consumer(options)
-        logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox")
+        consumer_uuid = SecureRandom.uuid
+        logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox #{consumer_uuid}")
         consumer_configuration = Consumer::Configuration.new(
           split_keys: options.split_keys,
           message_format: options.message_format,
@@ -69,6 +70,7 @@ module RubyEventStore
         )
         metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
+          consumer_uuid,
           options,
           logger: logger,
           metrics: metrics,
