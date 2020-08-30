@@ -95,9 +95,7 @@ module RubyEventStore
           batch = retrieve_batch(obtained_lock.format, obtained_lock.split_key)
           if batch.empty?
             metrics.write_point_queue(status: "ok")
-            release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
-            processor.after_batch
-            return something_processed
+            break
           end
 
           failed_record_ids = []
