@@ -215,12 +215,11 @@ module RubyEventStore
       end
 
       def retrieve_batch(fetch_specification)
-        records = Record.where(format: fetch_specification.message_format, enqueued_at: nil, split_key: fetch_specification.split_key).order("id ASC").limit(batch_size).to_a
-        records
+        Record.remaining_for(fetch_specification).order("id ASC").limit(batch_size).to_a
       end
 
       def get_remaining_count(fetch_specification)
-        Record.where(format: fetch_specification.message_format, enqueued_at: nil, split_key: fetch_specification.split_key).count
+        Record.remaining_for(fetch_specification).count
       end
     end
   end

@@ -8,6 +8,10 @@ module RubyEventStore
       self.primary_key = :id
       self.table_name = 'event_store_outbox'
 
+      def self.remaining_for(fetch_specification)
+        where(format: fetch_specification.message_format, split_key: fetch_specification.split_key, enqueued_at: nil)
+      end
+
       def hash_payload
         JSON.parse(payload).deep_symbolize_keys
       end
