@@ -380,10 +380,21 @@ module RubyEventStore
         expect(record.reload.enqueued_at).to be_nil
       end
 
+      specify "there are multiple batches in one loop" do
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        records = (default_configuration.batch_size + 1).times.map {|r| create_record("default", "default") }
+
+        result = consumer.one_loop
+
+        records.each(&:reload)
+        expect(records.select {|r| r.enqueued? }.size).to eq(101)
+        expect(result).to eq(true)
+      end
+
       specify "death of a consumer shouldnt prevent other processes from processing" do
         consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
         expect(Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
-        expect(Record).to receive(:where).and_call_original.ordered.twice
+        expect(Record).to receive(:where).and_call_original.ordered.exactly(3).times
         expect do
           consumer_1.one_loop
         end.to raise_error(/Unexpected error/)

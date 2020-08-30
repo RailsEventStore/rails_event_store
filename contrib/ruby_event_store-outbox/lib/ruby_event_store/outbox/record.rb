@@ -11,6 +11,10 @@ module RubyEventStore
       def hash_payload
         JSON.parse(payload).deep_symbolize_keys
       end
+
+      def enqueued?
+        !enqueued_at.nil?
+      end
     end
 
     class Lock < ::ActiveRecord::Base

@@ -9,6 +9,7 @@ module RubyEventStore
   module Outbox
     class Consumer
       SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.1
+      MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK = 10
 
       class Configuration
         def initialize(
@@ -88,37 +89,43 @@ module RubyEventStore
         obtained_lock = obtain_lock_for_process(split_key)
         return false unless obtained_lock
 
-        batch = retrieve_batch(obtained_lock.format, obtained_lock.split_key)
-        if batch.empty?
-          metrics.write_point_queue(status: "ok")
-          release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
-          return false
-        end
+        something_processed = false
 
-        failed_record_ids = []
-        updated_record_ids = []
-        batch.each do |record|
-          begin
-            now = @clock.now.utc
-            processor.process(record, now)
-
-            record.update_column(:enqueued_at, now)
-            updated_record_ids << record.id
-          rescue => e
-            failed_record_ids << record.id
-            e.full_message.split($/).each {|line| logger.error(line) }
+        MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK.times do
+          batch = retrieve_batch(obtained_lock.format, obtained_lock.split_key)
+          if batch.empty?
+            metrics.write_point_queue(status: "ok")
+            release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
+            processor.after_batch
+            return something_processed
           end
+
+          failed_record_ids = []
+          updated_record_ids = []
+          batch.each do |record|
+            begin
+              now = @clock.now.utc
+              processor.process(record, now)
+
+              record.update_column(:enqueued_at, now)
+              something_processed |= true
+              updated_record_ids << record.id
+            rescue => e
+              failed_record_ids << record.id
+              e.full_message.split($/).each {|line| logger.error(line) }
+            end
+          end
+
+          metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
+
+          logger.info "Sent #{updated_record_ids.size} messages from outbox table"
         end
-
-        metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
-
-        logger.info "Sent #{updated_record_ids.size} messages from outbox table"
 
         release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
 
         processor.after_batch
 
-        true
+        something_processed
       end
 
       private
