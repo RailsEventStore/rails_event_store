@@ -117,6 +117,9 @@ module RubyEventStore
           metrics.write_point_queue(status: "ok", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
 
           logger.info "Sent #{updated_record_ids.size} messages from outbox table"
+
+          obtained_lock = refresh_lock_for_process(obtained_lock)
+          break unless obtained_lock
         end
 
         release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
@@ -164,6 +167,26 @@ module RubyEventStore
           metrics.write_point_queue(status: "not_taken_by_this_process")
         else
           raise "Unexpected result #{result}"
+        end
+      end
+
+      def refresh_lock_for_process(lock)
+        result = lock.refresh(clock: @clock)
+        case result
+        when :deadlocked
+          logger.warn "Refreshing lock for split_key '#{split_key}' failed (deadlock)"
+          metrics.write_point_queue(status: "deadlocked")
+          return false
+        when :lock_timeout
+          logger.warn "Refreshing lock for split_key '#{split_key}' failed (lock timeout)"
+          metrics.write_point_queue(status: "lock_timeout")
+          return false
+        when :stolen
+          logger.debug "Refreshing lock for split_key '#{split_key}' unsuccessful (stolen)"
+          metrics.write_point_queue(status: "stolen")
+          return false
+        else
+          return result
         end
       end
 

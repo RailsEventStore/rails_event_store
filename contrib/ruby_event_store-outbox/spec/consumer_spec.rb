@@ -410,6 +410,14 @@ module RubyEventStore
         expect(Record.where("enqueued_at is not null").count).to be_positive
       end
 
+      specify "lock is refreshed after each batch" do
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        records = (default_configuration.batch_size + 1).times.map {|r| create_record("default", "default") }
+        expect_any_instance_of(Lock).to receive(:refresh).twice.and_call_original
+
+        consumer.one_loop
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",

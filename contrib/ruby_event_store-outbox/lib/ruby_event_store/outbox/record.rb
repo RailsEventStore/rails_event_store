@@ -40,6 +40,23 @@ module RubyEventStore
         :lock_timeout
       end
 
+      def refresh(clock:)
+        transaction do
+          current_process_uuid = locked_by
+          lock!
+          if locked_by == current_process_uuid
+            update!(locked_at: clock.now)
+            return self
+          else
+            return :stolen
+          end
+        end
+      rescue ActiveRecord::Deadlocked
+        :deadlocked
+      rescue ActiveRecord::LockWaitTimeout
+        :lock_timeout
+      end
+
       def self.release(message_format, split_key, process_uuid)
         transaction do
           l = get_lock_record(message_format, split_key)
