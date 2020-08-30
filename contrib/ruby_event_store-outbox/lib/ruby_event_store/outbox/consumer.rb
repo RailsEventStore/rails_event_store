@@ -4,6 +4,7 @@ require "active_record"
 require "ruby_event_store/outbox/record"
 require "ruby_event_store/outbox/sidekiq5_format"
 require "ruby_event_store/outbox/sidekiq_processor"
+require "ruby_event_store/outbox/fetch_specification"
 
 module RubyEventStore
   module Outbox
