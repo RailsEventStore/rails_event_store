@@ -94,7 +94,6 @@ module RubyEventStore
         MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK.times do
           batch = retrieve_batch(obtained_lock.format, obtained_lock.split_key)
           if batch.empty?
-            metrics.write_point_queue(status: "ok", operation: "process")
             break
           end
 
@@ -121,6 +120,8 @@ module RubyEventStore
           obtained_lock = refresh_lock_for_process(obtained_lock)
           break unless obtained_lock
         end
+
+        metrics.write_point_queue(status: "ok", operation: "process") unless something_processed
 
         release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
 
