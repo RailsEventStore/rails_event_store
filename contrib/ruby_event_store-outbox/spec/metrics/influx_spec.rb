@@ -40,22 +40,15 @@ module RubyEventStore
         client = influx.influxdb_client
         allow(client).to receive(:write_point)
 
-        influx.write_point_queue(operation: "process", status: "ok")
+        influx.write_point_queue(format: "sidekiq5", split_key: "somekey")
 
-        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", {
-          timestamp: be_present,
+        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
           values: {
             enqueued: 0,
             failed: 0,
             remaining: 0,
           },
-          tags: {
-            operation: "process",
-            status: "ok",
-            format: nil,
-            split_key: nil,
-          }
-        })
+        }))
       end
 
       specify "#write_point_queue" do
@@ -63,22 +56,37 @@ module RubyEventStore
         client = influx.influxdb_client
         allow(client).to receive(:write_point)
 
-        influx.write_point_queue(operation: "process", status: "ok", enqueued: 4, failed: 3, remaining: 5)
+        influx.write_point_queue(format: "sidekiq5", split_key: "somekey", enqueued: 4, failed: 3, remaining: 5)
 
-        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", {
-          timestamp: be_present,
+        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
           values: {
             enqueued: 4,
             failed: 3,
             remaining: 5,
           },
           tags: {
-            operation: "process",
-            status: "ok",
-            format: nil,
-            split_key: nil,
+            format: "sidekiq5",
+            split_key: "somekey",
           }
-        })
+        }))
+      end
+
+      specify "#write_operation_result" do
+        influx = Metrics::Influx.new(influx_url)
+        client = influx.influxdb_client
+        allow(client).to receive(:write_point)
+
+        influx.write_operation_result("obtain", "deadlocked")
+
+        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.lock", include({
+          values: {
+            value: 1,
+          },
+          tags: {
+            operation: "obtain",
+            result: "deadlocked",
+          }
+        }))
       end
 
       specify "automatic timestamp assignment" do
@@ -86,7 +94,7 @@ module RubyEventStore
         client = influx.influxdb_client
         allow(client).to receive(:write_point)
 
-        influx.write_point_queue(operation: "process", status: "ok")
+        influx.write_point_queue(format: "sidekiq5", split_key: "somekey")
 
         expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
           timestamp: be_within(nanoseconds_in_second).of(Time.now.to_f * nanoseconds_in_second)

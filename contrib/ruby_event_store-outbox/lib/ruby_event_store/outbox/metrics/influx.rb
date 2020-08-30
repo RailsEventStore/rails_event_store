@@ -17,7 +17,19 @@ module RubyEventStore
           @influxdb_client = InfluxDB::Client.new(**options)
         end
 
-        def write_point_queue(operation:, status:, enqueued: 0, failed: 0, remaining: 0, format: nil, split_key: nil)
+        def write_operation_result(operation, result)
+          write_point("ruby_event_store.outbox.lock", {
+            values: {
+              value: 1,
+            },
+            tags: {
+              operation: operation,
+              result: result,
+            }
+          })
+        end
+
+        def write_point_queue(enqueued: 0, failed: 0, remaining: 0, format: nil, split_key: nil)
           write_point("ruby_event_store.outbox.queue", {
             values: {
               enqueued: enqueued,
@@ -25,8 +37,6 @@ module RubyEventStore
               remaining: remaining,
             },
             tags: {
-              operation: operation,
-              status: status,
               format: format,
               split_key: split_key,
             }

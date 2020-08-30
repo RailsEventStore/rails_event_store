@@ -114,8 +114,6 @@ module RubyEventStore
           end
 
           metrics.write_point_queue(
-            status: "ok",
-            operation: "process",
             enqueued: updated_record_ids.size,
             failed: failed_record_ids.size,
             format: obtained_lock.format,
@@ -130,8 +128,6 @@ module RubyEventStore
         end
 
         metrics.write_point_queue(
-          status: "ok",
-          operation: "process",
           format: obtained_lock.format,
           split_key: obtained_lock.split_key,
           remaining: get_remaining_count(obtained_lock.format, obtained_lock.split_key)
@@ -152,15 +148,15 @@ module RubyEventStore
         case result
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock)"
-          metrics.write_point_queue(status: "deadlocked", operation: "obtain")
+          metrics.write_operation_result("obtain", "deadlocked")
           return false
         when :lock_timeout
           logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout)"
-          metrics.write_point_queue(status: "lock_timeout", operation: "obtain")
+          metrics.write_operation_result("obtain", "lock_timeout")
           return false
         when :taken
           logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken)"
-          metrics.write_point_queue(status: "taken", operation: "obtain")
+          metrics.write_operation_result("obtain", "taken")
           return false
         else
           return result
@@ -173,13 +169,13 @@ module RubyEventStore
         when :ok
         when :deadlocked
           logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock)"
-          metrics.write_point_queue(status: "deadlocked", operation: "release")
+          metrics.write_operation_result("release", "deadlocked")
         when :lock_timeout
           logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout)"
-          metrics.write_point_queue(status: "lock_timeout", operation: "release")
+          metrics.write_operation_result("release", "lock_timeout")
         when :not_taken_by_this_process
           logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process)"
-          metrics.write_point_queue(status: "not_taken_by_this_process", operation: "release")
+          metrics.write_operation_result("release", "not_taken_by_this_process")
         else
           raise "Unexpected result #{result}"
         end
@@ -190,15 +186,15 @@ module RubyEventStore
         case result
         when :deadlocked
           logger.warn "Refreshing lock for split_key '#{split_key}' failed (deadlock)"
-          metrics.write_point_queue(status: "deadlocked", operation: "refresh")
+          metrics.write_operation_result("refresh", "deadlocked")
           return false
         when :lock_timeout
           logger.warn "Refreshing lock for split_key '#{split_key}' failed (lock timeout)"
-          metrics.write_point_queue(status: "lock_timeout", operation: "refresh")
+          metrics.write_operation_result("refresh", "lock_timeout")
           return false
         when :stolen
           logger.debug "Refreshing lock for split_key '#{split_key}' unsuccessful (stolen)"
-          metrics.write_point_queue(status: "stolen", operation: "refresh")
+          metrics.write_operation_result("refresh", "stolen")
           return false
         else
           return result
