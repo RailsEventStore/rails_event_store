@@ -394,7 +394,7 @@ module RubyEventStore
       specify "death of a consumer shouldnt prevent other processes from processing" do
         consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
         expect(Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
-        expect(Record).to receive(:where).and_call_original.ordered.exactly(3).times
+        expect(Record).to receive(:where).and_call_original.ordered.at_least(2).times
         expect do
           consumer_1.one_loop
         end.to raise_error(/Unexpected error/)

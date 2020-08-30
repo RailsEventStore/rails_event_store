@@ -113,7 +113,15 @@ module RubyEventStore
             end
           end
 
-          metrics.write_point_queue(status: "ok", operation: "process", enqueued: updated_record_ids.size, failed: failed_record_ids.size)
+          metrics.write_point_queue(
+            status: "ok",
+            operation: "process",
+            enqueued: updated_record_ids.size,
+            failed: failed_record_ids.size,
+            format: obtained_lock.format,
+            split_key: obtained_lock.split_key,
+            remaining: get_remaining_count(obtained_lock.format, obtained_lock.split_key)
+          )
 
           logger.info "Sent #{updated_record_ids.size} messages from outbox table"
 
@@ -121,7 +129,13 @@ module RubyEventStore
           break unless obtained_lock
         end
 
-        metrics.write_point_queue(status: "ok", operation: "process") unless something_processed
+        metrics.write_point_queue(
+          status: "ok",
+          operation: "process",
+          format: obtained_lock.format,
+          split_key: obtained_lock.split_key,
+          remaining: get_remaining_count(obtained_lock.format, obtained_lock.split_key)
+        ) unless something_processed
 
         release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
 
@@ -207,6 +221,10 @@ module RubyEventStore
       def retrieve_batch(message_format, split_key)
         records = Record.where(format: message_format, enqueued_at: nil, split_key: split_key).order("id ASC").limit(batch_size).to_a
         records
+      end
+
+      def get_remaining_count(message_format, split_key)
+        Record.where(format: message_format, enqueued_at: nil, split_key: split_key).count
       end
     end
   end

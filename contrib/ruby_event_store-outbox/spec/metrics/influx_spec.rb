@@ -40,16 +40,20 @@ module RubyEventStore
         client = influx.influxdb_client
         allow(client).to receive(:write_point)
 
-        influx.write_point_queue(status: "ok")
+        influx.write_point_queue(operation: "process", status: "ok")
 
         expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", {
           timestamp: be_present,
           values: {
             enqueued: 0,
             failed: 0,
+            remaining: 0,
           },
           tags: {
-            status: "ok"
+            operation: "process",
+            status: "ok",
+            format: nil,
+            split_key: nil,
           }
         })
       end
@@ -59,16 +63,20 @@ module RubyEventStore
         client = influx.influxdb_client
         allow(client).to receive(:write_point)
 
-        influx.write_point_queue(status: "ok", enqueued: 4, failed: 3)
+        influx.write_point_queue(operation: "process", status: "ok", enqueued: 4, failed: 3, remaining: 5)
 
         expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", {
           timestamp: be_present,
           values: {
             enqueued: 4,
             failed: 3,
+            remaining: 5,
           },
           tags: {
-            status: "ok"
+            operation: "process",
+            status: "ok",
+            format: nil,
+            split_key: nil,
           }
         })
       end
@@ -78,7 +86,7 @@ module RubyEventStore
         client = influx.influxdb_client
         allow(client).to receive(:write_point)
 
-        influx.write_point_queue(status: "ok")
+        influx.write_point_queue(operation: "process", status: "ok")
 
         expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
           timestamp: be_within(nanoseconds_in_second).of(Time.now.to_f * nanoseconds_in_second)
