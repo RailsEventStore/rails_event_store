@@ -80,19 +80,19 @@ module RubyEventStore
 
         was_something_changed = false
         while (split_key = remaining_split_keys.shift)
-          was_something_changed |= handle_split(split_key)
+          was_something_changed |= handle_split(FetchSpecification.new(processor.message_format, split_key))
         end
         was_something_changed
       end
 
-      def handle_split(split_key)
-        obtained_lock = obtain_lock_for_process(split_key)
+      def handle_split(fetch_specification)
+        obtained_lock = obtain_lock_for_process(fetch_specification)
         return false unless obtained_lock
 
         something_processed = false
 
         MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK.times do
-          batch = retrieve_batch(obtained_lock.format, obtained_lock.split_key)
+          batch = retrieve_batch(fetch_specification)
           if batch.empty?
             break
           end
@@ -116,9 +116,9 @@ module RubyEventStore
           metrics.write_point_queue(
             enqueued: updated_record_ids.size,
             failed: failed_record_ids.size,
-            format: obtained_lock.format,
-            split_key: obtained_lock.split_key,
-            remaining: get_remaining_count(obtained_lock.format, obtained_lock.split_key)
+            format: fetch_specification.message_format,
+            split_key: fetch_specification.split_key,
+            remaining: get_remaining_count(fetch_specification)
           )
 
           logger.info "Sent #{updated_record_ids.size} messages from outbox table"
@@ -128,12 +128,12 @@ module RubyEventStore
         end
 
         metrics.write_point_queue(
-          format: obtained_lock.format,
-          split_key: obtained_lock.split_key,
-          remaining: get_remaining_count(obtained_lock.format, obtained_lock.split_key)
+          format: fetch_specification.message_format,
+          split_key: fetch_specification.split_key,
+          remaining: get_remaining_count(fetch_specification)
         ) unless something_processed
 
-        release_lock_for_process(obtained_lock.format, obtained_lock.split_key)
+        release_lock_for_process(fetch_specification)
 
         processor.after_batch
 
@@ -143,19 +143,19 @@ module RubyEventStore
       private
       attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid
 
-      def obtain_lock_for_process(split_key)
-        result = Lock.obtain(processor.message_format, split_key, consumer_uuid, clock: @clock)
+      def obtain_lock_for_process(fetch_specification)
+        result = Lock.obtain(fetch_specification, consumer_uuid, clock: @clock)
         case result
         when :deadlocked
-          logger.warn "Obtaining lock for split_key '#{split_key}' failed (deadlock)"
+          logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
           metrics.write_operation_result("obtain", "deadlocked")
           return false
         when :lock_timeout
-          logger.warn "Obtaining lock for split_key '#{split_key}' failed (lock timeout)"
+          logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
           metrics.write_operation_result("obtain", "lock_timeout")
           return false
         when :taken
-          logger.debug "Obtaining lock for split_key '#{split_key}' unsuccessful (taken)"
+          logger.debug "Obtaining lock for split_key '#{fetch_specification.split_key}' unsuccessful (taken)"
           metrics.write_operation_result("obtain", "taken")
           return false
         else
@@ -163,18 +163,18 @@ module RubyEventStore
         end
       end
 
-      def release_lock_for_process(message_format, split_key)
-        result = Lock.release(message_format, split_key, consumer_uuid)
+      def release_lock_for_process(fetch_specification)
+        result = Lock.release(fetch_specification, consumer_uuid)
         case result
         when :ok
         when :deadlocked
-          logger.warn "Releasing lock for split_key '#{split_key}' failed (deadlock)"
+          logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
           metrics.write_operation_result("release", "deadlocked")
         when :lock_timeout
-          logger.warn "Releasing lock for split_key '#{split_key}' failed (lock timeout)"
+          logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
           metrics.write_operation_result("release", "lock_timeout")
         when :not_taken_by_this_process
-          logger.debug "Releasing lock for split_key '#{split_key}' failed (not taken by this process)"
+          logger.debug "Releasing lock for split_key '#{fetch_specification.split_key}' failed (not taken by this process)"
           metrics.write_operation_result("release", "not_taken_by_this_process")
         else
           raise "Unexpected result #{result}"
@@ -185,15 +185,15 @@ module RubyEventStore
         result = lock.refresh(clock: @clock)
         case result
         when :deadlocked
-          logger.warn "Refreshing lock for split_key '#{split_key}' failed (deadlock)"
+          logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (deadlock)"
           metrics.write_operation_result("refresh", "deadlocked")
           return false
         when :lock_timeout
-          logger.warn "Refreshing lock for split_key '#{split_key}' failed (lock timeout)"
+          logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (lock timeout)"
           metrics.write_operation_result("refresh", "lock_timeout")
           return false
         when :stolen
-          logger.debug "Refreshing lock for split_key '#{split_key}' unsuccessful (stolen)"
+          logger.debug "Refreshing lock for split_key '#{lock.split_key}' unsuccessful (stolen)"
           metrics.write_operation_result("refresh", "stolen")
           return false
         else
@@ -214,13 +214,13 @@ module RubyEventStore
         @gracefully_shutting_down = true
       end
 
-      def retrieve_batch(message_format, split_key)
-        records = Record.where(format: message_format, enqueued_at: nil, split_key: split_key).order("id ASC").limit(batch_size).to_a
+      def retrieve_batch(fetch_specification)
+        records = Record.where(format: fetch_specification.message_format, enqueued_at: nil, split_key: fetch_specification.split_key).order("id ASC").limit(batch_size).to_a
         records
       end
 
-      def get_remaining_count(message_format, split_key)
-        Record.where(format: message_format, enqueued_at: nil, split_key: split_key).count
+      def get_remaining_count(fetch_specification)
+        Record.where(format: fetch_specification.message_format, enqueued_at: nil, split_key: fetch_specification.split_key).count
       end
     end
   end
