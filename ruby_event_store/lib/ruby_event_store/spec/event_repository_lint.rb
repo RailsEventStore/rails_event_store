@@ -7,7 +7,7 @@ module RubyEventStore
       metadata:   '{}',
       event_type: 'SRecordTestEvent'
     )
-      SerializedRecord.new(
+      Record.new(
         event_id:   event_id,
         data:       data,
         metadata:   metadata,

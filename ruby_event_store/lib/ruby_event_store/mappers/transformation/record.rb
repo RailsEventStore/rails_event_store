@@ -3,9 +3,9 @@
 module RubyEventStore
   module Mappers
     module Transformation
-      class SerializedRecord
+      class Record
         def dump(item)
-          RubyEventStore::SerializedRecord.new(
+          RubyEventStore::Record.new(
             event_id:   item.event_id,
             metadata:   item.metadata,
             data:       item.data,

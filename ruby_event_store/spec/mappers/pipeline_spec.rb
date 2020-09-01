@@ -6,7 +6,7 @@ module RubyEventStore
 
       specify '#initialize - default values' do
         pipe = Pipeline.new
-        expect(pipe.transformations.map(&:class)).to eq [Transformation::DomainEvent, Transformation::SerializedRecord]
+        expect(pipe.transformations.map(&:class)).to eq [Transformation::DomainEvent, Transformation::Record]
       end
 
       specify '#initialize - custom edge mappers' do
@@ -40,7 +40,7 @@ module RubyEventStore
 
       specify '#dump' do
         domain_mapper = Transformation::DomainEvent.new
-        record_mapper = Transformation::SerializedRecord.new
+        record_mapper = Transformation::Record.new
         some_mapper1 = Transformation::SymbolizeMetadataKeys.new
         some_mapper2 = Transformation::StringifyMetadataKeys.new
         pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: [some_mapper1, some_mapper2])
@@ -57,11 +57,11 @@ module RubyEventStore
 
       specify '#dump' do
         domain_mapper = Transformation::DomainEvent.new
-        record_mapper = Transformation::SerializedRecord.new
+        record_mapper = Transformation::Record.new
         some_mapper1 = Transformation::SymbolizeMetadataKeys.new
         some_mapper2 = Transformation::StringifyMetadataKeys.new
         pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: [some_mapper1, some_mapper2])
-        record  = SerializedRecord.new(event_id: SecureRandom.uuid, data: '', metadata: '', event_type: 'TestEvent')
+        record  = Record.new(event_id: SecureRandom.uuid, data: '', metadata: '', event_type: 'TestEvent')
         item1 = Transformation::Item.new(event_id: record.event_id, item: 1)
         item2 = Transformation::Item.new(event_id: record.event_id, item: 2)
         item3 = Transformation::Item.new(event_id: record.event_id, item: 3)

@@ -40,7 +40,7 @@ module RubyEventStore
 
       specify '#event_to_serialized_record returns YAML serialized record' do
         record = subject.event_to_serialized_record(domain_event)
-        expect(record).to            be_a SerializedRecord
+        expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
         expect(record.data).to       eq YAML.dump(encrypted_item.data)
         expect(record.metadata).to   eq YAML.dump(encrypted_item.metadata)
@@ -48,7 +48,7 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event returns event instance' do
-        record = SerializedRecord.new(
+        record = Record.new(
           event_id:   domain_event.event_id,
           data:       YAML.dump(encrypted_item.data),
           metadata:   YAML.dump(encrypted_item.metadata),
@@ -70,7 +70,7 @@ module RubyEventStore
         ].each do |value|
           source_event = domain_event(build_data(value))
           encrypted = encrypted_item(source_event)
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   source_event.event_id,
             data:       YAML.dump(encrypted.data),
             metadata:   YAML.dump(encrypted.metadata),
@@ -86,7 +86,7 @@ module RubyEventStore
         subject { described_class.new(key_repository) }
 
         specify '#serialized_record_to_event returns event instance with forgotten data' do
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
             metadata:   YAML.dump(encrypted_item.metadata),
@@ -105,7 +105,7 @@ module RubyEventStore
         end
 
         specify '#serialized_record_to_event returns event instance with forgotten data when a new key is created' do
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
             metadata:   YAML.dump(encrypted_item.metadata),
@@ -130,7 +130,7 @@ module RubyEventStore
         subject { described_class.new(key_repository, forgotten_data: forgotten_data) }
 
         specify '#serialized_record_to_event returns event instance with forgotten data' do
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
             metadata:   YAML.dump(encrypted_item.metadata),
@@ -155,7 +155,7 @@ module RubyEventStore
 
         specify '#event_to_serialized_record returns serialized record' do
           record = subject.event_to_serialized_record(domain_event)
-          expect(record).to            be_a SerializedRecord
+          expect(record).to            be_a Record
           expect(record.event_id).to   eq event_id
           expect(record.data).to       eq ReverseYamlSerializer.dump(encrypted_item.data)
           expect(record.metadata).to   eq ReverseYamlSerializer.dump(encrypted_item.metadata)
@@ -163,7 +163,7 @@ module RubyEventStore
         end
 
         specify '#serialized_record_to_event returns event instance' do
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   domain_event.event_id,
             data:       ReverseYamlSerializer.dump(encrypted_item.data),
             metadata:   ReverseYamlSerializer.dump(encrypted_item.metadata),

@@ -202,7 +202,7 @@ module RubyEventStore
 
       specify '#event_to_serialized_record returns proto serialized record' do
         record = Protobuf.new.event_to_serialized_record(domain_event)
-        expect(record).to              be_a(SerializedRecord)
+        expect(record).to              be_a(Record)
         expect(record.event_id).to     eq(event_id)
         expect(record.data).not_to     be_empty
         expect(record.metadata).not_to be_empty
@@ -222,7 +222,7 @@ module RubyEventStore
         subject = Protobuf.new(
           events_class_remapping: {'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated"}
         )
-        record = SerializedRecord.new(
+        record = Record.new(
           event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data:       "",
           metadata:   "",

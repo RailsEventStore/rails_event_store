@@ -16,7 +16,7 @@ module RubyEventStore
 
       specify '#event_to_serialized_record returns YAML serialized record' do
         record = subject.event_to_serialized_record(domain_event)
-        expect(record).to            be_a SerializedRecord
+        expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
         expect(record.data).to       eq "---\n:some_attribute: 5\n"
         expect(record.metadata).to   eq "---\n:some_meta: 1\n"
@@ -24,7 +24,7 @@ module RubyEventStore
       end
 
       specify '#serialized_record_to_event returns event instance' do
-        record = SerializedRecord.new(
+        record = Record.new(
           event_id:   domain_event.event_id,
           data:       "---\n:some_attribute: 5\n",
           metadata:   "---\n:some_meta: 1\n",
@@ -39,7 +39,7 @@ module RubyEventStore
 
       specify '#serialized_record_to_event its using events class remapping' do
         subject = described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'})
-        record = SerializedRecord.new(
+        record = Record.new(
           event_id:   domain_event.event_id,
           data:       "---\n:some_attribute: 5\n",
           metadata:   "---\n:some_meta: 1\n",
@@ -55,7 +55,7 @@ module RubyEventStore
 
         specify '#event_to_serialized_record returns serialized record' do
           record = subject.event_to_serialized_record(domain_event)
-          expect(record).to            be_a SerializedRecord
+          expect(record).to            be_a Record
           expect(record.event_id).to   eq event_id
           expect(record.data).to       eq "\n5 :etubirtta_emos:\n---"
           expect(record.metadata).to   eq "\n1 :atem_emos:\n---"
@@ -63,7 +63,7 @@ module RubyEventStore
         end
 
         specify '#serialized_record_to_event returns event instance' do
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   domain_event.event_id,
             data:       "\n5 :etubirtta_emos:\n---",
             metadata:   "\n1 :atem_emos:\n---",
@@ -82,7 +82,7 @@ module RubyEventStore
 
         specify '#event_to_serialized_record returns serialized record' do
           record = subject.event_to_serialized_record(domain_event)
-          expect(record).to            be_a SerializedRecord
+          expect(record).to            be_a Record
           expect(record.event_id).to   eq event_id
           expect(record.data).to       eq %q[{"some_attribute":5}]
           expect(record.metadata).to   eq %q[{"some_meta":1}]
@@ -90,7 +90,7 @@ module RubyEventStore
         end
 
         specify '#serialized_record_to_event returns event instance' do
-          record = SerializedRecord.new(
+          record = Record.new(
             event_id:   domain_event.event_id,
             data:       %q[{"some_attribute":5}],
             metadata:   %q[{"some_meta":1}],

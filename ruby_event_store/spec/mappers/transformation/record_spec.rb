@@ -3,9 +3,9 @@ require 'spec_helper'
 module RubyEventStore
   module Mappers
     module Transformation
-      RSpec.describe Transformation::SerializedRecord do
+      RSpec.describe Transformation::Record do
         let(:uuid)   { SecureRandom.uuid }
-        let(:record) { RubyEventStore::SerializedRecord.new(
+        let(:record) { RubyEventStore::Record.new(
           event_id: uuid,
           data: "---\n:some: value\n",
           metadata: "---\n:some: meta\n",
@@ -21,11 +21,11 @@ module RubyEventStore
         }
 
         specify "#dump" do
-          expect(SerializedRecord.new.dump(item)).to eq(record)
+          expect(Record.new.dump(item)).to eq(record)
         end
 
         specify "#load" do
-          expect(SerializedRecord.new.load(record)).to eq(item)
+          expect(Record.new.load(record)).to eq(item)
         end
       end
     end

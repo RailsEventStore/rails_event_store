@@ -118,7 +118,7 @@ module RubyEventStore
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
-      serialized_record = mapper.event_to_serialized_record(event)
+      serialized_record = SerializedRecord.new(**mapper.event_to_serialized_record(event).to_h)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_record: serialized_record}]
     end
 
@@ -179,7 +179,7 @@ module RubyEventStore
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
-      serialized_record = mapper.event_to_serialized_record(event)
+      serialized_record = SerializedRecord.new(**mapper.event_to_serialized_record(event).to_h)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_record: serialized_record}]
     end
 
@@ -191,7 +191,7 @@ module RubyEventStore
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish(event)
-      serialized_record = mapper.event_to_serialized_record(event)
+      serialized_record = SerializedRecord.new(**mapper.event_to_serialized_record(event).to_h)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, serialized_record: serialized_record}]
     end
 
@@ -225,8 +225,8 @@ module RubyEventStore
         :elo
       end.subscribe_to_all_events(Subscribers::ValidHandler).call
       client.publish(event_2)
-      serialized_record_1 = mapper.event_to_serialized_record(event_1)
-      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_record: serialized_record_1}]
+      serialized_record = SerializedRecord.new(**mapper.event_to_serialized_record(event_1).to_h)
+      expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_record: serialized_record}]
       expect(result).to eq(:elo)
       expect(client.read.to_a).to eq([event_1, event_2])
     end
@@ -297,7 +297,7 @@ module RubyEventStore
         end.subscribe_to_all_events(Subscribers::ValidHandler).call
 
         client.publish(event_2)
-        serialized_record = mapper.event_to_serialized_record(event_1)
+        serialized_record = SerializedRecord.new(**mapper.event_to_serialized_record(event_1).to_h)
         expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, serialized_record: serialized_record}]
         expect(client.read.to_a).to eq([event_1, event_2])
         expect(result).to eq(:yo)

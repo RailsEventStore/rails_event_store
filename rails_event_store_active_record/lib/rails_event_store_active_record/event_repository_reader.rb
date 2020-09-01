@@ -83,7 +83,7 @@ module RailsEventStoreActiveRecord
     end
 
     def serialized_record(record)
-      RubyEventStore::SerializedRecord.new(
+      RubyEventStore::Record.new(
         event_id: record.event.id,
         metadata: record.event.metadata,
         data: record.event.data,

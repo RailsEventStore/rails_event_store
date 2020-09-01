@@ -22,7 +22,7 @@ module RubyEventStore
         )
       end
       let(:serialized_record) do
-        SerializedRecord.new(
+        Record.new(
           event_id:   event_id,
           data:       data,
           metadata:   metadata,
@@ -35,7 +35,7 @@ module RubyEventStore
           described_class.new.event_to_serialized_record(domain_event)
         end
 
-        it { is_expected.to be_a(SerializedRecord) }
+        it { is_expected.to be_a(Record) }
         it { is_expected.to have_attributes(event_id: serialized_record.event_id) }
         it { is_expected.to have_attributes(data: serialized_record.data) }
         it { is_expected.to have_attributes(metadata: serialized_record.metadata) }
