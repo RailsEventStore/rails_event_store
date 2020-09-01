@@ -11,14 +11,14 @@ module RailsEventStoreActiveRecord
       @repo_reader = EventRepositoryReader.new
     end
 
-    def append_to_stream(events, stream, expected_version)
-      records, event_ids = [], []
-      Array(events).each do |event|
-        records << build_event_hash(event)
-        event_ids << event.event_id
+    def append_to_stream(serialized_records, stream, expected_version)
+      hashes, event_ids = [], []
+      Array(serialized_records).each do |serialized_record|
+        hashes << serialized_record_hash(serialized_record)
+        event_ids << serialized_record.event_id
       end
       add_to_stream(event_ids, stream, expected_version, true) do
-        Event.import(records)
+        Event.import(hashes)
       end
     end
 
@@ -116,7 +116,7 @@ module RailsEventStoreActiveRecord
       IndexViolationDetector.new.detect(message)
     end
 
-    def build_event_hash(serialized_record)
+    def serialized_record_hash(serialized_record)
       {
         id:         serialized_record.event_id,
         data:       serialized_record.data,

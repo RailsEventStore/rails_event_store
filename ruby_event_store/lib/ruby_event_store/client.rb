@@ -26,9 +26,9 @@ module RubyEventStore
     # @return [self]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
-      serialized_events = serialize_events(enriched_events)
-      append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
-      enriched_events.zip(serialized_events) do |event, serialized_event|
+      serialized_records = serialize_events(enriched_events)
+      append_to_stream_serialized_records(serialized_records, stream_name: stream_name, expected_version: expected_version)
+      enriched_events.zip(serialized_records) do |event, serialized_event|
         with_metadata(
           correlation_id: event.metadata[:correlation_id] || event.event_id,
           causation_id:   event.event_id,
@@ -44,8 +44,8 @@ module RubyEventStore
     # @param (see #publish)
     # @return [self]
     def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      serialized_events = serialize_events(enrich_events_metadata(events))
-      append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
+      serialized_records = serialize_events(enrich_events_metadata(events))
+      append_to_stream_serialized_records(serialized_records, stream_name: stream_name, expected_version: expected_version)
       self
     end
 
@@ -265,8 +265,8 @@ module RubyEventStore
     # @return [self]
     def overwrite(events_or_event)
       events = Array(events_or_event)
-      serialized_events = serialize_events(events)
-      repository.update_messages(serialized_events)
+      serialized_records = serialize_events(events)
+      repository.update_messages(serialized_records)
       self
     end
 
@@ -296,8 +296,8 @@ module RubyEventStore
       event.metadata[:timestamp] ||= clock.call
     end
 
-    def append_to_stream_serialized_events(serialized_events, stream_name:, expected_version:)
-      repository.append_to_stream(serialized_events, Stream.new(stream_name), ExpectedVersion.new(expected_version))
+    def append_to_stream_serialized_records(serialized_records, stream_name:, expected_version:)
+      repository.append_to_stream(serialized_records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
     protected
