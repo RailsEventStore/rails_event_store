@@ -264,9 +264,7 @@ module RubyEventStore
     # @param events [Array<Event, Proto>, Event, Proto] event(s) to serialize and overwrite again
     # @return [self]
     def overwrite(events_or_event)
-      events = Array(events_or_event)
-      serialized_records = transform(events)
-      repository.update_messages(serialized_records)
+      repository.update_messages(transform(Array(events_or_event)))
       self
     end
 
