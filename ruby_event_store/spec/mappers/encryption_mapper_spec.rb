@@ -103,6 +103,26 @@ module RubyEventStore
           expect(event.metadata.to_h).to        eq(metadata)
           expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
         end
+
+        specify '#serialized_record_to_event returns event instance with forgotten data when a new key is created' do
+          record = SerializedRecord.new(
+            event_id:   domain_event.event_id,
+            data:       YAML.dump(encrypted_item.data),
+            metadata:   YAML.dump(encrypted_item.metadata),
+            event_type: SomeEventWithPersonalInfo.name
+          )
+          key_repository.forget(123)
+          key_repository.create(123)
+          event = subject.serialized_record_to_event(record)
+          expected_event = SomeEventWithPersonalInfo.new(
+            data: build_data.merge(personal_info: ForgottenData.new),
+            metadata: metadata,
+            event_id: event_id
+          )
+          expect(event).to                      eq(expected_event)
+          expect(event.metadata.to_h).to        eq(metadata)
+          expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
+        end
       end
 
       context 'when key is forgotten and has custom forgotten data text' do
