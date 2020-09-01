@@ -28,7 +28,7 @@ module RubyEventStore
     end
 
     def last_stream_event(stream)
-      stream_of(stream.name).last
+      serialized_records_of_stream(stream.name).last
     end
 
     def read(spec)
@@ -68,7 +68,7 @@ module RubyEventStore
 
     private
     def read_scope(spec)
-      serialized_records = spec.stream.global? ? global : stream_of(spec.stream.name)
+      serialized_records = spec.stream.global? ? global : serialized_records_of_stream(spec.stream.name)
       serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       serialized_records = serialized_records.reverse if spec.backward?
@@ -82,7 +82,7 @@ module RubyEventStore
       global.find {|e| event_id.eql?(e.event_id)} or raise EventNotFound.new(event_id)
     end
 
-    def stream_of(name)
+    def serialized_records_of_stream(name)
       streams.fetch(name, Array.new)
     end
 
@@ -91,7 +91,7 @@ module RubyEventStore
     end
 
     def last_stream_version(stream)
-      stream_of(stream.name).size - 1
+      serialized_records_of_stream(stream.name).size - 1
     end
 
     def append_with_synchronize(serialized_records, expected_version, stream, include_global)
@@ -112,18 +112,18 @@ module RubyEventStore
     end
 
     def append(serialized_records, resolved_version, stream, include_global)
-      serialized_records_of_stream = stream_of(stream.name)
+      serialized_records_of_stream_ = serialized_records_of_stream(stream.name)
       raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
       serialized_records.each do |serialized_record|
-        raise EventDuplicatedInStream if serialized_records_of_stream.any? {|ev| ev.event_id.eql?(serialized_record.event_id)}
+        raise EventDuplicatedInStream if serialized_records_of_stream_.any? {|ev| ev.event_id.eql?(serialized_record.event_id)}
         if include_global
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
           global.push(serialized_record)
         end
-        serialized_records_of_stream.push(serialized_record)
+        serialized_records_of_stream_.push(serialized_record)
       end
-      streams[stream.name] = serialized_records_of_stream
+      streams[stream.name] = serialized_records_of_stream_
       self
     end
 
