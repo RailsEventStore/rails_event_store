@@ -27,7 +27,7 @@ module RubyEventStore
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
       serialized_records = transform(enriched_events)
-      append_to_stream_serialized_records(serialized_records, stream_name: stream_name, expected_version: expected_version)
+      append_records_to_stream(serialized_records, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(serialized_records) do |event, serialized_record|
         with_metadata(
           correlation_id: event.metadata[:correlation_id] || event.event_id,
@@ -44,8 +44,11 @@ module RubyEventStore
     # @param (see #publish)
     # @return [self]
     def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      serialized_records = transform(enrich_events_metadata(events))
-      append_to_stream_serialized_records(serialized_records, stream_name: stream_name, expected_version: expected_version)
+      append_records_to_stream(
+        transform(enrich_events_metadata(events)),
+        stream_name: stream_name,
+        expected_version: expected_version
+      )
       self
     end
 
@@ -292,7 +295,7 @@ module RubyEventStore
       event.metadata[:timestamp] ||= clock.call
     end
 
-    def append_to_stream_serialized_records(serialized_records, stream_name:, expected_version:)
+    def append_records_to_stream(serialized_records, stream_name:, expected_version:)
       repository.append_to_stream(serialized_records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
