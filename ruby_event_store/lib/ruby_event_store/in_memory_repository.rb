@@ -61,8 +61,8 @@ module RubyEventStore
     end
 
     def streams_of(event_id)
-      streams.select do |_, stream_events|
-        stream_events.any? { |event| event.event_id.eql?(event_id) }
+      streams.select do |_, serialized_records_of_stream|
+        serialized_records_of_stream.any? { |event| event.event_id.eql?(event_id) }
       end.map { |name, | Stream.new(name) }
     end
 
