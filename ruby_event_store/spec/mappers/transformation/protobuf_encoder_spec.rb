@@ -36,24 +36,34 @@ module RubyEventStore
         end
 
         specify '#dump raises error when no data' do
-          item = ProtoEvent.new.dump(domain_event).merge(data: nil)
+          record = Record.new(
+            event_id:   domain_event.event_id,
+            metadata:   domain_event.metadata.to_h,
+            data:       nil,
+            event_type: domain_event.event_type
+          )
           expect do
-            ProtobufEncoder.new.dump(item)
+            ProtobufEncoder.new.dump(record)
           end.to raise_error(ProtobufEncodingFailed)
         end
 
         specify '#dump raises error when wrong data' do
-          item = ProtoEvent.new.dump(domain_event).merge(data: {})
+          record = Record.new(
+            event_id:   domain_event.event_id,
+            metadata:   domain_event.metadata.to_h,
+            data:       {},
+            event_type: domain_event.event_type
+          )
 
           expect do
-            ProtobufEncoder.new.dump(item)
+            ProtobufEncoder.new.dump(record)
           end.to raise_error(ProtobufEncodingFailed)
         end
 
         specify '#dump' do
-          item = ProtoEvent.new.dump(domain_event)
-          result = ProtobufEncoder.new.dump(item)
-          expect(result).to              be_a(Item)
+          record = ProtoEvent.new.dump(domain_event)
+          result = ProtobufEncoder.new.dump(record)
+          expect(result).to              be_a(Record)
           expect(result.event_id).to     eq(event_id)
           expect(result.data).not_to     be_empty
           expect(result.metadata).not_to be_empty
@@ -63,12 +73,13 @@ module RubyEventStore
         specify '#load returns event instance in data attribute' do
           require_protobuf_dependencies
 
-          item = ProtoEvent.new.dump(domain_event)
-          dump = ProtobufEncoder.new.dump(item)
+          record = ProtoEvent.new.dump(domain_event)
+          dump = ProtobufEncoder.new.dump(record)
           result = ProtobufEncoder.new.load(dump)
-          expect(result).to                be_a(Item)
+          expect(result).to                be_a(Record)
           expect(result.event_id).to       eq(domain_event.event_id)
           expect(result.data).to           eq(data)
+          expect(result.metadata).to       eq(metadata)
         end
       end
     end

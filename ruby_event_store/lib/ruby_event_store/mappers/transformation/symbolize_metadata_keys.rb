@@ -4,18 +4,21 @@ module RubyEventStore
   module Mappers
     module Transformation
       class SymbolizeMetadataKeys
-        def dump(item)
-          symbolize(item)
+        def dump(record)
+          symbolize(record)
         end
 
-        def load(item)
-          symbolize(item)
+        def load(record)
+          symbolize(record)
         end
 
         private
-        def symbolize(item)
-          item.merge(
-            metadata: TransformKeys.symbolize(item.metadata),
+        def symbolize(record)
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       record.data,
+            metadata:   TransformKeys.symbolize(record.metadata),
           )
         end
       end

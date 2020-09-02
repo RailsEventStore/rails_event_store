@@ -4,11 +4,11 @@ module RubyEventStore
   module Mappers
     module Transformation
       class ProtoEvent < DomainEvent
-        def load(item)
+        def load(record)
           Proto.new(
-            event_id: item.event_id,
-            data:     item.data,
-            metadata: item.metadata
+            event_id: record.event_id,
+            data:     record.data,
+            metadata: record.metadata
           )
         end
       end

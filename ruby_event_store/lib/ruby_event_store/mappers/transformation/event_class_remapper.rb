@@ -8,12 +8,17 @@ module RubyEventStore
           @class_map = class_map
         end
 
-        def dump(item)
-          item
+        def dump(record)
+          record
         end
 
-        def load(item)
-          item.merge(event_type: class_map[item.fetch(:event_type)] || item.fetch(:event_type))
+        def load(record)
+          Record.new(
+            event_id:   record.event_id,
+            event_type: class_map[record.event_type] || record.event_type,
+            data:       record.data,
+            metadata:   record.metadata
+          )
         end
 
         private

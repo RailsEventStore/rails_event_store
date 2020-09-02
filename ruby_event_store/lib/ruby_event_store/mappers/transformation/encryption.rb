@@ -23,27 +23,31 @@ module RubyEventStore
           @forgotten_data = forgotten_data
         end
 
-        def dump(item)
-          data        = item.data
-          metadata    = item.metadata.dup
-          event_class = Object.const_get(item.event_type)
+        def dump(record)
+          data        = record.data
+          metadata    = record.metadata.dup
+          event_class = Object.const_get(record.event_type)
 
           crypto_description    = encryption_metadata(data, encryption_schema(event_class))
           metadata[:encryption] = crypto_description unless crypto_description.empty?
 
-          item.merge(
-            data: encrypt_data(deep_dup(data), crypto_description),
-            metadata: metadata
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       encrypt_data(deep_dup(data), crypto_description),
+            metadata:   metadata
           )
         end
 
-        def load(item)
-          metadata = item.metadata.dup
+        def load(record)
+          metadata = record.metadata.dup
           crypto_description = Hash(metadata.delete(:encryption))
 
-          item.merge(
-            data: decrypt_data(item.data, crypto_description),
-            metadata: metadata
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       decrypt_data(record.data, crypto_description),
+            metadata:   metadata
           )
         end
 

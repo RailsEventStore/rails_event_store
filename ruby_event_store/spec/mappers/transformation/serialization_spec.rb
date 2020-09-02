@@ -8,15 +8,15 @@ module RubyEventStore
       RSpec.describe Serialization do
         let(:uuid)   { SecureRandom.uuid }
         let(:serialized) {
-          Item.new(
+          Record.new(
             event_id: uuid,
             data: "---\n:some: value\n",
             metadata: "---\n:some: meta\n",
             event_type: 'TestEvent',
           )
         }
-        let(:item)   {
-          Item.new(
+        let(:record)   {
+          Record.new(
             event_id:   uuid,
             data:       {some: 'value'},
             metadata:   {some: 'meta'},
@@ -30,11 +30,11 @@ module RubyEventStore
         end
 
         specify "#dump" do
-          expect(Serialization.new.dump(item)).to eq(serialized)
+          expect(Serialization.new.dump(record)).to eq(serialized)
         end
 
         specify "#load" do
-          expect(Serialization.new.load(serialized)).to eq(item)
+          expect(Serialization.new.load(serialized)).to eq(record)
         end
       end
     end

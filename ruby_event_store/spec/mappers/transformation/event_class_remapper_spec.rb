@@ -5,26 +5,26 @@ module RubyEventStore
     module Transformation
       RSpec.describe EventClassRemapper do
         let(:uuid)  { SecureRandom.uuid }
-        let(:item)  {
-          Item.new(
+        def record(event_type: 'TestEvent')
+          Record.new(
             event_id:   uuid,
             metadata:   {some: 'meta'},
             data:       {some: 'value'},
-            event_type: 'TestEvent',
+            event_type: event_type,
           )
-        }
-        let(:changeable_item) { item.merge(event_type: 'EventNameBeforeRefactor') }
-        let(:changed_item)    { item.merge(event_type: 'SomethingHappened') }
+        end
+        let(:changeable_record) { record(event_type: 'EventNameBeforeRefactor') }
+        let(:changed_record)    { record(event_type: 'SomethingHappened') }
         let(:class_map) { {'EventNameBeforeRefactor' => 'SomethingHappened'} }
 
         specify "#dump" do
-          expect(EventClassRemapper.new(class_map).dump(item)).to eq(item)
-          expect(EventClassRemapper.new(class_map).dump(item)).to eq(item)
+          expect(EventClassRemapper.new(class_map).dump(record)).to eq(record)
+          expect(EventClassRemapper.new(class_map).dump(record)).to eq(record)
         end
 
         specify "#load" do
-          expect(EventClassRemapper.new(class_map).load(item)).to eq(item)
-          expect(EventClassRemapper.new(class_map).load(changeable_item)).to eq(changed_item)
+          expect(EventClassRemapper.new(class_map).load(record)).to eq(record)
+          expect(EventClassRemapper.new(class_map).load(changeable_record)).to eq(changed_record)
         end
       end
     end

@@ -5,7 +5,7 @@ module RubyEventStore
     module Transformation
       class DomainEvent
         def dump(domain_event)
-          Item.new(
+          Record.new(
             event_id:   domain_event.event_id,
             metadata:   domain_event.metadata.to_h,
             data:       domain_event.data,
@@ -13,11 +13,11 @@ module RubyEventStore
           )
         end
 
-        def load(item)
-          Object.const_get(item.event_type).new(
-            event_id: item.event_id,
-            metadata: item.metadata,
-            data:     item.data
+        def load(record)
+          Object.const_get(record.event_type).new(
+            event_id: record.event_id,
+            metadata: record.metadata,
+            data:     record.data
           )
         end
       end

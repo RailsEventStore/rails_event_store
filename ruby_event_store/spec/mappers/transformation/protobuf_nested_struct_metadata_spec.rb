@@ -21,7 +21,7 @@ module RubyEventStore
           eleven: [1,2,3],
         } }
         let(:uuid) { SecureRandom.uuid }
-        let(:item) { Item.new(event_id: uuid, data: "anything", metadata: metadata) }
+        let(:record) { Record.new(event_id: uuid, event_type: 'SomeEvent', data: "anything", metadata: metadata) }
 
         specify "#initialize requires protobuf_nested_struct" do
           p = ProtobufNestedStructMetadata.allocate
@@ -34,16 +34,16 @@ module RubyEventStore
         end
 
         specify "#dump" do
-          dump = ProtobufNestedStructMetadata.new.dump(item)
-          expect(dump.event_id).to eq(item.event_id)
+          dump = ProtobufNestedStructMetadata.new.dump(record)
+          expect(dump.event_id).to eq(record.event_id)
           expect(dump.data).not_to be_empty
           expect(dump.metadata).not_to be_empty
         end
 
         specify "#load" do
-          dump = ProtobufNestedStructMetadata.new.dump(item)
+          dump = ProtobufNestedStructMetadata.new.dump(record)
           load = ProtobufNestedStructMetadata.new.load(dump)
-          expect(load).to eq(item)
+          expect(load).to eq(record)
         end
       end
     end
