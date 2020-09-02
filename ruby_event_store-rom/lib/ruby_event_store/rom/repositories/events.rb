@@ -7,12 +7,12 @@ module RubyEventStore
   module ROM
     module Repositories
       class Events < ::ROM::Repository[:events]
-        def create_changeset(serialized_records)
-          events.create_changeset(serialized_records)
+        def create_changeset(records)
+          events.create_changeset(records)
         end
 
-        def update_changeset(serialized_records)
-          events.update_changeset(serialized_records)
+        def update_changeset(records)
+          events.update_changeset(records)
         end
 
         def find_nonexistent_pks(event_ids)
@@ -82,7 +82,7 @@ module RubyEventStore
 
           query
             .combine(:event)
-            .map_with(:stream_entry_to_serialized_record, auto_struct: false)
+            .map_with(:stream_entry_to_record, auto_struct: false)
         end
       end
     end
