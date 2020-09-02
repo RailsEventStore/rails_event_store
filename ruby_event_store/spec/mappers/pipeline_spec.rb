@@ -6,31 +6,28 @@ module RubyEventStore
 
       specify '#initialize - default values' do
         pipe = Pipeline.new
-        expect(pipe.transformations.map(&:class)).to eq [Transformation::DomainEvent, Transformation::Record]
+        expect(pipe.transformations.map(&:class)).to eq [Transformation::DomainEvent]
       end
 
       specify '#initialize - custom edge mappers' do
         domain_mapper = Object.new
-        record_mapper = Object.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper)
-        expect(pipe.transformations).to eq [domain_mapper, record_mapper]
+        pipe = Pipeline.new(to_domain_event: domain_mapper)
+        expect(pipe.transformations).to eq [domain_mapper]
       end
 
       specify '#initialize - custom edge mappers' do
         domain_mapper = Object.new
-        record_mapper = Object.new
-        some_mapper1 = Object.new
-        some_mapper2 = Object.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: [some_mapper1, some_mapper2])
-        expect(pipe.transformations).to eq [domain_mapper, some_mapper1, some_mapper2, record_mapper]
+        transformation_1 = Object.new
+        transformation_2 = Object.new
+        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: [transformation_1, transformation_2])
+        expect(pipe.transformations).to eq [domain_mapper, transformation_1, transformation_2]
       end
 
       specify '#initialize - single transformation' do
         domain_mapper = Object.new
-        record_mapper = Object.new
-        some_mapper = Object.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: some_mapper)
-        expect(pipe.transformations).to eq [domain_mapper, some_mapper, record_mapper]
+        transformation_ = Object.new
+        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: transformation_)
+        expect(pipe.transformations).to eq [domain_mapper, transformation_]
       end
 
       specify '#initialize - change in transformations not allowed' do
@@ -40,35 +37,29 @@ module RubyEventStore
 
       specify '#dump' do
         domain_mapper = Transformation::DomainEvent.new
-        record_mapper = Transformation::Record.new
-        some_mapper1 = Transformation::SymbolizeMetadataKeys.new
-        some_mapper2 = Transformation::StringifyMetadataKeys.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: [some_mapper1, some_mapper2])
+        transformation_1 = Transformation::SymbolizeMetadataKeys.new
+        transformation_2 = Transformation::StringifyMetadataKeys.new
+        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: [transformation_1, transformation_2])
         domain_event = TestEvent.new
-        item1 = Transformation::Item.new(event_id: domain_event.event_id, item: 1)
-        item2 = Transformation::Item.new(event_id: domain_event.event_id, item: 2)
-        item3 = Transformation::Item.new(event_id: domain_event.event_id, item: 3)
-        expect(domain_mapper).to receive(:dump).with(domain_event).and_return(item1)
-        expect(some_mapper1).to receive(:dump).with(item1).and_return(item2)
-        expect(some_mapper2).to receive(:dump).with(item2).and_return(item3)
-        expect(record_mapper).to receive(:dump).with(item3)
+        record1 = Record.new(event_id: domain_event.event_id, data: { item: 1 }, metadata: '', event_type: 'TestEvent')
+        record2 = Record.new(event_id: domain_event.event_id, data: { item: 2 }, metadata: '', event_type: 'TestEvent')
+        expect(domain_mapper).to receive(:dump).with(domain_event).and_return(record1)
+        expect(transformation_1).to receive(:dump).with(record1).and_return(record2)
+        expect(transformation_2).to receive(:dump).with(record2)
         expect{ pipe.dump(domain_event) }.not_to raise_error
       end
 
       specify '#dump' do
         domain_mapper = Transformation::DomainEvent.new
-        record_mapper = Transformation::Record.new
-        some_mapper1 = Transformation::SymbolizeMetadataKeys.new
-        some_mapper2 = Transformation::StringifyMetadataKeys.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, to_serialized_record: record_mapper, transformations: [some_mapper1, some_mapper2])
+        transformation_1 = Transformation::SymbolizeMetadataKeys.new
+        transformation_2 = Transformation::StringifyMetadataKeys.new
+        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: [transformation_1, transformation_2])
         record  = Record.new(event_id: SecureRandom.uuid, data: '', metadata: '', event_type: 'TestEvent')
-        item1 = Transformation::Item.new(event_id: record.event_id, item: 1)
-        item2 = Transformation::Item.new(event_id: record.event_id, item: 2)
-        item3 = Transformation::Item.new(event_id: record.event_id, item: 3)
-        expect(record_mapper).to receive(:load).with(record).and_return(item1)
-        expect(some_mapper2).to receive(:load).with(item1).and_return(item2)
-        expect(some_mapper1).to receive(:load).with(item2).and_return(item3)
-        expect(domain_mapper).to receive(:load).with(item3)
+        record1 = Record.new(event_id: record.event_id, data: { item: 1 }, metadata: '', event_type: 'TestEvent')
+        record2 = Record.new(event_id: record.event_id, data: { item: 2 }, metadata: '', event_type: 'TestEvent')
+        expect(transformation_2).to receive(:load).with(record).and_return(record1)
+        expect(transformation_1).to receive(:load).with(record1).and_return(record2)
+        expect(domain_mapper).to receive(:load).with(record2)
         expect{ pipe.load(record) }.not_to raise_error
       end
     end
