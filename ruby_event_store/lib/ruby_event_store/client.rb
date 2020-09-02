@@ -33,15 +33,7 @@ module RubyEventStore
           correlation_id: event.metadata[:correlation_id] || event.event_id,
           causation_id:   event.event_id,
         ) do
-          broker.(
-            event,
-            SerializedRecord.new(
-              event_id:   record.event_id,
-              event_type: record.event_type,
-              data:       record.data,
-              metadata:   record.metadata
-            )
-          )
+          broker.(event, serialized_record(record))
         end
       end
       self
@@ -305,6 +297,15 @@ module RubyEventStore
 
     def append_records_to_stream(records, stream_name:, expected_version:)
       repository.append_to_stream(records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
+    end
+
+    def serialized_record(record)
+      SerializedRecord.new(
+        event_id:   record.event_id,
+        event_type: record.event_type,
+        data:       record.data,
+        metadata:   record.metadata
+      )
     end
 
     protected
