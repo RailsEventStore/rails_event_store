@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../mappers/event_to_serialized_record'
 require_relative '../changesets/create_events'
 require_relative '../changesets/update_events'
 
@@ -24,10 +23,6 @@ module RubyEventStore
 
         def exist?(event_id)
           events.by_pk(event_id).exist?
-        end
-
-        def by_id(event_id)
-          events.map_with(:event_to_serialized_record).by_pk(event_id).one!
         end
 
         def last_stream_event(stream)
