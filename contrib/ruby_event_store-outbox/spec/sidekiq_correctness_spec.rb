@@ -22,18 +22,18 @@ module RubyEventStore
 
       specify do
         event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-        serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+        serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
         class ::CorrectAsyncHandler
           include Sidekiq::Worker
           def through_outbox?; true; end
         end
 
-        SidekiqScheduler.new.call(CorrectAsyncHandler, serialized_event)
+        SidekiqScheduler.new.call(CorrectAsyncHandler, serialized_record)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
         consumer.one_loop
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 
-        CorrectAsyncHandler.perform_async(serialized_event.to_h)
+        CorrectAsyncHandler.perform_async(serialized_record.to_h)
         entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
 
         expect(redis.llen("queue:default")).to eq(2)

@@ -11,22 +11,22 @@ module RubyEventStore
         some_dispatcher = spy
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
         event = Object.new
-        serialized_event = Object.new
+        serialized_record = Object.new
         subscriber = -> { }
 
-        instrumented_dispatcher.call(subscriber, event, serialized_event)
+        instrumented_dispatcher.call(subscriber, event, serialized_record)
 
-        expect(some_dispatcher).to have_received(:call).with(subscriber, event, serialized_event)
+        expect(some_dispatcher).to have_received(:call).with(subscriber, event, serialized_record)
       end
 
       specify "instruments" do
         instrumented_dispatcher = InstrumentedDispatcher.new(spy, ActiveSupport::Notifications)
         subscribe_to("call.dispatcher.rails_event_store") do |notification_calls|
           event = Object.new
-          serialized_event = Object.new
+          serialized_record = Object.new
           subscriber = -> { }
 
-          instrumented_dispatcher.call(subscriber, event, serialized_event)
+          instrumented_dispatcher.call(subscriber, event, serialized_record)
 
           expect(notification_calls).to eq([
             { event: event, subscriber: subscriber }

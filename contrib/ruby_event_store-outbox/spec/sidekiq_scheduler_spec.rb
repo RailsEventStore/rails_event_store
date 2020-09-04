@@ -51,13 +51,13 @@ module RubyEventStore
 
         specify do
           event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-          serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             def through_outbox?; true; end
           end
 
-          subject.call(CorrectAsyncHandler, serialized_event)
+          subject.call(CorrectAsyncHandler, serialized_record)
 
           expect(Record.count).to eq(1)
           record = Record.first
@@ -82,14 +82,14 @@ module RubyEventStore
 
         specify "custom queue name is taken into account" do
           event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-          serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             sidekiq_options queue: 'custom_queue'
             def through_outbox?; true; end
           end
 
-          subject.call(CorrectAsyncHandler, serialized_event)
+          subject.call(CorrectAsyncHandler, serialized_record)
 
           record = Record.first
           expect(record.split_key).to eq('custom_queue')
@@ -98,7 +98,7 @@ module RubyEventStore
 
         specify "client middleware may abort scheduling" do
           event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-          serialized_event = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
           class ::AlwaysCancellingMiddleware
             def call(_worker_class, _msg, _queue, _redis_pool)
             end
@@ -109,7 +109,7 @@ module RubyEventStore
             def through_outbox?; true; end
           end
 
-          subject.call(CorrectAsyncHandler, serialized_event)
+          subject.call(CorrectAsyncHandler, serialized_record)
 
           expect(Record.count).to eq(0)
         end

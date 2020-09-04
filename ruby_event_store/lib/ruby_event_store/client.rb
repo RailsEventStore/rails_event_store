@@ -28,12 +28,12 @@ module RubyEventStore
       enriched_events = enrich_events_metadata(events)
       serialized_records = serialize_events(enriched_events)
       append_to_stream_serialized_records(serialized_records, stream_name: stream_name, expected_version: expected_version)
-      enriched_events.zip(serialized_records) do |event, serialized_event|
+      enriched_events.zip(serialized_records) do |event, serialized_record|
         with_metadata(
           correlation_id: event.metadata[:correlation_id] || event.event_id,
           causation_id:   event.event_id,
         ) do
-          broker.(event, serialized_event)
+          broker.(event, serialized_record)
         end
       end
       self

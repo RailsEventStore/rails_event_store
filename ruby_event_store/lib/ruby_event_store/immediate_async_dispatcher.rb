@@ -6,8 +6,8 @@ module RubyEventStore
       @scheduler = scheduler
     end
 
-    def call(subscriber, _, serialized_event)
-      @scheduler.call(subscriber, serialized_event)
+    def call(subscriber, _, serialized_record)
+      @scheduler.call(subscriber, serialized_record)
     end
 
     def verify(subscriber)
