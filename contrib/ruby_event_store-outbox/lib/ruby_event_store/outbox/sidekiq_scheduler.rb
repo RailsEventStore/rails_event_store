@@ -9,8 +9,8 @@ module RubyEventStore
         @sidekiq_producer = SidekiqProducer.new
       end
 
-      def call(klass, serialized_event)
-        sidekiq_producer.call(klass, [serialized_event.to_h])
+      def call(klass, serialized_record)
+        sidekiq_producer.call(klass, [serialized_record.to_h])
       end
 
       def verify(subscriber)

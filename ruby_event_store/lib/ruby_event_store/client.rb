@@ -26,14 +26,14 @@ module RubyEventStore
     # @return [self]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
-      serialized_events = serialize_events(enriched_events)
-      append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
-      enriched_events.zip(serialized_events) do |event, serialized_event|
+      serialized_records = transform(enriched_events)
+      append_records_to_stream(serialized_records, stream_name: stream_name, expected_version: expected_version)
+      enriched_events.zip(serialized_records) do |event, serialized_record|
         with_metadata(
           correlation_id: event.metadata[:correlation_id] || event.event_id,
           causation_id:   event.event_id,
         ) do
-          broker.(event, serialized_event)
+          broker.(event, serialized_record)
         end
       end
       self
@@ -44,8 +44,11 @@ module RubyEventStore
     # @param (see #publish)
     # @return [self]
     def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      serialized_events = serialize_events(enrich_events_metadata(events))
-      append_to_stream_serialized_events(serialized_events, stream_name: stream_name, expected_version: expected_version)
+      append_records_to_stream(
+        transform(enrich_events_metadata(events)),
+        stream_name: stream_name,
+        expected_version: expected_version
+      )
       self
     end
 
@@ -264,9 +267,7 @@ module RubyEventStore
     # @param events [Array<Event, Proto>, Event, Proto] event(s) to serialize and overwrite again
     # @return [self]
     def overwrite(events_or_event)
-      events = Array(events_or_event)
-      serialized_events = serialize_events(events)
-      repository.update_messages(serialized_events)
+      repository.update_messages(transform(Array(events_or_event)))
       self
     end
 
@@ -279,10 +280,8 @@ module RubyEventStore
 
     private
 
-    def serialize_events(events)
-      events.map do |ev|
-        mapper.event_to_serialized_record(ev)
-      end
+    def transform(events)
+      events.map { |ev| mapper.event_to_serialized_record(ev) }
     end
 
     def enrich_events_metadata(events)
@@ -296,8 +295,8 @@ module RubyEventStore
       event.metadata[:timestamp] ||= clock.call
     end
 
-    def append_to_stream_serialized_events(serialized_events, stream_name:, expected_version:)
-      repository.append_to_stream(serialized_events, Stream.new(stream_name), ExpectedVersion.new(expected_version))
+    def append_records_to_stream(serialized_records, stream_name:, expected_version:)
+      repository.append_to_stream(serialized_records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
     protected

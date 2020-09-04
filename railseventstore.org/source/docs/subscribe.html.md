@@ -295,8 +295,8 @@ The sample `CustomScheduler` could be implemented as:
 ```ruby
 class CustomScheduler
   # method doing actual schedule
-  def call(klass, serialized_event)
-    klass.perform_async(serialized_event.to_h)
+  def call(klass, serialized_record)
+    klass.perform_async(serialized_record.to_h)
   end
 
   # method which is checking whether given subscriber is correct for this scheduler

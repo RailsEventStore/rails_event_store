@@ -693,13 +693,13 @@ module RubyEventStore
           data:     { foo: 'bar' },
           metadata: { bar: 'baz' }
       )
-      serialized_event = {
+      payload = {
         event_type: "OrderCreated",
         event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data:       "---\n:foo: bar\n",
         metadata:   "---\n:bar: baz\n"
       }
-      expect(client.deserialize(**serialized_event)).to eq(event)
+      expect(client.deserialize(**payload)).to eq(event)
     end
 
     specify 'can load serialized event using Protobuf mapper' do
@@ -720,13 +720,13 @@ module RubyEventStore
             time: Time.new(2018, 12, 13, 11),
           }
         )
-        serialized_event = {
+        payload = {
           event_type: "res_testing.OrderCreated",
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data: "\n\aK3THNX9\x10{",
           metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
         }
-        expect(client.deserialize(**serialized_event)).to eq(event)
+        expect(client.deserialize(**payload)).to eq(event)
       rescue LoadError => exc
         skip if exc.message == "cannot load such file -- google/protobuf_c"
       end
