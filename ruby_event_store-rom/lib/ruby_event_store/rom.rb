@@ -104,12 +104,8 @@ module RubyEventStore
 
       def find_adapters(gateways)
         # Setup for each kind of gateway class
-        gateways.values.map(&:class).uniq.map do |klass|
-          constant = klass.name.split('::')[1].to_sym
-
-          next unless RubyEventStore::ROM.constants.include?(constant)
-
-          RubyEventStore::ROM.const_get(constant)
+        gateways.values.map(&:class).map do |klass|
+          const_get(klass.name.split('::').fetch(1))
         end
       end
     end
