@@ -18,16 +18,16 @@ module RubyEventStore
         record = subject.event_to_record(domain_event)
         expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
-        expect(record.data).to       eq "---\n:some_attribute: 5\n"
-        expect(record.metadata).to   eq "---\n:some_meta: 1\n"
+        expect(record.data).to       eq({ some_attribute: 5 })
+        expect(record.metadata).to   eq({ some_meta: 1 })
         expect(record.event_type).to eq "SomethingHappened"
       end
 
       specify '#record_to_event returns event instance' do
         record = Record.new(
           event_id:   domain_event.event_id,
-          data:       "---\n:some_attribute: 5\n",
-          metadata:   "---\n:some_meta: 1\n",
+          data:       { some_attribute: 5 },
+          metadata:   { some_meta: 1},
           event_type: SomethingHappened.name
         )
         event = subject.record_to_event(record)
@@ -41,72 +41,12 @@ module RubyEventStore
         subject = described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'})
         record = Record.new(
           event_id:   domain_event.event_id,
-          data:       "---\n:some_attribute: 5\n",
-          metadata:   "---\n:some_meta: 1\n",
+          data:       { some_attribute: 5 },
+          metadata:   { some_meta: 1 },
           event_type: "EventNameBeforeRefactor"
         )
         event = subject.record_to_event(record)
         expect(event).to eq(domain_event)
-      end
-
-      context 'when custom serializer is provided' do
-        let(:custom_serializer) { ReverseYamlSerializer }
-        subject { described_class.new(serializer: custom_serializer) }
-
-        specify '#event_to_record returns serialized record' do
-          record = subject.event_to_record(domain_event)
-          expect(record).to            be_a Record
-          expect(record.event_id).to   eq event_id
-          expect(record.data).to       eq "\n5 :etubirtta_emos:\n---"
-          expect(record.metadata).to   eq "\n1 :atem_emos:\n---"
-          expect(record.event_type).to eq "SomethingHappened"
-        end
-
-        specify '#record_to_event returns event instance' do
-          record = Record.new(
-            event_id:   domain_event.event_id,
-            data:       "\n5 :etubirtta_emos:\n---",
-            metadata:   "\n1 :atem_emos:\n---",
-            event_type: SomethingHappened.name
-          )
-          event = subject.record_to_event(record)
-          expect(event).to              eq(domain_event)
-          expect(event.event_id).to     eq domain_event.event_id
-          expect(event.data).to         eq(data)
-          expect(event.metadata.to_h).to     eq(metadata)
-        end
-      end
-
-      context 'when JSON serializer is provided' do
-        subject { described_class.new(serializer: JSON) }
-
-        specify '#event_to_record returns serialized record' do
-          record = subject.event_to_record(domain_event)
-          expect(record).to            be_a Record
-          expect(record.event_id).to   eq event_id
-          expect(record.data).to       eq %q[{"some_attribute":5}]
-          expect(record.metadata).to   eq %q[{"some_meta":1}]
-          expect(record.event_type).to eq "SomethingHappened"
-        end
-
-        specify '#record_to_event returns event instance' do
-          record = Record.new(
-            event_id:   domain_event.event_id,
-            data:       %q[{"some_attribute":5}],
-            metadata:   %q[{"some_meta":1}],
-            event_type: SomethingHappened.name
-          )
-          domain_event = SomethingHappened.new(
-            data: stringify(data),
-            metadata: metadata,
-            event_id: event_id
-          )
-          event = subject.record_to_event(record)
-          expect(event).to              eq(domain_event)
-          expect(event.event_id).to     eq domain_event.event_id
-          expect(event.data).to         eq(domain_event.data)
-          expect(event.metadata.to_h).to     eq(domain_event.metadata.to_h)
-        end
       end
 
       private

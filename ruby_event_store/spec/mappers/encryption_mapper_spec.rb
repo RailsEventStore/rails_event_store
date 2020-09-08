@@ -42,16 +42,16 @@ module RubyEventStore
         record = subject.event_to_record(domain_event)
         expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
-        expect(record.data).to       eq YAML.dump(encrypted_item.data)
-        expect(record.metadata).to   eq YAML.dump(encrypted_item.metadata)
+        expect(record.data).to       eq encrypted_item.data
+        expect(record.metadata).to   eq encrypted_item.metadata
         expect(record.event_type).to eq "RubyEventStore::Mappers::SomeEventWithPersonalInfo"
       end
 
       specify '#record_to_event returns event instance' do
         record = Record.new(
           event_id:   domain_event.event_id,
-          data:       YAML.dump(encrypted_item.data),
-          metadata:   YAML.dump(encrypted_item.metadata),
+          data:       encrypted_item.data,
+          metadata:   encrypted_item.metadata,
           event_type: SomeEventWithPersonalInfo.name
         )
         event = subject.record_to_event(record)
@@ -72,8 +72,8 @@ module RubyEventStore
           encrypted = encrypted_item(source_event)
           record = Record.new(
             event_id:   source_event.event_id,
-            data:       YAML.dump(encrypted.data),
-            metadata:   YAML.dump(encrypted.metadata),
+            data:       encrypted.data,
+            metadata:   encrypted.metadata,
             event_type: SomeEventWithPersonalInfo.name
           )
           event = subject.record_to_event(record)
@@ -88,8 +88,8 @@ module RubyEventStore
         specify '#record_to_event returns event instance with forgotten data' do
           record = Record.new(
             event_id:   domain_event.event_id,
-            data:       YAML.dump(encrypted_item.data),
-            metadata:   YAML.dump(encrypted_item.metadata),
+            data:       encrypted_item.data,
+            metadata:   encrypted_item.metadata,
             event_type: SomeEventWithPersonalInfo.name
           )
           key_repository.forget(123)
@@ -107,8 +107,8 @@ module RubyEventStore
         specify '#record_to_event returns event instance with forgotten data when a new key is created' do
           record = Record.new(
             event_id:   domain_event.event_id,
-            data:       YAML.dump(encrypted_item.data),
-            metadata:   YAML.dump(encrypted_item.metadata),
+            data:       encrypted_item.data,
+            metadata:   encrypted_item.metadata,
             event_type: SomeEventWithPersonalInfo.name
           )
           key_repository.forget(123)
@@ -132,8 +132,8 @@ module RubyEventStore
         specify '#record_to_event returns event instance with forgotten data' do
           record = Record.new(
             event_id:   domain_event.event_id,
-            data:       YAML.dump(encrypted_item.data),
-            metadata:   YAML.dump(encrypted_item.metadata),
+            data:       encrypted_item.data,
+            metadata:   encrypted_item.metadata,
             event_type: SomeEventWithPersonalInfo.name
           )
           key_repository.forget(123)
@@ -157,16 +157,16 @@ module RubyEventStore
           record = subject.event_to_record(domain_event)
           expect(record).to            be_a Record
           expect(record.event_id).to   eq event_id
-          expect(record.data).to       eq ReverseYamlSerializer.dump(encrypted_item.data)
-          expect(record.metadata).to   eq ReverseYamlSerializer.dump(encrypted_item.metadata)
+          expect(record.data).to       eq encrypted_item.data
+          expect(record.metadata).to   eq encrypted_item.metadata
           expect(record.event_type).to eq "RubyEventStore::Mappers::SomeEventWithPersonalInfo"
         end
 
         specify '#record_to_event returns event instance' do
           record = Record.new(
             event_id:   domain_event.event_id,
-            data:       ReverseYamlSerializer.dump(encrypted_item.data),
-            metadata:   ReverseYamlSerializer.dump(encrypted_item.metadata),
+            data:       encrypted_item.data,
+            metadata:   encrypted_item.metadata,
             event_type: SomeEventWithPersonalInfo.name
           )
           event = subject.record_to_event(record)
