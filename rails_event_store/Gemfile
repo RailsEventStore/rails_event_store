@@ -13,7 +13,6 @@ gem 'protobuf_nested_struct'
 gem 'sidekiq'
 gem 'rack-test'
 gem 'google-protobuf', '~> 3.12.2', '>= 3.12.2'
-gem 'pry'
 gem 'rails', ENV['RAILS_VERSION']
 
 if Gem::Version.new(ENV['RAILS_VERSION']) >= Gem::Version.new('6.0.0')

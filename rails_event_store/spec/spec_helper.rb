@@ -5,7 +5,6 @@ require_relative '../../support/helpers/rspec_defaults'
 require_relative '../../support/helpers/mutant_timeout'
 require_relative '../../support/helpers/migrator'
 require_relative '../../support/helpers/protobuf_helper'
-require 'pry'
 
 RSpec.configure do |config|
   config.around(:each) do |example|
