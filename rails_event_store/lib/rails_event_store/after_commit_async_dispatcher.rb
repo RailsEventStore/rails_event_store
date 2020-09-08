@@ -6,9 +6,9 @@ module RailsEventStore
       @scheduler = scheduler
     end
 
-    def call(subscriber, _, serialized_record)
+    def call(subscriber, _, record)
       run do
-        @scheduler.call(subscriber, serialized_record)
+        @scheduler.call(subscriber, record)
       end
     end
 
