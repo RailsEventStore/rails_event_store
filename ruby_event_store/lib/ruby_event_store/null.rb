@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-  class NullSerializer
-    def dump(value)
+  module NULL
+    def self.dump(value)
       value
     end
 
-    def load(value)
+    def self.load(value)
       value
     end
   end

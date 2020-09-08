@@ -4,7 +4,7 @@ require 'ostruct'
 module RubyEventStore
   class InMemoryRepository
 
-    def initialize(serializer: NullSerializer.new)
+    def initialize(serializer: NULL)
       @serializer = serializer
       @streams = Hash.new
       @mutex = Mutex.new
