@@ -4,21 +4,12 @@ module RailsEventStore
   module RSpec
     ::RSpec.describe Publish do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
-      let(:mapper_for_object_comparison) do
-        Object.new.tap do |obj|
-          def obj.event_to_serialized_record(object)
-            object
-          end
-
-          def obj.serialized_record_to_event(object)
-            object
-          end
-        end
-      end
       let(:event_store) do
         RailsEventStore::Client.new(
           repository: RailsEventStore::InMemoryRepository.new,
-          mapper: mapper_for_object_comparison
+          mapper: RubyEventStore::Mappers::PipelineMapper.new(
+            RubyEventStore::Mappers::Pipeline.new(to_domain_event: IdentityMapTransformation.new)
+          )
         )
       end
 

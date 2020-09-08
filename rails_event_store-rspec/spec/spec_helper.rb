@@ -34,3 +34,23 @@ class TestAggregate
   def apply_baz_event(*)
   end
 end
+
+class IdentityMapTransformation
+  def initialize
+    @identity_map = {}
+  end
+
+  def dump(domain_event)
+    @identity_map[domain_event.event_id] = domain_event
+    ::RubyEventStore::Mappers::Transformation::Item.new(
+      event_id:   domain_event.event_id,
+      metadata:   domain_event.metadata.to_h,
+      data:       domain_event.data,
+      event_type: domain_event.event_type
+    )
+  end
+
+  def load(item)
+    @identity_map.fetch(item.event_id)
+  end
+end
