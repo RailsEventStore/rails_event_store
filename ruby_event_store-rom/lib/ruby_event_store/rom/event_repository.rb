@@ -11,17 +11,18 @@ module RubyEventStore
       def_delegator :@rom, :handle_error, :guard_for
       def_delegators :@rom, :unit_of_work
 
-      def initialize(rom: ROM.env)
+      def initialize(rom: ROM.env, serializer: YAML)
         raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
 
         @rom = rom
         @events = Repositories::Events.new(rom.rom_container)
         @stream_entries = Repositories::StreamEntries.new(rom.rom_container)
+        @serializer = serializer
       end
 
-      def append_to_stream(events, stream, expected_version)
-        events = Array(events)
-        event_ids = events.map(&:event_id)
+      def append_to_stream(records, stream, expected_version)
+        serialized_records = Array(records).map { |record| record.serialize(@serializer) }
+        event_ids = serialized_records.map(&:event_id)
 
         guard_for(:unique_violation) do
           unit_of_work do |changesets|
@@ -29,7 +30,7 @@ module RubyEventStore
             # we want to find the last position (a.k.a. version)
             # again if the transaction is retried due to a
             # deadlock in MySQL
-            changesets << @events.create_changeset(events)
+            changesets << @events.create_changeset(serialized_records)
             changesets << @stream_entries.create_changeset(
               event_ids,
               stream,
@@ -72,13 +73,13 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        @events.last_stream_event(stream)
+        @events.last_stream_event(stream, @serializer)
       end
 
       def read(specification)
         raise ReservedInternalName if specification.stream.name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
 
-        @events.read(specification)
+        @events.read(specification, @serializer)
       end
 
       def count(specification)
@@ -87,14 +88,15 @@ module RubyEventStore
         @events.count(specification)
       end
 
-      def update_messages(messages)
+      def update_messages(records)
         # Validate event IDs
         @events
-          .find_nonexistent_pks(messages.map(&:event_id))
+          .find_nonexistent_pks(records.map(&:event_id))
           .each { |id| raise EventNotFound, id }
 
         unit_of_work do |changesets|
-          changesets << @events.update_changeset(messages)
+          serialized_records = Array(records).map { |record| record.serialize(@serializer) }
+          changesets << @events.update_changeset(serialized_records)
         end
       end
 

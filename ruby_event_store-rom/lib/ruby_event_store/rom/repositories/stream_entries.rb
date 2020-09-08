@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../mappers/stream_entry_to_record'
+require_relative '../mappers/stream_entry_to_serialized_record'
 require_relative '../changesets/create_stream_entries'
 
 module RubyEventStore

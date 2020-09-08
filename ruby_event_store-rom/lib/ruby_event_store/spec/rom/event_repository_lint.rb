@@ -55,7 +55,7 @@ module RubyEventStore
           SRecord.new(event_id: u1 = SecureRandom.uuid),
           SRecord.new(event_id: u2 = SecureRandom.uuid),
           SRecord.new(event_id: u3 = SecureRandom.uuid)
-        ]
+        ].map{|r| r.serialize(YAML) }
 
         repo = Repositories::Events.new(rom_container)
         repo.create_changeset(events).commit
@@ -82,7 +82,8 @@ module RubyEventStore
           SRecord.new(event_id: u1 = SecureRandom.uuid),
           SRecord.new(event_id: u2 = SecureRandom.uuid),
           SRecord.new(event_id: u3 = SecureRandom.uuid)
-        ]
+        ].map{|r| r.serialize(YAML) }
+
 
         repo = Repositories::Events.new(rom_container)
         repo.create_changeset(events).commit
