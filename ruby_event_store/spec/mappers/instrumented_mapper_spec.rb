@@ -6,20 +6,20 @@ module RubyEventStore
   module Mappers
     RSpec.describe InstrumentedMapper do
 
-      describe "#event_to_serialized_record" do
+      describe "#event_to_record" do
         specify "wraps around original implementation" do
-          domain_event, serialized_record = Object.new, Object.new
+          domain_event, record = Object.new, Object.new
           some_mapper = instance_double(RubyEventStore::Mappers::NullMapper)
-          allow(some_mapper).to receive(:event_to_serialized_record).with(domain_event).and_return(serialized_record)
+          allow(some_mapper).to receive(:event_to_record).with(domain_event).and_return(record)
           instrumented_mapper = InstrumentedMapper.new(some_mapper, ActiveSupport::Notifications)
 
-          expect(instrumented_mapper.event_to_serialized_record(domain_event)).to eq(serialized_record)
+          expect(instrumented_mapper.event_to_record(domain_event)).to eq(record)
         end
 
         specify "instruments" do
           instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
           subscribe_to("serialize.mapper.rails_event_store") do |notification_calls|
-            instrumented_mapper.event_to_serialized_record(domain_event = Object.new)
+            instrumented_mapper.event_to_record(domain_event = Object.new)
             expect(notification_calls).to eq([
               { domain_event: domain_event}
             ])
@@ -27,22 +27,22 @@ module RubyEventStore
         end
       end
 
-      describe "#serialized_record_to_event" do
+      describe "#record_to_event" do
         specify "wraps around original implementation" do
-          domain_event, serialized_record = Object.new, Object.new
+          domain_event, record = Object.new, Object.new
           some_mapper = instance_double(RubyEventStore::Mappers::NullMapper)
-          allow(some_mapper).to receive(:serialized_record_to_event).with(serialized_record).and_return(domain_event)
+          allow(some_mapper).to receive(:record_to_event).with(record).and_return(domain_event)
           instrumented_mapper = InstrumentedMapper.new(some_mapper, ActiveSupport::Notifications)
 
-          expect(instrumented_mapper.serialized_record_to_event(serialized_record)).to eq(domain_event)
+          expect(instrumented_mapper.record_to_event(record)).to eq(domain_event)
         end
 
         specify "instruments" do
           instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
           subscribe_to("deserialize.mapper.rails_event_store") do |notification_calls|
-            instrumented_mapper.serialized_record_to_event(serialized_record = Object.new)
+            instrumented_mapper.record_to_event(record = Object.new)
             expect(notification_calls).to eq([
-              { record: serialized_record}
+              { record: record}
             ])
           end
         end

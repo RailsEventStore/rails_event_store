@@ -38,8 +38,8 @@ module RubyEventStore
         allow(key).to receive(:random_iv).and_return('123456789012')
       }
 
-      specify '#event_to_serialized_record returns YAML serialized record' do
-        record = subject.event_to_serialized_record(domain_event)
+      specify '#event_to_record returns YAML serialized record' do
+        record = subject.event_to_record(domain_event)
         expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
         expect(record.data).to       eq YAML.dump(encrypted_item.data)
@@ -47,14 +47,14 @@ module RubyEventStore
         expect(record.event_type).to eq "RubyEventStore::Mappers::SomeEventWithPersonalInfo"
       end
 
-      specify '#serialized_record_to_event returns event instance' do
+      specify '#record_to_event returns event instance' do
         record = Record.new(
           event_id:   domain_event.event_id,
           data:       YAML.dump(encrypted_item.data),
           metadata:   YAML.dump(encrypted_item.metadata),
           event_type: SomeEventWithPersonalInfo.name
         )
-        event = subject.serialized_record_to_event(record)
+        event = subject.record_to_event(record)
         expect(event).to                eq(domain_event)
         expect(event.metadata.to_h).to  eq(metadata)
       end
@@ -76,7 +76,7 @@ module RubyEventStore
             metadata:   YAML.dump(encrypted.metadata),
             event_type: SomeEventWithPersonalInfo.name
           )
-          event = subject.serialized_record_to_event(record)
+          event = subject.record_to_event(record)
           expect(event).to                eq(source_event)
           expect(event.metadata.to_h).to  eq(metadata)
         end
@@ -85,7 +85,7 @@ module RubyEventStore
       context 'when key is forgotten' do
         subject { described_class.new(key_repository) }
 
-        specify '#serialized_record_to_event returns event instance with forgotten data' do
+        specify '#record_to_event returns event instance with forgotten data' do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
@@ -93,7 +93,7 @@ module RubyEventStore
             event_type: SomeEventWithPersonalInfo.name
           )
           key_repository.forget(123)
-          event = subject.serialized_record_to_event(record)
+          event = subject.record_to_event(record)
           expected_event = SomeEventWithPersonalInfo.new(
             data: build_data.merge(personal_info: ForgottenData.new),
             metadata: metadata,
@@ -104,7 +104,7 @@ module RubyEventStore
           expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
         end
 
-        specify '#serialized_record_to_event returns event instance with forgotten data when a new key is created' do
+        specify '#record_to_event returns event instance with forgotten data when a new key is created' do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
@@ -113,7 +113,7 @@ module RubyEventStore
           )
           key_repository.forget(123)
           key_repository.create(123)
-          event = subject.serialized_record_to_event(record)
+          event = subject.record_to_event(record)
           expected_event = SomeEventWithPersonalInfo.new(
             data: build_data.merge(personal_info: ForgottenData.new),
             metadata: metadata,
@@ -129,7 +129,7 @@ module RubyEventStore
         let(:forgotten_data) { ForgottenData.new('Key is forgotten') }
         subject { described_class.new(key_repository, forgotten_data: forgotten_data) }
 
-        specify '#serialized_record_to_event returns event instance with forgotten data' do
+        specify '#record_to_event returns event instance with forgotten data' do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       YAML.dump(encrypted_item.data),
@@ -137,7 +137,7 @@ module RubyEventStore
             event_type: SomeEventWithPersonalInfo.name
           )
           key_repository.forget(123)
-          event = subject.serialized_record_to_event(record)
+          event = subject.record_to_event(record)
           expected_event = SomeEventWithPersonalInfo.new(
             data: build_data.merge(personal_info: forgotten_data),
             metadata: metadata,
@@ -153,8 +153,8 @@ module RubyEventStore
         let(:coder) { Transformation::Encryption.new(key_repository, serializer: ReverseYamlSerializer) }
         subject { described_class.new(key_repository, serializer: ReverseYamlSerializer) }
 
-        specify '#event_to_serialized_record returns serialized record' do
-          record = subject.event_to_serialized_record(domain_event)
+        specify '#event_to_record returns serialized record' do
+          record = subject.event_to_record(domain_event)
           expect(record).to            be_a Record
           expect(record.event_id).to   eq event_id
           expect(record.data).to       eq ReverseYamlSerializer.dump(encrypted_item.data)
@@ -162,14 +162,14 @@ module RubyEventStore
           expect(record.event_type).to eq "RubyEventStore::Mappers::SomeEventWithPersonalInfo"
         end
 
-        specify '#serialized_record_to_event returns event instance' do
+        specify '#record_to_event returns event instance' do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       ReverseYamlSerializer.dump(encrypted_item.data),
             metadata:   ReverseYamlSerializer.dump(encrypted_item.metadata),
             event_type: SomeEventWithPersonalInfo.name
           )
-          event = subject.serialized_record_to_event(record)
+          event = subject.record_to_event(record)
           expect(event).to                eq(domain_event)
           expect(event.metadata.to_h).to  eq(domain_event.metadata.to_h)
         end

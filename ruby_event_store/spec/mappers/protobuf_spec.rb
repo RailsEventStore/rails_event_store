@@ -200,8 +200,8 @@ module RubyEventStore
           )
       end
 
-      specify '#event_to_serialized_record returns proto serialized record' do
-        record = Protobuf.new.event_to_serialized_record(domain_event)
+      specify '#event_to_record returns proto serialized record' do
+        record = Protobuf.new.event_to_record(domain_event)
         expect(record).to              be_a(Record)
         expect(record.event_id).to     eq(event_id)
         expect(record.data).not_to     be_empty
@@ -209,16 +209,16 @@ module RubyEventStore
         expect(record.event_type).to   eq("res_testing.OrderCreated")
       end
 
-      specify '#serialized_record_to_event returns event instance' do
-        record = Protobuf.new.event_to_serialized_record(domain_event)
-        event  = Protobuf.new.serialized_record_to_event(record)
+      specify '#record_to_event returns event instance' do
+        record = Protobuf.new.event_to_record(domain_event)
+        event  = Protobuf.new.record_to_event(record)
         expect(event).to                eq(domain_event)
         expect(event.event_id).to       eq(event_id)
         expect(event.data).to           eq(data)
         expect(event.metadata.to_h).to  eq(metadata)
       end
 
-      specify '#serialized_record_to_event is using events class remapping' do
+      specify '#record_to_event is using events class remapping' do
         subject = Protobuf.new(
           events_class_remapping: {'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated"}
         )
@@ -228,7 +228,7 @@ module RubyEventStore
           metadata:   "",
           event_type: "res_testing.OrderCreatedBeforeRefactor",
         )
-        event = subject.serialized_record_to_event(record)
+        event = subject.record_to_event(record)
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.event_type).to eq("res_testing.OrderCreated")
       end

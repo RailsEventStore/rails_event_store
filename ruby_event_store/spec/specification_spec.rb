@@ -660,7 +660,7 @@ module RubyEventStore
     let(:test_event)    { TestEvent.new(event_id: event_id) }
 
     def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {})
-      mapper.event_to_serialized_record(
+      mapper.event_to_record(
         TimestampEnrichment.with_timestamp(
           event_type.new(
             event_id: event_id,

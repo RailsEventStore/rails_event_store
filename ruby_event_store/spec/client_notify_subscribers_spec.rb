@@ -186,7 +186,7 @@ module RubyEventStore
       dispatcher        = TestDispatcher.new
       handler           = TestHandler.new
       event1            = TimestampEnrichment.with_timestamp(Test1DomainEvent.new)
-      record            = Mappers::NullMapper.new.event_to_serialized_record(event1)
+      record            = Mappers::NullMapper.new.event_to_record(event1)
 
       client_with_custom_dispatcher = RubyEventStore::Client.new(
         repository: InMemoryRepository.new,

@@ -118,7 +118,7 @@ module RubyEventStore
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
-      record = mapper.event_to_serialized_record(event)
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, record: record}]
     end
 
@@ -179,7 +179,7 @@ module RubyEventStore
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
-      record = mapper.event_to_serialized_record(event)
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, record: record}]
     end
 
@@ -191,7 +191,7 @@ module RubyEventStore
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish(event)
-      record = mapper.event_to_serialized_record(event)
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, record: record}]
     end
 
@@ -225,7 +225,7 @@ module RubyEventStore
         :elo
       end.subscribe_to_all_events(Subscribers::ValidHandler).call
       client.publish(event_2)
-      record = mapper.event_to_serialized_record(event_1)
+      record = mapper.event_to_record(event_1)
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, record: record}]
       expect(result).to eq(:elo)
       expect(client.read.to_a).to eq([event_1, event_2])
@@ -297,7 +297,7 @@ module RubyEventStore
         end.subscribe_to_all_events(Subscribers::ValidHandler).call
 
         client.publish(event_2)
-        record = mapper.event_to_serialized_record(event_1)
+        record = mapper.event_to_record(event_1)
         expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event_1, record: record}]
         expect(client.read.to_a).to eq([event_1, event_2])
         expect(result).to eq(:yo)

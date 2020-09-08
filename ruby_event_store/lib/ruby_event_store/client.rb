@@ -226,7 +226,7 @@ module RubyEventStore
     #
     # @return [Event, Proto] deserialized event
     def deserialize(event_type:, event_id:, data:, metadata:)
-      mapper.serialized_record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
+      mapper.record_to_event(SerializedRecord.new(event_type: event_type, event_id: event_id, data: data, metadata: metadata))
     end
 
     # Read additional metadata which will be added for published events
@@ -281,7 +281,7 @@ module RubyEventStore
     private
 
     def transform(events)
-      events.map { |ev| mapper.event_to_serialized_record(ev) }
+      events.map { |ev| mapper.event_to_record(ev) }
     end
 
     def enrich_events_metadata(events)

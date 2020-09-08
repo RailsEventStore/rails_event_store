@@ -11,8 +11,8 @@ module RubyEventStore
 
       it_behaves_like :mapper, NullMapper.new, TimestampEnrichment.with_timestamp(TestEvent.new)
 
-      specify '#event_to_serialized_record' do
-        record = subject.event_to_serialized_record(domain_event)
+      specify '#event_to_record' do
+        record = subject.event_to_record(domain_event)
 
         expect(record.event_id).to      eq(domain_event.event_id)
         expect(record.data).to          eq(domain_event.data)
@@ -20,9 +20,9 @@ module RubyEventStore
         expect(record.event_type).to    eq("TestEvent")
       end
 
-      specify '#serialized_record_to_event' do
-        record = subject.event_to_serialized_record(domain_event)
-        event  = subject.serialized_record_to_event(record)
+      specify '#record_to_event' do
+        record = subject.event_to_record(domain_event)
+        event  = subject.record_to_event(record)
 
         expect(event).to               eq(domain_event)
         expect(event.event_id).to      eq(domain_event.event_id)
