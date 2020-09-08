@@ -42,6 +42,15 @@ module RubyEventStore
       }
     end
 
+    def deserialize(serializer)
+      Record.new(
+        event_id:   event_id,
+        event_type: event_type,
+        data:       serializer.load(data),
+        metadata:   serializer.load(metadata)
+      )
+    end
+
     alias_method :eql?, :==
   end
 end

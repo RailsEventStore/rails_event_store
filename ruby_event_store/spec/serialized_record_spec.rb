@@ -83,6 +83,12 @@ module RubyEventStore
         described_class.new
       end.to raise_error ArgumentError
     end
+
+    specify '#deserialize' do
+      actual = SerializedRecord.new(event_id: "a", data: "--- b\n", metadata: "--- c\n", event_type: "d")
+      expected = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      expect(actual.deserialize(YAML)).to eq(expected)
+    end
   end
 end
 
