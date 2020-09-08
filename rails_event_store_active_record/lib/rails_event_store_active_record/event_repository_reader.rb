@@ -3,6 +3,10 @@
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
 
+    def initialize(serializer)
+      @serializer = serializer
+    end
+
     def has_event?(event_id)
       Event.exists?(id: event_id)
     end
@@ -41,6 +45,7 @@ module RailsEventStoreActiveRecord
     end
 
     private
+    attr_reader :serializer
 
     def read_scope(spec)
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
@@ -83,12 +88,12 @@ module RailsEventStoreActiveRecord
     end
 
     def record(record)
-      RubyEventStore::Record.new(
+      RubyEventStore::SerializedRecord.new(
         event_id: record.event.id,
         metadata: record.event.metadata,
         data: record.event.data,
         event_type: record.event.event_type
-      )
+      ).deserialize(serializer)
     end
   end
 

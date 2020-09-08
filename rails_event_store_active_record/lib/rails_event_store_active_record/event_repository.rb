@@ -7,13 +7,15 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
-    def initialize
-      @repo_reader = EventRepositoryReader.new
+    def initialize(serializer: YAML)
+      @repo_reader = EventRepositoryReader.new(serializer)
+      @serializer  = serializer
     end
 
-    def append_to_stream(serialized_records, stream, expected_version)
+    def append_to_stream(records, stream, expected_version)
       hashes, event_ids = [], []
-      Array(serialized_records).each do |serialized_record|
+      serialized_records = Array(records).map{|record| record.serialize(serializer)}
+      serialized_records.each do |serialized_record|
         hashes << serialized_record_hash(serialized_record)
         event_ids << serialized_record.event_id
       end
@@ -50,10 +52,9 @@ module RailsEventStoreActiveRecord
       @repo_reader.count(specification)
     end
 
-    def update_messages(messages)
-      hashes = messages.map(&:to_h)
-      hashes.each{|h| h[:id] = h.delete(:event_id) }
-      for_update = messages.map(&:event_id)
+    def update_messages(records)
+      hashes  = Array(records).map{|record| serialized_record_hash(record.serialize(serializer)) }
+      for_update = records.map(&:event_id)
       start_transaction do
         existing = Event.where(id: for_update).pluck(:id)
         (for_update - existing).each{|id| raise RubyEventStore::EventNotFound.new(id) }
@@ -69,6 +70,7 @@ module RailsEventStoreActiveRecord
     end
 
     private
+    attr_reader :serializer
 
     def add_to_stream(event_ids, stream, expected_version, include_global)
       last_stream_version = ->(stream_) { EventInStream.where(stream: stream_.name).order("position DESC").first.try(:position) }
