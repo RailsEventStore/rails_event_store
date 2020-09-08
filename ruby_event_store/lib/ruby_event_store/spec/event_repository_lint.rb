@@ -3,8 +3,8 @@ module RubyEventStore
   class SRecord
     def self.new(
       event_id:   SecureRandom.uuid,
-      data:       '{}',
-      metadata:   '{}',
+      data:       {},
+      metadata:   {},
       event_type: 'SRecordTestEvent'
     )
       Record.new(
