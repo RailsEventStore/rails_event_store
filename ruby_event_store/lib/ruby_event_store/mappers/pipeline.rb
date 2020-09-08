@@ -3,11 +3,10 @@
 module RubyEventStore
   module Mappers
     class Pipeline
-      def initialize(to_domain_event: Transformation::DomainEvent.new,
-                     transformations: nil)
+      def initialize(*transformations, to_domain_event: Transformation::DomainEvent.new)
         @transformations = [
           to_domain_event,
-          Array(transformations),
+          transformations,
         ].flatten.freeze
       end
 

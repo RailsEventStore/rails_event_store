@@ -11,12 +11,10 @@ module RubyEventStore
     class Protobuf < PipelineMapper
       def initialize(events_class_remapping: {})
         super(Pipeline.new(
+          Transformation::ProtobufEncoder.new,
+          Transformation::EventClassRemapper.new(events_class_remapping),
+          Transformation::ProtobufNestedStructMetadata.new,
           to_domain_event: Transformation::ProtoEvent.new,
-          transformations: [
-            Transformation::ProtobufEncoder.new,
-            Transformation::EventClassRemapper.new(events_class_remapping),
-            Transformation::ProtobufNestedStructMetadata.new,
-          ]
         ))
       end
     end

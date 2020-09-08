@@ -19,14 +19,14 @@ module RubyEventStore
         domain_mapper = Object.new
         transformation_1 = Object.new
         transformation_2 = Object.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: [transformation_1, transformation_2])
+        pipe = Pipeline.new(transformation_1, transformation_2, to_domain_event: domain_mapper)
         expect(pipe.transformations).to eq [domain_mapper, transformation_1, transformation_2]
       end
 
       specify '#initialize - single transformation' do
         domain_mapper = Object.new
         transformation_ = Object.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: transformation_)
+        pipe = Pipeline.new(transformation_, to_domain_event: domain_mapper)
         expect(pipe.transformations).to eq [domain_mapper, transformation_]
       end
 
@@ -39,7 +39,7 @@ module RubyEventStore
         domain_mapper = Transformation::DomainEvent.new
         transformation_1 = Transformation::SymbolizeMetadataKeys.new
         transformation_2 = Transformation::StringifyMetadataKeys.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: [transformation_1, transformation_2])
+        pipe = Pipeline.new(transformation_1, transformation_2, to_domain_event: domain_mapper)
         domain_event = TestEvent.new
         record1 = Record.new(event_id: domain_event.event_id, data: { item: 1 }, metadata: '', event_type: 'TestEvent')
         record2 = Record.new(event_id: domain_event.event_id, data: { item: 2 }, metadata: '', event_type: 'TestEvent')
@@ -53,7 +53,7 @@ module RubyEventStore
         domain_mapper = Transformation::DomainEvent.new
         transformation_1 = Transformation::SymbolizeMetadataKeys.new
         transformation_2 = Transformation::StringifyMetadataKeys.new
-        pipe = Pipeline.new(to_domain_event: domain_mapper, transformations: [transformation_1, transformation_2])
+        pipe = Pipeline.new(transformation_1, transformation_2, to_domain_event: domain_mapper)
         record  = Record.new(event_id: SecureRandom.uuid, data: '', metadata: '', event_type: 'TestEvent')
         record1 = Record.new(event_id: record.event_id, data: { item: 1 }, metadata: '', event_type: 'TestEvent')
         record2 = Record.new(event_id: record.event_id, data: { item: 2 }, metadata: '', event_type: 'TestEvent')
