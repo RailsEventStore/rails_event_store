@@ -49,6 +49,20 @@ module RubyEventStore
         expect(event).to eq(domain_event)
       end
 
+      specify 'metadata keys are symbolized' do
+        record = Record.new(
+          event_id:   domain_event.event_id,
+          data:       { some_attribute: 5 },
+          metadata:   stringify({ some_meta: 1}),
+          event_type: SomethingHappened.name
+        )
+        event = subject.record_to_event(record)
+        expect(event).to              eq(domain_event)
+        expect(event.event_id).to     eq domain_event.event_id
+        expect(event.data).to         eq(data)
+        expect(event.metadata.to_h).to     eq(metadata)
+      end
+
       private
 
       def stringify(hash)
