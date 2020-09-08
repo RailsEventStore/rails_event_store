@@ -3,10 +3,15 @@ require 'action_controller/railtie'
 
 module RailsEventStore
   RSpec.describe LinkByMetadata do
-
-    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
-
     let(:event_store) { RailsEventStore::Client.new }
+    let(:application) { instance_double(Rails::Application) }
+    let(:config)      { FakeConfiguration.new }
+
+    before do
+      allow(Rails).to       receive(:application).and_return(application)
+      allow(application).to receive(:config).and_return(config)
+      Rails.configuration.event_store = event_store
+    end
 
     specify "links" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(key: :city))
@@ -30,14 +35,20 @@ module RailsEventStore
   end
 
   RSpec.describe LinkByCorrelationId do
-    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
-
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) do
       OrderCreated.new.tap do |ev|
         ev.correlation_id = "COR"
         ev.causation_id   = "CAU"
       end
+    end
+    let(:application) { instance_double(Rails::Application) }
+    let(:config)      { FakeConfiguration.new }
+
+    before do
+      allow(Rails).to       receive(:application).and_return(application)
+      allow(application).to receive(:config).and_return(config)
+      Rails.configuration.event_store = event_store
     end
 
     specify "links" do
@@ -54,14 +65,20 @@ module RailsEventStore
   end
 
   RSpec.describe LinkByCausationId do
-    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
-
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) do
       OrderCreated.new.tap do |ev|
         ev.correlation_id = "COR"
         ev.causation_id   = "CAU"
       end
+    end
+    let(:application) { instance_double(Rails::Application) }
+    let(:config)      { FakeConfiguration.new }
+
+    before do
+      allow(Rails).to       receive(:application).and_return(application)
+      allow(application).to receive(:config).and_return(config)
+      Rails.configuration.event_store = event_store
     end
 
     specify "links" do
@@ -80,8 +97,14 @@ module RailsEventStore
   RSpec.describe LinkByEventType do
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) { OrderCreated.new }
+    let(:application) { instance_double(Rails::Application) }
+    let(:config)      { FakeConfiguration.new }
 
-    before { allow(Rails.configuration).to receive(:event_store).and_return(event_store) }
+    before do
+      allow(Rails).to       receive(:application).and_return(application)
+      allow(application).to receive(:config).and_return(config)
+      Rails.configuration.event_store = event_store
+    end
 
     specify "default prefix" do
       event_store.subscribe_to_all_events(LinkByEventType.new)

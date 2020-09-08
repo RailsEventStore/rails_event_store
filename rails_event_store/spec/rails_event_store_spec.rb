@@ -61,10 +61,14 @@ RSpec.describe RailsEventStore do
   end
 
   let(:event_store) { RailsEventStore::Client.new }
+  let(:application) { instance_double(Rails::Application) }
+  let(:config)      { FakeConfiguration.new }
 
   before do
-    allow(Rails.configuration).to receive(:event_store).and_return(event_store)
-    ActiveJob::Base.queue_adapter = SimpleAdapter
+    allow(Rails).to       receive(:application).and_return(application)
+    allow(application).to receive(:config).and_return(config)
+    Rails.configuration.event_store = event_store
+    ActiveJob::Base.queue_adapter   = SimpleAdapter
   end
 
   specify 'default dispatcher can into ActiveJob' do
