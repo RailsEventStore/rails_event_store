@@ -2,7 +2,9 @@ require 'spec_helper'
 require 'ruby_event_store/rom/memory'
 require 'ruby_event_store/spec/rom/unit_of_work_lint'
 
-module RubyEventStore::ROM::Memory
+module RubyEventStore
+  module ROM
+  module Memory
   RSpec.describe UnitOfWork do
     let(:rom_helper) { SpecHelper.new }
 
@@ -11,5 +13,7 @@ module RubyEventStore::ROM::Memory
     specify '#mutex can synchronize threads' do
       expect(UnitOfWork.mutex).to be_a(Mutex)
     end
+  end
+  end
   end
 end

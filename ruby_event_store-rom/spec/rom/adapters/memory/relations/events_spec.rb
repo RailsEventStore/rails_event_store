@@ -2,7 +2,9 @@ require 'spec_helper'
 require 'ruby_event_store/rom/memory'
 require 'ruby_event_store/spec/rom/relations/events_lint'
 
-module RubyEventStore::ROM::Memory
+module RubyEventStore
+  module ROM
+  module Memory
   RSpec.describe Relations::Events do
     let(:rom_helper) { SpecHelper.new }
 
@@ -68,5 +70,7 @@ module RubyEventStore::ROM::Memory
         expect(ex.message).to eq("Uniquness violated for event_id (\"#{id1}\")")
       end
     end
+  end
+  end
   end
 end

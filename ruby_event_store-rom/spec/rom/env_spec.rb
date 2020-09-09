@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-module RubyEventStore::ROM
+module RubyEventStore
+  module ROM
   RSpec.describe Env do
     let(:rom_container) { ::ROM.container }
     let(:instance) { Env.new(rom_container) }
@@ -12,5 +13,6 @@ module RubyEventStore::ROM
     specify '#logger gives access to Logger' do
       expect(instance.logger).to be_a(Logger)
     end
+  end
   end
 end

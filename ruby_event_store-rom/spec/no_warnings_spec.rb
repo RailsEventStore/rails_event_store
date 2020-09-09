@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-module RubyEventStore::ROM
+module RubyEventStore
+  module ROM
   RSpec.describe 'no warnings', mutant: false do
     specify do
       expect(ruby_event_store_rom_warnings).to eq([])
@@ -13,5 +14,6 @@ module RubyEventStore::ROM
     def warnings
       `ruby -Ilib -w lib/ruby_event_store-rom.rb 2>&1`.split("\n")
     end
+  end
   end
 end

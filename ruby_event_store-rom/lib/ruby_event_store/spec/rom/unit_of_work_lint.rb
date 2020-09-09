@@ -1,4 +1,5 @@
-module RubyEventStore::ROM
+module RubyEventStore
+  module ROM
   RSpec.shared_examples :unit_of_work do |unit_of_work_class|
     subject(:unit_of_work) { unit_of_work_class.new(rom: env) }
 
@@ -33,5 +34,6 @@ module RubyEventStore::ROM
 
       RubyEventStore::ROM.env = nil
     end
+  end
   end
 end

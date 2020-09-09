@@ -2,7 +2,9 @@ require 'spec_helper'
 require 'ruby_event_store/rom/memory'
 require 'ruby_event_store/spec/rom/relations/stream_entries_lint'
 
-module RubyEventStore::ROM::Memory
+module RubyEventStore
+  module ROM
+  module Memory
   RSpec.describe Relations::StreamEntries do
     let(:rom_helper) { SpecHelper.new }
 
@@ -38,5 +40,7 @@ module RubyEventStore::ROM::Memory
         expect(ex.message).to eq('Uniquness violated for stream ("stream") and position (2)')
       end
     end
+  end
+  end
   end
 end

@@ -1,4 +1,5 @@
-module RubyEventStore::ROM
+module RubyEventStore
+  module ROM
   RSpec.shared_examples :rom_spec_helper do |_rom_spec_helper_class|
     let(:env) { rom_helper.env }
     let(:rom_container) { env.rom_container }
@@ -11,5 +12,6 @@ module RubyEventStore::ROM
     specify '#env gives access to ROM container' do
       expect(subject.env.rom_container).to be_a(::ROM::Container)
     end
+  end
   end
 end

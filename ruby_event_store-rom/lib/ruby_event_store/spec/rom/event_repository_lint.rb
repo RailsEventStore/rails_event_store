@@ -1,7 +1,8 @@
 require 'ruby_event_store/rom/event_repository'
 require 'ruby_event_store/spec/event_repository_lint'
 
-module RubyEventStore::ROM
+module RubyEventStore
+  module ROM
   RSpec.shared_examples :rom_event_repository do |repository_class|
     subject(:repository) { repository_class.new(rom: env) }
 
@@ -125,5 +126,6 @@ module RubyEventStore::ROM
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
       expect(repository.read(specification.limit(2).result).to_a).to eq([event])
     end
+  end
   end
 end
