@@ -5,7 +5,13 @@ require 'ruby_event_store/spec/rom/event_repository_lint'
 module RubyEventStore
   module ROM
     RSpec.describe EventRepository do
+      around(:each) do |example|
+        rom_helper.run_lifecycle { example.run }
+      end
+
       let(:rom_helper) { SQL::SpecHelper.new }
+      let(:env) { rom_helper.env }
+      let(:rom_container) { env.rom_container }
 
       let(:test_race_conditions_auto) { rom_helper.has_connection_pooling? }
       let(:test_race_conditions_any)  { rom_helper.has_connection_pooling? }

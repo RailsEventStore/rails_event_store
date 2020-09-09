@@ -9,10 +9,6 @@ module RubyEventStore
     let(:env) { rom_helper.env }
     let(:rom_container) { env.rom_container }
 
-    around(:each) do |example|
-      rom_helper.run_lifecycle { example.run }
-    end
-
     let(:default_stream) { RubyEventStore::Stream.new('stream') }
     let(:global_stream) { RubyEventStore::Stream.new('all') }
     let(:mapper) { RubyEventStore::Mappers::NullMapper.new }

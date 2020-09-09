@@ -21,6 +21,7 @@ services:
       - "3306:3306"
   postgres:
     image: postgres:11
+    command: postgres -c 'max_connections=500'
     restart: always
     environment:
       - POSTGRES_DB=rails_event_store
