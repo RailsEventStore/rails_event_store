@@ -25,8 +25,8 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  RSpec.shared_examples :event_repository do |repository_class, rescuable_concurrency_test_errors = []|
-    let(:repository)    { subject || repository_class.new }
+  RSpec.shared_examples :event_repository do |repository_, rescuable_concurrency_test_errors = []|
+    let(:repository)    { repository_.call }
     let(:mapper)        { Mappers::NullMapper.new }
     let(:specification) { Specification.new(SpecificationReader.new(repository, mapper)) }
     let(:global_stream) { Stream.new(GLOBAL_STREAM) }

@@ -8,7 +8,7 @@ module RubyEventStore
     let(:test_binary)                { true }
     let(:test_change)                { true }
 
-    it_behaves_like :event_repository, InMemoryRepository
+    it_behaves_like :event_repository, ->{ InMemoryRepository.new }
 
     it 'does not confuse all with GLOBAL_STREAM' do
       repository = InMemoryRepository.new

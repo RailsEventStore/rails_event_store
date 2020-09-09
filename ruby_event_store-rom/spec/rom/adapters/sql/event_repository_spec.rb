@@ -12,9 +12,7 @@ module RubyEventStore
       let(:test_binary)               { false }
       let(:test_change)               { rom_helper.supports_upsert? }
 
-      subject(:repository) { EventRepository.new(rom: rom_helper.env) }
-
-      it_behaves_like :event_repository, EventRepository, [::ROM::SQL::Error]
+      it_behaves_like :event_repository, ->{ EventRepository.new(rom: SQL::SpecHelper.new.env) }, [::ROM::SQL::Error]
       it_behaves_like :rom_event_repository, EventRepository
 
       def verify_conncurency_assumptions

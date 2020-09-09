@@ -209,15 +209,11 @@ end
 
 module RubyEventStore
   RSpec.describe InstrumentedRepository do
-    subject do
-      InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications)
-    end
-
     let(:test_race_conditions_any)   { false }
     let(:test_race_conditions_auto)  { false }
     let(:test_binary) { false }
     let(:test_change) { false }
 
-    it_behaves_like :event_repository, InstrumentedRepository
+    it_behaves_like :event_repository, ->{ InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }
   end
 end

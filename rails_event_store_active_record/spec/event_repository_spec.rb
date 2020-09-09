@@ -26,7 +26,7 @@ module RailsEventStoreActiveRecord
     let(:reader)                     { RubyEventStore::SpecificationReader.new(repository, mapper) }
     let(:specification)              { RubyEventStore::Specification.new(reader) }
 
-    it_behaves_like :event_repository, EventRepository
+    it_behaves_like :event_repository, ->{ EventRepository.new }
 
     specify "all considered internal detail" do
       repository.append_to_stream(

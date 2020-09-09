@@ -12,9 +12,7 @@ module RubyEventStore
       let(:test_binary)               { true }
       let(:test_change)               { true }
 
-      subject(:repository) { EventRepository.new(rom: rom_helper.env) }
-
-      it_behaves_like :event_repository, EventRepository
+      it_behaves_like :event_repository, ->{ EventRepository.new(rom: Memory::SpecHelper.new.env) }
       it_behaves_like :rom_event_repository, EventRepository
 
       def verify_conncurency_assumptions

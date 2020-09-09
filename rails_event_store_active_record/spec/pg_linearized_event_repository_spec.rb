@@ -25,7 +25,7 @@ module RailsEventStoreActiveRecord
     let(:repository)                 { PgLinearizedEventRepository.new }
     let(:specification)              { RubyEventStore::Specification.new(repository, mapper) }
 
-    it_behaves_like :event_repository, PgLinearizedEventRepository
+    it_behaves_like :event_repository, ->{ PgLinearizedEventRepository.new }
 
     specify "linearized by lock" do
       begin
