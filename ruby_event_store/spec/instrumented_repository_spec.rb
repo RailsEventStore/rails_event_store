@@ -208,12 +208,28 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  RSpec.describe InstrumentedRepository do
-    let(:test_race_conditions_any)   { false }
-    let(:test_race_conditions_auto)  { false }
-    let(:test_binary) { false }
-    let(:test_change) { false }
+  class InstrumentedRepository
+    class SpecHelper < EventRepositoryHelper
+      def supports_concurrent_auto?
+        false
+      end
 
-    it_behaves_like :event_repository, ->{ InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }
+      def supports_concurrent_any?
+        false
+      end
+
+      def supports_binary?
+        false
+      end
+
+      def supports_upsert?
+        false
+      end
+    end
+  end
+  RSpec.describe InstrumentedRepository do
+    include_examples :event_repository
+    let(:repository) { InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }
+    let(:helper) { InstrumentedRepository::SpecHelper.new }
   end
 end

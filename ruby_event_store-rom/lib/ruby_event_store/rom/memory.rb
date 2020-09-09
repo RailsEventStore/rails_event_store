@@ -66,6 +66,33 @@ module RubyEventStore
         def gateway_type?(name)
           name == :memory
         end
+
+        def has_connection_pooling?
+          false
+        end
+
+        def supports_upsert?
+          true
+        end
+
+        def supports_concurrent_any?
+          true
+        end
+
+        def supports_concurrent_auto?
+          true
+        end
+
+        def supports_binary?
+          true
+        end
+
+        def rescuable_concurrency_test_errors
+          []
+        end
+
+        def cleanup_concurrency_test
+        end
       end
     end
   end

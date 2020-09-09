@@ -3,125 +3,121 @@ require 'ruby_event_store/spec/event_repository_lint'
 
 module RubyEventStore
   module ROM
-  RSpec.shared_examples :rom_event_repository do |repository_class|
-    subject(:repository) { repository_class.new(rom: env) }
+    RSpec.shared_examples :rom_event_repository do
+      include_examples :event_repository
+      let(:repository) { EventRepository.new(rom: env) }
+      let(:helper)     { rom_helper }
 
-    let(:env) { rom_helper.env }
-    let(:rom_container) { env.rom_container }
-
-    let(:default_stream) { RubyEventStore::Stream.new('stream') }
-    let(:global_stream) { RubyEventStore::Stream.new('all') }
-    let(:mapper) { RubyEventStore::Mappers::NullMapper.new }
-
-    let(:reader) { RubyEventStore::SpecificationReader.new(repository, mapper) }
-    let(:specification) { RubyEventStore::Specification.new(reader) }
-
-    specify '#initialize requires ROM::Env' do
-      expect { repository_class.new(rom: nil) }.to raise_error do |err|
-        expect(err).to be_a(ArgumentError)
-        expect(err.message).to eq('Must specify rom')
+      around(:each) do |example|
+        rom_helper.run_lifecycle { example.run }
       end
-    end
 
-    specify '#initialize uses ROM.env by default' do
-      expect { repository_class.new }.to raise_error(ArgumentError)
-      RubyEventStore::ROM.env = env
-      expect { repository_class.new }.not_to raise_error
-      RubyEventStore::ROM.env = nil
-    end
+      let(:rom_helper)     { raise "provide rom_helper instance" }
+      let(:env)            { rom_helper.env }
+      let(:rom_container)  { env.rom_container }
+      let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
 
-    specify '#has_event? to raise exception for bad ID' do
-      expect(repository.has_event?('0')).to eq(false)
-    end
+      specify '#initialize requires ROM::Env' do
+        expect { EventRepository.new(rom: nil) }.to raise_error do |err|
+          expect(err).to be_a(ArgumentError)
+          expect(err.message).to eq('Must specify rom')
+        end
+      end
 
-    specify 'all considered internal detail' do
-      repository.append_to_stream(
-        [RubyEventStore::SRecord.new],
-        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-        RubyEventStore::ExpectedVersion.any
-      )
+      specify '#initialize uses ROM.env by default' do
+        expect { EventRepository.new }.to raise_error(ArgumentError)
+        ROM.env = env
+        expect { EventRepository.new }.not_to raise_error
+        ROM.env = nil
+      end
 
-      expect { repository.read(specification.stream('all').result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect { repository.read(specification.stream('all').backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect { repository.read(specification.stream('all').limit(5).result) }.to raise_error(RubyEventStore::ReservedInternalName)
-      expect { repository.read(specification.stream('all').limit(5).backward.result) }.to raise_error(RubyEventStore::ReservedInternalName)
+      specify '#has_event? to raise exception for bad ID' do
+        expect(repository.has_event?('0')).to eq(false)
+      end
 
-      expect { repository.count(specification.stream('all').result) }.to raise_error(RubyEventStore::ReservedInternalName)
-    end
+      specify 'all considered internal detail' do
+        repository.append_to_stream(
+          [SRecord.new],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
+        )
 
-    specify 'explicit sorting by position rather than accidental' do
-      events = [
-        RubyEventStore::SRecord.new(event_id: u1 = SecureRandom.uuid),
-        RubyEventStore::SRecord.new(event_id: u2 = SecureRandom.uuid),
-        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
-      ]
+        expect { repository.read(specification.stream('all').result) }.to raise_error(ReservedInternalName)
+        expect { repository.read(specification.stream('all').backward.result) }.to raise_error(ReservedInternalName)
+        expect { repository.read(specification.stream('all').limit(5).result) }.to raise_error(ReservedInternalName)
+        expect { repository.read(specification.stream('all').limit(5).backward.result) }.to raise_error(ReservedInternalName)
 
-      repo = Repositories::Events.new(rom_container)
-      repo.create_changeset(events).commit
+        expect { repository.count(specification.stream('all').result) }.to raise_error(ReservedInternalName)
+      end
 
-      expect(repo.events.to_a.size).to eq(3)
+      specify 'explicit sorting by position rather than accidental' do
+        events = [
+          SRecord.new(event_id: u1 = SecureRandom.uuid),
+          SRecord.new(event_id: u2 = SecureRandom.uuid),
+          SRecord.new(event_id: u3 = SecureRandom.uuid)
+        ]
 
-      repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
-                                      { stream: default_stream.name, event_id: events[1].event_id, position: 1 },
-                                      { stream: default_stream.name, event_id: events[0].event_id, position: 0 },
-                                      { stream: default_stream.name, event_id: events[2].event_id, position: 2 }
-                                    ]).commit
+        repo = Repositories::Events.new(rom_container)
+        repo.create_changeset(events).commit
 
-      expect(repo.stream_entries.to_a.size).to eq(3)
+        expect(repo.events.to_a.size).to eq(3)
 
-      # ActiveRecord::Schema.define do
-      #   self.verbose = false
-      #   remove_index :event_store_events_in_streams, [:stream, :position]
-      # end
+        repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
+          { stream: 'stream', event_id: events[1].event_id, position: 1 },
+          { stream: 'stream', event_id: events[0].event_id, position: 0 },
+          { stream: 'stream', event_id: events[2].event_id, position: 2 }
+        ]).commit
 
-      expect(repository.read(specification.stream('stream').limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
-      expect(repository.read(specification.stream('stream').result).map(&:event_id)).to eq([u1, u2, u3])
+        expect(repo.stream_entries.to_a.size).to eq(3)
 
-      expect(repository.read(specification.stream('stream').backward.limit(3).result).map(&:event_id)).to eq([u3, u2, u1])
-      expect(repository.read(specification.stream('stream').backward.result).map(&:event_id)).to eq([u3, u2, u1])
-    end
+        expect(repository.read(specification.stream('stream').limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
+        expect(repository.read(specification.stream('stream').result).map(&:event_id)).to eq([u1, u2, u3])
 
-    specify 'explicit sorting by id rather than accidental for all events' do
-      events = [
-        RubyEventStore::SRecord.new(event_id: u1 = SecureRandom.uuid),
-        RubyEventStore::SRecord.new(event_id: u2 = SecureRandom.uuid),
-        RubyEventStore::SRecord.new(event_id: u3 = SecureRandom.uuid)
-      ]
+        expect(repository.read(specification.stream('stream').backward.limit(3).result).map(&:event_id)).to eq([u3, u2, u1])
+        expect(repository.read(specification.stream('stream').backward.result).map(&:event_id)).to eq([u3, u2, u1])
+      end
 
-      repo = Repositories::Events.new(rom_container)
-      repo.create_changeset(events).commit
+      specify 'explicit sorting by id rather than accidental for all events' do
+        events = [
+          SRecord.new(event_id: u1 = SecureRandom.uuid),
+          SRecord.new(event_id: u2 = SecureRandom.uuid),
+          SRecord.new(event_id: u3 = SecureRandom.uuid)
+        ]
 
-      expect(repo.events.to_a.size).to eq(3)
+        repo = Repositories::Events.new(rom_container)
+        repo.create_changeset(events).commit
 
-      repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
-                                      { stream: global_stream.name, event_id: events[0].event_id, position: 1 },
-                                      { stream: global_stream.name, event_id: events[1].event_id, position: 0 },
-                                      { stream: global_stream.name, event_id: events[2].event_id, position: 2 }
-                                    ]).commit
+        expect(repo.events.to_a.size).to eq(3)
 
-      expect(repo.stream_entries.to_a.size).to eq(3)
+        repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
+          { stream: 'all', event_id: events[0].event_id, position: 1 },
+          { stream: 'all', event_id: events[1].event_id, position: 0 },
+          { stream: 'all', event_id: events[2].event_id, position: 2 }
+        ]).commit
 
-      expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
-      expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
-    end
+        expect(repo.stream_entries.to_a.size).to eq(3)
 
-    specify 'nested transaction - events still not persisted if append failed' do
-      repository.append_to_stream([
-                                    event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid)
-                                  ], default_stream, RubyEventStore::ExpectedVersion.none)
+        expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
+        expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
+      end
 
-      env.unit_of_work do
-        expect do
-          repository.append_to_stream([
-                                        RubyEventStore::SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
-                                      ], default_stream, RubyEventStore::ExpectedVersion.none)
-        end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+      specify 'nested transaction - events still not persisted if append failed' do
+        repository.append_to_stream([
+          event = SRecord.new(event_id: SecureRandom.uuid)
+        ], Stream.new('stream'), ExpectedVersion.none)
+
+        env.unit_of_work do
+          expect do
+            repository.append_to_stream([
+              SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
+            ], Stream.new('stream'), ExpectedVersion.none)
+          end.to raise_error(WrongExpectedEventVersion)
+          expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+          expect(repository.read(specification.limit(2).result).to_a).to eq([event])
+        end
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
         expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
-      expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-      expect(repository.read(specification.limit(2).result).to_a).to eq([event])
     end
-  end
   end
 end

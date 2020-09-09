@@ -138,6 +138,26 @@ module RubyEventStore
           SQL.supports_upsert?(gateway.connection)
         end
 
+        def supports_concurrent_any?
+          has_connection_pooling?
+        end
+
+        def supports_concurrent_auto?
+          has_connection_pooling?
+        end
+
+        def supports_binary?
+          false
+        end
+
+        def rescuable_concurrency_test_errors
+          [::ROM::SQL::Error]
+        end
+
+        def cleanup_concurrency_test
+          close_pool_connection
+        end
+
         protected
 
         def establish_gateway_connection

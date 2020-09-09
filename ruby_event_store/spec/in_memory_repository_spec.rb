@@ -1,17 +1,14 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/event_repository_lint'
 
+
 module RubyEventStore
   RSpec.describe InMemoryRepository do
-    let(:test_race_conditions_any)   { true }
-    let(:test_race_conditions_auto)  { true }
-    let(:test_binary)                { true }
-    let(:test_change)                { true }
-
-    it_behaves_like :event_repository, ->{ InMemoryRepository.new }
+    include_examples :event_repository
+    let(:repository) { InMemoryRepository.new }
+    let(:helper) { EventRepositoryHelper.new }
 
     it 'does not confuse all with GLOBAL_STREAM' do
-      repository = InMemoryRepository.new
       repository.append_to_stream(
         SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
         Stream.new('all'),
@@ -31,7 +28,6 @@ module RubyEventStore
     end
 
     it 'does not allow same event twice in a stream - checks stream events before checking all events' do
-      repository = InMemoryRepository.new
       repository.append_to_stream(
         SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
         Stream.new('other'),
@@ -50,15 +46,6 @@ module RubyEventStore
           ExpectedVersion.new(0)
         )
       end.to raise_error(RubyEventStore::EventDuplicatedInStream)
-    end
-
-    def verify_conncurency_assumptions
-    end
-
-    def cleanup_concurrency_test
-    end
-
-    def additional_limited_concurrency_for_auto_check
     end
   end
 end

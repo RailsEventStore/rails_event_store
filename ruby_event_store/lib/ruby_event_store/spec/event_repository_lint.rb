@@ -22,13 +22,45 @@ module RubyEventStore
   Type2 = Class.new(RubyEventStore::Event)
   # @private
   Type3 = Class.new(RubyEventStore::Event)
+
+  # @private
+  class EventRepositoryHelper
+    def supports_concurrent_auto?
+      true
+    end
+
+    def supports_concurrent_any?
+      true
+    end
+
+    def supports_binary?
+      true
+    end
+
+    def supports_upsert?
+      true
+    end
+
+    def has_connection_pooling?
+      false
+    end
+
+    def connection_pool_size
+    end
+
+    def cleanup_concurrency_test
+    end
+
+    def rescuable_concurrency_test_errors
+      []
+    end
+  end
 end
 
 module RubyEventStore
-  RSpec.shared_examples :event_repository do |repository_, rescuable_concurrency_test_errors = []|
-    let(:repository)    { repository_.call }
-    let(:mapper)        { Mappers::NullMapper.new }
-    let(:specification) { Specification.new(SpecificationReader.new(repository, mapper)) }
+  RSpec.shared_examples :event_repository do
+    let(:helper)        { EventRepositoryHelper.new }
+    let(:specification) { Specification.new(SpecificationReader.new(repository, Mappers::NullMapper.new)) }
     let(:global_stream) { Stream.new(GLOBAL_STREAM) }
     let(:stream)        { Stream.new(SecureRandom.uuid) }
     let(:stream_flow)   { Stream.new('flow') }
@@ -41,6 +73,11 @@ module RubyEventStore
     let(:version_1)     { ExpectedVersion.new(1) }
     let(:version_2)     { ExpectedVersion.new(2) }
     let(:version_3)     { ExpectedVersion.new(3) }
+
+    def verify_conncurency_assumptions
+      return unless helper.has_connection_pooling?
+      expect(helper.connection_pool_size).to eq(5)
+    end
 
     def read_events(scope, stream = nil, from: nil, to: nil, count: nil)
       scope = scope.stream(stream.name) if stream
@@ -393,7 +430,7 @@ module RubyEventStore
     end
 
     specify 'unlimited concurrency for :any - everything should succeed', timeout: 10, mutant: false do
-      skip unless test_race_conditions_any
+      skip unless helper.supports_concurrent_any?
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
@@ -426,12 +463,12 @@ module RubyEventStore
         end
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
       ensure
-        cleanup_concurrency_test
+        helper.cleanup_concurrency_test
       end
     end
 
     specify 'unlimited concurrency for :any - everything should succeed when linking', timeout: 10, mutant: false do
-      skip unless test_race_conditions_any
+      skip unless helper.supports_concurrent_any?
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
@@ -471,12 +508,12 @@ module RubyEventStore
         end
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
       ensure
-        cleanup_concurrency_test
+        helper.cleanup_concurrency_test
       end
     end
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
-      skip unless test_race_conditions_auto
+      skip unless helper.supports_concurrent_auto?
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
@@ -494,7 +531,7 @@ module RubyEventStore
                   SRecord.new(event_id: eid),
                 ], stream, version_auto)
                 sleep(rand(concurrency_level) / 1000.0)
-              rescue WrongExpectedEventVersion, *rescuable_concurrency_test_errors
+              rescue WrongExpectedEventVersion, *helper.rescuable_concurrency_test_errors
                 fail_occurred +=1
               end
             end
@@ -510,14 +547,14 @@ module RubyEventStore
           ev.event_id.start_with?("0-")
         end
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
-        additional_limited_concurrency_for_auto_check
+        additional_limited_concurrency_for_auto_check if defined? additional_limited_concurrency_for_auto_check
       ensure
-        cleanup_concurrency_test
+        helper.cleanup_concurrency_test
       end
     end
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
-      skip unless test_race_conditions_auto
+      skip unless helper.supports_concurrent_auto?
       verify_conncurency_assumptions
       begin
         concurrency_level = 4
@@ -542,7 +579,7 @@ module RubyEventStore
                 eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
                 repository.link_to_stream(eid, stream, version_auto)
                 sleep(rand(concurrency_level) / 1000.0)
-              rescue WrongExpectedEventVersion, *rescuable_concurrency_test_errors
+              rescue WrongExpectedEventVersion, *helper.rescuable_concurrency_test_errors
                 fail_occurred +=1
               end
             end
@@ -558,9 +595,9 @@ module RubyEventStore
           ev.event_id.start_with?("0-")
         end
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
-        additional_limited_concurrency_for_auto_check
+        additional_limited_concurrency_for_auto_check if defined? additional_limited_concurrency_for_auto_check
       ensure
-        cleanup_concurrency_test
+        helper.cleanup_concurrency_test
       end
     end
 
@@ -918,7 +955,7 @@ module RubyEventStore
     end
 
     specify 'can store arbitrary binary data' do
-      skip unless test_binary
+      skip unless helper.supports_binary?
       binary = "\xB0"
       expect(binary.valid_encoding?).to eq(false)
       binary.force_encoding("binary")
@@ -1091,7 +1128,7 @@ module RubyEventStore
 
     context "#update_messages" do
       specify "changes events" do
-        skip unless test_change
+        skip unless helper.supports_upsert?
         events = Array.new(5) { SRecord.new }
         repository.append_to_stream(
           events[0..2],
@@ -1116,7 +1153,7 @@ module RubyEventStore
       end
 
       specify "cannot change unexisting event" do
-        skip unless test_change
+        skip unless helper.supports_upsert?
         e = SRecord.new
         expect{ repository.update_messages([e]) }.to raise_error do |err|
           expect(err).to be_a(EventNotFound)

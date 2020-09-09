@@ -4,9 +4,36 @@ require 'ruby_event_store/spec/event_repository_lint'
 require 'rails_event_store_active_record/event'
 
 module RailsEventStoreActiveRecord
-  RSpec.describe EventRepository do
-    include SchemaHelper
+  class EventRepository
+    class SpecHelper < RubyEventStore::EventRepositoryHelper
+      def supports_concurrent_auto?
+        !ENV['DATABASE_URL'].include?("sqlite")
+      end
 
+      def supports_concurrent_any?
+        !ENV['DATABASE_URL'].include?("sqlite")
+      end
+
+      def has_connection_pooling?
+        true
+      end
+
+      def connection_pool_size
+        ActiveRecord::Base.connection.pool.size
+      end
+
+      def cleanup_concurrency_test
+        ActiveRecord::Base.connection_pool.disconnect!
+      end
+    end
+  end
+
+  RSpec.describe EventRepository do
+    include_examples :event_repository
+    let(:repository) { EventRepository.new }
+    let(:helper) { EventRepository::SpecHelper.new }
+
+    include SchemaHelper
     around(:each) do |example|
       begin
         establish_database_connection
@@ -17,16 +44,14 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    let(:test_race_conditions_auto)  { !ENV['DATABASE_URL'].include?("sqlite") }
-    let(:test_race_conditions_any)   { !ENV['DATABASE_URL'].include?("sqlite") }
-    let(:test_binary)                { true }
-    let(:test_change)                { true }
-    let(:mapper)                     { RubyEventStore::Mappers::NullMapper.new }
-    let(:repository)                 { EventRepository.new }
-    let(:reader)                     { RubyEventStore::SpecificationReader.new(repository, mapper) }
-    let(:specification)              { RubyEventStore::Specification.new(reader) }
-
-    it_behaves_like :event_repository, ->{ EventRepository.new }
+    let(:specification) do
+      RubyEventStore::Specification.new(
+        RubyEventStore::SpecificationReader.new(
+          repository,
+          RubyEventStore::Mappers::NullMapper.new
+        )
+      )
+    end
 
     specify "all considered internal detail" do
       repository.append_to_stream(
