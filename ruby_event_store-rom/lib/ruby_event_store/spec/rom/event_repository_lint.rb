@@ -7,16 +7,10 @@ module RubyEventStore::ROM
 
     let(:env) { rom_helper.env }
     let(:rom_container) { env.rom_container }
-    let(:rom_db) { rom_container.gateways[:default] }
 
     around(:each) do |example|
       rom_helper.run_lifecycle { example.run }
     end
-
-    let(:test_race_conditions_auto)  { rom_helper.has_connection_pooling? }
-    let(:test_race_conditions_any)   { rom_helper.has_connection_pooling? }
-    let(:test_binary) { false }
-    let(:test_change) { rom_helper.supports_upsert? }
 
     let(:default_stream) { RubyEventStore::Stream.new('stream') }
     let(:global_stream) { RubyEventStore::Stream.new('all') }
@@ -24,9 +18,6 @@ module RubyEventStore::ROM
 
     let(:reader) { RubyEventStore::SpecificationReader.new(repository, mapper) }
     let(:specification) { RubyEventStore::Specification.new(reader) }
-
-    require 'ruby_event_store/rom/sql'
-    it_behaves_like :event_repository, repository_class, [ROM::SQL::Error]
 
     specify '#initialize requires ROM::Env' do
       expect { repository_class.new(rom: nil) }.to raise_error do |err|
@@ -133,44 +124,6 @@ module RubyEventStore::ROM
       end
       expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
       expect(repository.read(specification.limit(2).result).to_a).to eq([event])
-    end
-
-    def cleanup_concurrency_test
-      rom_helper.close_pool_connection
-    end
-
-    def verify_conncurency_assumptions
-      expect(rom_helper.connection_pool_size).to eq(5)
-    end
-
-    # TODO: Port from AR to ROM
-    def additional_limited_concurrency_for_auto_check
-      positions = rom_container.relations[:stream_entries]
-                               .ordered(:forward, default_stream)
-                               .map { |entity| entity[:position] }
-      expect(positions).to eq((0..positions.size - 1).to_a)
-    end
-
-    private
-
-    # TODO: Port from AR to ROM
-    def count_queries
-      count = 0
-      # counter_f = lambda { |_name, _started, _finished, _unique_id, payload|
-      #   count += 1 unless %w[CACHE SCHEMA].include?(payload[:name])
-      # }
-      # ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
-      count
-    end
-
-    # TODO: Port from AR to ROM
-    def expect_query(_match)
-      count = 0
-      # counter_f = lambda { |_name, _started, _finished, _unique_id, payload|
-      #   count += 1 if match === payload[:sql]
-      # }
-      # ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
-      expect(count).to eq(1)
     end
   end
 end

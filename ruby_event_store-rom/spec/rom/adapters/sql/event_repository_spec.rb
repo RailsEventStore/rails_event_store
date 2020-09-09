@@ -2,36 +2,35 @@ require 'spec_helper'
 require 'ruby_event_store/rom/sql'
 require 'ruby_event_store/spec/rom/event_repository_lint'
 
-module RubyEventStore::ROM
-  RSpec.describe EventRepository do
-    let(:rom_helper) { SQL::SpecHelper.new }
+module RubyEventStore
+  module ROM
+    RSpec.describe EventRepository do
+      let(:rom_helper) { SQL::SpecHelper.new }
 
-    it_behaves_like :rom_event_repository, EventRepository
+      let(:test_race_conditions_auto) { rom_helper.has_connection_pooling? }
+      let(:test_race_conditions_any)  { rom_helper.has_connection_pooling? }
+      let(:test_binary)               { false }
+      let(:test_change)               { rom_helper.supports_upsert? }
 
-    # TODO: Port from AR to ROM
-    xspecify 'using preload()' do
-      repository = repository
-      repository.append_to_stream([
-                                    RubyEventStore::SRecord.new,
-                                    RubyEventStore::SRecord.new
-                                  ], default_stream, RubyEventStore::ExpectedVersion.auto)
-      c1 = count_queries { repository.read(RubyEventStore::Specification.new(repository).limit(2).result) }
-      expect(c1).to eq(2)
+      subject(:repository) { EventRepository.new(rom: rom_helper.env) }
 
-      c2 = count_queries { repository.read(RubyEventStore::Specification.new(repository).limit(2).backward.result) }
-      expect(c2).to eq(2)
+      it_behaves_like :event_repository, EventRepository, [::ROM::SQL::Error]
+      it_behaves_like :rom_event_repository, EventRepository
 
-      c3 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').result) }
-      expect(c3).to eq(2)
+      def verify_conncurency_assumptions
+        expect(rom_helper.connection_pool_size).to eq(5)
+      end
 
-      c4 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').backward.result) }
-      expect(c4).to eq(2)
+      def cleanup_concurrency_test
+        rom_helper.close_pool_connection
+      end
 
-      c5 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').limit(2).result) }
-      expect(c5).to eq(2)
-
-      c6 = count_queries { repository.read(RubyEventStore::Specification.new(repository).stream('stream').limit(2).backward.result) }
-      expect(c6).to eq(2)
+      def additional_limited_concurrency_for_auto_check
+        positions = rom_container.relations[:stream_entries]
+          .ordered(:forward, RubyEventStore::Stream.new('stream'))
+          .map { |entity| entity[:position] }
+        expect(positions).to eq((0..positions.size - 1).to_a)
+      end
     end
   end
 end

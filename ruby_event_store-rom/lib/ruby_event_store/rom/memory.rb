@@ -40,10 +40,8 @@ module RubyEventStore
 
       class SpecHelper
         attr_reader :env
-        attr_reader :connection_pool_size, :close_pool_connection
 
         def initialize
-          @connection_pool_size = 5
           @env = ROM.setup(:memory)
         end
 
@@ -67,14 +65,6 @@ module RubyEventStore
 
         def gateway_type?(name)
           name == :memory
-        end
-
-        def has_connection_pooling?
-          true
-        end
-
-        def supports_upsert?
-          true
         end
       end
     end
