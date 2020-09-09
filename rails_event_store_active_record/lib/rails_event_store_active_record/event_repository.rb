@@ -7,7 +7,7 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
-    def initialize(serializer: YAML)
+    def initialize(serializer:)
       @repo_reader = EventRepositoryReader.new(serializer)
       @serializer  = serializer
     end

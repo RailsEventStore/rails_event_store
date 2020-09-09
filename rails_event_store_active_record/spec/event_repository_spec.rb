@@ -30,7 +30,7 @@ module RailsEventStoreActiveRecord
 
   RSpec.describe EventRepository do
     include_examples :event_repository
-    let(:repository) { EventRepository.new }
+    let(:repository) { EventRepository.new(serializer: YAML) }
     let(:helper) { EventRepository::SpecHelper.new }
 
     include SchemaHelper
@@ -287,7 +287,7 @@ module RailsEventStoreActiveRecord
     end
 
     specify 'fill_ids in append_to_stream' do
-      repository = FillInRepository.new
+      repository = FillInRepository.new(serializer: YAML)
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new('stream'),
@@ -299,7 +299,7 @@ module RailsEventStoreActiveRecord
     end
 
     specify 'fill_ids in append_to_stream global' do
-      repository = FillInRepository.new
+      repository = FillInRepository.new(serializer: YAML)
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
@@ -310,7 +310,7 @@ module RailsEventStoreActiveRecord
     end
 
     specify 'fill_ids in link_to_stream' do
-      repository = FillInRepository.new
+      repository = FillInRepository.new(serializer: YAML)
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new('stream'),

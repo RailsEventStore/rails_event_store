@@ -5,7 +5,7 @@ module RubyEventStore
   module ROM
     RSpec.shared_examples :rom_event_repository do
       include_examples :event_repository
-      let(:repository) { EventRepository.new(rom: env) }
+      let(:repository) { EventRepository.new(rom: env, serializer: YAML) }
       let(:helper)     { rom_helper }
 
       around(:each) do |example|
@@ -18,16 +18,16 @@ module RubyEventStore
       let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
 
       specify '#initialize requires ROM::Env' do
-        expect { EventRepository.new(rom: nil) }.to raise_error do |err|
+        expect { EventRepository.new(rom: nil, serializer: YAML) }.to raise_error do |err|
           expect(err).to be_a(ArgumentError)
           expect(err.message).to eq('Must specify rom')
         end
       end
 
       specify '#initialize uses ROM.env by default' do
-        expect { EventRepository.new }.to raise_error(ArgumentError)
+        expect { EventRepository.new(serializer: YAML) }.to raise_error(ArgumentError)
         ROM.env = env
-        expect { EventRepository.new }.not_to raise_error
+        expect { EventRepository.new(serializer: YAML) }.not_to raise_error
         ROM.env = nil
       end
 

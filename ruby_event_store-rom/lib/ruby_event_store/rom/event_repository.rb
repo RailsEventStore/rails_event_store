@@ -11,7 +11,7 @@ module RubyEventStore
       def_delegator :@rom, :handle_error, :guard_for
       def_delegators :@rom, :unit_of_work
 
-      def initialize(rom: ROM.env, serializer: YAML)
+      def initialize(rom: ROM.env, serializer:)
         raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
 
         @rom = rom

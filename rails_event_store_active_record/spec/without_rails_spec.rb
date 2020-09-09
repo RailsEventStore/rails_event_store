@@ -36,7 +36,7 @@ RSpec.describe RailsEventStoreActiveRecord do
 
       EventA1 = Class.new(RubyEventStore::Event)
 
-      client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
+      client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML))
       client.append(
         EventA1.new(
           data: {
