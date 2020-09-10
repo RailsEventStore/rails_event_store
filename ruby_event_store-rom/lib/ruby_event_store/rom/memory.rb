@@ -84,7 +84,7 @@ module RubyEventStore
         end
 
         def supports_binary?
-          true
+          !ENV['DATA_TYPE'] =~ /json/
         end
 
         def rescuable_concurrency_test_errors
