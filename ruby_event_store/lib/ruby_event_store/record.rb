@@ -9,6 +9,7 @@ module RubyEventStore
       @data       = data
       @metadata   = metadata
       @event_type = event_type
+      @serialized_records = {}
       freeze
     end
 
@@ -43,12 +44,13 @@ module RubyEventStore
     end
 
     def serialize(serializer)
-      SerializedRecord.new(
-        event_id:   event_id,
-        event_type: event_type,
-        data:       serializer.dump(data),
-        metadata:   serializer.dump(metadata)
-      )
+      @serialized_records[serializer] ||=
+        SerializedRecord.new(
+          event_id:   event_id,
+          event_type: event_type,
+          data:       serializer.dump(data),
+          metadata:   serializer.dump(metadata)
+        )
     end
 
     alias_method :eql?, :==

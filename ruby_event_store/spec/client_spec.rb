@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'time'
+require 'json'
 
 module RubyEventStore
   RSpec.describe Client do
@@ -807,6 +808,46 @@ module RubyEventStore
     specify "#inspect" do
       object_id = client.object_id.to_s(16)
       expect(client.inspect).to eq("#<RubyEventStore::Client:0x#{object_id}>")
+    end
+
+    specify "transform Record to SerializedRecord is only once when using the same serializer" do
+      serializer = YAML
+      expect(serializer).to receive(:dump).and_call_original.exactly(2)
+
+      client = RubyEventStore::Client.new(
+        repository: InMemoryRepository.new(serializer: serializer),
+        mapper: Mappers::NullMapper.new,
+        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(
+          scheduler: ScheduledWithSerialization.new(serializer: serializer)
+        )
+      )
+      uuid = SecureRandom.uuid
+      client.subscribe(to: [OrderCreated]) do |event|
+        expect(event).to be_kind_of(SerializedRecord)
+        expect(event.event_id).to eq(uuid)
+      end
+      client.publish(OrderCreated.new(event_id: uuid))
+    end
+
+    specify "transform Record to SerializedRecord is twice when using different serializers" do
+      serializer_1 = YAML
+      expect(serializer_1).to receive(:dump).and_call_original.exactly(2)
+      serializer_2 = JSON
+      expect(serializer_2).to receive(:dump).and_call_original.exactly(2)
+
+      client = RubyEventStore::Client.new(
+        repository: InMemoryRepository.new(serializer: serializer_1),
+        mapper: Mappers::NullMapper.new,
+        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(
+          scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
+        )
+      )
+      uuid = SecureRandom.uuid
+      client.subscribe(to: [OrderCreated]) do |event|
+        expect(event).to be_kind_of(SerializedRecord)
+        expect(event.event_id).to eq(uuid)
+      end
+      client.publish(OrderCreated.new(event_id: uuid))
     end
   end
 end
