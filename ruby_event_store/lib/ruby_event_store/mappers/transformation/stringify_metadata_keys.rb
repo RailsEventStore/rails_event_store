@@ -4,18 +4,21 @@ module RubyEventStore
   module Mappers
     module Transformation
       class StringifyMetadataKeys
-        def dump(item)
-          stringify(item)
+        def dump(record)
+          stringify(record)
         end
 
-        def load(item)
-          stringify(item)
+        def load(record)
+          stringify(record)
         end
 
         private
-        def stringify(item)
-          item.merge(
-            metadata: TransformKeys.stringify(item.metadata),
+        def stringify(record)
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       record.data,
+            metadata:   TransformKeys.stringify(record.metadata),
           )
         end
       end

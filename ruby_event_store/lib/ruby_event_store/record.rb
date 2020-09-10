@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-  class SerializedRecord
+  class Record
     StringsRequired = Class.new(StandardError)
     def initialize(event_id:, data:, metadata:, event_type:)
       raise StringsRequired unless [event_id, event_type].all? { |v| v.instance_of?(String) }
@@ -9,6 +9,7 @@ module RubyEventStore
       @data       = data
       @metadata   = metadata
       @event_type = event_type
+      @serialized_records = {}
       freeze
     end
 
@@ -42,13 +43,14 @@ module RubyEventStore
       }
     end
 
-    def deserialize(serializer)
-      Record.new(
-        event_id:   event_id,
-        event_type: event_type,
-        data:       serializer.load(data),
-        metadata:   serializer.load(metadata)
-      )
+    def serialize(serializer)
+      @serialized_records[serializer] ||=
+        SerializedRecord.new(
+          event_id:   event_id,
+          event_type: event_type,
+          data:       serializer.dump(data),
+          metadata:   serializer.dump(metadata)
+        )
     end
 
     alias_method :eql?, :==

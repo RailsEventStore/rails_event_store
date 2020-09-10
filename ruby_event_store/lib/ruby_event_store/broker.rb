@@ -7,10 +7,10 @@ module RubyEventStore
       @dispatcher = dispatcher
     end
 
-    def call(event, serialized_record)
+    def call(event, record)
       subscribers = subscriptions.all_for(event.event_type)
       subscribers.each do |subscriber|
-        dispatcher.call(subscriber, event, serialized_record)
+        dispatcher.call(subscriber, event, record)
       end
     end
 

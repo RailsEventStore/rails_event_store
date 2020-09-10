@@ -73,7 +73,7 @@ module RubyEventStore
         end
 
         let(:ticket_transferred) do
-          Item.new(
+          Record.new(
             event_id: event_id,
             data: data,
             metadata: metadata,
@@ -82,7 +82,7 @@ module RubyEventStore
         end
 
         let(:ticket_cancelled) do
-          Item.new(
+          Record.new(
             event_id: event_id,
             data: {
               ticket_id: ticket_id,
@@ -239,7 +239,7 @@ module RubyEventStore
           key_repository.create(sender_id)
 
           record = encrypt(
-            Item.new(
+            Record.new(
               event_id: event_id,
               data: {
                 ticket_id: ticket_id,
@@ -262,7 +262,7 @@ module RubyEventStore
           event =
             decrypt(
               encrypt(
-                Item.new(
+                Record.new(
                   event_id: event_id,
                   data: {
                     ticket_id: ticket_id,
@@ -290,7 +290,7 @@ module RubyEventStore
           event =
             decrypt(
               encrypt(
-                Item.new(
+                Record.new(
                   event_id: event_id,
                   data: {
                     ticket_id: ticket_id,
@@ -317,7 +317,7 @@ module RubyEventStore
 
           record =
             encrypt(
-              Item.new(
+              Record.new(
                 event_id: event_id,
                 data: {
                   ticket_id: ticket_id,

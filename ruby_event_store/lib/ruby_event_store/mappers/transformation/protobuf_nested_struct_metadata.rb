@@ -8,15 +8,24 @@ module RubyEventStore
           require_optional_dependency
         end
 
-        def dump(item)
-          metadata = ProtobufNestedStruct::HashMapStringValue.dump(item.metadata)
-          item.merge(metadata: metadata)
+        def dump(record)
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       record.data,
+            metadata:   ProtobufNestedStruct::HashMapStringValue.dump(record.metadata)
+          )
         end
 
-        def load(item)
-          metadata = ProtobufNestedStruct::HashMapStringValue.load(item.metadata)
-          symbolize = SymbolizeMetadataKeys.new
-          symbolize.load(item.merge(metadata: metadata))
+        def load(record)
+          SymbolizeMetadataKeys.new.load(
+            Record.new(
+              event_id:   record.event_id,
+              event_type: record.event_type,
+              data:       record.data,
+              metadata:   ProtobufNestedStruct::HashMapStringValue.load(record.metadata)
+            )
+          )
         end
 
         def require_optional_dependency

@@ -25,7 +25,7 @@ module RailsEventStore
     it_behaves_like :scheduler, ActiveJobScheduler.new
 
     let(:event) { TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30)) }
-    let(:serialized_record) { RubyEventStore::Mappers::Default.new.event_to_serialized_record(event) }
+    let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
 
     describe "#verify" do
       specify do
@@ -54,7 +54,7 @@ module RailsEventStore
     describe "#call" do
       specify do
         scheduler = ActiveJobScheduler.new
-        scheduler.call(MyAsyncHandler, serialized_record)
+        scheduler.call(MyAsyncHandler, record)
 
         enqueued_jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
         expect(enqueued_jobs.size).to eq(1)

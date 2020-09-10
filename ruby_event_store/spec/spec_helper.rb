@@ -42,6 +42,21 @@ class ReverseYamlSerializer
   end
 end
 
+
+class ScheduledWithSerialization
+  def initialize(serializer:)
+    @serializer = serializer
+  end
+
+  def call(subscriber, record)
+    subscriber.call(record.serialize(@serializer))
+  end
+
+  def verify(subscriber)
+    subscriber.respond_to?(:call)
+  end
+end
+
 RSpec::Matchers.define :contains_ids do |expected_ids|
   match do |enum|
     @actual = enum.map(&:event_id)

@@ -4,14 +4,16 @@ require 'ostruct'
 module RubyEventStore
   class InMemoryRepository
 
-    def initialize
+    def initialize(serializer: NULL)
+      @serializer = serializer
       @streams = Hash.new
       @mutex = Mutex.new
       @global = Array.new
     end
 
-    def append_to_stream(serialized_records, stream, expected_version)
-      add_to_stream(serialized_records, expected_version, stream, true)
+    def append_to_stream(records, stream, expected_version)
+      add_to_stream(Array(records).map{|record| record.serialize(serializer)},
+        expected_version, stream, true)
     end
 
     def link_to_stream(event_ids, stream, expected_version)
@@ -28,20 +30,29 @@ module RubyEventStore
     end
 
     def last_stream_event(stream)
-      serialized_records_of_stream(stream.name).last
+      serialized_records_of_stream(stream.name).last&.deserialize(serializer)
     end
 
     def read(spec)
       serialized_records = read_scope(spec)
       if spec.batched?
-        batch_reader = ->(offset, limit) { serialized_records.drop(offset).take(limit) }
+        batch_reader = ->(offset, limit) do
+          serialized_records
+            .drop(offset)
+            .take(limit)
+            .map{|serialized_record| serialized_record.deserialize(serializer) }
+        end
         BatchEnumerator.new(spec.batch_size, serialized_records.size, batch_reader).each
       elsif spec.first?
-        serialized_records.first
+        serialized_records.first&.deserialize(serializer)
       elsif spec.last?
-        serialized_records.last
+        serialized_records.last&.deserialize(serializer)
       else
-        serialized_records.each
+        Enumerator.new do |y|
+          serialized_records.each do |serialized_record|
+            y << serialized_record.deserialize(serializer)
+          end
+        end
       end
     end
 
@@ -49,13 +60,14 @@ module RubyEventStore
       read_scope(spec).count
     end
 
-    def update_messages(messages)
-      messages.each do |new_msg|
-        location = global.index{|m| new_msg.event_id.eql?(m.event_id)} or raise EventNotFound.new(new_msg.event_id)
-        global[location] = new_msg
+    def update_messages(records)
+      records.each do |record|
+        serialized_record = record.serialize(serializer)
+        location = global.index{|m| serialized_record.event_id.eql?(m.event_id)} or raise EventNotFound.new(serialized_record.event_id)
+        global[location] = serialized_record
         streams.values.each do |str|
-          location = str.index{|m| new_msg.event_id.eql?(m.event_id)}
-          str[location] = new_msg if location
+          location = str.index{|m| serialized_record.event_id.eql?(m.event_id)}
+          str[location] = serialized_record if location
         end
       end
     end
@@ -87,7 +99,7 @@ module RubyEventStore
     end
 
     def add_to_stream(serialized_records, expected_version, stream, include_global)
-      append_with_synchronize(Array(serialized_records), expected_version, stream, include_global)
+      append_with_synchronize(serialized_records, expected_version, stream, include_global)
     end
 
     def last_stream_version(stream)
@@ -131,6 +143,6 @@ module RubyEventStore
       source.index {|item| item.event_id.eql?(event_id)}
     end
 
-    attr_reader :streams, :mutex, :global
+    attr_reader :streams, :mutex, :global, :serializer
   end
 end

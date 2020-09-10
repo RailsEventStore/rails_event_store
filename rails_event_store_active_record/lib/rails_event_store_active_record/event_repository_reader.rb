@@ -3,13 +3,17 @@
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
 
+    def initialize(serializer)
+      @serializer = serializer
+    end
+
     def has_event?(event_id)
       Event.exists?(id: event_id)
     end
 
     def last_stream_event(stream)
-      record = EventInStream.where(stream: stream.name).order('position DESC, id DESC').first
-      record && serialized_record(record)
+      record_ = EventInStream.where(stream: stream.name).order('position DESC, id DESC').first
+      record(record_) if record_
     end
 
     def read(spec)
@@ -20,17 +24,17 @@ module RailsEventStoreActiveRecord
       if spec.batched?
         batch_reader = ->(offset_id, limit) do
           records = offset_id.nil? ? stream.limit(limit) : stream.where(start_offset_condition(spec, offset_id)).limit(limit)
-          [records.map(&method(:serialized_record)), records.last]
+          [records.map(&method(:record)), records.last]
         end
         BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
       elsif spec.first?
-        record = stream.first
-        serialized_record(record) if record
+        record_ = stream.first
+        record(record_) if record_
       elsif spec.last?
-        record = stream.last
-        serialized_record(record) if record
+        record_ = stream.last
+        record(record_) if record_
       else
-        stream.map(&method(:serialized_record)).each
+        stream.map(&method(:record)).each
       end
     end
 
@@ -41,6 +45,7 @@ module RailsEventStoreActiveRecord
     end
 
     private
+    attr_reader :serializer
 
     def read_scope(spec)
       stream = EventInStream.preload(:event).where(stream: normalize_stream_name(spec))
@@ -82,13 +87,13 @@ module RailsEventStoreActiveRecord
       spec.forward? ? 'ASC' : 'DESC'
     end
 
-    def serialized_record(record)
+    def record(record)
       RubyEventStore::SerializedRecord.new(
         event_id: record.event.id,
         metadata: record.event.metadata,
         data: record.event.data,
         event_type: record.event.event_type
-      )
+      ).deserialize(serializer)
     end
   end
 

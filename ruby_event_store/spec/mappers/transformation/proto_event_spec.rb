@@ -13,8 +13,8 @@ module RubyEventStore
                         data: {some: 'value'},
                         metadata: {some: 'meta'})
         }
-        let(:item)  {
-          Item.new(
+        let(:record)  {
+          Record.new(
             event_id:   uuid,
             metadata:   {some: 'meta'},
             data:       ResTesting::OrderCreated.new(customer_id: 123, order_id: 'K3THNX9'),
@@ -23,7 +23,7 @@ module RubyEventStore
         }
 
         specify "#load" do
-          loaded = ProtoEvent.new.load(item)
+          loaded = ProtoEvent.new.load(record)
           expect(loaded).to be_a(Proto)
           expect(loaded.event_id).to eq(uuid)
           expect(loaded.data).to be_a(ResTesting::OrderCreated)

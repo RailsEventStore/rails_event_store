@@ -15,8 +15,7 @@ module RubyEventStore
     let(:test_client) { TestClient.new(app_builder(event_store)) }
     let(:event_store) do
       RubyEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new,
-        mapper: RubyEventStore::Mappers::Default.new(serializer: JSON)
+        repository: RubyEventStore::InMemoryRepository.new(serializer: JSON),
       )
     end
 

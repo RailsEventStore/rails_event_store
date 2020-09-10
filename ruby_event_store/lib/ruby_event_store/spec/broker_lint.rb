@@ -1,6 +1,6 @@
 RSpec.shared_examples :broker do |broker_klass|
   let(:event) { instance_double(::RubyEventStore::Event, event_type: 'EventType') }
-  let(:serialized_record) { instance_double(::RubyEventStore::SerializedRecord)  }
+  let(:record) { instance_double(::RubyEventStore::Record)  }
   let(:handler) { HandlerClass.new }
   let(:subscriptions) { ::RubyEventStore::Subscriptions.new }
   let(:dispatcher) { ::RubyEventStore::Dispatcher.new }
@@ -9,26 +9,26 @@ RSpec.shared_examples :broker do |broker_klass|
   specify "no dispatch when no subscriptions" do
     expect(subscriptions).to receive(:all_for).with('EventType').and_return([])
     expect(dispatcher).not_to receive(:call)
-    broker.call(event, serialized_record)
+    broker.call(event, record)
   end
 
   specify "calls subscription" do
     expect(subscriptions).to receive(:all_for).with('EventType').and_return([handler])
-    expect(dispatcher).to receive(:call).with(handler, event, serialized_record)
-    broker.call(event, serialized_record)
+    expect(dispatcher).to receive(:call).with(handler, event, record)
+    broker.call(event, record)
   end
 
   specify "calls subscribed class" do
     expect(subscriptions).to receive(:all_for).with('EventType').and_return([HandlerClass])
-    expect(dispatcher).to receive(:call).with(HandlerClass, event, serialized_record)
-    broker.call(event, serialized_record)
+    expect(dispatcher).to receive(:call).with(HandlerClass, event, record)
+    broker.call(event, record)
   end
 
   specify "calls all subscriptions" do
     expect(subscriptions).to receive(:all_for).with('EventType').and_return([handler, HandlerClass])
-    expect(dispatcher).to receive(:call).with(handler, event, serialized_record)
-    expect(dispatcher).to receive(:call).with(HandlerClass, event, serialized_record)
-    broker.call(event, serialized_record)
+    expect(dispatcher).to receive(:call).with(handler, event, record)
+    expect(dispatcher).to receive(:call).with(HandlerClass, event, record)
+    broker.call(event, record)
   end
 
   specify 'raise error when no subscriber' do

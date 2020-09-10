@@ -42,7 +42,7 @@ class IdentityMapTransformation
 
   def dump(domain_event)
     @identity_map[domain_event.event_id] = domain_event
-    ::RubyEventStore::Mappers::Transformation::Item.new(
+    RubyEventStore::Record.new(
       event_id:   domain_event.event_id,
       metadata:   domain_event.metadata.to_h,
       data:       domain_event.data,
@@ -50,7 +50,7 @@ class IdentityMapTransformation
     )
   end
 
-  def load(item)
-    @identity_map.fetch(item.event_id)
+  def load(record)
+    @identity_map.fetch(record.event_id)
   end
 end

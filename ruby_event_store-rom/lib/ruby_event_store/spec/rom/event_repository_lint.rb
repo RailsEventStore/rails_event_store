@@ -5,8 +5,16 @@ module RubyEventStore
   module ROM
     RSpec.shared_examples :rom_event_repository do
       include_examples :event_repository
-      let(:repository) { EventRepository.new(rom: env) }
+      let(:repository) { EventRepository.new(rom: env, serializer: serializer) }
       let(:helper)     { rom_helper }
+      let(:serializer) {
+        case ENV['DATA_TYPE']
+        when /json/
+          JSON
+        else
+          YAML
+        end
+      }
 
       around(:each) do |example|
         rom_helper.run_lifecycle { example.run }
@@ -18,16 +26,16 @@ module RubyEventStore
       let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
 
       specify '#initialize requires ROM::Env' do
-        expect { EventRepository.new(rom: nil) }.to raise_error do |err|
+        expect { EventRepository.new(rom: nil, serializer: serializer) }.to raise_error do |err|
           expect(err).to be_a(ArgumentError)
           expect(err.message).to eq('Must specify rom')
         end
       end
 
       specify '#initialize uses ROM.env by default' do
-        expect { EventRepository.new }.to raise_error(ArgumentError)
+        expect { EventRepository.new(serializer: serializer) }.to raise_error(ArgumentError)
         ROM.env = env
-        expect { EventRepository.new }.not_to raise_error
+        expect { EventRepository.new(serializer: serializer) }.not_to raise_error
         ROM.env = nil
       end
 
@@ -55,7 +63,7 @@ module RubyEventStore
           SRecord.new(event_id: u1 = SecureRandom.uuid),
           SRecord.new(event_id: u2 = SecureRandom.uuid),
           SRecord.new(event_id: u3 = SecureRandom.uuid)
-        ]
+        ].map{|r| r.serialize(serializer) }
 
         repo = Repositories::Events.new(rom_container)
         repo.create_changeset(events).commit
@@ -82,7 +90,7 @@ module RubyEventStore
           SRecord.new(event_id: u1 = SecureRandom.uuid),
           SRecord.new(event_id: u2 = SecureRandom.uuid),
           SRecord.new(event_id: u3 = SecureRandom.uuid)
-        ]
+        ].map{|r| r.serialize(serializer) }
 
         repo = Repositories::Events.new(rom_container)
         repo.create_changeset(events).commit

@@ -4,7 +4,7 @@ module RailsEventStore
   class Client < RubyEventStore::Client
     attr_reader :request_metadata
 
-    def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new,
+    def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
                    mapper: RubyEventStore::Mappers::Default.new,
                    subscriptions: RubyEventStore::Subscriptions.new,
                    dispatcher: RubyEventStore::ComposedDispatcher.new(

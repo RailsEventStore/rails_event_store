@@ -3,7 +3,7 @@
 module RailsEventStore
   module AsyncHandler
     def perform(payload)
-      super(Rails.configuration.event_store.deserialize(**payload.symbolize_keys))
+      super(Rails.configuration.event_store.deserialize(serializer: YAML, **payload.symbolize_keys))
     end
   end
 

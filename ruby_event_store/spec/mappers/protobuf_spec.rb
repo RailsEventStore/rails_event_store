@@ -200,35 +200,35 @@ module RubyEventStore
           )
       end
 
-      specify '#event_to_serialized_record returns proto serialized record' do
-        record = Protobuf.new.event_to_serialized_record(domain_event)
-        expect(record).to              be_a(SerializedRecord)
+      specify '#event_to_record returns proto serialized record' do
+        record = Protobuf.new.event_to_record(domain_event)
+        expect(record).to              be_a(Record)
         expect(record.event_id).to     eq(event_id)
         expect(record.data).not_to     be_empty
         expect(record.metadata).not_to be_empty
         expect(record.event_type).to   eq("res_testing.OrderCreated")
       end
 
-      specify '#serialized_record_to_event returns event instance' do
-        record = Protobuf.new.event_to_serialized_record(domain_event)
-        event  = Protobuf.new.serialized_record_to_event(record)
+      specify '#record_to_event returns event instance' do
+        record = Protobuf.new.event_to_record(domain_event)
+        event  = Protobuf.new.record_to_event(record)
         expect(event).to                eq(domain_event)
         expect(event.event_id).to       eq(event_id)
         expect(event.data).to           eq(data)
         expect(event.metadata.to_h).to  eq(metadata)
       end
 
-      specify '#serialized_record_to_event is using events class remapping' do
+      specify '#record_to_event is using events class remapping' do
         subject = Protobuf.new(
           events_class_remapping: {'res_testing.OrderCreatedBeforeRefactor' => "res_testing.OrderCreated"}
         )
-        record = SerializedRecord.new(
+        record = Record.new(
           event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data:       "",
           metadata:   "",
           event_type: "res_testing.OrderCreatedBeforeRefactor",
         )
-        event = subject.serialized_record_to_event(record)
+        event = subject.record_to_event(record)
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.event_type).to eq("res_testing.OrderCreated")
       end

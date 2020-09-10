@@ -5,8 +5,8 @@ require 'ruby_event_store/spec/scheduler_lint'
 module RubyEventStore
   RSpec.describe ImmediateAsyncDispatcher do
     class MyCustomScheduler
-      def call(klass, serialized_record)
-        klass.perform_async(serialized_record)
+      def call(klass, record)
+        klass.perform_async(record)
       end
 
       def verify(klass)
@@ -18,7 +18,7 @@ module RubyEventStore
     it_behaves_like :scheduler, MyCustomScheduler.new
 
     let(:event) { instance_double(::RubyEventStore::Event) }
-    let(:serialized_record) { instance_double(::RubyEventStore::SerializedRecord)  }
+    let(:record) { instance_double(::RubyEventStore::Record)  }
     let(:scheduler) { MyCustomScheduler.new }
 
     describe "#call" do
@@ -26,9 +26,9 @@ module RubyEventStore
         dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
 
         handler = spy
-        dispatcher.call(handler, event, serialized_record)
+        dispatcher.call(handler, event, record)
 
-        expect(handler).to have_received(:perform_async).with(serialized_record)
+        expect(handler).to have_received(:perform_async).with(record)
       end
     end
 

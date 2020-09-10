@@ -13,7 +13,7 @@ RSpec.describe RailsEventStore do
     cattr_accessor :event
 
     def perform(payload)
-      self.class.event = Rails.configuration.event_store.deserialize(**payload)
+      self.class.event = Rails.configuration.event_store.deserialize(serializer: YAML, **payload)
     end
   end
 
@@ -51,8 +51,8 @@ RSpec.describe RailsEventStore do
   end
 
   class CustomSidekiqScheduler
-    def call(klass, serialized_record)
-      klass.perform_async(serialized_record.to_h)
+    def call(klass, record)
+      klass.perform_async(record.serialize(YAML).to_h)
     end
 
     def verify(subscriber)

@@ -10,8 +10,8 @@ module RubyEventStore
                         data: {some: 'value'},
                         metadata: {some: 'meta'})
         }
-        let(:item)  {
-          Item.new(
+        let(:record)  {
+          Record.new(
             event_id:   uuid,
             metadata:   {some: 'meta'},
             data:       {some: 'value'},
@@ -20,11 +20,11 @@ module RubyEventStore
         }
 
         specify "#dump" do
-          expect(DomainEvent.new.dump(event)).to eq(item)
+          expect(DomainEvent.new.dump(event)).to eq(record)
         end
 
         specify "#load" do
-          loaded = DomainEvent.new.load(item)
+          loaded = DomainEvent.new.load(record)
           expect(loaded).to eq(event)
           expect(loaded.metadata.to_h).to eq(event.metadata.to_h)
         end

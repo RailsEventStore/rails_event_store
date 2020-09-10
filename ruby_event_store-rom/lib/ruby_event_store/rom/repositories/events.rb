@@ -7,12 +7,12 @@ module RubyEventStore
   module ROM
     module Repositories
       class Events < ::ROM::Repository[:events]
-        def create_changeset(serialized_records)
-          events.create_changeset(serialized_records)
+        def create_changeset(records)
+          events.create_changeset(records)
         end
 
-        def update_changeset(serialized_records)
-          events.update_changeset(serialized_records)
+        def update_changeset(records)
+          events.update_changeset(records)
         end
 
         def find_nonexistent_pks(event_ids)
@@ -25,23 +25,23 @@ module RubyEventStore
           events.by_pk(event_id).exist?
         end
 
-        def last_stream_event(stream)
+        def last_stream_event(stream, serializer)
           query = stream_entries.ordered(:backward, stream)
-          query = query_builder(query, limit: 1)
+          query = query_builder(serializer, query, limit: 1)
           query.first
         end
 
-        def read(specification)
+        def read(specification, serializer)
           query = read_scope(specification)
 
           if specification.batched?
             BatchEnumerator.new(
               specification.batch_size,
               specification.limit,
-              ->(offset, limit) { query_builder(query, offset: offset, limit: limit).to_ary }
+              ->(offset, limit) { query_builder(serializer, query, offset: offset, limit: limit).to_ary }
             ).each
           else
-            query = query_builder(query, limit: (specification.limit if specification.limit?))
+            query = query_builder(serializer, query, limit: (specification.limit if specification.limit?))
             if !specification.start && !specification.stop
               specification.first? || specification.last? ? query.first : query.each
             elsif specification.last?
@@ -76,13 +76,15 @@ module RubyEventStore
           query
         end
 
-        def query_builder(query, offset: nil, limit: nil)
+        def query_builder(serializer, query, offset: nil, limit: nil)
           query = query.offset(offset) if offset
           query = query.take(limit)    if limit
 
           query
             .combine(:event)
             .map_with(:stream_entry_to_serialized_record, auto_struct: false)
+            .to_a
+            .map { |serialized_record| serialized_record.deserialize(serializer) }
         end
       end
     end

@@ -23,6 +23,10 @@ module RailsEventStore
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       client = Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
+        dispatcher: RubyEventStore::ComposedDispatcher.new(
+          RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::NULL)),
+          RubyEventStore::Dispatcher.new,
+        ),
       )
       client.subscribe(->(ev){@ev = ev}, to: [ResTesting::OrderCreated.descriptor.name])
       client.subscribe(AsyncProtoHandler, to: [ResTesting::OrderCreated.descriptor.name])

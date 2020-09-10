@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module RubyEventStore
 
-  RSpec.describe SerializedRecord do
+  RSpec.describe Record do
     let(:event_id)   { "event_id" }
     let(:data)       { "data" }
     let(:metadata)   { "metadata" }
@@ -17,14 +17,14 @@ module RubyEventStore
       expect(record.frozen?).to    be true
     end
 
-    specify 'constructor raised SerializedRecord::StringsRequired when argument is not a String' do
+    specify 'constructor raised Record::StringsRequired when argument is not a String' do
       [[1, 1, 1, 1],
        [1, "string", "string", "string"],
        ["string", "string", "string", 1]].each do |sample|
         event_id, data, metadata, event_type = sample
         expect do
           described_class.new(event_id: event_id, data: data, metadata: metadata, event_type: event_type)
-        end.to raise_error SerializedRecord::StringsRequired
+        end.to raise_error Record::StringsRequired
       end
     end
 
@@ -36,9 +36,9 @@ module RubyEventStore
         ["a", "a", "b", "a"],
         ["a", "a", "a", "b"],
       ].permutation(2).each do |one, two|
-        a = SerializedRecord.new(event_id: one[0], data: one[1], metadata: one[2], event_type: one[3])
-        b = SerializedRecord.new(event_id: two[0], data: two[1], metadata: two[2], event_type: two[3])
-        c = Class.new(SerializedRecord).new(event_id: one[0], data: one[1], metadata: one[2], event_type: one[3])
+        a = Record.new(event_id: one[0], data: one[1], metadata: one[2], event_type: one[3])
+        b = Record.new(event_id: two[0], data: two[1], metadata: two[2], event_type: two[3])
+        c = Class.new(Record).new(event_id: one[0], data: one[1], metadata: one[2], event_type: one[3])
         expect(a).not_to eq(b)
         expect(a).not_to eql(b)
         expect(a.hash).not_to eq(b.hash)
@@ -54,8 +54,8 @@ module RubyEventStore
     end
 
     specify "equality" do
-      a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
-      b = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      a = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      b = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
       expect(a).to eq(b)
       expect(a).to eql(b)
       expect(a.hash).to eql(b.hash)
@@ -64,12 +64,12 @@ module RubyEventStore
     end
 
     specify "hash" do
-      a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
-      expect(a.hash).not_to eq([SerializedRecord, "a", "b", "c", "d"].hash)
+      a = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      expect(a.hash).not_to eq([Record, "a", "b", "c", "d"].hash)
     end
 
     specify "to_h" do
-      a = SerializedRecord.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      a = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
       expect(a.to_h).to eq({
         event_id: "a",
         data: "b",
@@ -84,10 +84,10 @@ module RubyEventStore
       end.to raise_error ArgumentError
     end
 
-    specify '#deserialize' do
-      actual = SerializedRecord.new(event_id: "a", data: "--- b\n", metadata: "--- c\n", event_type: "d")
-      expected = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
-      expect(actual.deserialize(YAML)).to eq(expected)
+    specify '#serialize' do
+      actual  = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d")
+      expected = SerializedRecord.new(event_id: "a", data: "--- b\n", metadata: "--- c\n", event_type: "d")
+      expect(actual.serialize(YAML)).to eq(expected)
     end
   end
 end

@@ -5,7 +5,7 @@ module RubyEventStore
   RSpec.describe Dispatcher do
     it_behaves_like :dispatcher, Dispatcher.new
     let(:event) { instance_double(::RubyEventStore::Event) }
-    let(:serialized_record) { instance_double(::RubyEventStore::SerializedRecord)  }
+    let(:record) { instance_double(::RubyEventStore::Record)  }
     let(:handler) { HandlerClass.new }
 
     specify "does not allow silly subscribers" do
@@ -32,13 +32,13 @@ module RubyEventStore
 
     specify "calls subscribed instance" do
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(handler, event, serialized_record)
+      Dispatcher.new.call(handler, event, record)
     end
 
     specify "calls subscribed class" do
       expect(HandlerClass).to receive(:new).and_return(handler)
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(HandlerClass, event, serialized_record)
+      Dispatcher.new.call(HandlerClass, event, record)
     end
 
     specify "allows callable classes and instances" do

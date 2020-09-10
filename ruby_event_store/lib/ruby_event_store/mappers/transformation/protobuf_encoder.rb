@@ -4,12 +4,22 @@ module RubyEventStore
   module Mappers
     module Transformation
       class ProtobufEncoder
-        def dump(item)
-          item.merge(data: encode_data(item.data))
+        def dump(record)
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       encode_data(record.data),
+            metadata:   record.metadata
+          )
         end
 
-        def load(item)
-          item.merge(data: load_data(item.event_type, item.data))
+        def load(record)
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       load_data(record.event_type, record.data),
+            metadata:   record.metadata
+          )
         end
 
         private

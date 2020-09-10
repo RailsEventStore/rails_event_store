@@ -3,11 +3,11 @@ module RubyEventStore
   class SRecord
     def self.new(
       event_id:   SecureRandom.uuid,
-      data:       '{}',
-      metadata:   '{}',
+      data:       {},
+      metadata:   {},
       event_type: 'SRecordTestEvent'
     )
-      SerializedRecord.new(
+      Record.new(
         event_id:   event_id,
         data:       data,
         metadata:   metadata,
@@ -610,30 +610,30 @@ module RubyEventStore
     end
 
     it 'data attributes are retrieved' do
-      event = SRecord.new(data: '{"order_id":3}')
+      event = SRecord.new(data: { "order_id" => 3 })
       repository.append_to_stream(event, stream, version_any)
       retrieved_event = read_events_forward(repository, count: 1).first
-      expect(retrieved_event.data).to eq('{"order_id":3}')
+      expect(retrieved_event.data).to eq({ "order_id" => 3 })
     end
 
     it 'metadata attributes are retrieved' do
-      event = SRecord.new(metadata: '{"request_id":3}')
+      event = SRecord.new(metadata: { "request_id" => 3 })
       repository.append_to_stream(event, stream, version_any)
       retrieved_event = read_events_forward(repository, count: 1).first
-      expect(retrieved_event.metadata).to eq('{"request_id":3}')
+      expect(retrieved_event.metadata).to eq({ "request_id" => 3 })
     end
 
     it 'data and metadata attributes are retrieved when linking' do
       event = SRecord.new(
-        data: '{"order_id":3}',
-        metadata: '{"request_id":4}',
+        data: { "order_id" => 3 },
+        metadata: { "request_id" => 4},
       )
       repository
         .append_to_stream(event, stream, version_any)
         .link_to_stream(event.event_id, stream_flow, version_any)
       retrieved_event = read_events_forward(repository, stream_flow).first
-      expect(retrieved_event.metadata).to eq('{"request_id":4}')
-      expect(retrieved_event.data).to eq('{"order_id":3}')
+      expect(retrieved_event.metadata).to eq({ "request_id" => 4 })
+      expect(retrieved_event.data).to eq({ "order_id" => 3 })
       expect(event).to eq(retrieved_event)
     end
 
@@ -1142,10 +1142,10 @@ module RubyEventStore
         )
         repository.update_messages([
           a = SRecord.new(event_id: events[0].event_id.clone, data: events[0].data, metadata: events[0].metadata, event_type: events[0].event_type),
-          b = SRecord.new(event_id: events[1].event_id.dup, data: '{"test":1}', metadata: events[1].metadata, event_type: events[1].event_type),
-          c = SRecord.new(event_id: events[2].event_id, data: events[2].data, metadata: '{"test":2}', event_type: events[2].event_type),
+          b = SRecord.new(event_id: events[1].event_id.dup, data: { "test" => 1 }, metadata: events[1].metadata, event_type: events[1].event_type),
+          c = SRecord.new(event_id: events[2].event_id, data: events[2].data, metadata: { "test" => 2 }, event_type: events[2].event_type),
           d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data, metadata: events[3].metadata, event_type: "event_type3"),
-          e = SRecord.new(event_id: events[4].event_id.dup, data: '{"test":4}', metadata: '{"test":42}', event_type: "event_type4"),
+          e = SRecord.new(event_id: events[4].event_id.dup, data: { "test" => 4 }, metadata: { "test" => 42 }, event_type: "event_type4"),
         ])
         expect(repository.read(specification.result).to_a).to eq([a,b,c,d,e])
         expect(repository.read(specification.stream("whatever").result).to_a).to eq([a,b,c])
