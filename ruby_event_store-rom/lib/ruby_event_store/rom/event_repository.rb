@@ -95,7 +95,7 @@ module RubyEventStore
           .each { |id| raise EventNotFound, id }
 
         unit_of_work do |changesets|
-          serialized_records = Array(records).map { |record| record.serialize(@serializer) }
+          serialized_records = records.map { |record| record.serialize(@serializer) }
           changesets << @events.update_changeset(serialized_records)
         end
       end
