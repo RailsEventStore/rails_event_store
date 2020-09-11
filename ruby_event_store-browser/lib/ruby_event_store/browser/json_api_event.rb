@@ -29,16 +29,7 @@ module RubyEventStore
 
       def metadata
         event.metadata.to_h.tap do |m|
-          m[:timestamp] = as_time(m.fetch(:timestamp)).iso8601(3) if m.key?(:timestamp)
-        end
-      end
-
-      def as_time(value)
-        case value
-        when String
-          Time.parse(value)
-        else
-          value
+          m[:timestamp] = (m[:timestamp] || event.timestamp).iso8601(TIMESTAMP_PRECISION)
         end
       end
 

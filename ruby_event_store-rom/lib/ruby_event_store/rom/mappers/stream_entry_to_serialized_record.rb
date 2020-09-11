@@ -11,7 +11,7 @@ module RubyEventStore
 
         map_array do
           unwrap :event, %i[data metadata event_type created_at]
-          map_value :created_at, ->(time) { time.iso8601(9) }
+          map_value :created_at, ->(time) { time.iso8601(TIMESTAMP_PRECISION) }
           rename_keys created_at: :timestamp
           accept_keys %i[event_id data metadata event_type timestamp]
           constructor_inject RubyEventStore::SerializedRecord

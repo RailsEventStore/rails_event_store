@@ -3,4 +3,5 @@
 module RubyEventStore
   GLOBAL_STREAM = Object.new
   PAGE_SIZE = 100.freeze
+  TIMESTAMP_PRECISION = 9
 end

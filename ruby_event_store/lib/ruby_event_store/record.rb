@@ -54,7 +54,7 @@ module RubyEventStore
           event_type: event_type,
           data:       serializer.dump(data),
           metadata:   serializer.dump(metadata),
-          timestamp:  timestamp.iso8601(9),
+          timestamp:  timestamp.iso8601(TIMESTAMP_PRECISION),
         )
     end
 
