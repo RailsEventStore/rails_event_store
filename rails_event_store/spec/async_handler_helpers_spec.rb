@@ -98,12 +98,9 @@ module RailsEventStore
       ActiveJob::Base.queue_adapter   = SimpleAdapter
     end
 
-    specify "with defauts" do
+    specify "with defaults" do
       HandlerWithDefaults.prepend RailsEventStore::AsyncHandler
       handler = HandlerWithDefaults.new
-
-      expect(handler.event_store).to eq(Rails.configuration.event_store)
-      expect(handler.serializer).to eq(YAML)
 
       HandlerWithDefaults.event = nil
       event_store.subscribe_to_all_events(HandlerWithDefaults)
@@ -116,9 +113,6 @@ module RailsEventStore
       HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
       handler = HandlerWithAnotherEventStore.new
 
-      expect(handler.event_store).to eq(another_event_store)
-      expect(handler.serializer).to eq(YAML)
-
       HandlerWithAnotherEventStore.event = nil
       event_store.subscribe_to_all_events(HandlerWithAnotherEventStore)
       event_store.publish(ev = RailsEventStore::Event.new)
@@ -129,9 +123,6 @@ module RailsEventStore
     specify "with specified serializer" do
       HandlerWithSpecifiedSerializer.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
       handler = HandlerWithSpecifiedSerializer.new
-
-      expect(handler.event_store).to eq(json_event_store)
-      expect(handler.serializer).to eq(JSON)
 
       HandlerWithSpecifiedSerializer.event = nil
       json_event_store.subscribe_to_all_events(HandlerWithSpecifiedSerializer)
