@@ -62,11 +62,18 @@ module RubyEventStore
 
     def update_messages(records)
       records.each do |record|
-        serialized_record = record.serialize(serializer)
-        location = global.index{|m| serialized_record.event_id.eql?(m.event_id)} or raise EventNotFound.new(serialized_record.event_id)
+        location = global.index{|m| record.event_id.eql?(m.event_id)} or raise EventNotFound.new(record.event_id)
+        serialized_record =
+          Record.new(
+            event_id:   record.event_id,
+            event_type: record.event_type,
+            data:       record.data,
+            metadata:   record.metadata,
+            timestamp: Time.iso8601(global[location].timestamp),
+          ).serialize(serializer)
         global[location] = serialized_record
         streams.values.each do |str|
-          location = str.index{|m| serialized_record.event_id.eql?(m.event_id)}
+          location = str.index{|m| record.event_id.eql?(m.event_id)}
           str[location] = serialized_record if location
         end
       end

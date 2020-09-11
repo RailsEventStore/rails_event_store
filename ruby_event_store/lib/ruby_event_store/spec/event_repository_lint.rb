@@ -1149,6 +1149,7 @@ module RubyEventStore
           d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data, metadata: events[3].metadata, event_type: "event_type3"),
           e = SRecord.new(event_id: events[4].event_id.dup, data: { "test" => 4 }, metadata: { "test" => 42 }, event_type: "event_type4"),
         ])
+
         expect(repository.read(specification.result).to_a).to eq([a,b,c,d,e])
         expect(repository.read(specification.stream("whatever").result).to_a).to eq([a,b,c])
         expect(repository.read(specification.stream("elo").result).to_a).to eq([d,e])
@@ -1162,6 +1163,14 @@ module RubyEventStore
           expect(err.event_id).to eq(e.event_id)
           expect(err.message).to eq("Event not found: #{e.event_id}")
         end
+      end
+
+      specify "does not change timestamp" do
+        r = SRecord.new(timestamp: Time.utc(2020, 1, 1))
+        repository.append_to_stream([r], Stream.new("whatever"), ExpectedVersion.any)
+        repository.update_messages([SRecord.new(event_id: r.event_id, timestamp: Time.utc(2020, 1, 20))])
+
+        expect(repository.read(specification.result).first.timestamp).to eq(Time.utc(2020, 1, 1))
       end
     end
 
