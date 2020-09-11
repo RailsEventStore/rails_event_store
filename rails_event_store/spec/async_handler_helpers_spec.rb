@@ -5,6 +5,30 @@ AsyncAdapterAvailable = Gem::Version.new(Rails::VERSION::STRING) >= Gem::Version
 SimpleAdapter = AsyncAdapterAvailable ? :async : :inline
 
 module RailsEventStore
+  class HandlerWithDefaults < ActiveJob::Base
+    cattr_accessor :event
+
+    def perform(event)
+      self.class.event = event
+    end
+  end
+
+  class HandlerWithAnotherEventStore < ActiveJob::Base
+    cattr_accessor :event
+
+    def perform(event)
+      self.class.event = event
+    end
+  end
+
+  class HandlerWithSpecifiedSerializer < ActiveJob::Base
+    cattr_accessor :event
+
+    def perform(event)
+      self.class.event = event
+    end
+  end
+
   RSpec.describe AsyncHandler do
     let(:event_store) { RailsEventStore::Client.new }
     let(:another_event_store) { RailsEventStore::Client.new }
@@ -25,74 +49,46 @@ module RailsEventStore
       ActiveJob::Base.queue_adapter   = SimpleAdapter
     end
 
-    let(:with_defaults) do
-      Object.const_set("HandlerWithDefaults", Class.new(ActiveJob::Base) do
-        cattr_accessor :event
-        prepend RailsEventStore::AsyncHandler
-
-        def perform(event)
-          self.class.event = event
-        end
-      end)
-    end
-    let(:with_another_event_store) do
-      Object.const_set("HandlerWithAnotherEventStore", Class.new(ActiveJob::Base) do
-        cattr_accessor :event
-        prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
-
-        def perform(event)
-          self.class.event = event
-        end
-      end)
-    end
-    let(:with_specified_serializer) do
-      Object.const_set("HandlerWithSpecifiedSerializer", Class.new(ActiveJob::Base) do
-        cattr_accessor :event
-        prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
-
-        def perform(event)
-          self.class.event = event
-        end
-      end)
-    end
-
     specify "with defauts" do
-      handler = with_defaults.new
+      HandlerWithDefaults.prepend RailsEventStore::AsyncHandler
+      handler = HandlerWithDefaults.new
 
       expect(handler.event_store).to eq(Rails.configuration.event_store)
       expect(handler.serializer).to eq(YAML)
 
-      with_defaults.event = nil
-      event_store.subscribe_to_all_events(with_defaults)
+      HandlerWithDefaults.event = nil
+      event_store.subscribe_to_all_events(HandlerWithDefaults)
       event_store.publish(ev = RailsEventStore::Event.new)
-      wait_until{ with_defaults.event }
-      expect(with_defaults.event).to eq(ev)
+      wait_until{ HandlerWithDefaults.event }
+      expect(HandlerWithDefaults.event).to eq(ev)
     end
 
     specify "with specified event store" do
-      handler = with_another_event_store.new
+      HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
+      handler = HandlerWithAnotherEventStore.new
 
       expect(handler.event_store).to eq(another_event_store)
       expect(handler.serializer).to eq(YAML)
 
-      with_another_event_store.event = nil
-      event_store.subscribe_to_all_events(with_another_event_store)
+      HandlerWithAnotherEventStore.event = nil
+      event_store.subscribe_to_all_events(HandlerWithAnotherEventStore)
       event_store.publish(ev = RailsEventStore::Event.new)
-      wait_until{ with_another_event_store.event }
-      expect(with_another_event_store.event).to eq(ev)
+      wait_until{ HandlerWithAnotherEventStore.event }
+      expect(HandlerWithAnotherEventStore.event).to eq(ev)
     end
 
     specify "with specified serializer" do
-      handler = with_specified_serializer.new
+      HandlerWithSpecifiedSerializer.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
+      handler = HandlerWithSpecifiedSerializer.new
 
       expect(handler.event_store).to eq(json_event_store)
       expect(handler.serializer).to eq(JSON)
 
-      with_specified_serializer.event = nil
-      event_store.subscribe_to_all_events(with_specified_serializer)
-      event_store.publish(ev = RailsEventStore::Event.new)
-      wait_until{ with_specified_serializer.event }
-      expect(with_specified_serializer.event).to eq(ev)
+      HandlerWithSpecifiedSerializer.event = nil
+      json_event_store.subscribe_to_all_events(HandlerWithSpecifiedSerializer)
+      json_event_store.publish(ev = RailsEventStore::Event.new)
+      wait_until{ HandlerWithSpecifiedSerializer.event }
+      expect(HandlerWithSpecifiedSerializer.event).to eq(ev)
     end
 
     private
