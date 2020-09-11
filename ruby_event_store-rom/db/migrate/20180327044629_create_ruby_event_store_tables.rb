@@ -25,7 +25,7 @@ require 'rom/sql'
         column :event_id, String, size: 36, null: false
       end
 
-      column :created_at, DateTime, null: false, index: 'index_event_store_events_in_streams_on_created_at'
+      column :created_at, DateTime, null: false, type: postgres ? 'TIMESTAMP' : 'DATETIME(6)', index: 'index_event_store_events_in_streams_on_created_at'
 
       index %i[stream position], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_position'
       index %i[stream event_id], unique: true, name: 'index_event_store_events_in_streams_on_stream_and_event_id'
@@ -48,7 +48,7 @@ require 'rom/sql'
         column :data, String, text: true, null: false
       end
 
-      column :created_at, DateTime, null: false, index: 'index_event_store_events_on_created_at'
+      column :created_at, DateTime, null: false, type: postgres ?  'TIMESTAMP' : 'DATETIME(6)', index: 'index_event_store_events_on_created_at'
     end
   end
 end

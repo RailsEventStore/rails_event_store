@@ -14,7 +14,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
       else
         t.references :event, null: false, type: :string, limit: 36
       end
-      t.datetime    :created_at,  null: false
+      t.datetime    :created_at,  null: false, precision: 6
     end
     add_index :event_store_events_in_streams, [:stream, :position], unique: true
     add_index :event_store_events_in_streams, [:created_at]
@@ -33,7 +33,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.string      :event_type,  null: false
         t.binary      :metadata
         t.binary      :data,        null: false
-        t.datetime    :created_at,  null: false
+        t.datetime    :created_at,  null: false, precision: 6
       end
       if sqlite && rails_42
         add_index :event_store_events, :id, unique: true
