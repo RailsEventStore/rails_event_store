@@ -61,7 +61,6 @@ module RailsEventStore
 
   class MetadataHandler < ActiveJob::Base
     cattr_accessor :metadata
-    prepend RailsEventStore::CorrelatedHandler
 
     def perform(_event)
       self.metadata = Rails.configuration.event_store.metadata
@@ -149,29 +148,33 @@ module RailsEventStore
     end
 
     specify 'ActiveJob with CorrelatedHandler prepended' do
-      MetadataHandler.prepend RailsEventStore::AsyncHandler
-      MetadataHandler.metadata = nil
-      event_store.subscribe_to_all_events(MetadataHandler)
+      HandlerA = Class.new(MetadataHandler)
+      HandlerA.prepend RailsEventStore::CorrelatedHandler
+      HandlerA.prepend RailsEventStore::AsyncHandler
+      HandlerA.metadata = nil
+      event_store.subscribe_to_all_events(HandlerA)
       event_store.publish(ev = RailsEventStore::Event.new)
-      wait_until{ MetadataHandler.metadata }
-      expect(MetadataHandler.metadata).to eq({
+      wait_until{ HandlerA.metadata }
+      expect(HandlerA.metadata).to eq({
         correlation_id: ev.event_id,
         causation_id:   ev.event_id,
       })
     end
 
     specify 'ActiveJob with CorrelatedHandler prepended (2)' do
-      MetadataHandler.prepend RailsEventStore::AsyncHandler
-      MetadataHandler.metadata = nil
-      event_store.subscribe_to_all_events(MetadataHandler)
+      HandlerB = Class.new(MetadataHandler)
+      HandlerB.prepend RailsEventStore::CorrelatedHandler
+      HandlerB.prepend RailsEventStore::AsyncHandler
+      HandlerB.metadata = nil
+      event_store.subscribe_to_all_events(HandlerB)
       event_store.publish(ev = RailsEventStore::Event.new(
         metadata: {
           correlation_id: "COID",
           causation_id:   "CAID",
         }
       ))
-      wait_until{ MetadataHandler.metadata }
-      expect(MetadataHandler.metadata).to eq({
+      wait_until{ HandlerB.metadata }
+      expect(HandlerB.metadata).to eq({
         correlation_id: "COID",
         causation_id:   ev.event_id,
       })
