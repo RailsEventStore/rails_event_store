@@ -32,14 +32,18 @@ module Payments
     @@public_event_store = RailsEventStore::Client.new(
       repository: config.event_repository,
       mapper: RubyEventStore::Mappers::Default.new(
-        serializer: JSON,
         events_class_remapping: events_class_remapping
-      )
+      ),
+      dispatcher: RubyEventStore::ComposedDispatcher.new(
+        RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: JSON)),
+        RubyEventStore::Dispatcher.new),
     )
     @@module_event_store = RailsEventStore::Client.new(
       repository: RailsEventStoreActiveRecord::EventRepository.new(
-        Payments::ApplicationRecord),
-      mapper: RubyEventStore::Mappers::Default.new(serializer: JSON)
+        Payments::ApplicationRecord, serializer: JSON),
+      dispatcher: RubyEventStore::ComposedDispatcher.new(
+        RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: JSON)),
+        RubyEventStore::Dispatcher.new),
     )
 
     # Subscribe public event handlers below

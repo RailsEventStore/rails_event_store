@@ -6,13 +6,15 @@ Rails.configuration.to_prepare do
   events_class_remapping = {}
 
   Rails.configuration.event_repository =
-    RailsEventStoreActiveRecord::EventRepository.new
+    RailsEventStoreActiveRecord::EventRepository.new(serializer: JSON)
   Rails.configuration.event_store = RailsEventStore::Client.new(
     repository: Rails.configuration.event_repository,
     mapper: RubyEventStore::Mappers::Default.new(
-      serializer: JSON,
       events_class_remapping: events_class_remapping
-    )
+    ),
+    dispatcher: RubyEventStore::ComposedDispatcher.new(
+      RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: JSON)),
+      RubyEventStore::Dispatcher.new),
   )
   Rails.configuration.command_bus = Arkency::CommandBus.new
 
