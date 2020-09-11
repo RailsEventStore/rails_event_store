@@ -7,7 +7,7 @@ module RubyEventStore
         def dump(domain_event)
           Record.new(
             event_id:   domain_event.event_id,
-            metadata:   domain_event.metadata.to_h.reject { |k, _| k.eql?(:timestamp) },
+            metadata:   domain_event.metadata.to_h.reject { |k,| k.equal?(:timestamp) },
             data:       domain_event.data,
             event_type: domain_event.event_type,
             timestamp:  domain_event.timestamp,
