@@ -6,7 +6,7 @@ module RubyEventStore
       data:       {},
       metadata:   {},
       event_type: 'SRecordTestEvent',
-      timestamp:  Time.at(0)
+      timestamp:  Time.new.utc
     )
       Record.new(
         event_id:   event_id,
@@ -1266,6 +1266,14 @@ module RubyEventStore
       expect(repository.count(specification.of_type([Type3]).result)).to eq(2)
       expect(repository.count(specification.stream("Dummy").of_type([Type3]).result)).to eq(2)
       expect(repository.count(specification.stream(stream.name).of_type([Type3]).result)).to eq(0)
+    end
+
+    specify 'timestamp precision' do
+      time = Time.utc(2020, 9, 11, 12, 26, 0, 123456)
+      repository.append_to_stream(SRecord.new(timestamp: time), stream, version_none)
+      event = read_events_forward(repository, count: 1).first
+
+      expect(event.timestamp).to eq(time)
     end
   end
 end
