@@ -11,7 +11,7 @@ module RailsEventStore
     def self.with_defaults
       Module.new do
         def self.prepended(host_class)
-          host_class.prepend AsyncHandler.with(event_store: Rails.configuration.event_store, serializer: YAML)
+          host_class.prepend AsyncHandler.with
         end
       end
     end
