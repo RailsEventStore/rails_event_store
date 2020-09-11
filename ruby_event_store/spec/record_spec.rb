@@ -7,7 +7,7 @@ module RubyEventStore
     let(:data)       { "data" }
     let(:metadata)   { "metadata" }
     let(:event_type) { "event_type" }
-    let(:timestamp)  { "2019-10-03T22:25:22.000000000Z" }
+    let(:timestamp)  { "2019-10-03T22:25:22.000000Z" }
     let(:time)       { Time.utc(2019, 10, 03, 22, 25, 22) }
 
     specify 'constructor accept all arguments and returns frozen instance' do

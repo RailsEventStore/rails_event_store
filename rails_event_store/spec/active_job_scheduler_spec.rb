@@ -67,7 +67,7 @@ module RailsEventStore
                 "event_type"      => "RubyEventStore::Event",
                 "data"            => "--- {}\n",
                 "metadata"        => "--- {}\n",
-                "timestamp"       => "2019-09-30T00:00:00.000000000Z",
+                "timestamp"       => "2019-09-30T00:00:00.000000Z",
                 "_aj_symbol_keys" => %w[event_id data metadata event_type timestamp],
               },
             ],

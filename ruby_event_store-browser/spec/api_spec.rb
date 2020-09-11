@@ -72,7 +72,7 @@ module RubyEventStore
             bar: 2.0,
             baz: "3"
           },
-          metadata: { timestamp: "2020-01-01T12:00:00.000001000Z" },
+          metadata: { timestamp: "2020-01-01T12:00:00.000001Z" },
           correlation_stream_name: nil,
           causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
@@ -107,7 +107,7 @@ module RubyEventStore
             "baz" => "3"
           },
           "metadata" => {
-            "timestamp" => "2020-01-01T12:00:00.000001000Z"
+            "timestamp" => "2020-01-01T12:00:00.000001Z"
           },
           "correlation_stream_name" => nil,
           "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",

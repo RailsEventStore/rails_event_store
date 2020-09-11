@@ -702,7 +702,7 @@ module RubyEventStore
         event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data:       "---\n:foo: bar\n",
         metadata:   "---\n:bar: baz\n",
-        timestamp:  "2019-09-30T00:00:00.000000000Z"
+        timestamp:  "2019-09-30T00:00:00.000000Z"
       }
       expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
     end
@@ -733,7 +733,7 @@ module RubyEventStore
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data: "\n\aK3THNX9\x10{",
           metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05",
-          timestamp:  "2019-09-30T00:00:00.000000000Z"
+          timestamp:  "2019-09-30T00:00:00.000000Z"
         }
         expect(client.deserialize(**payload)).to eq(event)
       rescue LoadError => exc
