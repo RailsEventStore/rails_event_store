@@ -2,8 +2,24 @@
 
 module RailsEventStore
   module AsyncHandler
-    def perform(payload)
-      super(Rails.configuration.event_store.deserialize(serializer: YAML, **payload.symbolize_keys))
+    def self.with_defaults
+      Module.new do
+        def self.prepended(host_class)
+          host_class.prepend AsyncHandler.with
+        end
+      end
+    end
+
+    def self.with(event_store: Rails.configuration.event_store, serializer: YAML)
+      Module.new do
+        define_method :perform do |payload|
+          super(event_store.deserialize(serializer: serializer, **payload.symbolize_keys))
+        end
+      end
+    end
+
+    def self.prepended(host_class)
+      host_class.prepend with_defaults
     end
   end
 
