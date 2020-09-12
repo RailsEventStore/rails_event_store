@@ -6,7 +6,7 @@ module RubyEventStore
       data:       {},
       metadata:   {},
       event_type: 'SRecordTestEvent',
-      timestamp:  Time.new.utc
+      timestamp:  Time.new.utc.round(TIMESTAMP_PRECISION)
     )
       Record.new(
         event_id:   event_id,
