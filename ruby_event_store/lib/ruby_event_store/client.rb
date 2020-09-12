@@ -9,7 +9,7 @@ module RubyEventStore
                    mapper: Mappers::Default.new,
                    subscriptions: Subscriptions.new,
                    dispatcher: Dispatcher.new,
-                   clock: ->{ Time.now.utc })
+                   clock: ->{ Time.now.utc.round(TIMESTAMP_PRECISION) })
       @repository     = repository
       @mapper         = mapper
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
