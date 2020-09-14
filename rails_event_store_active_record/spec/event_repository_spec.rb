@@ -27,21 +27,6 @@ module RailsEventStoreActiveRecord
     end
   end
 
-  class Event < ::ActiveRecord::Base
-    self.primary_key = :id
-    self.table_name = 'event_store_events'
-  end
-
-  class EventInStream < ::ActiveRecord::Base
-    self.primary_key = :id
-    self.table_name = 'event_store_events_in_streams'
-    belongs_to :event
-  end
-
-  class CustomApplicationRecord < ActiveRecord::Base
-    self.abstract_class = true
-  end
-
   RSpec.describe EventRepository do
     include_examples :event_repository
     let(:repository) { EventRepository.new(serializer: YAML) }
@@ -373,14 +358,20 @@ module RailsEventStoreActiveRecord
       expect(batches[1]).to eq([events[99]])
     end
 
+    specify 'use default models' do
+      repository = EventRepository.new(serializer: YAML)
+      expect(repository.instance_variable_get(:@event_klass)).to be(Event)
+      expect(repository.instance_variable_get(:@stream_klass)).to be(EventInStream)
+    end
+
     specify 'allows custom base class' do
-      repository = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
       expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
       expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
     end
 
     specify 'reading/writting works with custom base class' do
-      repository = EventRepository.new(CustomApplicationRecord, serializer: YAML)
+      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
@@ -390,35 +381,6 @@ module RailsEventStoreActiveRecord
       specification = RubyEventStore::Specification.new(reader)
       read_event = repository.read(specification.result).first
       expect(read_event).to eq(event)
-    end
-
-    specify 'each repository must have different AR classes' do
-      repository1 = EventRepository.new(CustomApplicationRecord, serializer: YAML)
-      repository2 = EventRepository.new(CustomApplicationRecord, serializer: YAML)
-      event_klass_1 = repository1.instance_variable_get(:@event_klass).name
-      event_klass_2 = repository2.instance_variable_get(:@event_klass).name
-      stream_klass_1 = repository1.instance_variable_get(:@stream_klass).name
-      stream_klass_2 = repository2.instance_variable_get(:@stream_klass).name
-      expect(event_klass_1).not_to eq(event_klass_2)
-      expect(stream_klass_1).not_to eq(stream_klass_2)
-    end
-
-    specify 'AR classes must have the same instance id' do
-      repository = EventRepository.new(CustomApplicationRecord, serializer: YAML)
-      event_klass = repository.instance_variable_get(:@event_klass).name
-      stream_klass = repository.instance_variable_get(:@stream_klass).name
-
-      expect(event_klass).to match(/^Event_[a-z,0-9]{32}$/)
-      expect(stream_klass).to match(/^EventInStream_[a-z,0-9]{32}$/)
-      expect(event_klass[6..-1]).to eq(stream_klass[14..-1])
-    end
-
-    specify 'Base for event repository models must be an abstract class' do
-      NonAbstractClass = Class.new(ActiveRecord::Base)
-      expect {
-        EventRepository.new(NonAbstractClass, serializer: YAML)
-      }.to raise_error(ArgumentError)
-       .with_message('RailsEventStoreActiveRecord::NonAbstractClass must be an abstract class or ActiveRecord::Base')
     end
 
     def cleanup_concurrency_test

@@ -7,17 +7,10 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
-    def initialize(base_klass = ActiveRecord::Base, serializer:)
-      raise ArgumentError.new(
-        "#{base_klass} must be an abstract class or ActiveRecord::Base"
-      ) unless ActiveRecord::Base.equal?(base_klass) || base_klass.abstract_class?
-
-      @base_klass = base_klass
+    def initialize(model_factory: WithDefaultModels.new, serializer:)
       @serializer  = serializer
 
-      instance_uuid = SecureRandom.hex
-      @event_klass = build_event_klass(instance_uuid)
-      @stream_klass = build_stream_klass(instance_uuid)
+      @event_klass, @stream_klass = model_factory.call
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
     end
 
@@ -81,24 +74,6 @@ module RailsEventStoreActiveRecord
     private
     attr_reader :serializer
 
-    def build_event_klass(instance_uuid)
-      Object.const_set("Event_"+instance_uuid,
-        Class.new(@base_klass) do
-          self.table_name = 'event_store_events'
-          self.primary_key = 'id'
-        end
-      )
-    end
-
-    def build_stream_klass(instance_uuid)
-      Object.const_set("EventInStream_"+instance_uuid,
-        Class.new(@base_klass) do
-          self.table_name = 'event_store_events_in_streams'
-          belongs_to :event, class_name: "Event_"+instance_uuid
-        end
-      )
-    end
-
     def add_to_stream(event_ids, stream, expected_version, include_global)
       last_stream_version = ->(stream_) { @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position) }
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
@@ -159,7 +134,7 @@ module RailsEventStoreActiveRecord
     end
 
     def start_transaction(&block)
-      @base_klass.transaction(requires_new: true, &block)
+      @event_klass.transaction(requires_new: true, &block)
     end
   end
 
