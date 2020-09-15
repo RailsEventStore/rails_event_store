@@ -21,6 +21,7 @@ module RailsEventStoreActiveRecord
       Object.const_set("Event_"+instance_id,
         Class.new(@base_klass) do
           self.table_name = 'event_store_events'
+          self.primary_key = 'id'
         end
       )
     end
