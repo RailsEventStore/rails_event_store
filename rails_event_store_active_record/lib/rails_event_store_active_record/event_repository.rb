@@ -22,7 +22,7 @@ module RailsEventStoreActiveRecord
         event_ids << serialized_record.event_id
       end
       add_to_stream(event_ids, stream, expected_version, true) do
-        @event_klass.import(hashes, timestamps: false)
+        @event_klass.import(hashes)
       end
     end
 
