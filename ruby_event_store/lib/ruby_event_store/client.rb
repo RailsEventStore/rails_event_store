@@ -9,7 +9,7 @@ module RubyEventStore
                    mapper: Mappers::Default.new,
                    subscriptions: Subscriptions.new,
                    dispatcher: Dispatcher.new,
-                   clock: ->{ Time.now.utc.round(TIMESTAMP_PRECISION) })
+                   clock: default_clock)
       @repository     = repository
       @mapper         = mapper
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
@@ -311,6 +311,10 @@ module RubyEventStore
 
     def metadata=(value)
       @metadata.value = value
+    end
+
+    def default_clock
+      ->{ Time.now.utc.round(TIMESTAMP_PRECISION) }
     end
 
     attr_reader :repository, :mapper, :broker, :clock
