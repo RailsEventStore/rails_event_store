@@ -1,0 +1,64 @@
+# SQLite. Versions 3.8.0 and up are supported.
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem 'sqlite3'
+#
+default: &default
+  adapter: sqlite3
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  primary:
+    <<: *default
+    database: db/development.sqlite3
+  orders:
+    <<: *default
+    database: db/orders_development.sqlite3
+    migrations_paths: db/orders
+  payments:
+    <<: *default
+    database: db/payments_development.sqlite3
+    migrations_paths: db/payments
+  shipping:
+    <<: *default
+    database: db/shipping_development.sqlite3
+    migrations_paths: db/shipping
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  primary:
+    <<: *default
+    database: db/test.sqlite3
+  orders:
+    <<: *default
+    database: db/orders_test.sqlite3
+    migrations_paths: db/orders
+  payments:
+    <<: *default
+    database: db/payments_test.sqlite3
+    migrations_paths: db/payments
+  shipping:
+    <<: *default
+    database: db/shipping_test.sqlite3
+    migrations_paths: db/shipping
+
+production:
+  primary:
+    <<: *default
+    database: db/production.sqlite3
+  orders:
+    <<: *default
+    database: db/orders_production.sqlite3
+    migrations_paths: db/orders
+  payments:
+    <<: *default
+    database: db/payments_production.sqlite3
+    migrations_paths: db/payments
+  shipping:
+    <<: *default
+    database: db/shipping_production.sqlite3
+    migrations_paths: db/shipping
