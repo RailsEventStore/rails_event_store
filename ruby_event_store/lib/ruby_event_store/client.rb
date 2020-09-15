@@ -9,7 +9,7 @@ module RubyEventStore
                    mapper: Mappers::Default.new,
                    subscriptions: Subscriptions.new,
                    dispatcher: Dispatcher.new,
-                   clock: ->{ Time.now.utc })
+                   clock: default_clock)
       @repository     = repository
       @mapper         = mapper
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
@@ -225,13 +225,14 @@ module RubyEventStore
     # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
     #
     # @return [Event, Proto] deserialized event
-    def deserialize(serializer: NULL, event_type:, event_id:, data:, metadata:)
+    def deserialize(serializer: NULL, event_type:, event_id:, data:, metadata:, timestamp:)
       mapper.record_to_event(
         SerializedRecord.new(
           event_type: event_type,
           event_id: event_id,
           data: data,
-          metadata: metadata
+          metadata: metadata,
+          timestamp: timestamp,
         ).deserialize(serializer)
       )
     end
@@ -310,6 +311,10 @@ module RubyEventStore
 
     def metadata=(value)
       @metadata.value = value
+    end
+
+    def default_clock
+      ->{ Time.now.utc.round(TIMESTAMP_PRECISION) }
     end
 
     attr_reader :repository, :mapper, :broker, :clock

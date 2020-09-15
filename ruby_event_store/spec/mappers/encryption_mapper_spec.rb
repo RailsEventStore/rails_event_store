@@ -15,6 +15,7 @@ module RubyEventStore
     end
 
     RSpec.describe EncryptionMapper do
+      let(:time)            { Time.now.utc }
       let(:key_repository)  { InMemoryEncryptionKeyRepository.new }
       let(:metadata)        { {some_meta: 1} }
       let(:event_id)        { SecureRandom.uuid }
@@ -24,7 +25,7 @@ module RubyEventStore
         {personal_info: value, user_id: 123}
       end
       def domain_event(data = build_data)
-        SomeEventWithPersonalInfo.new(data: data, metadata: metadata, event_id: event_id)
+        TimestampEnrichment.with_timestamp(SomeEventWithPersonalInfo.new(data: data, metadata: metadata, event_id: event_id), time)
       end
       def encrypted_item(event = domain_event)
         coder.dump(Transformation::DomainEvent.new.dump(event))
@@ -45,6 +46,7 @@ module RubyEventStore
         expect(record.data).to       eq encrypted_item.data
         expect(record.metadata).to   eq encrypted_item.metadata
         expect(record.event_type).to eq "RubyEventStore::Mappers::SomeEventWithPersonalInfo"
+        expect(record.timestamp).to  eq time
       end
 
       specify '#record_to_event returns event instance' do
@@ -52,11 +54,13 @@ module RubyEventStore
           event_id:   domain_event.event_id,
           data:       encrypted_item.data,
           metadata:   encrypted_item.metadata,
-          event_type: SomeEventWithPersonalInfo.name
+          event_type: SomeEventWithPersonalInfo.name,
+          timestamp:  time
         )
         event = subject.record_to_event(record)
         expect(event).to                eq(domain_event)
-        expect(event.metadata.to_h).to  eq(metadata)
+        expect(event.metadata.to_h).to  eq(metadata.merge(timestamp: time))
+        expect(event.timestamp).to      eq(time)
       end
 
       specify 'make sure encryption & decryption do not tamper event data' do
@@ -74,11 +78,12 @@ module RubyEventStore
             event_id:   source_event.event_id,
             data:       encrypted.data,
             metadata:   encrypted.metadata,
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
+            timestamp:  time
           )
           event = subject.record_to_event(record)
           expect(event).to                eq(source_event)
-          expect(event.metadata.to_h).to  eq(metadata)
+          expect(event.metadata.to_h).to  eq(metadata.merge(timestamp: time))
         end
       end
 
@@ -90,7 +95,8 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
             metadata:   encrypted_item.metadata,
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
+            timestamp:  time
           )
           key_repository.forget(123)
           event = subject.record_to_event(record)
@@ -100,8 +106,9 @@ module RubyEventStore
             event_id: event_id
           )
           expect(event).to                      eq(expected_event)
-          expect(event.metadata.to_h).to        eq(metadata)
+          expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time))
           expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
+          expect(event.timestamp).to            eq(time)
         end
 
         specify '#record_to_event returns event instance with forgotten data when a new key is created' do
@@ -109,7 +116,8 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
             metadata:   encrypted_item.metadata,
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
+            timestamp:  time
           )
           key_repository.forget(123)
           key_repository.create(123)
@@ -120,8 +128,9 @@ module RubyEventStore
             event_id: event_id
           )
           expect(event).to                      eq(expected_event)
-          expect(event.metadata.to_h).to        eq(metadata)
+          expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time))
           expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
+          expect(event.timestamp).to            eq(time)
         end
       end
 
@@ -134,7 +143,8 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
             metadata:   encrypted_item.metadata,
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
+            timestamp:  time
           )
           key_repository.forget(123)
           event = subject.record_to_event(record)
@@ -144,8 +154,9 @@ module RubyEventStore
             event_id: event_id
           )
           expect(event).to                      eq(expected_event)
-          expect(event.metadata.to_h).to        eq(metadata)
+          expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time))
           expect(event.data[:personal_info]).to eq('Key is forgotten')
+          expect(event.timestamp).to            eq(time)
         end
       end
 
@@ -160,6 +171,7 @@ module RubyEventStore
           expect(record.data).to       eq encrypted_item.data
           expect(record.metadata).to   eq encrypted_item.metadata
           expect(record.event_type).to eq "RubyEventStore::Mappers::SomeEventWithPersonalInfo"
+          expect(record.timestamp).to  eq time
         end
 
         specify '#record_to_event returns event instance' do
@@ -167,11 +179,13 @@ module RubyEventStore
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
             metadata:   encrypted_item.metadata,
-            event_type: SomeEventWithPersonalInfo.name
+            event_type: SomeEventWithPersonalInfo.name,
+            timestamp:  time
           )
           event = subject.record_to_event(record)
           expect(event).to                eq(domain_event)
           expect(event.metadata.to_h).to  eq(domain_event.metadata.to_h)
+          expect(event.timestamp).to      eq(time)
         end
       end
     end

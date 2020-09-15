@@ -689,16 +689,20 @@ module RubyEventStore
         mapper:     RubyEventStore::Mappers::Default.new,
         repository: InMemoryRepository.new
       )
-      event = OrderCreated.new(
+      event = TimestampEnrichment.with_timestamp(
+        OrderCreated.new(
           event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
           data:     { foo: 'bar' },
           metadata: { bar: 'baz' }
+        ),
+        Time.utc(2019, 9, 30)
       )
       payload = {
         event_type: "OrderCreated",
         event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data:       "---\n:foo: bar\n",
-        metadata:   "---\n:bar: baz\n"
+        metadata:   "---\n:bar: baz\n",
+        timestamp:  "2019-09-30T00:00:00.000000Z"
       }
       expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
     end
@@ -711,21 +715,25 @@ module RubyEventStore
           mapper: RubyEventStore::Mappers::Protobuf.new,
           repository: InMemoryRepository.new
         )
-        event = RubyEventStore::Proto.new(
-          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data: ResTesting::OrderCreated.new(
-            customer_id: 123,
-            order_id: "K3THNX9",
+        event = TimestampEnrichment.with_timestamp(
+          RubyEventStore::Proto.new(
+            event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+            data: ResTesting::OrderCreated.new(
+              customer_id: 123,
+              order_id: "K3THNX9",
+            ),
+            metadata: {
+              time: Time.new(2018, 12, 13, 11),
+            }
           ),
-          metadata: {
-            time: Time.new(2018, 12, 13, 11),
-          }
+          Time.utc(2019, 9, 30)
         )
         payload = {
           event_type: "res_testing.OrderCreated",
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data: "\n\aK3THNX9\x10{",
-          metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05"
+          metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05",
+          timestamp:  "2019-09-30T00:00:00.000000Z"
         }
         expect(client.deserialize(**payload)).to eq(event)
       rescue LoadError => exc

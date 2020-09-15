@@ -5,13 +5,15 @@ module RubyEventStore
       event_id:   SecureRandom.uuid,
       data:       {},
       metadata:   {},
-      event_type: 'SRecordTestEvent'
+      event_type: 'SRecordTestEvent',
+      timestamp:  Time.new.utc.round(TIMESTAMP_PRECISION)
     )
       Record.new(
         event_id:   event_id,
         data:       data,
         metadata:   metadata,
         event_type: event_type,
+        timestamp:  timestamp,
       )
     end
   end
@@ -1141,12 +1143,13 @@ module RubyEventStore
           ExpectedVersion.any
         )
         repository.update_messages([
-          a = SRecord.new(event_id: events[0].event_id.clone, data: events[0].data, metadata: events[0].metadata, event_type: events[0].event_type),
-          b = SRecord.new(event_id: events[1].event_id.dup, data: { "test" => 1 }, metadata: events[1].metadata, event_type: events[1].event_type),
-          c = SRecord.new(event_id: events[2].event_id, data: events[2].data, metadata: { "test" => 2 }, event_type: events[2].event_type),
-          d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data, metadata: events[3].metadata, event_type: "event_type3"),
-          e = SRecord.new(event_id: events[4].event_id.dup, data: { "test" => 4 }, metadata: { "test" => 42 }, event_type: "event_type4"),
+          a = SRecord.new(event_id: events[0].event_id.clone, data: events[0].data,  metadata: events[0].metadata, event_type: events[0].event_type, timestamp: events[0].timestamp),
+          b = SRecord.new(event_id: events[1].event_id.dup,   data: { "test" => 1 }, metadata: events[1].metadata, event_type: events[1].event_type, timestamp: events[1].timestamp),
+          c = SRecord.new(event_id: events[2].event_id,       data: events[2].data,  metadata: { "test" => 2 },    event_type: events[2].event_type, timestamp: events[2].timestamp),
+          d = SRecord.new(event_id: events[3].event_id.clone, data: events[3].data,  metadata: events[3].metadata, event_type: "event_type3",        timestamp: events[3].timestamp),
+          e = SRecord.new(event_id: events[4].event_id.dup,   data: { "test" => 4 }, metadata: { "test" => 42 },   event_type: "event_type4",        timestamp: events[4].timestamp),
         ])
+
         expect(repository.read(specification.result).to_a).to eq([a,b,c,d,e])
         expect(repository.read(specification.stream("whatever").result).to_a).to eq([a,b,c])
         expect(repository.read(specification.stream("elo").result).to_a).to eq([d,e])
@@ -1160,6 +1163,14 @@ module RubyEventStore
           expect(err.event_id).to eq(e.event_id)
           expect(err.message).to eq("Event not found: #{e.event_id}")
         end
+      end
+
+      specify "does not change timestamp" do
+        r = SRecord.new(timestamp: Time.utc(2020, 1, 1))
+        repository.append_to_stream([r], Stream.new("whatever"), ExpectedVersion.any)
+        repository.update_messages([SRecord.new(event_id: r.event_id, timestamp: Time.utc(2020, 1, 20))])
+
+        expect(repository.read(specification.result).first.timestamp).to eq(Time.utc(2020, 1, 1))
       end
     end
 
@@ -1264,6 +1275,14 @@ module RubyEventStore
       expect(repository.count(specification.of_type([Type3]).result)).to eq(2)
       expect(repository.count(specification.stream("Dummy").of_type([Type3]).result)).to eq(2)
       expect(repository.count(specification.stream(stream.name).of_type([Type3]).result)).to eq(0)
+    end
+
+    specify 'timestamp precision' do
+      time = Time.utc(2020, 9, 11, 12, 26, 0, 123456)
+      repository.append_to_stream(SRecord.new(timestamp: time), stream, version_none)
+      event = read_events_forward(repository, count: 1).first
+
+      expect(event.timestamp).to eq(time)
     end
   end
 end

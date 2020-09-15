@@ -383,6 +383,16 @@ module RailsEventStoreActiveRecord
       expect(read_event).to eq(event)
     end
 
+    specify 'timestamps not overwritten by activerecord-import' do
+      repository.append_to_stream(
+        [event = RubyEventStore::SRecord.new(timestamp: time = Time.at(0))],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      event_ = repository.read(specification.result).first
+      expect(event_.timestamp).to eq(time)
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end

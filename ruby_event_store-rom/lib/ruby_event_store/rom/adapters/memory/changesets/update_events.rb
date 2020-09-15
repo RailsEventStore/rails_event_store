@@ -7,7 +7,7 @@ module RubyEventStore
         class UpdateEvents < ROM::Changesets::UpdateEvents
           def commit
             to_a.each do |params|
-              attributes = command.input[params].to_h.delete_if { |k, v| k == :created_at && v.nil? }
+              attributes = command.input[params].to_h.delete_if { |k, v| k == :created_at }
               relation.by_pk(params.fetch(:id)).dataset.map { |tuple| tuple.update(attributes) }
             end
           end

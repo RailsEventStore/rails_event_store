@@ -10,15 +10,18 @@ module RubyEventStore
     RSpec.describe JSONMapper do
       it_behaves_like :mapper, described_class.new, TimestampEnrichment.with_timestamp(SomethingHappenedJSON.new)
 
+      let(:time) { Time.now.utc }
       let(:data) { { some_attribute: 5 } }
       let(:metadata) { { some_meta: 1 } }
       let(:event_id) { SecureRandom.uuid }
       let(:record_event_type) { SomethingHappenedJSON.name }
       let(:domain_event) do
-        SomethingHappenedJSON.new(
-          event_id: event_id,
-          data:     data,
-          metadata: metadata,
+        TimestampEnrichment.with_timestamp(
+          SomethingHappenedJSON.new(
+            event_id: event_id,
+            data:     data,
+            metadata: metadata,
+          )
         )
       end
       let(:record) do
@@ -27,6 +30,7 @@ module RubyEventStore
           data:       data,
           metadata:   metadata,
           event_type: record_event_type,
+          timestamp:  time,
         )
       end
 
@@ -52,14 +56,14 @@ module RubyEventStore
         it { is_expected.to have_attributes(event_id: domain_event.event_id) }
         it { is_expected.to have_attributes(data: domain_event.data) }
         it 'includes the expected metadata' do
-          expect(record_to_event.metadata.to_h).to eq(metadata)
+          expect(record_to_event.metadata.to_h).to eq(metadata.merge(timestamp: time))
         end
 
         context 'when metadata has strings for keys' do
           let(:metadata) { { 'some_meta' => 1 } }
 
           it 'includes metadata with symbolized keys' do
-            expect(record_to_event.metadata.to_h).to eq(some_meta: 1)
+            expect(record_to_event.metadata.to_h).to eq(some_meta: 1, timestamp: time)
           end
         end
       end

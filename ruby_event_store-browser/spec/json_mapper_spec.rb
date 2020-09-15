@@ -9,7 +9,7 @@ module RubyEventStore
       expect(response).to be_ok
 
       metadata = JSON.parse(response.body)["data"][0]["attributes"]["metadata"]
-      expect(metadata["timestamp"]).to eq(skip_fractional(dummy_event.metadata[:timestamp]).iso8601(3))
+      expect(metadata["timestamp"]).to eq(dummy_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION))
     end
 
     let(:test_client) { TestClient.new(app_builder(event_store)) }
@@ -24,10 +24,6 @@ module RubyEventStore
         event_store_locator: -> { event_store },
         host: 'http://www.example.com'
       )
-    end
-
-    def skip_fractional(time)
-      Time.utc(time.year, time.month, time.day, time.hour, time.min, time.sec)
     end
   end
 end

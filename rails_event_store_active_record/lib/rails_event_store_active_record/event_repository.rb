@@ -125,7 +125,8 @@ module RailsEventStoreActiveRecord
         id:         serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
-        event_type: serialized_record.event_type
+        event_type: serialized_record.event_type,
+        created_at: serialized_record.timestamp,
       }
     end
 

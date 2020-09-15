@@ -8,7 +8,8 @@ module Transformations
         event_id:   item.event_id,
         metadata:   ActiveSupport::HashWithIndifferentAccess.new(item.metadata).deep_symbolize_keys,
         data:       ActiveSupport::HashWithIndifferentAccess.new(item.data).deep_symbolize_keys,
-        event_type: item.event_type
+        event_type: item.event_type,
+        timestamp:  item.timestamp
       )
     end
 
@@ -17,7 +18,8 @@ module Transformations
         event_id:   item.event_id,
         metadata:   ActiveSupport::HashWithIndifferentAccess.new(item.metadata),
         data:       ActiveSupport::HashWithIndifferentAccess.new(item.data),
-        event_type: item.event_type
+        event_type: item.event_type,
+        timestamp:  item.timestamp
       )
     end
   end
