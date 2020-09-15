@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'ruby_event_store'
 require 'ruby_event_store/spec/event_repository_lint'
-require 'rails_event_store_active_record/event'
 
 module RailsEventStoreActiveRecord
   class EventRepository
@@ -357,6 +356,31 @@ module RailsEventStoreActiveRecord
       expect(batches[1].size).to eq(1)
       expect(batches[0]).to eq(events[100..-1].reverse)
       expect(batches[1]).to eq([events[99]])
+    end
+
+    specify 'use default models' do
+      repository = EventRepository.new(serializer: YAML)
+      expect(repository.instance_variable_get(:@event_klass)).to be(Event)
+      expect(repository.instance_variable_get(:@stream_klass)).to be(EventInStream)
+    end
+
+    specify 'allows custom base class' do
+      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+      expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
+      expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
+    end
+
+    specify 'reading/writting works with custom base class' do
+      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+      repository.append_to_stream(
+        [event = RubyEventStore::SRecord.new],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+      specification = RubyEventStore::Specification.new(reader)
+      read_event = repository.read(specification.result).first
+      expect(read_event).to eq(event)
     end
 
     def cleanup_concurrency_test
