@@ -40,7 +40,7 @@ module Payments
     )
     @@module_event_store = RailsEventStore::Client.new(
       repository: RailsEventStoreActiveRecord::EventRepository.new(
-        Payments::ApplicationRecord, serializer: JSON),
+        model_factory: RailsEventStoreActiveRecord::WithAbstractBaseClass.new(Payments::ApplicationRecord), serializer: JSON),
       dispatcher: RubyEventStore::ComposedDispatcher.new(
         RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: JSON)),
         RubyEventStore::Dispatcher.new),

@@ -37,7 +37,7 @@ module Orders
     )
     @@module_event_store = RailsEventStore::Client.new(
       repository: RailsEventStoreActiveRecord::EventRepository.new(
-        Orders::ApplicationRecord, serializer: JSON),
+        model_factory: RailsEventStoreActiveRecord::WithAbstractBaseClass.new(Orders::ApplicationRecord), serializer: JSON),
       dispatcher: RubyEventStore::ComposedDispatcher.new(
         RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: JSON)),
         RubyEventStore::Dispatcher.new),
