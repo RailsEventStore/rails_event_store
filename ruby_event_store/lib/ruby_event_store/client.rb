@@ -302,7 +302,7 @@ module RubyEventStore
     def enrich_event_metadata(event)
       metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp] ||= clock.call
-      event.metadata[:valid_at ] ||= event.metadata[:timestamp]
+      event.metadata[:valid_at ] ||= event.metadata.fetch(:timestamp)
     end
 
     def append_records_to_stream(records, stream_name:, expected_version:)
