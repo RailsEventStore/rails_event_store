@@ -225,7 +225,7 @@ module RubyEventStore
     # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
     #
     # @return [Event, Proto] deserialized event
-    def deserialize(serializer: NULL, event_type:, event_id:, data:, metadata:, timestamp:)
+    def deserialize(serializer: NULL, event_type:, event_id:, data:, metadata:, timestamp:, valid_at:)
       mapper.record_to_event(
         SerializedRecord.new(
           event_type: event_type,
@@ -233,6 +233,7 @@ module RubyEventStore
           data: data,
           metadata: metadata,
           timestamp: timestamp,
+          valid_at: valid_at,
         ).deserialize(serializer)
       )
     end
@@ -301,6 +302,7 @@ module RubyEventStore
     def enrich_event_metadata(event)
       metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp] ||= clock.call
+      event.metadata[:valid_at ] ||= event.metadata[:timestamp]
     end
 
     def append_records_to_stream(records, stream_name:, expected_version:)

@@ -90,6 +90,7 @@ module RubyEventStore
             data:       record.data,
             metadata:   record.metadata,
             timestamp:  Time.iso8601(storage.fetch(record.event_id).timestamp),
+            valid_at:   record.valid_at,
           ).serialize(serializer)
         storage[record.event_id] = serialized_record
       end

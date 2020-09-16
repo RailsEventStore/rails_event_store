@@ -11,6 +11,7 @@ module RubyEventStore
             data:       encode_data(record.data),
             metadata:   record.metadata,
             timestamp:  record.timestamp,
+            valid_at:   record.valid_at,
           )
         end
 
@@ -21,6 +22,7 @@ module RubyEventStore
             data:       load_data(record.event_type, record.data),
             metadata:   record.metadata,
             timestamp:  record.timestamp,
+            valid_at:   record.valid_at,
           )
         end
 

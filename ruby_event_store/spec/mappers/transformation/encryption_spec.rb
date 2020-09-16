@@ -80,6 +80,7 @@ module RubyEventStore
             metadata: metadata,
             event_type: 'RubyEventStore::Mappers::TicketTransferred',
             timestamp: time,
+            valid_at:  time
           )
         end
 
@@ -92,6 +93,7 @@ module RubyEventStore
             metadata: metadata,
             event_type: 'RubyEventStore::Mappers::TicketCancelled',
             timestamp: time,
+            valid_at:  time
           )
         end
 
@@ -252,6 +254,7 @@ module RubyEventStore
               metadata: metadata,
               event_type: 'RubyEventStore::Mappers::TicketTransferred',
               timestamp: time,
+              valid_at:  time
             )
           )
           data = record.data
@@ -276,6 +279,7 @@ module RubyEventStore
                   metadata: metadata,
                   event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided',
                   timestamp: time,
+                  valid_at:  time
                 )
               )
           )
@@ -305,6 +309,7 @@ module RubyEventStore
                   metadata: metadata,
                   event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided',
                   timestamp: time,
+                  valid_at:  time
                 )
               )
           )
@@ -333,6 +338,7 @@ module RubyEventStore
                 metadata: metadata,
                 event_type: 'RubyEventStore::Mappers::TicketHolderEmailProvided',
                 timestamp: time,
+                valid_at:  time
               )
           )
           event = decrypt(record)

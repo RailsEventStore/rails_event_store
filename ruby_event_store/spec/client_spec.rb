@@ -109,6 +109,7 @@ module RubyEventStore
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_ip]).to eq('127.0.0.1')
       expect(published.first.metadata[:timestamp]).to be_a Time
+      expect(published.first.metadata[:valid_at]).to be_a Time
     end
 
     specify 'published event metadata will not be enriched by metadata provided in with_metadata when published outside a block' do
@@ -119,6 +120,7 @@ module RubyEventStore
       expect(published.size).to eq(1)
       expect(published.first.metadata[:request_ip]).to be_nil
       expect(published.first.metadata[:timestamp]).to be_a Time
+      expect(published.first.metadata[:valid_at]).to be_a Time
     end
 
     specify 'published event metadata will be enriched by nested metadata provided in with_metadata' do
@@ -136,23 +138,28 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(5)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip])
       expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
-      expect(published[1].metadata.keys).to match_array([:timestamp, :request_ip, :nested])
+      expect(published[0].metadata[:valid_at]).to be_a Time
+      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip, :nested])
       expect(published[1].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[1].metadata[:nested]).to eq true
       expect(published[1].metadata[:timestamp]).to be_a Time
-      expect(published[2].metadata.keys).to match_array([:timestamp, :request_ip, :nested, :deeply_nested])
+      expect(published[1].metadata[:valid_at]).to be_a Time
+      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip, :nested, :deeply_nested])
       expect(published[2].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[2].metadata[:nested]).to eq true
       expect(published[2].metadata[:deeply_nested]).to eq true
       expect(published[2].metadata[:timestamp]).to be_a Time
-      expect(published[3].metadata.keys).to match_array([:timestamp, :request_ip])
+      expect(published[2].metadata[:valid_at]).to be_a Time
+      expect(published[3].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip])
       expect(published[3].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[3].metadata[:timestamp]).to be_a Time
-      expect(published[4].metadata.keys).to match_array([:timestamp])
+      expect(published[3].metadata[:valid_at]).to be_a Time
+      expect(published[4].metadata.keys).to match_array([:timestamp, :valid_at])
       expect(published[4].metadata[:timestamp]).to be_a Time
+      expect(published[4].metadata[:valid_at]).to be_a Time
     end
 
     specify 'with_metadata is merged when nested' do
@@ -166,16 +173,19 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(3)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :remote_ip])
+      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :remote_ip])
       expect(published[0].metadata[:remote_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
-      expect(published[1].metadata.keys).to match_array([:timestamp, :remote_ip, :request_id])
+      expect(published[0].metadata[:valid_at]).to be_a Time
+      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :remote_ip, :request_id])
       expect(published[1].metadata[:timestamp]).to be_a Time
+      expect(published[1].metadata[:valid_at]).to be_a Time
       expect(published[1].metadata[:remote_ip]).to eq('192.168.0.1')
       expect(published[1].metadata[:request_id]).to eq('1234567890')
-      expect(published[2].metadata.keys).to match_array([:timestamp, :remote_ip])
+      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :remote_ip])
       expect(published[2].metadata[:remote_ip]).to eq('127.0.0.1')
       expect(published[2].metadata[:timestamp]).to be_a Time
+      expect(published[2].metadata[:valid_at]).to be_a Time
     end
 
     specify "event's  metadata takes precedence over with_metadata" do
@@ -222,8 +232,44 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp])
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
+    end
+
+    specify 'valid_at will equal timestamp unless specified' do
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) do
+        client.append(event = TestEvent.new)
+      end
+      published = client.read.limit(100).to_a
+
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
+    end
+
+    specify 'valid_at can be overwritten by using with_metadata' do
+      client.with_metadata(valid_at: Time.utc(2018, 1, 1)) do
+        client.append(event = TestEvent.new)
+      end
+      published = client.read.limit(100).to_a
+
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
+    end
+
+    specify 'valid_at will not be set to timestamp if specified' do
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1), valid_at: Time.utc(2018, 1, 3)) do
+        client.append(event = TestEvent.new)
+      end
+      published = client.read.limit(100).to_a
+
+      expect(published.size).to eq(1)
+      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 3))
     end
 
     specify 'timestamp is utc time' do
@@ -236,6 +282,18 @@ module RubyEventStore
 
       expect(published.size).to eq(1)
       expect(published.first.metadata[:timestamp]).to eq(utc)
+    end
+
+    specify 'valid_at is utc time' do
+      now = Time.parse('2015-05-04 15:17:11 +0200')
+      utc = Time.parse('2015-05-04 13:17:23 UTC')
+      allow(Time).to receive(:now).and_return(now)
+      allow_any_instance_of(Time).to receive(:utc).and_return(utc)
+      client.publish(event = TestEvent.new)
+      published = client.read.limit(100).to_a
+
+      expect(published.size).to eq(1)
+      expect(published.first.metadata[:valid_at]).to eq(utc)
     end
 
     specify "correlation_id and causation_id in metadata for sync handlers" do
@@ -689,20 +747,22 @@ module RubyEventStore
         mapper:     RubyEventStore::Mappers::Default.new,
         repository: InMemoryRepository.new
       )
-      event = TimestampEnrichment.with_timestamp(
+      event = TimeEnrichment.with(
         OrderCreated.new(
           event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
           data:     { foo: 'bar' },
           metadata: { bar: 'baz' }
         ),
-        Time.utc(2019, 9, 30)
+        timestamp: Time.utc(2019, 9, 30),
+        valid_at: Time.utc(2019, 9, 30)
       )
       payload = {
         event_type: "OrderCreated",
         event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data:       "---\n:foo: bar\n",
         metadata:   "---\n:bar: baz\n",
-        timestamp:  "2019-09-30T00:00:00.000000Z"
+        timestamp:  "2019-09-30T00:00:00.000000Z",
+        valid_at:   "2019-09-30T00:00:00.000000Z"
       }
       expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
     end
@@ -715,7 +775,7 @@ module RubyEventStore
           mapper: RubyEventStore::Mappers::Protobuf.new,
           repository: InMemoryRepository.new
         )
-        event = TimestampEnrichment.with_timestamp(
+        event = TimeEnrichment.with(
           RubyEventStore::Proto.new(
             event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
             data: ResTesting::OrderCreated.new(
@@ -726,14 +786,16 @@ module RubyEventStore
               time: Time.new(2018, 12, 13, 11),
             }
           ),
-          Time.utc(2019, 9, 30)
+          timestamp: Time.utc(2019, 9, 30),
+          valid_at: Time.utc(2019, 9, 30)
         )
         payload = {
           event_type: "res_testing.OrderCreated",
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data: "\n\aK3THNX9\x10{",
           metadata: "\n\x10\n\x04time\x12\b:\x06\b\xA0\xDB\xC8\xE0\x05",
-          timestamp:  "2019-09-30T00:00:00.000000Z"
+          timestamp:  "2019-09-30T00:00:00.000000Z",
+          valid_at:   "2019-09-30T00:00:00.000000Z"
         }
         expect(client.deserialize(**payload)).to eq(event)
       rescue LoadError => exc

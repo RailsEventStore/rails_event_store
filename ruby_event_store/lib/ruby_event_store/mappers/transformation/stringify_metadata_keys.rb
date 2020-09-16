@@ -20,6 +20,7 @@ module RubyEventStore
             data:       record.data,
             metadata:   TransformKeys.stringify(record.metadata),
             timestamp:  record.timestamp,
+            valid_at:   record.valid_at,
           )
         end
       end

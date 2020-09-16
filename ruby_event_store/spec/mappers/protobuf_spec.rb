@@ -174,7 +174,8 @@ module RubyEventStore
         nein: nil,
         ten: {some: 'hash', with: {nested: 'values'}},
         eleven: [1,2,3],
-        timestamp: time
+        timestamp: time,
+        valid_at: time
       } }
       let(:data) do
         ResTesting::OrderCreated.new(
@@ -192,7 +193,7 @@ module RubyEventStore
 
       require_protobuf_dependencies do
         it_behaves_like :mapper, Protobuf.new,
-          TimestampEnrichment.with_timestamp(
+          TimeEnrichment.with(
             RubyEventStore::Proto.new(
               data: ResTesting::OrderCreated.new(
                 customer_id: 123,
@@ -210,6 +211,7 @@ module RubyEventStore
         expect(record.metadata).not_to be_empty
         expect(record.event_type).to   eq("res_testing.OrderCreated")
         expect(record.timestamp).to    eq(time)
+        expect(record.valid_at).to     eq(time)
       end
 
       specify '#record_to_event returns event instance' do
@@ -220,6 +222,7 @@ module RubyEventStore
         expect(event.data).to           eq(data)
         expect(event.metadata.to_h).to  eq(metadata)
         expect(event.timestamp).to      eq(time)
+        expect(event.valid_at).to       eq(time)
       end
 
       specify '#record_to_event is using events class remapping' do
@@ -232,11 +235,13 @@ module RubyEventStore
           metadata:   "",
           event_type: "res_testing.OrderCreatedBeforeRefactor",
           timestamp:  time,
+          valid_at:   time,
         )
         event = subject.record_to_event(record)
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.event_type).to eq("res_testing.OrderCreated")
         expect(event.timestamp).to  eq(time)
+        expect(event.valid_at).to   eq(time)
       end
     end
   end

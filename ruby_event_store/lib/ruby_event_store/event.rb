@@ -41,6 +41,13 @@ module RubyEventStore
       metadata[:timestamp]
     end
 
+    # Validity time from metadata
+    #
+    # @return [Time, nil]
+    def valid_at
+      metadata[:valid_at]
+    end
+
     # Two events are equal if:
     # * they are of the same class
     # * have identical event id

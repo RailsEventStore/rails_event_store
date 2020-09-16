@@ -15,6 +15,7 @@ module RubyEventStore
             data:       record.data,
             metadata:   ProtobufNestedStruct::HashMapStringValue.dump(record.metadata),
             timestamp:  record.timestamp,
+            valid_at:   record.valid_at,
           )
         end
 
@@ -26,6 +27,7 @@ module RubyEventStore
               data:       record.data,
               metadata:   ProtobufNestedStruct::HashMapStringValue.load(record.metadata),
               timestamp:  record.timestamp,
+              valid_at:   record.valid_at,
             )
           )
         end

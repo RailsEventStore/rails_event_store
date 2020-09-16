@@ -11,9 +11,9 @@ module RubyEventStore
       let(:data)         { {some_attribute: 5} }
       let(:metadata)     { {some_meta: 1} }
       let(:event_id)     { SecureRandom.uuid }
-      let(:domain_event) { TimestampEnrichment.with_timestamp(SomethingHappened.new(data: data, metadata: metadata, event_id: event_id), time) }
+      let(:domain_event) { TimeEnrichment.with(SomethingHappened.new(data: data, metadata: metadata, event_id: event_id), timestamp: time, valid_at: time) }
 
-      it_behaves_like :mapper, Default.new, TimestampEnrichment.with_timestamp(SomethingHappened.new)
+      it_behaves_like :mapper, Default.new, TimeEnrichment.with(SomethingHappened.new)
 
       specify '#event_to_record returns transformed record' do
         record = subject.event_to_record(domain_event)
@@ -23,6 +23,7 @@ module RubyEventStore
         expect(record.metadata).to   eq({ some_meta: 1 })
         expect(record.event_type).to eq "SomethingHappened"
         expect(record.timestamp).to  eq(time)
+        expect(record.valid_at).to   eq(time)
       end
 
       specify '#record_to_event returns event instance' do
@@ -32,13 +33,15 @@ module RubyEventStore
           metadata:   { some_meta: 1},
           event_type: SomethingHappened.name,
           timestamp:  time,
+          valid_at:   time,
         )
         event = subject.record_to_event(record)
         expect(event).to               eq(domain_event)
         expect(event.event_id).to      eq domain_event.event_id
         expect(event.data).to          eq(data)
-        expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time))
+        expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
         expect(event.timestamp).to     eq(time)
+        expect(event.valid_at).to      eq(time)
       end
 
       specify '#record_to_event its using events class remapping' do
@@ -49,6 +52,7 @@ module RubyEventStore
           metadata:   { some_meta: 1 },
           event_type: "EventNameBeforeRefactor",
           timestamp:  time,
+          valid_at:   time,
         )
         event = subject.record_to_event(record)
         expect(event).to eq(domain_event)
@@ -61,13 +65,15 @@ module RubyEventStore
           metadata:   stringify({ some_meta: 1}),
           event_type: SomethingHappened.name,
           timestamp:  time,
+          valid_at:   time,
         )
         event = subject.record_to_event(record)
         expect(event).to               eq(domain_event)
         expect(event.event_id).to      eq domain_event.event_id
         expect(event.data).to          eq(data)
-        expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time))
+        expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
         expect(event.timestamp).to     eq(time)
+        expect(event.valid_at).to      eq(time)
       end
 
       private

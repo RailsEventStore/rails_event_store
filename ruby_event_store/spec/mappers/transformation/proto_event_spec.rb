@@ -13,7 +13,7 @@ module RubyEventStore
           TestEvent.new(
             event_id: uuid,
             data: {some: 'value'},
-            metadata: {some: 'meta', timestamp: time}
+            metadata: {some: 'meta', timestamp: time, valid_at: time}
           )
         }
         let(:record)  {
@@ -22,7 +22,8 @@ module RubyEventStore
             metadata:   {some: 'meta'},
             data:       ResTesting::OrderCreated.new(customer_id: 123, order_id: 'K3THNX9'),
             event_type: 'res_testing.OrderCreated',
-            timestamp:  time
+            timestamp:  time,
+            valid_at:   time
           )
         }
 
@@ -33,6 +34,7 @@ module RubyEventStore
           expect(loaded.data).to be_a(ResTesting::OrderCreated)
           expect(loaded.metadata.to_h).to eq(event.metadata.to_h)
           expect(loaded.timestamp).to eq(time)
+          expect(loaded.valid_at).to eq(time)
         end
       end
     end
