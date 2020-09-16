@@ -7,7 +7,7 @@ module RubyEventStore
         class UpdateEvents < ::ROM::Changeset::Create
           include ROM::Changesets::UpdateEvents::Defaults
 
-          UPSERT_COLUMNS = %i[event_type data metadata].freeze
+          UPSERT_COLUMNS = %i[event_type data metadata valid_at].freeze
 
           def commit
             if SQL.supports_on_duplicate_key_update?(relation.dataset.db)

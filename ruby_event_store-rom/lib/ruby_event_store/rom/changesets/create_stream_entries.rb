@@ -14,6 +14,7 @@ module RubyEventStore
               end
               map do
                 map_value :created_at, ->(datetime) { datetime.to_time.localtime }
+                map_value :valid_at, ->(datetime) { datetime.to_time.localtime }
               end
             end
           end
