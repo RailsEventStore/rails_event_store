@@ -10,6 +10,7 @@ module RubyEventStore
 
       metadata = JSON.parse(response.body)["data"][0]["attributes"]["metadata"]
       expect(metadata["timestamp"]).to eq(dummy_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION))
+      expect(metadata["valid_at"]).to eq(dummy_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION))
     end
 
     let(:test_client) { TestClient.new(app_builder(event_store)) }

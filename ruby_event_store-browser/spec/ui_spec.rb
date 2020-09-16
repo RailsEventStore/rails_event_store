@@ -23,6 +23,7 @@ module RubyEventStore
       within('.event__body') do
         expect(page).to have_content(foo_bar_event.event_id)
         expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
+        expect(page).to have_content(%Q[valid_at: "#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}"])
         expect(page).to have_content(%Q[foo: "bar"])
       end
     end
@@ -42,6 +43,7 @@ module RubyEventStore
       within('.event__body') do
         expect(page).to have_content(foo_bar_event.event_id)
         expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
+        expect(page).to have_content(%Q[valid_at: "#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}"])
         expect(page).to have_content(%Q[foo: "bar"])
       end
     end
