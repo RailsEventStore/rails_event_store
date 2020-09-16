@@ -10,7 +10,7 @@ module RubyEventStore
         register_as :stream_entry_to_serialized_record
 
         map_array do
-          unwrap :event, %i[data metadata event_type created_at]
+          unwrap :event, %i[data metadata event_type created_at valid_at]
           map_value :created_at, ->(time) { time.iso8601(TIMESTAMP_PRECISION) }
           map_value :valid_at, ->(time) { time.iso8601(TIMESTAMP_PRECISION) }
           rename_keys created_at: :timestamp

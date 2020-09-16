@@ -14,7 +14,7 @@ RSpec.shared_examples :events_relation do |_relation_class|
   end
 
   specify '#exist? indicates if one instance of the record exists by primary key' do
-    event = { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+    event = { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
 
     expect(relation.by_pk(event[:id]).exist?).to eq(false)
 
@@ -25,9 +25,9 @@ RSpec.shared_examples :events_relation do |_relation_class|
 
   specify '#insert verifies tuple is unique' do
     events = [
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
     ]
 
     relation.command(:create).call(events[0..1])
@@ -46,9 +46,9 @@ RSpec.shared_examples :events_relation do |_relation_class|
 
   specify '#by_pk finds tuples by ID' do
     events = [
-      { id: id = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+      { id: id = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
     ]
 
     relation.command(:create).call(events)
@@ -59,9 +59,9 @@ RSpec.shared_examples :events_relation do |_relation_class|
 
   specify 'each method returns proper type' do
     events = [
-      { id: id = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now },
-      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now }
+      { id: id = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+      { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
     ]
 
     relation.command(:create).call(events)
