@@ -31,6 +31,7 @@ module RailsEventStoreActiveRecord
     include_examples :event_repository
     let(:repository) { EventRepository.new(serializer: YAML) }
     let(:helper) { EventRepository::SpecHelper.new }
+    let(:time) { Time.now.utc }
 
     include SchemaHelper
     around(:each) do |example|
@@ -101,18 +102,21 @@ module RailsEventStoreActiveRecord
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       e2 = Event.create!(
         event_id: u2 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       e3 = Event.create!(
         event_id: u3 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       EventInStream.create!(
         stream:   "stream",
@@ -147,18 +151,21 @@ module RailsEventStoreActiveRecord
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       e2 = Event.create!(
         event_id: u2 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       e3 = Event.create!(
         event_id: u3 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       EventInStream.create!(
         stream:   "all",
@@ -186,18 +193,21 @@ module RailsEventStoreActiveRecord
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       e2 = Event.create!(
         event_id: u2 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       e3 = Event.create!(
         event_id: u3 = SecureRandom.uuid,
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
+        valid_at: time,
       )
       EventInStream.create!(
         stream:   "all",
