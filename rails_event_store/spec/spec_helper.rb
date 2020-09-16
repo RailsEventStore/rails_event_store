@@ -27,10 +27,11 @@ ActiveRecord::Schema.verbose = $verbose
 
 DummyEvent = Class.new(RailsEventStore::Event)
 
-module TimestampEnrichment
-  def with_timestamp(event, timestamp = Time.now.utc)
+module TimeEnrichment
+  def with(event, timestamp: Time.now.utc, valid_at: nil)
     event.metadata[:timestamp] ||= timestamp
+    event.metadata[:valid_at] ||= valid_at || timestamp
     event
   end
-  module_function :with_timestamp
+  module_function :with
 end
