@@ -61,7 +61,7 @@ module RubyEventStore
     # Ending date.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Array<Date, Boolean>]
+    # @return [Time]
     def older_than
       attributes.older_than
     end
@@ -69,7 +69,7 @@ module RubyEventStore
     # Starting date.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Array<Date, Boolean>]
+    # @return [Time]
     def newer_than
       attributes.newer_than
     end
