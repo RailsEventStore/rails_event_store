@@ -50,8 +50,14 @@ module RubyEventStore
     specify { expect{specification.older_than(nil)}.to raise_error(ArgumentError) }
     specify { expect{specification.older_than('')}.to raise_error(ArgumentError) }
 
+    specify { expect{specification.older_than_or_equal(nil)}.to raise_error(ArgumentError) }
+    specify { expect{specification.older_than_or_equal('')}.to raise_error(ArgumentError) }
+
     specify { expect{specification.newer_than(nil)}.to raise_error(ArgumentError) }
     specify { expect{specification.newer_than('')}.to raise_error(ArgumentError) }
+
+    specify { expect{specification.newer_than_or_equal(nil)}.to raise_error(ArgumentError) }
+    specify { expect{specification.newer_than_or_equal('')}.to raise_error(ArgumentError) }
 
     specify { expect(specification.result.with_ids).to be_nil }
     specify { expect(specification.with_id([event_id]).result.with_ids).to eq([event_id]) }
@@ -77,11 +83,11 @@ module RubyEventStore
     end
 
     specify do
-      expect(specification.older_than(target_date).result.older_than).to eq([target_date, false])
+      expect(specification.older_than(target_date).result.older_than).to eq(target_date)
     end
 
     specify do
-      expect(specification.newer_than(target_date).result.newer_than).to eq([target_date, false])
+      expect(specification.newer_than(target_date).result.newer_than).to eq(target_date)
     end
 
     specify do
@@ -101,7 +107,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(stream_name)
         expect(spec.result.stream.global?).to eq(false)
         expect(spec.result.limit).to eq(10)
-        expect(spec.result.older_than).to eq([target_date, false])
+        expect(spec.result.older_than).to eq(target_date)
         expect(spec.result.backward?).to eq(true)
       end
     end
@@ -112,7 +118,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(stream_name)
         expect(spec.result.stream.global?).to eq(false)
         expect(spec.result.limit).to eq(10)
-        expect(spec.result.newer_than).to eq([target_date, false])
+        expect(spec.result.newer_than).to eq(target_date)
         expect(spec.result.backward?).to eq(true)
       end
     end
@@ -183,25 +189,49 @@ module RubyEventStore
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.older_than(target_date).stream('dummy').result.older_than).to eq([target_date, false])
-        expect(specification.older_than(target_date).limit(1).result.older_than).to eq([target_date, false])
-        expect(specification.older_than(target_date).read_first.result.older_than).to eq([target_date, false])
-        expect(specification.older_than(target_date).read_last.result.older_than).to eq([target_date, false])
-        expect(specification.older_than(target_date).forward.result.older_than).to eq([target_date, false])
-        expect(specification.older_than(target_date).backward.result.older_than).to eq([target_date, false])
+        expect(specification.older_than(target_date).stream('dummy').result.older_than).to eq(target_date)
+        expect(specification.older_than(target_date).limit(1).result.older_than).to eq(target_date)
+        expect(specification.older_than(target_date).read_first.result.older_than).to eq(target_date)
+        expect(specification.older_than(target_date).read_last.result.older_than).to eq(target_date)
+        expect(specification.older_than(target_date).forward.result.older_than).to eq(target_date)
+        expect(specification.older_than(target_date).backward.result.older_than).to eq(target_date)
         expect(specification.read_first.older_than(target_date).result.first?).to eq(true)
       end
     end
 
     specify do
       with_event_of_id(event_id) do
-        expect(specification.newer_than(target_date).stream('dummy').result.newer_than).to eq([target_date, false])
-        expect(specification.newer_than(target_date).limit(1).result.newer_than).to eq([target_date, false])
-        expect(specification.newer_than(target_date).read_first.result.newer_than).to eq([target_date, false])
-        expect(specification.newer_than(target_date).read_last.result.newer_than).to eq([target_date, false])
-        expect(specification.newer_than(target_date).forward.result.newer_than).to eq([target_date, false])
-        expect(specification.newer_than(target_date).backward.result.newer_than).to eq([target_date, false])
+        expect(specification.older_than_or_equal(target_date).stream('dummy').result.older_than_or_equal).to eq(target_date)
+        expect(specification.older_than_or_equal(target_date).limit(1).result.older_than_or_equal).to eq(target_date)
+        expect(specification.older_than_or_equal(target_date).read_first.result.older_than_or_equal).to eq(target_date)
+        expect(specification.older_than_or_equal(target_date).read_last.result.older_than_or_equal).to eq(target_date)
+        expect(specification.older_than_or_equal(target_date).forward.result.older_than_or_equal).to eq(target_date)
+        expect(specification.older_than_or_equal(target_date).backward.result.older_than_or_equal).to eq(target_date)
+        expect(specification.read_first.older_than_or_equal(target_date).result.first?).to eq(true)
+      end
+    end
+
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.newer_than(target_date).stream('dummy').result.newer_than).to eq(target_date)
+        expect(specification.newer_than(target_date).limit(1).result.newer_than).to eq(target_date)
+        expect(specification.newer_than(target_date).read_first.result.newer_than).to eq(target_date)
+        expect(specification.newer_than(target_date).read_last.result.newer_than).to eq(target_date)
+        expect(specification.newer_than(target_date).forward.result.newer_than).to eq(target_date)
+        expect(specification.newer_than(target_date).backward.result.newer_than).to eq(target_date)
         expect(specification.read_last.newer_than(target_date).result.last?).to eq(true)
+      end
+    end
+
+    specify do
+      with_event_of_id(event_id) do
+        expect(specification.newer_than_or_equal(target_date).stream('dummy').result.newer_than_or_equal).to eq(target_date)
+        expect(specification.newer_than_or_equal(target_date).limit(1).result.newer_than_or_equal).to eq(target_date)
+        expect(specification.newer_than_or_equal(target_date).read_first.result.newer_than_or_equal).to eq(target_date)
+        expect(specification.newer_than_or_equal(target_date).read_last.result.newer_than_or_equal).to eq(target_date)
+        expect(specification.newer_than_or_equal(target_date).forward.result.newer_than_or_equal).to eq(target_date)
+        expect(specification.newer_than_or_equal(target_date).backward.result.newer_than_or_equal).to eq(target_date)
+        expect(specification.read_last.newer_than_or_equal(target_date).result.last?).to eq(true)
       end
     end
 
@@ -639,13 +669,20 @@ module RubyEventStore
       with_event_of_id(event_id) do
         expect(specification.from(event_id).result.hash).not_to eq(specification.result.hash)
         expect(specification.to(event_id).result.hash).not_to eq(specification.result.hash)
-        expect(specification.older_than(target_date).result.hash).not_to eq(specification.result.hash)
-        expect(specification.newer_than(target_date).result.hash).not_to eq(specification.result.hash)
       end
+
+      expect(specification.older_than(target_date).result.hash).not_to eq(specification.result.hash)
+      expect(specification.older_than_or_equal(target_date).result.hash).not_to eq(specification.result.hash)
+      expect(specification.newer_than(target_date).result.hash).not_to eq(specification.result.hash)
+      expect(specification.newer_than_or_equal(target_date).result.hash).not_to eq(specification.result.hash)
 
       expect(specification.result.hash).not_to eq([
           SpecificationResult,
           :forward,
+          nil,
+          nil,
+          nil,
+          nil,
           nil,
           nil,
           Float::INFINITY,

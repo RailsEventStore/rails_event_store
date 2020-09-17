@@ -6,15 +6,44 @@ module RubyEventStore
                    start: nil,
                    stop: nil,
                    older_than: nil,
+                   older_than_or_equal: nil,
                    newer_than: nil,
+                   newer_than_or_equal: nil,
                    count: nil,
                    stream: Stream.new(GLOBAL_STREAM),
                    read_as: :all,
                    batch_size: Specification::DEFAULT_BATCH_SIZE,
                    with_ids: nil,
                    with_types: nil)
-      @attributes = Struct.new(:direction, :start, :stop, :older_than, :newer_than, :count, :stream, :read_as, :batch_size, :with_ids, :with_types)
-        .new(direction, start, stop, older_than, newer_than, count, stream, read_as, batch_size, with_ids, with_types)
+      @attributes = Struct.new(
+        :direction,
+        :start,
+        :stop,
+        :older_than,
+        :older_than_or_equal,
+        :newer_than,
+        :newer_than_or_equal,
+        :count,
+        :stream,
+        :read_as,
+        :batch_size,
+        :with_ids,
+        :with_types
+      ).new(
+        direction,
+        start,
+        stop,
+        older_than,
+        older_than_or_equal,
+        newer_than,
+        newer_than_or_equal,
+        count,
+        stream,
+        read_as,
+        batch_size,
+        with_ids,
+        with_types
+      )
       freeze
     end
 
@@ -66,12 +95,28 @@ module RubyEventStore
       attributes.older_than
     end
 
+    # Ending date.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Time]
+    def older_than_or_equal
+      attributes.older_than_or_equal
+    end
+
     # Starting date.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Time]
     def newer_than
       attributes.newer_than
+    end
+
+    # Starting date.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Time]
+    def newer_than_or_equal
+      attributes.newer_than_or_equal
     end
 
     # Read direction. True is reading forward
@@ -213,8 +258,10 @@ module RubyEventStore
         get_direction,
         start,
         stop,
-        older_than.join(''),
-        newer_than.join(''),
+        older_than,
+        older_than_or_equal,
+        newer_than,
+        newer_than_or_equal,
         limit,
         stream,
         attributes.read_as,
