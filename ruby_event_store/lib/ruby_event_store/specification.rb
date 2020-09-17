@@ -50,7 +50,7 @@ module RubyEventStore
     # @param equals [Boolean] whether you want to include events on that date
     # @return [Specification]
     def older_than(time, equals = false)
-      raise InvalidPageStart if time.nil? || time.empty?
+      raise ArgumentError if time.nil? || time.empty?
       Specification.new(reader, result.dup { |r| r.older_than = [time, equals] })
     end
 
@@ -61,7 +61,7 @@ module RubyEventStore
     # @param equals [Boolean] whether you want to include events on that date
     # @return [Specification]
     def newer_than(time, equals = false)
-      raise InvalidPageStop if time.nil? || time.empty?
+      raise ArgumentError if time.nil? || time.empty?
       Specification.new(reader, result.dup { |r| r.newer_than = [time, equals] })
     end
 

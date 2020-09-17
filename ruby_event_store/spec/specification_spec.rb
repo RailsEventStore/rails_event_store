@@ -47,11 +47,11 @@ module RubyEventStore
     specify { expect{specification.to(:dummy) }.to raise_error(EventNotFound, /dummy/) }
     specify { expect{specification.to(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
 
-    specify { expect{specification.older_than(nil)}.to raise_error(InvalidPageStart) }
-    specify { expect{specification.older_than('')}.to raise_error(InvalidPageStart) }
+    specify { expect{specification.older_than(nil)}.to raise_error(ArgumentError) }
+    specify { expect{specification.older_than('')}.to raise_error(ArgumentError) }
 
-    specify { expect{specification.newer_than(nil)}.to raise_error(InvalidPageStop) }
-    specify { expect{specification.newer_than('')}.to raise_error(InvalidPageStop) }
+    specify { expect{specification.newer_than(nil)}.to raise_error(ArgumentError) }
+    specify { expect{specification.newer_than('')}.to raise_error(ArgumentError) }
 
     specify { expect(specification.result.with_ids).to be_nil }
     specify { expect(specification.with_id([event_id]).result.with_ids).to eq([event_id]) }
