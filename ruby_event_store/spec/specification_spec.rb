@@ -588,18 +588,6 @@ module RubyEventStore
 
       expect(specification.from(records[0].event_id).backward.first).to be_nil
       expect(specification.from(records[0].event_id).backward.last).to be_nil
-
-      expect(specification.older_than(records[2].timestamp).first).to eq(TestEvent.new(event_id: records[3].event_id))
-      expect(specification.older_than(records[2].timestamp).last).to eq(TestEvent.new(event_id: records[4].event_id))
-
-      expect(specification.older_than(records[2].timestamp).backward.first).to eq(TestEvent.new(event_id: records[1].event_id))
-      expect(specification.older_than(records[2].timestamp).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
-
-      expect(specification.older_than(records[4].timestamp).first).to be_nil
-      expect(specification.older_than(records[4].timestamp).last).to be_nil
-
-      expect(specification.older_than(records[0].timestamp).backward.first).to be_nil
-      expect(specification.older_than(records[0].timestamp).backward.last).to be_nil
     end
 
     specify do
