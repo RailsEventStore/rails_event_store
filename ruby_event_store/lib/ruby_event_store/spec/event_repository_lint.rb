@@ -6,14 +6,14 @@ module RubyEventStore
       data:       {},
       metadata:   {},
       event_type: 'SRecordTestEvent',
-      timestamp:  Time.new.utc.round(TIMESTAMP_PRECISION)
+      timestamp:  Time.new.utc
     )
       Record.new(
         event_id:   event_id,
         data:       data,
         metadata:   metadata,
         event_type: event_type,
-        timestamp:  timestamp,
+        timestamp:  timestamp.round(TIMESTAMP_PRECISION),
       )
     end
   end
@@ -1283,6 +1283,42 @@ module RubyEventStore
       event = read_events_forward(repository, count: 1).first
 
       expect(event.timestamp).to eq(time)
+    end
+
+    specify 'fetching records older than specified date' do
+      event_1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea', timestamp: Time.utc(2020, 1, 1))
+      event_2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7', timestamp: Time.utc(2020, 1, 2))
+      event_3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e', timestamp: Time.utc(2020, 1, 3))
+      repository.append_to_stream([event_1, event_2, event_3], Stream.new('whatever'), version_any)
+
+      expect(repository.read(specification.older_than(Time.utc(2020, 1, 2)).result).to_a).to eq([event_1])
+    end
+
+    specify 'fetching records older than or equal to specified date' do
+      event_1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea', timestamp: Time.utc(2020, 1, 1))
+      event_2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7', timestamp: Time.utc(2020, 1, 2))
+      event_3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e', timestamp: Time.utc(2020, 1, 3))
+      repository.append_to_stream([event_1, event_2, event_3], Stream.new('whatever'), version_any)
+
+      expect(repository.read(specification.older_than_or_equal(Time.utc(2020, 1, 2)).result).to_a).to eq([event_1, event_2])
+    end
+
+    specify 'fetching records newer than specified date' do
+      event_1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea', timestamp: Time.utc(2020, 1, 1))
+      event_2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7', timestamp: Time.utc(2020, 1, 2))
+      event_3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e', timestamp: Time.utc(2020, 1, 3))
+      repository.append_to_stream([event_1, event_2, event_3], Stream.new('whatever'), version_any)
+
+      expect(repository.read(specification.newer_than(Time.utc(2020, 1, 2)).result).to_a).to eq([event_3])
+    end
+
+    specify 'fetching records newer than or equal to specified date' do
+      event_1 = SRecord.new(event_id: '8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea', timestamp: Time.utc(2020, 1, 1))
+      event_2 = SRecord.new(event_id: '8cee1139-4f96-483a-a175-2b947283c3c7', timestamp: Time.utc(2020, 1, 2))
+      event_3 = SRecord.new(event_id: 'd345f86d-b903-4d78-803f-38990c078d9e', timestamp: Time.utc(2020, 1, 3))
+      repository.append_to_stream([event_1, event_2, event_3], Stream.new('whatever'), version_any)
+
+      expect(repository.read(specification.newer_than_or_equal(Time.utc(2020, 1, 2)).result).to_a).to eq([event_2, event_3])
     end
   end
 end
