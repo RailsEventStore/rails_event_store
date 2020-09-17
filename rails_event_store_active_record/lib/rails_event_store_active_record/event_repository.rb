@@ -15,11 +15,11 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(records, stream, expected_version)
-      hashes, event_ids = [], []
-      serialized_records = Array(records).map{|record| record.serialize(serializer)}
-      serialized_records.each do |serialized_record|
-        hashes << serialized_record_hash(serialized_record)
-        event_ids << serialized_record.event_id
+      hashes    = []
+      event_ids = []
+      Array(records).each do |record|
+        hashes    << import_hash(record, record.serialize(serializer))
+        event_ids << record.event_id
       end
       add_to_stream(event_ids, stream, expected_version, true) do
         @event_klass.import(hashes)
@@ -55,7 +55,7 @@ module RailsEventStoreActiveRecord
     end
 
     def update_messages(records)
-      hashes  = Array(records).map{|record| serialized_record_hash(record.serialize(serializer)) }
+      hashes  = Array(records).map{|record| import_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
       start_transaction do
         existing = @event_klass.where(id: for_update).pluck(:id)
@@ -120,13 +120,13 @@ module RailsEventStoreActiveRecord
       IndexViolationDetector.new.detect(message)
     end
 
-    def serialized_record_hash(serialized_record)
+    def import_hash(record, serialized_record)
       {
         id:         serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type,
-        created_at: serialized_record.timestamp,
+        created_at: record.timestamp,
       }
     end
 
