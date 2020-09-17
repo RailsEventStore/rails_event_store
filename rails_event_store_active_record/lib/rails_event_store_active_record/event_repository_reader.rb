@@ -56,9 +56,11 @@ module RailsEventStoreActiveRecord
       stream = stream.order(position: order(spec)) unless spec.stream.global?
       stream = stream.limit(spec.limit) if spec.limit?
       stream = stream.where(start_condition(spec)) if spec.start
-      stream = stream.where(stop_condition(spec)) if spec.stop
-      stream = stream.where(older_condition(spec)) if spec.older_than
-      stream = stream.where(newer_condition(spec)) if spec.newer_than
+      stream = stream.where(stop_condition(spec))  if spec.stop
+      stream = stream.joins(:event).where(older_than_condition(spec))          if spec.older_than
+      stream = stream.joins(:event).where(older_than_or_equal_condition(spec)) if spec.older_than_or_equal
+      stream = stream.joins(:event).where(newer_than_condition(spec))          if spec.newer_than
+      stream = stream.joins(:event).where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
       stream = stream.order(id: order(spec))
       stream
     end
@@ -87,25 +89,22 @@ module RailsEventStoreActiveRecord
         @stream_klass.find_by!(event_id: specification.stop, stream: normalize_stream_name(specification)))
     end
 
-    def older_condition(specification)
-      date, equal = specification.older_than
-      condition = if equal
-                    'event_store_events_in_streams.created_at <= ?'
-                  else
-                    'event_store_events_in_streams.created_at < ?'
-                  end
-      [condition, date]
+    def older_than_condition(specification)
+      ['event_store_events.created_at < ?', specification.older_than]
     end
 
-    def newer_condition(specification)
-      date, equal = specification.newer_than
-      condition = if equal
-                    'event_store_events_in_streams.created_at >= ?'
-                  else
-                    'event_store_events_in_streams.created_at > ?'
-                  end
-      [condition, date]
+    def older_than_or_equal_condition(specification)
+      ['event_store_events.created_at <= ?', specification.older_than_or_equal]
     end
+
+    def newer_than_condition(specification)
+      ['event_store_events.created_at > ?', specification.newer_than]
+    end
+
+    def newer_than_or_equal_condition(specification)
+      ['event_store_events.created_at >= ?', specification.newer_than_or_equal]
+    end
+
 
     def order(spec)
       spec.forward? ? 'ASC' : 'DESC'
