@@ -83,6 +83,22 @@ module RubyEventStore
       Specification.new(reader, result.dup { |r| r.newer_than_or_equal = time })
     end
 
+    # Sets the order of time sorting usign transaction time
+    # {http://railseventstore.org/docs/read/ Find out more}
+    #
+    # @return [Specification]
+    def as_at
+      Specification.new(reader, result.dup { |r| r.time_sort_by = :as_at})
+    end
+
+    # Sets the order of time sorting usign validity time
+    # {http://railseventstore.org/docs/read/ Find out more}
+    #
+    # @return [Specification]
+    def as_of
+      Specification.new(reader, result.dup { |r| r.time_sort_by = :as_of })
+    end
+
     # Sets the order of reading events to ascending (forward from the start).
     # {http://railseventstore.org/docs/read/ Find out more}.
     #

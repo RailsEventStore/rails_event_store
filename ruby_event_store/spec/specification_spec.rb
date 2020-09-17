@@ -663,6 +663,10 @@ module RubyEventStore
       expect(specification.of_type([TestEvent]).result.hash).to eq(specification.of_type([TestEvent]).result.hash)
       expect(specification.of_type([TestEvent]).result.hash).not_to eq(specification.of_type([OrderCreated]).result.hash)
 
+      expect(specification.result.hash).not_to eq(specification.as_at.result.hash)
+      expect(specification.result.hash).not_to eq(specification.as_of.result.hash)
+      expect(specification.as_at.result.hash).not_to eq(specification.as_of.result.hash)
+
       with_event_of_id(event_id) do
         expect(specification.from(event_id).result.hash).not_to eq(specification.result.hash)
         expect(specification.to(event_id).result.hash).not_to eq(specification.result.hash)
@@ -800,6 +804,32 @@ module RubyEventStore
       expect(specification.of_types(OrderCreated, ProductAdded).count).to eq(3)
     end
 
+    specify "by default time sort order is not defined" do
+      expect(specification.result.time_sort_by).to eq nil
+    end
+
+    specify "as_at sets time sort order by event's timestamp/creation date" do
+      expect(specification.as_at.result.time_sort_by).to eq :as_at
+    end
+
+    specify "as_of sets time sort order by event's validity date" do
+      expect(specification.as_of.result.time_sort_by).to eq :as_of
+    end
+
+    specify "time order is respected" do
+      repository.append_to_stream([
+          test_record(e1 = SecureRandom.uuid, timestamp: Time.new(2020,1,1), valid_at: Time.new(2020,1,9)),
+          test_record(e2 = SecureRandom.uuid, timestamp: Time.new(2020,1,3), valid_at: Time.new(2020,1,6)),
+          test_record(e3 = SecureRandom.uuid, timestamp: Time.new(2020,1,2), valid_at: Time.new(2020,1,3)),
+        ],
+        Stream.new("Dummy"),
+        ExpectedVersion.any
+      )
+      expect(specification.map(&:event_id)).to eq [e1, e2, e3]
+      expect(specification.as_at.map(&:event_id)).to eq [e1, e3, e2]
+      expect(specification.as_of.map(&:event_id)).to eq [e3, e2, e1]
+    end
+
     let(:repository)    { InMemoryRepository.new }
     let(:mapper)        { Mappers::NullMapper.new }
     let(:reader)        { SpecificationReader.new(repository, mapper) }
@@ -810,14 +840,15 @@ module RubyEventStore
     let(:test_event)    { TestEvent.new(event_id: event_id) }
     let(:target_date)   { Time.utc(2020, 9, 17)  }
 
-    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {}, timestamp: target_date)
+    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {}, timestamp: target_date, valid_at: nil)
       mapper.event_to_record(
         TimeEnrichment.with(
           event_type.new(
             event_id: event_id,
             data: data,
           ),
-          timestamp
+          timestamp: timestamp,
+          valid_at: valid_at
         )
       )
     end

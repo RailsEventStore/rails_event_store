@@ -9,6 +9,7 @@ module RubyEventStore
                    older_than_or_equal: nil,
                    newer_than: nil,
                    newer_than_or_equal: nil,
+                   time_sort_by: nil,
                    count: nil,
                    stream: Stream.new(GLOBAL_STREAM),
                    read_as: :all,
@@ -23,6 +24,7 @@ module RubyEventStore
         :older_than_or_equal,
         :newer_than,
         :newer_than_or_equal,
+        :time_sort_by,
         :count,
         :stream,
         :read_as,
@@ -37,6 +39,7 @@ module RubyEventStore
         older_than_or_equal,
         newer_than,
         newer_than_or_equal,
+        time_sort_by,
         count,
         stream,
         read_as,
@@ -117,6 +120,14 @@ module RubyEventStore
     # @return [Time]
     def newer_than_or_equal
       attributes.newer_than_or_equal
+    end
+
+    # Time sorting strategy. Nil when not specified.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Symbol]
+    def time_sort_by
+      attributes.time_sort_by
     end
 
     # Read direction. True is reading forward
@@ -242,8 +253,11 @@ module RubyEventStore
     # * direction
     # * start
     # * stop
-    # * older_than,
+    # * older_than
+    # * older_than_or_equal
     # * newer_than
+    # * newer_than_or_equal
+    # * time_sort_by
     # * count
     # * stream
     # * read_as
@@ -262,6 +276,7 @@ module RubyEventStore
         older_than_or_equal,
         newer_than,
         newer_than_or_equal,
+        time_sort_by,
         limit,
         stream,
         attributes.read_as,
