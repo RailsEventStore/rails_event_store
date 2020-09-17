@@ -491,7 +491,7 @@ module RubyEventStore
       records = [test_record, test_record]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.older_than(records[0].created_a).to_a).to eq(
+      expect(specification.older_than(records[0].timestamp).to_a).to eq(
         [TestEvent.new(event_id: records[1].event_id)]
       )
     end
@@ -500,7 +500,7 @@ module RubyEventStore
       records = [test_record, test_record]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.newer_than(records[1].created_at).to_a.last.event_id).to eq(
+      expect(specification.newer_than(records[1].timestamp).to_a.last.event_id).to eq(
         records[0].event_id
       )
     end
@@ -589,17 +589,17 @@ module RubyEventStore
       expect(specification.from(records[0].event_id).backward.first).to be_nil
       expect(specification.from(records[0].event_id).backward.last).to be_nil
 
-      expect(specification.older_than(records[2].created_at).first).to eq(TestEvent.new(event_id: records[3].event_id))
-      expect(specification.older_than(records[2].created_at).last).to eq(TestEvent.new(event_id: records[4].event_id))
+      expect(specification.older_than(records[2].timestamp).first).to eq(TestEvent.new(event_id: records[3].event_id))
+      expect(specification.older_than(records[2].timestamp).last).to eq(TestEvent.new(event_id: records[4].event_id))
 
-      expect(specification.older_than(records[2].created_at).backward.first).to eq(TestEvent.new(event_id: records[1].event_id))
-      expect(specification.older_than(records[2].created_at).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
+      expect(specification.older_than(records[2].timestamp).backward.first).to eq(TestEvent.new(event_id: records[1].event_id))
+      expect(specification.older_than(records[2].timestamp).backward.last).to eq(TestEvent.new(event_id: records[0].event_id))
 
-      expect(specification.older_than(records[4].created_at).first).to be_nil
-      expect(specification.older_than(records[4].created_at).last).to be_nil
+      expect(specification.older_than(records[4].timestamp).first).to be_nil
+      expect(specification.older_than(records[4].timestamp).last).to be_nil
 
-      expect(specification.older_than(records[0].created_at).backward.first).to be_nil
-      expect(specification.older_than(records[0].created_at).backward.last).to be_nil
+      expect(specification.older_than(records[0].timestamp).backward.first).to be_nil
+      expect(specification.older_than(records[0].timestamp).backward.last).to be_nil
     end
 
     specify do
@@ -819,7 +819,8 @@ module RubyEventStore
           event_type.new(
             event_id: event_id,
             data: data,
-          )
+          ),
+          target_date
         )
       )
     end
