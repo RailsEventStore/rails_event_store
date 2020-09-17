@@ -94,6 +94,8 @@ module RubyEventStore
       serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
       serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
       serialized_records = serialized_records[0...spec.limit] if spec.limit?
+      serialized_records = serialized_records.select { |sr| sr.timestamp < spec.older_than.iso8601(TIMESTAMP_PRECISION) } if spec.older_than
+      serialized_records = serialized_records.select { |sr| sr.timestamp > spec.newer_than.iso8601(TIMESTAMP_PRECISION) } if spec.newer_than
       serialized_records
     end
 
