@@ -498,7 +498,21 @@ module RubyEventStore
       records = [test_record(timestamp: Time.utc(2020, 1, 1)), test_record(timestamp: Time.utc(2020, 2, 1))]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
+      expect(specification.older_than_or_equal(Time.utc(2020, 2, 1)).map(&:event_id)).to eq([records[0].event_id, records[1].event_id])
+    end
+
+    specify do
+      records = [test_record(timestamp: Time.utc(2020, 1, 1)), test_record(timestamp: Time.utc(2020, 2, 1))]
+      repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+
       expect(specification.newer_than(Time.utc(2020, 1, 1)).map(&:event_id)).to eq([records[1].event_id])
+    end
+
+    specify do
+      records = [test_record(timestamp: Time.utc(2020, 1, 1)), test_record(timestamp: Time.utc(2020, 2, 1))]
+      repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
+
+      expect(specification.newer_than_or_equal(Time.utc(2020, 1, 1)).map(&:event_id)).to eq([records[0].event_id, records[1].event_id])
     end
 
     specify do
