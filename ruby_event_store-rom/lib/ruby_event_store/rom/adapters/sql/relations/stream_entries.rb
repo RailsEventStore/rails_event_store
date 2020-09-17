@@ -41,6 +41,22 @@ module RubyEventStore
             by_stream(stream).select(:position).order(Sequel.desc(:position)).first
           end
 
+          def newer_than(time)
+            join(:events).where { |r| r.events[:created_at] > time.localtime }
+          end
+
+          def newer_than_or_equal(time)
+            join(:events).where { |r| r.events[:created_at] >= time.localtime }
+          end
+
+          def older_than(time)
+            join(:events).where { |r| r.events[:created_at] < time.localtime }
+          end
+
+          def older_than_or_equal(time)
+            join(:events).where { |r| r.events[:created_at] <= time.localtime }
+          end
+
           DIRECTION_MAP = {
             forward: %i[asc > <],
             backward: %i[desc < >]
@@ -57,6 +73,7 @@ module RubyEventStore
             query = by_stream(stream)
             query = query.where { id.public_send(operator_offset, offset_entry_id) } if offset_entry_id
             query = query.where { id.public_send(operator_stop, stop_entry_id) } if stop_entry_id
+
             query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
           end
 
