@@ -811,7 +811,7 @@ module RubyEventStore
     let(:none_such_id)  { SecureRandom.uuid }
     let(:stream_name)   { SecureRandom.hex }
     let(:test_event)    { TestEvent.new(event_id: event_id) }
-    let(:target_date)   { 1.day.ago }
+    let(:target_date)   { Time.utc(2020, 9, 17)  }
 
     def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {})
       mapper.event_to_record(
