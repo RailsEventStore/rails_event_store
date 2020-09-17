@@ -105,6 +105,7 @@ module RubyEventStore
     private
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)
+      serialized_records = ordered(serialized_records, spec)
       serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       serialized_records = serialized_records.reverse if spec.backward?
@@ -128,6 +129,21 @@ module RubyEventStore
 
     def serialized_records_of_stream(stream)
       stream.global? ? storage.values : storage.fetch_values(*event_ids_of_stream(stream))
+    end
+
+    def ordered(serialized_records, spec)
+      case spec.time_sort_by
+      when :as_at
+        serialized_records.sort_by(&:timestamp)
+      when :as_of
+        serialized_records.sort_by(&:valid_at)
+      else
+        serialized_records
+      end
+    end
+
+    def add_to_stream(serialized_records, expected_version, stream, include_global)
+      append_with_synchronize(serialized_records, expected_version, stream, include_global)
     end
 
     def last_stream_version(stream)
