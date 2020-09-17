@@ -488,21 +488,17 @@ module RubyEventStore
     end
 
     specify do
-      records = [test_record, test_record]
+      records = [test_record(timestamp: Time.utc(2020, 1, 1)), test_record(timestamp: Time.utc(2020, 2, 1))]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.older_than(records[0].timestamp).to_a).to eq(
-        [TestEvent.new(event_id: records[1].event_id)]
-      )
+      expect(specification.older_than(Time.utc(2020, 2, 1)).map(&:event_id)).to eq([records[0].event_id])
     end
 
     specify do
-      records = [test_record, test_record]
+      records = [test_record(timestamp: Time.utc(2020, 1, 1)), test_record(timestamp: Time.utc(2020, 2, 1))]
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.newer_than(records[1].timestamp).to_a.last.event_id).to eq(
-        records[0].event_id
-      )
+      expect(specification.newer_than(Time.utc(2020, 1, 1)).map(&:event_id)).to eq([records[1].event_id])
     end
 
     specify do
@@ -801,14 +797,14 @@ module RubyEventStore
     let(:test_event)    { TestEvent.new(event_id: event_id) }
     let(:target_date)   { Time.utc(2020, 9, 17)  }
 
-    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {})
+    def test_record(event_id = SecureRandom.uuid, event_type: TestEvent, data: {}, timestamp: target_date)
       mapper.event_to_record(
         TimestampEnrichment.with_timestamp(
           event_type.new(
             event_id: event_id,
             data: data,
           ),
-          target_date
+          timestamp
         )
       )
     end
