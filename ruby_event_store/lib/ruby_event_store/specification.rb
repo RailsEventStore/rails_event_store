@@ -49,7 +49,7 @@ module RubyEventStore
     # @param date [Time]
     # @return [Specification]
     def older_than(time)
-      raise ArgumentError if time.nil? || time.empty?
+      raise ArgumentError unless time.respond_to?(:to_time)
       Specification.new(reader, result.dup { |r| r.older_than = time })
     end
 
@@ -59,7 +59,7 @@ module RubyEventStore
     # @param date [Time]
     # @return [Specification]
     def older_than_or_equal(time)
-      raise ArgumentError if time.nil? || time.empty?
+      raise ArgumentError unless time.respond_to?(:to_time)
       Specification.new(reader, result.dup { |r| r.older_than_or_equal = time })
     end
 
@@ -69,7 +69,7 @@ module RubyEventStore
     # @param date [Time]
     # @return [Specification]
     def newer_than(time)
-      raise ArgumentError if time.nil? || time.empty?
+      raise ArgumentError unless time.respond_to?(:to_time)
       Specification.new(reader, result.dup { |r| r.newer_than = time })
     end
 
@@ -79,7 +79,7 @@ module RubyEventStore
     # @param date [Time]
     # @return [Specification]
     def newer_than_or_equal(time)
-      raise ArgumentError if time.nil? || time.empty?
+      raise ArgumentError unless time.respond_to?(:to_time)
       Specification.new(reader, result.dup { |r| r.newer_than_or_equal = time })
     end
 
