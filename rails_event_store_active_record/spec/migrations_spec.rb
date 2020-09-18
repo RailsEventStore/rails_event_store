@@ -41,10 +41,10 @@ RSpec.describe "database schema migrations" do
     end
   end
 
-  specify "migrate from v1.0.0 to master" do
-    validate_migration('Gemfile.1_0_0', 'Gemfile.master',
+  specify "migrate from v1.1.1 to master" do
+    validate_migration('Gemfile.1_1_1', 'Gemfile.master',
       source_template_name: 'create_event_store_events') do
-      run_code(<<~EOF, gemfile: 'Gemfile.1_0_0')
+      run_code(<<~EOF, gemfile: 'Gemfile.1_1_1')
         DummyEvent = Class.new(RubyEventStore::Event)
 
         client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
@@ -65,6 +65,7 @@ RSpec.describe "database schema migrations" do
           end
       EOF
 
+      run_migration('created_at_precision')
       run_migration('no_global_stream_entries')
 
       run_code(<<~EOF, gemfile: 'Gemfile.master')

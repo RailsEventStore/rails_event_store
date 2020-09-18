@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ENV['RAILS_VERSION'] ||= File.read(File.join(__dir__, '../..', 'RAILS_VERSION'))
 
-gem 'rails_event_store', '1.0.0'
+gem 'rails_event_store', '1.1.1'
 gem 'rails', ENV['RAILS_VERSION']
 gem 'pg', '1.2.2'
 gem 'mysql2', '0.5.3'

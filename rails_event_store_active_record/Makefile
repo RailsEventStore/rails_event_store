@@ -22,10 +22,10 @@ install-gemfiles:
 	@BUNDLE_GEMFILE=../support/bundler/Gemfile.0_33_0 bundle check || BUNDLE_GEMFILE=../support/bundler/Gemfile.0_33_0 bundle install
 	@BUNDLE_GEMFILE=../support/bundler/Gemfile.0_34_0 bundle check || BUNDLE_GEMFILE=../support/bundler/Gemfile.0_34_0 bundle install
 	@BUNDLE_GEMFILE=../support/bundler/Gemfile.0_35_0 bundle check || BUNDLE_GEMFILE=../support/bundler/Gemfile.0_35_0 bundle install
-	@BUNDLE_GEMFILE=../support/bundler/Gemfile.1_0_0 bundle check  || BUNDLE_GEMFILE=../support/bundler/Gemfile.1_0_0 bundle install
+	@BUNDLE_GEMFILE=../support/bundler/Gemfile.1_1_1 bundle check  || BUNDLE_GEMFILE=../support/bundler/Gemfile.1_1_1 bundle install
 
 remove-lockfiles:
 	-rm ../support/bundler/Gemfile.0_33_0.lock
 	-rm ../support/bundler/Gemfile.0_34_0.lock
 	-rm ../support/bundler/Gemfile.0_35_0.lock
-	-rm ../support/bundler/Gemfile.1_0_0.lock
+	-rm ../support/bundler/Gemfile.1_1_1.lock
