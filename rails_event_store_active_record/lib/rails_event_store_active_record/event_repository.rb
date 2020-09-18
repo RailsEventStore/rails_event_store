@@ -5,7 +5,6 @@ require 'activerecord-import'
 module RailsEventStoreActiveRecord
   class EventRepository
     POSITION_SHIFT = 1
-    SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
 
     def initialize(model_factory: WithDefaultModels.new, serializer:)
       @serializer  = serializer
@@ -21,17 +20,17 @@ module RailsEventStoreActiveRecord
         hashes    << import_hash(record, record.serialize(serializer))
         event_ids << record.event_id
       end
-      add_to_stream(event_ids, stream, expected_version, true) do
+      add_to_stream(event_ids, stream, expected_version) do
         @event_klass.import(hashes)
       end
     end
 
     def link_to_stream(event_ids, stream, expected_version)
       event_ids = Array(event_ids)
-      (event_ids - @event_klass.where(id: event_ids).pluck(:id)).each do |id|
+      (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
-      add_to_stream(event_ids, stream, expected_version, nil)
+      add_to_stream(event_ids, stream, expected_version)
     end
 
     def delete_stream(stream)
@@ -58,15 +57,15 @@ module RailsEventStoreActiveRecord
       hashes  = Array(records).map{|record| import_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
       start_transaction do
-        existing = @event_klass.where(id: for_update).pluck(:id)
-        (for_update - existing).each{|id| raise RubyEventStore::EventNotFound.new(id) }
+        existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
+        (for_update - existing.keys).each{|id| raise RubyEventStore::EventNotFound.new(id) }
+        hashes.each { |h| h[:id] = existing.fetch(h.fetch(:event_id)) }
         @event_klass.import(hashes, on_duplicate_key_update: [:data, :metadata, :event_type])
       end
     end
 
     def streams_of(event_id)
       @stream_klass.where(event_id: event_id)
-        .where.not(stream: SERIALIZED_GLOBAL_STREAM_NAME)
         .pluck(:stream)
         .map{|name| RubyEventStore::Stream.new(name)}
     end
@@ -74,29 +73,21 @@ module RailsEventStoreActiveRecord
     private
     attr_reader :serializer
 
-    def add_to_stream(event_ids, stream, expected_version, include_global)
+    def add_to_stream(event_ids, stream, expected_version)
       last_stream_version = ->(stream_) { @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position) }
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       start_transaction do
         yield if block_given?
-        in_stream = event_ids.flat_map.with_index do |event_id, index|
-          position = compute_position(resolved_version, index)
-          collection = []
-          collection.unshift({
-            stream: SERIALIZED_GLOBAL_STREAM_NAME,
-            position: nil,
-            event_id: event_id,
-          }) if include_global
-          collection.unshift({
+        in_stream = event_ids.map.with_index do |event_id, index|
+          {
             stream:   stream.name,
-            position: position,
-            event_id: event_id
-          }) unless stream.global?
-          collection
+            position: compute_position(resolved_version, index),
+            event_id: event_id,
+          }
         end
         fill_ids(in_stream)
-        @stream_klass.import(in_stream)
+        @stream_klass.import(in_stream) unless stream.global?
       end
       self
     rescue ActiveRecord::RecordNotUnique => e
@@ -122,7 +113,7 @@ module RailsEventStoreActiveRecord
 
     def import_hash(record, serialized_record)
       {
-        id:         serialized_record.event_id,
+        event_id:   serialized_record.event_id,
         data:       serialized_record.data,
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type,

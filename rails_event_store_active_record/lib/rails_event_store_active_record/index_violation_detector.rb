@@ -2,10 +2,10 @@
 
 module RailsEventStoreActiveRecord
   class IndexViolationDetector
-    MYSQL5_PKEY_ERROR   = "for key 'PRIMARY'".freeze
-    MYSQL8_PKEY_ERROR   = "for key 'event_store_events.PRIMARY'".freeze
-    POSTGRES_PKEY_ERROR = 'event_store_events_pkey'.freeze
-    SQLITE3_PKEY_ERROR  = 'event_store_events.id'.freeze
+    MYSQL5_PKEY_ERROR   = "for key 'index_event_store_events_on_event_id'".freeze
+    MYSQL8_PKEY_ERROR   = "for key 'event_store_events.index_event_store_events_on_event_id'".freeze
+    POSTGRES_PKEY_ERROR = "Key (event_id)".freeze
+    SQLITE3_PKEY_ERROR  = "event_store_events.event_id".freeze
 
     MYSQL5_INDEX_ERROR   = "for key 'index_event_store_events_in_streams_on_stream_and_event_id'".freeze
     MYSQL8_INDEX_ERROR   = "for key 'event_store_events_in_streams.index_event_store_events_in_streams_on_stream_and_event_id'".freeze

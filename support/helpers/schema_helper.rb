@@ -37,7 +37,6 @@ module SchemaHelper
 
   def build_schema(gemfile, template_name: nil)
     run_in_subprocess(<<~EOF, gemfile: gemfile)
-      require 'rails/generators'
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
       require 'logger'
