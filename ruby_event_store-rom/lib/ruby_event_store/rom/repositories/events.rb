@@ -62,7 +62,7 @@ module RubyEventStore
 
         def read_scope(specification)
           offset_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.start).fetch(:id) if specification.start
-          stop_entry_id = stream_entries.by_stream_and_event_id(specification.stream, specification.stop).fetch(:id) if specification.stop
+          stop_entry_id   = stream_entries.by_stream_and_event_id(specification.stream, specification.stop).fetch(:id) if specification.stop
 
           direction = specification.forward? ? :forward : :backward
 
@@ -73,6 +73,10 @@ module RubyEventStore
           query = stream_entries.ordered(direction, specification.stream, offset_entry_id, stop_entry_id)
           query = query.by_event_id(specification.with_ids) if specification.with_ids
           query = query.by_event_type(specification.with_types) if specification.with_types?
+          query = query.newer_than(specification.newer_than) if specification.newer_than
+          query = query.newer_than_or_equal(specification.newer_than_or_equal) if specification.newer_than_or_equal
+          query = query.older_than(specification.older_than) if specification.older_than
+          query = query.older_than_or_equal(specification.older_than_or_equal) if specification.older_than_or_equal
           query
         end
 

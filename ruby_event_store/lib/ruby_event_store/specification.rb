@@ -35,12 +35,52 @@ module RubyEventStore
     # Limits the query to events before or after another event.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param start [String] id of event to start reading from.
+    # @param stop [String] id of event to start reading from.
     # @return [Specification]
     def to(stop)
       raise InvalidPageStop if stop.nil? || stop.empty?
       raise EventNotFound.new(stop) unless reader.has_event?(stop)
       Specification.new(reader, result.dup { |r| r.stop = stop })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Time]
+    # @return [Specification]
+    def older_than(time)
+      raise ArgumentError unless time.respond_to?(:to_time)
+      Specification.new(reader, result.dup { |r| r.older_than = time })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Time]
+    # @return [Specification]
+    def older_than_or_equal(time)
+      raise ArgumentError unless time.respond_to?(:to_time)
+      Specification.new(reader, result.dup { |r| r.older_than_or_equal = time })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Time]
+    # @return [Specification]
+    def newer_than(time)
+      raise ArgumentError unless time.respond_to?(:to_time)
+      Specification.new(reader, result.dup { |r| r.newer_than = time })
+    end
+
+    # Limits the query to events before or after another event.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Time]
+    # @return [Specification]
+    def newer_than_or_equal(time)
+      raise ArgumentError unless time.respond_to?(:to_time)
+      Specification.new(reader, result.dup { |r| r.newer_than_or_equal = time })
     end
 
     # Sets the order of reading events to ascending (forward from the start).

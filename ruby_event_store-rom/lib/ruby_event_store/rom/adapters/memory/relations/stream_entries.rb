@@ -66,6 +66,22 @@ module RubyEventStore
             new(by_stream(stream).order(:position).dataset.reverse).project(:position).take(1).one
           end
 
+          def newer_than(time)
+            for_events(events.restrict { |tuple| tuple[:created_at] > time.localtime })
+          end
+
+          def newer_than_or_equal(time)
+            for_events(events.restrict { |tuple| tuple[:created_at] >= time.localtime })
+          end
+
+          def older_than(time)
+            for_events(events.restrict { |tuple| tuple[:created_at] < time.localtime })
+          end
+
+          def older_than_or_equal(time)
+            for_events(events.restrict { |tuple| tuple[:created_at] <= time.localtime })
+          end
+
           DIRECTION_MAP = {
             forward: [false, :>, :<],
             backward: [true, :<, :>]
@@ -82,6 +98,7 @@ module RubyEventStore
             query = by_stream(stream)
             query = query.restrict { |tuple| tuple[:id].public_send(operator_offset, offset_entry_id) } if offset_entry_id
             query = query.restrict { |tuple| tuple[:id].public_send(operator_stop, stop_entry_id) } if stop_entry_id
+
             query = query.order(*order_columns)
             query = new(query.dataset.reverse) if reverse
 

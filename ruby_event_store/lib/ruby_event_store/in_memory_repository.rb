@@ -94,6 +94,10 @@ module RubyEventStore
       serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
       serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
       serialized_records = serialized_records[0...spec.limit] if spec.limit?
+      serialized_records = serialized_records.select { |sr| sr.timestamp < time_format(spec.older_than) } if spec.older_than
+      serialized_records = serialized_records.select { |sr| sr.timestamp <= time_format(spec.older_than_or_equal) } if spec.older_than_or_equal
+      serialized_records = serialized_records.select { |sr| sr.timestamp > time_format(spec.newer_than) } if spec.newer_than
+      serialized_records = serialized_records.select { |sr| sr.timestamp >= time_format(spec.newer_than_or_equal) } if spec.newer_than_or_equal
       serialized_records
     end
 
@@ -148,6 +152,10 @@ module RubyEventStore
 
     def index_of(source, event_id)
       source.index {|item| item.event_id.eql?(event_id)}
+    end
+
+    def time_format(time)
+      time.iso8601(TIMESTAMP_PRECISION)
     end
 
     attr_reader :streams, :mutex, :global, :serializer
