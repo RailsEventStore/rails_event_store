@@ -6,23 +6,37 @@ module RubyEventStore
 
     def initialize(serializer: NULL)
       @serializer = serializer
-      @streams = Hash.new
+      @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex   = Mutex.new
       @storage = Hash.new
     end
 
     def append_to_stream(records, stream, expected_version)
       serialized_records = Array(records).map{ |record| record.serialize(serializer) }
+
       with_synchronize(expected_version, stream) do |resolved_version|
-        append(serialized_records, resolved_version, stream, true)
+        raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
+
+        serialized_records.each do |serialized_record|
+          raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
+          storage[serialized_record.event_id] = serialized_record
+          streams[stream.name] << serialized_record.event_id
+        end
       end
+      self
     end
 
     def link_to_stream(event_ids, stream, expected_version)
       serialized_records = Array(event_ids).map { |id| read_event(id) }
       with_synchronize(expected_version, stream) do |resolved_version|
-        append(serialized_records, resolved_version, stream, false)
+        raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
+
+        serialized_records.each do |serialized_record|
+          raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
+          streams[stream.name] << serialized_record.event_id
+        end
       end
+      self
     end
 
     def delete_stream(stream)
@@ -130,21 +144,6 @@ module RubyEventStore
         resolved_version = last_stream_version(stream) if expected_version.any?
         block.call(resolved_version)
       end
-    end
-
-    def append(serialized_records, resolved_version, stream, include_global)
-      raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
-
-      serialized_records.each do |serialized_record|
-        raise EventDuplicatedInStream   if has_event_in_stream?(serialized_record.event_id, stream.name)
-        if include_global
-          raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
-          storage[serialized_record.event_id] = serialized_record
-        end
-        streams[stream.name] ||= Array.new
-        streams[stream.name] << serialized_record.event_id
-      end
-      self
     end
 
     def has_event_in_stream?(event_id, stream_name)
