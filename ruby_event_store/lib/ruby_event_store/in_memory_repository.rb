@@ -12,12 +12,12 @@ module RubyEventStore
     end
 
     def append_to_stream(records, stream, expected_version)
-      add_to_stream(Array(records).map{|record| record.serialize(serializer)},
-        expected_version, stream, true)
+      serialized_records = Array(records).map{ |record| record.serialize(serializer) }
+      add_to_stream(serialized_records, expected_version, stream, true)
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      serialized_records = Array(event_ids).map {|eid| read_event(eid)}
+      serialized_records = Array(event_ids).map { |id| read_event(id) }
       add_to_stream(serialized_records, expected_version, stream, nil)
     end
 
@@ -30,7 +30,9 @@ module RubyEventStore
     end
 
     def last_stream_event(stream)
-      serialized_records_of_stream(stream.name).last&.deserialize(serializer)
+      if event_id = serialized_records_of_stream(stream.name).last
+        read_event(event_id).deserialize(serializer)
+      end
     end
 
     def read(spec)
@@ -72,22 +74,18 @@ module RubyEventStore
             timestamp:  Time.iso8601(storage.fetch(record.event_id).timestamp),
           ).serialize(serializer)
         storage[record.event_id] = serialized_record
-        streams.values.each do |str|
-          location = str.index{|m| record.event_id.eql?(m.event_id)}
-          str[location] = serialized_record if location
-        end
       end
     end
 
     def streams_of(event_id)
-      streams.select do |_, serialized_records_of_stream|
-        serialized_records_of_stream.any? { |event| event.event_id.eql?(event_id) }
-      end.map { |name, | Stream.new(name) }
+      streams
+        .select { |name,| has_event_in_stream?(event_id, name) }
+        .map    { |name,| Stream.new(name) }
     end
 
     private
     def read_scope(spec)
-      serialized_records = spec.stream.global? ? storage.values : serialized_records_of_stream(spec.stream.name)
+      serialized_records = spec.stream.global? ? storage.values : serialized_records_of_stream(spec.stream.name).map(&method(:read_event))
       serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       serialized_records = serialized_records.reverse if spec.backward?
@@ -135,19 +133,22 @@ module RubyEventStore
     end
 
     def append(serialized_records, resolved_version, stream, include_global)
-      serialized_records_of_stream_ = serialized_records_of_stream(stream.name)
       raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
       serialized_records.each do |serialized_record|
-        raise EventDuplicatedInStream if serialized_records_of_stream_.any? {|ev| ev.event_id.eql?(serialized_record.event_id)}
+        raise EventDuplicatedInStream   if has_event_in_stream?(serialized_record.event_id, stream.name)
         if include_global
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
           storage[serialized_record.event_id] = serialized_record
         end
-        serialized_records_of_stream_.push(serialized_record)
+        streams[stream.name] ||= Array.new
+        streams[stream.name] << serialized_record.event_id
       end
-      streams[stream.name] = serialized_records_of_stream_
       self
+    end
+
+    def has_event_in_stream?(event_id, stream_name)
+      streams.fetch(stream_name, Array.new).any? { |id| id.eql?(event_id) }
     end
 
     def index_of(source, event_id)
