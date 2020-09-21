@@ -8,7 +8,7 @@ module RubyEventStore
       @serializer = serializer
       @streams = Hash.new
       @mutex   = Mutex.new
-      @global  = Hash.new
+      @storage = Hash.new
     end
 
     def append_to_stream(records, stream, expected_version)
@@ -26,7 +26,7 @@ module RubyEventStore
     end
 
     def has_event?(event_id)
-      global.has_key?(event_id)
+      storage.has_key?(event_id)
     end
 
     def last_stream_event(stream)
@@ -69,9 +69,9 @@ module RubyEventStore
             event_type: record.event_type,
             data:       record.data,
             metadata:   record.metadata,
-            timestamp:  Time.iso8601(global.fetch(record.event_id).timestamp),
+            timestamp:  Time.iso8601(storage.fetch(record.event_id).timestamp),
           ).serialize(serializer)
-        global[record.event_id] = serialized_record
+        storage[record.event_id] = serialized_record
         streams.values.each do |str|
           location = str.index{|m| record.event_id.eql?(m.event_id)}
           str[location] = serialized_record if location
@@ -87,7 +87,7 @@ module RubyEventStore
 
     private
     def read_scope(spec)
-      serialized_records = spec.stream.global? ? global.values : serialized_records_of_stream(spec.stream.name)
+      serialized_records = spec.stream.global? ? storage.values : serialized_records_of_stream(spec.stream.name)
       serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       serialized_records = serialized_records.reverse if spec.backward?
@@ -102,7 +102,7 @@ module RubyEventStore
     end
 
     def read_event(event_id)
-      global.fetch(event_id) { raise EventNotFound.new(event_id) }
+      storage.fetch(event_id) { raise EventNotFound.new(event_id) }
     end
 
     def serialized_records_of_stream(name)
@@ -142,7 +142,7 @@ module RubyEventStore
         raise EventDuplicatedInStream if serialized_records_of_stream_.any? {|ev| ev.event_id.eql?(serialized_record.event_id)}
         if include_global
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
-          global[serialized_record.event_id] = serialized_record
+          storage[serialized_record.event_id] = serialized_record
         end
         serialized_records_of_stream_.push(serialized_record)
       end
@@ -158,6 +158,6 @@ module RubyEventStore
       time.iso8601(TIMESTAMP_PRECISION)
     end
 
-    attr_reader :streams, :mutex, :global, :serializer
+    attr_reader :streams, :mutex, :storage, :serializer
   end
 end
