@@ -13,12 +13,16 @@ module RubyEventStore
 
     def append_to_stream(records, stream, expected_version)
       serialized_records = Array(records).map{ |record| record.serialize(serializer) }
-      add_to_stream(serialized_records, expected_version, stream, true)
+      with_synchronize(expected_version, stream) do |resolved_version|
+        append(serialized_records, resolved_version, stream, true)
+      end
     end
 
     def link_to_stream(event_ids, stream, expected_version)
       serialized_records = Array(event_ids).map { |id| read_event(id) }
-      add_to_stream(serialized_records, expected_version, stream, nil)
+      with_synchronize(expected_version, stream) do |resolved_version|
+        append(serialized_records, resolved_version, stream, false)
+      end
     end
 
     def delete_stream(stream)
@@ -105,12 +109,6 @@ module RubyEventStore
 
     def serialized_records_of_stream(name)
       streams.fetch(name, Array.new)
-    end
-
-    def add_to_stream(serialized_records, expected_version, stream, include_global)
-      with_synchronize(expected_version, stream) do |resolved_version|
-        append(serialized_records, resolved_version, stream, include_global)
-      end
     end
 
     def last_stream_version(stream)
