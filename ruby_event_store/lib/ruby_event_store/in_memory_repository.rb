@@ -4,37 +4,36 @@ require 'ostruct'
 module RubyEventStore
   class InMemoryRepository
 
-    def initialize(serializer: NULL)
-      @serializer = serializer
+    def initialize
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex   = Mutex.new
       @storage = Hash.new
     end
 
     def append_to_stream(records, stream, expected_version)
-      serialized_records = Array(records).map{ |record| record.serialize(serializer) }
+      records = Array(records)
 
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
-        serialized_records.each do |serialized_record|
-          raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
-          storage[serialized_record.event_id] = serialized_record
-          streams[stream.name] << serialized_record.event_id
+        records.each do |record|
+          raise EventDuplicatedInStream if has_event?(record.event_id)
+          storage[record.event_id] = record
+          streams[stream.name] << record.event_id
         end
       end
       self
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      serialized_records = Array(event_ids).map { |id| read_event(id) }
+      records = Array(event_ids).map { |id| read_event(id) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
-        serialized_records.each do |serialized_record|
-          raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
-          streams[stream.name] << serialized_record.event_id
+        records.each do |record|
+          raise EventDuplicatedInStream if has_event_in_stream?(record.event_id, stream.name)
+          streams[stream.name] << record.event_id
         end
       end
       self
@@ -49,30 +48,24 @@ module RubyEventStore
     end
 
     def last_stream_event(stream)
-      last_id = event_ids_of_stream(stream).last
-      storage.fetch(last_id).deserialize(serializer) if last_id
+      storage[event_ids_of_stream(stream).last]
     end
 
     def read(spec)
-      serialized_records = read_scope(spec)
+      records = read_scope(spec)
       if spec.batched?
         batch_reader = ->(offset, limit) do
-          serialized_records
+          records
             .drop(offset)
             .take(limit)
-            .map{|serialized_record| serialized_record.deserialize(serializer) }
         end
-        BatchEnumerator.new(spec.batch_size, serialized_records.size, batch_reader).each
+        BatchEnumerator.new(spec.batch_size, records.size, batch_reader).each
       elsif spec.first?
-        serialized_records.first&.deserialize(serializer)
+        records.first
       elsif spec.last?
-        serialized_records.last&.deserialize(serializer)
+        records.last
       else
-        Enumerator.new do |y|
-          serialized_records.each do |serialized_record|
-            y << serialized_record.deserialize(serializer)
-          end
-        end
+        records.each
       end
     end
 
@@ -83,15 +76,14 @@ module RubyEventStore
     def update_messages(records)
       records.each do |record|
         read_event(record.event_id)
-        serialized_record =
+        storage[record.event_id] =
           Record.new(
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       record.data,
             metadata:   record.metadata,
-            timestamp:  Time.iso8601(storage.fetch(record.event_id).timestamp),
-          ).serialize(serializer)
-        storage[record.event_id] = serialized_record
+            timestamp:  storage.fetch(record.event_id).timestamp,
+          )
       end
     end
 
@@ -103,18 +95,18 @@ module RubyEventStore
 
     private
     def read_scope(spec)
-      serialized_records = serialized_records_of_stream(spec.stream)
-      serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
-      serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
-      serialized_records = serialized_records.reverse if spec.backward?
-      serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
-      serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
-      serialized_records = serialized_records[0...spec.limit] if spec.limit?
-      serialized_records = serialized_records.select { |sr| sr.timestamp < time_format(spec.older_than) } if spec.older_than
-      serialized_records = serialized_records.select { |sr| sr.timestamp <= time_format(spec.older_than_or_equal) } if spec.older_than_or_equal
-      serialized_records = serialized_records.select { |sr| sr.timestamp > time_format(spec.newer_than) } if spec.newer_than
-      serialized_records = serialized_records.select { |sr| sr.timestamp >= time_format(spec.newer_than_or_equal) } if spec.newer_than_or_equal
-      serialized_records
+      records = records_of_stream(spec.stream)
+      records = records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
+      records = records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
+      records = records.reverse if spec.backward?
+      records = records.drop(index_of(records, spec.start) + 1) if spec.start
+      records = records.take(index_of(records, spec.stop)) if spec.stop
+      records = records[0...spec.limit] if spec.limit?
+      records = records.select { |sr| sr.timestamp < spec.older_than } if spec.older_than
+      records = records.select { |sr| sr.timestamp <= spec.older_than_or_equal } if spec.older_than_or_equal
+      records = records.select { |sr| sr.timestamp > spec.newer_than } if spec.newer_than
+      records = records.select { |sr| sr.timestamp >= spec.newer_than_or_equal } if spec.newer_than_or_equal
+      records
     end
 
     def read_event(event_id)
@@ -125,7 +117,7 @@ module RubyEventStore
       streams.fetch(stream.name, Array.new)
     end
 
-    def serialized_records_of_stream(stream)
+    def records_of_stream(stream)
       stream.global? ? storage.values : storage.fetch_values(*event_ids_of_stream(stream))
     end
 
@@ -158,10 +150,6 @@ module RubyEventStore
       source.index {|item| item.event_id.eql?(event_id)}
     end
 
-    def time_format(time)
-      time.iso8601(TIMESTAMP_PRECISION)
-    end
-
-    attr_reader :streams, :mutex, :storage, :serializer
+    attr_reader :streams, :mutex, :storage
   end
 end
