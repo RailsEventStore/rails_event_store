@@ -28,6 +28,7 @@ module RubyEventStore
 
     def link_to_stream(event_ids, stream, expected_version)
       serialized_records = Array(event_ids).map { |id| read_event(id) }
+
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
@@ -48,9 +49,8 @@ module RubyEventStore
     end
 
     def last_stream_event(stream)
-      if event_id = serialized_records_of_stream(stream.name).last
-        read_event(event_id).deserialize(serializer)
-      end
+      last_id = event_ids_of_stream(stream).last
+      storage.fetch(last_id).deserialize(serializer) if last_id
     end
 
     def read(spec)
@@ -103,7 +103,7 @@ module RubyEventStore
 
     private
     def read_scope(spec)
-      serialized_records = spec.stream.global? ? storage.values : serialized_records_of_stream(spec.stream.name).map(&method(:read_event))
+      serialized_records = serialized_records_of_stream(spec.stream)
       serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
       serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
       serialized_records = serialized_records.reverse if spec.backward?
@@ -121,12 +121,16 @@ module RubyEventStore
       storage.fetch(event_id) { raise EventNotFound.new(event_id) }
     end
 
-    def serialized_records_of_stream(name)
-      streams.fetch(name, Array.new)
+    def event_ids_of_stream(stream)
+      streams.fetch(stream.name, Array.new)
+    end
+
+    def serialized_records_of_stream(stream)
+      stream.global? ? storage.values : storage.fetch_values(*event_ids_of_stream(stream))
     end
 
     def last_stream_version(stream)
-      serialized_records_of_stream(stream.name).size - 1
+      event_ids_of_stream(stream).size - 1
     end
 
     def with_synchronize(expected_version, stream, &block)
