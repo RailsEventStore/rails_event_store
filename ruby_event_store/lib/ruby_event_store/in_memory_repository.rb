@@ -108,14 +108,16 @@ module RubyEventStore
     end
 
     def add_to_stream(serialized_records, expected_version, stream, include_global)
-      append_with_synchronize(serialized_records, expected_version, stream, include_global)
+      with_synchronize(expected_version, stream) do |resolved_version|
+        append(serialized_records, resolved_version, stream, include_global)
+      end
     end
 
     def last_stream_version(stream)
       serialized_records_of_stream(stream.name).size - 1
     end
 
-    def append_with_synchronize(serialized_records, expected_version, stream, include_global)
+    def with_synchronize(expected_version, stream, &block)
       resolved_version = expected_version.resolve_for(stream, method(:last_stream_version))
 
       # expected_version :auto assumes external lock is used
@@ -128,7 +130,7 @@ module RubyEventStore
       Thread.pass
       mutex.synchronize do
         resolved_version = last_stream_version(stream) if expected_version.any?
-        append(serialized_records, resolved_version, stream, include_global)
+        block.call(resolved_version)
       end
     end
 
