@@ -11,11 +11,15 @@ module RailsEventStore
             if items.one?
               items.join
             else
-              "#{items[0...-1].join(", ")} and #{items.fetch(-1)}"
+              "#{items[all_but_last].join(", ")} and #{items.fetch(-1)}"
             end
           end
 
           private
+
+          def all_but_last
+            (0...-1)
+          end
 
           def format(object)
             if object.respond_to?(:description)

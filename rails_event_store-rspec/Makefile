@@ -11,7 +11,9 @@ IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
               RailsEventStore::RSpec::HaveApplied\#description \
               RailsEventStore::RSpec::HavePublished\#description \
               RailsEventStore::RSpec::HaveApplied\#initialize \
-              RailsEventStore::RSpec::HavePublished\#initialize
+              RailsEventStore::RSpec::HavePublished\#initialize \
+              RailsEventStore::RSpec::Matchers::ListPhraser.all_but_last
+
 
 SUBJECT      ?= RailsEventStore::RSpec*
 DATABASE_URL ?= sqlite3::memory:
