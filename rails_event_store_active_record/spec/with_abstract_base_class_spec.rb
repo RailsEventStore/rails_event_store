@@ -64,5 +64,48 @@ module RailsEventStoreActiveRecord
         drop_database
       end
     end
+
+    specify 'read from declared tables' do
+      begin
+        establish_database_connection
+        load_database_schema
+
+        expect_query(/SELECT.*FROM.*event_store_events.*/) do
+          repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+          reader     = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+          repository.read(RubyEventStore::Specification.new(reader).result).first
+        end
+
+        expect_query(/SELECT.*FROM.*event_store_events_in_streams.*/) do
+          repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+          reader     = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+          repository.read(RubyEventStore::Specification.new(reader).of_type('Dummy').stream('some').result).first
+        end
+      ensure
+        drop_database
+      end
+    end
+
+    private
+
+    def count_queries(&block)
+      count = 0
+      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
+        unless %w[ CACHE SCHEMA ].include?(payload[:name])
+          count += 1
+        end
+      }
+      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
+      count
+    end
+
+    def expect_query(match, &block)
+      count = 0
+      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
+        count +=1 if match === payload[:sql]
+      }
+      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
+      expect(count).to eq(1)
+    end
   end
 end
