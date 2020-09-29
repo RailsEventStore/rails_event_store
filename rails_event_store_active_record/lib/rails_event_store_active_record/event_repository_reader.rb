@@ -88,41 +88,41 @@ module RailsEventStoreActiveRecord
     def start_condition(specification)
       start_offset_condition(specification,
         @stream_klass.find_by!(event_id: specification.start, stream: specification.stream.name),
-        'event_store_events_in_streams')
+        @stream_klass.table_name)
     end
 
     def stop_condition(specification)
       stop_offset_condition(specification,
         @stream_klass.find_by!(event_id: specification.stop, stream: specification.stream.name),
-        'event_store_events_in_streams')
+        @stream_klass.table_name)
     end
 
     def start_condition_in_global_stream(specification)
       start_offset_condition(specification,
         @event_klass.find_by!(event_id: specification.start),
-        'event_store_events')
+        @event_klass.table_name)
     end
 
     def stop_condition_in_global_stream(specification)
       stop_offset_condition(specification,
         @event_klass.find_by!(event_id: specification.stop),
-        'event_store_events')
+        @event_klass.table_name)
     end
 
     def older_than_condition(specification)
-      ['event_store_events.created_at < ?', specification.older_than]
+      ["#{@event_klass.table_name}.created_at < ?", specification.older_than]
     end
 
     def older_than_or_equal_condition(specification)
-      ['event_store_events.created_at <= ?', specification.older_than_or_equal]
+      ["#{@event_klass.table_name}.created_at <= ?", specification.older_than_or_equal]
     end
 
     def newer_than_condition(specification)
-      ['event_store_events.created_at > ?', specification.newer_than]
+      ["#{@event_klass.table_name}.created_at > ?", specification.newer_than]
     end
 
     def newer_than_or_equal_condition(specification)
-      ['event_store_events.created_at >= ?', specification.newer_than_or_equal]
+      ["#{@event_klass.table_name}.created_at >= ?", specification.newer_than_or_equal]
     end
 
     def order(spec)
