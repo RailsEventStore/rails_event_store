@@ -9,7 +9,10 @@ IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
               RailsEventStore::RSpec::Matchers\#be_an_event \
               RailsEventStore::RSpec::Publish\#last_event \
               RailsEventStore::RSpec::HaveApplied\#description \
-              RailsEventStore::RSpec::HavePublished\#description
+              RailsEventStore::RSpec::HavePublished\#description \
+              RailsEventStore::RSpec::HaveApplied\#initialize \
+              RailsEventStore::RSpec::HavePublished\#initialize
+
 SUBJECT      ?= RailsEventStore::RSpec*
 DATABASE_URL ?= sqlite3::memory:
 
