@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gemspec
 
-eval_gemfile '../support/bundler/Gemfile.shared'
+eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 
 gem 'ruby_event_store', path: '../ruby_event_store'
 gem 'pg', '1.2.2'
