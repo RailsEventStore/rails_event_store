@@ -23,6 +23,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
 
     if postgres
       create_table(:event_store_events, force: false) do |t|
+        t.references  :event,       null: false, type: :uuid
         t.string      :event_type,  null: false
         t.<%= data_type %>      :metadata
         t.<%= data_type %>      :data,        null: false
@@ -30,7 +31,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
       end
     else
       create_table(:event_store_events, force: false) do |t|
-        t.references  :event, null: false, type: :string, limit: 36
+        t.references  :event,       null: false, type: :string, limit: 36
         t.string      :event_type,  null: false
         t.binary      :metadata
         t.binary      :data,        null: false
