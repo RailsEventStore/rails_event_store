@@ -15,7 +15,11 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
       else
         t.references :event, null: false, type: :string, limit: 36
       end
-      t.datetime    :created_at,  null: false, precision: 6
+      if postgres
+        t.datetime    :created_at,  null: false
+      else
+        t.datetime    :created_at,  null: false, precision: 6
+      end
     end
     add_index :event_store_events_in_streams, [:stream, :position], unique: true
     add_index :event_store_events_in_streams, [:created_at]
