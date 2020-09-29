@@ -39,7 +39,8 @@ class CreatedAtPrecision < ActiveRecord::Migration<%= migration_version %>
         SELECT id, stream, position, event_id, created_at FROM old_event_store_events_in_streams;
       SQL
       drop_table :old_event_store_events_in_streams
-    when "MySQL"
+    when "PostgreSQL"
+    else
       change_column :event_store_events,            :created_at, :datetime, precision: 6
       change_column :event_store_events_in_streams, :created_at, :datetime, precision: 6
     end
