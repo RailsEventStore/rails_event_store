@@ -22,10 +22,10 @@ push: $(BUNDLE)
 
 clean: clean-yarn
 
-watch-elm: clean-yarn
+watch-elm: clean-yarn ## Start dev frontend
 	@cd elm; yarn watch
 
-dev-server:
+dev-server: ## Start dev backend prepopulated with events
 	@bundle exec rackup --port 9393 devserver/config.ru
 
 install-yarn:
