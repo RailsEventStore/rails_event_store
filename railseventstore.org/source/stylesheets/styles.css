@@ -1,4 +1,4 @@
-@import "tailwindcss/preflight";
+@import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import "solarized.css";
@@ -8,7 +8,7 @@ html {
 }
 
 h1 {
-  @apply tracking-tight;
+  @apply tracking-tight font-bold;
   font-size: 47px;
   line-height: 60px;
   padding-top: 14px;
@@ -16,7 +16,7 @@ h1 {
 }
 
 h2 {
-  @apply tracking-tight;
+  @apply tracking-tight font-bold;
   font-size: 36px;
   line-height: 60px;
   padding-top: 18px;
@@ -24,6 +24,7 @@ h2 {
 }
 
 h3 {
+  @apply font-bold;
   font-size: 27px;
   line-height: 30px;
   padding-top: 6px;
@@ -31,6 +32,7 @@ h3 {
 }
 
 h4 {
+  @apply font-bold;
   font-size: 20px;
   line-height: 30px;
   padding-top: 8px;
@@ -59,10 +61,6 @@ li ul {
   margin-bottom: 0;
 }
 
-.bg-none {
-  background: none;
-}
-
 .order-1 {
   order: 1;
 }
@@ -80,15 +78,15 @@ li ul {
 }
 
 a {
-  @apply font-semibold text-grey-darkest no-underline bg-gradient;
+  @apply font-semibold text-gray-800 no-underline bg-gradient;
 }
 
 blockquote {
-  @apply text-grey-darker border-l-4 pl-4;
+  @apply text-gray-700 border-l-4 pl-4;
 }
 
 ::selection {
-  @apply bg-red-lightest;
+  @apply bg-red-100;
 }
 
 pre {
@@ -103,7 +101,7 @@ code {
 }
 
 pre > code {
-  @apply bg-transparent scrolling-touch overflow-x-auto block;
+  @apply bg-none scrolling-touch overflow-x-auto block;
 }
 
 :not(pre) > code {
@@ -125,28 +123,28 @@ pre > code {
 }
 
 .btn--primary {
-  @apply bg-red text-red-lighter border-2 border-red bg-red;
+  @apply bg-red-600 text-red-200 border-2 border-red-600;
 }
 
 .btn--primary:hover {
-  @apply bg-red-dark border-red-dark;
+  @apply bg-red-700 border-red-700;
 }
 
 .btn--secondary {
-  @apply text-grey border-2 border-grey-lighter text-red;
+  @apply text-gray-500 border-2 border-gray-200 text-red-600;
 }
 
 .btn--secondary:hover {
-  @apply text-red border-red-dark;
+  @apply text-red-600 border-red-700;
 }
 
 .btn--ternary {
-  @apply text-red font-semibold border-red border uppercase;
+  @apply text-red-500 font-semibold border-red-500 border uppercase;
   background: none;
 }
 
 .btn--ternary:hover {
-  @apply text-white bg-red font-semibold border-red border uppercase;
+  @apply text-white bg-red-500 font-semibold border-red-500 border uppercase;
 }
 
 .btn--small {
@@ -162,16 +160,16 @@ pre > code {
 }
 
 .frame__header {
-  @apply bg-black;
+  @apply bg-gray-900;
   opacity: 0.95;
 }
 
 .frame__section {
-  @apply bg-grey-lighter;
+  @apply bg-gray-200;
 }
 
 .frame__footer {
-  @apply bg-grey-lighter;
+  @apply bg-gray-200;
 }
 
 .frame__body {
@@ -179,15 +177,15 @@ pre > code {
 }
 
 .frame__sidebar a {
-  @apply bg-none text-grey-darker;
+  @apply bg-none text-gray-700;
 }
 
 .frame__sidebar a[aria-current] {
-  @apply font-bold text-grey-darkest;
+  @apply font-bold text-gray-800;
 }
 
 .frame__sidebar a:hover {
-  @apply bg-gradient text-grey-darkest;
+  @apply bg-gradient text-gray-800;
 }
 
 .site-footer {
@@ -201,14 +199,14 @@ pre > code {
 }
 
 .site-footer__link {
-  @apply text-grey;
+  @apply text-gray-500;
   background: transparent;
   border-bottom: none;
   font-weight: normal;
 }
 
 .site-footer__link:hover {
-  @apply text-red-lighter;
+  @apply text-red-200;
   background: inherit;
   border-bottom: none;
 }
@@ -227,18 +225,18 @@ pre > code {
 }
 
 .site-navigation__title {
-  @apply text-red tracking-wide;
+  @apply text-red-600 tracking-wide;
   background: none;
   opacity: 0.95;
 }
 
 .site-navigation__link {
-  @apply block mr-4 font-normal text-grey;
+  @apply block mr-4 font-normal text-gray-500;
   background: none;
 }
 
 .site-navigation__link:hover {
-  @apply text-red-lighter;
+  @apply text-red-200;
 }
 
 .site-navigation__link:active,
@@ -247,7 +245,7 @@ pre > code {
 }
 
 .site-navigation__link--external {
-  @apply text-grey-darker font-bold text-sm tracking-tight;
+  @apply text-gray-700 font-bold text-sm tracking-tight;
 }
 
 .site-navigation__links {
@@ -261,7 +259,7 @@ pre > code {
 }
 
 .offer {
-  @apply flex flex-wrap border-t border-grey-lighter py-6;
+  @apply flex flex-wrap border-t border-gray-200 py-6;
 }
 
 .offer:first-child {
@@ -277,7 +275,7 @@ pre > code {
 }
 
 .offer__price {
-  @apply block text-sm uppercase text-grey font-bold -mt-4 mb-2;
+  @apply block text-sm uppercase text-gray-500 font-bold -mt-4 mb-2;
 }
 
 .offer__cta {
@@ -316,19 +314,19 @@ table {
 
   & th,
   & td {
-    @apply border border-grey px-2 py-2;
+    @apply border border-gray-500 px-2 py-2;
   }
 
   & tr {
-    @apply bg-white border-t border-grey;
+    @apply bg-white border-t border-gray-500;
 
     &:nth-child(2n) {
-      @apply bg-grey-lightest;
+      @apply bg-gray-100;
     }
   }
 
   & tr:last-child {
-    @apply border-b border-grey;
+    @apply border-b border-gray-500;
   }
 
   & img {

@@ -2,12 +2,12 @@
 title: Community
 ---
 
-<section class="flex flex-wrap flex-grow justify-between mt-12 mb-6 text-grey text-sm lowercase border-b border-grey-lighter">
+<section class="flex flex-wrap flex-grow justify-between mt-12 mb-6 text-gray-500 text-sm lowercase border-b border-gray-200">
   <dl class="flex flex-col w-full md:w-auto pb-6">
     <dt class="text-left md:text-center font-normal mt-0 order-2">
       Stargazers
     </dt>
-    <dd class="text-left md:text-center text-4xl text-grey-darker order-1" data-count="<%= stargazers_count %>">
+    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= stargazers_count %>">
       0
     </dd>
   </dl>
@@ -16,7 +16,7 @@ title: Community
     <dt class="text-left md:text-center font-normal mt-0 order-2">
       Contributors
     </dt>
-    <dd class="text-left md:text-center text-4xl text-grey-darker order-1" data-count="<%= contributors_count %>">
+    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= contributors_count %>">
       0
     </dd>
   </dl>
@@ -25,7 +25,7 @@ title: Community
     <dt class="text-left md:text-center font-normal mt-0 order-2">
       Releases
     </dt>
-    <dd class="text-left md:text-center text-4xl text-grey-darker order-1" data-count="<%= releases_count %>">
+    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= releases_count %>">
       0
     </dd>
   </dl>
@@ -34,24 +34,24 @@ title: Community
     <dt class="text-left md:text-center font-normal mt-0 order-2">
       Downloads
     </dt>
-    <dd class="text-left md:text-center text-4xl text-grey-darker order-1" data-count="<%= total_downloads %>">
+    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= total_downloads %>">
       0
     </dd>
   </dl>
 </section>
 
 
-<h1>Discuss</h1>
+<h1 class="font-bold">Discuss</h1>
 <p>
   <a href="https://github.com/RailsEventStore/rails_event_store/issues">GitHub Issues</a> is the best place to share your questions and answers with the community. Official Twitter hashtag is <a href="https://twitter.com/hashtag/railseventstore">#RailsEventStore</a>.
 </p>
 
-<h1>Contribute</h1>
+<h1 class="font-bold">Contribute</h1>
 <p>
   Any kind of contribution is welcomed. See our guide <a href="/contributing">how to start</a> participating as a contributor.
 </p>
 
-<ul class="mb-12 list-reset flex flex-wrap">
+<ul class="mb-12 flex flex-wrap">
   <% contributors.each do |contributor| %>
     <li class="mr-2">
       <a class="bg-none" href="<%= contributor.html_url %>">
@@ -61,7 +61,7 @@ title: Community
   <% end %>
 </ul>
 
-<h1>Attend</h1>
+<h1 class="font-bold">Attend</h1>
 <p>
   Participate in on-site trainings where Rails Event Store is used. Visit the conferences where RES is on the spotlight. Meet in-person people involved with its development.
 </p>
@@ -76,11 +76,11 @@ title: Community
     <% end %>
 </ul>
 
-<h1>Explore</h1>
+<h1 class="font-bold">Explore</h1>
 <p>Learn how Rails Event Store helps deliver better software.</p>
 
 
-<h2>Videos</h2>
+<h2 class="font-bold">Videos</h2>
 <ul class="list-reset">
   <% data.videos.each do |video| %>
     <li>
@@ -91,7 +91,7 @@ title: Community
     <% end %>
 </ul>
 
-<h2>Articles</h2>
+<h2 class="font-bold">Articles</h2>
 <ul class="list-reset">
   <% data.articles.each do |article| %>
     <li>
@@ -103,8 +103,8 @@ title: Community
 </ul>
 
 
-<h2>Code</h2>
-<ul class="list-reset mb-24">
+<h2 class="font-bold">Code</h2>
+<ul class="mb-24">
   <% data.apps.each do |app| %>
     <li>
       <a href="<%= app.url %>">

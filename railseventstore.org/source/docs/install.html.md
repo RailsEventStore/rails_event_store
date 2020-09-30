@@ -12,12 +12,12 @@ gem "rails_event_store"
 
 After running `bundle install`, Rails Event Store should be ready to be used.
 
-<div class="bg-blue-lightest border-l-4 border-blue text-blue-dark px-4" role="alert">
+<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-600 px-4" role="alert">
   <p class="text-base font-bold">Kickstarting new Rails application with RailsEventStore</p>
-  <p class="text-base inline-block">If you're setting up a new Rails app, there is even a faster way to begin with RailsEventStore. The <a href="https://railseventstore.org/new">template</a> will install required gems, perform initial database migration, pre-configure event browser and more — <code class="bg-transparent">rails new -m https://railseventstore.org/new APP_NAME</code></p>
+  <p class="text-base inline-block">If you're setting up a new Rails app, there is even a faster way to begin with RailsEventStore. The <a href="https://railseventstore.org/new">template</a> will install required gems, perform initial database migration, pre-configure event browser and more — <code class="bg-none">rails new -m https://railseventstore.org/new APP_NAME</code></p>
 
   <p class="text-base inline-block">
-    Make sure to check generated <code class="bg-transparent">config/initializers/rails_event_store.rb</code> for initial configuration.
+    Make sure to check generated <code class="bg-none">config/initializers/rails_event_store.rb</code> for initial configuration.
   </p>
 </div>
 
@@ -41,12 +41,12 @@ rails generate rails_event_store_active_record:migration
 rake db:migrate
 ```
 
-<div class="bg-blue-lightest border-l-4 border-blue text-blue-dark px-4" role="alert">
+<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-600 px-4" role="alert">
   <p class="text-base font-bold">Rails 5.0–5.1 with SQLite</p>
-  <p class="text-base inline-block">If you're setting up a Rails 5.0 or Rails 5.1 app with sqlite database (i.e. for development)., you may encounter an issue when creating event_store_events_table — <code class="bg-transparent">ArgumentError: Index name 'sqlite_autoindex_event_store_events_1' on table 'event_store_events' already exists</code>.</p>
+  <p class="text-base inline-block">If you're setting up a Rails 5.0 or Rails 5.1 app with sqlite database (i.e. for development)., you may encounter an issue when creating event_store_events_table — <code class="bg-none">ArgumentError: Index name 'sqlite_autoindex_event_store_events_1' on table 'event_store_events' already exists</code>.</p>
 
   <p class="text-base inline-block">
-    This is a <a href="https://github.com/rails/rails/issues/33320">known</a> issue <a href="https://github.com/rails/rails/commit/7fae8e3f5d9a09a8bd024e09f2e953e3b48e4d53">fixed</a> in Rails 5.2. If you're going to stick with this configuration make sure to remove <code class="bg-transparent">t.index ["id"], name: "sqlite_autoindex_event_store_events_1", unique: true</code> line from <code class="bg-transparent">db/schema.rb</code> file.
+    This is a <a href="https://github.com/rails/rails/issues/33320">known</a> issue <a href="https://github.com/rails/rails/commit/7fae8e3f5d9a09a8bd024e09f2e953e3b48e4d53">fixed</a> in Rails 5.2. If you're going to stick with this configuration make sure to remove <code class="bg-none">t.index ["id"], name: "sqlite_autoindex_event_store_events_1", unique: true</code> line from <code class="bg-none">db/schema.rb</code> file.
   </p>
 </div>
 
