@@ -32,7 +32,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.<%= data_type %>      :metadata
         t.<%= data_type %>      :data,        null: false
         t.datetime    :created_at,  null: false
-        t.datetime    :valid_at,    null: false
+        t.datetime    :valid_at,    null: true
       end
     else
       create_table(:event_store_events, force: false) do |t|
@@ -41,7 +41,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.binary      :metadata
         t.binary      :data,        null: false
         t.datetime    :created_at,  null: false, precision: 6
-        t.datetime    :valid_at,    null: false, precision: 6
+        t.datetime    :valid_at,    null: true,  precision: 6
       end
       if sqlite && rails_42
         add_index :event_store_events, :id, unique: true
