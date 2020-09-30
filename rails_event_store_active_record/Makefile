@@ -4,7 +4,8 @@ REQUIRE      = $(GEM_NAME)
 IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector\#detect \
                RailsEventStoreActiveRecord::PgLinearizedEventRepository* \
                RailsEventStoreActiveRecord::EventRepository\#update_messages \
-               RailsEventStoreActiveRecord::WithAbstractBaseClass\#build_event_klass
+               RailsEventStoreActiveRecord::WithAbstractBaseClass\#build_event_klass \
+               RailsEventStoreActiveRecord::WithAbstractBaseClass\#build_stream_klass
 SUBJECT      ?= RailsEventStoreActiveRecord*
 DATABASE_URL ?= sqlite3::memory:
 
