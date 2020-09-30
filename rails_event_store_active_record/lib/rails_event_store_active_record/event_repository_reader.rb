@@ -48,7 +48,7 @@ module RailsEventStoreActiveRecord
 
     def read_scope(spec)
       if spec.stream.global?
-        stream = @event_klass.order(id: order(spec))
+        stream = @event_klass
         stream = stream.where(event_id: spec.with_ids)                           if spec.with_ids?
         stream = stream.where(event_type: spec.with_types)                       if spec.with_types?
         stream = ordered(stream, spec)
@@ -59,7 +59,7 @@ module RailsEventStoreActiveRecord
         stream = stream.where(older_than_or_equal_condition(spec)) if spec.older_than_or_equal
         stream = stream.where(newer_than_condition(spec))          if spec.newer_than
         stream = stream.where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
-        stream
+        stream.order(id: order(spec))
       else
         stream = @stream_klass.preload(:event).where(stream: spec.stream.name)
         stream = stream.where(event_id: spec.with_ids)                                         if spec.with_ids?
