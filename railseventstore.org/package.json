@@ -16,7 +16,7 @@
     "postcss-import": "^12.0.1",
     "postcss-loader": "^4.0.2",
     "postcss-url": "^8.0.0",
-    "style-loader": "^0.23.1",
+    "style-loader": "^1.2.1",
     "tailwindcss": "< 2.0.0",
     "webpack": "^4.1.1",
     "webpack-cli": "^3.1.2",
