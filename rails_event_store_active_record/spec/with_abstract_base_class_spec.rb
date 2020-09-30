@@ -70,16 +70,22 @@ module RailsEventStoreActiveRecord
         establish_database_connection
         load_database_schema
 
+        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+        repository.append_to_stream(
+          [event = RubyEventStore::SRecord.new(event_type: 'Dummy')],
+          RubyEventStore::Stream.new("some"),
+          RubyEventStore::ExpectedVersion.any
+        )
+        reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+
         expect_query(/SELECT.*FROM.*event_store_events.*/) do
-          repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
-          reader     = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
-          repository.read(RubyEventStore::Specification.new(reader).result).first
+          read_event = repository.read(RubyEventStore::Specification.new(reader).result).first
+          expect(read_event).to eq(event)
         end
 
         expect_query(/SELECT.*FROM.*event_store_events_in_streams.*/) do
-          repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
-          reader     = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
-          repository.read(RubyEventStore::Specification.new(reader).of_type('Dummy').stream('some').result).first
+          read_event = repository.read(RubyEventStore::Specification.new(reader).of_type('Dummy').stream('some').result).first
+          expect(read_event).to eq(event)
         end
       ensure
         drop_database
