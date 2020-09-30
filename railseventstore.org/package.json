@@ -9,7 +9,7 @@
     "@babel/preset-env": "^7.4.5",
     "babel-loader": "^8.0.6",
     "countup.js": "^2.0.4",
-    "css-loader": "^3.0.0",
+    "css-loader": "^4.3.0",
     "mini-css-extract-plugin": "^0.11.2",
     "postcss": "^8.1.1",
     "postcss-cssnext": "^3.1.0",
