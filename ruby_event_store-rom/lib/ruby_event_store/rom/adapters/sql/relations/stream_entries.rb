@@ -62,19 +62,31 @@ module RubyEventStore
             backward: %i[desc < >]
           }.freeze
 
-          def ordered(direction, stream, offset_entry_id = nil, stop_entry_id = nil)
+          def ordered(direction, stream, offset_entry_id = nil, stop_entry_id = nil, time_sort_by = nil)
             order, operator_offset, operator_stop = DIRECTION_MAP[direction]
 
             raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
 
-            order_columns = %i[position id]
-            order_columns.delete(:position) if stream.global?
+            event_order_columns  = []
+            stream_order_columns = %i[position id]
+            stream_order_columns.delete(:position) if stream.global?
+
+            case time_sort_by
+            when :as_at
+              event_order_columns.unshift :created_at
+            when :as_of
+              event_order_columns.unshift :valid_at
+            end
 
             query = by_stream(stream)
             query = query.where { id.public_send(operator_offset, offset_entry_id) } if offset_entry_id
             query = query.where { id.public_send(operator_stop, stop_entry_id) } if stop_entry_id
 
-            query.order { |r| order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
+            if event_order_columns.empty?
+              query.order { |r| stream_order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
+            else
+              query.join(:events).order { |r| event_order_columns.map { |c| r.events[c].public_send(order) } }
+            end
           end
 
           private

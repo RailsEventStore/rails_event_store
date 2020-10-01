@@ -70,7 +70,7 @@ module RubyEventStore
             direction = specification.forward? ? :backward : :forward
           end
 
-          query = stream_entries.ordered(direction, specification.stream, offset_entry_id, stop_entry_id)
+          query = stream_entries.ordered(direction, specification.stream, offset_entry_id, stop_entry_id, specification.time_sort_by)
           query = query.by_event_id(specification.with_ids) if specification.with_ids
           query = query.by_event_type(specification.with_types) if specification.with_types?
           query = query.newer_than(specification.newer_than) if specification.newer_than
