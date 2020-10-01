@@ -16,7 +16,8 @@ IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#add  \
               RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#all_for \
               RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#initialize \
-              RubyEventStore::TransformKeys.transform
+              RubyEventStore::TransformKeys.transform \
+              RubyEventStore::TransformKeys.symbolize
 
 SUBJECT     ?= RubyEventStore*
 
