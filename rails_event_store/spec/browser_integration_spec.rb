@@ -19,8 +19,8 @@ module RailsEventStore
       response = request.get('/res/api/streams/all/relationships/events')
 
       expect(JSON.parse(response.body)["links"]).to eq({
-        "last" => "http://example.org/res/api/streams/all/relationships/events/head/forward/20",
-        "next" => "http://example.org/res/api/streams/all/relationships/events/#{events[1].event_id}/backward/20"
+        "last" => "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+        "next" => "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
       })
     end
 
