@@ -15,7 +15,7 @@ module RubyEventStore
         metadata:   metadata,
         event_type: event_type,
         timestamp:  timestamp.round(TIMESTAMP_PRECISION),
-        valid_at:   valid_at || timestamp,
+        valid_at:   (valid_at || timestamp).round(TIMESTAMP_PRECISION),
       )
     end
   end
