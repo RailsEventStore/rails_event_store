@@ -272,7 +272,7 @@ jobs:
     docker:
     - image: railseventstore/ruby:2.6
       environment: &1
-        RAILS_VERSION: 4.2.11.1
+        RAILS_VERSION: 4.2.11.3
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -359,7 +359,7 @@ jobs:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &4
-        RAILS_VERSION: 5.2.4.1
+        RAILS_VERSION: 5.2.4.4
     steps:
     - checkout
     - run: make -C bounded_context install test
