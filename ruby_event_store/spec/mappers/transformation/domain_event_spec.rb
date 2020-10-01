@@ -8,11 +8,12 @@ module RubyEventStore
         let(:uuid)  { SecureRandom.uuid }
         let(:time)  { Time.now.utc }
         let(:event) {
-          TimestampEnrichment.with_timestamp(
+          TimeEnrichment.with(
             TestEvent.new(event_id: uuid,
               data: {some: 'value'},
               metadata: {some: 'meta'}),
-            time
+            timestamp: time,
+            valid_at: time
           )
         }
         let(:record)  {
@@ -21,7 +22,8 @@ module RubyEventStore
             metadata:   {some: 'meta'},
             data:       {some: 'value'},
             event_type: 'TestEvent',
-            timestamp:  time
+            timestamp:  time,
+            valid_at:   time
           )
         }
 

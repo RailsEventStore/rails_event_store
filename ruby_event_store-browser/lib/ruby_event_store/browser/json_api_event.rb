@@ -30,6 +30,7 @@ module RubyEventStore
       def metadata
         event.metadata.to_h.tap do |m|
           m[:timestamp] = event.timestamp.iso8601(TIMESTAMP_PRECISION)
+          m[:valid_at] = event.valid_at.iso8601(TIMESTAMP_PRECISION)
         end
       end
 

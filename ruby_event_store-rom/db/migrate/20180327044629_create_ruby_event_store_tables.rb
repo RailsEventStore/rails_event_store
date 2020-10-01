@@ -49,6 +49,7 @@ require 'rom/sql'
       end
 
       column :created_at, DateTime, null: false, type: postgres ?  'TIMESTAMP' : 'DATETIME(6)', index: 'index_event_store_events_on_created_at'
+      column :valid_at, DateTime, null: false, type: postgres ?  'TIMESTAMP' : 'DATETIME(6)', index: 'index_event_store_events_on_valid_at'
     end
   end
 end

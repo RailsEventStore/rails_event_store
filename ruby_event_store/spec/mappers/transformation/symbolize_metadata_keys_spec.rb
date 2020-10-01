@@ -13,7 +13,8 @@ module RubyEventStore
             metadata:   {some: 'meta'},
             data:       JSON.parse(JSON.dump({some: 'value'})),
             event_type: 'TestEvent',
-            timestamp:  time
+            timestamp:  time,
+            valid_at:   time
           )
         }
         let(:changed_record)  {
@@ -22,7 +23,8 @@ module RubyEventStore
             metadata:   JSON.parse(JSON.dump({some: 'meta'})),
             data:       JSON.parse(JSON.dump({some: 'value'})),
             event_type: 'TestEvent',
-            timestamp:  time
+            timestamp:  time,
+            valid_at:   time
           )
         }
 

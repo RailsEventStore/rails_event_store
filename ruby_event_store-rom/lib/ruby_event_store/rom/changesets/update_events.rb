@@ -13,7 +13,8 @@ module RubyEventStore
               map do
                 rename_keys event_id: :id, timestamp: :created_at
                 map_value :created_at, ->(time) { Time.iso8601(time).localtime }
-                accept_keys %i[id data metadata event_type created_at]
+                map_value :valid_at, ->(time) { Time.iso8601(time).localtime }
+                accept_keys %i[id data metadata event_type created_at valid_at]
               end
             end
           end

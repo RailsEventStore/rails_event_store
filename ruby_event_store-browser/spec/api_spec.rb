@@ -1,11 +1,12 @@
 require "spec_helper"
 
-module TimestampEnrichment
-  def with_timestamp(event, timestamp = Time.now.utc)
+module TimeEnrichment
+  def with(event, timestamp: Time.now.utc, valid_at: nil)
     event.metadata[:timestamp] ||= timestamp
+    event.metadata[:valid_at] ||= valid_at || timestamp
     event
   end
-  module_function :with_timestamp
+  module_function :with
 end
 
 module RubyEventStore
@@ -72,7 +73,10 @@ module RubyEventStore
             bar: 2.0,
             baz: "3"
           },
-          metadata: { timestamp: "2020-01-01T12:00:00.000001Z" },
+          metadata: {
+            timestamp: "2020-01-01T12:00:00.000001Z",
+            valid_at:  "2020-01-01T12:00:00.000001Z"
+          },
           correlation_stream_name: nil,
           causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
@@ -82,7 +86,7 @@ module RubyEventStore
     end
 
     def dummy_event(id = SecureRandom.uuid)
-      @dummy_event ||= TimestampEnrichment.with_timestamp(
+      @dummy_event ||= TimeEnrichment.with(
         DummyEvent.new(
           event_id: id,
           data: {
@@ -91,7 +95,7 @@ module RubyEventStore
             baz: "3"
           }
         ),
-        Time.utc(2020, 1, 1, 12, 0, 0, 1)
+        timestamp: Time.utc(2020, 1, 1, 12, 0, 0, 1)
       )
     end
 
@@ -107,7 +111,8 @@ module RubyEventStore
             "baz" => "3"
           },
           "metadata" => {
-            "timestamp" => "2020-01-01T12:00:00.000001Z"
+            "timestamp" => "2020-01-01T12:00:00.000001Z",
+            "valid_at"  => "2020-01-01T12:00:00.000001Z"
           },
           "correlation_stream_name" => nil,
           "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",

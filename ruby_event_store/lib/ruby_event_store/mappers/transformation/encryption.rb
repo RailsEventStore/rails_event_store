@@ -37,6 +37,7 @@ module RubyEventStore
             data:       encrypt_data(deep_dup(data), crypto_description),
             metadata:   metadata,
             timestamp:  record.timestamp,
+            valid_at:   record.valid_at,
           )
         end
 
@@ -50,6 +51,7 @@ module RubyEventStore
             data:       decrypt_data(record.data, crypto_description),
             metadata:   metadata,
             timestamp:  record.timestamp,
+            valid_at:   record.valid_at,
           )
         end
 

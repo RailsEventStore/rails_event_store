@@ -47,7 +47,8 @@ class IdentityMapTransformation
       metadata:   domain_event.metadata.to_h,
       data:       domain_event.data,
       event_type: domain_event.event_type,
-      timestamp: domain_event.timestamp,
+      timestamp:  domain_event.timestamp,
+      valid_at:   domain_event.valid_at,
     )
   end
 

@@ -24,7 +24,7 @@ module RailsEventStore
 
     it_behaves_like :scheduler, ActiveJobScheduler.new
 
-    let(:event) { TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30)) }
+    let(:event) { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
 
     describe "#verify" do
@@ -68,7 +68,8 @@ module RailsEventStore
                 "data"            => "--- {}\n",
                 "metadata"        => "--- {}\n",
                 "timestamp"       => "2019-09-30T00:00:00.000000Z",
-                "_aj_symbol_keys" => %w[event_id data metadata event_type timestamp],
+                "valid_at"        => "2019-09-30T00:00:00.000000Z",
+                "_aj_symbol_keys" => %w[event_id data metadata event_type timestamp valid_at],
               },
             ],
             queue: "default",

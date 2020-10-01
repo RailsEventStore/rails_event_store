@@ -13,6 +13,7 @@ module RubyEventStore
             data:       {some: 'value'},
             event_type: event_type,
             timestamp:  time,
+            valid_at:   time,
           )
         end
         let(:changeable_record) { record(event_type: 'EventNameBeforeRefactor') }

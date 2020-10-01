@@ -87,21 +87,33 @@ module RubyEventStore
             backward: [true, :<, :>]
           }.freeze
 
-          def ordered(direction, stream, offset_entry_id = nil, stop_entry_id = nil)
+          def ordered(direction, stream, offset_entry_id = nil, stop_entry_id = nil, time_sort_by = nil)
             reverse, operator_offset, operator_stop = DIRECTION_MAP[direction]
 
             raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
 
-            order_columns = %i[position id]
-            order_columns.delete(:position) if stream.global?
+            event_order_columns  = []
+            stream_order_columns = %i[position id]
+            stream_order_columns.delete(:position) if stream.global?
+
+            case time_sort_by
+            when :as_at
+              event_order_columns.unshift :created_at
+            when :as_of
+              event_order_columns.unshift :valid_at
+            end
 
             query = by_stream(stream)
             query = query.restrict { |tuple| tuple[:id].public_send(operator_offset, offset_entry_id) } if offset_entry_id
             query = query.restrict { |tuple| tuple[:id].public_send(operator_stop, stop_entry_id) } if stop_entry_id
 
-            query = query.order(*order_columns)
-            query = new(query.dataset.reverse) if reverse
+            if event_order_columns.empty?
+              query = query.order(*stream_order_columns)
+            else
+              query = new(query.dataset.sort_by { |r| event_order_columns.map { |c| events.by_pk(r[:event_id]).one[c] }})
+            end
 
+            query = new(query.dataset.reverse) if reverse
             query
           end
 

@@ -21,7 +21,8 @@ module RubyEventStore
           nein: nil,
           ten: {some: 'hash', with: {nested: 'values'}},
           eleven: [1,2,3],
-          timestamp: time
+          timestamp: time,
+          valid_at:  time
         } }
         let(:data) do
           ResTesting::OrderCreated.new(
@@ -43,7 +44,8 @@ module RubyEventStore
             metadata:   domain_event.metadata.to_h,
             data:       nil,
             event_type: domain_event.event_type,
-            timestamp: time
+            timestamp: time,
+            valid_at:  time
           )
           expect do
             ProtobufEncoder.new.dump(record)
@@ -56,7 +58,8 @@ module RubyEventStore
             metadata:   domain_event.metadata.to_h,
             data:       {},
             event_type: domain_event.event_type,
-            timestamp: time
+            timestamp: time,
+            valid_at:  time
           )
 
           expect do
@@ -73,6 +76,7 @@ module RubyEventStore
           expect(result.metadata).not_to be_empty
           expect(result.event_type).to   eq("res_testing.OrderCreated")
           expect(result.timestamp).to    eq(time)
+          expect(result.valid_at).to     eq(time)
         end
 
         specify '#load returns event instance in data attribute' do
@@ -84,8 +88,9 @@ module RubyEventStore
           expect(result).to                be_a(Record)
           expect(result.event_id).to       eq(domain_event.event_id)
           expect(result.data).to           eq(data)
-          expect(result.metadata).to       eq(metadata.reject { |k, _| k == :timestamp })
+          expect(result.metadata).to       eq(metadata.reject { |k, _| [:timestamp, :valid_at].include?(k) })
           expect(result.timestamp).to      eq(time)
+          expect(result.valid_at).to       eq(time)
         end
       end
     end
