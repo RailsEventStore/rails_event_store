@@ -252,3 +252,9 @@ a {
   justify-content: center;
   min-height: 20rem;
 }
+
+.central-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

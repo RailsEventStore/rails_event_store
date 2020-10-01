@@ -4,9 +4,9 @@ import Api exposing (eventDecoder, eventsDecoder)
 import Expect
 import Json.Decode exposing (list)
 import Main exposing (..)
-import Route exposing (buildUrl)
 import Test exposing (..)
 import Time
+import Url
 
 
 suite : Test
@@ -70,11 +70,6 @@ suite =
                                 }
                             }
                         )
-            , test "handles slashes properly in urls" <|
-                \_ ->
-                    Expect.equal
-                        (buildUrl "https://example.org" "resource/uuid")
-                        "https://example.org/resource%2Fuuid"
             , test "event decoder" <|
                 \_ ->
                     let

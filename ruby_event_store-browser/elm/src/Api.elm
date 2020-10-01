@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -8,6 +8,13 @@ import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt
 import Json.Encode exposing (encode)
 import Time
 import Url
+
+
+type RemoteResource a
+    = Loading
+    | Loaded a
+    | NotFound
+    | Failure
 
 
 type alias Event =
@@ -52,10 +59,20 @@ buildUrl baseUrl id =
     baseUrl ++ "/" ++ Url.percentEncode id
 
 
+eventUrl : Flags -> String -> String
+eventUrl flags eventId =
+    buildUrl (Url.toString flags.apiUrl ++ "/events") eventId
+
+
+streamUrl : Flags -> String -> String
+streamUrl flags streamId =
+    buildUrl (Url.toString flags.apiUrl ++ "/streams") streamId
+
+
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
     Http.get
-        { url = buildUrl flags.eventsUrl eventId
+        { url = eventUrl flags eventId
         , expect = Http.expectJson msgBuilder eventDecoder
         }
 
@@ -63,7 +80,7 @@ getEvent msgBuilder flags eventId =
 getStream : (Result Http.Error Stream -> msg) -> Flags -> String -> Cmd msg
 getStream msgBuilder flags streamId =
     Http.get
-        { url = buildUrl flags.streamsUrl streamId
+        { url = streamUrl flags streamId
         , expect = Http.expectJson msgBuilder streamDecoder
         }
 

@@ -1,6 +1,7 @@
 module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
 
 import Url
+import Url.Builder
 import Url.Parser exposing ((</>))
 
 
@@ -9,9 +10,9 @@ type Route
     | ShowEvent String
 
 
-decodeLocation : Url.Url -> Maybe Route
-decodeLocation loc =
-    Url.Parser.parse routeParser (urlFragmentToPath loc)
+decodeLocation : Url.Url -> Url.Url -> Maybe Route
+decodeLocation baseUrl loc =
+    Url.Parser.parse routeParser (urlWithoutBase baseUrl loc)
 
 
 routeParser : Url.Parser.Parser (Route -> a) a
@@ -23,21 +24,26 @@ routeParser =
         ]
 
 
-urlFragmentToPath : Url.Url -> Url.Url
-urlFragmentToPath url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+urlWithoutBase : Url.Url -> Url.Url -> Url.Url
+urlWithoutBase baseUrl url =
+    { url | path = String.dropLeft (String.length baseUrl.path) url.path }
 
 
-buildUrl : String -> String -> String
-buildUrl baseUrl id =
-    baseUrl ++ "/" ++ Url.percentEncode id
+buildUrl : Url.Url -> List String -> String
+buildUrl baseUrl segments =
+    Url.Builder.absolute (pathSegments baseUrl ++ segments) []
 
 
-streamUrl : String -> String
-streamUrl streamName =
-    buildUrl "#streams" streamName
+streamUrl : Url.Url -> String -> String
+streamUrl baseUrl streamName =
+    buildUrl baseUrl [ "streams", Url.percentEncode streamName ]
 
 
-eventUrl : String -> String
-eventUrl eventId =
-    buildUrl "#events" eventId
+eventUrl : Url.Url -> String -> String
+eventUrl baseUrl eventId =
+    buildUrl baseUrl [ "events", Url.percentEncode eventId ]
+
+
+pathSegments : Url.Url -> List String
+pathSegments baseUrl =
+    List.filter (\e -> e /= "") (String.split "/" baseUrl.path)

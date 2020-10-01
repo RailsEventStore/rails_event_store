@@ -11,7 +11,7 @@ module RubyEventStore
         }
       )
       event_store.publish(event, stream_name: "dummy")
-      test_client.get "/events/#{event.event_id}"
+      test_client.get "/api/events/#{event.event_id}"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["correlation_stream_name"]).to eq(
@@ -25,7 +25,7 @@ module RubyEventStore
         data: {},
       )
       event_store.publish(event, stream_name: "dummy")
-      test_client.get "/events/#{event.event_id}"
+      test_client.get "/api/events/#{event.event_id}"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["causation_stream_name"]).to eq(
@@ -47,7 +47,7 @@ module RubyEventStore
         }
       )
       event_store.publish(caused_event, stream_name: "dummy")
-      test_client.get "/events/#{caused_event.event_id}"
+      test_client.get "/api/events/#{caused_event.event_id}"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["parent_event_id"]).to eq(
@@ -64,7 +64,7 @@ module RubyEventStore
         }
       )
       event_store.publish(caused_event, stream_name: "dummy")
-      test_client.get "/events/#{caused_event.event_id}"
+      test_client.get "/api/events/#{caused_event.event_id}"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["parent_event_id"]).to be_nil

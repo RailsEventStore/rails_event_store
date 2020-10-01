@@ -1,4 +1,4 @@
-module Layout exposing (Model, Msg, buildModel, update, view, viewNotFound)
+module Layout exposing (Model, Msg, buildModel, update, view, viewIncorrectConfig, viewNotFound)
 
 import Browser.Navigation
 import Flags exposing (Flags)
@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href, placeholder, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Route
+import Url
 import WrappedModel exposing (..)
 
 
@@ -29,7 +30,7 @@ update : Msg -> WrappedModel Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToStream ->
-            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.internal.goToStream) )
+            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl model.internal.goToStream) )
 
         GoToStreamChanged newValue ->
             ( { goToStream = newValue }, Cmd.none )
@@ -49,11 +50,16 @@ viewNotFound =
     h1 [] [ text "404" ]
 
 
+viewIncorrectConfig : Html a
+viewIncorrectConfig =
+    h1 [] [ text "Incorrect RES Browser config" ]
+
+
 browserNavigation : WrappedModel Model -> Html Msg
 browserNavigation model =
     nav [ class "navigation" ]
         [ div [ class "navigation__brand" ]
-            [ a [ href model.flags.rootUrl, class "navigation__logo" ] [ text "Ruby Event Store" ]
+            [ a [ href (Url.toString model.flags.rootUrl), class "navigation__logo" ] [ text "Ruby Event Store" ]
             ]
         , div [ class "navigation__links" ] []
         , div [ class "navigation__go-to-stream" ]

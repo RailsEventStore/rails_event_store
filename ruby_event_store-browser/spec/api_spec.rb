@@ -12,7 +12,7 @@ end
 module RubyEventStore
   RSpec.describe Browser do
     specify "requsting stream resource" do
-      test_client.get "/streams/all"
+      test_client.get "/api/streams/all"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]).to eq({
@@ -24,7 +24,7 @@ module RubyEventStore
         "relationships" => {
           "events" => {
             "links" => {
-              "self" => "http://www.example.com/streams/all/relationships/events",
+              "self" => "http://www.example.com/api/streams/all/relationships/events",
             }
           }
         }
@@ -33,12 +33,12 @@ module RubyEventStore
 
     specify do
       event_store.publish(dummy_event, stream_name: "dummy")
-      test_client.get "/streams/all/relationships/events"
+      test_client.get "/api/streams/all/relationships/events"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]).to match_array([event_resource])
 
-      test_client.get "/streams/dummy/relationships/events"
+      test_client.get "/api/streams/dummy/relationships/events"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]).to match_array([event_resource])
@@ -46,14 +46,14 @@ module RubyEventStore
 
     specify do
       event_store.publish(dummy_event, stream_name: "dummy")
-      test_client.get "/events/#{dummy_event.event_id}"
+      test_client.get "/api/events/#{dummy_event.event_id}"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]).to match(event_resource)
     end
 
     specify "requesting non-existing event" do
-      test_client.get "/events/73947fbd-90d7-4e1c-be2a-d7ff1900c409"
+      test_client.get "/api/events/73947fbd-90d7-4e1c-be2a-d7ff1900c409"
 
       test_client.last_response
       expect(test_client.last_response).to be_not_found

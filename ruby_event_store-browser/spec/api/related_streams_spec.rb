@@ -10,11 +10,11 @@ module RubyEventStore
       )
       test_client = TestClientWithJsonApiLinter.new(app)
 
-      test_client.get "/streams/all"
+      test_client.get "/api/streams/all"
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq([])
 
-      test_client.get "/streams/dummy"
+      test_client.get "/api/streams/dummy"
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(["even-dummier"])
     end
@@ -26,7 +26,7 @@ module RubyEventStore
       )
       test_client = TestClientWithJsonApiLinter.new(app)
 
-      test_client.get "/streams/all"
+      test_client.get "/api/streams/all"
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(nil)
     end

@@ -6,13 +6,14 @@ require 'sinatra/base'
 module RubyEventStore
   module Browser
     class App < Sinatra::Base
-      def self.for(event_store_locator:, host: nil, path: nil, environment: :production, related_streams_query: DEFAULT_RELATED_STREAMS_QUERY)
+      def self.for(event_store_locator:, host: nil, path: nil, api_url: nil, environment: :production, related_streams_query: DEFAULT_RELATED_STREAMS_QUERY)
         self.tap do |app|
           app.settings.instance_exec do
             set :event_store_locator, event_store_locator
             set :related_streams_query, -> { related_streams_query }
             set :host, host
             set :root_path, path
+            set :api_url, api_url
             set :environment, environment
             set :public_folder, "#{__dir__}/../../../public"
           end
@@ -22,6 +23,7 @@ module RubyEventStore
       configure do
         set :host, nil
         set :root_path, nil
+        set :api_url, nil
         set :event_store_locator, -> {}
         set :related_streams_query, nil
         set :protection, except: :path_traversal
@@ -29,7 +31,7 @@ module RubyEventStore
         mime_type :json, 'application/vnd.api+json'
       end
 
-      get '/' do
+      get '/(events/*|streams/*)?' do
         erb %{
           <!DOCTYPE html>
           <html>
@@ -42,19 +44,18 @@ module RubyEventStore
               <script type="text/javascript">
                 RubyEventStore.Browser.Elm.Main.init({
                   flags: {
-                    rootUrl:    "<%= path %>",
-                    eventsUrl:  "<%= path %>/events",
-                    streamsUrl: "<%= path %>/streams",
+                    rootUrl:    "<%= routing.root_url %>",
+                    apiUrl:     "<%= api_url %>",
                     resVersion: "<%= RubyEventStore::VERSION %>"
                   }
                 });
               </script>
             </body>
           </html>
-        }, locals: { path: settings.root_path || request.script_name }
+        }, locals: { path: settings.root_path || request.script_name, api_url: settings.api_url || routing.api_url }
       end
 
-      get '/events/:id' do
+      get '/api/events/:id' do
         begin
           json Event.new(
             event_store: settings.event_store_locator,
@@ -65,7 +66,7 @@ module RubyEventStore
         end
       end
 
-      get '/streams/:id' do
+      get '/api/streams/:id' do
         json GetStream.new(
           stream_name: params[:id],
           routing: routing,
@@ -73,15 +74,7 @@ module RubyEventStore
         )
       end
 
-      get '/streams/:id/relationships/events' do
-        json GetEventsFromStream.new(
-          event_store: settings.event_store_locator,
-          params: symbolized_params,
-          routing: routing,
-        )
-      end
-
-      get '/streams/:id/relationships/events/:position/:direction/:count' do
+      get '/api/streams/:id/relationships/events' do
         json GetEventsFromStream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,

@@ -9,6 +9,7 @@ import JsonTree
 import Maybe exposing (withDefault)
 import Maybe.Extra exposing (values)
 import Route
+import Url
 
 
 
@@ -31,18 +32,18 @@ type alias Event =
 
 type alias Model =
     { eventId : String
-    , event : Maybe Event
+    , event : Api.RemoteResource Event
     , flags : Flags
-    , causedEvents : Maybe (List Api.Event)
+    , causedEvents : Api.RemoteResource (List Api.Event)
     }
 
 
 initModel : Flags -> String -> Model
 initModel flags eventId =
     { eventId = eventId
-    , event = Nothing
+    , event = Api.Loading
     , flags = flags
-    , causedEvents = Nothing
+    , causedEvents = Api.Loading
     }
 
 
@@ -68,18 +69,18 @@ update msg model =
     case msg of
         ChangeOpenedEventDataTreeState newState ->
             case model.event of
-                Just event ->
-                    ( { model | event = Just { event | dataTreeState = newState } }, Cmd.none )
+                Api.Loaded event ->
+                    ( { model | event = Api.Loaded { event | dataTreeState = newState } }, Cmd.none )
 
-                Nothing ->
+                _ ->
                     ( model, Cmd.none )
 
         ChangeOpenedEventMetadataTreeState newState ->
             case model.event of
-                Just event ->
-                    ( { model | event = Just { event | metadataTreeState = newState } }, Cmd.none )
+                Api.Loaded event ->
+                    ( { model | event = Api.Loaded { event | metadataTreeState = newState } }, Cmd.none )
 
-                Nothing ->
+                _ ->
                     ( model, Cmd.none )
 
         EventFetched (Ok result) ->
@@ -87,22 +88,25 @@ update msg model =
                 event =
                     apiEventToEvent result
             in
-            ( { model | event = Just event }, getCausedEvents model.flags event )
+            ( { model | event = Api.Loaded event }, getCausedEvents model.flags event )
 
-        EventFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+        EventFetched (Err (Http.BadStatus 404)) ->
+            ( { model | event = Api.NotFound }, Cmd.none )
+
+        EventFetched (Err _) ->
+            ( { model | event = Api.Failure }, Cmd.none )
 
         CausedStreamFetched (Ok streamResource) ->
             ( model, Api.getEvents CausedEventsFetched streamResource.eventsRelationshipLink )
 
         CausedStreamFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+            ( { model | causedEvents = Api.Failure }, Cmd.none )
 
         CausedEventsFetched (Ok result) ->
-            ( { model | causedEvents = Just result.events }, Cmd.none )
+            ( { model | causedEvents = Api.Loaded result.events }, Cmd.none )
 
         CausedEventsFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+            ( { model | causedEvents = Api.Failure }, Cmd.none )
 
 
 apiEventToEvent : Api.Event -> Event
@@ -144,19 +148,36 @@ view model =
     ( "Event " ++ model.eventId, view_ model )
 
 
+centralSpinner : Html Msg
+centralSpinner =
+    div [ class "central-spinner" ] [ spinner ]
+
+
+spinner : Html Msg
+spinner =
+    div [ class "lds-dual-ring" ] []
+
+
 view_ : Model -> Html Msg
 view_ model =
     case model.event of
-        Just event ->
-            showEvent event model.causedEvents
-
-        Nothing ->
+        Api.NotFound ->
             div [ class "event" ]
                 [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
 
+        Api.Loading ->
+            centralSpinner
 
-showEvent : Event -> Maybe (List Api.Event) -> Html Msg
-showEvent event maybeCausedEvents =
+        Api.Loaded event ->
+            showEvent model.flags.rootUrl event model.causedEvents
+
+        Api.Failure ->
+            div [ class "event" ]
+                [ h1 [ class "event__missing" ] [ text "Unexpected request failure happened when fetching the event" ] ]
+
+
+showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> Html Msg
+showEvent baseUrl event maybeCausedEvents =
     div [ class "event" ]
         [ h1 [ class "event__title" ] [ text event.eventType ]
         , div [ class "event__body" ]
@@ -177,9 +198,15 @@ showEvent event maybeCausedEvents =
                     ]
                 ]
             ]
-        , relatedStreams event
+        , relatedStreams baseUrl event
         , case maybeCausedEvents of
-            Just causedEvents ->
+            Api.Loading ->
+                div [ class "event__caused-events" ]
+                    [ h2 [] [ text "Events caused by this event:" ]
+                    , text "Loading..."
+                    ]
+
+            Api.Loaded causedEvents ->
                 case causedEvents of
                     [] ->
                         div [ class "event__caused-events" ]
@@ -189,19 +216,19 @@ showEvent event maybeCausedEvents =
                     _ ->
                         div [ class "event__caused-events" ]
                             [ h2 [] [ text "Events caused by this event:" ]
-                            , renderCausedEvents causedEvents
+                            , renderCausedEvents baseUrl causedEvents
                             ]
 
-            Nothing ->
+            _ ->
                 text ""
         ]
 
 
-relatedStreams : Event -> Html Msg
-relatedStreams event =
+relatedStreams : Url.Url -> Event -> Html Msg
+relatedStreams baseUrl event =
     let
         links =
-            relatedStreamsList event
+            relatedStreamsList baseUrl event
     in
     if links == [] then
         text ""
@@ -209,76 +236,76 @@ relatedStreams event =
     else
         div [ class "event__related-streams" ]
             [ h2 [] [ text "Related streams / events:" ]
-            , ul [] (relatedStreamsList event)
+            , ul [] (relatedStreamsList baseUrl event)
             ]
 
 
-relatedStreamsList : Event -> List (Html Msg)
-relatedStreamsList event =
+relatedStreamsList : Url.Url -> Event -> List (Html Msg)
+relatedStreamsList baseUrl event =
     values
-        [ parentEventLink event
-        , Just (typeStreamLink event)
-        , correlationStreamLink event
-        , causationStreamLink event
+        [ parentEventLink baseUrl event
+        , Just (typeStreamLink baseUrl event)
+        , correlationStreamLink baseUrl event
+        , causationStreamLink baseUrl event
         ]
 
 
-correlationStreamLink : Event -> Maybe (Html Msg)
-correlationStreamLink event =
+correlationStreamLink : Url.Url -> Event -> Maybe (Html Msg)
+correlationStreamLink baseUrl event =
     Maybe.map
         (\streamName ->
             li []
                 [ text "Correlation stream: "
-                , streamLink streamName
+                , streamLink baseUrl streamName
                 ]
         )
         event.correlationStreamName
 
 
-typeStreamLink : Event -> Html Msg
-typeStreamLink event =
+typeStreamLink : Url.Url -> Event -> Html Msg
+typeStreamLink baseUrl event =
     li []
         [ text "Type stream: "
-        , streamLink event.typeStreamName
+        , streamLink baseUrl event.typeStreamName
         ]
 
 
-causationStreamLink : Event -> Maybe (Html Msg)
-causationStreamLink event =
+causationStreamLink : Url.Url -> Event -> Maybe (Html Msg)
+causationStreamLink baseUrl event =
     Maybe.map
         (\streamName ->
             li []
                 [ text "Causation stream: "
-                , streamLink streamName
+                , streamLink baseUrl streamName
                 ]
         )
         event.causationStreamName
 
 
-parentEventLink : Event -> Maybe (Html Msg)
-parentEventLink event =
+parentEventLink : Url.Url -> Event -> Maybe (Html Msg)
+parentEventLink baseUrl event =
     Maybe.map
         (\parentEventId ->
             li []
                 [ text "Parent event: "
-                , eventLink parentEventId
+                , eventLink baseUrl parentEventId
                 ]
         )
         event.parentEventId
 
 
-streamLink : String -> Html Msg
-streamLink streamName =
-    a [ class "event__stream-link", href (Route.streamUrl streamName) ] [ text streamName ]
+streamLink : Url.Url -> String -> Html Msg
+streamLink baseUrl streamName =
+    a [ class "event__stream-link", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
 
 
-eventLink : String -> Html Msg
-eventLink eventId =
-    a [ class "event__event-link", href (Route.eventUrl eventId) ] [ text eventId ]
+eventLink : Url.Url -> String -> Html Msg
+eventLink baseUrl eventId =
+    a [ class "event__event-link", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
 
 
-renderCausedEvents : List Api.Event -> Html Msg
-renderCausedEvents causedEvents =
+renderCausedEvents : Url.Url -> List Api.Event -> Html Msg
+renderCausedEvents baseUrl causedEvents =
     case causedEvents of
         [] ->
             p [ class "results__empty" ] [ text "No items" ]
@@ -291,7 +318,7 @@ renderCausedEvents causedEvents =
                         , th [] [ text "Event id" ]
                         ]
                     ]
-                , tbody [] (List.map renderCausedEvent causedEvents)
+                , tbody [] (List.map (renderCausedEvent baseUrl) causedEvents)
                 , tfoot []
                     [ tr []
                         [ td [ colspan 2 ]
@@ -306,13 +333,13 @@ renderCausedEvents causedEvents =
                 ]
 
 
-renderCausedEvent : Api.Event -> Html Msg
-renderCausedEvent { eventType, eventId } =
+renderCausedEvent : Url.Url -> Api.Event -> Html Msg
+renderCausedEvent baseUrl { eventType, eventId } =
     tr []
         [ td []
             [ a
                 [ class "results__link"
-                , href (Route.eventUrl eventId)
+                , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]

@@ -5,7 +5,7 @@ module RubyEventStore
     it "should handle metadata timestamp" do
       dummy_event = DummyEvent.new
       event_store.publish(dummy_event, stream_name: "dummy")
-      response = test_client.get "/streams/all/relationships/events"
+      response = test_client.get "/api/streams/all/relationships/events"
       expect(response).to be_ok
 
       metadata = JSON.parse(response.body)["data"][0]["attributes"]["metadata"]
