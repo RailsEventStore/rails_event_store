@@ -31,30 +31,6 @@ module RubyEventStore
         mime_type :json, 'application/vnd.api+json'
       end
 
-      get '/(events/*|streams/*)?' do
-        erb %{
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>RubyEventStore::Browser</title>
-              <link type="text/css" rel="stylesheet" href="<%= path %>/ruby_event_store_browser.css">
-            </head>
-            <body>
-              <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
-              <script type="text/javascript">
-                RubyEventStore.Browser.Elm.Main.init({
-                  flags: {
-                    rootUrl:    "<%= routing.root_url %>",
-                    apiUrl:     "<%= api_url %>",
-                    resVersion: "<%= RubyEventStore::VERSION %>"
-                  }
-                });
-              </script>
-            </body>
-          </html>
-        }, locals: { path: settings.root_path || request.script_name, api_url: settings.api_url || routing.api_url }
-      end
-
       get '/api/events/:id' do
         begin
           json Event.new(
@@ -80,6 +56,30 @@ module RubyEventStore
           params: symbolized_params,
           routing: routing,
         )
+      end
+
+      get %r{/(events/.*|streams/.*)?} do
+        erb %{
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>RubyEventStore::Browser</title>
+              <link type="text/css" rel="stylesheet" href="<%= path %>/ruby_event_store_browser.css">
+            </head>
+            <body>
+              <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
+              <script type="text/javascript">
+                RubyEventStore.Browser.Elm.Main.init({
+                  flags: {
+                    rootUrl:    "<%= routing.root_url %>",
+                    apiUrl:     "<%= api_url %>",
+                    resVersion: "<%= RubyEventStore::VERSION %>"
+                  }
+                });
+              </script>
+            </body>
+          </html>
+        }, locals: { path: settings.root_path || request.script_name, api_url: settings.api_url || routing.api_url }
       end
 
       helpers do
