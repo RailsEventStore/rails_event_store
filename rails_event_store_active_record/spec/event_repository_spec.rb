@@ -393,6 +393,48 @@ module RailsEventStoreActiveRecord
       expect(event_.timestamp).to eq(time)
     end
 
+    specify 'with post-valid-at appended record' do
+      Event.create!(
+        event_id: id = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
+        event_type: "TestDomainEvent",
+        created_at: t1 = Time.now.utc,
+        valid_at: t2 = Time.at(0),
+      )
+      EventInStream.create!(
+        stream:   "stream",
+        position: 1,
+        event_id: id,
+        created_at: t1,
+      )
+
+      record = repository.read(specification.result).first
+      expect(record.timestamp).to eq(t1)
+      expect(record.valid_at).to  eq(t2)
+    end
+
+    specify 'with pre-valid-at appended record' do
+      Event.create!(
+        event_id: id = SecureRandom.uuid,
+        data: '{}',
+        metadata: '{}',
+        event_type: "TestDomainEvent",
+        created_at: t = Time.now.utc,
+        valid_at: nil,
+      )
+      EventInStream.create!(
+        stream:   "stream",
+        position: 1,
+        event_id: id,
+        created_at: t,
+      )
+
+      record = repository.read(specification.result).first
+      expect(record.timestamp).to eq(t)
+      expect(record.valid_at).to  eq(t)
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end
