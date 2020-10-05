@@ -399,8 +399,8 @@ module RailsEventStoreActiveRecord
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
-        created_at: t1 = Time.now.utc,
-        valid_at: t2 = Time.at(0),
+        created_at: t1 = with_precision(Time.now.utc),
+        valid_at:   t2 = with_precision(Time.at(0)),
       )
       EventInStream.create!(
         stream:   "stream",
@@ -420,7 +420,7 @@ module RailsEventStoreActiveRecord
         data: '{}',
         metadata: '{}',
         event_type: "TestDomainEvent",
-        created_at: t = Time.now.utc,
+        created_at: t = with_precision(Time.now.utc),
         valid_at: nil,
       )
       EventInStream.create!(
@@ -437,7 +437,7 @@ module RailsEventStoreActiveRecord
 
     specify 'valid-at storage optimization when same as created-at' do
       repository.append_to_stream(
-        [RubyEventStore::SRecord.new(timestamp: time = Time.at(0))],
+        [RubyEventStore::SRecord.new(timestamp: time = with_precision(Time.at(0)))],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )
@@ -452,7 +452,10 @@ module RailsEventStoreActiveRecord
 
     specify 'no valid-at storage optimization when different from created-at' do
       repository.append_to_stream(
-        [RubyEventStore::SRecord.new(timestamp: t1 = Time.at(0), valid_at: t2 = Time.at(1))],
+        [RubyEventStore::SRecord.new(
+          timestamp: t1 = with_precision(Time.at(0)), 
+          valid_at:  t2 = with_precision(Time.at(1))
+        )],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
         RubyEventStore::ExpectedVersion.any
       )
@@ -463,6 +466,10 @@ module RailsEventStoreActiveRecord
       event_record = Event.find_by(event_id: record.event_id)
       expect(event_record.created_at).to eq(t1)
       expect(event_record.valid_at).to   eq(t2)
+    end
+
+    def with_precision(time)
+      time.round(RubyEventStore::TIMESTAMP_PRECISION)
     end
 
     def cleanup_concurrency_test
