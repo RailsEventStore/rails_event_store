@@ -435,6 +435,36 @@ module RailsEventStoreActiveRecord
       expect(record.valid_at).to  eq(t)
     end
 
+    specify 'valid-at storage optimization when same as created-at' do
+      repository.append_to_stream(
+        [RubyEventStore::SRecord.new(timestamp: time = Time.at(0))],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      record = repository.read(specification.result).first
+      expect(record.timestamp).to eq(time)
+      expect(record.valid_at).to  eq(time)
+
+      event_record = Event.find_by(event_id: record.event_id)
+      expect(event_record.created_at).to eq(time)
+      expect(event_record.valid_at).to   be_nil
+    end
+
+    specify 'no valid-at storage optimization when different from created-at' do
+      repository.append_to_stream(
+        [RubyEventStore::SRecord.new(timestamp: t1 = Time.at(0), valid_at: t2 = Time.at(1))],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      record = repository.read(specification.result).first
+      expect(record.timestamp).to eq(t1)
+      expect(record.valid_at).to  eq(t2)
+
+      event_record = Event.find_by(event_id: record.event_id)
+      expect(event_record.created_at).to eq(t1)
+      expect(event_record.valid_at).to   eq(t2)
+    end
+
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
     end

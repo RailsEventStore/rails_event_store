@@ -118,8 +118,12 @@ module RailsEventStoreActiveRecord
         metadata:   serialized_record.metadata,
         event_type: serialized_record.event_type,
         created_at: record.timestamp,
-        valid_at:   record.valid_at,
+        valid_at:   optimize_timestamp(record.valid_at, record.timestamp),
       }
+    end
+
+    def optimize_timestamp(valid_at, created_at)
+      valid_at == created_at ? nil : valid_at
     end
 
     # Overwritten in a sub-class
