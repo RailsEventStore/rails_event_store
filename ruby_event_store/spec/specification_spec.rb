@@ -90,6 +90,26 @@ module RubyEventStore
     end
 
     specify do
+      expect(specification.newer_than(target_date).newer_than_or_equal(target_date).result.newer_than).to be_nil
+      expect(specification.newer_than_or_equal(target_date).newer_than(target_date).result.newer_than_or_equal).to be_nil
+    end
+
+    specify do
+      expect(specification.older_than(target_date).older_than_or_equal(target_date).result.older_than).to be_nil
+      expect(specification.older_than_or_equal(target_date).older_than(target_date).result.older_than_or_equal).to be_nil
+    end
+
+    specify do
+      expect(specification.between(target_date..(target_date + 1)).result.older_than_or_equal).to eq(target_date + 1)
+      expect(specification.between(target_date..(target_date + 1)).result.newer_than_or_equal).to eq(target_date)
+    end
+
+    specify do
+      expect(specification.between(target_date...(target_date + 1)).result.older_than).to          eq(target_date + 1)
+      expect(specification.between(target_date...(target_date + 1)).result.newer_than_or_equal).to eq(target_date)
+    end
+
+    specify do
       with_event_of_id(event_id) do
         spec = specification.backward.stream(stream_name).limit(10).from(event_id)
         expect(spec.result.stream.name).to eq(stream_name)

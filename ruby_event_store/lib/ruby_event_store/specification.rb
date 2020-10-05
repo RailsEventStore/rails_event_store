@@ -50,7 +50,13 @@ module RubyEventStore
     # @return [Specification]
     def older_than(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(reader, result.dup { |r| r.older_than = time })
+      Specification.new(
+        reader,
+        result.dup do |r|
+          r.older_than          = time
+          r.older_than_or_equal = nil
+        end
+      )
     end
 
     # Limits the query to events before or after another event.
@@ -60,7 +66,13 @@ module RubyEventStore
     # @return [Specification]
     def older_than_or_equal(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(reader, result.dup { |r| r.older_than_or_equal = time })
+      Specification.new(
+        reader,
+        result.dup do |r|
+          r.older_than          = nil
+          r.older_than_or_equal = time
+        end
+      )
     end
 
     # Limits the query to events before or after another event.
@@ -70,7 +82,13 @@ module RubyEventStore
     # @return [Specification]
     def newer_than(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(reader, result.dup { |r| r.newer_than = time })
+      Specification.new(
+        reader,
+        result.dup do |r|
+          r.newer_than_or_equal = nil
+          r.newer_than          = time
+        end
+      )
     end
 
     # Limits the query to events before or after another event.
@@ -80,7 +98,26 @@ module RubyEventStore
     # @return [Specification]
     def newer_than_or_equal(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(reader, result.dup { |r| r.newer_than_or_equal = time })
+      Specification.new(
+        reader,
+        result.dup do |r|
+          r.newer_than_or_equal = time
+          r.newer_than          = nil
+        end
+      )
+    end
+
+    # Limits the query to events within given time range.
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @param date [Range]
+    # @return [Specification]
+    def between(time_range)
+      if time_range.exclude_end?
+        newer_than_or_equal(time_range.first).older_than(time_range.last)
+      else
+        newer_than_or_equal(time_range.first).older_than_or_equal(time_range.last)
+      end
     end
 
     # Sets the order of time sorting usign transaction time
