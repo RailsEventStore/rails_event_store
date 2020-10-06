@@ -742,6 +742,46 @@ module RubyEventStore
       expect(client.read.to_a).to eq([])
     end
 
+    specify 'can load YAML serialized record of previous release' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event  = TimeEnrichment.with(
+        OrderCreated.new(
+          event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:     { foo: 'bar' },
+          metadata: { bar: 'baz' }
+        ),
+        timestamp: Time.utc(2019, 9, 30),
+        valid_at:  Time.utc(2019, 9, 30)
+      )
+      payload = {
+        event_type: "OrderCreated",
+        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data:       "---\n:foo: bar\n",
+        metadata:   "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n:bar: baz\n",
+      }
+      expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
+    end
+
+    specify 'can load JSON serialized record of previous release' do
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      event  = TimeEnrichment.with(
+        OrderCreated.new(
+          event_id: 'f90b8848-e478-47fe-9b4a-9f2a1d53622b',
+          data:     { 'foo' => 'bar' },
+          metadata: { bar: 'baz' }
+        ),
+        timestamp: Time.utc(2019, 9, 30),
+        valid_at:  Time.utc(2019, 9, 30)
+      )
+      payload = {
+        event_type: "OrderCreated",
+        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data:       "{\"foo\":\"bar\"}",
+        metadata:   "{\"bar\":\"baz\",\"timestamp\":\"2019-09-30 00:00:00 UTC\"}",
+      }
+      expect(client.deserialize(serializer: JSON, **payload)).to eq(event)
+    end
+
     specify 'can load serialized event when using Default mapper' do
       client = RubyEventStore::Client.new(
         mapper:     RubyEventStore::Mappers::Default.new,

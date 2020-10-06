@@ -225,15 +225,19 @@ module RubyEventStore
     # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
     #
     # @return [Event, Proto] deserialized event
-    def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp:, valid_at:)
+    def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
+      extract_timestamp = lambda do |m|
+        (m[:timestamp] || Time.parse(m['timestamp']))&.iso8601 rescue nil
+      end
+
       mapper.record_to_event(
         SerializedRecord.new(
           event_type: event_type,
-          event_id: event_id,
-          data: data,
-          metadata: metadata,
-          timestamp: timestamp,
-          valid_at: valid_at,
+          event_id:   event_id,
+          data:       data,
+          metadata:   metadata,
+          timestamp:  timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
+          valid_at:   valid_at  || timestamp_,
         ).deserialize(serializer)
       )
     end
