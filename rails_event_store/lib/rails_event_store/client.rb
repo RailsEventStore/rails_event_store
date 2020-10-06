@@ -4,11 +4,11 @@ module RailsEventStore
   class Client < RubyEventStore::Client
     attr_reader :request_metadata
 
-    def initialize(repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
-                   mapper: RubyEventStore::Mappers::Default.new,
+    def initialize(mapper: RubyEventStore::Mappers::Default.new,
+                   repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: mapper.serializer),
                    subscriptions: RubyEventStore::Subscriptions.new,
                    dispatcher: RubyEventStore::ComposedDispatcher.new(
-                     RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: YAML)),
+                     RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: mapper.serializer)),
                      RubyEventStore::Dispatcher.new),
                    request_metadata: default_request_metadata)
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),

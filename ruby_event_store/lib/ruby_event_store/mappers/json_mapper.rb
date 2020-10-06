@@ -9,6 +9,10 @@ module RubyEventStore
           Transformation::SymbolizeMetadataKeys.new,
         ))
       end
+
+      def serializer
+        NULL
+      end
     end
   end
 end
