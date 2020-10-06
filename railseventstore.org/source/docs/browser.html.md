@@ -11,9 +11,6 @@ Browser is a web interface that allows you to inspect existing streams and their
 ### Rails
 
 Browser is now an integral part of RailsEventStore bundle and comes as a dependency when you install `rails_event_store` gem. To enable it in your Rails project, add following line to `routes.rb`:
-```
-
-Add this to your `routes.rb` to enable web interface in development:
 
 ```ruby
 Rails.application.routes.draw do
@@ -137,7 +134,7 @@ Related streams will be displayed in stream view, at the bottom.
 
 Example usage:
 
-```
+```ruby
 class RelatedStreamsQuery
   def call(stream_name)
     prefix, suffix = stream_name.split("$")
