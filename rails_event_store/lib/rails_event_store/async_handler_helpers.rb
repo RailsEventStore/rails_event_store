@@ -10,7 +10,7 @@ module RailsEventStore
       end
     end
 
-    def self.with(event_store: Rails.configuration.event_store, serializer: YAML)
+    def self.with(event_store: Rails.configuration.event_store, serializer: event_store.send(:mapper).serializer)
       Module.new do
         define_method :perform do |payload|
           super(event_store.deserialize(serializer: serializer, **payload.symbolize_keys))

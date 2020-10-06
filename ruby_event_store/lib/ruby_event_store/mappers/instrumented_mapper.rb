@@ -20,6 +20,10 @@ module RubyEventStore
         end
       end
 
+      def serializer
+        mapper.serializer
+      end
+
       private
 
       attr_reader :instrumentation, :mapper
