@@ -706,6 +706,7 @@ module RubyEventStore
           nil,
           nil,
           nil,
+          nil,
           Float::INFINITY,
           Stream.new(GLOBAL_STREAM),
           :all,
