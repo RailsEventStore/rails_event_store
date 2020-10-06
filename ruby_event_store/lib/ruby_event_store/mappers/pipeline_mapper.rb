@@ -15,6 +15,10 @@ module RubyEventStore
         pipeline.load(record)
       end
 
+      def serializer
+        NULL
+      end
+
       private
       attr_reader :pipeline
     end
