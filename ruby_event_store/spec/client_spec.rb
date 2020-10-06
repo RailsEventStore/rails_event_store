@@ -797,7 +797,7 @@ module RubyEventStore
           timestamp:  "2019-09-30T00:00:00.000000Z",
           valid_at:   "2019-09-30T00:00:00.000000Z"
         }
-        expect(client.deserialize(**payload)).to eq(event)
+        expect(client.deserialize(serializer: NULL, **payload)).to eq(event)
       rescue LoadError => exc
         skip if exc.message == "cannot load such file -- google/protobuf_c"
       end

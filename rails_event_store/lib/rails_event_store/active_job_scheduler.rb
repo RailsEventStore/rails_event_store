@@ -4,7 +4,7 @@ require 'active_job'
 
 module RailsEventStore
   class ActiveJobScheduler
-    def initialize(serializer: YAML)
+    def initialize(serializer:)
       @serializer = serializer
     end
 

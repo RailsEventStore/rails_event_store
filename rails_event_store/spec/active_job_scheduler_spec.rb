@@ -22,38 +22,39 @@ module RailsEventStore
       MyAsyncHandler.reset
     end
 
-    it_behaves_like :scheduler, ActiveJobScheduler.new
+    it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: YAML)
+    it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
 
-    let(:event) { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
+    let(:event)  { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
 
     describe "#verify" do
       specify do
-        scheduler = ActiveJobScheduler.new
+        scheduler      = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
         proper_handler = Class.new(ActiveJob::Base)
         expect(scheduler.verify(proper_handler)).to eq(true)
       end
 
       specify do
-        scheduler = ActiveJobScheduler.new
+        scheduler  = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
         some_class = Class.new
         expect(scheduler.verify(some_class)).to eq(false)
       end
 
       specify do
-        scheduler = ActiveJobScheduler.new
+        scheduler = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
         expect(scheduler.verify(ActiveJob::Base)).to eq(false)
       end
 
       specify do
-        scheduler = ActiveJobScheduler.new
+        scheduler = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
         expect(scheduler.verify(Object.new)).to eq(false)
       end
     end
 
     describe "#call" do
       specify do
-        scheduler = ActiveJobScheduler.new
+        scheduler = ActiveJobScheduler.new(serializer: YAML)
         scheduler.call(MyAsyncHandler, record)
 
         enqueued_jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
