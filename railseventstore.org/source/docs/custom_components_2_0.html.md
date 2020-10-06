@@ -108,9 +108,12 @@
 ### PipelineMapper
 
 - remove `RubyEventStore::Mappers::Transformation::Serialization.new(serializer: serializer)` transformation step from your pipeline in `RubyEventStore::Mappers::PipelineMapper`
+
 - inline `RubyEventStore::Mappers::Pipeline.new(transformations: transformations)` to `RubyEventStore::Mappers::Pipeline.new(*transformations)`
+
 ### Mapper
 
 - rename `event_to_serialized_record` to `event_to_record`
+
 - rename `serialized_record_to_event` to `record_to_event`
 
