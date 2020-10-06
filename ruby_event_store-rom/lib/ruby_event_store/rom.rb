@@ -83,6 +83,7 @@ module RubyEventStore
         require_relative 'rom/repositories/events'
 
         config.register_mapper(Mappers::StreamEntryToSerializedRecord)
+        config.register_mapper(Mappers::EventToSerializedRecord)
 
         find_adapters(config.environment.gateways).each do |adapter|
           adapter.setup(config)

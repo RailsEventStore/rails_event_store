@@ -23,7 +23,7 @@ module RubyEventStore
               end
             rescue StandardError
               committed.reverse_each do |c, r|
-                r.restrict(id: c.to_a.map { |e| e[:id] }).command(:delete, result: :many).call
+                r.restrict(event_id: c.to_a.map { |e| e[:event_id] }).command(:delete, result: :many).call
               end
 
               raise
