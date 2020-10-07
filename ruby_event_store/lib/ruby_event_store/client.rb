@@ -11,7 +11,7 @@ module RubyEventStore
                    dispatcher: Dispatcher.new,
                    clock: default_clock)
       @repository     = repository
-      @mapper         = mapper
+      @mapper         = Mappers::DeprecatedWrapper.new(mapper)
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
