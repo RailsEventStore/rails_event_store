@@ -23,7 +23,7 @@ module RailsEventStoreActiveRecord
 
       if spec.batched?
         batch_reader = ->(offset_id, limit) do
-          search_in = spec.stream.global? ? 'event_store_events' : 'event_store_events_in_streams'
+          search_in = spec.stream.global? ? @event_klass.table_name : @stream_klass.table_name
           records = offset_id.nil? ? stream.limit(limit) : stream.where(start_offset_condition(spec, offset_id, search_in)).limit(limit)
           [records.map(&method(:record)), records.last]
         end
