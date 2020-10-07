@@ -22,9 +22,9 @@ module RubyEventStore
 
     specify '#for_stream_entries filters events on :event_id in stream entries' do
       events = [
-        { id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
-        { id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
-        { id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
+        { event_id: SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+        { event_id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+        { event_id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
       ]
 
       stream_entries = [
@@ -34,34 +34,34 @@ module RubyEventStore
 
       relation.command(:create).call(events)
 
-      expect(relation.for_stream_entries(nil, stream_entries).to_a.map { |e| e[:id] }).to eq([id2, id3])
+      expect(relation.for_stream_entries(nil, stream_entries).to_a.map { |e| e[:event_id] }).to eq([id2, id3])
     end
 
     specify '#pluck returns an array with single value for each tuple' do
       events = [
-        { id: id1 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
-        { id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
-        { id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
+        { event_id: id1 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+        { event_id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+        { event_id: id3 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
       ]
 
       relation.command(:create).call(events)
 
       expect(relation.to_a.size).to eq(3)
-      expect(relation.pluck(:id)).to eq([id1, id2, id3])
-      expect(relation.by_pk(events[0][:id]).to_a.size).to eq(1)
-      expect(relation.by_pk(events[0][:id]).pluck(:id)).to eq([id1])
+      expect(relation.pluck(:event_id)).to eq([id1, id2, id3])
+      expect(relation.by_event_id(events[0][:event_id]).to_a.size).to eq(1)
+      expect(relation.by_event_id(events[0][:event_id]).pluck(:event_id)).to eq([id1])
     end
 
     specify '#insert raises errors' do
       events = [
-        { id: id1 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
-        { id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+        { event_id: id1 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
+        { event_id: id2 = SecureRandom.uuid, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now },
       ]
 
       relation.command(:create).call(events)
 
       conflicting_event_id =
-        { id: id1, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
+        { event_id: id1, event_type: 'TestEvent', data: '{}', metadata: '{}', created_at: Time.now, valid_at: Time.now }
 
       expect do
         relation.insert(conflicting_event_id)

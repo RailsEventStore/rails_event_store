@@ -9,7 +9,7 @@ module RubyEventStore
       class StreamEntries < ::ROM::Repository[:stream_entries]
         POSITION_SHIFT = 1
 
-        def create_changeset(event_ids, stream, resolved_version, global_stream: nil)
+        def create_changeset(event_ids, stream, resolved_version)
           tuples = []
 
           event_ids.each_with_index do |event_id, index|
@@ -20,14 +20,6 @@ module RubyEventStore
                 event_id: event_id
               }
             end
-
-            next unless global_stream
-
-            tuples << {
-              stream: stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME,
-              position: nil,
-              event_id: event_id
-            }
           end
 
           stream_entries.create_changeset(tuples)
@@ -45,7 +37,6 @@ module RubyEventStore
 
         def streams_of(event_id)
           stream_entries.by_event_id(event_id).map { |e| e[:stream] }
-                        .reject { |s| s == stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME }
         end
       end
     end

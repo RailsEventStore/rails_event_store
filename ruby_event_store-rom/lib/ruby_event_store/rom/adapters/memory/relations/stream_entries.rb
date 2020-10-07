@@ -6,7 +6,7 @@ module RubyEventStore
       module Relations
         class StreamEntries < ::ROM::Relation[:memory]
           schema(:stream_entries) do
-            attribute(:id, ::ROM::Types::Strict::Integer.meta(primary_key: true).default { RubyEventStore::ROM::Memory.fetch_next_id })
+            attribute(:id, ::ROM::Types::Strict::Integer.default { RubyEventStore::ROM::Memory.fetch_next_id })
             attribute :stream, ::ROM::Types::Strict::String
             attribute :position, ::ROM::Types::Strict::Integer.optional
             attribute :event_id, ::ROM::Types::Strict::String.meta(foreign_key: true, relation: :events)
@@ -18,12 +18,10 @@ module RubyEventStore
           end
 
           def for_events(events)
-            restrict(event_id: events.map { |e| e[:id] })
+            restrict(event_id: events.map { |e| e[:event_id] })
           end
 
           auto_struct true
-
-          SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
 
           def create_changeset(tuples)
             changeset(Changesets::CreateStreamEntries, tuples)
@@ -47,7 +45,7 @@ module RubyEventStore
           end
 
           def by_stream(stream)
-            restrict(stream: normalize_stream_name(stream))
+            restrict(stream: stream.name)
           end
 
           def by_event_id(event_id)
@@ -59,7 +57,7 @@ module RubyEventStore
           end
 
           def by_stream_and_event_id(stream, event_id)
-            restrict(stream: normalize_stream_name(stream), event_id: event_id).one!
+            restrict(stream: stream.name, event_id: event_id).one!
           end
 
           def max_position(stream)
@@ -110,7 +108,7 @@ module RubyEventStore
             if event_order_columns.empty?
               query = query.order(*stream_order_columns)
             else
-              query = new(query.dataset.sort_by { |r| event_order_columns.map { |c| events.by_pk(r[:event_id]).one[c] }})
+              query = new(query.dataset.sort_by { |r| event_order_columns.map { |c| events.by_event_id(r[:event_id]).one[c] }})
             end
 
             query = new(query.dataset.reverse) if reverse
@@ -122,8 +120,7 @@ module RubyEventStore
           # Verifies uniqueness of [stream, event_id] and [stream, position]
           def verify_uniquness!(tuple)
             stream = tuple[:stream]
-            attrs = %i[position event_id]
-            attrs.delete(:position) if Stream.new(stream).global?
+            attrs  = %i[position event_id]
 
             attrs.each do |key|
               next if key == :position && tuple[key].nil?
@@ -131,10 +128,6 @@ module RubyEventStore
 
               raise TupleUniquenessError.public_send(:"for_stream_and_#{key}", stream, tuple.fetch(key))
             end
-          end
-
-          def normalize_stream_name(stream)
-            stream.global? ? SERIALIZED_GLOBAL_STREAM_NAME : stream.name
           end
         end
       end

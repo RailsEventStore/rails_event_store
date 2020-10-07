@@ -15,14 +15,12 @@ module RubyEventStore
 
           alias take limit
 
-          SERIALIZED_GLOBAL_STREAM_NAME = 'all'.freeze
-
           def create_changeset(tuples)
             changeset(ROM::Changesets::CreateStreamEntries, tuples)
           end
 
           def by_stream(stream)
-            where(stream: normalize_stream_name(stream))
+            where(stream: stream.name)
           end
 
           def by_event_id(event_id)
@@ -34,7 +32,7 @@ module RubyEventStore
           end
 
           def by_stream_and_event_id(stream, event_id)
-            where(stream: normalize_stream_name(stream), event_id: event_id).one!
+            where(stream: stream.name, event_id: event_id).one!
           end
 
           def max_position(stream)
@@ -87,12 +85,6 @@ module RubyEventStore
             else
               query.join(:events).order { |r| event_order_columns.map { |c| r.events[c].public_send(order) } }
             end
-          end
-
-          private
-
-          def normalize_stream_name(stream)
-            stream.global? ? SERIALIZED_GLOBAL_STREAM_NAME : stream.name
           end
         end
       end

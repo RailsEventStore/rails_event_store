@@ -43,21 +43,6 @@ module RubyEventStore
         expect(repository.has_event?('0')).to eq(false)
       end
 
-      specify 'all considered internal detail' do
-        repository.append_to_stream(
-          [SRecord.new],
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
-
-        expect { repository.read(specification.stream('all').result) }.to raise_error(ReservedInternalName)
-        expect { repository.read(specification.stream('all').backward.result) }.to raise_error(ReservedInternalName)
-        expect { repository.read(specification.stream('all').limit(5).result) }.to raise_error(ReservedInternalName)
-        expect { repository.read(specification.stream('all').limit(5).backward.result) }.to raise_error(ReservedInternalName)
-
-        expect { repository.count(specification.stream('all').result) }.to raise_error(ReservedInternalName)
-      end
-
       specify 'explicit sorting by position rather than accidental' do
         events = [
           SRecord.new(event_id: u1 = SecureRandom.uuid),

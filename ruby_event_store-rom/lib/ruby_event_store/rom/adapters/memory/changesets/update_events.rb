@@ -8,7 +8,7 @@ module RubyEventStore
           def commit
             to_a.each do |params|
               attributes = command.input[params].to_h.delete_if { |k, v| k == :created_at }
-              relation.by_pk(params.fetch(:id)).dataset.map { |tuple| tuple.update(attributes) }
+              relation.by_event_id(params.fetch(:event_id)).dataset.map { |tuple| tuple.update(attributes) }
             end
           end
         end

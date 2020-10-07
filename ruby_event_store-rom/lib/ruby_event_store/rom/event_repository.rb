@@ -34,8 +34,7 @@ module RubyEventStore
             changesets << @stream_entries.create_changeset(
               event_ids,
               stream,
-              @stream_entries.resolve_version(stream, expected_version),
-              global_stream: true
+              @stream_entries.resolve_version(stream, expected_version)
             )
           end
         end
@@ -77,14 +76,10 @@ module RubyEventStore
       end
 
       def read(specification)
-        raise ReservedInternalName if specification.stream.name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
-
         @events.read(specification, @serializer)
       end
 
       def count(specification)
-        raise ReservedInternalName if specification.stream.name.eql?(@stream_entries.stream_entries.class::SERIALIZED_GLOBAL_STREAM_NAME)
-
         @events.count(specification)
       end
 

@@ -28,7 +28,7 @@ module RubyEventStore
           def commit_insert_conflict_update
             relation.dataset.insert_conflict(
               # constraint: 'index_name',
-              target: :id,
+              target: :event_id,
               update: UPSERT_COLUMNS.each_with_object({}) do |column, memo|
                 memo[column] = Sequel[:excluded][column]
               end
