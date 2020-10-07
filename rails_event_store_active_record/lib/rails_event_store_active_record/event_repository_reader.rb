@@ -62,8 +62,8 @@ module RailsEventStoreActiveRecord
         stream.order(id: order(spec))
       else
         stream = @stream_klass.preload(:event).where(stream: spec.stream.name)
-        stream = stream.where(event_id: spec.with_ids)                                         if spec.with_ids?
-        stream = stream.joins(:event).where(event_store_events: {event_type: spec.with_types}) if spec.with_types?
+        stream = stream.where(event_id: spec.with_ids)                                                if spec.with_ids?
+        stream = stream.joins(:event).where(@event_klass.table_name => {event_type: spec.with_types}) if spec.with_types?
         stream = ordered(stream.joins(:event), spec)
         stream = stream.order(position: order(spec), id: order(spec))
         stream = stream.limit(spec.limit)                                        if spec.limit?
