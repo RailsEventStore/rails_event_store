@@ -3,10 +3,13 @@
 module RubyEventStore
   module Mappers
     class Pipeline
-      def initialize(*transformations, to_domain_event: Transformation::DomainEvent.new)
+      UNSET = Object.new.freeze
+
+      def initialize(*transformations_, transformations: UNSET, to_domain_event: Transformation::DomainEvent.new)
         @transformations = [
           to_domain_event,
-          transformations,
+          deprecated_transformations(transformations),
+          transformations_,
         ].flatten.freeze
       end
 
@@ -23,6 +26,27 @@ module RubyEventStore
       end
 
       attr_reader :transformations
+
+      private
+
+      def deprecated_transformations(transformations)
+        case transformations
+        when UNSET
+          []
+        else
+          warn <<~EOW
+            Passing transformations via keyword parameter is deprecated.
+            Please use positional arguments from now on.
+          
+            Was:
+              RubyEventStore::Mappers::Pipeline.new(transformations: transformations)
+          
+            Is now:
+              RubyEventStore::Mappers::Pipeline.new(*transformations)
+          EOW
+          transformations
+        end
+      end
     end
   end
 end
