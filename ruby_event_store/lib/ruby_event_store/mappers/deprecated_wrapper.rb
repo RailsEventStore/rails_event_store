@@ -5,6 +5,10 @@ module RubyEventStore
         @mapper = mapper
       end
 
+      def serializer
+        @mapper.serializer
+      end
+
       def event_to_record(any)
         @mapper.event_to_record(any)
       rescue NoMethodError
