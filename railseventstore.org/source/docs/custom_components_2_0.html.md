@@ -117,3 +117,5 @@
 
 - rename `serialized_record_to_event` to `record_to_event`
 
+- replace `RubyEventStore::SerializedRecord` with `RubyEventStore::Record`, `timestamp` and `valid_at` attributes are of `Time` kind
+
