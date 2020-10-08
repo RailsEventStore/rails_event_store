@@ -112,7 +112,7 @@
 - inline `RubyEventStore::Mappers::Pipeline.new(transformations: transformations)` to `RubyEventStore::Mappers::Pipeline.new(*transformations)`
 
 - replace `RubyEventStore::Mappers::Transformation::Item` with `RubyEventStore::Record`
-`
+
 ### Mapper
 
 - rename `event_to_serialized_record` to `event_to_record`
