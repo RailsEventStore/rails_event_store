@@ -8,7 +8,7 @@ module RailsEventStore
                    repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: mapper.serializer),
                    subscriptions: RubyEventStore::Subscriptions.new,
                    dispatcher: RubyEventStore::ComposedDispatcher.new(
-                     RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: mapper.serializer)),
+                     RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: mapper.serializer)),
                      RubyEventStore::Dispatcher.new),
                    request_metadata: default_request_metadata)
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
