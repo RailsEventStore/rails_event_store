@@ -111,7 +111,7 @@
 
 - inline `RubyEventStore::Mappers::Pipeline.new(transformations: transformations)` to `RubyEventStore::Mappers::Pipeline.new(*transformations)`
 
-- replace ``RubyEventStore::Mappers::Transformation::Item` with `RubyEventStore::Record`
+- replace `RubyEventStore::Mappers::Transformation::Item` with `RubyEventStore::Record`
 `
 ### Mapper
 
