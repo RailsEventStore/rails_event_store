@@ -10,7 +10,7 @@
     "babel-loader": "^8.0.6",
     "countup.js": "^2.0.4",
     "css-loader": "^4.3.0",
-    "mini-css-extract-plugin": "^0.11.3",
+    "mini-css-extract-plugin": "^0.12.0",
     "postcss": "^7.0.0",
     "postcss-import": "^12.0.1",
     "postcss-loader": "^4.0.3",
