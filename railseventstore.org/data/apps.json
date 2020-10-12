@@ -18,5 +18,9 @@
   {
     "url": "https://github.com/carsdb/rails_event_store_dynamoid",
     "title": "rails_event_store_dynamoid"
+  },
+  {
+   "url": "https://github.com/palkan/active_event_store",
+   "title": "active_event_store"
   }
 ]
