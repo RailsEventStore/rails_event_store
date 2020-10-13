@@ -90,7 +90,7 @@ module RubyEventStore
       attributes.stop
     end
 
-    # Ending date.
+    # Ending time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Time]
@@ -98,7 +98,7 @@ module RubyEventStore
       attributes.older_than
     end
 
-    # Ending date.
+    # Ending time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Time]
@@ -106,7 +106,7 @@ module RubyEventStore
       attributes.older_than_or_equal
     end
 
-    # Starting date.
+    # Starting time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Time]
@@ -114,7 +114,7 @@ module RubyEventStore
       attributes.newer_than
     end
 
-    # Starting date.
+    # Starting time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @return [Time]

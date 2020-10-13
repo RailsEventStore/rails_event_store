@@ -43,10 +43,10 @@ module RubyEventStore
       Specification.new(reader, result.dup { |r| r.stop = stop })
     end
 
-    # Limits the query to events before or after another event.
+    # Limits the query to events that later than given time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param date [Time]
+    # @param time [Time]
     # @return [Specification]
     def older_than(time)
       raise ArgumentError unless time.respond_to?(:to_time)
@@ -59,10 +59,10 @@ module RubyEventStore
       )
     end
 
-    # Limits the query to events before or after another event.
+    # Limits the query to events that occurred on given time or later.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param date [Time]
+    # @param time [Time]
     # @return [Specification]
     def older_than_or_equal(time)
       raise ArgumentError unless time.respond_to?(:to_time)
@@ -75,10 +75,10 @@ module RubyEventStore
       )
     end
 
-    # Limits the query to events before or after another event.
+    # Limits the query to events that occurred earlier than given time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param date [Time]
+    # @param time [Time]
     # @return [Specification]
     def newer_than(time)
       raise ArgumentError unless time.respond_to?(:to_time)
@@ -91,10 +91,10 @@ module RubyEventStore
       )
     end
 
-    # Limits the query to events before or after another event.
+    # Limits the query to events that occurred on given time or earlier.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param date [Time]
+    # @param time [Time]
     # @return [Specification]
     def newer_than_or_equal(time)
       raise ArgumentError unless time.respond_to?(:to_time)
@@ -110,7 +110,7 @@ module RubyEventStore
     # Limits the query to events within given time range.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param date [Range]
+    # @param time_range [Range]
     # @return [Specification]
     def between(time_range)
       if time_range.exclude_end?
@@ -120,7 +120,7 @@ module RubyEventStore
       end
     end
 
-    # Sets the order of time sorting usign transaction time
+    # Sets the order of time sorting using transaction time
     # {http://railseventstore.org/docs/read/ Find out more}
     #
     # @return [Specification]
@@ -128,7 +128,7 @@ module RubyEventStore
       Specification.new(reader, result.dup { |r| r.time_sort_by = :as_at})
     end
 
-    # Sets the order of time sorting usign validity time
+    # Sets the order of time sorting using validity time
     # {http://railseventstore.org/docs/read/ Find out more}
     #
     # @return [Specification]
@@ -204,7 +204,7 @@ module RubyEventStore
     # built up to this point result using provided block.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @accumulator starting state for reduce operation
+    # @param accumulator starting state for reduce operation
     # @return reduce result as defined by block given
     def reduce(accumulator = nil, &block)
       raise ArgumentError.new("Block must be given") unless block_given?
@@ -293,7 +293,7 @@ module RubyEventStore
     # Limits the query to certain events by given even ids.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @param even_ids [Array(String)] ids of event to look for.
+    # @param event_ids [Array(String)] ids of event to look for.
     # @return [Specification]
     def with_id(event_ids)
       Specification.new(reader, result.dup{ |r| r.with_ids = event_ids })
