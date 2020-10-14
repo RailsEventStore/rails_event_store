@@ -14,7 +14,7 @@ choose to use different serializers (even whole mappers).
 ## Configuring a different serializer
 
 You can pass a different `serializer` as a dependency when [instantiating
-the client](/docs/install).
+the client](/docs/v1/install).
 
 Here is an example on how to configure RailsEventStore to serialize
 events' `data` and `metadata` using `JSON`.
@@ -67,7 +67,7 @@ event.data['foo']
 # => "bar"
 ```
 
-Another way to achive that could be define your own [custom mapper & transformation](/docs/mapping_serialization/#custom-mapper).
+Another way to achive that could be define your own [custom mapper & transformation](/docs/v1/mapping_serialization//#custom-mapper).
 
 Additionally, if you are using Postgres, you can configure the migration
 to use JSON or JSONB data types for the `data` and `metadata` fields by

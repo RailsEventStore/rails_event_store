@@ -5,7 +5,7 @@ title: Event serialization formats
 By default RailsEventStore will use `YAML` as a
 serialization format. The reason is that `YAML` is available out of box
 and can serialize and deserialize data types which are not easily
-handled in other formats. 
+handled in other formats.
 
 However, if you don't like `YAML` or you have different needs you can
 choose to use different serializers or even replace mappers entirely.
@@ -13,7 +13,7 @@ choose to use different serializers or even replace mappers entirely.
 ## Configuring a different serializer
 
 You can pass a different `serializer` as a dependency when [instantiating
-the client](/docs/install).
+the client](/docs/v1/install).
 
 Here is an example on how to configure RailsEventStore to serialize
 events' `data` and `metadata` using `Marshal`.
@@ -62,7 +62,7 @@ $ rails generate rails_event_store_active_record:migration --data-type=jsonb
 <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-600 px-4" role="alert">
   <p class="text-base font-bold">Bear in mind that <code>JSON</code> will convert symbols to strings and you have to prepare for that when retrieving events.</p>
   <p class="text-base inline-block">
-    
+
 <div class="highlight">
 <pre class="syntax-highlight ruby">
 <code>
@@ -109,10 +109,6 @@ event.data['foo']
     Another way to achive that could be define your own <a href="https://railseventstore.org/docs/mapping_serialization/#custom-mapper">custom mapper and transformation</a>
   </p>
 </div>
-
-
-
-
 
 
 ### Available mappers
@@ -209,7 +205,7 @@ You could build your own transformations or use existing ones combined with the 
 
 Check out the code of our [mappers](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/) and [transformations](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/transformation/) on github for examples on how to implement mappers & transformations.
 
-You can pass a different `mapper` as a dependency when [instantiating the client](/docs/install).
+You can pass a different `mapper` as a dependency when [instantiating the client](/docs/v1/install).
 
 ```ruby
 # config/environments/*.rb
