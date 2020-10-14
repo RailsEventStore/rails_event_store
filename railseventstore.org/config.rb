@@ -24,7 +24,7 @@ class Stats
   end
 
   def total_downloads_count
-    response = Faraday.get("https://rubygems.org/api/v1/downloads/rails_event_store-0.39.0.json")
+    response = Faraday.get("https://rubygems.org/api/v1/downloads/rails_event_store-1.0.0.json")
     JSON.parse(response.body)["total_downloads"]
   end
 
