@@ -1,7 +1,6 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-@import "solarized.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html {
   font-size: 20px;

@@ -47,8 +47,8 @@ activate :syntax do |syntax|
   syntax.css_class = "syntax-highlight"
 end
 activate :external_pipeline,
-  name: :webpack,
-  command: build? ? 'yarn webpack-production' : 'yarn webpack-development',
+  name: :parceljs,
+  command: build? ? 'yarn build' : 'yarn watch',
   source: ".tmp/dist",
   latency: 1
 
