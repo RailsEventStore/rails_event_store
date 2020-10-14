@@ -3,7 +3,7 @@
   command = "./bin/build"
   publish = "railseventstore.org/build/"
 
-[redirects]
+[[redirects]]
   from = "/docs"
   to = "/docs/v1"
   status = 301
