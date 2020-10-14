@@ -4,7 +4,7 @@
   publish = "railseventstore.org/build/"
 
 [[redirects]]
-  from = "/docs"
-  to = "/docs/v1"
+  from = "/docs/*"
+  to = "/docs/v1/:splat"
   status = 301
   force = false
