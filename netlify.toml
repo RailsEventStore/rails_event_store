@@ -2,3 +2,9 @@
   base = "railseventstore.org/"
   command = "./bin/build"
   publish = "railseventstore.org/build/"
+
+[redirects]
+  from = "/docs"
+  to = "/docs/v1"
+  status = 301
+  force = false
