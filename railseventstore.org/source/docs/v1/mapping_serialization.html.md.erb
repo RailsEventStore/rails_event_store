@@ -5,11 +5,10 @@ title: Event serialization formats
 By default RailsEventStore will use `YAML` as a
 serialization format. The reason is that `YAML` is available out of box
 and can serialize and deserialize data types which are not easily
-handled in other formats. As an example, `JSON` cannot out of box handle
-deserializing dates. You get back `String` instead of a `Date`.
+handled in other formats. 
 
 However, if you don't like `YAML` or you have different needs you can
-choose to use different serializers (even whole mappers).
+choose to use different serializers or even replace mappers entirely.
 
 ## Configuring a different serializer
 
@@ -17,7 +16,7 @@ You can pass a different `serializer` as a dependency when [instantiating
 the client](/docs/install).
 
 Here is an example on how to configure RailsEventStore to serialize
-events' `data` and `metadata` using `JSON`.
+events' `data` and `metadata` using `Marshal`.
 
 ```ruby
 # config/environments/*.rb
@@ -26,7 +25,7 @@ Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
       mapper: RubyEventStore::Mappers::Default.new(
-        serializer: JSON
+        serializer: Marshal
       )
     )
   end
@@ -35,9 +34,35 @@ end
 
 The provided `serializer` must respond to `load` and `dump`.
 
-Bear in mind that serializers have their limitations. For example `JSON` would convert symbols to strings and you have to prepare for that when retrieving events.
+
+## Configuring a different mapper
+
+JSON is a popular serialization choice when paired with JSON/JSONB storage on Potgres. To make full use of it, set:
 
 ```ruby
+# config/environments/*.rb
+
+Rails.application.configure do
+  config.to_prepare do
+    Rails.configuration.event_store = RailsEventStore::Client.new(
+      mapper: RubyEventStore::Mappers::JSONMapper.new
+    )
+  end
+end
+
+```
+
+Additionally, if you are using Postgres, you can tell the migration to use JSON or JSONB data types for the `data` and `metadata` fields by
+passing in a `--data-type` to the generator.
+
+```console
+$ rails generate rails_event_store_active_record:migration --data-type=jsonb
+```
+
+<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-600 px-4" role="alert">
+  <p class="text-base font-bold">Bear in mind that `JSON` will convert symbols to strings and you have to prepare for that when retrieving events.</p>
+  <p class="text-base inline-block">
+    ```ruby
 JSON.load(JSON.dump({foo: :bar}))
 => {"foo"=>"bar"}
 ```
@@ -54,7 +79,7 @@ end
 OrderPlaced = Class.new(MyEvent)
 ```
 
-That shields you from data keys being transformed from symbols into strings. It doesn't do anything with data values though so beware.
+That shields you from data keys being transformed from symbols into strings. It doesn't do anything with data values associated to those keys.
 
 ```ruby
 event_store.publish(OrderPlaced.new(event_id: 'e34fc19a-a92f-4c21-8932-a10f6fb2602b', data: { foo: :bar }))
@@ -67,21 +92,15 @@ event.data['foo']
 # => "bar"
 ```
 
-Another way to achive that could be define your own [custom mapper & transformation](/docs/mapping_serialization/#custom-mapper).
+  <p class="text-base inline-block">
+    Another way to achive that could be define your own <a href="https://railseventstore.org/docs/mapping_serialization/#custom-mapper">custom mapper and transformation</a>
+  </p>
+</div>
 
-Additionally, if you are using Postgres, you can configure the migration
-to use JSON or JSONB data types for the `data` and `metadata` fields by
-passing in a `--data-type` to the generator
 
-```console
-$ rails generate rails_event_store_active_record:migration --data-type=jsonb
-```
 
-## Configuring a different mapper
 
-Configuring a different mapper makes it possible to define events however you want and store in them in the database.
-You no longer need to use `RubyEventStore::Event` (or `RailsEventStore::Event`) for events.
-Any object can be used as events, provided you tell us how to map it to columns that we store in the DB.
+
 
 ### Available mappers
 
