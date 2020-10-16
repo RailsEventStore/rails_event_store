@@ -5129,9 +5129,9 @@ symbol-tree@^3.2.2:
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
 "tailwindcss@< 2.0.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-1.9.0.tgz#19caaca94656e2d5f038fa46e754d91e152e9609"
-  integrity sha512-RJJ7SRtmm1jBXzOm5It50NAX76251yW+XWISb2Y+kxgqwcCHq4RDor7elzeUChl/dIFvUMDsHb7LfiGtLs3qtg==
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-1.9.2.tgz#6a6b423d0a2ff4376ca1a007ef70eae852788562"
+  integrity sha512-D3uKSZZkh4GaKiZWmPEfNrqEmEuYdwaqXOQ7trYSQQFI5laSD9+b2FUUj5g39nk5R1omKp5tBW9wZsfJq+KIVA==
   dependencies:
     "@fullhuman/postcss-purgecss" "^2.1.2"
     autoprefixer "^9.4.5"
