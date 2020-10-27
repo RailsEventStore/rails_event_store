@@ -8,7 +8,17 @@ module RubyEventStore
 
     before(:each) { require_protobuf_dependencies }
 
-    it_behaves_like :event, RubyEventStore::Proto
+    class ProtoLintWrapper
+      def self.wrap
+        Class.new do
+          def self.new(event_id: Object.new, data: ResTesting::OrderCreated.new, metadata: {})
+            RubyEventStore::Proto.new(data: data || ResTesting::OrderCreated.new, metadata: metadata, event_id: event_id)
+          end
+        end
+      end
+    end
+
+    it_behaves_like :event, ProtoLintWrapper.wrap
 
     specify 'equality' do
       event_1 = RubyEventStore::Proto.new(
@@ -153,7 +163,7 @@ module RubyEventStore
       end.to raise_error(ArgumentError)
     end
 
-    it_behaves_like :correlatable, Proto
+    it_behaves_like :correlatable, ProtoLintWrapper.wrap
   end
 
   module Mappers
