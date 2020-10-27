@@ -111,12 +111,6 @@ module RubyEventStore
       expect(event).not_to eq(different_event)
     end
 
-    specify 'an event and a random object are different' do
-      event = Test::TestCreated.new
-      object = Object.new
-      expect(event).not_to eq(object)
-    end
-
     specify 'only events with the same class, event_id & data are equal' do
       event_1 = Test::TestCreated.new
       event_2 = Test::TestCreated.new
