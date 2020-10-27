@@ -15,7 +15,7 @@ module RubyEventStore
           order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       event_2 = RubyEventStore::Proto.new(
@@ -25,7 +25,7 @@ module RubyEventStore
           order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       expect(event_1).to eq(event_2)
@@ -39,7 +39,7 @@ module RubyEventStore
           order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       event_2 = RubyEventStore::Proto.new(
@@ -52,25 +52,25 @@ module RubyEventStore
       expect(event_1).to eq(event_2)
     end
 
-    specify 'equality - class must be the same' do
-      event_1 = Class.new(RubyEventStore::Proto).new(
+    specify 'equality - event type must be the same' do
+      event_1 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data: ResTesting::OrderCreated.new(
           customer_id: 123,
           order_id: "K3THNX9",
           ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       event_2 = RubyEventStore::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data: ResTesting::OrderCreated.new(
+        data: ResTesting::OrderPlaced.new(
           customer_id: 123,
           order_id: "K3THNX9",
           ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       expect(event_1).not_to eq(event_2)
@@ -85,7 +85,7 @@ module RubyEventStore
           order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       event_2 = RubyEventStore::Proto.new(
@@ -95,7 +95,7 @@ module RubyEventStore
           order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       expect(event_1).not_to eq(event_2)
@@ -109,7 +109,7 @@ module RubyEventStore
           order_id: "K3THNX9",
           ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       event_2 = RubyEventStore::Proto.new(
@@ -119,7 +119,7 @@ module RubyEventStore
           order_id: "K3THNX9",
         ),
         metadata: {
-          time: Time.new(2018, 12, 13, 11 ),
+          time: Time.new(2018, 12, 13, 11),
         }
       )
       expect(event_1).not_to eq(event_2)
@@ -168,7 +168,7 @@ module RubyEventStore
         three: true,
         four: Date.new(2018, 4, 17),
         five: "five",
-        six: Time.utc(2018, 12, 13, 11 ),
+        six: Time.utc(2018, 12, 13, 11),
         seven: true,
         eight: false,
         nein: nil,

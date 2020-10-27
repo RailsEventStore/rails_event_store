@@ -8,8 +8,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :order_id, :string, 1
     optional :customer_id, :int32, 2
   end
+
+  add_message "res_testing.OrderPlaced" do
+    optional :order_id, :string, 1
+    optional :customer_id, :int32, 2
+  end
 end
 
 module ResTesting
   OrderCreated = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderCreated").msgclass
+  OrderPlaced  = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderPlaced").msgclass
 end

@@ -15,7 +15,7 @@ module RubyEventStore
           three: true,
           four: Date.new(2018, 4, 17),
           five: "five",
-          six: Time.utc(2018, 12, 13, 11 ),
+          six: Time.utc(2018, 12, 13, 11),
           seven: true,
           eight: false,
           nein: nil,
