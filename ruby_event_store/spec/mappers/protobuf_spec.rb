@@ -1,11 +1,14 @@
 require 'spec_helper'
 require 'ruby_event_store/spec/mapper_lint'
+require 'ruby_event_store/spec/event_lint'
 
 module RubyEventStore
   RSpec.describe Proto do
     include ProtobufHelper
 
     before(:each) { require_protobuf_dependencies }
+
+    it_behaves_like :event, RubyEventStore::Proto
 
     specify 'equality' do
       event_1 = RubyEventStore::Proto.new(

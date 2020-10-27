@@ -171,5 +171,4 @@ module RubyEventStore
 
     it_behaves_like :correlatable, Event
   end
-
 end
