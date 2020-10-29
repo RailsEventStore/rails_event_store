@@ -250,10 +250,12 @@ module RubyEventStore
       end
       client.publish(one = ProductAdded.new)
 
-      expect(@two.correlation_id).to eq(one.event_id)
+      expect(one.correlation_id).to  be_nil
+
+      expect(@two.correlation_id).to eq(one.correlation_id)
       expect(@two.causation_id).to   eq(one.event_id)
 
-      expect(@three.correlation_id).to eq(one.event_id)
+      expect(@three.correlation_id).to eq(one.correlation_id)
       expect(@three.causation_id).to   eq(@two.event_id)
 
       expect(@four.correlation_id).to eq('COID')
