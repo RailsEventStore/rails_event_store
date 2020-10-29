@@ -8,12 +8,16 @@ module RubyEventStore
                    mapper: Mappers::Default.new,
                    subscriptions: Subscriptions.new,
                    dispatcher: Dispatcher.new,
-                   clock: default_clock)
+                   clock: default_clock,
+                   correlation_id_generator: default_correlation_id_generator)
+
+
       @repository     = repository
       @mapper         = Mappers::DeprecatedWrapper.new(mapper)
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
+      @correlation_id_generator = correlation_id_generator
     end
 
 
@@ -306,7 +310,7 @@ module RubyEventStore
       metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp]      ||= clock.call
       event.metadata[:valid_at]       ||= event.metadata.fetch(:timestamp)
-      event.metadata[:correlation_id] ||= SecureRandom.uuid
+      event.metadata[:correlation_id] ||= correlation_id_generator.call
     end
 
     def append_records_to_stream(records, stream_name:, expected_version:)
@@ -323,6 +327,10 @@ module RubyEventStore
       ->{ Time.now.utc.round(TIMESTAMP_PRECISION) }
     end
 
-    attr_reader :repository, :mapper, :broker, :clock
+    def default_correlation_id_generator
+      ->{ SecureRandom.uuid }
+    end
+
+    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator
   end
 end
