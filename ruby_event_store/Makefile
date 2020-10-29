@@ -3,6 +3,7 @@ GEM_NAME    = ruby_event_store
 REQUIRE     = $(GEM_NAME)
 IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Client\#default_clock \
+              RubyEventStore::Client\#default_correlation_id_generator \
               RubyEventStore::Client::Within\#add_thread_subscribers \
               RubyEventStore::Client::Within\#add_thread_global_subscribers \
               RubyEventStore::Client::Within\#call \
