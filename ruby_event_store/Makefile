@@ -14,6 +14,7 @@ IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Mappers::EncryptionKey\#encrypt_authenticated \
               RubyEventStore::Mappers::EncryptionKey\#ciphertext_from_authenticated \
               RubyEventStore::Mappers::ForgottenData* \
+              RubyEventStore::Subscriptions::ThreadSubscriptions\#all_for \
               RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#add  \
               RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#all_for \
               RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#initialize \
