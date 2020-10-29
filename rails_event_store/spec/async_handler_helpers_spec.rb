@@ -155,7 +155,6 @@ module RailsEventStore
       event_store.subscribe_to_all_events(HandlerA)
       event_store.publish(ev = RailsEventStore::Event.new)
       wait_until{ HandlerA.metadata }
-      expect(ev.correlation_id).to be_nil
       expect(HandlerA.metadata).to eq({
         correlation_id: ev.correlation_id,
         causation_id:   ev.event_id,
