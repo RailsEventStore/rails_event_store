@@ -8,12 +8,14 @@ module RubyEventStore
                    mapper: Mappers::Default.new,
                    subscriptions: Subscriptions.new,
                    dispatcher: Dispatcher.new,
-                   clock: ->{ Time.now.utc })
+                   clock: default_clock,
+                   correlation_id_generator: default_correlation_id_generator)
       @repository     = repository
       @mapper         = mapper
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
+      @correlation_id_generator = correlation_id_generator
     end
 
 
@@ -293,7 +295,7 @@ module RubyEventStore
     def enrich_event_metadata(event)
       metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp]      ||= clock.call
-      event.metadata[:correlation_id] ||= SecureRandom.uuid
+      event.metadata[:correlation_id] ||= correlation_id_generator.call
     end
 
     def append_to_stream_serialized_events(serialized_events, stream_name:, expected_version:)
@@ -306,6 +308,14 @@ module RubyEventStore
       @metadata.value = value
     end
 
-    attr_reader :repository, :mapper, :broker, :clock
+    def default_clock
+      ->{ Time.now.utc }
+    end
+
+    def default_correlation_id_generator
+      ->{ SecureRandom.uuid }
+    end
+
+    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator
   end
 end

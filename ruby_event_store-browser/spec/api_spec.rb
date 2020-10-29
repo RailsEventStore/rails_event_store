@@ -64,8 +64,11 @@ module RubyEventStore
             bar: 2.0,
             baz: "3"
           },
-          metadata: {},
-          correlation_stream_name: nil,
+          metadata: {
+            timestamp: "2020-01-01T12:00:00.000Z",
+            correlation_id: correlation_id,
+          },
+          correlation_stream_name: "$by_correlation_id_#{correlation_id}",
           causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
           type_stream_name: "$by_type_DummyEvent",
@@ -80,6 +83,10 @@ module RubyEventStore
           foo: 1,
           bar: 2.0,
           baz: "3"
+        },
+        metadata: {
+          correlation_id: correlation_id,
+          timestamp: Time.utc(2020, 1, 1, 12, 0, 0, 1)
         }
       )
     end
@@ -96,9 +103,10 @@ module RubyEventStore
             "baz" => "3"
           },
           "metadata" => {
-            "timestamp" => dummy_event.metadata[:timestamp].iso8601(3)
+            "timestamp" => "2020-01-01T12:00:00.000Z",
+            "correlation_id" => correlation_id
           },
-          "correlation_stream_name" => nil,
+          "correlation_stream_name" => "$by_correlation_id_#{correlation_id}",
           "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
           "parent_event_id" => nil,
           "type_stream_name" => "$by_type_DummyEvent",
@@ -106,8 +114,10 @@ module RubyEventStore
       }
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new, correlation_id_generator: correlation_id_generator) }
     let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store)) }
+    let(:correlation_id) { SecureRandom.uuid }
+    let(:correlation_id_generator) { ->{ correlation_id } }
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(

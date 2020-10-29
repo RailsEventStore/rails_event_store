@@ -3,8 +3,10 @@ require 'time'
 
 module RubyEventStore
   RSpec.describe Client do
-    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
+    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new, correlation_id_generator: correlation_id_generator) }
     let(:stream) { SecureRandom.uuid }
+    let(:correlation_id) { SecureRandom.uuid }
+    let(:correlation_id_generator) { ->{ correlation_id } }
 
     specify 'publish returns self when success' do
       expect(client.publish(TestEvent.new)).to eq(client)
@@ -138,25 +140,25 @@ module RubyEventStore
       expect(published[0].metadata.keys).to match_array([:timestamp, :correlation_id, :request_ip])
       expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
-      expect(published[0].metadata[:correlation_id]).not_to be_nil
+      expect(published[0].metadata[:correlation_id]).to eq(correlation_id)
       expect(published[1].metadata.keys).to match_array([:timestamp, :correlation_id, :request_ip, :nested])
       expect(published[1].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[1].metadata[:nested]).to eq true
       expect(published[1].metadata[:timestamp]).to be_a Time
-      expect(published[1].metadata[:correlation_id]).not_to be_nil
+      expect(published[1].metadata[:correlation_id]).to eq(correlation_id)
       expect(published[2].metadata.keys).to match_array([:timestamp, :correlation_id, :request_ip, :nested, :deeply_nested])
       expect(published[2].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[2].metadata[:nested]).to eq true
       expect(published[2].metadata[:deeply_nested]).to eq true
       expect(published[2].metadata[:timestamp]).to be_a Time
-      expect(published[2].metadata[:correlation_id]).not_to be_nil
+      expect(published[2].metadata[:correlation_id]).to eq(correlation_id)
       expect(published[3].metadata.keys).to match_array([:timestamp, :correlation_id, :request_ip])
       expect(published[3].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[3].metadata[:timestamp]).to be_a Time
-      expect(published[3].metadata[:correlation_id]).not_to be_nil
+      expect(published[3].metadata[:correlation_id]).to eq(correlation_id)
       expect(published[4].metadata.keys).to match_array([:timestamp, :correlation_id])
       expect(published[4].metadata[:timestamp]).to be_a Time
-      expect(published[4].metadata[:correlation_id]).not_to be_nil
+      expect(published[4].metadata[:correlation_id]).to eq(correlation_id)
     end
 
     specify 'with_metadata is merged when nested' do
