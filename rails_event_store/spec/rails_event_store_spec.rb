@@ -88,7 +88,6 @@ RSpec.describe RailsEventStore do
     event_store.subscribe_to_all_events(MetadataHandler)
     event_store.publish(ev = RailsEventStore::Event.new)
     wait_until{ MetadataHandler.metadata }
-    expect(ev.correlation_id).to be_nil
     expect(MetadataHandler.metadata).to eq({
       correlation_id: ev.correlation_id,
       causation_id:   ev.event_id,

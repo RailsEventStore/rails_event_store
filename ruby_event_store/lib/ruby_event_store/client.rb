@@ -4,7 +4,6 @@ require 'concurrent'
 
 module RubyEventStore
   class Client
-
     def initialize(repository:,
                    mapper: Mappers::Default.new,
                    subscriptions: Subscriptions.new,
@@ -293,7 +292,8 @@ module RubyEventStore
 
     def enrich_event_metadata(event)
       metadata.each { |key, value| event.metadata[key] ||= value }
-      event.metadata[:timestamp] ||= clock.call
+      event.metadata[:timestamp]      ||= clock.call
+      event.metadata[:correlation_id] ||= SecureRandom.uuid
     end
 
     def append_to_stream_serialized_events(serialized_events, stream_name:, expected_version:)
