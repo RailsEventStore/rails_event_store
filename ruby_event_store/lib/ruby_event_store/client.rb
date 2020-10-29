@@ -230,7 +230,7 @@ module RubyEventStore
     # @return [Event, Proto] deserialized event
     def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
       extract_timestamp = lambda do |m|
-        (m[:timestamp] || Time.parse(m['timestamp']))&.iso8601 rescue nil
+        (m[:timestamp] || Time.parse(m.fetch('timestamp'))).iso8601
       end
 
       mapper.record_to_event(
