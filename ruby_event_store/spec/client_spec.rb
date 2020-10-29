@@ -4,8 +4,10 @@ require 'json'
 
 module RubyEventStore
   RSpec.describe Client do
-    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
+    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new, correlation_id_generator: correlation_id_generator) }
     let(:stream) { SecureRandom.uuid }
+    let(:correlation_id) { SecureRandom.uuid }
+    let(:correlation_id_generator) { ->{ correlation_id } }
 
     specify 'publish returns self when success' do
       expect(client.publish(TestEvent.new)).to eq(client)
@@ -138,28 +140,33 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(5)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip])
+      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip])
       expect(published[0].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
-      expect(published[0].metadata[:valid_at]).to be_a Time
-      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip, :nested])
+      expect(published[0].metadata[:valid_at]).to  be_a Time
+      expect(published[0].metadata[:correlation_id]).to eq(correlation_id)
+      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip, :nested])
       expect(published[1].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[1].metadata[:nested]).to eq true
       expect(published[1].metadata[:timestamp]).to be_a Time
-      expect(published[1].metadata[:valid_at]).to be_a Time
-      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip, :nested, :deeply_nested])
+      expect(published[1].metadata[:valid_at]).to  be_a Time
+      expect(published[1].metadata[:correlation_id]).to eq(correlation_id)
+      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip, :nested, :deeply_nested])
       expect(published[2].metadata[:request_ip]).to eq('1.2.3.4')
       expect(published[2].metadata[:nested]).to eq true
       expect(published[2].metadata[:deeply_nested]).to eq true
       expect(published[2].metadata[:timestamp]).to be_a Time
-      expect(published[2].metadata[:valid_at]).to be_a Time
-      expect(published[3].metadata.keys).to match_array([:timestamp, :valid_at, :request_ip])
+      expect(published[2].metadata[:valid_at]).to  be_a Time
+      expect(published[2].metadata[:correlation_id]).to eq(correlation_id)
+      expect(published[3].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip])
       expect(published[3].metadata[:request_ip]).to eq('127.0.0.1')
       expect(published[3].metadata[:timestamp]).to be_a Time
-      expect(published[3].metadata[:valid_at]).to be_a Time
-      expect(published[4].metadata.keys).to match_array([:timestamp, :valid_at])
+      expect(published[3].metadata[:valid_at]).to  be_a Time
+      expect(published[3].metadata[:correlation_id]).to eq(correlation_id)
+      expect(published[4].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id])
       expect(published[4].metadata[:timestamp]).to be_a Time
-      expect(published[4].metadata[:valid_at]).to be_a Time
+      expect(published[4].metadata[:valid_at]).to  be_a Time
+      expect(published[4].metadata[:correlation_id]).to eq(correlation_id)
     end
 
     specify 'with_metadata is merged when nested' do
@@ -173,16 +180,16 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(3)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :remote_ip])
+      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :remote_ip])
       expect(published[0].metadata[:remote_ip]).to eq('127.0.0.1')
       expect(published[0].metadata[:timestamp]).to be_a Time
       expect(published[0].metadata[:valid_at]).to be_a Time
-      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :remote_ip, :request_id])
+      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :remote_ip, :request_id])
       expect(published[1].metadata[:timestamp]).to be_a Time
       expect(published[1].metadata[:valid_at]).to be_a Time
       expect(published[1].metadata[:remote_ip]).to eq('192.168.0.1')
       expect(published[1].metadata[:request_id]).to eq('1234567890')
-      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :remote_ip])
+      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :remote_ip])
       expect(published[2].metadata[:remote_ip]).to eq('127.0.0.1')
       expect(published[2].metadata[:timestamp]).to be_a Time
       expect(published[2].metadata[:valid_at]).to be_a Time
@@ -232,9 +239,9 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata.to_h.keys).to   match_array([:timestamp, :valid_at, :correlation_id])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
-      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to  eq(Time.utc(2018, 1, 1))
     end
 
     specify 'valid_at will equal timestamp unless specified' do
@@ -244,9 +251,9 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata.to_h.keys).to   match_array([:timestamp, :valid_at, :correlation_id])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
-      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to  eq(Time.utc(2018, 1, 1))
     end
 
     specify 'valid_at can be overwritten by using with_metadata' do
@@ -256,7 +263,7 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata.to_h.keys).to  match_array([:timestamp, :valid_at, :correlation_id])
       expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
     end
 
@@ -267,9 +274,9 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to eq([:timestamp, :valid_at])
+      expect(published.first.metadata.to_h.keys).to   match_array([:timestamp, :valid_at, :correlation_id])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
-      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 3))
+      expect(published.first.metadata[:valid_at]).to  eq(Time.utc(2018, 1, 3))
     end
 
     specify 'timestamp is utc time' do
@@ -309,10 +316,10 @@ module RubyEventStore
       end
       client.publish(one = ProductAdded.new)
 
-      expect(@two.correlation_id).to eq(one.event_id)
+      expect(@two.correlation_id).to eq(one.correlation_id)
       expect(@two.causation_id).to   eq(one.event_id)
 
-      expect(@three.correlation_id).to eq(one.event_id)
+      expect(@three.correlation_id).to eq(one.correlation_id)
       expect(@three.causation_id).to   eq(@two.event_id)
 
       expect(@four.correlation_id).to eq('COID')

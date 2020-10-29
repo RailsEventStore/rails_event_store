@@ -186,7 +186,6 @@ module RubyEventStore
       dispatcher        = TestDispatcher.new
       handler           = TestHandler.new
       event1            = TimeEnrichment.with(Test1DomainEvent.new)
-      record            = Mappers::NullMapper.new.event_to_record(event1)
 
       client_with_custom_dispatcher = RubyEventStore::Client.new(
         repository: InMemoryRepository.new,
@@ -195,7 +194,7 @@ module RubyEventStore
       )
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
-      expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, record: record}])
+      expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, record: Mappers::NullMapper.new.event_to_record(event1)}])
     end
 
     it 'subscribes by type of event which is a String' do

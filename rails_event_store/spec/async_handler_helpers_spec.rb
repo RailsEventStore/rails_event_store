@@ -156,7 +156,7 @@ module RailsEventStore
       event_store.publish(ev = RailsEventStore::Event.new)
       wait_until{ HandlerA.metadata }
       expect(HandlerA.metadata).to eq({
-        correlation_id: ev.event_id,
+        correlation_id: ev.correlation_id,
         causation_id:   ev.event_id,
       })
     end
