@@ -123,7 +123,7 @@ module RailsEventStoreActiveRecord
     end
 
     def optimize_timestamp(valid_at, created_at)
-      valid_at == created_at ? nil : valid_at
+      valid_at unless valid_at.eql?(created_at)
     end
 
     # Overwritten in a sub-class
