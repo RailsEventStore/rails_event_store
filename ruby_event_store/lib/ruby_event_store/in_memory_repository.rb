@@ -51,7 +51,8 @@ module RubyEventStore
 
     def update_messages(messages)
       messages.each do |new_msg|
-        location = global.index{|m| new_msg.event_id.eql?(m.event_id)} or raise EventNotFound.new(new_msg.event_id)
+        location = global.index{|m| new_msg.event_id.eql?(m.event_id)}
+        raise EventNotFound.new(new_msg.event_id) unless location
         global[location] = new_msg
         streams.values.each do |str|
           location = str.index{|m| new_msg.event_id.eql?(m.event_id)}
