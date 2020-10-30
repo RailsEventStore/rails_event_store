@@ -1388,7 +1388,9 @@ module RubyEventStore
       )
       expect(repository.read(specification.result).map(&:event_id)).to eq [e1, e2, e3]
       expect(repository.read(specification.as_at.result).map(&:event_id)).to eq [e1, e3, e2]
+      expect(repository.read(specification.as_at.backward.result).map(&:event_id)).to eq [e2, e3, e1]
       expect(repository.read(specification.as_of.result).map(&:event_id)).to eq [e3, e2, e1]
+      expect(repository.read(specification.as_of.backward.result).map(&:event_id)).to eq [e1, e2, e3]
     end
   end
 end
