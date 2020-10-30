@@ -63,16 +63,16 @@ module RailsEventStoreActiveRecord
       else
         stream = @stream_klass.preload(:event).where(stream: spec.stream.name)
         stream = stream.where(event_id: spec.with_ids)                                                if spec.with_ids?
-        stream = stream.joins(:event).where(@event_klass.table_name => {event_type: spec.with_types}) if spec.with_types?
+        stream = stream.where(@event_klass.table_name => {event_type: spec.with_types}) if spec.with_types?
         stream = ordered(stream.joins(:event), spec)
         stream = stream.order(position: order(spec), id: order(spec))
         stream = stream.limit(spec.limit)                                        if spec.limit?
         stream = stream.where(start_condition(spec))                             if spec.start
         stream = stream.where(stop_condition(spec))                              if spec.stop
-        stream = stream.joins(:event).where(older_than_condition(spec))          if spec.older_than
-        stream = stream.joins(:event).where(older_than_or_equal_condition(spec)) if spec.older_than_or_equal
-        stream = stream.joins(:event).where(newer_than_condition(spec))          if spec.newer_than
-        stream = stream.joins(:event).where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
+        stream = stream.where(older_than_condition(spec))          if spec.older_than
+        stream = stream.where(older_than_or_equal_condition(spec)) if spec.older_than_or_equal
+        stream = stream.where(newer_than_condition(spec))          if spec.newer_than
+        stream = stream.where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
         stream
       end
     end
