@@ -77,7 +77,8 @@ module RubyEventStore
               acc[key] = encryption_metadata(data, value)
             when Proc
               key_identifier = value.call(data)
-              encryption_key = key_repository.key_of(key_identifier) or raise MissingEncryptionKey.new(key_identifier)
+              encryption_key = key_repository.key_of(key_identifier)
+              raise MissingEncryptionKey.new(key_identifier) unless encryption_key
               acc[key] = {
                 cipher: encryption_key.cipher,
                 iv: encryption_key.random_iv,
