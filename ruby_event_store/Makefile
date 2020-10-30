@@ -14,20 +14,7 @@ IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Mappers::EncryptionKey\#encrypt_authenticated \
               RubyEventStore::Mappers::EncryptionKey\#ciphertext_from_authenticated \
               RubyEventStore::Mappers::ForgottenData* \
-              RubyEventStore::Subscriptions::ThreadSubscriptions\#all_for \
-              RubyEventStore::Subscriptions::ThreadSubscriptions\#initialize \
-              RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#add  \
-              RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#all_for \
-              RubyEventStore::Subscriptions::ThreadLocalSubscriptions\#initialize \
-              RubyEventStore::Subscriptions::ThreadGlobalSubscriptions\#add  \
-              RubyEventStore::Subscriptions::ThreadGlobalSubscriptions\#all_for \
-              RubyEventStore::Subscriptions::ThreadGlobalSubscriptions\#initialize \
-              RubyEventStore::Subscriptions::LocalSubscriptions\#add \
-              RubyEventStore::Subscriptions::LocalSubscriptions\#all_for \
-              RubyEventStore::Subscriptions::LocalSubscriptions\#initialize \
-              RubyEventStore::Subscriptions::GlobalSubscriptions\#add \
-              RubyEventStore::Subscriptions::GlobalSubscriptions\#all_for \
-              RubyEventStore::Subscriptions::GlobalSubscriptions\#initialize \
+              RubyEventStore::Subscriptions* \
               RubyEventStore::TransformKeys.transform \
               RubyEventStore::TransformKeys.symbolize \
               RubyEventStore::TransformKeys.stringify
