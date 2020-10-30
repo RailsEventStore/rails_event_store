@@ -1,7 +1,14 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store-rom
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RubyEventStore::ROM::EventRepository\#initialize \
+IGNORE       = RubyEventStore::ROM.setup \
+               RubyEventStore::ROM.setup_defaults \
+               RubyEventStore::ROM.configure \
+               RubyEventStore::ROM.configure_defaults \
+               RubyEventStore::ROM.find_adapters \
+               RubyEventStore::ROM::TupleUniquenessError.for_event_id \
+               RubyEventStore::ROM::TupleUniquenessError.for_stream_and_position \
+               RubyEventStore::ROM::EventRepository\#initialize \
                RubyEventStore::ROM::EventRepository\#handle_not_found_errors \
                RubyEventStore::ROM::EventRepository\#handle_unique_violation_errors \
                RubyEventStore::ROM::EventRepository\#has_event? \
