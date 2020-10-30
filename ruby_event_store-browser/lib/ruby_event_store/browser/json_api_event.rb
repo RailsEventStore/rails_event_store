@@ -29,7 +29,7 @@ module RubyEventStore
 
       def metadata
         event.metadata.to_h.tap do |m|
-          m[:timestamp] = as_time(m.fetch(:timestamp)).iso8601(3) if m.key?(:timestamp)
+          m[:timestamp] = as_time(m.fetch(:timestamp)).iso8601(3)
         end
       end
 
