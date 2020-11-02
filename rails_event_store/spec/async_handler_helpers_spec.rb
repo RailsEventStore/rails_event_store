@@ -207,7 +207,32 @@ module RailsEventStore
       expect(SidekiqHandlerWithHelper.event).to eq(ev)
     end
 
+    specify 'CorrelatedHandler with event not yet scheduled with correlation_id' do
+      HandlerB = Class.new(MetadataHandler)
+      HandlerB.prepend RailsEventStore::CorrelatedHandler
+      HandlerB.prepend RailsEventStore::AsyncHandler
+      HandlerB.metadata = nil
+      event_store.append(ev = RailsEventStore::Event.new)
+      ev = event_store.read.event(ev.event_id)
+      HandlerB.perform_now(serialize_without_correlation_id(ev))
+      expect(HandlerB.metadata).to eq({
+        correlation_id: nil,
+        causation_id:   ev.event_id,
+      })
+    end
+
     private
+
+    def serialize_without_correlation_id(ev)
+      serialized =
+        event_store
+        .__send__(:mapper)
+        .event_to_record(ev)
+        .serialize(YAML)
+        .to_h
+      serialized[:metadata] = "--- {}\n"
+      serialized
+    end
 
     def wait_until(&block)
       Timeout.timeout(1) do
