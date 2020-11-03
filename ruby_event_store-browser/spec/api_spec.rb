@@ -76,6 +76,25 @@ module RubyEventStore
       )
     end
 
+    specify "with event without correlation_id" do
+      event = DummyEvent.new(event_id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f", metadata: { timestamp: Time.utc(2020, 1, 1, 12, 0, 0, 1) })
+      json  = Browser::JsonApiEvent.new(event, nil).to_h
+
+      expect(json).to match(
+        id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+        type: "events",
+        attributes: {
+          event_type: "DummyEvent",
+          data: {},
+          metadata: { timestamp: "2020-01-01T12:00:00.000Z" },
+          correlation_stream_name: nil,
+          causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+          parent_event_id: nil,
+          type_stream_name: "$by_type_DummyEvent",
+        },
+      )
+    end
+
     def dummy_event(id = SecureRandom.uuid)
       @dummy_event ||= DummyEvent.new(
         event_id: id,
