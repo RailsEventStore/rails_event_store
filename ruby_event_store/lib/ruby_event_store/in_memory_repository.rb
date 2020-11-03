@@ -142,10 +142,6 @@ module RubyEventStore
       end
     end
 
-    def add_to_stream(serialized_records, expected_version, stream, include_global)
-      append_with_synchronize(serialized_records, expected_version, stream, include_global)
-    end
-
     def last_stream_version(stream)
       event_ids_of_stream(stream).size - 1
     end
