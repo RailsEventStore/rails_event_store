@@ -4,14 +4,15 @@ require 'concurrent'
 
 module RubyEventStore
   class Subscriptions
-    def initialize
+    def initialize(event_type_resolver: default_event_type_resolver)
+      @event_type_resolver = event_type_resolver
       @local  = LocalSubscriptions.new
       @global = GlobalSubscriptions.new
-      @thread  = ThreadSubscriptions.new
+      @thread = ThreadSubscriptions.new
     end
 
     def add_subscription(subscriber, event_types)
-      local.add(subscriber, event_types)
+      local.add(subscriber, resolve_event_types(event_types))
     end
 
     def add_global_subscription(subscriber)
@@ -19,7 +20,7 @@ module RubyEventStore
     end
 
     def add_thread_subscription(subscriber, event_types)
-      thread.local.add(subscriber, event_types)
+      thread.local.add(subscriber, resolve_event_types(event_types))
     end
 
     def add_thread_global_subscription(subscriber)
@@ -27,11 +28,24 @@ module RubyEventStore
     end
 
     def all_for(event_type)
-      [local, global, thread].map{|r| r.all_for(event_type)}.reduce(&:+)
+      resolved_event_type = resolve_event_type(event_type)
+      [local, global, thread].map{|r| r.all_for(resolved_event_type)}.reduce(&:+)
     end
 
     private
     attr_reader :local, :global, :thread
+
+    def default_event_type_resolver
+      ->(value) { value.to_s }
+    end
+
+    def resolve_event_types(event_types)
+      event_types.map(&method(:resolve_event_type))
+    end
+
+    def resolve_event_type(type)
+      @event_type_resolver.call(type)
+    end
 
     class ThreadSubscriptions
       def initialize
@@ -51,8 +65,8 @@ module RubyEventStore
       end
 
       def add(subscription, event_types)
-        event_types.each{ |type| @subscriptions[type.to_s] << subscription }
-        ->() {event_types.each{ |type| @subscriptions.fetch(type.to_s).delete(subscription) } }
+        event_types.each{ |type| @subscriptions[type] << subscription }
+        ->() {event_types.each{ |type| @subscriptions.fetch(type).delete(subscription) } }
       end
 
       def all_for(event_type)
@@ -83,8 +97,8 @@ module RubyEventStore
       end
 
       def add(subscription, event_types)
-        event_types.each{ |type| @subscriptions.value[type.to_s] << subscription }
-        ->() {event_types.each{ |type| @subscriptions.value.fetch(type.to_s).delete(subscription) } }
+        event_types.each{ |type| @subscriptions.value[type] << subscription }
+        ->() {event_types.each{ |type| @subscriptions.value.fetch(type).delete(subscription) } }
       end
 
       def all_for(event_type)
