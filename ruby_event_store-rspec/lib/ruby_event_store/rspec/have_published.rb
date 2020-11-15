@@ -8,12 +8,12 @@ module RubyEventStore
           @differ = differ
         end
 
-        def failure_message(_matcher, expected, events)
+        def failure_message(_matcher, expected, events, _expected_count)
           "expected #{expected} to be published, diff:" +
             differ.diff_as_string(expected.to_s, events.to_a.to_s)
         end
 
-        def negated_failure_message(_matcher, expected, events)
+        def negated_failure_message(_matcher, expected, events, _expected_count)
           "expected #{expected} not to be published, diff:" +
             differ.diff_as_string(expected.to_s, events.to_a.to_s)
         end
@@ -22,12 +22,45 @@ module RubyEventStore
         attr_reader :differ
       end
 
-      def initialize(mandatory_expected, *optional_expected, differ:, phraser:)
+      class StepByStepFailureMessageFormatter
+        def initialize(differ)
+          @differ = differ
+        end
+
+        def failure_message(_matcher, expected, events, expected_count)
+          expected.each do |expected_event|
+            correct_event_count = 0
+            events.each do |actual_event|
+              if expected_event.matches?(actual_event)
+                correct_event_count += 1
+              end
+            end
+
+            if correct_event_count != expected_count
+              return <<~EOS
+              expected event #{expected}
+              to be published #{expected_count} times
+              but was published #{correct_event_count} times
+              EOS
+            end
+          end
+        end
+
+        def negated_failure_message(_matcher, expected, events, expected_count)
+          "expected #{expected} not to be published, diff:" +
+            differ.diff_as_string(expected.to_s, events.to_a.to_s)
+        end
+
+        private
+        attr_reader :differ
+      end
+
+      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: CrudeFailureMessageFormatter)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @differ    = differ
         @phraser   = phraser
-        @failure_message_formatter = CrudeFailureMessageFormatter.new(@differ)
+        @failure_message_formatter = failure_message_formatter.new(@differ)
       end
 
       def matches?(event_store)
@@ -63,11 +96,11 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(matcher, expected, events)
+        failure_message_formatter.failure_message(matcher, expected, events, count)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.negated_failure_message(matcher, expected, events)
+        failure_message_formatter.negated_failure_message(matcher, expected, events, count)
       end
 
       def description
