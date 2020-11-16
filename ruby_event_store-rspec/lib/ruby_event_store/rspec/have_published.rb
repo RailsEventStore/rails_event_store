@@ -30,17 +30,28 @@ module RubyEventStore
         def failure_message(_matcher, expected, events, expected_count)
           expected.each do |expected_event|
             correct_event_count = 0
+            event_with_correct_type = nil
             events.each do |actual_event|
               if expected_event.matches?(actual_event)
                 correct_event_count += 1
+              else BeEvent::KindMatcher.new(expected_event.expected).matches?(actual_event)
+                event_with_correct_type = actual_event
               end
             end
 
-            if correct_event_count != expected_count
+            if correct_event_count >= 1 && correct_event_count != expected_count
               return <<~EOS
               expected event #{expected}
               to be published #{expected_count} times
               but was published #{correct_event_count} times
+              EOS
+            elsif event_with_correct_type
+              return <<~EOS
+              expected event #{expected}
+              to be published, but it was not published
+
+              there is an event of correct type but with incorrect payload:
+              data diff:#{differ.diff_as_object(expected_event.expected_data, event_with_correct_type.data)}
               EOS
             end
           end
