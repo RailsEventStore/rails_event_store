@@ -167,6 +167,12 @@ expected: not a kind of #{expected}
         " (#{expectation_list.join(" and ")})" if expectation_list.any?
       end
 
+      attr_reader :expected, :expected_data, :expected_metadata
+
+      def strict?
+        @strict
+      end
+
       private
 
       def matches_kind
@@ -181,11 +187,7 @@ expected: not a kind of #{expected}
         DataMatcher.new(expected_metadata, strict: strict?).matches?(actual.metadata.to_h)
       end
 
-      attr_reader :expected_metadata, :expected_data, :actual, :expected, :differ, :formatter
-
-      def strict?
-        @strict
-      end
+      attr_reader :actual, :differ, :formatter
     end
   end
 end

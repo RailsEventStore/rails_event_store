@@ -247,6 +247,29 @@ module RubyEventStore
         EOS
       end
 
+      specify do
+        event_store.publish(FooEvent.new(data: { foo: 123 }))
+        matcher_ = HavePublished.new(
+          expected = matchers.an_event(FooEvent).with_data({ foo: 124 }),
+          differ: colorless_differ,
+          phraser: phraser,
+          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
+        )
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event [#{expected.inspect}]
+        to be published, but it was not published
+
+        there is an event of correct type but with incorrect payload:
+        data diff:
+        @@ -1,2 +1,2 @@
+        -:foo => 123,
+        +:foo => 124,
+
+        EOS
+      end
+
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
 
       specify do
