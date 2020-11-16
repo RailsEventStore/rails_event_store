@@ -4,7 +4,6 @@ require "ruby_event_store/outbox/cli"
 require "ruby_event_store/outbox/metrics/null"
 require "ruby_event_store/outbox/metrics/influx"
 require_relative '../../../support/helpers/rspec_defaults'
-require_relative '../../../support/helpers/mutant_timeout'
 require_relative '../../../support/helpers/schema_helper'
 require_relative './support/db'
 require 'rails'
