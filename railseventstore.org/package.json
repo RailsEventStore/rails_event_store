@@ -5,7 +5,7 @@
     "build": "NODE_ENV=production  parcel build --out-dir .tmp/dist/ source/index.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.3",
+    "@babel/core": "^7.12.7",
     "countup.js": "^2.0.4",
     "parcel-bundler": "^1.11.0",
     "postcss": "^7.0.0",
