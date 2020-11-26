@@ -53,6 +53,11 @@ module RubyEventStore
               there is an event of correct type but with incorrect payload:
               #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
               EOS
+            else
+              return <<~EOS
+              expected event #{expected}
+              to be published, but there is no event with such type
+              EOS
             end
           end
         end
