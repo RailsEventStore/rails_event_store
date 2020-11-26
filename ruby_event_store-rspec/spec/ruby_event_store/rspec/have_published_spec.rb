@@ -297,6 +297,23 @@ module RubyEventStore
         EOS
       end
 
+      specify do
+        event_store.publish(actual = BazEvent.new)
+        matcher_ = HavePublished.new(
+          expected = matchers.an_event(FooEvent),
+          differ: colorless_differ,
+          phraser: phraser,
+          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
+        )
+        matcher_.matches?(event_store)
+
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event [#{expected.inspect}]
+        to be published, but there is no event with such type
+        EOS
+      end
+
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
 
       specify do
