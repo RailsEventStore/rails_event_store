@@ -51,7 +51,7 @@ module RubyEventStore
               to be published, but it was not published
 
               there is an event of correct type but with incorrect payload:
-              #{expected_event.expected_data.nil? ? "" : "data diff:#{differ.diff_as_object(expected_event.expected_data, event_with_correct_type.data)}"}#{expected_event.expected_metadata.nil? ? "" : "metadata diff:#{differ.diff_as_object(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"}
+              #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
               EOS
             end
           end
@@ -64,6 +64,22 @@ module RubyEventStore
 
         private
         attr_reader :differ
+
+        def data_diff(expected_event, event_with_correct_type)
+          if expected_event.expected_data.nil?
+            ""
+          else
+            "data diff:#{differ.diff_as_object(expected_event.expected_data, event_with_correct_type.data)}"
+          end
+        end
+
+        def metadata_diff(expected_event, event_with_correct_type)
+          if expected_event.expected_metadata.nil?
+            ""
+          else
+            "metadata diff:#{differ.diff_as_object(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
+          end
+        end
       end
 
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: CrudeFailureMessageFormatter)
