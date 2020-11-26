@@ -34,7 +34,7 @@ module RubyEventStore
             events.each do |actual_event|
               if expected_event.matches?(actual_event)
                 correct_event_count += 1
-              else BeEvent::KindMatcher.new(expected_event.expected).matches?(actual_event)
+              elsif BeEvent::KindMatcher.new(expected_event.expected).matches?(actual_event)
                 event_with_correct_type = actual_event
               end
             end
