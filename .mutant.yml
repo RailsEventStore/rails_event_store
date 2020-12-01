@@ -1,11 +1,9 @@
----
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+includes:
+- lib
+integration: rspec
+mutation_timeout: 10.0
 coverage_criteria:
-  # Control the timeout criteria, defaults to `false`:
-   # * `true` - mutant will consider timeouts as covering mutations.
-   # * `false` mutant will ignore timeouts when determining mutation coverage.
    timeout: true
-   # Control the process status abort criteria, defaults to `false`:
-   # * `true` - mutant will consider unexpected process aborts (example segfaults)
-   #   as covering the mutation that caused this behavior.
-   # * `false` - mutant will ignore unexpected process aborts when determining coverage.
    process_abort: true
