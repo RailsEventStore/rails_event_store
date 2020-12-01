@@ -268,39 +268,10 @@ jobs:
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
-  test_bounded_context_rails_4_2:
-    docker:
-    - image: railseventstore/ruby:2.6
-      environment: &1
-        RAILS_VERSION: 4.2.11.3
-    steps:
-    - checkout
-    - run: make -C bounded_context install test
-  test_rails_event_store_rails_4_2:
-    docker:
-    - image: railseventstore/ruby:2.6
-      environment: *1
-    steps:
-    - checkout
-    - run: make -C rails_event_store install test
-  test_rails_event_store_active_record_rails_4_2:
-    docker:
-    - image: railseventstore/ruby:2.6
-      environment: *1
-    steps:
-    - checkout
-    - run: make -C rails_event_store_active_record install test
-  test_rails_event_store_rspec_rails_4_2:
-    docker:
-    - image: railseventstore/ruby:2.6
-      environment: *1
-    steps:
-    - checkout
-    - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_0:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &2
+      environment: &1
         RAILS_VERSION: 5.0.7.2
     steps:
     - checkout
@@ -308,28 +279,28 @@ jobs:
   test_rails_event_store_rails_5_0:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *2
+      environment: *1
     steps:
     - checkout
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_rails_5_0:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *2
+      environment: *1
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_rails_5_0:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *2
+      environment: *1
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_1:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &3
+      environment: &2
         RAILS_VERSION: 5.1.7
     steps:
     - checkout
@@ -337,28 +308,28 @@ jobs:
   test_rails_event_store_rails_5_1:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *3
+      environment: *2
     steps:
     - checkout
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_rails_5_1:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *3
+      environment: *2
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_rails_5_1:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *3
+      environment: *2
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_2:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &4
+      environment: &3
         RAILS_VERSION: 5.2.4.4
     steps:
     - checkout
@@ -366,31 +337,31 @@ jobs:
   test_rails_event_store_rails_5_2:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *4
+      environment: *3
     steps:
     - checkout
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_rails_5_2:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *4
+      environment: *3
     steps:
     - checkout
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_rails_5_2:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *4
+      environment: *3
     steps:
     - checkout
     - run: make -C rails_event_store-rspec install test
   test_rails_event_store_active_record_mysql_5:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &5
+      environment: &4
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
     - image: mysql:5
-      environment: &6
+      environment: &5
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
@@ -400,9 +371,9 @@ jobs:
   test_ruby_event_store_rom_mysql_5:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *5
+      environment: *4
     - image: mysql:5
-      environment: *6
+      environment: *5
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
@@ -410,10 +381,10 @@ jobs:
   test_rails_event_store_active_record_mysql_8:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &7
+      environment: &6
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
     - image: mysql:8
-      environment: &8
+      environment: &7
       - MYSQL_DATABASE=rails_event_store
       - MYSQL_ROOT_PASSWORD=secret
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
@@ -423,9 +394,9 @@ jobs:
   test_ruby_event_store_rom_mysql_8:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *7
+      environment: *6
     - image: mysql:8
-      environment: *8
+      environment: *7
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
@@ -433,10 +404,10 @@ jobs:
   test_rails_event_store_active_record_postgres_11:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &9
+      environment: &8
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
     - image: postgres:11
-      environment: &10
+      environment: &9
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
       command: "-c max_connections=2000"
@@ -446,9 +417,9 @@ jobs:
   test_ruby_event_store_rom_postgres_11:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *9
+      environment: *8
     - image: postgres:11
-      environment: *10
+      environment: *9
       command: "-c max_connections=2000"
     steps:
     - checkout
@@ -456,10 +427,10 @@ jobs:
   test_rails_event_store_active_record_postgres_12:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: &11
+      environment: &10
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
     - image: postgres:12
-      environment: &12
+      environment: &11
       - POSTGRES_DB=rails_event_store
       - POSTGRES_PASSWORD=secret
       command: "-c max_connections=2000"
@@ -469,9 +440,9 @@ jobs:
   test_ruby_event_store_rom_postgres_12:
     docker:
     - image: railseventstore/ruby:2.7
-      environment: *11
+      environment: *10
     - image: postgres:12
-      environment: *12
+      environment: *11
       command: "-c max_connections=2000"
     steps:
     - checkout
@@ -563,12 +534,6 @@ workflows:
     - test_rails_event_store_ruby_2_6
     - test_rails_event_store_active_record_ruby_2_6
     - test_rails_event_store_rspec_ruby_2_6
-  Rails 4.2:
-    jobs:
-    - test_bounded_context_rails_4_2
-    - test_rails_event_store_rails_4_2
-    - test_rails_event_store_active_record_rails_4_2
-    - test_rails_event_store_rspec_rails_4_2
   Rails 5.0:
     jobs:
     - test_bounded_context_rails_5_0
