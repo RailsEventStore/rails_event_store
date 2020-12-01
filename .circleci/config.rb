@@ -31,7 +31,6 @@ RAILS_VERSIONS = {
   "5.2" => "5.2.4.4",
   "5.1" => "5.1.7",
   "5.0" => "5.0.7.2",
-  "4.2" => "4.2.11.3",
 }
 
 DATABASE_URLS = {
@@ -203,14 +202,6 @@ mutations =
     GEMS,
     Mutate("ruby_2_7")
   )
-rails_4_2_compat =
-  Merge(
-    RAILS_GEMS,
-    Test(
-      "rails_4_2",
-      Ruby("2.6", "RAILS_VERSION" => RAILS_VERSIONS["4.2"])
-    )
-  )
 rails_5_0_compat =
   Merge(
     RAILS_GEMS,
@@ -296,7 +287,6 @@ jobs =
     current_ruby,
     ruby_2_5_compat,
     ruby_2_6_compat,
-    rails_4_2_compat,
     rails_5_0_compat,
     rails_5_1_compat,
     rails_5_2_compat,
@@ -329,10 +319,6 @@ workflows          =
     Workflow(
       "Ruby 2.6",
       GEMS.map(&JobName("test", "ruby_2_6"))
-    ),
-    Workflow(
-      "Rails 4.2",
-      RAILS_GEMS.map(&JobName("test", "rails_4_2"))
     ),
     Workflow(
       "Rails 5.0",
