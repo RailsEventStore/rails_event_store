@@ -1,6 +1,6 @@
 mutate: ## Run mutation tests
 	@echo "Running mutation tests"
-	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant run --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant run -t 10 --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		$(if $(MUTANT_JOBS), --jobs $(MUTANT_JOBS)) \
@@ -8,7 +8,7 @@ mutate: ## Run mutation tests
 
 mutate-fast: ## Run mutation tests with --fail-fast
 	@echo "Running mutation tests"
-	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant run --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant run -t 10 --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		$(if $(MUTANT_JOBS), --jobs $(MUTANT_JOBS)) \
@@ -17,7 +17,7 @@ mutate-fast: ## Run mutation tests with --fail-fast
 
 mutate-changes: ## Run mutation tests for all changes since origin/HEAD
 	@echo "Running mutation tests"
-	@MUTATING=true DATABASE_URL=$(DATABASE_URL) bundle exec mutant run --include lib \
+	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant run -t 10 --include lib \
 		$(addprefix --require ,$(REQUIRE)) \
 		$(addprefix --ignore-subject ,$(IGNORE)) \
 		$(if $(MUTANT_JOBS), --jobs $(MUTANT_JOBS)) \

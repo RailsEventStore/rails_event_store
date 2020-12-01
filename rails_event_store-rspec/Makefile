@@ -8,12 +8,7 @@ IGNORE      = RailsEventStore::RSpec::Matchers\#differ \
               RailsEventStore::RSpec::Matchers\#publish \
               RailsEventStore::RSpec::Matchers\#be_an_event \
               RailsEventStore::RSpec::Publish\#last_event \
-              RailsEventStore::RSpec::HaveApplied\#description \
-              RailsEventStore::RSpec::HavePublished\#description \
-              RailsEventStore::RSpec::HaveApplied\#initialize \
-              RailsEventStore::RSpec::HavePublished\#initialize \
               RailsEventStore::RSpec::Matchers::ListPhraser.all_but_last
-
 
 SUBJECT      ?= RailsEventStore::RSpec*
 DATABASE_URL ?= sqlite3::memory:

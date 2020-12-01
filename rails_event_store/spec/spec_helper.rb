@@ -3,7 +3,6 @@ require 'example_invoicing_app'
 require 'support/fake_configuration'
 require 'active_record'
 require_relative '../../support/helpers/rspec_defaults'
-require_relative '../../support/helpers/mutant_timeout'
 require_relative '../../support/helpers/migrator'
 require_relative '../../support/helpers/protobuf_helper'
 

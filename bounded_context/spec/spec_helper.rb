@@ -3,7 +3,6 @@
 require 'bounded_context'
 require 'securerandom'
 require_relative '../../support/helpers/rspec_defaults'
-require_relative '../../support/helpers/mutant_timeout'
 require 'rails'
 
 DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].split('.').take(2).join('_')}"
