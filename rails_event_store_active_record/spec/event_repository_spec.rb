@@ -358,6 +358,29 @@ module RailsEventStoreActiveRecord
       expect(batches[1]).to eq([events[99]])
     end
 
+    specify 'read in batches forward from named stream' do
+      all_events = Array.new(400) { RubyEventStore::SRecord.new }
+      all_events.each_slice(2) do |(first, second)|
+        repository.append_to_stream(
+          first,
+          RubyEventStore::Stream.new("bazinga"),
+          RubyEventStore::ExpectedVersion.any
+        )
+        repository.append_to_stream(
+          second,
+          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+          RubyEventStore::ExpectedVersion.any
+        )
+      end
+      stream_events = all_events.each_with_index.filter_map { |event, idx| event if idx % 2 == 0 }
+      batches = repository.read(specification.stream("bazinga").forward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(stream_events[0..99])
+      expect(batches[1]).to eq([stream_events[100]])
+    end
+
     specify 'use default models' do
       repository = EventRepository.new(serializer: YAML)
       expect(repository.instance_variable_get(:@event_klass)).to be(Event)
