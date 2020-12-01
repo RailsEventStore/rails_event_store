@@ -1,9 +1,7 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = aggregate_root
 REQUIRE     = $(GEM_NAME)
-IGNORE      = AggregateRoot.included \
-	      AggregateRoot.with_default_apply_strategy \
-	      AggregateRoot.with_strategy
+IGNORE      =
 SUBJECT     ?= AggregateRoot*
 
 include ../support/make/install.mk
