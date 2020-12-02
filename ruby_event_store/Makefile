@@ -2,6 +2,7 @@ GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = ruby_event_store
 REQUIRE     = $(GEM_NAME)
 IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
+              RubyEventStore::Client\#initialize \
               RubyEventStore::Client\#default_clock \
               RubyEventStore::Client\#default_correlation_id_generator \
               RubyEventStore::Client::Within\#add_thread_subscribers \
