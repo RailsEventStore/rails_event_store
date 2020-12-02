@@ -78,7 +78,7 @@ module RubyEventStore
 
       specify do
         expect {
-          Client.new(mapper: RubyEventStore::Mappers::Default.new(serializer: YAML))
+          Client.new(mapper: RubyEventStore::Mappers::Default.new(serializer: YAML), repository: InMemoryRepository.new)
         }.to output(<<~EOS).to_stderr
         Passing serializer: to RubyEventStore::Mappers::Default has been deprecated. 
 
