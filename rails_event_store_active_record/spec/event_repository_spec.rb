@@ -372,7 +372,7 @@ module RailsEventStoreActiveRecord
           RubyEventStore::ExpectedVersion.any
         )
       end
-      stream_events = all_events.each_with_index.filter_map { |event, idx| event if idx % 2 == 0 }
+      stream_events = all_events.each_with_index.select { |event, idx| event if idx % 2 == 0 }.map { |event, idx| event }
       batches = repository.read(specification.stream("bazinga").forward.limit(101).in_batches.result).to_a
       expect(batches.size).to eq(2)
       expect(batches[0].size).to eq(100)
