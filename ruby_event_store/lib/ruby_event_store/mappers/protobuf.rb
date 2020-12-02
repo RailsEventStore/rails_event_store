@@ -17,10 +17,6 @@ module RubyEventStore
           to_domain_event: Transformation::ProtoEvent.new,
         ))
       end
-
-      def serializer
-        NULL
-      end
     end
   end
 end

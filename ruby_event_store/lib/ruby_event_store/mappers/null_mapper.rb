@@ -7,10 +7,6 @@ module RubyEventStore
       def initialize
         super(Pipeline.new)
       end
-
-      def serializer
-        NULL
-      end
     end
   end
 end
