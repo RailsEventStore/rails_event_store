@@ -7,7 +7,6 @@ module RubyEventStore
     module Transformation
       class Serialization
         def initialize(serializer: YAML)
-          @serializer = serializer
           warn <<~EOW
             #{self.class} has been deprecated and is effectively no-op. You should remove this transformation from your pipeline.
 
@@ -15,15 +14,14 @@ module RubyEventStore
 
             Rails.configuration.event_store = RailsEventStore::Client.new(
               mapper:     RubyEventStore::Mappers::Default.new,
-              repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
+              repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: #{serializer}),
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: YAML),
+                RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: #{serializer}),
                 RubyEventStore::Dispatcher.new
               )
             )
           EOW
         end
-        attr_reader :serializer
 
         def dump(item)
           item
