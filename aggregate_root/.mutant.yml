@@ -1,5 +1,7 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
+requires:
+- aggregate_root
 includes:
 - lib
 integration: rspec
