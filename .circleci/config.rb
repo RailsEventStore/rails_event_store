@@ -2,13 +2,6 @@ require "yaml"
 
 GEMS = %w[
   aggregate_root
-  bounded_context
-  ruby_event_store
-  ruby_event_store-browser
-  ruby_event_store-rom
-  rails_event_store
-  rails_event_store_active_record
-  rails_event_store-rspec
 ]
 
 RAILS_GEMS = %w[
@@ -312,46 +305,6 @@ workflows          =
         )
       end
     ),
-    Workflow(
-      "Ruby 2.5",
-      GEMS.map(&JobName("test", "ruby_2_5"))
-    ),
-    Workflow(
-      "Ruby 2.6",
-      GEMS.map(&JobName("test", "ruby_2_6"))
-    ),
-    Workflow(
-      "Rails 5.0",
-      RAILS_GEMS.map(&JobName("test", "rails_5_0"))
-    ),
-    Workflow(
-      "Rails 5.1",
-      RAILS_GEMS.map(&JobName("test", "rails_5_1"))
-    ),
-    Workflow(
-      "Rails 5.2",
-      RAILS_GEMS.map(&JobName("test", "rails_5_2"))
-    ),
-    Workflow(
-      "MySQL 5",
-      DATABASE_GEMS.map(&JobName("test", "mysql_5"))
-    ),
-    Workflow(
-      "MySQL 8",
-      DATABASE_GEMS.map(&JobName("test", "mysql_8"))
-    ),
-    Workflow(
-      "Postgres 11",
-      DATABASE_GEMS.map(&JobName("test", "postgres_11"))
-    ),
-    Workflow(
-      "JSONB data type",
-      DATATYPE_GEMS.map(&JobName("test", "data_type_json"))
-    ),
-    Workflow(
-      "JSON data type",
-      DATATYPE_GEMS.map(&JobName("test", "data_type_jsonb"))
-    )
   ]
 config =
   Config(
