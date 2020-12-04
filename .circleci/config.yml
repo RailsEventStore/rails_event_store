@@ -19,7 +19,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C aggregate_root install mutate
+    - run: make -C aggregate_root install mutate-incremental
   mutate_bounded_context_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -27,7 +27,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C bounded_context install mutate
+    - run: make -C bounded_context install mutate-incremental
   mutate_ruby_event_store_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -35,7 +35,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C ruby_event_store install mutate
+    - run: make -C ruby_event_store install mutate-incremental
   mutate_ruby_event_store_browser_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -43,7 +43,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C ruby_event_store-browser install mutate
+    - run: make -C ruby_event_store-browser install mutate-incremental
   mutate_ruby_event_store_rom_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -51,7 +51,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C ruby_event_store-rom install mutate
+    - run: make -C ruby_event_store-rom install mutate-incremental
   mutate_rails_event_store_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -59,7 +59,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C rails_event_store install mutate
+    - run: make -C rails_event_store install mutate-incremental
   mutate_rails_event_store_active_record_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -67,7 +67,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C rails_event_store_active_record install mutate
+    - run: make -C rails_event_store_active_record install mutate-incremental
   mutate_rails_event_store_rspec_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
@@ -75,7 +75,7 @@ jobs:
         MUTANT_JOBS: 4
     steps:
     - checkout
-    - run: make -C rails_event_store-rspec install mutate
+    - run: make -C rails_event_store-rspec install mutate-incremental
   test_aggregate_root_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7

@@ -132,7 +132,7 @@ end
 def Mutate(name)
   ->(gem_name) do
     GemJob(
-      "mutate",
+      "mutate-incremental",
       Images([Ruby("2.7", "MUTANT_JOBS" => 4)]),
       gem_name,
       JobName("mutate", name)[gem_name]
