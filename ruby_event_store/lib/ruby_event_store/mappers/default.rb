@@ -21,9 +21,9 @@ module RubyEventStore
 
             Rails.configuration.event_store = RailsEventStore::Client.new(
               mapper:     RubyEventStore::Mappers::Default.new,
-              repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
+              repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: #{serializer}),
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: YAML),
+                RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: #{serializer}),
                 RubyEventStore::Dispatcher.new
               )
             )

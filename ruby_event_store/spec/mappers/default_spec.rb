@@ -77,14 +77,17 @@ module RubyEventStore
       end
 
       specify do
-        expect {
-          RubyEventStore::Mappers::Default.new
-        }.not_to output.to_stderr
+        expect{RubyEventStore::Mappers::Default.new}.not_to output.to_stderr
+      end
+
+      specify do
+        expect(RubyEventStore::Mappers::Default.new(serializer: Marshal).serializer).to eq(Marshal)
+        expect(RubyEventStore::Mappers::Default.new.serializer).to                      eq(YAML)
       end
 
       specify do
         expect {
-          Client.new(mapper: RubyEventStore::Mappers::Default.new(serializer: YAML), repository: InMemoryRepository.new)
+          Client.new(mapper: RubyEventStore::Mappers::Default.new(serializer: Marshal), repository: InMemoryRepository.new)
         }.to output(<<~EOS).to_stderr
           Passing serializer: to RubyEventStore::Mappers::Default has been deprecated. 
 
@@ -92,9 +95,9 @@ module RubyEventStore
 
           Rails.configuration.event_store = RailsEventStore::Client.new(
             mapper:     RubyEventStore::Mappers::Default.new,
-            repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
+            repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: Marshal),
             dispatcher: RubyEventStore::ComposedDispatcher.new(
-              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: YAML),
+              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: Marshal),
               RubyEventStore::Dispatcher.new
             )
           )
