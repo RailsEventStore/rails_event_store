@@ -21,7 +21,7 @@ IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Mappers::EncryptionMapper\#serializer \
               RubyEventStore::Mappers::PipelineMapper\#serializer \
               RubyEventStore::Mappers::DeprecatedWrapper\#serializer \
-              RubyEventStore::Mappers::InstrumentedWrapper\#serializer \
+              RubyEventStore::Mappers::InstrumentedMapper\#serializer \
               RubyEventStore::Mappers::Transformation::Serialization*
 
 SUBJECT     ?= RubyEventStore*
