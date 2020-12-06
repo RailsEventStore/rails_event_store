@@ -47,7 +47,12 @@ module AggregateRoot
       end
     end
 
+    def adding_untested_code_to_tigger_failure
+      # yeah
+    end
+
     def version
+      adding_untested_code_to_tigger_failure
       @version
     end
 
