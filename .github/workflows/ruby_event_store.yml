@@ -1,0 +1,50 @@
+name: ruby_event_store
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: ruby_event_store
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+          - ruby: ruby-2.6
+            gemfile: Gemfile
+          - ruby: ruby-2.5
+            gemfile: Gemfile
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+          working-directory: ${{ env.GEM_NAME }}
+      - run: make install test
+        working-directory: ${{ env.GEM_NAME }}
+
+  mutate:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: ruby_event_store
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+          working-directory: ${{ env.GEM_NAME }}
+      - run: make install mutate-incremental
+        working-directory: ${{ env.GEM_NAME }}
