@@ -4,7 +4,11 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gemspec
 
-eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
+gem 'rake',         '>= 10.0'
+gem 'rspec',        '~> 3.6'
+gem 'mutant-rspec', '~> 0.10.15'
+gem 'mutant',       '~> 0.10.15'
+gem 'mutant-license', source: 'https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev'
 
 gem 'ruby_event_store', path: '../ruby_event_store'
 gem 'protobuf_nested_struct'
