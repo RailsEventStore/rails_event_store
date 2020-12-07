@@ -6,4 +6,4 @@ gemspec
 
 eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 
-gem 'rails', '6.0.3.4'
+gem 'rails', '5.0.7.2'
