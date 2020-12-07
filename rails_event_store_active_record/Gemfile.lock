@@ -145,7 +145,7 @@ GEM
       mini_portile2 (~> 2.4.0)
     parser (2.7.2.0)
       ast (~> 2.4.1)
-    pg (1.2.2)
+    pg (1.2.3)
     procto (0.0.3)
     rack (2.2.3)
     rack-test (1.1.0)
@@ -229,7 +229,7 @@ DEPENDENCIES
   mutant-license!
   mutant-rspec (~> 0.10.15)
   mysql2 (= 0.5.3)
-  pg (= 1.2.2)
+  pg (= 1.2.3)
   rails (= 6.0.3.4)
   rails_event_store_active_record!
   rake (>= 10.0)
