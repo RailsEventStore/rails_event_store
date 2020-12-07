@@ -50,8 +50,8 @@ module RubyEventStore
         end
 
         specify do
-          event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             def through_outbox?; true; end
@@ -75,14 +75,16 @@ module RubyEventStore
               event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
               event_type: "RubyEventStore::Event",
               data: "--- {}\n",
-              metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+              metadata: "--- {}\n",
+              timestamp: "2019-09-30T00:00:00.000000Z",
+              valid_at: "2019-09-30T00:00:00.000000Z",
             }]
           })
         end
 
         specify "custom queue name is taken into account" do
-          event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             sidekiq_options queue: 'custom_queue'
@@ -97,8 +99,8 @@ module RubyEventStore
         end
 
         specify "client middleware may abort scheduling" do
-          event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+          event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
           class ::AlwaysCancellingMiddleware
             def call(_worker_class, _msg, _queue, _redis_pool)
             end

@@ -8,12 +8,13 @@ require_relative '../../../support/helpers/schema_helper'
 require_relative './support/db'
 require 'rails'
 
-module TimestampEnrichment
-  def with_timestamp(event, timestamp = Time.now.utc)
+module TimeEnrichment
+  def with(event, timestamp: Time.now.utc, valid_at: nil)
     event.metadata[:timestamp] ||= timestamp
+    event.metadata[:valid_at] ||= valid_at || timestamp
     event
   end
-  module_function :with_timestamp
+  module_function :with
 end
 
 $verbose = ENV.has_key?('VERBOSE') ? true : false
