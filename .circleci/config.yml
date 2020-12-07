@@ -272,7 +272,7 @@ jobs:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &1
-        RAILS_VERSION: 5.0.7.2
+        BUNDLE_GEMFILE: Gemfile.rails_5_0
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -301,7 +301,7 @@ jobs:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &2
-        RAILS_VERSION: 5.1.7
+        BUNDLE_GEMFILE: Gemfile.rails_5_1
     steps:
     - checkout
     - run: make -C bounded_context install test
@@ -330,7 +330,7 @@ jobs:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &3
-        RAILS_VERSION: 5.2.4.4
+        BUNDLE_GEMFILE: Gemfile.rails_5_2
     steps:
     - checkout
     - run: make -C bounded_context install test
