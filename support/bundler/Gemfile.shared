@@ -1,5 +1,3 @@
-ENV['RAILS_VERSION'] ||= File.read(File.join(__dir__, '../..', 'RAILS_VERSION'))
-
 gem 'rake',         '>= 10.0'
 gem 'rspec',        '~> 3.6'
 gem 'mutant-rspec', '~> 0.10.14', github: 'pawelpacana/mutant'
