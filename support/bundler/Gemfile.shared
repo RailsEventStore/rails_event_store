@@ -1,0 +1,5 @@
+gem 'rake',         '>= 10.0'
+gem 'rspec',        '~> 3.6'
+gem 'mutant-rspec', '~> 0.10.15'
+gem 'mutant',       '~> 0.10.15'
+gem 'mutant-license', source: 'https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev'

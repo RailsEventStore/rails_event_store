@@ -129,7 +129,7 @@ GEM
     erubi (1.10.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    google-protobuf (3.12.4-universal-darwin)
+    google-protobuf (3.12.4)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)

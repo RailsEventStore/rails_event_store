@@ -34,7 +34,7 @@ GEM
     concurrent-ruby (1.1.7)
     diff-lcs (1.4.4)
     equalizer (0.0.11)
-    google-protobuf (3.12.4-universal-darwin)
+    google-protobuf (3.12.4)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
