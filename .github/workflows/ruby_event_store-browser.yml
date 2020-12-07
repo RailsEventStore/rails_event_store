@@ -26,7 +26,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ruby_event_store-browser/elm/node_modules
-          key: ${{ runner.OS }}-node-${{ hashFiles('ruby_event_store-browser/elm/package-lock.json') }}
+          key: ${{ runner.OS }}-node-${{ hashFiles('ruby_event_store-browser/elm/yarn.lock') }}
       - run: make install-yarn test
         working-directory: ${{ env.GEM_NAME }}
 
