@@ -8,12 +8,6 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
-      POSTGRES_11_URL: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-      POSTGRES_12_URL: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-      MYSQL_8_URL: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-      MYSQL_5_URL: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
-      SQLITE_3_URL: sqlite:db.sqlite3
-      SQLITE_3_MEMORY_URL: "sqlite::memory:"
     services:
       postgres_11:
         image: postgres:11
@@ -53,40 +47,40 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: sqlite:db.sqlite3
             datatype: text
-            database: ${{ env.SQLITE3_URL }}
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: text
-            database: ${{ env.POSTGRES_12_URL }}
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: json
-            database: ${{ env.POSTGRES_12_URL }}
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: jsonb
-            database: ${{ env.POSTGRES_12_URL }}
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: text
-            database: ${{ env.POSTGRES_11_URL }}
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
             datatype: text
-            database: ${{ env.MYSQL_8_URL }}
           - ruby: ruby-2.7
             gemfile: Gemfile
+            database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
             datatype: text
-            database: ${{ env.MYSQL_5_URL }}
           - ruby: ruby-2.6
             gemfile: Gemfile
+            database: sqlite:db.sqlite3
             datatype: text
-            database: ${{ env.SQLITE_3_URL }}
           - ruby: ruby-2.5
             gemfile: Gemfile
+            database: sqlite:db.sqlite3
             datatype: text
-            database: ${{ env.SQLITE_3_URL }}
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -109,7 +103,7 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile
-            database: ${{ env.SQLITE_3_MEMORY_URL }}
+            database: "sqlite3::memory:"
     steps:
       - uses: actions/checkout@v2
         with:
