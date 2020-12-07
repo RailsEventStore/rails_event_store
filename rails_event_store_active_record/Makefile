@@ -16,7 +16,7 @@ include ../support/make/mutant.mk
 include ../support/make/gem.mk
 include ../support/make/help.mk
 
-install: install-gemfiles
+install: install-migration-gemfiles
 
-install-gemfiles:
+install-migration-gemfiles:
 	@BUNDLE_GEMFILE=../support/bundler/Gemfile.1_1_1 bundle check  || BUNDLE_GEMFILE=../support/bundler/Gemfile.1_1_1 bundle install
