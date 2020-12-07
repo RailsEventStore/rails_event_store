@@ -100,7 +100,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.GEM_NAME }}
-      - run: make test
+      - run: make install-migration-gemfiles test
         working-directory: ${{ env.GEM_NAME }}
 
   mutate:
