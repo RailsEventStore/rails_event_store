@@ -18,10 +18,5 @@ include ../support/make/help.mk
 
 install: install-gemfiles
 
-remove-lock: remove-lockfiles
-
 install-gemfiles:
 	@BUNDLE_GEMFILE=../support/bundler/Gemfile.1_1_1 bundle check  || BUNDLE_GEMFILE=../support/bundler/Gemfile.1_1_1 bundle install
-
-remove-lockfiles:
-	-rm ../support/bundler/Gemfile.1_1_1.lock
