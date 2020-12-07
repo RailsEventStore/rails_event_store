@@ -82,7 +82,7 @@ test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
 mutate: $(addprefix mutate-, $(GEMS)) ## Run all mutation tests
 
-mutate-changes: $(addprefix mutate-changes-, $(GEMS)) ## Run mutation tests for all changes since origin/HEAD
+mutate-changes: $(addprefix mutate-changes-, $(GEMS)) ## Run incremental mutation tests
 
 build: $(addprefix build-, $(GEMS)) ## Build all gem packages
 

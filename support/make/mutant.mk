@@ -15,16 +15,7 @@ mutate-fast: ## Run mutation tests with --fail-fast
 		--fail-fast \
 		"$(SUBJECT)"
 
-mutate-changes: ## Run mutation tests for all changes since origin/HEAD
-	@echo "Running mutation tests"
-	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant run \
-		$(addprefix --require ,$(REQUIRE)) \
-		$(addprefix --ignore-subject ,$(IGNORE)) \
-		$(if $(MUTANT_JOBS), --jobs $(MUTANT_JOBS)) \
-		--since origin/HEAD \
-		"$(SUBJECT)"
-
-mutate-incremental:
+mutate-changes: ## Run incremental mutation tests
 	@echo "Running mutation tests"
 	@DATABASE_URL=$(DATABASE_URL) bundle exec mutant run \
 		$(addprefix --require ,$(REQUIRE)) \
