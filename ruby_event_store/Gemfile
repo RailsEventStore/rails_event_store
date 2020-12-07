@@ -7,5 +7,5 @@ eval_gemfile File.expand_path('../support/bundler/Gemfile.shared', __dir__)
 
 gem 'protobuf_nested_struct'
 gem 'google-protobuf', '~> 3.12.2', '>= 3.12.2'
-gem 'activesupport', ENV['RAILS_VERSION']
+gem 'activesupport', '6.0.3.4'
 gem 'concurrent-ruby', github: 'ruby-concurrency/concurrent-ruby', ref: 'c4cbc968c55e5b983dae953095761896220c46d1'
