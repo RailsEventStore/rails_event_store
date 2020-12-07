@@ -55,10 +55,10 @@ def MySQL(version)
   )
 end
 
-def Ruby(version, environment={})
+def Ruby(version, environment=nil)
   Docker.new(
     "railseventstore/ruby:#{version}",
-    { 'BUNDLER_VERSION' => '2.1.4' }.merge(environment),
+    environment,
     nil
   )
 end
@@ -98,7 +98,12 @@ def Job(name, docker, steps)
 end
 
 def GemJob(task, docker, gem_name, name)
-  Job(name, docker, ["checkout", Run("make -C #{gem_name} install #{task}")])
+  Job(name, docker, [
+    "checkout", 
+    Run("gem update --system"),
+    Run("gem install bundler"),
+    Run("make -C #{gem_name} install #{task}"),
+  ])
 end
 
 def JobName(task, ruby_version)

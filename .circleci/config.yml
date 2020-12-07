@@ -6,8 +6,6 @@ jobs:
   check_config:
     docker:
     - image: railseventstore/ruby:2.7
-      environment:
-        BUNDLER_VERSION: 2.1.4
     steps:
     - checkout
     - run:
@@ -18,298 +16,331 @@ jobs:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C aggregate_root install mutate-incremental
   mutate_bounded_context_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install mutate-incremental
   mutate_ruby_event_store_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store install mutate-incremental
   mutate_ruby_event_store_browser_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-browser install mutate-incremental
   mutate_ruby_event_store_rom_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install mutate-incremental
   mutate_rails_event_store_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install mutate-incremental
   mutate_rails_event_store_active_record_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install mutate-incremental
   mutate_rails_event_store_rspec_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         MUTANT_JOBS: 4
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install mutate-incremental
   test_aggregate_root_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C aggregate_root install test
   test_bounded_context_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install test
   test_ruby_event_store_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store install test
   test_ruby_event_store_browser_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-browser install test
   test_ruby_event_store_rom_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: sqlite:db.sqlite3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_rails_event_store_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: sqlite3:db.sqlite3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_ruby_2_7:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install test
   test_aggregate_root_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C aggregate_root install test
   test_bounded_context_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install test
   test_ruby_event_store_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store install test
   test_ruby_event_store_browser_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-browser install test
   test_ruby_event_store_rom_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: sqlite:db.sqlite3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_rails_event_store_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: sqlite3:db.sqlite3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_ruby_2_5:
     docker:
     - image: railseventstore/ruby:2.5
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install test
   test_aggregate_root_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C aggregate_root install test
   test_bounded_context_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install test
   test_ruby_event_store_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store install test
   test_ruby_event_store_browser_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-browser install test
   test_ruby_event_store_rom_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: sqlite:db.sqlite3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_rails_event_store_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: sqlite3:db.sqlite3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_ruby_2_6:
     docker:
     - image: railseventstore/ruby:2.6
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: 'sqlite3::memory:'
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_0:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &1
-        BUNDLER_VERSION: 2.1.4
         BUNDLE_GEMFILE: Gemfile.rails_5_0
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install test
   test_rails_event_store_rails_5_0:
     docker:
@@ -317,6 +348,8 @@ jobs:
       environment: *1
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_rails_5_0:
     docker:
@@ -324,6 +357,8 @@ jobs:
       environment: *1
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_rails_5_0:
     docker:
@@ -331,15 +366,18 @@ jobs:
       environment: *1
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_1:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &2
-        BUNDLER_VERSION: 2.1.4
         BUNDLE_GEMFILE: Gemfile.rails_5_1
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install test
   test_rails_event_store_rails_5_1:
     docker:
@@ -347,6 +385,8 @@ jobs:
       environment: *2
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_rails_5_1:
     docker:
@@ -354,6 +394,8 @@ jobs:
       environment: *2
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_rails_5_1:
     docker:
@@ -361,15 +403,18 @@ jobs:
       environment: *2
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install test
   test_bounded_context_rails_5_2:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &3
-        BUNDLER_VERSION: 2.1.4
         BUNDLE_GEMFILE: Gemfile.rails_5_2
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C bounded_context install test
   test_rails_event_store_rails_5_2:
     docker:
@@ -377,6 +422,8 @@ jobs:
       environment: *3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store install test
   test_rails_event_store_active_record_rails_5_2:
     docker:
@@ -384,6 +431,8 @@ jobs:
       environment: *3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_rails_event_store_rspec_rails_5_2:
     docker:
@@ -391,12 +440,13 @@ jobs:
       environment: *3
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store-rspec install test
   test_rails_event_store_active_record_mysql_5:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &4
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
     - image: mysql:5
       environment: &5
@@ -405,6 +455,8 @@ jobs:
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_ruby_event_store_rom_mysql_5:
     docker:
@@ -415,12 +467,13 @@ jobs:
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_rails_event_store_active_record_mysql_8:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &6
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: mysql2://root:secret@127.0.0.1/rails_event_store?pool=5
     - image: mysql:8
       environment: &7
@@ -429,6 +482,8 @@ jobs:
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_ruby_event_store_rom_mysql_8:
     docker:
@@ -439,12 +494,13 @@ jobs:
       command: "--default-authentication-plugin=mysql_native_password --max-connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_rails_event_store_active_record_postgres_11:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &8
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
     - image: postgres:11
       environment: &9
@@ -453,6 +509,8 @@ jobs:
       command: "-c max_connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_ruby_event_store_rom_postgres_11:
     docker:
@@ -463,12 +521,13 @@ jobs:
       command: "-c max_connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_rails_event_store_active_record_postgres_12:
     docker:
     - image: railseventstore/ruby:2.7
       environment: &10
-        BUNDLER_VERSION: 2.1.4
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
     - image: postgres:12
       environment: &11
@@ -477,6 +536,8 @@ jobs:
       command: "-c max_connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C rails_event_store_active_record install test
   test_ruby_event_store_rom_postgres_12:
     docker:
@@ -487,12 +548,13 @@ jobs:
       command: "-c max_connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_ruby_event_store_rom_data_type_json:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATA_TYPE: json
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
     - image: postgres:11
@@ -502,12 +564,13 @@ jobs:
       command: "-c max_connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
   test_ruby_event_store_rom_data_type_jsonb:
     docker:
     - image: railseventstore/ruby:2.7
       environment:
-        BUNDLER_VERSION: 2.1.4
         DATA_TYPE: jsonb
         DATABASE_URL: postgres://postgres:secret@localhost/rails_event_store?pool=5
     - image: postgres:11
@@ -517,6 +580,8 @@ jobs:
       command: "-c max_connections=2000"
     steps:
     - checkout
+    - run: gem update --system
+    - run: gem install bundler
     - run: make -C ruby_event_store-rom install test
 workflows:
   version: '2'
