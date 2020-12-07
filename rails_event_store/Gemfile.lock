@@ -129,7 +129,7 @@ GEM
     erubi (1.10.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    google-protobuf (3.12.4-universal-darwin)
+    google-protobuf (3.14.0)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -275,7 +275,7 @@ PLATFORMS
 DEPENDENCIES
   aggregate_root!
   bounded_context!
-  google-protobuf (~> 3.12.2, >= 3.12.2)
+  google-protobuf (~> 3.14.0)
   mutant (~> 0.10.15)
   mutant-license!
   mutant-rspec (~> 0.10.15)
