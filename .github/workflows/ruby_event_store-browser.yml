@@ -23,6 +23,10 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.GEM_NAME }}
+      - uses: actions/cache@v2
+        with:
+          path: ruby_event_store-browser/elm/node_modules
+          key: ${{ runner.OS }}-node-${{ hashFiles('ruby_event_store-browser/elm/package-lock.json') }}
       - run: make install-yarn test
         working-directory: ${{ env.GEM_NAME }}
 
