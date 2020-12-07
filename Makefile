@@ -23,9 +23,6 @@ endif
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
-$(addprefix reinstall-, $(GEMS)):
-	@make -C $(subst reinstall-,,$@) reinstall
-
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
 
