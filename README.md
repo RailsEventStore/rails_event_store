@@ -22,7 +22,6 @@ Documentation, tutorials and code samples are available at [https://railseventst
 
 ## Code status
 
-[![CircleCI](https://circleci.com/gh/RailsEventStore/rails_event_store.svg?style=shield)](https://circleci.com/gh/RailsEventStore/rails_event_store)
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
 [![Downloads](https://badgen.net/rubygems/dt/ruby_event_store)](https://rubygems.org/gems/ruby_event_store)
 [![Maintainability](https://badgen.net/codeclimate/maintainability/RailsEventStore/rails_event_store)](https://codeclimate.com/github/RailsEventStore/rails_event_store/maintainability)
