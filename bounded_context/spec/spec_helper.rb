@@ -5,7 +5,7 @@ require 'securerandom'
 require_relative '../../support/helpers/rspec_defaults'
 require 'rails'
 
-DUMMY_APP_NAME = "dummy_#{ENV['RAILS_VERSION'].split('.').take(2).join('_')}"
+DUMMY_APP_NAME = "dummy_#{Rails::VERSION::MAJOR}_#{Rails::VERSION::MINOR}"
 TMP_ROOT   = File.join(__dir__, 'tmp')
 DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)
 raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exist?(DUMMY_ROOT)
