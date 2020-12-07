@@ -1,27 +1,4 @@
 GIT
-  remote: https://github.com/pawelpacana/mutant.git
-  revision: 5e49212110aa1b3803deb7c3a5b7751ead228a19
-  specs:
-    mutant (0.10.14)
-      abstract_type (~> 0.0.7)
-      adamantium (~> 0.2.0)
-      anima (~> 0.3.1)
-      ast (~> 2.2)
-      concord (~> 0.1.5)
-      diff-lcs (~> 1.3)
-      equalizer (~> 0.0.9)
-      ice_nine (~> 0.11.1)
-      memoizable (~> 0.4.2)
-      mprelude (~> 0.1.0)
-      parser (~> 2.7.1)
-      procto (~> 0.0.2)
-      unparser (~> 0.5.4)
-      variable (~> 0.0.1)
-    mutant-rspec (0.10.14)
-      mutant (~> 0.10.14)
-      rspec-core (>= 3.8.0, < 4.0.0)
-
-GIT
   remote: https://github.com/ruby-concurrency/concurrent-ruby.git
   revision: c4cbc968c55e5b983dae953095761896220c46d1
   ref: c4cbc968c55e5b983dae953095761896220c46d1
@@ -72,7 +49,25 @@ GEM
       equalizer (~> 0.0.9)
       ice_nine (~> 0.11.1)
       procto (~> 0.0.2)
+    mutant (0.10.15)
+      abstract_type (~> 0.0.7)
+      adamantium (~> 0.2.0)
+      anima (~> 0.3.1)
+      ast (~> 2.2)
+      concord (~> 0.1.5)
+      diff-lcs (~> 1.3)
+      equalizer (~> 0.0.9)
+      ice_nine (~> 0.11.1)
+      memoizable (~> 0.4.2)
+      mprelude (~> 0.1.0)
+      parser (~> 2.7.1)
+      procto (~> 0.0.2)
+      unparser (~> 0.5.4)
+      variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
+    mutant-rspec (0.10.15)
+      mutant (~> 0.10.15)
+      rspec-core (>= 3.8.0, < 4.0.0)
     parser (2.7.2.0)
       ast (~> 2.4.1)
     procto (0.0.3)
@@ -116,9 +111,9 @@ DEPENDENCIES
   activesupport (= 6.0.3.4)
   concurrent-ruby!
   google-protobuf (~> 3.12.2, >= 3.12.2)
-  mutant (~> 0.10.14)!
+  mutant (~> 0.10.15)
   mutant-license!
-  mutant-rspec (~> 0.10.14)!
+  mutant-rspec (~> 0.10.15)
   protobuf_nested_struct
   rake (>= 10.0)
   rspec (~> 3.6)
