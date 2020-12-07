@@ -16,6 +16,10 @@ jobs:
             gemfile: Gemfile
           - ruby: ruby-2.5
             gemfile: Gemfile
+          - ruby: truffleruby
+            gemfile: Gemfile
+          - ruby: jruby
+            gemfile: Gemfile
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
