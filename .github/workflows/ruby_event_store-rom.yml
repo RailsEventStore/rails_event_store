@@ -103,7 +103,7 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile
-            database: "sqlite3::memory:"
+            database: "sqlite::memory:"
     steps:
       - uses: actions/checkout@v2
         with:
