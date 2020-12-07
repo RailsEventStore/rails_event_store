@@ -1,26 +1,3 @@
-GIT
-  remote: https://github.com/pawelpacana/mutant.git
-  revision: 5e49212110aa1b3803deb7c3a5b7751ead228a19
-  specs:
-    mutant (0.10.14)
-      abstract_type (~> 0.0.7)
-      adamantium (~> 0.2.0)
-      anima (~> 0.3.1)
-      ast (~> 2.2)
-      concord (~> 0.1.5)
-      diff-lcs (~> 1.3)
-      equalizer (~> 0.0.9)
-      ice_nine (~> 0.11.1)
-      memoizable (~> 0.4.2)
-      mprelude (~> 0.1.0)
-      parser (~> 2.7.1)
-      procto (~> 0.0.2)
-      unparser (~> 0.5.4)
-      variable (~> 0.0.1)
-    mutant-rspec (0.10.14)
-      mutant (~> 0.10.14)
-      rspec-core (>= 3.8.0, < 4.0.0)
-
 PATH
   remote: .
   specs:
@@ -116,7 +93,25 @@ GEM
       equalizer (~> 0.0.9)
       ice_nine (~> 0.11.1)
       procto (~> 0.0.2)
+    mutant (0.10.15)
+      abstract_type (~> 0.0.7)
+      adamantium (~> 0.2.0)
+      anima (~> 0.3.1)
+      ast (~> 2.2)
+      concord (~> 0.1.5)
+      diff-lcs (~> 1.3)
+      equalizer (~> 0.0.9)
+      ice_nine (~> 0.11.1)
+      memoizable (~> 0.4.2)
+      mprelude (~> 0.1.0)
+      parser (~> 2.7.1)
+      procto (~> 0.0.2)
+      unparser (~> 0.5.4)
+      variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
+    mutant-rspec (0.10.15)
+      mutant (~> 0.10.15)
+      rspec-core (>= 3.8.0, < 4.0.0)
     nio4r (2.5.4)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
@@ -196,9 +191,9 @@ PLATFORMS
 
 DEPENDENCIES
   bounded_context!
-  mutant (~> 0.10.14)!
+  mutant (~> 0.10.15)
   mutant-license!
-  mutant-rspec (~> 0.10.14)!
+  mutant-rspec (~> 0.10.15)
   rails (= 5.2.4.4)
   rake (>= 10.0)
   rspec (~> 3.6)
