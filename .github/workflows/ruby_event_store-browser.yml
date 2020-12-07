@@ -21,9 +21,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: false
+          bundler-cache: true
           working-directory: ${{ env.GEM_NAME }}
-      - run: make install test
+      - run: make test
         working-directory: ${{ env.GEM_NAME }}
 
   mutate:
@@ -44,7 +44,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: false
+          bundler-cache: true
           working-directory: ${{ env.GEM_NAME }}
-      - run: make install mutate-incremental
+      - run: make mutate-incremental
         working-directory: ${{ env.GEM_NAME }}
