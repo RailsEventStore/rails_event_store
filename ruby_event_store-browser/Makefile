@@ -40,5 +40,4 @@ clean-yarn:
 
 $(BUNDLE):
 	@echo "Building browser frontend"
-	@-$(if $(CI), ls -alR ~/.elm elm/elm-stuff,)
 	@cd elm; yarn build
