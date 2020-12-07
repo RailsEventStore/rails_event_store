@@ -55,10 +55,10 @@ def MySQL(version)
   )
 end
 
-def Ruby(version, environment=nil)
+def Ruby(version, environment={})
   Docker.new(
     "railseventstore/ruby:#{version}",
-    environment,
+    { 'BUNDLER_VERSION' => '2.1.4' }.merge(environment),
     nil
   )
 end
