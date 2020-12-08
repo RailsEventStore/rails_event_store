@@ -36,7 +36,13 @@ module SchemaHelper
   end
 
   def build_schema(gemfile, template_name: nil)
-    run_in_subprocess(<<~EOF, gemfile: gemfile)
+    run_in_subprocess(<<~EOF, env: ENV.slice('DATABASE_URL', 'VERBOSE'))
+      require 'bundler/inline'
+
+      gemfile do
+        #{gemfile}
+      end
+
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
       require 'logger'
@@ -54,7 +60,13 @@ module SchemaHelper
   end
 
   def run_code(code, gemfile:)
-    run_in_subprocess(<<~EOF, gemfile: gemfile)
+    run_in_subprocess(<<~EOF, env: ENV.slice('DATABASE_URL', 'VERBOSE'))
+      require 'bundler/inline'
+
+      gemfile do
+        #{gemfile}
+      end
+
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
       require 'logger'
