@@ -72,12 +72,4 @@ RSpec.describe "database schema migrations" do
       EOF
     end
   end
-
-  def rails_6?
-    Gem::Version.new(ENV['RAILS_VERSION']) >= Gem::Version.new('6.0.0')
-  end
-
-  def sqlite?
-    ENV['DATABASE_URL'].start_with?('sqlite')
-  end
 end
