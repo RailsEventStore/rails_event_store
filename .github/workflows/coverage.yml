@@ -1,0 +1,79 @@
+name: coverage
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+jobs:
+  ruby_event_store:
+    runs-on: ${{ matrix.os }}
+    env:
+      GEM_NAME: ruby_event_store
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: ubuntu-20.04
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.GEM_NAME }}
+      - run: make mutate
+        working-directory: ${{ env.GEM_NAME }}
+
+  rails_event_store:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: rails_event_store
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: ubuntu-20.04
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.GEM_NAME }}
+      - run: make mutate
+        working-directory: ${{ env.GEM_NAME }}
+
+  rails_event_store_active_record:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: rails_event_store_active_record
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: ubuntu-20.04
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.GEM_NAME }}
+      - run: make mutate
+        working-directory: ${{ env.GEM_NAME }}
