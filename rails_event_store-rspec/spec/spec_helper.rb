@@ -1,11 +1,11 @@
 require "aggregate_root"
-require "rails_event_store"
+require "ruby_event_store"
 require "rails_event_store/rspec"
 require_relative '../../support/helpers/rspec_defaults'
 
-FooEvent = Class.new(RailsEventStore::Event)
-BarEvent = Class.new(RailsEventStore::Event)
-BazEvent = Class.new(RailsEventStore::Event)
+FooEvent = Class.new(RubyEventStore::Event)
+BarEvent = Class.new(RubyEventStore::Event)
+BazEvent = Class.new(RubyEventStore::Event)
 
 class TestAggregate
   include AggregateRoot

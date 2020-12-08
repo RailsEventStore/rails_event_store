@@ -5,8 +5,8 @@ module RailsEventStore
     ::RSpec.describe Publish do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
-        RailsEventStore::Client.new(
-          repository: RailsEventStore::InMemoryRepository.new,
+        RubyEventStore::Client.new(
+          repository: RubyEventStore::InMemoryRepository.new,
           mapper: RubyEventStore::Mappers::PipelineMapper.new(
             RubyEventStore::Mappers::Pipeline.new(to_domain_event: IdentityMapTransformation.new)
           )

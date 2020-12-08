@@ -22,20 +22,20 @@ module RailsEventStore
       end
 
       specify do
-        event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
+        event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
         event_store.publish(FooEvent.new)
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent))
       end
 
       specify do
-        event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
+        event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
         event_store.publish(FooEvent.new)
         event_store.publish(BarEvent.new)
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
       end
 
       specify do
-        event_store = RailsEventStore::Client.new(repository: RailsEventStore::InMemoryRepository.new)
+        event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
         event_store.publish(FooEvent.new)
         expect {
           event_store.publish(BarEvent.new)
