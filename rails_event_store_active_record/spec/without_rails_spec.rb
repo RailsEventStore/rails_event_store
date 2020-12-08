@@ -23,7 +23,18 @@ RSpec.describe RailsEventStoreActiveRecord do
   specify "can be used without rails", mutant: false do
     skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
 
-    run_in_subprocess(<<~EOF)
+    run_in_subprocess(<<~EOF, env: ENV.slice('DATABASE_URL', 'VERBOSE'))
+      require 'bundler/inline'
+
+      gemfile do
+        gem 'ruby_event_store',                path: '../ruby_event_store'
+        gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
+        gem 'activerecord', '6.0.3.4'
+        gem 'pg',           '1.2.3'
+        gem 'mysql2',       '0.5.3'
+        gem 'sqlite3',      '1.4.2'
+      end
+
       require 'active_record'
       require 'rails_event_store_active_record'
       require 'ruby_event_store'
