@@ -49,7 +49,7 @@ GEM
       equalizer (~> 0.0.9)
       ice_nine (~> 0.11.1)
       procto (~> 0.0.2)
-    mutant (0.10.15)
+    mutant (0.10.16)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
       anima (~> 0.3.1)
@@ -111,7 +111,7 @@ DEPENDENCIES
   activesupport (= 6.0.3.4)
   concurrent-ruby!
   google-protobuf (~> 3.14.0)
-  mutant (~> 0.10.15)
+  mutant (~> 0.10.16)
   mutant-license!
   mutant-rspec (~> 0.10.15)
   protobuf_nested_struct
