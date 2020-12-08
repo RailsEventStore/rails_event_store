@@ -15,9 +15,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -40,9 +37,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -67,11 +61,6 @@ jobs:
             database: "sqlite3::memory:"
             datatype: binary
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: "sqlite3::memory:"
-            datatype: binary
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -94,9 +83,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -119,9 +105,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -144,9 +127,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -171,11 +151,6 @@ jobs:
             database: "sqlite::memory:"
             datatype: text
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: "sqlite::memory:"
-            datatype: text
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
@@ -198,9 +173,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
