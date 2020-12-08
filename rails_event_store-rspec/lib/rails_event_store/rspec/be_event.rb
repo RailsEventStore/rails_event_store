@@ -138,7 +138,9 @@ module RailsEventStore
       end
 
       def failure_message
-        FailureMessage.new(expected, actual.class, expected_data, actual.try(:data), expected_metadata, actual.try(:metadata), differ: differ).to_s
+        actual_data     = actual.data     if actual.respond_to?(:data)
+        actual_metadata = actual.metadata if actual.respond_to?(:metadata)
+        FailureMessage.new(expected, actual.class, expected_data, actual_data, expected_metadata, actual_metadata, differ: differ).to_s
       end
 
       def failure_message_when_negated
