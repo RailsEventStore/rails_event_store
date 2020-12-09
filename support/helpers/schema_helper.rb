@@ -36,7 +36,7 @@ module SchemaHelper
   end
 
   def build_schema(gemfile, template_name: nil)
-    run_in_subprocess(<<~EOF, env: ENV.slice('DATABASE_URL', 'VERBOSE'))
+    run_in_subprocess(<<~EOF, env: ENV.to_h.slice('DATABASE_URL', 'VERBOSE'))
       require 'bundler/inline'
 
       gemfile do
@@ -60,7 +60,7 @@ module SchemaHelper
   end
 
   def run_code(code, gemfile:)
-    run_in_subprocess(<<~EOF, env: ENV.slice('DATABASE_URL', 'VERBOSE'))
+    run_in_subprocess(<<~EOF, env: ENV.to_h.slice('DATABASE_URL', 'VERBOSE'))
       require 'bundler/inline'
 
       gemfile do
