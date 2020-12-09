@@ -9,6 +9,11 @@ jobs:
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
       GEM_LOCATION: contrib/ruby_event_store-outbox
+    services:
+      redis:
+        image: redis:5
+        ports:
+          - 6379:6379
     strategy:
       fail-fast: false
       matrix:
