@@ -4,7 +4,7 @@ require 'fakefs/safe'
 
 module RailsEventStoreActiveRecord
   RSpec.describe MigrationGenerator do
-    around(:each) do |example|
+    around do |example|
       current_stdout = $stdout
       $stdout = StringIO.new
       example.call
@@ -13,7 +13,7 @@ module RailsEventStoreActiveRecord
 
     around do |example|
       FakeFS.with_fresh do
-        FakeFS::FileSystem.clone(File.expand_path('../../', __FILE__))
+        FakeFS::FileSystem.clone(File.expand_path('../../lib/rails_event_store_active_record/generators/templates', __FILE__))
         example.run
       end
     end
