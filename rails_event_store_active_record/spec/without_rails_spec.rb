@@ -23,7 +23,7 @@ RSpec.describe RailsEventStoreActiveRecord do
   specify "can be used without rails", mutant: false do
     skip("in-memory sqlite cannot run this test") if ENV['DATABASE_URL'].include?(":memory:")
 
-    run_in_subprocess(<<~EOF, env: ENV.slice('DATABASE_URL', 'VERBOSE'))
+    run_in_subprocess(<<~EOF, env: ENV.to_h.slice('DATABASE_URL', 'VERBOSE'))
       require 'bundler/inline'
 
       gemfile do
