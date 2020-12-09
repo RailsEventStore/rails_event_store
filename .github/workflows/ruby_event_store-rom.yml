@@ -1,5 +1,8 @@
 name: ruby_event_store-rom
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - "railseventstore.org/**"
 jobs:
   test:
     runs-on: ubuntu-20.04

@@ -1,5 +1,8 @@
 name: bounded_context
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - "railseventstore.org/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
