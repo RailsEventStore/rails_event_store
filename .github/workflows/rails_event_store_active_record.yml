@@ -148,9 +148,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
           working-directory: ${{ env.GEM_NAME }}
-      - run: make integration
+      - run: make install integration
         working-directory: ${{ env.GEM_NAME }}
 
   mutate:
