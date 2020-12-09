@@ -3,7 +3,7 @@ require 'pathname'
 require 'fileutils'
 require_relative '../../support/helpers/subprocess_helper'
 
-RSpec.describe RailsEventStoreActiveRecord do
+RSpec.describe RailsEventStoreActiveRecord, :integration do
   include SchemaHelper
   include SubprocessHelper
 
