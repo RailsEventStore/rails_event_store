@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe "database schema migrations" do
+RSpec.describe "database schema migrations", :integration do
   include SchemaHelper
 
   specify "migrate from v1.1.1 to master" do
