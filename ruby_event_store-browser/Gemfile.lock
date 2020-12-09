@@ -68,7 +68,7 @@ GEM
       procto (~> 0.0.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    mutant (0.10.15)
+    mutant (0.10.17)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
       anima (~> 0.3.1)
@@ -84,8 +84,8 @@ GEM
       unparser (~> 0.5.4)
       variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
-    mutant-rspec (0.10.15)
-      mutant (~> 0.10.15)
+    mutant-rspec (0.10.17)
+      mutant (~> 0.10.17)
       rspec-core (>= 3.8.0, < 4.0.0)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
@@ -148,9 +148,9 @@ DEPENDENCIES
   bounded_context!
   capybara (~> 3.18)
   json-schema
-  mutant (~> 0.10.15)
+  mutant (~> 0.10.17)
   mutant-license!
-  mutant-rspec (~> 0.10.15)
+  mutant-rspec (~> 0.10.17)
   rack
   rack-test
   rake (>= 10.0)
