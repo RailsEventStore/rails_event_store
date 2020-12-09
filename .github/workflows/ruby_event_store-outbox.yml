@@ -1,0 +1,28 @@
+name: ruby_event_store-outbox
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: ruby_event_store-outbox
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+      DATA_TYPE: ${{ matrix.datatype }}
+      GEM_LOCATION: contrib/ruby_event_store-outbox
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.GEM_LOCATION }}
+      - run: make test
+        working-directory: ${{ env.GEM_LOCATION }}
