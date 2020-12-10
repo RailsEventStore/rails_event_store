@@ -7,7 +7,6 @@ jobs:
       GEM_NAME: ruby_event_store-outbox
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
-      DATA_TYPE: ${{ matrix.datatype }}
       GEM_LOCATION: contrib/ruby_event_store-outbox
     services:
       redis:
@@ -21,27 +20,21 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
-            datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_2
             database: sqlite3:db.sqlite3
-            datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_1
             database: sqlite3:db.sqlite3
-            datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_0
             database: sqlite3:db.sqlite3
-            datatype: binary
           - ruby: ruby-2.6
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
-            datatype: binary
           - ruby: ruby-2.5
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
-            datatype: binary
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
