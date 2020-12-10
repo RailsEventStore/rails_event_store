@@ -82,6 +82,7 @@ GEM
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
+    influxdb (0.8.0)
     loofah (2.8.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -212,6 +213,7 @@ PLATFORMS
 
 DEPENDENCIES
   childprocess
+  influxdb (~> 0.8.0)
   mutant (~> 0.10.17)
   mutant-license!
   mutant-rspec (~> 0.10.17)
