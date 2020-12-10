@@ -12,6 +12,7 @@ module RailsEventStoreActiveRecord
 
       @event_klass, @stream_klass = model_factory.call
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
+      @index_violation_detector = IndexViolationDetector.new
     end
 
     def append_to_stream(records, stream, expected_version)
@@ -109,7 +110,7 @@ module RailsEventStoreActiveRecord
     end
 
     def detect_index_violated(message)
-      IndexViolationDetector.new.detect(message)
+      @index_violation_detector.detect(message)
     end
 
     def import_hash(record, serialized_record)
