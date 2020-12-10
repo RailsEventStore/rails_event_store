@@ -1,0 +1,67 @@
+name: ruby_event_store-outbox
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: ruby_event_store-outbox
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+      GEM_LOCATION: contrib/ruby_event_store-outbox
+    services:
+      redis:
+        image: redis:5
+        ports:
+          - 6379:6379
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-2.7
+            gemfile: Gemfile.rails_5_2
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-2.6
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-2.5
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.GEM_LOCATION }}
+      - run: make test
+        working-directory: ${{ env.GEM_LOCATION }}
+
+  mutate:
+    runs-on: ubuntu-20.04
+    env:
+      GEM_NAME: ruby_event_store-outbox
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+      GEM_LOCATION: contrib/ruby_event_store-outbox
+      MUTANT_JOBS: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            database: "sqlite3::memory:"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.GEM_LOCATION }}
+      - run: make mutate-changes
+        working-directory: ${{ env.GEM_LOCATION }}

@@ -21,8 +21,8 @@ module RubyEventStore
       end
 
       specify do
-        event = TimestampEnrichment.with_timestamp(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), Time.utc(2019, 9, 30))
-        serialized_record = RubyEventStore::Mappers::Default.new.event_to_serialized_record(event)
+        event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+        serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
         class ::CorrectAsyncHandler
           include Sidekiq::Worker
           def through_outbox?; true; end
