@@ -1,7 +1,7 @@
 [build]
   base = "railseventstore.org/"
   command = "./bin/build"
-  publish = "railseventstore.org/build/"
+  publish = "build/"
 
 [build.environment]
   NODE_VERSION = "12.16.1"
