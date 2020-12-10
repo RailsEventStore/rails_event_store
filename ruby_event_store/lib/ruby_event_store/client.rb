@@ -126,6 +126,14 @@ module RubyEventStore
       broker.add_global_subscription(subscriber || proc)
     end
 
+    # Get list of handlers subscribed to an event
+    #
+    # @return [Array<Object, Class>]
+    def event_subscribers(event)
+      event_name = event.is_a?(String) ? event : event.to_s
+      broker.subscriptions.all_for(event_name)
+    end
+
     # Builder object for collecting temporary handlers (subscribers)
     # which are active only during the invocation of the provided
     # block of code.

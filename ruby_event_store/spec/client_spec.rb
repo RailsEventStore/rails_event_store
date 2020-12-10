@@ -922,6 +922,19 @@ module RubyEventStore
       end
     end
 
+    describe "#event_subscribers" do
+      specify do
+        handler = Subscribers::ValidHandler.new
+        client.subscribe(handler, to: [ProductAdded])
+        block = Proc.new { "Event published!" }
+        client.subscribe(to: [OrderCreated], &block)
+
+        expect(client.event_subscribers(ProductAdded)).to   eq [handler]
+        expect(client.event_subscribers("ProductAdded")).to eq [handler]
+        expect(client.event_subscribers(OrderCreated)).to   eq [block]
+      end
+    end
+
     specify "#inspect" do
       object_id = client.object_id.to_s(16)
       expect(client.inspect).to eq("#<RubyEventStore::Client:0x#{object_id}>")
