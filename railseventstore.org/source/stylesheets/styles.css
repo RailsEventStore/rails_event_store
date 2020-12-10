@@ -244,7 +244,7 @@ pre > code {
 }
 
 .site-navigation__link--external {
-  @apply text-gray-700 font-bold text-sm tracking-tight;
+  @apply text-gray-700;
 }
 
 .site-navigation__links {
