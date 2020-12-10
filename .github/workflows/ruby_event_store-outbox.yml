@@ -22,6 +22,14 @@ jobs:
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
             datatype: binary
+          - ruby: ruby-2.6
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
+          - ruby: ruby-2.5
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
