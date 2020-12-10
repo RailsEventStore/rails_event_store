@@ -13,6 +13,7 @@ jobs:
         image: redis:5
         ports:
           - 6379:6379
+        options: --entrypoint "redis-server --databases 32000"
     strategy:
       fail-fast: false
       matrix:
@@ -46,6 +47,12 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       GEM_LOCATION: contrib/ruby_event_store-outbox
+    services:
+      redis:
+        image: redis:5
+        ports:
+          - 6379:6379
+        options: --databases 32000
     strategy:
       fail-fast: false
       matrix:
