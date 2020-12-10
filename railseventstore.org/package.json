@@ -6,6 +6,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "autoprefixer": "9.7.4",
     "countup.js": "^2.0.4",
     "parcel-bundler": "^1.11.0",
     "postcss": "^7.0.0",
