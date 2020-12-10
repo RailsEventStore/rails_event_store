@@ -12,7 +12,7 @@ module RailsEventStoreActiveRecord
 
       @event_klass, @stream_klass = model_factory.call
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
-      @index_violation_detector = IndexViolationDetector.new
+      @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
     end
 
     def append_to_stream(records, stream, expected_version)
