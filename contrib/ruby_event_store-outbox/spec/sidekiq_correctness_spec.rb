@@ -5,7 +5,7 @@ module RubyEventStore
   module Outbox
     RSpec.describe "Sidekiq correctness spec", db: true do
       include SchemaHelper
-      let(:redis_url) { ENV["REDIS_URL"] }
+      let(:redis_url) { RedisIsolation.redis_url }
       let(:database_url) { ENV["DATABASE_URL"] }
       let(:redis) { Redis.new(url: redis_url) }
       let(:test_logger) { Logger.new(StringIO.new) }

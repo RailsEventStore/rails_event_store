@@ -28,3 +28,8 @@ services:
       - POSTGRES_PASSWORD=secret
     ports:
       - "5432:5432"
+  redis:
+    image: redis:5-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --databases 4194304

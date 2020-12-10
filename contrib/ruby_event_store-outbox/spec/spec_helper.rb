@@ -21,7 +21,18 @@ $verbose = ENV.has_key?('VERBOSE') ? true : false
 ActiveRecord::Schema.verbose = $verbose
 
 ENV['DATABASE_URL'] ||= 'sqlite3::memory:'
-ENV['REDIS_URL'] ||= 'redis://localhost:6379/1'
+
+module RedisIsolation
+  def self.redis_url
+    ENV["REDIS_URL"] || per_process_redis_url_for_mutant_runs
+  end
+
+  private
+
+  def self.per_process_redis_url_for_mutant_runs
+    "redis://localhost:6379/#{Process.pid}"
+  end
+end
 
 
 class TickingClock

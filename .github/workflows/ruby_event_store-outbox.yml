@@ -46,7 +46,6 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       GEM_LOCATION: contrib/ruby_event_store-outbox
-      MUTANT_JOBS: 1
     strategy:
       fail-fast: false
       matrix:
