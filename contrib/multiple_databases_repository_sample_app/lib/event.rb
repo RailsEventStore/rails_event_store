@@ -34,7 +34,7 @@ class Event < Dry::Struct
   end
 
   def timestamp
-    metadata[:timestamp] && Time.parse(metadata[:timestamp])
+    metadata[:timestamp]
   end
 
   def data
