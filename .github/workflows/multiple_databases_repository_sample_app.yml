@@ -1,0 +1,23 @@
+name: multiple_databases_repository_sample_app
+on:
+  schedule:
+    - cron: "0 17 * * *"
+  push:
+    paths:
+      - "contrib/multiple_databases_repository_sample_app/**"
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    env:
+      LOCATION: contrib/multiple_databases_repository_sample_app
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-2.7
+          bundler-cache: true
+          working-directory: ${{ env.LOCATION }}
+      - run: bin/rspec
+        working-directory: ${{ env.LOCATION }}
