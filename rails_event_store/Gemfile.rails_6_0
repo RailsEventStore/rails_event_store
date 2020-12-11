@@ -1,0 +1,17 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+gemspec
+
+eval_gemfile '../support/bundler/Gemfile.shared'
+
+gem 'ruby_event_store', path: '../ruby_event_store'
+gem 'ruby_event_store-browser', path: '../ruby_event_store-browser'
+gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
+gem 'aggregate_root', path: '../aggregate_root'
+gem 'bounded_context', path: '../bounded_context'
+gem 'protobuf_nested_struct'
+gem 'sidekiq'
+gem 'rack-test'
+gem 'google-protobuf', '~> 3.14.0'
+gem 'rails', '6.0.3.4'
+gem 'sqlite3', '1.4.2'
