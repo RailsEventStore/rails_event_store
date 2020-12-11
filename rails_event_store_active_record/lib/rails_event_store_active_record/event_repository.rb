@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'active_support/core_ext/array'
 require 'activerecord-import'
 
 module RailsEventStoreActiveRecord
