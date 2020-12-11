@@ -17,6 +17,8 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
           - ruby: ruby-2.7
+            gemfile: Gemfile.rails_6_0
+          - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_2
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_1

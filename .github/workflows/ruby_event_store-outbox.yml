@@ -21,6 +21,9 @@ jobs:
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
           - ruby: ruby-2.7
+            gemfile: Gemfile.rails_6_0
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_2
             database: sqlite3:db.sqlite3
           - ruby: ruby-2.6
