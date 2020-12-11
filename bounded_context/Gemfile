@@ -6,4 +6,4 @@ gemspec
 
 eval_gemfile '../support/bundler/Gemfile.shared'
 
-gem 'rails', '6.0.3.4'
+gem 'rails', '6.1.0'
