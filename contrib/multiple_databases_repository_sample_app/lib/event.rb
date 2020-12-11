@@ -37,6 +37,10 @@ class Event < Dry::Struct
     metadata[:timestamp]
   end
 
+  def valid_at
+    metadata[:valid_at]
+  end
+
   def data
     to_h.reject{|k,_| [:event_id, :metadata].include?(k) }
   end
