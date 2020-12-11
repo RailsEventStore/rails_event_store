@@ -10,7 +10,7 @@ jobs:
       GEM_LOCATION: contrib/ruby_event_store-outbox
     services:
       redis:
-        image: redis:5
+        image: redis:6
         ports:
           - 6379:6379
     strategy:
@@ -49,7 +49,7 @@ jobs:
       MUTANT_JOBS: 1
     services:
       redis:
-        image: redis:5
+        image: redis:6
         ports:
           - 6379:6379
     strategy:
