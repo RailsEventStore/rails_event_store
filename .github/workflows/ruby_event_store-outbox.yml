@@ -13,7 +13,7 @@ jobs:
         image: redis:5
         ports:
           - 6379:6379
-        options: --entrypoint "redis-server --databases 32000"
+        options: --entrypoint redis-server --databases 32000
     strategy:
       fail-fast: false
       matrix:
