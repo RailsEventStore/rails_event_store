@@ -168,6 +168,31 @@ jobs:
       - run: make mutate
         working-directory: ${{ env.GEM_NAME }}
 
+  ruby_event_store-outbox:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    env:
+      GEM_NAME: ruby_event_store-outbox
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      WORKING_DIRECTORY: contrib/ruby_event_store-outbox
+      REDIS_URL: redis://localhost:6379/0
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
   ruby_event_store:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120

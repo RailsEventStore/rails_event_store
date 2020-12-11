@@ -5,7 +5,7 @@ module RubyEventStore
     RSpec.describe Consumer, db: true do
       include SchemaHelper
 
-      let(:redis_url) { ENV["REDIS_URL"] }
+      let(:redis_url) { RedisIsolation.redis_url }
       let(:database_url) { ENV["DATABASE_URL"] }
       let(:redis) { Redis.new(url: redis_url) }
       let(:logger_output) { StringIO.new }
@@ -14,7 +14,11 @@ module RubyEventStore
       let(:metrics) { Metrics::Null.new }
 
       before(:each) do
-        redis.flushdb
+        begin
+          redis.flushdb
+        rescue Redis::CommandError => exc
+          puts "My current PID is #{Process.pid}"
+        end
       end
 
       specify "updates enqueued_at" do

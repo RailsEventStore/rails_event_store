@@ -10,7 +10,7 @@ jobs:
       GEM_LOCATION: contrib/ruby_event_store-outbox
     services:
       redis:
-        image: redis:5
+        image: redis:6
         ports:
           - 6379:6379
     strategy:
@@ -46,7 +46,13 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       GEM_LOCATION: contrib/ruby_event_store-outbox
+      REDIS_URL: redis://localhost:6379/0
       MUTANT_JOBS: 1
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
     strategy:
       fail-fast: false
       matrix:
@@ -63,5 +69,5 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.GEM_LOCATION }}
-      - run: make mutate-changes
+      - run: make mutate
         working-directory: ${{ env.GEM_LOCATION }}
