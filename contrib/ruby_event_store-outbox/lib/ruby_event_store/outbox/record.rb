@@ -25,18 +25,19 @@ module RubyEventStore
       self.table_name = 'event_store_outbox_locks'
 
       def self.obtain(fetch_specification, process_uuid, clock:)
-        l = nil
         transaction do
           l = get_lock_record(fetch_specification)
 
-          return :taken if l.recently_locked?
-
-          l.update!(
-            locked_by: process_uuid,
-            locked_at: clock.now,
-          )
+          if l.recently_locked?
+            :taken
+          else
+            l.update!(
+              locked_by: process_uuid,
+              locked_at: clock.now,
+            )
+            l
+          end
         end
-        l
       rescue ActiveRecord::Deadlocked
         :deadlocked
       rescue ActiveRecord::LockWaitTimeout
@@ -49,9 +50,9 @@ module RubyEventStore
           lock!
           if locked_by == current_process_uuid
             update!(locked_at: clock.now)
-            return self
+            self
           else
-            return :stolen
+            :stolen
           end
         end
       rescue ActiveRecord::Deadlocked
@@ -63,11 +64,13 @@ module RubyEventStore
       def self.release(fetch_specification, process_uuid)
         transaction do
           l = get_lock_record(fetch_specification)
-          return :not_taken_by_this_process if !l.locked_by?(process_uuid)
-
-          l.update!(locked_by: nil, locked_at: nil)
+          if !l.locked_by?(process_uuid)
+            :not_taken_by_this_process
+          else
+            l.update!(locked_by: nil, locked_at: nil)
+            :ok
+          end
         end
-        :ok
       rescue ActiveRecord::Deadlocked
         :deadlocked
       rescue ActiveRecord::LockWaitTimeout
