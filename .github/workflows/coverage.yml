@@ -176,6 +176,12 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       REDIS_URL: redis://localhost:6379/0
+      MUTANT_JOBS: 1
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
     strategy:
       fail-fast: false
       matrix:
