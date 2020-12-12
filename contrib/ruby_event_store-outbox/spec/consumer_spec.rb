@@ -14,11 +14,7 @@ module RubyEventStore
       let(:metrics) { Metrics::Null.new }
 
       before(:each) do
-        begin
-          redis.flushdb
-        rescue Redis::CommandError => exc
-          puts "My current PID is #{Process.pid}"
-        end
+        redis.flushdb
       end
 
       specify "updates enqueued_at" do
