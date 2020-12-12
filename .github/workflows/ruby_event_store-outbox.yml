@@ -72,5 +72,5 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.GEM_LOCATION }}
-      - run: make mutate
+      - run: make mutate-changes
         working-directory: ${{ env.GEM_LOCATION }}
