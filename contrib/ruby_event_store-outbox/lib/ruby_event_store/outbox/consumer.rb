@@ -48,16 +48,14 @@ module RubyEventStore
         @metrics = metrics
         @batch_size = configuration.batch_size
         @consumer_uuid = consumer_uuid
-        ActiveRecord::Base.establish_connection(configuration.database_url) unless ActiveRecord::Base.connected?
-        if ActiveRecord::Base.connection.adapter_name == "Mysql2"
-          ActiveRecord::Base.connection.execute("SET SESSION innodb_lock_wait_timeout = 1;")
-        end
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
         @gracefully_shutting_down = false
         prepare_traps
+
+        @repository = Repository.new(configuration.database_url)
       end
 
       def init
@@ -142,10 +140,10 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid
+      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid, :repository
 
       def obtain_lock_for_process(fetch_specification)
-        result = Lock.obtain(fetch_specification, consumer_uuid, clock: @clock)
+        result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
         case result
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
@@ -165,7 +163,7 @@ module RubyEventStore
       end
 
       def release_lock_for_process(fetch_specification)
-        result = Lock.release(fetch_specification, consumer_uuid)
+        result = repository.release_lock_for_process(fetch_specification, consumer_uuid)
         case result
         when :ok
         when :deadlocked
@@ -216,11 +214,11 @@ module RubyEventStore
       end
 
       def retrieve_batch(fetch_specification)
-        Record.remaining_for(fetch_specification).order("id ASC").limit(batch_size).to_a
+        repository.retrieve_batch(fetch_specification, batch_size)
       end
 
       def get_remaining_count(fetch_specification)
-        Record.remaining_for(fetch_specification).count
+        repository.get_remaining_count(fetch_specification)
       end
     end
   end
