@@ -5,6 +5,7 @@ require "ruby_event_store/outbox/record"
 require "ruby_event_store/outbox/sidekiq5_format"
 require "ruby_event_store/outbox/sidekiq_processor"
 require "ruby_event_store/outbox/fetch_specification"
+require "ruby_event_store/outbox/cleanup_strategies/none"
 
 module RubyEventStore
   module Outbox
@@ -56,6 +57,7 @@ module RubyEventStore
         prepare_traps
 
         @repository = Repository.new(configuration.database_url)
+        @cleanup_strategy = CleanupStrategies::None.new(repository)
       end
 
       def init
@@ -132,6 +134,8 @@ module RubyEventStore
           remaining: get_remaining_count(fetch_specification)
         ) unless something_processed
 
+        cleanup_strategy.call(fetch_specification)
+
         release_lock_for_process(fetch_specification)
 
         processor.after_batch
@@ -140,7 +144,7 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid, :repository
+      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid, :repository, :cleanup_strategy
 
       def obtain_lock_for_process(fetch_specification)
         result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
