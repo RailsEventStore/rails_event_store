@@ -27,7 +27,8 @@ IGNORE       = RubyEventStore::Outbox::CLI* \
 	RubyEventStore::Outbox::Consumer\#init \
 	RubyEventStore::Outbox::Consumer\#handle_split \
 	RubyEventStore::Outbox::Consumer::Configuration* \
-	RubyEventStore::Outbox::Consumer\#get_remaining_count
+	RubyEventStore::Outbox::Consumer\#get_remaining_count \
+	RubyEventStore::Outbox::Repository*
 
 
 SUBJECT      ?= RubyEventStore::Outbox*
