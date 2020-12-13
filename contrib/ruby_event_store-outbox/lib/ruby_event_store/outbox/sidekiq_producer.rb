@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require "ruby_event_store/outbox/sidekiq5_format"
+require "ruby_event_store/outbox/repository"
 
 module RubyEventStore
   module Outbox
@@ -22,6 +22,9 @@ module RubyEventStore
           )
         end
       end
+
+      private
+      attr_reader :repository
     end
   end
 end
