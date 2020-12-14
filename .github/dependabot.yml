@@ -1,0 +1,43 @@
+version: 2
+updates:
+- package-ecosystem: bundler
+  directory: /ruby_event_store
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /ruby_event_store-rspec
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /ruby_event_store-rom
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /ruby_event_store-browser
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /rails_event_store
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /rails_event_store_active_record
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /aggregate_root
+  schedule:
+    interval: daily
+
+- package-ecosystem: bundler
+  directory: /bounded_context
+  schedule:
+    interval: daily
+
+
