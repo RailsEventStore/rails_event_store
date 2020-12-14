@@ -160,7 +160,7 @@ GEM
       procto (~> 0.0.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    mutant (0.10.17)
+    mutant (0.10.18)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
       anima (~> 0.3.1)
@@ -280,7 +280,7 @@ DEPENDENCIES
   aggregate_root!
   bounded_context!
   google-protobuf (~> 3.14.0)
-  mutant (~> 0.10.17)
+  mutant (~> 0.10.18)
   mutant-license!
   mutant-rspec (~> 0.10.17)
   protobuf_nested_struct
