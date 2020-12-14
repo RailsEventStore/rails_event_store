@@ -104,4 +104,7 @@ rebase: git-rebase-from-upstream
 	@echo "  origin/master   at $(ORIGIN_REV)"
 	@echo "  current branch  at $(CURRENT_REV)"
 
+dev-dependencies-update:
+	@find . -name Gemfile -o -name Gemfile\.rails_\* -exec env BUNDLE_GEMFILE={} bundle update \;
+
 include support/make/help.mk
