@@ -22,6 +22,15 @@ Documentation, tutorials and code samples are available at [https://railseventst
 
 ## Code status
 
+![Ruby Event Store](https://github.com/RailsEventStore/rails_event_store/workflows/ruby_event_store/badge.svg)
+![Rails Event Store](https://github.com/RailsEventStore/rails_event_store/workflows/rails_event_store/badge.svg)
+![Rails Event Store Active Record](https://github.com/RailsEventStore/rails_event_store/workflows/rails_event_store_active_record/badge.svg)
+![Rails Event Store Rspec](https://github.com/RailsEventStore/rails_event_store/workflows/rails_event_store-rspec/badge.svg)
+![Ruby Event Store Browser](https://github.com/RailsEventStore/rails_event_store/workflows/ruby_event_store-browser/badge.svg)
+![Aggregate Root](https://github.com/RailsEventStore/rails_event_store/workflows/aggregate_root/badge.svg)
+![Bounded Context](https://github.com/RailsEventStore/rails_event_store/workflows/bounded_context/badge.svg)
+
+
 [![Gem Version](https://badge.fury.io/rb/rails_event_store.svg)](https://badge.fury.io/rb/rails_event_store)
 [![Downloads](https://badgen.net/rubygems/dt/ruby_event_store)](https://rubygems.org/gems/ruby_event_store)
 [![Maintainability](https://badgen.net/codeclimate/maintainability/RailsEventStore/rails_event_store)](https://codeclimate.com/github/RailsEventStore/rails_event_store/maintainability)
