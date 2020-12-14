@@ -19,6 +19,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -42,6 +44,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -67,6 +71,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -90,6 +96,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -113,6 +121,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -136,6 +146,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -161,6 +173,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -192,6 +206,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -215,6 +231,8 @@ jobs:
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
