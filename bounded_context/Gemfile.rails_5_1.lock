@@ -86,7 +86,7 @@ GEM
       equalizer (~> 0.0.9)
       ice_nine (~> 0.11.1)
       procto (~> 0.0.2)
-    mutant (0.10.17)
+    mutant (0.10.19)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
       anima (~> 0.3.1)
@@ -102,8 +102,8 @@ GEM
       unparser (~> 0.5.4)
       variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
-    mutant-rspec (0.10.17)
-      mutant (~> 0.10.17)
+    mutant-rspec (0.10.19)
+      mutant (= 0.10.19)
       rspec-core (>= 3.8.0, < 4.0.0)
     nio4r (2.5.4)
     nokogiri (1.10.10)
@@ -183,9 +183,9 @@ PLATFORMS
 
 DEPENDENCIES
   bounded_context!
-  mutant (~> 0.10.17)
+  mutant (~> 0.10.19)
   mutant-license!
-  mutant-rspec (~> 0.10.17)
+  mutant-rspec (~> 0.10.19)
   rails (= 5.1.7)
   rake (>= 10.0)
   rspec (~> 3.6)
