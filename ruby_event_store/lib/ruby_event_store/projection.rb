@@ -5,6 +5,18 @@ module RubyEventStore
     private_class_method :new
 
     def self.from_stream(*streams)
+      first_of_streams = streams.first
+      if first_of_streams.respond_to?(:flatten)
+        warn <<~EOW
+          Passing array to .from_stream is not supported. This method expects undefined number 
+          of positional arguments (splat) rather than an array.
+  
+          Expected: .from_stream(#{first_of_streams.map(&:inspect).join(", ")})
+          Received: .from_stream(#{first_of_streams})
+        EOW
+        streams = first_of_streams
+      end
+
       raise(ArgumentError, "At least one stream must be given") if streams.empty?
       new(streams: streams)
     end

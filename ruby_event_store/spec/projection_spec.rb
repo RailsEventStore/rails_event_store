@@ -286,5 +286,22 @@ module RubyEventStore
 
       expect(state).to eq({})
     end
+
+    specify "no warning on correct from_stream usage" do
+      expect { Projection.from_stream("Customer$1", "Customer$3") }.not_to output.to_stderr
+    end
+
+    specify "warn on unsupported from_stream usage" do
+      expect(Projection).to receive(:new).with(streams: ["Customer$1", "Customer$3"])
+      expect {
+        Projection.from_stream(["Customer$1", "Customer$3"])
+      }.to output(<<~EOW).to_stderr
+        Passing array to .from_stream is not supported. This method expects undefined number 
+        of positional arguments (splat) rather than an array.
+
+        Expected: .from_stream("Customer$1", "Customer$3")
+        Received: .from_stream(["Customer$1", "Customer$3"])
+      EOW
+    end
   end
 end
