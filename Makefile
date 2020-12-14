@@ -23,6 +23,9 @@ endif
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
+$(addprefix update-, $(GEMS)):
+	@make -C $(subst update-,,$@) update
+
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
 
@@ -79,7 +82,7 @@ set-version: git-check-clean git-check-committed
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
 
-reinstall: $(addprefix reinstall-, $(GEMS)) ## Reinstall (with new resolve) dependencies
+update: $(addprefix update-, $(GEMS)) ## Update all dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
@@ -103,8 +106,5 @@ rebase: git-rebase-from-upstream
 	@echo "  upstream/master at $(UPSTREAM_REV)"
 	@echo "  origin/master   at $(ORIGIN_REV)"
 	@echo "  current branch  at $(CURRENT_REV)"
-
-dev-dependencies-update:
-	@find . -name Gemfile -o -name Gemfile\.rails_\* -exec env BUNDLE_GEMFILE={} bundle update \;
 
 include support/make/help.mk
