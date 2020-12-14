@@ -87,6 +87,8 @@ jobs:
             datatype: text
     steps:
       - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -113,6 +115,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.GEM_NAME }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
