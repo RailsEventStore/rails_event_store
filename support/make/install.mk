@@ -1,4 +1,3 @@
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
-	@bundle check || bundle install
-
+	@find . -name Gemfile\* -a ! -name \*.lock -exec bundle install --gemfile {} \;
