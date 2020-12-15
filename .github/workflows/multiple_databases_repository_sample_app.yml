@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - run: test -e Gemfile.lock
+      - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.LOCATION }}
       - uses: ruby/setup-ruby@v1
         with:
