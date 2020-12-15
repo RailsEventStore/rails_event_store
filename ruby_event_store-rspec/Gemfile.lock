@@ -13,7 +13,7 @@ PATH
 PATH
   remote: .
   specs:
-    rails_event_store-rspec (1.1.1)
+    ruby_event_store-rspec (1.1.1)
       rspec (~> 3.0)
 
 GEM
@@ -104,10 +104,10 @@ DEPENDENCIES
   mutant (~> 0.10.19)
   mutant-license!
   mutant-rspec (~> 0.10.19)
-  rails_event_store-rspec!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-rspec!
 
 BUNDLED WITH
    2.1.4

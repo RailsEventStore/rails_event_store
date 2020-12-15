@@ -1,6 +1,6 @@
 require "spec_helper"
 
-module RailsEventStore
+module RubyEventStore
   module RSpec
     ::RSpec.describe HaveApplied do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }

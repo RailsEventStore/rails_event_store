@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RailsEventStore
+module RubyEventStore
   module RSpec
     class Apply
       def in(aggregate)

@@ -1,4 +1,4 @@
-name: rails_event_store-rspec
+name: ruby_event_store-rspec
 on:
   push:
     paths-ignore:
@@ -8,7 +8,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      GEM_NAME: rails_event_store-rspec
+      GEM_NAME: ruby_event_store-rspec
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -35,7 +35,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      GEM_NAME: rails_event_store-rspec
+      GEM_NAME: ruby_event_store-rspec
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
