@@ -12,13 +12,17 @@ jobs:
       LOCATION: contrib/multiple_databases_repository_sample_app
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.LOCATION }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ruby-2.7
+          ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.LOCATION }}
       - run: bin/rspec
