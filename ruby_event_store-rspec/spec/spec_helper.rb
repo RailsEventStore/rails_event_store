@@ -1,6 +1,6 @@
 require "aggregate_root"
 require "ruby_event_store"
-require "rails_event_store/rspec"
+require "ruby_event_store/rspec"
 require_relative '../../support/helpers/rspec_defaults'
 
 FooEvent = Class.new(RubyEventStore::Event)

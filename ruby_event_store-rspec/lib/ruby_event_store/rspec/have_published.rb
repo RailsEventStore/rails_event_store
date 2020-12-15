@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RailsEventStore
+module RubyEventStore
   module RSpec
     class HavePublished
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:)

@@ -6,7 +6,7 @@ Add this line to your application's Gemfile:
 
 ```ruby
 group :test do
-  gem 'rails_event_store-rspec'
+  gem 'ruby_event_store-rspec'
 end
 ```
 
@@ -17,7 +17,7 @@ end
 The `be_event` matcher enables you to make expectations on a domain event. It exposes fluent interface.
 
 ```ruby
-OrderPlaced  = Class.new(RailsEventStore::Event)
+OrderPlaced  = Class.new(RubyEventStore::Event)
 domain_event = OrderPlaced.new(
   data: {
     order_id: 42,

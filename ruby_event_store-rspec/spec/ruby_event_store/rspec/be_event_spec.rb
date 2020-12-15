@@ -1,6 +1,6 @@
 require "spec_helper"
 
-module RailsEventStore
+module RubyEventStore
   module RSpec
     ::RSpec.describe BeEvent do
       def matcher(expected)
