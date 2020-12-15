@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
-gemspec
+gemspec name: 'ruby_event_store-rspec'
 
 eval_gemfile '../support/bundler/Gemfile.shared'
 
