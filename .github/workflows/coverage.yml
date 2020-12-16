@@ -207,7 +207,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
