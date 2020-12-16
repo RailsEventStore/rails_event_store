@@ -81,11 +81,11 @@ jobs:
       - run: make mutate
         working-directory: ${{ env.GEM_NAME }}
 
-  rails_event_store-rspec:
+  ruby_event_store-rspec:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: rails_event_store-rspec
+      GEM_NAME: ruby_event_store-rspec
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
