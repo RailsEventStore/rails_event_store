@@ -1,9 +1,10 @@
 name: ruby_event_store-rom
 on:
+  schedule:
+    - cron: "0 17 * * *"
   push:
-    paths-ignore:
-      - "railseventstore.org/**"
-      - "contrib/**"
+    paths:
+      - "contrib/ruby_event_store-rom/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
