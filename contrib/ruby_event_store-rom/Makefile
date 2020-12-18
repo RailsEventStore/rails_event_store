@@ -47,8 +47,8 @@ IGNORE       = RubyEventStore::ROM.setup \
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 
-include ../support/make/install.mk
-include ../support/make/test.mk
-include ../support/make/mutant.mk
-include ../support/make/gem.mk
-include ../support/make/help.mk
+include ../../support/make/install.mk
+include ../../support/make/test.mk
+include ../../support/make/mutant.mk
+include ../../support/make/gem.mk
+include ../../support/make/help.mk
