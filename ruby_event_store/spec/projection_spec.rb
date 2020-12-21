@@ -35,7 +35,7 @@ module RubyEventStore
       event_store.append(MoneyWithdrawn.new(data: { amount: 5 }),  stream_name: "Customer$3")
 
       account_balance = Projection
-        .from_stream("Customer$1", "Customer$3")
+        .from_stream(["Customer$1", "Customer$3"])
         .init( -> { { total: 0 } })
         .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
         .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
@@ -44,7 +44,7 @@ module RubyEventStore
     end
 
     specify "raises proper errors when wrong argument were passed (stream mode)" do
-      projection = Projection.from_stream("Customer$1", "Customer$2")
+      projection = Projection.from_stream(["Customer$1", "Customer$2"])
         .init( -> { { total: 0 } })
         .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
         .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
@@ -152,7 +152,9 @@ module RubyEventStore
     end
 
     specify "at least one stream must be given" do
-      expect { Projection.from_stream }
+      expect { Projection.from_stream([]) }
+        .to raise_error(ArgumentError, "At least one stream must be given")
+      expect { Projection.from_stream(nil) }
         .to raise_error(ArgumentError, "At least one stream must be given")
     end
 

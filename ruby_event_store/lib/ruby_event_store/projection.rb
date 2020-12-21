@@ -4,7 +4,8 @@ module RubyEventStore
   class Projection
     private_class_method :new
 
-    def self.from_stream(*streams)
+    def self.from_stream(stream_or_streams)
+      streams = Array(stream_or_streams)
       raise(ArgumentError, "At least one stream must be given") if streams.empty?
       new(streams: streams)
     end
