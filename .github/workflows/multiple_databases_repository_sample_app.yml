@@ -5,6 +5,9 @@ on:
   push:
     paths:
       - "contrib/multiple_databases_repository_sample_app/**"
+  pull_request:
+    paths:
+      - "contrib/multiple_databases_repository_sample_app/**"
 jobs:
   test:
     runs-on: ubuntu-20.04

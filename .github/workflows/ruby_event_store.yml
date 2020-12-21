@@ -4,6 +4,10 @@ on:
     paths-ignore:
       - "railseventstore.org/**"
       - "contrib/**"
+  pull_request:
+    paths-ignore:
+      - "railseventstore.org/**"
+      - "contrib/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
