@@ -10,10 +10,14 @@ module RailsEventStore
                    dispatcher: RubyEventStore::ComposedDispatcher.new(
                      RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: mapper.serializer)),
                      RubyEventStore::Dispatcher.new),
+                   clock: default_clock,
+                   correlation_id_generator: default_correlation_id_generator,
                    request_metadata: default_request_metadata)
       super(repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
             mapper: RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
             subscriptions: subscriptions,
+            clock: clock,
+            correlation_id_generator: correlation_id_generator,
             dispatcher: RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
             )
       @request_metadata = request_metadata
