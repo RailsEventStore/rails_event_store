@@ -14,10 +14,6 @@ module RubyEventStore
         ::RSpec::Support::Differ.new(color: false)
       end
 
-      def formatter
-        ::RSpec::Support::ObjectFormatter.method(:format)
-      end
-
       def phraser
         Matchers::ListPhraser
       end

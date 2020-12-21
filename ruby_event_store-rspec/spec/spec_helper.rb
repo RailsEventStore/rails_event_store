@@ -55,3 +55,9 @@ class IdentityMapTransformation
     @identity_map.fetch(record.event_id)
   end
 end
+
+
+class Handler
+  def call(event)
+  end
+end

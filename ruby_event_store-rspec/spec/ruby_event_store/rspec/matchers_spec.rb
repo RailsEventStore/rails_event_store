@@ -4,6 +4,9 @@ module RubyEventStore
   module RSpec
     ::RSpec.describe Matchers do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
+      let(:event_store) do
+        RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+      end
 
       specify { expect(matchers.be_an_event(FooEvent.new)).to be_an(BeEvent) }
       specify { expect(matchers.be_event(FooEvent.new)).to be_an(BeEvent) }
@@ -11,6 +14,22 @@ module RubyEventStore
       specify { expect(matchers.event(FooEvent.new)).to be_an(BeEvent) }
       specify { expect(FooEvent.new).to matchers.be_an_event(FooEvent) }
       specify { expect([FooEvent.new]).to include(matchers.an_event(FooEvent)) }
+
+      describe "have_subscribed_to_events" do
+        specify do
+          expect(matchers.have_subscribed_to_events(FooEvent)).to be_an(HaveSubscribedToEvents)
+        end
+
+        specify do
+          expect(matchers.have_subscribed_to_events(FooEvent, BarEvent)).to be_an(HaveSubscribedToEvents)
+        end
+
+        specify do
+          event_store.subscribe(Handler, to: [FooEvent])
+          expect(Handler).to matchers.have_subscribed_to_events(FooEvent).in(event_store)
+          expect(Handler).not_to matchers.have_subscribed_to_events(BarEvent).in(event_store)
+        end
+      end
 
       specify { expect(matchers.have_published(matchers.an_event(FooEvent))).to be_an(HavePublished) }
 
@@ -22,20 +41,17 @@ module RubyEventStore
       end
 
       specify do
-        event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
         event_store.publish(FooEvent.new)
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent))
       end
 
       specify do
-        event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
         event_store.publish(FooEvent.new)
         event_store.publish(BarEvent.new)
         expect(event_store).to matchers.have_published(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
       end
 
       specify do
-        event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
         event_store.publish(FooEvent.new)
         expect {
           event_store.publish(BarEvent.new)

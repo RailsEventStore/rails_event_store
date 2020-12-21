@@ -46,6 +46,10 @@ module RubyEventStore
         HaveApplied.new(*expected, differ: differ, phraser: phraser)
       end
 
+      def have_subscribed_to_events(*expected)
+        HaveSubscribedToEvents.new(*expected, differ: differ, phraser: phraser)
+      end
+
       def publish(*expected)
         Publish.new(*expected)
       end
