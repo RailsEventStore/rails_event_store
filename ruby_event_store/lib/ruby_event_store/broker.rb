@@ -2,8 +2,6 @@
 
 module RubyEventStore
   class Broker
-    attr_reader :subscriptions
-
     def initialize(subscriptions:, dispatcher:)
       @subscriptions = subscriptions
       @dispatcher = dispatcher
@@ -37,7 +35,7 @@ module RubyEventStore
     end
 
     private
-    attr_reader :dispatcher
+    attr_reader :dispatcher, :subscriptions
 
     def verify_subscription(subscriber)
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber

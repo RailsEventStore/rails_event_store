@@ -14,6 +14,7 @@ module RubyEventStore
 
       @repository     = repository
       @mapper         = Mappers::DeprecatedWrapper.new(mapper)
+      @subscriptions  = subscriptions
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
@@ -128,10 +129,10 @@ module RubyEventStore
 
     # Get list of handlers subscribed to an event
     #
+    # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
-    def event_subscribers(event)
-      event_name = event.is_a?(String) ? event : event.to_s
-      broker.subscriptions.all_for(event_name)
+    def event_subscribers(event_type)
+      subscriptions.all_for(event_type.to_s)
     end
 
     # Builder object for collecting temporary handlers (subscribers)
@@ -339,6 +340,6 @@ module RubyEventStore
       ->{ SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator
+    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator
   end
 end
