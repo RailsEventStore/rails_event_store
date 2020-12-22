@@ -1,4 +1,5 @@
-GEM_VERSION  = $(shell cat ../RES_VERSION)
+GEM_VERSION  = $(shell cat lib/ruby_event_store/rom/version.rb | grep VERSION | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
+GEM_VERSION  =
 GEM_NAME     = ruby_event_store-rom
 REQUIRE      = $(GEM_NAME)
 IGNORE       = RubyEventStore::ROM.setup \
@@ -47,8 +48,8 @@ IGNORE       = RubyEventStore::ROM.setup \
 SUBJECT      ?= RubyEventStore::ROM*
 DATABASE_URL ?= sqlite::memory:
 
-include ../support/make/install.mk
-include ../support/make/test.mk
-include ../support/make/mutant.mk
-include ../support/make/gem.mk
-include ../support/make/help.mk
+include ../../support/make/install.mk
+include ../../support/make/test.mk
+include ../../support/make/mutant.mk
+include ../../support/make/gem.mk
+include ../../support/make/help.mk

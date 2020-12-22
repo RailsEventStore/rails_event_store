@@ -1,18 +1,19 @@
 name: ruby_event_store-rom
 on:
+  schedule:
+    - cron: "0 17 * * *"
   push:
-    paths-ignore:
-      - "railseventstore.org/**"
-      - "contrib/**"
+    paths:
+      - "contrib/ruby_event_store-rom/**"
   pull_request:
-    paths-ignore:
-      - "railseventstore.org/**"
-      - "contrib/**"
+    paths:
+      - "contrib/ruby_event_store-rom/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
     env:
       GEM_NAME: ruby_event_store-rom
+      GEM_LOCATION: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
@@ -92,19 +93,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.GEM_LOCATION }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.GEM_LOCATION }}
       - run: make test
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.GEM_LOCATION }}
 
   mutate:
     runs-on: ubuntu-20.04
     env:
       GEM_NAME: ruby_event_store-rom
+      GEM_LOCATION: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
     strategy:
@@ -120,11 +122,11 @@ jobs:
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.GEM_LOCATION }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.GEM_LOCATION }}
       - run: make mutate-changes
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.GEM_LOCATION }}
