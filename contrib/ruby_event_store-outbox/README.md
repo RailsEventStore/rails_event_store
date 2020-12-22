@@ -1,6 +1,7 @@
 # Ruby Event Store Outbox
 
 Very much work in progress.
+![Ruby Event Store Outbox](https://github.com/RailsEventStore/rails_event_store/workflows/ruby_event_store-outbox/badge.svg)
 
 
 ## Installation (app)
