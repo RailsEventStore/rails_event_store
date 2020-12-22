@@ -11,6 +11,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       GEM_NAME: bounded_context
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -46,6 +47,7 @@ jobs:
 
   mutate:
     runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       GEM_NAME: bounded_context
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
