@@ -10,7 +10,7 @@ on:
       - "contrib/multiple_databases_repository_sample_app/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       LOCATION: contrib/multiple_databases_repository_sample_app
@@ -20,6 +20,7 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock

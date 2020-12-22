@@ -10,7 +10,7 @@ on:
       - "contrib/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       GEM_NAME: rails_event_store_active_record
@@ -56,54 +56,67 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_0
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_2
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_1
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_5_0
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: json
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: jsonb
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.6
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.5
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
     steps:
@@ -119,7 +132,7 @@ jobs:
         working-directory: ${{ env.GEM_NAME }}
 
   integration:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       GEM_NAME: rails_event_store_active_record
@@ -149,14 +162,17 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_0
+            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_0
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_0
+            os: ubuntu-20.04
             database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
             datatype: binary
     steps:
@@ -172,7 +188,7 @@ jobs:
         working-directory: ${{ env.GEM_NAME }}
 
   mutate:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       GEM_NAME: rails_event_store_active_record
@@ -184,6 +200,7 @@ jobs:
         include:
           - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
             database: "sqlite3::memory:"
     steps:
       - uses: actions/checkout@v2
