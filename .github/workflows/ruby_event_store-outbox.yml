@@ -10,7 +10,7 @@ on:
       - "contrib/ruby_event_store-outbox/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     env:
       GEM_NAME: ruby_event_store-outbox
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -53,7 +53,7 @@ jobs:
         working-directory: ${{ env.GEM_LOCATION }}
 
   mutate:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     env:
       GEM_NAME: ruby_event_store-outbox
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}

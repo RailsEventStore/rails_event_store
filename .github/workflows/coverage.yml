@@ -107,7 +107,7 @@ jobs:
         working-directory: ${{ env.GEM_NAME }}
 
   rails_event_store:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
       GEM_NAME: rails_event_store
