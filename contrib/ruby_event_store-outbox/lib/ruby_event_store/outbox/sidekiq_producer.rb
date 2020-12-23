@@ -15,7 +15,7 @@ module RubyEventStore
         normalized_item = sidekiq_client.__send__(:normalize_item, item)
         payload = sidekiq_client.__send__(:process_single, normalized_item.fetch('class'), normalized_item)
         if payload
-          Record.create!(
+          Repository::Record.create!(
             format: SIDEKIQ5_FORMAT,
             split_key: payload.fetch('queue'),
             payload: payload.to_json
