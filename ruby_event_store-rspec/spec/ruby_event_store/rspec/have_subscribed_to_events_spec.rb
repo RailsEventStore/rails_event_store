@@ -33,6 +33,15 @@ module RubyEventStore
       specify do
         event_store.subscribe(handler, to: [FooEvent])
         expect(handler).to matcher(FooEvent).in(event_store)
+        expect(handler).not_to matcher(BarEvent).in(event_store)
+      end
+
+      specify do
+        event_store.subscribe(handler, to: [FooEvent, BarEvent])
+        expect(handler).to matcher(FooEvent).in(event_store)
+        expect(handler).to matcher(BarEvent).in(event_store)
+        expect(handler).to matcher(FooEvent, BarEvent).in(event_store)
+        expect(handler).not_to matcher(FooEvent, BarEvent, BazEvent).in(event_store)
       end
 
       describe "messages" do
@@ -66,7 +75,7 @@ module RubyEventStore
           matcher_ = matcher(FooEvent, BarEvent).in(event_store)
           matcher_.matches?(handler)
 
-          expect(matcher_.description). to eq(
+          expect(matcher_.description).to eq(
             "have subscribed to events that have to (be a FooEvent and be a BarEvent)"
           )
         end
