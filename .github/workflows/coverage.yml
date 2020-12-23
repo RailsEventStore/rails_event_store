@@ -23,11 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e Gemfile.lock
-        working-directory: ${{ env.gem }}
+        working-directory: ${{ matrix.gem }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ruby-2.7
           bundler-cache: true
-          working-directory: ${{ env.gem }}
+          working-directory: ${{ matrix.gem }}
       - run: make mutate
-        working-directory: ${{ env.gem }}
+        working-directory: ${{ matrix.gem }}
