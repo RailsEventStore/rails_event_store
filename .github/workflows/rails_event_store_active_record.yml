@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
-      GEM_NAME: rails_event_store_active_record
+      WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
@@ -122,20 +122,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   integration:
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
-      GEM_NAME: rails_event_store_active_record
+      WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
@@ -178,20 +178,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make install integration
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
-      GEM_NAME: rails_event_store_active_record
+      WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
     strategy:
@@ -207,11 +207,11 @@ jobs:
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate-changes
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}

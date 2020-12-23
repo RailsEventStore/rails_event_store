@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 180
     env:
-      GEM_NAME: aggregate_root
+      WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -20,20 +20,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   bounded_context:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: bounded_context
+      WORKING_DIRECTORY: bounded_context
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -45,20 +45,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   rails_event_store_active_record:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: rails_event_store_active_record
+      WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -72,20 +72,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   ruby_event_store-rspec:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: ruby_event_store-rspec
+      WORKING_DIRECTORY: ruby_event_store-rspec
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -97,20 +97,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   rails_event_store:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: rails_event_store
+      WORKING_DIRECTORY: rails_event_store
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -122,20 +122,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   ruby_event_store-browser:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: ruby_event_store-browser
+      WORKING_DIRECTORY: ruby_event_store-browser
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -147,20 +147,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   ruby_event_store:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     env:
-      GEM_NAME: ruby_event_store
+      WORKING_DIRECTORY: ruby_event_store
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -172,11 +172,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}

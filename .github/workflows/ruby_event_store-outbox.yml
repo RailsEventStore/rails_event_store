@@ -13,10 +13,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
-      GEM_NAME: ruby_event_store-outbox
+      WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
-      GEM_LOCATION: contrib/ruby_event_store-outbox
     services:
       redis:
         image: redis:6
@@ -49,22 +48,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_LOCATION }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_LOCATION }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test
-        working-directory: ${{ env.GEM_LOCATION }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
     runs-on: ${{ matrix.os }}
     env:
-      GEM_NAME: ruby_event_store-outbox
+      WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
-      GEM_LOCATION: contrib/ruby_event_store-outbox
       REDIS_URL: redis://localhost:6379/0
       MUTANT_JOBS: 1
     services:
@@ -85,11 +83,11 @@ jobs:
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_LOCATION }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_LOCATION }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate-changes
-        working-directory: ${{ env.GEM_LOCATION }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}

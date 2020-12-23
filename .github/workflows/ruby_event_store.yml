@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
-      GEM_NAME: ruby_event_store
+      WORKING_DIRECTORY: ruby_event_store
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -31,20 +31,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
-      GEM_NAME: ruby_event_store
+      WORKING_DIRECTORY: ruby_event_store
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
@@ -58,11 +58,11 @@ jobs:
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          working-directory: ${{ env.GEM_NAME }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate-changes
-        working-directory: ${{ env.GEM_NAME }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
