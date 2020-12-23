@@ -6,13 +6,7 @@ IGNORE       = RubyEventStore::Outbox::CLI* \
 	RubyEventStore::Outbox::SidekiqProducer\#call \
 	RubyEventStore::Outbox::SidekiqProcessor\#process \
 	RubyEventStore::Outbox::SidekiqProcessor\#after_batch \
-	RubyEventStore::Outbox::Record\#enqueued? \
 	RubyEventStore::Outbox::Metrics.from_url \
-	RubyEventStore::Outbox::Lock\#refresh \
-	RubyEventStore::Outbox::Lock.release \
-	RubyEventStore::Outbox::Lock.get_lock_record \
-	RubyEventStore::Outbox::Lock.obtain \
-	RubyEventStore::Outbox::Lock.lock_for_split_key \
 	RubyEventStore::Outbox::FetchSpecification\#initialize \
 	RubyEventStore::Outbox::Consumer::Configuration \
 	RubyEventStore::Outbox::Consumer\#run \
