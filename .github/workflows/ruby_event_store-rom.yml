@@ -5,9 +5,15 @@ on:
   push:
     paths:
       - "contrib/ruby_event_store-rom/**"
+      - ".github/workflows/ruby_event_store-rom.yml"
+      - "support/**"
+      - "Gemfile.shared"
   pull_request:
     paths:
       - "contrib/ruby_event_store-rom/**"
+      - ".github/workflows/ruby_event_store-rom.yml"
+      - "support/**"
+      - "Gemfile.shared"
 jobs:
   test:
     runs-on: ${{ matrix.os }}
