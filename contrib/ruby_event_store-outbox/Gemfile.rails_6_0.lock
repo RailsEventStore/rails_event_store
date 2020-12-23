@@ -117,7 +117,7 @@ GEM
       equalizer (~> 0.0.9)
       ice_nine (~> 0.11.1)
       procto (~> 0.0.2)
-    mutant (0.10.20)
+    mutant (0.10.21)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
       anima (~> 0.3.1)
@@ -133,8 +133,8 @@ GEM
       unparser (~> 0.5.4)
       variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
-    mutant-rspec (0.10.20)
-      mutant (= 0.10.20)
+    mutant-rspec (0.10.21)
+      mutant (= 0.10.21)
       rspec-core (>= 3.8.0, < 4.0.0)
     mysql2 (0.5.3)
     nio4r (2.5.4)
@@ -230,9 +230,9 @@ PLATFORMS
 DEPENDENCIES
   childprocess
   influxdb (~> 0.8.0)
-  mutant (~> 0.10.20)
+  mutant (~> 0.10.21)
   mutant-license!
-  mutant-rspec (~> 0.10.20)
+  mutant-rspec (~> 0.10.21)
   mysql2 (= 0.5.3)
   pg (= 1.2.2)
   rails (= 6.0.3.4)
