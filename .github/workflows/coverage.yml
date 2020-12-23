@@ -4,179 +4,30 @@ on:
     - cron: "0 17 * * *"
   workflow_dispatch:
 jobs:
-  aggregate_root:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 180
-    env:
-      WORKING_DIRECTORY: aggregate_root
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  bounded_context:
-    runs-on: ${{ matrix.os }}
+  coverage:
+    runs-on: ubuntu-20.04
     timeout-minutes: 120
     env:
-      WORKING_DIRECTORY: bounded_context
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: ubuntu-20.04
+          - gem: aggregate_root
+          - gem: bounded_context
+          - gem: rails_event_store_active_record
+          - gem: ruby_event_store-rspec
+          - gem: rails_event_store
+          - gem: ruby_event_store-browser
+          - gem: ruby_event_store
     steps:
       - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: test -e Gemfile.lock
+        working-directory: ${{ env.gem }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ruby-2.7
           bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
+          working-directory: ${{ env.gem }}
       - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  rails_event_store_active_record:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
-    env:
-      WORKING_DIRECTORY: rails_event_store_active_record
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: "sqlite3::memory:"
-            datatype: binary
-            os: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  ruby_event_store-rspec:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
-    env:
-      WORKING_DIRECTORY: ruby_event_store-rspec
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  rails_event_store:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
-    env:
-      WORKING_DIRECTORY: rails_event_store
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  ruby_event_store-browser:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
-    env:
-      WORKING_DIRECTORY: ruby_event_store-browser
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  ruby_event_store:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
-    env:
-      WORKING_DIRECTORY: ruby_event_store
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            os: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: ${{ env.gem }}
