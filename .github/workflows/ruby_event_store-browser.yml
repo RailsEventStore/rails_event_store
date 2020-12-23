@@ -40,7 +40,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ${{ env.WORKING_DIRECTORY }}/elm/node_modules
-          key: ${{ runner.OS }}-node-${{ hashFiles(env.WORKING_DIRECTORY + '/elm/yarn.lock') }}
+          key: ${{ runner.OS }}-node-${{ hashFiles(join(env.WORKING_DIRECTORY, '/elm/yarn.lock')) }}
       - run: make install-yarn test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
