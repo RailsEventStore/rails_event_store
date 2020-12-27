@@ -7,6 +7,12 @@ require_relative '../../../support/helpers/rspec_defaults'
 require_relative '../../../support/helpers/schema_helper'
 require_relative './support/db'
 require 'rails'
+require 'active_support/testing/time_helpers.rb'
+
+RSpec.configure do |config|
+  config.include ActiveSupport::Testing::TimeHelpers
+  config.after(:each) { travel_back }
+end
 
 module TimeEnrichment
   def with(event, timestamp: Time.now.utc, valid_at: nil)

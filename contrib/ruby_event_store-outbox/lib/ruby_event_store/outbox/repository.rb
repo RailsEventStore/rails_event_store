@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'active_record'
+require 'active_support/core_ext/numeric/time.rb'
 
 module RubyEventStore
   module Outbox
     class Repository
+      RECENTLY_LOCKED_DURATION = 10.minutes
+
       class Record < ::ActiveRecord::Base
         self.primary_key = :id
         self.table_name = 'event_store_outbox'
@@ -83,7 +86,11 @@ module RubyEventStore
         end
 
         def recently_locked?
-          locked_by && locked_at > 10.minutes.ago
+          locked_by && locked_at > RECENTLY_LOCKED_DURATION.ago
+        end
+
+        def fetch_specification
+          FetchSpecification.new(format, split_key)
         end
 
         private
