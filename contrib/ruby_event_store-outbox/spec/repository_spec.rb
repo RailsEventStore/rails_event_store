@@ -44,14 +44,28 @@ module RubyEventStore
         expect(result).to be(:taken)
       end
 
+      specify "obtains a lock for given fetch specification" do
+        repository = Repository.new(database_url)
+        repository.obtain_lock_for_process(FetchSpecification.new("other_message_format", split_key), some_process_uuid, clock: clock)
+        repository.obtain_lock_for_process(FetchSpecification.new(message_format, "other_split_key"), some_process_uuid, clock: clock)
+        expected_fetch_specification = FetchSpecification.new(message_format, split_key)
+
+        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+
+        expect(lock.fetch_specification).to eq(expected_fetch_specification)
+      end
+
       specify "successful release" do
         repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
 
         result = repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
 
         expect(result).to be(:ok)
+        lock.reload
+        expect(lock.locked_by).to be_nil
+        expect(lock.locked_at).to be_nil
       end
 
       specify "released lock can be obtained by other process" do
@@ -61,10 +75,8 @@ module RubyEventStore
 
         repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
 
-        expect do
-          result = repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
-          expect(result).to be_a(Repository::Lock)
-        end
+        result = repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
+        expect(result).to be_a(Repository::Lock)
       end
 
       specify "cant release not obtained lock" do
@@ -134,9 +146,10 @@ module RubyEventStore
         lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
         travel (Repository::RECENTLY_LOCKED_DURATION / 2)
 
-        lock.refresh(clock: clock)
+        result = lock.refresh(clock: clock)
 
         travel (Repository::RECENTLY_LOCKED_DURATION / 2 + 1.second)
+        expect(result).to be(:ok)
         expect(lock).to be_locked_by(some_process_uuid)
         expect(lock).to be_recently_locked
       end

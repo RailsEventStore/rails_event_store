@@ -54,7 +54,7 @@ module RubyEventStore
             lock!
             if locked_by == current_process_uuid
               update!(locked_at: clock.now)
-              self
+              :ok
             else
               :stolen
             end
