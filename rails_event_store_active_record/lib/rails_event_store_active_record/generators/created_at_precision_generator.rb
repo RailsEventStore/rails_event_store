@@ -10,7 +10,7 @@ module RailsEventStoreActiveRecord
     source_root File.expand_path(File.join(File.dirname(__FILE__), '../generators/templates'))
 
     def create_migration
-      template "created_at_precision_template.rb.erb", "db/migrate/#{timestamp}_created_at_precision.rb"
+      template "created_at_precision_template.rb", "db/migrate/#{timestamp}_created_at_precision.rb"
     end
 
     private
