@@ -14,7 +14,6 @@ jobs:
       matrix:
         include:
           - gem: aggregate_root
-          - gem: bounded_context
           - gem: rails_event_store_active_record
           - gem: ruby_event_store-rspec
           - gem: rails_event_store
