@@ -12,11 +12,11 @@ module RubyEventStore
         require_relative 'mappers/events_pb.rb'
 
         event_store = RubyEventStore::Client.new(
-          mapper: RubyEventStore::Mappers::Protobuf.new,
+          mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
           repository: InMemoryRepository.new
         )
         event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
-        ev = RubyEventStore::Proto.new(
+        ev = RubyEventStore::Protobuf::Proto.new(
           data: ResTesting::OrderCreated.new(
             customer_id: 123,
             order_id: "K3THNX9",

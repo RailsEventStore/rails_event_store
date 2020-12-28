@@ -14,10 +14,10 @@ module RubyEventStore
         require_relative 'mappers/events_pb.rb'
 
         client = RubyEventStore::Client.new(
-          mapper: RubyEventStore::Mappers::Protobuf.new,
+          mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
           repository: InMemoryRepository.new
         )
-        event = RubyEventStore::Proto.new(
+        event = RubyEventStore::Protobuf::Proto.new(
           event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
           data: ResTesting::OrderCreated.new(
             customer_id: 123,
@@ -38,11 +38,11 @@ module RubyEventStore
         require_relative 'mappers/events_pb.rb'
 
         client = RubyEventStore::Client.new(
-          mapper: RubyEventStore::Mappers::Protobuf.new,
+          mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
           repository: InMemoryRepository.new
         )
         event = TimeEnrichment.with(
-          RubyEventStore::Proto.new(
+          RubyEventStore::Protobuf::Proto.new(
             event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
             data: ResTesting::OrderCreated.new(
               customer_id: 123,
