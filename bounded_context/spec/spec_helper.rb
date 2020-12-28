@@ -33,6 +33,6 @@ module GeneratorHelper
   end
 
   def system_run_generator(genetator_args)
-    system("cd #{destination_root}; bin/rails g bounded_context #{genetator_args.join(' ')} -q")
+    system("cd #{destination_root}; bin/rails g bounded_context:bounded_context #{genetator_args.join(' ')} -q")
   end
 end
