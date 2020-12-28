@@ -17,7 +17,6 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -119,7 +118,6 @@ jobs:
 
   mutate:
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}

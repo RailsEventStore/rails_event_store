@@ -11,7 +11,6 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -133,7 +132,6 @@ jobs:
 
   integration:
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -189,7 +187,6 @@ jobs:
 
   mutate:
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
