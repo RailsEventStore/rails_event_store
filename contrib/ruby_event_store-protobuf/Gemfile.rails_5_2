@@ -8,8 +8,6 @@ gem 'protobuf_nested_struct'
 gem 'google-protobuf', '~> 3.14.0'
 gem 'ruby_event_store', path: '../../ruby_event_store'
 
-group :test do
-  gem 'rails', '5.2.4.4'
-  gem 'aggregate_root', path: '../../aggregate_root'
-  gem 'rails_event_store', path: '../../rails_event_store'
-end
+gem 'rails', '5.2.4.4'
+gem 'aggregate_root', path: '../../aggregate_root'
+gem 'rails_event_store', path: '../../rails_event_store'
