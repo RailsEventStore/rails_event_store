@@ -135,6 +135,22 @@ module RubyEventStore
       expect(event_1 == event_2).to be_truthy
     end
 
+    specify "#timestamp" do
+      event = Test::TestCreated.new
+      expect(event.timestamp).to be_nil
+
+      TimeEnrichment.with(event)
+      expect(event.timestamp).to eq(event.metadata[:timestamp])
+    end
+
+    specify "#valid_at" do
+      event = Test::TestCreated.new
+      expect(event.valid_at).to be_nil
+
+      TimeEnrichment.with(event)
+      expect(event.valid_at).to eq(event.metadata[:valid_at])
+    end
+
     specify "#hash" do
       expect(Event.new(event_id: "doh").hash).to eq(Event.new(event_id: "doh").hash)
       expect(Event.new(event_id: "doh").hash).not_to eq(Event.new(event_id: "bye").hash)
