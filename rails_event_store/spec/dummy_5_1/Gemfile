@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
 gem 'rails', '~> 5.1.0'
-gem 'bounded_context', path: '../../'
+gem 'rails_event_store', path: '../../'
