@@ -6,9 +6,7 @@ require 'securerandom'
 require 'rails/gem_version'
 require_relative '../../support/helpers/rspec_defaults'
 require_relative '../../support/helpers/migrator'
-require_relative '../../support/helpers/protobuf_helper'
 require_relative '../../support/helpers/silence_stdout'
-
 
 RSpec.configure do |config|
   config.around(:each) do |example|
