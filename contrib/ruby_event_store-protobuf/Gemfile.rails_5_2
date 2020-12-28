@@ -1,0 +1,15 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+gemspec
+
+eval_gemfile '../../support/bundler/Gemfile.shared'
+
+gem 'protobuf_nested_struct'
+gem 'google-protobuf', '~> 3.14.0'
+gem 'ruby_event_store', path: '../../ruby_event_store'
+
+group :test do
+  gem 'rails', '5.2.4.4'
+  gem 'aggregate_root', path: '../../aggregate_root'
+  gem 'rails_event_store', path: '../../rails_event_store'
+end
