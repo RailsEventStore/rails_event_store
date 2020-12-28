@@ -1,14 +1,13 @@
 require 'spec_helper'
 require 'pp'
 require 'fakefs/safe'
+require_relative '../../support/helpers/silence_stdout'
+
 
 module RailsEventStoreActiveRecord
   RSpec.describe NoGlobalStreamEntriesGenerator do
-    around(:each) do |example|
-      current_stdout = $stdout
-      $stdout = StringIO.new
-      example.call
-      $stdout = current_stdout
+    around do |example|
+      SilenceStdout.silence_stdout { example.run }
     end
 
     around do |example|

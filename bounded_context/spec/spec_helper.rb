@@ -3,6 +3,7 @@
 require 'bounded_context'
 require 'securerandom'
 require_relative '../../support/helpers/rspec_defaults'
+require_relative '../../support/helpers/silence_stdout'
 require 'rails'
 
 DUMMY_APP_NAME = "dummy_#{Rails::VERSION::MAJOR}_#{Rails::VERSION::MINOR}"
@@ -11,12 +12,6 @@ DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)
 raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exist?(DUMMY_ROOT)
 
 module GeneratorHelper
-  def silence_stdout(&block)
-    $stdout = StringIO.new
-    block.call
-    $stdout = STDOUT
-  end
-
   def destination_root
     @destination_root ||= File.join(TMP_ROOT, SecureRandom.hex)
   end
@@ -31,7 +26,7 @@ module GeneratorHelper
   end
 
   def run_generator(generator_args)
-    silence_stdout { ::BoundedContext::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root) }
+    SilenceStdout.silence_stdout { ::BoundedContext::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root) }
   end
 
   def system_run_generator(genetator_args)

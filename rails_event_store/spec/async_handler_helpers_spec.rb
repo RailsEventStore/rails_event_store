@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'action_controller/railtie'
+require_relative '../../support/helpers/silence_stdout'
 
-$stdout = StringIO.new
-require 'sidekiq/testing'
-$stdout = STDOUT
+
+SilenceStdout.silence_stdout { require 'sidekiq/testing' }
 
 AsyncAdapterAvailable = Gem::Version.new(Rails::VERSION::STRING) >= Gem::Version.new("5.0.0")
 SimpleAdapter = AsyncAdapterAvailable ? :async : :inline
