@@ -5,11 +5,6 @@ PATH
       ruby_event_store (= 1.1.1)
 
 PATH
-  remote: ../bounded_context
-  specs:
-    bounded_context (1.1.1)
-
-PATH
   remote: ../rails_event_store_active_record
   specs:
     rails_event_store_active_record (1.1.1)
@@ -40,7 +35,6 @@ PATH
       activesupport (>= 3.0)
       aggregate_root (= 1.1.1)
       arkency-command_bus (>= 0.4)
-      bounded_context (= 1.1.1)
       rails_event_store_active_record (= 1.1.1)
       ruby_event_store (= 1.1.1)
       ruby_event_store-browser (= 1.1.1)
@@ -278,7 +272,6 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  bounded_context!
   google-protobuf (~> 3.14.0)
   mutant (~> 0.10.21)
   mutant-license!
