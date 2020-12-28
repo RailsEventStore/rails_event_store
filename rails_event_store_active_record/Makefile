@@ -1,7 +1,10 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = rails_event_store_active_record
 REQUIRE      = $(GEM_NAME)
-IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector* \
+IGNORE       = RailsEventStoreActiveRecord::IndexViolationDetector\#initialize \
+               RailsEventStoreActiveRecord::IndexViolationDetector\#detect \
+               RailsEventStoreActiveRecord::IndexViolationDetector\#detect_mysql \
+               RailsEventStoreActiveRecord::IndexViolationDetector\#detect_postgres \
                RailsEventStoreActiveRecord::PgLinearizedEventRepository* \
                RailsEventStoreActiveRecord::EventRepository\#update_messages \
                RailsEventStoreActiveRecord::WithAbstractBaseClass\#build_event_klass \
