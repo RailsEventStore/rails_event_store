@@ -17,7 +17,6 @@ IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Mappers::Default\#serializer \
               RubyEventStore::Mappers::JSONMapper\#serializer \
               RubyEventStore::Mappers::NullMapper\#serializer \
-              RubyEventStore::Mappers::Protobuf\#serializer \
               RubyEventStore::Mappers::EncryptionMapper\#serializer \
               RubyEventStore::Mappers::PipelineMapper\#serializer \
               RubyEventStore::Mappers::DeprecatedWrapper\#serializer \

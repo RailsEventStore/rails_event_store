@@ -123,7 +123,7 @@ module RubyEventStore
     # on correlation_id and message_id of the provided message.
     # {http://railseventstore.org/docs/correlation_causation/ Find out more}
     #
-    # @param other_message [Event, Proto, command] message to correlate with. Most likely an event or a command. Must respond to correlation_id and message_id.
+    # @param other_message [Event, command] message to correlate with. Most likely an event or a command. Must respond to correlation_id and message_id.
     # @return [String] set causation_id
     def correlate_with(other_message)
       self.correlation_id = other_message.correlation_id || other_message.message_id

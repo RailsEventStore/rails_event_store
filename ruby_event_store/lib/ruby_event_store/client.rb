@@ -24,7 +24,7 @@ module RubyEventStore
 
     # Persists events and notifies subscribed handlers about them
     #
-    # @param events [Array<Event, Proto>, Event, Proto] event(s)
+    # @param events [Array<Event>, Event] event(s)
     # @param stream_name [String] name of the stream for persisting events.
     # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {http://railseventstore.org/docs/expected_version/ Read more}
     # @return [self]
@@ -236,7 +236,7 @@ module RubyEventStore
     # Deserialize event which was serialized for async event handlers
     # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
     #
-    # @return [Event, Proto] deserialized event
+    # @return [Event] deserialized event
     def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
       extract_timestamp = lambda do |m|
         (m[:timestamp] || Time.parse(m.fetch('timestamp'))).iso8601
@@ -289,7 +289,7 @@ module RubyEventStore
     #   end
     #   event_store.overwrite(events)
     #
-    # @param events [Array<Event, Proto>, Event, Proto] event(s) to serialize and overwrite again
+    # @param events [Array<Event>, Event] event(s) to serialize and overwrite again
     # @return [self]
     def overwrite(events_or_event)
       repository.update_messages(transform(Array(events_or_event)))
