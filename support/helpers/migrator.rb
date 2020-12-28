@@ -44,6 +44,6 @@ class Migrator
   end
 
   def migration_template(name)
-    ERB.new(File.read(File.join(@template_root, "#{name}_template.rb")))
+    ERB.new(File.read(File.join(@template_root, "#{name}_template.rb.erb")))
   end
 end

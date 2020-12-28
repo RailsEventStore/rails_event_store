@@ -8,7 +8,7 @@ module RailsEventStoreActiveRecord
     source_root File.expand_path(File.join(File.dirname(__FILE__), '../generators/templates'))
 
     def create_migration
-      template "no_global_stream_entries_template.rb", "db/migrate/#{timestamp}_no_global_stream_entries.rb"
+      template "no_global_stream_entries_template.rb.erb", "db/migrate/#{timestamp}_no_global_stream_entries.rb"
     end
 
     private
