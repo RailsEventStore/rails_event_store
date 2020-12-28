@@ -1,15 +1,4 @@
 PATH
-  remote: ../aggregate_root
-  specs:
-    aggregate_root (1.1.1)
-      ruby_event_store (= 1.1.1)
-
-PATH
-  remote: ../bounded_context
-  specs:
-    bounded_context (1.1.1)
-
-PATH
   remote: ../ruby_event_store
   specs:
     ruby_event_store (1.1.1)
@@ -144,8 +133,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  aggregate_root!
-  bounded_context!
   capybara (~> 3.18)
   json-schema
   mutant (~> 0.10.21)
