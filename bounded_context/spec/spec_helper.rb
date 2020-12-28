@@ -2,23 +2,27 @@
 
 require 'bounded_context'
 require 'securerandom'
+require 'rails/gem_version'
 require_relative '../../support/helpers/rspec_defaults'
 require_relative '../../support/helpers/silence_stdout'
-require 'rails'
-
-DUMMY_APP_NAME = "dummy_#{Rails::VERSION::MAJOR}_#{Rails::VERSION::MINOR}"
-TMP_ROOT   = File.join(__dir__, 'tmp')
-DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)
-raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exist?(DUMMY_ROOT)
 
 module GeneratorHelper
+  def dummy_app_name
+    "dummy_#{Rails::VERSION::MAJOR}_#{Rails::VERSION::MINOR}"
+  end
+
+  def dummy_app_root
+    File.join(__dir__, dummy_app_name)
+  end
+
   def destination_root
-    @destination_root ||= File.join(TMP_ROOT, SecureRandom.hex)
+    @destination_root ||= File.join(File.join(__dir__, 'tmp'), SecureRandom.hex)
   end
 
   def prepare_destination_root
     FileUtils.mkdir_p(destination_root)
-    FileUtils.cp_r("#{DUMMY_ROOT}/.", destination_root)
+    raise "App #{dummy_app_name} doesn't exist" unless File.exist?(dummy_app_root)
+    FileUtils.cp_r("#{dummy_app_root}/.", destination_root)
   end
 
   def nuke_destination_root
