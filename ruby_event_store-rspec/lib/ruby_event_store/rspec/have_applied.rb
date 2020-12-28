@@ -53,10 +53,7 @@ module RubyEventStore
       def matches_count?
         return true unless count
         raise NotSupported if expected.size > 1
-
-        expected.all? do |event_or_matcher|
-          events.select { |e| event_or_matcher === e }.size.equal?(count)
-        end
+        events.select { |e| expected.first === e }.size.equal?(count)
       end
 
       attr_reader :differ, :phraser, :expected, :events, :count, :matcher
