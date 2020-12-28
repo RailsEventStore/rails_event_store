@@ -6,11 +6,11 @@ require "ruby_event_store/outbox/metrics"
 module RubyEventStore
   module Outbox
     class CLI
-      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format, :batch_size, :metrics_url)
+      Options = Struct.new(:database_url, :redis_url, :log_level, :split_keys, :message_format, :batch_size, :metrics_url, :cleanup_strategy)
 
       class Parser
         def self.parse(argv)
-          options = Options.new(nil, nil, :warn, nil, nil, 100)
+          options = Options.new(nil, nil, :warn, nil, nil, 100, nil, :none)
           OptionParser.new do |option_parser|
             option_parser.banner = "Usage: res_outbox [options]"
 
@@ -42,6 +42,10 @@ module RubyEventStore
               options.metrics_url = metrics_url
             end
 
+            option_parser.on("--cleanup CLEANUP_STRATEGY", "A strategy for cleaning old records. One of: none or iso8601 duration format how old enqueued records should be removed") do |cleanup_strategy|
+              options.cleanup_strategy = cleanup_strategy
+            end
+
             option_parser.on_tail("--version", "Show version") do
               puts VERSION
               exit
@@ -67,6 +71,7 @@ module RubyEventStore
           batch_size: options.batch_size,
           database_url: options.database_url,
           redis_url: options.redis_url,
+          cleanup: options.cleanup_strategy,
         )
         metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(

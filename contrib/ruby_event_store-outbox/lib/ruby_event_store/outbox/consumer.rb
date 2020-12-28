@@ -19,13 +19,15 @@ module RubyEventStore
           message_format:,
           batch_size:,
           database_url:,
-          redis_url:
+          redis_url:,
+          cleanup:
         )
           @split_keys = split_keys
           @message_format = message_format
           @batch_size = batch_size || 100
           @database_url = database_url
           @redis_url = redis_url
+          @cleanup = cleanup
           freeze
         end
 
@@ -36,10 +38,11 @@ module RubyEventStore
             batch_size: overriden_options.fetch(:batch_size, batch_size),
             database_url: overriden_options.fetch(:database_url, database_url),
             redis_url: overriden_options.fetch(:redis_url, redis_url),
+            cleanup: overriden_options.fetch(:cleanup, cleanup)
           )
         end
 
-        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url
+        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url, :cleanup
       end
 
       def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
