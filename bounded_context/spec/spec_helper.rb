@@ -10,16 +10,12 @@ TMP_ROOT   = File.join(__dir__, 'tmp')
 DUMMY_ROOT = File.join(__dir__, DUMMY_APP_NAME)
 raise "App #{DUMMY_APP_NAME} doesn't exist" unless File.exist?(DUMMY_ROOT)
 
-module StdoutHelper
+module GeneratorHelper
   def silence_stdout(&block)
     $stdout = StringIO.new
     block.call
     $stdout = STDOUT
   end
-end
-
-module GeneratorHelper
-  include StdoutHelper
 
   def destination_root
     @destination_root ||= File.join(TMP_ROOT, SecureRandom.hex)
@@ -42,14 +38,3 @@ module GeneratorHelper
     system("cd #{destination_root}; bin/rails g bounded_context #{genetator_args.join(' ')} -q")
   end
 end
-
-RSpec.configure do |config|
-  config.include GeneratorHelper
-
-  config.around(:each) do |example|
-    prepare_destination_root
-    example.call
-    nuke_destination_root
-  end
-end
-

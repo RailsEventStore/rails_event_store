@@ -28,6 +28,14 @@ module BoundedContext
         end
       end
 
+      include GeneratorHelper
+
+      around do |example|
+        prepare_destination_root
+        example.call
+        nuke_destination_root
+      end
+
       specify do
         run_generator %w[payments]
 
