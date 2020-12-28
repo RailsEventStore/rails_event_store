@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require_relative "../lib/generators/bounded_context/bounded_context_generator"
+require_relative "../lib/generators/rails_event_store/bounded_context_generator"
 
-module BoundedContext
+module RailsEventStore
   module Generators
     RSpec.describe BoundedContextGenerator do
       RSpec::Matchers.define :match_content do |expected|
