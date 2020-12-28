@@ -62,8 +62,8 @@ module RubyEventStore
         event = subject.record_to_event(record)
         expect(event).to                eq(domain_event)
         expect(event.metadata.to_h).to  eq(metadata.merge(timestamp: time, valid_at: time))
-        expect(event.timestamp).to      eq(time)
-        expect(event.valid_at).to       eq(time)
+        expect(event.metadata[:timestamp]).to eq(time)
+        expect(event.metadata[:valid_at]).to  eq(time)
       end
 
       specify 'make sure encryption & decryption do not tamper event data' do
@@ -113,8 +113,8 @@ module RubyEventStore
           expect(event).to                      eq(expected_event)
           expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time, valid_at: time))
           expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
-          expect(event.timestamp).to            eq(time)
-          expect(event.valid_at).to             eq(time)
+          expect(event.metadata[:timestamp]).to eq(time)
+          expect(event.metadata[:valid_at]).to  eq(time)
         end
 
         specify '#record_to_event returns event instance with forgotten data when a new key is created' do
@@ -137,8 +137,8 @@ module RubyEventStore
           expect(event).to                      eq(expected_event)
           expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time, valid_at: time))
           expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
-          expect(event.timestamp).to            eq(time)
-          expect(event.valid_at).to             eq(time)
+          expect(event.metadata[:timestamp]).to eq(time)
+          expect(event.metadata[:valid_at]).to  eq(time)
         end
       end
 
@@ -165,8 +165,8 @@ module RubyEventStore
           expect(event).to                      eq(expected_event)
           expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time, valid_at: time))
           expect(event.data[:personal_info]).to eq('Key is forgotten')
-          expect(event.timestamp).to            eq(time)
-          expect(event.valid_at).to             eq(time)
+          expect(event.metadata[:timestamp]).to eq(time)
+          expect(event.metadata[:valid_at]).to  eq(time)
         end
       end
 
@@ -197,8 +197,8 @@ module RubyEventStore
           event = subject.record_to_event(record)
           expect(event).to                eq(domain_event)
           expect(event.metadata.to_h).to  eq(domain_event.metadata.to_h)
-          expect(event.timestamp).to      eq(time)
-          expect(event.valid_at).to       eq(time)
+          expect(event.metadata[:timestamp]).to eq(time)
+          expect(event.metadata[:valid_at]).to  eq(time)
         end
       end
     end

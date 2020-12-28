@@ -41,13 +41,16 @@ class IdentityMapTransformation
 
   def dump(domain_event)
     @identity_map[domain_event.event_id] = domain_event
+    metadata = domain_event.metadata.to_h
+    timestamp = metadata.delete(:timestamp)
+    valid_at = metadata.delete(:valid_at)
     RubyEventStore::Record.new(
       event_id:   domain_event.event_id,
-      metadata:   domain_event.metadata.to_h,
+      metadata:   metadata,
       data:       domain_event.data,
       event_type: domain_event.event_type,
-      timestamp:  domain_event.timestamp,
-      valid_at:   domain_event.valid_at,
+      timestamp:  timestamp,
+      valid_at:   valid_at,
     )
   end
 

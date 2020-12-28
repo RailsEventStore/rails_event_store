@@ -17,8 +17,8 @@ module RubyEventStore
       expect(event.metadata).to_not           be_nil
       expect(event.data.to_h).to              eq({})
       expect(event.metadata.to_h).to          eq({})
-      expect(event.timestamp).to              be_nil
-      expect(event.valid_at).to               be_nil
+      expect(event.metadata[:timestamp]).to   be_nil
+      expect(event.metadata[:valid_at]).to    be_nil
     end
 
     specify 'constructor attributes are used as event data' do
@@ -27,8 +27,8 @@ module RubyEventStore
       expect(event.data[:sample]).to eq(123)
       expect(event.data).to          eq({sample: 123})
       expect(event.metadata.to_h).to eq({})
-      expect(event.timestamp).to     be_nil
-      expect(event.valid_at).to      be_nil
+      expect(event.metadata[:timestamp]).to be_nil
+      expect(event.metadata[:valid_at]).to  be_nil
     end
 
     specify 'constructor event_id attribute is used as event id' do
@@ -43,7 +43,7 @@ module RubyEventStore
       event = Test::TestCreated.new(metadata: {created_by: 'Someone', timestamp: timestamp})
       expect(event.event_id).to_not          be_nil
       expect(event.data).to                  eq({})
-      expect(event.timestamp).to             eq(timestamp)
+      expect(event.metadata[:timestamp]).to  eq(timestamp)
       expect(event.metadata[:created_by]).to eq('Someone')
     end
 
@@ -52,7 +52,7 @@ module RubyEventStore
       event = Test::TestCreated.new(metadata: {created_by: 'Someone', valid_at: valid_at})
       expect(event.event_id).to_not          be_nil
       expect(event.data).to                  eq({})
-      expect(event.valid_at).to              eq(valid_at)
+      expect(event.metadata[:valid_at]).to   eq(valid_at)
       expect(event.metadata[:created_by]).to eq('Someone')
     end
 

@@ -40,8 +40,8 @@ module RubyEventStore
         expect(event.event_id).to      eq domain_event.event_id
         expect(event.data).to          eq(data)
         expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
-        expect(event.timestamp).to     eq(time)
-        expect(event.valid_at).to      eq(time)
+        expect(event.metadata[:timestamp]).to eq(time)
+        expect(event.metadata[:valid_at]).to  eq(time)
       end
 
       specify '#record_to_event its using events class remapping' do
@@ -72,8 +72,8 @@ module RubyEventStore
         expect(event.event_id).to      eq domain_event.event_id
         expect(event.data).to          eq(data)
         expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
-        expect(event.timestamp).to     eq(time)
-        expect(event.valid_at).to      eq(time)
+        expect(event.metadata[:timestamp]).to eq(time)
+        expect(event.metadata[:valid_at]).to  eq(time)
       end
 
       specify do

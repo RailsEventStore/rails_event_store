@@ -33,8 +33,8 @@ module RubyEventStore
           expect(loaded.event_id).to eq(uuid)
           expect(loaded.data).to be_a(ResTesting::OrderCreated)
           expect(loaded.metadata.to_h).to eq(event.metadata.to_h)
-          expect(loaded.timestamp).to eq(time)
-          expect(loaded.valid_at).to eq(time)
+          expect(loaded.metadata[:timestamp]).to eq(time)
+          expect(loaded.metadata[:valid_at]).to eq(time)
         end
       end
     end

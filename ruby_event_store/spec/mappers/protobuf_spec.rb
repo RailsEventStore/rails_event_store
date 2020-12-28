@@ -221,8 +221,8 @@ module RubyEventStore
         expect(event.event_id).to       eq(event_id)
         expect(event.data).to           eq(data)
         expect(event.metadata.to_h).to  eq(metadata)
-        expect(event.timestamp).to      eq(time)
-        expect(event.valid_at).to       eq(time)
+        expect(event.metadata[:timestamp]).to eq(time)
+        expect(event.metadata[:valid_at]).to  eq(time)
       end
 
       specify '#record_to_event is using events class remapping' do
@@ -240,8 +240,8 @@ module RubyEventStore
         event = subject.record_to_event(record)
         expect(event.data.class).to eq(ResTesting::OrderCreated)
         expect(event.event_type).to eq("res_testing.OrderCreated")
-        expect(event.timestamp).to  eq(time)
-        expect(event.valid_at).to   eq(time)
+        expect(event.metadata[:timestamp]).to eq(time)
+        expect(event.metadata[:valid_at]).to  eq(time)
       end
     end
   end
