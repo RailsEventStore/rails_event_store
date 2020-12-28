@@ -124,8 +124,8 @@ module RubyEventStore
 
           logger.info "Sent #{updated_record_ids.size} messages from outbox table"
 
-          obtained_lock = refresh_lock_for_process(obtained_lock)
-          break unless obtained_lock
+          refresh_successful = refresh_lock_for_process(obtained_lock)
+          break unless refresh_successful
         end
 
         metrics.write_point_queue(
@@ -187,6 +187,8 @@ module RubyEventStore
       def refresh_lock_for_process(lock)
         result = lock.refresh(clock: @clock)
         case result
+        when :ok
+          return true
         when :deadlocked
           logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (deadlock)"
           metrics.write_operation_result("refresh", "deadlocked")
@@ -200,7 +202,7 @@ module RubyEventStore
           metrics.write_operation_result("refresh", "stolen")
           return false
         else
-          return result
+          raise "Unexpected result #{result}"
         end
       end
 
