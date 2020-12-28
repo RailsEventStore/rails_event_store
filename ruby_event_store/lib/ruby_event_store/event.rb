@@ -38,6 +38,9 @@ module RubyEventStore
     #
     # @return [Time, nil]
     def timestamp
+      warn <<~EOW
+        Deprecation: timestamp method is deprecated. Please use event.matedata[:timestamp]
+      EOW
       metadata[:timestamp]
     end
 
@@ -45,6 +48,9 @@ module RubyEventStore
     #
     # @return [Time, nil]
     def valid_at
+      warn <<~EOW
+        Deprecation: valid_at method is deprecated. Please use event.matedata[:valid_at]
+      EOW
       metadata[:valid_at]
     end
 

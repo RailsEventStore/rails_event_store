@@ -32,8 +32,8 @@ module RubyEventStore
         expect(event.data).to          eq(domain_event.data)
         expect(event.metadata.to_h).to eq(domain_event.metadata.to_h)
         expect(event.event_type).to    eq("TestEvent")
-        expect(event.timestamp).to     eq(time)
-        expect(event.valid_at).to      eq(time)
+        expect(event.metadata[:timestamp]).to eq(time)
+        expect(event.metadata[:valid_at]).to  eq(time)
       end
     end
   end
