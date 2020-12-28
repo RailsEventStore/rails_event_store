@@ -110,7 +110,6 @@ GEM
     erubi (1.10.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    google-protobuf (3.12.4)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -162,8 +161,6 @@ GEM
     parser (2.7.2.0)
       ast (~> 2.4.1)
     procto (0.0.3)
-    protobuf_nested_struct (1.1.0)
-      google-protobuf
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
@@ -252,11 +249,9 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  google-protobuf (~> 3.12.2, >= 3.12.2)
   mutant (~> 0.10.21)
   mutant-license!
   mutant-rspec (~> 0.10.21)
-  protobuf_nested_struct
   rack-test
   rails (= 5.2.4.4)
   rails_event_store!

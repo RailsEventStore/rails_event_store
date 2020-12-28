@@ -34,7 +34,6 @@ GEM
     concurrent-ruby (1.1.7)
     diff-lcs (1.4.4)
     equalizer (0.0.11)
-    google-protobuf (3.12.4)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -70,8 +69,6 @@ GEM
     parser (2.7.2.0)
       ast (~> 2.4.1)
     procto (0.0.3)
-    protobuf_nested_struct (1.1.0)
-      google-protobuf
     rake (13.0.1)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -108,11 +105,9 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 5.0)
   aggregate_root!
-  google-protobuf (~> 3.12.2, >= 3.12.2)
   mutant (~> 0.10.21)
   mutant-license!
   mutant-rspec (~> 0.10.21)
-  protobuf_nested_struct
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
