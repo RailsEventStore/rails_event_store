@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ruby_event_store'
+
 module RubyEventStore
   ProtobufEncodingFailed = Class.new(Error)
 
