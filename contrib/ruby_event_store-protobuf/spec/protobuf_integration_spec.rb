@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rails_event_store'
 
 class AsyncProtoHandler < ActiveJob::Base
   self.queue_adapter = :inline
@@ -23,6 +24,7 @@ module RailsEventStore
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       client = Client.new(
         mapper: RubyEventStore::Mappers::Protobuf.new,
+        repository: RubyEventStore::InMemoryRepository.new(serializer: RubyEventStore::NULL),
         dispatcher: RubyEventStore::ComposedDispatcher.new(
           RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::NULL)),
           RubyEventStore::Dispatcher.new,

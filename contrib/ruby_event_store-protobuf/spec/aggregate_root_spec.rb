@@ -1,51 +1,47 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require_relative '../../support/helpers/protobuf_helper'
+require 'aggregate_root'
 
-RSpec.describe 'proto compatibility' do
+RSpec.describe 'aggregate_root proto compatibility' do
   include ProtobufHelper
   extend  ProtobufHelper
 
-  require_protobuf_dependencies do
-    Google::Protobuf::DescriptorPool.generated_pool.build do
-      add_message "res_testing.SpanishInquisition" do
-      end
-    end
-
-    Google::Protobuf::DescriptorPool.generated_pool.build do
-      add_message "res_testing.OrderPaid" do
-      end
-    end
-
-    module ResTesting
-      SpanishInquisition = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.SpanishInquisition").msgclass
-      OrderPaid          = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderPaid").msgclass
-
-      class Order
-        include AggregateRoot
-
-        def initialize(uuid)
-          @status = :draft
-          @uuid   = uuid
-        end
-
-        attr_accessor :status
-
-        private
-
-        def apply_order_created(*)
-          @status = :created
-        end
-
-        on 'res_testing.OrderPaid' do |_event|
-          @status = :paid
-        end
-      end
+  Google::Protobuf::DescriptorPool.generated_pool.build do
+    add_message "res_testing.SpanishInquisition" do
     end
   end
 
-  before(:each) { require_protobuf_dependencies }
+  Google::Protobuf::DescriptorPool.generated_pool.build do
+    add_message "res_testing.OrderPaid" do
+    end
+  end
+
+  module ResTesting
+    SpanishInquisition = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.SpanishInquisition").msgclass
+    OrderPaid          = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderPaid").msgclass
+
+    class Order
+      include AggregateRoot
+
+      def initialize(uuid)
+        @status = :draft
+        @uuid   = uuid
+      end
+
+      attr_accessor :status
+
+      private
+
+      def apply_order_created(*)
+        @status = :created
+      end
+
+      on 'res_testing.OrderPaid' do |_event|
+        @status = :paid
+      end
+    end
+  end
 
   it "should receive a method call based on a default apply strategy" do
     order = ResTesting::Order.new(SecureRandom.uuid)
