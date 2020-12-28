@@ -23,7 +23,7 @@ module RailsEventStore
 
     specify 'can handle protobuf event class instead of RubyEventStore::Event' do
       client = Client.new(
-        mapper: RubyEventStore::Mappers::Protobuf.new,
+        mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
         repository: RubyEventStore::InMemoryRepository.new(serializer: RubyEventStore::NULL),
         dispatcher: RubyEventStore::ComposedDispatcher.new(
           RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::NULL)),
@@ -34,7 +34,7 @@ module RailsEventStore
       client.subscribe(AsyncProtoHandler, to: [ResTesting::OrderCreated.descriptor.name])
       AsyncProtoHandler.event_store = client
 
-      event = RubyEventStore::Proto.new(
+      event = RubyEventStore::Protobuf::Proto.new(
         data: ResTesting::OrderCreated.new(
           customer_id: 123,
           order_id: "K3THNX9",
@@ -49,20 +49,20 @@ module RailsEventStore
     end
   end
 
-  RSpec.describe RubyEventStore::Proto do
+  RSpec.describe RubyEventStore::Protobuf::Proto do
     include ProtobufHelper
 
     before(:each) { require_protobuf_dependencies }
 
     specify "equality" do
-      event1 = RubyEventStore::Proto.new(
+      event1 = RubyEventStore::Protobuf::Proto.new(
         event_id: "40a09ed1-e72f-4cbf-9b34-f28bc4e129bc",
         data: ResTesting::OrderCreated.new(
           customer_id: 123,
           order_id: "K3THNX9",
         )
       )
-      event2 = RubyEventStore::Proto.new(
+      event2 = RubyEventStore::Protobuf::Proto.new(
         event_id: "40a09ed1-e72f-4cbf-9b34-f28bc4e129bc",
         data: ResTesting::OrderCreated.new(
           customer_id: 123,
