@@ -4,7 +4,6 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
   def change
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
     sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
-    rails_42 = Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0")
 
     enable_extension "pgcrypto" if postgres
     create_table(:event_store_events_in_streams, force: false) do |t|
@@ -42,9 +41,6 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.binary      :data,        null: false
         t.datetime    :created_at,  null: false, precision: 6
         t.datetime    :valid_at,    null: true,  precision: 6
-      end
-      if sqlite && rails_42
-        add_index :event_store_events, :id, unique: true
       end
     end
     add_index :event_store_events, :event_id, unique: true
