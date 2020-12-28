@@ -2,7 +2,7 @@
 
 require 'rails/generators'
 
-module BoundedContext
+module RailsEventStore
   module Generators
     class RspecGenerator < Rails::Generators::NamedBase
       source_root File.expand_path(File.join(File.dirname(__FILE__), '../templates'))

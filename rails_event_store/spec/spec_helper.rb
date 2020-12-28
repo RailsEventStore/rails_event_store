@@ -63,11 +63,11 @@ module GeneratorHelper
   end
 
   def run_generator(generator_args)
-    SilenceStdout.silence_stdout { ::BoundedContext::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root) }
+    SilenceStdout.silence_stdout { ::RailsEventStore::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root) }
   end
 
   def system_run_generator(genetator_args)
-    system("cd #{destination_root}; bin/rails g bounded_context:bounded_context #{genetator_args.join(' ')} -q")
+    system("cd #{destination_root}; bin/rails g rails_event_store:bounded_context #{genetator_args.join(' ')} -q")
   end
 end
 
