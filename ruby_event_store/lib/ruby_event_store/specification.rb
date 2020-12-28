@@ -166,7 +166,7 @@ module RubyEventStore
     # Yields each batch of records that was retrieved from the store.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @yield [Array<Event, Proto>] batch of events
+    # @yield [Array<Event>] batch of events
     # @return [Enumerator, nil] Enumerator is returned when block not given
     def each_batch
       return to_enum(:each_batch) unless block_given?
@@ -180,7 +180,7 @@ module RubyEventStore
     # Yields events read from the store if block given. Otherwise, returns enumerable collection.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @yield [Event, Proto] event
+    # @yield [Event] event
     # @return [Enumerator, nil] Enumerator is returned when block not given
     def each
       return to_enum unless block_given?
@@ -223,7 +223,7 @@ module RubyEventStore
     # Returns array of domain events.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @return [Array<Event, Proto>]
+    # @return [Array<Event>]
     def to_a
       each.to_a
     end
@@ -324,7 +324,7 @@ module RubyEventStore
     # read from the store if block given. Otherwise, returns enumerable collection.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
-    # @yield [Event, Proto] event
+    # @yield [Event] event
     # @return [Enumerator] Enumerator is returned when block not given
     def events(event_ids)
       with_id(event_ids).each
