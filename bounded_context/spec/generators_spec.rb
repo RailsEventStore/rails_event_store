@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require 'generators/bounded_context/bounded_context_generator'
+require "spec_helper"
+require_relative "../lib/generators/bounded_context/bounded_context_generator"
 
 module BoundedContext
   module Generators
@@ -106,7 +106,6 @@ module BoundedContext
 
       specify do
         run_generator %w[identity_access]
-
         expect('identity_access/lib/identity_access/.keep').to exists_at_destination_path
       end
 
