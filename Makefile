@@ -70,7 +70,7 @@ set-version: git-check-clean git-check-committed
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store_active_record', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\('aggregate_root', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
-	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\('rails_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
+	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\('ruby_event_store-rspec', \)\(.*\)/\1'= $(RES_VERSION)'/" {} \;
 	@sed $(SED_OPTS) "s/\(gem 'rails_event_store', '~>\)\(.*\)/\1 $(RES_VERSION)'/" APP_TEMPLATE
 	@sed $(SED_OPTS) "s/compare\/v.*\.\.\.master/compare\/v$(RES_VERSION)...master/" RELEASE.md
 	@git add -A **/*.gemspec **/version.rb RES_VERSION APP_TEMPLATE RELEASE.md
