@@ -5,12 +5,15 @@ require 'spec_helper'
 module RubyEventStore
   module Transformations
     RSpec.describe WithIndifferentAccess do
+      let(:time) { Time.now }
       let(:item) {
-        RubyEventStore::Mappers::Transformation::Item.new(
+        RubyEventStore::Record.new(
           event_id: 'not-important',
           data: hash,
           metadata: hash,
           event_type: 'does-not-matter',
+          timestamp: time,
+          valid_at: time,
         )
       }
 
@@ -33,6 +36,7 @@ module RubyEventStore
         it do
           result = WithIndifferentAccess.new.load(item)
           expect(result.data.class).to eq(ActiveSupport::HashWithIndifferentAccess)
+          expect(result.metadata.class).to eq(ActiveSupport::HashWithIndifferentAccess)
           expect(result.data[:array].last.class).to eq(ActiveSupport::HashWithIndifferentAccess)
           expect(result.data[:hash].class).to eq(ActiveSupport::HashWithIndifferentAccess)
           expect(result.data[:hash][:nested].class).to eq(ActiveSupport::HashWithIndifferentAccess)
@@ -48,6 +52,9 @@ module RubyEventStore
           expect(result.data['array'].last['some']).to eq('hash')
           expect(result.data['hash']['meh']).to eq(3)
           expect(result.data['hash']['nested']['any']).to eq('value')
+
+          expect(result.timestamp).to eq(time)
+          expect(result.valid_at).to eq(time)
         end
       end
 
@@ -70,6 +77,7 @@ module RubyEventStore
         it do
           result = WithIndifferentAccess.new.dump(item)
           expect(result.data.class).to eq(Hash)
+          expect(result.metadata.class).to eq(Hash)
           expect(result.data[:array].last.class).to eq(Hash)
           expect(result.data[:hash].class).to eq(Hash)
           expect(result.data[:hash][:nested].class).to eq(Hash)
@@ -79,6 +87,9 @@ module RubyEventStore
           expect(result.data[:array].last[:some]).to eq('hash')
           expect(result.data[:hash][:meh]).to eq(3)
           expect(result.data[:hash][:nested][:any]).to eq('value')
+
+          expect(result.timestamp).to eq(time)
+          expect(result.valid_at).to eq(time)
         end
       end
     end
