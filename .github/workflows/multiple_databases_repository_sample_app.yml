@@ -8,6 +8,7 @@ on:
       - ".github/workflows/multiple_databases_repository_sample_app.yml"
       - "support/**"
   pull_request:
+    types: [opened, reopened]
     paths:
       - "contrib/multiple_databases_repository_sample_app/**"
       - ".github/workflows/multiple_databases_repository_sample_app.yml"

@@ -5,6 +5,7 @@ on:
       - "railseventstore.org/**"
       - "contrib/**"
   pull_request:
+    types: [opened, reopened]
     paths-ignore:
       - "railseventstore.org/**"
       - "contrib/**"

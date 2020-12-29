@@ -9,6 +9,7 @@ on:
       - "support/**"
       - "Gemfile.shared"
   pull_request:
+    types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-rom/**"
       - ".github/workflows/ruby_event_store-rom.yml"

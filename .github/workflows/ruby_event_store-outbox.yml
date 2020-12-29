@@ -9,6 +9,7 @@ on:
       - "support/**"
       - "Gemfile.shared"
   pull_request:
+    types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-outbox/**"
       - ".github/workflows/ruby_event_store-outbox.yml"
