@@ -1,10 +1,10 @@
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "transformations/version"
+require "ruby_event_store/transformations/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "transformations"
-  spec.version       = Transformations::VERSION
+  spec.name          = "ruby_event_store-transformations"
+  spec.version       = RubyEventStore::Transformations::VERSION
   spec.licenses      = ['MIT']
   spec.authors       = ["arkency"]
   spec.email         = ["dev@arkency.com"]
