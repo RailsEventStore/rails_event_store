@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'rspec', '~> 3.0'
-  spec.add_runtime_dependency 'ruby_event_store-rspec', spec.version.to_s
+  spec.add_runtime_dependency 'ruby_event_store-rspec', '= 1.3.0'
 
   spec.post_install_message = <<~EOW
     The 'rails_event_store-rspec' gem has been renamed.

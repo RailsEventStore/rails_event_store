@@ -7,7 +7,7 @@ RSpec.describe "database schema migrations", :integration do
     Gemfile_1_1_1 = <<~EOG
       source 'https://rubygems.org'
 
-      gem 'rails_event_store', '1.1.1'
+      gem 'rails_event_store', '1.3.0'
       gem 'rails',             '6.0.3.4'
       gem 'pg',                '1.2.3'
       gem 'mysql2',            '0.5.3'
@@ -25,9 +25,9 @@ RSpec.describe "database schema migrations", :integration do
       gem 'sqlite3',  '1.4.2'
     EOG
 
-    validate_migration(Gemfile_1_1_1, Gemfile_master,
+    validate_migration(Gemfile_1_3_0, Gemfile_master,
       source_template_name: 'create_event_store_events') do
-      run_code(<<~EOF, gemfile: Gemfile_1_1_1)
+      run_code(<<~EOF, gemfile: Gemfile_1_3_0)
         DummyEvent = Class.new(RubyEventStore::Event)
 
         client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)

@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'ruby_event_store', '= 1.1.1'
+  spec.add_dependency 'ruby_event_store', '= 1.3.0'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
   spec.add_dependency 'activerecord-import', '>= 1.0.2'
