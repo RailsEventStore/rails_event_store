@@ -26,6 +26,17 @@ class NoGlobalStreamEntries < ActiveRecord::Migration<%= migration_version %>
       change_column_default :event_store_events, :event_id, nil
       add_column :event_store_events, :id, :serial
 
+      execute <<~SQL
+        UPDATE event_store_events
+        SET id = event_store_events_in_streams.id
+        FROM event_store_events_in_streams
+        WHERE event_store_events.event_id = event_store_events_in_streams.event_id AND event_store_events_in_streams.stream = 'all';
+      SQL
+
+      execute <<~SQL
+        SELECT setval(pg_get_serial_sequence('event_store_events', 'id'), max(id)) FROM event_store_events;
+      SQL
+
       execute <<-SQL
         ALTER TABLE event_store_events DROP CONSTRAINT event_store_events_pkey;
         ALTER TABLE event_store_events ADD PRIMARY KEY (id);
@@ -43,7 +54,6 @@ class NoGlobalStreamEntries < ActiveRecord::Migration<%= migration_version %>
       SQL
 
       execute 'ALTER TABLE event_store_events DROP PRIMARY KEY, ADD PRIMARY KEY (id), MODIFY id INT AUTO_INCREMENT;'
-
       add_index :event_store_events, :event_id, unique: true
     end
   end
