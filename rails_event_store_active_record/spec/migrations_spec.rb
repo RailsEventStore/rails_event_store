@@ -61,6 +61,8 @@ RSpec.describe "database schema migrations", :integration do
           .to_a.map(&:event_id) == #{event_ids} + %w[
             2ed455ad-a335-40f9-9249-98ad81bdbfa9
           ]
+
+        raise unless RailsEventStoreActiveRecord::Event.order(:id).pluck(:id) == (1..12).to_a
       EOF
     end
   end
