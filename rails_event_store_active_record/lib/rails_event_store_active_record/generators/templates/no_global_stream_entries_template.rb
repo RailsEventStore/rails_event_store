@@ -9,9 +9,11 @@ class NoGlobalStreamEntries < ActiveRecord::Migration<%= migration_version %>
         t.binary      :metadata
         t.binary      :data,        null: false
         t.datetime    :created_at,  precision: 6, null: false
+        t.datetime    :valid_at,    precision: 6, null: true
       end
       add_index :event_store_events, :event_id, unique: true
       add_index :event_store_events, :created_at
+      add_index :event_store_events, :valid_at
       add_index :event_store_events, :event_type
 
       execute <<-SQL

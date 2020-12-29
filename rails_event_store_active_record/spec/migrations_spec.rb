@@ -49,8 +49,8 @@ RSpec.describe "database schema migrations", :integration do
       EOF
 
       run_migration('created_at_precision')
-      run_migration('no_global_stream_entries')
       run_migration('add_valid_at')
+      run_migration('no_global_stream_entries')
 
       run_code(<<~EOF, gemfile: Gemfile_master)
         DummyEvent = Class.new(RubyEventStore::Event)
