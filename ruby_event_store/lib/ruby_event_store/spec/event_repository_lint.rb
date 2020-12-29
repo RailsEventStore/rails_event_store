@@ -62,7 +62,7 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  RSpec.shared_examples :event_repository do
+  ::RSpec.shared_examples :event_repository do
     let(:helper)        { EventRepositoryHelper.new }
     let(:specification) { Specification.new(SpecificationReader.new(repository, Mappers::NullMapper.new)) }
     let(:global_stream) { Stream.new(GLOBAL_STREAM) }
