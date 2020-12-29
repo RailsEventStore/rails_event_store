@@ -46,12 +46,13 @@ class NoGlobalStreamEntries < ActiveRecord::Migration<%= migration_version %>
 
       execute <<-SQL
         UPDATE event_store_events
-        INNER JOIN event_store_events_in_streams ON (event_store_events.event_id = event_store_events_in_streams.event_id)
-        SET event_store_events.id = event_store_events_in_streams.id
-        WHERE event_store_events_in_streams.stream = 'all';
+          INNER JOIN event_store_events_in_streams ON (event_store_events.event_id = event_store_events_in_streams.event_id)
+          SET event_store_events.id = event_store_events_in_streams.id
+          WHERE event_store_events_in_streams.stream = 'all';
       SQL
-
-      execute 'ALTER TABLE event_store_events DROP PRIMARY KEY, ADD PRIMARY KEY (id), MODIFY id INT AUTO_INCREMENT;'
+      execute "SET @row_number = 0"
+      execute "UPDATE event_store_events SET event_store_events.id = (@row_number:=@row_number + 1) ORDER BY id"
+      execute "ALTER TABLE event_store_events DROP PRIMARY KEY, ADD PRIMARY KEY (id), MODIFY id INT AUTO_INCREMENT"
       add_index :event_store_events, :event_id, unique: true
     end
   end
