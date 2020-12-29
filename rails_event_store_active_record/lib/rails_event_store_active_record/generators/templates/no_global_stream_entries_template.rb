@@ -24,15 +24,30 @@ class NoGlobalStreamEntries < ActiveRecord::Migration<%= migration_version %>
     when "PostgreSQL"
       rename_column :event_store_events, :id, :event_id
       change_column_default :event_store_events, :event_id, nil
-      add_column :event_store_events, :id, :serial
+      add_column :event_store_events, :id, :integer, null: true
 
-      execute "SELECT setval(pg_get_serial_sequence('event_store_events', 'id'), 1, false)"
+      execute <<~SQL
+        CREATE SEQUENCE event_store_events_id_seq
+          AS integer
+          START WITH 1
+          INCREMENT BY 1
+          NO MINVALUE
+          NO MAXVALUE
+          CACHE 1;
+      SQL
 
       execute <<~SQL
         UPDATE event_store_events
-        SET id = nextval(pg_get_serial_sequence('event_store_events', 'id'))
+        SET id = nextval('event_store_events_id_seq')
         FROM event_store_events_in_streams
         WHERE event_store_events.event_id = event_store_events_in_streams.event_id AND event_store_events_in_streams.stream = 'all';
+      SQL
+      change_column_null :event_store_events, :id, false
+
+      execute "ALTER TABLE event_store_events ALTER COLUMN id SET DEFAULT nextval('event_store_events_id_seq')"
+
+      execute <<~SQL
+        ALTER SEQUENCE event_store_events_id_seq OWNED BY event_store_events.id;
       SQL
 
       execute <<-SQL
