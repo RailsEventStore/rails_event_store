@@ -25,7 +25,7 @@ RSpec.describe "database schema migrations", :integration do
       gem 'sqlite3',  '1.4.2'
     EOG
 
-    event_ids = 10_000.times.map { SecureRandom.uuid }
+    event_ids = 10.times.map { SecureRandom.uuid }
 
     validate_migration(Gemfile_1_3_0, Gemfile_master,
       source_template_name: 'create_event_store_events') do
