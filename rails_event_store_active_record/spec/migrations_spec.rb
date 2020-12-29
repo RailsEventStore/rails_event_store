@@ -3,8 +3,8 @@ require 'spec_helper'
 RSpec.describe "database schema migrations", :integration do
   include SchemaHelper
 
-  specify "migrate from v1.1.1 to master" do
-    Gemfile_1_1_1 = <<~EOG
+  specify "migrate from v1.3.0 to master" do
+    Gemfile_1_3_0 = <<~EOG
       source 'https://rubygems.org'
 
       gem 'rails_event_store', '1.3.0'
