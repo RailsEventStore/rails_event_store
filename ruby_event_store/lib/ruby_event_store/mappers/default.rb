@@ -15,7 +15,7 @@ module RubyEventStore
           @serializer = YAML
         else
           warn <<~EOW
-            Passing serializer: to #{self.class} has been deprecated. 
+            Passing serializer: to #{self.class} has been deprecated.
 
             Pass it directly to the repository and the scheduler. For example:
 
@@ -23,7 +23,7 @@ module RubyEventStore
               mapper:     RubyEventStore::Mappers::Default.new,
               repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: #{serializer}),
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: #{serializer}),
+                RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: #{serializer}),
                 RubyEventStore::Dispatcher.new
               )
             )
