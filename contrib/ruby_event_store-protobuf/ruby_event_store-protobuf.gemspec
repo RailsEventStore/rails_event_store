@@ -23,5 +23,5 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'ruby_event_store', '>= 1.0.0'
+  spec.add_dependency 'ruby_event_store', '>= 2.0.0', '< 3.0.0'
 end

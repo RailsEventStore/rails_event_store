@@ -1,33 +1,49 @@
 PATH
   remote: ../../aggregate_root
   specs:
-    aggregate_root (1.3.0)
-      ruby_event_store (= 1.3.0)
+    aggregate_root (2.0.0)
+      ruby_event_store (= 2.0.0)
+
+PATH
+  remote: ../../rails_event_store_active_record
+  specs:
+    rails_event_store_active_record (2.0.0)
+      activemodel (>= 3.0)
+      activerecord-import (>= 1.0.2)
+      activesupport (>= 3.0)
+      ruby_event_store (= 2.0.0)
 
 PATH
   remote: ../../rails_event_store
   specs:
-    rails_event_store (1.3.0)
+    rails_event_store (2.0.0)
       activejob (>= 3.0)
       activemodel (>= 3.0)
       activesupport (>= 3.0)
-      aggregate_root (= 1.3.0)
+      aggregate_root (= 2.0.0)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 1.3.0)
-      ruby_event_store (= 1.3.0)
-      ruby_event_store-browser (= 1.3.0)
+      rails_event_store_active_record (= 2.0.0)
+      ruby_event_store (= 2.0.0)
+      ruby_event_store-browser (= 2.0.0)
+
+PATH
+  remote: ../../ruby_event_store-browser
+  specs:
+    ruby_event_store-browser (2.0.0)
+      ruby_event_store (= 2.0.0)
+      sinatra
 
 PATH
   remote: ../../ruby_event_store
   specs:
-    ruby_event_store (1.3.0)
+    ruby_event_store (2.0.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
     ruby_event_store-protobuf (1.0.0)
-      ruby_event_store (>= 1.0.0)
+      ruby_event_store (>= 2.0.0, < 3.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -176,11 +192,6 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.3.0)
       loofah (~> 2.3)
-    rails_event_store_active_record (1.3.0)
-      activemodel (>= 3.0)
-      activerecord-import (>= 1.0.2)
-      activesupport (>= 3.0)
-      ruby_event_store (= 1.3.0)
     railties (5.2.4.4)
       actionpack (= 5.2.4.4)
       activesupport (= 5.2.4.4)
@@ -202,9 +213,6 @@ GEM
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
     ruby2_keywords (0.0.2)
-    ruby_event_store-browser (1.3.0)
-      ruby_event_store (= 1.3.0)
-      sinatra
     sinatra (2.1.0)
       mustermann (~> 1.0)
       rack (~> 2.2)
@@ -250,9 +258,11 @@ DEPENDENCIES
   protobuf_nested_struct
   rails (= 5.2.4.4)
   rails_event_store!
+  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-browser!
   ruby_event_store-protobuf!
 
 BUNDLED WITH
