@@ -54,6 +54,10 @@ li {
 
 ul {
   margin-bottom: 30px;
+} 
+
+.documentation ul {
+  @apply list-disc pl-4;
 }
 
 li ul {
