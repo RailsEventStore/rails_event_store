@@ -169,6 +169,20 @@ aggregate_root.submit
 
 expect(aggregate_root).to have_applied(event(OrderSubmitted)).once
 ```
+
+### have_subscribed_to_events
+
+Use this matcher to make sure that a handler has subscribed to events in target `event_store` or not.
+
+```ruby
+event_store = RailsEventStore::Client.new
+
+# it will pass if Handler has subscribed to both events
+expect(Handler).to have_subscribed_to_events(FooEvent, BarEvent).in(event_store)
+
+# it will fail if Handler has subscribed to any event
+expect(Handler).not_to have_subscribed_to_events(FooEvent, BarEvent).in(event_store)
+```
 ## Code status
 
 [![Build Status](https://travis-ci.org/RailsEventStore/rails_event_store-rspec.svg?branch=master)](https://travis-ci.org/RailsEventStore/rails_event_store-rspec)
