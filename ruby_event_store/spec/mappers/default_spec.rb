@@ -89,7 +89,7 @@ module RubyEventStore
         expect {
           Client.new(mapper: RubyEventStore::Mappers::Default.new(serializer: Marshal), repository: InMemoryRepository.new)
         }.to output(<<~EOS).to_stderr
-          Passing serializer: to RubyEventStore::Mappers::Default has been deprecated. 
+          Passing serializer: to RubyEventStore::Mappers::Default has been deprecated.
 
           Pass it directly to the repository and the scheduler. For example:
 
@@ -97,7 +97,7 @@ module RubyEventStore
             mapper:     RubyEventStore::Mappers::Default.new,
             repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: Marshal),
             dispatcher: RubyEventStore::ComposedDispatcher.new(
-              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: Marshal),
+              RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: Marshal),
               RubyEventStore::Dispatcher.new
             )
           )
