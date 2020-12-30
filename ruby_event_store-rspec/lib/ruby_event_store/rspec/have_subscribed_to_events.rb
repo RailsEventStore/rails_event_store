@@ -13,7 +13,7 @@ module RubyEventStore
       def matches?(handler)
         @handler = handler
         @subscribed_to = expected.select do |event|
-          event_store.event_subscribers(event).include?(handler)
+          event_store.subscribers_for(event).include?(handler)
         end
 
         matcher.matches?(subscribed_to)

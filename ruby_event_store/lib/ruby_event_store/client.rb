@@ -131,7 +131,7 @@ module RubyEventStore
     #
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
-    def event_subscribers(event_type)
+    def subscribers_for(event_type)
       subscriptions.all_for(event_type.to_s)
     end
 

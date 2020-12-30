@@ -862,16 +862,16 @@ module RubyEventStore
       end
     end
 
-    describe "#event_subscribers" do
+    describe "#subscribers_for" do
       specify do
         handler = Subscribers::ValidHandler.new
         client.subscribe(handler, to: [ProductAdded])
         block = Proc.new { "Event published!" }
         client.subscribe(to: [OrderCreated], &block)
 
-        expect(client.event_subscribers(ProductAdded)).to   eq [handler]
-        expect(client.event_subscribers("ProductAdded")).to eq [handler]
-        expect(client.event_subscribers(OrderCreated)).to   eq [block]
+        expect(client.subscribers_for(ProductAdded)).to   eq [handler]
+        expect(client.subscribers_for("ProductAdded")).to eq [handler]
+        expect(client.subscribers_for(OrderCreated)).to   eq [block]
       end
     end
 
