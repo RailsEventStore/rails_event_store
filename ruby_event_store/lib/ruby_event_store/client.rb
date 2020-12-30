@@ -132,7 +132,7 @@ module RubyEventStore
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
     def subscribers_for(event_type)
-      subscriptions.all_for(event_type.to_s)
+      subscriptions.all_for(event_type)
     end
 
     # Builder object for collecting temporary handlers (subscribers)
