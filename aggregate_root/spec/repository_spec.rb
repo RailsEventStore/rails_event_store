@@ -101,7 +101,7 @@ module AggregateRoot
           [order_created],
           stream_name:      stream_name,
           expected_version: -1
-        ).and_call_original
+        )
         repository.store(order, stream_name)
 
         order_expired = Orders::Events::OrderExpired.new
@@ -111,7 +111,7 @@ module AggregateRoot
           [order_expired],
           stream_name:      stream_name,
           expected_version: 0
-        ).and_call_original
+        )
         repository.store(order, stream_name)
       end
     end
