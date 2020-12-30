@@ -1,5 +1,9 @@
 # Migrating custom components from v1.x to v2.x
 
+## Event
+
+ - `metadata[:timestamp]`, `metadata[:valid_at]` are now always `Time` objects, no parsing needed regardless of chosen serialization of metadata
+
 ## Repository
 
 - take serializer as an argument in `initialize`
