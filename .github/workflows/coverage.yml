@@ -25,7 +25,7 @@ jobs:
         working-directory: ${{ matrix.gem }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ruby-2.7
+          ruby-version: ruby-3.0
           bundler-cache: true
           working-directory: ${{ matrix.gem }}
       - run: make mutate
