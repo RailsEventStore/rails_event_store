@@ -143,4 +143,4 @@ end
 page "/", layout: "landing"
 page "/docs/v1/*", layout: "documentation", locals: { version: "v1" }
 page "/docs/v2/*", layout: "documentation", locals: { version: "v2" }
-page "*", locals: { version: "v1" }
+page "*", locals: { version: "v2" }
