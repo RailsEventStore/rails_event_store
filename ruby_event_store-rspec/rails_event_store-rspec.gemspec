@@ -1,11 +1,10 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'ruby_event_store/rspec/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'rails_event_store-rspec'
-  spec.version       = RubyEventStore::RSpec::VERSION
+  spec.version       = '2.0.0'
   spec.licenses      = ['MIT']
   spec.authors       = ['Arkency']
   spec.email         = ['dev@arkency.com']
