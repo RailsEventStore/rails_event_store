@@ -873,6 +873,25 @@ module RubyEventStore
         expect(client.subscribers_for("ProductAdded")).to eq [handler]
         expect(client.subscribers_for(OrderCreated)).to   eq [block]
       end
+
+      specify do
+        subscriptions = Subscriptions.new(event_type_resolver: ->(type) { type.to_s.reverse })
+        client = RubyEventStore::Client.new(
+          repository: InMemoryRepository.new,
+          mapper: Mappers::NullMapper.new,
+          subscriptions: subscriptions,
+          correlation_id_generator: correlation_id_generator
+        )
+
+        handler = Subscribers::ValidHandler.new
+        client.subscribe(handler, to: [ProductAdded])
+        block = Proc.new { "Event published!" }
+        client.subscribe(to: [OrderCreated], &block)
+
+        expect(client.subscribers_for(ProductAdded)).to   eq [handler]
+        expect(client.subscribers_for("ProductAdded")).to eq [handler]
+        expect(client.subscribers_for(OrderCreated)).to   eq [block]
+      end
     end
 
     specify "#inspect" do
