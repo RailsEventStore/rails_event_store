@@ -126,6 +126,7 @@ GEM
       procto (~> 0.0.2)
     variable (0.0.1)
       equalizer (~> 0.0.11)
+    webrick (1.7.0)
     xpath (3.2.0)
       nokogiri (~> 1.8)
 
@@ -145,6 +146,7 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-browser!
   selenium-webdriver (~> 3.141)
+  webrick
 
 BUNDLED WITH
    2.1.4
