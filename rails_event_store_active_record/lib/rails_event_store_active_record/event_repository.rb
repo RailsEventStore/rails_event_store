@@ -88,7 +88,6 @@ module RailsEventStoreActiveRecord
             event_id: event_id,
           }
         end
-        fill_ids(in_stream)
         @stream_klass.import(in_stream) unless stream.global?
       end
       self
@@ -126,10 +125,6 @@ module RailsEventStoreActiveRecord
 
     def optimize_timestamp(valid_at, created_at)
       valid_at unless valid_at.eql?(created_at)
-    end
-
-    # Overwritten in a sub-class
-    def fill_ids(_in_stream)
     end
 
     def start_transaction(&block)

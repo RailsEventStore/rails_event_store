@@ -289,43 +289,6 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    class FillInRepository < EventRepository
-      def fill_ids(in_stream)
-        in_stream.each.with_index.map do |is, index|
-          is[:id] = index + 987_654_321
-          is[:id] += 3 if is[:stream] == "whoo"
-        end
-      end
-    end
-
-    specify 'fill_ids in append_to_stream' do
-      repository = FillInRepository.new(serializer: YAML)
-      repository.append_to_stream(
-        [event = RubyEventStore::SRecord.new],
-        RubyEventStore::Stream.new('stream'),
-        RubyEventStore::ExpectedVersion.any
-      )
-
-      expect(EventInStream.find(987_654_321).stream).to eq("stream")
-    end
-
-    specify 'fill_ids in link_to_stream' do
-      repository = FillInRepository.new(serializer: YAML)
-      repository.append_to_stream(
-        [event = RubyEventStore::SRecord.new],
-        RubyEventStore::Stream.new('stream'),
-        RubyEventStore::ExpectedVersion.any
-      )
-      repository.link_to_stream(
-        [event.event_id],
-        RubyEventStore::Stream.new("whoo"),
-        RubyEventStore::ExpectedVersion.any
-      )
-
-      expect(EventInStream.find(987_654_321).stream).to eq("stream")
-      expect(EventInStream.find(987_654_324).stream).to eq("whoo")
-    end
-
     specify 'read in batches forward' do
       events = Array.new(200) { RubyEventStore::SRecord.new }
       repository.append_to_stream(
