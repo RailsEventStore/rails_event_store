@@ -204,6 +204,14 @@ module RubyEventStore
       end
 
       specify do
+        expect{
+          expect(event_store).to matcher(
+            matchers.an_event(FooEvent),
+          ).exactly(-1).times
+        }.to raise_error(NotSupported)
+      end
+
+      specify do
         event_store.publish(actual = FooEvent.new)
         matcher_ = matcher(expected = matchers.an_event(BarEvent))
         matcher_.matches?(event_store)
