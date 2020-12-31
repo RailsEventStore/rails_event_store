@@ -207,6 +207,14 @@ module RubyEventStore
         expect{
           expect(event_store).to matcher(
             matchers.an_event(FooEvent),
+          ).exactly(0).times
+        }.to raise_error(NotSupported)
+      end
+
+      specify do
+        expect{
+          expect(event_store).to matcher(
+            matchers.an_event(FooEvent),
           ).exactly(-1).times
         }.to raise_error(NotSupported)
       end
