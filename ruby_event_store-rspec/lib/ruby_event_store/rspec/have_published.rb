@@ -96,7 +96,7 @@ module RubyEventStore
       end
 
       def matches?(event_store)
-        raise NotSupported if count && count < 0
+        raise NotSupported if count && count < 1
         @events = event_store.read
         @events = events.stream(stream_name) if stream_name
         @events = events.from(start)         if start
