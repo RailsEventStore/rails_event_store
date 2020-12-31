@@ -8,8 +8,7 @@ Gem::Specification.new do |spec|
   spec.license          = "MIT"
   spec.author           = "Arkency"
   spec.email            = "dev@arkency.com"
-  spec.summary          = "Event sourced (with Rails Event Store) aggregate root implementation"
-  spec.description      = "Event sourced (with Rails Event Store) aggregate root implementation"
+  spec.summary          = "Event sourced aggregate root implementation"
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["lib/**/*"]
   spec.require_paths    = %w[lib]

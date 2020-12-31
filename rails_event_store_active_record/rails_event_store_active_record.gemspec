@@ -9,7 +9,6 @@ Gem::Specification.new do |spec|
   spec.author           = "Arkency"
   spec.email            = "dev@arkency.com"
   spec.summary          = "Active Record events repository for Rails Event Store"
-  spec.description      = "Implementation of events repository based on Rails Active Record for Rails Event Store"
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["lib/**/*"]
   spec.require_paths    = %w[lib]
