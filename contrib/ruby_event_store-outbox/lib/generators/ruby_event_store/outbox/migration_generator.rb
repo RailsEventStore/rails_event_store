@@ -16,12 +16,7 @@ module RubyEventStore
 
       private
 
-      def rails_version
-        Rails::VERSION::STRING
-      end
-
       def migration_version
-        return nil if Gem::Version.new(rails_version) < Gem::Version.new("5.0.0")
         "[4.2]"
       end
 
