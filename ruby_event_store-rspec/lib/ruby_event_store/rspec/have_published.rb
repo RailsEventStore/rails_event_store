@@ -41,7 +41,7 @@ module RubyEventStore
               end
             end
 
-            if correct_event_count >= 1 && correct_event_count != expected_count
+            if expected_count && correct_event_count >= 1 && correct_event_count != expected_count
               return <<~EOS
               expected event #{expected}
               to be published #{expected_count} times
@@ -55,7 +55,7 @@ module RubyEventStore
               there is an event of correct type but with incorrect payload:
               #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
               EOS
-            else
+            elsif correct_event_count.zero?
               return <<~EOS
               expected event #{expected}
               to be published, but there is no event with such type
