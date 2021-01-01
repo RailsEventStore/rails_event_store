@@ -37,7 +37,7 @@ module RailsEventStore
     cattr_accessor :event
 
     def perform(payload)
-      self.class.event = Rails.configuration.event_store.deserialize(serializer: YAML, **payload)
+      self.class.event = Rails.configuration.event_store.deserialize(serializer: RubyEventStore::NULL, **payload)
     end
   end
 
@@ -198,7 +198,7 @@ module RailsEventStore
       )
       ev = RailsEventStore::Event.new
       Sidekiq::Testing.fake! do
-        SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler
+        SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler.with(serializer: YAML)
         SidekiqHandlerWithHelper.event = nil
         event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
         event_store.publish(ev)
@@ -228,9 +228,9 @@ module RailsEventStore
         event_store
         .__send__(:mapper)
         .event_to_record(ev)
-        .serialize(YAML)
+        .serialize(RubyEventStore::NULL)
         .to_h
-      serialized[:metadata] = "--- {}\n"
+      serialized[:metadata] = {}
       serialized
     end
 
