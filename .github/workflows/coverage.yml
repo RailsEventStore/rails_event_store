@@ -2,13 +2,6 @@ name: coverage
 on:
   schedule:
     - cron: "0 17 * * *"
-  push:
-    paths:
-      - "support/bundler/Gemfile.shared"
-  pull_request:
-    types: [ opened, reopened ]
-    paths:
-      - "support/bundler/Gemfile.shared"
   workflow_dispatch:
 jobs:
   coverage:
