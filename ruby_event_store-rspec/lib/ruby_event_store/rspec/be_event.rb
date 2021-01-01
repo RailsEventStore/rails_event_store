@@ -124,7 +124,7 @@ module RubyEventStore
 
       def matches?(actual)
         @actual = actual
-        matches_kind? && matches_data? && matches_metadata?
+        matches_kind?(actual) && matches_data?(actual) && matches_metadata?(actual)
       end
 
       def with_data(expected_data)
@@ -175,16 +175,16 @@ expected: not a kind of #{expected}
 
       private
 
-      def matches_kind?
-        KindMatcher.new(expected).matches?(actual)
+      def matches_kind?(actual_event)
+        KindMatcher.new(expected).matches?(actual_event)
       end
 
-      def matches_data?
-        DataMatcher.new(expected_data, strict: strict?).matches?(actual.data)
+      def matches_data?(actual_event)
+        DataMatcher.new(expected_data, strict: strict?).matches?(actual_event.data)
       end
 
-      def matches_metadata?
-        DataMatcher.new(expected_metadata, strict: strict?).matches?(actual.metadata.to_h)
+      def matches_metadata?(actual_event)
+        DataMatcher.new(expected_metadata, strict: strict?).matches?(actual_event.metadata.to_h)
       end
 
       attr_reader :actual, :differ, :formatter
