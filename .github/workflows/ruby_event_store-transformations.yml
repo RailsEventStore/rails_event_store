@@ -7,14 +7,12 @@ on:
       - "contrib/ruby_event_store-transformations/**"
       - ".github/workflows/ruby_event_store-transformations.yml"
       - "support/**"
-      - "Gemfile.shared"
   pull_request:
     types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-transformations/**"
       - ".github/workflows/ruby_event_store-transformations.yml"
       - "support/**"
-      - "Gemfile.shared"
 jobs:
   test:
     runs-on: ${{ matrix.os }}
