@@ -323,6 +323,33 @@ module RubyEventStore
       end
 
       specify do
+        event_store.publish(FooEvent.new(data: { a: 1, b: 2 }))
+        matcher_ = HavePublished.new(
+          *(expected = [
+            matchers.an_event(FooEvent).with_data({ a: 1 }),
+            matchers.an_event(FooEvent).with_data({ b: 3 }),
+          ]),
+          differ: colorless_differ,
+          phraser: phraser,
+          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
+        )
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event #{expected.inspect}
+        to be published, but it was not published
+
+        there is an event of correct type but with incorrect payload:
+        data diff:
+        @@ -1,3 +1,2 @@
+        -:a => 1,
+        -:b => 2,
+        +:b => 3,
+
+        EOS
+      end
+
+      specify do
         event_store.publish(actual = BazEvent.new)
         matcher_ = HavePublished.new(
           expected = matchers.an_event(FooEvent),
