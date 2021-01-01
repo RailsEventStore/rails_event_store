@@ -14,7 +14,7 @@ module RubyEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser)
+        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser, failure_message_formatter: failure_message_formatter)
       end
 
       def colorless_differ
@@ -25,15 +25,14 @@ module RubyEventStore
         Matchers::ListPhraser
       end
 
+      def failure_message_formatter
+        HavePublished::StepByStepFailureMessageFormatter
+      end
+
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(FooEvent.new)
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        ).exactly(3).times
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).exactly(3).times
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -45,12 +44,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new)
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        ).exactly(2).times
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).exactly(2).times
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -62,12 +56,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new(data: { foo: 123 }))
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent).with_data({ foo: 124 }),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        ).exactly(2).times
+        matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data({ foo: 124 })).exactly(2).times
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -85,12 +74,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new(data: { foo: 123 }))
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent).with_data({ foo: 124 }),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        )
+        matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data({ foo: 124 }))
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -108,12 +92,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(actual = FooEvent.new(metadata: { foo: 123 }))
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent).with_metadata({ foo: 124 }),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        )
+        matcher_ = matcher(expected = matchers.an_event(FooEvent).with_metadata({ foo: 124 }))
         matcher_.matches?(event_store)
 
 
@@ -135,12 +114,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new(data: { foo: 123, bar: 20 }))
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent).with_data({ foo: 123 }).strict,
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        )
+        matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data({ foo: 123 }).strict)
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -158,15 +132,11 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new(data: { a: 1, b: 2 }))
-        matcher_ = HavePublished.new(
-          *(expected = [
-            matchers.an_event(FooEvent).with_data({ a: 1 }),
-            matchers.an_event(FooEvent).with_data({ b: 3 }),
-          ]),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        )
+        expected = [
+          matchers.an_event(FooEvent).with_data({ a: 1 }),
+          matchers.an_event(FooEvent).with_data({ b: 3 }),
+        ]
+        matcher_ = matcher(*expected)
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -185,12 +155,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(actual = BazEvent.new)
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        )
+        matcher_ = matcher(expected = matchers.an_event(FooEvent))
         matcher_.matches?(event_store)
 
 
@@ -202,12 +167,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(actual = BazEvent.new)
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        ).exactly(2).times
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).exactly(2).times
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -218,12 +178,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(actual = BazEvent.new)
-        matcher_ = HavePublished.new(
-          expected = matchers.an_event(FooEvent),
-          differ: colorless_differ,
-          phraser: phraser,
-          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
-        ).strict
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).strict
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
