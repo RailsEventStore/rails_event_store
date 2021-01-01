@@ -269,9 +269,9 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  mutant (~> 0.10.21)
+  mutant (= 0.10.23)
   mutant-license!
-  mutant-rspec (~> 0.10.21)
+  mutant-rspec (= 0.10.23)
   rack-test
   rails (= 6.1.0)
   rails_event_store!

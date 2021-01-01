@@ -209,9 +209,9 @@ PLATFORMS
 DEPENDENCIES
   childprocess
   fakefs (~> 1.2)
-  mutant (~> 0.10.21)
+  mutant (= 0.10.23)
   mutant-license!
-  mutant-rspec (~> 0.10.21)
+  mutant-rspec (= 0.10.23)
   mysql2 (= 0.5.3)
   pg (= 1.2.2)
   rails (= 5.2.4.4)

@@ -101,9 +101,9 @@ PLATFORMS
 DEPENDENCIES
   aggregate_root!
   diff-lcs (= 1.3.0)
-  mutant (~> 0.10.21)
+  mutant (= 0.10.23)
   mutant-license!
-  mutant-rspec (~> 0.10.21)
+  mutant-rspec (= 0.10.23)
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!

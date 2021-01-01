@@ -105,9 +105,9 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 5.0)
   aggregate_root!
-  mutant (~> 0.10.21)
+  mutant (= 0.10.23)
   mutant-license!
-  mutant-rspec (~> 0.10.21)
+  mutant-rspec (= 0.10.23)
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!

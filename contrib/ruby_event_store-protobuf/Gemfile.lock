@@ -272,9 +272,9 @@ PLATFORMS
 DEPENDENCIES
   aggregate_root!
   google-protobuf (~> 3.14.0)
-  mutant (~> 0.10.21)
+  mutant (= 0.10.23)
   mutant-license!
-  mutant-rspec (~> 0.10.21)
+  mutant-rspec (= 0.10.23)
   protobuf_nested_struct
   rails (= 6.1.0)
   rails_event_store!
