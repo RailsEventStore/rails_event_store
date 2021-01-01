@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_event_store_active_record/generators/migration_generator'
-require 'rails_event_store_active_record/generators/add_valid_at_generator'
-require 'rails_event_store_active_record/generators/created_at_precision_generator'
-require 'rails_event_store_active_record/generators/no_global_stream_entries_generator'
 require 'rails_event_store_active_record/event'
 require 'rails_event_store_active_record/with_default_models'
 require 'rails_event_store_active_record/with_abstract_base_class'
