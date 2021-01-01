@@ -173,11 +173,11 @@ expected: not a kind of #{expected}
         @strict
       end
 
-      private
-
       def matches_kind?(actual_event)
         KindMatcher.new(expected).matches?(actual_event)
       end
+
+      private
 
       def matches_data?(actual_event)
         DataMatcher.new(expected_data, strict: strict?).matches?(actual_event.data)
