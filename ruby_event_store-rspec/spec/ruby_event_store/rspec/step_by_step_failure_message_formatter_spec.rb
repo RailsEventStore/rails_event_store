@@ -217,6 +217,23 @@ module RubyEventStore
         fallback_matcher_.matches?(event_store)
         expect(matcher_.failure_message_when_negated.to_s).to eq(fallback_matcher_.failure_message_when_negated.to_s)
       end
+
+      specify do
+        event_store.publish(FooEvent.new(data: { a: 1 }))
+        event_store.publish(FooEvent.new(data: { a: 1 }))
+        event_store.publish(FooEvent.new(data: { a: 2 }))
+        expected = [
+          matchers.an_event(FooEvent).with_data(a: 1),
+          matchers.an_event(BarEvent),
+        ]
+        matcher_ = matcher(*expected)
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event #{expected.inspect}
+        to be published, but there is no event with such type
+        EOS
+      end
     end
   end
 end
