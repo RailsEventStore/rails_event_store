@@ -1,6 +1,7 @@
-GEMS         = ruby_event_store-outbox \
-               ruby_event_store-protobuf \
-               ruby_event_store-rom
+GEMS = ruby_event_store-outbox \
+       ruby_event_store-protobuf \
+       ruby_event_store-rom \
+       ruby_event_store-transformations
 
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
