@@ -330,6 +330,24 @@ module RubyEventStore
         EOS
       end
 
+      specify do
+        event_store.publish(actual = BazEvent.new)
+        matcher_ = HavePublished.new(
+          expected = matchers.an_event(FooEvent),
+          differ: colorless_differ,
+          phraser: phraser,
+          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
+        ).strict
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected [#{expected.inspect}] to be published, diff:
+        @@ -1,2 +1,2 @@
+        -[#{actual.inspect}]
+        +[#{expected.inspect}]
+        EOS
+      end
+
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
 
       specify do

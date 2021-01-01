@@ -8,12 +8,12 @@ module RubyEventStore
           @differ = differ
         end
 
-        def failure_message(_matcher, expected, events, _expected_count)
+        def failure_message(_matcher, expected, events, _expected_count, _strict)
           "expected #{expected} to be published, diff:" +
             differ.diff_as_string(expected.to_s, events.to_a.to_s)
         end
 
-        def negated_failure_message(_matcher, expected, events, _expected_count)
+        def negated_failure_message(_matcher, expected, events, _expected_count, _strict)
           "expected #{expected} not to be published, diff:" +
             differ.diff_as_string(expected.to_s, events.to_a.to_s)
         end
@@ -25,9 +25,11 @@ module RubyEventStore
       class StepByStepFailureMessageFormatter
         def initialize(differ)
           @differ = differ
+          @fallback = CrudeFailureMessageFormatter.new(differ)
         end
 
-        def failure_message(_matcher, expected, events, expected_count)
+        def failure_message(_matcher, expected, events, expected_count, strict)
+          return fallback.failure_message(_matcher, expected, events, expected_count, strict) if strict
           expected.each do |expected_event|
             correct_event_count = 0
             event_with_correct_type = nil
@@ -62,13 +64,14 @@ module RubyEventStore
           end
         end
 
-        def negated_failure_message(_matcher, expected, events, expected_count)
+        def negated_failure_message(_matcher, expected, events, expected_count, strict)
+          return fallback.negated_failure_message(_matcher, expected, events, expected_count, strict) if strict
           "expected #{expected} not to be published, diff:" +
             differ.diff_as_string(expected.to_s, events.to_a.to_s)
         end
 
         private
-        attr_reader :differ
+        attr_reader :differ, :fallback
 
         def data_diff(expected_event, event_with_correct_type)
           if expected_event.expected_data.nil?
@@ -129,11 +132,11 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(matcher, expected, events, count)
+        failure_message_formatter.failure_message(matcher, expected, events, count, strict?)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.negated_failure_message(matcher, expected, events, count)
+        failure_message_formatter.negated_failure_message(matcher, expected, events, count, strict?)
       end
 
       def description
@@ -146,6 +149,10 @@ module RubyEventStore
       end
 
       private
+
+      def strict?
+        matcher.is_a?(::RSpec::Matchers::BuiltIn::Match)
+      end
 
       def matches_count?
         return true unless count
