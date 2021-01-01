@@ -76,34 +76,6 @@ module RubyEventStore
         expect(event.metadata[:valid_at]).to  eq(time)
       end
 
-      specify do
-        expect{RubyEventStore::Mappers::Default.new}.not_to output.to_stderr
-      end
-
-      specify do
-        expect(RubyEventStore::Mappers::Default.new(serializer: Marshal).serializer).to eq(Marshal)
-        expect(RubyEventStore::Mappers::Default.new.serializer).to                      eq(YAML)
-      end
-
-      specify do
-        expect {
-          Client.new(mapper: RubyEventStore::Mappers::Default.new(serializer: Marshal), repository: InMemoryRepository.new)
-        }.to output(<<~EOS).to_stderr
-          Passing serializer: to RubyEventStore::Mappers::Default has been deprecated.
-
-          Pass it directly to the repository and the scheduler. For example:
-
-          Rails.configuration.event_store = RailsEventStore::Client.new(
-            mapper:     RubyEventStore::Mappers::Default.new,
-            repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: Marshal),
-            dispatcher: RubyEventStore::ComposedDispatcher.new(
-              RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: Marshal),
-              RubyEventStore::Dispatcher.new
-            )
-          )
-        EOS
-      end
-
       private
 
       def stringify(hash)

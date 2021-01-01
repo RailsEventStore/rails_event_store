@@ -62,29 +62,6 @@ module RubyEventStore
         expect(domain_mapper).to receive(:load).with(record2)
         expect{ pipe.load(record) }.not_to raise_error
       end
-
-      specify "no deprecation for defaults" do
-        expect {
-          Pipeline.new
-        }.not_to output.to_stderr
-      end
-
-      specify "deprecation for keyword argument" do
-        expect {
-          pipe =
-            Pipeline.new(transformations: [transformation = Object.new])
-          expect(pipe.transformations).to include(transformation)
-        }.to output(<<~EOW).to_stderr
-          Passing transformations via keyword parameter is deprecated.
-          Please use positional arguments from now on.
-
-          Was:
-            RubyEventStore::Mappers::Pipeline.new(transformations: transformations)
-
-          Is now:
-            RubyEventStore::Mappers::Pipeline.new(*transformations)
-        EOW
-      end
     end
   end
 end

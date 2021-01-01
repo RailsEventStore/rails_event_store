@@ -13,7 +13,7 @@ module RubyEventStore
 
 
       @repository     = repository
-      @mapper         = Mappers::DeprecatedWrapper.new(mapper)
+      @mapper         = mapper
       @subscriptions  = subscriptions
       @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
       @clock          = clock
