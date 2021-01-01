@@ -273,6 +273,23 @@ module RubyEventStore
       end
 
       specify do
+        event_store.publish(FooEvent.new)
+        matcher_ = HavePublished.new(
+          expected = matchers.an_event(FooEvent),
+          differ: colorless_differ,
+          phraser: phraser,
+          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
+        ).exactly(2).times
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event [#{expected.inspect}]
+        to be published 2 times
+        but was published 1 times
+        EOS
+      end
+
+      specify do
         event_store.publish(FooEvent.new(data: { foo: 123 }))
         matcher_ = HavePublished.new(
           expected = matchers.an_event(FooEvent).with_data({ foo: 124 }),
@@ -318,6 +335,29 @@ module RubyEventStore
         -:timestamp => #{formatter.call(actual.timestamp)},
         -:valid_at => #{formatter.call(actual.valid_at)},
         +:foo => 124,
+
+        EOS
+      end
+
+      specify do
+        event_store.publish(FooEvent.new(data: { foo: 123, bar: 20 }))
+        matcher_ = HavePublished.new(
+          expected = matchers.an_event(FooEvent).with_data({ foo: 123 }).strict,
+          differ: colorless_differ,
+          phraser: phraser,
+          failure_message_formatter: HavePublished::StepByStepFailureMessageFormatter
+        )
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event [#{expected.inspect}]
+        to be published, but it was not published
+
+        there is an event of correct type but with incorrect payload:
+        data diff:
+        @@ -1,3 +1,2 @@
+        -:bar => 20,
+         :foo => 123,
 
         EOS
       end
