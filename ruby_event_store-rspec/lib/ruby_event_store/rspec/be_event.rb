@@ -90,7 +90,7 @@ module RubyEventStore
           end
 
           def to_s
-            @expected && ["\n#{@label} diff:", @differ.diff_as_string(@actual.to_s, @expected.to_s)]
+            @expected && ["\n#{@label} diff:", @differ.diff(@actual.to_s + "\n", @expected.to_s + "\n")]
           end
         end
 
