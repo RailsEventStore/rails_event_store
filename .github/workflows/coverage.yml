@@ -4,11 +4,11 @@ on:
     - cron: "0 17 * * *"
   push:
     paths:
-      - "Gemfile.shared"
+      - "support/bundler/Gemfile.shared"
   pull_request:
     types: [ opened, reopened ]
     paths:
-      - "Gemfile.shared"
+      - "support/bundler/Gemfile.shared"
   workflow_dispatch:
 jobs:
   coverage:
