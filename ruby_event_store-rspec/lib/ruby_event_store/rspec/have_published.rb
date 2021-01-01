@@ -52,9 +52,7 @@ module RubyEventStore
         end
 
         def negated_failure_message(_matcher, expected, events, expected_count, strict)
-          return fallback.negated_failure_message(_matcher, expected, events, expected_count, strict) if strict
-          "expected #{expected} not to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_a.to_s)
+          fallback.negated_failure_message(_matcher, expected, events, expected_count, strict)
         end
 
         private
