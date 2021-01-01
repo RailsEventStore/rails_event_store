@@ -16,7 +16,7 @@ module RailsEventStoreActiveRecord
       :data_type,
       type: :string,
       default: 'binary',
-      desc: "Configure the data type for `data` and `meta data` feilds in Postgres migration (options: #{DATA_TYPES.join('/')})"
+      desc: "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join('/')})"
     )
 
     def initialize(*args)
