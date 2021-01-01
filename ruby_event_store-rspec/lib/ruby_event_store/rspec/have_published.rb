@@ -41,12 +41,24 @@ module RubyEventStore
               end
             end
 
-            if expected_count && correct_event_count >= 1 && correct_event_count != expected_count
-              return failure_message_incorrect_count(expected, expected_count, correct_event_count)
-            elsif event_with_correct_type
-              return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
-            elsif correct_event_count.zero?
-              return failure_message_incorrect_type(expected)
+            if expected_count
+              if correct_event_count == expected_count
+                next
+              elsif correct_event_count >= 1
+                return failure_message_incorrect_count(expected, expected_count, correct_event_count)
+              elsif event_with_correct_type
+                return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
+              else
+                return failure_message_incorrect_type(expected)
+              end
+            else
+              if correct_event_count >= 1
+                next
+              elsif event_with_correct_type
+                return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
+              else
+                return failure_message_incorrect_type(expected)
+              end
             end
           end
         end
