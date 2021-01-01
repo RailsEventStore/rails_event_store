@@ -40,7 +40,7 @@ class Migrator
   end
 
   def migration_version
-    Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("5.0.0") ? "" : "[4.2]"
+    "[4.2]"
   end
 
   def migration_template(name)

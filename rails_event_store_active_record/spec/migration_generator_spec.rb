@@ -30,20 +30,8 @@ module RailsEventStoreActiveRecord
       File.read('db/migrate/20160809222222_create_event_store_events.rb')
     end
 
-    context 'with Rails 4' do
-      before do
-        stub_const('Rails::VERSION::STRING', '4.2.8')
-      end
-
-      it { is_expected.to match(/ActiveRecord::Migration$/) }
-    end
-
-    context 'with Rails 5' do
-      before do
-        stub_const('Rails::VERSION::STRING', '5.0.0')
-      end
-
-      it { is_expected.to match(/ActiveRecord::Migration\[4\.2\]$/) }
+    it 'uses particular migration version' do
+      expect(subject).to match(/ActiveRecord::Migration\[4\.2\]$/)
     end
 
     it 'uses binary data type for metadata' do

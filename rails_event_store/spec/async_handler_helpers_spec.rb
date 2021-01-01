@@ -5,9 +5,6 @@ require_relative '../../support/helpers/silence_stdout'
 
 SilenceStdout.silence_stdout { require 'sidekiq/testing' }
 
-AsyncAdapterAvailable = Gem::Version.new(Rails::VERSION::STRING) >= Gem::Version.new("5.0.0")
-SimpleAdapter = AsyncAdapterAvailable ? :async : :inline
-
 module RailsEventStore
   class HandlerWithDefaults < ActiveJob::Base
     cattr_accessor :event
@@ -94,7 +91,7 @@ module RailsEventStore
       allow(Rails).to       receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
-      ActiveJob::Base.queue_adapter   = SimpleAdapter
+      ActiveJob::Base.queue_adapter   = :async
     end
 
     specify "with defaults" do
