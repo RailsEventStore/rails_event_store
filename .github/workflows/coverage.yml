@@ -2,6 +2,8 @@ name: coverage
 on:
   schedule:
     - cron: "0 17 * * *"
+  paths:
+    - "Gemfile.shared"
   workflow_dispatch:
 jobs:
   coverage:
