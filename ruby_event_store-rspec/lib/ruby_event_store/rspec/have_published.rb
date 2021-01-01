@@ -10,12 +10,12 @@ module RubyEventStore
 
         def failure_message(expected, events, _expected_count, _strict)
           "expected #{expected} to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_a.to_s)
+            differ.diff(expected.to_s + "\n", events.to_a.to_s + "\n")
         end
 
         def negated_failure_message(expected, events, _expected_count, _strict)
           "expected #{expected} not to be published, diff:" +
-            differ.diff_as_string(expected.to_s, events.to_a.to_s)
+            differ.diff(expected.to_s + "\n", events.to_a.to_s + "\n")
         end
 
         private
@@ -97,13 +97,13 @@ module RubyEventStore
 
         def data_diff(expected_event, event_with_correct_type)
           if !expected_event.expected_data.nil?
-            "data diff:#{differ.diff_as_object(expected_event.expected_data, event_with_correct_type.data)}"
+            "data diff:#{differ.diff(expected_event.expected_data, event_with_correct_type.data)}"
           end
         end
 
         def metadata_diff(expected_event, event_with_correct_type)
           if !expected_event.expected_metadata.nil?
-            "metadata diff:#{differ.diff_as_object(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
+            "metadata diff:#{differ.diff(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
           end
         end
       end

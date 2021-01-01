@@ -26,12 +26,12 @@ module RubyEventStore
 
       def failure_message
         "expected #{handler} to be subscribed to events, diff:" +
-          differ.diff_as_string(expected.to_s, subscribed_to.to_s)
+          differ.diff(expected.to_s + "\n", subscribed_to.to_s + "\n")
       end
 
       def failure_message_when_negated
         "expected #{handler} not to be subscribed to events, diff:" +
-          differ.diff_as_string(expected.to_s, subscribed_to.to_s)
+          differ.diff(expected.to_s + "\n", subscribed_to.to_s + "\n")
       end
 
       def description
