@@ -110,6 +110,15 @@ module RubyEventStore
       end
 
       specify do
+        event_store.publish(FooEvent.new(data: { a: 1, b: 2}))
+
+        expect(event_store).to matcher(
+          matchers.an_event(FooEvent).with_data(a: 1),
+          matchers.an_event(FooEvent).with_data(b: 2),
+        )
+      end
+
+      specify do
         event_store.publish(FooEvent.new)
 
         expect(event_store).not_to matcher(
