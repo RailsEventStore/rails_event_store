@@ -65,7 +65,7 @@ module RubyEventStore
       end
 
       def differ
-        ::RSpec::Support::Differ.new(color: ::RSpec::Matchers.configuration.color?)
+        ::RSpec::Expectations.differ
       end
 
       def phraser
