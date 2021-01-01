@@ -42,24 +42,11 @@ module RubyEventStore
             end
 
             if expected_count && correct_event_count >= 1 && correct_event_count != expected_count
-              return <<~EOS
-              expected event #{expected}
-              to be published #{expected_count} times
-              but was published #{correct_event_count} times
-              EOS
+              return failure_message_incorrect_count(expected, expected_count, correct_event_count)
             elsif event_with_correct_type
-              return <<~EOS
-              expected event #{expected}
-              to be published, but it was not published
-
-              there is an event of correct type but with incorrect payload:
-              #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
-              EOS
+              return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
             elsif correct_event_count.zero?
-              return <<~EOS
-              expected event #{expected}
-              to be published, but there is no event with such type
-              EOS
+              return failure_message_incorrect_type(expected)
             end
           end
         end
@@ -72,6 +59,31 @@ module RubyEventStore
 
         private
         attr_reader :differ, :fallback
+
+        def failure_message_incorrect_count(expected, expected_count, correct_event_count)
+          return <<~EOS
+          expected event #{expected}
+          to be published #{expected_count} times
+          but was published #{correct_event_count} times
+          EOS
+        end
+
+        def failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
+          return <<~EOS
+          expected event #{expected}
+          to be published, but it was not published
+
+          there is an event of correct type but with incorrect payload:
+          #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
+          EOS
+        end
+
+        def failure_message_incorrect_type(expected)
+          return <<~EOS
+          expected event #{expected}
+          to be published, but there is no event with such type
+          EOS
+        end
 
         def data_diff(expected_event, event_with_correct_type)
           if expected_event.expected_data.nil?
