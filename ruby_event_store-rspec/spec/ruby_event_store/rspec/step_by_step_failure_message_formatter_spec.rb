@@ -207,6 +207,16 @@ module RubyEventStore
         +[#{expected.inspect}]
         EOS
       end
+
+      specify do
+        event_store.publish(FooEvent.new)
+        matcher_ = matcher(expected = matchers.an_event(FooEvent))
+        matcher_.matches?(event_store)
+
+        fallback_matcher_ = matcher_with_fallback_formatter(expected)
+        fallback_matcher_.matches?(event_store)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(fallback_matcher_.failure_message_when_negated.to_s)
+      end
     end
   end
 end
