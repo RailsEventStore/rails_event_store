@@ -71,7 +71,7 @@ module RubyEventStore
         attr_reader :differ, :fallback
 
         def failure_message_incorrect_count(expected, expected_count, correct_event_count)
-          return <<~EOS
+          <<~EOS
           expected event #{expected}
           to be published #{expected_count} times
           but was published #{correct_event_count} times
@@ -79,7 +79,7 @@ module RubyEventStore
         end
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
-          return <<~EOS
+          <<~EOS
           expected event #{expected}
           to be published, but it was not published
 
@@ -89,24 +89,20 @@ module RubyEventStore
         end
 
         def failure_message_incorrect_type(expected)
-          return <<~EOS
+          <<~EOS
           expected event #{expected}
           to be published, but there is no event with such type
           EOS
         end
 
         def data_diff(expected_event, event_with_correct_type)
-          if expected_event.expected_data.nil?
-            ""
-          else
+          if !expected_event.expected_data.nil?
             "data diff:#{differ.diff_as_object(expected_event.expected_data, event_with_correct_type.data)}"
           end
         end
 
         def metadata_diff(expected_event, event_with_correct_type)
-          if expected_event.expected_metadata.nil?
-            ""
-          else
+          if !expected_event.expected_metadata.nil?
             "metadata diff:#{differ.diff_as_object(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
           end
         end
