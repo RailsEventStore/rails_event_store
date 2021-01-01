@@ -1,3 +1,16 @@
+GIT
+  remote: https://github.com/teamcapybara/capybara.git
+  revision: ca4f9aa0014ed68771d46d4c2301049128e0bc4f
+  specs:
+    capybara (3.34.0)
+      addressable
+      mini_mime (>= 0.1.3)
+      nokogiri (~> 1.8)
+      rack (>= 1.6.0)
+      rack-test (>= 0.6.3)
+      regexp_parser (>= 1.5, < 3.0)
+      xpath (~> 3.2)
+
 PATH
   remote: ../ruby_event_store
   specs:
@@ -26,14 +39,6 @@ GEM
       adamantium (~> 0.2)
       equalizer (~> 0.0.11)
     ast (2.4.1)
-    capybara (3.34.0)
-      addressable
-      mini_mime (>= 0.1.3)
-      nokogiri (~> 1.8)
-      rack (>= 1.6.0)
-      rack-test (>= 0.6.3)
-      regexp_parser (~> 1.5)
-      xpath (~> 3.2)
     childprocess (3.0.0)
     concord (0.1.6)
       adamantium (~> 0.2.0)
@@ -57,7 +62,7 @@ GEM
       procto (~> 0.0.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    mutant (0.10.22)
+    mutant (0.10.24)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
       anima (~> 0.3.1)
@@ -70,11 +75,12 @@ GEM
       mprelude (~> 0.1.0)
       parser (~> 3.0.0)
       procto (~> 0.0.2)
+      regexp_parser (~> 2.0, >= 2.0.3)
       unparser (~> 0.5.6)
       variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
-    mutant-rspec (0.10.22)
-      mutant (= 0.10.22)
+    mutant-rspec (0.10.24)
+      mutant (= 0.10.24)
       rspec-core (>= 3.8.0, < 4.0.0)
     nokogiri (1.11.0)
       mini_portile2 (~> 2.5.0)
@@ -90,7 +96,7 @@ GEM
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rake (13.0.3)
-    regexp_parser (1.8.2)
+    regexp_parser (2.0.3)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -136,11 +142,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  capybara (~> 3.18)
+  capybara (~> 3.34)!
   json-schema
-  mutant (= 0.10.22)
+  mutant (~> 0.10.22)
   mutant-license!
-  mutant-rspec (= 0.10.22)
+  mutant-rspec (~> 0.10.22)
   rack
   rack-test
   rake (>= 10.0)
