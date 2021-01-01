@@ -29,6 +29,14 @@ module RubyEventStore
         HavePublished::StepByStepFailureMessageFormatter
       end
 
+      def fallback_formatter
+        HavePublished::CrudeFailureMessageFormatter
+      end
+
+      def matcher_with_fallback_formatter(*expected)
+        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser, failure_message_formatter: fallback_formatter)
+      end
+
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(FooEvent.new)
@@ -40,6 +48,17 @@ module RubyEventStore
         to be published 3 times
         but was published 2 times
         EOS
+      end
+
+      specify do
+        event_store.publish(FooEvent.new)
+        event_store.publish(FooEvent.new)
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).exactly(3).times.strict
+        matcher_.matches?(event_store)
+
+        fallback_matcher_ = matcher_with_fallback_formatter(expected).exactly(3).times.strict
+        fallback_matcher_.matches?(event_store)
+        expect(matcher_.failure_message.to_s).to eq(fallback_matcher_.failure_message.to_s)
       end
 
       specify do
