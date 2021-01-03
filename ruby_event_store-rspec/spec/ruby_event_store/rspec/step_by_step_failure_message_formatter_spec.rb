@@ -203,9 +203,13 @@ module RubyEventStore
         matcher_ = matcher(expected = matchers.an_event(FooEvent))
         matcher_.matches?(event_store)
 
-
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected [
+          be an event FooEvent
+        ] to be published
+
+        i.e. expected event
+          be an event FooEvent
         to be published, but there is no event with such type
         EOS
       end
@@ -216,7 +220,12 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected [
+          be an event FooEvent
+        ] to be published
+
+        i.e. expected event
+          be an event FooEvent
         to be published, but there is no event with such type
         EOS
       end
@@ -256,7 +265,13 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event #{expected.inspect}
+        expected [
+          be an event FooEvent (with data including {:a=>1})
+          be an event BarEvent
+        ] to be published
+
+        i.e. expected event
+          be an event BarEvent
         to be published, but there is no event with such type
         EOS
       end
