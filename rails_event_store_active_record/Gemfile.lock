@@ -100,7 +100,7 @@ GEM
     fakefs (1.3.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    i18n (1.8.5)
+    i18n (1.8.6)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     loofah (2.8.0)
