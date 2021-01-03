@@ -114,7 +114,7 @@ module RubyEventStore
               now = @clock.now.utc
               processor.process(record, now)
 
-              record.update_column(:enqueued_at, now)
+              repository.mark_as_enqueued(record, now)
               something_processed |= true
               updated_record_ids << record.id
             rescue => e
