@@ -79,7 +79,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected [#{expected.inspect}] to be published
+
+        i.e. expected event #{expected.inspect}
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -97,7 +99,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected [#{expected.inspect}] to be published
+
+        i.e. expected event #{expected.inspect}
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -116,7 +120,9 @@ module RubyEventStore
 
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected [#{expected.inspect}] to be published
+
+        i.e. expected event #{expected.inspect}
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -137,7 +143,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected [#{expected.inspect}] to be published
+
+        i.e. expected event #{expected.inspect}
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -159,7 +167,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event #{expected.inspect}
+        expected #{expected.inspect} to be published
+
+        i.e. expected event #{expected[1].inspect}
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
