@@ -143,9 +143,9 @@ module RubyEventStore
           remaining: get_remaining_count(fetch_specification)
         ) unless something_processed
 
-        cleanup_strategy.call(fetch_specification)
-
         release_lock_for_process(fetch_specification)
+
+        cleanup_strategy.call(fetch_specification)
 
         processor.after_batch
 
