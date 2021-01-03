@@ -45,7 +45,7 @@ module RubyEventStore
               if correct_event_count == expected_count
                 next
               elsif correct_event_count >= 1
-                return failure_message_incorrect_count(expected_event, expected_count, correct_event_count)
+                return failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
               elsif event_with_correct_type
                 return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
               else
@@ -70,21 +70,16 @@ module RubyEventStore
         private
         attr_reader :differ, :fallback
 
-        def failure_message_incorrect_count(expected_event, expected_count, correct_event_count)
+        def failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
           <<~EOS
-          expected event
-            #{expected_event.description}
-          to be published #{expected_count} times
+          #{expected_events_list(expected, expected_event, expected_count)}
           but was published #{correct_event_count} times
           EOS
         end
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
           <<~EOS
-          #{expected_events_list(expected)}
-          i.e. expected event
-            #{expected_event.description}
-          to be published#{expected_count.nil? ? "" : " #{expected_count} times"}, but it was not published
+          #{expected_events_list(expected, expected_event, expected_count)}, but it was not published
 
           there is an event of correct type but with incorrect payload:
           #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
@@ -93,10 +88,7 @@ module RubyEventStore
 
         def failure_message_incorrect_type(expected, expected_event, expected_count)
           <<~EOS
-          #{expected_events_list(expected)}
-          i.e. expected event
-            #{expected_event.description}
-          to be published#{expected_count.nil? ? "" : " #{expected_count} times"}, but there is no event with such type
+          #{expected_events_list(expected, expected_event, expected_count)}, but there is no event with such type
           EOS
         end
 
@@ -112,16 +104,30 @@ module RubyEventStore
           end
         end
 
-        def expected_events_list(expected)
-          <<~EOS
-          expected [
-          #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
-          ] to be published
-          EOS
+        def expected_events_list(expected, expected_event, expected_count)
+          if expected_count
+            <<~EOS
+            expected event
+              #{expected_event.description}
+            to be published #{expected_count} times
+            EOS
+          else
+            <<~EOS
+            expected [
+            #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+            ] to be published
+
+            i.e. expected event
+              #{expected_event.description}
+            to be published
+            EOS
+          end.strip
         end
       end
 
-      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: CrudeFailureMessageFormatter)
+      @@default_formatter = CrudeFailureMessageFormatter
+
+      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: @@default_formatter)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @differ    = differ
