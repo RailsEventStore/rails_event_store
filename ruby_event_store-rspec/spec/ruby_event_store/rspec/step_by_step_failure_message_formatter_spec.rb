@@ -79,7 +79,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [#{expected.inspect}] to be published
+        expected [
+          be an event FooEvent (with data including {:foo=>124})
+        ] to be published
 
         i.e. expected event #{expected.inspect}
         to be published, but it was not published
@@ -99,7 +101,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [#{expected.inspect}] to be published
+        expected [
+          be an event FooEvent (with data including {:foo=>124})
+        ] to be published
 
         i.e. expected event #{expected.inspect}
         to be published, but it was not published
@@ -120,7 +124,9 @@ module RubyEventStore
 
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [#{expected.inspect}] to be published
+        expected [
+          be an event FooEvent (with metadata including {:foo=>124})
+        ] to be published
 
         i.e. expected event #{expected.inspect}
         to be published, but it was not published
@@ -143,7 +149,9 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [#{expected.inspect}] to be published
+        expected [
+          be an event FooEvent (with data matching {:foo=>123})
+        ] to be published
 
         i.e. expected event #{expected.inspect}
         to be published, but it was not published
@@ -167,7 +175,10 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected #{expected.inspect} to be published
+        expected [
+          be an event FooEvent (with data including {:a=>1})
+          be an event FooEvent (with data including {:b=>3})
+        ] to be published
 
         i.e. expected event #{expected[1].inspect}
         to be published, but it was not published
