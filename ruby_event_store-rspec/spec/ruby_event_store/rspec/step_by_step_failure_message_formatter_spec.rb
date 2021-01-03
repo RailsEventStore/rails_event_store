@@ -81,11 +81,7 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [
-          be an event FooEvent (with data including {:foo=>124})
-        ] to be published
-
-        i.e. expected event
+        expected event
           be an event FooEvent (with data including {:foo=>124})
         to be published 2 times, but it was not published
 
@@ -222,11 +218,7 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [
-          be an event FooEvent
-        ] to be published
-
-        i.e. expected event
+        expected event
           be an event FooEvent
         to be published 2 times, but there is no event with such type
         EOS
