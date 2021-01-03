@@ -16,6 +16,10 @@ module RubyEventStore
           where(format: fetch_specification.message_format, split_key: fetch_specification.split_key, enqueued_at: nil)
         end
 
+        def self.for_fetch_specification(fetch_specification)
+          where(format: fetch_specification.message_format, split_key: fetch_specification.split_key)
+        end
+
         def hash_payload
           JSON.parse(payload).deep_symbolize_keys
         end
@@ -132,6 +136,13 @@ module RubyEventStore
 
       def release_lock_for_process(fetch_specification, process_uuid)
         Lock.release(fetch_specification, process_uuid)
+      end
+
+      def delete_enqueued_older_than(fetch_specification, duration)
+        Record
+          .for_fetch_specification(fetch_specification)
+          .where("enqueued_at < ?", duration.ago)
+          .delete_all
       end
     end
   end
