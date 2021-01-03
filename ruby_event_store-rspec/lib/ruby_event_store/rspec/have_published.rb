@@ -29,7 +29,7 @@ module RubyEventStore
         end
 
         def failure_message(expected, events, expected_count, strict)
-          return fallback.failure_message(expected, events, expected_count, strict) if strict
+          return failure_message_strict(expected, events, expected_count) if strict
           expected.each do |expected_event|
             correct_event_count = 0
             event_with_correct_type = nil
@@ -90,6 +90,30 @@ module RubyEventStore
           <<~EOS
           #{expected_events_list(expected, expected_event, expected_count)}, but there is no event with such type
           EOS
+        end
+
+        def failure_message_strict(expected, events, expected_count)
+          if expected_count
+            <<~EOS
+            expected only
+              #{expected[0].description}
+            to be published #{expected_count} times
+
+            but the following was published: [
+            #{events.map(&:inspect).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+            ]
+            EOS
+          else
+            <<~EOS
+            expected only [
+            #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+            ] to be published
+
+            but the following was published: [
+            #{events.map(&:inspect).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+            ]
+            EOS
+          end
         end
 
         def data_diff(expected_event, event_with_correct_type)
