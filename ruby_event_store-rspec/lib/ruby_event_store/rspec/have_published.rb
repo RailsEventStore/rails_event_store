@@ -49,7 +49,7 @@ module RubyEventStore
               elsif event_with_correct_type
                 return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
               else
-                return failure_message_incorrect_type(expected)
+                return failure_message_incorrect_type(expected, expected_event)
               end
             else
               if correct_event_count >= 1
@@ -57,7 +57,7 @@ module RubyEventStore
               elsif event_with_correct_type
                 return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
               else
-                return failure_message_incorrect_type(expected)
+                return failure_message_incorrect_type(expected, expected_event)
               end
             end
           end
@@ -90,9 +90,11 @@ module RubyEventStore
           EOS
         end
 
-        def failure_message_incorrect_type(expected)
+        def failure_message_incorrect_type(expected, expected_event)
           <<~EOS
-          expected event #{expected}
+          #{expected_events_list(expected)}
+          i.e. expected event
+            #{expected_event.description}
           to be published, but there is no event with such type
           EOS
         end
