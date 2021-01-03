@@ -87,7 +87,7 @@ module RubyEventStore
 
         i.e. expected event
           be an event FooEvent (with data including {:foo=>124})
-        to be published, but it was not published
+        to be published 2 times, but it was not published
 
         there is an event of correct type but with incorrect payload:
         data diff:
@@ -228,7 +228,7 @@ module RubyEventStore
 
         i.e. expected event
           be an event FooEvent
-        to be published, but there is no event with such type
+        to be published 2 times, but there is no event with such type
         EOS
       end
 

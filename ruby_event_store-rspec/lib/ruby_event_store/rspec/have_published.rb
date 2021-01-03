@@ -47,17 +47,17 @@ module RubyEventStore
               elsif correct_event_count >= 1
                 return failure_message_incorrect_count(expected_event, expected_count, correct_event_count)
               elsif event_with_correct_type
-                return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
+                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
               else
-                return failure_message_incorrect_type(expected, expected_event)
+                return failure_message_incorrect_type(expected, expected_event, expected_count)
               end
             else
               if correct_event_count >= 1
                 next
               elsif event_with_correct_type
-                return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
+                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
               else
-                return failure_message_incorrect_type(expected, expected_event)
+                return failure_message_incorrect_type(expected, expected_event, expected_count)
               end
             end
           end
@@ -79,24 +79,24 @@ module RubyEventStore
           EOS
         end
 
-        def failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
+        def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
           <<~EOS
           #{expected_events_list(expected)}
           i.e. expected event
             #{expected_event.description}
-          to be published, but it was not published
+          to be published#{expected_count.nil? ? "" : " #{expected_count} times"}, but it was not published
 
           there is an event of correct type but with incorrect payload:
           #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
           EOS
         end
 
-        def failure_message_incorrect_type(expected, expected_event)
+        def failure_message_incorrect_type(expected, expected_event, expected_count)
           <<~EOS
           #{expected_events_list(expected)}
           i.e. expected event
             #{expected_event.description}
-          to be published, but there is no event with such type
+          to be published#{expected_count.nil? ? "" : " #{expected_count} times"}, but there is no event with such type
           EOS
         end
 
