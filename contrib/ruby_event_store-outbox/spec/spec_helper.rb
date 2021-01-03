@@ -12,6 +12,9 @@ require 'active_support/testing/time_helpers.rb'
 RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
   config.after(:each) { travel_back }
+  config.before(:each, redis: true) do |example|
+    redis.flushdb
+  end
 end
 
 module TimeEnrichment
