@@ -52,14 +52,21 @@ module RubyEventStore
       end
 
       specify do
-        event_store.publish(FooEvent.new)
-        event_store.publish(FooEvent.new)
+        event_store.publish(actual1 = FooEvent.new)
+        event_store.publish(actual2 = FooEvent.new)
         matcher_ = matcher(expected = matchers.an_event(FooEvent)).exactly(3).times.strict
         matcher_.matches?(event_store)
 
-        fallback_matcher_ = matcher_with_fallback_formatter(expected).exactly(3).times.strict
-        fallback_matcher_.matches?(event_store)
-        expect(matcher_.failure_message.to_s).to eq(fallback_matcher_.failure_message.to_s)
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected only
+          be an event FooEvent
+        to be published 3 times
+
+        but the following was published: [
+          #{actual1.inspect}
+          #{actual2.inspect}
+        ]
+        EOS
       end
 
       specify do
@@ -230,10 +237,13 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected [#{expected.inspect}] to be published, diff:
-        @@ -1,2 +1,2 @@
-        -[#{actual.inspect}]
-        +[#{expected.inspect}]
+        expected only [
+          be an event FooEvent
+        ] to be published
+
+        but the following was published: [
+          #{actual.inspect}
+        ]
         EOS
       end
 
