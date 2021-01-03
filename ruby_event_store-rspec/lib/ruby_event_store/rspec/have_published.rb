@@ -80,10 +80,7 @@ module RubyEventStore
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
           <<~EOS
-          expected [
-          #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
-          ] to be published
-
+          #{expected_events_list(expected)}
           i.e. expected event
             #{expected_event.description}
           to be published, but it was not published
@@ -110,6 +107,14 @@ module RubyEventStore
           if !expected_event.expected_metadata.nil?
             "metadata diff:#{differ.diff(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
           end
+        end
+
+        def expected_events_list(expected)
+          <<~EOS
+          expected [
+          #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+          ] to be published
+          EOS
         end
       end
 
