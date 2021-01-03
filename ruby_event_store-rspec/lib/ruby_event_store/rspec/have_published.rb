@@ -45,7 +45,7 @@ module RubyEventStore
               if correct_event_count == expected_count
                 next
               elsif correct_event_count >= 1
-                return failure_message_incorrect_count(expected, expected_count, correct_event_count)
+                return failure_message_incorrect_count(expected_event, expected_count, correct_event_count)
               elsif event_with_correct_type
                 return failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
               else
@@ -70,9 +70,10 @@ module RubyEventStore
         private
         attr_reader :differ, :fallback
 
-        def failure_message_incorrect_count(expected, expected_count, correct_event_count)
+        def failure_message_incorrect_count(expected_event, expected_count, correct_event_count)
           <<~EOS
-          expected event #{expected}
+          expected event
+            #{expected_event.description}
           to be published #{expected_count} times
           but was published #{correct_event_count} times
           EOS

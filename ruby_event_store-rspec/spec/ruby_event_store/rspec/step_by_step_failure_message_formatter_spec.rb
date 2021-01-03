@@ -44,7 +44,8 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected event
+          be an event FooEvent
         to be published 3 times
         but was published 2 times
         EOS
@@ -67,7 +68,8 @@ module RubyEventStore
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event [#{expected.inspect}]
+        expected event
+          be an event FooEvent
         to be published 2 times
         but was published 1 times
         EOS
