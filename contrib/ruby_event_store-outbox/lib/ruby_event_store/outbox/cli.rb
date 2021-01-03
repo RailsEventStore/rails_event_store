@@ -76,7 +76,7 @@ module RubyEventStore
         metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer = RubyEventStore::Outbox::Consumer.new(
           consumer_uuid,
-          options,
+          consumer_configuration,
           logger: logger,
           metrics: metrics,
         )
