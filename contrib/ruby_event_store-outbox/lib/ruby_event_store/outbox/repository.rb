@@ -138,6 +138,10 @@ module RubyEventStore
         Lock.release(fetch_specification, process_uuid)
       end
 
+      def mark_as_enqueued(record, now)
+        record.update_column(:enqueued_at, now)
+      end
+
       def delete_enqueued_older_than(fetch_specification, duration)
         Record
           .for_fetch_specification(fetch_specification)
