@@ -6,6 +6,7 @@ require "ruby_event_store/outbox/sidekiq5_format"
 require "ruby_event_store/outbox/sidekiq_processor"
 require "ruby_event_store/outbox/fetch_specification"
 require "ruby_event_store/outbox/cleanup_strategies/none"
+require "ruby_event_store/outbox/cleanup_strategies/clean_old_enqueued"
 
 module RubyEventStore
   module Outbox
@@ -60,7 +61,12 @@ module RubyEventStore
         prepare_traps
 
         @repository = Repository.new(configuration.database_url)
-        @cleanup_strategy = CleanupStrategies::None.new(repository)
+        @cleanup_strategy = case configuration.cleanup
+        when :none
+          CleanupStrategies::None.new
+        else
+          CleanupStrategies::CleanOldEnqueued.new(repository, ActiveSupport::Duration.parse(configuration.cleanup))
+        end
       end
 
       def init

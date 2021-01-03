@@ -2,7 +2,7 @@ module RubyEventStore
   module Outbox
     module CleanupStrategies
       class None
-        def initialize(_repository)
+        def initialize
         end
 
         def call(_fetch_specification)
