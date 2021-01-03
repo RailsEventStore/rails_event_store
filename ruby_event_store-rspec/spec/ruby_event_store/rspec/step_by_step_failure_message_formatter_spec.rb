@@ -83,7 +83,8 @@ module RubyEventStore
           be an event FooEvent (with data including {:foo=>124})
         ] to be published
 
-        i.e. expected event #{expected.inspect}
+        i.e. expected event
+          be an event FooEvent (with data including {:foo=>124})
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -105,7 +106,8 @@ module RubyEventStore
           be an event FooEvent (with data including {:foo=>124})
         ] to be published
 
-        i.e. expected event #{expected.inspect}
+        i.e. expected event
+          be an event FooEvent (with data including {:foo=>124})
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -128,7 +130,8 @@ module RubyEventStore
           be an event FooEvent (with metadata including {:foo=>124})
         ] to be published
 
-        i.e. expected event #{expected.inspect}
+        i.e. expected event
+          be an event FooEvent (with metadata including {:foo=>124})
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -153,7 +156,8 @@ module RubyEventStore
           be an event FooEvent (with data matching {:foo=>123})
         ] to be published
 
-        i.e. expected event #{expected.inspect}
+        i.e. expected event
+          be an event FooEvent (with data matching {:foo=>123})
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:
@@ -180,7 +184,8 @@ module RubyEventStore
           be an event FooEvent (with data including {:b=>3})
         ] to be published
 
-        i.e. expected event #{expected[1].inspect}
+        i.e. expected event
+          be an event FooEvent (with data including {:b=>3})
         to be published, but it was not published
 
         there is an event of correct type but with incorrect payload:

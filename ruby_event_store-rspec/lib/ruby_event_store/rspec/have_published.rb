@@ -84,7 +84,8 @@ module RubyEventStore
           #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
           ] to be published
 
-          i.e. expected event #{expected_event.inspect}
+          i.e. expected event
+            #{expected_event.description}
           to be published, but it was not published
 
           there is an event of correct type but with incorrect payload:
