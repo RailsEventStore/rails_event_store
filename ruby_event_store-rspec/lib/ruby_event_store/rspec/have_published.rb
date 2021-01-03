@@ -80,7 +80,9 @@ module RubyEventStore
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, event_with_correct_type)
           <<~EOS
-          expected event #{expected}
+          expected #{expected} to be published
+
+          i.e. expected event #{expected_event.inspect}
           to be published, but it was not published
 
           there is an event of correct type but with incorrect payload:
