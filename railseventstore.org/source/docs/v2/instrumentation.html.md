@@ -10,16 +10,25 @@ RailsEventStore ships with built-in instrumentation. You can build your own feat
 
 The `ruby_event_store` gem is not integrated with any particular instrumenter implementation. We don't enforce this dependency. Only require such instrumenter to have the same API as `ActiveSupport::Notifications`. One can for example use standalone [as-notifications](https://github.com/bernd/as-notifications) gem.
 
-Instrumentation is provided by `RubyEventStore::InstrumentedRepository`, `RubyEventStore::Mappers::InstrumentedMapper` and `RubyEventStore::InstrumentedDispatcher` decorators.
+Instrumentation is provided by repository, mapper and dispatcher decorators:
+* `RubyEventStore::InstrumentedRepository`
+* `RubyEventStore::Mappers::InstrumentedMapper`
+* `RubyEventStore::InstrumentedDispatcher`
 
 In order to enable it, wrap the components you intend to instrument with corresponding decorators and instrumenter of your choice:
 
 ```ruby
 instrumenter = ActiveSupport::Notifications
 RubyEventStore::Client.new(
-  repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
-  mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter)
-  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter)
+  repository: RubyEventStore::InstrumentedRepository.new(
+    RubyEventStore::InMemoryRepository.new, instrumenter
+  ),
+  mapper: RubyEventStore::Mappers::InstrumentedMapper.new(
+    RubyEventStore::Mappers::Default.new, instrumenter
+  ),
+  dispatcher: RubyEventStore::InstrumentedDispatcher.new(
+    RubyEventStore::Dispatcher.new, instrumenter
+  )
 )
 ```
 
@@ -40,33 +49,33 @@ end
 
 ## Hooks and their payloads
 
-### `append_to_stream.repository.rails_event_store`
+#### append_to_stream.repository.rails_event_store
 
 | Key     | Value                              |
 | ------- | ---------------------------------- |
 | :events | Array of appended events           |
 | :stream | Name of stream we append events to |
 
-### `link_to_stream.repository.rails_event_store`
+#### link_to_stream.repository.rails_event_store
 
 | Key        | Value                            |
 | ---------- | -------------------------------- |
 | :event_ids | Array of linked events' ids      |
 | :stream    | Name of stream we link events to |
 
-### `delete_stream.repository.rails_event_store`
+#### delete_stream.repository.rails_event_store
 
 | Key     | Value                  |
 | ------- | ---------------------- |
 | :stream | Name of stream deleted |
 
-### `read_event.repository.rails_event_store`
+#### read_event.repository.rails_event_store
 
 | Key       | Value                |
 | --------- | -------------------- |
 | :event_id | Id of the read event |
 
-### `read.repository.rails_event_store`
+#### read.repository.rails_event_store
 
 | Key            | Value                                     |
 | -------------- | ----------------------------------------- |
@@ -74,7 +83,7 @@ end
 
 Queries specification is not documented, but you can read the [source code of it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/specification.rb).
 
-### `call.dispatcher.rails_event_store`
+#### call.dispatcher.rails_event_store
 
 | Key         | Value                                        |
 | ----------- | -------------------------------------------- |
