@@ -21,5 +21,6 @@ Gem::Specification.new do |spec|
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
 
+  spec.add_dependency "ruby2_keywords"
   spec.add_dependency "ruby_event_store", "= 2.0.0"
 end
