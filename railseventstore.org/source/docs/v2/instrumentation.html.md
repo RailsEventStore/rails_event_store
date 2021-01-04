@@ -11,6 +11,7 @@ RailsEventStore ships with built-in instrumentation. You can build your own feat
 The `ruby_event_store` gem is not integrated with any particular instrumenter implementation. We don't enforce this dependency. Only require such instrumenter to have the same API as `ActiveSupport::Notifications`. One can for example use standalone [as-notifications](https://github.com/bernd/as-notifications) gem.
 
 Instrumentation is provided by repository, mapper and dispatcher decorators:
+
 * `RubyEventStore::InstrumentedRepository`
 * `RubyEventStore::Mappers::InstrumentedMapper`
 * `RubyEventStore::InstrumentedDispatcher`
