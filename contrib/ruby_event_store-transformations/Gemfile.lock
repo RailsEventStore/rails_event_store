@@ -34,7 +34,7 @@ GEM
     concurrent-ruby (1.1.7)
     diff-lcs (1.4.4)
     equalizer (0.0.11)
-    i18n (1.8.5)
+    i18n (1.8.6)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     memoizable (0.4.2)
