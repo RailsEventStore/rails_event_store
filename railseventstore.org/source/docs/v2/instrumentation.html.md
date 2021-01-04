@@ -2,38 +2,37 @@
 title: Instrumentation
 ---
 
-RubyEventStore and RailsEventStore ships with built-in instrumentation on which you can build additional features or benchmark event store performance in your app.
+RailsEventStore ships with built-in instrumentation. You can build your own features, improve logging or implement tracing on top of it. It can also be the way to integrate with 3rd party services for like NewRelic RPM, Skylight or AppSignal.
 
 ## Enabling instrumentation
 
-#### RailsEventStore
+### RubyEventStore
 
-RailsEventStore is integrated with `ActiveSupport::Notifications` by default. You don't have to do anything else.
+The `ruby_event_store` gem is not integrated with any particular instrumenter implementation. We don't enforce this dependency. Only require such instrumenter to have the same API as `ActiveSupport::Notifications`. One can for example use standalone [as-notifications](https://github.com/bernd/as-notifications) gem.
 
-#### RubyEventStore
+Instrumentation is provided by `RubyEventStore::InstrumentedRepository`, `RubyEventStore::Mappers::InstrumentedMapper` and `RubyEventStore::InstrumentedDispatcher` decorators.
 
-Instrumentation is provided by `InstrumentedRepository` and `InstrumentedDispatcher` decorators. We don't force any particular instrumentation framework, [as long as it has the same API](https://github.com/bernd/as-notifications) as `ActiveSupport::Notifications`.
-
-That having said, if you want to instrument your event store with `ActiveSupport::Notifications`, initialize your client with following repository and/or dispatcher:
+In order to enable it, wrap the components you intend to instrument with corresponding decorators and instrumenter of your choice:
 
 ```ruby
-repository = RailsEventStoreActiveRecord::EventRepository.new # or other repo you use
-dispatcher = RubyEventStore::Dispatcher.new # or other dispatcher you use
+instrumenter = ActiveSupport::Notifications
 RubyEventStore::Client.new(
-  repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications),
-  dispatcher: InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
+  repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
+  mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter)
+  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter)
 )
 ```
 
-## Usage
+You can also instrument your own repository, mapper or dispatcher components the same way.
 
-Subscribe to the hooks as [Rails guides](https://guides.rubyonrails.org/active_support_instrumentation.html#subscribing-to-an-event) and [manual](https://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) recommend.
+### RailsEventStore
 
-#### Example
+The `rails_event_store` gem is integrated with `ActiveSupport::Notifications` that ships with Rails. By default `RailsEventStore::Client` instance ships with already instrumented repository, mapper and a dispatcher. 
+
+You can start [subscribing](https://guides.rubyonrails.org/active_support_instrumentation.html#subscribing-to-an-event) to the instrumentation hooks by now:
 
 ```ruby
-name = "append_to_stream.repository.rails_event_store"
-ActiveSupport::Notifications.subscribe(name) do |name, start, finish, id, payload|
+ActiveSupport::Notifications.subscribe("append_to_stream.repository.rails_event_store") do |name, start, finish, id, payload|
   metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
   NewRelic::Agent.record_metric('Custom/RES/append_to_stream', metric.duration)
 end
