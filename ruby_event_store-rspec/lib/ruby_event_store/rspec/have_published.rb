@@ -96,7 +96,7 @@ module RubyEventStore
           if expected_count
             <<~EOS
             expected only
-              #{expected[0].description}
+              #{expected.fetch(0).description}
             to be published #{expected_count} times
 
             #{actual_events_list(events)}
