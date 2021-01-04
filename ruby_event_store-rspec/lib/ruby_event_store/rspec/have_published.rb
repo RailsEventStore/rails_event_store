@@ -25,7 +25,6 @@ module RubyEventStore
       class StepByStepFailureMessageFormatter
         def initialize(differ)
           @differ = differ
-          @fallback = CrudeFailureMessageFormatter.new(differ)
         end
 
         def failure_message(expected, events, expected_count, strict)
@@ -64,11 +63,25 @@ module RubyEventStore
         end
 
         def negated_failure_message(expected, events, expected_count, strict)
-          fallback.negated_failure_message(expected, events, expected_count, strict)
+          if expected_count
+            <<~EOS
+            expected
+              #{expected.fetch(0).description}
+            not to be published exactly #{expected_count} times
+
+            #{actual_events_list(events)}
+            EOS
+          else
+            <<~EOS
+            expected #{expected_events_list(expected)} not to be #{"exactly " if strict}published
+
+            #{actual_events_list(events)}
+            EOS
+          end
         end
 
         private
-        attr_reader :differ, :fallback
+        attr_reader :differ
 
         def failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
           <<~EOS
@@ -103,7 +116,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected only #{expected_events_list(expected)}
+            expected only #{expected_events_list(expected)} to be published
 
             #{actual_events_list(events)}
             EOS
@@ -131,7 +144,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected)}
+            expected #{expected_events_list(expected)} to be published
 
             i.e. expected event
               #{expected_event.description}
@@ -144,7 +157,7 @@ module RubyEventStore
           <<~EOS.strip
           [
           #{expected.map(&:description).map {|d| d.sub(/^/, "  ") }.join("\n")}
-          ] to be published
+          ]
           EOS
         end
 
