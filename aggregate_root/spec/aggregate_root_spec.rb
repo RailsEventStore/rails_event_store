@@ -273,5 +273,20 @@ RSpec.describe AggregateRoot do
       aggregate = aggregate_klass.new(1, 2, 3, b: 4, c: 5, d: 6)
       expect(aggregate.state).to eq(21)
     end
+
+    it "allows initializer with block" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize(a, *args, b:, **kwargs, &block)
+          @state = block.call(a + b + args.reduce(:+) + kwargs.values.reduce(:+))
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new(1, 2, 3, b: 4, c: 5, d: 6) do |val|
+        val * 2
+      end
+      expect(aggregate.state).to eq(42)
+    end
   end
 end
