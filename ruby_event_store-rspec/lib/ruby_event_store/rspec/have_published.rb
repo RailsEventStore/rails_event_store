@@ -72,14 +72,14 @@ module RubyEventStore
 
         def failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
           <<~EOS
-          #{expected_events_list(expected, expected_event, expected_count)}
+          #{expected_message(expected, expected_event, expected_count)}
           but was published #{correct_event_count} times
           EOS
         end
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
           <<~EOS
-          #{expected_events_list(expected, expected_event, expected_count)}, but it was not published
+          #{expected_message(expected, expected_event, expected_count)}, but it was not published
 
           there is an event of correct type but with incorrect payload:
           #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
@@ -88,7 +88,7 @@ module RubyEventStore
 
         def failure_message_incorrect_type(expected, expected_event, expected_count)
           <<~EOS
-          #{expected_events_list(expected, expected_event, expected_count)}, but there is no event with such type
+          #{expected_message(expected, expected_event, expected_count)}, but there is no event with such type
           EOS
         end
 
@@ -105,9 +105,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected only [
-            #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
-            ] to be published
+            expected only #{expected_events_list(expected)}
 
             but the following was published: [
             #{events.map(&:inspect).map {|d| d.gsub(/^/, "  ") }.join("\n")}
@@ -128,7 +126,7 @@ module RubyEventStore
           end
         end
 
-        def expected_events_list(expected, expected_event, expected_count)
+        def expected_message(expected, expected_event, expected_count)
           if expected_count
             <<~EOS
             expected event
@@ -137,15 +135,21 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected [
-            #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
-            ] to be published
+            expected #{expected_events_list(expected)}
 
             i.e. expected event
               #{expected_event.description}
             to be published
             EOS
           end.strip
+        end
+
+        def expected_events_list(expected)
+          <<~EOS.strip
+          [
+          #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+          ] to be published
+          EOS
         end
       end
 
