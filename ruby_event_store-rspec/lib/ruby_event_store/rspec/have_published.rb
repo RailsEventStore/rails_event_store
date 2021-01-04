@@ -156,7 +156,7 @@ module RubyEventStore
         def expected_events_list(expected)
           <<~EOS.strip
           [
-          #{expected.map(&:description).map {|d| d.sub(/^/, "  ") }.join("\n")}
+          #{expected.map(&:description).map {|d| d.sub(//, "  ") }.join("\n")}
           ]
           EOS
         end
@@ -164,7 +164,7 @@ module RubyEventStore
         def actual_events_list(actual)
           <<~EOS.strip
           but the following was published: [
-          #{actual.map(&:inspect).map {|d| d.sub(/^/, "  ") }.join("\n")}
+          #{actual.map(&:inspect).map {|d| d.sub(//, "  ") }.join("\n")}
           ]
           EOS
         end
