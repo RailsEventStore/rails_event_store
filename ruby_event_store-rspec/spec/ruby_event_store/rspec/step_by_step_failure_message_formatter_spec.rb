@@ -29,14 +29,6 @@ module RubyEventStore
         HavePublished::StepByStepFailureMessageFormatter
       end
 
-      def fallback_formatter
-        HavePublished::CrudeFailureMessageFormatter
-      end
-
-      def matcher_with_fallback_formatter(*expected)
-        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser, failure_message_formatter: fallback_formatter)
-      end
-
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(FooEvent.new)
@@ -248,13 +240,55 @@ module RubyEventStore
       end
 
       specify do
-        event_store.publish(FooEvent.new)
+        event_store.publish(actual1 = FooEvent.new)
+        event_store.publish(actual2 = FooEvent.new)
         matcher_ = matcher(expected = matchers.an_event(FooEvent))
         matcher_.matches?(event_store)
 
-        fallback_matcher_ = matcher_with_fallback_formatter(expected)
-        fallback_matcher_.matches?(event_store)
-        expect(matcher_.failure_message_when_negated.to_s).to eq(fallback_matcher_.failure_message_when_negated.to_s)
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expected [
+          be an event FooEvent
+        ] not to be published
+
+        but the following was published: [
+          #{actual1.inspect}
+          #{actual2.inspect}
+        ]
+        EOS
+      end
+
+      specify do
+        event_store.publish(actual1 = FooEvent.new)
+        event_store.publish(actual2 = FooEvent.new)
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).strict
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expected [
+          be an event FooEvent
+        ] not to be exactly published
+
+        but the following was published: [
+          #{actual1.inspect}
+          #{actual2.inspect}
+        ]
+          EOS
+      end
+
+      specify do
+        event_store.publish(actual = FooEvent.new)
+        matcher_ = matcher(matchers.an_event(FooEvent)).exactly(2).times
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expected
+          be an event FooEvent
+        not to be published exactly 2 times
+
+        but the following was published: [
+          #{actual.inspect}
+        ]
+          EOS
       end
 
       specify do
