@@ -99,17 +99,13 @@ module RubyEventStore
               #{expected[0].description}
             to be published #{expected_count} times
 
-            but the following was published: [
-            #{events.map(&:inspect).map {|d| d.gsub(/^/, "  ") }.join("\n")}
-            ]
+            #{actual_events_list(events)}
             EOS
           else
             <<~EOS
             expected only #{expected_events_list(expected)}
 
-            but the following was published: [
-            #{events.map(&:inspect).map {|d| d.gsub(/^/, "  ") }.join("\n")}
-            ]
+            #{actual_events_list(events)}
             EOS
           end
         end
@@ -147,8 +143,16 @@ module RubyEventStore
         def expected_events_list(expected)
           <<~EOS.strip
           [
-          #{expected.map(&:description).map {|d| d.gsub(/^/, "  ") }.join("\n")}
+          #{expected.map(&:description).map {|d| d.sub(/^/, "  ") }.join("\n")}
           ] to be published
+          EOS
+        end
+
+        def actual_events_list(actual)
+          <<~EOS.strip
+          but the following was published: [
+          #{actual.map(&:inspect).map {|d| d.sub(/^/, "  ") }.join("\n")}
+          ]
           EOS
         end
       end
