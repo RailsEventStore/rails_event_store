@@ -59,3 +59,11 @@ res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" \
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/RailsEventStore/rails_event_store.
+
+## Releasing
+
+1. Bump version
+2. `make build`
+3. `make push`
+4. `make docker-build`
+5. `make docker-push`
