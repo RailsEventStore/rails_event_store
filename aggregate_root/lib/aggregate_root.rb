@@ -30,6 +30,15 @@ module AggregateRoot
     end
   end
 
+  module ConstructorRuby2
+    def new(*)
+      super.tap do |instance|
+        instance.instance_variable_set(:@version, -1)
+        instance.instance_variable_set(:@unpublished_events, [])
+      end
+    end
+  end
+
   module Constructor
     def new(*, **)
       super.tap do |instance|
@@ -73,7 +82,7 @@ module AggregateRoot
   def self.with_strategy(strategy)
     Module.new do
       def self.included(host_class)
-        host_class.extend  Constructor
+        host_class.extend  RUBY_VERSION < "3.0" ? ConstructorRuby2 : Constructor
         host_class.include AggregateMethods
       end
 
