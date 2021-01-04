@@ -19,6 +19,7 @@ In order to enable it, wrap the components you intend to instrument with corresp
 
 ```ruby
 instrumenter = ActiveSupport::Notifications
+
 RubyEventStore::Client.new(
   repository: RubyEventStore::InstrumentedRepository.new(
     RubyEventStore::InMemoryRepository.new, instrumenter
@@ -41,7 +42,9 @@ The `rails_event_store` gem is integrated with `ActiveSupport::Notifications` th
 You can start [subscribing](https://guides.rubyonrails.org/active_support_instrumentation.html#subscribing-to-an-event) to the instrumentation hooks by now:
 
 ```ruby
-ActiveSupport::Notifications.subscribe("append_to_stream.repository.rails_event_store") do |name, start, finish, id, payload|
+hook_name = "append_to_stream.repository.rails_event_store"
+
+ActiveSupport::Notifications.subscribe(hook_name) do |name, start, finish, id, payload|
   metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
   NewRelic::Agent.record_metric('Custom/RES/append_to_stream', metric.duration)
 end
