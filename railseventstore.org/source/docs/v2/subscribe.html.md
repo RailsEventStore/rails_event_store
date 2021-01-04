@@ -312,7 +312,7 @@ Then you have to initialize `RailsEventStore::Client` using asynchronous dispatc
 
 ```ruby
 event_store = RailsEventStore::Client.new(
-  dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomScheduler.new)
+  dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
 )
 ```
 
@@ -321,7 +321,7 @@ Often you will want to be able to specify both asynchronous and synchronous disp
 ```ruby
 event_store = RailsEventStore::Client.new(
   dispatcher: RubyEventStore::ComposedDispatcher.new(
-    RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
+    RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
     RubyEventStore::Dispatcher.new # regular synchronous dispatcher
   )
 )
