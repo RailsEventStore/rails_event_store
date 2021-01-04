@@ -194,4 +194,84 @@ RSpec.describe AggregateRoot do
       end.to raise_error(ArgumentError, "Anonymous class is missing name")
     end
   end
+
+  describe "#initialize" do
+    it "allows default initializer" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize
+          @state = :draft
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new
+      expect(aggregate.state).to eq(:draft)
+    end
+
+    it "allows initializer with arguments" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize(a, b)
+          @state = a + b
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new(2,3)
+      expect(aggregate.state).to eq(5)
+    end
+
+    it "allows initializer with keyword arguments" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize(a:, b:)
+          @state = a + b
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new(a: 2, b: 3)
+      expect(aggregate.state).to eq(5)
+    end
+
+    it "allows initializer with variable arguments" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize(*args)
+          @state = args.reduce(:+)
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new(1,2,3)
+      expect(aggregate.state).to eq(6)
+    end
+
+    it "allows initializer with variable keyword arguments" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize(**args)
+          @state = args.values.reduce(:+)
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new(a: 1, b: 2, c: 3)
+      expect(aggregate.state).to eq(6)
+    end
+
+    it "allows initializer with mixed arguments" do
+      aggregate_klass = Class.new do
+        include AggregateRoot
+        def initialize(a, *args, b:, **kwargs)
+          @state = a + b + args.reduce(:+) + kwargs.values.reduce(:+)
+        end
+        attr_reader :state
+      end
+
+      aggregate = aggregate_klass.new(1, 2, 3, b: 4, c: 5, d: 6)
+      expect(aggregate.state).to eq(21)
+    end
+  end
 end
