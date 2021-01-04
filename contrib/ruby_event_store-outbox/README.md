@@ -1,9 +1,10 @@
 # Ruby Event Store Outbox
 
-Very much work in progress.
-
 ![Ruby Event Store Outbox](https://github.com/RailsEventStore/rails_event_store/workflows/ruby_event_store-outbox/badge.svg)
 
+**Experimental feature of RES ecosystem.**
+
+This repository includes a process and a Rails Event Store scheduler, which can be used to transactionally enqueue background jobs into your background jobs tool of choice. The scheduler included in this repo adds the jobs into the RDBMS into specific table instead of redis inside your transaction, and the process is enqueuing the jobs from that table to the background jobs tool.
 
 ## Installation (app)
 
@@ -37,7 +38,21 @@ end
 Run following process in any way you prefer:
 
 ```
-res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" --redis-url="redis://localhost:6379/0" --log-level=info
+res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" --redis-url="redis://localhost:6379/0" --log-level=info --split-keys=sidekiq_queue1,sidekiq_queue2
+```
+
+It is possible to run as many instances as you prefer, but it does not make sense to run more instances than there are different split keys (sidekiq queues), as one process is operating at one moment only one split key.
+
+### Metrics
+
+It is possible for the outbox process to send metrics to InfluxDB. In order to do that, specify a `--metrics-url` parameter, for example:
+
+```
+res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" \
+  --redis-url="redis://localhost:6379/0" \
+  --log-level=info \
+  --split-keys=sidekiq_queue1,sidekiq_queue2 \
+  --metrics-url=http://user:password@localhost:8086/dbname"
 ```
 
 
