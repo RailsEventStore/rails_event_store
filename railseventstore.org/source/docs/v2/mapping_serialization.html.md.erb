@@ -145,27 +145,21 @@ event.data['foo']
 
 ## Custom mapper
 
-Mapper is defined as a pipeline of transformations that transforms domain event object into serialized record and back from serialized recoed to domain event. I.e. `DefaultMapper` is implemented as a set of 3 transformations. Transformations works on [transformation item](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/transformation/item.rb) objects, it is given to transformation methods (it is expected that `load` & `dump` methods are implemented) and it is result of any transformation performed. Except transformations each pipeline mapper needs to be given 2 edge transformations:
+Mapper is defined as a pipeline of transformations that transforms domain event object into record and back from record to domain event. I.e. `Default` is implemented as a set of 2 transformations. Transformation works on [Record](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/record.rb) objects. Such `Record` is given to transformation methods (it is expected that `load` & `dump` methods are implemented) and it is result of any transformation performed. Except transformations, each `PipelineMapper` needs to be given 1 edge transformation:
 
-* to transform domain event to/from transformation item (default [`RubyEventStore::Mappers::Transformation::DomainEvent`](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/transformation/domain_event.rb))
-* to transform serialized record to/from transformation item (default [`RubyEventStore::Mappers::Transformation::SerializedRecord`](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/transformation/serialized_record.rb))
+* to transform domain event to/from record (default [`RubyEventStore::Mappers::Transformation::DomainEvent`](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/transformation/domain_event.rb))
 
-
-Extended implementation of [DefaultMapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/default.rb) with explicit default arguments:
+Extended implementation of [Default](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/default.rb) with explicit default arguments:
 
 ```ruby
 module RubyEventStore
   module Mappers
     class Default < PipelineMapper
-      def initialize(serializer: YAML, events_class_remapping: {})
+      def initialize(events_class_remapping: {})
         super(Pipeline.new(
-          to_domain_event: Transformation::DomainEvent.new,
-          to_serialized_record: Transformation::Record.new,
-          transformations: [
-            Transformation::EventClassRemapper.new(events_class_remapping),
-            Transformation::SymbolizeMetadataKeys.new,
-            Transformation::Serialization.new(serializer: serializer),
-          ]
+          Transformation::EventClassRemapper.new(events_class_remapping),
+          Transformation::SymbolizeMetadataKeys.new,
+          to_domain_event: Transformation::DomainEvent.new
         ))
       end
     end
@@ -175,9 +169,9 @@ end
 
 When you define new custom mapper you could use mapper [PipelineMapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/pipeline_mapper.rb) as base class and provide your transformations pipeline.
 
-Each transformation must implement 2 methods: `dump(item)` & `load(item)`. Both methods take a `RubyEventStore::Mappers::Transformation::Item` and returns new instance of it, transformed. Transformation shall not modify given transformation item and shall return new instance as a result.
+Each transformation must implement 2 methods: `dump(record)` & `load(record)`. Both methods take a `RubyEventStore::Record` and return new instance of it, transformed. Transformation shall not modify given record and shall return new instance as a result.
 
-If you use different classes to represent domain event & serialized record you shall also define edge transformations for your pipeline definition.
+If you use different class to represent domain event you shall also define edge transformation for your pipeline definition.
 
 Example of custom mapper build based on mappers pipeline:
 
@@ -185,21 +179,25 @@ Example of custom mapper build based on mappers pipeline:
 require 'msgpack'
 
 class MessagePackSerialization
-  def dump(item)
-    RubyEventStore::Mappers::Transformation::Item.new(
-      event_id:   item.event_id,
-      metadata:   item.metadata.to_msg_pack,
-      data:       item.data.to_msg_pack,
-      event_type: item.event_type
+  def dump(record)
+    RubyEventStore::Record.new(
+      event_id:   record.event_id,
+      metadata:   record.metadata.to_msg_pack,
+      data:       record.data.to_msg_pack,
+      event_type: record.event_type,
+      timestamp:  record.timestamp,
+      valid_at:   record.valid_at
     )
   end
 
-  def load(item)
-    RubyEventStore::Mappers::Transformation::Item.new(
-      event_id:   item.event_id,
-      metadata:   MessagePack.unpack(item.metadata),
-      data:       MessagePack.unpack(item.data),
-      event_type: item.event_type
+  def load(record)
+    RubyEventStore::Record.new(
+      event_id:   record.event_id,
+      metadata:   MessagePack.unpack(record.metadata),
+      data:       MessagePack.unpack(record.data),
+      event_type: record.event_type,
+      timestamp:  record.timestamp,
+      valid_at:   record.valid_at
     )
   end
 end
@@ -207,9 +205,7 @@ end
 class MyHashToMessagePackMapper < RubyEventStore::Mappers::PipelineMapper
   def initialize
     super(RubyEventStore::Mappers::Pipeline.new(
-      transformations: [
-        MessagePackSerialization.new,
-      ]
+      MessagePackSerialization.new
     ))
   end
 end
