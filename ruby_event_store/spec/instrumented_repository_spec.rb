@@ -5,26 +5,27 @@ require 'active_support/notifications'
 
 module RubyEventStore
   RSpec.describe InstrumentedRepository do
+    let(:record)           { SRecord.new }
+    let(:stream)           { Stream.new("SomeStream") }
+    let(:expected_version) { ExpectedVersion.any }
+    let(:event_id)         { SecureRandom.uuid }
+
     describe "#append_to_stream" do
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
-        event1 = Object.new
+        instrumented_repository.append_to_stream([record], stream, expected_version)
 
-        instrumented_repository.append_to_stream([event1], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
-
-        expect(some_repository).to have_received(:append_to_stream).with([event1], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
+        expect(some_repository).to have_received(:append_to_stream).with([record], stream, expected_version)
       end
 
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("append_to_stream.repository.rails_event_store") do |notification_calls|
-          event1 = Object.new
-
-          instrumented_repository.append_to_stream([event1], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
+          instrumented_repository.append_to_stream([record], stream, expected_version)
 
           expect(notification_calls).to eq([
-            { events: [event1], stream: "SomeStream" }
+            { events: [record], stream: stream }
           ])
         end
       end
@@ -34,20 +35,18 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        instrumented_repository.link_to_stream([event_id], stream, expected_version)
 
-        instrumented_repository.link_to_stream([42], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
-
-        expect(some_repository).to have_received(:link_to_stream).with([42], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
+        expect(some_repository).to have_received(:link_to_stream).with([event_id], stream, expected_version)
       end
 
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("link_to_stream.repository.rails_event_store") do |notification_calls|
-
-          instrumented_repository.link_to_stream([42], "SomeStream", "c456845d-2b86-49c1-bdef-89e57b5d86b1")
+          instrumented_repository.link_to_stream([event_id], stream, expected_version)
 
           expect(notification_calls).to eq([
-            { event_ids: [42], stream: "SomeStream" }
+            { event_ids: [event_id], stream: stream }
           ])
         end
       end
@@ -57,7 +56,6 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
-
         instrumented_repository.delete_stream("SomeStream")
 
         expect(some_repository).to have_received(:delete_stream).with("SomeStream")
@@ -66,7 +64,6 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("delete_stream.repository.rails_event_store") do |notification_calls|
-
           instrumented_repository.delete_stream("SomeStream")
 
           expect(notification_calls).to eq([
@@ -80,10 +77,9 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        instrumented_repository.has_event?(event_id)
 
-        instrumented_repository.has_event?(42)
-
-        expect(some_repository).to have_received(:has_event?).with(42)
+        expect(some_repository).to have_received(:has_event?).with(event_id)
       end
     end
 
@@ -91,7 +87,6 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
-
         instrumented_repository.last_stream_event("SomeStream")
 
         expect(some_repository).to have_received(:last_stream_event).with("SomeStream")
@@ -103,7 +98,6 @@ module RubyEventStore
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
         specification = double
-
         instrumented_repository.read(specification)
 
         expect(some_repository).to have_received(:read).with(specification)
@@ -113,7 +107,6 @@ module RubyEventStore
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("read.repository.rails_event_store") do |notification_calls|
           specification = double
-
           instrumented_repository.read(specification)
 
           expect(notification_calls).to eq([
@@ -128,7 +121,6 @@ module RubyEventStore
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
         specification = double
-
         instrumented_repository.count(specification)
 
         expect(some_repository).to have_received(:count).with(specification)
@@ -138,7 +130,6 @@ module RubyEventStore
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("count.repository.rails_event_store") do |notification_calls|
           specification = double
-
           instrumented_repository.count(specification)
 
           expect(notification_calls).to eq([
@@ -152,22 +143,18 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
-        messages = double
+        instrumented_repository.update_messages([record])
 
-        instrumented_repository.update_messages(messages)
-
-        expect(some_repository).to have_received(:update_messages).with(messages)
+        expect(some_repository).to have_received(:update_messages).with([record])
       end
 
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("update_messages.repository.rails_event_store") do |notification_calls|
-          messages = double
-
-          instrumented_repository.update_messages(messages)
+          instrumented_repository.update_messages([record])
 
           expect(notification_calls).to eq([
-            { messages: messages }
+            { messages: [record] }
           ])
         end
       end
@@ -177,7 +164,6 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_repository = spy
         instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
-
         uuid = SecureRandom.uuid
         instrumented_repository.streams_of(uuid)
 
@@ -187,7 +173,6 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("streams_of.repository.rails_event_store") do |notification_calls|
-
           uuid = SecureRandom.uuid
           instrumented_repository.streams_of(uuid)
 
