@@ -81,13 +81,18 @@ module AggregateRoot
   def self.with_default_apply_strategy
     Module.new do
       def self.included(host_class)
-        host_class.extend  OnDSL
-        host_class.include AggregateRoot.with
+        warn <<~EOW
+          Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
+        EOW
+        host_class.include AggregateRoot
       end
     end
   end
 
   def self.with_strategy(strategy)
+    warn <<~EOW
+      Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
+    EOW
     with(strategy: strategy)
   end
 
@@ -105,6 +110,7 @@ module AggregateRoot
   end
 
   def self.included(host_class)
-    host_class.include with_default_apply_strategy
+    host_class.extend  OnDSL
+    host_class.include with
   end
 end
