@@ -222,4 +222,4 @@ DEPENDENCIES
   web-console (>= 3.3.0)
 
 BUNDLED WITH
-   2.0.1
+   2.2.4

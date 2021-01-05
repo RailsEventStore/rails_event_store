@@ -288,4 +288,4 @@ DEPENDENCIES
   ruby_event_store-protobuf!
 
 BUNDLED WITH
-   2.1.4
+   2.2.4
