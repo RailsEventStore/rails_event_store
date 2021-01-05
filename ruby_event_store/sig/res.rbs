@@ -45,7 +45,7 @@ module RubyEventStore
   end
 
   class InMemoryRepository
-    def append_to_stream: (Array[Record] records, Stream stream, Integer | ExpectedVersion expected_version) -> untyped
+    def append_to_stream: (Array[Record] records, Stream stream, ExpectedVersion expected_version) -> untyped
     def link_to_stream: (Array[String] event_ids, Stream stream, ExpectedVersion expected_version) -> untyped
     def delete_stream: (untyped stream) -> untyped
     def has_event?: (untyped event_id) -> untyped
@@ -57,7 +57,7 @@ module RubyEventStore
   end
 
   class InstrumentedRepository
-    def append_to_stream: (Array[Record] records, Stream stream, Integer | ExpectedVersion expected_version) -> untyped
+    def append_to_stream: (Array[Record] records, Stream stream, ExpectedVersion expected_version) -> untyped
     def link_to_stream: (Array[String] event_ids, Stream stream, ExpectedVersion expected_version) -> untyped
     def delete_stream: (untyped stream) -> untyped
     def has_event?: (untyped event_id) -> untyped
@@ -71,7 +71,7 @@ end
 
 module RailsEventStoreActiveRecord
   class EventRepository
-    def append_to_stream: (Array[RubyEventStore::Record] records, RubyEventStore::Stream stream, Integer | RubyEventStore::ExpectedVersion expected_version) -> untyped
+    def append_to_stream: (Array[RubyEventStore::Record] records, RubyEventStore::Stream stream, RubyEventStore::ExpectedVersion expected_version) -> untyped
     def link_to_stream: (Array[String] event_ids, RubyEventStore::Stream stream, RubyEventStore::ExpectedVersion expected_version) -> untyped
     def delete_stream: (untyped stream) -> untyped
     def has_event?: (untyped event_id) -> untyped
