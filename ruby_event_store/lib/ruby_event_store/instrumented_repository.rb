@@ -7,9 +7,9 @@ module RubyEventStore
       @instrumentation = instrumentation
     end
 
-    def append_to_stream(events, stream, expected_version)
-      instrumentation.instrument("append_to_stream.repository.rails_event_store", events: events, stream: stream) do
-        repository.append_to_stream(events, stream, expected_version)
+    def append_to_stream(records, stream, expected_version)
+      instrumentation.instrument("append_to_stream.repository.rails_event_store", events: records, stream: stream) do
+        repository.append_to_stream(records, stream, expected_version)
       end
     end
 
