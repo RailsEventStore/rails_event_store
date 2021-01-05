@@ -8,7 +8,7 @@ module RailsEventStore
                    repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
                    subscriptions: RubyEventStore::Subscriptions.new,
                    dispatcher: RubyEventStore::ComposedDispatcher.new(
-                     RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::NULL)),
+                     RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: YAML)),
                      RubyEventStore::Dispatcher.new),
                    clock: default_clock,
                    correlation_id_generator: default_correlation_id_generator,
