@@ -23,6 +23,8 @@ Gem::Specification.new do |spec|
   spec.executables   = %w[res_outbox]
   spec.require_paths = ['lib']
 
+  spec.required_ruby_version = '>= 2.5'
+
   spec.add_dependency 'ruby_event_store', '>= 1.0.0'
   spec.add_dependency 'activerecord', '>= 5.2'
 end
