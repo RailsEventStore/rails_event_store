@@ -12,7 +12,7 @@ module RubyEventStore
     end
 
     def append_to_stream(records, stream, expected_version)
-      serialized_records = Array(records).map{ |record| record.serialize(serializer) }
+      serialized_records = records.map { |record| record.serialize(serializer) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
@@ -27,7 +27,7 @@ module RubyEventStore
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      serialized_records = Array(event_ids).map { |id| read_event(id) }
+      serialized_records = event_ids.map { |id| read_event(id) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
@@ -60,7 +60,7 @@ module RubyEventStore
           serialized_records
             .drop(offset)
             .take(limit)
-            .map{|serialized_record| serialized_record.deserialize(serializer) }
+            .map { |serialized_record| serialized_record.deserialize(serializer) }
         end
         BatchEnumerator.new(spec.batch_size, serialized_records.size, batch_reader).each
       elsif spec.first?

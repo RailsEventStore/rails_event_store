@@ -18,7 +18,7 @@ module RailsEventStoreActiveRecord
     def append_to_stream(records, stream, expected_version)
       hashes    = []
       event_ids = []
-      Array(records).each do |record|
+      records.each do |record|
         hashes    << import_hash(record, record.serialize(serializer))
         event_ids << record.event_id
       end
@@ -28,7 +28,6 @@ module RailsEventStoreActiveRecord
     end
 
     def link_to_stream(event_ids, stream, expected_version)
-      event_ids = Array(event_ids)
       (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
@@ -56,7 +55,7 @@ module RailsEventStoreActiveRecord
     end
 
     def update_messages(records)
-      hashes  = Array(records).map{|record| import_hash(record, record.serialize(serializer)) }
+      hashes  = records.map { |record| import_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
       start_transaction do
         existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
@@ -69,7 +68,7 @@ module RailsEventStoreActiveRecord
     def streams_of(event_id)
       @stream_klass.where(event_id: event_id)
         .pluck(:stream)
-        .map{|name| RubyEventStore::Stream.new(name)}
+        .map { |name| RubyEventStore::Stream.new(name) }
     end
 
     private
