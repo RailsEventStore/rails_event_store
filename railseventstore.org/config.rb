@@ -53,7 +53,7 @@ activate :external_pipeline,
   latency: 1
 
 set :markdown_engine, :redcarpet
-set :res_version_v1, '1.3.0'
+set :res_version_v1, '1.3.1'
 set :res_version_v2, File.read('../RES_VERSION')
 set :res_version,    File.read('../RES_VERSION')
 
