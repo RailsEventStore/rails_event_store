@@ -34,7 +34,7 @@ module RailsEventStore
     cattr_accessor :event
 
     def perform(payload)
-      self.class.event = Rails.configuration.event_store.deserialize(serializer: RubyEventStore::NULL, **payload)
+      self.class.event = Rails.configuration.event_store.deserialize(serializer: YAML, **payload)
     end
   end
 
@@ -225,9 +225,9 @@ module RailsEventStore
         event_store
         .__send__(:mapper)
         .event_to_record(ev)
-        .serialize(RubyEventStore::NULL)
+        .serialize(YAML)
         .to_h
-      serialized[:metadata] = {}
+      serialized[:metadata] = "--- {}\n"
       serialized
     end
 
