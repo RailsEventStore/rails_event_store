@@ -13,7 +13,8 @@ IGNORE      = RubyEventStore::InMemoryRepository\#with_synchronize \
               RubyEventStore::Mappers::EncryptionKey\#prepare_decrypt \
               RubyEventStore::Mappers::EncryptionKey\#prepare_auth_data \
               RubyEventStore::Mappers::EncryptionKey\#encrypt_authenticated \
-              RubyEventStore::Mappers::EncryptionKey\#ciphertext_from_authenticated
+              RubyEventStore::Mappers::EncryptionKey\#ciphertext_from_authenticated \
+              RubyEventStore::Mappers::JSONMapper\#initialize
 
 SUBJECT     ?= RubyEventStore*
 

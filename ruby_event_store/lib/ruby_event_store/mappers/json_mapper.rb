@@ -2,12 +2,14 @@
 
 module RubyEventStore
   module Mappers
-    class JSONMapper < PipelineMapper
+    class JSONMapper < Default
       def initialize(events_class_remapping: {})
-        super(Pipeline.new(
-          Transformation::EventClassRemapper.new(events_class_remapping),
-          Transformation::SymbolizeMetadataKeys.new,
-        ))
+        warn <<~EOW
+          Please replace RubyEventStore::Mappers::JSONMapper with RubyEventStore::Mappers::Default
+
+          They're now identical and the former will be removed in next major release.
+        EOW
+        super
       end
     end
   end
