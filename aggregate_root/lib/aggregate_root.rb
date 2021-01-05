@@ -6,6 +6,7 @@ require 'aggregate_root/transform'
 require 'aggregate_root/default_apply_strategy'
 require 'aggregate_root/repository'
 require 'aggregate_root/instrumented_repository'
+require 'ruby2_keywords'
 
 module AggregateRoot
   module OnDSL
@@ -31,7 +32,7 @@ module AggregateRoot
   end
 
   module Constructor
-    def new(*)
+    ruby2_keywords def new(*)
       super.tap do |instance|
         instance.instance_variable_set(:@version, -1)
         instance.instance_variable_set(:@unpublished_events, [])

@@ -2,6 +2,7 @@ PATH
   remote: ../../../aggregate_root
   specs:
     aggregate_root (2.0.0)
+      ruby2_keywords
       ruby_event_store (= 2.0.0)
 
 PATH
@@ -177,4 +178,4 @@ DEPENDENCIES
   ruby_event_store-browser!
 
 BUNDLED WITH
-   2.1.4
+   2.2.3

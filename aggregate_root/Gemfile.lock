@@ -8,6 +8,7 @@ PATH
   remote: .
   specs:
     aggregate_root (2.0.0)
+      ruby2_keywords
       ruby_event_store (= 2.0.0)
 
 GEM
@@ -83,6 +84,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
+    ruby2_keywords (0.0.2)
     thread_safe (0.3.6)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
