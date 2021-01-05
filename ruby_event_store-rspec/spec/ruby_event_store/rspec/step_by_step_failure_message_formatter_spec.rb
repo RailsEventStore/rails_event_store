@@ -30,16 +30,24 @@ module RubyEventStore
       end
 
       specify do
-        event_store.publish(FooEvent.new)
-        event_store.publish(FooEvent.new)
-        matcher_ = matcher(expected = matchers.an_event(FooEvent)).exactly(3).times
+        event_store.publish(FooEvent.new(data: { a: 1 }))
+        event_store.publish(actual = FooEvent.new(data: { a: 2 }))
+        event_store.publish(FooEvent.new(data: { a: 1 }))
+        matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data(a: 1)).exactly(3).times
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected event
-          be an event FooEvent
+          be an event FooEvent (with data including {:a=>1})
         to be published 3 times
         but was published 2 times
+
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1,2 +1,2 @@
+            -:a => 2,
+            +:a => 1,
         EOS
       end
 

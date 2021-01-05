@@ -44,7 +44,7 @@ module RubyEventStore
               if correct_event_count == expected_count
                 next
               elsif correct_event_count >= 1
-                return failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
+                return failure_message_incorrect_count(expected, expected_event, expected_count, events_with_correct_type, correct_event_count)
               elsif !events_with_correct_type.empty?
                 return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
               else
@@ -83,11 +83,21 @@ module RubyEventStore
         private
         attr_reader :differ
 
-        def failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
-          <<~EOS
-          #{expected_message(expected, expected_event, expected_count)}
-          but was published #{correct_event_count} times
-          EOS
+        def failure_message_incorrect_count(expected, expected_event, expected_count, events_with_correct_type, correct_event_count)
+          [
+            <<~EOS,
+            #{expected_message(expected, expected_event, expected_count)}
+            but was published #{correct_event_count} times
+            EOS
+
+            !events_with_correct_type.empty? ? [
+              <<~EOS.strip,
+              There are events of correct type but with incorrect payload:
+              EOS
+              *events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) },
+              ""
+            ].join("\n") : nil
+          ].compact.join("\n")
         end
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
