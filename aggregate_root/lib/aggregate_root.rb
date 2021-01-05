@@ -82,7 +82,7 @@ module AggregateRoot
     Module.new do
       def self.included(host_class)
         host_class.extend  OnDSL
-        host_class.include AggregateRoot.with(strategy: ->{ DefaultApplyStrategy.new })
+        host_class.include AggregateRoot.with
       end
     end
   end
@@ -91,7 +91,7 @@ module AggregateRoot
     with(strategy: strategy)
   end
 
-  def self.with(strategy:)
+  def self.with(strategy: ->{ DefaultApplyStrategy.new })
     Module.new do
       def self.included(host_class)
         host_class.extend Constructor
