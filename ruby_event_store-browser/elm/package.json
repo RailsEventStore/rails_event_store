@@ -18,7 +18,7 @@
   },
   "scripts": {
     "watch": "NODE_ENV=development parcel watch --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
-    "build": "NODE_ENV=production parcel build --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
+    "build": "NODE_ENV=production  parcel build --out-dir ../public --out-file ruby_event_store_browser.js src/index.js --public-url .",
     "test": "elm-test"
   },
   "resolutions": {
