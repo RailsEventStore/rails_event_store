@@ -10,12 +10,12 @@ module RubyEventStore
 
     it 'does not confuse all with GLOBAL_STREAM' do
       repository.append_to_stream(
-        SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
+        [SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
         Stream.new('all'),
         ExpectedVersion.none
       )
       repository.append_to_stream(
-        SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
         Stream.new('stream'),
         ExpectedVersion.none
       )
@@ -29,19 +29,19 @@ module RubyEventStore
 
     it 'does not allow same event twice in a stream - checks stream events before checking all events' do
       repository.append_to_stream(
-        SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
+        [SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
         Stream.new('other'),
         ExpectedVersion.none
       )
       repository.append_to_stream(
-        SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+        [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
         Stream.new('stream'),
         ExpectedVersion.none
       )
       expect(eid).not_to receive(:eql?)
       expect do
         repository.append_to_stream(
-          SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef"),
+          [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
           Stream.new('stream'),
           ExpectedVersion.new(0)
         )
