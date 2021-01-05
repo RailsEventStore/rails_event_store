@@ -15,7 +15,7 @@ module AggregateRoot
 
     def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
-        name = event_klass.to_s
+        name = event_type_for(event_klass)
         raise(ArgumentError, "Anonymous class is missing name") if name.start_with? ANONYMOUS_CLASS
 
         handler_name = "on_#{name}"
@@ -96,11 +96,14 @@ module AggregateRoot
     with(strategy: strategy)
   end
 
-  def self.with(strategy: ->{ DefaultApplyStrategy.new })
+  def self.with(strategy: ->{ DefaultApplyStrategy.new }, event_type_resolver: ->(value) { value.to_s })
     Module.new do
-      def self.included(host_class)
-        host_class.extend Constructor
+      define_singleton_method :included do |host_class|
+        host_class.extend  Constructor
         host_class.include AggregateMethods
+        host_class.define_singleton_method :event_type_for do |value|
+          event_type_resolver.call(value)
+        end
       end
 
       define_method :apply_strategy do
