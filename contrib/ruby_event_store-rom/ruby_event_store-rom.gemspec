@@ -1,26 +1,27 @@
-lib = File.expand_path('lib', __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'ruby_event_store/rom/version'
+# frozen_string_literal: true
+
+require_relative "lib/ruby_event_store/rom/version"
+
 
 Gem::Specification.new do |spec|
-  spec.name          = 'ruby_event_store-rom'
-  spec.version       = RubyEventStore::ROM::VERSION
-  spec.licenses      = ['MIT']
-  spec.authors       = ['Joel Van Horn']
-  spec.email         = ['joel@joelvanhorn.com']
+  spec.name             = "ruby_event_store-rom"
+  spec.version          = RubyEventStore::ROM::VERSION
+  spec.license          = "MIT"
+  spec.author           = "Joel Van Horn"
+  spec.email            = "joel@joelvanhorn.com"
+  spec.summary          = "ROM events repository for Ruby Event Store"
+  spec.description      = "Implementation of events repository based on ROM for Ruby Event Store"
+  spec.homepage         = "https://railseventstore.org"
+  spec.files            = Dir["lib/**/*"]
+  spec.require_paths    = %w[lib]
+  spec.extra_rdoc_files = %w[README.md]
 
-  spec.summary       = 'ROM events repository for Ruby Event Store'
-  spec.description   = "Implementation of events repository based on ROM for Ruby Event Store'"
-  spec.homepage      = 'https://railseventstore.org'
-  spec.metadata    = {
-    'homepage_uri' => 'https://railseventstore.org/',
-    'changelog_uri' => 'https://github.com/RailsEventStore/rails_event_store/releases',
-    'source_code_uri' => 'https://github.com/RailsEventStore/rails_event_store',
-    'bug_tracker_uri' => 'https://github.com/RailsEventStore/rails_event_store/issues'
+  spec.metadata = {
+    "homepage_uri"    => spec.homepage,
+    "changelog_uri"   => "https://github.com/RailsEventStore/rails_event_store/blob/master/contrib/ruby_event_store-rom/CHANGELOG.md",
+    "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
+    "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
-
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 2.5'
 
