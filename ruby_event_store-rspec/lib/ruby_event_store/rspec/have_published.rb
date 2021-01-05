@@ -92,20 +92,26 @@ module RubyEventStore
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
           [
-          <<~EOS,
+          <<~EOS.strip,
           #{expected_message(expected, expected_event, expected_count)}, but it was not published
 
           There are events of correct type but with incorrect payload:
           EOS
-          *events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }
-          ].join
+          *events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) },
+          ""
+          ].join("\n")
         end
 
         def event_diff(expected_event, event_with_correct_type, index)
-          <<~EOS
-          #{index + 1}) #{event_with_correct_type.inspect}
-          #{data_diff(expected_event, event_with_correct_type)&.split("\n")&.map {|l| l.sub(//, "    ") }&.join("\n")}#{metadata_diff(expected_event, event_with_correct_type)&.split("\n")&.map {|l| l.sub(//, "    ") }&.join("\n")}
-          EOS
+          [
+            "#{index + 1}) #{event_with_correct_type.inspect}",
+            indent(data_diff(expected_event, event_with_correct_type), 4),
+            indent(metadata_diff(expected_event, event_with_correct_type), 4),
+          ].reject(&:empty?).join("\n")
+        end
+
+        def indent(str, count)
+          str.to_s.split("\n").map {|l| l.sub(//, " " * count) }.join("\n")
         end
 
         def failure_message_incorrect_type(expected, expected_event, expected_count)
@@ -165,7 +171,7 @@ module RubyEventStore
         def expected_events_list(expected)
           <<~EOS.strip
           [
-          #{expected.map(&:description).map {|d| d.sub(//, "  ") }.join("\n")}
+          #{expected.map(&:description).map {|d| indent(d, 2) }.join("\n")}
           ]
           EOS
         end
@@ -173,7 +179,7 @@ module RubyEventStore
         def actual_events_list(actual)
           <<~EOS.strip
           but the following was published: [
-          #{actual.map(&:inspect).map {|d| d.sub(//, "  ") }.join("\n")}
+          #{actual.map(&:inspect).map {|d| indent(d, 2) }.join("\n")}
           ]
           EOS
         end
