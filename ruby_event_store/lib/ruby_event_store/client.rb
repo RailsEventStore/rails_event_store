@@ -64,7 +64,7 @@ module RubyEventStore
     # @param expected_version (see #publish)
     # @return [self]
     def link(event_ids, stream_name:, expected_version: :any)
-      repository.link_to_stream(event_ids, Stream.new(stream_name), ExpectedVersion.new(expected_version))
+      repository.link_to_stream(Array(event_ids), Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
     end
 
