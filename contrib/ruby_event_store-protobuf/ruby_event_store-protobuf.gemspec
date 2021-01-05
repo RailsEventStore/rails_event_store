@@ -1,27 +1,24 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+# frozen_string_literal: true
 
-require 'ruby_event_store/protobuf/version'
+require_relative "lib/ruby_event_store/protobuf/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = 'ruby_event_store-protobuf'
-  spec.version       = RubyEventStore::Protobuf::VERSION
-  spec.licenses      = ['MIT']
-  spec.authors       = ['Arkency']
-  spec.email         = ['dev@arkency.com']
+  spec.name             = "ruby_event_store-protobuf"
+  spec.version          = RubyEventStore::Protobuf::VERSION
+  spec.license          = "MIT"
+  spec.author           = "Arkency"
+  spec.email            = "dev@arkency.com"
+  spec.summary          = "Protobuf support for Ruby Event Store"
+  spec.homepage         = "https://railseventstore.org"
+  spec.files            = Dir["lib/**/*"]
+  spec.require_paths    = %w[lib]
+  spec.extra_rdoc_files = %w[README.md]
 
-  spec.summary = %q{Protobuf support for Ruby Event Store}
-  spec.homepage = 'https://railseventstore.org'
   spec.metadata = {
-    "homepage_uri" => "https://railseventstore.org/",
-    "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
+    "homepage_uri"    => spec.homepage,
     "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
-
-  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 2.5'
 
