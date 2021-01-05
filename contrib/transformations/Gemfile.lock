@@ -1,0 +1,36 @@
+PATH
+  remote: .
+  specs:
+    transformations (0.1.0)
+      ruby_event_store (>= 0.40.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    concurrent-ruby (1.1.7)
+    diff-lcs (1.4.4)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.1)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.1)
+    ruby_event_store (2.0.0)
+      concurrent-ruby (~> 1.0, >= 1.1.6)
+
+PLATFORMS
+  x86_64-darwin-19
+
+DEPENDENCIES
+  rspec
+  transformations!
+
+BUNDLED WITH
+   2.1.4

@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'rails_event_store-rspec'
-  spec.version       = '2.0.0'
+  spec.version       = '2.0.1'
   spec.licenses      = ['MIT']
   spec.authors       = ['Arkency']
   spec.email         = ['dev@arkency.com']
@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'rspec', '~> 3.0'
-  spec.add_runtime_dependency 'ruby_event_store-rspec', '= 2.0.0'
+  spec.add_runtime_dependency 'ruby_event_store-rspec', '= 2.0.1'
 
   spec.post_install_message = <<~EOW
     The 'rails_event_store-rspec' gem has been renamed.

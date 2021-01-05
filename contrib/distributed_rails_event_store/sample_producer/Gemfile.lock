@@ -216,10 +216,10 @@ DEPENDENCIES
   pg (>= 0.18, < 2.0)
   puma (~> 3.11)
   rails (~> 5.2.2)
-  rails_event_store (~> 0.36.0)
+  rails_event_store (~> 0.36)
   selenium-webdriver
   tzinfo-data
   web-console (>= 3.3.0)
 
 BUNDLED WITH
-   2.0.1
+   2.1.4
