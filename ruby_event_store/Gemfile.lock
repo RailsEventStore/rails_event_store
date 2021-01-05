@@ -71,6 +71,7 @@ GEM
       ast (~> 2.4.1)
     procto (0.0.3)
     rake (13.0.3)
+    rbs (1.0.0)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -111,6 +112,7 @@ DEPENDENCIES
   mutant-license!
   mutant-rspec (= 0.10.22)
   rake (>= 10.0)
+  rbs
   rspec (~> 3.6)
   ruby_event_store!
 
