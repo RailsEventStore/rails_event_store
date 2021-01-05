@@ -206,7 +206,7 @@ module RubyEventStore
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @differ    = differ
         @phraser   = phraser
-        @failure_message_formatter = failure_message_formatter.new(@differ)
+        @failure_message_formatter = failure_message_formatter.new(differ)
       end
 
       def matches?(event_store)
@@ -215,7 +215,7 @@ module RubyEventStore
         @events = events.stream(stream_name) if stream_name
         @events = events.from(start)         if start
         @events = events.each
-        @matcher.matches?(events) && matches_count?
+        matcher.matches?(events) && matches_count?
       end
 
       def exactly(count)
@@ -262,7 +262,7 @@ module RubyEventStore
       private
 
       def strict?
-        matcher.is_a?(::RSpec::Matchers::BuiltIn::Match)
+        matcher.instance_of?(::RSpec::Matchers::BuiltIn::Match)
       end
 
       def matches_count?
