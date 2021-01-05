@@ -10,6 +10,7 @@ module.exports = {
     './source/*.md',
     './source/**/*.erb',
     './source/*.erb',
+    './config.rb'
   ],
   theme: {
     extend: {},
