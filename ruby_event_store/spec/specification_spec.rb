@@ -362,6 +362,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.batched?).to eq(true)
+        expect(spec.result.all?).to eq(false)
         expect(spec.result.batch_size).to eq(100)
 
         spec = specification
@@ -405,6 +406,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.first?).to eq(true)
+        expect(spec.result.all?).to eq(false)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification
@@ -426,6 +428,7 @@ module RubyEventStore
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
         expect(spec.result.stream.global?).to eq(true)
         expect(spec.result.last?).to eq(true)
+        expect(spec.result.all?).to eq(false)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.with_id([event_id])
