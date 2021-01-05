@@ -31,12 +31,12 @@ module RubyEventStore
           return failure_message_strict(expected, events, expected_count) if strict
           expected.each do |expected_event|
             correct_event_count = 0
-            event_with_correct_type = nil
+            events_with_correct_type = []
             events.each do |actual_event|
               if expected_event.matches?(actual_event)
                 correct_event_count += 1
               elsif expected_event.matches_kind?(actual_event)
-                event_with_correct_type = actual_event
+                events_with_correct_type << actual_event
               end
             end
 
@@ -45,16 +45,16 @@ module RubyEventStore
                 next
               elsif correct_event_count >= 1
                 return failure_message_incorrect_count(expected, expected_event, expected_count, correct_event_count)
-              elsif event_with_correct_type
-                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
+              elsif !events_with_correct_type.empty?
+                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
               else
                 return failure_message_incorrect_type(expected, expected_event, expected_count)
               end
             else
               if correct_event_count >= 1
                 next
-              elsif event_with_correct_type
-                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
+              elsif !events_with_correct_type.empty?
+                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
               else
                 return failure_message_incorrect_type(expected, expected_event, expected_count)
               end
@@ -90,12 +90,21 @@ module RubyEventStore
           EOS
         end
 
-        def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, event_with_correct_type)
-          <<~EOS
+        def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
+          [
+          <<~EOS,
           #{expected_message(expected, expected_event, expected_count)}, but it was not published
 
-          there is an event of correct type but with incorrect payload:
-          #{data_diff(expected_event, event_with_correct_type)}#{metadata_diff(expected_event, event_with_correct_type)}
+          There are events of correct type but with incorrect payload:
+          EOS
+          *events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }
+          ].join
+        end
+
+        def event_diff(expected_event, event_with_correct_type, index)
+          <<~EOS
+          #{index + 1}) #{event_with_correct_type.inspect}
+          #{data_diff(expected_event, event_with_correct_type)&.split("\n")&.map {|l| l.sub(//, "    ") }&.join("\n")}#{metadata_diff(expected_event, event_with_correct_type)&.split("\n")&.map {|l| l.sub(//, "    ") }&.join("\n")}
           EOS
         end
 
@@ -125,13 +134,13 @@ module RubyEventStore
 
         def data_diff(expected_event, event_with_correct_type)
           if !expected_event.expected_data.nil?
-            "data diff:#{differ.diff(expected_event.expected_data, event_with_correct_type.data)}"
+            "data diff:#{differ.diff(expected_event.expected_data, event_with_correct_type.data)}".strip
           end
         end
 
         def metadata_diff(expected_event, event_with_correct_type)
           if !expected_event.expected_metadata.nil?
-            "metadata diff:#{differ.diff(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
+            "metadata diff:#{differ.diff(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}".strip
           end
         end
 

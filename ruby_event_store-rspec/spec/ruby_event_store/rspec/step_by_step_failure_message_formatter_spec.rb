@@ -75,7 +75,8 @@ module RubyEventStore
       end
 
       specify do
-        event_store.publish(FooEvent.new(data: { foo: 123 }))
+        event_store.publish(actual1 = FooEvent.new(data: { foo: 123 }))
+        event_store.publish(actual2 = FooEvent.new(data: { foo: 234 }))
         matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data({ foo: 124 })).exactly(2).times
         matcher_.matches?(event_store)
 
@@ -84,17 +85,22 @@ module RubyEventStore
           be an event FooEvent (with data including {:foo=>124})
         to be published 2 times, but it was not published
 
-        there is an event of correct type but with incorrect payload:
-        data diff:
-        @@ -1,2 +1,2 @@
-        -:foo => 123,
-        +:foo => 124,
-
+        There are events of correct type but with incorrect payload:
+        1) #{actual1.inspect}
+            data diff:
+            @@ -1,2 +1,2 @@
+            -:foo => 123,
+            +:foo => 124,
+        2) #{actual2.inspect}
+            data diff:
+            @@ -1,2 +1,2 @@
+            -:foo => 234,
+            +:foo => 124,
         EOS
       end
 
       specify do
-        event_store.publish(FooEvent.new(data: { foo: 123 }))
+        event_store.publish(actual = FooEvent.new(data: { foo: 123 }))
         matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data({ foo: 124 }))
         matcher_.matches?(event_store)
 
@@ -107,12 +113,12 @@ module RubyEventStore
           be an event FooEvent (with data including {:foo=>124})
         to be published, but it was not published
 
-        there is an event of correct type but with incorrect payload:
-        data diff:
-        @@ -1,2 +1,2 @@
-        -:foo => 123,
-        +:foo => 124,
-
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1,2 +1,2 @@
+            -:foo => 123,
+            +:foo => 124,
         EOS
       end
 
@@ -131,20 +137,20 @@ module RubyEventStore
           be an event FooEvent (with metadata including {:foo=>124})
         to be published, but it was not published
 
-        there is an event of correct type but with incorrect payload:
-        metadata diff:
-        @@ -1,5 +1,2 @@
-        -:correlation_id => #{actual.correlation_id.inspect},
-        -:foo => 123,
-        -:timestamp => #{formatter.call(actual.timestamp)},
-        -:valid_at => #{formatter.call(actual.valid_at)},
-        +:foo => 124,
-
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            metadata diff:
+            @@ -1,5 +1,2 @@
+            -:correlation_id => #{actual.correlation_id.inspect},
+            -:foo => 123,
+            -:timestamp => #{formatter.call(actual.timestamp)},
+            -:valid_at => #{formatter.call(actual.valid_at)},
+            +:foo => 124,
         EOS
       end
 
       specify do
-        event_store.publish(FooEvent.new(data: { foo: 123, bar: 20 }))
+        event_store.publish(actual = FooEvent.new(data: { foo: 123, bar: 20 }))
         matcher_ = matcher(expected = matchers.an_event(FooEvent).with_data({ foo: 123 }).strict)
         matcher_.matches?(event_store)
 
@@ -157,17 +163,17 @@ module RubyEventStore
           be an event FooEvent (with data matching {:foo=>123})
         to be published, but it was not published
 
-        there is an event of correct type but with incorrect payload:
-        data diff:
-        @@ -1,3 +1,2 @@
-        -:bar => 20,
-         :foo => 123,
-
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1,3 +1,2 @@
+            -:bar => 20,
+             :foo => 123,
         EOS
       end
 
       specify do
-        event_store.publish(FooEvent.new(data: { a: 1, b: 2 }))
+        event_store.publish(actual = FooEvent.new(data: { a: 1, b: 2 }))
         expected = [
           matchers.an_event(FooEvent).with_data({ a: 1 }),
           matchers.an_event(FooEvent).with_data({ b: 3 }),
@@ -185,13 +191,13 @@ module RubyEventStore
           be an event FooEvent (with data including {:b=>3})
         to be published, but it was not published
 
-        there is an event of correct type but with incorrect payload:
-        data diff:
-        @@ -1,3 +1,2 @@
-        -:a => 1,
-        -:b => 2,
-        +:b => 3,
-
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1,3 +1,2 @@
+            -:a => 1,
+            -:b => 2,
+            +:b => 3,
         EOS
       end
 
