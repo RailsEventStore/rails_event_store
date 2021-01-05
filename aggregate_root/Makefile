@@ -1,8 +1,5 @@
 GEM_VERSION = $(shell cat ../RES_VERSION)
 GEM_NAME    = aggregate_root
-REQUIRE     = $(GEM_NAME)
-IGNORE      = AggregateRoot::DefaultApplyStrategy\#event_type
-SUBJECT     ?= AggregateRoot*
 
 include ../support/make/install.mk
 include ../support/make/test.mk

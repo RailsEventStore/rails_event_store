@@ -1,10 +1,5 @@
-GEM_VERSION = $(shell cat ../RES_VERSION)
-GEM_NAME    = rails_event_store
-REQUIRE     = $(GEM_NAME)
-IGNORE      = RailsEventStore::Client\#initialize \
-              RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord* \
-              RailsEventStore::AfterCommitAsyncDispatcher\#async_record
-SUBJECT      ?= RailsEventStore*
+GEM_VERSION  = $(shell cat ../RES_VERSION)
+GEM_NAME     = rails_event_store
 DATABASE_URL ?= sqlite3::memory:
 
 include ../support/make/install.mk
