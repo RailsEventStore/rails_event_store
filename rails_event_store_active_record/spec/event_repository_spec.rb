@@ -284,7 +284,7 @@ module RailsEventStoreActiveRecord
     specify "limited query when looking for unexisting events during linking" do
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
         expect do
-          repository.link_to_stream('72922e65-1b32-4e97-8023-03ae81dd3a27', "flow", RubyEventStore::ExpectedVersion.none)
+          repository.link_to_stream(['72922e65-1b32-4e97-8023-03ae81dd3a27'], "flow", RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::EventNotFound)
       end
     end
