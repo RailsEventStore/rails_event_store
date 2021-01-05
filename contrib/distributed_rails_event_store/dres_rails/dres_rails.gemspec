@@ -13,18 +13,11 @@ Gem::Specification.new do |spec|
   spec.summary = ""
   spec.license = "MIT"
 
-  # spec.metadata = {
-  #   "source_code_uri" => "lol",
-  #   "changelog_uri" => "/blob/master/CHANGES.md",
-  #   "bug_tracker_uri" => "/issues"
-  # }
-
-
   spec.required_ruby_version = "~> 2.3"
 
   spec.add_dependency "rails", [">= 4.2", "< 6"]
-  spec.add_dependency "ruby_event_store"
-  spec.add_dependency "rails_event_store"
+  spec.add_dependency "ruby_event_store",  "~> 0.36"
+  spec.add_dependency "rails_event_store", "~> 0.36"
 
   spec.add_development_dependency "pry", "~> 0.10"
   spec.add_development_dependency "pry-byebug", "~> 3.5"

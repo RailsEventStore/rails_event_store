@@ -1,8 +1,9 @@
 source "https://rubygems.org"
-
-git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
-
 gemspec
-gem 'ruby_event_store', path: '../../../ruby_event_store'
+
+eval_gemfile '../../../support/bundler/Gemfile.shared'
+
+gem 'pry'
+gem 'webmock', '~> 3.3.0'
 gem 'closed_struct'
 gem 'equalizer'
