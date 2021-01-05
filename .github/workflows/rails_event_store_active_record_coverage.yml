@@ -1,4 +1,4 @@
-name: coverage
+name: rails_event_store_active_record_coverage
 on:
   schedule:
     - cron: "0 17 * * *"
@@ -11,22 +11,14 @@ jobs:
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - gem: aggregate_root
-          - gem: rails_event_store_active_record
-          - gem: ruby_event_store-rspec
-          - gem: rails_event_store
-          - gem: ruby_event_store-browser
-          - gem: ruby_event_store
     steps:
       - uses: actions/checkout@v2
       - run: test -e Gemfile.lock
-        working-directory: ${{ matrix.gem }}
+        working-directory: rails_event_store_active_record
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ruby-2.7
           bundler-cache: true
-          working-directory: ${{ matrix.gem }}
+          working-directory: rails_event_store_active_record
       - run: make mutate
-        working-directory: ${{ matrix.gem }}
+        working-directory: rails_event_store_active_record

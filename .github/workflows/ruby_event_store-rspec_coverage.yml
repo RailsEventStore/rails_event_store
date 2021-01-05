@@ -1,0 +1,24 @@
+name: ruby_event_store-rspec_coverage
+on:
+  schedule:
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+jobs:
+  coverage:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 120
+    env:
+      BUNDLE_GEMFILE: Gemfile
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - run: test -e Gemfile.lock
+        working-directory: ruby_event_store-rspec
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-2.7
+          bundler-cache: true
+          working-directory: ruby_event_store-rspec
+      - run: make mutate
+        working-directory: ruby_event_store-rspec
