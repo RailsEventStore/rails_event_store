@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'ruby2_keywords'
-  spec.add_dependency 'ruby_event_store', '= 1.3.0'
+  spec.add_dependency 'ruby_event_store', '= 1.3.1'
 end
