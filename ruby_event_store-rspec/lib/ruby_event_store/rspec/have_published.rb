@@ -201,6 +201,10 @@ module RubyEventStore
         @@default_formatter = new_formatter
       end
 
+      def self.default_formatter
+        @@default_formatter
+      end
+
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: @@default_formatter)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
