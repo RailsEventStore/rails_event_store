@@ -204,7 +204,6 @@ module RubyEventStore
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: @@default_formatter)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
-        @differ    = differ
         @phraser   = phraser
         @failure_message_formatter = failure_message_formatter.new(differ)
       end
@@ -271,7 +270,7 @@ module RubyEventStore
         events.select { |e| expected.first === e }.size.equal?(count)
       end
 
-      attr_reader :differ, :phraser, :stream_name, :expected, :count, :events, :start, :failure_message_formatter, :matcher
+      attr_reader :phraser, :stream_name, :expected, :count, :events, :start, :failure_message_formatter, :matcher
     end
   end
 end
