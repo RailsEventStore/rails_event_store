@@ -1,5 +1,5 @@
 # AggregateRoot
 
-Event sourced (with Rails Event Store) aggregate root implementation.
+Event sourced aggregate root implementation for RubyEventStore.
 
-For configuration & usage documentation see [Event Sourcing with AggregateRoot](https://railseventstore.org/docs/app/).
+Find out more at [https://railseventstore.org](https://railseventstore.org/)
