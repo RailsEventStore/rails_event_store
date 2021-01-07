@@ -1,5 +1,7 @@
 # RailsEventStoreActiveRecord
 
-An Active Record based implementation of events repository for [Rails Event Store](https://github.com/RailsEventStore/rails_event_store).
+Persistent event repository implementation for RubyEventStore based on ActiveRecord. Ships with database schema and migrations suitable for PostgreSQL, MySQL ans SQLite database engines.
 
-This is the default repository used in `rails_event_store` gem.
+Includes repository implementation with linearized writes to achieve log-like properties of streams on top of SQL database engine.
+
+Find out more at [https://railseventstore.org](https://railseventstore.org/)
