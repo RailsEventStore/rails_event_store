@@ -8,7 +8,11 @@ Gem::Specification.new do |spec|
   spec.license          = "MIT"
   spec.author           = "Arkency"
   spec.email            = "dev@arkency.com"
-  spec.summary          = "Implementation of Event Store in Ruby"
+  spec.summary          = "Implementation of an event store in Ruby"
+  spec.description      = <<~EOD
+    Ruby implementation of an event store. Ships with in-memory event repository, generic instrumentation
+    and dispatches events synchronously.
+  EOD
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["lib/**/*"]
   spec.require_paths    = %w[lib]
