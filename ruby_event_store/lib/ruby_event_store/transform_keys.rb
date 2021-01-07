@@ -4,23 +4,23 @@ module RubyEventStore
   class TransformKeys
     class << self
       def stringify(data)
-        transform(data) {|k| k.to_s}
+        deep_transform(data, &:to_s)
       end
 
       def symbolize(data)
-        transform(data) {|k| k.to_sym}
+        deep_transform(data, &:to_sym)
       end
 
       private
 
-      def transform(data, &block)
+      def deep_transform(data, &block)
         data.each_with_object({}) do |(k, v), h|
           h[yield(k)] =
             case v
             when Hash
-              transform(v, &block)
+              deep_transform(v, &block)
             when Array
-              v.map{|i| Hash === i ? transform(i, &block) : i}
+              v.map{|i| Hash === i ? deep_transform(i, &block) : i}
             else
               v
             end
