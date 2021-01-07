@@ -14,7 +14,7 @@ bundle exec middleman server
 
 ## Publishing the docs
 
-Documentation and website are deployed continuously and automatically from the `master` branch by Travis-CI.
+Documentation and website are deployed continuously and automatically from the `master` branch.
 
 ## About
 
