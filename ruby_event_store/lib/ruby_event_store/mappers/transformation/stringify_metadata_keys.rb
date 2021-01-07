@@ -18,7 +18,7 @@ module RubyEventStore
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       record.data,
-            metadata:   record.metadata.transform_keys(&:to_s),
+            metadata:   TransformKeys.stringify(record.metadata),
             timestamp:  record.timestamp,
             valid_at:   record.valid_at,
           )
