@@ -8,7 +8,12 @@ Gem::Specification.new do |spec|
   spec.license          = "MIT"
   spec.author           = "Arkency"
   spec.email            = "dev@arkency.com"
-  spec.summary          = "Rails wrapper for Ruby Event Store"
+  spec.summary          = "Rails wrapper for RubyEventStore with batteries included"
+  spec.description      = <<~EOD
+    Rails wrapper for RubyEventStore with batteries included. Ships with asynchronous after-commit event dispatch
+    on top of ActiveJob, ActiveSupport::Notifications instrumentation enabled, request metadata enrichment
+    and opinionated directory structure generator for bounded contexts.
+  EOD
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["lib/**/*"]
   spec.require_paths    = %w[lib]
