@@ -9,9 +9,8 @@ PATH
   remote: ../rails_event_store_active_record
   specs:
     rails_event_store_active_record (2.0.0)
-      activemodel (>= 3.0)
+      activerecord (>= 5.0)
       activerecord-import (>= 1.0.2)
-      activesupport (>= 3.0)
       ruby_event_store (= 2.0.0)
 
 PATH
