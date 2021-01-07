@@ -30,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.5"
 
   spec.add_dependency "ruby_event_store",    "= 2.0.0"
-  spec.add_dependency "activesupport",       ">= 3.0"
-  spec.add_dependency "activemodel",         ">= 3.0"
+  spec.add_dependency "activerecord",        ">= 5.0"
   spec.add_dependency "activerecord-import", ">= 1.0.2"
 end
