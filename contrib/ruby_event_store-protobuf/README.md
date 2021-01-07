@@ -1,4 +1,4 @@
-# Ruby Event Store Protobf
+# Ruby Event Store Protobuf
 
 Moved from RubyEventStore (based on version 1.3.0).
 
@@ -13,7 +13,7 @@ Add to your gemfile in application:
 gem "ruby_event_store-protobuf"
 ```
 
-Read more about [using Rails Event Store with Protobuf](https://railseventstore.org/docs/v1/protobuf/#configure-protobuf-mapper)
+Read more about [using Rails Event Store with Protobuf](https://railseventstore.org/docs/v2/protobuf/#configure-protobuf-mapper)
 
 
 ## Contributing
