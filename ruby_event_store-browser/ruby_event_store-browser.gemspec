@@ -8,7 +8,11 @@ Gem::Specification.new do |spec|
   spec.license          = "MIT"
   spec.author           = "Arkency"
   spec.email            = "dev@arkency.com"
-  spec.summary          = "Web interface for RubyEventStore"
+  spec.summary          = "Event browser companion application for RubyEventStore"
+  spec.description      = <<~EOD
+    Event browser companion application for RubyEventStore. Inspect stream contents and event details. 
+    Explore correlation and causation connections.
+  EOD
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["{lib,public}/**/*"]
   spec.require_paths    = %w[lib]
