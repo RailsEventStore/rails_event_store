@@ -46,7 +46,7 @@ client.publish(custom_event = MoneyWithdrawn.new(data: { amount: 10 }), stream_n
 client.publish(MoneyWithdrawn.new(data: { amount: 20 }), stream_name: "Customer$3")
 
 account_balance = RailsEventStore::Projection.
-  from_stream("Customer$1", "Customer$3").
+  from_stream(%w[Customer$1 Customer$3]).
   init( -> { { total: 0 } }).
   when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
   when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
