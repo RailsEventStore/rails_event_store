@@ -28,7 +28,7 @@ GEM
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PLATFORMS
-  x86_64-darwin-19
+  ruby
 
 DEPENDENCIES
   rspec (~> 3.0)
