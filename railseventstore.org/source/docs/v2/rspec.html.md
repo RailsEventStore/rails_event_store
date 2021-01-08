@@ -241,7 +241,7 @@ class Order
 end
 ```
 
-The matchers behaviour is almost identical to `have_published` & `publish` counterparts, except the concept of stream. Expecations are made against internal unpublished events collection.
+The matchers behaviour is almost identical to `have_published` and `publish` counterparts, except the concept of stream. Expecations are made against internal unpublished events collection.
 
 ### have_applied
 
