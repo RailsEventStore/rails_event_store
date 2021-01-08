@@ -2,24 +2,24 @@
 title: RSpec matchers
 ---
 
-## Adding matchers to the project
+## Adding matchers to project
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
 ```ruby
 group :test do
-  gem 'rails_event_store-rspec'
+  gem 'ruby_event_store-rspec'
 end
 ```
 
-## Matchers usage
+## RubyEventStore matchers
 
 ### be_event
 
 The `be_event` matcher enables you to make expectations on a domain event. It exposes fluent interface.
 
 ```ruby
-OrderPlaced  = Class.new(RailsEventStore::Event)
+OrderPlaced  = Class.new(RubyEventStore::Event)
 domain_event = OrderPlaced.new(
   data: {
     order_id: 42,
@@ -87,7 +87,7 @@ Use this matcher to target `event_store` and reading from streams specifically.
 In a simplest form it would read all streams forward and check whether the expectation holds true. Its behaviour can be best compared to the `include` matcher — it is satisfied by at least one element present in the collection. You're encouraged to compose it with `be_event`.
 
 ```ruby
-event_store = RailsEventStore::Client.new
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 event_store.publish(OrderPlaced.new(data: { order_id: 42 }))
 
 expect(event_store).to have_published(an_event(OrderPlaced))
@@ -96,7 +96,7 @@ expect(event_store).to have_published(an_event(OrderPlaced))
 Expectation can be narrowed to the specific stream.
 
 ```ruby
-event_store = RailsEventStore::Client.new
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
 
 expect(event_store).to have_published(an_event(OrderPlaced)).in_stream("Order$42")
@@ -149,7 +149,7 @@ expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([
 This matcher is similar to `have_published` one, but targets only events published in given execution block.
 
 ```ruby
-event_store = RailsEventStore::Client.new
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 expect {
   event_store.publish(OrderPlaced.new(data: { order_id: 42 }))
 }.to publish(an_event(OrderPlaced)).in(event_store)
@@ -158,7 +158,7 @@ expect {
 Expectation can be narrowed to the specific stream.
 
 ```ruby
-event_store = RailsEventStore::Client.new
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 expect {
   event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
 }.to publish(an_event(OrderPlaced)).in(event_store).in_stream("Order$42")
@@ -174,6 +174,23 @@ expect {
   an_event(OrderPlaced),
   an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
 ).in(event_store)
+```
+
+### have_subscribed_to_events
+
+Use this matcher to make sure that a handler has or has not subscribed to event types in target `event_store`.
+
+Ensuring handler is subscribed to given event types:
+```ruby
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+
+expect(Handler).to have_subscribed_to_events(FooEvent, BarEvent).in(event_store)
+```
+
+Checking if handler does not subscribe to any of given event types:
+
+```ruby
+expect(Handler).not_to have_subscribed_to_events(FooEvent, BarEvent).in(event_store)
 ```
 
 
