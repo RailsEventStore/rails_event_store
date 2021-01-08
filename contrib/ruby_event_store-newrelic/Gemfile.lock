@@ -1,0 +1,38 @@
+PATH
+  remote: .
+  specs:
+    ruby_event_store-newrelic (0.1.0)
+      newrelic_rpm (~> 6.0)
+      ruby_event_store (>= 1.0.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    concurrent-ruby (1.1.7)
+    diff-lcs (1.4.4)
+    newrelic_rpm (6.14.0)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.1)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.1)
+    ruby_event_store (2.1.0)
+      concurrent-ruby (~> 1.0, >= 1.1.6)
+
+PLATFORMS
+  x86_64-darwin-19
+
+DEPENDENCIES
+  rspec (~> 3.0)
+  ruby_event_store-newrelic!
+
+BUNDLED WITH
+   2.2.4
