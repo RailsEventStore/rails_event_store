@@ -184,6 +184,7 @@ expect {
 Use this matcher to make sure that a handler has or has not subscribed to event types in target `event_store`.
 
 Ensuring handler is subscribed to given event types:
+
 ```ruby
 event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 
