@@ -12,7 +12,7 @@ group :test do
 end
 ```
 
-## RubyEventStore matchers
+## Event matchers
 
 ### be_event
 
@@ -80,6 +80,9 @@ expect(domain_event)
 ```
 
 You may have noticed the same matcher being referenced as `be_event`, `be_an_event` and `an_event`. There's also just `event`. Use whichever reads better grammatically.
+
+
+## Event store matchers
 
 ### have_published
 
@@ -194,13 +197,17 @@ expect(Handler).not_to have_subscribed_to_events(FooEvent, BarEvent).in(event_st
 ```
 
 
-## AggregateRoot matchers
+## Aggregate root matchers
 
-The matchers described below are intended to be used on [aggregate root](https://github.com/RailsEventStore/rails_event_store/tree/master/aggregate_root#usage).
+The matchers described below are intended to be used on [aggregate root](https://github.com/RailsEventStore/rails_event_store/tree/master/aggregate_root#usage) gem.
 
 To explain the usage of matchers sample aggregate class is defined:
 
 ```ruby
+OrderSubmitted = Class.new(RubyEventStore::Event)
+OrderExpired   = Class.new(RubyEventStore::Event)
+
+
 class Order
   include AggregateRoot
   HasBeenAlreadySubmitted = Class.new(StandardError)
@@ -224,11 +231,11 @@ class Order
   private
   attr_accessor :state
 
-  def apply_order_submitted(event)
+  on OrderSubmitted do |event|
     self.state = :submitted
   end
 
-  def apply_order_expired(event)
+  on OrderExpired do |event|
     self.state = :expired
   end
 end
