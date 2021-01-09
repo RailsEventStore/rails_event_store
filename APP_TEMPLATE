@@ -1,4 +1,4 @@
-gem 'rails_event_store', '~> 2.0.1'
+gem 'rails_event_store', '~> 2.1.0'
 
 after_bundle do
   initializer 'rails_event_store.rb', <<~CODE
@@ -15,11 +15,15 @@ after_bundle do
       end
 
       # Subscribe event handlers below
-      # Rails.configuration.event_store.tap do |store|
-      #   store.subscribe(InvoiceReadModel.new, to: [InvoicePrinted])
-      #   store.subscribe(->(event) { SendOrderConfirmation.new.call(event) }, to: [OrderSubmitted])
-      #   store.subscribe_to_all_events(->(event) { Rails.logger.info(event.type) })
-      # end
+      Rails.configuration.event_store.tap do |store|
+        # store.subscribe(InvoiceReadModel.new, to: [InvoicePrinted])
+        # store.subscribe(lambda { |event| SendOrderConfirmation.new.call(event) }, to: [OrderSubmitted])
+        # store.subscribe_to_all_events(lambda { |event| Rails.logger.info(event.event_type) })
+
+        store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new)
+        store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
+        store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
+      end
 
       # Register command handlers below
       # Rails.configuration.command_bus.tap do |bus|
