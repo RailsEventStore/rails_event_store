@@ -2,7 +2,7 @@ module Minitest
   module RubyEventStore
     module Assertions
       def assert_dispatched(event_store, expected_events, &block)
-        collected_events = collect_events(&block)
+        collected_events = collect_events(event_store, &block)
 
         Array(expected_events).each do |expected|
           assert collected_events.include?(expected.to_s), "bazinga"
@@ -10,7 +10,7 @@ module Minitest
       end
 
       def assert_not_dispatched(event_store, expected_events, &block)
-        collected_events = collect_events(&block)
+        collected_events = collect_events(event_store, &block)
 
         Array(expected_events).each do |expected|
           refute collected_events.include?(expected.to_s), "bazinga"
@@ -19,7 +19,7 @@ module Minitest
 
       private
 
-      def collect_events(&block)
+      def collect_events(event_store, &block)
         collected_events = []
         event_store.within do
           block.call
