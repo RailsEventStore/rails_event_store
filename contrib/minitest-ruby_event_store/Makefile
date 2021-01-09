@@ -7,6 +7,6 @@ include ../../support/make/gem.mk
 include ../../support/make/help.mk
 
 test:
-	@ruby -Ilib test/minitest/ruby_event_store_test.rb
+	@bundle exec ruby test/minitest/ruby_event_store_test.rb
 
 .PHONY: test
