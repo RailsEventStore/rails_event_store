@@ -22,7 +22,7 @@ module Minitest::Assertions
     event_store.within do
       block.call
     end.subscribe_to_all_events do |event|
-      collected_events << event.type
+      collected_events << event.event_type
     end.call
     collected_events
   end
