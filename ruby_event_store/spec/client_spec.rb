@@ -917,8 +917,7 @@ module RubyEventStore
           end
 
         subscriptions = Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
-        client =
-          RubyEventStore::Client.new(subscriptions: subscriptions)
+        client = RubyEventStore::Client.new(subscriptions: subscriptions)
         client.subscribe(handler = Proc.new {}, to: [event_klass])
 
         expect(client.subscribers_for(event_klass)).to eq [handler]
