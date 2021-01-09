@@ -13,7 +13,7 @@ module RubyEventStore
       let(:repository) { mk_repository.call }
       let(:specification) do
         RubyEventStore::Specification.new(
-          RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+          RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
         )
       end
 
