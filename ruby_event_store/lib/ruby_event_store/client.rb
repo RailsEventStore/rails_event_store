@@ -5,7 +5,7 @@ require "concurrent"
 module RubyEventStore
   class Client
     def initialize(
-      repository:,
+      repository: InMemoryRepository.new,
       mapper: Mappers::Default.new,
       subscriptions: Subscriptions.new,
       dispatcher: Dispatcher.new,
