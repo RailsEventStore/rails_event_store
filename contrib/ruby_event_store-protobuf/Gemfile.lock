@@ -176,6 +176,9 @@ GEM
       unparser (~> 0.5.6)
       variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
+    mutant-minitest (0.10.25)
+      minitest (~> 5.11)
+      mutant (= 0.10.25)
     mutant-rspec (0.10.25)
       mutant (= 0.10.25)
       rspec-core (>= 3.8.0, < 4.0.0)
@@ -278,6 +281,7 @@ DEPENDENCIES
   google-protobuf (~> 3.14.0)
   mutant (~> 0.10.22)
   mutant-license!
+  mutant-minitest (~> 0.10.22)
   mutant-rspec (~> 0.10.22)
   protobuf_nested_struct
   rails (= 6.1.0)

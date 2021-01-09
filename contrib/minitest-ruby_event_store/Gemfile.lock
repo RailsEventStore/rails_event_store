@@ -112,7 +112,7 @@ DEPENDENCIES
   minitest-ruby_event_store!
   mutant (~> 0.10.22)
   mutant-license!
-  mutant-minitest
+  mutant-minitest (~> 0.10.22)
   mutant-rspec (~> 0.10.22)
   rake (>= 10.0)
   rspec (~> 3.6)
