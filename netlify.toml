@@ -12,3 +12,9 @@
   to = "/docs/v1/:splat"
   status = 301
   force = false
+
+[[redirects]]
+  from = "/new"
+  to = "https://raw.githubusercontent.com/RailsEventStore/rails_event_store/master/APP_TEMPLATE"
+  status = 301
+  force = false
