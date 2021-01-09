@@ -9,7 +9,7 @@
 
 [[redirects]]
   from = "/docs/*"
-  to = "/docs/v1/:splat"
+  to = "/docs/v2/:splat"
   status = 301
   force = false
 
