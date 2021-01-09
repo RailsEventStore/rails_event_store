@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "aggregate_root/version"
-require_relative "aggregate_root/transform"
 require_relative "aggregate_root/default_apply_strategy"
 require_relative "aggregate_root/repository"
 require_relative "aggregate_root/instrumented_repository"
