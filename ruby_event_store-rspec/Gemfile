@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gemspec name: 'ruby_event_store-rspec'
+gemspec
 
 eval_gemfile '../support/bundler/Gemfile.shared'
 
