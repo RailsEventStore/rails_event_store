@@ -1,7 +1,7 @@
 require "optparse"
-require "ruby_event_store/outbox/version"
-require "ruby_event_store/outbox/consumer"
-require "ruby_event_store/outbox/metrics"
+require_relative "version"
+require_relative "consumer"
+require_relative "metrics"
 
 module RubyEventStore
   module Outbox

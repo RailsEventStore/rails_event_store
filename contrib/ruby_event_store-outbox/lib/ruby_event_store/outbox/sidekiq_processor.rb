@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "ruby_event_store/outbox/sidekiq5_format"
+require_relative "sidekiq5_format"
 
 module RubyEventStore
   module Outbox

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "ruby_event_store/outbox/sidekiq_producer"
+require_relative "sidekiq_producer"
 
 module RubyEventStore
   module Outbox
