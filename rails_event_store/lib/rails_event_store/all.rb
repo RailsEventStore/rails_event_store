@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require 'ruby_event_store'
-require 'rails_event_store/async_handler_helpers'
-require 'rails_event_store/link_by_metadata'
-require 'rails_event_store/after_commit_async_dispatcher'
-require 'rails_event_store/active_job_scheduler'
-require 'rails_event_store/client'
-require 'rails_event_store/version'
-require 'rails_event_store/railtie'
-require 'rails_event_store/browser'
+require_relative 'async_handler_helpers'
+require_relative 'link_by_metadata'
+require_relative 'after_commit_async_dispatcher'
+require_relative 'active_job_scheduler'
+require_relative 'client'
+require_relative 'version'
+require_relative 'railtie'
+require_relative 'browser'
 
 module RailsEventStore
   Event                       = RubyEventStore::Event
