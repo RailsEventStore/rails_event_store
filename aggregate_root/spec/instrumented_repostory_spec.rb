@@ -3,13 +3,45 @@
 require 'spec_helper'
 require 'active_support/notifications'
 
+
 module AggregateRoot
   RSpec.describe InstrumentedRepository do
+    let(:order_klass) do
+      Class.new do
+        include AggregateRoot
+
+        def initialize(uuid)
+          @status = :draft
+          @uuid   = uuid
+        end
+
+        def create
+          apply Orders::Events::OrderCreated.new
+        end
+
+        def expire
+          apply Orders::Events::OrderExpired.new
+        end
+
+        attr_accessor :status
+
+        private
+
+        def apply_order_created(_event)
+          @status = :created
+        end
+
+        def apply_order_expired(_event)
+          @status = :expired
+        end
+      end
+    end
+
     describe "#load" do
       specify "wraps around original implementation" do
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
-        aggregate = Order.new(SecureRandom.uuid)
+        aggregate = order_klass.new(SecureRandom.uuid)
 
         expect(repository).to receive(:load).with(aggregate, 'SomeStream')
         instrumented_repository.load(aggregate, 'SomeStream')
@@ -19,7 +51,7 @@ module AggregateRoot
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("load.repository.aggregate_root") do |notification_calls|
-          aggregate = Order.new(SecureRandom.uuid)
+          aggregate = order_klass.new(SecureRandom.uuid)
 
           expect(repository).to receive(:load).with(aggregate, 'SomeStream')
           instrumented_repository.load(aggregate, 'SomeStream')
@@ -38,7 +70,7 @@ module AggregateRoot
       specify "wraps around original implementation" do
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
-        aggregate = Order.new(SecureRandom.uuid)
+        aggregate = order_klass.new(SecureRandom.uuid)
 
         expect(repository).to receive(:store).with(aggregate, 'SomeStream')
         instrumented_repository.store(aggregate, 'SomeStream')
@@ -48,7 +80,7 @@ module AggregateRoot
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("store.repository.aggregate_root") do |notification_calls|
-          aggregate = Order.new(SecureRandom.uuid)
+          aggregate = order_klass.new(SecureRandom.uuid)
           aggregate.create
           aggregate.expire
           events = aggregate.unpublished_events.to_a
@@ -73,7 +105,7 @@ module AggregateRoot
         repository = instance_double(Repository)
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("load.repository.aggregate_root") do |load_notification_calls|
-          aggregate = Order.new(SecureRandom.uuid)
+          aggregate = order_klass.new(SecureRandom.uuid)
 
           subscribe_to("store.repository.aggregate_root") do |store_notification_calls|
             events = nil

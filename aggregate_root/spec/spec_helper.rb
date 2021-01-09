@@ -20,33 +20,3 @@ module Orders
     SpanishInquisition = Class.new(RubyEventStore::Event)
   end
 end
-
-class Order
-  include AggregateRoot
-  include Orders::Events
-
-  def initialize(uuid)
-    @status = :draft
-    @uuid   = uuid
-  end
-
-  def create
-    apply OrderCreated.new
-  end
-
-  def expire
-    apply OrderExpired.new
-  end
-
-  attr_accessor :status
-
-  private
-
-  def apply_order_created(_event)
-    @status = :created
-  end
-
-  def apply_order_expired(_event)
-    @status = :expired
-  end
-end
