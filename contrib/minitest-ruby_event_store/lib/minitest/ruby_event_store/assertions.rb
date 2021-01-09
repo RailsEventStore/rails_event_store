@@ -5,7 +5,12 @@ module Minitest
         collected_events = collect_events(event_store, &block)
 
         Array(expected_events).each do |expected|
-          assert collected_events.include?(expected.to_s), "bazinga"
+          assert collected_events.map(&:event_type).include?(expected.to_s), <<~EOM
+            Expected 
+              #{collected_events.inspect}
+            to include 
+              #{expected}
+          EOM
         end
       end
 
@@ -13,7 +18,12 @@ module Minitest
         collected_events = collect_events(event_store, &block)
 
         Array(expected_events).each do |expected|
-          refute collected_events.include?(expected.to_s), "bazinga"
+          refute collected_events.map(&:event_type).include?(expected.to_s), <<~EOM
+            Expected 
+              #{collected_events.inspect}
+            to NOT include 
+              #{expected}
+          EOM
         end
       end
 
@@ -24,7 +34,7 @@ module Minitest
         event_store.within do
           block.call
         end.subscribe_to_all_events do |event|
-          collected_events << event.event_type
+          collected_events << event
         end.call
         collected_events
       end
