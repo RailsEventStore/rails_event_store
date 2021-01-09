@@ -2,7 +2,7 @@ require_relative "../test_helper"
 
 DummyEvent = Class.new(RubyEventStore::Event)
 
-class Minitest::RailsEventStoreTest < Minitest::Test
+class Minitest::RubyEventStoreTest < Minitest::Test
   attr_reader :event_store
 
   def setup
