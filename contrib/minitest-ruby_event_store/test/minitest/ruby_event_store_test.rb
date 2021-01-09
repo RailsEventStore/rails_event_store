@@ -42,11 +42,11 @@ class Minitest::RubyEventStoreTest < Minitest::Test
 
   def test_assert_not_dispatched_failure
     assert_triggered "bazinga" do
-      assert_not_dispatched(@event_store, DummyEvent) { @event_store.publish(DummyEvent.new) }
+      assert_not_dispatched(@event_store, [DummyEvent]) { @event_store.publish(DummyEvent.new) }
     end
   end
 
-  def test_assert_not_dispatched_singular
+  def test_assert_not_dispatched_singular_argument
     assert_not_dispatched(@event_store, DummyEvent) { }
   end
 end
