@@ -31,12 +31,14 @@ require "spec_helper"
 
       private
 
-      on Orders::Events::OrderCreated do |_event|
-        @status = :created
+      on Orders::Events::OrderCreated do |event|
+        @status     = :created
+        @created_at =  event.valid_at
       end
 
-      on Orders::Events::OrderExpired do |_event|
-        @status = :expired
+      on Orders::Events::OrderExpired do |event|
+        @status     = :expired
+        @expired_at =  event.valid_at
       end
     end
   end
