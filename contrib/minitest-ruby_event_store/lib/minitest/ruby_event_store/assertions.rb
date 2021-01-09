@@ -7,7 +7,7 @@ module Minitest
         Array(expected_events).each do |expected|
           assert collected_events.map(&:event_type).include?(expected.to_s), <<~EOM
             Expected 
-              #{collected_events.inspect}
+              #{collected_events}
             to include 
               #{expected}
           EOM
@@ -20,7 +20,7 @@ module Minitest
         Array(expected_events).each do |expected|
           refute collected_events.map(&:event_type).include?(expected.to_s), <<~EOM
             Expected 
-              #{collected_events.inspect}
+              #{collected_events}
             to NOT include 
               #{expected}
           EOM
