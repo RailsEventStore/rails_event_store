@@ -9,11 +9,11 @@ module RubyEventStore
   end
 end
 
-require 'ruby_event_store/protobuf/mappers/transformation/proto_event'
-require 'ruby_event_store/protobuf/mappers/transformation/protobuf_encoder'
-require 'ruby_event_store/protobuf/mappers/transformation/protobuf_nested_struct_metadata'
-require 'ruby_event_store/protobuf/mappers/protobuf'
-require 'ruby_event_store/protobuf/version'
+require_relative 'protobuf/mappers/transformation/proto_event'
+require_relative 'protobuf/mappers/transformation/protobuf_encoder'
+require_relative 'protobuf/mappers/transformation/protobuf_nested_struct_metadata'
+require_relative 'protobuf/mappers/protobuf'
+require_relative 'protobuf/version'
 
 module RubyEventStore
   Proto = Protobuf::Proto
