@@ -1,12 +1,12 @@
 require "logger"
 require "redis"
 require "active_record"
-require "ruby_event_store/outbox/repository"
-require "ruby_event_store/outbox/sidekiq5_format"
-require "ruby_event_store/outbox/sidekiq_processor"
-require "ruby_event_store/outbox/fetch_specification"
-require "ruby_event_store/outbox/cleanup_strategies/none"
-require "ruby_event_store/outbox/cleanup_strategies/clean_old_enqueued"
+require_relative "repository"
+require_relative "sidekiq5_format"
+require_relative "sidekiq_processor"
+require_relative "fetch_specification"
+require_relative "cleanup_strategies/none"
+require_relative "cleanup_strategies/clean_old_enqueued"
 
 module RubyEventStore
   module Outbox

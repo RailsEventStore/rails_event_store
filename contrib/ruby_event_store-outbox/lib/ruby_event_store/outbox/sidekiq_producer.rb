@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require "ruby_event_store/outbox/repository"
+require_relative "repository"
 
 module RubyEventStore
   module Outbox
