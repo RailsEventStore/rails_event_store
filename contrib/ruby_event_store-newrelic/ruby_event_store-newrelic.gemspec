@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.name             = "ruby_event_store-newrelic"
   spec.version          = RubyEventStore::Newrelic::VERSION
   spec.license          = "MIT"
-  spec.authors          = ["Arkency"]
-  spec.email            = ["dev@arkency.com"]
+  spec.author           = "Arkency"
+  spec.email            = "dev@arkency.com"
   spec.summary          = "Newrelic RPM integration for RubyEventStore"
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["lib/**/*"]
