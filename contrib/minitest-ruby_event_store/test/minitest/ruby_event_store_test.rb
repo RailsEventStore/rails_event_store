@@ -3,8 +3,6 @@ require_relative "../test_helper"
 DummyEvent = Class.new(RubyEventStore::Event)
 
 class Minitest::RubyEventStoreTest < Minitest::Test
-  attr_reader :event_store
-
   cover 'Minitest::RubyEventStore*'
 
   def setup
@@ -25,30 +23,30 @@ class Minitest::RubyEventStoreTest < Minitest::Test
   end
 
   def test_assert_dispatched
-    assert_dispatched(event_store, [DummyEvent]) { event_store.publish(DummyEvent.new) }
+    assert_dispatched(@event_store, [DummyEvent]) { @event_store.publish(DummyEvent.new) }
   end
 
   def test_assert_dispatched_failure
     assert_triggered "bazinga" do
-      assert_dispatched(event_store, [DummyEvent]) { }
+      assert_dispatched(@event_store, [DummyEvent]) { }
     end
   end
 
   def test_assert_dispatched_singular_argument
-    assert_dispatched(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
+    assert_dispatched(@event_store, DummyEvent) { @event_store.publish(DummyEvent.new) }
   end
 
   def test_assert_not_dispatched
-    assert_not_dispatched(event_store, [DummyEvent]) { }
+    assert_not_dispatched(@event_store, [DummyEvent]) { }
   end
 
   def test_assert_not_dispatched_failure
     assert_triggered "bazinga" do
-      assert_not_dispatched(event_store, DummyEvent) { event_store.publish(DummyEvent.new) }
+      assert_not_dispatched(@event_store, DummyEvent) { @event_store.publish(DummyEvent.new) }
     end
   end
 
   def test_assert_not_dispatched_singular
-    assert_not_dispatched(event_store, DummyEvent) { }
+    assert_not_dispatched(@event_store, DummyEvent) { }
   end
 end
