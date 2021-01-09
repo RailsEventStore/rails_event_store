@@ -8,14 +8,14 @@ module RubyEventStore
   end
 end
 
-require "ruby_event_store/rspec/version"
-require "ruby_event_store/rspec/be_event"
-require "ruby_event_store/rspec/have_published"
-require "ruby_event_store/rspec/have_applied"
-require "ruby_event_store/rspec/have_subscribed_to_events"
-require "ruby_event_store/rspec/publish"
-require "ruby_event_store/rspec/apply"
-require "ruby_event_store/rspec/matchers"
+require_relative "rspec/version"
+require_relative "rspec/be_event"
+require_relative "rspec/have_published"
+require_relative "rspec/have_applied"
+require_relative "rspec/have_subscribed_to_events"
+require_relative "rspec/publish"
+require_relative "rspec/apply"
+require_relative "rspec/matchers"
 
 ::RSpec.configure do |config|
   config.include ::RubyEventStore::RSpec::Matchers
