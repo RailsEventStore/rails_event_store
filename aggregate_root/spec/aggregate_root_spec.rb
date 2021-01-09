@@ -26,11 +26,11 @@ require "spec_helper"
 
       private
 
-      def apply_order_created(_event)
+      on Orders::Events::OrderCreated do |_event|
         @status = :created
       end
 
-      def apply_order_expired(_event)
+      on Orders::Events::OrderExpired do |_event|
         @status = :expired
       end
     end
@@ -39,9 +39,8 @@ require "spec_helper"
   it "should have ability to apply event on itself" do
     order = order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
-
-    expect(order).to receive(:"apply_order_created").with(order_created).and_call_original
     order.apply(order_created)
+
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to eq([order_created])
   end
@@ -51,21 +50,18 @@ require "spec_helper"
     expect(order.unpublished_events.to_a).to be_empty
   end
 
+  it "should raise error for missing apply method based on a default apply strategy" do
+    order = order_klass.new(uuid)
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect { order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method on aggregate #{order_klass} for Orders::Events::SpanishInquisition")
+  end
+
   it "should receive a method call based on a default apply strategy" do
     order = order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
 
     order.apply(order_created)
     expect(order.status).to eq :created
-  end
-
-  it "should raise error for missing apply method based on a default apply strategy" do
-    order = order_klass.new(uuid)
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to raise_error(
-      AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate #{order_klass}"
-    )
   end
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
