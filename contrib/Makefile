@@ -2,7 +2,8 @@ GEMS = ruby_event_store-outbox \
        ruby_event_store-protobuf \
        ruby_event_store-rom \
        ruby_event_store-transformations \
-       ruby_event_store-newrelic
+       ruby_event_store-newrelic \
+       minitest-rails_event_store
 
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
