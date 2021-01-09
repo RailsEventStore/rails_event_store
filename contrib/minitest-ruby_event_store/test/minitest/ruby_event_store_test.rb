@@ -5,6 +5,8 @@ DummyEvent = Class.new(RubyEventStore::Event)
 class Minitest::RubyEventStoreTest < Minitest::Test
   attr_reader :event_store
 
+  cover 'Minitest::RubyEventStore*'
+
   def setup
     @event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
   end
