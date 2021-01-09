@@ -36,13 +36,43 @@ RSpec.describe AggregateRoot do
   end
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
-    order = OrderWithNonStrictApplyStrategy.new
+    klass = Class.new do
+      include AggregateRoot.with_strategy(->{ AggregateRoot::DefaultApplyStrategy.new(strict: false) })
+    end
+    order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to_not raise_error
   end
 
   it "should receive a method call based on a custom strategy" do
-    order = OrderWithCustomStrategy.new
+    strategy = -> do
+      ->(aggregate, event) do
+        {
+          'Orders::Events::OrderCreated' => aggregate.method(:custom_created),
+          'Orders::Events::OrderExpired' => aggregate.method(:custom_expired),
+        }.fetch(event.event_type, ->(ev) {}).call(event)
+      end
+    end
+    klass = Class.new do
+      include AggregateRoot.with_strategy(strategy)
+
+      def initialize
+        @status = :draft
+      end
+
+      attr_accessor :status
+
+      private
+
+      def custom_created(_event)
+        @status = :created
+      end
+
+      def custom_expired(_event)
+        @status = :expired
+      end
+    end
+    order = klass.new
     order_created = Orders::Events::OrderCreated.new
 
     order.apply(order_created)

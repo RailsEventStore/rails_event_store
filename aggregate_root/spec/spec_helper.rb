@@ -50,36 +50,3 @@ class Order
     @status = :expired
   end
 end
-
-class OrderWithNonStrictApplyStrategy
-  include AggregateRoot.with_strategy(->{ AggregateRoot::DefaultApplyStrategy.new(strict: false) })
-end
-
-class CustomOrderApplyStrategy
-  def call(aggregate, event)
-    {
-      'Orders::Events::OrderCreated' => aggregate.method(:custom_created),
-      'Orders::Events::OrderExpired' => aggregate.method(:custom_expired),
-    }.fetch(event.event_type, ->(ev) {}).call(event)
-  end
-end
-
-class OrderWithCustomStrategy
-  include AggregateRoot.with_strategy(-> { CustomOrderApplyStrategy.new })
-
-  def initialize
-    @status = :draft
-  end
-
-  attr_accessor :status
-
-  private
-
-  def custom_created(_event)
-    @status = :created
-  end
-
-  def custom_expired(_event)
-    @status = :expired
-  end
-end
