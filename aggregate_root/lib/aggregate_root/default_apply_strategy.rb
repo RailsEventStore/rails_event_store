@@ -24,7 +24,7 @@ module AggregateRoot
 
     def missing_handler(aggregate, event_type)
       if strict
-        lambda { |event| raise MissingHandler.new("Missing handler method on aggregate #{aggregate.class} for #{event_type}") }
+        raise MissingHandler.new("Missing handler method on aggregate #{aggregate.class} for #{event_type}")
       else
         NullHandler
       end
