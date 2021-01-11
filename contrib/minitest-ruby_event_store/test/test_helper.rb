@@ -2,6 +2,7 @@ require "minitest/ruby_event_store"
 require "ruby_event_store"
 require "mutant/minitest/coverage"
 require "minitest/autorun"
+require_relative '../../../support/helpers/time_enrichment'
 
 class IdentityMapTransformation
   def initialize
@@ -26,14 +27,4 @@ class IdentityMapTransformation
   def load(record)
     @identity_map.fetch(record.event_id)
   end
-end
-
-
-module TimeEnrichment
-  def with(event, timestamp: Time.now.utc, valid_at: nil)
-    event.metadata[:timestamp] ||= timestamp
-    event.metadata[:valid_at] ||= valid_at || timestamp
-    event
-  end
-  module_function :with
 end

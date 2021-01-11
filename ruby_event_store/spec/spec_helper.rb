@@ -1,19 +1,11 @@
 require 'ruby_event_store'
 require_relative '../../support/helpers/rspec_defaults'
+require_relative '../../support/helpers/time_enrichment'
 require 'support/correlatable'
 
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
 TestEvent = Class.new(RubyEventStore::Event)
-
-module TimeEnrichment
-  def with(event, timestamp: Time.now.utc, valid_at: nil)
-    event.metadata[:timestamp] ||= timestamp
-    event.metadata[:valid_at]  ||= valid_at || timestamp
-    event
-  end
-  module_function :with
-end
 
 module Subscribers
   class InvalidHandler

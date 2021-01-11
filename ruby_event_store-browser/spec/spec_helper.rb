@@ -3,6 +3,7 @@ require "ruby_event_store/browser/app"
 require "support/test_client"
 require "support/test_client_with_json_api_linter"
 require_relative '../../support/helpers/rspec_defaults'
+require_relative '../../support/helpers/time_enrichment'
 
 ENV['RACK_ENV'] = 'test'
 

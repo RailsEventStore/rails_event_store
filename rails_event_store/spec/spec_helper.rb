@@ -7,6 +7,7 @@ require 'rails/gem_version'
 require_relative '../../support/helpers/rspec_defaults'
 require_relative '../../support/helpers/migrator'
 require_relative '../../support/helpers/silence_stdout'
+require_relative '../../support/helpers/time_enrichment'
 
 RSpec.configure do |config|
   config.around(:each) do |example|
@@ -27,15 +28,6 @@ ActiveJob::Base.logger = nil unless $verbose
 ActiveRecord::Schema.verbose = $verbose
 
 DummyEvent = Class.new(RailsEventStore::Event)
-
-module TimeEnrichment
-  def with(event, timestamp: Time.now.utc, valid_at: nil)
-    event.metadata[:timestamp] ||= timestamp
-    event.metadata[:valid_at] ||= valid_at || timestamp
-    event
-  end
-  module_function :with
-end
 
 module GeneratorHelper
   def dummy_app_name

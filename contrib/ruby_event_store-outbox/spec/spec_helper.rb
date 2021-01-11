@@ -5,6 +5,7 @@ require "ruby_event_store/outbox/metrics/null"
 require "ruby_event_store/outbox/metrics/influx"
 require_relative '../../../support/helpers/rspec_defaults'
 require_relative '../../../support/helpers/schema_helper'
+require_relative '../../../support/helpers/time_enrichment'
 require_relative './support/db'
 require 'rails'
 require 'active_support/testing/time_helpers.rb'
@@ -15,15 +16,6 @@ RSpec.configure do |config|
   config.before(:each, redis: true) do |example|
     redis.flushdb
   end
-end
-
-module TimeEnrichment
-  def with(event, timestamp: Time.now.utc, valid_at: nil)
-    event.metadata[:timestamp] ||= timestamp
-    event.metadata[:valid_at] ||= valid_at || timestamp
-    event
-  end
-  module_function :with
 end
 
 $verbose = ENV.has_key?('VERBOSE') ? true : false

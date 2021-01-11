@@ -1,14 +1,5 @@
 require "spec_helper"
 
-module TimeEnrichment
-  def with(event, timestamp: Time.now.utc, valid_at: nil)
-    event.metadata[:timestamp] ||= timestamp
-    event.metadata[:valid_at]  ||= valid_at || timestamp
-    event
-  end
-  module_function :with
-end
-
 module RubyEventStore
   RSpec.describe Browser do
     specify "requsting stream resource" do
