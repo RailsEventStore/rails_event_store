@@ -24,7 +24,7 @@ module RubyEventStore
           subscribe_to("serialize.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.event_to_record(domain_event)
             expect(notification_calls).to eq([
-              { domain_event: domain_event}
+              { domain_event: domain_event }
             ])
           end
         end
@@ -44,7 +44,7 @@ module RubyEventStore
           subscribe_to("deserialize.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.record_to_event(record)
             expect(notification_calls).to eq([
-              { record: record}
+              { record: record }
             ])
           end
         end
