@@ -55,37 +55,99 @@ end
 
 #### append_to_stream.repository.rails_event_store
 
-| Key     | Value                              |
-| ------- | ---------------------------------- |
-| :events | Array of appended events           |
-| :stream | Name of stream we append events to |
+| Key     | Value |
+| ------- | ----- |
+| :events | An array of appended [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) objects |
+| :stream | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we append events to |
+
+```ruby
+{
+  events: [#<RubyEventStore::Record:0x0000000104b51f30>],
+  stream: #<RubyEventStore::Stream:0x0000000106cbf578>
+}
+```
+
 
 #### link_to_stream.repository.rails_event_store
 
-| Key        | Value                            |
-| ---------- | -------------------------------- |
-| :event_ids | Array of linked events' ids      |
-| :stream    | Name of stream we link events to |
+| Key        | Value |
+| ---------- | ----- |
+| :event_ids | An array of linked event identifiers |
+| :stream    | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we link events to |
+
+```ruby
+{
+  event_ids: ["71c38b38-4c72-4f95-86e2-203898f98c8e",
+   "82dcf1eb-ec4e-48c6-b061-de7ce03fb6af"],
+  stream: #<RubyEventStore::Stream:0x0000000106cbf578>
+}
+```
+
 
 #### delete_stream.repository.rails_event_store
 
-| Key     | Value                  |
-| ------- | ---------------------- |
-| :stream | Name of stream deleted |
+| Key     | Value |
+| ------- | ----- |
+| :stream | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we delete |
 
-#### read_event.repository.rails_event_store
+```ruby
+{
+  stream: #<RubyEventStore::Stream:0x0000000106cbf578>
+}
+```
 
-| Key       | Value                |
-| --------- | -------------------- |
-| :event_id | Id of the read event |
 
 #### read.repository.rails_event_store
 
-| Key            | Value                                     |
-| -------------- | ----------------------------------------- |
-| :specification | Specification of the query to event store |
+| Key            | Value |
+| -------------- | ----- |
+| :specification | A [RubyEventStore::SpecificationResult](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/SpecificationResult) describing the query requested from event store |
 
-Queries specification is not documented, but you can read the [source code of it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/specification.rb).
+```ruby
+{
+  specification: #<RubyEventStore::SpecificationResult:0x0000000113644d80>
+}
+```
+
+
+#### count.repository.rails_event_store
+
+| Key            | Value |
+| -------------- | ----- |
+| :specification | A [RubyEventStore::SpecificationResult](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/SpecificationResult) describing the query requested from event store |
+
+```ruby
+{
+  specification: #<RubyEventStore::SpecificationResult:0x0000000113644d80>
+}
+```
+
+
+#### update_messages.repository.rails_event_store
+
+| Key            | Value |
+| -------------- | ----- |
+| :messages      | An array of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) objects to replace existing ones of the same identifiers |
+
+```ruby
+{
+  messages: [#<RubyEventStore::Record:0x0000000109e4ff98]
+}
+```
+
+
+#### streams_of.repository.rails_event_store
+
+| Key            | Value |
+| -------------- | ----- |
+| :event_id      | An identifier of the event used to query for streams it is present in |
+
+```ruby
+{
+  event_id: "8cee1139-4f96-483a-a175-2b947283c3c7"
+}
+```
+
 
 #### call.dispatcher.rails_event_store
 
@@ -93,3 +155,4 @@ Queries specification is not documented, but you can read the [source code of it
 | ----------- | -------------------------------------------- |
 | :event      | An event which is being dispatched           |
 | :subscriber | A subscriber to which event is dispatched to |
+
