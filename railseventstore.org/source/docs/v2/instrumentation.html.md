@@ -153,6 +153,12 @@ end
 
 | Key         | Value                                        |
 | ----------- | -------------------------------------------- |
-| :event      | An event which is being dispatched           |
+| :event      | An event instance which is being dispatched           |
 | :subscriber | A subscriber to which event is dispatched to |
 
+```ruby
+{
+  event: #<MyEvent:0x000000010e786658>,
+  subscriber: #<Proc:0x00000001123ecb10>
+}
+```
