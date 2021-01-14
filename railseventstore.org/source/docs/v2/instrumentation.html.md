@@ -151,8 +151,8 @@ end
 
 #### call.dispatcher.rails_event_store
 
-| Key         | Value                                        |
-| ----------- | -------------------------------------------- |
+| Key         | Value |
+| ----------- | ----- |
 | :event      | An event instance which is being dispatched           |
 | :subscriber | A subscriber to which event is dispatched to |
 
@@ -160,5 +160,30 @@ end
 {
   event: #<MyEvent:0x000000010e786658>,
   subscriber: #<Proc:0x00000001123ecb10>
+}
+```
+
+
+#### serialize.mapper.rails_event_store
+
+| Key         | Value |
+| ----------- | ----- |
+| :domain_event | An event instance which is being mapped into RubyEventStore::Record |
+
+```ruby
+{
+  domain_event: #<MyEvent:0x000000010e786658>
+}
+```
+
+#### deserialize.mapper.rails_event_store
+
+| Key         | Value |
+| ----------- | ----- |
+| :record | An instance of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) which is being mapped into an event |
+
+```ruby
+{
+  record: #<RubyEventStore::Record:0x0000000104b51f30>
 }
 ```
