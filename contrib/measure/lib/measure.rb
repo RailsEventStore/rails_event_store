@@ -5,11 +5,15 @@ module Measure
       append_to_stream.repository.rails_event_store
       link_to_stream.repository.rails_event_store
       delete_stream.repository.rails_event_store
-      read_event.repository.rails_event_store
       read.repository.rails_event_store
+      count.repository.rails_event_store
+      update_messages.repository.rails_event_store
+      streams_of.repository.rails_event_store
       call.dispatcher.rails_event_store
       serialize.mapper.rails_event_store
       deserialize.mapper.rails_event_store
+      load.repository.aggregate_root
+      store.repository.aggregate_root
       total
     ).freeze
 
