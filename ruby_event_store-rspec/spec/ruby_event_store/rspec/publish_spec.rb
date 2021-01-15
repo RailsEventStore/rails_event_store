@@ -8,7 +8,7 @@ module RubyEventStore
         RubyEventStore::Client.new(
           repository: RubyEventStore::InMemoryRepository.new,
           mapper: RubyEventStore::Mappers::PipelineMapper.new(
-            RubyEventStore::Mappers::Pipeline.new(to_domain_event: IdentityMapTransformation.new)
+            RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
           )
         )
       end

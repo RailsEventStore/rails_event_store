@@ -10,7 +10,7 @@ class Minitest::RubyEventStoreTest < Minitest::Test
       RubyEventStore::Client.new(
         repository: RubyEventStore::InMemoryRepository.new,
         mapper: RubyEventStore::Mappers::PipelineMapper.new(
-          RubyEventStore::Mappers::Pipeline.new(to_domain_event: IdentityMapTransformation.new)
+          RubyEventStore::Mappers::Pipeline.new(to_domain_event: RubyEventStore::Transformations::IdentityMap.new)
         ),
         correlation_id_generator: Proc.new {}
       )
