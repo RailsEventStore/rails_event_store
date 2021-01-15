@@ -1,0 +1,14 @@
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+requires:
+- ruby_event_store/profiler
+includes:
+- lib
+integration: rspec
+mutation_timeout: 10.0
+coverage_criteria:
+   timeout: true
+   process_abort: true
+matcher:
+   subjects:
+   - RubyEventStore::Profiler*
