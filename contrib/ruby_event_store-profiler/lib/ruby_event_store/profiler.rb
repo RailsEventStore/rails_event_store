@@ -13,7 +13,7 @@ module RubyEventStore
 
     def measure(&block)
       output =
-        Hash.new { 0 }
+        Hash.new(0)
       subscribers =
         METRICS.map do |name|
           @instrumenter.subscribe(name) do |name, start, finish|
