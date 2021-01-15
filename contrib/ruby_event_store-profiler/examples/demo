@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
-require 'measure'
+require 'ruby_event_store/profiler'
 require 'ruby_event_store'
 require 'active_support/notifications'
 require 'aggregate_root'
@@ -28,7 +28,7 @@ class Bazinga
 end
 
 
-Measure.measure do
+RubyEventStore::Profiler.measure do
   aggregate = repo.load(Bazinga.new, 'bazinga')
   100.times { aggregate.do_the_dummy }
   repo.store(aggregate, 'bazinga')

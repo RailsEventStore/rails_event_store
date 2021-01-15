@@ -14,8 +14,9 @@ PATH
 PATH
   remote: .
   specs:
-    measure (0.1.0)
+    ruby_event_store-profiler (0.1.0)
       activesupport (>= 5.0.0)
+      ruby_event_store (>= 1.0.0, < 3.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -54,9 +55,9 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  measure!
   rspec
   ruby_event_store!
+  ruby_event_store-profiler!
 
 BUNDLED WITH
    2.2.4
