@@ -2,7 +2,7 @@
 
 module RubyEventStore
   class Profiler
-    METRICS = [/rails_event_store/, /aggregate_root/, "total"].freeze
+    METRICS = [/ruby_event_store/, /aggregate_root/, "total"].freeze
     private_constant :METRICS
 
     def initialize(instrumenter)
