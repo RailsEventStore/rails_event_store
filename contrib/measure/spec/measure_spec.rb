@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'ruby_event_store'
-require 'active_support'
 
 RSpec.describe Measure do
   let(:event_store) do
