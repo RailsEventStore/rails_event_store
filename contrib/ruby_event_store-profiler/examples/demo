@@ -28,7 +28,7 @@ class Bazinga
 end
 
 
-RubyEventStore::Profiler.measure do
+RubyEventStore::Profiler.new(asn).measure do
   aggregate = repo.load(Bazinga.new, 'bazinga')
   100.times { aggregate.do_the_dummy }
   repo.store(aggregate, 'bazinga')

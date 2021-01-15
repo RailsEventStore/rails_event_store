@@ -2,12 +2,12 @@ require 'spec_helper'
 
 module RubyEventStore
   RSpec.describe Profiler do
+    let(:instrumenter) { ActiveSupport::Notifications }
     let(:event_store) do
-      asn = ActiveSupport::Notifications
       RubyEventStore::Client.new(
-        repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, asn),
-        mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, asn),
-        dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, asn)
+        repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
+        mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter),
+        dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter)
       )
     end
 
@@ -36,7 +36,7 @@ module RubyEventStore
 
       allow(Time).to receive(:now) { step_clock.now }
 
-      expect { Profiler.measure(&operation) }.to output(<<~EOS).to_stdout
+      expect { Profiler.new(instrumenter).measure(&operation) }.to output(<<~EOS).to_stdout
         metric                  ms      %
         ─────────────────────────────────
         serialize          1000.00  16.67
@@ -55,7 +55,7 @@ module RubyEventStore
 
       begin
         $stdout = File.open('/dev/null', 'w')
-        return_value = Profiler.measure(&operation)
+        return_value = Profiler.new(instrumenter).measure(&operation)
       ensure
         $stdout = STDOUT
       end

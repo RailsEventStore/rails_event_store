@@ -3,5 +3,7 @@ gemspec
 
 eval_gemfile '../../support/bundler/Gemfile.shared'
 
+gem 'activesupport', ">= 5.0"
+
 gem 'ruby_event_store', path: '../../ruby_event_store'
 gem 'aggregate_root',   path: '../../aggregate_root'
