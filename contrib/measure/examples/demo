@@ -14,7 +14,7 @@ event_store = RubyEventStore::Client.new(
 )
 DummyEvent  = Class.new(RubyEventStore::Event)
 dummy = DummyEvent.new
-repo  = AggregateRoot::Repository.new(event_store)
+repo  = AggregateRoot::InstrumentedRepository.new(AggregateRoot::Repository.new(event_store), asn)
 
 class Bazinga
   include AggregateRoot
