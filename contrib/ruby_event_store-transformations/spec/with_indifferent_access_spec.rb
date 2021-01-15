@@ -5,20 +5,20 @@ require 'spec_helper'
 module RubyEventStore
   module Transformations
     RSpec.describe WithIndifferentAccess do
-      let(:time) { Time.now }
-      let(:item) {
+      def record(hash, time)
         RubyEventStore::Record.new(
-          event_id: 'not-important',
-          data: hash,
-          metadata: hash,
+          event_id:   'not-important',
+          data:       hash,
+          metadata:   hash,
           event_type: 'does-not-matter',
-          timestamp: time,
-          valid_at: time,
+          timestamp:  time,
+          valid_at:   time,
         )
-      }
+     end
 
-      context "#load" do
-        let(:hash) {
+      specify "#load" do
+        time = Time.now
+        hash =
           {
             simple: 'data',
             array: [
@@ -31,35 +31,33 @@ module RubyEventStore
               meh: 3
             }
           }
-        }
+        result = WithIndifferentAccess.new.load(record(hash, time))
 
-        it do
-          result = WithIndifferentAccess.new.load(item)
-          expect(result.data.class).to eq(ActiveSupport::HashWithIndifferentAccess)
-          expect(result.metadata.class).to eq(ActiveSupport::HashWithIndifferentAccess)
-          expect(result.data[:array].last.class).to eq(ActiveSupport::HashWithIndifferentAccess)
-          expect(result.data[:hash].class).to eq(ActiveSupport::HashWithIndifferentAccess)
-          expect(result.data[:hash][:nested].class).to eq(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data).to                 be_kind_of(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.metadata).to             be_kind_of(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data[:array].last).to    be_kind_of(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data[:hash]).to          be_kind_of(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data[:hash][:nested]).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
 
-          expect(result.data[:simple]).to eq('data')
-          expect(result.data[:array].first).to eq(1)
-          expect(result.data[:array].last[:some]).to eq('hash')
-          expect(result.data[:hash][:meh]).to eq(3)
-          expect(result.data[:hash][:nested][:any]).to eq('value')
+        expect(result.data[:simple]).to              eq('data')
+        expect(result.data[:array].first).to         eq(1)
+        expect(result.data[:array].last[:some]).to   eq('hash')
+        expect(result.data[:hash][:meh]).to          eq(3)
+        expect(result.data[:hash][:nested][:any]).to eq('value')
 
-          expect(result.data['simple']).to eq('data')
-          expect(result.data['array'].first).to eq(1)
-          expect(result.data['array'].last['some']).to eq('hash')
-          expect(result.data['hash']['meh']).to eq(3)
-          expect(result.data['hash']['nested']['any']).to eq('value')
+        expect(result.data['simple']).to                eq('data')
+        expect(result.data['array'].first).to           eq(1)
+        expect(result.data['array'].last['some']).to    eq('hash')
+        expect(result.data['hash']['meh']).to           eq(3)
+        expect(result.data['hash']['nested']['any']).to eq('value')
 
-          expect(result.timestamp).to eq(time)
-          expect(result.valid_at).to eq(time)
-        end
+        expect(result.timestamp).to eq(time)
+        expect(result.valid_at).to  eq(time)
       end
 
-      context "#dump" do
-        let(:hash) {
+      specify "#dump" do
+        time = Time.now
+        hash =
           ActiveSupport::HashWithIndifferentAccess.new({
             simple: 'data',
             array: [
@@ -72,25 +70,22 @@ module RubyEventStore
               meh: 3
             })
           })
-        }
+        result = WithIndifferentAccess.new.dump(record(hash, time))
 
-        it do
-          result = WithIndifferentAccess.new.dump(item)
-          expect(result.data.class).to eq(Hash)
-          expect(result.metadata.class).to eq(Hash)
-          expect(result.data[:array].last.class).to eq(Hash)
-          expect(result.data[:hash].class).to eq(Hash)
-          expect(result.data[:hash][:nested].class).to eq(Hash)
+        expect(result.data).to                 be_kind_of(Hash)
+        expect(result.metadata).to             be_kind_of(Hash)
+        expect(result.data[:array].last).to    be_kind_of(Hash)
+        expect(result.data[:hash]).to          be_kind_of(Hash)
+        expect(result.data[:hash][:nested]).to be_kind_of(Hash)
 
-          expect(result.data[:simple]).to eq('data')
-          expect(result.data[:array].first).to eq(1)
-          expect(result.data[:array].last[:some]).to eq('hash')
-          expect(result.data[:hash][:meh]).to eq(3)
-          expect(result.data[:hash][:nested][:any]).to eq('value')
+        expect(result.data[:simple]).to              eq('data')
+        expect(result.data[:array].first).to         eq(1)
+        expect(result.data[:array].last[:some]).to   eq('hash')
+        expect(result.data[:hash][:meh]).to          eq(3)
+        expect(result.data[:hash][:nested][:any]).to eq('value')
 
-          expect(result.timestamp).to eq(time)
-          expect(result.valid_at).to eq(time)
-        end
+        expect(result.timestamp).to eq(time)
+        expect(result.valid_at).to  eq(time)
       end
     end
   end
