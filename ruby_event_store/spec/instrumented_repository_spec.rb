@@ -24,7 +24,9 @@ module RubyEventStore
         subscribe_to("append_to_stream.repository.ruby_event_store") do |notification_calls|
           instrumented_repository.append_to_stream([record], stream, expected_version)
 
-          expect(notification_calls).to eq([{ events: [record], stream: stream }])
+          expect(notification_calls).to eq([
+            { records: [record], stream: stream }
+          ])
         end
       end
     end
@@ -143,7 +145,9 @@ module RubyEventStore
         subscribe_to("update_messages.repository.ruby_event_store") do |notification_calls|
           instrumented_repository.update_messages([record])
 
-          expect(notification_calls).to eq([{ messages: [record] }])
+          expect(notification_calls).to eq([
+            { records: [record] }
+          ])
         end
       end
     end
