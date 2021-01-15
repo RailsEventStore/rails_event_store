@@ -7,7 +7,7 @@ module RubyEventStore
   module Transformations
     class WithIndifferentAccess
       def dump(item)
-        RubyEventStore::Record.new(
+        Record.new(
           event_id:   item.event_id,
           metadata:   HashWithIndifferentAccess.new(item.metadata).deep_symbolize_keys,
           data:       HashWithIndifferentAccess.new(item.data).deep_symbolize_keys,
@@ -18,7 +18,7 @@ module RubyEventStore
       end
 
       def load(item)
-        RubyEventStore::Record.new(
+        Record.new(
           event_id:   item.event_id,
           metadata:   HashWithIndifferentAccess.new(item.metadata),
           data:       HashWithIndifferentAccess.new(item.data),
