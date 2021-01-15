@@ -3,7 +3,7 @@ require "action_controller/railtie"
 
 module RailsEventStore
   ::RSpec.describe Client do
-    TestEvent = Class.new(RailsEventStore::Event)
+    TestEvent = Class.new(RubyEventStore::Event)
 
     specify "has default request metadata proc if no custom one provided" do
       client = Client.new
@@ -48,7 +48,6 @@ module RailsEventStore
 
     specify "wraps mapper into instrumentation" do
       client = Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::Default.new)
-
       received_notifications = 0
       ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") { received_notifications += 1 }
 
