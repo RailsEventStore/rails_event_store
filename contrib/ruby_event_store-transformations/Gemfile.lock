@@ -8,6 +8,7 @@ PATH
   remote: .
   specs:
     ruby_event_store-transformations (0.1.0)
+      activesupport (>= 5.0)
       ruby_event_store (>= 2.0.0, < 3.0.0)
 
 GEM
@@ -108,7 +109,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 5.0)
   mutant (~> 0.10.22)
   mutant-license!
   mutant-minitest (~> 0.10.22)
