@@ -36,6 +36,22 @@ RubyEventStore::Client.new(
 
 You can also instrument your own repository, mapper or dispatcher components the same way.
 
+
+### AggregateRoot
+
+The `aggregate_root` gem is not integrated with any particular instrumenter implementation — same as with `ruby_event_store`.
+
+Instrumentation is provided by `AggregateRoot::InstrumentedReposiory` decorator. In order to enable instrumentation, wrap the aggregate root repository with its instrumented decorator and the instrumenter of your choice:
+
+```ruby
+instrumenter = ActiveSupport::Notifications
+repository   = AggregateRoot::InstrumentedRepository.new(
+  AggregateRoot::Repository.new(event_store),
+  instrumenter
+)
+```
+
+
 ### RailsEventStore
 
 The `rails_event_store` gem is integrated with `ActiveSupport::Notifications` that ships with Rails. By default `RailsEventStore::Client` instance ships with already instrumented repository, mapper and a dispatcher. 
@@ -50,6 +66,8 @@ ActiveSupport::Notifications.subscribe(hook_name) do |name, start, finish, id, p
   NewRelic::Agent.record_metric('Custom/RES/append_to_stream', metric.duration)
 end
 ```
+
+The aggregate root repository instrumentation is not enabled automaticly here. The event store is a dependency passed to aggregate root repository and has no control over it. You have to decorate this repository yourself.
 
 ## Hooks and their payloads
 
@@ -185,5 +203,43 @@ end
 ```ruby
 {
   record: #<RubyEventStore::Record:0x0000000104b51f30>
+}
+```
+
+
+#### load.repository.aggregate_root
+
+| Key         | Value |
+| ----------- | ----- |
+| :aggregate  | An instance of an aggregate on which loaded events are being applied |
+| :stream     | A stream name to load events from |
+
+```ruby
+{
+  aggregate: #<Order:0x00000001141f97c0>,
+  stream: "Order$42"
+}
+```
+
+
+#### store.repository.aggregate_root
+
+| Key         | Value |
+| ----------- | ----- |
+| :aggregate  | An instance of an aggregate whose events are being stored |
+| :stream     | A stream name to which events are stored |
+| :version     | An [expected version](https://railseventstore.org/docs/v2/expected_version/#explicit-number-integer-from-1) of the stream to which events are stored |
+| :stored_events | An array of events that are stored as a result of actions performed on this aggregate |
+
+
+```ruby
+{
+  aggregate: #<Order:0x00000001141f97c0>,
+  stream: "Order$42",
+  version: -1,
+  stored_events: [
+    #<Orders::Events::OrderCreated:0x000000011428a950>,
+    #<Orders::Events::OrderExpired:0x000000011428a2c0>
+  ]
 }
 ```
