@@ -1,5 +1,5 @@
 module RubyEventStore
-  module Profiler
+  class Profiler
     METRICS = [
       /rails_event_store/,
       /aggregate_root/,
@@ -7,24 +7,28 @@ module RubyEventStore
     ].freeze
     private_constant :METRICS
 
+    def initialize(instrumenter)
+      @instrumenter = instrumenter
+    end
+
     def measure(&block)
       output =
         Hash.new { |hash, key| hash[key] = 0 }
       subscribers =
         METRICS.map do |name|
-          ActiveSupport::Notifications.subscribe(name) do |name, start, finish, _, _|
+          @instrumenter.subscribe(name) do |name, start, finish, _, _|
             metric_name = name.split('.').first
             duration    = 1000.0 * (finish - start)
             output[metric_name] += duration
           end
         end
 
-      ActiveSupport::Notifications.instrument('total') do
+      @instrumenter.instrument('total') do
         block.call
       end
 
       subscribers.each do |name|
-        ActiveSupport::Notifications.unsubscribe(name)
+        @instrumenter.unsubscribe(name)
       end
 
       total = output.delete('total')
@@ -41,6 +45,5 @@ module RubyEventStore
 
       output.merge("total" => total)
     end
-    module_function :measure
   end
 end

@@ -15,7 +15,6 @@ PATH
   remote: .
   specs:
     ruby_event_store-profiler (0.1.0)
-      activesupport (>= 5.0.0)
       ruby_event_store (>= 1.0.0, < 3.0.0)
 
 GEM
@@ -119,6 +118,7 @@ PLATFORMS
   x86_64-darwin-19
 
 DEPENDENCIES
+  activesupport (>= 5.0)
   aggregate_root!
   mutant (~> 0.10.22)
   mutant-license!
