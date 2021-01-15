@@ -3,5 +3,16 @@
 source "https://rubygems.org"
 gemspec
 
-gem 'pg'
-gem 'childprocess'
+eval_gemfile '../../../support/bundler/Gemfile.shared'
+
+gem "pg"
+gem "childprocess"
+gem "pry", "~> 0.10"
+gem "pry-byebug", "~> 3.5"
+gem "rake", "~> 12.3"
+gem "rspec-rails", "~> 3.7"
+gem "capybara", "~> 3.0"
+gem "timecop", "~> 0.9"
+
+gem "ruby_event_store",  path: "../../../ruby_event_store"
+gem "rails_event_store", path: "../../../rails_event_store"

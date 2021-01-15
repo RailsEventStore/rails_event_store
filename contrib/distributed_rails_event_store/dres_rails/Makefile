@@ -6,7 +6,6 @@ DATABASE_URL ?= postgres://localhost/rails_event_store_active_record?pool=5
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
-	@gem install gemfury -v 0.7.0 --conservative
 	@echo "Running migrations"
 	@cd spec/dummy/ && bundle exec bin/rails dres_rails:install:migrations && cd ../../
 	@cd spec/dummy/ && bundle exec bin/rails db:migrate && cd ../../

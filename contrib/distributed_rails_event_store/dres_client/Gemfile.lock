@@ -1,8 +1,14 @@
 PATH
+  remote: ../../../ruby_event_store
+  specs:
+    ruby_event_store (2.1.0)
+      concurrent-ruby (~> 1.0, >= 1.1.6)
+
+PATH
   remote: .
   specs:
     dres_client (0.6.0)
-      ruby_event_store (~> 0.36)
+      ruby_event_store (>= 2.0, < 3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -34,6 +40,7 @@ GEM
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     method_source (1.0.0)
+    minitest (5.14.3)
     mprelude (0.1.0)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
@@ -57,6 +64,9 @@ GEM
       unparser (~> 0.5.6)
       variable (~> 0.0.1)
     mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
+    mutant-minitest (0.10.22)
+      minitest (~> 5.11)
+      mutant (= 0.10.22)
     mutant-rspec (0.10.22)
       mutant (= 0.10.22)
       rspec-core (>= 3.8.0, < 4.0.0)
@@ -82,8 +92,6 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
-    ruby_event_store (0.44.0)
-      concurrent-ruby (~> 1.0, >= 1.1.6)
     thread_safe (0.3.6)
     unparser (0.5.6)
       abstract_type (~> 0.0.7)
@@ -109,12 +117,14 @@ DEPENDENCIES
   closed_struct
   dres_client!
   equalizer
-  mutant (= 0.10.22)
+  mutant (~> 0.10.22)
   mutant-license!
-  mutant-rspec (= 0.10.22)
+  mutant-minitest (~> 0.10.22)
+  mutant-rspec (~> 0.10.22)
   pry
   rake (>= 10.0)
   rspec (~> 3.6)
+  ruby_event_store!
   webmock (~> 3.3.0)
 
 BUNDLED WITH

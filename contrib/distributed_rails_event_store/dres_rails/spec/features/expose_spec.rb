@@ -20,10 +20,10 @@ RSpec.describe "DresRails::ApplicationController" do
   end
 
   let(:repository) do
-    RailsEventStoreActiveRecord::PgLinearizedEventRepository.new
+    RailsEventStoreActiveRecord::PgLinearizedEventRepository.new(serializer: YAML)
   end
   let(:res) do
-    RailsEventStore::Client.new(repository: repository)
+    RailsEventStore::Client.new(repository: repository, correlation_id_generator: ->{ "15b861b5-5697-40ae-bfea-7f01329c3385" })
   end
 
   class MyEvent < RubyEventStore::Event
@@ -70,14 +70,18 @@ RSpec.describe "DresRails::ApplicationController" do
       "events"=>[{
         "event_id"=>"dfc7f58d-aae3-4d21-8f3a-957bfa765ef8",
         "data"=>"---\n:one: 1\n",
-        "metadata"=>"---\n:timestamp: 2018-04-07 12:30:00.000000000 Z\n",
+        "metadata"=>"---\n:correlation_id: 15b861b5-5697-40ae-bfea-7f01329c3385\n",
+        "valid_at"=>"2018-04-07T12:30:00.000Z",
+        "timestamp"=>"2018-04-07T12:30:00.000Z",
         "event_type"=>"MyEvent"
       }, {
         "event_id"=>"b2f58e9c-0887-4fbf-99a8-0bb19cfebeef",
         "data"=>"---\n:two: 2\n",
-        "metadata"=>"---\n:timestamp: 2018-04-07 12:30:00.000000000 Z\n",
+        "metadata"=>"---\n:correlation_id: 15b861b5-5697-40ae-bfea-7f01329c3385\n",
+        "valid_at"=>"2018-04-07T12:30:00.000Z",
+        "timestamp"=>"2018-04-07T12:30:00.000Z",
         "event_type"=>"MyEvent"
     }]})
-    expect(page.body).to eq(File.read("../shared_spec/body1.json"))
+    expect(JSON.parse(page.body)).to eq(JSON.parse(File.read("../shared_spec/body1.json")))
   end
 end

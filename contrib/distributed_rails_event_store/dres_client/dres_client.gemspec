@@ -8,15 +8,15 @@ Gem::Specification.new do |spec|
   spec.version       = DresClient::VERSION
   spec.authors       = ["Robert Pankowecki"]
   spec.email         = ["dev@arkency.com"]
-
   spec.summary       = %q{Distributed RailsEventStore (DRES) client}
   spec.description   = %q{Distributed RailsEventStore (DRES) client}
   spec.homepage      = "http://railseventstore.org/"
-
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "ruby_event_store", "~> 0.36"
+  spec.required_ruby_version = ">= 2.5"
+
+  spec.add_dependency "ruby_event_store", ">= 2.0", "< 3.0"
 end
