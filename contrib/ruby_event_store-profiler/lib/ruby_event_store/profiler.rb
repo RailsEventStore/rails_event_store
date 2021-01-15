@@ -12,10 +12,10 @@ module RubyEventStore
         Hash.new { |hash, key| hash[key] = 0 }
       subscribers =
         METRICS.map do |name|
-          ActiveSupport::Notifications.subscribe(name) do |name, start, finish, id, payload|
-            metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
+          ActiveSupport::Notifications.subscribe(name) do |name, start, finish, _, _|
             metric_name = name.split('.').first
-            output[metric_name] += metric.duration
+            duration    = 1000.0 * (finish - start)
+            output[metric_name] += duration
           end
         end
 
