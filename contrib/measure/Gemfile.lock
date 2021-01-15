@@ -1,0 +1,62 @@
+PATH
+  remote: ../../aggregate_root
+  specs:
+    aggregate_root (2.1.0)
+      ruby2_keywords
+      ruby_event_store (= 2.1.0)
+
+PATH
+  remote: ../../ruby_event_store
+  specs:
+    ruby_event_store (2.1.0)
+      concurrent-ruby (~> 1.0, >= 1.1.6)
+
+PATH
+  remote: .
+  specs:
+    measure (0.1.0)
+      activesupport (>= 5.0.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (6.1.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+      zeitwerk (~> 2.3)
+    concurrent-ruby (1.1.7)
+    diff-lcs (1.4.4)
+    i18n (1.8.7)
+      concurrent-ruby (~> 1.0)
+    minitest (5.14.3)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.1)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.1)
+    ruby2_keywords (0.0.2)
+    tzinfo (2.0.4)
+      concurrent-ruby (~> 1.0)
+    zeitwerk (2.4.2)
+
+PLATFORMS
+  x86_64-darwin-19
+
+DEPENDENCIES
+  aggregate_root!
+  measure!
+  rspec
+  ruby_event_store!
+
+BUNDLED WITH
+   2.2.4

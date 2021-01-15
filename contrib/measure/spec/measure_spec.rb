@@ -1,9 +1,16 @@
 require 'spec_helper'
-require 'rails_event_store'
-require 'active_support/core_ext/kernel/reporting'
+require 'ruby_event_store'
+require 'active_support'
 
 RSpec.describe Measure do
-  let(:event_store) { RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+  let(:event_store) do
+    asn = ActiveSupport::Notifications
+    RubyEventStore::Client.new(
+      repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, asn),
+      mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, asn),
+      dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, asn)
+    )
+  end
 
   DummyEvent = Class.new(RubyEventStore::Event)
 
@@ -35,7 +42,7 @@ RSpec.describe Measure do
       ─────────────────────────────────
       serialize          1000.00  16.67
       append_to_stream   1000.00  16.67
-      
+
       total              6000.00 100.00
     EOS
   end

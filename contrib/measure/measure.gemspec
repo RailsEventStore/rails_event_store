@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Paweł Pacana"]
   spec.email         = ["pawel.pacana@gmail.com"]
 
-  spec.summary       = %q{Doh.}
+  spec.summary       = "Dead-simple profiling based on instrumentation built into RubyEventStore"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -19,4 +19,6 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "activesupport", ">= 5.0.0"
 end
