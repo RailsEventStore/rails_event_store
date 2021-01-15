@@ -13,10 +13,10 @@ module RubyEventStore
 
     def measure(&block)
       output =
-        Hash.new { |hash, key| hash[key] = 0 }
+        Hash.new { 0 }
       subscribers =
         METRICS.map do |name|
-          @instrumenter.subscribe(name) do |name, start, finish, _, _|
+          @instrumenter.subscribe(name) do |name, start, finish|
             metric_name = name.split('.').first
             duration    = 1000.0 * (finish - start)
             output[metric_name] += duration
