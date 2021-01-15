@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require_relative "lib/ruby_event_store/transformations/version"
+require_relative "lib/ruby_event_store/profiler/version"
 
 Gem::Specification.new do |spec|
-  spec.name             = "ruby_event_store-transformations"
-  spec.version          = RubyEventStore::Transformations::VERSION
+  spec.name             = "ruby_event_store-profiler"
+  spec.version          = RubyEventStore::Profiler::VERSION
   spec.license          = "MIT"
   spec.author           = "Arkency"
   spec.email            = "dev@arkency.com"
-  spec.summary          = "Community transformations for RubyEventStore mappers pipeline"
+  spec.summary          = "Dead-simple profiling based on instrumentation built into RubyEventStore"
   spec.homepage         = "https://railseventstore.org"
   spec.files            = Dir["lib/**/*"]
   spec.require_paths    = %w[lib]
@@ -21,5 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.5"
 
-  spec.add_dependency "ruby_event_store", ">= 2.0.0", "< 3.0.0"
+  spec.add_dependency "activesupport", ">= 5.0.0"
+  spec.add_dependency "ruby_event_store", ">= 1.0.0", "< 3.0.0"
 end
