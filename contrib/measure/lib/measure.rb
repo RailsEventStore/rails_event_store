@@ -1,38 +1,29 @@
 require "measure/version"
 
 module Measure
-  METRICS = %w(
-      append_to_stream.repository.rails_event_store
-      link_to_stream.repository.rails_event_store
-      delete_stream.repository.rails_event_store
-      read.repository.rails_event_store
-      count.repository.rails_event_store
-      update_messages.repository.rails_event_store
-      streams_of.repository.rails_event_store
-      call.dispatcher.rails_event_store
-      serialize.mapper.rails_event_store
-      deserialize.mapper.rails_event_store
-      load.repository.aggregate_root
-      store.repository.aggregate_root
-      total
-    ).freeze
+  METRICS = [
+    /rails_event_store/,
+    /aggregate_root/,
+    "total"
+  ].freeze
 
   def measure(&block)
-    output = Hash.new { |hash, key| hash[key] = 0 }
-
-    METRICS.each do |name|
-      ActiveSupport::Notifications.subscribe(name) do |name, start, finish, id, payload|
-        metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
-        metric_name = name.split('.').first
-        output[metric_name] += metric.duration
+    output =
+      Hash.new { |hash, key| hash[key] = 0 }
+    subscribers =
+      METRICS.map do |name|
+        ActiveSupport::Notifications.subscribe(name) do |name, start, finish, id, payload|
+          metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
+          metric_name = name.split('.').first
+          output[metric_name] += metric.duration
+        end
       end
-    end
 
     ActiveSupport::Notifications.instrument('total') do
       block.call
     end
 
-    METRICS.each do |name|
+    subscribers.each do |name|
       ActiveSupport::Notifications.unsubscribe(name)
     end
 
