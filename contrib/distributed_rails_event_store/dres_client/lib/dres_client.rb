@@ -10,8 +10,8 @@ module DresClient
     end
 
     def initialize(mapper:, uri:, api_key:)
-      @mapper = mapper
-      @uri    = uri
+      @mapper  = mapper
+      @uri     = uri
       @api_key = api_key
     end
 
@@ -28,7 +28,7 @@ module DresClient
       json = JSON.parse(res.body)
       json["events"].map do |ev|
         serialized_record = RubyEventStore::SerializedRecord.new(**symbolize_keys(ev))
-        @mapper.serialized_record_to_event(serialized_record)
+        @mapper.record_to_event(serialized_record.deserialize(YAML))
       end
     rescue
       raise Error.new

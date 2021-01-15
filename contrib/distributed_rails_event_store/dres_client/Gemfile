@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 gemspec
 
@@ -7,3 +9,5 @@ gem 'pry'
 gem 'webmock', '~> 3.3.0'
 gem 'closed_struct'
 gem 'equalizer'
+
+gem "ruby_event_store",  path: "../../../ruby_event_store"

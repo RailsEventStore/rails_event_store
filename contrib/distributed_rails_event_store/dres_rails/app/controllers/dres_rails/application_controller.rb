@@ -1,29 +1,30 @@
 module DresRails
   class ApplicationController < ActionController::Base
-    class NULL
-      def self.serialized_record_to_event(record)
-        record
-      end
-    end
-    private_constant :NULL
-
     def index
-      spec   = build_initial_spec
-      spec   = spec.limit(1000)
-      spec   = spec.from(after) if after
-      events = spec.each.map(&:to_h)
+      spec    = build_initial_spec
+      spec    = spec.limit(1000)
+      spec    = spec.from(after) if after
+      records = repository.read(spec.result).map(&:to_h)
 
       render json: {
-        after:  after || "head",
-        events: events,
+        after:  after || :head,
+        events: records,
       }
     end
 
     private
 
+    def repository
+      RailsEventStoreActiveRecord::PgLinearizedEventRepository.new(serializer: RubyEventStore::NULL)
+    end
+
     def build_initial_spec
-      repository = Rails.configuration.event_store.send(:repository)
-      RubyEventStore::Specification.new(RubyEventStore::SpecificationReader.new(repository, NULL))
+      RubyEventStore::Specification.new(
+        RubyEventStore::SpecificationReader.new(
+          repository,
+          RubyEventStore::Mappers::Default.new
+        )
+      )
     end
 
     def after

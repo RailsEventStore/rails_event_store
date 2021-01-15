@@ -6,7 +6,6 @@ DATABASE_URL ?= postgres://localhost/rails_event_store_active_record?pool=5
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
-	@gem install gemfury
 
 test: ## Run unit tests
 	@echo "Running unit tests"
