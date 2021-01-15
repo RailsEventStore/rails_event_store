@@ -1,30 +1,31 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/hash/indifferent_access"
+require "active_support/core_ext/hash/keys"
 require 'ruby_event_store'
 
 module RubyEventStore
   module Transformations
     class WithIndifferentAccess
-      def dump(item)
+      def dump(record)
         Record.new(
-          event_id:   item.event_id,
-          metadata:   HashWithIndifferentAccess.new(item.metadata).deep_symbolize_keys,
-          data:       HashWithIndifferentAccess.new(item.data).deep_symbolize_keys,
-          event_type: item.event_type,
-          timestamp:  item.timestamp,
-          valid_at:   item.valid_at,
+          event_id:   record.event_id,
+          metadata:   record.metadata.deep_symbolize_keys,
+          data:       record.data.deep_symbolize_keys,
+          event_type: record.event_type,
+          timestamp:  record.timestamp,
+          valid_at:   record.valid_at,
         )
       end
 
-      def load(item)
+      def load(record)
         Record.new(
-          event_id:   item.event_id,
-          metadata:   HashWithIndifferentAccess.new(item.metadata),
-          data:       HashWithIndifferentAccess.new(item.data),
-          event_type: item.event_type,
-          timestamp:  item.timestamp,
-          valid_at:   item.valid_at,
+          event_id:   record.event_id,
+          metadata:   HashWithIndifferentAccess.new(record.metadata),
+          data:       HashWithIndifferentAccess.new(record.data),
+          event_type: record.event_type,
+          timestamp:  record.timestamp,
+          valid_at:   record.valid_at,
         )
       end
     end
