@@ -9,7 +9,7 @@ include ../support/make/mutant.mk
 include ../support/make/gem.mk
 include ../support/make/help.mk
 
-install: install-yarn
+install: 
 
 test: $(BUNDLE) test-yarn
 
