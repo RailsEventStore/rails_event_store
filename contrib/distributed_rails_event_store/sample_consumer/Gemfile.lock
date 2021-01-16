@@ -179,4 +179,4 @@ DEPENDENCIES
   rails_event_store (~> 2.1.0)
 
 BUNDLED WITH
-   2.2.4
+   2.2.5
