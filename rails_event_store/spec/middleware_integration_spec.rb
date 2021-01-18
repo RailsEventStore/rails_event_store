@@ -8,11 +8,19 @@ module RailsEventStore
   RSpec.describe Middleware do
     specify 'works without event store instance' do
       event_store = Client.new
+      app.config.event_store = event_store
+
       request = ::Rack::MockRequest.new(middleware)
       request.get('/')
 
       event_store.read.each do |event|
-        expect(event.metadata.keys).to eq([:timestamp])
+        expect(event.metadata.keys).to match_array %i[
+          remote_ip
+          request_id
+          correlation_id
+          timestamp
+          valid_at
+        ]
         expect(event.metadata[:timestamp]).to be_a(Time)
       end
     end
@@ -38,7 +46,7 @@ module RailsEventStore
 
     def app
       TestApplication.tap do |app|
-        app.routes.draw { root(to: ->(_env) {event_store.publish(DummyEvent.new); [200, {}, ['']]}) }
+        app.routes.draw { root(to: ->(_env) { app.config.event_store.publish(DummyEvent.new); [200, {}, ['']]}) }
       end
     end
   end
