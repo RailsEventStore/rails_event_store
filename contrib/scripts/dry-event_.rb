@@ -22,16 +22,14 @@ module Types
   include Dry::Types()
 end
 
+require 'forwardable'
+
 class Event < RubyEventStore::Event
   def self.inherited(klass)
     super
     klass.const_set(:SCHEMA, Class.new(Dry::Struct).tap { |k| k.transform_keys(&:to_sym) })
-
-    %i[attribute attribute?].each do |meth|
-      klass.define_singleton_method(meth) do |name, type|
-        klass::SCHEMA.__send__(meth, name, type)
-      end
-    end
+    klass.class.extend Forwardable
+    klass.class.def_delegators klass::SCHEMA, :attribute, :attribute?
 
     klass.define_singleton_method(:event_type) do |value|
       klass.define_method(:event_type) do
