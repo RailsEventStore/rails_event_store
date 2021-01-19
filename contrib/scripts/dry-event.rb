@@ -1,15 +1,10 @@
-begin
-  require "bundler/inline"
-rescue LoadError => e
-  $stderr.puts "Bundler version 1.10 or later is required. Please update your Bundler"
-  raise e
-end
+require "bundler/inline"
 
-gemfile(true) do
+gemfile do
   source "https://rubygems.org"
 
-  gem 'ruby_event_store', path: File.join(__dir__, '../../ruby_event_store')
-  gem 'rails_event_store-rspec', path: File.join(__dir__, '../../rails_event_store-rspec')
+  gem 'ruby_event_store',       path: File.join(__dir__, '../../ruby_event_store')
+  gem 'ruby_event_store-rspec', path: File.join(__dir__, '../../ruby_event_store-rspec')
   gem 'dry-struct'
   gem 'dry-types'
   gem 'rspec'
@@ -131,12 +126,11 @@ module Foo
     it do
       res = RubyEventStore::Client.new(
         mapper: RubyEventStore::Mappers::Default.new(
-          serializer: JSON,
           events_class_remapping: {
             'foo-bar' => 'Foo::Bar'
           }
         ),
-        repository: RubyEventStore::InMemoryRepository.new
+        repository: RubyEventStore::InMemoryRepository.new(serializer: JSON)
       )
       uuid = SecureRandom.uuid
       bar = Foo::Bar.new(id: uuid, coercible: nil, nullable: 123)
