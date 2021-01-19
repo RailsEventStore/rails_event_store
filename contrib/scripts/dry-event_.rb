@@ -25,22 +25,29 @@ end
 require 'forwardable'
 
 class Event < RubyEventStore::Event
-  def self.inherited(klass)
-    super
-    klass.const_set(:SCHEMA, Class.new(Dry::Struct).tap { |k| k.transform_keys(&:to_sym) })
-    klass.class.extend Forwardable
-    klass.class.def_delegators klass::SCHEMA, :attribute, :attribute?
+  class << self
+    def inherited(klass)
+      super
+      klass.define_singleton_method(:event_type) do |value|
+        klass.define_method(:event_type) do
+          value
+        end
+      end
+    end
 
-    klass.define_singleton_method(:event_type) do |value|
-      klass.define_method(:event_type) do
-        value
+    def schema(&block)
+      @schema ||= begin
+        Class.new(Dry::Struct).tap do |s|
+          s.transform_keys(&:to_sym)
+          s.instance_exec(&block) if block_given?
+        end
       end
     end
   end
 
   def initialize(event_id: SecureRandom.uuid, metadata: nil, data: {})
     super
-    @data = self.class::SCHEMA.new(data)
+    @data = self.class.schema.new(data)
   end
 
   def data
@@ -62,14 +69,17 @@ end
 
 module Foo
   class Bar < Event
-    event_type 'foo-bar'
-
-    attribute  :id,        Types::Strict::String
-    attribute  :coercible, Types::Coercible::Integer.optional
-    attribute? :nullable,  Types::Strict::Integer.optional
+    event_type "foo-bar"
+    schema do
+      attribute  :id,        Types::Strict::String
+      attribute  :coercible, Types::Coercible::Integer.optional
+      attribute? :nullable,  Types::Strict::Integer.optional
+    end
   end
   class Baz < Event
-    attribute  :id,        Types::Strict::String
+    schema do
+      attribute :id, Types::Strict::String
+    end
   end
 
   RSpec.describe 'dry-event' do
