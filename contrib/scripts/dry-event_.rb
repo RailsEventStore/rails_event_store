@@ -75,7 +75,7 @@ module Foo
   end
 
   RSpec.describe 'dry-event' do
-    # it_behaves_like :event, ::Event, {}, RubyEventStore::Metadata::new
+    it_behaves_like :event, Class.new(Event) { event_type 'dummy' }, {}, RubyEventStore::Metadata.new
 
     it do
       bar = Foo::Bar.new(data: { id: 'xxx', coercible: 123 })
