@@ -114,11 +114,11 @@ module RubyEventStore
             "#{index + 1}) #{event_with_correct_type.inspect}",
             indent(data_diff(expected_event, event_with_correct_type), 4),
             indent(metadata_diff(expected_event, event_with_correct_type), 4),
-          ].reject(&:empty?).join("\n")
+          ].reject(&:empty?)
         end
 
         def indent(str, count)
-          str.to_s.split("\n").map {|l| l.sub(//, " " * count) }.join("\n")
+          str.to_s.split("\n").map {|l| l.sub(//, " " * count) }
         end
 
         def failure_message_incorrect_type(expected, expected_event, expected_count)
