@@ -66,7 +66,7 @@ module RubyEventStore
           if expected_count
             <<~EOS
             expected
-              #{expected.fetch(0).description}
+              #{expected.first.description}
             not to be published exactly #{expected_count} times
 
             #{actual_events_list(events)}
@@ -101,15 +101,12 @@ module RubyEventStore
         end
 
         def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
-          [
-          <<~EOS.strip,
+          <<~EOS
           #{expected_message(expected, expected_event, expected_count)}, but it was not published
 
           There are events of correct type but with incorrect payload:
+          #{events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }.join("\n")}
           EOS
-          *events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) },
-          ""
-          ].join("\n")
         end
 
         def event_diff(expected_event, event_with_correct_type, index)
@@ -134,7 +131,7 @@ module RubyEventStore
           if expected_count
             <<~EOS
             expected only
-              #{expected.fetch(0).description}
+              #{expected.first.description}
             to be published #{expected_count} times
 
             #{actual_events_list(events)}
@@ -150,13 +147,13 @@ module RubyEventStore
 
         def data_diff(expected_event, event_with_correct_type)
           if !expected_event.expected_data.nil?
-            "data diff:#{differ.diff(expected_event.expected_data, event_with_correct_type.data)}".strip
+            "data diff:#{differ.diff(expected_event.expected_data, event_with_correct_type.data)}"
           end
         end
 
         def metadata_diff(expected_event, event_with_correct_type)
           if !expected_event.expected_metadata.nil?
-            "metadata diff:#{differ.diff(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}".strip
+            "metadata diff:#{differ.diff(expected_event.expected_metadata, event_with_correct_type.metadata.to_h)}"
           end
         end
 
