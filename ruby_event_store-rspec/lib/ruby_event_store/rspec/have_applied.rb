@@ -36,12 +36,12 @@ module RubyEventStore
 
       def failure_message
         "expected #{expected} to be applied, diff:" +
-          differ.diff(expected.to_s + "\n", events.to_s + "\n")
+          differ.diff(expected.to_s + "\n", events)
       end
 
       def failure_message_when_negated
         "expected #{expected} not to be applied, diff:" +
-            differ.diff(expected.inspect + "\n", events.inspect + "\n")
+            differ.diff(expected.inspect + "\n", events)
       end
 
       def description
