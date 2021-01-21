@@ -10,12 +10,12 @@ module RubyEventStore
 
         def failure_message(expected, events, _expected_count, _strict)
           "expected #{expected} to be published, diff:" +
-            differ.diff(expected.to_s + "\n", events.to_a.to_s + "\n")
+            differ.diff(expected.to_s + "\n", events.to_a)
         end
 
         def negated_failure_message(expected, events, _expected_count, _strict)
           "expected #{expected} not to be published, diff:" +
-            differ.diff(expected.to_s + "\n", events.to_a.to_s + "\n")
+            differ.diff(expected.to_s + "\n", events.to_a)
         end
 
         private
