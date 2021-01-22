@@ -40,25 +40,29 @@ module RubyEventStore
               end
             end
 
+            expectations = expected_message(expected, expected_event, expected_count)
+
             if expected_count
-              if correct_event_count == expected_count
-                next
-              elsif correct_event_count >= 1
-                return failure_message_incorrect_count(expected, expected_event, expected_count, events_with_correct_type, correct_event_count)
+              if correct_event_count >= 1
+                reality = failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
               elsif !events_with_correct_type.empty?
-                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
+                reality = failure_message_correct_type_incorrect_payload(expected_event, events_with_correct_type)
               else
-                return failure_message_incorrect_type(expected, expected_event, expected_count)
+                reality = failure_message_incorrect_type
               end
             else
               if correct_event_count >= 1
                 next
-              elsif !events_with_correct_type.empty?
-                return failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
               else
-                return failure_message_incorrect_type(expected, expected_event, expected_count)
+                if !events_with_correct_type.empty?
+                  reality = failure_message_correct_type_incorrect_payload(expected_event, events_with_correct_type)
+                else
+                  reality = failure_message_incorrect_type
+                end
               end
             end
+
+            return (expectations + reality)
           end
         end
 
@@ -83,26 +87,28 @@ module RubyEventStore
         private
         attr_reader :differ
 
-        def failure_message_incorrect_count(expected, expected_event, expected_count, events_with_correct_type, correct_event_count)
+        def failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
           [
             <<~EOS,
-            #{expected_message(expected, expected_event, expected_count)}
+
             but was published #{correct_event_count} times
             EOS
 
-            !events_with_correct_type.empty? ? [
+            if !events_with_correct_type.empty?
+              [
               <<~EOS.strip,
               There are events of correct type but with incorrect payload:
               EOS
-              *events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) },
-              ""
-            ].join("\n") : nil
+              events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) },
+              nil
+              ]
+            end
           ].compact.join("\n")
         end
 
-        def failure_message_correct_type_incorrect_payload(expected, expected_event, expected_count, events_with_correct_type)
+        def failure_message_correct_type_incorrect_payload(expected_event, events_with_correct_type)
           <<~EOS
-          #{expected_message(expected, expected_event, expected_count)}, but it was not published
+          , but it was not published
 
           There are events of correct type but with incorrect payload:
           #{events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }.join("\n")}
@@ -121,9 +127,9 @@ module RubyEventStore
           str.to_s.split("\n").map {|l| l.sub(//, " " * count) }
         end
 
-        def failure_message_incorrect_type(expected, expected_event, expected_count)
+        def failure_message_incorrect_type
           <<~EOS
-          #{expected_message(expected, expected_event, expected_count)}, but there is no event with such type
+          , but there is no event with such type
           EOS
         end
 
