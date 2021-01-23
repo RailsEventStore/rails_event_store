@@ -1,0 +1,41 @@
+name: ruby_event_store-sidekiq_scheduler_coverage
+on:
+  schedule:
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "contrib/ruby_event_store-sidekiq_scheduler/**"
+      - ".github/workflows/ruby_event_store-sidekiq_scheduler.yml"
+      - "support/**"
+  pull_request:
+    types: [ opened, reopened ]
+    paths:
+      - "contrib/ruby_event_store-sidekiq_scheduler/**"
+      - ".github/workflows/ruby_event_store-sidekiq_scheduler.yml"
+      - "support/**"
+jobs:
+  coverage:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    env:
+      WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    strategy:
+      fail-fast: false
+    matrix:
+      include:
+        - ruby: ruby-2.7
+          gemfile: Gemfile
+          os: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
