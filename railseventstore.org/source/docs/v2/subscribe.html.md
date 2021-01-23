@@ -37,7 +37,7 @@ unsubscribe = event_store.subscribe(InvoiceReadModel.new, to: [InvoiceCreated, I
 
 and then execute returned lambda both subscriptions will be removed.
 
-It you need temporary subscription to be defined [read more here](/docs/v1/subscribe/#temporary-subscriptions).
+It you need temporary subscription to be defined [read more here](/docs/v2/subscribe/#temporary-subscriptions).
 
 
 ## Synchronous handlers

@@ -34,7 +34,7 @@ Those repositories were written by community members and are not guaranteed to b
 
 ## Writing your own repository
 
-If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L3) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L26) in your repository spec. Make sure to meditate on which [expected_version option](/docs/v1/expected_version//) you are going to support and how.
+If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L3) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L26) in your repository spec. Make sure to meditate on which [expected_version option](/docs/v2/expected_version//) you are going to support and how.
 
 # Using RubyEventStore::InMemoryRepository for faster tests
 
@@ -71,7 +71,7 @@ We don't recommend using `InMemoryRepository` in production even if you don't ne
 
 RubyEventStore comes with `RubyEventStore::ROM::EventRepository` that you can use with a SQL database without requiring ActiveRecord or when not using Rails altogether. It is tested with the same test suite as the ActiveRecord implementation and raises identical exceptions.
 
-See [Using Ruby Event Store without Rails](https://railseventstore.org/docs/v1/without_rails//) for information on how to use ROM (and Sequel).
+See [Using Ruby Event Store without Rails](https://railseventstore.org/docs/v2/without_rails//) for information on how to use ROM (and Sequel).
 
 # Using PgLinearizedEventRepository for linearized writes
 

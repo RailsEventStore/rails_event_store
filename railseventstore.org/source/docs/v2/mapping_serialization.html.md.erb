@@ -13,7 +13,7 @@ choose to use different serializers or even replace mappers entirely.
 ## Configuring a different serializer
 
 You can pass a different `serializer` as a dependency when [instantiating
-the client](/docs/v1/install).
+the client](/docs/v2/install).
 
 Here is an example on how to configure RailsEventStore to serialize
 events' `data` and `metadata` using `Marshal`.
@@ -215,7 +215,7 @@ You could build your own transformations or use existing ones combined with the 
 
 Check out the code of our [mappers](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/) and [transformations](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/transformation/) on github for examples on how to implement mappers & transformations.
 
-You can pass a different `mapper` as a dependency when [instantiating the client](/docs/v1/install).
+You can pass a different `mapper` as a dependency when [instantiating the client](/docs/v2/install).
 
 ```ruby
 # config/environments/*.rb

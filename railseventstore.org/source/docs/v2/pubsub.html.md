@@ -114,8 +114,8 @@ module YourAppName
 end
 ```
 
-Make sure to read about [fresh handler state](/docs/v1/subscribe//#fresh-handler-state) to avoid potential issues from using the same listener for many published events.
+Make sure to read about [fresh handler state](/docs/v2/subscribe//#fresh-handler-state) to avoid potential issues from using the same listener for many published events.
 
 ## Handling Events Asynchronously
 
-Asynchronous handlers are described in [Async handlers section](/docs/v1/subscribe//#async-handlers)
+Asynchronous handlers are described in [Async handlers section](/docs/v2/subscribe//#async-handlers)

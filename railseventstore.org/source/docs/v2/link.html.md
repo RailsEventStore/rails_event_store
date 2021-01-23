@@ -93,4 +93,4 @@ event_store.subscribe(subscriber, [OrderPlaced])
 
 It is worth remembering that linking an event does not trigger event handlers and you cannot link same event more than once in a given stream.
 
-Linking also follows the same rules regarding [expected_version](/docs/v1/expected_version/) as publishing an event for the first time.
+Linking also follows the same rules regarding [expected_version](/docs/v2/expected_version/) as publishing an event for the first time.
