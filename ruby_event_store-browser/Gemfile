@@ -5,7 +5,7 @@ eval_gemfile '../support/bundler/Gemfile.shared'
 
 gem 'ruby_event_store', path: '../ruby_event_store'
 gem 'rack-test'
-gem 'capybara', '~> 3.34', github: 'teamcapybara/capybara'
+gem 'capybara', '~> 3.35'
 gem 'selenium-webdriver', '~> 3.141'
 gem 'json-schema'
 gem 'rack'
