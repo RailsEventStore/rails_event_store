@@ -2296,10 +2296,10 @@ elm-test@^0.19.1-revision2:
     which "^2.0.2"
     xmlbuilder "^15.1.0"
 
-elm@^0.19.1-3:
-  version "0.19.1-3"
-  resolved "https://registry.yarnpkg.com/elm/-/elm-0.19.1-3.tgz#2382aa1943bc79974b5d95b0a6acbe010ee16909"
-  integrity sha512-6y36ewCcVmTOx8lj7cKJs3bhI5qMfoVEigePZ9PhEUNKpwjjML/pU2u2YSpHVAznuCcojoF6KIsrS1Ci7GtVaQ==
+elm@^0.19.1-4:
+  version "0.19.1-4"
+  resolved "https://registry.yarnpkg.com/elm/-/elm-0.19.1-4.tgz#efb26999abfab66c8d66a0d59b811065cd3d078b"
+  integrity sha512-0LXG/7EK//so0QMNRCnm8WsN0S1VS6dVmwV/j0JKiultTy1kcOOFrEwilUhCv5GUCIeV22gdFybsqxsIWOkKEg==
   dependencies:
     request "^2.88.0"
 
