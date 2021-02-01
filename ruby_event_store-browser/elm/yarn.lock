@@ -2297,10 +2297,10 @@ elm-tooling@^1.1.0:
   resolved "https://registry.yarnpkg.com/elm-tooling/-/elm-tooling-1.1.0.tgz#3ce99b12f0ba82bdb53921a267835966f5a1432a"
   integrity sha512-wziiwTbqBkK/905a6stCpTWJhYEKNb4CCYt36VEd5XWmaLSelMOR+SxKcEPpxsiK/tFZ4o0PbW+h1QC5tWfYUQ==
 
-elm@^0.19.1-4:
-  version "0.19.1-4"
-  resolved "https://registry.yarnpkg.com/elm/-/elm-0.19.1-4.tgz#efb26999abfab66c8d66a0d59b811065cd3d078b"
-  integrity sha512-0LXG/7EK//so0QMNRCnm8WsN0S1VS6dVmwV/j0JKiultTy1kcOOFrEwilUhCv5GUCIeV22gdFybsqxsIWOkKEg==
+elm@^0.19.1-5:
+  version "0.19.1-5"
+  resolved "https://registry.yarnpkg.com/elm/-/elm-0.19.1-5.tgz#61f18437222972e20f316f9b2d2c76a781a9991b"
+  integrity sha512-dyBoPvFiNLvxOStQJdyq28gZEjS/enZXdZ5yyCtNtDEMbFJJVQq4pYNRKvhrKKdlxNot6d96iQe1uczoqO5yvA==
   dependencies:
     request "^2.88.0"
 
