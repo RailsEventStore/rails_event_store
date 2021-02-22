@@ -6,12 +6,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.13",
-    "autoprefixer": "9.8.6",
     "countup.js": "^2.0.4",
-    "parcel-bundler": "^1.11.0",
-    "postcss": "^7.0.0",
-    "postcss-modules": "^3.2.2",
     "postcss-url": "^9.0.0",
-    "tailwindcss": "< 2.0.0"
+    "@fullhuman/postcss-purgecss": "3.0.0",
+    "@tailwindcss/postcss7-compat": "^2.0.3",
+    "autoprefixer": "^9",
+    "parcel-bundler": "^1.12.4",
+    "postcss": "^7",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat"
   }
 }

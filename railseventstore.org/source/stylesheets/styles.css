@@ -54,7 +54,7 @@ li {
 
 ul {
   margin-bottom: 30px;
-} 
+}
 
 .documentation ul {
   @apply list-disc pl-4;
@@ -116,7 +116,7 @@ code {
 }
 
 pre > code {
-  @apply bg-none scrolling-touch overflow-x-auto block;
+  @apply bg-none overflow-x-auto block;
 }
 
 :not(pre) > code {
