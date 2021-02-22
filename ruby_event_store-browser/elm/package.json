@@ -7,7 +7,7 @@
   "license": "MIT",
   "devDependencies": {
     "elm": "^0.19.1-5",
-    "elm-format": "^0.8.2",
+    "elm-format": "^0.8.5",
     "elm-hot": "^1.1.6",
     "elm-test": "^0.19.1-revision6",
     "node-elm-compiler": "^5.0.5",
