@@ -6,15 +6,17 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "devDependencies": {
-    "autoprefixer": "^9.7.4",
     "elm": "^0.19.1-5",
     "elm-format": "^0.8.2",
     "elm-hot": "^1.1.6",
     "elm-test": "^0.19.1-revision6",
-    "parcel-bundler": "^1.11.0",
-    "postcss-modules": "^3.2.0",
-    "tailwindcss": "1.9.6",
-    "node-elm-compiler": "^5.0.5"
+    "node-elm-compiler": "^5.0.5",
+    "@fullhuman/postcss-purgecss": "3.0.0",
+    "@tailwindcss/postcss7-compat": "^2.0.3",
+    "autoprefixer": "^9",
+    "parcel-bundler": "^1.12.4",
+    "postcss": "^7",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat"
   },
   "scripts": {
     "watch": "NODE_ENV=development parcel watch --out-dir ../public --out-file ruby_event_store_browser.js src/index.js",
