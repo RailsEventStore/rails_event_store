@@ -15,7 +15,7 @@
     "@tailwindcss/postcss7-compat": "^2.0.3",
     "autoprefixer": "^9",
     "parcel-bundler": "^1.12.4",
-    "postcss": "^7",
+    "postcss": "^8",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat"
   },
   "scripts": {
