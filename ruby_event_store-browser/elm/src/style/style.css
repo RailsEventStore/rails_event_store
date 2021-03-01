@@ -15,7 +15,7 @@ th {
 }
 
 th {
-  font-size: 1.2rem;
+  font-size: 0.75rem;
   @apply text-gray-500 uppercase p-0 pb-4;
 }
 
@@ -24,17 +24,16 @@ td {
 }
 
 tfoot td {
-  font-size: 1.2rem;
+  font-size: 0.75rem;
   @apply text-gray-500 p-0 pb-4;
 }
 
 html {
   @apply text-gray-800 font-sans leading-relaxed antialiased;
-  font-size: 62.5%;
 }
 
 body {
-  font-size: 1.6rem;
+  font-size: 1rem;
 }
 
 hr {
@@ -54,7 +53,7 @@ a {
 }
 
 .navigation {
-  @apply flex bg-red-700 px-8 h-24;
+  @apply flex bg-red-700 px-8 h-16;
 }
 
 .navigation__brand {
@@ -82,7 +81,7 @@ a {
 }
 
 .footer__links {
-  font-size: 1.4rem;
+  font-size: 0.875rem;
   @apply flex justify-center text-gray-500;
 }
 
@@ -97,12 +96,11 @@ a {
 }
 
 .browser {
-  @apply py-12;
+  @apply py-8;
 }
 
 .browser__title {
-  font-size: 2.2rem;
-
+  font-size: 1.375rem;
   @apply font-bold px-8;
 }
 
@@ -120,8 +118,7 @@ a {
 
 .event__title,
 .event__missing {
-  font-size: 2.2rem;
-
+  font-size: 1.375rem;
   @apply font-bold px-8;
 }
 
@@ -134,22 +131,20 @@ a {
 }
 
 .event__related-streams h2 {
-  font-size: 2rem;
+  font-size: 1.25rem;
   @apply font-bold;
 }
 
 .event__related-streams ul {
-  @apply list-disc;
-  padding-left: 3rem;
+  @apply list-disc pl-8;
 }
 
 .event__caused-events {
-  @apply px-8;
-  margin-top: 3rem;
+  @apply px-8 mt-8;;
 }
 
 .event__caused-events h2 {
-  font-size: 2rem;
+  font-size: 1.25rem;
   @apply font-bold;
 }
 
@@ -159,12 +154,12 @@ a {
 }
 
 .pagination {
-  @apply flex mb-4;
+  @apply flex;
 }
 
 .pagination__page {
-  font-size: 90%;
-  @apply text-center border-red-700 text-red-700 border rounded px-4 py-2 mx-1;
+  font-size: 0.9rem;
+  @apply text-center border-red-700 text-red-700 border rounded px-2 py-1 mr-1;
 }
 
 .pagination__page:disabled {
@@ -180,7 +175,7 @@ a {
 
 .results__empty {
   @apply flex items-center justify-center;
-  min-height: 20rem;
+  min-height: 12.5rem;
 }
 
 .central-spinner {
