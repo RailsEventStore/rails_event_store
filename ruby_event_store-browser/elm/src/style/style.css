@@ -15,8 +15,7 @@ th {
 }
 
 th {
-  font-size: 0.75rem;
-  @apply text-gray-500 uppercase p-0 pb-4;
+  @apply text-gray-500 uppercase p-0 pb-4 text-xs;
 }
 
 td {
@@ -24,16 +23,11 @@ td {
 }
 
 tfoot td {
-  font-size: 0.75rem;
-  @apply text-gray-500 p-0 pb-4;
+  @apply text-gray-500 p-0 pb-4 text-xs;
 }
 
 html {
   @apply text-gray-800 font-sans leading-relaxed antialiased;
-}
-
-body {
-  font-size: 1rem;
 }
 
 hr {
@@ -81,8 +75,7 @@ a {
 }
 
 .footer__links {
-  font-size: 0.875rem;
-  @apply flex justify-center text-gray-500;
+  @apply flex justify-center text-gray-500 text-sm;
 }
 
 .footer__link {
@@ -100,8 +93,7 @@ a {
 }
 
 .browser__title {
-  font-size: 1.375rem;
-  @apply font-bold px-8;
+  @apply font-bold px-8 text-2xl;
 }
 
 .browser__pagination {
@@ -118,8 +110,7 @@ a {
 
 .event__title,
 .event__missing {
-  font-size: 1.375rem;
-  @apply font-bold px-8;
+  @apply font-bold px-8 text-2xl;
 }
 
 .event__body {
@@ -131,8 +122,7 @@ a {
 }
 
 .event__related-streams h2 {
-  font-size: 1.25rem;
-  @apply font-bold;
+  @apply font-bold text-xl;
 }
 
 .event__related-streams ul {
@@ -140,12 +130,11 @@ a {
 }
 
 .event__caused-events {
-  @apply px-8 mt-8;;
+  @apply px-8 mt-8;
 }
 
 .event__caused-events h2 {
-  font-size: 1.25rem;
-  @apply font-bold;
+  @apply font-bold text-xl;
 }
 
 .event__stream-link,
@@ -158,8 +147,7 @@ a {
 }
 
 .pagination__page {
-  font-size: 0.9rem;
-  @apply text-center border-red-700 text-red-700 border rounded px-2 py-1 mr-1;
+  @apply text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1;
 }
 
 .pagination__page:disabled {
