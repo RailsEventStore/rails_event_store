@@ -150,7 +150,7 @@ view model =
 
 centralSpinner : Html Msg
 centralSpinner =
-    div [ class "central-spinner" ] [ spinner ]
+    div [ class "flex items-center justify-center" ] [ spinner ]
 
 
 spinner : Html Msg
@@ -162,8 +162,8 @@ view_ : Model -> Html Msg
 view_ model =
     case model.event of
         Api.NotFound ->
-            div [ class "event" ]
-                [ h1 [ class "event__missing" ] [ text "There's no event with given ID" ] ]
+            div [ class "py-12" ]
+                [ h1 [ class "font-bold px-8 text-2xl" ] [ text "There's no event with given ID" ] ]
 
         Api.Loading ->
             centralSpinner
@@ -172,28 +172,28 @@ view_ model =
             showEvent model.flags.rootUrl event model.causedEvents
 
         Api.Failure ->
-            div [ class "event" ]
-                [ h1 [ class "event__missing" ] [ text "Unexpected request failure happened when fetching the event" ] ]
+            div [ class "py-12" ]
+                [ h1 [ class "font-bold px-8 text-2xl" ] [ text "Unexpected request failure happened when fetching the event" ] ]
 
 
 showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> Html Msg
 showEvent baseUrl event maybeCausedEvents =
-    div [ class "event" ]
-        [ h1 [ class "event__title" ] [ text event.eventType ]
-        , div [ class "event__body" ]
-            [ table []
-                [ thead []
+    div [ class "py-12" ]
+        [ h1 [ class "font-bold px-8 text-2xl" ] [ text event.eventType ]
+        , div [ class "px-8" ]
+            [ table [ class "my-10 w-full text-left table-fixed border-collapse" ]
+                [ thead [ class "align-bottom leading-tight" ]
                     [ tr []
-                        [ th [] [ text "Event id" ]
-                        , th [] [ text "Raw Data" ]
-                        , th [] [ text "Raw Metadata" ]
+                        [ th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event id" ]
+                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Raw Data" ]
+                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Raw Metadata" ]
                         ]
                     ]
-                , tbody []
+                , tbody [ class "align-top" ]
                     [ tr []
-                        [ td [] [ text event.eventId ]
-                        , td [] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
-                        , td [] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
+                        [ td [ class "p-0 pt-2" ] [ text event.eventId ]
+                        , td [ class "p-0 pt-2" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                        , td [ class "p-0 pt-2" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                         ]
                     ]
                 ]
@@ -201,21 +201,21 @@ showEvent baseUrl event maybeCausedEvents =
         , relatedStreams baseUrl event
         , case maybeCausedEvents of
             Api.Loading ->
-                div [ class "event__caused-events" ]
-                    [ h2 [] [ text "Events caused by this event:" ]
+                div [ class "px-8 mt-8" ]
+                    [ h2 [ class "font-bold text-xl" ] [ text "Events caused by this event:" ]
                     , text "Loading..."
                     ]
 
             Api.Loaded causedEvents ->
                 case causedEvents of
                     [] ->
-                        div [ class "event__caused-events" ]
-                            [ h2 [] [ text "Events caused by this event: none" ]
+                        div [ class "px-8 mt-8" ]
+                            [ h2 [ class "font-bold text-xl" ] [ text "Events caused by this event: none" ]
                             ]
 
                     _ ->
-                        div [ class "event__caused-events" ]
-                            [ h2 [] [ text "Events caused by this event:" ]
+                        div [ class "px-8 mt-8" ]
+                            [ h2 [ class "font-bold text-xl" ] [ text "Events caused by this event:" ]
                             , renderCausedEvents baseUrl causedEvents
                             ]
 
@@ -234,9 +234,9 @@ relatedStreams baseUrl event =
         text ""
 
     else
-        div [ class "event__related-streams" ]
-            [ h2 [] [ text "Related streams / events:" ]
-            , ul [] (relatedStreamsList baseUrl event)
+        div [ class "px-8" ]
+            [ h2 [ class "font-bold text-xl" ] [ text "Related streams / events:" ]
+            , ul [ class "list-disc pl-8" ] (relatedStreamsList baseUrl event)
             ]
 
 
@@ -296,32 +296,32 @@ parentEventLink baseUrl event =
 
 streamLink : Url.Url -> String -> Html Msg
 streamLink baseUrl streamName =
-    a [ class "event__stream-link", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
+    a [ class "no-underline", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
 
 
 eventLink : Url.Url -> String -> Html Msg
 eventLink baseUrl eventId =
-    a [ class "event__event-link", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
+    a [ class "no-underline", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
 
 
 renderCausedEvents : Url.Url -> List Api.Event -> Html Msg
 renderCausedEvents baseUrl causedEvents =
     case causedEvents of
         [] ->
-            p [ class "results__empty" ] [ text "No items" ]
+            p [ class "flex items-center justify-center py-24" ] [ text "No items" ]
 
         _ ->
-            table []
-                [ thead []
+            table [ class "my-10 w-full text-left table-fixed border-collapse   " ]
+                [ thead [ class "align-bottom leading-tight" ]
                     [ tr []
-                        [ th [] [ text "Event name" ]
-                        , th [] [ text "Event id" ]
+                        [ th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event name" ]
+                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event id" ]
                         ]
                     ]
-                , tbody [] (List.map (renderCausedEvent baseUrl) causedEvents)
+                , tbody [ class "align-top" ] (List.map (renderCausedEvent baseUrl) causedEvents)
                 , tfoot []
                     [ tr []
-                        [ td [ colspan 2 ]
+                        [ td [ class "text-gray-500 p-0 pb-4 text-xs", colspan 2 ]
                             [ if List.length causedEvents == 20 then
                                 text "The results may be truncated, check stream for full information."
 
@@ -336,14 +336,14 @@ renderCausedEvents baseUrl causedEvents =
 renderCausedEvent : Url.Url -> Api.Event -> Html Msg
 renderCausedEvent baseUrl { eventType, eventId } =
     tr []
-        [ td []
+        [ td [ class "p-0 pt-2" ]
             [ a
-                [ class "results__link"
+                [ class "no-underline"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
-        , td [] [ text eventId ]
+        , td [ class "p-0 pt-2" ] [ text eventId ]
         ]
 
 

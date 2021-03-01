@@ -80,10 +80,10 @@ view model =
 
 browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
 browseEvents baseUrl title { links, events } relatedStreams =
-    div [ class "browser" ]
-        [ h1 [ class "browser__title" ] [ text title ]
-        , div [ class "browser__pagination" ] [ displayPagination links ]
-        , div [ class "browser__results" ] [ renderResults baseUrl events ]
+    div [ class "py-8" ]
+        [ h1 [ class "font-bold px-8 text-2xl" ] [ text title ]
+        , div [ class "px-8" ] [ displayPagination links ]
+        , div [ class "px-8" ] [ renderResults baseUrl events ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
 
@@ -92,9 +92,9 @@ renderRelatedStreams : Url.Url -> Maybe (List String) -> Html Msg
 renderRelatedStreams baseUrl relatedStreams_ =
     case relatedStreams_ of
         Just relatedStreams ->
-            div [ class "event__related-streams" ]
-                [ h2 [] [ text "Related streams:" ]
-                , ul [] (List.map (\relatedStream -> li [] [ streamLink baseUrl relatedStream ]) relatedStreams)
+            div [ class "px-8" ]
+                [ h2 [ class "font-bold text-xl" ] [ text "Related streams:" ]
+                , ul [ class "list-disc pl-8" ] (List.map (\relatedStream -> li [] [ streamLink baseUrl relatedStream ]) relatedStreams)
                 ]
 
         Nothing ->
@@ -108,12 +108,12 @@ emptyHtml =
 
 streamLink : Url.Url -> String -> Html Msg
 streamLink baseUrl streamName =
-    a [ class "event__stream-link", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
+    a [ class "no-underline", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
 
 
 displayPagination : Api.PaginationLinks -> Html Msg
 displayPagination { first, last, next, prev } =
-    ul [ class "pagination" ]
+    ul [ class "flex" ]
         [ li [] [ firstPageButton first ]
         , li [] [ prevPageButton prev ]
         , li [] [ nextPageButton next ]
@@ -137,7 +137,7 @@ maybeHref link =
 nextPageButton : Maybe Api.PaginationLink -> Html Msg
 nextPageButton link =
     button
-        ([ class "pagination__page"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
          ]
             ++ maybeHref link
         )
@@ -147,7 +147,7 @@ nextPageButton link =
 prevPageButton : Maybe Api.PaginationLink -> Html Msg
 prevPageButton link =
     button
-        ([ class "pagination__page"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
          ]
             ++ maybeHref link
         )
@@ -157,7 +157,7 @@ prevPageButton link =
 lastPageButton : Maybe Api.PaginationLink -> Html Msg
 lastPageButton link =
     button
-        ([ class "pagination__page"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
          ]
             ++ maybeHref link
         )
@@ -167,7 +167,7 @@ lastPageButton link =
 firstPageButton : Maybe Api.PaginationLink -> Html Msg
 firstPageButton link =
     button
-        ([ class "pagination__page"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
          ]
             ++ maybeHref link
         )
@@ -178,33 +178,33 @@ renderResults : Url.Url -> List Api.Event -> Html Msg
 renderResults baseUrl events =
     case events of
         [] ->
-            p [ class "results__empty" ] [ text "No items" ]
+            p [ class "flex items-center justify-center py-24" ] [ text "No items" ]
 
         _ ->
-            table []
-                [ thead []
+            table [ class "my-10 w-full text-left table-fixed border-collapse" ]
+                [ thead [ class "align-bottom leading-tight" ]
                     [ tr []
-                        [ th [] [ text "Event name" ]
-                        , th [] [ text "Event id" ]
-                        , th [ class "text-right" ] [ text "Created at" ]
+                        [ th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event name" ]
+                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event id" ]
+                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs text-right" ] [ text "Created at" ]
                         ]
                     ]
-                , tbody [] (List.map (itemRow baseUrl) events)
+                , tbody [ class "align-top" ] (List.map (itemRow baseUrl) events)
                 ]
 
 
 itemRow : Url.Url -> Api.Event -> Html Msg
 itemRow baseUrl { eventType, createdAt, eventId } =
     tr []
-        [ td []
+        [ td [ class "p-0 pt-2" ]
             [ a
-                [ class "results__link"
+                [ class "no-underline"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
-        , td [] [ text eventId ]
-        , td [ class "text-right" ]
+        , td [ class "p-0 pt-2" ] [ text eventId ]
+        , td [ class "p-0 pt-2 text-right" ]
             [ text (formatTimestamp createdAt)
             ]
         ]
