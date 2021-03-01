@@ -1,18 +1,13 @@
 table {
-  border-collapse: collapse;
-  margin: 1.5em 0;
-  table-layout: fixed;
-  text-align: left;
-  width: 100%;
+  @apply my-10 w-full text-left table-fixed border-collapse;
 }
 
 thead {
-  line-height: 1.2;
-  vertical-align: bottom;
+  @apply align-bottom leading-tight;
 }
 
 tbody {
-  vertical-align: top;
+  @apply align-top;
 }
 
 th {
@@ -20,29 +15,22 @@ th {
 }
 
 th {
-  padding: 0 0 0.75rem 0;
-  text-transform: uppercase;
   font-size: 1.2rem;
-
-  @apply text-gray-500;
+  @apply text-gray-500 uppercase p-0 pb-4;
 }
 
 td {
-  padding: 0.75rem 0 0 0;
+  @apply p-0 pt-2;
 }
 
 tfoot td {
-  padding: 0 0 0.75rem 0;
   font-size: 1.2rem;
-
-  @apply text-gray-500;
+  @apply text-gray-500 p-0 pb-4;
 }
 
 html {
-  @apply text-gray-800 font-sans;
+  @apply text-gray-800 font-sans leading-relaxed antialiased;
   font-size: 62.5%;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -59,12 +47,6 @@ a {
 
 .frame {
   @apply bg-gray-100 min-h-screen w-full;
-}
-
-.frame__header {
-}
-
-.frame__footer {
 }
 
 .frame__body {
@@ -157,7 +139,7 @@ a {
 }
 
 .event__related-streams ul {
-  list-style-type: disc;
+  @apply list-disc;
   padding-left: 3rem;
 }
 
@@ -173,7 +155,7 @@ a {
 
 .event__stream-link,
 .event__event-link {
-  text-decoration: none;
+  @apply no-underline;
 }
 
 .pagination {
@@ -182,7 +164,6 @@ a {
 
 .pagination__page {
   font-size: 90%;
-
   @apply text-center border-red-700 text-red-700 border rounded px-4 py-2 mx-1;
 }
 
@@ -194,18 +175,14 @@ a {
 }
 
 .results__link {
-  text-decoration: none;
+  @apply no-underline;
 }
 
 .results__empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex items-center justify-center;
   min-height: 20rem;
 }
 
 .central-spinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex items-center justify-center;
 }
