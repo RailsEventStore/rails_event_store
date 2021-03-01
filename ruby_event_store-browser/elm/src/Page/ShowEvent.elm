@@ -296,12 +296,12 @@ parentEventLink baseUrl event =
 
 streamLink : Url.Url -> String -> Html Msg
 streamLink baseUrl streamName =
-    a [ class "no-underline", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
+    a [ class "text-red-700 no-underline", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
 
 
 eventLink : Url.Url -> String -> Html Msg
 eventLink baseUrl eventId =
-    a [ class "no-underline", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
+    a [ class "text-red-700 no-underline", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
 
 
 renderCausedEvents : Url.Url -> List Api.Event -> Html Msg
@@ -338,7 +338,7 @@ renderCausedEvent baseUrl { eventType, eventId } =
     tr []
         [ td [ class "p-0 pt-2" ]
             [ a
-                [ class "no-underline"
+                [ class "text-red-700 no-underline"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]

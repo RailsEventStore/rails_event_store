@@ -1,7 +1,3 @@
 html {
   @apply text-gray-800 font-sans leading-relaxed antialiased;
 }
-
-a {
-  @apply text-red-700;
-}
