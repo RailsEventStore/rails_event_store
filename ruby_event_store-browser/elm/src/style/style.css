@@ -5,8 +5,3 @@ html {
 a {
   @apply text-red-700;
 }
-
-.footer__link:before {
-  content: "•";
-  @apply font-bold text-gray-300 inline-block mr-4;
-}

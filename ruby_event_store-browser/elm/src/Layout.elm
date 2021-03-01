@@ -75,7 +75,9 @@ browserFooter flags =
     footer [ class "border-gray-400 border-t py-4" ]
         [ div [ class "flex justify-center text-gray-500 text-sm" ]
             [ text ("RubyEventStore v" ++ flags.resVersion)
+            , span [ class "font-bold text-gray-400 inline-block ml-4" ] [ text "•" ]
             , a [ href "https://railseventstore.org/docs/install/", class "text-gray-500 ml-4" ] [ text "Documentation" ]
+            , span [ class "font-bold text-gray-400 inline-block ml-4" ] [ text "•" ]
             , a [ href "https://railseventstore.org/support/", class "text-gray-500 ml-4" ] [ text "Support" ]
             ]
         ]
