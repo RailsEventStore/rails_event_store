@@ -5,12 +5,10 @@ import Browser.Navigation
 import Flags exposing (Flags, RawFlags, buildFlags)
 import Html exposing (Html)
 import Layout
-import Maybe exposing (andThen)
 import Page.ShowEvent
 import Page.ShowStream
 import Route
 import Url
-import Url.Parser exposing ((</>))
 import WrappedModel exposing (..)
 
 
@@ -49,7 +47,7 @@ type Page
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -104,7 +102,7 @@ update msg model =
                     in
                     ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
-        ( _, _ ) ->
+        _ ->
             ( model, Cmd.none )
 
 

@@ -4,7 +4,7 @@ import JsonTree
 import Page.ShowEvent exposing (showJsonTree)
 import Test exposing (..)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (tag, text)
+import Test.Html.Selector exposing (text)
 
 
 suite : Test
