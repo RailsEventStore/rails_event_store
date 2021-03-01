@@ -1,12 +1,12 @@
-module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, update, view)
+module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
 
 import Api
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, colspan, href)
+import Html.Attributes exposing (class, colspan, disabled, href, placeholder)
 import Http
 import JsonTree
-import Maybe
+import Maybe exposing (withDefault)
 import Maybe.Extra exposing (values)
 import Route
 import Url
@@ -99,13 +99,13 @@ update msg model =
         CausedStreamFetched (Ok streamResource) ->
             ( model, Api.getEvents CausedEventsFetched streamResource.eventsRelationshipLink )
 
-        CausedStreamFetched (Err _) ->
+        CausedStreamFetched (Err errorMessage) ->
             ( { model | causedEvents = Api.Failure }, Cmd.none )
 
         CausedEventsFetched (Ok result) ->
             ( { model | causedEvents = Api.Loaded result.events }, Cmd.none )
 
-        CausedEventsFetched (Err _) ->
+        CausedEventsFetched (Err errorMessage) ->
             ( { model | causedEvents = Api.Failure }, Cmd.none )
 
 

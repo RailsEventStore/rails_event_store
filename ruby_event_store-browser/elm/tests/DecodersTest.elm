@@ -2,10 +2,11 @@ module DecodersTest exposing (suite)
 
 import Api exposing (eventDecoder, eventsDecoder)
 import Expect
-import Json.Decode
+import Json.Decode exposing (list)
 import Main exposing (..)
 import Test exposing (..)
 import Time
+import Url
 
 
 suite : Test

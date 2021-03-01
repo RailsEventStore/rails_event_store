@@ -1,4 +1,4 @@
-module Route exposing (Route(..), decodeLocation, eventUrl, streamUrl)
+module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
 
 import Url
 import Url.Builder

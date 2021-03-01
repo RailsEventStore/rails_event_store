@@ -3,9 +3,12 @@ module Page.ShowStream exposing (Model, Msg(..), initCmd, initModel, update, vie
 import Api
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href)
+import Html.Attributes exposing (class, disabled, href, placeholder)
 import Html.Events exposing (onClick)
 import Http
+import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
+import Json.Decode.Pipeline exposing (optional, required, requiredAt)
+import Json.Encode exposing (encode)
 import Route
 import TimeHelpers exposing (formatTimestamp)
 import Url
@@ -56,13 +59,13 @@ update msg model =
         EventsFetched (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
-        EventsFetched (Err _) ->
+        EventsFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
         StreamFetched (Ok streamResource) ->
             ( { model | relatedStreams = streamResource.relatedStreams }, Api.getEvents EventsFetched streamResource.eventsRelationshipLink )
 
-        StreamFetched (Err _) ->
+        StreamFetched (Err errorMessage) ->
             ( model, Cmd.none )
 
 

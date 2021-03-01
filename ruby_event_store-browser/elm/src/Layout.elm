@@ -3,8 +3,8 @@ module Layout exposing (Model, Msg, buildModel, update, view, viewIncorrectConfi
 import Browser.Navigation
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, href, placeholder, value)
-import Html.Events exposing (onInput, onSubmit)
+import Html.Attributes exposing (class, disabled, href, placeholder, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Route
 import Url
 import WrappedModel exposing (..)
