@@ -137,7 +137,7 @@ maybeHref link =
 nextPageButton : Maybe Api.PaginationLink -> Html Msg
 nextPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
          ]
             ++ maybeHref link
         )
@@ -147,7 +147,7 @@ nextPageButton link =
 prevPageButton : Maybe Api.PaginationLink -> Html Msg
 prevPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
          ]
             ++ maybeHref link
         )
@@ -157,7 +157,7 @@ prevPageButton link =
 lastPageButton : Maybe Api.PaginationLink -> Html Msg
 lastPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
          ]
             ++ maybeHref link
         )
@@ -167,7 +167,7 @@ lastPageButton link =
 firstPageButton : Maybe Api.PaginationLink -> Html Msg
 firstPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
+        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
          ]
             ++ maybeHref link
         )

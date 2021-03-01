@@ -3,6 +3,11 @@ module.exports = {
   theme: {
     extend: {}
   },
-  variants: {},
+  variants: {
+    extend: {
+      opacity: ["disabled"],
+      cursor:  ["disabled"]
+    }
+  },
   plugins: []
 }

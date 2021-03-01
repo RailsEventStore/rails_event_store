@@ -10,7 +10,3 @@ a {
   content: "•";
   @apply font-bold text-gray-300 inline-block mr-4;
 }
-
-.pagination__page:disabled {
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-}
