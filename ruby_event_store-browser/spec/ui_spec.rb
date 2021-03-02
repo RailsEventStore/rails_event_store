@@ -16,16 +16,12 @@ module RubyEventStore
 
       expect(page).to have_content("Events in all")
 
-      within('.browser__results') do
-        click_on 'FooBarEvent'
-      end
+      click_on 'FooBarEvent'
 
-      within('.event__body') do
-        expect(page).to have_content(foo_bar_event.event_id)
-        expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
-        expect(page).to have_content(%Q[valid_at: "#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}"])
-        expect(page).to have_content(%Q[foo: "bar"])
-      end
+      expect(page).to have_content(foo_bar_event.event_id)
+      expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
+      expect(page).to have_content(%Q[valid_at: "#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}"])
+      expect(page).to have_content(%Q[foo: "bar"])
     end
 
     specify "stream view", mutant: false do
@@ -36,16 +32,12 @@ module RubyEventStore
 
       expect(page).to have_content("Events in foo/bar.xml")
 
-      within('.browser__results') do
-        click_on 'FooBarEvent'
-      end
+      click_on 'FooBarEvent'
 
-      within('.event__body') do
-        expect(page).to have_content(foo_bar_event.event_id)
-        expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
-        expect(page).to have_content(%Q[valid_at: "#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}"])
-        expect(page).to have_content(%Q[foo: "bar"])
-      end
+      expect(page).to have_content(foo_bar_event.event_id)
+      expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
+      expect(page).to have_content(%Q[valid_at: "#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}"])
+      expect(page).to have_content(%Q[foo: "bar"])
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
