@@ -21,7 +21,7 @@ rails new -m https://railseventstore.org/new YOUR-APP-NAME
 
 * check Rails Event Store setup defined in `config/initializers/rails_event_store.rb`, learn more how to setup Rails Event Store [here](/docs/v1/install)
 * decide if default `YAML` serialization suits your needs, see more about serialization formats [here](/docs/v1/mapping_serialization)
-* start implementing your domain, use `bounded_context` gem's generators to initialize folders structure for your domain model (use `rails generate bounded_context:bounded_context YOUR-BOUNDED-CONTEXT-NAME` command)
+* start implementing your domain, use `bounded_context` gem's generators to initialize folders structure for your domain model (use `rails generate rails_event_store:bounded_context YOUR-BOUNDED-CONTEXT-NAME` command)
 * implement your aggregates using `AggregateRoot` module, see how [here](/docs/v1/app)
 * subscribe to domain events published, [check how](/docs/v1/subscribe) to define subscriptions and event handlers
 * learn Command pattern and [how to](/docs/v1/command_bus) use Arkency's command bus to decouple your domain model from controllers
