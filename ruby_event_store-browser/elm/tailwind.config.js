@@ -1,5 +1,8 @@
 module.exports = {
-  purge: ['./src/style/style.css'],
+  purge: [
+    './src/style/style.css',
+    './src/**/*.elm'
+  ],
   theme: {
     extend: {}
   },
