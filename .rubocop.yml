@@ -44,3 +44,6 @@ Style/ClassAndModuleChildren:
   EnforcedStyle: nested
   AutoCorrect: true
 
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
