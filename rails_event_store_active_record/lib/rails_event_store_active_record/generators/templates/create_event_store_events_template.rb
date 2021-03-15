@@ -5,7 +5,6 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
     sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
 
-    enable_extension "pgcrypto" if postgres
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
       t.integer     :position,    null: true
