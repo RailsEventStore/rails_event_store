@@ -96,8 +96,6 @@ module RailsEventStore
 
     specify "with defaults" do
       HandlerWithDefaults.prepend RailsEventStore::AsyncHandler
-      handler = HandlerWithDefaults.new
-
       HandlerWithDefaults.event = nil
       event_store.subscribe_to_all_events(HandlerWithDefaults)
       event_store.publish(ev = RailsEventStore::Event.new)
@@ -107,8 +105,6 @@ module RailsEventStore
 
     specify "with specified event store" do
       HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
-      handler = HandlerWithAnotherEventStore.new
-
       HandlerWithAnotherEventStore.event = nil
       event_store.subscribe_to_all_events(HandlerWithAnotherEventStore)
       event_store.publish(ev = RailsEventStore::Event.new)
@@ -118,8 +114,6 @@ module RailsEventStore
 
     specify "with specified serializer" do
       HandlerWithSpecifiedSerializer.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
-      handler = HandlerWithSpecifiedSerializer.new
-
       HandlerWithSpecifiedSerializer.event = nil
       json_event_store.subscribe_to_all_events(HandlerWithSpecifiedSerializer)
       json_event_store.publish(ev = RailsEventStore::Event.new)
