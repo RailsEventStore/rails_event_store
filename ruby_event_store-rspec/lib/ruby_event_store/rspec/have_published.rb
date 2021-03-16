@@ -198,17 +198,7 @@ module RubyEventStore
         end
       end
 
-      @@default_formatter = CrudeFailureMessageFormatter
-
-      def self.default_formatter=(new_formatter)
-        @@default_formatter = new_formatter
-      end
-
-      def self.default_formatter
-        @@default_formatter
-      end
-
-      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: @@default_formatter)
+      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
         @expected  = [mandatory_expected, *optional_expected]
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
         @phraser   = phraser

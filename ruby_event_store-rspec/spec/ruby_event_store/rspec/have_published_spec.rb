@@ -275,8 +275,8 @@ module RubyEventStore
       end
 
       specify do
-        old_formatter = HavePublished.default_formatter
-        HavePublished.default_formatter = HavePublished::StepByStepFailureMessageFormatter
+        old_formatter = RSpec.default_formatter
+        RSpec.default_formatter = RSpec::StepByStepFailureMessageFormatter
         matcher_ = matcher(expected = matchers.an_event(BarEvent))
         matcher_.matches?(event_store)
 
@@ -289,7 +289,7 @@ module RubyEventStore
           be an event BarEvent
         to be published, but there is no event with such type
         EOS
-        HavePublished.default_formatter = old_formatter
+        RSpec.default_formatter = old_formatter
       end
     end
   end
