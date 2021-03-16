@@ -75,6 +75,10 @@ module RailsEventStore
     let(:application) { instance_double(Rails::Application) }
     let(:config)      { FakeConfiguration.new }
 
+    around do |example|
+      Timeout.timeout(1) { example.run }
+    end
+
     before do
       allow(Rails).to       receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
