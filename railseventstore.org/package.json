@@ -9,7 +9,7 @@
     "countup.js": "^2.0.4",
     "postcss-url": "^9.0.0",
     "@fullhuman/postcss-purgecss": "3.0.0",
-    "@tailwindcss/postcss7-compat": "^2.0.3",
+    "@tailwindcss/postcss7-compat": "^2.0.4",
     "autoprefixer": "^9",
     "parcel-bundler": "^1.12.5",
     "postcss": "^7",
