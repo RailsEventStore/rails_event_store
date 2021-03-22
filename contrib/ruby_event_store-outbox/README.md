@@ -45,7 +45,7 @@ It is possible to run as many instances as you prefer, but it does not make sens
 
 ### Metrics
 
-It is possible for the outbox process to send metrics to InfluxDB. In order to do that, specify a `--metrics-url` parameter, for example:
+It is possible for the outbox process to send metrics to InfluxDB (this requires influxdb gem in version at least 0.8.1). In order to do that, specify a `--metrics-url` parameter, for example:
 
 ```
 res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" \
