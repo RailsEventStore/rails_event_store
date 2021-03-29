@@ -16,7 +16,7 @@ Declare the scheduler in your Ruby Event Store configuration. We recommend to us
 
 ```ruby
 event_store = RailsEventStore::Client.new(
-  dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RubyEventStore::SidekiqScheduler.new),
+  dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RubyEventStore::SidekiqScheduler.new(serializer: YAML),
 )
 ```
 
