@@ -235,7 +235,6 @@ module RubyEventStore
 
       def in_streams(*stream_names)
         @stream_names = stream_names
-        raise NotSupported if stream_names.size != 1
         self
       end
 
