@@ -207,11 +207,20 @@ module RubyEventStore
 
       def matches?(event_store)
         raise NotSupported if count && count < 1
-        @events = event_store.read
-        @events = events.stream(stream_name) if stream_name
-        @events = events.from(start)         if start
-        @events = events.each
-        matcher.matches?(events) && matches_count?
+        if stream_names
+          stream_names.all? do |stream_name|
+            @events = event_store.read
+            @events = events.stream(stream_name)
+            @events = events.from(start) if start
+            @events = events.each
+            matcher.matches?(events) && matches_count?
+          end
+        else
+          @events = event_store.read
+          @events = events.from(start) if start
+          @events = events.each
+          matcher.matches?(events) && matches_count?
+        end
       end
 
       def exactly(count)
@@ -220,7 +229,13 @@ module RubyEventStore
       end
 
       def in_stream(stream_name)
-        @stream_name = stream_name
+        @stream_names = [stream_name]
+        self
+      end
+
+      def in_streams(*stream_names)
+        @stream_names = stream_names
+        raise NotSupported if stream_names.size != 1
         self
       end
 
@@ -267,7 +282,7 @@ module RubyEventStore
         events.select { |e| expected.first === e }.size.equal?(count)
       end
 
-      attr_reader :phraser, :stream_name, :expected, :count, :events, :start, :failure_message_formatter, :matcher
+      attr_reader :phraser, :stream_names, :expected, :count, :events, :start, :failure_message_formatter, :matcher
     end
   end
 end
