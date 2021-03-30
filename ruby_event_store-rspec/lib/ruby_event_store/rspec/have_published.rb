@@ -234,7 +234,7 @@ module RubyEventStore
       end
 
       def in_streams(*stream_names)
-        @stream_names = stream_names
+        @stream_names = stream_names.flatten
         self
       end
 
