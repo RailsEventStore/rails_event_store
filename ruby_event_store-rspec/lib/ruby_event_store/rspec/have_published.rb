@@ -201,7 +201,6 @@ module RubyEventStore
 
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
         @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
-        @strict_matcher = false
         @phraser   = phraser
         @failure_message_formatter = failure_message_formatter.new(differ)
         @fetch_events = FetchEvents.new
