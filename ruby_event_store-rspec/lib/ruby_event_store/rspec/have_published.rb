@@ -164,7 +164,7 @@ module RubyEventStore
         end
 
         def expected_message(expected, expected_event, expected_count, stream_name)
-          expected_stream = stream_name ? " in stream #{stream_name}" : nil
+          expected_stream = " in stream #{stream_name}" if stream_name
           if expected_count
             <<~EOS
             expected event
