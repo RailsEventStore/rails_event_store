@@ -219,7 +219,7 @@ module RubyEventStore
       end
 
       def exactly(count)
-        @count = count
+        @expected.exactly(count)
         self
       end
 
@@ -244,7 +244,8 @@ module RubyEventStore
       end
 
       def once
-        exactly(1)
+        @expected.once
+        self
       end
 
       def failure_message
@@ -266,6 +267,10 @@ module RubyEventStore
 
       private
 
+      def count
+        @expected.count
+      end
+
       def strict?
         matcher.instance_of?(::RSpec::Matchers::BuiltIn::Match)
       end
@@ -280,7 +285,7 @@ module RubyEventStore
         @stream_names || [nil]
       end
 
-      attr_reader :phraser, :expected, :count, :events, :start, :failed_on_stream, :failure_message_formatter, :matcher
+      attr_reader :phraser, :expected, :events, :start, :failed_on_stream, :failure_message_formatter, :matcher
     end
   end
 end

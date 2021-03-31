@@ -52,12 +52,12 @@ module RubyEventStore
       end
 
       def exactly(count)
-        @count = count
+        @expected.exactly(count)
         self
       end
 
       def once
-        exactly(1)
+        @expected.once
         self
       end
 
@@ -74,7 +74,7 @@ module RubyEventStore
         event_proc.call
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = spec.to_a
-        raise NotSupported if @count && @expected.events.size != 1
+        raise NotSupported if count && @expected.events.size != 1
         if match_events?
           ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events).matches?(@published_events) && matches_count?
         else
@@ -100,6 +100,10 @@ module RubyEventStore
 
       private
 
+      def count
+        @expected.count
+      end
+
       def initialize(*expected)
         @expected = ExpectedCollection.new(expected)
         @failure_message_formatter = CrudeFailureMessageFormatter.new
@@ -114,8 +118,8 @@ module RubyEventStore
       end
 
       def matches_count?
-        return true unless @count
-        @published_events.select { |e| @expected.events.first === e }.size.equal?(@count)
+        return true unless count
+        @published_events.select { |e| @expected.events.first === e }.size.equal?(count)
       end
     end
   end
