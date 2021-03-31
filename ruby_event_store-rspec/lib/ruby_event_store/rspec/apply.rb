@@ -3,6 +3,11 @@
 module RubyEventStore
   module RSpec
     class Apply
+      def initialize(*expected)
+        @expected = expected
+        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
+      end
+
       def in(aggregate)
         @aggregate = aggregate
         self
@@ -66,11 +71,6 @@ EOS
       end
 
       private
-
-      def initialize(*expected)
-        @expected = expected
-        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
-      end
 
       def match_events?
         !@expected.empty?
