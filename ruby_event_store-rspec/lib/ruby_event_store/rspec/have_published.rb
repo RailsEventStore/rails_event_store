@@ -213,7 +213,7 @@ module RubyEventStore
           fetch_events.in(event_store)
           @events = fetch_events.call
           @failed_on_stream = stream_name
-          matcher.matches?(events) && matches_count?
+          MatchEvents.new.call(expected, @events)
         end
       end
 
@@ -265,15 +265,6 @@ module RubyEventStore
       end
 
       private
-
-      def count
-        expected.count
-      end
-
-      def matches_count?
-        return true unless count
-        events.select { |e| expected.events.first === e }.size.equal?(count)
-      end
 
       def stream_names
         @stream_names || [nil]
