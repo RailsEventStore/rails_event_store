@@ -200,8 +200,8 @@ module RubyEventStore
       end
 
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
-        @expected  = [mandatory_expected, *optional_expected]
-        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
+        @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
+        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
         @phraser   = phraser
         @failure_message_formatter = failure_message_formatter.new(differ)
       end
@@ -248,19 +248,19 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected, events, count, strict?, failed_on_stream)
+        failure_message_formatter.failure_message(expected.events, events, count, strict?, failed_on_stream)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.negated_failure_message(expected, events, count, strict?)
+        failure_message_formatter.negated_failure_message(expected.events, events, count, strict?)
       end
 
       def description
-        "have published events that have to (#{phraser.(expected)})"
+        "have published events that have to (#{phraser.(expected.events)})"
       end
 
       def strict
-        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected)
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected.events)
         self
       end
 
@@ -272,8 +272,8 @@ module RubyEventStore
 
       def matches_count?
         return true unless count
-        raise NotSupported if expected.size > 1
-        events.select { |e| expected.first === e }.size.equal?(count)
+        raise NotSupported if expected.events.size > 1
+        events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
       def stream_names

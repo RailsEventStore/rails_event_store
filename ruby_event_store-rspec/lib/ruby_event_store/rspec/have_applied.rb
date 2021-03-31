@@ -4,8 +4,8 @@ module RubyEventStore
   module RSpec
     class HaveApplied
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:)
-        @expected  = [mandatory_expected, *optional_expected]
-        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
+        @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
+        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
         @differ    = differ
         @phraser   = phraser
       end
@@ -30,30 +30,30 @@ module RubyEventStore
       end
 
       def strict
-        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected)
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected.events)
         self
       end
 
       def failure_message
-        "expected #{expected} to be applied, diff:" +
-          differ.diff(expected.to_s + "\n", events)
+        "expected #{expected.events} to be applied, diff:" +
+          differ.diff(expected.events.to_s + "\n", events)
       end
 
       def failure_message_when_negated
-        "expected #{expected} not to be applied, diff:" +
-            differ.diff(expected.inspect + "\n", events)
+        "expected #{expected.events} not to be applied, diff:" +
+          differ.diff(expected.events.inspect + "\n", events)
       end
 
       def description
-        "have applied events that have to (#{phraser.(expected)})"
+        "have applied events that have to (#{phraser.(expected.events)})"
       end
 
       private
 
       def matches_count?
         return true unless count
-        raise NotSupported if expected.size > 1
-        events.select { |e| expected.first === e }.size.equal?(count)
+        raise NotSupported if expected.events.size > 1
+        events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
       attr_reader :differ, :phraser, :expected, :events, :count, :matcher
