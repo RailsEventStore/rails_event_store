@@ -13,6 +13,10 @@ module RubyEventStore
         @event_store = event_store
       end
 
+      def event_store?
+        !@event_store.nil?
+      end
+
       def call
         events = event_store.read
         events = events.stream(stream_name) if stream_name
