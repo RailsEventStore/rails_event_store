@@ -74,9 +74,8 @@ module RubyEventStore
 
       def matches?(event_proc)
         raise_event_store_not_set unless fetch_events.event_store?
-        last_event_before_block = fetch_events.call.to_a.last
+        fetch_events.from_last
         event_proc.call
-        fetch_events.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = fetch_events.call.to_a
         if match_events?
           ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events).matches?(@published_events) && matches_count?
