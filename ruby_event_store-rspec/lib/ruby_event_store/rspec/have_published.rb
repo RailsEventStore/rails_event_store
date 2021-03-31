@@ -209,9 +209,9 @@ module RubyEventStore
 
       def matches?(event_store)
         stream_names.all? do |stream_name|
-          @fetch_events.stream(stream_name) if stream_name
-          @fetch_events.in(event_store)
-          @events = @fetch_events.call
+          fetch_events.stream(stream_name) if stream_name
+          fetch_events.in(event_store)
+          @events = fetch_events.call
           @failed_on_stream = stream_name
           matcher.matches?(events) && matches_count?
         end
@@ -238,7 +238,7 @@ module RubyEventStore
       alias :time :times
 
       def from(event_id)
-        @fetch_events.from(event_id)
+        fetch_events.from(event_id)
         self
       end
 
@@ -283,7 +283,7 @@ module RubyEventStore
         @stream_names || [nil]
       end
 
-      attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :matcher
+      attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :matcher, :fetch_events
     end
   end
 end
