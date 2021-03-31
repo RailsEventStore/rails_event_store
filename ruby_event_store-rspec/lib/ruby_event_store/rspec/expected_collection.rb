@@ -6,6 +6,8 @@ module RubyEventStore
       end
 
       def exactly(count)
+        raise NotSupported if events.size != 1
+        raise NotSupported if count < 1
         @count = count
       end
 

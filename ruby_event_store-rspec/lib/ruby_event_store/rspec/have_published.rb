@@ -207,7 +207,6 @@ module RubyEventStore
       end
 
       def matches?(event_store)
-        raise NotSupported if count && count < 1
         stream_names.all? do |stream_name|
           @events = event_store.read
           @events = events.stream(stream_name) if stream_name
@@ -277,7 +276,6 @@ module RubyEventStore
 
       def matches_count?
         return true unless count
-        raise NotSupported if expected.events.size > 1
         events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
