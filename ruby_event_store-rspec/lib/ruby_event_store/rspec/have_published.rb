@@ -218,7 +218,7 @@ module RubyEventStore
       end
 
       def exactly(count)
-        @expected.exactly(count)
+        expected.exactly(count)
         self
       end
 
@@ -243,7 +243,7 @@ module RubyEventStore
       end
 
       def once
-        @expected.once
+        expected.once
         self
       end
 
@@ -267,7 +267,7 @@ module RubyEventStore
       private
 
       def count
-        @expected.count
+        expected.count
       end
 
       def matches_count?
