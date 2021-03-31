@@ -48,22 +48,22 @@ module RubyEventStore
       end
 
       def in(event_store)
-        @fetch_events.in(event_store)
+        fetch_events.in(event_store)
         self
       end
 
       def in_stream(stream)
-        @fetch_events.stream(stream)
+        fetch_events.stream(stream)
         self
       end
 
       def exactly(count)
-        @expected.exactly(count)
+        expected.exactly(count)
         self
       end
 
       def once
-        @expected.once
+        expected.once
         self
       end
 
@@ -77,7 +77,7 @@ module RubyEventStore
         event_proc.call
         @published_events = fetch_events.call.to_a
         if match_events?
-          ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events).matches?(@published_events) && matches_count?
+          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events).matches?(@published_events) && matches_count?
         else
           !@published_events.empty?
         end
@@ -86,11 +86,11 @@ module RubyEventStore
       end
 
       def failure_message
-        @failure_message_formatter.failure_message(@expected.events, @published_events, fetch_events.stream_name)
+        @failure_message_formatter.failure_message(expected.events, @published_events, fetch_events.stream_name)
       end
 
       def failure_message_when_negated
-        @failure_message_formatter.negated_failure_message(@expected.events, @published_events, fetch_events.stream_name)
+        @failure_message_formatter.negated_failure_message(expected.events, @published_events, fetch_events.stream_name)
       end
 
       def description
@@ -104,19 +104,19 @@ module RubyEventStore
       private
 
       def count
-        @expected.count
+        expected.count
       end
 
       def match_events?
-        !@expected.events.empty?
+        !expected.events.empty?
       end
 
       def matches_count?
         return true unless count
-        @published_events.select { |e| @expected.events.first === e }.size.equal?(count)
+        @published_events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
-      attr_reader :fetch_events
+      attr_reader :fetch_events, :expected
     end
   end
 end
