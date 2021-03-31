@@ -5,7 +5,11 @@ module RubyEventStore
         @start = event_id
       end
 
-      attr_reader :start
+      def stream(stream_name)
+        @stream_name = stream_name
+      end
+
+      attr_reader :start, :stream_name
     end
   end
 end

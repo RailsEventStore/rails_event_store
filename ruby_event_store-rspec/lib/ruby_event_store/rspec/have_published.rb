@@ -210,7 +210,8 @@ module RubyEventStore
       def matches?(event_store)
         stream_names.all? do |stream_name|
           @events = event_store.read
-          @events = events.stream(stream_name) if stream_name
+          @fetch_events.stream(stream_name) if stream_name
+          @events = events.stream(@fetch_events.stream_name) if @fetch_events.stream_name
           @events = events.from(@fetch_events.start) if @fetch_events.start
           @events = events.each
           @failed_on_stream = stream_name
