@@ -16,7 +16,7 @@ module RubyEventStore
       end
 
       def exactly(count)
-        @count = count
+        @expected.exactly(count)
         self
       end
 
@@ -26,7 +26,8 @@ module RubyEventStore
       alias :time :times
 
       def once
-        exactly(1)
+        @expected.once
+        self
       end
 
       def strict
@@ -50,13 +51,17 @@ module RubyEventStore
 
       private
 
+      def count
+        @expected.count
+      end
+
       def matches_count?
         return true unless count
         raise NotSupported if expected.events.size > 1
         events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
-      attr_reader :differ, :phraser, :expected, :events, :count, :matcher
+      attr_reader :differ, :phraser, :expected, :events, :matcher
     end
   end
 end
