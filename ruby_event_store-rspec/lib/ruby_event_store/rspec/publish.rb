@@ -20,7 +20,7 @@ module RubyEventStore
           end
         end
 
-        def negated_failure_message(expected, events, stream)
+        def failure_message_when_negated(expected, events, stream)
           if match_events?(expected)
             <<~EOS
             expected block not to have published:
@@ -90,7 +90,7 @@ module RubyEventStore
       end
 
       def failure_message_when_negated
-        failure_message_formatter.negated_failure_message(expected, @published_events, fetch_events.stream_name)
+        failure_message_formatter.failure_message_when_negated(expected, @published_events, fetch_events.stream_name)
       end
 
       def description
