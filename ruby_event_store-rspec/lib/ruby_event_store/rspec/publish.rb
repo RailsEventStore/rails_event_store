@@ -69,6 +69,7 @@ module RubyEventStore
         event_proc.call
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = spec.to_a
+        raise NotSupported if @count && @expected.size != 1
         if match_events?
           ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@published_events) && matches_count?
         else

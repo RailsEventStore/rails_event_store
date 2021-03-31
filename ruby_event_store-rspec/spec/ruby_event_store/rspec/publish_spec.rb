@@ -208,6 +208,21 @@ module RubyEventStore
           event_store.publish(FooEvent.new)
         }.not_to matcher(matchers.an_event(FooEvent)).in(event_store).exactly(3).times
       end
+
+      specify do
+        expect do
+          expect {
+            event_store.publish(FooEvent.new)
+          }.to matcher(matchers.an_event(FooEvent), matchers.an_event(FooEvent)).in(event_store).exactly(3).times
+        end.to raise_error(NotSupported)
+      end
+
+      specify do
+        expect do
+          expect {
+          }.to matcher(matchers.an_event(FooEvent), matchers.an_event(FooEvent)).in(event_store).exactly(3).times
+        end.to raise_error(NotSupported)
+      end
     end
   end
 end
