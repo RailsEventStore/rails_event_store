@@ -207,19 +207,12 @@ module RubyEventStore
 
       def matches?(event_store)
         raise NotSupported if count && count < 1
-        if stream_names
-          stream_names.all? do |stream_name|
-            @events = event_store.read
-            @events = events.stream(stream_name)
-            @events = events.from(start) if start
-            @events = events.each
-            @failed_on_stream = stream_name
-            matcher.matches?(events) && matches_count?
-          end
-        else
+        stream_names.all? do |stream_name|
           @events = event_store.read
+          @events = events.stream(stream_name) if stream_name
           @events = events.from(start) if start
           @events = events.each
+          @failed_on_stream = stream_name
           matcher.matches?(events) && matches_count?
         end
       end
@@ -282,7 +275,11 @@ module RubyEventStore
         events.select { |e| expected.first === e }.size.equal?(count)
       end
 
-      attr_reader :phraser, :stream_names, :expected, :count, :events, :start, :failed_on_stream, :failure_message_formatter, :matcher
+      def stream_names
+        @stream_names || [nil]
+      end
+
+      attr_reader :phraser, :expected, :count, :events, :start, :failed_on_stream, :failure_message_formatter, :matcher
     end
   end
 end
