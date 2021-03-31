@@ -3,6 +3,44 @@
 module RubyEventStore
   module RSpec
     class Publish
+      class CrudeFailureMessageFormatter
+        def failure_message(expected, events, stream)
+          if match_events?(expected)
+            <<-EOS
+expected block to have published:
+
+#{expected}
+
+#{"in stream #{stream} " if stream}but published:
+
+#{events}
+EOS
+          else
+            "expected block to have published any events"
+          end
+        end
+
+        def negated_failure_message(expected, events, stream)
+          if match_events?(expected)
+            <<-EOS
+expected block not to have published:
+
+#{expected}
+
+#{"in stream #{stream} " if stream}but published:
+
+#{events}
+EOS
+          else
+            "expected block not to have published any events"
+          end
+        end
+
+        def match_events?(expected)
+          !expected.empty?
+        end
+      end
+
       def in(event_store)
         @event_store = event_store
         self
@@ -29,35 +67,11 @@ module RubyEventStore
       end
 
       def failure_message
-        if match_events?
-          <<-EOS
-expected block to have published:
-
-#{@expected}
-
-#{"in stream #{@stream} " if @stream}but published:
-
-#{@published_events}
-EOS
-        else
-          "expected block to have published any events"
-        end
+        @failure_message_formatter.failure_message(@expected, @published_events, @stream)
       end
 
       def failure_message_when_negated
-        if match_events?
-          <<-EOS
-expected block not to have published:
-
-#{@expected}
-
-#{"in stream #{@stream} " if @stream}but published:
-
-#{@published_events}
-EOS
-        else
-          "expected block not to have published any events"
-        end
+        @failure_message_formatter.negated_failure_message(@expected, @published_events, @stream)
       end
 
       def description
@@ -72,6 +86,7 @@ EOS
 
       def initialize(*expected)
         @expected = expected
+        @failure_message_formatter = CrudeFailureMessageFormatter.new
       end
 
       def match_events?
