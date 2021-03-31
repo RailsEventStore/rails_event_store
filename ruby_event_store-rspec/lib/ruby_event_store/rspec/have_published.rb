@@ -201,7 +201,7 @@ module RubyEventStore
 
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
         @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
-        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
+        @strict_matcher = false
         @phraser   = phraser
         @failure_message_formatter = failure_message_formatter.new(differ)
         @fetch_events = FetchEvents.new
@@ -260,7 +260,7 @@ module RubyEventStore
       end
 
       def strict
-        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected.events)
+        @strict_matcher = true
         self
       end
 
@@ -271,7 +271,7 @@ module RubyEventStore
       end
 
       def strict?
-        matcher.instance_of?(::RSpec::Matchers::BuiltIn::Match)
+        @strict_matcher == true
       end
 
       def matches_count?
@@ -283,7 +283,13 @@ module RubyEventStore
         @stream_names || [nil]
       end
 
-      attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :matcher, :fetch_events
+      def matcher
+        @strict_matcher ?
+          ::RSpec::Matchers::BuiltIn::Match.new(expected.events) :
+          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
+      end
+
+      attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :fetch_events
     end
   end
 end
