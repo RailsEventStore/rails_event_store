@@ -74,20 +74,20 @@ module RubyEventStore
         event_proc.call
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = spec.to_a
-        raise NotSupported if @count && @expected.size != 1
+        raise NotSupported if @count && @expected.events.size != 1
         if match_events?
-          ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@published_events) && matches_count?
+          ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events).matches?(@published_events) && matches_count?
         else
           !@published_events.empty?
         end
       end
 
       def failure_message
-        @failure_message_formatter.failure_message(@expected, @published_events, @stream)
+        @failure_message_formatter.failure_message(@expected.events, @published_events, @stream)
       end
 
       def failure_message_when_negated
-        @failure_message_formatter.negated_failure_message(@expected, @published_events, @stream)
+        @failure_message_formatter.negated_failure_message(@expected.events, @published_events, @stream)
       end
 
       def description
@@ -101,12 +101,12 @@ module RubyEventStore
       private
 
       def initialize(*expected)
-        @expected = expected
+        @expected = ExpectedCollection.new(expected)
         @failure_message_formatter = CrudeFailureMessageFormatter.new
       end
 
       def match_events?
-        !@expected.empty?
+        !@expected.events.empty?
       end
 
       def raise_event_store_not_set
@@ -115,7 +115,7 @@ module RubyEventStore
 
       def matches_count?
         return true unless @count
-        @published_events.select { |e| @expected.first === e }.size.equal?(@count)
+        @published_events.select { |e| @expected.events.first === e }.size.equal?(@count)
       end
     end
   end
