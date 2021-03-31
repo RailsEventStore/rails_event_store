@@ -78,6 +78,44 @@ module RubyEventStore
         attr_reader :differ
       end
 
+      class Apply
+        def failure_message(expected, applied_events)
+          if match_events?(expected)
+            <<~EOS
+            expected block to have applied:
+
+            #{expected.events}
+
+            but applied:
+
+            #{applied_events}
+            EOS
+          else
+            "expected block to have applied any events"
+          end
+        end
+
+        def failure_message_when_negated(expected, applied_events)
+          if match_events?(expected)
+            <<~EOS
+            expected block not to have applied:
+
+            #{expected.events}
+
+            but applied:
+
+            #{applied_events}
+            EOS
+          else
+            "expected block not to have applied any events"
+          end
+        end
+
+        def match_events?(expected)
+          !expected.events.empty?
+        end
+      end
+
       def self.have_published
         HavePublished
       end
@@ -88,6 +126,10 @@ module RubyEventStore
 
       def self.have_applied
         HaveApplied
+      end
+
+      def self.apply
+        Apply
       end
     end
   end

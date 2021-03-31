@@ -3,8 +3,9 @@
 module RubyEventStore
   module RSpec
     class Apply
-      def initialize(*expected)
+      def initialize(*expected, failure_message_formatter: RSpec.default_formatter.apply)
         @expected = ExpectedCollection.new(expected)
+        @failure_message_formatter = failure_message_formatter.new
       end
 
       def in(aggregate)
@@ -30,35 +31,11 @@ module RubyEventStore
       end
 
       def failure_message
-        if match_events?
-          <<~EOS
-          expected block to have applied:
-
-          #{expected.events}
-
-          but applied:
-
-          #{applied_events}
-          EOS
-        else
-          "expected block to have applied any events"
-        end
+        failure_message_formatter.failure_message(expected, applied_events)
       end
 
       def failure_message_when_negated
-        if match_events?
-          <<~EOS
-          expected block not to have applied:
-
-          #{expected.events}
-
-          but applied:
-
-          #{applied_events}
-          EOS
-        else
-          "expected block not to have applied any events"
-        end
+        failure_message_formatter.failure_message_when_negated(expected, applied_events)
       end
 
       def description
@@ -79,7 +56,7 @@ module RubyEventStore
         raise SyntaxError, "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`"
       end
 
-      attr_reader :expected, :applied_events
+      attr_reader :expected, :applied_events, :failure_message_formatter
     end
   end
 end
