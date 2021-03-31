@@ -5,7 +5,6 @@ module RubyEventStore
     class HaveApplied
       def initialize(mandatory_expected, *optional_expected, differ:, phraser:)
         @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
-        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
         @differ    = differ
         @phraser   = phraser
       end
@@ -31,7 +30,7 @@ module RubyEventStore
       end
 
       def strict
-        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected.events)
+        @expected.strict
         self
       end
 
@@ -60,7 +59,13 @@ module RubyEventStore
         events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
-      attr_reader :differ, :phraser, :expected, :events, :matcher
+      def matcher
+        expected.strict? ?
+          ::RSpec::Matchers::BuiltIn::Match.new(expected.events) :
+          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
+      end
+
+      attr_reader :differ, :phraser, :expected, :events
     end
   end
 end
