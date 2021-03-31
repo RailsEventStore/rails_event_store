@@ -164,15 +164,16 @@ module RubyEventStore
         end
 
         def expected_message(expected, expected_event, expected_count, stream_name)
+          expected_stream = stream_name ? " in stream #{stream_name}" : nil
           if expected_count
             <<~EOS
             expected event
               #{expected_event.description}
-            to be published #{expected_count} times#{stream_name ? " in stream #{stream_name}" : nil}
+            to be published #{expected_count} times#{expected_stream}
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected)} to be published#{stream_name ? " in stream #{stream_name}" : nil}
+            expected #{expected_events_list(expected)} to be published#{expected_stream}
 
             i.e. expected event
               #{expected_event.description}
