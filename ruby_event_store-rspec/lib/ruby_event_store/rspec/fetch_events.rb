@@ -1,6 +1,8 @@
 module RubyEventStore
   module RSpec
     class FetchEvents
+      MissingEventStore = Class.new(StandardError)
+
       def from(event_id)
         @start = event_id
       end
@@ -22,6 +24,7 @@ module RubyEventStore
       end
 
       def call
+        raise MissingEventStore if event_store.nil?
         events = event_store.read
         events = events.stream(stream_name) if stream_name
         events = events.from(start) if start
