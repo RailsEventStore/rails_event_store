@@ -32,15 +32,15 @@ module RubyEventStore
 
       def failure_message
         if match_events?
-          <<-EOS
-expected block to have applied:
+          <<~EOS
+          expected block to have applied:
 
-#{@expected.events}
+          #{@expected.events}
 
-but applied:
+          but applied:
 
-#{@applied_events}
-EOS
+          #{@applied_events}
+          EOS
         else
           "expected block to have applied any events"
         end
@@ -48,15 +48,15 @@ EOS
 
       def failure_message_when_negated
         if match_events?
-          <<-EOS
-expected block not to have applied:
+          <<~EOS
+          expected block not to have applied:
 
-#{@expected.events}
+          #{@expected.events}
 
-but applied:
+          but applied:
 
-#{@applied_events}
-EOS
+          #{@applied_events}
+          EOS
         else
           "expected block not to have applied any events"
         end
