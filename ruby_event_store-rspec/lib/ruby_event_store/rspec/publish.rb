@@ -77,7 +77,7 @@ module RubyEventStore
         event_proc.call
         @published_events = fetch_events.call.to_a
         if match_events?
-          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events).matches?(@published_events) && matches_count?
+          MatchEvents.new.call(expected, @published_events)
         else
           !@published_events.empty?
         end
@@ -103,17 +103,8 @@ module RubyEventStore
 
       private
 
-      def count
-        expected.count
-      end
-
       def match_events?
         !expected.events.empty?
-      end
-
-      def matches_count?
-        return true unless count
-        @published_events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
       attr_reader :fetch_events, :expected, :failure_message_formatter
