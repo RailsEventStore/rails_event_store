@@ -209,11 +209,9 @@ module RubyEventStore
 
       def matches?(event_store)
         stream_names.all? do |stream_name|
-          @events = event_store.read
           @fetch_events.stream(stream_name) if stream_name
-          @events = events.stream(@fetch_events.stream_name) if @fetch_events.stream_name
-          @events = events.from(@fetch_events.start) if @fetch_events.start
-          @events = events.each
+          @fetch_events.in(event_store)
+          @events = @fetch_events.call
           @failed_on_stream = stream_name
           matcher.matches?(events) && matches_count?
         end
