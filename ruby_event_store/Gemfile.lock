@@ -35,7 +35,6 @@ GEM
     parser (3.0.0.0)
       ast (~> 2.4.1)
     rake (13.0.3)
-    rbs (1.1.1)
     regexp_parser (2.1.1)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -69,7 +68,6 @@ DEPENDENCIES
   mutant-minitest (~> 0.10.26)
   mutant-rspec (~> 0.10.26)
   rake (>= 10.0)
-  rbs
   rspec (~> 3.6)
   ruby_event_store!
 

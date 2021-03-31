@@ -6,4 +6,3 @@ eval_gemfile '../support/bundler/Gemfile.shared'
 
 gem 'activesupport',   '6.0.3.4'
 gem 'concurrent-ruby', '1.1.8'
-gem 'rbs'
