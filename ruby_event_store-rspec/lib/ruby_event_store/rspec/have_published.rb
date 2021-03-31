@@ -260,7 +260,7 @@ module RubyEventStore
       end
 
       def strict
-        @strict_matcher = true
+        expected.strict
         self
       end
 
@@ -271,7 +271,7 @@ module RubyEventStore
       end
 
       def strict?
-        @strict_matcher == true
+        expected.strict?
       end
 
       def matches_count?
@@ -284,7 +284,7 @@ module RubyEventStore
       end
 
       def matcher
-        @strict_matcher ?
+        expected.strict? ?
           ::RSpec::Matchers::BuiltIn::Match.new(expected.events) :
           ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
       end
