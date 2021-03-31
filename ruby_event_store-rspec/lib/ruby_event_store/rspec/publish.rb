@@ -86,11 +86,11 @@ module RubyEventStore
       end
 
       def failure_message
-        @failure_message_formatter.failure_message(expected, @published_events, fetch_events.stream_name)
+        failure_message_formatter.failure_message(expected, @published_events, fetch_events.stream_name)
       end
 
       def failure_message_when_negated
-        @failure_message_formatter.negated_failure_message(expected, @published_events, fetch_events.stream_name)
+        failure_message_formatter.negated_failure_message(expected, @published_events, fetch_events.stream_name)
       end
 
       def description
@@ -116,7 +116,7 @@ module RubyEventStore
         @published_events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
-      attr_reader :fetch_events, :expected
+      attr_reader :fetch_events, :expected, :failure_message_formatter
     end
   end
 end
