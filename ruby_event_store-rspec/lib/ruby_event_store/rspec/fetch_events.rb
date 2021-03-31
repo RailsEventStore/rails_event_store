@@ -9,7 +9,18 @@ module RubyEventStore
         @stream_name = stream_name
       end
 
-      attr_reader :start, :stream_name
+      def in(event_store)
+        @event_store = event_store
+      end
+
+      def call
+        events = event_store.read
+        events = events.stream(stream_name) if stream_name
+        events = events.from(start) if start
+        events.each
+      end
+
+      attr_reader :start, :stream_name, :event_store
     end
   end
 end
