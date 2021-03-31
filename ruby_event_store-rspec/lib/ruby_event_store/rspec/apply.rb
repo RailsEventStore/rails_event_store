@@ -5,7 +5,6 @@ module RubyEventStore
     class Apply
       def initialize(*expected)
         @expected = ExpectedCollection.new(expected)
-        @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
       end
 
       def in(aggregate)
@@ -14,7 +13,7 @@ module RubyEventStore
       end
 
       def strict
-        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(@expected.events)
+        @expected.strict
         self
       end
 
@@ -24,7 +23,7 @@ module RubyEventStore
         event_proc.call
         @applied_events = @aggregate.unpublished_events.to_a - before
         if match_events?
-          @matcher.matches?(@applied_events)
+          matcher.matches?(@applied_events)
         else
           !@applied_events.empty?
         end
@@ -71,6 +70,12 @@ module RubyEventStore
       end
 
       private
+
+      def matcher
+        @expected.strict? ?
+          ::RSpec::Matchers::BuiltIn::Match.new(@expected.events) :
+          ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events)
+      end
 
       def match_events?
         !@expected.events.empty?
