@@ -44,15 +44,16 @@ module RubyEventStore
       def initialize(*expected)
         @expected = ExpectedCollection.new(expected)
         @failure_message_formatter = CrudeFailureMessageFormatter.new
+        @fetch_events = FetchEvents.new
       end
 
       def in(event_store)
-        @event_store = event_store
+        @fetch_events.in(event_store)
         self
       end
 
       def in_stream(stream)
-        @stream = stream
+        @fetch_events.stream(stream)
         self
       end
 
@@ -72,13 +73,11 @@ module RubyEventStore
       alias :time :times
 
       def matches?(event_proc)
-        raise_event_store_not_set unless @event_store
-        spec = @event_store.read
-        spec = spec.stream(@stream) if @stream
-        last_event_before_block = spec.last
+        raise_event_store_not_set unless fetch_events.event_store?
+        last_event_before_block = fetch_events.call.to_a.last
         event_proc.call
-        spec = spec.from(last_event_before_block.event_id) if last_event_before_block
-        @published_events = spec.to_a
+        fetch_events.from(last_event_before_block.event_id) if last_event_before_block
+        @published_events = fetch_events.call.to_a
         if match_events?
           ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events).matches?(@published_events) && matches_count?
         else
@@ -87,11 +86,11 @@ module RubyEventStore
       end
 
       def failure_message
-        @failure_message_formatter.failure_message(@expected.events, @published_events, @stream)
+        @failure_message_formatter.failure_message(@expected.events, @published_events, fetch_events.stream_name)
       end
 
       def failure_message_when_negated
-        @failure_message_formatter.negated_failure_message(@expected.events, @published_events, @stream)
+        @failure_message_formatter.negated_failure_message(@expected.events, @published_events, fetch_events.stream_name)
       end
 
       def description
@@ -120,6 +119,8 @@ module RubyEventStore
         return true unless count
         @published_events.select { |e| @expected.events.first === e }.size.equal?(count)
       end
+
+      attr_reader :fetch_events
     end
   end
 end
