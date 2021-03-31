@@ -3,9 +3,9 @@
 module RubyEventStore
   module RSpec
     class HaveApplied
-      def initialize(mandatory_expected, *optional_expected, differ:, phraser:)
+      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_applied)
         @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
-        @differ    = differ
+        @failure_message_formatter = failure_message_formatter.new(differ)
         @phraser   = phraser
       end
 
@@ -35,13 +35,11 @@ module RubyEventStore
       end
 
       def failure_message
-        "expected #{expected.events} to be applied, diff:" +
-          differ.diff(expected.events.to_s + "\n", events)
+        failure_message_formatter.failure_message(expected, events)
       end
 
       def failure_message_when_negated
-        "expected #{expected.events} not to be applied, diff:" +
-          differ.diff(expected.events.inspect + "\n", events)
+        failure_message_formatter.failure_message_when_negated(expected, events)
       end
 
       def description
@@ -50,8 +48,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :differ, :phraser, :expected, :events
+      attr_reader :phraser, :expected, :events, :failure_message_formatter
     end
   end
 end
-

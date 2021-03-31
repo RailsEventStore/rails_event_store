@@ -218,12 +218,34 @@ module RubyEventStore
         end
       end
 
+      class HaveApplied
+        def initialize(differ)
+          @differ = differ
+        end
+
+        def failure_message(expected, events)
+          "expected #{expected.events} to be applied, diff:" +
+            differ.diff(expected.events.to_s + "\n", events)
+        end
+
+        def failure_message_when_negated(expected, events)
+          "expected #{expected.events} not to be applied, diff:" +
+            differ.diff(expected.events.inspect + "\n", events)
+        end
+
+        attr_reader :differ
+      end
+
       def self.have_published
         HavePublished
       end
 
       def self.publish
         Publish
+      end
+
+      def self.have_applied
+        HaveApplied
       end
     end
   end
