@@ -28,9 +28,10 @@ module RubyEventStore
     end
 
     def all_for(event_type)
-      resolved_event_type = resolve_event_type(event_type)
-      [local, global, thread].map{|r| r.all_for(resolved_event_type)}.reduce(&:+)
+      [local, global, thread].map{|r| r.all_for(event_type)}.reduce(&:+)
     end
+
+    attr_reader :event_type_resolver
 
     private
     attr_reader :local, :global, :thread
