@@ -3,6 +3,7 @@ module RubyEventStore
     class ExpectedCollection
       def initialize(events)
         @events = events
+        @strict = false
       end
 
       def exactly(count)
@@ -17,6 +18,14 @@ module RubyEventStore
 
       def specified_count?
         !@count.nil?
+      end
+
+      def strict
+        @strict = true
+      end
+
+      def strict?
+        @strict == true
       end
 
       attr_reader :events, :count
