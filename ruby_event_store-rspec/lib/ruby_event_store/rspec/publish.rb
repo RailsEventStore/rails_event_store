@@ -73,7 +73,6 @@ module RubyEventStore
       alias :time :times
 
       def matches?(event_proc)
-        raise_event_store_not_set unless fetch_events.event_store?
         fetch_events.from_last
         event_proc.call
         @published_events = fetch_events.call.to_a
@@ -82,6 +81,8 @@ module RubyEventStore
         else
           !@published_events.empty?
         end
+      rescue FetchEvents::MissingEventStore
+        raise SyntaxError, "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
       end
 
       def failure_message
@@ -108,10 +109,6 @@ module RubyEventStore
 
       def match_events?
         !@expected.events.empty?
-      end
-
-      def raise_event_store_not_set
-        raise SyntaxError, "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
       end
 
       def matches_count?
