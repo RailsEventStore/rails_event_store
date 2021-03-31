@@ -28,6 +28,11 @@ module RubyEventStore
         @strict == true
       end
 
+      def event
+        raise "Many events present in scenario where exactly one expected event was required" if events.size > 1
+        events.first
+      end
+
       attr_reader :events, :count
     end
   end
