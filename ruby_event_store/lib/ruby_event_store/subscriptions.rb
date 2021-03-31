@@ -45,7 +45,7 @@ module RubyEventStore
     end
 
     def resolve_event_type(type)
-      @event_type_resolver.call(type)
+      event_type_resolver.call(type)
     end
 
     class ThreadSubscriptions
