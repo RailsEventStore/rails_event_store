@@ -3,47 +3,9 @@
 module RubyEventStore
   module RSpec
     class Publish
-      class CrudeFailureMessageFormatter
-        def failure_message(expected, events, stream)
-          if match_events?(expected)
-            <<~EOS
-            expected block to have published:
-
-            #{expected.events}
-
-            #{"in stream #{stream} " if stream}but published:
-
-            #{events}
-            EOS
-          else
-            "expected block to have published any events"
-          end
-        end
-
-        def failure_message_when_negated(expected, events, stream)
-          if match_events?(expected)
-            <<~EOS
-            expected block not to have published:
-
-            #{expected.events}
-
-            #{"in stream #{stream} " if stream}but published:
-
-            #{events}
-            EOS
-          else
-            "expected block not to have published any events"
-          end
-        end
-
-        def match_events?(expected)
-          !expected.events.empty?
-        end
-      end
-
-      def initialize(*expected)
+      def initialize(*expected, failure_message_formatter: RSpec.default_formatter.publish)
         @expected = ExpectedCollection.new(expected)
-        @failure_message_formatter = CrudeFailureMessageFormatter.new
+        @failure_message_formatter = failure_message_formatter.new
         @fetch_events = FetchEvents.new
       end
 
