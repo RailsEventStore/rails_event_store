@@ -51,6 +51,16 @@ module RubyEventStore
         self
       end
 
+      def exactly(count)
+        @count = count
+        self
+      end
+
+      def times
+        self
+      end
+      alias :time :times
+
       def matches?(event_proc)
         raise_event_store_not_set unless @event_store
         spec = @event_store.read
@@ -60,7 +70,7 @@ module RubyEventStore
         spec = spec.from(last_event_before_block.event_id) if last_event_before_block
         @published_events = spec.to_a
         if match_events?
-          ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@published_events)
+          ::RSpec::Matchers::BuiltIn::Include.new(*@expected).matches?(@published_events) && matches_count?
         else
           !@published_events.empty?
         end
@@ -95,6 +105,11 @@ module RubyEventStore
 
       def raise_event_store_not_set
         raise SyntaxError, "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
+      end
+
+      def matches_count?
+        return true unless @count
+        @published_events.select { |e| @expected.first === e }.size.equal?(@count)
       end
     end
   end
