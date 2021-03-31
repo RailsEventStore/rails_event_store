@@ -8,12 +8,12 @@ module RubyEventStore
           @differ = differ
         end
 
-        def failure_message(expected, events, _expected_count, _strict)
+        def failure_message(expected, events, _expected_count, _strict, _stream_name)
           "expected #{expected} to be published, diff:" +
             differ.diff(expected.to_s + "\n", events.to_a)
         end
 
-        def negated_failure_message(expected, events, _expected_count, _strict)
+        def negated_failure_message(expected, events, _expected_count, _strict, _stream_name)
           "expected #{expected} not to be published, diff:" +
             differ.diff(expected.to_s + "\n", events.to_a)
         end
@@ -27,7 +27,7 @@ module RubyEventStore
           @differ = differ
         end
 
-        def failure_message(expected, events, expected_count, strict)
+        def failure_message(expected, events, expected_count, strict, stream_name)
           return failure_message_strict(expected, events, expected_count) if strict
           expected.each do |expected_event|
             correct_event_count = 0
@@ -40,7 +40,7 @@ module RubyEventStore
               end
             end
 
-            expectations = expected_message(expected, expected_event, expected_count)
+            expectations = expected_message(expected, expected_event, expected_count, stream_name)
 
             if expected_count
               if correct_event_count >= 1
@@ -66,7 +66,7 @@ module RubyEventStore
           end
         end
 
-        def negated_failure_message(expected, events, expected_count, strict)
+        def negated_failure_message(expected, events, expected_count, strict, _stream_name)
           if expected_count
             <<~EOS
             expected
@@ -163,16 +163,16 @@ module RubyEventStore
           end
         end
 
-        def expected_message(expected, expected_event, expected_count)
+        def expected_message(expected, expected_event, expected_count, stream_name)
           if expected_count
             <<~EOS
             expected event
               #{expected_event.description}
-            to be published #{expected_count} times
+            to be published #{expected_count} times#{stream_name ? " in stream #{stream_name}" : nil}
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected)} to be published
+            expected #{expected_events_list(expected)} to be published#{stream_name ? " in stream #{stream_name}" : nil}
 
             i.e. expected event
               #{expected_event.description}
@@ -213,6 +213,7 @@ module RubyEventStore
             @events = events.stream(stream_name)
             @events = events.from(start) if start
             @events = events.each
+            @failed_on_stream = stream_name
             matcher.matches?(events) && matches_count?
           end
         else
@@ -253,11 +254,11 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected, events, count, strict?)
+        failure_message_formatter.failure_message(expected, events, count, strict?, failed_on_stream)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.negated_failure_message(expected, events, count, strict?)
+        failure_message_formatter.negated_failure_message(expected, events, count, strict?, failed_on_stream)
       end
 
       def description
@@ -281,7 +282,7 @@ module RubyEventStore
         events.select { |e| expected.first === e }.size.equal?(count)
       end
 
-      attr_reader :phraser, :stream_names, :expected, :count, :events, :start, :failure_message_formatter, :matcher
+      attr_reader :phraser, :stream_names, :expected, :count, :events, :start, :failed_on_stream, :failure_message_formatter, :matcher
     end
   end
 end

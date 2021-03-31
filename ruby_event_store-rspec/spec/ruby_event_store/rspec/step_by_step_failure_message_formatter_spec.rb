@@ -327,6 +327,38 @@ module RubyEventStore
         to be published, but there is no event with such type
         EOS
       end
+
+      specify do
+        event_store.publish(FooEvent.new, stream_name: "Foo")
+        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected [
+          be an event FooEvent
+        ] to be published in stream Bar
+
+        i.e. expected event
+          be an event FooEvent
+        to be published, but there is no event with such type
+        EOS
+      end
+
+      specify do
+        event_store.publish(FooEvent.new, stream_name: "Bar")
+        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected [
+          be an event FooEvent
+        ] to be published in stream Foo
+
+        i.e. expected event
+          be an event FooEvent
+        to be published, but there is no event with such type
+        EOS
+      end
     end
   end
 end
