@@ -9,7 +9,7 @@ module RubyEventStore
             <<~EOS
             expected block to have published:
 
-            #{expected}
+            #{expected.events}
 
             #{"in stream #{stream} " if stream}but published:
 
@@ -25,7 +25,7 @@ module RubyEventStore
             <<~EOS
             expected block not to have published:
 
-            #{expected}
+            #{expected.events}
 
             #{"in stream #{stream} " if stream}but published:
 
@@ -37,7 +37,7 @@ module RubyEventStore
         end
 
         def match_events?(expected)
-          !expected.empty?
+          !expected.events.empty?
         end
       end
 
@@ -86,11 +86,11 @@ module RubyEventStore
       end
 
       def failure_message
-        @failure_message_formatter.failure_message(expected.events, @published_events, fetch_events.stream_name)
+        @failure_message_formatter.failure_message(expected, @published_events, fetch_events.stream_name)
       end
 
       def failure_message_when_negated
-        @failure_message_formatter.negated_failure_message(expected.events, @published_events, fetch_events.stream_name)
+        @failure_message_formatter.negated_failure_message(expected, @published_events, fetch_events.stream_name)
       end
 
       def description
