@@ -17,6 +17,10 @@ module RubyEventStore
         !@event_store.nil?
       end
 
+      def from_last
+        @start = call.to_a.last&.event_id
+      end
+
       def call
         events = event_store.read
         events = events.stream(stream_name) if stream_name
