@@ -9,13 +9,13 @@ module RubyEventStore
         end
 
         def failure_message(expected, events, _expected_count, _strict, _stream_name)
-          "expected #{expected} to be published, diff:" +
-            differ.diff(expected.to_s + "\n", events.to_a)
+          "expected #{expected.events} to be published, diff:" +
+            differ.diff(expected.events.to_s + "\n", events.to_a)
         end
 
         def negated_failure_message(expected, events, _expected_count, _strict)
-          "expected #{expected} not to be published, diff:" +
-            differ.diff(expected.to_s + "\n", events.to_a)
+          "expected #{expected.events} not to be published, diff:" +
+            differ.diff(expected.events.to_s + "\n", events.to_a)
         end
 
         private
@@ -29,7 +29,7 @@ module RubyEventStore
 
         def failure_message(expected, events, expected_count, strict, stream_name)
           return failure_message_strict(expected, events, expected_count) if strict
-          expected.each do |expected_event|
+          expected.events.each do |expected_event|
             correct_event_count = 0
             events_with_correct_type = []
             events.each do |actual_event|
@@ -70,14 +70,14 @@ module RubyEventStore
           if expected_count
             <<~EOS
             expected
-              #{expected.first.description}
+              #{expected.events.first.description}
             not to be published exactly #{expected_count} times
 
             #{actual_events_list(events)}
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected)} not to be #{"exactly " if strict}published
+            expected #{expected_events_list(expected.events)} not to be #{"exactly " if strict}published
 
             #{actual_events_list(events)}
             EOS
@@ -137,14 +137,14 @@ module RubyEventStore
           if expected_count
             <<~EOS
             expected only
-              #{expected.first.description}
+              #{expected.events.first.description}
             to be published #{expected_count} times
 
             #{actual_events_list(events)}
             EOS
           else
             <<~EOS
-            expected only #{expected_events_list(expected)} to be published
+            expected only #{expected_events_list(expected.events)} to be published
 
             #{actual_events_list(events)}
             EOS
@@ -173,7 +173,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected)} to be published#{expected_stream}
+            expected #{expected_events_list(expected.events)} to be published#{expected_stream}
 
             i.e. expected event
               #{expected_event.description}
@@ -248,11 +248,11 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected.events, events, count, strict?, failed_on_stream)
+        failure_message_formatter.failure_message(expected, events, count, strict?, failed_on_stream)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.negated_failure_message(expected.events, events, count, strict?)
+        failure_message_formatter.negated_failure_message(expected, events, count, strict?)
       end
 
       def description
