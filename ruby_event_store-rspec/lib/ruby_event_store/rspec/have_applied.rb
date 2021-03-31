@@ -11,7 +11,7 @@ module RubyEventStore
 
       def matches?(aggregate_root)
         @events = aggregate_root.unpublished_events.to_a
-        matcher.matches?(events) && matches_count?
+        MatchEvents.new.call(expected, events)
       end
 
       def exactly(count)
@@ -49,21 +49,6 @@ module RubyEventStore
       end
 
       private
-
-      def count
-        @expected.count
-      end
-
-      def matches_count?
-        return true unless count
-        events.select { |e| expected.events.first === e }.size.equal?(count)
-      end
-
-      def matcher
-        expected.strict? ?
-          ::RSpec::Matchers::BuiltIn::Match.new(expected.events) :
-          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
-      end
 
       attr_reader :differ, :phraser, :expected, :events
     end
