@@ -11,6 +11,7 @@ end
 require_relative "rspec/version"
 require_relative "rspec/be_event"
 require_relative "rspec/expected_collection"
+require_relative "rspec/fetch_events"
 require_relative "rspec/have_published"
 require_relative "rspec/have_applied"
 require_relative "rspec/have_subscribed_to_events"

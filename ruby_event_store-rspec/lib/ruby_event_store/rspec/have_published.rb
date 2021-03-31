@@ -204,13 +204,14 @@ module RubyEventStore
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
         @phraser   = phraser
         @failure_message_formatter = failure_message_formatter.new(differ)
+        @fetch_events = FetchEvents.new
       end
 
       def matches?(event_store)
         stream_names.all? do |stream_name|
           @events = event_store.read
           @events = events.stream(stream_name) if stream_name
-          @events = events.from(start) if start
+          @events = events.from(@fetch_events.start) if @fetch_events.start
           @events = events.each
           @failed_on_stream = stream_name
           matcher.matches?(events) && matches_count?
@@ -238,7 +239,7 @@ module RubyEventStore
       alias :time :times
 
       def from(event_id)
-        @start = event_id
+        @fetch_events.from(event_id)
         self
       end
 
@@ -283,7 +284,7 @@ module RubyEventStore
         @stream_names || [nil]
       end
 
-      attr_reader :phraser, :expected, :events, :start, :failed_on_stream, :failure_message_formatter, :matcher
+      attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :matcher
     end
   end
 end
