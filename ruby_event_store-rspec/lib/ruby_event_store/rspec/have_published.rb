@@ -42,7 +42,7 @@ module RubyEventStore
 
             expectations = expected_message(expected, expected_event, expected_count, stream_name)
 
-            if expected_count
+            if expected.count
               if correct_event_count >= 1
                 reality = failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
               elsif !events_with_correct_type.empty?
@@ -67,11 +67,11 @@ module RubyEventStore
         end
 
         def negated_failure_message(expected, events, expected_count, strict)
-          if expected_count
+          if expected.count
             <<~EOS
             expected
               #{expected.events.first.description}
-            not to be published exactly #{expected_count} times
+            not to be published exactly #{expected.count} times
 
             #{actual_events_list(events)}
             EOS
@@ -134,11 +134,11 @@ module RubyEventStore
         end
 
         def failure_message_strict(expected, events, expected_count)
-          if expected_count
+          if expected.count
             <<~EOS
             expected only
               #{expected.events.first.description}
-            to be published #{expected_count} times
+            to be published #{expected.count} times
 
             #{actual_events_list(events)}
             EOS
@@ -165,11 +165,11 @@ module RubyEventStore
 
         def expected_message(expected, expected_event, expected_count, stream_name)
           expected_stream = " in stream #{stream_name}" if stream_name
-          if expected_count
+          if expected.count
             <<~EOS
             expected event
               #{expected_event.description}
-            to be published #{expected_count} times#{expected_stream}
+            to be published #{expected.count} times#{expected_stream}
             EOS
           else
             <<~EOS
