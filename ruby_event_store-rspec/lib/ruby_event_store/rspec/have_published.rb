@@ -28,7 +28,7 @@ module RubyEventStore
         end
 
         def failure_message(expected, events, strict, stream_name)
-          return failure_message_strict(expected, events) if strict
+          return failure_message_strict(expected, events) if expected.strict?
           expected.events.each do |expected_event|
             correct_event_count = 0
             events_with_correct_type = []
@@ -77,7 +77,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected.events)} not to be #{"exactly " if strict}published
+            expected #{expected_events_list(expected.events)} not to be #{"exactly " if expected.strict?}published
 
             #{actual_events_list(events)}
             EOS
