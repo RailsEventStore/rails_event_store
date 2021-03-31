@@ -4,7 +4,7 @@ module RubyEventStore
   module RSpec
     class Apply
       def initialize(*expected)
-        @expected = expected
+        @expected = ExpectedCollection.new(expected)
         @matcher   = ::RSpec::Matchers::BuiltIn::Include.new(*expected)
       end
 
@@ -14,7 +14,7 @@ module RubyEventStore
       end
 
       def strict
-        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(@expected)
+        @matcher = ::RSpec::Matchers::BuiltIn::Match.new(@expected.events)
         self
       end
 
@@ -35,7 +35,7 @@ module RubyEventStore
           <<-EOS
 expected block to have applied:
 
-#{@expected}
+#{@expected.events}
 
 but applied:
 
@@ -51,7 +51,7 @@ EOS
           <<-EOS
 expected block not to have applied:
 
-#{@expected}
+#{@expected.events}
 
 but applied:
 
@@ -73,7 +73,7 @@ EOS
       private
 
       def match_events?
-        !@expected.empty?
+        !@expected.events.empty?
       end
 
       def raise_aggregate_not_set
