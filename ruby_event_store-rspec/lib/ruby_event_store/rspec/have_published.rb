@@ -270,12 +270,6 @@ module RubyEventStore
         @stream_names || [nil]
       end
 
-      def matcher
-        expected.strict? ?
-          ::RSpec::Matchers::BuiltIn::Match.new(expected.events) :
-          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
-      end
-
       attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :fetch_events
     end
   end
