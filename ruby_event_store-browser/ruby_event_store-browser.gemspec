@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
 
-  spec.required_ruby_version = ">= 2.5"
+  spec.required_ruby_version = ">= 2.6"
 
   spec.add_dependency "ruby_event_store", "= 2.1.0"
   spec.add_dependency "sinatra"

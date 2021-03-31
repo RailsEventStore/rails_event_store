@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.5"
+  spec.required_ruby_version = ">= 2.6"
 
   spec.add_dependency "rails",             ">= 5.0", "< 7.0"
   spec.add_dependency "ruby_event_store",  ">= 2.0", "< 3.0"
