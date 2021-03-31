@@ -154,7 +154,6 @@ GEM
       rake (>= 0.8.7)
       thor (~> 1.0)
     rake (13.0.3)
-    rbs (1.1.1)
     regexp_parser (2.1.1)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -203,7 +202,6 @@ DEPENDENCIES
   rails (= 6.1.0)
   rails_event_store_active_record!
   rake (>= 10.0)
-  rbs
   rspec (~> 3.6)
   ruby_event_store!
   sqlite3 (= 1.4.2)
