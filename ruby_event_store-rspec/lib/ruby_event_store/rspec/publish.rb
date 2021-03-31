@@ -56,6 +56,11 @@ module RubyEventStore
         self
       end
 
+      def once
+        exactly(1)
+        self
+      end
+
       def times
         self
       end
