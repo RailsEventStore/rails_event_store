@@ -938,5 +938,35 @@ module RubyEventStore
       end
       client.publish(OrderCreated.new(event_id: uuid))
     end
+
+    specify "publishing with custom event class where type is not derived from class name" do
+      listener = Class.new do
+        def initialize;  @queue = Queue.new; end
+        def call(event); @queue.push(event); end
+        def value; Timeout.timeout(1, RuntimeError, "did not receive an event") { @queue.pop }; end
+      end.new
+
+      event_klass = Class.new do
+        def initialize
+          @data     = {}
+          @metadata = {}
+        end
+        def self.event_type
+          "custom.event.type"
+        end
+        attr_reader :data, :metadata
+        def event_type; self.class.event_type; end
+        def event_id;   "8d69cc2b-c6c5-4494-99f6-954c7f583477"; end
+      end
+
+      client = Client.new(
+        repository: InMemoryRepository.new,
+        subscriptions: Subscriptions.new(event_type_resolver: ->(klass){ klass.event_type })
+      )
+      client.subscribe(listener, to: [event_klass])
+      client.publish(event_klass.new)
+      event = listener.value
+      expect(event.event_id).to eq("8d69cc2b-c6c5-4494-99f6-954c7f583477")
+    end
   end
 end
