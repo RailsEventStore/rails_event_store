@@ -13,7 +13,7 @@ module RubyEventStore
       end
 
       def strict
-        @expected.strict
+        expected.strict
         self
       end
 
@@ -23,9 +23,9 @@ module RubyEventStore
         event_proc.call
         @applied_events = @aggregate.unpublished_events.to_a - before
         if match_events?
-          matcher.matches?(@applied_events)
+          matcher.matches?(applied_events)
         else
-          !@applied_events.empty?
+          !applied_events.empty?
         end
       end
 
@@ -34,11 +34,11 @@ module RubyEventStore
           <<~EOS
           expected block to have applied:
 
-          #{@expected.events}
+          #{expected.events}
 
           but applied:
 
-          #{@applied_events}
+          #{applied_events}
           EOS
         else
           "expected block to have applied any events"
@@ -50,11 +50,11 @@ module RubyEventStore
           <<~EOS
           expected block not to have applied:
 
-          #{@expected.events}
+          #{expected.events}
 
           but applied:
 
-          #{@applied_events}
+          #{applied_events}
           EOS
         else
           "expected block not to have applied any events"
@@ -72,18 +72,20 @@ module RubyEventStore
       private
 
       def matcher
-        @expected.strict? ?
-          ::RSpec::Matchers::BuiltIn::Match.new(@expected.events) :
-          ::RSpec::Matchers::BuiltIn::Include.new(*@expected.events)
+        expected.strict? ?
+          ::RSpec::Matchers::BuiltIn::Match.new(expected.events) :
+          ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
       end
 
       def match_events?
-        !@expected.events.empty?
+        !expected.events.empty?
       end
 
       def raise_aggregate_not_set
         raise SyntaxError, "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`"
       end
+
+      attr_reader :expected, :applied_events
     end
   end
 end
