@@ -194,6 +194,20 @@ module RubyEventStore
         matcher_ = matcher
         expect(matcher_.description).to eq("publish events")
       end
+
+      specify do
+        expect {
+          event_store.publish(FooEvent.new)
+          event_store.publish(FooEvent.new)
+        }.to matcher(matchers.an_event(FooEvent)).in(event_store).exactly(2).times
+      end
+
+      specify do
+        expect {
+          event_store.publish(FooEvent.new)
+          event_store.publish(FooEvent.new)
+        }.not_to matcher(matchers.an_event(FooEvent)).in(event_store).exactly(3).times
+      end
     end
   end
 end
