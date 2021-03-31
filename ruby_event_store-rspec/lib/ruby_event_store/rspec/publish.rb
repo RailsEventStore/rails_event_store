@@ -6,15 +6,15 @@ module RubyEventStore
       class CrudeFailureMessageFormatter
         def failure_message(expected, events, stream)
           if match_events?(expected)
-            <<-EOS
-expected block to have published:
+            <<~EOS
+            expected block to have published:
 
-#{expected}
+            #{expected}
 
-#{"in stream #{stream} " if stream}but published:
+            #{"in stream #{stream} " if stream}but published:
 
-#{events}
-EOS
+            #{events}
+            EOS
           else
             "expected block to have published any events"
           end
@@ -22,15 +22,15 @@ EOS
 
         def negated_failure_message(expected, events, stream)
           if match_events?(expected)
-            <<-EOS
-expected block not to have published:
+            <<~EOS
+            expected block not to have published:
 
-#{expected}
+            #{expected}
 
-#{"in stream #{stream} " if stream}but published:
+            #{"in stream #{stream} " if stream}but published:
 
-#{events}
-EOS
+            #{events}
+            EOS
           else
             "expected block not to have published any events"
           end
