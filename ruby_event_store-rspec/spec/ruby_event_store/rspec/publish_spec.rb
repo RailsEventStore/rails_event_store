@@ -223,6 +223,12 @@ module RubyEventStore
           }.to matcher(matchers.an_event(FooEvent), matchers.an_event(FooEvent)).in(event_store).exactly(3).times
         end.to raise_error(NotSupported)
       end
+
+      specify do
+        expect {
+          event_store.publish(FooEvent.new)
+        }.to matcher(matchers.an_event(FooEvent)).once.in(event_store)
+      end
     end
   end
 end
