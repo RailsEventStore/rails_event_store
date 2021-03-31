@@ -41,6 +41,11 @@ module RubyEventStore
         end
       end
 
+      def initialize(*expected)
+        @expected = ExpectedCollection.new(expected)
+        @failure_message_formatter = CrudeFailureMessageFormatter.new
+      end
+
       def in(event_store)
         @event_store = event_store
         self
@@ -101,11 +106,6 @@ module RubyEventStore
 
       def count
         @expected.count
-      end
-
-      def initialize(*expected)
-        @expected = ExpectedCollection.new(expected)
-        @failure_message_formatter = CrudeFailureMessageFormatter.new
       end
 
       def match_events?
