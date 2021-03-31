@@ -100,11 +100,6 @@ jobs:
             os: ubuntu-20.04
             database: sqlite:db.sqlite3
             datatype: text
-          - ruby: ruby-2.5
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: sqlite:db.sqlite3
-            datatype: text
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
