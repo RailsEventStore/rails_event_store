@@ -127,6 +127,8 @@ GEM
       mutant (= 0.10.26)
       rspec-core (>= 3.8.0, < 4.0.0)
     nio4r (2.5.4)
+    nokogiri (1.11.0-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.11.0-x86_64-darwin)
       racc (~> 1.4)
     parser (3.0.0.0)
@@ -228,6 +230,7 @@ GEM
       nokogiri (~> 1.8)
 
 PLATFORMS
+  arm64-darwin-20
   x86_64-darwin-19
 
 DEPENDENCIES
