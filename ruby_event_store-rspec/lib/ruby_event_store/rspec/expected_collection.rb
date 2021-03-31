@@ -15,6 +15,10 @@ module RubyEventStore
         exactly(1)
       end
 
+      def specified_count?
+        !@count.nil?
+      end
+
       attr_reader :events, :count
     end
   end

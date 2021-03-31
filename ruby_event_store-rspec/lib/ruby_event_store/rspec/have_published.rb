@@ -42,7 +42,7 @@ module RubyEventStore
 
             expectations = expected_message(expected, expected_event, stream_name)
 
-            if expected.count
+            if expected.specified_count?
               if correct_event_count >= 1
                 reality = failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
               elsif !events_with_correct_type.empty?
@@ -67,7 +67,7 @@ module RubyEventStore
         end
 
         def negated_failure_message(expected, events, strict)
-          if expected.count
+          if expected.specified_count?
             <<~EOS
             expected
               #{expected.events.first.description}
@@ -134,7 +134,7 @@ module RubyEventStore
         end
 
         def failure_message_strict(expected, events)
-          if expected.count
+          if expected.specified_count?
             <<~EOS
             expected only
               #{expected.events.first.description}
@@ -165,7 +165,7 @@ module RubyEventStore
 
         def expected_message(expected, expected_event, stream_name)
           expected_stream = " in stream #{stream_name}" if stream_name
-          if expected.count
+          if expected.specified_count?
             <<~EOS
             expected event
               #{expected_event.description}
