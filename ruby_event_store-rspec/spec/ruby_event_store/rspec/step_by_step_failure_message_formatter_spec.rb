@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module RSpec
-    ::RSpec.describe HavePublished::StepByStepFailureMessageFormatter do
+    ::RSpec.describe StepByStepFailureMessageFormatter::HavePublished do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
         RubyEventStore::Client.new(
@@ -26,7 +26,7 @@ module RubyEventStore
       end
 
       def failure_message_formatter
-        HavePublished::StepByStepFailureMessageFormatter
+        StepByStepFailureMessageFormatter::HavePublished
       end
 
       specify do
