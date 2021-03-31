@@ -57,7 +57,6 @@ module RubyEventStore
 
       def matches_count?
         return true unless count
-        raise NotSupported if expected.events.size > 1
         events.select { |e| expected.events.first === e }.size.equal?(count)
       end
 
