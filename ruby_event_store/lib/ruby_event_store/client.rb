@@ -4,14 +4,14 @@ require 'concurrent'
 
 module RubyEventStore
   class Client
-    def initialize(repository:,
-                   mapper: Mappers::Default.new,
-                   subscriptions: Subscriptions.new,
-                   dispatcher: Dispatcher.new,
-                   clock: default_clock,
-                   correlation_id_generator: default_correlation_id_generator)
-
-
+    def initialize(
+      repository:,
+      mapper: Mappers::Default.new,
+      subscriptions: Subscriptions.new,
+      dispatcher: Dispatcher.new,
+      clock: default_clock,
+      correlation_id_generator: default_correlation_id_generator
+    )
       @repository     = repository
       @mapper         = mapper
       @subscriptions  = subscriptions
@@ -19,6 +19,7 @@ module RubyEventStore
       @clock          = clock
       @metadata       = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
+      @event_type_resolver      = subscriptions.event_type_resolver
     end
 
 
@@ -328,10 +329,6 @@ module RubyEventStore
 
     protected
 
-    def event_type_resolver
-      subscriptions.event_type_resolver
-    end
-
     def metadata=(value)
       @metadata.value = value
     end
@@ -344,6 +341,6 @@ module RubyEventStore
       ->{ SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator
+    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end
