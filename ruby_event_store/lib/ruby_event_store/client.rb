@@ -19,6 +19,7 @@ module RubyEventStore
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
+      @event_type_resolver = subscriptions.event_type_resolver
     end
 
     # Persists events and notifies subscribed handlers about them
@@ -318,10 +319,6 @@ module RubyEventStore
 
     protected
 
-    def event_type_resolver
-      subscriptions.event_type_resolver
-    end
-
     def metadata=(value)
       @metadata.value = value
     end
@@ -334,6 +331,6 @@ module RubyEventStore
       -> { SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator
+    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end
