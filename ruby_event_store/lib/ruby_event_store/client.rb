@@ -19,6 +19,7 @@ module RubyEventStore
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
+      @event_type_resolver = subscriptions.event_type_resolver
     end
 
     # Persists events and notifies subscribed handlers about them
@@ -142,7 +143,7 @@ module RubyEventStore
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       subscriber ||= proc
-      broker.add_subscription(subscriber, to)
+      broker.add_subscription(subscriber, to.map(&event_type_resolver))
     end
 
     # Subscribes a handler (subscriber) that will be invoked for all published events
@@ -172,11 +173,12 @@ module RubyEventStore
     # which are active only during the invocation of the provided
     # block of code.
     class Within
-      def initialize(block, broker)
+      def initialize(block, broker, resolver)
         @block = block
         @broker = broker
         @global_subscribers = []
         @subscribers = Hash.new { [] }
+        @resolver = resolver
       end
 
       # Subscribes temporary handlers that
@@ -210,7 +212,7 @@ module RubyEventStore
       #   @return [self]
       def subscribe(handler = nil, to:, &handler2)
         raise ArgumentError if handler && handler2
-        @subscribers[handler || handler2] += Array(to)
+        @subscribers[handler || handler2] += Array(to).map(&resolver)
         self
       end
 
@@ -228,6 +230,7 @@ module RubyEventStore
       end
 
       private
+      attr_reader :resolver
 
       def add_thread_subscribers
         @subscribers.map { |subscriber, types| @broker.add_thread_subscription(subscriber, types) }
@@ -245,7 +248,7 @@ module RubyEventStore
     # @return [Within] builder object which collects temporary subscriptions
     def within(&block)
       raise ArgumentError if block.nil?
-      Within.new(block, broker)
+      Within.new(block, broker, event_type_resolver)
     end
 
     # Set additional metadata for all events published within the provided block
@@ -357,10 +360,6 @@ module RubyEventStore
 
     protected
 
-    def event_type_resolver
-      subscriptions.event_type_resolver
-    end
-
     def metadata=(value)
       @metadata.value = value
     end
@@ -373,6 +372,6 @@ module RubyEventStore
       -> { SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator
+    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end
