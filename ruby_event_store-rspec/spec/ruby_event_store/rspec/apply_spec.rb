@@ -153,6 +153,25 @@ module RubyEventStore
         matcher_ = matcher
         expect(matcher_.description).to eq("apply events")
       end
+
+      specify do
+        expect do
+          aggregate.foo
+          aggregate.foo
+        end.to matcher(matchers.an_event(FooEvent)).exactly(2).times.in(aggregate)
+      end
+
+      specify do
+        expect do
+          aggregate.foo
+        end.to matcher(matchers.an_event(FooEvent)).once.in(aggregate)
+      end
+
+      specify do
+        expect do
+          aggregate.foo
+        end.to matcher(matchers.an_event(FooEvent)).exactly(1).time.in(aggregate)
+      end
     end
   end
 end
