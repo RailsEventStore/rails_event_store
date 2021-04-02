@@ -39,20 +39,20 @@ module RubyEventStore
         event_proc.call
         @published_events = fetch_events.call.to_a
         if match_events?
-          MatchEvents.new.call(expected, @published_events)
+          MatchEvents.new.call(expected, published_events)
         else
-          !@published_events.empty?
+          !published_events.empty?
         end
       rescue FetchEvents::MissingEventStore
         raise SyntaxError, "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected, @published_events, fetch_events.stream_name)
+        failure_message_formatter.failure_message(expected, published_events, fetch_events.stream_name)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.failure_message_when_negated(expected, @published_events, fetch_events.stream_name)
+        failure_message_formatter.failure_message_when_negated(expected, published_events, fetch_events.stream_name)
       end
 
       def description
@@ -69,7 +69,7 @@ module RubyEventStore
         !expected.events.empty?
       end
 
-      attr_reader :fetch_events, :expected, :failure_message_formatter
+      attr_reader :fetch_events, :expected, :failure_message_formatter, :published_events
     end
   end
 end
