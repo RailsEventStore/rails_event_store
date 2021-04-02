@@ -14,9 +14,9 @@ module RubyEventStore
         stream_names.all? do |stream_name|
           fetch_events.stream(stream_name) if stream_name
           fetch_events.in(event_store)
-          @events = fetch_events.call
+          @published_events = fetch_events.call
           @failed_on_stream = stream_name
-          MatchEvents.new.call(expected, @events)
+          MatchEvents.new.call(expected, published_events)
         end
       end
 
@@ -51,11 +51,11 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected, events, failed_on_stream)
+        failure_message_formatter.failure_message(expected, published_events, failed_on_stream)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.failure_message_when_negated(expected, events)
+        failure_message_formatter.failure_message_when_negated(expected, published_events)
       end
 
       def description
@@ -73,7 +73,7 @@ module RubyEventStore
         @stream_names || [nil]
       end
 
-      attr_reader :phraser, :expected, :events, :failed_on_stream, :failure_message_formatter, :fetch_events
+      attr_reader :phraser, :expected, :published_events, :failed_on_stream, :failure_message_formatter, :fetch_events
     end
   end
 end
