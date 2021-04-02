@@ -38,11 +38,7 @@ module RubyEventStore
         before = @aggregate.unpublished_events.to_a
         event_proc.call
         @applied_events = @aggregate.unpublished_events.to_a - before
-        if match_events?
-          MatchEvents.new.call(expected, applied_events)
-        else
-          !applied_events.empty?
-        end
+        MatchEvents.new.call(expected, applied_events)
       end
 
       def failure_message
@@ -62,10 +58,6 @@ module RubyEventStore
       end
 
       private
-
-      def match_events?
-        !expected.events.empty?
-      end
 
       def raise_aggregate_not_set
         raise "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`"

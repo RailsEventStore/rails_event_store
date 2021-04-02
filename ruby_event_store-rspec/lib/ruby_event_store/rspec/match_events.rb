@@ -2,7 +2,11 @@ module RubyEventStore
   module RSpec
     class MatchEvents
       def call(expected, events)
-        matcher(expected).matches?(events) && matches_count?(expected, events)
+        if match_events?(expected)
+          matcher(expected).matches?(events) && matches_count?(expected, events)
+        else
+          !events.empty?
+        end
       end
 
       private
@@ -18,6 +22,10 @@ module RubyEventStore
         else
           ::RSpec::Matchers::BuiltIn::Include.new(*expected.events)
         end
+      end
+
+      def match_events?(expected)
+        !expected.events.empty?
       end
     end
   end

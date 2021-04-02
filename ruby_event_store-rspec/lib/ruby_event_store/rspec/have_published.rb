@@ -14,13 +14,9 @@ module RubyEventStore
         stream_names.all? do |stream_name|
           fetch_events.stream(stream_name) if stream_name
           fetch_events.in(event_store)
-          @published_events = fetch_events.call
+          @published_events = fetch_events.call.to_a
           @failed_on_stream = stream_name
-          if match_events?
-            MatchEvents.new.call(expected, published_events)
-          else
-            !published_events.to_a.empty?
-          end
+          MatchEvents.new.call(expected, published_events)
         end
       end
 
@@ -75,10 +71,6 @@ module RubyEventStore
 
       def stream_names
         @stream_names || [nil]
-      end
-
-      def match_events?
-        !expected.events.empty?
       end
 
       attr_reader :phraser, :expected, :published_events, :failed_on_stream, :failure_message_formatter, :fetch_events
