@@ -6,10 +6,11 @@ module RubyEventStore
       def initialize(*expected, failure_message_formatter: RSpec.default_formatter.apply)
         @expected = ExpectedCollection.new(expected)
         @failure_message_formatter = failure_message_formatter.new
+        @fetch_events = FetchUnpublishedEvents.new
       end
 
       def in(aggregate)
-        @aggregate = aggregate
+        fetch_events.in(aggregate)
         self
       end
 
@@ -34,10 +35,10 @@ module RubyEventStore
       end
 
       def matches?(event_proc)
-        raise_aggregate_not_set unless @aggregate
-        before = @aggregate.unpublished_events.to_a
+        raise_aggregate_not_set unless fetch_events.aggregate?
+        before = fetch_events.aggregate.unpublished_events.to_a
         event_proc.call
-        @applied_events = @aggregate.unpublished_events.to_a - before
+        @applied_events = fetch_events.aggregate.unpublished_events.to_a - before
         MatchEvents.new.call(expected, applied_events)
       end
 
@@ -63,7 +64,7 @@ module RubyEventStore
         raise "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`"
       end
 
-      attr_reader :expected, :applied_events, :failure_message_formatter
+      attr_reader :expected, :applied_events, :failure_message_formatter, :fetch_events
     end
   end
 end
