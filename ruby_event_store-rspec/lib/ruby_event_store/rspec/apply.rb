@@ -53,7 +53,7 @@ module RubyEventStore
       end
 
       def raise_aggregate_not_set
-        raise SyntaxError, "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`"
+        raise "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`"
       end
 
       attr_reader :expected, :applied_events, :failure_message_formatter

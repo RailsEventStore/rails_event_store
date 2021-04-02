@@ -15,7 +15,7 @@ module RubyEventStore
           expect {
             true
           }.to matcher
-        }.to raise_error(SyntaxError, "You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`")
+        }.to raise_error("You have to set the aggregate instance with `in`, e.g. `expect { ... }.to apply(an_event(MyEvent)).in(aggregate)`")
       end
 
       specify do
