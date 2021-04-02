@@ -7,10 +7,12 @@ module RubyEventStore
         @expected  = ExpectedCollection.new(expected)
         @failure_message_formatter = failure_message_formatter.new(differ)
         @phraser   = phraser
+        @fetch_events = FetchUnpublishedEvents.new
       end
 
       def matches?(aggregate_root)
-        @events = aggregate_root.unpublished_events.to_a
+        fetch_events.in(aggregate_root)
+        @events = fetch_events.call
         MatchEvents.new.call(expected, events)
       end
 
@@ -48,7 +50,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :phraser, :expected, :events, :failure_message_formatter
+      attr_reader :phraser, :expected, :events, :failure_message_formatter, :fetch_events
     end
   end
 end
