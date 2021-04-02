@@ -9,6 +9,10 @@ module RubyEventStore
         aggregate.unpublished_events.to_a
       end
 
+      def aggregate?
+        !@aggregate.nil?
+      end
+
       attr_reader :aggregate
     end
   end
