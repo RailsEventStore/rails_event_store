@@ -44,7 +44,7 @@ module RubyEventStore
           !published_events.empty?
         end
       rescue FetchEvents::MissingEventStore
-        raise SyntaxError, "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
+        raise "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
       end
 
       def failure_message
