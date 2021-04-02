@@ -229,6 +229,27 @@ module RubyEventStore
           event_store.publish(FooEvent.new)
         }.to matcher(matchers.an_event(FooEvent)).once.in(event_store)
       end
+
+      specify do
+        expect do
+          event_store.publish(FooEvent.new)
+          event_store.publish(BarEvent.new)
+          event_store.publish(BazEvent.new)
+        end.not_to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BarEvent)
+        ).strict.in(event_store)
+      end
+
+      specify do
+        expect do
+          event_store.publish(FooEvent.new)
+          event_store.publish(BarEvent.new)
+        end.to matcher(
+          matchers.an_event(FooEvent),
+          matchers.an_event(BarEvent)
+        ).strict.in(event_store)
+      end
     end
   end
 end

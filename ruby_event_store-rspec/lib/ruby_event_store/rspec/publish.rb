@@ -34,6 +34,11 @@ module RubyEventStore
       end
       alias :time :times
 
+      def strict
+        expected.strict
+        self
+      end
+
       def matches?(event_proc)
         fetch_events.from_last
         event_proc.call
