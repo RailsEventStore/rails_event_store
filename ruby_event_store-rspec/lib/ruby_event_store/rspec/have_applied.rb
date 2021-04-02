@@ -15,7 +15,7 @@ module RubyEventStore
       end
 
       def exactly(count)
-        @expected.exactly(count)
+        expected.exactly(count)
         self
       end
 
@@ -25,12 +25,12 @@ module RubyEventStore
       alias :time :times
 
       def once
-        @expected.once
+        expected.once
         self
       end
 
       def strict
-        @expected.strict
+        expected.strict
         self
       end
 
