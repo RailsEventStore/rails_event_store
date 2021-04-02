@@ -43,11 +43,7 @@ module RubyEventStore
         fetch_events.from_last
         event_proc.call
         @published_events = fetch_events.call.to_a
-        if match_events?
-          MatchEvents.new.call(expected, published_events)
-        else
-          !published_events.empty?
-        end
+        MatchEvents.new.call(expected, published_events)
       rescue FetchEvents::MissingEventStore
         raise "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
       end
@@ -69,10 +65,6 @@ module RubyEventStore
       end
 
       private
-
-      def match_events?
-        !expected.events.empty?
-      end
 
       attr_reader :fetch_events, :expected, :failure_message_formatter, :published_events
     end

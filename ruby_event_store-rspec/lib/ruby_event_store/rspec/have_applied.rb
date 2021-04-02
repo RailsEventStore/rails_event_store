@@ -11,11 +11,7 @@ module RubyEventStore
 
       def matches?(aggregate_root)
         @events = aggregate_root.unpublished_events.to_a
-        if match_events?
-          MatchEvents.new.call(expected, events)
-        else
-          !events.to_a.empty?
-        end
+        MatchEvents.new.call(expected, events)
       end
 
       def exactly(count)
@@ -51,10 +47,6 @@ module RubyEventStore
       end
 
       private
-
-      def match_events?
-        !expected.events.empty?
-      end
 
       attr_reader :phraser, :expected, :events, :failure_message_formatter
     end
