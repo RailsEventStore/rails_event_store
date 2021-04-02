@@ -19,6 +19,15 @@ module RubyEventStore
       end
 
       specify do
+        expect(aggregate_root).not_to matcher
+      end
+
+      specify do
+        aggregate_root.foo
+        expect(aggregate_root).to matcher
+      end
+
+      specify do
         expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent))
       end
 

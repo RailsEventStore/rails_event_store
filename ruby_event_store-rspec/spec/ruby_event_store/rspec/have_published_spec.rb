@@ -26,6 +26,15 @@ module RubyEventStore
       end
 
       specify do
+        expect(event_store).not_to matcher
+      end
+
+      specify do
+        event_store.publish(BarEvent.new)
+        expect(event_store).to matcher
+      end
+
+      specify do
         expect(event_store).not_to matcher(matchers.an_event(FooEvent))
       end
 

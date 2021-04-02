@@ -3,8 +3,8 @@
 module RubyEventStore
   module RSpec
     class HavePublished
-      def initialize(mandatory_expected, *optional_expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
-        @expected  = ExpectedCollection.new([mandatory_expected, *optional_expected])
+      def initialize(*expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
+        @expected  = ExpectedCollection.new(expected)
         @phraser   = phraser
         @failure_message_formatter = failure_message_formatter.new(differ)
         @fetch_events = FetchEvents.new
@@ -16,7 +16,11 @@ module RubyEventStore
           fetch_events.in(event_store)
           @published_events = fetch_events.call
           @failed_on_stream = stream_name
-          MatchEvents.new.call(expected, published_events)
+          if match_events?
+            MatchEvents.new.call(expected, published_events)
+          else
+            !published_events.to_a.empty?
+          end
         end
       end
 
@@ -71,6 +75,10 @@ module RubyEventStore
 
       def stream_names
         @stream_names || [nil]
+      end
+
+      def match_events?
+        !expected.events.empty?
       end
 
       attr_reader :phraser, :expected, :published_events, :failed_on_stream, :failure_message_formatter, :fetch_events
