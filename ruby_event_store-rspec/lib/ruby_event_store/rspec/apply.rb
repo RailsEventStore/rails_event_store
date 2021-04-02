@@ -18,6 +18,21 @@ module RubyEventStore
         self
       end
 
+      def exactly(count)
+        expected.exactly(count)
+        self
+      end
+
+      def times
+        self
+      end
+      alias :time :times
+
+      def once
+        expected.once
+        self
+      end
+
       def matches?(event_proc)
         raise_aggregate_not_set unless @aggregate
         before = @aggregate.unpublished_events.to_a
