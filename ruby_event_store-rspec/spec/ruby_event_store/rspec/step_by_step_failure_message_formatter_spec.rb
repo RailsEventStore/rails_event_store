@@ -280,7 +280,7 @@ module RubyEventStore
         expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
         expected [
           be an event FooEvent
-        ] not to be exactly published
+        ] not to exactly be published
 
         but the following was published: [
           #{actual1.inspect}
