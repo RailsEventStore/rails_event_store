@@ -3,10 +3,10 @@
 module RubyEventStore
   module RSpec
     module StepByStepFailureMessageFormatter
-      Lingo = Struct.new(:be_published)
+      Lingo = Struct.new(:be_published, :published)
 
       class HavePublished
-        def initialize(differ, lingo = Lingo.new("be published"))
+        def initialize(differ, lingo = Lingo.new("be published", "published"))
           @differ = differ
           @lingo = lingo
         end
@@ -75,7 +75,7 @@ module RubyEventStore
           [
             <<~EOS,
 
-            but was published #{correct_event_count} times
+            but was #{lingo.published} #{correct_event_count} times
             EOS
 
             if !events_with_correct_type.empty?
@@ -92,7 +92,7 @@ module RubyEventStore
 
         def failure_message_correct_type_incorrect_payload(expected_event, events_with_correct_type)
           <<~EOS
-          , but it was not published
+          , but it was not #{lingo.published}
 
           There are events of correct type but with incorrect payload:
           #{events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }.join("\n")}
@@ -128,7 +128,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected only #{expected_events_list(expected.events)} to be published
+            expected only #{expected_events_list(expected.events)} to #{lingo.be_published}
 
             #{actual_events_list(events)}
             EOS
@@ -176,7 +176,7 @@ module RubyEventStore
 
         def actual_events_list(actual)
           <<~EOS.strip
-          but the following was published: [
+          but the following was #{lingo.published}: [
           #{actual.map(&:inspect).map {|d| indent(d, 2) }.join("\n")}
           ]
           EOS
