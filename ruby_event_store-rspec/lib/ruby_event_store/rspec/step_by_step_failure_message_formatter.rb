@@ -61,7 +61,7 @@ module RubyEventStore
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected.events)} not to be #{"exactly " if expected.strict?}published
+            expected #{expected_events_list(expected.events)} not to #{"exactly " if expected.strict?}#{lingo.be_published}
 
             #{actual_events_list(events)}
             EOS
