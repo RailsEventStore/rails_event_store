@@ -14,7 +14,7 @@ module RubyEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser, failure_message_formatter: failure_message_formatter)
+        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser, failure_message_formatter: failure_message_formatter.have_published)
       end
 
       def colorless_differ
@@ -26,7 +26,7 @@ module RubyEventStore
       end
 
       def failure_message_formatter
-        StepByStepFailureMessageFormatter::HavePublished
+        StepByStepFailureMessageFormatter.new
       end
 
       specify do

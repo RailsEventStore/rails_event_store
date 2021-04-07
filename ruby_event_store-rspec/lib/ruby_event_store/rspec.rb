@@ -30,7 +30,7 @@ module RubyEventStore
     end
 
     def self.default_formatter
-      @@default_formatter ||= CrudeFailureMessageFormatter
+      @@default_formatter ||= CrudeFailureMessageFormatter.new
     end
   end
 end

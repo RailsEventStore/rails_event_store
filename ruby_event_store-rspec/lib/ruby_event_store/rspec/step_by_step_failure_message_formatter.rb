@@ -2,7 +2,7 @@
 
 module RubyEventStore
   module RSpec
-    module StepByStepFailureMessageFormatter
+    class StepByStepFailureMessageFormatter
       Lingo = Struct.new(:be_published, :published)
 
       class HavePublished
@@ -277,19 +277,19 @@ module RubyEventStore
         end
       end
 
-      def self.have_published
+      def have_published
         HavePublished
       end
 
-      def self.publish
+      def publish
         Publish
       end
 
-      def self.have_applied
+      def have_applied
         HaveApplied
       end
 
-      def self.apply
+      def apply
         Apply
       end
     end
