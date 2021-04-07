@@ -3,9 +3,12 @@
 module RubyEventStore
   module RSpec
     module StepByStepFailureMessageFormatter
+      Lingo = Struct.new(:be_published)
+
       class HavePublished
-        def initialize(differ)
+        def initialize(differ, lingo = Lingo.new("be published"))
           @differ = differ
+          @lingo = lingo
         end
 
         def failure_message(expected, events, stream_name)
@@ -52,7 +55,7 @@ module RubyEventStore
             <<~EOS
             expected
               #{expected.events.first.description}
-            not to be published exactly #{expected.count} times
+            not to #{lingo.be_published} exactly #{expected.count} times
 
             #{actual_events_list(events)}
             EOS
@@ -66,7 +69,7 @@ module RubyEventStore
         end
 
         private
-        attr_reader :differ
+        attr_reader :differ, :lingo
 
         def failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
           [
@@ -119,7 +122,7 @@ module RubyEventStore
             <<~EOS
             expected only
               #{expected.events.first.description}
-            to be published #{expected.count} times
+            to #{lingo.be_published} #{expected.count} times
 
             #{actual_events_list(events)}
             EOS
@@ -150,15 +153,15 @@ module RubyEventStore
             <<~EOS
             expected event
               #{expected_event.description}
-            to be published #{expected.count} times#{expected_stream}
+            to #{lingo.be_published} #{expected.count} times#{expected_stream}
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected.events)} to be published#{expected_stream}
+            expected #{expected_events_list(expected.events)} to #{lingo.be_published}#{expected_stream}
 
             i.e. expected event
               #{expected_event.description}
-            to be published
+            to #{lingo.be_published}
             EOS
           end.strip
         end
