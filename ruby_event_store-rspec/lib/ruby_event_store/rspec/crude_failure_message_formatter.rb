@@ -2,7 +2,7 @@
 
 module RubyEventStore
   module RSpec
-    module CrudeFailureMessageFormatter
+    class CrudeFailureMessageFormatter
       class HavePublished
         def initialize(differ)
           @differ = differ
@@ -116,19 +116,19 @@ module RubyEventStore
         end
       end
 
-      def self.have_published
+      def have_published
         HavePublished
       end
 
-      def self.publish
+      def publish
         Publish
       end
 
-      def self.have_applied
+      def have_applied
         HaveApplied
       end
 
-      def self.apply
+      def apply
         Apply
       end
     end
