@@ -231,6 +231,13 @@ module RubyEventStore
       end
 
       specify do
+        expect {
+          event_store.publish(FooEvent.new)
+          event_store.publish(FooEvent.new)
+        }.not_to matcher(matchers.an_event(FooEvent)).once.in(event_store)
+      end
+
+      specify do
         expect do
           event_store.publish(FooEvent.new)
           event_store.publish(BarEvent.new)
