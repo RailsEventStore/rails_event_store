@@ -240,9 +240,6 @@ module RubyEventStore
       end
 
       class Apply
-        def initialize(**kwargs)
-        end
-
         def failure_message(expected, applied_events)
           if match_events?(expected)
             <<~EOS
@@ -293,7 +290,7 @@ module RubyEventStore
       end
 
       def apply
-        Apply
+        Apply.new
       end
     end
   end
