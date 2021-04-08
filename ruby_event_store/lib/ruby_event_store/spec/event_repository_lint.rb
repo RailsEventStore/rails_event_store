@@ -1390,5 +1390,21 @@ module RubyEventStore
       expect(repository.read(specification.as_of.result).map(&:event_id)).to eq [e3, e2, e1]
       expect(repository.read(specification.as_of.backward.result).map(&:event_id)).to eq [e1, e2, e3]
     end
+
+    specify "time order is respected with batches" do
+      repository.append_to_stream([
+        SRecord.new(event_id: e1 = SecureRandom.uuid, timestamp: Time.new(2020,1,1), valid_at: Time.new(2020,1,9)),
+        SRecord.new(event_id: e2 = SecureRandom.uuid, timestamp: Time.new(2020,1,3), valid_at: Time.new(2020,1,6)),
+        SRecord.new(event_id: e3 = SecureRandom.uuid, timestamp: Time.new(2020,1,2), valid_at: Time.new(2020,1,3)),
+      ],
+        Stream.new("Dummy"),
+        ExpectedVersion.any
+      )
+      expect(repository.read(specification.in_batches.result).to_a.flatten.map(&:event_id)).to eq [e1, e2, e3]
+      expect(repository.read(specification.in_batches.as_at.result).to_a.flatten.map(&:event_id)).to eq [e1, e3, e2]
+      expect(repository.read(specification.in_batches.as_at.backward.result).to_a.flatten.map(&:event_id)).to eq [e2, e3, e1]
+      expect(repository.read(specification.in_batches.as_of.result).to_a.flatten.map(&:event_id)).to eq [e3, e2, e1]
+      expect(repository.read(specification.in_batches.as_of.backward.result).to_a.flatten.map(&:event_id)).to eq [e1, e2, e3]
+    end
   end
 end
