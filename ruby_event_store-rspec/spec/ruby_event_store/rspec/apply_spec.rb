@@ -170,7 +170,21 @@ module RubyEventStore
       specify do
         expect do
           aggregate.foo
+          aggregate.foo
+        end.not_to matcher(matchers.an_event(FooEvent)).once.in(aggregate)
+      end
+
+      specify do
+        expect do
+          aggregate.foo
         end.to matcher(matchers.an_event(FooEvent)).exactly(1).time.in(aggregate)
+      end
+
+      specify do
+        expect do
+          aggregate.foo
+          aggregate.foo
+        end.not_to matcher(matchers.an_event(FooEvent)).exactly(1).time.in(aggregate)
       end
     end
   end
