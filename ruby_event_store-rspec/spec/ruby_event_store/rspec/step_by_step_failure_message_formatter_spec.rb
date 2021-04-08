@@ -17,6 +17,10 @@ module RubyEventStore
         HavePublished.new(*expected, phraser: phraser, failure_message_formatter: failure_message_formatter.have_published(colorless_differ))
       end
 
+      def publish_matcher(*expected)
+        Publish.new(*expected, failure_message_formatter: failure_message_formatter.publish)
+      end
+
       def colorless_differ
         ::RSpec::Support::Differ.new(color: false)
       end
@@ -369,6 +373,21 @@ module RubyEventStore
         expected event
           be an event FooEvent
         to be published 1 times in stream Foo, but there is no event with such type
+        EOS
+      end
+
+      specify do
+        matcher_ = publish_matcher(actual = matchers.an_event(FooEvent)).in(event_store)
+        matcher_.matches?(Proc.new { })
+
+        expect(matcher_.failure_message).to eq(<<~EOS)
+          expected block to have published:
+
+          #{[actual].inspect}
+
+          but published:
+
+          []
         EOS
       end
     end
