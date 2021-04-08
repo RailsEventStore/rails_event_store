@@ -10,7 +10,7 @@ module RubyEventStore
       end
 
       def aggregate?
-        !@aggregate.nil?
+        !aggregate.nil?
       end
 
       attr_reader :aggregate
