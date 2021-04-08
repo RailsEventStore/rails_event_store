@@ -4,7 +4,7 @@ module RubyEventStore
   module RSpec
     class CrudeFailureMessageFormatter
       class HavePublished
-        def initialize(differ)
+        def initialize(differ:, **kwargs)
           @differ = differ
         end
 
@@ -23,6 +23,9 @@ module RubyEventStore
       end
 
       class Publish
+        def initialize(**kwargs)
+        end
+
         def failure_message(expected, events, stream)
           if match_events?(expected)
             <<~EOS
@@ -61,7 +64,7 @@ module RubyEventStore
       end
 
       class HaveApplied
-        def initialize(differ)
+        def initialize(differ:, **kwargs)
           @differ = differ
         end
 
@@ -79,6 +82,9 @@ module RubyEventStore
       end
 
       class Apply
+        def initialize(**kwargs)
+        end
+
         def failure_message(expected, applied_events)
           if match_events?(expected)
             <<~EOS

@@ -5,7 +5,7 @@ module RubyEventStore
     class HaveApplied
       def initialize(*expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_applied)
         @expected  = ExpectedCollection.new(expected)
-        @failure_message_formatter = failure_message_formatter.new(differ)
+        @failure_message_formatter = failure_message_formatter.new(differ: differ)
         @phraser   = phraser
         @fetch_events = FetchUnpublishedEvents.new
       end
