@@ -17,7 +17,7 @@ module RubyEventStore
       end
 
       def specified_count?
-        !@count.nil?
+        !count.nil?
       end
 
       def strict
