@@ -15,10 +15,6 @@ module RubyEventStore
         @event_store = event_store
       end
 
-      def event_store?
-        !@event_store.nil?
-      end
-
       def from_last
         @start = call.to_a.last&.event_id
       end
