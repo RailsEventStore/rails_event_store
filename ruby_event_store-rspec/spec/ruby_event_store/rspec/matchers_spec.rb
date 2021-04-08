@@ -98,6 +98,13 @@ module RubyEventStore
 
       specify do
         aggregate = TestAggregate.new
+        matcher = apply(matchers.an_event(FooEvent)).in(aggregate)
+        matcher.matches?(Proc.new { aggregate.foo })
+        expect(matcher.failure_message.to_s).not_to be_empty
+      end
+
+      specify do
+        aggregate = TestAggregate.new
         expect {
           aggregate.foo
         }.not_to apply(matchers.an_event(BarEvent)).in(aggregate)
