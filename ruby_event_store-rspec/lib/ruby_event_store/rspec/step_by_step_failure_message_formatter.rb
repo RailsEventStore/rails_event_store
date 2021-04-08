@@ -225,7 +225,7 @@ module RubyEventStore
       end
 
       class HaveApplied
-        def initialize(differ:, **kwargs)
+        def initialize(differ)
           @differ = differ
         end
 
@@ -291,8 +291,8 @@ module RubyEventStore
         Publish
       end
 
-      def have_applied
-        HaveApplied
+      def have_applied(differ)
+        HaveApplied.new(differ)
       end
 
       def apply

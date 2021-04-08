@@ -7,7 +7,7 @@ module RubyEventStore
       let(:aggregate_root) { TestAggregate.new }
 
       def matcher(*expected)
-        HaveApplied.new(*expected, differ: colorless_differ, phraser: phraser)
+        HaveApplied.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_applied(colorless_differ))
       end
 
       def colorless_differ
