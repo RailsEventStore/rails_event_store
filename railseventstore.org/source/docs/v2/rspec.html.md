@@ -8,14 +8,8 @@ Add this line to your application's `Gemfile`:
 
 ```ruby
 group :test do
-  gem 'ruby_event_store-rspec', require: false
+  gem 'ruby_event_store-rspec'
 end
-```
-
-Require matchers in your desired spec file, `spec_helper.rb` or `rails_helper.rb` (preferably for Rails app):
-
-```ruby
-require 'ruby-event-store/rspec'
 ```
 
 ## Event matchers
