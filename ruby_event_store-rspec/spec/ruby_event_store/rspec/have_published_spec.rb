@@ -14,7 +14,7 @@ module RubyEventStore
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, differ: colorless_differ, phraser: phraser)
+        HavePublished.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_published(colorless_differ))
       end
 
       def colorless_differ

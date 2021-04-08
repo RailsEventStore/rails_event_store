@@ -39,7 +39,7 @@ module RubyEventStore
       alias :event    :be_an_event
 
       def have_published(*expected)
-        HavePublished.new(*expected, differ: differ, phraser: phraser)
+        HavePublished.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_published(differ))
       end
 
       def have_applied(*expected)
