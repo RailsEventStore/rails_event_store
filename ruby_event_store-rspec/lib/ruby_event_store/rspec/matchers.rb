@@ -43,7 +43,7 @@ module RubyEventStore
       end
 
       def have_applied(*expected)
-        HaveApplied.new(*expected, differ: differ, phraser: phraser)
+        HaveApplied.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_applied(differ))
       end
 
       def have_subscribed_to_events(*expected)
