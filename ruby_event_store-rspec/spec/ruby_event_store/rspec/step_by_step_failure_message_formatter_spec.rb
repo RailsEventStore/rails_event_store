@@ -18,6 +18,10 @@ module RubyEventStore
         HavePublished.new(*expected, phraser: phraser, failure_message_formatter: failure_message_formatter.have_published(colorless_differ))
       end
 
+      def have_applied_matcher(*expected)
+        HaveApplied.new(*expected, phraser: phraser, failure_message_formatter: failure_message_formatter.have_applied(colorless_differ))
+      end
+
       def publish_matcher(*expected)
         Publish.new(*expected, failure_message_formatter: failure_message_formatter.publish)
       end
@@ -408,6 +412,19 @@ module RubyEventStore
         but applied:
 
         []
+        EOS
+      end
+
+      specify do
+        aggregate.foo
+        aggregate.foo
+        matcher_ = have_applied_matcher(matchers.an_event(BarEvent)).once
+        matcher_.matches?(aggregate)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected event
+          be an event BarEvent
+        to be applied 1 times, but there is no event with such type
         EOS
       end
     end
