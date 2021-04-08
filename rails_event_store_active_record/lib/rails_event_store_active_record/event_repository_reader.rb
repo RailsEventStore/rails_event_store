@@ -20,14 +20,8 @@ module RailsEventStoreActiveRecord
 
     def read(spec)
       stream = read_scope(spec)
-
       if spec.batched?
-        batch_reader = ->(offset_id, limit) do
-          search_in = spec.stream.global? ? @event_klass.table_name : @stream_klass.table_name
-          records = offset_id.nil? ? stream.limit(limit) : stream.where(start_offset_condition(spec, offset_id, search_in)).limit(limit)
-          [records.map(&method(:record)), records.last]
-        end
-        BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
+        spec.time_sort_by ? offset_limit_batch_reader(spec, stream) : monotonic_id_batch_reader(spec, stream)
       elsif spec.first?
         record_ = stream.first
         record(record_) if record_
@@ -45,6 +39,25 @@ module RailsEventStoreActiveRecord
 
     private
     attr_reader :serializer
+
+    def offset_limit_batch_reader(spec, stream)
+      batch_reader = ->(offset, limit) do
+        stream
+          .offset(offset)
+          .limit(limit)
+          .map(&method(:record))
+      end
+      RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
+    end
+
+    def monotonic_id_batch_reader(spec, stream)
+      batch_reader = ->(offset_id, limit) do
+        search_in = spec.stream.global? ? @event_klass.table_name : @stream_klass.table_name
+        records = offset_id.nil? ? stream.limit(limit) : stream.where(start_offset_condition(spec, offset_id, search_in)).limit(limit)
+        [records.map(&method(:record)), records.last]
+      end
+      BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
+    end
 
     def read_scope(spec)
       if spec.stream.global?
