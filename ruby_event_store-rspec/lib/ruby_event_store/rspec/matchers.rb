@@ -51,7 +51,7 @@ module RubyEventStore
       end
 
       def publish(*expected)
-        Publish.new(*expected)
+        Publish.new(*expected, failure_message_formatter: RSpec.default_formatter.publish)
       end
 
       def apply(*expected)

@@ -184,9 +184,6 @@ module RubyEventStore
       end
 
       class Publish
-        def initialize(**kwargs)
-        end
-
         def failure_message(expected, events, stream)
           if match_events?(expected)
             <<~EOS
@@ -288,7 +285,7 @@ module RubyEventStore
       end
 
       def publish
-        Publish
+        Publish.new
       end
 
       def have_applied(differ)
