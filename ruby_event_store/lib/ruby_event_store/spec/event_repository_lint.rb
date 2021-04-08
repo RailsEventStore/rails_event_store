@@ -972,6 +972,8 @@ module RubyEventStore
 
     specify do
       expect(repository.read(specification.in_batches.result)).to be_kind_of(Enumerator)
+      expect(repository.read(specification.in_batches.as_at.result)).to be_kind_of(Enumerator)
+      expect(repository.read(specification.in_batches.as_of.result)).to be_kind_of(Enumerator)
       events = Array.new(10) { SRecord.new }
       repository.append_to_stream(
         events,
@@ -979,6 +981,9 @@ module RubyEventStore
         ExpectedVersion.none
       )
       expect(repository.read(specification.in_batches.result)).to be_kind_of(Enumerator)
+      expect(repository.read(specification.in_batches.as_at.result)).to be_kind_of(Enumerator)
+      expect(repository.read(specification.in_batches.as_of.result)).to be_kind_of(Enumerator)
+
     end
 
     specify do
