@@ -3,7 +3,6 @@ module RubyEventStore
     class ExpectedCollection
       def initialize(events)
         @events = events
-        @strict = false
       end
 
       def exactly(count)
@@ -25,7 +24,7 @@ module RubyEventStore
       end
 
       def strict?
-        @strict == true
+        @strict
       end
 
       def event
