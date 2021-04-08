@@ -16,7 +16,7 @@ module RubyEventStore
       end
 
       def from_last
-        @start = call.to_a.last&.event_id
+        @start = call.last&.event_id
       end
 
       def call
@@ -24,7 +24,7 @@ module RubyEventStore
         events = event_store.read
         events = events.stream(stream_name) if stream_name
         events = events.from(start) if start
-        events.each
+        events
       end
 
       attr_reader :start, :stream_name, :event_store
