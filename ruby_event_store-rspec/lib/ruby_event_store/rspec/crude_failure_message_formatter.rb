@@ -65,7 +65,7 @@ module RubyEventStore
           @differ = differ
         end
 
-        def failure_message(expected, events)
+        def failure_message(expected, events, _stream_name)
           "expected #{expected.events} to be applied, diff:" +
             differ.diff(expected.events.to_s + "\n", events)
         end
