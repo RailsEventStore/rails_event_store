@@ -4,6 +4,7 @@ module RubyEventStore
   module RSpec
     ::RSpec.describe StepByStepFailureMessageFormatter::HavePublished do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
+      let(:aggregate) { TestAggregate.new }
       let(:event_store) do
         RubyEventStore::Client.new(
           repository: RubyEventStore::InMemoryRepository.new,
@@ -19,6 +20,10 @@ module RubyEventStore
 
       def publish_matcher(*expected)
         Publish.new(*expected, failure_message_formatter: failure_message_formatter.publish)
+      end
+
+      def apply_matcher(*expected)
+        Apply.new(*expected, failure_message_formatter: failure_message_formatter.apply)
       end
 
       def colorless_differ
@@ -388,6 +393,21 @@ module RubyEventStore
           but published:
 
           []
+        EOS
+      end
+
+      specify do
+        matcher_ = apply_matcher(actual = matchers.an_event(FooEvent)).in(aggregate)
+        matcher_.matches?(Proc.new { })
+
+        expect(matcher_.failure_message).to eq(<<~EOS)
+        expected block to have applied:
+
+        #{[actual].inspect}
+
+        but applied:
+
+        []
         EOS
       end
     end
