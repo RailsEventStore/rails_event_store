@@ -416,15 +416,26 @@ module RubyEventStore
       end
 
       specify do
+        expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
+
         aggregate.foo
-        aggregate.foo
-        matcher_ = have_applied_matcher(matchers.an_event(BarEvent)).once
+        matcher_ = have_applied_matcher(matchers.an_event(FooEvent).with_data(a: 2))
         matcher_.matches?(aggregate)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
-        expected event
-          be an event BarEvent
-        to be applied 1 times, but there is no event with such type
+        expected [
+          be an event FooEvent (with data including {:a=>2})
+        ] to be applied
+
+        i.e. expected event
+          be an event FooEvent (with data including {:a=>2})
+        to be applied, but it was not applied
+
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1 +1,2 @@
+            +:a => 2,
         EOS
       end
     end
