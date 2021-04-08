@@ -416,6 +416,22 @@ module RubyEventStore
       end
 
       specify do
+        event_store.publish(FooEvent.new)
+        matcher_ = matcher(matchers.an_event(BarEvent))
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected [
+          be an event BarEvent
+        ] to be published
+
+        i.e. expected event
+          be an event BarEvent
+        to be published, but there is no event with such type
+        EOS
+      end
+
+      specify do
         expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
 
         aggregate.foo
