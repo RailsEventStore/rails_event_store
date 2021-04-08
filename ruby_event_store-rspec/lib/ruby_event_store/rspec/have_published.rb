@@ -3,10 +3,10 @@
 module RubyEventStore
   module RSpec
     class HavePublished
-      def initialize(*expected, differ:, phraser:, failure_message_formatter: RSpec.default_formatter.have_published)
+      def initialize(*expected, phraser:, failure_message_formatter:)
         @expected  = ExpectedCollection.new(expected)
         @phraser   = phraser
-        @failure_message_formatter = failure_message_formatter.new(differ: differ)
+        @failure_message_formatter = failure_message_formatter
         @fetch_events = FetchEvents.new
       end
 
