@@ -6,7 +6,7 @@ module RubyEventStore
       Lingo = Struct.new(:be_published, :published)
 
       class HavePublished
-        def initialize(differ, lingo = Lingo.new("be published", "published"))
+        def initialize(differ, lingo)
           @differ = differ
           @lingo = lingo
         end
@@ -278,7 +278,7 @@ module RubyEventStore
       end
 
       def have_published(differ)
-        HavePublished.new(differ)
+        HavePublished.new(differ, Lingo.new("be published", "published"))
       end
 
       def publish
