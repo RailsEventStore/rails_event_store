@@ -454,6 +454,39 @@ module RailsEventStoreActiveRecord
       expect(event_record.valid_at).to   eq(t2)
     end
 
+    specify 'with batches and bi-temporal queries use offset + limit' do
+      repository.append_to_stream([
+        RubyEventStore::SRecord.new(event_id: e1 = SecureRandom.uuid, timestamp: Time.new(2020,1,1), valid_at: Time.new(2020,1,9)),
+        RubyEventStore::SRecord.new(event_id: e2 = SecureRandom.uuid, timestamp: Time.new(2020,1,3), valid_at: Time.new(2020,1,6)),
+        RubyEventStore::SRecord.new(event_id: e3 = SecureRandom.uuid, timestamp: Time.new(2020,1,2), valid_at: Time.new(2020,1,3)),
+      ],
+        RubyEventStore::Stream.new("Dummy"),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/, 2) do
+        repository.read(specification.in_batches.as_at.result).to_a
+      end
+      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*valid_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/, 2) do
+        repository.read(specification.in_batches.as_of.result).to_a
+      end
+    end
+
+    specify 'with batches and non-bi-temporal queries use monotnic ids' do
+      repository.append_to_stream([
+        RubyEventStore::SRecord.new(event_id: e1 = SecureRandom.uuid, timestamp: Time.new(2020,1,1), valid_at: Time.new(2020,1,9)),
+        RubyEventStore::SRecord.new(event_id: e2 = SecureRandom.uuid, timestamp: Time.new(2020,1,3), valid_at: Time.new(2020,1,6)),
+        RubyEventStore::SRecord.new(event_id: e3 = SecureRandom.uuid, timestamp: Time.new(2020,1,2), valid_at: Time.new(2020,1,3)),
+      ],
+        RubyEventStore::Stream.new("Dummy"),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.id >*.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/) do
+        repository.read(specification.in_batches.result).to_a
+      end
+    end
+
     def with_precision(time)
       time.round(RubyEventStore::TIMESTAMP_PRECISION)
     end
