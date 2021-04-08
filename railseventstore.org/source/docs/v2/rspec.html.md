@@ -14,7 +14,7 @@ end
 
 Require matchers in your desired spec file, `spec_helper.rb` or `rails_helper.rb` (preferably for Rails app):
 
-```
+```ruby
 require 'ruby-event-store/rspec'
 ```
 
