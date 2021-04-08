@@ -7,7 +7,7 @@ module RubyEventStore
       let(:aggregate) { TestAggregate.new }
 
       def matcher(*expected)
-        Apply.new(*expected)
+        Apply.new(*expected, failure_message_formatter: RSpec.default_formatter.apply)
       end
 
       specify do

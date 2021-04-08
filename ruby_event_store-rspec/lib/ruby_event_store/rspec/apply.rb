@@ -3,9 +3,9 @@
 module RubyEventStore
   module RSpec
     class Apply
-      def initialize(*expected, failure_message_formatter: RSpec.default_formatter.apply)
+      def initialize(*expected, failure_message_formatter:)
         @expected = ExpectedCollection.new(expected)
-        @failure_message_formatter = failure_message_formatter.new
+        @failure_message_formatter = failure_message_formatter
         @fetch_events = FetchUnpublishedEvents.new
       end
 
