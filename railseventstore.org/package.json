@@ -5,7 +5,7 @@
     "build": "NODE_ENV=production  parcel build --out-dir .tmp/dist/ source/index.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.14",
+    "@babel/core": "^7.13.15",
     "countup.js": "^2.0.4",
     "postcss-url": "^9.0.0",
     "@fullhuman/postcss-purgecss": "3.0.0",
