@@ -96,13 +96,21 @@ event_store.publish(OrderPlaced.new(data: { order_id: 42 }))
 expect(event_store).to have_published(an_event(OrderPlaced))
 ```
 
-Expectation can be narrowed to the specific stream.
+Expectation can be narrowed to the specific stream(s).
 
 ```ruby
 event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
 
 expect(event_store).to have_published(an_event(OrderPlaced)).in_stream("Order$42")
+```
+
+```ruby
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+event_store.publish(event = OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+event_store.link(event.event_id, stream_name: "SalesReport2021")
+
+expect(event_store).to have_published(an_event(OrderPlaced)).in_streams(["Order$42", "SalesReport2021"])
 ```
 
 It is sometimes important to ensure that specific amount of events of given type have been published. Luckily there's a modifier to cover that usecase.
@@ -158,14 +166,34 @@ expect {
 }.to publish(an_event(OrderPlaced)).in(event_store)
 ```
 
-Expectation can be narrowed to the specific stream.
+Expectation can be narrowed to the specific stream(s).
 
 ```ruby
 event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 expect {
   event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
 }.to publish(an_event(OrderPlaced)).in(event_store).in_stream("Order$42")
+```
 
+```ruby
+event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+expect {
+  event_store.publish(event = OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+  event_store.link(event.event_id, stream_name: "SalesReport2021")
+}.to publish(an_event(OrderPlaced)).in(event_store).in_streams(["Order$42", "SalesReport2021")
+```
+
+It is sometimes important to ensure that specific amount of events of given type have been published. Luckily there's a modifier to cover that usecase.
+
+```ruby
+expect {
+  event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+}.to publish(an_event(OrderPlaced)).once.in(event_store)
+
+expect {
+  event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+  event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
+}.to publish(an_event(OrderPlaced)).exactly(2).times.in(event_store)
 ```
 
 You can make expectation on several events at once.
@@ -280,6 +308,20 @@ aggregate_root.submit
 expect {
   aggregate_root.expire
 }.to apply(event(OrderExpired)).in(aggregate_root)
+```
+
+You could define expectations how many events have been applied by using:
+
+```ruby
+expect do
+  aggregate_root.expire
+end.to apply(an_event(OrderExpired)).once.in(aggregate_root)
+
+expect do
+  aggregate_root.expire
+  aggregate_root.expire
+  aggregate_root.expire
+end.to apply(an_event(OrderExpired)).exactly(3).times.in(aggregate_root)
 ```
 
 With `strict` option it checks if only expected events have been applied in given execution block.
