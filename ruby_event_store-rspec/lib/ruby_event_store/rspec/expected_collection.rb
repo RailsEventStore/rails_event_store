@@ -3,6 +3,7 @@ module RubyEventStore
     class ExpectedCollection
       def initialize(events)
         @events = events
+        @strict = false
       end
 
       def exactly(count)
@@ -28,7 +29,7 @@ module RubyEventStore
       end
 
       def event
-        raise "Many events present in scenario where exactly one expected event was required" if events.size > 1
+        raise NotSupported if events.size != 1
         events.first
       end
 
