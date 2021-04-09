@@ -25,7 +25,7 @@ module RubyEventStore
 
       class Publish
         def failure_message(expected, events, stream)
-          if match_events?(expected)
+          if !expected.empty?
             <<~EOS
             expected block to have published:
 
@@ -41,7 +41,7 @@ module RubyEventStore
         end
 
         def failure_message_when_negated(expected, events, stream)
-          if match_events?(expected)
+          if !expected.empty?
             <<~EOS
             expected block not to have published:
 
@@ -54,10 +54,6 @@ module RubyEventStore
           else
             "expected block not to have published any events"
           end
-        end
-
-        def match_events?(expected)
-          !expected.events.empty?
         end
       end
 
@@ -81,7 +77,7 @@ module RubyEventStore
 
       class Apply
         def failure_message(expected, applied_events)
-          if match_events?(expected)
+          if !expected.empty?
             <<~EOS
             expected block to have applied:
 
@@ -97,7 +93,7 @@ module RubyEventStore
         end
 
         def failure_message_when_negated(expected, applied_events)
-          if match_events?(expected)
+          if !expected.empty?
             <<~EOS
             expected block not to have applied:
 
@@ -110,10 +106,6 @@ module RubyEventStore
           else
             "expected block not to have applied any events"
           end
-        end
-
-        def match_events?(expected)
-          !expected.events.empty?
         end
       end
 
