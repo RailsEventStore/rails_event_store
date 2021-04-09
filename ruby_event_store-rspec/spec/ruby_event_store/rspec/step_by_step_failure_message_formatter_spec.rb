@@ -386,17 +386,24 @@ module RubyEventStore
       end
 
       specify do
-        matcher_ = publish_matcher(actual = matchers.an_event(FooEvent)).in(event_store)
-        matcher_.matches?(Proc.new { })
+        actual = nil
+        matcher_ = publish_matcher(matchers.an_event(FooEvent).with_data(a: 2)).in(event_store)
+        matcher_.matches?(Proc.new { event_store.publish(actual = FooEvent.new) })
 
         expect(matcher_.failure_message).to eq(<<~EOS)
         expected [
-          be an event FooEvent
+          be an event FooEvent (with data including {:a=>2})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent
-        to be published, but there is no event with such type
+          be an event FooEvent (with data including {:a=>2})
+        to be published, but it was not published
+
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1 +1,2 @@
+            +:a => 2,
         EOS
       end
 

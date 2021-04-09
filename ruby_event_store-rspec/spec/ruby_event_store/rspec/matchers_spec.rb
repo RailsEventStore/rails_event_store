@@ -98,7 +98,7 @@ module RubyEventStore
 
       specify do
         aggregate = TestAggregate.new
-        matcher = apply(matchers.an_event(FooEvent)).in(aggregate)
+        matcher = apply(matchers.an_event(FooEvent).with_data(a: 1)).in(aggregate)
         matcher.matches?(Proc.new { aggregate.foo })
         expect(matcher.failure_message.to_s).not_to be_empty
       end
