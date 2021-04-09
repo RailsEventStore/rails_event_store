@@ -3,7 +3,12 @@
 module RubyEventStore
   module RSpec
     class StepByStepFailureMessageFormatter
-      Lingo = Struct.new(:be_published, :published)
+      class Lingo
+        def initialize(published)
+          @published = published
+        end
+        attr_reader :published
+      end
 
       class HavePublished
         def initialize(differ, lingo)
@@ -57,13 +62,13 @@ module RubyEventStore
             <<~EOS
             expected
               #{expected.events.first.description}
-            not to #{lingo.be_published} exactly #{expected.count} times
+            not to be #{lingo.published} exactly #{expected.count} times
 
             #{actual_events_list(events)}
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected.events)} not to #{"exactly " if expected.strict?}#{lingo.be_published}
+            expected #{expected_events_list(expected.events)} not to #{"exactly " if expected.strict?}be #{lingo.published}
 
             #{actual_events_list(events)}
             EOS
@@ -74,11 +79,11 @@ module RubyEventStore
         attr_reader :differ, :lingo
 
         def failure_message_no_events
-          "expected anything to #{lingo.be_published}\n"
+          "expected anything to be #{lingo.published}\n"
         end
 
         def failure_message_when_negated_no_events
-          "expected something to #{lingo.be_published}\n"
+          "expected something to be #{lingo.published}\n"
         end
 
         def failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
@@ -132,13 +137,13 @@ module RubyEventStore
             <<~EOS
             expected only
               #{expected.events.first.description}
-            to #{lingo.be_published} #{expected.count} times
+            to be #{lingo.published} #{expected.count} times
 
             #{actual_events_list(events)}
             EOS
           else
             <<~EOS
-            expected only #{expected_events_list(expected.events)} to #{lingo.be_published}
+            expected only #{expected_events_list(expected.events)} to be #{lingo.published}
 
             #{actual_events_list(events)}
             EOS
@@ -163,15 +168,15 @@ module RubyEventStore
             <<~EOS
             expected event
               #{expected_event.description}
-            to #{lingo.be_published} #{expected.count} times#{expected_stream}
+            to be #{lingo.published} #{expected.count} times#{expected_stream}
             EOS
           else
             <<~EOS
-            expected #{expected_events_list(expected.events)} to #{lingo.be_published}#{expected_stream}
+            expected #{expected_events_list(expected.events)} to be #{lingo.published}#{expected_stream}
 
             i.e. expected event
               #{expected_event.description}
-            to #{lingo.be_published}
+            to be #{lingo.published}
             EOS
           end.strip
         end
@@ -194,19 +199,19 @@ module RubyEventStore
       end
 
       def have_published(differ)
-        HavePublished.new(differ, Lingo.new("be published", "published"))
+        HavePublished.new(differ, Lingo.new("published"))
       end
 
       def publish(differ)
-        HavePublished.new(differ, Lingo.new("be published", "published"))
+        HavePublished.new(differ, Lingo.new("published"))
       end
 
       def have_applied(differ)
-        HavePublished.new(differ, Lingo.new("be applied", "applied"))
+        HavePublished.new(differ, Lingo.new("applied"))
       end
 
       def apply(differ)
-        HavePublished.new(differ, Lingo.new("be applied", "applied"))
+        HavePublished.new(differ, Lingo.new("applied"))
       end
     end
   end
