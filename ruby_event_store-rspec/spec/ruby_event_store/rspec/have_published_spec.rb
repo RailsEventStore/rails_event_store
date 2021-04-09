@@ -293,6 +293,19 @@ module RubyEventStore
       end
 
       specify do
+        event_store.publish(actual = FooEvent.new, stream_name: "Foo")
+        matcher_ = matcher(expected = matchers.an_event(BarEvent)).in_stream("Foo")
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected [#{expected.inspect}] to be published in stream Foo, diff:
+        @@ -1,2 +1,2 @@
+        -[#{actual.inspect}]
+        +[#{expected.inspect}]
+        EOS
+      end
+
+      specify do
         event_store.publish(actual = FooEvent.new)
         matcher_ = matcher(expected = matchers.an_event(BarEvent))
         matcher_.matches?(event_store)
