@@ -28,6 +28,7 @@ module RubyEventStore
 
         expect(collection.specified_count?).to be(false)
         expect(collection.strict?).to be(false)
+        expect(collection.empty?).to be(true)
       end
 
       specify do
@@ -72,6 +73,14 @@ module RubyEventStore
         expect do
           collection.exactly(3)
         end.to raise_error(NotSupported)
+      end
+
+      specify do
+        collection = ExpectedCollection.new([
+          matchers.an_event(FooEvent)
+        ])
+
+        expect(collection).not_to be_empty
       end
     end
   end
