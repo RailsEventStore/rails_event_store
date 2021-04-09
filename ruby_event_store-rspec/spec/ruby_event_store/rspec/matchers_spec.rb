@@ -97,6 +97,7 @@ module RubyEventStore
       end
 
       specify do
+        expect(RSpec.default_formatter).to receive(:apply).with(kind_of(::RSpec::Support::Differ)).and_call_original
         aggregate = TestAggregate.new
         matcher = apply(matchers.an_event(FooEvent).with_data(a: 1)).in(aggregate)
         matcher.matches?(Proc.new { aggregate.foo })
