@@ -14,7 +14,11 @@ module RubyEventStore
       end
 
       def matcher(*expected)
-        Publish.new(*expected, failure_message_formatter: RSpec.default_formatter.publish)
+        Publish.new(*expected, failure_message_formatter: RSpec.default_formatter.publish(differ))
+      end
+
+      def colorless_differ
+        ::RSpec::Support::Differ.new(color: false)
       end
 
       specify do

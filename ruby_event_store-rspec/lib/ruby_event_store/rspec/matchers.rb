@@ -51,11 +51,11 @@ module RubyEventStore
       end
 
       def publish(*expected)
-        Publish.new(*expected, failure_message_formatter: RSpec.default_formatter.publish)
+        Publish.new(*expected, failure_message_formatter: RSpec.default_formatter.publish(differ))
       end
 
       def apply(*expected)
-        Apply.new(*expected, failure_message_formatter: RSpec.default_formatter.apply)
+        Apply.new(*expected, failure_message_formatter: RSpec.default_formatter.apply(differ))
       end
 
       private
