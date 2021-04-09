@@ -12,6 +12,10 @@ module RubyEventStore
         @count = count
       end
 
+      def empty?
+        events.empty?
+      end
+
       def once
         exactly(1)
       end

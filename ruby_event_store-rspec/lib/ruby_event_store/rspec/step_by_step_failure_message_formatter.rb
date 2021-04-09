@@ -13,6 +13,7 @@ module RubyEventStore
 
         def failure_message(expected, events, stream_name)
           return failure_message_strict(expected, events) if expected.strict?
+          return failure_message_no_events if expected.empty?
           expected.events.each do |expected_event|
             correct_event_count = 0
             events_with_correct_type = []
@@ -70,6 +71,10 @@ module RubyEventStore
 
         private
         attr_reader :differ, :lingo
+
+        def failure_message_no_events
+          "expected anything to #{lingo.be_published}\n"
+        end
 
         def failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
           [
