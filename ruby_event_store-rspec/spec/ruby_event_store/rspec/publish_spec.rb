@@ -56,6 +56,25 @@ module RubyEventStore
       specify do
         expect {
           event_store.publish(FooEvent.new)
+        }.not_to matcher.in(event_store).in_streams('Foo$1')
+      end
+
+      specify do
+        expect {
+          event_store.publish(FooEvent.new, stream_name: 'Foo$1')
+        }.not_to matcher.in(event_store).in_streams(['Foo$1', 'Bar$1'])
+      end
+
+      specify do
+        expect {
+          event_store.publish(event = FooEvent.new, stream_name: 'Foo$1')
+          event_store.link(event.event_id, stream_name: 'Bar$1')
+        }.to matcher.in(event_store).in_streams(['Foo$1', 'Bar$1'])
+      end
+
+      specify do
+        expect {
+          event_store.publish(FooEvent.new)
         }.not_to matcher(matchers.an_event(BarEvent)).in(event_store)
       end
 

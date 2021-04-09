@@ -14,8 +14,13 @@ module RubyEventStore
         self
       end
 
-      def in_stream(stream)
-        fetch_events.stream(stream)
+      def in_stream(stream_name)
+        @stream_names = [stream_name]
+        self
+      end
+
+      def in_streams(stream_names)
+        @stream_names = Array(stream_names)
         self
       end
 
@@ -42,14 +47,18 @@ module RubyEventStore
       def matches?(event_proc)
         fetch_events.from_last
         event_proc.call
-        @published_events = fetch_events.call.to_a
-        MatchEvents.new.call(expected, published_events)
+        stream_names.all? do |stream_name|
+          fetch_events.stream(stream_name)
+          @published_events = fetch_events.call.to_a
+          @failed_on_stream = stream_name
+          MatchEvents.new.call(expected, published_events)
+        end
       rescue FetchEvents::MissingEventStore
         raise "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected, published_events, fetch_events.stream_name)
+        failure_message_formatter.failure_message(expected, published_events, failed_on_stream)
       end
 
       def failure_message_when_negated
@@ -66,7 +75,11 @@ module RubyEventStore
 
       private
 
-      attr_reader :fetch_events, :expected, :failure_message_formatter, :published_events
+      def stream_names
+        @stream_names || [nil]
+      end
+
+      attr_reader :fetch_events, :expected, :failure_message_formatter, :published_events, :failed_on_stream
     end
   end
 end
