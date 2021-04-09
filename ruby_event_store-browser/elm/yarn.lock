@@ -3684,10 +3684,10 @@ node-addon-api@^1.7.1:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-1.7.2.tgz#3df30b95720b53c24e59948b49532b662444f54d"
   integrity sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==
 
-node-elm-compiler@^5.0.5:
-  version "5.0.5"
-  resolved "https://registry.yarnpkg.com/node-elm-compiler/-/node-elm-compiler-5.0.5.tgz#a47c027d766d0fba53ea0f19c8e2e82992e9c87d"
-  integrity sha512-vapB+VkmKMY1NRy7jjpGjzwWbKmtiRfzbgVoV/eROz5Kx30QvY0Nd5Ua7iST+9utrn1aG8cVToXC6UWdEO5BKQ==
+node-elm-compiler@^5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/node-elm-compiler/-/node-elm-compiler-5.0.6.tgz#d4a6e6c9d9a26dba4211ccd2aeae7d5e34057f0c"
+  integrity sha512-DWTRQR8b54rvschcZRREdsz7K84lnS8A6YJu8du3QLQ8f204SJbyTaA6NzYYbfUG97OTRKRv/0KZl82cTfpLhA==
   dependencies:
     cross-spawn "6.0.5"
     find-elm-dependencies "^2.0.4"
