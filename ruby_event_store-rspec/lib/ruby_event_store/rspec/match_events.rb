@@ -25,7 +25,7 @@ module RubyEventStore
       end
 
       def match_events?(expected)
-        !expected.events.empty?
+        !expected.empty?
       end
     end
   end
