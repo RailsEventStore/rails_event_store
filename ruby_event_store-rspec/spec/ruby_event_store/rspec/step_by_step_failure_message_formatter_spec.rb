@@ -454,6 +454,15 @@ module RubyEventStore
             +:a => 2,
         EOS
       end
+
+      specify do
+        matcher_ = matcher()
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message.to_s).to eq(<<~EOS)
+        expected anything to be published
+        EOS
+      end
     end
   end
 end
