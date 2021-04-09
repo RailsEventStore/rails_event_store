@@ -11,7 +11,7 @@ module RubyEventStore
           @lingo = lingo
         end
 
-        def failure_message(expected, events, stream_name)
+        def failure_message(expected, events, stream_name = nil)
           return failure_message_strict(expected, events) if expected.strict?
           return failure_message_no_events if expected.empty?
           expected.events.each do |expected_event|
@@ -193,88 +193,12 @@ module RubyEventStore
         end
       end
 
-      class Publish
-        def failure_message(expected, events, stream)
-          if match_events?(expected)
-            <<~EOS
-            expected block to have published:
-
-            #{expected.events}
-
-            #{"in stream #{stream} " if stream}but published:
-
-            #{events}
-            EOS
-          else
-            "expected block to have published any events"
-          end
-        end
-
-        def failure_message_when_negated(expected, events, stream)
-          if match_events?(expected)
-            <<~EOS
-            expected block not to have published:
-
-            #{expected.events}
-
-            #{"in stream #{stream} " if stream}but published:
-
-            #{events}
-            EOS
-          else
-            "expected block not to have published any events"
-          end
-        end
-
-        def match_events?(expected)
-          !expected.events.empty?
-        end
-      end
-
-      class Apply
-        def failure_message(expected, applied_events)
-          if match_events?(expected)
-            <<~EOS
-            expected block to have applied:
-
-            #{expected.events}
-
-            but applied:
-
-            #{applied_events}
-            EOS
-          else
-            "expected block to have applied any events"
-          end
-        end
-
-        def failure_message_when_negated(expected, applied_events)
-          if match_events?(expected)
-            <<~EOS
-            expected block not to have applied:
-
-            #{expected.events}
-
-            but applied:
-
-            #{applied_events}
-            EOS
-          else
-            "expected block not to have applied any events"
-          end
-        end
-
-        def match_events?(expected)
-          !expected.events.empty?
-        end
-      end
-
       def have_published(differ)
         HavePublished.new(differ, Lingo.new("be published", "published"))
       end
 
       def publish(differ)
-        Publish.new
+        HavePublished.new(differ, Lingo.new("be published", "published"))
       end
 
       def have_applied(differ)
@@ -282,7 +206,7 @@ module RubyEventStore
       end
 
       def apply(differ)
-        Apply.new
+        HavePublished.new(differ, Lingo.new("be applied", "applied"))
       end
     end
   end

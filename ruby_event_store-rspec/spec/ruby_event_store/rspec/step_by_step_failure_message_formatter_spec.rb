@@ -390,44 +390,58 @@ module RubyEventStore
         matcher_.matches?(Proc.new { })
 
         expect(matcher_.failure_message).to eq(<<~EOS)
-          expected block to have published:
+        expected [
+          be an event FooEvent
+        ] to be published
 
-          #{[actual].inspect}
-
-          but published:
-
-          []
+        i.e. expected event
+          be an event FooEvent
+        to be published, but there is no event with such type
         EOS
       end
 
       specify do
-        matcher_ = apply_matcher(actual = matchers.an_event(FooEvent)).in(aggregate)
-        matcher_.matches?(Proc.new { })
+        expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
+
+        matcher_ = apply_matcher(matchers.an_event(FooEvent).with_data(a: 2)).in(aggregate)
+        matcher_.matches?(Proc.new { aggregate.foo })
 
         expect(matcher_.failure_message).to eq(<<~EOS)
-        expected block to have applied:
+        expected [
+          be an event FooEvent (with data including {:a=>2})
+        ] to be applied
 
-        #{[actual].inspect}
+        i.e. expected event
+          be an event FooEvent (with data including {:a=>2})
+        to be applied, but it was not applied
 
-        but applied:
-
-        []
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1 +1,2 @@
+            +:a => 2,
         EOS
       end
 
       specify do
-        event_store.publish(FooEvent.new)
-        matcher_ = matcher(matchers.an_event(BarEvent))
+        event_store.publish(actual = FooEvent.new)
+        matcher_ = matcher(matchers.an_event(FooEvent).with_data(a: 2))
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event BarEvent
+          be an event FooEvent (with data including {:a=>2})
         ] to be published
 
         i.e. expected event
-          be an event BarEvent
-        to be published, but there is no event with such type
+          be an event FooEvent (with data including {:a=>2})
+        to be published, but it was not published
+
+        There are events of correct type but with incorrect payload:
+        1) #{actual.inspect}
+            data diff:
+            @@ -1 +1,2 @@
+            +:a => 2,
         EOS
       end
 
