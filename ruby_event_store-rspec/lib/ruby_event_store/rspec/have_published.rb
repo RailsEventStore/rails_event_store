@@ -55,7 +55,7 @@ module RubyEventStore
       end
 
       def failure_message_when_negated
-        failure_message_formatter.failure_message_when_negated(expected, published_events)
+        failure_message_formatter.failure_message_when_negated(expected, published_events, failed_on_stream)
       end
 
       def description

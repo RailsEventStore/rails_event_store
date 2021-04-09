@@ -14,8 +14,8 @@ module RubyEventStore
             differ.diff(expected.events.to_s + "\n", events)
         end
 
-        def failure_message_when_negated(expected, events)
-          "expected #{expected.events} not to be published, diff:" +
+        def failure_message_when_negated(expected, events, stream)
+          "expected #{expected.events} not to be published#{"in stream #{stream} " if stream}, diff:" +
             differ.diff(expected.events.to_s + "\n", events)
         end
 
@@ -67,7 +67,7 @@ module RubyEventStore
             differ.diff(expected.events.to_s + "\n", events)
         end
 
-        def failure_message_when_negated(expected, events)
+        def failure_message_when_negated(expected, events, _stream)
           "expected #{expected.events} not to be applied, diff:" +
             differ.diff(expected.events.inspect + "\n", events)
         end
@@ -76,7 +76,7 @@ module RubyEventStore
       end
 
       class Apply
-        def failure_message(expected, applied_events)
+        def failure_message(expected, applied_events, _stream)
           if !expected.empty?
             <<~EOS
             expected block to have applied:
@@ -92,7 +92,7 @@ module RubyEventStore
           end
         end
 
-        def failure_message_when_negated(expected, applied_events)
+        def failure_message_when_negated(expected, applied_events, _stream)
           if !expected.empty?
             <<~EOS
             expected block not to have applied:

@@ -43,11 +43,11 @@ module RubyEventStore
       end
 
       def failure_message
-        failure_message_formatter.failure_message(expected, applied_events)
+        failure_message_formatter.failure_message(expected, applied_events, nil)
       end
 
       def failure_message_when_negated
-        failure_message_formatter.failure_message_when_negated(expected, applied_events)
+        failure_message_formatter.failure_message_when_negated(expected, applied_events, nil)
       end
 
       def description
