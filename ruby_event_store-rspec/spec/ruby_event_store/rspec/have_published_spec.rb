@@ -127,14 +127,7 @@ module RubyEventStore
         event_store.publish(event = FooEvent.new, stream_name: "Foo")
         event_store.link(event.event_id, stream_name: "Bar")
 
-        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
-      end
-
-      specify do
-        event_store.publish(event = FooEvent.new, stream_name: "Foo")
-        event_store.link(event.event_id, stream_name: "Bar")
-
-        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
+        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
       end
 
       specify do
@@ -147,7 +140,7 @@ module RubyEventStore
       specify do
         event_store.publish(FooEvent.new, stream_name: "Foo")
 
-        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
       end
 
       specify do

@@ -30,8 +30,8 @@ module RubyEventStore
         self
       end
 
-      def in_streams(*stream_names)
-        @stream_names = stream_names.flatten
+      def in_streams(stream_names)
+        @stream_names = Array(stream_names)
         self
       end
 

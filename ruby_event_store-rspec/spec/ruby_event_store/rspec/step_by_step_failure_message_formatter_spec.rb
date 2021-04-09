@@ -343,7 +343,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new, stream_name: "Foo")
-        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
+        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -359,7 +359,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new, stream_name: "Bar")
-        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams("Foo", "Bar")
+        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
