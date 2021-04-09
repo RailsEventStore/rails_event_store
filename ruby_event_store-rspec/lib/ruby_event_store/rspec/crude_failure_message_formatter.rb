@@ -8,8 +8,9 @@ module RubyEventStore
           @differ = differ
         end
 
-        def failure_message(expected, events, _stream_name)
-          "expected #{expected.events} to be published, diff:" +
+        def failure_message(expected, events, stream_name)
+          stream_expectation = " in stream #{stream_name}" unless stream_name.nil?
+          "expected #{expected.events} to be published#{stream_expectation}, diff:" +
             differ.diff(expected.events.to_s + "\n", events)
         end
 
