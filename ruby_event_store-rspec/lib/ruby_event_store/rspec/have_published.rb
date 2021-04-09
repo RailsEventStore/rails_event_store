@@ -12,7 +12,7 @@ module RubyEventStore
 
       def matches?(event_store)
         stream_names.all? do |stream_name|
-          fetch_events.stream(stream_name) if stream_name
+          fetch_events.stream(stream_name)
           fetch_events.in(event_store)
           @published_events = fetch_events.call.to_a
           @failed_on_stream = stream_name
