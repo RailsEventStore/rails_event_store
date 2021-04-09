@@ -23,11 +23,11 @@ module RubyEventStore
       end
 
       def publish_matcher(*expected)
-        Publish.new(*expected, failure_message_formatter: failure_message_formatter.publish)
+        Publish.new(*expected, failure_message_formatter: failure_message_formatter.publish(colorless_differ))
       end
 
       def apply_matcher(*expected)
-        Apply.new(*expected, failure_message_formatter: failure_message_formatter.apply)
+        Apply.new(*expected, failure_message_formatter: failure_message_formatter.apply(colorless_differ))
       end
 
       def colorless_differ

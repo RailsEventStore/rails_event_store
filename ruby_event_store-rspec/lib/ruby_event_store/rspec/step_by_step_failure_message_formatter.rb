@@ -273,7 +273,7 @@ module RubyEventStore
         HavePublished.new(differ, Lingo.new("be published", "published"))
       end
 
-      def publish
+      def publish(differ)
         Publish.new
       end
 
@@ -281,7 +281,7 @@ module RubyEventStore
         HavePublished.new(differ, Lingo.new("be applied", "applied"))
       end
 
-      def apply
+      def apply(differ)
         Apply.new
       end
     end

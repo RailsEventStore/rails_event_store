@@ -121,7 +121,7 @@ module RubyEventStore
         HavePublished.new(differ)
       end
 
-      def publish
+      def publish(_differ)
         Publish.new
       end
 
@@ -129,7 +129,7 @@ module RubyEventStore
         HaveApplied.new(differ)
       end
 
-      def apply
+      def apply(_differ)
         Apply.new
       end
     end
