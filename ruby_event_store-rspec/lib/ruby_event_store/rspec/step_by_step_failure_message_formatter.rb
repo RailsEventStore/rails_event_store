@@ -52,6 +52,7 @@ module RubyEventStore
         end
 
         def failure_message_when_negated(expected, events)
+          return failure_message_when_negated_no_events if expected.empty?
           if expected.specified_count?
             <<~EOS
             expected
@@ -74,6 +75,10 @@ module RubyEventStore
 
         def failure_message_no_events
           "expected anything to #{lingo.be_published}\n"
+        end
+
+        def failure_message_when_negated_no_events
+          "expected something to #{lingo.be_published}\n"
         end
 
         def failure_message_incorrect_count(expected_event, events_with_correct_type, correct_event_count)
