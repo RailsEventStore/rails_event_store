@@ -56,7 +56,7 @@ module RubyEventStore
           end
         end
 
-        def failure_message_when_negated(expected, events, _stream)
+        def failure_message_when_negated(expected, events, _stream_name = nil)
           return failure_message_when_negated_no_events if expected.empty?
           if expected.specified_count?
             <<~EOS

@@ -318,6 +318,19 @@ module RubyEventStore
         EOS
       end
 
+      specify do
+        event_store.publish(actual = FooEvent.new, stream_name: "Foo")
+        matcher_ = matcher(expected = matchers.an_event(FooEvent)).in_stream("Foo")
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expected [#{expected.inspect}] not to be published in stream Foo, diff:
+        @@ -1,2 +1,2 @@
+        -[#{actual.inspect}]
+        +[#{expected.inspect}]
+        EOS
+      end
+
       specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
 
       specify do

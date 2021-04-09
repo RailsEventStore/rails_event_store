@@ -431,6 +431,21 @@ module RubyEventStore
       end
 
       specify do
+        matcher_ = apply_matcher(matchers.an_event(FooEvent)).in(aggregate)
+        matcher_.matches?(Proc.new { })
+
+        expect(matcher_.failure_message_when_negated).to eq(<<~EOS)
+        expected [
+          be an event FooEvent
+        ] not to be applied
+
+        but the following was applied: [
+
+        ]
+        EOS
+      end
+
+      specify do
         event_store.publish(actual = FooEvent.new)
         matcher_ = matcher(matchers.an_event(FooEvent).with_data(a: 2))
         matcher_.matches?(event_store)
