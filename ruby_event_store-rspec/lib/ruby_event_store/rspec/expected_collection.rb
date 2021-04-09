@@ -7,7 +7,7 @@ module RubyEventStore
       end
 
       def exactly(count)
-        raise NotSupported if events.size != 1
+        raise NotSupported if !events.size.equal?(1)
         raise NotSupported if count < 1
         @count = count
       end
@@ -29,7 +29,7 @@ module RubyEventStore
       end
 
       def event
-        raise NotSupported if events.size != 1
+        raise NotSupported if !events.size.equal?(1)
         events.first
       end
 
