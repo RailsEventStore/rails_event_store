@@ -463,6 +463,15 @@ module RubyEventStore
         expected anything to be published
         EOS
       end
+
+      specify do
+        matcher_ = matcher()
+        matcher_.matches?(event_store)
+
+        expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
+        expected something to be published
+        EOS
+      end
     end
   end
 end
