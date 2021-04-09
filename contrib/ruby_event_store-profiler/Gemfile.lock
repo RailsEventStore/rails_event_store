@@ -1,14 +1,14 @@
 PATH
   remote: ../../aggregate_root
   specs:
-    aggregate_root (2.1.0)
+    aggregate_root (2.2.0)
       ruby2_keywords
-      ruby_event_store (= 2.1.0)
+      ruby_event_store (= 2.2.0)
 
 PATH
   remote: ../../ruby_event_store
   specs:
-    ruby_event_store (2.1.0)
+    ruby_event_store (2.2.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
@@ -62,7 +62,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
-    ruby2_keywords (0.0.2)
+    ruby2_keywords (0.0.4)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
     unparser (0.6.0)
