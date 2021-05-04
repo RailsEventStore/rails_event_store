@@ -56,7 +56,15 @@ module RubyEventStore
         event = ActiveSupport::Notifications::Event.new(*args)
         feature_name = event.payload.fetch(:feature_name).to_s
         operation = event.payload.fetch(:operation)
-        domain_event = case operation
+        event_store.publish(build_domain_event(feature_name, operation, event.payload), stream_name: stream_name(feature_name))
+      end
+
+      private
+
+      attr_reader :event_store
+
+      def build_domain_event(feature_name, operation, payload)
+        case operation
         when :add
           Events::ToggleAdded.new(data: {
             feature_name: feature_name,
@@ -66,8 +74,8 @@ module RubyEventStore
             feature_name: feature_name,
           })
         when :enable
-          gate_name = event.payload.fetch(:gate_name)
-          thing = event.payload.fetch(:thing)
+          gate_name = payload.fetch(:gate_name)
+          thing = payload.fetch(:thing)
           case gate_name
           when :boolean
             Events::ToggleGloballyEnabled.new(data: {
@@ -95,8 +103,8 @@ module RubyEventStore
             })
           end
         when :disable
-          gate_name = event.payload.fetch(:gate_name)
-          thing = event.payload.fetch(:thing)
+          gate_name = payload.fetch(:gate_name)
+          thing = payload.fetch(:thing)
           case gate_name
           when :boolean
             Events::ToggleGloballyDisabled.new(data: {
@@ -122,12 +130,7 @@ module RubyEventStore
             })
           end
         end
-        event_store.publish(domain_event, stream_name: stream_name(feature_name))
       end
-
-      private
-
-      attr_reader :event_store
 
       def stream_name(feature_name)
         "FeatureToggle$#{feature_name}"
