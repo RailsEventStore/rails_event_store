@@ -30,12 +30,18 @@ module RubyEventStore
         when :add
           @event_store.publish(Events::ToggleAdded.new(data: {
             feature_name: feature_name,
-          }), stream_name: "FeatureToggle$#{feature_name}")
+          }), stream_name: stream_name(feature_name))
         when :remove
           @event_store.publish(Events::ToggleRemoved.new(data: {
             feature_name: feature_name,
-          }), stream_name: "FeatureToggle$#{feature_name}")
+          }), stream_name: stream_name(feature_name))
         end
+      end
+
+      private
+
+      def stream_name(feature_name)
+        "FeatureToggle$#{feature_name}"
       end
     end
   end
