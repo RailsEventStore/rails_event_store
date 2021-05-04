@@ -170,5 +170,14 @@ module RubyEventStore
       end.not_to raise_error
       expect(event_store).not_to have_published
     end
+
+    specify "stream name is customizable" do
+      Flipper.enable(event_store, stream_pattern: ->(feature_name) { "toggle-#{feature_name}" })
+      flipper.add(:foo_bar)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleAdded).with_data(
+        feature_name: "foo_bar",
+      )).in_stream("toggle-foo_bar")
+    end
   end
 end

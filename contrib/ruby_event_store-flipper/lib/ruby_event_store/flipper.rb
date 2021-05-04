@@ -5,8 +5,10 @@ require "ruby_event_store"
 
 module RubyEventStore
   module Flipper
-    def self.enable(event_store, instrumenter: ActiveSupport::Notifications)
-      instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store))
+    DEFAULT_STREAM_PATTERN = ->(feature_name) { "FeatureToggle$#{feature_name}" }
+
+    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN)
+      instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store, stream_pattern))
     end
 
     module Events
@@ -48,8 +50,9 @@ module RubyEventStore
     end
 
     class NotificationHandler
-      def initialize(event_store)
+      def initialize(event_store, stream_pattern)
         @event_store = event_store
+        @stream_pattern = stream_pattern
       end
 
       def call(*args)
@@ -57,12 +60,12 @@ module RubyEventStore
         feature_name = event.payload.fetch(:feature_name).to_s
         operation = event.payload.fetch(:operation)
         common_payload = { feature_name: feature_name }
-        event_store.publish(build_domain_event(common_payload, operation, event.payload), stream_name: stream_name(feature_name))
+        event_store.publish(build_domain_event(common_payload, operation, event.payload), stream_name: stream_pattern.(feature_name))
       end
 
       private
 
-      attr_reader :event_store
+      attr_reader :event_store, :stream_pattern
 
       def build_domain_event(common_payload, operation, payload)
         case operation
@@ -113,10 +116,6 @@ module RubyEventStore
             Events::ToggleDisabledForPercentageOfTime.new(data: common_payload)
           end
         end
-      end
-
-      def stream_name(feature_name)
-        "FeatureToggle$#{feature_name}"
       end
     end
   end
