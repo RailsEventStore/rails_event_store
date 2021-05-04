@@ -161,5 +161,14 @@ module RubyEventStore
         feature_name: "foo_bar",
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "dont raise error for operations which dont publish event" do
+      Flipper.enable(event_store)
+
+      expect do
+        flipper.enabled?(:foo_bar)
+      end.not_to raise_error
+      expect(event_store).not_to have_published
+    end
   end
 end
