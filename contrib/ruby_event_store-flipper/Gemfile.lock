@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     ruby_event_store-flipper (0.1.0)
-      activesupport (>= 5.0)
       ruby_event_store (>= 1.0.0)
 
 GEM
@@ -67,6 +66,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  activesupport
   byebug
   flipper (~> 0.19)
   mutant (~> 0.10.26)
