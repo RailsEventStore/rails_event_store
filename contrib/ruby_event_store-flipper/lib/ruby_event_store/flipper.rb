@@ -12,6 +12,9 @@ module RubyEventStore
     module Events
       class ToggleAdded < RubyEventStore::Event
       end
+
+      class ToggleRemoved < RubyEventStore::Event
+      end
     end
 
     class NotificationHandler
@@ -22,9 +25,17 @@ module RubyEventStore
       def call(*args)
         event = ActiveSupport::Notifications::Event.new(*args)
         feature_name = event.payload.fetch(:feature_name).to_s
-        @event_store.publish(Events::ToggleAdded.new(data: {
-          feature_name: feature_name,
-        }), stream_name: "FeatureToggle$#{feature_name}")
+        operation = event.payload.fetch(:operation)
+        case operation
+        when :add
+          @event_store.publish(Events::ToggleAdded.new(data: {
+            feature_name: feature_name,
+          }), stream_name: "FeatureToggle$#{feature_name}")
+        when :remove
+          @event_store.publish(Events::ToggleRemoved.new(data: {
+            feature_name: feature_name,
+          }), stream_name: "FeatureToggle$#{feature_name}")
+        end
       end
     end
   end
