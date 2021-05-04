@@ -5,8 +5,8 @@ require "ruby_event_store"
 
 module RubyEventStore
   module Flipper
-    def self.enable(event_store)
-      ActiveSupport::Notifications.subscribe("feature_operation.flipper", NotificationHandler.new(event_store))
+    def self.enable(event_store, instrumenter: ActiveSupport::Notifications)
+      instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store))
     end
 
     module Events
