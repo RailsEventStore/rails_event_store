@@ -97,5 +97,16 @@ module RubyEventStore
         actor: "User:123",
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "enabling toggle for group" do
+      Flipper.enable(event_store)
+
+      flipper.enable_group(:foo_bar, :admins)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleEnabledForGroup).with_data(
+        feature_name: "foo_bar",
+        group: "admins",
+      )).in_stream("FeatureToggle$foo_bar")
+    end
   end
 end
