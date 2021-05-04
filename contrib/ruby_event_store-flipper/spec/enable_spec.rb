@@ -100,5 +100,19 @@ module RubyEventStore
         actor: "User:123",
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "disabling toggle for actor" do
+      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      Flipper.enable(event_store)
+
+      actor = OpenStruct.new(flipper_id: "User:123")
+      flipper.disable_actor(:foo_bar, actor)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleDisabledForActor).with_data(
+        feature_name: "foo_bar",
+        actor: "User:123",
+      )).in_stream("FeatureToggle$foo_bar")
+    end
   end
 end
