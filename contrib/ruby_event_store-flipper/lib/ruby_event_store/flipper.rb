@@ -15,6 +15,9 @@ module RubyEventStore
 
       class ToggleRemoved < RubyEventStore::Event
       end
+
+      class ToggleGloballyEnabled < RubyEventStore::Event
+      end
     end
 
     class NotificationHandler
@@ -34,6 +37,10 @@ module RubyEventStore
         when :remove
           event_store.publish(Events::ToggleRemoved.new(data: {
             feature_name: feature_name,
+          }), stream_name: stream_name(feature_name))
+        when :enable
+          event_store.publish(Events::ToggleGloballyEnabled.new(data: {
+            feature_name: feature_name
           }), stream_name: stream_name(feature_name))
         end
       end
