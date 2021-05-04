@@ -56,78 +56,61 @@ module RubyEventStore
         event = ActiveSupport::Notifications::Event.new(*args)
         feature_name = event.payload.fetch(:feature_name).to_s
         operation = event.payload.fetch(:operation)
-        event_store.publish(build_domain_event(feature_name, operation, event.payload), stream_name: stream_name(feature_name))
+        common_payload = { feature_name: feature_name }
+        event_store.publish(build_domain_event(common_payload, operation, event.payload), stream_name: stream_name(feature_name))
       end
 
       private
 
       attr_reader :event_store
 
-      def build_domain_event(feature_name, operation, payload)
+      def build_domain_event(common_payload, operation, payload)
         case operation
         when :add
-          Events::ToggleAdded.new(data: {
-            feature_name: feature_name,
-          })
+          Events::ToggleAdded.new(data: common_payload)
         when :remove
-          Events::ToggleRemoved.new(data: {
-            feature_name: feature_name,
-          })
+          Events::ToggleRemoved.new(data: common_payload)
         when :enable
           gate_name = payload.fetch(:gate_name)
           thing = payload.fetch(:thing)
           case gate_name
           when :boolean
-            Events::ToggleGloballyEnabled.new(data: {
-              feature_name: feature_name
-            })
+            Events::ToggleGloballyEnabled.new(data: common_payload)
           when :actor
-            Events::ToggleEnabledForActor.new(data: {
-              feature_name: feature_name,
+            Events::ToggleEnabledForActor.new(data: common_payload.merge(
               actor: thing.value,
-            })
+            ))
           when :group
-            Events::ToggleEnabledForGroup.new(data: {
-              feature_name: feature_name,
+            Events::ToggleEnabledForGroup.new(data: common_payload.merge(
               group: thing.value.to_s,
-            })
+            ))
           when :percentage_of_actors
-            Events::ToggleEnabledForPercentageOfActors.new(data: {
-              feature_name: feature_name,
+            Events::ToggleEnabledForPercentageOfActors.new(data: common_payload.merge(
               percentage: thing.value,
-            })
+            ))
           when :percentage_of_time
-            Events::ToggleEnabledForPercentageOfTime.new(data: {
-              feature_name: feature_name,
+            Events::ToggleEnabledForPercentageOfTime.new(data: common_payload.merge(
               percentage: thing.value,
-            })
+            ))
           end
         when :disable
           gate_name = payload.fetch(:gate_name)
           thing = payload.fetch(:thing)
           case gate_name
           when :boolean
-            Events::ToggleGloballyDisabled.new(data: {
-              feature_name: feature_name
-            })
+            Events::ToggleGloballyDisabled.new(data: common_payload)
           when :actor
-            Events::ToggleDisabledForActor.new(data: {
-              feature_name: feature_name,
+            Events::ToggleDisabledForActor.new(data: common_payload.merge(
               actor: thing.value,
-            })
+            ))
           when :group
-            Events::ToggleDisabledForGroup.new(data: {
-              feature_name: feature_name,
+            Events::ToggleDisabledForGroup.new(data: common_payload.merge(
               group: thing.value.to_s,
-            })
+            ))
           when :percentage_of_actors
-            Events::ToggleDisabledForPercentageOfActors.new(data: {
-              feature_name: feature_name,
-            })
+            Events::ToggleDisabledForPercentageOfActors.new(data: common_payload)
           when :percentage_of_time
-            Events::ToggleDisabledForPercentageOfTime.new(data: {
-              feature_name: feature_name,
-            })
+            Events::ToggleDisabledForPercentageOfTime.new(data: common_payload)
           end
         end
       end
