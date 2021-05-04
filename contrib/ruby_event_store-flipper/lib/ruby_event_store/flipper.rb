@@ -68,26 +68,27 @@ module RubyEventStore
         when :enable
           gate_name = event.payload.fetch(:gate_name)
           thing = event.payload.fetch(:thing)
-          if gate_name.eql?(:boolean)
+          case gate_name
+          when :boolean
             Events::ToggleGloballyEnabled.new(data: {
               feature_name: feature_name
             })
-          elsif gate_name.eql?(:actor)
+          when :actor
             Events::ToggleEnabledForActor.new(data: {
               feature_name: feature_name,
               actor: thing.value,
             })
-          elsif gate_name.eql?(:group)
+          when :group
             Events::ToggleEnabledForGroup.new(data: {
               feature_name: feature_name,
               group: thing.value.to_s,
             })
-          elsif gate_name.eql?(:percentage_of_actors)
+          when :percentage_of_actors
             Events::ToggleEnabledForPercentageOfActors.new(data: {
               feature_name: feature_name,
               percentage: thing.value,
             })
-          else
+          when :percentage_of_time
             Events::ToggleEnabledForPercentageOfTime.new(data: {
               feature_name: feature_name,
               percentage: thing.value,
@@ -96,25 +97,26 @@ module RubyEventStore
         when :disable
           gate_name = event.payload.fetch(:gate_name)
           thing = event.payload.fetch(:thing)
-          if gate_name.eql?(:boolean)
+          case gate_name
+          when :boolean
             Events::ToggleGloballyDisabled.new(data: {
               feature_name: feature_name
             })
-          elsif gate_name.eql?(:actor)
+          when :actor
             Events::ToggleDisabledForActor.new(data: {
               feature_name: feature_name,
               actor: thing.value,
             })
-          elsif gate_name.eql?(:group)
+          when :group
             Events::ToggleDisabledForGroup.new(data: {
               feature_name: feature_name,
               group: thing.value.to_s,
             })
-          elsif gate_name.eql?(:percentage_of_actors)
+          when :percentage_of_actors
             Events::ToggleDisabledForPercentageOfActors.new(data: {
               feature_name: feature_name,
             })
-          else
+          when :percentage_of_time
             Events::ToggleDisabledForPercentageOfTime.new(data: {
               feature_name: feature_name,
             })
