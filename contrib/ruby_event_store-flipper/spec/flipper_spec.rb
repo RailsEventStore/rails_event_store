@@ -2,20 +2,22 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe Flipper do
+    let(:instrumenter) { ActiveSupport::Notifications }
+
     specify "enable hooks only into flipper notifications" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
 
-      ActiveSupport::Notifications.instrument('some_other_notification')
+      instrumenter.instrument('some_other_notification')
 
       expect(event_store).not_to have_published
     end
 
     specify "adding toggle" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
       flipper.add(:foo_bar)
@@ -27,7 +29,7 @@ module RubyEventStore
 
     specify "adding toggle when already added" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
       flipper.add(:foo_bar)
 
@@ -40,7 +42,7 @@ module RubyEventStore
 
     specify "removing toggle" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
       flipper.add(:foo_bar)
@@ -53,7 +55,7 @@ module RubyEventStore
 
     specify "removing toggle when it was not added" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
       flipper.remove(:foo_bar)
@@ -65,7 +67,7 @@ module RubyEventStore
 
     specify "enabling toggle globally" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
       flipper.enable(:foo_bar)
@@ -77,7 +79,7 @@ module RubyEventStore
 
     specify "disabling toggle globally" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
       flipper.disable(:foo_bar)
@@ -89,7 +91,7 @@ module RubyEventStore
 
     specify "enabling toggle for actor" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
       actor = OpenStruct.new(flipper_id: "User:123")
@@ -103,7 +105,7 @@ module RubyEventStore
 
     specify "disabling toggle for actor" do
       event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
       actor = OpenStruct.new(flipper_id: "User:123")
