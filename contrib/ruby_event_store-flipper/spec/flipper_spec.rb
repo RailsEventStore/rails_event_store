@@ -130,5 +130,15 @@ module RubyEventStore
         percentage: 2,
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "disabling toggle for percentage of actors" do
+      Flipper.enable(event_store)
+
+      flipper.disable_percentage_of_actors(:foo_bar)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleDisabledForPercentageOfActors).with_data(
+        feature_name: "foo_bar",
+      )).in_stream("FeatureToggle$foo_bar")
+    end
   end
 end
