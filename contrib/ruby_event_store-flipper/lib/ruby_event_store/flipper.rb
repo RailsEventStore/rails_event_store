@@ -56,70 +56,71 @@ module RubyEventStore
         event = ActiveSupport::Notifications::Event.new(*args)
         feature_name = event.payload.fetch(:feature_name).to_s
         operation = event.payload.fetch(:operation)
-        case operation
+        domain_event = case operation
         when :add
-          event_store.publish(Events::ToggleAdded.new(data: {
+          Events::ToggleAdded.new(data: {
             feature_name: feature_name,
-          }), stream_name: stream_name(feature_name))
+          })
         when :remove
-          event_store.publish(Events::ToggleRemoved.new(data: {
+          Events::ToggleRemoved.new(data: {
             feature_name: feature_name,
-          }), stream_name: stream_name(feature_name))
+          })
         when :enable
           gate_name = event.payload.fetch(:gate_name)
           thing = event.payload.fetch(:thing)
           if gate_name.eql?(:boolean)
-            event_store.publish(Events::ToggleGloballyEnabled.new(data: {
+            Events::ToggleGloballyEnabled.new(data: {
               feature_name: feature_name
-            }), stream_name: stream_name(feature_name))
+            })
           elsif gate_name.eql?(:actor)
-            event_store.publish(Events::ToggleEnabledForActor.new(data: {
+            Events::ToggleEnabledForActor.new(data: {
               feature_name: feature_name,
               actor: thing.value,
-            }), stream_name: stream_name(feature_name))
+            })
           elsif gate_name.eql?(:group)
-            event_store.publish(Events::ToggleEnabledForGroup.new(data: {
+            Events::ToggleEnabledForGroup.new(data: {
               feature_name: feature_name,
               group: thing.value.to_s,
-            }), stream_name: stream_name(feature_name))
+            })
           elsif gate_name.eql?(:percentage_of_actors)
-            event_store.publish(Events::ToggleEnabledForPercentageOfActors.new(data: {
+            Events::ToggleEnabledForPercentageOfActors.new(data: {
               feature_name: feature_name,
               percentage: thing.value,
-            }), stream_name: stream_name(feature_name))
+            })
           else
-            event_store.publish(Events::ToggleEnabledForPercentageOfTime.new(data: {
+            Events::ToggleEnabledForPercentageOfTime.new(data: {
               feature_name: feature_name,
               percentage: thing.value,
-            }), stream_name: stream_name(feature_name))
+            })
           end
         when :disable
           gate_name = event.payload.fetch(:gate_name)
           thing = event.payload.fetch(:thing)
           if gate_name.eql?(:boolean)
-            event_store.publish(Events::ToggleGloballyDisabled.new(data: {
+            Events::ToggleGloballyDisabled.new(data: {
               feature_name: feature_name
-            }), stream_name: stream_name(feature_name))
+            })
           elsif gate_name.eql?(:actor)
-            event_store.publish(Events::ToggleDisabledForActor.new(data: {
+            Events::ToggleDisabledForActor.new(data: {
               feature_name: feature_name,
               actor: thing.value,
-            }), stream_name: stream_name(feature_name))
+            })
           elsif gate_name.eql?(:group)
-            event_store.publish(Events::ToggleDisabledForGroup.new(data: {
+            Events::ToggleDisabledForGroup.new(data: {
               feature_name: feature_name,
               group: thing.value.to_s,
-            }), stream_name: stream_name(feature_name))
+            })
           elsif gate_name.eql?(:percentage_of_actors)
-            event_store.publish(Events::ToggleDisabledForPercentageOfActors.new(data: {
+            Events::ToggleDisabledForPercentageOfActors.new(data: {
               feature_name: feature_name,
-            }), stream_name: stream_name(feature_name))
+            })
           else
-            event_store.publish(Events::ToggleDisabledForPercentageOfTime.new(data: {
+            Events::ToggleDisabledForPercentageOfTime.new(data: {
               feature_name: feature_name,
-            }), stream_name: stream_name(feature_name))
+            })
           end
         end
+        event_store.publish(domain_event, stream_name: stream_name(feature_name))
       end
 
       private
