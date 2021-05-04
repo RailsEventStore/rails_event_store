@@ -28,17 +28,19 @@ module RubyEventStore
         operation = event.payload.fetch(:operation)
         case operation
         when :add
-          @event_store.publish(Events::ToggleAdded.new(data: {
+          event_store.publish(Events::ToggleAdded.new(data: {
             feature_name: feature_name,
           }), stream_name: stream_name(feature_name))
         when :remove
-          @event_store.publish(Events::ToggleRemoved.new(data: {
+          event_store.publish(Events::ToggleRemoved.new(data: {
             feature_name: feature_name,
           }), stream_name: stream_name(feature_name))
         end
       end
 
       private
+
+      attr_reader :event_store
 
       def stream_name(feature_name)
         "FeatureToggle$#{feature_name}"
