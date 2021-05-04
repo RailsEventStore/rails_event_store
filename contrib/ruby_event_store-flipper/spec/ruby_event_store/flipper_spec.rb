@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-  RSpec.describe Flipper do
+  ::RSpec.describe Flipper do
     it "has a version number" do
       expect(RubyEventStore::Flipper::VERSION).not_to be nil
     end
