@@ -21,6 +21,9 @@ module RubyEventStore
 
       class ToggleGloballyDisabled < RubyEventStore::Event
       end
+
+      class ToggleEnabledForActor < RubyEventStore::Event
+      end
     end
 
     class NotificationHandler
@@ -42,9 +45,18 @@ module RubyEventStore
             feature_name: feature_name,
           }), stream_name: stream_name(feature_name))
         when :enable
-          event_store.publish(Events::ToggleGloballyEnabled.new(data: {
-            feature_name: feature_name
-          }), stream_name: stream_name(feature_name))
+          gate_name = event.payload.fetch(:gate_name)
+          thing = event.payload.fetch(:thing)
+          if gate_name.eql?(:boolean)
+            event_store.publish(Events::ToggleGloballyEnabled.new(data: {
+              feature_name: feature_name
+            }), stream_name: stream_name(feature_name))
+          else
+            event_store.publish(Events::ToggleEnabledForActor.new(data: {
+              feature_name: feature_name,
+              actor: thing.value,
+            }), stream_name: stream_name(feature_name))
+          end
         when :disable
           event_store.publish(Events::ToggleGloballyDisabled.new(data: {
             feature_name: feature_name
