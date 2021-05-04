@@ -1,0 +1,32 @@
+name: ruby_event_store-flipper_coverage
+on:
+  schedule:
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "contrib/ruby_event_store-flipper/Gemfile.lock"
+  pull_request:
+    types: [ opened, reopened ]
+    paths:
+      - "contrib/ruby_event_store-flipper/Gemfile.lock"
+jobs:
+  coverage:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 120
+    env:
+      WORKING_DIRECTORY: contrib/ruby_event_store-flipper
+      BUNDLE_GEMFILE: Gemfile
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - run: test -e Gemfile.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-2.7
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
