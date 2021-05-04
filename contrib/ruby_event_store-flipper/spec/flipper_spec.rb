@@ -140,5 +140,16 @@ module RubyEventStore
         feature_name: "foo_bar",
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "enabling toggle for percentage of time" do
+      Flipper.enable(event_store)
+
+      flipper.enable_percentage_of_time(:foo_bar, 13)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleEnabledForPercentageOfTime).with_data(
+        feature_name: "foo_bar",
+        percentage: 13,
+      )).in_stream("FeatureToggle$foo_bar")
+    end
   end
 end
