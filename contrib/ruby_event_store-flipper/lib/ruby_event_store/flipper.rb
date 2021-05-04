@@ -36,6 +36,9 @@ module RubyEventStore
 
       class ToggleEnabledForPercentageOfActors < RubyEventStore::Event
       end
+
+      class ToggleDisabledForPercentageOfActors < RubyEventStore::Event
+      end
     end
 
     class NotificationHandler
@@ -91,10 +94,14 @@ module RubyEventStore
               feature_name: feature_name,
               actor: thing.value,
             }), stream_name: stream_name(feature_name))
-          else
+          elsif gate_name.eql?(:group)
             event_store.publish(Events::ToggleDisabledForGroup.new(data: {
               feature_name: feature_name,
               group: thing.value.to_s,
+            }), stream_name: stream_name(feature_name))
+          else
+            event_store.publish(Events::ToggleDisabledForPercentageOfActors.new(data: {
+              feature_name: feature_name,
             }), stream_name: stream_name(feature_name))
           end
         end
