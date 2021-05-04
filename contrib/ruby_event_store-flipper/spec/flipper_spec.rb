@@ -3,9 +3,9 @@ require "spec_helper"
 module RubyEventStore
   ::RSpec.describe Flipper do
     let(:instrumenter) { ActiveSupport::Notifications }
+    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
     specify "enable hooks only into flipper notifications" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
@@ -16,7 +16,6 @@ module RubyEventStore
     end
 
     specify "adding toggle" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
@@ -28,7 +27,6 @@ module RubyEventStore
     end
 
     specify "adding toggle when already added" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
       flipper.add(:foo_bar)
@@ -41,7 +39,6 @@ module RubyEventStore
     end
 
     specify "removing toggle" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
@@ -54,7 +51,6 @@ module RubyEventStore
     end
 
     specify "removing toggle when it was not added" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
 
       Flipper.enable(event_store)
@@ -66,7 +62,6 @@ module RubyEventStore
     end
 
     specify "enabling toggle globally" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
@@ -78,7 +73,6 @@ module RubyEventStore
     end
 
     specify "disabling toggle globally" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
@@ -90,7 +84,6 @@ module RubyEventStore
     end
 
     specify "enabling toggle for actor" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
@@ -104,7 +97,6 @@ module RubyEventStore
     end
 
     specify "disabling toggle for actor" do
-      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
       flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter)
       Flipper.enable(event_store)
 
