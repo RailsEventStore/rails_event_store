@@ -55,12 +55,11 @@ module RubyEventStore
         @stream_pattern = stream_pattern
       end
 
-      def call(*args)
-        event = ActiveSupport::Notifications::Event.new(*args)
-        feature_name = event.payload.fetch(:feature_name).to_s
-        operation = event.payload.fetch(:operation)
+      def call(_name, _start, _finish, _id, payload)
+        feature_name = payload.fetch(:feature_name).to_s
+        operation = payload.fetch(:operation)
         common_payload = { feature_name: feature_name }
-        event_store.publish(build_domain_event(common_payload, operation, event.payload), stream_name: stream_pattern.(feature_name))
+        event_store.publish(build_domain_event(common_payload, operation, payload), stream_name: stream_pattern.(feature_name))
       end
 
       private
