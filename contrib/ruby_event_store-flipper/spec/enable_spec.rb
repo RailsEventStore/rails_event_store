@@ -62,5 +62,17 @@ module RubyEventStore
         feature_name: "foo_bar",
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "enabling toggle globally" do
+      event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+      flipper = ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: ActiveSupport::Notifications)
+      Flipper.enable(event_store)
+
+      flipper.enable(:foo_bar)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleGloballyEnabled).with_data(
+        feature_name: "foo_bar",
+      )).in_stream("FeatureToggle$foo_bar")
+    end
   end
 end
