@@ -108,5 +108,16 @@ module RubyEventStore
         group: "admins",
       )).in_stream("FeatureToggle$foo_bar")
     end
+
+    specify "disabling toggle for group" do
+      Flipper.enable(event_store)
+
+      flipper.disable_group(:foo_bar, :admins)
+
+      expect(event_store).to have_published(an_event(Flipper::Events::ToggleDisabledForGroup).with_data(
+        feature_name: "foo_bar",
+        group: "admins",
+      )).in_stream("FeatureToggle$foo_bar")
+    end
   end
 end

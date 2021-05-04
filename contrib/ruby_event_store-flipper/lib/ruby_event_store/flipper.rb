@@ -30,6 +30,9 @@ module RubyEventStore
 
       class ToggleEnabledForGroup < RubyEventStore::Event
       end
+
+      class ToggleDisabledForGroup < RubyEventStore::Event
+      end
     end
 
     class NotificationHandler
@@ -75,10 +78,15 @@ module RubyEventStore
             event_store.publish(Events::ToggleGloballyDisabled.new(data: {
               feature_name: feature_name
             }), stream_name: stream_name(feature_name))
-          else
+          elsif gate_name.eql?(:actor)
             event_store.publish(Events::ToggleDisabledForActor.new(data: {
               feature_name: feature_name,
               actor: thing.value,
+            }), stream_name: stream_name(feature_name))
+          else
+            event_store.publish(Events::ToggleDisabledForGroup.new(data: {
+              feature_name: feature_name,
+              group: thing.value.to_s,
             }), stream_name: stream_name(feature_name))
           end
         end
