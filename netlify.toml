@@ -2,7 +2,7 @@
   base = "railseventstore.org/"
   command = "./bin/build"
   publish = "build/"
-  ignore  = "git diff --quiet master -- railseventstore.org/ RES_VERSION"
+  ignore  = "false"
 
 [build.environment]
   NODE_VERSION = "12.16.1"
