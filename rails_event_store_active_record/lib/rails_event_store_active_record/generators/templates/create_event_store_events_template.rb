@@ -3,7 +3,6 @@
 class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
   def change
     postgres = ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
-    sqlite   = ActiveRecord::Base.connection.adapter_name == "SQLite"
 
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
