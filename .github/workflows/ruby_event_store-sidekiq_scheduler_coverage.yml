@@ -16,25 +16,20 @@ on:
       - "support/**"
 jobs:
   coverage:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
-    matrix:
-      include:
-        - ruby: ruby-2.7
-          gemfile: Gemfile
-          os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - run: test -e ${{ matrix.gemfile }}.lock
+      - run: test -e Gemfile.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ruby-2.7
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
