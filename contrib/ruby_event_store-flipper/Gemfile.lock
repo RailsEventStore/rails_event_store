@@ -63,6 +63,7 @@ GEM
     zeitwerk (2.4.2)
 
 PLATFORMS
+  arm64-darwin-20
   x86_64-linux
 
 DEPENDENCIES
@@ -79,4 +80,4 @@ DEPENDENCIES
   ruby_event_store-rspec
 
 BUNDLED WITH
-   2.2.6
+   2.2.17
