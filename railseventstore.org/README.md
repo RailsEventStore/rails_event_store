@@ -23,3 +23,6 @@ Documentation and website are deployed continuously and automatically from the `
 Rails Event Store is funded and maintained by Arkency. Check out our other [open-source projects](https://github.com/arkency).
 
 You can also [hire us](http://arkency.com) or [read our blog](http://blog.arkency.com).
+
+
+
