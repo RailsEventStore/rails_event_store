@@ -6,14 +6,14 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "devDependencies": {
+    "@fullhuman/postcss-purgecss": "3.0.0",
+    "@tailwindcss/postcss7-compat": "^2.1.0",
+    "autoprefixer": "^9",
     "elm": "^0.19.1-5",
     "elm-format": "^0.8.5",
     "elm-hot": "^1.1.6",
     "elm-test": "^0.19.1-revision6",
     "node-elm-compiler": "^5.0.6",
-    "@fullhuman/postcss-purgecss": "3.0.0",
-    "@tailwindcss/postcss7-compat": "^2.1.0",
-    "autoprefixer": "^9",
     "parcel-bundler": "^1.12.5",
     "postcss": "^7",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat"
