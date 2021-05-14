@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ruby2_keywords"
+
 module RubyEventStore
   class InstrumentedRepository
     def initialize(repository, instrumentation)
@@ -23,14 +25,6 @@ module RubyEventStore
       instrumentation.instrument("delete_stream.repository.rails_event_store", stream: stream) do
         repository.delete_stream(stream)
       end
-    end
-
-    def has_event?(event_id)
-      repository.has_event?(event_id)
-    end
-
-    def last_stream_event(stream)
-      repository.last_stream_event(stream)
     end
 
     def read(specification)
@@ -57,9 +51,9 @@ module RubyEventStore
       end
     end
 
-    def method_missing(method_name, *arguments, **keywords, &block)
+    ruby2_keywords def method_missing(method_name, *arguments, &block)
       if respond_to?(method_name)
-        repository.public_send(method_name, *arguments, **keywords, &block)
+        repository.public_send(method_name, *arguments, &block)
       else
         super
       end

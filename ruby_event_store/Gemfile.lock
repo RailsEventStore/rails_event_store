@@ -3,6 +3,7 @@ PATH
   specs:
     ruby_event_store (2.2.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
+      ruby2_keywords
 
 GEM
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
@@ -52,6 +53,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
+    ruby2_keywords (0.0.4)
     thread_safe (0.3.6)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ruby2_keywords"
+
 module RubyEventStore
   class InstrumentedDispatcher
     def initialize(dispatcher, instrumentation)
@@ -13,13 +15,9 @@ module RubyEventStore
       end
     end
 
-    def verify(subscriber)
-      dispatcher.verify(subscriber)
-    end
-
-    def method_missing(method_name, *arguments, **keywords, &block)
+    ruby2_keywords def method_missing(method_name, *arguments, &block)
       if respond_to?(method_name)
-        dispatcher.public_send(method_name, *arguments, **keywords, &block)
+        dispatcher.public_send(method_name, *arguments, &block)
       else
         super
       end
