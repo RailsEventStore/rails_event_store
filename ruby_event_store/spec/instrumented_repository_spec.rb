@@ -196,10 +196,13 @@ module RubyEventStore
     end
 
     specify "method unknown by instrumentation and unknown by repository" do
-      some_repository = double("Some repository")
+      some_repository = InMemoryRepository.new
       instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
       expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
+      expect do
+        instrumented_repository.arbitrary_method_name
+      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name' for #<RubyEventStore::InstrumentedRepository:/)
     end
 
     def subscribe_to(name)

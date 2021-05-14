@@ -58,7 +58,11 @@ module RubyEventStore
     end
 
     def method_missing(method_name, *arguments, **keywords, &block)
-      repository.public_send(method_name, *arguments, **keywords, &block)
+      if respond_to?(method_name)
+        repository.public_send(method_name, *arguments, **keywords, &block)
+      else
+        super
+      end
     end
 
     def respond_to_missing?(method_name, _include_private)
