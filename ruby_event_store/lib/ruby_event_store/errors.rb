@@ -12,6 +12,7 @@ module RubyEventStore
   EventDuplicatedInStream   = Class.new(Error)
   ReservedInternalName      = Class.new(Error)
   InvalidHandler            = Class.new(Error)
+  EventNotFoundInStream     = Class.new(Error)
 
   class EventNotFound < Error
     attr_reader :event_id

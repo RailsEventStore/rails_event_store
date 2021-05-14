@@ -968,5 +968,13 @@ module RubyEventStore
       event = listener.value
       expect(event.event_id).to eq("8d69cc2b-c6c5-4494-99f6-954c7f583477")
     end
+
+    describe "#position_in_stream" do
+      specify do
+        client.publish(fact0 = OrderCreated.new, expected_version: :auto, stream_name: "SomeStream")
+
+        expect(client.position_in_stream(fact0.event_id, "SomeStream")).to eq(0)
+      end
+    end
   end
 end

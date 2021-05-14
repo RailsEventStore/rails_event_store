@@ -58,6 +58,10 @@ module RubyEventStore
     def rescuable_concurrency_test_errors
       []
     end
+
+    def supports_position_queries?
+      true
+    end
   end
 end
 
@@ -672,6 +676,14 @@ module RubyEventStore
       repository.delete_stream(stream)
       expect(repository.has_event?(just_an_id)).to be_truthy
       expect(repository.has_event?(just_an_id.clone)).to be_truthy
+    end
+
+    it '#position_in_stream happy path' do
+      skip unless helper.supports_position_queries?
+      just_an_id = 'd5c134c2-db65-4e87-b6ea-d196f8f1a292'
+      repository.append_to_stream([SRecord.new(event_id: just_an_id)], stream, version_auto)
+
+      expect(repository.position_in_stream(just_an_id, stream.name)).to eq(0)
     end
 
     it 'knows last event in stream' do
