@@ -94,6 +94,19 @@ module RubyEventStore
       repository.streams_of(event_id)
     end
 
+    # Gets position of the event in given stream
+    #
+    # The position is always nonnegative.
+    # Raise error if event is not present in stream.
+    #
+    # @param event_id [String]
+    # @param stream_name [String]
+    # @return [Integer] nonnegative integer position of event in stream
+    # @raise [EventNotInStream]
+    def position_in_stream(event_id, stream_name)
+      repository.position_in_stream(event_id, stream_name)
+    end
+
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
     #
     # @overload subscribe(subscriber, to:)

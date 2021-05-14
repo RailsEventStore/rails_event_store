@@ -102,6 +102,10 @@ module RubyEventStore
         .map    { |name,| Stream.new(name) }
     end
 
+    def position_in_stream(event_id, stream_name)
+      streams[stream_name].index(event_id)
+    end
+
     private
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)
