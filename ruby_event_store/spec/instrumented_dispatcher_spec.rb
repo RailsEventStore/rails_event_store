@@ -48,6 +48,28 @@ module RubyEventStore
       end
     end
 
+    specify "method unknown by instrumentation but known by dispatcher" do
+      some_dispatcher = double("Some dispatcher", custom_method: 42)
+      instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
+      block = -> { "block" }
+      instrumented_dispatcher.custom_method("arg", keyword: "keyarg", &block)
+
+      expect(instrumented_dispatcher).to respond_to(:custom_method)
+      expect(some_dispatcher).to have_received(:custom_method).with("arg", keyword: "keyarg") do |&received_block|
+        expect(received_block).to be(block)
+      end
+    end
+
+    specify "method unknown by instrumentation and unknown by dispatcher" do
+      some_dispatcher = Dispatcher.new
+      instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
+
+      expect(instrumented_dispatcher).not_to respond_to(:arbitrary_method_name)
+      expect do
+        instrumented_dispatcher.arbitrary_method_name
+      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name' for #<RubyEventStore::InstrumentedDispatcher:/)
+    end
+
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
