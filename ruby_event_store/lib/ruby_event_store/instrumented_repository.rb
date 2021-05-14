@@ -57,6 +57,14 @@ module RubyEventStore
       end
     end
 
+    def method_missing(method_name, *arguments, **keywords, &block)
+      repository.public_send(method_name, *arguments, **keywords, &block)
+    end
+
+    def respond_to_missing?(method_name, _include_private)
+      repository.respond_to?(method_name)
+    end
+
     private
     attr_reader :repository, :instrumentation
   end

@@ -183,6 +183,25 @@ module RubyEventStore
       end
     end
 
+    specify "method unknown by instrumentation but known by repository" do
+      some_repository = double("Some repository", custom_method: 42)
+      instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+      block = -> { "block" }
+      instrumented_repository.custom_method("arg", keyword: "keyarg", &block)
+
+      expect(instrumented_repository).to respond_to(:custom_method)
+      expect(some_repository).to have_received(:custom_method).with("arg", keyword: "keyarg") do |&received_block|
+        expect(received_block).to be(block)
+      end
+    end
+
+    specify "method unknown by instrumentation and unknown by repository" do
+      some_repository = double("Some repository")
+      instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+
+      expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
+    end
+
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
