@@ -3,6 +3,14 @@
 require 'ostruct'
 module RubyEventStore
   class InMemoryRepository
+    class EventInStream
+      def initialize(event_id, position)
+        @event_id = event_id
+        @position = position
+      end
+
+      attr_reader :event_id, :position
+    end
 
     def initialize(serializer: NULL)
       @serializer = serializer
@@ -17,10 +25,10 @@ module RubyEventStore
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
-        serialized_records.each do |serialized_record|
+        serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
           storage[serialized_record.event_id] = serialized_record
-          streams[stream.name] << serialized_record.event_id
+          streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
         end
       end
       self
@@ -32,9 +40,9 @@ module RubyEventStore
       with_synchronize(expected_version, stream) do |resolved_version|
         raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
 
-        serialized_records.each do |serialized_record|
+        serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
-          streams[stream.name] << serialized_record.event_id
+          streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
         end
       end
       self
@@ -103,9 +111,9 @@ module RubyEventStore
     end
 
     def position_in_stream(event_id, stream_name)
-      index = streams[stream_name].index(event_id)
-      raise EventNotFoundInStream if index.nil?
-      index
+      event_in_stream = streams[stream_name].find {|event_in_stream| event_in_stream.event_id == event_id }
+      raise EventNotFoundInStream if event_in_stream.nil?
+      event_in_stream.position
     end
 
     private
@@ -130,7 +138,7 @@ module RubyEventStore
     end
 
     def event_ids_of_stream(stream)
-      streams.fetch(stream.name, Array.new)
+      streams.fetch(stream.name, Array.new).map(&:event_id)
     end
 
     def serialized_records_of_stream(stream)
@@ -170,11 +178,17 @@ module RubyEventStore
     end
 
     def has_event_in_stream?(event_id, stream_name)
-      streams.fetch(stream_name, Array.new).any? { |id| id.eql?(event_id) }
+      streams.fetch(stream_name, Array.new).any? { |event_in_stream| event_in_stream.event_id.eql?(event_id) }
     end
 
     def index_of(source, event_id)
       source.index {|item| item.event_id.eql?(event_id)}
+    end
+
+    def compute_position(resolved_version, index)
+      unless resolved_version.nil?
+        resolved_version + index + 1
+      end
     end
 
     attr_reader :streams, :mutex, :storage, :serializer
