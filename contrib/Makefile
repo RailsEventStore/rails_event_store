@@ -1,10 +1,12 @@
-GEMS = ruby_event_store-outbox \
+GEMS = minitest-ruby_event_store \
+       ruby_event_store-flipper \
+       ruby_event_store-newrelic \
+       ruby_event_store-outbox \
+       ruby_event_store-profiler \
        ruby_event_store-protobuf \
        ruby_event_store-rom \
-       ruby_event_store-transformations \
-       ruby_event_store-newrelic \
-       ruby_event_store-profiler \
-       minitest-ruby_event_store
+       ruby_event_store-sidekiq_scheduler \
+       ruby_event_store-transformations
 
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
