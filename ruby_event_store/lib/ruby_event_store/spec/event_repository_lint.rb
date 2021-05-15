@@ -680,10 +680,28 @@ module RubyEventStore
 
     it '#position_in_stream happy path' do
       skip unless helper.supports_position_queries?
-      just_an_id = 'd5c134c2-db65-4e87-b6ea-d196f8f1a292'
-      repository.append_to_stream([SRecord.new(event_id: just_an_id)], stream, version_auto)
+      repository.append_to_stream([
+        event0 = SRecord.new,
+        event1 = SRecord.new
+      ], stream, version_auto)
 
-      expect(repository.position_in_stream(just_an_id, stream.name)).to eq(0)
+      expect(repository.position_in_stream(event0.event_id, stream.name)).to eq(0)
+      expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(1)
+    end
+
+    it '#position_in_stream happy path with linking' do
+      skip unless helper.supports_position_queries?
+      repository.append_to_stream([
+        event0 = SRecord.new,
+        event1 = SRecord.new
+      ], stream_other, version_auto)
+      repository.link_to_stream([
+        event0.event_id,
+        event1.event_id,
+      ], stream, version_auto)
+
+      expect(repository.position_in_stream(event0.event_id, stream.name)).to eq(0)
+      expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(1)
     end
 
     it '#position_in_stream when event is not in the stream' do
@@ -693,6 +711,14 @@ module RubyEventStore
       expect do
         repository.position_in_stream(just_an_id, stream.name)
       end.to raise_error(EventNotFoundInStream)
+    end
+
+    it '#position_in_stream when event is published without position' do
+      skip unless helper.supports_position_queries?
+      repository.append_to_stream([event0 = SRecord.new], stream, version_auto)
+      repository.append_to_stream([event1 = SRecord.new], stream, version_any)
+
+      expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(nil)
     end
 
     it 'knows last event in stream' do

@@ -97,6 +97,7 @@ module RubyEventStore
     # Gets position of the event in given stream
     #
     # The position is always nonnegative.
+    # Returns nil if the event has no specific position in stream.
     # Raise error if event is not present in stream.
     #
     # @param event_id [String]

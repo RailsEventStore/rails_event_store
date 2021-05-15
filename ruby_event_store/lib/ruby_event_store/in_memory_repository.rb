@@ -28,7 +28,7 @@ module RubyEventStore
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
           storage[serialized_record.event_id] = serialized_record
-          streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
+          add_to_stream(stream, serialized_record, resolved_version, index)
         end
       end
       self
@@ -42,7 +42,7 @@ module RubyEventStore
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
-          streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
+          add_to_stream(stream, serialized_record, resolved_version, index)
         end
       end
       self
@@ -111,7 +111,7 @@ module RubyEventStore
     end
 
     def position_in_stream(event_id, stream_name)
-      event_in_stream = streams[stream_name].find {|event_in_stream| event_in_stream.event_id == event_id }
+      event_in_stream = streams[stream_name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }
       raise EventNotFoundInStream if event_in_stream.nil?
       event_in_stream.position
     end
@@ -188,6 +188,10 @@ module RubyEventStore
       unless resolved_version.nil?
         resolved_version + index + 1
       end
+    end
+
+    def add_to_stream(stream, serialized_record, resolved_version, index)
+      streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
     end
 
     attr_reader :streams, :mutex, :storage, :serializer
