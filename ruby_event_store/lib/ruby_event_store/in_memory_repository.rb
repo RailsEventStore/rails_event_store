@@ -23,7 +23,7 @@ module RubyEventStore
       serialized_records = records.map { |record| record.serialize(serializer) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
+        raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
@@ -38,7 +38,7 @@ module RubyEventStore
       serialized_records = event_ids.map { |id| read_event(id) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        raise WrongExpectedEventVersion unless last_stream_version(stream).equal?(resolved_version)
+        raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
@@ -172,7 +172,6 @@ module RubyEventStore
       # not for the whole read+write algorithm.
       Thread.pass
       mutex.synchronize do
-        resolved_version = last_stream_version(stream) if expected_version.any?
         block.call(resolved_version)
       end
     end
