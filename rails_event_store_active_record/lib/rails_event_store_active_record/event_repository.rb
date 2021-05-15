@@ -71,6 +71,12 @@ module RailsEventStoreActiveRecord
         .map { |name| RubyEventStore::Stream.new(name) }
     end
 
+    def position_in_stream(event_id, stream_name)
+      record = @stream_klass.select('position').find_by(event_id: event_id)
+      raise RubyEventStore::EventNotFoundInStream if record.nil?
+      record.position
+    end
+
     private
     attr_reader :serializer
 
