@@ -3,6 +3,7 @@ PATH
   specs:
     ruby_event_store (2.2.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
+      ruby2_keywords
 
 PATH
   remote: .
@@ -171,6 +172,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
+    ruby2_keywords (0.0.4)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
