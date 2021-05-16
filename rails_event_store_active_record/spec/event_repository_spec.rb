@@ -503,6 +503,17 @@ module RailsEventStoreActiveRecord
       expect(batches[1]).to eq([events[100]])
     end
 
+    specify do
+      repository.append_to_stream([
+        event0 = RubyEventStore::SRecord.new,
+        event1 = RubyEventStore::SRecord.new,
+      ], stream = RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
+
+      expect_query(/SELECT "event_store_events_in_streams"."position" FROM "event_store_events_in_streams".*/) do
+        repository.position_in_stream(event0.event_id, stream)
+      end
+    end
+
     def with_precision(time)
       time.round(RubyEventStore::TIMESTAMP_PRECISION)
     end
