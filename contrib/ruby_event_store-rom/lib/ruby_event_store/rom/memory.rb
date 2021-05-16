@@ -87,6 +87,10 @@ module RubyEventStore
           !ENV['DATA_TYPE'] =~ /json/
         end
 
+        def supports_position_queries?
+          true
+        end
+
         def rescuable_concurrency_test_errors
           []
         end
