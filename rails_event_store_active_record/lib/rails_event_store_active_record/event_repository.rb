@@ -77,6 +77,12 @@ module RailsEventStoreActiveRecord
       record.position
     end
 
+    def global_position(event_id)
+      record = @event_klass.select('id').find_by(event_id: event_id)
+      raise RubyEventStore::EventNotFound.new(event_id) if record.nil?
+      record.id
+    end
+
     private
     attr_reader :serializer
 
