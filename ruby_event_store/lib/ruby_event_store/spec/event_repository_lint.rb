@@ -694,14 +694,16 @@ module RubyEventStore
       repository.append_to_stream([
         event0 = SRecord.new,
         event1 = SRecord.new
-      ], stream_other, version_auto)
-      repository.link_to_stream([
-        event0.event_id,
-        event1.event_id,
       ], stream, version_auto)
+      repository.link_to_stream([
+        event1.event_id,
+        event0.event_id,
+      ], stream_other, version_auto)
 
       expect(repository.position_in_stream(event0.event_id, stream.name)).to eq(0)
       expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(1)
+      expect(repository.position_in_stream(event1.event_id, stream_other.name)).to eq(0)
+      expect(repository.position_in_stream(event0.event_id, stream_other.name)).to eq(1)
     end
 
     it '#position_in_stream when event is not in the stream' do
