@@ -735,6 +735,18 @@ module RubyEventStore
       expect(repository.global_position(event0.event_id)).to be < repository.global_position(event1.event_id)
     end
 
+    it '#global_position for not existing event' do
+      skip unless helper.supports_position_queries?
+      just_an_id = 'd5c134c2-db65-4e87-b6ea-d196f8f1a292'
+
+      expect do
+        repository.global_position(just_an_id)
+      end.to raise_error do |err|
+        expect(err).to be_a(EventNotFound)
+        expect(err.event_id).to eq(just_an_id)
+      end
+    end
+
     it 'knows last event in stream' do
       repository.append_to_stream([a =SRecord.new(event_id: '00000000-0000-0000-0000-000000000001')], stream, version_none)
       repository.append_to_stream([b = SRecord.new(event_id: '00000000-0000-0000-0000-000000000002')], stream, version_0)

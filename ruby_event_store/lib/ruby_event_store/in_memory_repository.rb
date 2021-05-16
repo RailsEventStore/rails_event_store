@@ -112,7 +112,7 @@ module RubyEventStore
             timestamp:  Time.iso8601(storage.fetch(record.event_id).record.timestamp),
             valid_at:   record.valid_at,
           ).serialize(serializer)
-        storage[record.event_id].record = serialized_record
+        storage.fetch(record.event_id).record = serialized_record
       end
     end
 

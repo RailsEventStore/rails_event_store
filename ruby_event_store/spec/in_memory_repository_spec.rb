@@ -47,5 +47,28 @@ module RubyEventStore
         )
       end.to raise_error(RubyEventStore::EventDuplicatedInStream)
     end
+
+    it 'global position starts at 1' do
+      repository.append_to_stream(
+        [SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
+        Stream.new('other'),
+        ExpectedVersion.none
+      )
+
+      expect(repository.global_position(eid)).to eq(1)
+    end
+
+    it 'global position increments by 1' do
+      repository.append_to_stream(
+        [
+          SRecord.new(event_id: eid1 = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
+          SRecord.new(event_id: eid2 = "0b81c542-7fef-47a1-9d81-f45915d74e9b"),
+        ],
+        Stream.new('other'),
+        ExpectedVersion.none
+      )
+
+      expect(repository.global_position(eid2)).to eq(2)
+    end
   end
 end
