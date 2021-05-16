@@ -128,6 +128,10 @@ module RubyEventStore
       event_in_stream.position
     end
 
+    def global_position(event_id)
+      storage.fetch(event_id) { raise EventNotFound.new(event_id) }.global_position
+    end
+
     private
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)
