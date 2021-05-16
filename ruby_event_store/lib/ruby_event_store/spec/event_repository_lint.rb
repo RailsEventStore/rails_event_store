@@ -723,6 +723,18 @@ module RubyEventStore
       expect(repository.position_in_stream(event1.event_id, stream)).to eq(nil)
     end
 
+    it '#global_position happy path' do
+      skip unless helper.supports_position_queries?
+      repository.append_to_stream([
+        event0 = SRecord.new,
+        event1 = SRecord.new
+      ], stream, version_any)
+
+      expect(repository.global_position(event0.event_id)).to be >= 0
+      expect(repository.global_position(event1.event_id)).to be >= 0
+      expect(repository.global_position(event0.event_id)).to be < repository.global_position(event1.event_id)
+    end
+
     it 'knows last event in stream' do
       repository.append_to_stream([a =SRecord.new(event_id: '00000000-0000-0000-0000-000000000001')], stream, version_none)
       repository.append_to_stream([b = SRecord.new(event_id: '00000000-0000-0000-0000-000000000002')], stream, version_0)

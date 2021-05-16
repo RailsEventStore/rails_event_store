@@ -108,6 +108,19 @@ module RubyEventStore
       repository.position_in_stream(event_id, Stream.new(stream_name))
     end
 
+    # Gets position of the event in global stream
+    #
+    # The position is always nonnegative.
+    # Global position may have gaps, meaning, there may be event at
+    # position 40, but no event at position 39.
+    #
+    # @param event_id [String]
+    # @raise [EventNotFound]
+    # @return [Integer] nonnegno ative integer position of event in global stream
+    def global_position(event_id)
+      repository.global_position(event_id)
+    end
+
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
     #
     # @overload subscribe(subscriber, to:)
