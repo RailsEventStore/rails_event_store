@@ -62,6 +62,12 @@ module RubyEventStore
           query.count
         end
 
+        def global_position(event_id)
+          record = events.by_event_id(event_id).one
+          raise EventNotFound.new(event_id) if record.nil?
+          record.id
+        end
+
         protected
 
         def read_scope(specification)
