@@ -110,8 +110,8 @@ module RubyEventStore
         .map    { |name,| Stream.new(name) }
     end
 
-    def position_in_stream(event_id, stream_name)
-      event_in_stream = streams[stream_name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }
+    def position_in_stream(event_id, stream)
+      event_in_stream = streams[stream.name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }
       raise EventNotFoundInStream if event_in_stream.nil?
       event_in_stream.position
     end

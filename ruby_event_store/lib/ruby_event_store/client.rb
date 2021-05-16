@@ -105,7 +105,7 @@ module RubyEventStore
     # @return [Integer] nonnegative integer position of event in stream
     # @raise [EventNotInStream]
     def position_in_stream(event_id, stream_name)
-      repository.position_in_stream(event_id, stream_name)
+      repository.position_in_stream(event_id, Stream.new(stream_name))
     end
 
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.

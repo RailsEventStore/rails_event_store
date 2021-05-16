@@ -48,10 +48,6 @@ module RubyEventStore
             restrict(stream: stream.name)
           end
 
-          def by_stream_name(stream_name)
-            restrict(stream: stream_name)
-          end
-
           def by_event_id(event_id)
             restrict(event_id: event_id)
           end

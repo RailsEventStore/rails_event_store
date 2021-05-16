@@ -685,8 +685,8 @@ module RubyEventStore
         event1 = SRecord.new
       ], stream, version_auto)
 
-      expect(repository.position_in_stream(event0.event_id, stream.name)).to eq(0)
-      expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(1)
+      expect(repository.position_in_stream(event0.event_id, stream)).to eq(0)
+      expect(repository.position_in_stream(event1.event_id, stream)).to eq(1)
     end
 
     it '#position_in_stream happy path with linking' do
@@ -700,10 +700,10 @@ module RubyEventStore
         event0.event_id,
       ], stream_other, version_auto)
 
-      expect(repository.position_in_stream(event0.event_id, stream.name)).to eq(0)
-      expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(1)
-      expect(repository.position_in_stream(event1.event_id, stream_other.name)).to eq(0)
-      expect(repository.position_in_stream(event0.event_id, stream_other.name)).to eq(1)
+      expect(repository.position_in_stream(event0.event_id, stream)).to eq(0)
+      expect(repository.position_in_stream(event1.event_id, stream)).to eq(1)
+      expect(repository.position_in_stream(event1.event_id, stream_other)).to eq(0)
+      expect(repository.position_in_stream(event0.event_id, stream_other)).to eq(1)
     end
 
     it '#position_in_stream when event is not in the stream' do
@@ -711,7 +711,7 @@ module RubyEventStore
       just_an_id = 'd5c134c2-db65-4e87-b6ea-d196f8f1a292'
 
       expect do
-        repository.position_in_stream(just_an_id, stream.name)
+        repository.position_in_stream(just_an_id, stream)
       end.to raise_error(EventNotFoundInStream)
     end
 
@@ -720,7 +720,7 @@ module RubyEventStore
       repository.append_to_stream([event0 = SRecord.new], stream, version_auto)
       repository.append_to_stream([event1 = SRecord.new], stream, version_any)
 
-      expect(repository.position_in_stream(event1.event_id, stream.name)).to eq(nil)
+      expect(repository.position_in_stream(event1.event_id, stream)).to eq(nil)
     end
 
     it 'knows last event in stream' do
