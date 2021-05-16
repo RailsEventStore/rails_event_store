@@ -63,8 +63,8 @@ module RubyEventStore
         self
       end
 
-      def position_in_stream(event_id, stream_name)
-        @stream_entries.position_in_stream(event_id, stream_name)
+      def position_in_stream(event_id, stream)
+        @stream_entries.position_in_stream(event_id, stream)
       end
 
       def delete_stream(stream)

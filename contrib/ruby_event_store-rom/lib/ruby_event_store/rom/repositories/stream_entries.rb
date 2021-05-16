@@ -39,8 +39,8 @@ module RubyEventStore
           stream_entries.by_event_id(event_id).map { |e| e[:stream] }
         end
 
-        def position_in_stream(event_id, stream_name)
-          record = stream_entries.by_stream_name(stream_name).by_event_id(event_id).one
+        def position_in_stream(event_id, stream)
+          record = stream_entries.by_stream(stream).by_event_id(event_id).one
           raise EventNotFoundInStream if record.nil?
           record.position
         end
