@@ -439,7 +439,7 @@ module RailsEventStoreActiveRecord
     specify 'no valid-at storage optimization when different from created-at' do
       repository.append_to_stream(
         [RubyEventStore::SRecord.new(
-          timestamp: t1 = with_precision(Time.at(0)), 
+          timestamp: t1 = with_precision(Time.at(0)),
           valid_at:  t2 = with_precision(Time.at(1))
         )],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
