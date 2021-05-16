@@ -23,6 +23,10 @@ module RubyEventStore
             where(stream: stream.name)
           end
 
+          def by_stream_name(stream_name)
+            where(stream: stream_name)
+          end
+
           def by_event_id(event_id)
             where(event_id: event_id)
           end
