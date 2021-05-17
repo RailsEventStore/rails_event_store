@@ -509,7 +509,7 @@ module RailsEventStoreActiveRecord
         event1 = RubyEventStore::SRecord.new,
       ], stream = RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
 
-      expect_query(/SELECT "event_store_events_in_streams"."position" FROM "event_store_events_in_streams".*/) do
+      expect_query(/SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/) do
         repository.position_in_stream(event0.event_id, stream)
       end
     end
