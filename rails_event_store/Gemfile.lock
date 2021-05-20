@@ -150,7 +150,7 @@ GEM
       mutant (= 0.10.31)
       rspec-core (>= 3.8.0, < 4.0.0)
     nio4r (2.5.7)
-    nokogiri (1.11.3)
+    nokogiri (1.11.5)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     parser (3.0.1.1)
