@@ -9,6 +9,12 @@
   RUBY_VERSION = "2.6.2"
 
 [[redirects]]
+  from = "http://www.railseventstore.org/*"
+  to = "https://railseventstore.org/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/docs/*"
   to = "/docs/v2/:splat"
   status = 301
@@ -19,3 +25,4 @@
   to = "https://raw.githubusercontent.com/RailsEventStore/rails_event_store/master/APP_TEMPLATE"
   status = 301
   force = false
+
