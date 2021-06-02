@@ -179,7 +179,7 @@ module RubyEventStore
       ])).to eq(Set.new([klass.new(event_id: "doh")]))
 
       expect(klass.new(event_id: "doh").hash).not_to eq([
-        klass,
+        klass.name,
         "doh",
         {}
       ].hash)
@@ -194,6 +194,12 @@ module RubyEventStore
     specify "allow overriding event type, when event class not to be found" do
       event = Event.new(metadata: { event_type: "Doh" })
       expect(event.event_type).to eq("Doh")
+    end
+
+    specify "compare generic with non-generic events" do
+      non_generic = Test::TestCreated.new(data: {yes: :no})
+      generic     = Event.new(event_id: non_generic.event_id, data: {yes: :no}, metadata: {event_type: "Test::TestCreated"})
+      expect(non_generic).to eq(generic)
     end
 
     it_behaves_like :correlatable, Event
