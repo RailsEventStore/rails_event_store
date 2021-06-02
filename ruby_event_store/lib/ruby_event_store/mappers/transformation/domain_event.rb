@@ -21,11 +21,21 @@ module RubyEventStore
         def load(record)
           Object.const_get(record.event_type).new(
             event_id: record.event_id,
+            data:     record.data,
             metadata: record.metadata.merge(
               timestamp: record.timestamp,
-              valid_at: record.valid_at,
+              valid_at:  record.valid_at,
             ),
+          )
+        rescue NameError
+          Event.new(
+            event_id: record.event_id,
             data:     record.data,
+            metadata: record.metadata.merge(
+              timestamp:  record.timestamp,
+              valid_at:   record.valid_at,
+              event_type: record.event_type,
+            ),
           )
         end
       end

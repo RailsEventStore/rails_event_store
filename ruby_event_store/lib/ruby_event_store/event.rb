@@ -31,7 +31,7 @@ module RubyEventStore
     # Type of event. Used when matching with subscribed handlers.
     # @return [String]
     def event_type
-      self.class.name
+      metadata[:event_type] || self.class.name
     end
 
     # Timestamp from metadata

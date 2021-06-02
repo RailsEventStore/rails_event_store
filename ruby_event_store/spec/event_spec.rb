@@ -191,6 +191,11 @@ module RubyEventStore
       end.to raise_error(ArgumentError)
     end
 
+    specify "allow overriding event type, when event class not to be found" do
+      event = Event.new(metadata: { event_type: "Doh" })
+      expect(event.event_type).to eq("Doh")
+    end
+
     it_behaves_like :correlatable, Event
   end
 
