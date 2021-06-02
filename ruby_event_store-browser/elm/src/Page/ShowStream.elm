@@ -23,7 +23,12 @@ type alias Model =
     , streamName : String
     , flags : Flags
     , relatedStreams : Maybe (List String)
+    , problems : List Problem
     }
+
+
+type Problem
+    = ServerError String
 
 
 initModel : Flags -> String -> Model
@@ -32,6 +37,7 @@ initModel flags streamName =
     , events = Api.emptyPaginatedList
     , relatedStreams = Nothing
     , flags = flags
+    , problems = []
     }
 
 
@@ -59,23 +65,49 @@ update msg model =
         EventsFetched (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
-        EventsFetched (Err errorMessage) ->
-            ( model, Cmd.none )
+        EventsFetched (Err _) ->
+            let
+                serverErrors =
+                    [ ServerError "Server error, please check backend logs for details" ]
+            in
+            ( { model | problems = serverErrors }, Cmd.none )
 
         StreamFetched (Ok streamResource) ->
             ( { model | relatedStreams = streamResource.relatedStreams }, Api.getEvents EventsFetched streamResource.eventsRelationshipLink )
 
-        StreamFetched (Err errorMessage) ->
-            ( model, Cmd.none )
-
-
-
--- VIEW
+        StreamFetched (Err _) ->
+            let
+                serverErrors =
+                    [ ServerError "Server error, please check backend logs for details" ]
+            in
+            ( { model | problems = serverErrors }, Cmd.none )
 
 
 view : Model -> ( String, Html Msg )
-view model =
-    ( "Stream " ++ model.streamName, browseEvents model.flags.rootUrl ("Events in " ++ model.streamName) model.events model.relatedStreams )
+view { streamName, events, relatedStreams, problems, flags } =
+    let
+        title =
+            "Stream " ++ streamName
+
+        header =
+            "Events in " ++ streamName
+    in
+    case problems of
+        [] ->
+            ( title
+            , browseEvents flags.rootUrl header events relatedStreams
+            )
+
+        _ ->
+            ( title
+            , div [ class "py-8" ]
+                [ div [ class "px-8" ]
+                    [ ul
+                        [ class "flex items-center justify-center py-24" ]
+                        (List.map viewProblem problems)
+                    ]
+                ]
+            )
 
 
 browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
@@ -86,6 +118,17 @@ browseEvents baseUrl title { links, events } relatedStreams =
         , div [ class "px-8" ] [ renderResults baseUrl events ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
+
+
+viewProblem : Problem -> Html msg
+viewProblem problem =
+    let
+        errorMessage =
+            case problem of
+                ServerError str ->
+                    str
+    in
+    li [] [ text errorMessage ]
 
 
 renderRelatedStreams : Url.Url -> Maybe (List String) -> Html Msg
