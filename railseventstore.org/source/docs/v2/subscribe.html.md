@@ -194,7 +194,7 @@ end
 
 ## Subscribe for all event types
 
-You can also subscribe for all event types at once. It is especially useful for logging or debugging events. Use `subscribe_to_all_events(subsriber1, to:, &subscriber2)` method for that.
+You can also subscribe for all event types at once. It is especially useful for logging or debugging events. Use `subscribe_to_all_events(subsriber1, &subscriber2)` method for that.
 
 ```ruby
 class EventsLogger
