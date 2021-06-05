@@ -99,7 +99,7 @@ end
 
 my_event = event_store.read.last
 my_event.metadata[:remote_ip]      #=> your IP from request metadata proc
-my_event.metadata[:request_id      #=> unique ID from request metadata proc
+my_event.metadata[:request_id]     #=> unique ID from request metadata proc
 my_event.metadata[:causation_id]   #=> 1234567890 from with_metadata argument
 my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
 my_event.metadata[:timestamp]      #=> a timestamp
