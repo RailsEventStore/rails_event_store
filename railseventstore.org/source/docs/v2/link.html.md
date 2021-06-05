@@ -38,7 +38,7 @@ order.place
 
 Now imagine you'd like to see in one place all facts about placed orders in Jan 2018. This can be done processing all events collected so far in the event store. Each time you want such report, it runs from beginning — filtering irrelevant events out.
 
-For repeated use it would be much better process events only once and store them in some sort of a collection — the stream:
+For repeated use it would be much better to process events only once and store them in some sort of a collection — the stream:
 
 ```ruby
 order_placed = RailsEventStore::Projection
