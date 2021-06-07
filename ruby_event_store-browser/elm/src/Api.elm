@@ -3,7 +3,7 @@ module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, Remo
 import Flags exposing (Flags)
 import Http
 import Iso8601
-import Json.Decode exposing (Decoder, Value, at, field, list, maybe, nullable, oneOf, string, succeed, value)
+import Json.Decode exposing (Decoder, field, list, maybe, string, succeed, value)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
 import Time

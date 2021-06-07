@@ -3,12 +3,9 @@ module Page.ShowStream exposing (Model, Msg(..), initCmd, initModel, update, vie
 import Api
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href, placeholder)
+import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, Value, at, field, list, maybe, oneOf, string, succeed, value)
-import Json.Decode.Pipeline exposing (optional, required, requiredAt)
-import Json.Encode exposing (encode)
 import Route
 import TimeHelpers exposing (formatTimestamp)
 import Url
