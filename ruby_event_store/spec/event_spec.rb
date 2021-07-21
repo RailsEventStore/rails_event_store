@@ -154,6 +154,12 @@ module RubyEventStore
     specify "#hash" do
       expect(Event.new(event_id: "doh").hash).to eq(Event.new(event_id: "doh").hash)
       expect(Event.new(event_id: "doh").hash).not_to eq(Event.new(event_id: "bye").hash)
+      expect(Event.new(event_id: "doh").hash).not_to eq(Event.new(event_id: "doh", metadata: {event_type: "doh"}).hash)
+      expect(
+        Class.new(Event).new(event_id: "doh", metadata: {event_type: "doh"}).hash
+      ).not_to eq(
+        Event.new(event_id: "doh", metadata: {event_type: "doh"}).hash
+      )
 
       expect(
         Event.new(event_id: "doh", data: {}).hash
@@ -180,6 +186,7 @@ module RubyEventStore
 
       expect(klass.new(event_id: "doh").hash).not_to eq([
         klass,
+        klass.new.event_type,
         "doh",
         {}
       ].hash)
@@ -196,7 +203,15 @@ module RubyEventStore
       expect(event.event_type).to eq("Doh")
     end
 
-    it_behaves_like :correlatable, Event
+    specify do
+      event_id = SecureRandom.uuid
+      one = Event.new(event_id: event_id, data: {yes: :no}, metadata: {event_type: "one"})
+      two = Event.new(event_id: event_id, data: {yes: :no}, metadata: {event_type: "two"})
+      expect(one).not_to eq(two)
+    end
+
+
+  it_behaves_like :correlatable, Event
   end
 
 end

@@ -50,6 +50,7 @@ module RubyEventStore
 
     # Two events are equal if:
     # * they are of the same class
+    # * have identical event type
     # * have identical event id
     # * have identical data (verified with eql? method)
     #
@@ -59,6 +60,7 @@ module RubyEventStore
     # @return [TrueClass, FalseClass]
     def ==(other_event)
       other_event.instance_of?(self.class) &&
+        other_event.event_type.eql?(event_type) &&
         other_event.event_id.eql?(event_id) &&
         other_event.data.eql?(data)
     end
@@ -80,6 +82,7 @@ module RubyEventStore
       # We don't use metadata because == does not use metadata
       [
         self.class,
+        event_type,
         event_id,
         data
       ].hash ^ BIG_VALUE
