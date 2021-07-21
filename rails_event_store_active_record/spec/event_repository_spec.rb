@@ -514,6 +514,17 @@ module RailsEventStoreActiveRecord
       end
     end
 
+    specify do
+      repository.append_to_stream(
+        [event = RubyEventStore::SRecord.new],
+        RubyEventStore::Stream.new('stream'),
+        RubyEventStore::ExpectedVersion.any
+      )
+      expect_query(/SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/) do
+        repository.global_position(event.event_id)
+      end
+    end
+
     def with_precision(time)
       time.round(RubyEventStore::TIMESTAMP_PRECISION)
     end
