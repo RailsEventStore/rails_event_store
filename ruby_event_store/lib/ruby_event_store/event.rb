@@ -58,11 +58,9 @@ module RubyEventStore
     # Event equality ignores metadata!
     # @return [TrueClass, FalseClass]
     def ==(other_event)
-      %i[
-        event_type
-        event_id
-        data
-      ].all? { |k| other_event.respond_to?(k) && other_event.public_send(k).eql?(public_send(k)) }
+      other_event.instance_of?(self.class) &&
+        other_event.event_id.eql?(event_id) &&
+        other_event.data.eql?(data)
     end
 
     # @private
@@ -81,7 +79,7 @@ module RubyEventStore
     def hash
       # We don't use metadata because == does not use metadata
       [
-        event_type,
+        self.class,
         event_id,
         data
       ].hash ^ BIG_VALUE
