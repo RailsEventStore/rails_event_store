@@ -14,6 +14,12 @@ Add to your gemfile in application:
 gem "ruby_event_store-outbox"
 ```
 
+Generate and execute the migration adding necessary tables. If it's needed, change the type of the `payload` column to `mediumbinary` or `longbinary`.
+
+```
+bin/rails generate ruby_event_store:outbox:migration
+```
+
 In your event store configuration, as a dispatcher use `RubyEventStore::ImmediateAsyncDispatcher` with `RubyEventStore::Outbox::SidekiqScheduler`, for example:
 
 ```ruby
