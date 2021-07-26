@@ -23,7 +23,7 @@ module RubyEventStore
       attr_reader :event_id, :position
     end
 
-    def initialize(serializer: NULL, ensure_supported_any_usage: false)
+    def initialize(serializer: NULL, ensure_supported_any_usage: true)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex = Mutex.new
