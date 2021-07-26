@@ -140,13 +140,5 @@ module RubyEventStore
         repository.append_to_stream([event1 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
       end.not_to raise_error
     end
-
-    it "stream position verification is turned off by default" do
-      repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-
-      expect do
-        repository.append_to_stream([event1 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.not_to raise_error
-    end
   end
 end
