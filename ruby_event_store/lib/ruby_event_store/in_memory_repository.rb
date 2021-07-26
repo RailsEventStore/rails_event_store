@@ -37,14 +37,7 @@ module RubyEventStore
       serialized_records = records.map { |record| record.serialize(serializer) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        if @verify_incorrect_any_usage
-          stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
-          if resolved_version.nil?
-            raise UnsupportedVersionAnyUsage if !stream_positions.compact.empty?
-          else
-            raise UnsupportedVersionAnyUsage if stream_positions.include?(nil)
-          end
-        end
+        verify_incorrect_any_usage(resolved_version, stream)
         raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
@@ -61,14 +54,7 @@ module RubyEventStore
       serialized_records = event_ids.map { |id| read_event(id) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        if @verify_incorrect_any_usage
-          stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
-          if resolved_version.nil?
-            raise UnsupportedVersionAnyUsage if !stream_positions.compact.empty?
-          else
-            raise UnsupportedVersionAnyUsage if stream_positions.include?(nil)
-          end
-        end
+        verify_incorrect_any_usage(resolved_version, stream)
         raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
@@ -227,6 +213,17 @@ module RubyEventStore
 
     def add_to_stream(stream, serialized_record, resolved_version, index)
       streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
+    end
+
+    def verify_incorrect_any_usage(resolved_version, stream)
+      if @verify_incorrect_any_usage
+        stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
+        if resolved_version.nil?
+          raise UnsupportedVersionAnyUsage if !stream_positions.compact.empty?
+        else
+          raise UnsupportedVersionAnyUsage if stream_positions.include?(nil)
+        end
+      end
     end
 
     attr_reader :streams, :mutex, :storage, :serializer, :next_global_position
