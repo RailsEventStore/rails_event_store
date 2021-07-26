@@ -33,7 +33,7 @@ module RubyEventStore
       attr_accessor :record
     end
 
-    def initialize(serializer: NULL, ensure_supported_any_usage: false)
+    def initialize(serializer: NULL, ensure_supported_any_usage: true)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex   = Mutex.new
