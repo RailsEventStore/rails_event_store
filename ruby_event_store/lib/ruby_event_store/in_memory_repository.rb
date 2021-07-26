@@ -24,20 +24,20 @@ module RubyEventStore
       attr_accessor :record
     end
 
-    def initialize(serializer: NULL, verify_incorrect_any_usage: false)
+    def initialize(serializer: NULL, ensure_supported_any_usage: false)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex   = Mutex.new
       @storage = Hash.new
       @next_global_position = 1
-      @verify_incorrect_any_usage = verify_incorrect_any_usage
+      @ensure_supported_any_usage = ensure_supported_any_usage
     end
 
     def append_to_stream(records, stream, expected_version)
       serialized_records = records.map { |record| record.serialize(serializer) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        verify_incorrect_any_usage(resolved_version, stream)
+        ensure_supported_any_usage(resolved_version, stream)
         raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
@@ -54,7 +54,7 @@ module RubyEventStore
       serialized_records = event_ids.map { |id| read_event(id) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        verify_incorrect_any_usage(resolved_version, stream)
+        ensure_supported_any_usage(resolved_version, stream)
         raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
@@ -215,8 +215,8 @@ module RubyEventStore
       streams[stream.name] << EventInStream.new(serialized_record.event_id, compute_position(resolved_version, index))
     end
 
-    def verify_incorrect_any_usage(resolved_version, stream)
-      if @verify_incorrect_any_usage
+    def ensure_supported_any_usage(resolved_version, stream)
+      if @ensure_supported_any_usage
         stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
         if resolved_version.nil?
           raise UnsupportedVersionAnyUsage if !stream_positions.compact.empty?
