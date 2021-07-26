@@ -38,8 +38,12 @@ module RubyEventStore
 
       with_synchronize(expected_version, stream) do |resolved_version|
         if @verify_incorrect_any_usage
-          raise UnsupportedVersionAnyUsage if resolved_version.nil? && !streams.fetch(stream.name, Array.new).map(&:position).compact.empty?
-          raise UnsupportedVersionAnyUsage if !resolved_version.nil? && streams.fetch(stream.name, Array.new).map(&:position).include?(nil)
+          stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
+          if resolved_version.nil?
+            raise UnsupportedVersionAnyUsage if !stream_positions.compact.empty?
+          else
+            raise UnsupportedVersionAnyUsage if stream_positions.include?(nil)
+          end
         end
         raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
