@@ -158,6 +158,17 @@ module RubyEventStore
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
+    it 'message for UnsupportedVersionAnyUsage' do
+      expect(InMemoryRepository::UnsupportedVersionAnyUsage.new.message).to eq(
+      <<~EOS
+      Mixing expected version :any and specific position (or :auto) is unsupported.
+
+      Read more about expected versions here:
+      https://railseventstore.org/docs/v2/expected_version/
+      EOS
+      )
+    end
+
     # This test only documents the 2.x behavior
     it 'publishing with any position to stream with specific position' do
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
