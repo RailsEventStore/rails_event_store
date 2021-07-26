@@ -3,7 +3,16 @@
 require 'ostruct'
 module RubyEventStore
   class InMemoryRepository
-    UnsupportedVersionAnyUsage = Class.new(StandardError)
+    class UnsupportedVersionAnyUsage < StandardError
+      def initialize
+        super <<~EOS
+        Mixing expected version :any and specific position (or :auto) is unsupported.
+
+        Read more about expected versions here:
+        https://railseventstore.org/docs/v2/expected_version/
+        EOS
+      end
+    end
 
     class EventInStream
       def initialize(event_id, position)
