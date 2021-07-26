@@ -44,7 +44,11 @@ end
 Run following process in any way you prefer:
 
 ```
-res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" --redis-url="redis://localhost:6379/0" --log-level=info --split-keys=sidekiq_queue1,sidekiq_queue2
+res_outbox \
+  --database-url="mysql2://root@0.0.0.0:3306/my_database" \
+  --redis-url="redis://localhost:6379/0" \
+  --log-level=info \
+  --split-keys=sidekiq_queue1,sidekiq_queue2
 ```
 
 It is possible to run as many instances as you prefer, but it does not make sense to run more instances than there are different split keys (sidekiq queues), as one process is operating at one moment only one split key.
