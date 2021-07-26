@@ -72,6 +72,7 @@ module RubyEventStore
     end
 
     it 'publishing with any position to stream with specific position raise an error' do
+      repository = InMemoryRepository.new(verify_incorrect_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
       ], stream, version_auto)
@@ -84,6 +85,7 @@ module RubyEventStore
     end
 
     it 'publishing with specific position to stream with any position raise an error' do
+      repository = InMemoryRepository.new(verify_incorrect_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
       ], stream, version_any)
@@ -93,6 +95,34 @@ module RubyEventStore
           event1 = SRecord.new,
         ], stream, version_auto)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
+    end
+
+    # This test only documents the 2.x behavior
+    it 'publishing with any position to stream with specific position' do
+      repository = InMemoryRepository.new(verify_incorrect_any_usage: false)
+      repository.append_to_stream([
+        event0 = SRecord.new,
+      ], stream, version_auto)
+
+      expect do
+        repository.append_to_stream([
+          event1 = SRecord.new,
+        ], stream, version_any)
+      end.not_to raise_error
+    end
+
+    # This test only documents the 2.x behavior
+    it 'publishing with specific position to stream with any position' do
+      repository = InMemoryRepository.new(verify_incorrect_any_usage: false)
+      repository.append_to_stream([
+        event0 = SRecord.new,
+      ], stream, version_any)
+
+      expect do
+        repository.append_to_stream([
+          event1 = SRecord.new,
+        ], stream, version_auto)
+      end.not_to raise_error
     end
   end
 end

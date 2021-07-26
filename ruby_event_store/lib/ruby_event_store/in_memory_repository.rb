@@ -24,20 +24,23 @@ module RubyEventStore
       attr_accessor :record
     end
 
-    def initialize(serializer: NULL)
+    def initialize(serializer: NULL, verify_incorrect_any_usage: false)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex   = Mutex.new
       @storage = Hash.new
       @next_global_position = 1
+      @verify_incorrect_any_usage = verify_incorrect_any_usage
     end
 
     def append_to_stream(records, stream, expected_version)
       serialized_records = records.map { |record| record.serialize(serializer) }
 
       with_synchronize(expected_version, stream) do |resolved_version|
-        raise UnsupportedVersionAnyUsage if resolved_version.nil? && !streams.fetch(stream.name, Array.new).map(&:position).compact.empty?
-        raise UnsupportedVersionAnyUsage if !resolved_version.nil? && streams.fetch(stream.name, Array.new).map(&:position).include?(nil)
+        if @verify_incorrect_any_usage
+          raise UnsupportedVersionAnyUsage if resolved_version.nil? && !streams.fetch(stream.name, Array.new).map(&:position).compact.empty?
+          raise UnsupportedVersionAnyUsage if !resolved_version.nil? && streams.fetch(stream.name, Array.new).map(&:position).include?(nil)
+        end
         raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
 
         serialized_records.each_with_index do |serialized_record, index|
@@ -177,12 +180,7 @@ module RubyEventStore
     end
 
     def last_stream_version(stream)
-      events_in_stream = streams.fetch(stream.name, Array.new)
-      if events_in_stream.empty?
-        ExpectedVersion::POSITION_DEFAULT
-      else
-        events_in_stream.last.position
-      end
+      streams.fetch(stream.name, Array.new).size - 1
     end
 
     def with_synchronize(expected_version, stream, &block)
