@@ -151,7 +151,7 @@ module RubyEventStore
         end.to raise_error(ArgumentError)
       end
 
-      it_behaves_like :correlatable, Proto
+      it_behaves_like :correlatable, ->(event_id:, data: ResTesting::OrderCreated.new, metadata: nil) { Proto.new(event_id: event_id, data: data, metadata: metadata) }
     end
 
     module Mappers

@@ -210,8 +210,6 @@ module RubyEventStore
       expect(one).not_to eq(two)
     end
 
-
-  it_behaves_like :correlatable, Event
+    it_behaves_like :correlatable, ->(event_id:, data: {}, metadata: nil) { Event.new(event_id: event_id, data: data, metadata: metadata) }
   end
-
 end
