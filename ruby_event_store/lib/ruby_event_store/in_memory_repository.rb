@@ -131,8 +131,7 @@ module RubyEventStore
     end
 
     def global_position(event_id)
-      index = storage.keys.index(event_id) or raise EventNotFound.new(event_id)
-      index + 1
+      storage.keys.index(event_id) or raise EventNotFound.new(event_id)
     end
 
     private

@@ -729,9 +729,8 @@ module RubyEventStore
         event1 = SRecord.new
       ], stream, version_any)
 
-      expect(repository.global_position(event0.event_id)).to be >= 0
-      expect(repository.global_position(event1.event_id)).to be >= 0
-      expect(repository.global_position(event0.event_id)).to be < repository.global_position(event1.event_id)
+      expect(repository.global_position(event0.event_id)).to eq(0)
+      expect(repository.global_position(event1.event_id)).to eq(1)
     end
 
     it '#global_position for not existing event' do
