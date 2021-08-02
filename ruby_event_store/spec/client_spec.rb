@@ -979,7 +979,7 @@ module RubyEventStore
 
     specify "global position" do
       client.publish(fact = OrderCreated.new)
-      expect(client.global_position(fact.event_id)).to eq(1)
+      expect(client.global_position(fact.event_id)).to eq(0)
     end
   end
 end
