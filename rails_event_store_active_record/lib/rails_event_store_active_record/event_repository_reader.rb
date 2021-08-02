@@ -96,7 +96,7 @@ module RailsEventStoreActiveRecord
         stream = stream.where(event_id: spec.with_ids)                                                if spec.with_ids?
         stream = stream.where(@event_klass.table_name => {event_type: spec.with_types}) if spec.with_types?
         stream = ordered(stream.joins(:event), spec)
-        stream = stream.order(position: order(spec), id: order(spec))
+        stream = stream.order(id: order(spec))
         stream = stream.limit(spec.limit)                                        if spec.limit?
         stream = stream.where(start_condition(spec))                             if spec.start
         stream = stream.where(stop_condition(spec))                              if spec.stop
