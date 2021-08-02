@@ -976,5 +976,10 @@ module RubyEventStore
         expect(client.position_in_stream(fact0.event_id, "SomeStream")).to eq(0)
       end
     end
+
+    specify "global position" do
+      client.publish(fact = OrderCreated.new)
+      expect(client.global_position(fact.event_id)).to eq(1)
+    end
   end
 end
