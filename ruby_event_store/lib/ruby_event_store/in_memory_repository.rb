@@ -23,22 +23,11 @@ module RubyEventStore
       attr_reader :event_id, :position
     end
 
-    class EventRecord
-      def initialize(global_position, record)
-        @global_position = global_position
-        @record = record
-      end
-
-      attr_reader :global_position
-      attr_accessor :record
-    end
-
     def initialize(serializer: NULL, ensure_supported_any_usage: false)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex   = Mutex.new
       @storage = Hash.new
-      @next_global_position = 1
       @ensure_supported_any_usage = ensure_supported_any_usage
     end
 
@@ -51,8 +40,7 @@ module RubyEventStore
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
-          storage[serialized_record.event_id] = EventRecord.new(next_global_position, serialized_record)
-          @next_global_position += 1
+          storage[serialized_record.event_id] = serialized_record
           add_to_stream(stream, serialized_record, resolved_version, index)
         end
       end
@@ -84,7 +72,7 @@ module RubyEventStore
 
     def last_stream_event(stream)
       last_id = event_ids_of_stream(stream).last
-      storage.fetch(last_id).record.deserialize(serializer) if last_id
+      storage.fetch(last_id).deserialize(serializer) if last_id
     end
 
     def read(spec)
@@ -123,10 +111,10 @@ module RubyEventStore
             event_type: record.event_type,
             data:       record.data,
             metadata:   record.metadata,
-            timestamp:  Time.iso8601(storage.fetch(record.event_id).record.timestamp),
+            timestamp:  Time.iso8601(storage.fetch(record.event_id).timestamp),
             valid_at:   record.valid_at,
           ).serialize(serializer)
-        storage.fetch(record.event_id).record = serialized_record
+        storage[record.event_id] = serialized_record
       end
     end
 
@@ -143,7 +131,8 @@ module RubyEventStore
     end
 
     def global_position(event_id)
-      storage.fetch(event_id) { raise EventNotFound.new(event_id) }.global_position
+      index = storage.keys.index(event_id) or raise EventNotFound.new(event_id)
+      index + 1
     end
 
     private
@@ -164,7 +153,7 @@ module RubyEventStore
     end
 
     def read_event(event_id)
-      storage.fetch(event_id) { raise EventNotFound.new(event_id) }.record
+      storage.fetch(event_id) { raise EventNotFound.new(event_id) }
     end
 
     def event_ids_of_stream(stream)
@@ -172,7 +161,7 @@ module RubyEventStore
     end
 
     def serialized_records_of_stream(stream)
-      (stream.global? ? storage.values : storage.fetch_values(*event_ids_of_stream(stream))).map(&:record)
+      stream.global? ? storage.values : storage.fetch_values(*event_ids_of_stream(stream))
     end
 
     def ordered(serialized_records, spec)
@@ -235,6 +224,6 @@ module RubyEventStore
       end
     end
 
-    attr_reader :streams, :mutex, :storage, :serializer, :next_global_position
+    attr_reader :streams, :mutex, :storage, :serializer
   end
 end
