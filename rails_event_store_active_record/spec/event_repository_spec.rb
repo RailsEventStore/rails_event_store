@@ -96,55 +96,6 @@ module RailsEventStoreActiveRecord
       expect(c6).to eq(2)
     end
 
-    specify "explicit sorting by position rather than accidental" do
-      e1 = Event.create!(
-        event_id: u1 = SecureRandom.uuid,
-        data: '{}',
-        metadata: '{}',
-        event_type: "TestDomainEvent",
-        valid_at: time,
-      )
-      e2 = Event.create!(
-        event_id: u2 = SecureRandom.uuid,
-        data: '{}',
-        metadata: '{}',
-        event_type: "TestDomainEvent",
-        valid_at: time,
-      )
-      e3 = Event.create!(
-        event_id: u3 = SecureRandom.uuid,
-        data: '{}',
-        metadata: '{}',
-        event_type: "TestDomainEvent",
-        valid_at: time,
-      )
-      EventInStream.create!(
-        stream:   "stream",
-        position: 1,
-        event_id: e2.event_id,
-      )
-      EventInStream.create!(
-        stream:   "stream",
-        position: 0,
-        event_id: e1.event_id,
-      )
-      EventInStream.create!(
-        stream:   "stream",
-        position: 2,
-        event_id: e3.event_id,
-      )
-      ActiveRecord::Schema.define do
-        self.verbose = false
-        remove_index :event_store_events_in_streams, [:stream, :position]
-      end
-
-      expect(repository.read(specification.stream("stream").limit(3).result).map(&:event_id)).to eq([u1,u2,u3])
-      expect(repository.read(specification.stream("stream").result).map(&:event_id)).to eq([u1,u2,u3])
-
-      expect(repository.read(specification.stream("stream").backward.limit(3).result).map(&:event_id)).to eq([u3,u2,u1])
-      expect(repository.read(specification.stream("stream").backward.result).map(&:event_id)).to eq([u3,u2,u1])
-    end
-
     specify "explicit sorting by id rather than accidental for all events" do
       e1 = Event.create!(
         event_id: u1 = SecureRandom.uuid,
@@ -238,18 +189,6 @@ module RailsEventStoreActiveRecord
     specify do
       expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*id.* DESC LIMIT.*/) do
         repository.read(specification.limit(3).backward.result)
-      end
-    end
-
-    specify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY .*event_store_events_in_streams.*position.* ASC, .*event_store_events_in_streams.*id.* ASC LIMIT.*/) do
-        repository.read(specification.stream('stream').limit(3).result)
-      end
-    end
-
-    specify do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*ORDER BY .*event_store_events_in_streams.*position.* DESC, .*event_store_events_in_streams.*id.* DESC LIMIT.*/) do
-        repository.read(specification.stream('stream').limit(3).backward.result)
       end
     end
 
