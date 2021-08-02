@@ -37,6 +37,24 @@ module RailsEventStoreActiveRecord
       read_scope(spec).count
     end
 
+    def streams_of(event_id)
+      @stream_klass.where(event_id: event_id)
+        .pluck(:stream)
+        .map { |name| RubyEventStore::Stream.new(name) }
+    end
+
+    def position_in_stream(event_id, stream)
+      record = @stream_klass.select('position').where(stream: stream.name).find_by(event_id: event_id)
+      raise RubyEventStore::EventNotFoundInStream if record.nil?
+      record.position
+    end
+
+    def global_position(event_id)
+      record = @event_klass.select('id').find_by(event_id: event_id)
+      raise RubyEventStore::EventNotFound.new(event_id) if record.nil?
+      record.id - 1
+    end
+
     private
     attr_reader :serializer
 
