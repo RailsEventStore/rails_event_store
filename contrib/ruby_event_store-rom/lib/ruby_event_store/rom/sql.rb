@@ -2,11 +2,11 @@
 
 require 'ruby_event_store/rom'
 require 'rom/sql'
-require_relative 'adapters/sql/index_violation_detector'
-require_relative 'adapters/sql/relations/events'
-require_relative 'adapters/sql/relations/stream_entries'
-require_relative 'adapters/sql/changesets/create_events'
-require_relative 'adapters/sql/changesets/update_events'
+require_relative 'index_violation_detector'
+require_relative 'relations/events'
+require_relative 'relations/stream_entries'
+require_relative 'changesets/create_events'
+require_relative 'changesets/update_events'
 
 module RubyEventStore
   module ROM
@@ -84,111 +84,6 @@ module RubyEventStore
           end
         end
       end
-
-      class SpecHelper
-        attr_reader :env
-
-        def initialize(database_uri = ENV['DATABASE_URL'])
-          config = ::ROM::Configuration.new(
-            :sql,
-            database_uri,
-            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
-            preconnect: :concurrently,
-            fractional_seconds: true
-            # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
-          )
-          # $stdout.sync = true
-          # config.default.use_logger Logger.new(STDOUT)
-          # config.default.connection.pool.send(:preconnect, true)
-          config.default.run_migrations
-
-          @env = ROM.setup(config)
-        end
-
-        def run_lifecycle
-          establish_gateway_connection
-          load_gateway_schema
-
-          yield
-        ensure
-          drop_gateway_schema
-          close_gateway_connection
-        end
-
-        def gateway
-          env.rom_container.gateways.fetch(:default)
-        end
-
-        def gateway_type?(name)
-          gateway.connection.database_type.eql?(name)
-        end
-
-        def has_connection_pooling?
-          !gateway_type?(:sqlite)
-        end
-
-        def connection_pool_size
-          gateway.connection.pool.size
-        end
-
-        def close_pool_connection
-          gateway.connection.pool.disconnect
-        end
-
-        def supports_upsert?
-          SQL.supports_upsert?(gateway.connection)
-        end
-
-        def supports_concurrent_any?
-          has_connection_pooling?
-        end
-
-        def supports_concurrent_auto?
-          has_connection_pooling?
-        end
-
-        def supports_binary?
-          false
-        end
-
-        def supports_position_queries?
-          true
-        end
-
-        def rescuable_concurrency_test_errors
-          [::ROM::SQL::Error]
-        end
-
-        def cleanup_concurrency_test
-          close_pool_connection
-        end
-
-        protected
-
-        def establish_gateway_connection
-          # Manually preconnect because disconnecting and reconnecting
-          # seems to lose the "preconnect concurrently" setting
-          gateway.connection.pool.send(:preconnect, true)
-        end
-
-        def load_gateway_schema
-          gateway.run_migrations
-        end
-
-        def drop_gateway_schema
-          gateway.connection.drop_table?('event_store_events')
-          gateway.connection.drop_table?('event_store_events_in_streams')
-          gateway.connection.drop_table?('schema_migrations')
-        end
-
-        # See: https://github.com/rom-rb/rom-sql/blob/master/spec/shared/database_setup.rb
-        def close_gateway_connection
-          gateway.connection.disconnect
-          # Prevent the auto-reconnect when the test completed
-          # This will save from hardly reproducible connection run outs
-          gateway.connection.pool.available_connections.freeze
-        end
-      end
-    end
+   end
   end
 end
