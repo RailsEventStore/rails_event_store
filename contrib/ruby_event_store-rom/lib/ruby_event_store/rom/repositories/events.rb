@@ -65,7 +65,7 @@ module RubyEventStore
         def global_position(event_id)
           record = events.by_event_id(event_id).one
           raise EventNotFound.new(event_id) if record.nil?
-          record.id
+          record.id - 1
         end
 
         protected
