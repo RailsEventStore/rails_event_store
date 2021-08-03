@@ -8,7 +8,6 @@ require_relative 'rom/event_repository'
 require_relative 'rom/changesets/create_events'
 require_relative 'rom/changesets/update_events'
 require_relative 'rom/changesets/create_stream_entries'
-require_relative 'rom/tuple_uniqueness_error'
 require_relative 'rom/unit_of_work'
 require_relative 'rom/version'
 
