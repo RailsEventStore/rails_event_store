@@ -1,15 +1,10 @@
 # frozen_string_literal: true
 
 require_relative 'unit_of_work'
-require 'forwardable'
 
 module RubyEventStore
   module ROM
     class EventRepository
-      extend Forwardable
-
-      def_delegator :@rom, :handle_error, :guard_for
-
       def initialize(rom: ROM.env, serializer:)
         raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
 
@@ -21,9 +16,9 @@ module RubyEventStore
 
       def append_to_stream(records, stream, expected_version)
         serialized_records = Array(records).map { |record| record.serialize(@serializer) }
-        event_ids = serialized_records.map(&:event_id)
+        event_ids          = serialized_records.map(&:event_id)
 
-        guard_for(:unique_violation) do
+        @rom.handle_error(:unique_violation) do
           @rom.unit_of_work do |changesets|
             changesets << @events.create_changeset(serialized_records)
             changesets << @stream_entries.create_changeset(
@@ -41,7 +36,7 @@ module RubyEventStore
         event_ids = Array(event_ids)
         validate_event_ids(event_ids)
 
-        guard_for(:unique_violation) do
+        @rom.handle_error(:unique_violation) do
           @rom.unit_of_work do |changesets|
             changesets << @stream_entries.create_changeset(
               event_ids,
@@ -67,7 +62,7 @@ module RubyEventStore
       end
 
       def has_event?(event_id)
-        guard_for(:not_found, event_id, swallow: EventNotFound) { @events.exist?(event_id) } || false
+        @rom.handle_error(:not_found, event_id, swallow: EventNotFound) { @events.exist?(event_id) } || false
       end
 
       def last_stream_event(stream)
