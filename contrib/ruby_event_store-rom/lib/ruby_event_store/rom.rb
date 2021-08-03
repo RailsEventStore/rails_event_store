@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require 'ruby_event_store'
-require 'rom-changeset'
-require 'rom-repository'
-require 'rom-sql'
+require 'rom'
+require 'rom/sql'
 require 'rom/transformer'
-
 
 require_relative 'rom/types'
 require_relative 'rom/event_repository'
