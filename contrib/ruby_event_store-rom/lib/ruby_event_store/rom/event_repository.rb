@@ -9,7 +9,6 @@ module RubyEventStore
       extend Forwardable
 
       def_delegator :@rom, :handle_error, :guard_for
-      def_delegators :@rom, :unit_of_work
 
       def initialize(rom: ROM.env, serializer:)
         raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
@@ -25,7 +24,7 @@ module RubyEventStore
         event_ids = serialized_records.map(&:event_id)
 
         guard_for(:unique_violation) do
-          unit_of_work do |changesets|
+          @rom.unit_of_work do |changesets|
             # Create changesets inside transaction because
             # we want to find the last position (a.k.a. version)
             # again if the transaction is retried due to a
@@ -47,7 +46,7 @@ module RubyEventStore
         validate_event_ids(event_ids)
 
         guard_for(:unique_violation) do
-          unit_of_work do |changesets|
+          @rom.unit_of_work do |changesets|
             changesets << @stream_entries.create_changeset(
               event_ids,
               stream,
@@ -90,7 +89,7 @@ module RubyEventStore
       def update_messages(records)
         validate_event_ids(records.map(&:event_id))
 
-        unit_of_work do |changesets|
+        @rom.unit_of_work do |changesets|
           serialized_records = records.map { |record| record.serialize(@serializer) }
           changesets << @events.update_changeset(serialized_records)
         end
