@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ruby_event_store/rom/sql'
+require 'ruby_event_store/rom'
 
 MIGRATIONS_PATH = 'db/migrate'.freeze
 

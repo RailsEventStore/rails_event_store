@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-require 'ruby_event_store/rom'
-require 'rom/sql'
-require_relative 'index_violation_detector'
-require_relative 'relations/events'
-require_relative 'relations/stream_entries'
-require_relative 'changesets/create_events'
-require_relative 'changesets/update_events'
-
 module RubyEventStore
   module ROM
     module SQL
@@ -84,6 +76,6 @@ module RubyEventStore
           end
         end
       end
-   end
+    end
   end
 end
