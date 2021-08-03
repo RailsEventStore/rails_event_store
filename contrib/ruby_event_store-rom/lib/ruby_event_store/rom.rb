@@ -3,14 +3,14 @@
 require 'rom-changeset'
 require 'rom-repository'
 require 'ruby_event_store'
-require 'ruby_event_store/rom/types'
-require 'ruby_event_store/rom/event_repository'
-require 'ruby_event_store/rom/changesets/create_events'
-require 'ruby_event_store/rom/changesets/update_events'
-require 'ruby_event_store/rom/changesets/create_stream_entries'
-require 'ruby_event_store/rom/tuple_uniqueness_error'
-require 'ruby_event_store/rom/unit_of_work'
-require 'ruby_event_store/rom/version'
+require_relative 'rom/types'
+require_relative 'rom/event_repository'
+require_relative 'rom/changesets/create_events'
+require_relative 'rom/changesets/update_events'
+require_relative 'rom/changesets/create_stream_entries'
+require_relative 'rom/tuple_uniqueness_error'
+require_relative 'rom/unit_of_work'
+require_relative 'rom/version'
 
 module RubyEventStore
   module ROM

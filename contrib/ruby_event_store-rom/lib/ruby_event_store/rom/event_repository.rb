@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ruby_event_store/rom/unit_of_work'
+require_relative 'unit_of_work'
 require 'forwardable'
 
 module RubyEventStore
