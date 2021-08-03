@@ -85,9 +85,7 @@ module RubyEventStore
         config.register_mapper(Mappers::StreamEntryToSerializedRecord)
         config.register_mapper(Mappers::EventToSerializedRecord)
 
-        find_adapters(config.environment.gateways).each do |adapter|
-          adapter.setup(config)
-        end
+        SQL.setup(config)
       end
 
       def configure_defaults(env)
@@ -97,17 +95,7 @@ module RubyEventStore
             raise EventNotFound, event_id
           end
         }
-
-        find_adapters(env.rom_container.gateways).each do |adapter|
-          adapter.configure(env)
-        end
-      end
-
-      def find_adapters(gateways)
-        # Setup for each kind of gateway class
-        gateways.values.map(&:class).map do |klass|
-          const_get(klass.name.split('::').fetch(1))
-        end
+        SQL.configure(env)
       end
     end
   end
