@@ -44,15 +44,4 @@ matcher:
    - RubyEventStore::ROM::SQL::SpecHelper#drop_gateway_schema 
    - RubyEventStore::ROM::SQL::SpecHelper#close_gateway_connection 
    - RubyEventStore::ROM::SQL::SpecHelper#run_lifecycle 
-   - RubyEventStore::ROM::SQL::UnitOfWork#commit! 
-   - RubyEventStore::ROM::Memory::SpecHelper#initialize 
-   - RubyEventStore::ROM::Memory::SpecHelper#close_pool_connection 
-   - RubyEventStore::ROM::Memory::SpecHelper#load_gateway_schema 
-   - RubyEventStore::ROM::Memory::SpecHelper#establish_gateway_connection 
-   - RubyEventStore::ROM::Memory::SpecHelper#drop_gateway_schema 
-   - RubyEventStore::ROM::Memory::SpecHelper#close_gateway_connection 
-   - RubyEventStore::ROM::Memory::SpecHelper#run_lifecycle 
-   - RubyEventStore::ROM::Memory::UnitOfWork#commit! 
-   - RubyEventStore::ROM::Memory::Relations::Events#verify_uniquness! 
-   - RubyEventStore::ROM::Memory::Relations::StreamEntries#verify_uniquness! 
-   - RubyEventStore::ROM::Memory::Relations::StreamEntries#normalize_stream_name
+   - RubyEventStore::ROM::SQL::UnitOfWork#commit!
