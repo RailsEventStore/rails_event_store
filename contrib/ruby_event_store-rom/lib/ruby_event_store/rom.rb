@@ -1,15 +1,23 @@
 # frozen_string_literal: true
 
+require 'ruby_event_store'
 require 'rom-changeset'
 require 'rom-repository'
-require 'ruby_event_store'
+require 'rom-sql'
+require 'rom/transformer'
+
+
 require_relative 'rom/types'
 require_relative 'rom/event_repository'
 require_relative 'rom/changesets/create_events'
 require_relative 'rom/changesets/update_events'
 require_relative 'rom/changesets/create_stream_entries'
+require_relative 'rom/mappers/stream_entry_to_serialized_record'
+require_relative 'rom/mappers/event_to_serialized_record'
+require_relative 'rom/relations/events'
+require_relative 'rom/relations/stream_entries'
 require_relative 'rom/unit_of_work'
-require_relative 'rom/version'
+require_relative 'rom/index_violation_detector'
 require_relative 'rom/sql'
 
 module RubyEventStore

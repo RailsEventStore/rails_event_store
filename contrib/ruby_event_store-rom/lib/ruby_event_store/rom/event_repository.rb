@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'unit_of_work'
-
 module RubyEventStore
   module ROM
     class EventRepository

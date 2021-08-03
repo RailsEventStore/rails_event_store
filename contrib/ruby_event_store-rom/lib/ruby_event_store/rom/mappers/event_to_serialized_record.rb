@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rom/transformer'
-
 module RubyEventStore
   module ROM
     module Mappers
