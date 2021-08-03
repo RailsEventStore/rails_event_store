@@ -44,11 +44,7 @@ module RubyEventStore
 
       def link_to_stream(event_ids, stream, expected_version)
         event_ids = Array(event_ids)
-
-        # Validate event IDs
-        @events
-          .find_nonexistent_pks(event_ids)
-          .each { |id| raise EventNotFound, id }
+        validate_event_ids(event_ids)
 
         guard_for(:unique_violation) do
           unit_of_work do |changesets|
@@ -92,10 +88,7 @@ module RubyEventStore
       end
 
       def update_messages(records)
-        # Validate event IDs
-        @events
-          .find_nonexistent_pks(records.map(&:event_id))
-          .each { |id| raise EventNotFound, id }
+        validate_event_ids(records.map(&:event_id))
 
         unit_of_work do |changesets|
           serialized_records = records.map { |record| record.serialize(@serializer) }
@@ -104,8 +97,17 @@ module RubyEventStore
       end
 
       def streams_of(event_id)
-        @stream_entries.streams_of(event_id)
-                       .map { |name| Stream.new(name) }
+        @stream_entries
+          .streams_of(event_id)
+          .map { |name| Stream.new(name) }
+      end
+
+      private
+
+      def validate_event_ids(event_ids)
+        @events
+          .find_nonexistent_pks(event_ids)
+          .each { |id| raise EventNotFound, id }
       end
     end
   end
