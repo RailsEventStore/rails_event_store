@@ -10,6 +10,7 @@ require_relative 'rom/changesets/update_events'
 require_relative 'rom/changesets/create_stream_entries'
 require_relative 'rom/unit_of_work'
 require_relative 'rom/version'
+require_relative 'rom/sql'
 
 module RubyEventStore
   module ROM
