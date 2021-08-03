@@ -13,10 +13,10 @@ module RubyEventStore
       def initialize(rom: ROM.env, serializer:)
         raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
 
-        @rom = rom
-        @events = Repositories::Events.new(rom.rom_container)
+        @rom            = rom
+        @serializer     = serializer
+        @events         = Repositories::Events.new(rom.rom_container)
         @stream_entries = Repositories::StreamEntries.new(rom.rom_container)
-        @serializer = serializer
       end
 
       def append_to_stream(records, stream, expected_version)
@@ -25,10 +25,6 @@ module RubyEventStore
 
         guard_for(:unique_violation) do
           @rom.unit_of_work do |changesets|
-            # Create changesets inside transaction because
-            # we want to find the last position (a.k.a. version)
-            # again if the transaction is retried due to a
-            # deadlock in MySQL
             changesets << @events.create_changeset(serialized_records)
             changesets << @stream_entries.create_changeset(
               event_ids,
