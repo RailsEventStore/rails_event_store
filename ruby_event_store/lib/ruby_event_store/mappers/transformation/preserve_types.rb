@@ -24,7 +24,7 @@ module RubyEventStore
           Record.new(
             event_id:   record.event_id,
             event_type: record.event_type,
-            data:       record.data,
+            data:       transform_data(record.data),
             metadata:   record.metadata.merge(types: types),
             timestamp:  record.timestamp,
             valid_at:   record.valid_at,
@@ -52,6 +52,23 @@ module RubyEventStore
           SYMBOL_KEYS_KEY, SYMBOL_KEYS_KEY.to_sym,
         ]
         PASS_THROUGH = ->(v) { v }
+
+        def transform_data(argument)
+          argument.each_with_object({}) do |(key, value), hash|
+            hash[key] = transform_argument(value)
+          end
+        end
+
+        def transform_argument(argument)
+          case argument
+          when Hash
+            transform_data(argument)
+          when Array
+            argument.map{|i| transform_argument(i)}
+          else
+            serializer_of(argument.class.name).call(argument)
+          end
+        end
 
         def store_types(argument)
           argument.each_with_object({}) do |(key, value), hash|
@@ -102,7 +119,7 @@ module RubyEventStore
           end
         end
 
-        def serializer_of?(type)
+        def serializer_of(type)
           @registered_type_serializers.dig(type, :serializer) || PASS_THROUGH
         end
 
