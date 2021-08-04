@@ -69,7 +69,7 @@ module RubyEventStore
       end
 
       def supports_binary?
-        false
+        true
       end
 
       def supports_position_queries?
