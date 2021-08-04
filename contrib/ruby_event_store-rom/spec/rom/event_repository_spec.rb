@@ -20,6 +20,8 @@ module RubyEventStore
         end
       }
 
+      let(:helper) { rom_helper }
+
       around(:each) do |example|
         rom_helper.run_lifecycle { example.run }
       end
