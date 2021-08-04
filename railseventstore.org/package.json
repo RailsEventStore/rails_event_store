@@ -5,7 +5,7 @@
     "build": "NODE_ENV=production  parcel build --out-dir .tmp/dist/ source/index.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.8",
+    "@babel/core": "^7.15.0",
     "@fullhuman/postcss-purgecss": "3.0.0",
     "@tailwindcss/postcss7-compat": "^2.2.7",
     "autoprefixer": "^9",
