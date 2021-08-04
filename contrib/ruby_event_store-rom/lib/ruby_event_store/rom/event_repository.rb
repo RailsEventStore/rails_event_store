@@ -13,8 +13,8 @@ module RubyEventStore
       end
 
       def append_to_stream(records, stream, expected_version)
-        serialized_records = Array(records).map { |record| record.serialize(@serializer) }
-        event_ids          = serialized_records.map(&:event_id)
+        serialized_records = records.map { |record| record.serialize(@serializer) }
+        event_ids          = records.map(&:event_id)
 
         @rom.handle_error(:unique_violation) do
           @rom.unit_of_work do |changesets|
@@ -31,7 +31,6 @@ module RubyEventStore
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-        event_ids = Array(event_ids)
         validate_event_ids(event_ids)
 
         @rom.handle_error(:unique_violation) do
