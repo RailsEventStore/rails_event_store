@@ -4,13 +4,12 @@ module RubyEventStore
   module ROM
     class UnitOfWork
       def initialize(rom: ROM.env)
-        @env = rom
+        @gateway = rom.rom_container.gateways.fetch(:default)
       end
 
       def call(**options)
-        gateway = @env.rom_container.gateways.fetch(options.delete(:gateway) { :default })
         yield(changesets = [])
-        gateway.transaction(options) { changesets.each(&:commit) }
+        @gateway.transaction(options) { changesets.each(&:commit) }
       end
     end
   end
