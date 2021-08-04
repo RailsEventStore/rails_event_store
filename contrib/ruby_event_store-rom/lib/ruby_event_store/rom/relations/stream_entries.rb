@@ -64,9 +64,8 @@ module RubyEventStore
 
           raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
 
-          event_order_columns = []
-          stream_order_columns = %i[position id]
-          stream_order_columns.delete(:position) if stream.global?
+          event_order_columns  = []
+          stream_order_columns = %i[id]
 
           case time_sort_by
           when :as_at
