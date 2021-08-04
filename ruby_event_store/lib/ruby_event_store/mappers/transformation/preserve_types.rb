@@ -10,7 +10,7 @@ module RubyEventStore
           @registered_type_serializers = {}
         end
 
-        def register(type, serializer: PASS_THROUGH, deserializer: PASS_THROUGH)
+        def register(type, serializer:, deserializer:)
           @registered_type_serializers[type.to_s] = {
             serializer: serializer,
             deserializer: deserializer
