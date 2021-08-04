@@ -6,6 +6,7 @@ module RubyEventStore
     module Transformation
       RSpec.describe PreserveTypes do
         let(:time)  { Time.now.utc }
+        let(:iso_time) { time.iso8601(9) }
         let(:uuid)  { SecureRandom.uuid }
         let(:record)  {
           Record.new(
@@ -64,18 +65,18 @@ module RubyEventStore
             },
             data:       {
               'any' => 'data',
-              at_some: time,
+              at_some: iso_time,
               nested: {
-                another_time: time,
+                another_time: iso_time,
                 array: [
                   123,
                   {
                     'deeply_nested' => {
-                      time: time,
+                      time: iso_time,
                       'and' => 'something'
                     }
                   },
-                  { and_another_time: time },
+                  { and_another_time: iso_time },
                 ],
               }
             },
