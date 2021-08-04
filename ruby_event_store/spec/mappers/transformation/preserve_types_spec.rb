@@ -116,6 +116,44 @@ module RubyEventStore
           expect(result).to eq(record)
           expect(result.metadata).to eq({some: 'meta'})
         end
+
+        specify "no op when no types" do
+          result = transformation.load(record)
+          expect(result).to eq(record)
+          expect(result.metadata).to eq({some: 'meta'})
+        end
+
+        specify "fail for reserved keys" do
+          invalid = Record.new(
+            event_id:   uuid,
+            metadata:   record.metadata,
+            data:       record.data.merge('_res_symbol_keys' => "not allowed"),
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+          expect {
+            transformation.dump(invalid)
+          }.to raise_error(SerializationError)
+            .with_message("Can't serialize a Hash with reserved key \"_res_symbol_keys\"")
+        end
+
+        specify "fail for invalid keys" do
+          key = Object.new
+          expect(key).to receive(:inspect).and_return("Doh")
+          invalid = Record.new(
+            event_id:   uuid,
+            metadata:   record.metadata,
+            data:       record.data.merge(key => "not allowed"),
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+          expect {
+            transformation.dump(invalid)
+          }.to raise_error(SerializationError)
+            .with_message("Only string and symbol hash keys may be serialized, but Doh is a Object")
+        end
       end
     end
   end
