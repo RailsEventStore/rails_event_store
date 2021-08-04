@@ -113,7 +113,7 @@ module RubyEventStore
           when Hash
             restore_types(argument, type)
           when Array
-            argument.each_with_index.map{|a,idx| restore_type(a, type[idx])}
+            argument.each_with_index.map{|a,idx| restore_type(a, type.fetch(idx))}
           else
             deserializer_of(type).call(argument)
           end
