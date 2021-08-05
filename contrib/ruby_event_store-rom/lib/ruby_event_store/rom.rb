@@ -24,12 +24,10 @@ require_relative 'rom/unit_of_work'
 module RubyEventStore
   module ROM
     class << self
-      # Set to a default instance
       attr_accessor :env
 
       def configure(adapter_name, database_uri = ENV['DATABASE_URL'], &block)
         if adapter_name.is_a?(::ROM::Configuration)
-          # Call config block manually
           Env.new ::ROM.container(adapter_name.tap(&block), &block)
         else
           Env.new ::ROM.container(adapter_name, database_uri, &block)
@@ -38,19 +36,11 @@ module RubyEventStore
 
       def setup(*args, &block)
         configure(*args) do |config|
-          setup_defaults(config)
+          SQL.setup(config)
           yield(config) if block
-        end.tap(&method(:configure_defaults))
-      end
-
-      private
-
-      def setup_defaults(config)
-        SQL.setup(config)
-      end
-
-      def configure_defaults(env)
-        SQL.configure(env)
+        end.tap do |env|
+          SQL.configure(env)
+        end
       end
     end
   end
