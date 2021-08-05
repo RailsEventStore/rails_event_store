@@ -4,6 +4,8 @@ module RubyEventStore
   module ROM
     RSpec.describe "setup" do
       specify "via database URL", mutant: "RubyEventStore::ROM.setup" do
+        skip unless ENV['DATA_TYPE'] == "text"
+
         config = ::ROM::Configuration.new(:sql, "sqlite://tmp/dummy.db")
         config.default.run_migrations
 
@@ -12,6 +14,8 @@ module RubyEventStore
       end
 
       specify "via ROM configuration", mutant: "RubyEventStore::ROM.setup" do
+        skip unless ENV['DATA_TYPE'] == "text"
+
         config = ::ROM::Configuration.new(:sql, "sqlite::memory:")
         config.default.run_migrations
 
