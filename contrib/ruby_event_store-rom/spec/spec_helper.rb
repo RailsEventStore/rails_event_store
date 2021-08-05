@@ -57,7 +57,7 @@ module RubyEventStore
       end
 
       def supports_upsert?
-        SQL.supports_upsert?(gateway.connection)
+        gateway.connection.sqlite_version >= 32_400
       end
 
       def supports_concurrent_any?

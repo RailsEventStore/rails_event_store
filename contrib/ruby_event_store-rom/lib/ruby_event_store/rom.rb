@@ -17,7 +17,6 @@ require_relative 'rom/relations/events'
 require_relative 'rom/relations/stream_entries'
 require_relative 'rom/repositories/events'
 require_relative 'rom/repositories/stream_entries'
-require_relative 'rom/sql'
 require_relative 'rom/types'
 require_relative 'rom/unit_of_work'
 
@@ -36,7 +35,10 @@ module RubyEventStore
 
       def setup(*args, &block)
         configure(*args) do |config|
-          SQL.setup(config)
+          config.register_mapper   Mappers::StreamEntryToSerializedRecord
+          config.register_mapper   Mappers::EventToSerializedRecord
+          config.register_relation Relations::Events
+          config.register_relation Relations::StreamEntries
           yield(config) if block
         end
       end
