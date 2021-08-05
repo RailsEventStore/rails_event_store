@@ -59,7 +59,7 @@ module RubyEventStore
       end
 
       def has_event?(event_id)
-        @rom.handle_error(:not_found, event_id, swallow: EventNotFound) { @events.exist?(event_id) } || false
+        @events.exist?(event_id)
       end
 
       def last_stream_event(stream)
