@@ -46,8 +46,6 @@ module RubyEventStore
       private
 
       def setup_defaults(config)
-        config.register_mapper(Mappers::StreamEntryToSerializedRecord)
-        config.register_mapper(Mappers::EventToSerializedRecord)
         SQL.setup(config)
       end
 

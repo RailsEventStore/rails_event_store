@@ -5,6 +5,8 @@ module RubyEventStore
     module SQL
       class << self
         def setup(config)
+          config.register_mapper(Mappers::StreamEntryToSerializedRecord)
+          config.register_mapper(Mappers::EventToSerializedRecord)
           config.register_relation Relations::Events
           config.register_relation Relations::StreamEntries
         end
