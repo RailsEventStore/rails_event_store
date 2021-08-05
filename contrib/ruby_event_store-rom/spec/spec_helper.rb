@@ -69,7 +69,7 @@ module RubyEventStore
       end
 
       def supports_binary?
-        true
+        ENV['DATA_TYPE'] == 'text'
       end
 
       def supports_position_queries?
