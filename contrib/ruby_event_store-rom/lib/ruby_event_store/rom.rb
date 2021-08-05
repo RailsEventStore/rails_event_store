@@ -5,63 +5,24 @@ require 'rom'
 require 'rom/sql'
 require 'rom/transformer'
 
-require_relative 'rom/types'
-require_relative 'rom/event_repository'
 require_relative 'rom/changesets/create_events'
-require_relative 'rom/changesets/update_events'
 require_relative 'rom/changesets/create_stream_entries'
-require_relative 'rom/mappers/stream_entry_to_serialized_record'
+require_relative 'rom/changesets/update_events'
+require_relative 'rom/env'
+require_relative 'rom/event_repository'
+require_relative 'rom/index_violation_detector'
 require_relative 'rom/mappers/event_to_serialized_record'
+require_relative 'rom/mappers/stream_entry_to_serialized_record'
 require_relative 'rom/relations/events'
 require_relative 'rom/relations/stream_entries'
-require_relative 'rom/unit_of_work'
-require_relative 'rom/index_violation_detector'
+require_relative 'rom/repositories/events'
+require_relative 'rom/repositories/stream_entries'
 require_relative 'rom/sql'
+require_relative 'rom/types'
+require_relative 'rom/unit_of_work'
 
 module RubyEventStore
   module ROM
-    class Env
-      include Dry::Container::Mixin
-
-      attr_accessor :rom_container
-
-      def initialize(rom_container)
-        @rom_container = rom_container
-
-        register(:unique_violation_error_handlers, Set.new)
-        register(:not_found_error_handlers, Set.new)
-        register(:logger, Logger.new(STDOUT).tap { |logger| logger.level = Logger::WARN })
-      end
-
-      def logger
-        resolve(:logger)
-      end
-
-      def unit_of_work(&block)
-        options = resolve(:unit_of_work_options).dup
-        options.delete(:class) { UnitOfWork }.new(rom: self).call(**options, &block)
-      end
-
-      def register_unit_of_work_options(options)
-        register(:unit_of_work_options, options)
-      end
-
-      def register_error_handler(type, handler)
-        resolve(:"#{type}_error_handlers") << handler
-      end
-
-      def handle_error(type, *args, swallow: [])
-        yield
-      rescue StandardError => e
-        begin
-          resolve(:"#{type}_error_handlers").each { |h| h.call(e, *args) }
-          raise e
-        rescue *swallow
-          # swallow
-        end
-      end
-    end
-
     class << self
       # Set to a default instance
       attr_accessor :env
@@ -85,9 +46,6 @@ module RubyEventStore
       private
 
       def setup_defaults(config)
-        require_relative 'rom/repositories/stream_entries'
-        require_relative 'rom/repositories/events'
-
         config.register_mapper(Mappers::StreamEntryToSerializedRecord)
         config.register_mapper(Mappers::EventToSerializedRecord)
 
