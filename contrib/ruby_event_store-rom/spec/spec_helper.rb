@@ -7,7 +7,7 @@ ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
 module RubyEventStore
   module ROM
     class SpecHelper
-      attr_reader :env
+      attr_reader :rom_container
 
       def initialize(database_uri = ENV['DATABASE_URL'])
         config = ::ROM::Configuration.new(
@@ -23,7 +23,7 @@ module RubyEventStore
         # config.default.connection.pool.send(:preconnect, true)
         config.default.run_migrations
 
-        @env = ROM.setup(config)
+        @rom_container = ROM.setup(config)
       end
 
       def run_lifecycle
@@ -37,7 +37,7 @@ module RubyEventStore
       end
 
       def gateway
-        env.rom_container.gateways.fetch(:default)
+        rom_container.gateways.fetch(:default)
       end
 
       def gateway_type?(name)
