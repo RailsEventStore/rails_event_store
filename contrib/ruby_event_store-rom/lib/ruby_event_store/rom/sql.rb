@@ -36,15 +36,6 @@ module RubyEventStore
             }
           )
 
-          env.register_error_handler :unique_violation, lambda { |ex|
-            case ex
-            when ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
-              raise EventDuplicatedInStream if IndexViolationDetector.new.detect(ex.message)
-
-              raise WrongExpectedEventVersion
-            end
-          }
-
           env.register_error_handler :not_found, lambda { |ex, event_id|
             case ex
             when ::ROM::TupleCountMismatchError
