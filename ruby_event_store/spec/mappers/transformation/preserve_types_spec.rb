@@ -40,27 +40,33 @@ module RubyEventStore
             metadata:   {
               some: 'meta',
               types: {
-                'any' => 'String',
-                'at_some' => 'Time',
-                'nested' => {
-                  'another_time' => 'Time',
-                  'array' => [
-                    'Integer',
-                    { 'deeply_nested' => {
-                        'time' => 'Time',
-                        'and' => 'String',
-                        '_res_symbol_keys' => ['time']
+                data: {
+                  'any' => 'String',
+                  'at_some' => 'Time',
+                  'nested' => {
+                    'another_time' => 'Time',
+                    'array' => [
+                      'Integer',
+                      { 'deeply_nested' => {
+                          'time' => 'Time',
+                          'and' => 'String',
+                          '_res_symbol_keys' => ['time']
+                        },
+                        '_res_symbol_keys' => []
                       },
-                      '_res_symbol_keys' => []
-                    },
-                    {
-                      'and_another_time' => 'Time',
-                      '_res_symbol_keys' => ['and_another_time']
-                    },
-                  ],
-                  '_res_symbol_keys' => ['another_time', 'array']
+                      {
+                        'and_another_time' => 'Time',
+                        '_res_symbol_keys' => ['and_another_time']
+                      },
+                    ],
+                    '_res_symbol_keys' => ['another_time', 'array']
+                  },
+                  '_res_symbol_keys' => ['at_some', 'nested']
                 },
-                '_res_symbol_keys' => ['at_some', 'nested']
+                metadata: {
+                  'some' => 'String',
+                  '_res_symbol_keys' => ['some']
+                }
               },
             },
             data:       {
