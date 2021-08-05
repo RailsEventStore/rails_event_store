@@ -17,7 +17,7 @@ module RubyEventStore
         event_ids          = records.map(&:event_id)
 
         handle_unique_violation do
-          @rom.unit_of_work do |changesets|
+          unit_of_work do |changesets|
             changesets << @events.create_changeset(serialized_records)
             changesets << @stream_entries.create_changeset(
               event_ids,
@@ -34,7 +34,7 @@ module RubyEventStore
         validate_event_ids(event_ids)
 
         handle_unique_violation do
-          @rom.unit_of_work do |changesets|
+          unit_of_work do |changesets|
             changesets << @stream_entries.create_changeset(
               event_ids,
               stream,
@@ -80,7 +80,7 @@ module RubyEventStore
       def update_messages(records)
         validate_event_ids(records.map(&:event_id))
 
-        @rom.unit_of_work do |changesets|
+        unit_of_work do |changesets|
           serialized_records = records.map { |record| record.serialize(@serializer) }
           changesets << @events.update_changeset(serialized_records)
         end
@@ -90,6 +90,10 @@ module RubyEventStore
         @stream_entries
           .streams_of(event_id)
           .map { |name| Stream.new(name) }
+      end
+
+      def unit_of_work(&block)
+        UnitOfWork.new(rom: @rom).call(&block)
       end
 
       private
