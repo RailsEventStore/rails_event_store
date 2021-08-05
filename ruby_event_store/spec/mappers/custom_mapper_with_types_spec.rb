@@ -66,12 +66,18 @@ module RubyEventStore
         expect(record.metadata).to   eq({
           some_meta: 1,
           types: {
-            some_attribute: 'Integer',
-            time: 'Time',
-            date: 'Date',
-            datetime: 'DateTime',
-            _res_symbol_keys: ['some_attribute', 'time', 'date', 'datetime'],
-          }
+            data: {
+              some_attribute: 'Integer',
+              time: 'Time',
+              date: 'Date',
+              datetime: 'DateTime',
+              _res_symbol_keys: ['some_attribute', 'time', 'date', 'datetime'],
+            },
+            metadata: {
+              some_meta: 'Integer',
+              _res_symbol_keys: ['some_meta'],
+            },
+          },
         })
         expect(record.event_type).to eq "SomethingHappened"
         expect(record.timestamp).to  eq(time)
@@ -85,12 +91,18 @@ module RubyEventStore
           metadata:   {
             some_meta: 1,
             types: {
-              some_attribute: 'Integer',
-              time: 'Time',
-              date: 'Date',
-              datetime: 'DateTime',
-              _res_symbol_keys: ['some_attribute', 'time', 'date', 'datetime'],
-            }
+              data: {
+                some_attribute: 'Integer',
+                time: 'Time',
+                date: 'Date',
+                datetime: 'DateTime',
+                _res_symbol_keys: ['some_attribute', 'time', 'date', 'datetime'],
+              },
+              metadata: {
+                some_meta: 'Integer',
+                _res_symbol_keys: ['some_meta'],
+              },
+            },
           },
           event_type: SomethingHappened.name,
           timestamp:  time,

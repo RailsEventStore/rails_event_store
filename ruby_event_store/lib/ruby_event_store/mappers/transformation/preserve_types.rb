@@ -19,13 +19,18 @@ module RubyEventStore
         end
 
         def dump(record)
-          types = store_types(record.data)
+          data_types = store_types(record.data)
+          metadata_types = store_types(record.metadata)
 
           Record.new(
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       transform_hash(record.data),
-            metadata:   record.metadata.merge(types: types),
+            metadata:   transform_hash(record.metadata)
+              .merge(types: {
+                data: data_types,
+                metadata: metadata_types,
+              }),
             timestamp:  record.timestamp,
             valid_at:   record.valid_at,
           )
@@ -33,13 +38,16 @@ module RubyEventStore
 
         def load(record)
           types = record.metadata.delete(:types)
-          data = types ? restore_types(record.data, types) : record.data
+          data_types = types && types[:data]
+          metadata_types = types && types[:metadata]
+          data = data_types ? restore_types(record.data, data_types) : record.data
+          metadata = metadata_types ? restore_types(record.metadata, metadata_types) : record.metadata
 
           Record.new(
             event_id:   record.event_id,
             event_type: record.event_type,
             data:       data,
-            metadata:   record.metadata,
+            metadata:   metadata,
             timestamp:  record.timestamp,
             valid_at:   record.valid_at,
           )
