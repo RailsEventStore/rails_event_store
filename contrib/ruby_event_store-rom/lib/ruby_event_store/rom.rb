@@ -48,17 +48,10 @@ module RubyEventStore
       def setup_defaults(config)
         config.register_mapper(Mappers::StreamEntryToSerializedRecord)
         config.register_mapper(Mappers::EventToSerializedRecord)
-
         SQL.setup(config)
       end
 
       def configure_defaults(env)
-        env.register_error_handler :not_found, lambda { |ex, event_id|
-          case ex
-          when ::ROM::TupleCountMismatchError
-            raise EventNotFound, event_id
-          end
-        }
         SQL.configure(env)
       end
     end
