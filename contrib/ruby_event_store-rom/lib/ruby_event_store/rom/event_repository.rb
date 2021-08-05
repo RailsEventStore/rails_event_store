@@ -16,7 +16,7 @@ module RubyEventStore
         serialized_records = records.map { |record| record.serialize(@serializer) }
         event_ids          = records.map(&:event_id)
 
-        @rom.handle_error(:unique_violation) do
+        handle_unique_violation do
           @rom.unit_of_work do |changesets|
             changesets << @events.create_changeset(serialized_records)
             changesets << @stream_entries.create_changeset(
@@ -33,7 +33,7 @@ module RubyEventStore
       def link_to_stream(event_ids, stream, expected_version)
         validate_event_ids(event_ids)
 
-        @rom.handle_error(:unique_violation) do
+        handle_unique_violation do
           @rom.unit_of_work do |changesets|
             changesets << @stream_entries.create_changeset(
               event_ids,
@@ -95,6 +95,13 @@ module RubyEventStore
         @events
           .find_nonexistent_pks(event_ids)
           .each { |id| raise EventNotFound, id }
+      end
+
+      def handle_unique_violation
+        yield
+      rescue ::ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation => doh
+        raise ::RubyEventStore::EventDuplicatedInStream if IndexViolationDetector.new.detect(doh.message)
+        raise ::RubyEventStore::WrongExpectedEventVersion
       end
     end
   end
