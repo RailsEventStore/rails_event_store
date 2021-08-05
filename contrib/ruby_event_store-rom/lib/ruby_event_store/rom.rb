@@ -22,13 +22,12 @@ require_relative 'rom/unit_of_work'
 module RubyEventStore
   module ROM
     class << self
-      def setup(adapter_name, database_uri = ENV['DATABASE_URL'], &block)
-        rom_container(adapter_name, database_uri) do |config|
-          config.register_mapper   Mappers::StreamEntryToSerializedRecord
-          config.register_mapper   Mappers::EventToSerializedRecord
-          config.register_relation Relations::Events
-          config.register_relation Relations::StreamEntries
-          yield(config) if block
+      def setup(adapter_name, database_uri = ENV['DATABASE_URL'])
+        rom_container(adapter_name, database_uri) do |rom|
+          rom.register_mapper   Mappers::StreamEntryToSerializedRecord
+          rom.register_mapper   Mappers::EventToSerializedRecord
+          rom.register_relation Relations::Events
+          rom.register_relation Relations::StreamEntries
         end
       end
 
