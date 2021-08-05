@@ -24,7 +24,7 @@ module RubyEventStore
           Record.new(
             event_id:   record.event_id,
             event_type: record.event_type,
-            data:       transform_data(record.data),
+            data:       transform_hash(record.data),
             metadata:   record.metadata.merge(types: types),
             timestamp:  record.timestamp,
             valid_at:   record.valid_at,
@@ -53,7 +53,7 @@ module RubyEventStore
         ]
         PASS_THROUGH = ->(v) { v }
 
-        def transform_data(argument)
+        def transform_hash(argument)
           argument.each_with_object({}) do |(key, value), hash|
             hash[key] = transform_argument(value)
           end
@@ -62,7 +62,7 @@ module RubyEventStore
         def transform_argument(argument)
           case argument
           when Hash
-            transform_data(argument)
+            transform_hash(argument)
           when Array
             argument.map{|i| transform_argument(i)}
           else
