@@ -7,9 +7,8 @@ module RubyEventStore
       include_examples :event_repository
 
       let(:rom_helper)     { SpecHelper.new }
-      let(:repository)     { EventRepository.new(rom: env, serializer: serializer) }
-      let(:env)            { rom_helper.env }
-      let(:rom_container)  { env.rom_container }
+      let(:rom_container)  { rom_helper.rom_container }
+      let(:repository)     { EventRepository.new(rom: rom_container, serializer: serializer) }
       let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
       let(:serializer) {
         case ENV['DATA_TYPE']
@@ -24,20 +23,6 @@ module RubyEventStore
 
       around(:each) do |example|
         rom_helper.run_lifecycle { example.run }
-      end
-
-      specify '#initialize requires ROM::Env' do
-        expect { EventRepository.new(rom: nil, serializer: serializer) }.to raise_error do |err|
-          expect(err).to be_a(ArgumentError)
-          expect(err.message).to eq('Must specify rom')
-        end
-      end
-
-      specify '#initialize uses ROM.env by default' do
-        expect { EventRepository.new(serializer: serializer) }.to raise_error(ArgumentError)
-        ROM.env = env
-        expect { EventRepository.new(serializer: serializer) }.not_to raise_error
-        ROM.env = nil
       end
 
       specify '#has_event? to raise exception for bad ID' do
@@ -73,7 +58,7 @@ module RubyEventStore
           event = SRecord.new(event_id: SecureRandom.uuid)
         ], Stream.new('stream'), ExpectedVersion.none)
 
-        UnitOfWork.new(rom: env) do
+        UnitOfWork.new(rom_helper.gateway) do
           expect do
             repository.append_to_stream([
               SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')

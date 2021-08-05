@@ -3,14 +3,11 @@
 module RubyEventStore
   module ROM
     class EventRepository
-      def initialize(rom: ROM.env, serializer:)
-        raise ArgumentError, 'Must specify rom' unless rom && rom.instance_of?(Env)
-
-        @rom            = rom
+      def initialize(rom:, serializer:)
         @serializer     = serializer
-        @events         = Repositories::Events.new(rom.rom_container)
-        @stream_entries = Repositories::StreamEntries.new(rom.rom_container)
-        @unit_of_work   = UnitOfWork.new(rom: @rom)
+        @events         = Repositories::Events.new(rom)
+        @stream_entries = Repositories::StreamEntries.new(rom)
+        @unit_of_work   = UnitOfWork.new(rom.gateways.fetch(:default))
       end
 
       def append_to_stream(records, stream, expected_version)

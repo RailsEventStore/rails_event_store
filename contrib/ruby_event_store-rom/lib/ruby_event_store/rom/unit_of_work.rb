@@ -3,8 +3,8 @@
 module RubyEventStore
   module ROM
     class UnitOfWork
-      def initialize(rom: ROM.env)
-        @gateway = rom.rom_container.gateways.fetch(:default)
+      def initialize(gateway)
+        @gateway = gateway
       end
 
       def call
