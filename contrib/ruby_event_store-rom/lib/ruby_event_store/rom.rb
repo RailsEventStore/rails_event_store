@@ -38,8 +38,6 @@ module RubyEventStore
         configure(*args) do |config|
           SQL.setup(config)
           yield(config) if block
-        end.tap do |env|
-          SQL.configure(env)
         end
       end
     end
