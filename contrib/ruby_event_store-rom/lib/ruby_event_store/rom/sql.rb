@@ -35,17 +35,6 @@ module RubyEventStore
               env.logger.warn("RETRY TRANSACTION [#{self.class.name} => #{ex.class.name}] #{ex.message}")
             }
           )
-
-          env.register_error_handler :not_found, lambda { |ex, event_id|
-            case ex
-            when ::ROM::TupleCountMismatchError
-              raise EventNotFound, event_id
-            when Sequel::DatabaseError
-              raise ex unless ex.message =~ /PG::InvalidTextRepresentation.*uuid/
-
-              raise EventNotFound, event_id
-            end
-          }
         end
 
         def supports_upsert?(db)
