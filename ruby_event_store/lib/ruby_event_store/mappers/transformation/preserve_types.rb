@@ -6,12 +6,13 @@ module RubyEventStore
       SerializationError = Class.new(ArgumentError)
 
       class PreserveTypes
-        def initialize
+        def initialize(type_resolver: ->(type) { type.to_s } )
           @registered_type_serializers = {}
+          @type_resolver = type_resolver
         end
 
         def register(type, serializer:, deserializer:)
-          @registered_type_serializers[type.to_s] = {
+          @registered_type_serializers[@type_resolver.(type)] = {
             serializer: serializer,
             deserializer: deserializer
           }
@@ -74,7 +75,7 @@ module RubyEventStore
           when Array
             argument.map{|i| transform_argument(i)}
           else
-            serializer_of(argument.class.name).call(argument)
+            serializer_of(argument.class).call(argument)
           end
         end
 
@@ -128,7 +129,7 @@ module RubyEventStore
         end
 
         def serializer_of(type)
-          @registered_type_serializers.dig(type, :serializer) || PASS_THROUGH
+          @registered_type_serializers.dig(@type_resolver.(type), :serializer) || PASS_THROUGH
         end
 
         def deserializer_of(type)
