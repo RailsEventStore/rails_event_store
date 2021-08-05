@@ -60,6 +60,9 @@ module RubyEventStore
 
       def has_event?(event_id)
         @events.exist?(event_id)
+      rescue Sequel::DatabaseError => doh
+        raise doh unless doh.message =~ /PG::InvalidTextRepresentation.*uuid/
+        false
       end
 
       def last_stream_event(stream)
