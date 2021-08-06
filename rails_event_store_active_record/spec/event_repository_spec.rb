@@ -471,14 +471,6 @@ module RailsEventStoreActiveRecord
       time.round(RubyEventStore::TIMESTAMP_PRECISION)
     end
 
-    def cleanup_concurrency_test
-      ActiveRecord::Base.connection_pool.disconnect!
-    end
-
-    def verify_conncurency_assumptions
-      expect(ActiveRecord::Base.connection.pool.size).to eq(5)
-    end
-
     def additional_limited_concurrency_for_auto_check
       positions = RailsEventStoreActiveRecord::EventInStream
         .where(stream: "stream")
