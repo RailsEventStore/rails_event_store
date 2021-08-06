@@ -87,6 +87,8 @@ module RubyEventStore
       end
     end
 
+    private
+
     def additional_limited_concurrency_for_auto_check
       positions =
         rom_container
