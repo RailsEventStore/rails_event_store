@@ -27,7 +27,6 @@ module RubyEventStore
       end
 
       def run_lifecycle
-        establish_gateway_connection
         yield
       ensure
         drop_gateway_schema
@@ -83,12 +82,6 @@ module RubyEventStore
       end
 
       protected
-
-      def establish_gateway_connection
-        # Manually preconnect because disconnecting and reconnecting
-        # seems to lose the "preconnect concurrently" setting
-        gateway.connection.pool.send(:preconnect, true)
-      end
 
       def drop_gateway_schema
         gateway.connection.drop_table?('event_store_events')
