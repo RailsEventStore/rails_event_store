@@ -467,9 +467,7 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    def with_precision(time)
-      time.round(RubyEventStore::TIMESTAMP_PRECISION)
-    end
+    private
 
     def additional_limited_concurrency_for_auto_check
       positions = RailsEventStoreActiveRecord::EventInStream
@@ -479,7 +477,9 @@ module RailsEventStoreActiveRecord
       expect(positions).to eq((0..positions.size-1).to_a)
     end
 
-    private
+    def with_precision(time)
+      time.round(RubyEventStore::TIMESTAMP_PRECISION)
+    end
 
     def count_queries(&block)
       count = 0
