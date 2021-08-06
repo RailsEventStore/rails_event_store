@@ -97,14 +97,6 @@ module RailsEventStoreActiveRecord
       expect(c6).to eq(2)
     end
 
-    specify "explicit ORDER BY position" do
-      expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
-        repository.append_to_stream([
-          RubyEventStore::SRecord.new,
-        ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
-      end
-    end
-
     specify "limited query when looking for unexisting events during linking" do
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
         expect do
