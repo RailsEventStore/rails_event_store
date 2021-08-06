@@ -11,8 +11,6 @@ require 'rom/sql'
     data_types = postgres ? %i[text json jsonb] : %i[text]
     raise ArgumentError, "DATA_TYPE must be: #{data_types.join(', ')}" unless data_types.include?(data_type)
 
-    run 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' if postgres
-
     create_table? :event_store_events_in_streams do
       primary_key :id, type: :Bignum, null: false
 
