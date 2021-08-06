@@ -25,10 +25,6 @@ module RubyEventStore
         rom_helper.run_lifecycle { example.run }
       end
 
-      specify '#has_event? to raise exception for bad ID' do
-        expect(repository.has_event?('0')).to eq(false)
-      end
-
       specify 'explicit sorting by id rather than accidental for all events' do
         events = [
           SRecord.new(event_id: u1 = SecureRandom.uuid),
