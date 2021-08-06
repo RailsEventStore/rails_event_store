@@ -25,30 +25,6 @@ module RubyEventStore
         rom_helper.run_lifecycle { example.run }
       end
 
-      specify 'explicit sorting by id rather than accidental for all events' do
-        events = [
-          SRecord.new(event_id: u1 = SecureRandom.uuid),
-          SRecord.new(event_id: u2 = SecureRandom.uuid),
-          SRecord.new(event_id: u3 = SecureRandom.uuid)
-        ].map{|r| r.serialize(serializer) }
-
-        repo = Repositories::Events.new(rom_container)
-        repo.create_changeset(events).commit
-
-        expect(repo.events.to_a.size).to eq(3)
-
-        repo.stream_entries.changeset(Changesets::CreateStreamEntries, [
-          { stream: 'all', event_id: events[0].event_id, position: 1 },
-          { stream: 'all', event_id: events[1].event_id, position: 0 },
-          { stream: 'all', event_id: events[2].event_id, position: 2 }
-        ]).commit
-
-        expect(repo.stream_entries.to_a.size).to eq(3)
-
-        expect(repository.read(specification.limit(3).result).map(&:event_id)).to eq([u1, u2, u3])
-        expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
-      end
-
       specify "does not confuse all with GLOBAL_STREAM" do
         repository.append_to_stream(
           [RubyEventStore::SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
