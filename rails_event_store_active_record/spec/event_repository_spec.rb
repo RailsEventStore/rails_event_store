@@ -97,18 +97,6 @@ module RailsEventStoreActiveRecord
       expect(c6).to eq(2)
     end
 
-    specify do
-      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/) do
-        repository.read(specification.limit(3).result)
-      end
-    end
-
-    specify do
-      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*id.* DESC LIMIT.*/) do
-        repository.read(specification.limit(3).backward.result)
-      end
-    end
-
     specify "explicit ORDER BY position" do
       expect_query(/SELECT.*FROM.*event_store_events_in_streams.*WHERE.*event_store_events_in_streams.*stream.*=.*ORDER BY position DESC LIMIT.*/) do
         repository.append_to_stream([
