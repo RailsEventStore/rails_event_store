@@ -114,6 +114,26 @@ module RailsEventStoreActiveRecord
         .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
     end
 
+    specify "nested transaction - events still not persisted if append failed" do
+      repository.append_to_stream([
+        event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
+      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+
+      ActiveRecord::Base.transaction do
+        expect do
+          repository.append_to_stream([
+            RubyEventStore::SRecord.new(
+              event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
+            ),
+          ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
+        end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+        expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+        expect(repository.read(specification.limit(2).result).to_a).to eq([event])
+      end
+      expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+      expect(repository.read(specification.limit(2).result).to_a).to eq([event])
+    end
+
     specify "using preload()" do
       repository.append_to_stream([
         event0 = RubyEventStore::SRecord.new,
@@ -201,25 +221,7 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    specify "nested transaction - events still not persisted if append failed" do
-      repository.append_to_stream([
-        event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
-      ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
 
-      ActiveRecord::Base.transaction do
-        expect do
-          repository.append_to_stream([
-            RubyEventStore::SRecord.new(
-              event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763'
-            ),
-          ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.none)
-        end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
-        expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-        expect(repository.read(specification.limit(2).result).to_a).to eq([event])
-      end
-      expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
-      expect(repository.read(specification.limit(2).result).to_a).to eq([event])
-    end
 
     specify "limited query when looking for unexisting events during linking" do
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
