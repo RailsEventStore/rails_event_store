@@ -2,6 +2,9 @@ require 'ruby_event_store/rom'
 require_relative '../../../support/helpers/rspec_defaults'
 require 'dry/inflector'
 
+require 'active_support/notifications'
+ROM::SQL.load_extensions(:active_support_notifications, :rails_log_subscriber)
+
 ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
 
 module RubyEventStore
@@ -16,7 +19,7 @@ module RubyEventStore
           max_connections: database_uri =~ /sqlite/ ? 1 : 5,
           preconnect: :concurrently,
           fractional_seconds: true
-        # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
+          # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
         )
         # $stdout.sync = true
         # config.default.use_logger Logger.new(STDOUT)
