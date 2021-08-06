@@ -49,6 +49,25 @@ module RubyEventStore
         expect(repository.read(specification.limit(3).backward.result).map(&:event_id)).to eq([u3, u2, u1])
       end
 
+      specify "does not confuse all with GLOBAL_STREAM" do
+        repository.append_to_stream(
+          [RubyEventStore::SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
+          RubyEventStore::Stream.new('all'),
+          RubyEventStore::ExpectedVersion.none
+        )
+
+        repository.append_to_stream(
+          [RubyEventStore::SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
+          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+          RubyEventStore::ExpectedVersion.any
+        )
+        expect(repository.read(specification.result))
+          .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a a1b49edb-7636-416f-874a-88f94b859bef]))
+
+        expect(repository.read(specification.stream('all').result))
+          .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
+      end
+
       specify 'nested transaction - events still not persisted if append failed' do
         repository.append_to_stream([
           event = SRecord.new(event_id: SecureRandom.uuid)
