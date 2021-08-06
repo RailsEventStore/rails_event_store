@@ -158,49 +158,6 @@ module RailsEventStoreActiveRecord
       expect(c6).to eq(2)
     end
 
-
-    specify do
-      e1 = Event.create!(
-        event_id: u1 = SecureRandom.uuid,
-        data: '{}',
-        metadata: '{}',
-        event_type: "TestDomainEvent",
-        valid_at: time,
-      )
-      e2 = Event.create!(
-        event_id: u2 = SecureRandom.uuid,
-        data: '{}',
-        metadata: '{}',
-        event_type: "TestDomainEvent",
-        valid_at: time,
-      )
-      e3 = Event.create!(
-        event_id: u3 = SecureRandom.uuid,
-        data: '{}',
-        metadata: '{}',
-        event_type: "TestDomainEvent",
-        valid_at: time,
-      )
-      EventInStream.create!(
-        stream:   "all",
-        position: 1,
-        event_id: e1.event_id,
-      )
-      EventInStream.create!(
-        stream:   "all",
-        position: 0,
-        event_id: e2.event_id,
-      )
-      EventInStream.create!(
-        stream:   "all",
-        position: 2,
-        event_id: e3.event_id,
-      )
-
-      expect(repository.read(specification.to(u3).limit(3).result).map(&:event_id)).to eq([u1,u2])
-      expect(repository.read(specification.to(u1).limit(3).backward.result).map(&:event_id)).to eq([u3,u2])
-    end
-
     specify do
       expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/) do
         repository.read(specification.limit(3).result)
@@ -220,8 +177,6 @@ module RailsEventStoreActiveRecord
         ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
       end
     end
-
-
 
     specify "limited query when looking for unexisting events during linking" do
       expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
