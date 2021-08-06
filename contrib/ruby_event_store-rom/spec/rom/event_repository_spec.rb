@@ -42,17 +42,17 @@ module RubyEventStore
         expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
         expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
-    end
 
-    private
+      private
 
-    def additional_limited_concurrency_for_auto_check
-      positions =
-        rom_container
-          .relations[:stream_entries]
-          .ordered(:forward, RubyEventStore::Stream.new('stream'))
-          .map { |entity| entity[:position] }
-      expect(positions).to eq((0..positions.size - 1).to_a)
+      def additional_limited_concurrency_for_auto_check
+        positions =
+          rom_container
+            .relations[:stream_entries]
+            .ordered(:forward, RubyEventStore::Stream.new('stream'))
+            .map { |entity| entity[:position] }
+        expect(positions).to eq((0..positions.size - 1).to_a)
+      end
     end
   end
 end
