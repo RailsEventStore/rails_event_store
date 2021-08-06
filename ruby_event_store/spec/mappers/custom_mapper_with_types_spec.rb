@@ -12,6 +12,11 @@ module RubyEventStore
         super(Pipeline.new(
           Transformation::PreserveTypes.new
             .register(
+              Symbol,
+              serializer: ->(v) { v.to_s },
+              deserializer: ->(v) { v.to_sym },
+            )
+            .register(
               Time,
               serializer: ->(v) { v.iso8601(9) },
               deserializer: ->(v) { Time.iso8601(v) },
@@ -39,6 +44,7 @@ module RubyEventStore
       let(:data)         {
         {
           some_attribute: 5,
+          symbol: :any,
           time: time,
           date: date,
           datetime: datetime,
@@ -47,6 +53,7 @@ module RubyEventStore
       let(:serialized_data) {
         {
           some_attribute: 5,
+          symbol: 'any',
           time: "2021-08-05T10:00:00.000000000Z",
           date: "2021-08-05",
           datetime: "2021-08-05T12:00:00.000000000+00:00",
@@ -68,10 +75,11 @@ module RubyEventStore
           types: {
             data: {
               some_attribute: 'Integer',
+              symbol: 'Symbol',
               time: 'Time',
               date: 'Date',
               datetime: 'DateTime',
-              _res_symbol_keys: ['some_attribute', 'time', 'date', 'datetime'],
+              _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'date', 'datetime'],
             },
             metadata: {
               some_meta: 'Integer',
@@ -93,10 +101,11 @@ module RubyEventStore
             types: {
               data: {
                 some_attribute: 'Integer',
+                symbol: 'Symbol',
                 time: 'Time',
                 date: 'Date',
                 datetime: 'DateTime',
-                _res_symbol_keys: ['some_attribute', 'time', 'date', 'datetime'],
+                _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'date', 'datetime'],
               },
               metadata: {
                 some_meta: 'Integer',
