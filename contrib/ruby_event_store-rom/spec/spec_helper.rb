@@ -112,3 +112,12 @@ module RubyEventStore
     end
   end
 end
+
+RSpec::Matchers.define :contains_ids do |expected_ids|
+  match do |enum|
+    @actual = enum.map(&:event_id)
+    values_match?(expected_ids, @actual)
+  end
+  diffable
+end
+
