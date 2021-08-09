@@ -2,8 +2,6 @@ require 'spec_helper'
 require 'json'
 require 'ruby_event_store/spec/mapper_lint'
 
-SomethingHappened = Class.new(RubyEventStore::Event)
-
 module RubyEventStore
   module Mappers
 
@@ -64,9 +62,9 @@ module RubyEventStore
       }
       let(:metadata)     { {some_meta: 1} }
       let(:event_id)     { SecureRandom.uuid }
-      let(:domain_event) { TimeEnrichment.with(SomethingHappened.new(data: data, metadata: metadata, event_id: event_id), timestamp: time, valid_at: time) }
+      let(:domain_event) { TimeEnrichment.with(TestEvent.new(data: data, metadata: metadata, event_id: event_id), timestamp: time, valid_at: time) }
 
-      it_behaves_like :mapper, MapperWithTypes.new, TimeEnrichment.with(SomethingHappened.new)
+      it_behaves_like :mapper, MapperWithTypes.new, TimeEnrichment.with(TestEvent.new)
 
       specify '#event_to_record returns transformed record' do
         record = subject.event_to_record(domain_event)
@@ -91,7 +89,7 @@ module RubyEventStore
             },
           },
         })
-        expect(record.event_type).to eq "SomethingHappened"
+        expect(record.event_type).to eq "TestEvent"
         expect(record.timestamp).to  eq(time)
         expect(record.valid_at).to   eq(time)
       end
@@ -118,7 +116,7 @@ module RubyEventStore
               },
             },
           },
-          event_type: SomethingHappened.name,
+          event_type: TestEvent.name,
           timestamp:  time,
           valid_at:   time,
         )
@@ -136,7 +134,7 @@ module RubyEventStore
           event_id:   domain_event.event_id,
           data:       serialized_data,
           metadata:   { some_meta: 1 },
-          event_type: SomethingHappened.name,
+          event_type: TestEvent.name,
           timestamp:  time,
           valid_at:   time,
         )
@@ -153,7 +151,7 @@ module RubyEventStore
           event_id:   domain_event.event_id,
           data:       { some_attribute: 5 },
           metadata:   stringify({ some_meta: 1}),
-          event_type: SomethingHappened.name,
+          event_type: TestEvent.name,
           timestamp:  time,
           valid_at:   time,
         )
