@@ -44,9 +44,11 @@ module RailsEventStoreActiveRecord
   end
 
   RSpec.describe PgLinearizedEventRepository do
-    include_examples :event_repository
-    let(:repository) { PgLinearizedEventRepository.new(serializer: YAML) }
-    let(:helper) { PgLinearizedEventRepository::SpecHelper.new }
+    mk_repository = ->{ PgLinearizedEventRepository.new(serializer: YAML) }
+
+    it_behaves_like :event_repository, mk_repository, PgLinearizedEventRepository::SpecHelper.new
+
+    let(:repository) { mk_repository.call }
 
     include SchemaHelper
     around(:each) do |example|
