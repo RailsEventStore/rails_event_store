@@ -253,9 +253,8 @@ module RubyEventStore
       end
     end
   end
+
   RSpec.describe InstrumentedRepository do
-    include_examples :event_repository
-    let(:repository) { InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }
-    let(:helper) { InstrumentedRepository::SpecHelper.new }
+    it_behaves_like :event_repository, ->{ InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }, InstrumentedRepository::SpecHelper.new
   end
 end

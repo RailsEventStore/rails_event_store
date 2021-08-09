@@ -42,9 +42,15 @@ module RubyEventStore
   end
 
   RSpec.describe InMemoryRepository do
-    include_examples :event_repository
-    let(:repository) { InMemoryRepository.new }
-    let(:helper) { InMemoryRepository::SpecHelper.new }
+    mk_repository = ->{ InMemoryRepository.new }
+
+    it_behaves_like :event_repository, mk_repository, ::RubyEventStore::InMemoryRepository::SpecHelper.new
+
+    let(:repository)   { mk_repository.call }
+    let(:stream)       { Stream.new(SecureRandom.uuid) }
+    let(:version_any)  { ExpectedVersion.any }
+    let(:version_auto) { ExpectedVersion.auto }
+    let(:stream_other) { Stream.new('other') }
 
     it 'does not confuse all with GLOBAL_STREAM' do
       repository.append_to_stream(

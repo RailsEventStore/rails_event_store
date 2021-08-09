@@ -4,22 +4,23 @@ require 'ruby_event_store/spec/event_repository_lint'
 module RubyEventStore
   module ROM
     RSpec.describe EventRepository do
-      include_examples :event_repository
+      mk_repository = -> do
+        serializer =
+          case ENV['DATA_TYPE']
+          when /json/
+            JSON
+          else
+            YAML
+          end
+        EventRepository.new(rom: SpecHelper.new.rom_container, serializer: serializer)
+      end
+
+      it_behaves_like :event_repository, mk_repository, SpecHelper.new
 
       let(:rom_helper)     { SpecHelper.new }
       let(:rom_container)  { rom_helper.rom_container }
-      let(:repository)     { EventRepository.new(rom: rom_container, serializer: serializer) }
+      let(:repository)     { mk_repository.call }
       let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
-      let(:serializer) {
-        case ENV['DATA_TYPE']
-        when /json/
-          JSON
-        else
-          YAML
-        end
-      }
-
-      let(:helper) { rom_helper }
 
       around(:each) do |example|
         rom_helper.run_lifecycle { example.run }

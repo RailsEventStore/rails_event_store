@@ -29,8 +29,8 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  ::RSpec.shared_examples :event_repository do
-    let(:helper)        { EventRepositoryHelper.new }
+  ::RSpec.shared_examples :event_repository do |mk_repository, helper|
+    let(:repository)    { mk_repository.call }
     let(:specification) { Specification.new(SpecificationReader.new(repository, Mappers::NullMapper.new)) }
     let(:global_stream) { Stream.new(GLOBAL_STREAM) }
     let(:stream)        { Stream.new(SecureRandom.uuid) }
@@ -45,12 +45,12 @@ module RubyEventStore
     let(:version_2)     { ExpectedVersion.new(2) }
     let(:version_3)     { ExpectedVersion.new(3) }
 
-    def verify_conncurency_assumptions
+    def verify_conncurency_assumptions(helper)
       return unless helper.has_connection_pooling?
       expect(helper.connection_pool_size).to eq(5)
     end
 
-    def read_events(scope, stream = nil, from: nil, to: nil, count: nil)
+    def read_events(repository, scope, stream = nil, from: nil, to: nil, count: nil)
       scope = scope.stream(stream.name) if stream
       scope = scope.from(from) if from
       scope = scope.to(to) if to
@@ -58,12 +58,12 @@ module RubyEventStore
       repository.read(scope.result).to_a
     end
 
-    def read_events_forward(_repository, stream = nil, from: nil, to: nil, count: nil)
-      read_events(specification, stream, from: from, to: to, count: count)
+    def read_events_forward(repository, stream = nil, from: nil, to: nil, count: nil)
+      read_events(repository, specification, stream, from: from, to: to, count: count)
     end
 
-    def read_events_backward(_repository, stream = nil, from: nil, to: nil, count: nil)
-      read_events(specification.backward, stream, from: from, to: to, count: count)
+    def read_events_backward(repository, stream = nil, from: nil, to: nil, count: nil)
+      read_events(repository, specification.backward, stream, from: from, to: to, count: count)
     end
 
     it 'just created is empty' do
@@ -402,7 +402,7 @@ module RubyEventStore
 
     specify 'unlimited concurrency for :any - everything should succeed', timeout: 10, mutant: false do
       skip unless helper.supports_concurrent_any?
-      verify_conncurency_assumptions
+      verify_conncurency_assumptions(helper)
       begin
         concurrency_level = 4
         fail_occurred     = false
@@ -440,7 +440,7 @@ module RubyEventStore
 
     specify 'unlimited concurrency for :any - everything should succeed when linking', timeout: 10, mutant: false do
       skip unless helper.supports_concurrent_any?
-      verify_conncurency_assumptions
+      verify_conncurency_assumptions(helper)
       begin
         concurrency_level = 4
         fail_occurred     = false
@@ -485,7 +485,7 @@ module RubyEventStore
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
       skip unless helper.supports_concurrent_auto?
-      verify_conncurency_assumptions
+      verify_conncurency_assumptions(helper)
       begin
         concurrency_level = 4
 
@@ -526,7 +526,7 @@ module RubyEventStore
 
     specify 'limited concurrency for :auto - some operations will fail without outside lock, stream is ordered', mutant: false do
       skip unless helper.supports_concurrent_auto?
-      verify_conncurency_assumptions
+      verify_conncurency_assumptions(helper)
       begin
         concurrency_level = 4
 
