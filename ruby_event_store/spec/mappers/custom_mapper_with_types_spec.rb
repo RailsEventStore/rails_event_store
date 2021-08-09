@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'json'
 require 'ruby_event_store/spec/mapper_lint'
+require 'active_support/time'
 
 SomethingHappened = Class.new(RubyEventStore::Event)
 
@@ -38,7 +39,8 @@ module RubyEventStore
 
 
     RSpec.describe MapperWithTypes do
-      let(:time)         { Time.new(2021, 8, 5, 12, 00, 00).utc }
+      let(:time)         { Time.new(2021, 8, 5, 12, 00, 00) }
+      let(:utc_time)     { Time.new(2021, 8, 5, 12, 00, 00).utc }
       let(:date)         { Date.new(2021, 8, 5) }
       let(:datetime)     { DateTime.new(2021, 8, 5, 12, 00, 00) }
       let(:data)         {
@@ -46,6 +48,7 @@ module RubyEventStore
           some_attribute: 5,
           symbol: :any,
           time: time,
+          utc_time: utc_time,
           date: date,
           datetime: datetime,
         }
@@ -54,7 +57,8 @@ module RubyEventStore
         {
           some_attribute: 5,
           symbol: 'any',
-          time: "2021-08-05T10:00:00.000000000Z",
+          time: "2021-08-05T12:00:00.000000000+02:00",
+          utc_time: "2021-08-05T10:00:00.000000000Z",
           date: "2021-08-05",
           datetime: "2021-08-05T12:00:00.000000000+00:00",
         }
@@ -64,6 +68,10 @@ module RubyEventStore
       let(:domain_event) { TimeEnrichment.with(SomethingHappened.new(data: data, metadata: metadata, event_id: event_id), timestamp: time, valid_at: time) }
 
       it_behaves_like :mapper, MapperWithTypes.new, TimeEnrichment.with(SomethingHappened.new)
+
+      around(:each) do |example|
+        Time.use_zone('UTC') { example.run }
+      end
 
       specify '#event_to_record returns transformed record' do
         record = subject.event_to_record(domain_event)
@@ -77,9 +85,10 @@ module RubyEventStore
               some_attribute: 'Integer',
               symbol: 'Symbol',
               time: 'Time',
+              utc_time: 'Time',
               date: 'Date',
               datetime: 'DateTime',
-              _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'date', 'datetime'],
+              _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'utc_time', 'date', 'datetime'],
             },
             metadata: {
               some_meta: 'Integer',
@@ -103,9 +112,10 @@ module RubyEventStore
                 some_attribute: 'Integer',
                 symbol: 'Symbol',
                 time: 'Time',
+                utc_time: 'Time',
                 date: 'Date',
                 datetime: 'DateTime',
-                _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'date', 'datetime'],
+                _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'utc_time', 'date', 'datetime'],
               },
               metadata: {
                 some_meta: 'Integer',
