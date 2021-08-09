@@ -49,25 +49,6 @@ module RubyEventStore
     let(:repository)   { mk_repository.call }
     let(:stream)       { Stream.new(SecureRandom.uuid) }
 
-    it 'does not confuse all with GLOBAL_STREAM' do
-      repository.append_to_stream(
-        [SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
-        Stream.new('all'),
-        ExpectedVersion.none
-      )
-      repository.append_to_stream(
-        [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
-        Stream.new('stream'),
-        ExpectedVersion.none
-      )
-
-      expect(repository.read(Specification.new(SpecificationReader.new(repository, Mappers::NullMapper.new)).result))
-        .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a a1b49edb-7636-416f-874a-88f94b859bef]))
-
-      expect(repository.read(Specification.new(SpecificationReader.new(repository, Mappers::NullMapper.new)).stream('all').result))
-        .to(contains_ids(%w[fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a]))
-    end
-
     it 'does not allow same event twice in a stream - checks stream events before checking all events' do
       repository.append_to_stream(
         [SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
