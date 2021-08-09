@@ -48,9 +48,6 @@ module RubyEventStore
 
     let(:repository)   { mk_repository.call }
     let(:stream)       { Stream.new(SecureRandom.uuid) }
-    let(:version_any)  { ExpectedVersion.any }
-    let(:version_auto) { ExpectedVersion.auto }
-    let(:stream_other) { Stream.new('other') }
 
     it 'does not confuse all with GLOBAL_STREAM' do
       repository.append_to_stream(
@@ -119,12 +116,12 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_auto)
+      ], Stream.new('stream'), ExpectedVersion.auto)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], stream, version_any)
+        ], Stream.new('stream'), ExpectedVersion.any)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
@@ -132,12 +129,12 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_any)
+      ], Stream.new('stream'), ExpectedVersion.any)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], stream, version_any)
+        ], Stream.new('stream'), ExpectedVersion.any)
       end.not_to raise_error
     end
 
@@ -145,12 +142,12 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_any)
+      ], Stream.new('stream'), ExpectedVersion.any)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], stream, version_auto)
+        ], Stream.new('stream'), ExpectedVersion.auto)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
@@ -158,15 +155,15 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_auto)
+      ], Stream.new('stream'), ExpectedVersion.auto)
       repository.append_to_stream([
         event1 = SRecord.new
-      ], stream_other, version_auto)
+      ],  Stream.new('other'), ExpectedVersion.auto)
 
       expect do
         repository.link_to_stream([
           event1.event_id,
-        ], stream, version_any)
+        ], Stream.new('stream'), ExpectedVersion.any)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
@@ -174,15 +171,15 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_any)
+      ], Stream.new('stream'), ExpectedVersion.any)
       repository.append_to_stream([
         event1 = SRecord.new
-      ], stream_other, version_auto)
+      ],  Stream.new('other'), ExpectedVersion.auto)
 
       expect do
         repository.link_to_stream([
           event1.event_id
-        ], stream, version_any)
+        ], Stream.new('stream'), ExpectedVersion.any)
       end.not_to raise_error
     end
 
@@ -190,15 +187,15 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_any)
+      ], Stream.new('stream'), ExpectedVersion.any)
       repository.append_to_stream([
         event1 = SRecord.new
-      ], stream_other, version_auto)
+      ],  Stream.new('other'), ExpectedVersion.auto)
 
       expect do
         repository.link_to_stream([
           event1.event_id
-        ], stream, version_auto)
+        ], Stream.new('stream'), ExpectedVersion.auto)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
@@ -218,12 +215,12 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_auto)
+      ], Stream.new('stream'), ExpectedVersion.auto)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], stream, version_any)
+        ], Stream.new('stream'), ExpectedVersion.any)
       end.not_to raise_error
     end
 
@@ -232,24 +229,24 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_any)
+      ], Stream.new('stream'), ExpectedVersion.any)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], stream, version_auto)
+        ], Stream.new('stream'), ExpectedVersion.auto)
       end.not_to raise_error
     end
 
     it 'stream position verification is turned off by default' do
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], stream, version_auto)
+      ], Stream.new('stream'), ExpectedVersion.auto)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], stream, version_any)
+        ], Stream.new('stream'), ExpectedVersion.any)
       end.not_to raise_error
     end
   end
