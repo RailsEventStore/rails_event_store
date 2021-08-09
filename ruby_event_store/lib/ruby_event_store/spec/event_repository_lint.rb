@@ -26,43 +26,6 @@ module RubyEventStore
   Type2 = Class.new(RubyEventStore::Event)
   # @private
   Type3 = Class.new(RubyEventStore::Event)
-
-  # @private
-  class EventRepositoryHelper
-    def supports_concurrent_auto?
-      true
-    end
-
-    def supports_concurrent_any?
-      true
-    end
-
-    def supports_binary?
-      true
-    end
-
-    def supports_upsert?
-      true
-    end
-
-    def has_connection_pooling?
-      false
-    end
-
-    def connection_pool_size
-    end
-
-    def cleanup_concurrency_test
-    end
-
-    def rescuable_concurrency_test_errors
-      []
-    end
-
-    def supports_position_queries?
-      true
-    end
-  end
 end
 
 module RubyEventStore

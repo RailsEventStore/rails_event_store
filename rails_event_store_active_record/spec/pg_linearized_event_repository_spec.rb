@@ -4,12 +4,20 @@ require 'ruby_event_store/spec/event_repository_lint'
 
 module RailsEventStoreActiveRecord
   class PgLinearizedEventRepository
-    class SpecHelper < RubyEventStore::EventRepositoryHelper
+    class SpecHelper
       def supports_concurrent_auto?
         false
       end
 
+      def supports_concurrent_any?
+        false
+      end
+
       def supports_binary?
+        false
+      end
+
+      def supports_upsert?
         false
       end
 
@@ -23,6 +31,14 @@ module RailsEventStoreActiveRecord
 
       def cleanup_concurrency_test
         ActiveRecord::Base.connection_pool.disconnect!
+      end
+
+      def rescuable_concurrency_test_errors
+        []
+      end
+
+      def supports_position_queries?
+        true
       end
     end
   end

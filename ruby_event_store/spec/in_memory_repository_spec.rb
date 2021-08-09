@@ -3,10 +3,48 @@ require 'ruby_event_store/spec/event_repository_lint'
 
 
 module RubyEventStore
+  class InMemoryRepository
+    class SpecHelper
+      def supports_concurrent_auto?
+        true
+      end
+
+      def supports_concurrent_any?
+        true
+      end
+
+      def supports_binary?
+        true
+      end
+
+      def supports_upsert?
+        true
+      end
+
+      def has_connection_pooling?
+        false
+      end
+
+      def connection_pool_size
+      end
+
+      def cleanup_concurrency_test
+      end
+
+      def rescuable_concurrency_test_errors
+        []
+      end
+
+      def supports_position_queries?
+        true
+      end
+    end
+  end
+
   RSpec.describe InMemoryRepository do
     include_examples :event_repository
     let(:repository) { InMemoryRepository.new }
-    let(:helper) { EventRepositoryHelper.new }
+    let(:helper) { InMemoryRepository::SpecHelper.new }
 
     it 'does not confuse all with GLOBAL_STREAM' do
       repository.append_to_stream(

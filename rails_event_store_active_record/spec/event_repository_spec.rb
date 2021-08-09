@@ -4,13 +4,21 @@ require 'ruby_event_store/spec/event_repository_lint'
 
 module RailsEventStoreActiveRecord
   class EventRepository
-    class SpecHelper < RubyEventStore::EventRepositoryHelper
+    class SpecHelper
       def supports_concurrent_auto?
         !ENV['DATABASE_URL'].include?("sqlite")
       end
 
       def supports_concurrent_any?
         !ENV['DATABASE_URL'].include?("sqlite")
+      end
+
+      def supports_binary?
+        true
+      end
+
+      def supports_upsert?
+        true
       end
 
       def has_connection_pooling?
@@ -23,6 +31,14 @@ module RailsEventStoreActiveRecord
 
       def cleanup_concurrency_test
         ActiveRecord::Base.connection_pool.disconnect!
+      end
+
+      def rescuable_concurrency_test_errors
+        []
+      end
+
+      def supports_position_queries?
+        true
       end
     end
   end

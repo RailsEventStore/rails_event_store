@@ -40,8 +40,20 @@ module RubyEventStore
         rom_container.gateways.fetch(:default)
       end
 
-      def gateway_type?(name)
-        gateway.connection.database_type.eql?(name)
+      def supports_concurrent_auto?
+        has_connection_pooling?
+      end
+
+      def supports_concurrent_any?
+        has_connection_pooling?
+      end
+
+      def supports_binary?
+        ENV['DATA_TYPE'] == 'text'
+      end
+
+      def supports_upsert?
+        true
       end
 
       def has_connection_pooling?
@@ -52,39 +64,27 @@ module RubyEventStore
         gateway.connection.pool.size
       end
 
-      def close_pool_connection
-        gateway.connection.pool.disconnect
-      end
-
-      def supports_upsert?
-        true
-      end
-
-      def supports_concurrent_any?
-        has_connection_pooling?
-      end
-
-      def supports_concurrent_auto?
-        has_connection_pooling?
-      end
-
-      def supports_binary?
-        ENV['DATA_TYPE'] == 'text'
-      end
-
-      def supports_position_queries?
-        true
+      def cleanup_concurrency_test
+        close_pool_connection
       end
 
       def rescuable_concurrency_test_errors
         [::ROM::SQL::Error]
       end
 
-      def cleanup_concurrency_test
-        close_pool_connection
+      def supports_position_queries?
+        true
       end
 
       protected
+
+      def gateway_type?(name)
+        gateway.connection.database_type.eql?(name)
+      end
+
+      def close_pool_connection
+        gateway.connection.pool.disconnect
+      end
 
       def drop_gateway_schema
         gateway.connection.drop_table?('event_store_events')
