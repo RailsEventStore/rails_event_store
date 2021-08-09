@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'json'
 require 'ruby_event_store/spec/mapper_lint'
-require 'active_support/time'
 
 SomethingHappened = Class.new(RubyEventStore::Event)
 
@@ -57,10 +56,10 @@ module RubyEventStore
         {
           some_attribute: 5,
           symbol: 'any',
-          time: "2021-08-05T12:00:00.000000000+02:00",
-          utc_time: "2021-08-05T10:00:00.000000000Z",
-          date: "2021-08-05",
-          datetime: "2021-08-05T12:00:00.000000000+00:00",
+          time: time.iso8601(9),
+          utc_time: utc_time.iso8601(9),
+          date: date.iso8601,
+          datetime: datetime.iso8601(9),
         }
       }
       let(:metadata)     { {some_meta: 1} }
@@ -68,10 +67,6 @@ module RubyEventStore
       let(:domain_event) { TimeEnrichment.with(SomethingHappened.new(data: data, metadata: metadata, event_id: event_id), timestamp: time, valid_at: time) }
 
       it_behaves_like :mapper, MapperWithTypes.new, TimeEnrichment.with(SomethingHappened.new)
-
-      around(:each) do |example|
-        Time.use_zone('UTC') { example.run }
-      end
 
       specify '#event_to_record returns transformed record' do
         record = subject.event_to_record(domain_event)
