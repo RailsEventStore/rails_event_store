@@ -41,8 +41,8 @@ module RubyEventStore
 
         def load(record)
           types = record.metadata.delete(:types) rescue nil
-          data_types = types && types[:data]
-          metadata_types = types && types[:metadata]
+          data_types = types&.fetch(:data, nil)
+          metadata_types = types&.fetch(:metadata, nil)
           data = data_types ? restore_type(record.data, data_types) : record.data
           metadata = metadata_types ? restore_type(record.metadata, metadata_types) : record.metadata
 
