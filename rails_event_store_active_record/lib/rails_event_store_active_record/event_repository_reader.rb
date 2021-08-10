@@ -14,7 +14,7 @@ module RailsEventStoreActiveRecord
     end
 
     def last_stream_event(stream)
-      record_ = @stream_klass.where(stream: stream.name).order('position DESC, id DESC').first
+      record_ = @stream_klass.where(stream: stream.name).order("position DESC, id DESC").first
       record(record_) if record_
     end
 
@@ -44,13 +44,13 @@ module RailsEventStoreActiveRecord
     end
 
     def position_in_stream(event_id, stream)
-      record = @stream_klass.select('position').where(stream: stream.name).find_by(event_id: event_id)
+      record = @stream_klass.select("position").where(stream: stream.name).find_by(event_id: event_id)
       raise RubyEventStore::EventNotFoundInStream if record.nil?
       record.position
     end
 
     def global_position(event_id)
-      record = @event_klass.select('id').find_by(event_id: event_id)
+      record = @event_klass.select("id").find_by(event_id: event_id)
       raise RubyEventStore::EventNotFound.new(event_id) if record.nil?
       record.id - 1
     end
@@ -170,7 +170,7 @@ module RailsEventStoreActiveRecord
     end
 
     def order(spec)
-      spec.forward? ? 'ASC' : 'DESC'
+      spec.forward? ? "ASC" : "DESC"
     end
 
     def record(record)

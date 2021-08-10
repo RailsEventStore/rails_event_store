@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'action_controller/railtie'
+require "spec_helper"
+require "action_controller/railtie"
 
 module RailsEventStore
   RSpec.describe LinkByMetadata do

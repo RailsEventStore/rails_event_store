@@ -1,14 +1,14 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Metadata do
 
-    specify 'default values' do
+    specify "default values" do
       expect(Metadata.new.each.to_a).to be_empty
-      expect(Metadata.new({a: 'b'}).each.to_a).to eq([[:a, 'b']])
+      expect(Metadata.new({a: "b"}).each.to_a).to eq([[:a, "b"]])
     end
 
-    specify 'allowed values' do
+    specify "allowed values" do
       m = Metadata.new
       m[:key] = "string"
       expect(m[:key]).to eq("string")
@@ -37,8 +37,8 @@ module RubyEventStore
       m[:key] = nil
       expect(m[:key]).to eq(nil)
 
-      m[:key] = {some: 'hash', with: {nested: 'values'}}
-      expect(m[:key]).to eq({some: 'hash', with: {nested: 'values'}})
+      m[:key] = {some: "hash", with: {nested: "values"}}
+      expect(m[:key]).to eq({some: "hash", with: {nested: "values"}})
 
       m[:key] = [1,2,3]
       expect(m[:key]).to eq([1,2,3])
@@ -48,11 +48,11 @@ module RubyEventStore
       end.to raise_error(ArgumentError)
 
       expect do
-        m['key'] = 1
+        m["key"] = 1
       end.to raise_error(ArgumentError)
     end
 
-    specify 'allowed keys' do
+    specify "allowed keys" do
       m = Metadata.new
 
       expect do
@@ -64,7 +64,7 @@ module RubyEventStore
       end.to raise_error(ArgumentError)
     end
 
-    specify 'each' do
+    specify "each" do
       m = Metadata.new
       m[:a] = 1
       m[:b] = "2"
@@ -74,7 +74,7 @@ module RubyEventStore
       end.to yield_successive_args([:a, 1], [:b, "2"])
     end
 
-    specify 'to_h' do
+    specify "to_h" do
       m = Metadata.new
       m[:a] = 1
       m[:b] = "2"
@@ -85,13 +85,13 @@ module RubyEventStore
       expect(m[:x]).to be_nil
     end
 
-    specify 'Enumerable' do
+    specify "Enumerable" do
       m = Metadata.new
       m[:a] = 1
       expect(m.map{|k,v| [k,v] }).to eq([[:a, 1]])
     end
 
-    specify 'safe Hash methods' do
+    specify "safe Hash methods" do
       m = Metadata.new
       m[:a] = 1
       expect(m.key?(:a)).to eq(true)

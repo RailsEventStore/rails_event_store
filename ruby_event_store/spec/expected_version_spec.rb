@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe ExpectedVersion do
@@ -28,11 +28,11 @@ module RubyEventStore
 
     specify { expect { ExpectedVersion.auto.resolve_for(Stream.new(GLOBAL_STREAM)) }.to raise_error(InvalidExpectedVersion) }
 
-    specify { expect(ExpectedVersion.none.resolve_for(Stream.new('dummy'))).to eq(ExpectedVersion::POSITION_DEFAULT) }
+    specify { expect(ExpectedVersion.none.resolve_for(Stream.new("dummy"))).to eq(ExpectedVersion::POSITION_DEFAULT) }
 
-    specify { expect(ExpectedVersion.new(2).resolve_for(Stream.new('dummy'))).to eq(2) }
+    specify { expect(ExpectedVersion.new(2).resolve_for(Stream.new("dummy"))).to eq(2) }
 
-    specify { expect(ExpectedVersion.any.resolve_for(Stream.new('dummy'))).to eq(nil) }
+    specify { expect(ExpectedVersion.any.resolve_for(Stream.new("dummy"))).to eq(nil) }
 
     specify do
       resolver = ->(stream) do
@@ -44,17 +44,17 @@ module RubyEventStore
         end
       end
 
-      expect(ExpectedVersion.auto.resolve_for(Stream.new('42'), resolver)).to eq(42)
-      expect(ExpectedVersion.auto.resolve_for(Stream.new('dummy'), resolver)).to eq(13)
+      expect(ExpectedVersion.auto.resolve_for(Stream.new("42"), resolver)).to eq(42)
+      expect(ExpectedVersion.auto.resolve_for(Stream.new("dummy"), resolver)).to eq(13)
     end
 
     specify do
-      stream = Stream.new('some')
+      stream = Stream.new("some")
       expect(ExpectedVersion.auto.resolve_for(stream)).to eq(ExpectedVersion::POSITION_DEFAULT)
     end
 
     specify do
-      stream = Stream.new('some')
+      stream = Stream.new("some")
       expect(ExpectedVersion.auto.resolve_for(stream, Proc.new {})).to eq(ExpectedVersion::POSITION_DEFAULT)
     end
 

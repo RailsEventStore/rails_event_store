@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 FooBarEvent = Class.new(::RubyEventStore::Event)
 
@@ -10,13 +10,13 @@ module RubyEventStore
 
     specify "main view", mutant: false do
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
-      event_store.publish(foo_bar_event, stream_name: 'dummy')
+      event_store.publish(foo_bar_event, stream_name: "dummy")
 
-      visit('/')
+      visit("/")
 
       expect(page).to have_content("Events in all")
 
-      click_on 'FooBarEvent'
+      click_on "FooBarEvent"
 
       expect(page).to have_content(foo_bar_event.event_id)
       expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])
@@ -26,13 +26,13 @@ module RubyEventStore
 
     specify "stream view", mutant: false do
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
-      event_store.publish(foo_bar_event, stream_name: 'foo/bar.xml')
+      event_store.publish(foo_bar_event, stream_name: "foo/bar.xml")
 
-      visit('/streams/foo%2Fbar.xml')
+      visit("/streams/foo%2Fbar.xml")
 
       expect(page).to have_content("Events in foo/bar.xml")
 
-      click_on 'FooBarEvent'
+      click_on "FooBarEvent"
 
       expect(page).to have_content(foo_bar_event.event_id)
       expect(page).to have_content(%Q[timestamp: "#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}"])

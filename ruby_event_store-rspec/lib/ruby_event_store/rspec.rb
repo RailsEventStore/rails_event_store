@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rspec'
+require "rspec"
 
 module RubyEventStore
   module RSpec

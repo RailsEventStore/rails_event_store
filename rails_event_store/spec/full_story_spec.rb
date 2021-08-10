@@ -1,17 +1,17 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RailsEventStore
   RSpec.describe Client do
 
-    specify 'restoring a read model from all events' do
+    specify "restoring a read model from all events" do
       client = Client.new
       publish_ordering_events(client)
-      order_events = client.read.stream('order_1').to_a
+      order_events = client.read.stream("order_1").to_a
       invoice = InvoiceReadModel.new(order_events)
       assert_invoice_structure(invoice)
     end
 
-    specify 'building a read model runtime - pub_sub' do
+    specify "building a read model runtime - pub_sub" do
       client = Client.new
       invoice = InvoiceReadModel.new
       client.subscribe(invoice, to: [PriceChanged, ProductAdded])
@@ -19,7 +19,7 @@ module RailsEventStore
       assert_invoice_structure(invoice)
     end
 
-    specify 'building a read model based on all events' do
+    specify "building a read model based on all events" do
       client = Client.new
       invoice = InvoiceReadModel.new
       client.subscribe_to_all_events(invoice)
@@ -30,25 +30,25 @@ module RailsEventStore
     private
 
     def publish_ordering_events(client)
-      ordering_events.each { |event| client.publish(event, stream_name: 'order_1') }
+      ordering_events.each { |event| client.publish(event, stream_name: "order_1") }
     end
 
     def ordering_events
       [
-          OrderCreated.new(data: { customer_name: 'andrzejkrzywda' }),
-          ProductAdded.new(data: { product_name: 'Rails meets ReactJS', quantity: 1, price: 49 }),
-          ProductAdded.new(data: { product_name: 'Fearless Refactoring', quantity: 1, price: 49 }),
-          PriceChanged.new(data: { product_name: 'Rails meets ReactJS', new_price: 24 })
+          OrderCreated.new(data: { customer_name: "andrzejkrzywda" }),
+          ProductAdded.new(data: { product_name: "Rails meets ReactJS", quantity: 1, price: 49 }),
+          ProductAdded.new(data: { product_name: "Fearless Refactoring", quantity: 1, price: 49 }),
+          PriceChanged.new(data: { product_name: "Rails meets ReactJS", new_price: 24 })
       ]
     end
 
     def assert_invoice_structure(invoice)
       assert_invoice(
           [
-              ['Rails meets ReactJS', 1, '24', '24'],
-              ['Fearless Refactoring', 1, '49', '49']
+              ["Rails meets ReactJS", 1, "24", "24"],
+              ["Fearless Refactoring", 1, "49", "49"]
           ],
-          '73',
+          "73",
           invoice
       )
     end

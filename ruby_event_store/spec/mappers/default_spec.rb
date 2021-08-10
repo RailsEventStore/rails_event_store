@@ -1,6 +1,6 @@
-require 'spec_helper'
-require 'json'
-require 'ruby_event_store/spec/mapper_lint'
+require "spec_helper"
+require "json"
+require "ruby_event_store/spec/mapper_lint"
 
 SomethingHappened = Class.new(RubyEventStore::Event)
 
@@ -15,7 +15,7 @@ module RubyEventStore
 
       it_behaves_like :mapper, Default.new, TimeEnrichment.with(SomethingHappened.new)
 
-      specify '#event_to_record returns transformed record' do
+      specify "#event_to_record returns transformed record" do
         record = subject.event_to_record(domain_event)
         expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
@@ -26,7 +26,7 @@ module RubyEventStore
         expect(record.valid_at).to   eq(time)
       end
 
-      specify '#record_to_event returns event instance' do
+      specify "#record_to_event returns event instance" do
         record = Record.new(
           event_id:   domain_event.event_id,
           data:       { some_attribute: 5 },
@@ -44,8 +44,8 @@ module RubyEventStore
         expect(event.metadata[:valid_at]).to  eq(time)
       end
 
-      specify '#record_to_event its using events class remapping' do
-        subject = described_class.new(events_class_remapping: {'EventNameBeforeRefactor' => 'SomethingHappened'})
+      specify "#record_to_event its using events class remapping" do
+        subject = described_class.new(events_class_remapping: {"EventNameBeforeRefactor" => "SomethingHappened"})
         record = Record.new(
           event_id:   domain_event.event_id,
           data:       { some_attribute: 5 },
@@ -58,7 +58,7 @@ module RubyEventStore
         expect(event).to eq(domain_event)
       end
 
-      specify 'metadata keys are symbolized' do
+      specify "metadata keys are symbolized" do
         record = Record.new(
           event_id:   domain_event.event_id,
           data:       { some_attribute: 5 },

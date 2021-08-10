@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require 'ruby_event_store/spec/mapper_lint'
+require "spec_helper"
+require "ruby_event_store/spec/mapper_lint"
 
 SomethingHappenedJSON = Class.new(RubyEventStore::Event)
 

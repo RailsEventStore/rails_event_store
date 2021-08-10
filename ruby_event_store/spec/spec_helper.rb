@@ -1,7 +1,7 @@
-require 'ruby_event_store'
-require_relative '../../support/helpers/rspec_defaults'
-require_relative '../../support/helpers/time_enrichment'
-require 'support/correlatable'
+require "ruby_event_store"
+require_relative "../../support/helpers/rspec_defaults"
+require_relative "../../support/helpers/time_enrichment"
+require "support/correlatable"
 
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 module AggregateRoot
-  RSpec.describe 'no warnings' do
+  RSpec.describe "no warnings" do
     specify do
       expect(aggregate_root_warnings).to eq([])
     end

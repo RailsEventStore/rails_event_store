@@ -121,31 +121,31 @@ module RubyEventStore
         let(:lister) { ListPhraser }
 
         specify do
-          expect(lister.call(nil)).to eq('')
+          expect(lister.call(nil)).to eq("")
         end
 
         specify do
-          expect(lister.call([nil])).to eq('')
+          expect(lister.call([nil])).to eq("")
         end
 
         specify do
-          expect(lister.call([])).to eq('')
+          expect(lister.call([])).to eq("")
         end
 
         specify do
-          expect(lister.call([FooEvent])).to eq('be a FooEvent')
+          expect(lister.call([FooEvent])).to eq("be a FooEvent")
         end
 
         specify do
-          expect(lister.call([FooEvent, BarEvent])).to eq('be a FooEvent and be a BarEvent')
+          expect(lister.call([FooEvent, BarEvent])).to eq("be a FooEvent and be a BarEvent")
         end
 
         specify do
-          expect(lister.call([FooEvent, BarEvent, BazEvent])).to eq('be a FooEvent, be a BarEvent and be a BazEvent')
+          expect(lister.call([FooEvent, BarEvent, BazEvent])).to eq("be a FooEvent, be a BarEvent and be a BazEvent")
         end
 
         specify do
-          expect(lister.call([FooEvent, BarEvent, BazEvent, be_kind_of(Time)])).to eq('be a FooEvent, be a BarEvent, be a BazEvent and be a kind of Time')
+          expect(lister.call([FooEvent, BarEvent, BazEvent, be_kind_of(Time)])).to eq("be a FooEvent, be a BarEvent, be a BazEvent and be a kind of Time")
         end
       end
     end

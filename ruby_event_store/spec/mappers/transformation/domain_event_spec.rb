@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   module Mappers
@@ -10,8 +10,8 @@ module RubyEventStore
         let(:event) {
           TimeEnrichment.with(
             TestEvent.new(event_id: uuid,
-              data: {some: 'value'},
-              metadata: {some: 'meta'}),
+              data: {some: "value"},
+              metadata: {some: "meta"}),
             timestamp: time,
             valid_at: time
           )
@@ -19,9 +19,9 @@ module RubyEventStore
         let(:record)  {
           Record.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
-            data:       {some: 'value'},
-            event_type: 'TestEvent',
+            metadata:   {some: "meta"},
+            data:       {some: "value"},
+            event_type: "TestEvent",
             timestamp:  time,
             valid_at:   time
           )
@@ -53,12 +53,12 @@ module RubyEventStore
           end
 
           DomainEvent.new.dump(event = event_klass.new(
-            {some: 'data'},
-            {some: 'meta', valid_at: time, timestamp: time}
+            {some: "data"},
+            {some: "meta", valid_at: time, timestamp: time}
           ))
 
-          expect(event.data).to      eq({some: 'data'})
-          expect(event.metadata).to  eq({some: 'meta', valid_at: time, timestamp: time})
+          expect(event.data).to      eq({some: "data"})
+          expect(event.metadata).to  eq({some: "meta", valid_at: time, timestamp: time})
         end
 
         specify "loading an event without its class" do

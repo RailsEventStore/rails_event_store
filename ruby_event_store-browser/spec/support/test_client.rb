@@ -3,7 +3,7 @@ require "rack/test"
 class TestClient
   include Rack::Test::Methods
 
-  def initialize(app, host = 'example.org')
+  def initialize(app, host = "example.org")
     @app  = app
     @host = host
   end

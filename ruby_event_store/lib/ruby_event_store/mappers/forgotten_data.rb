@@ -3,7 +3,7 @@
 module RubyEventStore
   module Mappers
     class ForgottenData
-      FORGOTTEN_DATA = 'FORGOTTEN_DATA'.freeze
+      FORGOTTEN_DATA = "FORGOTTEN_DATA".freeze
 
       def initialize(string = FORGOTTEN_DATA)
         @string = string

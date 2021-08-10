@@ -1,19 +1,19 @@
-require 'rails_event_store'
-require 'example_invoicing_app'
-require 'support/fake_configuration'
-require 'active_record'
-require 'securerandom'
-require 'rails/gem_version'
-require_relative '../../support/helpers/rspec_defaults'
-require_relative '../../support/helpers/migrator'
-require_relative '../../support/helpers/silence_stdout'
-require_relative '../../support/helpers/time_enrichment'
+require "rails_event_store"
+require "example_invoicing_app"
+require "support/fake_configuration"
+require "active_record"
+require "securerandom"
+require "rails/gem_version"
+require_relative "../../support/helpers/rspec_defaults"
+require_relative "../../support/helpers/migrator"
+require_relative "../../support/helpers/silence_stdout"
+require_relative "../../support/helpers/time_enrichment"
 
 RSpec.configure do |config|
   config.around(:each) do |example|
-    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
-    m = Migrator.new(File.expand_path('../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates', __dir__))
-    m.run_migration('create_event_store_events')
+    ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+    m = Migrator.new(File.expand_path("../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates", __dir__))
+    m.run_migration("create_event_store_events")
     example.run
   end
 
@@ -23,7 +23,7 @@ RSpec.configure do |config|
   end
 end
 
-$verbose = ENV.has_key?('VERBOSE') ? true : false
+$verbose = ENV.has_key?("VERBOSE") ? true : false
 ActiveJob::Base.logger = nil unless $verbose
 ActiveRecord::Schema.verbose = $verbose
 
@@ -39,7 +39,7 @@ module GeneratorHelper
   end
 
   def destination_root
-    @destination_root ||= File.join(File.join(__dir__, 'tmp'), SecureRandom.hex)
+    @destination_root ||= File.join(File.join(__dir__, "tmp"), SecureRandom.hex)
   end
 
   def prepare_destination_root

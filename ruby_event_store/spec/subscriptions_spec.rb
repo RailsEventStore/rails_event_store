@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/subscriptions_lint'
+require "spec_helper"
+require "ruby_event_store/spec/subscriptions_lint"
 
 module RubyEventStore
   RSpec.describe Subscriptions do

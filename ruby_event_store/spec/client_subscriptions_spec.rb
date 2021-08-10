@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 class CustomDispatcher
   attr_reader :dispatched_events
@@ -26,22 +26,22 @@ module RubyEventStore
     let(:mapper)     { RubyEventStore::Mappers::NullMapper.new }
     let(:client)     { RubyEventStore::Client.new(repository: repository, mapper: mapper) }
 
-    specify 'throws exception if subscriber is not defined' do
+    specify "throws exception if subscriber is not defined" do
       expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
       expect { client.subscribe_to_all_events(nil) }.to raise_error(SubscriberNotExist)
     end
 
-    specify 'throws exception if subscriber has not call method - handling subscribed events' do
+    specify "throws exception if subscriber has not call method - handling subscribed events" do
       subscriber = Subscribers::InvalidHandler.new
       expect { client.subscribe(subscriber, to: [OrderCreated]) }.to raise_error(InvalidHandler)
     end
 
-    specify 'throws exception if subscriber has not call method - handling all events' do
+    specify "throws exception if subscriber has not call method - handling all events" do
       subscriber = Subscribers::InvalidHandler.new
       expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler)
     end
 
-    specify 'notifies subscribers listening on all events' do
+    specify "notifies subscribers listening on all events" do
       subscriber = Subscribers::ValidHandler.new
       client.subscribe_to_all_events(subscriber)
       event = OrderCreated.new
@@ -49,7 +49,7 @@ module RubyEventStore
       expect(subscriber.handled_events).to eq [event]
     end
 
-    specify 'notifies subscribers listening on list of events' do
+    specify "notifies subscribers listening on list of events" do
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated, ProductAdded])
       event_1 = OrderCreated.new
@@ -59,7 +59,7 @@ module RubyEventStore
       expect(subscriber.handled_events).to eq [event_1, event_2]
     end
 
-    specify 'notifies subscribers listening on all events - with lambda' do
+    specify "notifies subscribers listening on all events - with lambda" do
       handled_events = []
       subscriber = ->(event) {
         handled_events << event
@@ -70,7 +70,7 @@ module RubyEventStore
       expect(handled_events).to eq [event]
     end
 
-    specify 'notifies subscribers listening on all events - with proc' do
+    specify "notifies subscribers listening on all events - with proc" do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
@@ -84,7 +84,7 @@ module RubyEventStore
       expect(client.read.to_a).to eq([event_1, event_2])
     end
 
-    specify 'notifies subscribers listening on list of events - with lambda' do
+    specify "notifies subscribers listening on list of events - with lambda" do
       handled_events = []
       subscriber = ->(event) {
         handled_events << event
@@ -97,7 +97,7 @@ module RubyEventStore
       expect(handled_events).to eq [event_1, event_2]
     end
 
-    specify 'notifies subscribers listening on list of events - with proc' do
+    specify "notifies subscribers listening on list of events - with proc" do
       handled_events = []
       client.subscribe(to: [OrderCreated, ProductAdded]) do |event|
         handled_events << event
@@ -109,7 +109,7 @@ module RubyEventStore
       expect(handled_events).to eq [event_1, event_2]
     end
 
-    specify 'allows to provide a custom dispatcher' do
+    specify "allows to provide a custom dispatcher" do
       dispatcher = CustomDispatcher.new
       client = RubyEventStore::Client.new(repository: repository,
                                           dispatcher: dispatcher,
@@ -122,7 +122,7 @@ module RubyEventStore
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, record: record}]
     end
 
-    specify 'unsubscribes' do
+    specify "unsubscribes" do
       subscriber = Subscribers::ValidHandler.new
       event_1 = OrderCreated.new
       event_2 = OrderCreated.new
@@ -135,7 +135,7 @@ module RubyEventStore
       expect(client.read.to_a).to eq([event_1, event_2])
     end
 
-    specify 'dynamic subscription' do
+    specify "dynamic subscription" do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
@@ -147,7 +147,7 @@ module RubyEventStore
       expect(client.read.to_a).to eq([event_1, event_2])
     end
 
-    specify 'subscribers receive event with enriched metadata' do
+    specify "subscribers receive event with enriched metadata" do
       client = RubyEventStore::Client.new(repository: repository, clock: ->{ Time.at(0) })
       received_event = nil
       client.subscribe(to: [OrderCreated]) do |event|
@@ -159,19 +159,19 @@ module RubyEventStore
       expect(received_event.metadata[:timestamp]).to eq(Time.at(0))
     end
 
-    specify 'throws exception if subscriber klass does not have call method - handling subscribed events' do
+    specify "throws exception if subscriber klass does not have call method - handling subscribed events" do
       expect do
         client.subscribe(Subscribers::InvalidHandler, to: [OrderCreated])
       end.to raise_error(InvalidHandler)
     end
 
-    specify 'throws exception if subscriber klass have not call method - handling all events' do
+    specify "throws exception if subscriber klass have not call method - handling all events" do
       expect do
         client.subscribe_to_all_events(Subscribers::InvalidHandler)
       end.to raise_error(InvalidHandler)
     end
 
-    specify 'dispatch events to subscribers via proxy' do
+    specify "dispatch events to subscribers via proxy" do
       dispatcher = CustomDispatcher.new
       client = RubyEventStore::Client.new(repository: repository,
                                           mapper: mapper,
@@ -183,7 +183,7 @@ module RubyEventStore
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, record: record}]
     end
 
-    specify 'dispatch all events to subscribers via proxy' do
+    specify "dispatch all events to subscribers via proxy" do
       dispatcher = CustomDispatcher.new
       client = RubyEventStore::Client.new(repository: repository,
                                           mapper: mapper,
@@ -195,7 +195,7 @@ module RubyEventStore
       expect(dispatcher.dispatched_events).to eq [{to: Subscribers::ValidHandler, event: event, record: record}]
     end
 
-    specify 'lambda is an output of global subscribe via proxy' do
+    specify "lambda is an output of global subscribe via proxy" do
       dispatcher = CustomDispatcher.new
       client = RubyEventStore::Client.new(repository: repository,
                                           mapper: mapper,
@@ -204,7 +204,7 @@ module RubyEventStore
       expect(result).to respond_to(:call)
     end
 
-    specify 'lambda is an output of subscribe via proxy' do
+    specify "lambda is an output of subscribe via proxy" do
       dispatcher = CustomDispatcher.new
       client = RubyEventStore::Client.new(repository: repository,
                                           mapper: mapper,
@@ -213,7 +213,7 @@ module RubyEventStore
       expect(result).to respond_to(:call)
     end
 
-    specify 'dynamic global subscription via proxy' do
+    specify "dynamic global subscription via proxy" do
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       dispatcher = CustomDispatcher.new
@@ -231,7 +231,7 @@ module RubyEventStore
       expect(client.read.to_a).to eq([event_1, event_2])
     end
 
-    specify 'notifies subscriber in the order events were published' do
+    specify "notifies subscriber in the order events were published" do
       handled_events = []
       subscriber = ->(event) {
         handled_events << event
@@ -243,7 +243,7 @@ module RubyEventStore
       expect(handled_events).to eq [event_1, event_2]
     end
 
-    specify 'with many subscribers they are called in the order events were published' do
+    specify "with many subscribers they are called in the order events were published" do
       handled_events = []
       subscriber1 = ->(event) {
         handled_events << event
@@ -283,7 +283,7 @@ module RubyEventStore
     end
 
     context "dynamic subscribe v2" do
-      specify 'dynamic global subscription via proxy' do
+      specify "dynamic global subscription via proxy" do
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         dispatcher = CustomDispatcher.new
@@ -303,7 +303,7 @@ module RubyEventStore
         expect(result).to eq(:yo)
       end
 
-      specify 'dynamic subscription' do
+      specify "dynamic subscription" do
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         event_3 = ProductAdded.new
@@ -320,7 +320,7 @@ module RubyEventStore
         expect(client.read.to_a).to eq([event_1, event_2, event_3])
       end
 
-      specify 'nested dynamic subscription' do
+      specify "nested dynamic subscription" do
         e1 = e2 = e3 = e4 = e5 = e6 = e7 = e8 = nil
         h1 = h2 = nil
         result = client.within do
@@ -344,7 +344,7 @@ module RubyEventStore
         expect(client.read.to_a).to eq([e1,e2,e3,e4,e5,e6,e7,e8])
       end
 
-      specify 'dynamic subscription with exception' do
+      specify "dynamic subscription with exception" do
         event_1 = OrderCreated.new
         event_2 = OrderCreated.new
         exception = Class.new(StandardError)
@@ -360,7 +360,7 @@ module RubyEventStore
         expect(client.read.to_a).to eq([event_1, event_2])
       end
 
-      specify 'chained subscriptions' do
+      specify "chained subscriptions" do
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         event_3 = ProductAdded.new
@@ -396,15 +396,15 @@ module RubyEventStore
         events_count = 20
         thread = Thread.new do
           client.within do
-            exchanger.exchange!('love_marta', timeout)
+            exchanger.exchange!("love_marta", timeout)
             events_count.times{ client.publish(ProductAdded.new) }
-            exchanger.exchange!('love_robert', timeout)
+            exchanger.exchange!("love_robert", timeout)
           end.subscribe_to_all_events(h3).subscribe(h4, to: ProductAdded).call
         end
         client.within do
-          exchanger.exchange!('love_marta', timeout)
+          exchanger.exchange!("love_marta", timeout)
           events_count.times{ client.publish(OrderCreated.new) }
-          exchanger.exchange!('love_robert', timeout)
+          exchanger.exchange!("love_robert", timeout)
         end.subscribe_to_all_events(h1).subscribe(h2, to: OrderCreated).call
         thread.join
 
@@ -419,7 +419,7 @@ module RubyEventStore
 
         expect(h4.handled_events.count).to eq(events_count)
         expect(h4.handled_events.map(&:class).uniq).to eq([ProductAdded])
-      end unless ENV['MUTATING'] == 'true'
+      end unless ENV["MUTATING"] == "true"
     end
   end
 end

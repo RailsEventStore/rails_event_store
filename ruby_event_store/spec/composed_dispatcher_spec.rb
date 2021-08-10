@@ -1,5 +1,5 @@
 require "spec_helper"
-require 'ruby_event_store/spec/dispatcher_lint'
+require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   RSpec.describe ComposedDispatcher do

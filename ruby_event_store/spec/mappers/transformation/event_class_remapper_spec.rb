@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   module Mappers
@@ -6,19 +6,19 @@ module RubyEventStore
       RSpec.describe EventClassRemapper do
         let(:time)  { Time.now.utc }
         let(:uuid)  { SecureRandom.uuid }
-        def record(event_type: 'TestEvent')
+        def record(event_type: "TestEvent")
           Record.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
-            data:       {some: 'value'},
+            metadata:   {some: "meta"},
+            data:       {some: "value"},
             event_type: event_type,
             timestamp:  time,
             valid_at:   time,
           )
         end
-        let(:changeable_record) { record(event_type: 'EventNameBeforeRefactor') }
-        let(:changed_record)    { record(event_type: 'SomethingHappened') }
-        let(:class_map) { {'EventNameBeforeRefactor' => 'SomethingHappened'} }
+        let(:changeable_record) { record(event_type: "EventNameBeforeRefactor") }
+        let(:changed_record)    { record(event_type: "SomethingHappened") }
+        let(:class_map) { {"EventNameBeforeRefactor" => "SomethingHappened"} }
 
         specify "#dump" do
           expect(EventClassRemapper.new(class_map).dump(record)).to eq(record)

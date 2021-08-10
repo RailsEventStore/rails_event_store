@@ -1,7 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RailsEventStoreActiveRecord
-  RSpec.describe 'no warnings', mutant: false do
+  RSpec.describe "no warnings", mutant: false do
     specify do
       expect(rails_event_store_active_record_warnings).to eq([])
     end

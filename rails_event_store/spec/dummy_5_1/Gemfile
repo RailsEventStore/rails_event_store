@@ -1,8 +1,8 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-gem 'rails', '~> 5.1.0'
-gem 'rails_event_store',               path: '../../'
-gem 'ruby_event_store',                path: '../../../ruby_event_store'
-gem 'ruby_event_store-browser',        path: '../../../ruby_event_store-browser'
-gem 'rails_event_store_active_record', path: '../../../rails_event_store_active_record'
-gem 'aggregate_root',                  path: '../../../aggregate_root'
+gem "rails", "~> 5.1.0"
+gem "rails_event_store",               path: "../../"
+gem "ruby_event_store",                path: "../../../ruby_event_store"
+gem "ruby_event_store-browser",        path: "../../../ruby_event_store-browser"
+gem "rails_event_store_active_record", path: "../../../rails_event_store_active_record"
+gem "aggregate_root",                  path: "../../../aggregate_root"

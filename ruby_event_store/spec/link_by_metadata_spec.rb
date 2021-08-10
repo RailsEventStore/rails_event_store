@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe LinkByMetadata do
@@ -7,7 +7,7 @@ module RubyEventStore
       RubyEventStore::Client.new(repository: InMemoryRepository.new)
     end
 
-    specify 'links to stream based on selected metadata' do
+    specify "links to stream based on selected metadata" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :string))
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :float))
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :int))

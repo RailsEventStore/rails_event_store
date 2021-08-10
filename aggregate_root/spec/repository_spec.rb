@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 
 module AggregateRoot
@@ -100,7 +100,7 @@ module AggregateRoot
 
       specify do
         event_store.publish(Orders::Events::OrderCreated.new, stream_name: stream_name)
-        event_store.publish(Orders::Events::OrderExpired.new, stream_name: 'dummy')
+        event_store.publish(Orders::Events::OrderExpired.new, stream_name: "dummy")
         order = repository.load(order_klass.new(uuid), stream_name)
 
         expect(order.version).to eq(0)

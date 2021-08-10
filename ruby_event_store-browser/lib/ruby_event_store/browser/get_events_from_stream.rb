@@ -89,7 +89,7 @@ module RubyEventStore
 
       def direction
         case pagination_param[:direction]
-        when 'forward'
+        when "forward"
           :forward
         else
           :backward
@@ -98,7 +98,7 @@ module RubyEventStore
 
       def position
         case pagination_param[:position]
-        when 'head', nil
+        when "head", nil
           HEAD
         else
           pagination_param.fetch(:position)

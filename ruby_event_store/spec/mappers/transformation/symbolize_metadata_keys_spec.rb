@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'json'
+require "spec_helper"
+require "json"
 
 module RubyEventStore
   module Mappers
@@ -10,9 +10,9 @@ module RubyEventStore
         let(:record)  {
           Record.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
-            data:       JSON.parse(JSON.dump({some: 'value'})),
-            event_type: 'TestEvent',
+            metadata:   {some: "meta"},
+            data:       JSON.parse(JSON.dump({some: "value"})),
+            event_type: "TestEvent",
             timestamp:  time,
             valid_at:   time
           )
@@ -20,9 +20,9 @@ module RubyEventStore
         let(:changed_record)  {
           Record.new(
             event_id:   uuid,
-            metadata:   JSON.parse(JSON.dump({some: 'meta'})),
-            data:       JSON.parse(JSON.dump({some: 'value'})),
-            event_type: 'TestEvent',
+            metadata:   JSON.parse(JSON.dump({some: "meta"})),
+            data:       JSON.parse(JSON.dump({some: "value"})),
+            event_type: "TestEvent",
             timestamp:  time,
             valid_at:   time
           )

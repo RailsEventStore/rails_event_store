@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 begin
-  require 'rails/generators'
+  require "rails/generators"
 rescue LoadError
 end
 
@@ -11,11 +11,11 @@ module RailsEventStoreActiveRecord
 
     DATA_TYPES = %w(binary json jsonb).freeze
 
-    source_root File.expand_path(File.join(File.dirname(__FILE__), '../generators/templates'))
+    source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
     class_option(
       :data_type,
       type: :string,
-      default: 'binary',
+      default: "binary",
       desc: "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join('/')})"
     )
 
@@ -34,7 +34,7 @@ module RailsEventStoreActiveRecord
     private
 
     def data_type
-      options.fetch('data_type')
+      options.fetch("data_type")
     end
 
     def migration_version

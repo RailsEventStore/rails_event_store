@@ -1,9 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Stream do
     specify { expect(Stream.new("some_stream").name).to eq("some_stream") }
-    specify { expect{Stream.new('')}.to raise_error(IncorrectStreamData) }
+    specify { expect{Stream.new("")}.to raise_error(IncorrectStreamData) }
     specify { expect{Stream.new(nil)}.to raise_error(IncorrectStreamData) }
     specify { expect(Stream.new(GLOBAL_STREAM).global?).to eq(true) }
     specify { expect(Stream.new("all").global?).to eq(false) }

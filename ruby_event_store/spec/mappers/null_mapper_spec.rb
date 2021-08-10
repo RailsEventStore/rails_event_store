@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/mapper_lint'
+require "spec_helper"
+require "ruby_event_store/spec/mapper_lint"
 
 module RubyEventStore
   module Mappers
@@ -12,7 +12,7 @@ module RubyEventStore
 
       it_behaves_like :mapper, NullMapper.new, TimeEnrichment.with(TestEvent.new)
 
-      specify '#event_to_record' do
+      specify "#event_to_record" do
         record = subject.event_to_record(domain_event)
 
         expect(record.event_id).to      eq(domain_event.event_id)
@@ -23,7 +23,7 @@ module RubyEventStore
         expect(record.valid_at).to      eq(time)
       end
 
-      specify '#record_to_event' do
+      specify "#record_to_event" do
         record = subject.event_to_record(domain_event)
         event  = subject.record_to_event(record)
 

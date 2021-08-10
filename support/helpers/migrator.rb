@@ -1,4 +1,4 @@
-require 'erb'
+require "erb"
 
 class Migrator
   module Binding
@@ -28,7 +28,7 @@ class Migrator
     migration_template(name).result(
       Binding.from_hash(
         migration_version: migration_version,
-        data_type: 'binary'
+        data_type: "binary"
       )
     )
   end

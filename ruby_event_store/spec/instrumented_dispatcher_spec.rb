@@ -1,7 +1,7 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/dispatcher_lint'
-require 'active_support/core_ext/object/try'
-require 'active_support/notifications'
+require "spec_helper"
+require "ruby_event_store/spec/dispatcher_lint"
+require "active_support/core_ext/object/try"
+require "active_support/notifications"
 
 module RubyEventStore
   RSpec.describe InstrumentedDispatcher do

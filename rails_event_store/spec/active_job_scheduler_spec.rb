@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/scheduler_lint'
+require "spec_helper"
+require "ruby_event_store/spec/scheduler_lint"
 
 module RailsEventStore
   RSpec.describe ActiveJobScheduler do

@@ -1,6 +1,6 @@
-require 'spec_helper'
-require 'ruby_event_store'
-require 'ruby_event_store/spec/event_repository_lint'
+require "spec_helper"
+require "ruby_event_store"
+require "ruby_event_store/spec/event_repository_lint"
 
 module RailsEventStoreActiveRecord
   class PgLinearizedEventRepository
@@ -68,19 +68,19 @@ module RailsEventStoreActiveRecord
         t = Thread.new do
           ActiveRecord::Base.transaction do
             append_an_event_to_repo
-            exchanger.exchange!('locked', timeout)
-            exchanger.exchange!('unlocked', timeout)
+            exchanger.exchange!("locked", timeout)
+            exchanger.exchange!("unlocked", timeout)
           end
         end
 
-        exchanger.exchange!('locked', timeout)
+        exchanger.exchange!("locked", timeout)
         ActiveRecord::Base.transaction do
           execute("SET LOCAL lock_timeout = '1s';")
           expect do
             append_an_event_to_repo
           end.to raise_error(ActiveRecord::LockWaitTimeout)
         end
-        exchanger.exchange!('unlocked', timeout)
+        exchanger.exchange!("unlocked", timeout)
 
         expect do
           append_an_event_to_repo
@@ -139,5 +139,5 @@ module RailsEventStoreActiveRecord
       )
     end
 
-  end if ENV['DATABASE_URL'].include?("postgres")
+  end if ENV["DATABASE_URL"].include?("postgres")
 end

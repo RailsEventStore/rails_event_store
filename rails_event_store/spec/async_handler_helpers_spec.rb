@@ -1,9 +1,9 @@
-require 'spec_helper'
-require 'action_controller/railtie'
-require_relative '../../support/helpers/silence_stdout'
+require "spec_helper"
+require "action_controller/railtie"
+require_relative "../../support/helpers/silence_stdout"
 
 
-SilenceStdout.silence_stdout { require 'sidekiq/testing' }
+SilenceStdout.silence_stdout { require "sidekiq/testing" }
 
 module RailsEventStore
   class HandlerWithDefaults < ActiveJob::Base
@@ -108,20 +108,20 @@ module RailsEventStore
       expect($queue.pop).to eq(ev)
     end
 
-    specify 'default dispatcher can into ActiveJob' do
+    specify "default dispatcher can into ActiveJob" do
       event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
       event_store.publish(ev = RailsEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
-    specify 'ActiveJob with AsyncHandler prepended' do
+    specify "ActiveJob with AsyncHandler prepended" do
       HandlerWithHelper.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(HandlerWithHelper)
       event_store.publish(ev = RailsEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
-    specify 'ActiveJob with CorrelatedHandler prepended' do
+    specify "ActiveJob with CorrelatedHandler prepended" do
       HandlerA = Class.new(MetadataHandler)
       HandlerA.prepend RailsEventStore::CorrelatedHandler
       HandlerA.prepend RailsEventStore::AsyncHandler
@@ -133,7 +133,7 @@ module RailsEventStore
       })
     end
 
-    specify 'ActiveJob with CorrelatedHandler prepended (2)' do
+    specify "ActiveJob with CorrelatedHandler prepended (2)" do
       HandlerB = Class.new(MetadataHandler)
       HandlerB.prepend RailsEventStore::CorrelatedHandler
       HandlerB.prepend RailsEventStore::AsyncHandler
@@ -150,7 +150,7 @@ module RailsEventStore
       })
     end
 
-    specify 'ActiveJob with sidekiq adapter that requires serialization', mutant: false do
+    specify "ActiveJob with sidekiq adapter that requires serialization", mutant: false do
       ActiveJob::Base.queue_adapter = :sidekiq
       ev = RailsEventStore::Event.new
       Sidekiq::Testing.fake! do
@@ -161,7 +161,7 @@ module RailsEventStore
       expect($queue.pop).to eq(ev)
     end
 
-    specify 'Sidekiq::Worker without ActiveJob that requires serialization' do
+    specify "Sidekiq::Worker without ActiveJob that requires serialization" do
       event_store = RailsEventStore::Client.new(
         dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomSidekiqScheduler.new)
       )
@@ -175,7 +175,7 @@ module RailsEventStore
       expect($queue.pop).to eq(ev)
     end
 
-    specify 'CorrelatedHandler with event not yet scheduled with correlation_id' do
+    specify "CorrelatedHandler with event not yet scheduled with correlation_id" do
       HandlerB = Class.new(MetadataHandler)
       HandlerB.prepend RailsEventStore::CorrelatedHandler
       HandlerB.prepend RailsEventStore::AsyncHandler

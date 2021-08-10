@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'rails_event_store_active_record/batch_enumerator'
+require "spec_helper"
+require "rails_event_store_active_record/batch_enumerator"
 
 module RailsEventStoreActiveRecord
   RSpec.describe BatchEnumerator, timeout: 1 do

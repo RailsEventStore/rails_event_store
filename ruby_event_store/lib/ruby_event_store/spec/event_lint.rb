@@ -1,36 +1,36 @@
 RSpec.shared_examples :event do |event_class, data, metadata|
-  it 'allows initialization' do
+  it "allows initialization" do
     expect {
       event_class.new(event_id: Object.new, data: data || Object.new, metadata: metadata || {})
     }.not_to raise_error
   end
 
-  it 'provides event_id as string' do
+  it "provides event_id as string" do
     event = event_class.new
     expect(event.event_id).to be_an_instance_of(String)
-    expect(event.event_id).not_to eq ''
+    expect(event.event_id).not_to eq ""
     expect(event.event_id).not_to eq nil
   end
 
-  it 'provides message_id as string' do
+  it "provides message_id as string" do
     event = event_class.new
     expect(event.message_id).to be_an_instance_of(String)
   end
 
-  it 'message_id is the same as event_id' do
+  it "message_id is the same as event_id" do
     event = event_class.new
     expect(event.event_id).to eq event.message_id
   end
 
-  it 'exposes given event_id to string' do
+  it "exposes given event_id to string" do
     event = event_class.new(event_id: 1234567890)
-    expect(event.event_id).to eq '1234567890'
+    expect(event.event_id).to eq "1234567890"
   end
 
-  it 'provides event type as string' do
+  it "provides event type as string" do
     event = event_class.new
     expect(event.event_type).to be_an_instance_of(String)
-    expect(event.event_type).not_to eq ''
+    expect(event.event_type).not_to eq ""
     expect(event.event_type).not_to eq nil
   end
 

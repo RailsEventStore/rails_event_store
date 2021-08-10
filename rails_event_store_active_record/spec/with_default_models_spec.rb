@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RailsEventStoreActiveRecord
   RSpec.describe WithDefaultModels do

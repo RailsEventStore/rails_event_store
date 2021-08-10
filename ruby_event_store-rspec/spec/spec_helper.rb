@@ -2,7 +2,7 @@ require "aggregate_root"
 require "ruby_event_store"
 require "ruby_event_store/rspec"
 require "ruby_event_store/transformations"
-require_relative '../../support/helpers/rspec_defaults'
+require_relative "../../support/helpers/rspec_defaults"
 
 FooEvent = Class.new(RubyEventStore::Event)
 BarEvent = Class.new(RubyEventStore::Event)

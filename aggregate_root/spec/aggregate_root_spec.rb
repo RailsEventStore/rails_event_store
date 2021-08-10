@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 
 RSpec.describe AggregateRoot do
@@ -79,8 +79,8 @@ RSpec.describe AggregateRoot do
     strategy = -> do
       ->(aggregate, event) do
         {
-          'Orders::Events::OrderCreated' => aggregate.method(:custom_created),
-          'Orders::Events::OrderExpired' => aggregate.method(:custom_expired),
+          "Orders::Events::OrderCreated" => aggregate.method(:custom_created),
+          "Orders::Events::OrderExpired" => aggregate.method(:custom_expired),
         }.fetch(event.event_type, ->(ev) {}).call(event)
       end
     end
@@ -161,7 +161,7 @@ RSpec.describe AggregateRoot do
           @status = :created
         end
 
-        on 'Orders::Events::OrderExpired' do |_ev|
+        on "Orders::Events::OrderExpired" do |_ev|
           @status = :expired
         end
 

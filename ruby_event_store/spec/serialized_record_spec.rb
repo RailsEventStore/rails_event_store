@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
 
@@ -11,7 +11,7 @@ module RubyEventStore
     let(:time)       { Time.utc(2019, 10, 03, 22, 25, 22) }
 
 
-    specify 'constructor accept all arguments and returns frozen instance' do
+    specify "constructor accept all arguments and returns frozen instance" do
       record = described_class.new(event_id: event_id, data: data, metadata: metadata, event_type: event_type, timestamp: timestamp, valid_at: timestamp)
       expect(record.event_id).to   be event_id
       expect(record.metadata).to   be metadata
@@ -20,7 +20,7 @@ module RubyEventStore
       expect(record.frozen?).to    be true
     end
 
-    specify 'constructor raised SerializedRecord::StringsRequired when argument is not a String' do
+    specify "constructor raised SerializedRecord::StringsRequired when argument is not a String" do
       [[1, 1, 1, 1],
        [1, "string", "string", "string"],
        ["string", "string", "string", 1]].each do |sample|
@@ -85,13 +85,13 @@ module RubyEventStore
       })
     end
 
-    specify 'constructor raised when required args are missing' do
+    specify "constructor raised when required args are missing" do
       expect do
         described_class.new
       end.to raise_error ArgumentError
     end
 
-    specify '#deserialize' do
+    specify "#deserialize" do
       actual = SerializedRecord.new(event_id: "a", data: "--- b\n", metadata: "--- c\n", event_type: "d", timestamp: timestamp, valid_at: timestamp)
       expected = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d", timestamp: time, valid_at: time)
       expect(actual.deserialize(YAML)).to eq(expected)

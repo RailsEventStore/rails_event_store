@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'rails/generators'
+require "rails/generators"
 
 module RailsEventStore
   module Generators
     class BoundedContextGenerator < Rails::Generators::NamedBase
-      source_root File.expand_path(File.join(File.dirname(__FILE__), '../templates'))
+      source_root File.expand_path(File.join(File.dirname(__FILE__), "../templates"))
       hook_for :test_framework
 
       def create_bounded_context

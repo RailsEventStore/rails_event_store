@@ -43,33 +43,33 @@ module RubyEventStore
 
       specify do
         expect {
-          event_store.publish(FooEvent.new, stream_name: 'Foo$1')
-        }.to matcher.in(event_store).in_stream('Foo$1')
+          event_store.publish(FooEvent.new, stream_name: "Foo$1")
+        }.to matcher.in(event_store).in_stream("Foo$1")
       end
 
       specify do
         expect {
-          event_store.publish(FooEvent.new, stream_name: 'Foo$1')
-        }.not_to matcher.in(event_store).in_stream('Bar$1')
+          event_store.publish(FooEvent.new, stream_name: "Foo$1")
+        }.not_to matcher.in(event_store).in_stream("Bar$1")
       end
 
       specify do
         expect {
           event_store.publish(FooEvent.new)
-        }.not_to matcher.in(event_store).in_streams('Foo$1')
+        }.not_to matcher.in(event_store).in_streams("Foo$1")
       end
 
       specify do
         expect {
-          event_store.publish(FooEvent.new, stream_name: 'Foo$1')
-        }.not_to matcher.in(event_store).in_streams(['Foo$1', 'Bar$1'])
+          event_store.publish(FooEvent.new, stream_name: "Foo$1")
+        }.not_to matcher.in(event_store).in_streams(["Foo$1", "Bar$1"])
       end
 
       specify do
         expect {
-          event_store.publish(event = FooEvent.new, stream_name: 'Foo$1')
-          event_store.link(event.event_id, stream_name: 'Bar$1')
-        }.to matcher.in(event_store).in_streams(['Foo$1', 'Bar$1'])
+          event_store.publish(event = FooEvent.new, stream_name: "Foo$1")
+          event_store.link(event.event_id, stream_name: "Bar$1")
+        }.to matcher.in(event_store).in_streams(["Foo$1", "Bar$1"])
       end
 
       specify do
@@ -167,7 +167,7 @@ module RubyEventStore
       end
 
       specify do
-        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
+        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream("foo").in(event_store)
         matcher_.matches?(Proc.new { })
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -199,8 +199,8 @@ module RubyEventStore
 
       specify do
         foo_event = FooEvent.new
-        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream('foo').in(event_store)
-        matcher_.matches?(Proc.new { event_store.publish(foo_event, stream_name: 'foo') })
+        matcher_ = matcher(actual = matchers.an_event(FooEvent)).in_stream("foo").in(event_store)
+        matcher_.matches?(Proc.new { event_store.publish(foo_event, stream_name: "foo") })
 
         expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)
           expected block not to have published:

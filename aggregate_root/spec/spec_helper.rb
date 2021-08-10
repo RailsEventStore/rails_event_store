@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'aggregate_root'
-require 'ruby_event_store'
-require_relative '../../support/helpers/rspec_defaults'
+require "aggregate_root"
+require "ruby_event_store"
+require_relative "../../support/helpers/rspec_defaults"
 
 RSpec.configure do |spec|
   spec.before(:each) do

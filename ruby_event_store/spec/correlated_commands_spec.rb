@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'time'
+require "spec_helper"
+require "time"
 
 module RubyEventStore
   RSpec.describe CorrelatedCommands do
@@ -86,10 +86,10 @@ module RubyEventStore
 
     specify "correlate commands with events from sync handlers (missing correlate_with)" do
       cmd2 = TestCommand.new
-      cmd2.instance_eval('undef :correlate_with')
+      cmd2.instance_eval("undef :correlate_with")
 
       cmd1 = AddProductCommand.new(product_id: 20)
-      cmd1.instance_eval('undef :correlate_with')
+      cmd1.instance_eval("undef :correlate_with")
 
       bus = CorrelatedCommands.new(event_store, command_bus)
       event_store.subscribe(to: [ProductAdded]) do

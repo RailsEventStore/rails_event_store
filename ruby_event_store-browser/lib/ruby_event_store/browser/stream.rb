@@ -89,7 +89,7 @@ module RubyEventStore
 
       def direction
         case params[:direction]
-        when 'forward'
+        when "forward"
           :forward
         else
           :backward
@@ -98,7 +98,7 @@ module RubyEventStore
 
       def position
         case params[:position]
-        when 'head', nil
+        when "head", nil
           HEAD
         else
           params.fetch(:position)

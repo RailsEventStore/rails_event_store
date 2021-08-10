@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'time'
+require "spec_helper"
+require "time"
 
 module RubyEventStore
   RSpec.describe Client do
@@ -40,7 +40,7 @@ module RubyEventStore
 
     subject(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
 
-    it 'notifies subscribed handlers' do
+    it "notifies subscribed handlers" do
       handler         = TestHandler.new
       another_handler = TestHandler.new
       global_handler  = TestHandler.new
@@ -62,7 +62,7 @@ module RubyEventStore
       expect(global_handler.events).to eq([event1,event2,event3])
     end
 
-    it 'notifies subscribed thread handlers' do
+    it "notifies subscribed thread handlers" do
       handler         = TestHandler.new
       another_handler = TestHandler.new
       global_handler  = TestHandler.new
@@ -86,47 +86,47 @@ module RubyEventStore
       expect(global_handler.events).to eq([event1,event2,event3])
     end
 
-    it 'raises error when no valid method on handler' do
+    it "raises error when no valid method on handler" do
       subscriber = InvalidTestHandler.new
       expect do
         client.subscribe(subscriber, to: [Test1DomainEvent])
       end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
-    it 'raises error when no valid method on global handler' do
+    it "raises error when no valid method on global handler" do
       subscriber = InvalidTestHandler.new
       expect do
         client.subscribe_to_all_events(subscriber)
       end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
-    it 'raises error when no valid method on thread handler' do
+    it "raises error when no valid method on thread handler" do
       subscriber = InvalidTestHandler.new
       expect do
         client.within{}.subscribe(subscriber, to: [Test1DomainEvent]).call
       end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
-    it 'raises error when no valid method on global thread handler' do
+    it "raises error when no valid method on global thread handler" do
       subscriber = InvalidTestHandler.new
       expect do
         client.within{}.subscribe(subscriber, to: [Test1DomainEvent]).call
       end.to raise_error(RubyEventStore::InvalidHandler)
     end
 
-    it 'returns lambda as an output of global subscribe methods' do
+    it "returns lambda as an output of global subscribe methods" do
       handler   = TestHandler.new
       result = client.subscribe_to_all_events(handler)
       expect(result).to respond_to(:call)
     end
 
-    it 'returns lambda as an output of subscribe methods' do
+    it "returns lambda as an output of subscribe methods" do
       handler   = TestHandler.new
       result    = client.subscribe(handler, to: [Test1DomainEvent, Test2DomainEvent])
       expect(result).to respond_to(:call)
     end
 
-    it 'revokes global subscription' do
+    it "revokes global subscription" do
       handler   = TestHandler.new
       event1    = Test1DomainEvent.new
       event2    = Test2DomainEvent.new
@@ -139,7 +139,7 @@ module RubyEventStore
       expect(handler.events).to eq([event1])
     end
 
-    it 'revokes subscription' do
+    it "revokes subscription" do
       handler   = TestHandler.new
       event1    = Test1DomainEvent.new
       event2    = Test2DomainEvent.new
@@ -152,7 +152,7 @@ module RubyEventStore
       expect(handler.events).to eq([event1])
     end
 
-    it 'revokes thread global subscription' do
+    it "revokes thread global subscription" do
       handler   = TestHandler.new
       event1    = Test1DomainEvent.new
       event2    = Test2DomainEvent.new
@@ -167,7 +167,7 @@ module RubyEventStore
       expect(handler.events).to eq([event1])
     end
 
-    it 'revokes thread subscription' do
+    it "revokes thread subscription" do
       handler           = TestHandler.new
       event1            = Test1DomainEvent.new
       event2            = Test2DomainEvent.new
@@ -182,7 +182,7 @@ module RubyEventStore
       expect(handler.events).to eq([event1])
     end
 
-    it 'allows to provide a custom dispatcher' do
+    it "allows to provide a custom dispatcher" do
       dispatcher        = TestDispatcher.new
       handler           = TestHandler.new
       event1            = TimeEnrichment.with(Test1DomainEvent.new)
@@ -197,7 +197,7 @@ module RubyEventStore
       expect(dispatcher.dispatched).to eq([{subscriber: handler, event: event1, record: Mappers::NullMapper.new.event_to_record(event1)}])
     end
 
-    it 'subscribes by type of event which is a String' do
+    it "subscribes by type of event which is a String" do
       handler         = TestHandler.new
       event1          = Test1DomainEvent.new
 
@@ -206,7 +206,7 @@ module RubyEventStore
       expect(handler.events).to eq([event1])
     end
 
-    it 'subscribes by type of event which is a String' do
+    it "subscribes by type of event which is a String" do
       handler         = TestHandler.new
       event1          = Test1DomainEvent.new
 

@@ -1,17 +1,17 @@
-require_relative 'migrator'
-require_relative 'subprocess_helper'
+require_relative "migrator"
+require_relative "subprocess_helper"
 
 
 module SchemaHelper
   include SubprocessHelper
 
   def run_migration(name)
-    m = Migrator.new(File.expand_path('../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates', __dir__))
+    m = Migrator.new(File.expand_path("../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates", __dir__))
     m.run_migration(name)
   end
 
   def establish_database_connection
-    ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+    ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
   end
 
   def close_database_connection
@@ -19,7 +19,7 @@ module SchemaHelper
   end
 
   def load_database_schema
-    run_migration('create_event_store_events')
+    run_migration("create_event_store_events")
   end
 
   def drop_database
@@ -36,7 +36,7 @@ module SchemaHelper
   end
 
   def build_schema(gemfile, template_name: nil)
-    run_in_subprocess(<<~EOF, env: ENV.to_h.slice('DATABASE_URL', 'VERBOSE'))
+    run_in_subprocess(<<~EOF, env: ENV.to_h.slice("DATABASE_URL", "VERBOSE"))
       require 'bundler/inline'
 
       gemfile do
@@ -60,7 +60,7 @@ module SchemaHelper
   end
 
   def run_code(code, gemfile:)
-    run_in_subprocess(<<~EOF, env: ENV.to_h.slice('DATABASE_URL', 'VERBOSE'))
+    run_in_subprocess(<<~EOF, env: ENV.to_h.slice("DATABASE_URL", "VERBOSE"))
       require 'bundler/inline'
 
       gemfile do

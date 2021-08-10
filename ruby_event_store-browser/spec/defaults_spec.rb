@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Browser do
@@ -13,7 +13,7 @@ module RubyEventStore
     end
 
     it "takes host from request" do
-      response = test_client.get '/res'
+      response = test_client.get "/res"
 
       expect(response.body).to match %r{<script type="text/javascript" src="/res/ruby_event_store_browser.js"></script>}
     end
@@ -24,21 +24,21 @@ module RubyEventStore
           run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, api_url: "https://example.com/some/custom/api/url")
         end
       end
-      test_client = TestClient.new(app, 'railseventstore.org')
+      test_client = TestClient.new(app, "railseventstore.org")
 
-      response = test_client.get '/res'
+      response = test_client.get "/res"
 
       expect(response.body).to match %r{apiUrl:\s*"https://example.com/some/custom/api/url"}
     end
 
     it "default #api_url is based on root_path" do
-      response = test_client.get '/res'
+      response = test_client.get "/res"
 
       expect(response.body).to match %r{apiUrl:\s*"http://railseventstore.org/res/api"}
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { TestClient.new(app_builder(event_store), 'railseventstore.org') }
+    let(:test_client) { TestClient.new(app_builder(event_store), "railseventstore.org") }
 
     def app_builder(event_store)
       Rack::Builder.new do

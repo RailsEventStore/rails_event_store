@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Projection do
@@ -50,13 +50,13 @@ module RubyEventStore
         .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
       expect {
         projection.run(event_store, start: :last)
-      }.to raise_error ArgumentError, 'Start must be an array with event ids'
+      }.to raise_error ArgumentError, "Start must be an array with event ids"
       expect {
         projection.run(event_store, start: 0.7)
-      }.to raise_error ArgumentError, 'Start must be an array with event ids'
+      }.to raise_error ArgumentError, "Start must be an array with event ids"
       expect {
         projection.run(event_store, start: [SecureRandom.uuid])
-      }.to raise_error ArgumentError, 'Start must be an array with event ids'
+      }.to raise_error ArgumentError, "Start must be an array with event ids"
     end
 
     specify "take events from all streams" do
@@ -81,13 +81,13 @@ module RubyEventStore
         .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
       expect {
         projection.run(event_store, start: :last)
-      }.to raise_error ArgumentError, 'Start must be valid event id'
+      }.to raise_error ArgumentError, "Start must be valid event id"
       expect {
         projection.run(event_store, start: 0.7)
-      }.to raise_error ArgumentError, 'Start must be valid event id'
+      }.to raise_error ArgumentError, "Start must be valid event id"
       expect {
         projection.run(event_store, start: [SecureRandom.uuid])
-      }.to raise_error ArgumentError, 'Start must be valid event id'
+      }.to raise_error ArgumentError, "Start must be valid event id"
     end
 
     specify "empty hash is default inital state" do

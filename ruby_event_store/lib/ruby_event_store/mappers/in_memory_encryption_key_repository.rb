@@ -3,7 +3,7 @@
 module RubyEventStore
   module Mappers
     class InMemoryEncryptionKeyRepository
-      DEFAULT_CIPHER = 'aes-256-gcm'.freeze
+      DEFAULT_CIPHER = "aes-256-gcm".freeze
 
       def initialize
         @keys = {}

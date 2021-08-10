@@ -1,5 +1,5 @@
 require "rack/test"
-require 'json-schema'
+require "json-schema"
 
 class TestClientWithJsonApiLinter
   include Rack::Test::Methods
@@ -19,7 +19,7 @@ class TestClientWithJsonApiLinter
     end
   end
 
-  def initialize(app, host = 'example.org')
+  def initialize(app, host = "example.org")
     @app  = app
     @host = host
   end

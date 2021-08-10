@@ -1,34 +1,34 @@
-require 'spec_helper'
-require 'ruby_event_store'
-require 'ruby_event_store/spec/event_repository_lint'
+require "spec_helper"
+require "ruby_event_store"
+require "ruby_event_store/spec/event_repository_lint"
 
 module RailsEventStoreActiveRecord
   RSpec.describe WithAbstractBaseClass do
     include SchemaHelper
 
-    specify 'Base for event factory models must be an abstract class' do
+    specify "Base for event factory models must be an abstract class" do
       NonAbstractClass = Class.new(ActiveRecord::Base)
       expect {
         WithAbstractBaseClass.new(NonAbstractClass)
       }.to raise_error(ArgumentError)
-       .with_message('RailsEventStoreActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base')
+       .with_message("RailsEventStoreActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base")
     end
 
-    specify 'Base for event factory models could not be the ActiveRecord::Base' do
+    specify "Base for event factory models could not be the ActiveRecord::Base" do
       expect {
         WithAbstractBaseClass.new(ActiveRecord::Base)
       }.to raise_error(ArgumentError)
-       .with_message('ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base')
+       .with_message("ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base")
     end
 
-    specify 'Base for event factory models must inherit from ActiveRecord::Base' do
+    specify "Base for event factory models must inherit from ActiveRecord::Base" do
       expect {
         WithAbstractBaseClass.new(Object)
       }.to raise_error(ArgumentError)
-       .with_message('Object must be an abstract class that inherits from ActiveRecord::Base')
+       .with_message("Object must be an abstract class that inherits from ActiveRecord::Base")
     end
 
-    specify 'AR classes must have the same instance id' do
+    specify "AR classes must have the same instance id" do
       event_klass, stream_klass = WithAbstractBaseClass.new(CustomApplicationRecord).call
 
       expect(event_klass.name).to match(/^Event_[a-z,0-9]{32}$/)
@@ -36,7 +36,7 @@ module RailsEventStoreActiveRecord
       expect(event_klass.name[6..-1]).to eq(stream_klass.name[14..-1])
     end
 
-    specify 'each factory must generate different AR classes' do
+    specify "each factory must generate different AR classes" do
       factory1 = WithAbstractBaseClass.new(CustomApplicationRecord)
       factory2 = WithAbstractBaseClass.new(CustomApplicationRecord)
       event_klass_1, stream_klass_1 = factory1.call
@@ -45,7 +45,7 @@ module RailsEventStoreActiveRecord
       expect(stream_klass_1).not_to eq(stream_klass_2)
     end
 
-    specify 'reading/writting works with base class' do
+    specify "reading/writting works with base class" do
       begin
         establish_database_connection
         load_database_schema
@@ -65,14 +65,14 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    specify 'read from declared tables' do
+    specify "read from declared tables" do
       begin
         establish_database_connection
         load_database_schema
 
         repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
         repository.append_to_stream(
-          [event = RubyEventStore::SRecord.new(event_type: 'Dummy')],
+          [event = RubyEventStore::SRecord.new(event_type: "Dummy")],
           RubyEventStore::Stream.new("some"),
           RubyEventStore::ExpectedVersion.any
         )
@@ -84,7 +84,7 @@ module RailsEventStoreActiveRecord
         end
 
         expect_query(/SELECT.*FROM.*event_store_events_in_streams.*/) do
-          read_event = repository.read(RubyEventStore::Specification.new(reader).of_type('Dummy').stream('some').result).first
+          read_event = repository.read(RubyEventStore::Specification.new(reader).of_type("Dummy").stream("some").result).first
           expect(read_event).to eq(event)
         end
       ensure

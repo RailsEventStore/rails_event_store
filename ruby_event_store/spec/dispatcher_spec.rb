@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/dispatcher_lint'
+require "spec_helper"
+require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   RSpec.describe Dispatcher do

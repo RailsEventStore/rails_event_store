@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require 'active_support/notifications'
+require "spec_helper"
+require "active_support/notifications"
 
 
 module AggregateRoot
@@ -43,8 +43,8 @@ module AggregateRoot
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         aggregate = order_klass.new(SecureRandom.uuid)
 
-        expect(repository).to receive(:load).with(aggregate, 'SomeStream')
-        instrumented_repository.load(aggregate, 'SomeStream')
+        expect(repository).to receive(:load).with(aggregate, "SomeStream")
+        instrumented_repository.load(aggregate, "SomeStream")
       end
 
       specify "instruments" do
@@ -53,13 +53,13 @@ module AggregateRoot
         subscribe_to("load.repository.aggregate_root") do |notification_calls|
           aggregate = order_klass.new(SecureRandom.uuid)
 
-          expect(repository).to receive(:load).with(aggregate, 'SomeStream')
-          instrumented_repository.load(aggregate, 'SomeStream')
+          expect(repository).to receive(:load).with(aggregate, "SomeStream")
+          instrumented_repository.load(aggregate, "SomeStream")
 
           expect(notification_calls).to eq(
             [{
               aggregate: aggregate,
-              stream:    'SomeStream',
+              stream:    "SomeStream",
             }]
           )
         end
@@ -72,8 +72,8 @@ module AggregateRoot
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         aggregate = order_klass.new(SecureRandom.uuid)
 
-        expect(repository).to receive(:store).with(aggregate, 'SomeStream')
-        instrumented_repository.store(aggregate, 'SomeStream')
+        expect(repository).to receive(:store).with(aggregate, "SomeStream")
+        instrumented_repository.store(aggregate, "SomeStream")
       end
 
       specify "instruments" do
@@ -85,15 +85,15 @@ module AggregateRoot
           aggregate.expire
           events = aggregate.unpublished_events.to_a
 
-          expect(repository).to receive(:store).with(aggregate, 'SomeStream')
-          instrumented_repository.store(aggregate, 'SomeStream')
+          expect(repository).to receive(:store).with(aggregate, "SomeStream")
+          instrumented_repository.store(aggregate, "SomeStream")
 
           expect(notification_calls).to eq(
             [{
               aggregate:     aggregate,
               version:       -1,
               stored_events: events,
-              stream:        'SomeStream',
+              stream:        "SomeStream",
             }]
           )
         end
@@ -110,9 +110,9 @@ module AggregateRoot
           subscribe_to("store.repository.aggregate_root") do |store_notification_calls|
             events = nil
 
-            expect(repository).to receive(:load).with(aggregate, 'SomeStream')
-            expect(repository).to receive(:store).with(aggregate, 'SomeStream')
-            instrumented_repository.with_aggregate(aggregate, 'SomeStream') do
+            expect(repository).to receive(:load).with(aggregate, "SomeStream")
+            expect(repository).to receive(:store).with(aggregate, "SomeStream")
+            instrumented_repository.with_aggregate(aggregate, "SomeStream") do
               aggregate.create
               aggregate.expire
               events = aggregate.unpublished_events.to_a
@@ -123,7 +123,7 @@ module AggregateRoot
                 aggregate:     aggregate,
                 version:       -1,
                 stored_events: events,
-                stream:        'SomeStream',
+                stream:        "SomeStream",
               }]
             )
           end
@@ -131,7 +131,7 @@ module AggregateRoot
           expect(load_notification_calls).to eq(
             [{
               aggregate: aggregate,
-              stream:    'SomeStream',
+              stream:    "SomeStream",
             }]
           )
         end

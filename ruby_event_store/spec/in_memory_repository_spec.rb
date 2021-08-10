@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/event_repository_lint'
+require "spec_helper"
+require "ruby_event_store/spec/event_repository_lint"
 
 
 module RubyEventStore
@@ -49,138 +49,138 @@ module RubyEventStore
     let(:repository)   { mk_repository.call }
     let(:stream)       { Stream.new(SecureRandom.uuid) }
 
-    it 'does not allow same event twice in a stream - checks stream events before checking all events' do
+    it "does not allow same event twice in a stream - checks stream events before checking all events" do
       repository.append_to_stream(
         [SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
-        Stream.new('other'),
+        Stream.new("other"),
         ExpectedVersion.none
       )
       repository.append_to_stream(
         [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
-        Stream.new('stream'),
+        Stream.new("stream"),
         ExpectedVersion.none
       )
       expect(eid).not_to receive(:eql?)
       expect do
         repository.append_to_stream(
           [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
-          Stream.new('stream'),
+          Stream.new("stream"),
           ExpectedVersion.new(0)
         )
       end.to raise_error(RubyEventStore::EventDuplicatedInStream)
     end
 
-    it 'global position starts at 0' do
+    it "global position starts at 0" do
       repository.append_to_stream(
         [SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
-        Stream.new('other'),
+        Stream.new("other"),
         ExpectedVersion.none
       )
 
       expect(repository.global_position(eid)).to eq(0)
     end
 
-    it 'global position increments by 1' do
+    it "global position increments by 1" do
       repository.append_to_stream(
         [
           SRecord.new(event_id: eid1 = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
           SRecord.new(event_id: eid2 = "0b81c542-7fef-47a1-9d81-f45915d74e9b"),
         ],
-        Stream.new('other'),
+        Stream.new("other"),
         ExpectedVersion.none
       )
 
       expect(repository.global_position(eid2)).to eq(1)
     end
 
-    it 'publishing with any position to stream with specific position raise an error' do
+    it "publishing with any position to stream with specific position raise an error" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.auto)
+      ], Stream.new("stream"), ExpectedVersion.auto)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], Stream.new('stream'), ExpectedVersion.any)
+        ], Stream.new("stream"), ExpectedVersion.any)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
-    it 'publishing with any position to stream with any position does not raise an error' do
+    it "publishing with any position to stream with any position does not raise an error" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.any)
+      ], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], Stream.new('stream'), ExpectedVersion.any)
+        ], Stream.new("stream"), ExpectedVersion.any)
       end.not_to raise_error
     end
 
-    it 'publishing with specific position to stream with any position raise an error' do
+    it "publishing with specific position to stream with any position raise an error" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.any)
+      ], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], Stream.new('stream'), ExpectedVersion.auto)
+        ], Stream.new("stream"), ExpectedVersion.auto)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
-    it 'linking with any position to stream with specific position raise an error' do
+    it "linking with any position to stream with specific position raise an error" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.auto)
+      ], Stream.new("stream"), ExpectedVersion.auto)
       repository.append_to_stream([
         event1 = SRecord.new
-      ],  Stream.new('other'), ExpectedVersion.auto)
+      ],  Stream.new("other"), ExpectedVersion.auto)
 
       expect do
         repository.link_to_stream([
           event1.event_id,
-        ], Stream.new('stream'), ExpectedVersion.any)
+        ], Stream.new("stream"), ExpectedVersion.any)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
-    it 'linking with any position to stream with any position does not raise an error' do
+    it "linking with any position to stream with any position does not raise an error" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.any)
+      ], Stream.new("stream"), ExpectedVersion.any)
       repository.append_to_stream([
         event1 = SRecord.new
-      ],  Stream.new('other'), ExpectedVersion.auto)
+      ],  Stream.new("other"), ExpectedVersion.auto)
 
       expect do
         repository.link_to_stream([
           event1.event_id
-        ], Stream.new('stream'), ExpectedVersion.any)
+        ], Stream.new("stream"), ExpectedVersion.any)
       end.not_to raise_error
     end
 
-    it 'linking with specific position to stream with any position raise an error' do
+    it "linking with specific position to stream with any position raise an error" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: true)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.any)
+      ], Stream.new("stream"), ExpectedVersion.any)
       repository.append_to_stream([
         event1 = SRecord.new
-      ],  Stream.new('other'), ExpectedVersion.auto)
+      ],  Stream.new("other"), ExpectedVersion.auto)
 
       expect do
         repository.link_to_stream([
           event1.event_id
-        ], Stream.new('stream'), ExpectedVersion.auto)
+        ], Stream.new("stream"), ExpectedVersion.auto)
       end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
-    it 'message for UnsupportedVersionAnyUsage' do
+    it "message for UnsupportedVersionAnyUsage" do
       expect(InMemoryRepository::UnsupportedVersionAnyUsage.new.message).to eq(
       <<~EOS
       Mixing expected version :any and specific position (or :auto) is unsupported.
@@ -192,42 +192,42 @@ module RubyEventStore
     end
 
     # This test only documents the 2.x behavior
-    it 'publishing with any position to stream with specific position' do
+    it "publishing with any position to stream with specific position" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.auto)
+      ], Stream.new("stream"), ExpectedVersion.auto)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], Stream.new('stream'), ExpectedVersion.any)
+        ], Stream.new("stream"), ExpectedVersion.any)
       end.not_to raise_error
     end
 
     # This test only documents the 2.x behavior
-    it 'publishing with specific position to stream with any position' do
+    it "publishing with specific position to stream with any position" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.any)
+      ], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], Stream.new('stream'), ExpectedVersion.auto)
+        ], Stream.new("stream"), ExpectedVersion.auto)
       end.not_to raise_error
     end
 
-    it 'stream position verification is turned off by default' do
+    it "stream position verification is turned off by default" do
       repository.append_to_stream([
         event0 = SRecord.new,
-      ], Stream.new('stream'), ExpectedVersion.auto)
+      ], Stream.new("stream"), ExpectedVersion.auto)
 
       expect do
         repository.append_to_stream([
           event1 = SRecord.new,
-        ], Stream.new('stream'), ExpectedVersion.any)
+        ], Stream.new("stream"), ExpectedVersion.any)
       end.not_to raise_error
     end
   end

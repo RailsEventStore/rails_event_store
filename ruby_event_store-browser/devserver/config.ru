@@ -1,4 +1,4 @@
-require 'ruby_event_store'
+require "ruby_event_store"
 require_relative "../lib/ruby_event_store/browser/app"
 
 repository = RubyEventStore::InMemoryRepository.new

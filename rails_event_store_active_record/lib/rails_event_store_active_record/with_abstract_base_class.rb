@@ -21,7 +21,7 @@ module RailsEventStoreActiveRecord
       Object.const_set("Event_#{instance_id}",
         Class.new(@base_klass) do
           self.primary_key = :id
-          self.table_name  = 'event_store_events'
+          self.table_name  = "event_store_events"
         end
       )
     end
@@ -30,7 +30,7 @@ module RailsEventStoreActiveRecord
       Object.const_set("EventInStream_#{instance_id}",
         Class.new(@base_klass) do
           self.primary_key = :id
-          self.table_name = 'event_store_events_in_streams'
+          self.table_name = "event_store_events_in_streams"
           belongs_to :event, primary_key: :event_id, class_name: "Event_#{instance_id}"
         end
       )

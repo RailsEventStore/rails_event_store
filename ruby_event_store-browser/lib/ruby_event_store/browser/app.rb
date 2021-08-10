@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../browser'
-require 'sinatra/base'
+require_relative "../browser"
+require "sinatra/base"
 
 module RubyEventStore
   module Browser
@@ -28,10 +28,10 @@ module RubyEventStore
         set :related_streams_query, nil
         set :protection, except: :path_traversal
 
-        mime_type :json, 'application/vnd.api+json'
+        mime_type :json, "application/vnd.api+json"
       end
 
-      get '/api/events/:id' do
+      get "/api/events/:id" do
         begin
           json Event.new(
             event_store: settings.event_store_locator,
@@ -42,7 +42,7 @@ module RubyEventStore
         end
       end
 
-      get '/api/streams/:id' do
+      get "/api/streams/:id" do
         json GetStream.new(
           stream_name: params[:id],
           routing: routing,
@@ -50,7 +50,7 @@ module RubyEventStore
         )
       end
 
-      get '/api/streams/:id/relationships/events' do
+      get "/api/streams/:id/relationships/events" do
         json GetEventsFromStream.new(
           event_store: settings.event_store_locator,
           params: symbolized_params,

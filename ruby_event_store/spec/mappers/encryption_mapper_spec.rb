@@ -1,7 +1,7 @@
-require 'spec_helper'
-require 'openssl'
-require 'json'
-require 'ruby_event_store/spec/mapper_lint'
+require "spec_helper"
+require "openssl"
+require "json"
+require "ruby_event_store/spec/mapper_lint"
 
 module RubyEventStore
   module Mappers
@@ -21,7 +21,7 @@ module RubyEventStore
       let(:event_id)        { SecureRandom.uuid }
       let(:coder)           { Transformation::Encryption.new(key_repository) }
 
-      def build_data(value = 'test@example.com')
+      def build_data(value = "test@example.com")
         {personal_info: value, user_id: 123}
       end
       def domain_event(data = build_data)
@@ -36,10 +36,10 @@ module RubyEventStore
 
       before(:each) {
         key = key_repository.create(123)
-        allow(key).to receive(:random_iv).and_return('123456789012')
+        allow(key).to receive(:random_iv).and_return("123456789012")
       }
 
-      specify '#event_to_record returns YAML serialized record' do
+      specify "#event_to_record returns YAML serialized record" do
         record = subject.event_to_record(domain_event)
         expect(record).to            be_a Record
         expect(record.event_id).to   eq event_id
@@ -50,7 +50,7 @@ module RubyEventStore
         expect(record.valid_at).to   eq time
       end
 
-      specify '#record_to_event returns event instance' do
+      specify "#record_to_event returns event instance" do
         record = Record.new(
           event_id:   domain_event.event_id,
           data:       encrypted_item.data,
@@ -66,12 +66,12 @@ module RubyEventStore
         expect(event.metadata[:valid_at]).to  eq(time)
       end
 
-      specify 'make sure encryption & decryption do not tamper event data' do
+      specify "make sure encryption & decryption do not tamper event data" do
         [
           false,
           true,
           123,
-          'Any string value',
+          "Any string value",
           123.45,
           nil,
         ].each do |value|
@@ -91,10 +91,10 @@ module RubyEventStore
         end
       end
 
-      context 'when key is forgotten' do
+      context "when key is forgotten" do
         subject { described_class.new(key_repository) }
 
-        specify '#record_to_event returns event instance with forgotten data' do
+        specify "#record_to_event returns event instance with forgotten data" do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
@@ -112,12 +112,12 @@ module RubyEventStore
           )
           expect(event).to                      eq(expected_event)
           expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time, valid_at: time))
-          expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
+          expect(event.data[:personal_info]).to eq("FORGOTTEN_DATA")
           expect(event.metadata[:timestamp]).to eq(time)
           expect(event.metadata[:valid_at]).to  eq(time)
         end
 
-        specify '#record_to_event returns event instance with forgotten data when a new key is created' do
+        specify "#record_to_event returns event instance with forgotten data when a new key is created" do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
@@ -136,17 +136,17 @@ module RubyEventStore
           )
           expect(event).to                      eq(expected_event)
           expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time, valid_at: time))
-          expect(event.data[:personal_info]).to eq('FORGOTTEN_DATA')
+          expect(event.data[:personal_info]).to eq("FORGOTTEN_DATA")
           expect(event.metadata[:timestamp]).to eq(time)
           expect(event.metadata[:valid_at]).to  eq(time)
         end
       end
 
-      context 'when key is forgotten and has custom forgotten data text' do
-        let(:forgotten_data) { ForgottenData.new('Key is forgotten') }
+      context "when key is forgotten and has custom forgotten data text" do
+        let(:forgotten_data) { ForgottenData.new("Key is forgotten") }
         subject { described_class.new(key_repository, forgotten_data: forgotten_data) }
 
-        specify '#record_to_event returns event instance with forgotten data' do
+        specify "#record_to_event returns event instance with forgotten data" do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,
@@ -164,17 +164,17 @@ module RubyEventStore
           )
           expect(event).to                      eq(expected_event)
           expect(event.metadata.to_h).to        eq(metadata.merge(timestamp: time, valid_at: time))
-          expect(event.data[:personal_info]).to eq('Key is forgotten')
+          expect(event.data[:personal_info]).to eq("Key is forgotten")
           expect(event.metadata[:timestamp]).to eq(time)
           expect(event.metadata[:valid_at]).to  eq(time)
         end
       end
 
-      context 'when ReverseYamlSerializer serializer is provided' do
+      context "when ReverseYamlSerializer serializer is provided" do
         let(:coder) { Transformation::Encryption.new(key_repository, serializer: ReverseYamlSerializer) }
         subject { described_class.new(key_repository, serializer: ReverseYamlSerializer) }
 
-        specify '#event_to_record returns serialized record' do
+        specify "#event_to_record returns serialized record" do
           record = subject.event_to_record(domain_event)
           expect(record).to            be_a Record
           expect(record.event_id).to   eq event_id
@@ -185,7 +185,7 @@ module RubyEventStore
           expect(record.valid_at).to   eq time
         end
 
-        specify '#record_to_event returns event instance' do
+        specify "#record_to_event returns event instance" do
           record = Record.new(
             event_id:   domain_event.event_id,
             data:       encrypted_item.data,

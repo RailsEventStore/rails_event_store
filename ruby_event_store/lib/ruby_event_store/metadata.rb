@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'date'
-require 'time'
-require 'forwardable'
+require "date"
+require "time"
+require "forwardable"
 
 module RubyEventStore
   class Metadata
