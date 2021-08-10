@@ -8,7 +8,7 @@ PATH
 GEM
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
   specs:
-    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.1)
+    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.2)
 
 GEM
   remote: https://rubygems.org/
@@ -36,9 +36,9 @@ GEM
     mutant-rspec (0.10.32)
       mutant (= 0.10.32)
       rspec-core (>= 3.8.0, < 4.0.0)
-    parser (3.0.1.1)
+    parser (3.0.2.0)
       ast (~> 2.4.1)
-    rake (13.0.3)
+    rake (13.0.6)
     regexp_parser (2.1.1)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -53,7 +53,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
-    ruby2_keywords (0.0.4)
+    ruby2_keywords (0.0.5)
     thread_safe (0.3.6)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
