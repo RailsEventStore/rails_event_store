@@ -104,11 +104,17 @@ module RubyEventStore
         }
 
         let(:transformation) {
-          PreserveTypes.new.register(
-            Time,
-            serializer: ->(v) { v.iso8601(9) },
-            deserializer: ->(v) { Time.iso8601(v) },
-          )
+          PreserveTypes.new
+            .register(
+              Time,
+              serializer: ->(v) { v.iso8601(9) },
+              deserializer: ->(v) { Time.iso8601(v) },
+            )
+            .register(
+              Symbol,
+              serializer: ->(v) { v.to_s },
+              deserializer: ->(v) { v.to_sym },
+            )
         }
 
         specify "#dump" do
@@ -159,6 +165,128 @@ module RubyEventStore
             transformation.dump(invalid)
           }.to raise_error(SerializationError)
             .with_message("Only string and symbol hash keys may be serialized, but Doh is a Object")
+        end
+
+        specify "#dump - no changes if data or metadata are not Hash" do
+          record = Record.new(
+            event_id:   uuid,
+            metadata:   metadata = Object.new,
+            data:       data = Object.new,
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.dump(record)
+          expect(result.data).to eq(data)
+          expect(result.metadata).to eq(metadata)
+        end
+
+        specify "#load - no changes if data or metadata are not Hash" do
+          record = Record.new(
+            event_id:   uuid,
+            metadata:   metadata = Object.new,
+            data:       data = Object.new,
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.load(record)
+          expect(result.data).to eq(data)
+          expect(result.metadata).to eq(metadata)
+        end
+
+        specify "#dump - works with Metadata object" do
+          record_with_meta = Record.new(
+            event_id:   uuid,
+            metadata:   metadata = RubyEventStore::Metadata.new({some: 'meta'}),
+            data:       {some: 'value'},
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.dump(record_with_meta)
+          expect(result.data).to eq({some: 'value'})
+          expect(result.metadata).to be_a(RubyEventStore::Metadata)
+          expect(result.metadata).to eq(metadata)
+          expect(result.metadata.to_h).to eq({
+            some: 'meta',
+            types: {
+              data: {
+                'some' => 'String',
+                '_res_symbol_keys' => ['some'],
+              },
+              metadata: 'RubyEventStore::Metadata',
+            }
+          })
+        end
+
+        specify "#load - works with Metadata object" do
+          record_with_meta = Record.new(
+            event_id:   uuid,
+            metadata:   metadata = RubyEventStore::Metadata.new({
+              some: 'meta',
+              types: {
+                data: {
+                  some: 'String',
+                  _res_symbol_keys: ['some'],
+                },
+                metadata: 'RubyEventStore::Metadata',
+              }
+            }),
+            data:       {"some" => "value"},
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.load(record_with_meta)
+          expect(result.data).to eq({some: 'value'})
+          expect(result.metadata).to be_a(RubyEventStore::Metadata)
+          expect(result.metadata).to eq(metadata)
+          expect(result.metadata.to_h).to eq({some: 'meta'})
+        end
+
+        specify "#dump - works with serializable objects" do
+          record = Record.new(
+            event_id:   uuid,
+            metadata:   {},
+            data:       time,
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.dump(record)
+          expect(result.data).to eq(time.iso8601(9))
+          expect(result.metadata).to eq({
+            types: {
+              data: 'Time',
+              metadata: {"_res_symbol_keys"=>[]},
+            }
+          })
+        end
+
+        specify "#load - no changes if data or metadata are not Hash" do
+          record = Record.new(
+            event_id:   uuid,
+            metadata:   {
+              types: {
+                data: 'Symbol',
+                metadata: {"_res_symbol_keys"=>[]},
+              }
+            },
+            data:       :any_given_symbol,
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.load(record)
+          expect(result.data).to eq(:any_given_symbol)
+          expect(result.metadata).to eq({})
         end
       end
     end

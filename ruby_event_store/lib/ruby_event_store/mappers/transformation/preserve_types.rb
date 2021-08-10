@@ -20,29 +20,31 @@ module RubyEventStore
         end
 
         def dump(record)
-          data_types = store_types(record.data)
-          metadata_types = store_types(record.metadata)
+          data = transform(record.data)
+          metadata = transform(record.metadata)
+          if (metadata.respond_to?(:[]))
+            metadata[:types] = {
+              data: store_type(record.data),
+              metadata: store_type(record.metadata),
+            }
+          end
 
           Record.new(
             event_id:   record.event_id,
             event_type: record.event_type,
-            data:       transform_hash(record.data),
-            metadata:   transform_hash(record.metadata)
-              .merge(types: {
-                data: data_types,
-                metadata: metadata_types,
-              }),
+            data:       data,
+            metadata:   metadata,
             timestamp:  record.timestamp,
             valid_at:   record.valid_at,
           )
         end
 
         def load(record)
-          types = record.metadata.delete(:types)
+          types = record.metadata.delete(:types) rescue nil
           data_types = types && types[:data]
           metadata_types = types && types[:metadata]
-          data = data_types ? restore_types(record.data, data_types) : record.data
-          metadata = metadata_types ? restore_types(record.metadata, metadata_types) : record.metadata
+          data = data_types ? restore_type(record.data, data_types) : record.data
+          metadata = metadata_types ? restore_type(record.metadata, metadata_types) : record.metadata
 
           Record.new(
             event_id:   record.event_id,
@@ -64,16 +66,16 @@ module RubyEventStore
 
         def transform_hash(argument)
           argument.each_with_object({}) do |(key, value), hash|
-            hash[key] = transform_argument(value)
+            hash[key] = transform(value)
           end
         end
 
-        def transform_argument(argument)
+        def transform(argument)
           case argument
           when Hash
             transform_hash(argument)
           when Array
-            argument.map{|i| transform_argument(i)}
+            argument.map{|i| transform(i)}
           else
             serializer_of(argument.class).call(argument)
           end
