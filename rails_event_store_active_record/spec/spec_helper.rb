@@ -24,3 +24,21 @@ RSpec::Matchers.define :contains_ids do |expected_ids|
   end
   diffable
 end
+
+RSpec::Matchers.define :match_query_count_of do |expected_count|
+  match do |query|
+    count = 0
+    ActiveSupport::Notifications.subscribed(
+      lambda do |_name, _started, _finished, _unique_id, payload|
+        unless %w[ CACHE SCHEMA ].include?(payload[:name])
+          count += 1
+        end
+      end,
+      "sql.active_record",
+      &actual
+    )
+    values_match?(expected_count, count)
+  end
+  supports_block_expectations
+  diffable
+end

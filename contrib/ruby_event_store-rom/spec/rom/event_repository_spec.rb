@@ -45,27 +45,18 @@ module RubyEventStore
       end
 
       specify "avoid N+1" do
-        repository.append_to_stream([
-          RubyEventStore::SRecord.new,
-          RubyEventStore::SRecord.new,
-        ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
-        c1 = count_queries{ repository.read(specification.limit(2).result) }
-        expect(c1).to eq(1)
+        repository.append_to_stream(
+          [RubyEventStore::SRecord.new, RubyEventStore::SRecord.new],
+          RubyEventStore::Stream.new("stream"),
+          RubyEventStore::ExpectedVersion.auto
+        )
 
-        c2 = count_queries{ repository.read(specification.limit(2).backward.result) }
-        expect(c2).to eq(1)
-
-        c3 = count_queries{ repository.read(specification.stream("stream").result) }
-        expect(c3).to eq(2)
-
-        c4 = count_queries{ repository.read(specification.stream("stream").backward.result) }
-        expect(c4).to eq(2)
-
-        c5 = count_queries{ repository.read(specification.stream("stream").limit(2).result) }
-        expect(c5).to eq(2)
-
-        c6 = count_queries{ repository.read(specification.stream("stream").limit(2).backward.result) }
-        expect(c6).to eq(2)
+        expect{ repository.read(specification.limit(2).result) }.to                           match_query_count_of(1)
+        expect{ repository.read(specification.limit(2).backward.result) }.to                  match_query_count_of(1)
+        expect{ repository.read(specification.stream("stream").result) }.to                   match_query_count_of(2)
+        expect{ repository.read(specification.stream("stream").backward.result) }.to          match_query_count_of(2)
+        expect{ repository.read(specification.stream("stream").limit(2).result) }.to          match_query_count_of(2)
+        expect{ repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count_of(2)
       end
 
       private
@@ -77,17 +68,6 @@ module RubyEventStore
             .ordered(:forward, RubyEventStore::Stream.new('stream'))
             .map { |entity| entity[:position] }
         expect(positions).to eq((0..positions.size - 1).to_a)
-      end
-
-      def count_queries(&block)
-        count = 0
-        counter_f = ->(_name, _started, _finished, _unique_id, payload) {
-          unless %w[ CACHE SCHEMA ].include?(payload[:name])
-            count += 1
-          end
-        }
-        ActiveSupport::Notifications.subscribed(counter_f, "sql.rom", &block)
-        count
       end
     end
   end
