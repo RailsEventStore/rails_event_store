@@ -8,6 +8,12 @@ GEMS = minitest-ruby_event_store \
        ruby_event_store-sidekiq_scheduler \
        ruby_event_store-transformations
 
+
+define substf
+  $(shell echo $(3) | sed -e 's/$(1)/$(2)/')
+endef
+
+
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
@@ -15,7 +21,7 @@ $(addprefix update-, $(GEMS)):
 	@make -C $(subst update-,,$@) update
 
 $(addprefix test-, $(GEMS)):
-	@make -C $(subst test-,,$@) test
+	@make -C $(call substf,test-,,$@) test
 
 $(addprefix mutate-changes-, $(GEMS)):
 	@make -C $(subst mutate-changes-,,$@) mutate-changes
