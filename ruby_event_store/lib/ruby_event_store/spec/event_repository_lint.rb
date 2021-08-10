@@ -1423,11 +1423,11 @@ module RubyEventStore
         Stream.new("Dummy"),
         ExpectedVersion.any
       )
-      expect(repository.read(specification.result).map(&:event_id)).to eq [e1, e2, e3]
-      expect(repository.read(specification.as_at.result).map(&:event_id)).to eq [e1, e3, e2]
-      expect(repository.read(specification.as_at.backward.result).map(&:event_id)).to eq [e2, e3, e1]
-      expect(repository.read(specification.as_of.result).map(&:event_id)).to eq [e3, e2, e1]
-      expect(repository.read(specification.as_of.backward.result).map(&:event_id)).to eq [e1, e2, e3]
+      expect(repository.read(specification.result)).to                eq_ids([e1, e2, e3])
+      expect(repository.read(specification.as_at.result)).to          eq_ids([e1, e3, e2])
+      expect(repository.read(specification.as_at.backward.result)).to eq_ids([e2, e3, e1])
+      expect(repository.read(specification.as_of.result)).to          eq_ids([e3, e2, e1])
+      expect(repository.read(specification.as_of.backward.result)).to eq_ids([e1, e2, e3])
     end
 
     specify "time order is respected with batches" do
@@ -1439,11 +1439,19 @@ module RubyEventStore
         Stream.new("Dummy"),
         ExpectedVersion.any
       )
-      expect(repository.read(specification.in_batches.result).to_a.flatten.map(&:event_id)).to eq [e1, e2, e3]
-      expect(repository.read(specification.in_batches.as_at.result).to_a.flatten.map(&:event_id)).to eq [e1, e3, e2]
-      expect(repository.read(specification.in_batches.as_at.backward.result).to_a.flatten.map(&:event_id)).to eq [e2, e3, e1]
-      expect(repository.read(specification.in_batches.as_of.result).to_a.flatten.map(&:event_id)).to eq [e3, e2, e1]
-      expect(repository.read(specification.in_batches.as_of.backward.result).to_a.flatten.map(&:event_id)).to eq [e1, e2, e3]
+      expect(repository.read(specification.in_batches.result).to_a.flatten).to                eq_ids([e1, e2, e3])
+      expect(repository.read(specification.in_batches.as_at.result).to_a.flatten).to          eq_ids([e1, e3, e2])
+      expect(repository.read(specification.in_batches.as_at.backward.result).to_a.flatten).to eq_ids([e2, e3, e1])
+      expect(repository.read(specification.in_batches.as_of.result).to_a.flatten).to          eq_ids([e3, e2, e1])
+      expect(repository.read(specification.in_batches.as_of.backward.result).to_a.flatten).to eq_ids([e1, e2, e3])
     end
+  end
+
+  ::RSpec::Matchers.define :eq_ids do |expected_ids|
+    match do |enum|
+      @actual = enum.map(&:event_id)
+      expected_ids == @actual
+    end
+    diffable
   end
 end
