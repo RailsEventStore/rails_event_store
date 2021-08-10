@@ -44,10 +44,10 @@ module RubyEventStore
         expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
 
-      specify "using preload()" do
+      specify "avoid N+1" do
         repository.append_to_stream([
-          event0 = RubyEventStore::SRecord.new,
-          event1 = RubyEventStore::SRecord.new,
+          RubyEventStore::SRecord.new,
+          RubyEventStore::SRecord.new,
         ], RubyEventStore::Stream.new('stream'), RubyEventStore::ExpectedVersion.auto)
         c1 = count_queries{ repository.read(specification.limit(2).result) }
         expect(c1).to eq(1)
