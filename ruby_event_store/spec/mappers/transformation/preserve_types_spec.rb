@@ -11,7 +11,10 @@ module RubyEventStore
         let(:record)  {
           Record.new(
             event_id:   uuid,
-            metadata:   {some: 'meta'},
+            metadata:   {
+              some: 'meta',
+              any: :symbol,
+            },
             data:       {
               'any' => 'data',
               at_some: time,
@@ -39,6 +42,7 @@ module RubyEventStore
             event_id:   uuid,
             metadata:   {
               some: 'meta',
+              any: 'symbol',
               types: {
                 data: {
                   'any' => 'String',
@@ -65,7 +69,8 @@ module RubyEventStore
                 },
                 metadata: {
                   'some' => 'String',
-                  '_res_symbol_keys' => ['some']
+                  'any' => 'Symbol',
+                  '_res_symbol_keys' => ['some', 'any']
                 }
               },
             },
@@ -126,13 +131,70 @@ module RubyEventStore
         specify "#load" do
           result = transformation.load(json_record)
           expect(result).to eq(record)
-          expect(result.metadata).to eq({some: 'meta'})
+          expect(result.metadata).to eq({
+            some: 'meta',
+            any: :symbol,
+          })
         end
 
         specify "no op when no types" do
-          result = transformation.load(record)
-          expect(result).to eq(record)
-          expect(result.metadata).to eq({some: 'meta'})
+          record_without_types = Record.new(
+            event_id: uuid,
+            metadata: {"some" => "meta", "any" => "symbol"},
+            data: {"some" => "value"},
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.load(record_without_types)
+          expect(result).to eq(record_without_types)
+          expect(result.metadata).to eq({"some" => "meta", "any" => "symbol"})
+        end
+
+        specify "no data transform when no data types" do
+          record_without_types = Record.new(
+            event_id: uuid,
+            metadata: {"some" => "meta", "any" => "symbol",
+              types: {
+                metadata: {
+                  some: "String",
+                  any: "Symbol",
+                  "_res_symbol_keys": ["some"]
+                }
+              }
+            },
+            data: {"some" => "value"},
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.load(record_without_types)
+          expect(result.data).to eq({"some" => "value"})
+          expect(result.metadata).to eq({some: "meta", "any" => :symbol})
+        end
+
+        specify "no metadata transform when no metadata types" do
+          record_without_types = Record.new(
+            event_id: uuid,
+            metadata: {"some" => "meta", "any" => "symbol",
+              types: {
+                data: {
+                  some: "String",
+                  "_res_symbol_keys": ["some"]
+                }
+              }
+            },
+            data: {"some" => "value"},
+            event_type: 'TestEvent',
+            timestamp:  time,
+            valid_at:   time
+          )
+
+          result = transformation.load(record_without_types)
+          expect(result.data).to eq({some: "value"})
+          expect(result.metadata).to eq({"some" => "meta", "any" => "symbol"})
         end
 
         specify "fail for reserved keys" do
