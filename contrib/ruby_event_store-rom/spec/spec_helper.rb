@@ -18,12 +18,9 @@ module RubyEventStore
           database_uri,
           max_connections: database_uri =~ /sqlite/ ? 1 : 5,
           preconnect: :concurrently,
-          fractional_seconds: true
-          # sql_mode: %w[NO_AUTO_VALUE_ON_ZERO STRICT_ALL_TABLES]
         )
         # $stdout.sync = true
         # config.default.use_logger Logger.new(STDOUT)
-        # config.default.connection.pool.send(:preconnect, true)
         config.default.run_migrations
 
         @rom_container = ROM.setup(config)
