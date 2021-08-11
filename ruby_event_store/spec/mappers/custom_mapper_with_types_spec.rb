@@ -52,12 +52,12 @@ module RubyEventStore
       }
       let(:serialized_data) {
         {
-          some_attribute: 5,
-          symbol: 'any',
-          time: time.iso8601(9),
-          utc_time: utc_time.iso8601(9),
-          date: date.iso8601,
-          datetime: datetime.iso8601(9),
+          'some_attribute' => 5,
+          'symbol' => 'any',
+          'time' => time.iso8601(9),
+          'utc_time' => utc_time.iso8601(9),
+          'date' => date.iso8601,
+          'datetime' => datetime.iso8601(9),
         }
       }
       let(:metadata)     { {some_meta: 1} }
@@ -75,17 +75,15 @@ module RubyEventStore
           some_meta: 1,
           types: {
             data: {
-              some_attribute: 'Integer',
-              symbol: 'Symbol',
-              time: 'Time',
-              utc_time: 'Time',
-              date: 'Date',
-              datetime: 'DateTime',
-              _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'utc_time', 'date', 'datetime'],
+              some_attribute: ['Symbol', 'Integer'],
+              symbol: ['Symbol', 'Symbol'],
+              time: ['Symbol', 'Time'],
+              utc_time: ['Symbol', 'Time'],
+              date: ['Symbol', 'Date'],
+              datetime: ['Symbol', 'DateTime'],
             },
             metadata: {
-              some_meta: 'Integer',
-              _res_symbol_keys: ['some_meta'],
+              some_meta: ['Symbol', 'Integer'],
             },
           },
         })
@@ -102,17 +100,15 @@ module RubyEventStore
             some_meta: 1,
             types: {
               data: {
-                some_attribute: 'Integer',
-                symbol: 'Symbol',
-                time: 'Time',
-                utc_time: 'Time',
-                date: 'Date',
-                datetime: 'DateTime',
-                _res_symbol_keys: ['some_attribute', 'symbol', 'time', 'utc_time', 'date', 'datetime'],
+                some_attribute: ['Symbol', 'Integer'],
+                symbol: ['Symbol', 'Symbol'],
+                time: ['Symbol', 'Time'],
+                utc_time: ['Symbol', 'Time'],
+                date: ['Symbol', 'Date'],
+                datetime: ['Symbol', 'DateTime'],
               },
               metadata: {
-                some_meta: 'Integer',
-                _res_symbol_keys: ['some_meta'],
+                some_meta: ['Symbol', 'Integer'],
               },
             },
           },
