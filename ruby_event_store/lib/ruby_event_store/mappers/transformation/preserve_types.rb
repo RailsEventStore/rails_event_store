@@ -3,8 +3,6 @@
 module RubyEventStore
   module Mappers
     module Transformation
-      SerializationError = Class.new(ArgumentError)
-
       class PreserveTypes
         def initialize(type_resolver: ->(type) { type.to_s } )
           @registered_type_serializers = {}
@@ -57,16 +55,11 @@ module RubyEventStore
         end
 
         private
-
-        SYMBOL_KEYS_KEY = '_res_symbol_keys'
-        RESERVED_KEYS = [
-          SYMBOL_KEYS_KEY, SYMBOL_KEYS_KEY.to_sym,
-        ]
         PASS_THROUGH = ->(v) { v }
 
         def transform_hash(argument)
           argument.each_with_object({}) do |(key, value), hash|
-            hash[key] = transform(value)
+            hash[transform(key)] = transform(value)
           end
         end
 
@@ -83,9 +76,8 @@ module RubyEventStore
 
         def store_types(argument)
           argument.each_with_object({}) do |(key, value), hash|
-            hash[serialize_hash_key(key)] = store_type(value)
+            hash[transform(key)] = [store_type(key), store_type(value)]
           end
-          .merge(SYMBOL_KEYS_KEY => argument.each_key.grep(Symbol).map!(&:to_s))
         end
 
         def store_type(argument)
@@ -99,23 +91,11 @@ module RubyEventStore
           end
         end
 
-        def serialize_hash_key(key)
-          case key
-          when *RESERVED_KEYS
-            raise SerializationError.new("Can't serialize a Hash with reserved key #{key.inspect}")
-          when String, Symbol
-            key.to_s
-          else
-            raise SerializationError.new("Only string and symbol hash keys may be serialized, but #{key.inspect} is a #{key.class}")
-          end
-        end
-
         def restore_types(argument, types)
-          symbol_keys = types.delete(SYMBOL_KEYS_KEY.to_sym)
           argument.each_with_object({}) do |(key, value), hash|
-            type = types.fetch(key.to_sym)
-            restored_key = symbol_keys.include?(key) ? key.to_sym : key
-            hash[restored_key] = restore_type(value, type)
+            key_type, value_type = types.fetch(key.to_sym)
+            restored_key = restore_type(key, key_type)
+            hash[restored_key] = restore_type(value, value_type)
           end
         end
 
