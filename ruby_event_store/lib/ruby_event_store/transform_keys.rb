@@ -14,16 +14,15 @@ module RubyEventStore
       private
 
       def deep_transform(data, &block)
-        data.each_with_object({}) do |(k, v), h|
-          h[yield(k)] =
-            case v
-            when Hash
-              deep_transform(v, &block)
-            when Array
-              v.map { |i| Hash === i ? deep_transform(i, &block) : i }
-            else
-              v
-            end
+        case data
+        when Hash
+          data.each_with_object({}) do |(key, value), hash|
+            hash[yield(key)] = deep_transform(value, &block)
+          end
+        when Array
+          data.map { |i| deep_transform(i, &block) }
+        else
+          data
         end
       end
     end
