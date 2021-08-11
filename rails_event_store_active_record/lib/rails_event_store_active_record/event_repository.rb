@@ -57,7 +57,7 @@ module RailsEventStoreActiveRecord
     def update_messages(records)
       hashes  = records.map { |record| import_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
-      start_transaction do
+      start_transaction(false) do
         existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
         (for_update - existing.keys).each{|id| raise RubyEventStore::EventNotFound.new(id) }
         hashes.each { |h| h[:id] = existing.fetch(h.fetch(:event_id)) }
@@ -84,7 +84,7 @@ module RailsEventStoreActiveRecord
       last_stream_version = ->(stream_) { @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position) }
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
-      start_transaction do
+      start_transaction(!!resolved_version) do
         yield if block_given?
         in_stream = event_ids.map.with_index do |event_id, index|
           {
@@ -132,8 +132,8 @@ module RailsEventStoreActiveRecord
       valid_at unless valid_at.eql?(created_at)
     end
 
-    def start_transaction(&block)
-      @event_klass.transaction(requires_new: true, &block)
+    def start_transaction(requires_new, &block)
+      @event_klass.transaction(requires_new: requires_new, &block)
     end
   end
 
