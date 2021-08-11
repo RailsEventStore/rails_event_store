@@ -5,7 +5,7 @@ requires:
 includes:
 - lib
 integration: rspec
-mutation_timeout: 10.0
+mutation_timeout: 1.0
 coverage_criteria:
    timeout: true
    process_abort: true
