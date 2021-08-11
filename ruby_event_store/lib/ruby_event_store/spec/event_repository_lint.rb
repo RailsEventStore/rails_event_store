@@ -47,7 +47,7 @@ module RubyEventStore
 
     def verify_conncurency_assumptions(helper)
       return unless helper.has_connection_pooling?
-      expect(helper.connection_pool_size).to eq(5)
+      expect(helper.connection_pool_size).to eq(5), "expected connection pool of size 5, got #{helper.connection_pool_size}"
     end
 
     def read_events(repository, scope, stream = nil, from: nil, to: nil, count: nil)
