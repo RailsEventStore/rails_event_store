@@ -4,6 +4,7 @@ require 'ruby_event_store/spec/event_repository_lint'
 module RubyEventStore
   module ROM
     RSpec.describe EventRepository do
+      rom_helper = SpecHelper.new
       mk_repository = -> do
         serializer =
           case ENV['DATA_TYPE']
@@ -12,12 +13,12 @@ module RubyEventStore
           else
             YAML
           end
-        EventRepository.new(rom: SpecHelper.new.rom_container, serializer: serializer)
+        EventRepository.new(rom: rom_helper.rom_container, serializer: serializer)
       end
 
-      it_behaves_like :event_repository, mk_repository, SpecHelper.new
 
-      let(:rom_helper)     { SpecHelper.new }
+      it_behaves_like :event_repository, mk_repository, rom_helper
+
       let(:rom_container)  { rom_helper.rom_container }
       let(:repository)     { mk_repository.call }
       let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }

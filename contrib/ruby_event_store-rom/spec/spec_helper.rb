@@ -30,10 +30,10 @@ module RubyEventStore
       end
 
       def run_lifecycle
+        load_gateway_schema
         yield
       ensure
         drop_gateway_schema
-        close_gateway_connection
       end
 
       def gateway
@@ -65,7 +65,6 @@ module RubyEventStore
       end
 
       def cleanup_concurrency_test
-        close_pool_connection
       end
 
       def rescuable_concurrency_test_errors
@@ -82,22 +81,14 @@ module RubyEventStore
         gateway.connection.database_type.eql?(name)
       end
 
-      def close_pool_connection
-        gateway.connection.pool.disconnect
+      def load_gateway_schema
+        gateway.run_migrations
       end
 
       def drop_gateway_schema
         gateway.connection.drop_table?('event_store_events')
         gateway.connection.drop_table?('event_store_events_in_streams')
         gateway.connection.drop_table?('schema_migrations')
-      end
-
-      # See: https://github.com/rom-rb/rom-sql/blob/master/spec/shared/database_setup.rb
-      def close_gateway_connection
-        gateway.connection.disconnect
-        # Prevent the auto-reconnect when the test completed
-        # This will save from hardly reproducible connection run outs
-        gateway.connection.pool.available_connections.freeze
       end
     end
   end
