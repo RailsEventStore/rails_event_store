@@ -40,11 +40,11 @@ module RailsEventStoreActiveRecord
   end
 
   RSpec.describe EventRepository do
+    helper = EventRepository::SpecHelper.new
     mk_repository = ->{ EventRepository.new(serializer: YAML) }
 
-    it_behaves_like :event_repository, mk_repository, EventRepository::SpecHelper.new
+    it_behaves_like :event_repository, mk_repository, helper
 
-    let(:helper) { EventRepository::SpecHelper.new }
     let(:time) { Time.now.utc }
     let(:repository) { mk_repository.call }
 
