@@ -520,7 +520,7 @@ module RubyEventStore
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
 
         positions = repository.read(specification.stream(stream.name).result).map { |r| repository.position_in_stream(r.event_id, stream) }
-        expect(positions).to eq((0..positions.size-1).to_a)
+        expect(positions).to eq((0...positions.size).to_a)
       ensure
         helper.cleanup_concurrency_test
       end
@@ -570,7 +570,7 @@ module RubyEventStore
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
 
         positions = repository.read(specification.stream(stream.name).result).map { |r| repository.position_in_stream(r.event_id, stream) }
-        expect(positions).to eq((0..positions.size-1).to_a)
+        expect(positions).to eq((0...positions.size).to_a)
       ensure
         helper.cleanup_concurrency_test
       end
