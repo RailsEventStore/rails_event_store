@@ -4,7 +4,7 @@ require 'ruby_event_store/spec/event_repository_lint'
 module RubyEventStore
   module ROM
     RSpec.describe EventRepository do
-      rom_helper = SpecHelper.new
+      helper = SpecHelper.new
       mk_repository = -> do
         serializer =
           case ENV['DATA_TYPE']
@@ -13,18 +13,18 @@ module RubyEventStore
           else
             YAML
           end
-        EventRepository.new(rom: rom_helper.rom_container, serializer: serializer)
+        EventRepository.new(rom: helper.rom_container, serializer: serializer)
       end
 
 
-      it_behaves_like :event_repository, mk_repository, rom_helper
+      it_behaves_like :event_repository, mk_repository, helper
 
-      let(:rom_container)  { rom_helper.rom_container }
+      let(:rom_container)  { helper.rom_container }
       let(:repository)     { mk_repository.call }
       let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
 
       around(:each) do |example|
-        rom_helper.run_lifecycle { example.run }
+        helper.run_lifecycle { example.run }
       end
 
       specify 'nested transaction - events still not persisted if append failed' do
@@ -32,7 +32,7 @@ module RubyEventStore
           event = SRecord.new(event_id: SecureRandom.uuid)
         ], Stream.new('stream'), ExpectedVersion.none)
 
-        UnitOfWork.new(rom_helper.gateway) do
+        UnitOfWork.new(helper.gateway) do
           expect do
             repository.append_to_stream([
               SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
