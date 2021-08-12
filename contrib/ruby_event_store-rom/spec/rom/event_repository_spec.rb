@@ -59,17 +59,6 @@ module RubyEventStore
         expect{ repository.read(specification.stream("stream").limit(2).result) }.to          match_query_count(2)
         expect{ repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count(2)
       end
-
-      private
-
-      def additional_limited_concurrency_for_auto_check(stream)
-        positions =
-          rom_container
-            .relations[:stream_entries]
-            .ordered(:forward, stream)
-            .map { |entity| entity[:position] }
-        expect(positions).to eq((0..positions.size - 1).to_a)
-      end
     end
   end
 end

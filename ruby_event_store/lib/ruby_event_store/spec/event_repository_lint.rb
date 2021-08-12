@@ -518,7 +518,9 @@ module RubyEventStore
           ev.event_id.start_with?("0-")
         end
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
-        additional_limited_concurrency_for_auto_check(stream) if defined? additional_limited_concurrency_for_auto_check
+
+        positions = repository.read(specification.stream(stream.name).result).map { |r| repository.position_in_stream(r.event_id, stream) }
+        expect(positions).to eq((0..positions.size-1).to_a)
       ensure
         helper.cleanup_concurrency_test
       end
@@ -566,7 +568,9 @@ module RubyEventStore
           ev.event_id.start_with?("0-")
         end
         expect(events0).to eq(events0.sort_by{|ev| ev.event_id })
-        additional_limited_concurrency_for_auto_check(stream) if defined? additional_limited_concurrency_for_auto_check
+
+        positions = repository.read(specification.stream(stream.name).result).map { |r| repository.position_in_stream(r.event_id, stream) }
+        expect(positions).to eq((0..positions.size-1).to_a)
       ensure
         helper.cleanup_concurrency_test
       end
