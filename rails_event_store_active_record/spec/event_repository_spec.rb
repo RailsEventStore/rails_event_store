@@ -3,54 +3,8 @@ require "ruby_event_store"
 require "ruby_event_store/spec/event_repository_lint"
 
 module RailsEventStoreActiveRecord
-  class EventRepository
-    class SpecHelper
-      include SchemaHelper
-
-      def run_lifecycle
-        establish_database_connection
-        load_database_schema
-        yield
-      ensure
-        drop_database
-      end
-
-      def supports_concurrent_auto?
-        !ENV["DATABASE_URL"].include?("sqlite")
-      end
-
-      def supports_concurrent_any?
-        !ENV["DATABASE_URL"].include?("sqlite")
-      end
-
-      def supports_binary?
-        true
-      end
-
-      def supports_upsert?
-        true
-      end
-
-      def has_connection_pooling?
-        true
-      end
-
-      def connection_pool_size
-        ActiveRecord::Base.connection.pool.size
-      end
-
-      def cleanup_concurrency_test
-        ActiveRecord::Base.connection_pool.disconnect!
-      end
-
-      def supports_position_queries?
-        true
-      end
-    end
-  end
-
   RSpec.describe EventRepository do
-    helper = EventRepository::SpecHelper.new
+    helper = SpecHelper.new
     mk_repository = ->{ EventRepository.new(serializer: YAML) }
 
     it_behaves_like :event_repository, mk_repository, helper

@@ -12,6 +12,50 @@ module RailsEventStoreActiveRecord
   class CustomApplicationRecord < ActiveRecord::Base
     self.abstract_class = true
   end
+
+  class SpecHelper
+    include SchemaHelper
+
+    def run_lifecycle
+      establish_database_connection
+      load_database_schema
+      yield
+    ensure
+      drop_database
+    end
+
+    def supports_concurrent_auto?
+      !ENV["DATABASE_URL"].include?("sqlite")
+    end
+
+    def supports_concurrent_any?
+      !ENV["DATABASE_URL"].include?("sqlite")
+    end
+
+    def supports_binary?
+      true
+    end
+
+    def supports_upsert?
+      true
+    end
+
+    def has_connection_pooling?
+      true
+    end
+
+    def connection_pool_size
+      ActiveRecord::Base.connection.pool.size
+    end
+
+    def cleanup_concurrency_test
+      ActiveRecord::Base.connection_pool.disconnect!
+    end
+
+    def supports_position_queries?
+      true
+    end
+  end
 end
 
 RSpec::Matchers.define :match_query_count_of do |expected_count|
