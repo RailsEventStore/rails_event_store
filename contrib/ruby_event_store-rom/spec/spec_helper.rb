@@ -31,8 +31,10 @@ module RubyEventStore
         drop_gateway_schema
       end
 
-      def gateway
-        rom_container.gateways.fetch(:default)
+      def with_transaction
+        UnitOfWork.new(gateway) do
+          yield
+        end
       end
 
       def supports_concurrent_auto?
@@ -67,6 +69,10 @@ module RubyEventStore
       end
 
       protected
+
+      def gateway
+        rom_container.gateways.fetch(:default)
+      end
 
       def gateway_type?(name)
         gateway.connection.database_type.eql?(name)

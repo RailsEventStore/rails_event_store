@@ -22,7 +22,7 @@ module RailsEventStoreActiveRecord
         event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid),
       ], RubyEventStore::Stream.new("stream"), RubyEventStore::ExpectedVersion.none)
 
-      ActiveRecord::Base.transaction do
+      helper.with_transaction do
         expect do
           repository.append_to_stream([
             RubyEventStore::SRecord.new(

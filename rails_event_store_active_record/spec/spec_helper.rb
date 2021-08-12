@@ -24,6 +24,12 @@ module RailsEventStoreActiveRecord
       drop_database
     end
 
+    def with_transaction
+      ActiveRecord::Base.transaction do
+        yield
+      end
+    end
+
     def supports_concurrent_auto?
       !ENV["DATABASE_URL"].include?("sqlite")
     end

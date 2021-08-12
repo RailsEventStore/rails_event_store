@@ -32,7 +32,7 @@ module RubyEventStore
           event = SRecord.new(event_id: SecureRandom.uuid)
         ], Stream.new('stream'), ExpectedVersion.none)
 
-        UnitOfWork.new(helper.gateway) do
+        helper.with_transaction do
           expect do
             repository.append_to_stream([
               SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
