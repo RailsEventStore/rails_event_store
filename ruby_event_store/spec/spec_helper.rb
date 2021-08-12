@@ -3,6 +3,40 @@ require_relative "../../support/helpers/rspec_defaults"
 require_relative "../../support/helpers/time_enrichment"
 require "support/correlatable"
 
+module RubyEventStore
+  class SpecHelper
+    def supports_concurrent_auto?
+      true
+    end
+
+    def supports_concurrent_any?
+      true
+    end
+
+    def supports_binary?
+      true
+    end
+
+    def supports_upsert?
+      true
+    end
+
+    def has_connection_pooling?
+      false
+    end
+
+    def connection_pool_size
+    end
+
+    def cleanup_concurrency_test
+    end
+
+    def supports_position_queries?
+      true
+    end
+  end
+end
+
 OrderCreated = Class.new(RubyEventStore::Event)
 ProductAdded = Class.new(RubyEventStore::Event)
 TestEvent = Class.new(RubyEventStore::Event)

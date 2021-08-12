@@ -216,41 +216,7 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  class InstrumentedRepository
-    class SpecHelper
-      def supports_concurrent_auto?
-        false
-      end
-
-      def supports_concurrent_any?
-        false
-      end
-
-      def supports_binary?
-        false
-      end
-
-      def supports_upsert?
-        false
-      end
-
-      def has_connection_pooling?
-        false
-      end
-
-      def connection_pool_size
-      end
-
-      def cleanup_concurrency_test
-      end
-
-      def supports_position_queries?
-        true
-      end
-    end
-  end
-
   RSpec.describe InstrumentedRepository do
-    it_behaves_like :event_repository, ->{ InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }, InstrumentedRepository::SpecHelper.new
+    it_behaves_like :event_repository, ->{ InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }, SpecHelper.new
   end
 end

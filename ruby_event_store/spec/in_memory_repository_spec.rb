@@ -3,44 +3,11 @@ require "ruby_event_store/spec/event_repository_lint"
 
 
 module RubyEventStore
-  class InMemoryRepository
-    class SpecHelper
-      def supports_concurrent_auto?
-        true
-      end
-
-      def supports_concurrent_any?
-        true
-      end
-
-      def supports_binary?
-        true
-      end
-
-      def supports_upsert?
-        true
-      end
-
-      def has_connection_pooling?
-        false
-      end
-
-      def connection_pool_size
-      end
-
-      def cleanup_concurrency_test
-      end
-
-      def supports_position_queries?
-        true
-      end
-    end
-  end
-
   RSpec.describe InMemoryRepository do
+    helper = SpecHelper.new
     mk_repository = ->{ InMemoryRepository.new }
 
-    it_behaves_like :event_repository, mk_repository, ::RubyEventStore::InMemoryRepository::SpecHelper.new
+    it_behaves_like :event_repository, mk_repository, helper
 
     let(:repository)   { mk_repository.call }
     let(:stream)       { Stream.new(SecureRandom.uuid) }
