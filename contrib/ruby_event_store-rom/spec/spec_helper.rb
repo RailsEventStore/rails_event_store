@@ -18,6 +18,7 @@ module RubyEventStore
           database_uri,
           max_connections: database_uri =~ /sqlite/ ? 1 : 5,
           preconnect: :concurrently,
+          fractional_seconds: true,
         )
         # $stdout.sync = true
         # config.default.use_logger Logger.new(STDOUT)
