@@ -5,7 +5,6 @@ require_relative "../../support/helpers/schema_helper"
 require "rails"
 require "active_record"
 
-
 $verbose = ENV.has_key?("VERBOSE") ? true : false
 ActiveRecord::Schema.verbose = $verbose
 

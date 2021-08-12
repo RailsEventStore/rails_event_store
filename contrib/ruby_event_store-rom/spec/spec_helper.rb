@@ -62,10 +62,6 @@ module RubyEventStore
       def cleanup_concurrency_test
       end
 
-      def rescuable_concurrency_test_errors
-        [::ROM::SQL::Error]
-      end
-
       def supports_position_queries?
         true
       end

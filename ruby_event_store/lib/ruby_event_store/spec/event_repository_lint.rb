@@ -502,7 +502,7 @@ module RubyEventStore
                   SRecord.new(event_id: eid),
                 ], stream, version_auto)
                 sleep(rand(concurrency_level) / 1000.0)
-              rescue WrongExpectedEventVersion, *helper.rescuable_concurrency_test_errors
+              rescue WrongExpectedEventVersion
                 fail_occurred +=1
               end
             end
