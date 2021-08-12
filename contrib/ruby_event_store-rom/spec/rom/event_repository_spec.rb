@@ -62,11 +62,11 @@ module RubyEventStore
 
       private
 
-      def additional_limited_concurrency_for_auto_check
+      def additional_limited_concurrency_for_auto_check(stream)
         positions =
           rom_container
             .relations[:stream_entries]
-            .ordered(:forward, RubyEventStore::Stream.new("stream"))
+            .ordered(:forward, stream)
             .map { |entity| entity[:position] }
         expect(positions).to eq((0..positions.size - 1).to_a)
       end

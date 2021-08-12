@@ -69,9 +69,9 @@ module RailsEventStoreActiveRecord
       end
     end
 
-    def additional_limited_concurrency_for_auto_check
+    def additional_limited_concurrency_for_auto_check(stream)
       positions = RailsEventStoreActiveRecord::EventInStream
-        .where(stream: "stream")
+        .where(stream: stream.name)
         .order("position ASC")
         .map(&:position)
       expect(positions).to eq((0..positions.size-1).to_a)
