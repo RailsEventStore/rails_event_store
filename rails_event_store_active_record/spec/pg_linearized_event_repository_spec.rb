@@ -10,7 +10,7 @@ module RailsEventStoreActiveRecord
       end
 
       def supports_concurrent_any?
-        false
+        true
       end
 
       def supports_binary?
