@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   module Transformations
     RSpec.describe WithIndifferentAccess do
       def record(hash, time)
         RubyEventStore::Record.new(
-          event_id:   'not-important',
+          event_id:   "not-important",
           data:       hash,
           metadata:   hash,
-          event_type: 'does-not-matter',
+          event_type: "does-not-matter",
           timestamp:  time,
           valid_at:   time,
         )
@@ -20,13 +20,13 @@ module RubyEventStore
         time = Time.now
         hash =
           {
-            simple: 'data',
+            simple: "data",
             array: [
-              1,2,3, {some: 'hash'}
+              1,2,3, {some: "hash"}
             ],
             hash: {
               nested: {
-                any: 'value'
+                any: "value"
               },
               meh: 3
             }
@@ -40,16 +40,16 @@ module RubyEventStore
         expect(result.data[:hash][:nested]).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
 
         [result.data, result.metadata].each do |d|
-          expect(d[:simple]).to                 eq('data')
+          expect(d[:simple]).to                 eq("data")
           expect(d[:array].first).to            eq(1)
-          expect(d[:array].last[:some]).to      eq('hash')
+          expect(d[:array].last[:some]).to      eq("hash")
           expect(d[:hash][:meh]).to             eq(3)
-          expect(d[:hash][:nested][:any]).to    eq('value')
-          expect(d['simple']).to                eq('data')
-          expect(d['array'].first).to           eq(1)
-          expect(d['array'].last['some']).to    eq('hash')
-          expect(d['hash']['meh']).to           eq(3)
-          expect(d['hash']['nested']['any']).to eq('value')
+          expect(d[:hash][:nested][:any]).to    eq("value")
+          expect(d["simple"]).to                eq("data")
+          expect(d["array"].first).to           eq(1)
+          expect(d["array"].last["some"]).to    eq("hash")
+          expect(d["hash"]["meh"]).to           eq(3)
+          expect(d["hash"]["nested"]["any"]).to eq("value")
         end
 
         expect(result.timestamp).to eq(time)
@@ -60,13 +60,13 @@ module RubyEventStore
         time = Time.now
         hash =
           ActiveSupport::HashWithIndifferentAccess.new({
-            simple: 'data',
+            simple: "data",
             array: [
-              1,2,3, ActiveSupport::HashWithIndifferentAccess.new({some: 'hash'})
+              1,2,3, ActiveSupport::HashWithIndifferentAccess.new({some: "hash"})
             ],
             hash: ActiveSupport::HashWithIndifferentAccess.new({
               nested: ActiveSupport::HashWithIndifferentAccess.new({
-                any: 'value'
+                any: "value"
               }),
               meh: 3
             })
@@ -80,11 +80,11 @@ module RubyEventStore
         expect(result.data[:hash][:nested]).to be_kind_of(Hash)
 
         [result.data, result.metadata].each do |d|
-          expect(d[:simple]).to              eq('data')
+          expect(d[:simple]).to              eq("data")
           expect(d[:array].first).to         eq(1)
-          expect(d[:array].last[:some]).to   eq('hash')
+          expect(d[:array].last[:some]).to   eq("hash")
           expect(d[:hash][:meh]).to          eq(3)
-          expect(d[:hash][:nested][:any]).to eq('value')
+          expect(d[:hash][:nested][:any]).to eq("value")
         end
 
         expect(result.timestamp).to eq(time)
@@ -95,15 +95,15 @@ module RubyEventStore
         time = Time.now
         hash =
           {
-            'simple' => 'data',
-            'array' => [
-              1,2,3, { 'some' => 'hash' }
+            "simple" => "data",
+            "array" => [
+              1,2,3, { "some" => "hash" }
             ],
-            'hash' => {
-              'nested' => {
-                'any' => 'value'
+            "hash" => {
+              "nested" => {
+                "any" => "value"
               },
-              'meh' => 3
+              "meh" => 3
             }
           }
         result = WithIndifferentAccess.new.dump(record(hash, time))
@@ -115,11 +115,11 @@ module RubyEventStore
         expect(result.data[:hash][:nested]).to be_kind_of(Hash)
 
         [result.data, result.metadata].each do |d|
-          expect(d[:simple]).to              eq('data')
+          expect(d[:simple]).to              eq("data")
           expect(d[:array].first).to         eq(1)
-          expect(d[:array].last[:some]).to   eq('hash')
+          expect(d[:array].last[:some]).to   eq("hash")
           expect(d[:hash][:meh]).to          eq(3)
-          expect(d[:hash][:nested][:any]).to eq('value')
+          expect(d[:hash][:nested][:any]).to eq("value")
         end
 
         expect(result.timestamp).to eq(time)

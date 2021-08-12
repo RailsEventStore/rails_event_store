@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   module Transformations
-    RSpec.describe 'no warnings', mutant: false do
+    RSpec.describe "no warnings", mutant: false do
       specify do
         expect(ruby_event_store_transformations_warnings).to eq([])
       end

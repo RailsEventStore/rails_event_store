@@ -2,7 +2,7 @@
 
 require "active_support/core_ext/hash/indifferent_access"
 require "active_support/core_ext/hash/keys"
-require 'ruby_event_store'
+require "ruby_event_store"
 
 module RubyEventStore
   module Transformations
