@@ -550,7 +550,7 @@ module RubyEventStore
                 eid = "0000000#{i}-#{sprintf("%04d", j)}-0000-0000-000000000000"
                 repository.link_to_stream([eid], stream, version_auto)
                 sleep(rand(concurrency_level) / 1000.0)
-              rescue WrongExpectedEventVersion, *helper.rescuable_concurrency_test_errors
+              rescue WrongExpectedEventVersion
                 fail_occurred +=1
               end
             end

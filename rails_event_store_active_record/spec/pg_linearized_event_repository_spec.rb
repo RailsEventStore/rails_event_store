@@ -33,10 +33,6 @@ module RailsEventStoreActiveRecord
         ActiveRecord::Base.connection_pool.disconnect!
       end
 
-      def rescuable_concurrency_test_errors
-        []
-      end
-
       def supports_position_queries?
         true
       end
