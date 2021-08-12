@@ -5,6 +5,16 @@ require "ruby_event_store/spec/event_repository_lint"
 module RailsEventStoreActiveRecord
   class EventRepository
     class SpecHelper
+      include SchemaHelper
+
+      def run_lifecycle
+        establish_database_connection
+        load_database_schema
+        yield
+      ensure
+        drop_database
+      end
+
       def supports_concurrent_auto?
         !ENV["DATABASE_URL"].include?("sqlite")
       end
@@ -45,27 +55,12 @@ module RailsEventStoreActiveRecord
 
     it_behaves_like :event_repository, mk_repository, helper
 
-    let(:time) { Time.now.utc }
-    let(:repository) { mk_repository.call }
+    let(:time)          { Time.now.utc }
+    let(:repository)    { mk_repository.call }
+    let(:specification) { RubyEventStore::Specification.new(RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)) }
 
-    include SchemaHelper
     around(:each) do |example|
-      begin
-        establish_database_connection
-        load_database_schema
-        example.run
-      ensure
-        drop_database
-      end
-    end
-
-    let(:specification) do
-      RubyEventStore::Specification.new(
-        RubyEventStore::SpecificationReader.new(
-          repository,
-          RubyEventStore::Mappers::NullMapper.new
-        )
-      )
+      helper.run_lifecycle { example.run }
     end
 
     specify "nested transaction - events still not persisted if append failed" do
