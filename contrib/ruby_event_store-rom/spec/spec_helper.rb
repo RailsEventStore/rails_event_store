@@ -5,8 +5,6 @@ require 'dry/inflector'
 require 'active_support/notifications'
 ROM::SQL.load_extensions(:active_support_notifications, :rails_log_subscriber)
 
-ENV['DATABASE_URL'] ||= 'sqlite:db.sqlite3'
-
 module RubyEventStore
   module ROM
     class SpecHelper
