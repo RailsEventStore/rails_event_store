@@ -57,10 +57,6 @@ module RailsEventStoreActiveRecord
     def connection_pool_size
       ActiveRecord::Base.connection.pool.size
     end
-
-    def cleanup_concurrency_test
-      ActiveRecord::Base.connection_pool.disconnect!
-    end
   end
 end
 

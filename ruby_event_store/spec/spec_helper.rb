@@ -31,9 +31,6 @@ module RubyEventStore
 
     def connection_pool_size
     end
-
-    def cleanup_concurrency_test
-    end
   end
 end
 

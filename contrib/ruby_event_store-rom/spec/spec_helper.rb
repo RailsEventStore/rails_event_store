@@ -65,9 +65,6 @@ module RubyEventStore
         gateway.connection.pool.size
       end
 
-      def cleanup_concurrency_test
-      end
-
       protected
 
       def gateway
