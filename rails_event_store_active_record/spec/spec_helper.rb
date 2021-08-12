@@ -65,14 +65,24 @@ module RailsEventStoreActiveRecord
 end
 
 RSpec::Matchers.define :match_query_count_of do |expected_count|
-  match do |query|
+  match do
     count = 0
     ActiveSupport::Notifications.subscribed(
-      lambda do |_name, _started, _finished, _unique_id, payload|
-        unless %w[ CACHE SCHEMA ].include?(payload[:name])
-          count += 1
-        end
-      end,
+      lambda { |_, _, _, _, payload| count += 1 unless %w[CACHE SCHEMA].include?(payload[:name]) },
+      "sql.active_record",
+      &actual
+    )
+    values_match?(expected_count, count)
+  end
+  supports_block_expectations
+  diffable
+end
+
+RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
+  match do
+    count = 0
+    ActiveSupport::Notifications.subscribed(
+      lambda { |_, _, _, _, payload| count += 1 if expected_query === payload[:sql] },
       "sql.active_record",
       &actual
     )

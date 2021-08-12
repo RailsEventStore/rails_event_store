@@ -78,29 +78,18 @@ module RailsEventStoreActiveRecord
         )
         reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
 
-        expect_query(/SELECT.*FROM.*event_store_events.*/) do
+        expect do
           read_event = repository.read(RubyEventStore::Specification.new(reader).result).first
           expect(read_event).to eq(event)
-        end
+        end.to match_query /SELECT.*FROM.*event_store_events.*/
 
-        expect_query(/SELECT.*FROM.*event_store_events_in_streams.*/) do
+        expect do
           read_event = repository.read(RubyEventStore::Specification.new(reader).of_type("Dummy").stream("some").result).first
           expect(read_event).to eq(event)
-        end
+        end.to match_query /SELECT.*FROM.*event_store_events_in_streams.*/
       ensure
         drop_database
       end
-    end
-
-    private
-
-    def expect_query(match, &block)
-      count = 0
-      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
-        count +=1 if match === payload[:sql]
-      }
-      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
-      expect(count).to eq(1)
     end
   end
 end

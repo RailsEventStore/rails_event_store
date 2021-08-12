@@ -52,12 +52,12 @@ module RailsEventStoreActiveRecord
       expect{ repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count_of(2)
     end
 
-    specify "limited query when looking for unexisting events during linking" do
-      expect_query(/SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/) do
+    specify "limited query when looking for non-existing events during linking" do
+      expect do
         expect do
           repository.link_to_stream(["72922e65-1b32-4e97-8023-03ae81dd3a27"], RubyEventStore::Stream.new("flow"), RubyEventStore::ExpectedVersion.none)
         end.to raise_error(RubyEventStore::EventNotFound)
-      end
+      end.to match_query /SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/
     end
 
     specify "read in batches forward" do
@@ -235,12 +235,8 @@ module RailsEventStoreActiveRecord
         RubyEventStore::ExpectedVersion.any
       )
 
-      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/, 2) do
-        repository.read(specification.in_batches.as_at.result).to_a
-      end
-      expect_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*valid_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/, 2) do
-        repository.read(specification.in_batches.as_of.result).to_a
-      end
+      expect { repository.read(specification.in_batches.as_at.result).to_a }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/, 2
+      expect { repository.read(specification.in_batches.as_of.result).to_a }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*valid_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/, 2
     end
 
     specify "with batches and non-bi-temporal queries use monotnic ids" do
@@ -253,9 +249,7 @@ module RailsEventStoreActiveRecord
         RubyEventStore::ExpectedVersion.any
       )
 
-      expect_query(/SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.id >*.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/) do
-        repository.read(specification.in_batches.result).to_a
-      end
+      expect { repository.read(specification.in_batches.result).to_a }.to match_query /SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.id >*.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/
     end
 
     specify do
@@ -280,9 +274,7 @@ module RailsEventStoreActiveRecord
         event1 = RubyEventStore::SRecord.new,
       ], stream = RubyEventStore::Stream.new("stream"), RubyEventStore::ExpectedVersion.auto)
 
-      expect_query(/SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/) do
-        repository.position_in_stream(event0.event_id, stream)
-      end
+      expect{ repository.position_in_stream(event0.event_id, stream) }.to match_query /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/
     end
 
     specify do
@@ -291,9 +283,7 @@ module RailsEventStoreActiveRecord
         RubyEventStore::Stream.new("stream"),
         RubyEventStore::ExpectedVersion.any
       )
-      expect_query(/SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/) do
-        repository.global_position(event.event_id)
-      end
+      expect{ repository.global_position(event.event_id) }.to match_query /SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/
     end
 
     private
@@ -308,15 +298,6 @@ module RailsEventStoreActiveRecord
 
     def with_precision(time)
       time.round(RubyEventStore::TIMESTAMP_PRECISION)
-    end
-
-    def expect_query(match, times = 1, &block)
-      count = 0
-      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
-        count +=1 if match === payload[:sql]
-      }
-      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
-      expect(count).to eq(times)
     end
   end
 end
