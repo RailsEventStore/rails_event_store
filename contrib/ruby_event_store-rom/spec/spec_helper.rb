@@ -20,8 +20,7 @@ module RubyEventStore
           preconnect: :concurrently,
           fractional_seconds: true,
         )
-        # $stdout.sync = true
-        # config.default.use_logger Logger.new(STDOUT)
+        config.default.use_logger(Logger.new(STDOUT)) if ENV.has_key?("VERBOSE")
         config.default.run_migrations
 
         @rom_container = ROM.setup(config)
