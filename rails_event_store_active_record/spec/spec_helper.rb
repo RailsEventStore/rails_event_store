@@ -46,6 +46,10 @@ module RailsEventStoreActiveRecord
       true
     end
 
+    def supports_position_queries?
+      true
+    end
+
     def has_connection_pooling?
       true
     end
@@ -56,10 +60,6 @@ module RailsEventStoreActiveRecord
 
     def cleanup_concurrency_test
       ActiveRecord::Base.connection_pool.disconnect!
-    end
-
-    def supports_position_queries?
-      true
     end
   end
 end

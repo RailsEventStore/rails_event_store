@@ -53,6 +53,10 @@ module RubyEventStore
         true
       end
 
+      def supports_position_queries?
+        true
+      end
+
       def has_connection_pooling?
         !gateway_type?(:sqlite)
       end
@@ -62,10 +66,6 @@ module RubyEventStore
       end
 
       def cleanup_concurrency_test
-      end
-
-      def supports_position_queries?
-        true
       end
 
       protected
