@@ -44,12 +44,12 @@ module RailsEventStoreActiveRecord
         RubyEventStore::ExpectedVersion.auto
       )
 
-      expect{ repository.read(specification.limit(2).result) }.to                           match_query_count_of(1)
-      expect{ repository.read(specification.limit(2).backward.result) }.to                  match_query_count_of(1)
-      expect{ repository.read(specification.stream("stream").result) }.to                   match_query_count_of(2)
-      expect{ repository.read(specification.stream("stream").backward.result) }.to          match_query_count_of(2)
-      expect{ repository.read(specification.stream("stream").limit(2).result) }.to          match_query_count_of(2)
-      expect{ repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count_of(2)
+      expect{ repository.read(specification.limit(2).result) }.to                           match_query_count(1)
+      expect{ repository.read(specification.limit(2).backward.result) }.to                  match_query_count(1)
+      expect{ repository.read(specification.stream("stream").result) }.to                   match_query_count(2)
+      expect{ repository.read(specification.stream("stream").backward.result) }.to          match_query_count(2)
+      expect{ repository.read(specification.stream("stream").limit(2).result) }.to          match_query_count(2)
+      expect{ repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count(2)
     end
 
     specify "limited query when looking for non-existing events during linking" do
