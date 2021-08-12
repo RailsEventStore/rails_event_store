@@ -94,17 +94,6 @@ module RailsEventStoreActiveRecord
 
     private
 
-    def count_queries(&block)
-      count = 0
-      counter_f = ->(_name, _started, _finished, _unique_id, payload) {
-        unless %w[ CACHE SCHEMA ].include?(payload[:name])
-          count += 1
-        end
-      }
-      ActiveSupport::Notifications.subscribed(counter_f, "sql.active_record", &block)
-      count
-    end
-
     def expect_query(match, &block)
       count = 0
       counter_f = ->(_name, _started, _finished, _unique_id, payload) {
