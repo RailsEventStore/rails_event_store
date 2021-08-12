@@ -1,8 +1,8 @@
-require 'ruby_event_store/rom'
-require_relative '../../../support/helpers/rspec_defaults'
-require 'dry/inflector'
+require "ruby_event_store/rom"
+require_relative "../../../support/helpers/rspec_defaults"
+require "dry/inflector"
 
-require 'active_support/notifications'
+require "active_support/notifications"
 ROM::SQL.load_extensions(:active_support_notifications, :rails_log_subscriber)
 
 module RubyEventStore
@@ -10,7 +10,7 @@ module RubyEventStore
     class SpecHelper
       attr_reader :rom_container
 
-      def initialize(database_uri = ENV['DATABASE_URL'])
+      def initialize(database_uri = ENV["DATABASE_URL"])
         config = ::ROM::Configuration.new(
           :sql,
           database_uri,
@@ -46,7 +46,7 @@ module RubyEventStore
       end
 
       def supports_binary?
-        ENV['DATA_TYPE'] == 'text'
+        ENV["DATA_TYPE"] == "text"
       end
 
       def supports_upsert?
@@ -83,9 +83,9 @@ module RubyEventStore
       end
 
       def drop_gateway_schema
-        gateway.connection.drop_table?('event_store_events')
-        gateway.connection.drop_table?('event_store_events_in_streams')
-        gateway.connection.drop_table?('schema_migrations')
+        gateway.connection.drop_table?("event_store_events")
+        gateway.connection.drop_table?("event_store_events_in_streams")
+        gateway.connection.drop_table?("schema_migrations")
       end
     end
   end

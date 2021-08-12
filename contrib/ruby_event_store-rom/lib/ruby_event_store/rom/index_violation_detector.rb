@@ -10,8 +10,8 @@ module RubyEventStore
 
       MYSQL5_INDEX_ERROR   = "for key 'index_event_store_events_in_streams_on_stream_and_event_id'".freeze
       MYSQL8_INDEX_ERROR   = "for key 'event_store_events_in_streams.index_event_store_events_in_streams_on_stream_and_event_id'".freeze
-      POSTGRES_INDEX_ERROR = 'Key (stream, event_id)'.freeze
-      SQLITE3_INDEX_ERROR  = 'event_store_events_in_streams.stream, event_store_events_in_streams.event_id'.freeze
+      POSTGRES_INDEX_ERROR = "Key (stream, event_id)".freeze
+      SQLITE3_INDEX_ERROR  = "event_store_events_in_streams.stream, event_store_events_in_streams.event_id".freeze
 
       def detect(message)
         message.include?(MYSQL5_PKEY_ERROR) ||

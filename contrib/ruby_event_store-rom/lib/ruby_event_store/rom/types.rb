@@ -17,7 +17,7 @@ module RubyEventStore
                  .default { ::DateTime.now.new_offset(0) }
 
       # detects if the value is a Sequel::Postgres::JSONHash or Sequel::Postgres::JSONBHash
-      RecordDeserializer = ::ROM::Types::String.constructor { |v| v.class.name.upcase.include?('JSON') ? JSON.dump(v) : v }
+      RecordDeserializer = ::ROM::Types::String.constructor { |v| v.class.name.upcase.include?("JSON") ? JSON.dump(v) : v }
       RecordSerializer   = ::ROM::Types::String
     end
   end

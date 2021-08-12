@@ -23,14 +23,14 @@ Gem::Specification.new do |spec|
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
 
-  spec.required_ruby_version = '>= 2.5'
+  spec.required_ruby_version = ">= 2.5"
 
-  spec.add_dependency 'dry-container', '>= 0.6'
-  spec.add_dependency 'dry-initializer', '>= 3.0'
-  spec.add_dependency 'dry-types', '>= 1.0'
-  spec.add_dependency 'rom-changeset', '>= 5.0'
-  spec.add_dependency 'rom-repository', '>= 5.0'
-  spec.add_dependency 'rom-sql', '>= 3.0'
-  spec.add_dependency 'sequel', '>= 5.11.0'
-  spec.add_dependency 'ruby_event_store', '>= 2.0.0', '< 3.0.0'
+  spec.add_dependency "dry-container", ">= 0.6"
+  spec.add_dependency "dry-initializer", ">= 3.0"
+  spec.add_dependency "dry-types", ">= 1.0"
+  spec.add_dependency "rom-changeset", ">= 5.0"
+  spec.add_dependency "rom-repository", ">= 5.0"
+  spec.add_dependency "rom-sql", ">= 3.0"
+  spec.add_dependency "sequel", ">= 5.11.0"
+  spec.add_dependency "ruby_event_store", ">= 2.0.0", "< 3.0.0"
 end

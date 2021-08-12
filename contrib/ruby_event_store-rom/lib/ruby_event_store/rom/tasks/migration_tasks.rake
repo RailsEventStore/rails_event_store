@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require 'ruby_event_store/rom'
+require "ruby_event_store/rom"
 
-MIGRATIONS_PATH = 'db/migrate'.freeze
+MIGRATIONS_PATH = "db/migrate".freeze
 
-desc 'Setup ROM EventRespository environment'
-task 'db:setup' do
+desc "Setup ROM EventRespository environment"
+task "db:setup" do
   Dir.chdir(Dir.pwd)
   ROM::SQL::RakeSupport.env = ::RubyEventStore::ROM.configure(:sql).rom_container
 end
 
-desc 'Copy RubyEventStore SQL migrations to db/migrate'
-task 'db:migrations:copy' => 'db:setup' do
+desc "Copy RubyEventStore SQL migrations to db/migrate"
+task "db:migrations:copy" => "db:setup" do
   # Optional data type for `data` and `metadata`
-  data_type = ENV['DATA_TYPE']
+  data_type = ENV["DATA_TYPE"]
 
-  Dir[File.join(File.dirname(__FILE__), '../../../../../../', MIGRATIONS_PATH, '/*.rb')].each do |input|
+  Dir[File.join(File.dirname(__FILE__), "../../../../../../", MIGRATIONS_PATH, "/*.rb")].each do |input|
     contents = File.read(input)
-    name     = File.basename(input, '.*').sub(/\d+_/, '')
+    name     = File.basename(input, ".*").sub(/\d+_/, "")
 
     re_data_type = /(ENV.+?DATA_TYPE.+?\|\|=\s*)['"](jsonb?|text)['"]/
 

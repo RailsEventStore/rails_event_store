@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/event_repository_lint'
+require "spec_helper"
+require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   module ROM
@@ -7,7 +7,7 @@ module RubyEventStore
       helper = SpecHelper.new
       mk_repository = -> do
         serializer =
-          case ENV['DATA_TYPE']
+          case ENV["DATA_TYPE"]
           when /json/
             JSON
           else
@@ -27,21 +27,21 @@ module RubyEventStore
         helper.run_lifecycle { example.run }
       end
 
-      specify 'nested transaction - events still not persisted if append failed' do
+      specify "nested transaction - events still not persisted if append failed" do
         repository.append_to_stream([
           event = SRecord.new(event_id: SecureRandom.uuid)
-        ], Stream.new('stream'), ExpectedVersion.none)
+        ], Stream.new("stream"), ExpectedVersion.none)
 
         helper.with_transaction do
           expect do
             repository.append_to_stream([
-              SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
-            ], Stream.new('stream'), ExpectedVersion.none)
+              SRecord.new(event_id: "9bedf448-e4d0-41a3-a8cd-f94aec7aa763")
+            ], Stream.new("stream"), ExpectedVersion.none)
           end.to raise_error(WrongExpectedEventVersion)
-          expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be false
+          expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be false
           expect(repository.read(specification.limit(2).result).to_a).to eq([event])
         end
-        expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be false
+        expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be false
         expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
 
@@ -66,7 +66,7 @@ module RubyEventStore
         positions =
           rom_container
             .relations[:stream_entries]
-            .ordered(:forward, RubyEventStore::Stream.new('stream'))
+            .ordered(:forward, RubyEventStore::Stream.new("stream"))
             .map { |entity| entity[:position] }
         expect(positions).to eq((0..positions.size - 1).to_a)
       end

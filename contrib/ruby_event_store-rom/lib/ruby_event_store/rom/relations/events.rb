@@ -58,7 +58,7 @@ module RubyEventStore
         def ordered(direction, offset_entry_id = nil, stop_entry_id = nil, time_sort_by = nil)
           order, operator_offset, operator_stop = DIRECTION_MAP[direction]
 
-          raise ArgumentError, 'Direction must be :forward or :backward' if order.nil?
+          raise ArgumentError, "Direction must be :forward or :backward" if order.nil?
 
           event_order_columns = [:id]
 
