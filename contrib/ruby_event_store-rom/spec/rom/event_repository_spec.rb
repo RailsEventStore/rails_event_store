@@ -38,10 +38,10 @@ module RubyEventStore
               SRecord.new(event_id: '9bedf448-e4d0-41a3-a8cd-f94aec7aa763')
             ], Stream.new('stream'), ExpectedVersion.none)
           end.to raise_error(WrongExpectedEventVersion)
-          expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+          expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be false
           expect(repository.read(specification.limit(2).result).to_a).to eq([event])
         end
-        expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be_falsey
+        expect(repository.has_event?('9bedf448-e4d0-41a3-a8cd-f94aec7aa763')).to be false
         expect(repository.read(specification.limit(2).result).to_a).to eq([event])
       end
 

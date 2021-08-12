@@ -634,7 +634,7 @@ module RubyEventStore
 
       expect(repository.has_event?(just_an_id)).to be_truthy
       expect(repository.has_event?(just_an_id.clone)).to be_truthy
-      expect(repository.has_event?("any other id")).to be_falsey
+      expect(repository.has_event?("any other id")).to be false
 
       repository.delete_stream(stream)
       expect(repository.has_event?(just_an_id)).to be_truthy
@@ -973,7 +973,7 @@ module RubyEventStore
           version_none
         )
       end.to raise_error(WrongExpectedEventVersion)
-      expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be_falsey
+      expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be false
     end
 
     specify "linking non-existent event" do
