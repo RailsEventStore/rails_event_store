@@ -3,58 +3,16 @@ require "ruby_event_store"
 require "ruby_event_store/spec/event_repository_lint"
 
 module RailsEventStoreActiveRecord
-  class PgLinearizedEventRepository
-    class SpecHelper
-      def supports_concurrent_auto?
-        false
-      end
-
-      def supports_concurrent_any?
-        true
-      end
-
-      def supports_binary?
-        false
-      end
-
-      def supports_upsert?
-        false
-      end
-
-      def has_connection_pooling?
-        true
-      end
-
-      def connection_pool_size
-        ActiveRecord::Base.connection.pool.size
-      end
-
-      def cleanup_concurrency_test
-        ActiveRecord::Base.connection_pool.disconnect!
-      end
-
-      def supports_position_queries?
-        true
-      end
-    end
-  end
-
   RSpec.describe PgLinearizedEventRepository do
+    helper = SpecHelper.new
     mk_repository = ->{ PgLinearizedEventRepository.new(serializer: YAML) }
 
-    it_behaves_like :event_repository, mk_repository, PgLinearizedEventRepository::SpecHelper.new
+    it_behaves_like :event_repository, mk_repository, helper
 
     let(:repository) { mk_repository.call }
 
-    include SchemaHelper
     around(:each) do |example|
-      begin
-        establish_database_connection
-        load_database_schema
-        example.run
-      ensure
-        drop_database
-      end
+      helper.run_lifecycle { example.run }
     end
 
     specify "linearized by lock" do
@@ -87,7 +45,7 @@ module RailsEventStoreActiveRecord
     end
 
     specify "can publish multiple times" do
-      ActiveRecord::Base.transaction do
+      helper.with_transaction do
         expect do
           append_an_event_to_repo
           append_an_event_to_repo
@@ -97,7 +55,7 @@ module RailsEventStoreActiveRecord
     end
 
     specify "can publish multiple events" do
-      ActiveRecord::Base.transaction do
+      helper.with_transaction do
         expect do
           repository.append_to_stream(
             [
