@@ -310,6 +310,19 @@ module RubyEventStore
           expect(result.data).to eq(:any_given_symbol)
           expect(result.metadata).to eq({})
         end
+
+        specify "assume nothing" do
+          record = Record.new(
+            event_id: uuid,
+            metadata: nil,
+            data: nil,
+            event_type: 'TestEvent',
+            timestamp: nil,
+            valid_at: nil,
+          )
+          expect(transformation.dump(record)).to eq(record)
+          expect(transformation.load(record)).to eq(record)
+        end
       end
     end
   end
