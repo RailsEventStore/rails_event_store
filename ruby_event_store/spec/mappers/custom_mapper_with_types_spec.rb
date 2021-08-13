@@ -87,7 +87,7 @@ module RubyEventStore
             },
           },
         })
-        expect(record.event_type).to eq "TestEvent"
+        expect(record.event_type).to eq 'TestEvent'
         expect(record.timestamp).to  eq(time)
         expect(record.valid_at).to   eq(time)
       end

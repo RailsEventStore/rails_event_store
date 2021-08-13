@@ -122,23 +122,23 @@ module RubyEventStore
             )
         }
 
-        specify "#dump" do
+        specify '#dump' do
           result = transformation.dump(record)
           expect(result).to eq(dump_of_record)
           expect(result.metadata).to eq(dump_of_record.metadata)
         end
 
-        specify "#load" do
+        specify '#load' do
           result = transformation.load(json_record)
           expect(result).to eq(record)
           expect(result.metadata).to eq(record.metadata)
         end
 
-        specify "no op when no types" do
+        specify 'no op when no types' do
           record_without_types = Record.new(
             event_id: uuid,
-            metadata: {"some" => "meta", "any" => "symbol"},
-            data: {"some" => "value"},
+            metadata: {'some' => 'meta', 'any' => 'symbol'},
+            data: {'some' => 'value'},
             event_type: 'TestEvent',
             timestamp:  time,
             valid_at:   time
@@ -146,53 +146,53 @@ module RubyEventStore
 
           result = transformation.load(record_without_types)
           expect(result).to eq(record_without_types)
-          expect(result.metadata).to eq({"some" => "meta", "any" => "symbol"})
+          expect(result.metadata).to eq({'some' => 'meta', 'any' => 'symbol'})
         end
 
-        specify "no data transform when no data types" do
+        specify 'no data transform when no data types' do
           record_without_types = Record.new(
             event_id: uuid,
-            metadata: {"some" => "meta", "any" => "symbol",
+            metadata: {'some' => 'meta', 'any' => 'symbol',
               types: {
                 metadata: {
-                  some: ["Symbol", "String"],
-                  any: ["String", "Symbol"],
+                  some: ['Symbol', 'String'],
+                  any: ['String', 'Symbol'],
                 }
               }
             },
-            data: {"some" => "value"},
+            data: {'some' => 'value'},
             event_type: 'TestEvent',
             timestamp:  time,
             valid_at:   time
           )
 
           result = transformation.load(record_without_types)
-          expect(result.data).to eq({"some" => "value"})
-          expect(result.metadata).to eq({some: "meta", "any" => :symbol})
+          expect(result.data).to eq({'some' => 'value'})
+          expect(result.metadata).to eq({some: 'meta', 'any' => :symbol})
         end
 
-        specify "no metadata transform when no metadata types" do
+        specify 'no metadata transform when no metadata types' do
           record_without_types = Record.new(
             event_id: uuid,
-            metadata: {"some" => "meta", "any" => "symbol",
+            metadata: {'some' => 'meta', 'any' => 'symbol',
               types: {
                 data: {
-                  some: ["Symbol", "String"],
+                  some: ['Symbol', 'String'],
                 }
               }
             },
-            data: {"some" => "value"},
+            data: {'some' => 'value'},
             event_type: 'TestEvent',
             timestamp:  time,
             valid_at:   time
           )
 
           result = transformation.load(record_without_types)
-          expect(result.data).to eq({some: "value"})
-          expect(result.metadata).to eq({"some" => "meta", "any" => "symbol"})
+          expect(result.data).to eq({some: 'value'})
+          expect(result.metadata).to eq({'some' => 'meta', 'any' => 'symbol'})
         end
 
-        specify "#dump - no changes if data or metadata are not Hash" do
+        specify '#dump - no changes if data or metadata are not Hash' do
           record = Record.new(
             event_id:   uuid,
             metadata:   metadata = Object.new,
@@ -207,7 +207,7 @@ module RubyEventStore
           expect(result.metadata).to eq(metadata)
         end
 
-        specify "#load - no changes if data or metadata are not Hash" do
+        specify '#load - no changes if data or metadata are not Hash' do
           record = Record.new(
             event_id:   uuid,
             metadata:   metadata = Object.new,
@@ -222,7 +222,7 @@ module RubyEventStore
           expect(result.metadata).to eq(metadata)
         end
 
-        specify "#dump - works with Metadata object" do
+        specify '#dump - works with Metadata object' do
           record_with_meta = Record.new(
             event_id:   uuid,
             metadata:   metadata = RubyEventStore::Metadata.new({some: 'meta'}),
@@ -240,26 +240,26 @@ module RubyEventStore
             some: 'meta',
             types: {
               data: {
-                'some' => ["Symbol", 'String'],
+                'some' => ['Symbol', 'String'],
               },
               metadata: 'RubyEventStore::Metadata',
             }
           })
         end
 
-        specify "#load - works with Metadata object" do
+        specify '#load - works with Metadata object' do
           record_with_meta = Record.new(
             event_id:   uuid,
             metadata:   metadata = RubyEventStore::Metadata.new({
               some: 'meta',
               types: {
                 data: {
-                  some: ["Symbol", 'String'],
+                  some: ['Symbol', 'String'],
                 },
                 metadata: 'RubyEventStore::Metadata',
               }
             }),
-            data:       {"some" => "value"},
+            data:       {'some' => 'value'},
             event_type: 'TestEvent',
             timestamp:  time,
             valid_at:   time
@@ -272,7 +272,7 @@ module RubyEventStore
           expect(result.metadata.to_h).to eq({some: 'meta'})
         end
 
-        specify "#dump - works with serializable objects" do
+        specify '#dump - works with serializable objects' do
           record = Record.new(
             event_id:   uuid,
             metadata:   {},
@@ -292,12 +292,12 @@ module RubyEventStore
           })
         end
 
-        specify "#load - no changes if data or metadata are not Hash" do
+        specify '#load - no changes if data or metadata are not Hash' do
           record = Record.new(
             event_id:   uuid,
             metadata:   {
               types: {
-                data: ["Symbol", 'Symbol'],
+                data: ['Symbol', 'Symbol'],
               }
             },
             data:       :any_given_symbol,
@@ -311,7 +311,7 @@ module RubyEventStore
           expect(result.metadata).to eq({})
         end
 
-        specify "assume nothing" do
+        specify 'assume nothing' do
           record = Record.new(
             event_id: uuid,
             metadata: nil,
