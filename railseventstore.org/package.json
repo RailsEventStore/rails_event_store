@@ -6,7 +6,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
-    "@fullhuman/postcss-purgecss": "3.0.0",
+    "@fullhuman/postcss-purgecss": "4.0.3",
     "@tailwindcss/postcss7-compat": "^2.2.7",
     "autoprefixer": "^9",
     "countup.js": "^2.0.8",
