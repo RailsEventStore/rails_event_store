@@ -20,7 +20,7 @@ module RubyEventStore
         def dump(record)
           data = transform(record.data)
           metadata = transform(record.metadata)
-          if (metadata.respond_to?(:[]))
+          if (metadata.respond_to?(:[]=))
             metadata[:types] = {
               data: store_type(record.data),
               metadata: store_type(record.metadata),
