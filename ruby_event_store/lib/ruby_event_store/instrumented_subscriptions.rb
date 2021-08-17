@@ -8,25 +8,25 @@ module RubyEventStore
     end
 
     def add_subscription(subscriber, event_types)
-      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber, event_types: event_types) do
+      instrument(subscriber: subscriber, event_types: event_types) do
         subscriptions.add_subscription(subscriber, event_types)
       end
     end
 
     def add_global_subscription(subscriber)
-      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber) do
+      instrument(subscriber: subscriber) do
         subscriptions.add_global_subscription(subscriber)
       end
     end
 
     def add_thread_subscription(subscriber, event_types)
-      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber, event_types: event_types) do
+      instrument(subscriber: subscriber, event_types: event_types) do
         subscriptions.add_thread_subscription(subscriber, event_types)
       end
     end
 
     def add_thread_global_subscription(subscriber)
-      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber) do
+      instrument(subscriber: subscriber) do
         subscriptions.add_thread_global_subscription(subscriber)
       end
     end
@@ -44,6 +44,17 @@ module RubyEventStore
     end
 
     private
+
+    def instrument(args)
+      instrumentation.instrument("add.subscriptions.rails_event_store", args) do
+        unsubscribe = yield
+        ->() {
+          instrumentation.instrument("remove.subscriptions.rails_event_store", args) do
+            unsubscribe.call
+          end
+        }
+      end
+    end
 
     attr_reader :instrumentation, :subscriptions
   end

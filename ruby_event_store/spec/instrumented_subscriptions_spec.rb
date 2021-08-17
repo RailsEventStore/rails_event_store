@@ -109,6 +109,25 @@ module RubyEventStore
       end
     end
 
+    specify "unsubscribe is instrumented" do
+      some_subscriptions = spy
+      some_unsubscribe = spy
+      instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
+      expect(some_subscriptions).to receive(:add_subscription).and_return(some_unsubscribe)
+      subscribe_to("remove.subscriptions.rails_event_store") do |notification_calls|
+        event_types = ["some_event_type"]
+        subscriber = -> { }
+
+        unsubscribe = instrumented_subscriptions.add_subscription(subscriber, event_types)
+        unsubscribe.call
+
+        expect(some_unsubscribe).to have_received(:call)
+        expect(notification_calls).to eq([
+          { subscriber: subscriber, event_types: event_types }
+        ])
+      end
+    end
+
     specify "method unknown by instrumentation but known by subscriptions" do
       some_subscriptions = double("Some subscriptions", custom_method: 42)
       instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
