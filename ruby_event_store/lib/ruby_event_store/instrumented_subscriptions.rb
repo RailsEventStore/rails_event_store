@@ -14,19 +14,19 @@ module RubyEventStore
     end
 
     def add_global_subscription(subscriber)
-      instrumentation.instrument("global.add.subscriptions.rails_event_store", subscriber: subscriber) do
+      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber) do
         subscriptions.add_global_subscription(subscriber)
       end
     end
 
     def add_thread_subscription(subscriber, event_types)
-      instrumentation.instrument("thread.add.subscriptions.rails_event_store", subscriber: subscriber, event_types: event_types) do
+      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber, event_types: event_types) do
         subscriptions.add_thread_subscription(subscriber, event_types)
       end
     end
 
     def add_thread_global_subscription(subscriber)
-      instrumentation.instrument("thread.global.add.subscriptions.rails_event_store", subscriber: subscriber) do
+      instrumentation.instrument("add.subscriptions.rails_event_store", subscriber: subscriber) do
         subscriptions.add_thread_global_subscription(subscriber)
       end
     end

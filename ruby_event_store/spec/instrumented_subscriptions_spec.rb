@@ -45,7 +45,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("global.add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
           subscriber = -> { }
 
           instrumented_subscriptions.add_global_subscription(subscriber)
@@ -71,7 +71,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("thread.add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
           event_types = ["some_event_type"]
           subscriber = -> { }
 
@@ -97,7 +97,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("thread.global.add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
           subscriber = -> { }
 
           instrumented_subscriptions.add_thread_global_subscription(subscriber)
