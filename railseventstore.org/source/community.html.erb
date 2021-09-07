@@ -97,9 +97,9 @@ title: Community
 </ul>
 
 <h2 class="font-bold">Articles</h2>
-<ul class="list-reset">
+<ul class="list-reset grid grid-cols-1 xl:grid-cols-2 gap-x-4">
   <% data.articles.each do |article| %>
-    <li>
+    <li class="truncate">
       <a href="<%= article.url %>">
         <%= article.title %>
       </a>
