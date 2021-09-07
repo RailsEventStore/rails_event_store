@@ -2,6 +2,7 @@
 .yardoc
 .rspec_status
 .sass-cache/
+.parcel-cache/
 .cache/
 _yardoc/
 coverage/
