@@ -63,6 +63,7 @@ title: Community
   <% end %>
 </ul>
 
+<% unless data.events.empty? %>
 <h1 class="font-bold">Attend</h1>
 <p>
   Participate in on-site trainings where Rails Event Store is used. Visit the conferences where RES is on the spotlight. Meet in-person people involved with its development.
@@ -75,8 +76,10 @@ title: Community
         <%= event.title %>
       </a>
     </li>
-    <% end %>
+  <% end %>
 </ul>
+<% end %>
+
 
 <h1 class="font-bold">Explore</h1>
 <p>Learn how Rails Event Store helps deliver better software.</p>
