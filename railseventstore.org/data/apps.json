@@ -61,6 +61,10 @@
     "title": "rails_event_store_dynamoid"
   },
   {
+    "url": "https://github.com/RailsDomainModel/rails_domain_model",
+    "title": "rails_domain_model"
+  },
+  {
    "url": "https://github.com/palkan/active_event_store",
    "title": "active_event_store"
   },
