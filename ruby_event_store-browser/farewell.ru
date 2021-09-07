@@ -1,10 +1,14 @@
 require "bundler/inline"
 
+RES_VERSION = "2.0.1"
+
 gemfile do
-  gem "ruby_event_store",                path: "../ruby_event_store"
-  gem "ruby_event_store-browser",        path: "."
-  gem "rails_event_store_active_record", path: "../rails_event_store_active_record"
+  gem "ruby_event_store",                RES_VERSION
+  gem "ruby_event_store-browser",        RES_VERSION
+  gem "rails_event_store_active_record", RES_VERSION
   gem "pg"
+  gem "mysql2"
+  gem "sqlite3"
 end
 
 require "ruby_event_store"
