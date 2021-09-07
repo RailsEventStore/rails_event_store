@@ -55,9 +55,9 @@ title: Community
 
 <ul class="mb-12 flex flex-wrap">
   <% contributors.each do |contributor| %>
-    <li class="mr-2">
+    <li class="mr-2 mb-1">
       <a class="bg-none" href="<%= contributor.html_url %>">
-        <img class="h-16 w-16 rounded" src="<%= contributor.avatar_url %>" />
+        <img class="h-12 w-12 rounded" src="<%= contributor.avatar_url %>" />
       </a>
     </li>
   <% end %>
