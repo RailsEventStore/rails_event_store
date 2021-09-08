@@ -1052,10 +1052,10 @@
     "@parcel/utils" "^1.11.0"
     physical-cpu-count "^2.0.0"
 
-"@tailwindcss/postcss7-compat@^2.2.10":
-  version "2.2.10"
-  resolved "https://registry.yarnpkg.com/@tailwindcss/postcss7-compat/-/postcss7-compat-2.2.10.tgz#a84da77fb45e80b638419d25963814724129880d"
-  integrity sha512-mAINjdThr/MtFmYw1aXX7lCskd2W4v8cySFviQT4tcYG4BofCewP7wp3c2WghAwAf4Ox9ZKU4pV4YeS6YU/7kg==
+"@tailwindcss/postcss7-compat@^2.2.14":
+  version "2.2.14"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/postcss7-compat/-/postcss7-compat-2.2.14.tgz#bdd82d75cbc6b596519f2bd54c1047a615e06366"
+  integrity sha512-vtzYILqywIY1GWELwHVF7goPhaJpm/1P5kJZ0Kx8lNlarALTFEWwIWCM6MxQ7pXzDWa1eUeozVJVeqfOBXKwXg==
   dependencies:
     arg "^5.0.1"
     autoprefixer "^9"
@@ -1071,6 +1071,7 @@
     fs-extra "^10.0.0"
     glob-parent "^6.0.1"
     html-tags "^3.1.0"
+    is-color-stop "^1.1.0"
     is-glob "^4.0.1"
     lodash "^4.17.21"
     lodash.topath "^4.5.2"
@@ -3221,7 +3222,7 @@ is-callable@^1.1.4, is-callable@^1.2.0, is-callable@^1.2.2:
   resolved "https://registry.yarnpkg.com/is-callable/-/is-callable-1.2.2.tgz#c7c6715cd22d4ddb48d3e19970223aceabb080d9"
   integrity sha512-dnMqspv5nU3LoewK2N/y7KLtxtakvTuaCsU9FU50/QDmdbHNy/4/JuRtMHqRU22o3q+W89YQndQEeCVwK+3qrA==
 
-is-color-stop@^1.0.0:
+is-color-stop@^1.0.0, is-color-stop@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/is-color-stop/-/is-color-stop-1.1.0.tgz#cfff471aee4dd5c9e158598fbe12967b5cdad345"
   integrity sha1-z/9HGu5N1cnhWFmPvhKWe1za00U=
