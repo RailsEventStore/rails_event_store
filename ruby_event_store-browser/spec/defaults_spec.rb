@@ -28,13 +28,13 @@ module RubyEventStore
 
       response = test_client.get "/res"
 
-      expect(response.body).to match %r{apiUrl:\s*"https://example.com/some/custom/api/url"}
+      expect(response.body).to match %r{"apiUrl":\s*"https://example.com/some/custom/api/url"}
     end
 
     it "default #api_url is based on root_path" do
       response = test_client.get "/res"
 
-      expect(response.body).to match %r{apiUrl:\s*"http://railseventstore.org/res/api"}
+      expect(response.body).to match %r{"apiUrl":\s*"http://railseventstore.org/res/api"}
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
