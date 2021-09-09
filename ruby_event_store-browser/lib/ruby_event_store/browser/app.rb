@@ -65,21 +65,13 @@ module RubyEventStore
             <head>
               <title>RubyEventStore::Browser</title>
               <link type="text/css" rel="stylesheet" href="<%= path %>/ruby_event_store_browser.css">
+              <meta name="ruby-event-store-browser-settings" content='<%= browser_settings %>'>
             </head>
             <body>
               <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
-              <script type="text/javascript">
-                RubyEventStore.Browser.Elm.Main.init({
-                  flags: {
-                    rootUrl:    "<%= routing.root_url %>",
-                    apiUrl:     "<%= api_url %>",
-                    resVersion: "<%= RubyEventStore::VERSION %>"
-                  }
-                });
-              </script>
             </body>
           </html>
-        }, locals: { path: settings.root_path || request.script_name, api_url: settings.api_url || routing.api_url }
+        }, locals: { path: settings.root_path || request.script_name }
       end
 
       helpers do
@@ -92,6 +84,16 @@ module RubyEventStore
             settings.host || request.base_url,
             settings.root_path || request.script_name
           )
+        end
+
+        def browser_settings
+          JSON.dump({
+            flags: {
+              rootUrl:    routing.root_url,
+              apiUrl:     settings.api_url || routing.api_url,
+              resVersion: RubyEventStore::VERSION
+            }
+          })
         end
 
         def json(data)

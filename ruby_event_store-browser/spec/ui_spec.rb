@@ -40,6 +40,26 @@ module RubyEventStore
       expect(page).to have_content(%Q[foo: "bar"])
     end
 
+    specify "Content-Security-Policy", mutant: false do
+      class CspApp < Struct.new(:app)
+        def call(env)
+          status, headers, response = app.call(env)
+
+          headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self' ws://localhost:41221 http://127.0.0.1; script-src 'self'"
+          [status, headers, response]
+        end
+      end
+
+      Capybara.app = CspApp.new(app_builder(event_store))
+
+      foo_bar_event = FooBarEvent.new(data: { foo: :bar })
+      event_store.publish(foo_bar_event, stream_name: "dummy")
+
+      visit("/")
+
+      expect(page).to have_content("Events in all")
+    end
+
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
     def app_builder(event_store)

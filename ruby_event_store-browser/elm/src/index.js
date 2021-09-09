@@ -1,4 +1,8 @@
 require("./style/style.css");
 
-window.RubyEventStore = {};
-window.RubyEventStore.Browser = require("./Main.elm");
+var Browser = require("./Main.elm");
+
+var settings = document.querySelector("meta[name='ruby-event-store-browser-settings']").getAttribute("content");
+console.debug("settings", settings);
+settings = JSON.parse(settings);
+Browser.Elm.Main.init(settings);
