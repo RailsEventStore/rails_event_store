@@ -1,7 +1,7 @@
 GEM_VERSION  = $(shell cat lib/dres_rails/identity.rb | egrep -o '\d+\.\d+\.\d+')
 GEM_NAME     = dres_rails
 REQUIRE      = $(GEM_NAME)
-DATABASE_URL ?= postgres://localhost/rails_event_store_active_record?pool=5
+DATABASE_URL ?= postgres://localhost/rails_event_store?pool=5
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
@@ -13,17 +13,13 @@ install: ## Install gem dependencies
 
 test: ## Run unit tests
 	@echo "Running unit tests"
-	@bundle exec rspec
+	@env DATABASE_URL=$(DATABASE_URL) bundle exec rspec
 
 build:
 	@echo "Building gem package"
 	@gem build -V dres_rails.gemspec
 	@mkdir -p pkg/
 	@mv dres_rails-*.gem pkg/
-
-push:
-	@echo "Pushing package to Gemfury"
-	@fury push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package"

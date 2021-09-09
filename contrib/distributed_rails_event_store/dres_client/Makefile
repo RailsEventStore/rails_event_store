@@ -1,7 +1,6 @@
 GEM_VERSION  = $(shell cat lib/dres_client/version.rb | grep VERSION | egrep -o '\d+\.\d+\.\d+')
 GEM_NAME     = dres_client
 REQUIRE      = $(GEM_NAME)
-DATABASE_URL ?= postgres://localhost/rails_event_store_active_record?pool=5
 
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
@@ -16,10 +15,6 @@ build:
 	@gem build -V dres_client.gemspec
 	@mkdir -p pkg/
 	@mv dres_client-*.gem pkg/
-
-push:
-	@echo "Pushing package to Gemfury"
-	@fury push pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
 	@echo "Removing previously built package"
