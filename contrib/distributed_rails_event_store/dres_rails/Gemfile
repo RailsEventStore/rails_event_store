@@ -15,3 +15,4 @@ gem "timecop", "~> 0.9"
 
 gem "ruby_event_store",  path: "../../../ruby_event_store"
 gem "rails_event_store", path: "../../../rails_event_store"
+gem "aggregate_root",    path: "../../../aggregate_root"
