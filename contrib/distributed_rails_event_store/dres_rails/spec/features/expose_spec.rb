@@ -5,7 +5,7 @@ require "ruby_event_store"
 
 RSpec.describe "DresRails::ApplicationController" do
   include SchemaHelper
-  around(:all) do |example|
+  around do |example|
     begin
       load_database_schema
       example.run
