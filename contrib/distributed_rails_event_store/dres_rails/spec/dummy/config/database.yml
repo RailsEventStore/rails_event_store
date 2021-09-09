@@ -18,4 +18,4 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: rails_event_store_active_record
+  database: <%= ENV.fetch("DATABASE_URL") %>

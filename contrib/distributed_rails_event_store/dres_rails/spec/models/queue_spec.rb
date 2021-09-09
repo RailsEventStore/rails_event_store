@@ -1,9 +1,17 @@
 require "rails_helper"
+require_relative "../../db/migrate/20180802140810_create_dres_rails_queues"
+require_relative "../../db/migrate/20180809123523_create_queue_jobs_table"
 
 RSpec.describe DresRails::Queue do
-  before do
-    DresRails::Queue.delete_all
-    DresRails::Job.delete_all
+  around do |example|
+    begin
+      CreateDresRailsQueues.new.change
+      CreateQueueJobsTable.new.change
+      example.call
+    ensure
+      ActiveRecord::Migration.new.drop_table "dres_rails_queues"
+      ActiveRecord::Migration.new.drop_table "dres_rails_queue_jobs"
+    end
   end
 
   specify ".last_processed_event_id_for" do
