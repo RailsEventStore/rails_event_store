@@ -20,67 +20,19 @@ jobs:
       WORKING_DIRECTORY: contrib/distributed_rails_event_store/dres_client
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
-    services:
-      postgres_11:
-        image: postgres:11
-        env:
-          POSTGRES_DB: rails_event_store
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 10011:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      postgres_12:
-        image: postgres:12
-        env:
-          POSTGRES_DB: rails_event_store
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 10012:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
       matrix:
         include:
+          - ruby: ruby-3.0
+            gemfile: Gemfile
+            os: ubuntu-20.04
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: binary
           - ruby: ruby-2.6
             gemfile: Gemfile
             os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: binary
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            datatype: binary
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            datatype: json
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            datatype: jsonb
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: binary
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: json
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: jsonb
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
