@@ -25,7 +25,7 @@ module DresRails
           )
           error = x
         ensure
-          update_attributes!(last_processed_event_id: event_id)
+          update!(last_processed_event_id: event_id)
         end
       end
       raise error if error
