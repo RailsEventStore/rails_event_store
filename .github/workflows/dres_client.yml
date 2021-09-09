@@ -5,19 +5,19 @@ on:
   push:
     paths:
       - "contrib/distributed_rails_event_store/**"
-      - ".github/workflows/dres_rails.yml"
+      - ".github/workflows/dres_client.yml"
       - "support/**"
   pull_request:
     types: [opened, reopened]
     paths:
       - "contrib/distributed_rails_event_store/**"
-      - ".github/workflows/dres_rails.yml"
+      - ".github/workflows/dres_client.yml"
       - "support/**"
 jobs:
   test:
     runs-on: ${{ matrix.os }}
     env:
-      WORKING_DIRECTORY: contrib/distributed_rails_event_store/dres_rails
+      WORKING_DIRECTORY: contrib/distributed_rails_event_store/dres_client
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
     services:
