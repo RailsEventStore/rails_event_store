@@ -44,21 +44,10 @@ Whenever you fix a bug or add a new feature, we require that the coverage doesn'
 
 ## Contributing
 
-This single repository hosts several gems and website with documentation. Check the contribution [guide](https://railseventstore.org/community/).
+This single repository hosts several gems and website with documentation — see the contribution [guide](https://railseventstore.org/community/).
 
 ## About
 
-<img src="https://arkency.com/images/arkency.png" alt="Arkency" width="60px" align="left" />
+<img src="https://arkency.com/logo.svg" alt="Arkency" height="48" align="left" />
 
-This repository is funded and maintained by [Arkency](https://arkency.com). Check out our other [open-source projects](https://github.com/arkency) and what else we have at [RES](https://github.com/RailsEventStore).
-
-Consider [hiring us](https://arkency.com/hire-us) and make sure to check out [our blog](https://blog.arkency.com).
-
-### Learn more about DDD & Event Sourcing
-
-Check our [Rails + Domain Driven Design Workshop](https://blog.arkency.com/ddd-training/).
-Why You should attend? Robert has explained this in a [blogpost](https://blog.arkency.com/2016/12/why-would-you-even-want-to-listen-about-ddd/).
-
-### Read about Domain Driven Rails
-
-You may also consider buying the [Domain-Driven Rails book](https://blog.arkency.com/domain-driven-rails/).
+This repository is funded and maintained by [arkency](https://arkency.com). Make sure to check out our [Rails Architect Masterclass training](https://arkademy.dev) and long-term [support plans](https://railseventstore.org/support/) available.
