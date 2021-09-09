@@ -139,6 +139,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.11.0-x86_64-darwin)
       racc (~> 1.4)
+    nokogiri (1.11.0-x86_64-linux)
+      racc (~> 1.4)
     parser (3.0.0.0)
       ast (~> 2.4.1)
     pg (1.2.3)
@@ -240,6 +242,7 @@ GEM
 PLATFORMS
   arm64-darwin-20
   x86_64-darwin-19
+  x86_64-linux
 
 DEPENDENCIES
   aggregate_root!
