@@ -4,13 +4,11 @@ Maintainer's guide for releasing RailsEventStore and related gems. Hopefully you
 
 ## Versioning policy
 
-We're following [Semantic Versioning](http://semver.org/#semantic-versioning-200). Reminder that until v1.0.0 is released:
+We're following [Semantic Versioning](http://semver.org/#semantic-versioning-200). We're making our best to describe and communicate breaking changes if such happen.
 
-> Anything may change at any time. The public API should not be considered stable.
+All gems developed as RailsEventStore distribution will be released with the same version number, even if changes affected only a subset of gems. This is close to the versioning policy of Rails. We do this for [convenience](https://blog.arkency.com/why-we-follow-rails-repo-structure-in-rails-event-store/) not only of maintainers but also to help triaging issues related to particular version.
 
-We're making our best to describe and communicate breaking changes if such happen.
-
-All gems developed in RailsEventStore monorepo will be released with the same version number, even if changes affected only a subset of gems. This is close to the versioning policy of Rails. We do this for [convenience](https://blog.arkency.com/why-we-follow-rails-repo-structure-in-rails-event-store/) not only of maintainers but also to help triaging issues related to particular version.
+Contributed gems in [contrib/](/contrib) are not released in RailsEventStore distribution and have a different release cycle.
 
 ## Communicating changes
 
