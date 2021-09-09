@@ -21,6 +21,9 @@ endif
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
+$(addprefix local-install-, $(GEMS)):
+	@make -C $(subst local-install-,,$@) local-install
+
 $(addprefix update-, $(GEMS)):
 	@make -C $(subst update-,,$@) update
 
@@ -73,10 +76,14 @@ set-version: git-check-clean git-check-committed
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-rspec\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@sed $(SED_OPTS) "s/\(gem \"rails_event_store\", \"~>\)\(.*\)/\1 $(RES_VERSION)\"/" APP_TEMPLATE
 	@sed $(SED_OPTS) "s/compare\/v.*\.\.\.master/compare\/v$(RES_VERSION)...master/" RELEASE.md
-	@git add -A **/*.gemspec **/version.rb RES_VERSION APP_TEMPLATE RELEASE.md
+	@make -j8 local-install
+	@make -j8 -C contrib local-install
+	@git add $(shell find . -name Gemfile*.lock -print) **/*.gemspec **/version.rb RES_VERSION APP_TEMPLATE RELEASE.md
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
+
+local-install: $(addprefix local-install-, $(GEMS))
 
 update: $(addprefix update-, $(GEMS)) ## Update all dependencies
 
