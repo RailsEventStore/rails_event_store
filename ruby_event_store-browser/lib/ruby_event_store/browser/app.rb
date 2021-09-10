@@ -88,11 +88,9 @@ module RubyEventStore
 
         def browser_settings
           JSON.dump({
-            flags: {
-              rootUrl:    routing.root_url,
-              apiUrl:     settings.api_url || routing.api_url,
-              resVersion: RubyEventStore::VERSION
-            }
+            rootUrl:    routing.root_url,
+            apiUrl:     settings.api_url || routing.api_url,
+            resVersion: RubyEventStore::VERSION
           })
         end
 
