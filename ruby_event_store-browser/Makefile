@@ -43,6 +43,8 @@ dev: ## Start standalone browser seeded with some events and Elm/CSS recompile o
 serve:
 	@bundle exec rackup --port 9393 devserver/config.ru
 
+build-npm: $(JS_OUTFILE) $(CSS_OUTFILE)
+
 install-npm:
 	@cd elm; npm install --no-fund --no-audit
 
