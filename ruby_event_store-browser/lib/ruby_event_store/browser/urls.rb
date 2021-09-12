@@ -45,11 +45,13 @@ module RubyEventStore
       end
 
       def browser_js_url
-        "#{app_url}/ruby_event_store_browser.js"
+        name = "ruby_event_store_browser.js"
+        local_file_url(name) || cdn_file_url(name)
       end
 
       def browser_css_url
-        "#{app_url}/ruby_event_store_browser.css"
+        name = "ruby_event_store_browser.css"
+        local_file_url(name) || cdn_file_url(name)
       end
 
       def bootstrap_js_url
@@ -58,6 +60,24 @@ module RubyEventStore
 
       def ==(o)
         self.class.eql?(o.class) && app_url.eql?(o.app_url) && api_url.eql?(o.api_url)
+      end
+
+      private
+
+      def local_file_url(name)
+        "#{app_url}/#{name}" if File.exist?(File.join("#{__dir__}/../../../public", name))
+      end
+
+      def cdn_file_url(name)
+        "https://d3iay4bmfswobf.cloudfront.net/#{commit_sha}/#{name}"
+      end
+
+      def commit_sha
+        $LOAD_PATH
+          .select { |x| x.end_with? "ruby_event_store-browser/lib" }
+          .map { |x| x.split("/")[-3] }
+          .map { |x| x.split("-")[-1] }
+          .first
       end
     end
   end
