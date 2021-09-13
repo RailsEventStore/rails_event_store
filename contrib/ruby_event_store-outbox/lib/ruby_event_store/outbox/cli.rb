@@ -72,7 +72,6 @@ module RubyEventStore
 
       def run(argv)
         options = Parser.parse(argv)
-        puts options.inspect
         outbox_consumer = build_consumer(options)
         outbox_consumer.init
         outbox_consumer.run
