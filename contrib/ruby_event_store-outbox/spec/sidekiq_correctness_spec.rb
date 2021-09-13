@@ -9,7 +9,7 @@ module RubyEventStore
       let(:database_url) { ENV["DATABASE_URL"] }
       let(:redis) { Redis.new(url: redis_url) }
       let(:test_logger) { Logger.new(StringIO.new) }
-      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none) }
+      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none, sleep_on_empty: 1) }
       let(:metrics) { Metrics::Null.new }
 
       before(:each) do |example|

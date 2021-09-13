@@ -51,6 +51,11 @@ module RubyEventStore
           expect(Parser.parse(["--metrics-url=http://username:password@host:1234/db"]).metrics_url).to eq("http://username:password@host:1234/db")
           expect(Parser.parse([]).metrics_url).to eq(nil)
         end
+
+        specify "#parse --sleep-on-empty" do
+          expect(Parser.parse(["--sleep-on-empty=5"]).sleep_on_empty).to eq(5)
+          expect(Parser.parse([]).sleep_on_empty).to eq(0.5)
+        end
       end
     end
   end

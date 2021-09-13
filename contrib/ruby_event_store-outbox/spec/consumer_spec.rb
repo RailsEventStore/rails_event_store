@@ -10,7 +10,7 @@ module RubyEventStore
       let(:redis) { Redis.new(url: redis_url) }
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
-      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none) }
+      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none, sleep_on_empty: 1) }
       let(:metrics) { Metrics::Null.new }
 
       specify "updates enqueued_at" do
@@ -164,7 +164,7 @@ module RubyEventStore
           consumer.run
         end.to raise_error("End infinite loop")
 
-        expect(consumer).to have_received(:sleep).with(0.5)
+        expect(consumer).to have_received(:sleep).with(1)
       end
 
       specify "#run doesnt wait if something changed" do

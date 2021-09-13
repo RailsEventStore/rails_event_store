@@ -11,7 +11,6 @@ require_relative "cleanup_strategies/clean_old_enqueued"
 module RubyEventStore
   module Outbox
     class Consumer
-      SLEEP_TIME_WHEN_NOTHING_TO_DO = 0.5
       MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK = 10
 
       class Configuration
@@ -21,7 +20,8 @@ module RubyEventStore
           batch_size:,
           database_url:,
           redis_url:,
-          cleanup:
+          cleanup:,
+          sleep_on_empty:
         )
           @split_keys = split_keys
           @message_format = message_format
@@ -29,6 +29,7 @@ module RubyEventStore
           @database_url = database_url
           @redis_url = redis_url
           @cleanup = cleanup
+          @sleep_on_empty = sleep_on_empty
           freeze
         end
 
@@ -39,11 +40,12 @@ module RubyEventStore
             batch_size: overriden_options.fetch(:batch_size, batch_size),
             database_url: overriden_options.fetch(:database_url, database_url),
             redis_url: overriden_options.fetch(:redis_url, redis_url),
-            cleanup: overriden_options.fetch(:cleanup, cleanup)
+            cleanup: overriden_options.fetch(:cleanup, cleanup),
+            sleep_on_empty: overriden_options.fetch(:sleep_on_empty, sleep_on_empty)
           )
         end
 
-        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url, :cleanup
+        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url, :cleanup, :sleep_on_empty
       end
 
       def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
@@ -52,6 +54,7 @@ module RubyEventStore
         @logger = logger
         @metrics = metrics
         @batch_size = configuration.batch_size
+        @sleep_on_empty = configuration.sleep_on_empty
         @consumer_uuid = consumer_uuid
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
@@ -79,7 +82,7 @@ module RubyEventStore
           was_something_changed = one_loop
           if !was_something_changed
             STDOUT.flush
-            sleep SLEEP_TIME_WHEN_NOTHING_TO_DO
+            sleep sleep_on_empty
           end
         end
         logger.info "Gracefully shutting down"
@@ -153,7 +156,7 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid, :repository, :cleanup_strategy
+      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid, :repository, :cleanup_strategy, :sleep_on_empty
 
       def obtain_lock_for_process(fetch_specification)
         result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
