@@ -8,17 +8,13 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-outbox (0.0.16)
+    ruby_event_store-outbox (0.0.17)
       activerecord (>= 5.2)
       ruby_event_store (>= 1.0.0)
 
 GEM
-  remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
-  specs:
-    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.2)
-
-GEM
   remote: https://rubygems.org/
+  remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
   specs:
     actioncable (6.0.3.4)
       actionpack (= 6.0.3.4)
@@ -107,6 +103,7 @@ GEM
       parser (~> 3.0.0)
       regexp_parser (~> 2.0, >= 2.0.3)
       unparser (~> 0.6.0)
+    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.2)
     mutant-minitest (0.10.32)
       minitest (~> 5.11)
       mutant (= 0.10.32)
