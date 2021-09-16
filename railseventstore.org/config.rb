@@ -48,7 +48,7 @@ activate :syntax do |syntax|
 end
 activate :external_pipeline,
   name: :parceljs,
-  command: build? ? 'yarn build' : 'yarn watch',
+  command: build? ? 'npm run build' : 'npm run watch',
   source: ".tmp/dist",
   latency: 1
 

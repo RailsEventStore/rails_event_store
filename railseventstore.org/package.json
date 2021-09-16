@@ -14,6 +14,5 @@
     "postcss": "^7",
     "postcss-url": "^9.0.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat"
-  },
-  "dependencies": {}
+  }
 }
