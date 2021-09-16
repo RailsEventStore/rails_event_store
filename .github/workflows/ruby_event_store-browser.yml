@@ -37,11 +37,11 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: actions/cache@v2
+      - uses: actions/setup-node@v2
         with:
-          path: ${{ env.WORKING_DIRECTORY }}/elm/node_modules
-          key: ${{ runner.OS }}-node-${{ hashFiles(join(env.WORKING_DIRECTORY, '/elm/yarn.lock')) }}
-      - run: make install-yarn test
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
+      - run: make install-npm test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:

@@ -9,32 +9,32 @@ include ../support/make/mutant.mk
 include ../support/make/gem.mk
 include ../support/make/help.mk
 
-install: install-yarn
+install: install-npm
 
-test: $(BUNDLE) test-yarn
+test: $(BUNDLE) test-npm
 
 build: $(BUNDLE)
 
 push: $(BUNDLE)
 
-clean: clean-yarn
+clean: clean-npm
 
-watch-elm: clean-yarn ## Start dev frontend
-	@cd elm; yarn watch
+watch-elm: clean-npm ## Start dev frontend
+	@cd elm; npm run watch
 
 dev-server: ## Start dev backend prepopulated with events
 	@bundle exec rackup --port 9393 devserver/config.ru
 
-install-yarn:
-	@echo "Installing yarn dependencies"
-	@cd elm; yarn install
+install-npm:
+	@echo "Installing npm dependencies"
+	@cd elm; npm install --no-fund --no-audit
 
-test-yarn:
-	@cd elm; yarn test
+test-npm:
+	@cd elm; npx elm-test
 
-clean-yarn:
+clean-npm:
 	-rm $(BUNDLE)
 
 $(BUNDLE):
 	@echo "Building browser frontend"
-	@cd elm; yarn build
+	@cd elm; npm run build
