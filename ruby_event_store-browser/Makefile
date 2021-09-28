@@ -1,7 +1,7 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store-browser
 DATABASE_URL ?= sqlite3::memory:
-BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css public/ruby_event_store_browser.js.map public/ruby_event_store_browser.css.map
+BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css
 
 include ../support/make/install.mk
 include ../support/make/test.mk

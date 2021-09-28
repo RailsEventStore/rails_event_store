@@ -1,7 +1,8 @@
-require("./style/style.css");
+import "./style/style.css";
+import { Elm } from "./Main.elm";
 
-var Browser = require("./Main.elm");
+var settings = document
+  .querySelector("meta[name='ruby-event-store-browser-settings']")
+  .getAttribute("content");
 
-var settings = document.querySelector("meta[name='ruby-event-store-browser-settings']").getAttribute("content");
-settings = JSON.parse(settings);
-Browser.Elm.Main.init({ flags: settings });
+Elm.Main.init({ flags: JSON.parse(settings) });
