@@ -12,7 +12,7 @@
     "elm-test": "^0.19.1-revision7",
     "postcss": "^8.3.8",
     "tailwindcss": "^2.2.15",
-    "vite": "^2.5.4",
+    "vite": "^2.6.1",
     "vite-plugin-elm": "^2.5.0"
   },
   "scripts": {
