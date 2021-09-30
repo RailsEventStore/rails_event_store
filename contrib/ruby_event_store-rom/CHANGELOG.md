@@ -1,4 +1,10 @@
-### Unreleased
+### 2.0.0
+
+This release brings compatibility of `RubyEventStore::ROM::EventRepository` with RubyEventStore >= 2.0.
+
+If you we're running RES in version 1.3.0 before, please check oua Ruby/RailsEventStore migration guide from 1.3.0 to 2.0.0 first:
+https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.0.0
+
 
 * Fix: Updating messages via `RubyEventStore::Client#overwrite` with ROM repository no longer changes `created_at` column in the database.
 
@@ -22,7 +28,7 @@
 
   ⚠️ **This requires migrating your database**.
 
-  You can skip it to maintain current timestamp precision (up to seconds). No sample ROM migration provided.
+  You can skip it to maintain current timestamp precision (up to seconds). No sample ROM migration provided. Sample AR migration: https://github.com/RailsEventStore/rails_event_store/blob/1036f852df4abb06f49f0a6915af306eb932cdf3/rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/created_at_precision_template.rb
 
   Related: https://blog.arkency.com/how-to-migrate-large-database-tables-without-a-headache/
 
@@ -44,14 +50,14 @@
 
   ⚠️ **This requires migrating your database and it is not optional**.
 
-  No sample ROM migration provided.
+  No sample ROM migration provided. Sample AR migration: https://github.com/RailsEventStore/rails_event_store/blob/1036f852df4abb06f49f0a6915af306eb932cdf3/rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/add_valid_at_template.rb
 
 
 * Performance: Optimize storage of global stream. Cut by half the number of rows needed  in `event_store_events_in_streams`. One insert statement less for non-named stream appends. [#514, #673]
 
   ⚠️ **This requires migrating your database and it is not optional**.
 
-  No sample ROM migration provided.
+  No sample ROM migration provided. Sample AR migration: https://github.com/RailsEventStore/rails_event_store/blob/1036f852df4abb06f49f0a6915af306eb932cdf3/rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/no_global_stream_entries_template.rb
 
 
 ### 1.3.0
