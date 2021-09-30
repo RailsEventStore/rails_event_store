@@ -174,43 +174,35 @@ maybeHref link =
             ]
 
 
+paginationStyle =
+    "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
+
+
 nextPageButton : Maybe Api.PaginationLink -> Html Msg
 nextPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
-         ]
-            ++ maybeHref link
-        )
+        (class paginationStyle :: maybeHref link)
         [ text "next" ]
 
 
 prevPageButton : Maybe Api.PaginationLink -> Html Msg
 prevPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
-         ]
-            ++ maybeHref link
-        )
+        (class paginationStyle :: maybeHref link)
         [ text "previous" ]
 
 
 lastPageButton : Maybe Api.PaginationLink -> Html Msg
 lastPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
-         ]
-            ++ maybeHref link
-        )
+        (class paginationStyle :: maybeHref link)
         [ text "last" ]
 
 
 firstPageButton : Maybe Api.PaginationLink -> Html Msg
 firstPageButton link =
     button
-        ([ class "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
-         ]
-            ++ maybeHref link
-        )
+        (class paginationStyle :: maybeHref link)
         [ text "first" ]
 
 
