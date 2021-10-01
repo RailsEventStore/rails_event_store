@@ -110,8 +110,10 @@ view { streamName, events, relatedStreams, problems, flags } =
 browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
 browseEvents baseUrl title { links, events } relatedStreams =
     div [ class "py-8" ]
-        [ h1 [ class "font-bold px-8 text-2xl" ] [ text title ]
-        , div [ class "px-8" ] [ displayPagination links ]
+        [ div [ class "flex px-8 justify-between" ]
+            [ h1 [ class "font-bold text-2xl" ] [ text title ]
+            , div [] [ displayPagination links ]
+            ]
         , div [ class "px-8" ] [ renderResults baseUrl events ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
