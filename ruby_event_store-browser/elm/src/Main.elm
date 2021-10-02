@@ -2,13 +2,14 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation
+import Css.Global
 import Flags exposing (Flags, RawFlags, buildFlags)
-import Html exposing (Html)
+import Html.Styled exposing (..)
 import Layout
 import Page.ShowEvent
 import Page.ShowStream
 import Route
-import Spinner
+import Tailwind.Utilities as Tw
 import Url
 import Url.Parser exposing ((</>))
 import WrappedModel exposing (..)
@@ -157,7 +158,13 @@ view model =
     case model.flags of
         Nothing ->
             { title = fullTitle Nothing
-            , body = [ Layout.viewIncorrectConfig ]
+            , body =
+                [ toUnstyled <|
+                    div []
+                        [ Css.Global.global Tw.globalStyles
+                        , Layout.viewIncorrectConfig
+                        ]
+                ]
             }
 
         Just flags ->
@@ -165,7 +172,16 @@ view model =
                 ( maybePageTitle, pageContent ) =
                     viewPage model.page
             in
-            { body = [ Layout.view GotLayoutMsg (wrapModel model model.layout flags) pageContent ]
+            { body =
+                [ toUnstyled <|
+                    div []
+                        [ Css.Global.global Tw.globalStyles
+                        , Layout.view
+                            GotLayoutMsg
+                            (wrapModel model model.layout flags)
+                            pageContent
+                        ]
+                ]
             , title = fullTitle maybePageTitle
             }
 
@@ -184,10 +200,16 @@ viewPage : Page -> ( Maybe String, Html Msg )
 viewPage page =
     case page of
         ShowStream showStreamUIModel ->
-            viewOnePage GotShowStreamMsg Page.ShowStream.view showStreamUIModel
+            viewOnePage
+                GotShowStreamMsg
+                Page.ShowStream.view
+                showStreamUIModel
 
         ShowEvent openedEventUIModel ->
-            viewOnePage GotShowEventMsg Page.ShowEvent.view openedEventUIModel
+            viewOnePage
+                GotShowEventMsg
+                Page.ShowEvent.view
+                openedEventUIModel
 
         NotFound ->
             ( Nothing, Layout.viewNotFound )
@@ -199,7 +221,7 @@ viewOnePage pageMsgBuilder pageViewFunction pageModel =
         ( pageTitle, pageContent ) =
             pageViewFunction pageModel
     in
-    ( Just pageTitle, Html.map pageMsgBuilder pageContent )
+    ( Just pageTitle, Html.Styled.map pageMsgBuilder pageContent )
 
 
 wrapModel : Model -> a -> Flags -> WrappedModel a

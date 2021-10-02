@@ -2,14 +2,16 @@ module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree
 
 import Api
 import Flags exposing (Flags)
-import Html exposing (..)
-import Html.Attributes exposing (class, colspan, href)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (class, colspan, css, href)
 import Http
 import JsonTree
 import Maybe
 import Maybe.Extra exposing (values)
 import Route
 import Spinner
+import Tailwind.Utilities as Tw
 import Url
 
 
@@ -168,39 +170,144 @@ view_ : Model -> Html Msg
 view_ model =
     case model.event of
         Api.NotFound ->
-            div [ class "py-12" ]
-                [ h1 [ class "font-bold px-8 text-2xl" ] [ text "There's no event with given ID" ] ]
+            div
+                [ css
+                    [ Tw.py_12
+                    ]
+                ]
+                [ h1
+                    [ css
+                        [ Tw.font_bold
+                        , Tw.px_8
+                        , Tw.text_2xl
+                        ]
+                    ]
+                    [ text "There's no event with given ID" ]
+                ]
 
         Api.Loading ->
-            div [ class "min-h-screen" ]
-                [ Spinner.view Spinner.defaultConfig model.spinner ]
+            div [ css [ Tw.min_h_screen ] ]
+                [ fromUnstyled <|
+                    Spinner.view Spinner.defaultConfig model.spinner
+                ]
 
         Api.Loaded event ->
             showEvent model.flags.rootUrl event model.causedEvents
 
         Api.Failure ->
-            div [ class "py-12" ]
-                [ h1 [ class "font-bold px-8 text-2xl" ] [ text "Unexpected request failure happened when fetching the event" ] ]
+            div
+                [ css
+                    [ Tw.py_12
+                    ]
+                ]
+                [ h1
+                    [ css
+                        [ Tw.font_bold
+                        , Tw.px_8
+                        , Tw.text_2xl
+                        ]
+                    ]
+                    [ text "Unexpected request failure happened when fetching the event" ]
+                ]
 
 
 showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> Html Msg
 showEvent baseUrl event maybeCausedEvents =
-    div [ class "py-12" ]
-        [ h1 [ class "font-bold px-8 text-2xl" ] [ text event.eventType ]
-        , div [ class "px-8" ]
-            [ table [ class "my-10 w-full text-left table-fixed border-collapse" ]
-                [ thead [ class "align-bottom leading-tight" ]
-                    [ tr []
-                        [ th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event id" ]
-                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Raw Data" ]
-                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Raw Metadata" ]
+    div
+        [ css
+            [ Tw.py_12
+            ]
+        ]
+        [ h1
+            [ css
+                [ Tw.font_bold
+                , Tw.px_8
+                , Tw.text_2xl
+                ]
+            ]
+            [ text event.eventType ]
+        , div
+            [ css
+                [ Tw.px_8
+                ]
+            ]
+            [ table
+                [ css
+                    [ Tw.my_10
+                    , Tw.w_full
+                    , Tw.text_left
+                    , Tw.table_fixed
+                    , Tw.border_collapse
+                    ]
+                ]
+                [ thead
+                    [ css
+                        [ Tw.align_bottom
+                        , Tw.leading_tight
                         ]
                     ]
-                , tbody [ class "align-top" ]
                     [ tr []
-                        [ td [ class "p-0 pt-2" ] [ text event.eventId ]
-                        , td [ class "p-0 pt-2" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
-                        , td [ class "p-0 pt-2" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
+                        [ th
+                            [ css
+                                [ Tw.border_gray_400
+                                , Tw.border_b
+                                , Tw.text_gray_500
+                                , Tw.uppercase
+                                , Tw.p_0
+                                , Tw.pb_4
+                                , Tw.text_xs
+                                ]
+                            ]
+                            [ text "Event id" ]
+                        , th
+                            [ css
+                                [ Tw.border_gray_400
+                                , Tw.border_b
+                                , Tw.text_gray_500
+                                , Tw.uppercase
+                                , Tw.p_0
+                                , Tw.pb_4
+                                , Tw.text_xs
+                                ]
+                            ]
+                            [ text "Raw Data" ]
+                        , th
+                            [ css
+                                [ Tw.border_gray_400
+                                , Tw.border_b
+                                , Tw.text_gray_500
+                                , Tw.uppercase
+                                , Tw.p_0
+                                , Tw.pb_4
+                                , Tw.text_xs
+                                ]
+                            ]
+                            [ text "Raw Metadata" ]
+                        ]
+                    ]
+                , tbody [ css [ Tw.align_top ] ]
+                    [ tr []
+                        [ td
+                            [ css
+                                [ Tw.p_0
+                                , Tw.pt_2
+                                ]
+                            ]
+                            [ text event.eventId ]
+                        , td
+                            [ css
+                                [ Tw.p_0
+                                , Tw.pt_2
+                                ]
+                            ]
+                            [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                        , td
+                            [ css
+                                [ Tw.p_0
+                                , Tw.pt_2
+                                ]
+                            ]
+                            [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                         ]
                     ]
                 ]
@@ -208,21 +315,54 @@ showEvent baseUrl event maybeCausedEvents =
         , relatedStreams baseUrl event
         , case maybeCausedEvents of
             Api.Loading ->
-                div [ class "px-8 mt-8" ]
-                    [ h2 [ class "font-bold text-xl" ] [ text "Events caused by this event:" ]
+                div
+                    [ css
+                        [ Tw.px_8
+                        , Tw.mt_8
+                        ]
+                    ]
+                    [ h2
+                        [ css
+                            [ Tw.font_bold
+                            , Tw.text_xl
+                            ]
+                        ]
+                        [ text "Events caused by this event:" ]
                     , text "Loading..."
                     ]
 
             Api.Loaded causedEvents ->
                 case causedEvents of
                     [] ->
-                        div [ class "px-8 mt-8" ]
-                            [ h2 [ class "font-bold text-xl" ] [ text "Events caused by this event: none" ]
+                        div
+                            [ css
+                                [ Tw.px_8
+                                , Tw.mt_8
+                                ]
+                            ]
+                            [ h2
+                                [ css
+                                    [ Tw.font_bold
+                                    , Tw.text_xl
+                                    ]
+                                ]
+                                [ text "Events caused by this event: none" ]
                             ]
 
                     _ ->
-                        div [ class "px-8 mt-8" ]
-                            [ h2 [ class "font-bold text-xl" ] [ text "Events caused by this event:" ]
+                        div
+                            [ css
+                                [ Tw.px_8
+                                , Tw.mt_8
+                                ]
+                            ]
+                            [ h2
+                                [ css
+                                    [ Tw.font_bold
+                                    , Tw.text_xl
+                                    ]
+                                ]
+                                [ text "Events caused by this event:" ]
                             , renderCausedEvents baseUrl causedEvents
                             ]
 
@@ -241,9 +381,25 @@ relatedStreams baseUrl event =
         text ""
 
     else
-        div [ class "px-8" ]
-            [ h2 [ class "font-bold text-xl" ] [ text "Related streams / events:" ]
-            , ul [ class "list-disc pl-8" ] (relatedStreamsList baseUrl event)
+        div
+            [ css
+                [ Tw.px_8
+                ]
+            ]
+            [ h2
+                [ css
+                    [ Tw.font_bold
+                    , Tw.text_xl
+                    ]
+                ]
+                [ text "Related streams / events:" ]
+            , ul
+                [ css
+                    [ Tw.list_disc
+                    , Tw.pl_8
+                    ]
+                ]
+                (relatedStreamsList baseUrl event)
             ]
 
 
@@ -303,32 +459,97 @@ parentEventLink baseUrl event =
 
 streamLink : Url.Url -> String -> Html Msg
 streamLink baseUrl streamName =
-    a [ class "text-red-700 no-underline", href (Route.streamUrl baseUrl streamName) ] [ text streamName ]
+    a
+        [ css
+            [ Tw.text_red_700
+            , Tw.no_underline
+            ]
+        , href (Route.streamUrl baseUrl streamName)
+        ]
+        [ text streamName ]
 
 
 eventLink : Url.Url -> String -> Html Msg
 eventLink baseUrl eventId =
-    a [ class "text-red-700 no-underline", href (Route.eventUrl baseUrl eventId) ] [ text eventId ]
+    a
+        [ css
+            [ Tw.text_red_700
+            , Tw.no_underline
+            ]
+        , href (Route.eventUrl baseUrl eventId)
+        ]
+        [ text eventId ]
 
 
 renderCausedEvents : Url.Url -> List Api.Event -> Html Msg
 renderCausedEvents baseUrl causedEvents =
     case causedEvents of
         [] ->
-            p [ class "flex items-center justify-center py-24" ] [ text "No items" ]
+            p
+                [ css
+                    [ Tw.flex
+                    , Tw.items_center
+                    , Tw.justify_center
+                    , Tw.py_24
+                    ]
+                ]
+                [ text "No items" ]
 
         _ ->
-            table [ class "my-10 w-full text-left table-fixed border-collapse   " ]
-                [ thead [ class "align-bottom leading-tight" ]
-                    [ tr []
-                        [ th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event name" ]
-                        , th [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ] [ text "Event id" ]
+            table
+                [ css
+                    [ Tw.my_10
+                    , Tw.w_full
+                    , Tw.text_left
+                    , Tw.table_fixed
+                    , Tw.border_collapse
+                    ]
+                ]
+                [ thead
+                    [ css
+                        [ Tw.align_bottom
+                        , Tw.leading_tight
                         ]
                     ]
-                , tbody [ class "align-top" ] (List.map (renderCausedEvent baseUrl) causedEvents)
+                    [ tr []
+                        [ th
+                            [ css
+                                [ Tw.border_gray_400
+                                , Tw.border_b
+                                , Tw.text_gray_500
+                                , Tw.uppercase
+                                , Tw.p_0
+                                , Tw.pb_4
+                                , Tw.text_xs
+                                ]
+                            ]
+                            [ text "Event name" ]
+                        , th
+                            [ css
+                                [ Tw.border_gray_400
+                                , Tw.border_b
+                                , Tw.text_gray_500
+                                , Tw.uppercase
+                                , Tw.p_0
+                                , Tw.pb_4
+                                , Tw.text_xs
+                                ]
+                            ]
+                            [ text "Event id" ]
+                        ]
+                    ]
+                , tbody [ css [ Tw.align_top ] ] (List.map (renderCausedEvent baseUrl) causedEvents)
                 , tfoot []
                     [ tr []
-                        [ td [ class "text-gray-500 p-0 pb-4 text-xs", colspan 2 ]
+                        [ td
+                            [ css
+                                [ Tw.text_gray_500
+                                , Tw.p_0
+                                , Tw.pb_4
+                                , Tw.text_xs
+                                ]
+                            , colspan 2
+                            ]
                             [ if List.length causedEvents == 20 then
                                 text "The results may be truncated, check stream for full information."
 
@@ -343,19 +564,44 @@ renderCausedEvents baseUrl causedEvents =
 renderCausedEvent : Url.Url -> Api.Event -> Html Msg
 renderCausedEvent baseUrl { eventType, eventId } =
     tr []
-        [ td [ class "p-0 pt-2" ]
+        [ td
+            [ css
+                [ Tw.p_0
+                , Tw.pt_2
+                ]
+            ]
             [ a
-                [ class "text-red-700 no-underline"
+                [ css
+                    [ Tw.text_red_700
+                    , Tw.no_underline
+                    ]
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
-        , td [ class "p-0 pt-2" ] [ text eventId ]
+        , td
+            [ css
+                [ Tw.p_0
+                , Tw.pt_2
+                ]
+            ]
+            [ text eventId ]
         ]
 
 
 showJsonTree : String -> JsonTree.State -> (JsonTree.State -> msg) -> Html msg
 showJsonTree rawJson treeState changeState =
-    JsonTree.parseString rawJson
-        |> Result.map (\tree -> JsonTree.view tree { onSelect = Nothing, toMsg = changeState, colors = JsonTree.defaultColors } treeState)
-        |> Result.withDefault (pre [] [ text rawJson ])
+    fromUnstyled <|
+        (JsonTree.parseString rawJson
+            |> Result.map
+                (\tree ->
+                    JsonTree.view tree
+                        { onSelect = Nothing
+                        , toMsg = changeState
+                        , colors = JsonTree.defaultColors
+                        }
+                        treeState
+                )
+            |> Result.withDefault
+                (toUnstyled <| pre [] [ text rawJson ])
+        )
