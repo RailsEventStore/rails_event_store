@@ -20,7 +20,10 @@ push: $(BUNDLE)
 clean: clean-npm
 
 watch-elm: clean-npm ## Start dev frontend
-	@cd elm; npm run watch
+	@cd elm; npx chokidar-cli "src/**/*.elm" -c "elm make src/Main.elm --output ../public/ruby_event_store_browser.js" --initial
+
+watch-css: clean-npm
+	@cd elm; npx tailwindcss -w -i src/style.css -o ../public/ruby_event_store_browser.css
 
 dev-server: ## Start dev backend prepopulated with events
 	@bundle exec rackup --port 9393 devserver/config.ru
@@ -35,6 +38,11 @@ test-npm:
 clean-npm:
 	-rm $(BUNDLE)
 
-$(BUNDLE):
-	@echo "Building browser frontend"
-	@cd elm; npm run build
+public/ruby_event_store_browser.css:
+	@echo "Building browser CSS"
+	@cd elm; NODE_ENV=production npx tailwindcss -m -i src/style.css -o ../public/ruby_event_store_browser.css
+
+public/ruby_event_store_browser.js:
+	@echo "Building browser JS"
+	@cd elm; elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm
+	@cd elm; npx uglify-js ../public/ruby_event_store_browser.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | npx uglify-js --mangle --output ../public/ruby_event_store_browser.js

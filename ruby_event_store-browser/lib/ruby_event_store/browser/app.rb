@@ -69,6 +69,15 @@ module RubyEventStore
             </head>
             <body>
               <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
+              <script type="text/javascript">
+                Elm.Main.init({
+                  flags: JSON.parse(
+                    document
+                      .querySelector("meta[name='ruby-event-store-browser-settings']")
+                      .getAttribute("content")
+                  ),
+                });
+              </script>
             </body>
           </html>
         }, locals: { path: settings.root_path || request.script_name }

@@ -6,17 +6,9 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^4.0.3",
-    "autoprefixer": "^10.3.6",
+    "chokidar-cli": "^3.0.0",
     "elm": "^0.19.1-5",
     "elm-test": "^0.19.1-revision7",
-    "postcss": "^8.3.8",
-    "tailwindcss": "^2.2.15",
-    "vite": "^2.6.1",
-    "vite-plugin-elm": "^2.5.0"
-  },
-  "scripts": {
-    "watch": "vite build -w -m development",
-    "build": "vite build"
+    "tailwindcss": "^2.2.15"
   }
 }
