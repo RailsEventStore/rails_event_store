@@ -1,4 +1,4 @@
-import "./style/style.css";
+import "./style.css";
 import { Elm } from "./Main.elm";
 
 var settings = document
