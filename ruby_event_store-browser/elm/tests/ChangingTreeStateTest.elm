@@ -1,5 +1,6 @@
 module ChangingTreeStateTest exposing (suite)
 
+import Html.Styled exposing (toUnstyled)
 import JsonTree
 import Page.ShowEvent exposing (showJsonTree)
 import Test exposing (..)
@@ -15,7 +16,8 @@ suite =
                 \_ ->
                     let
                         faultyJsonResult =
-                            showJsonTree "{ its not correct }" JsonTree.defaultState (always ())
+                            toUnstyled <|
+                                showJsonTree "{ its not correct }" JsonTree.defaultState (always ())
                     in
                     faultyJsonResult
                         |> Query.fromHtml
