@@ -8,6 +8,7 @@ import Layout
 import Page.ShowEvent
 import Page.ShowStream
 import Route
+import Spinner
 import Url
 import Url.Parser exposing ((</>))
 import WrappedModel exposing (..)
@@ -48,8 +49,13 @@ type Page
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.none
+subscriptions model =
+    case model.page of
+        ShowEvent pageModel ->
+            Sub.map GotShowEventMsg (Page.ShowEvent.subscriptions pageModel)
+
+        _ ->
+            Sub.none
 
 
 buildModel : RawFlags -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )

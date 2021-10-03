@@ -1,4 +1,4 @@
-module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
+module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, subscriptions, update, view)
 
 import Api
 import Flags exposing (Flags)
@@ -9,6 +9,7 @@ import JsonTree
 import Maybe
 import Maybe.Extra exposing (values)
 import Route
+import Spinner
 import Url
 
 
@@ -35,6 +36,7 @@ type alias Model =
     , event : Api.RemoteResource Event
     , flags : Flags
     , causedEvents : Api.RemoteResource (List Api.Event)
+    , spinner : Spinner.Model
     }
 
 
@@ -44,11 +46,17 @@ initModel flags eventId =
     , event = Api.Loading
     , flags = flags
     , causedEvents = Api.Loading
+    , spinner = Spinner.init
     }
 
 
 
 -- UPDATE
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.map SpinnerTicked Spinner.subscription
 
 
 type Msg
@@ -57,6 +65,7 @@ type Msg
     | EventFetched (Result Http.Error Api.Event)
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | CausedStreamFetched (Result Http.Error Api.Stream)
+    | SpinnerTicked Spinner.Msg
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -108,6 +117,13 @@ update msg model =
         CausedEventsFetched (Err _) ->
             ( { model | causedEvents = Api.Failure }, Cmd.none )
 
+        SpinnerTicked spinnerMsg ->
+            let
+                spinnerModel =
+                    Spinner.update spinnerMsg model.spinner
+            in
+            ( { model | spinner = spinnerModel }, Cmd.none )
+
 
 apiEventToEvent : Api.Event -> Event
 apiEventToEvent e =
@@ -148,16 +164,6 @@ view model =
     ( "Event " ++ model.eventId, view_ model )
 
 
-centralSpinner : Html Msg
-centralSpinner =
-    div [ class "flex items-center justify-center" ] [ spinner ]
-
-
-spinner : Html Msg
-spinner =
-    div [ class "lds-dual-ring" ] []
-
-
 view_ : Model -> Html Msg
 view_ model =
     case model.event of
@@ -166,7 +172,8 @@ view_ model =
                 [ h1 [ class "font-bold px-8 text-2xl" ] [ text "There's no event with given ID" ] ]
 
         Api.Loading ->
-            centralSpinner
+            div [ class "min-h-screen" ]
+                [ Spinner.view Spinner.defaultConfig model.spinner ]
 
         Api.Loaded event ->
             showEvent model.flags.rootUrl event model.causedEvents
