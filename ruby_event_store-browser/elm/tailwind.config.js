@@ -1,6 +1,6 @@
 module.exports = {
   purge: [
-    './src/style/style.css',
+    './src/style.css',
     './src/**/*.elm'
   ],
   theme: {
