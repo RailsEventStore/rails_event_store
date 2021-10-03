@@ -30,9 +30,6 @@ $(addprefix update-, $(GEMS)):
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
 
-$(addprefix integration-, $(GEMS)):
-	@make -C $(subst integration-,,$@) integration
-
 $(addprefix mutate-changes-, $(GEMS)):
 	@make -C $(subst mutate-changes-,,$@) mutate-changes
 
@@ -91,8 +88,6 @@ update: $(addprefix update-, $(GEMS)) ## Update all dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
-integration: $(addprefix integration-, $(GEMS)) ## Run all integration tests
-
 mutate: $(addprefix mutate-, $(GEMS)) ## Run all mutation tests
 
 mutate-changes: $(addprefix mutate-changes-, $(GEMS)) ## Run incremental mutation tests
@@ -103,7 +98,7 @@ push: $(addprefix push-, $(GEMS)) ## Push all gem packages to RubyGems
 
 clean: $(addprefix clean-, $(GEMS)) ## Remove all previously built packages
 
-release: git-check-clean git-check-committed install test integration git-tag clean build push ## Make a new release on RubyGems
+release: git-check-clean git-check-committed install test git-tag clean build push ## Make a new release on RubyGems
 	@echo Released v$(RES_VERSION)
 
 rebase: git-rebase-from-upstream
