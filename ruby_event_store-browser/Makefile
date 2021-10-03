@@ -1,7 +1,7 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store-browser
-DATABASE_URL ?= sqlite3::memory:
-BUNDLE       = public/ruby_event_store_browser.js public/ruby_event_store_browser.css
+JS_OUTFILE   = public/ruby_event_store_browser.js
+CSS_OUTFILE  = public/ruby_event_store_browser.css
 
 include ../support/make/install.mk
 include ../support/make/test.mk
@@ -11,38 +11,50 @@ include ../support/make/help.mk
 
 install: install-npm
 
-test: $(BUNDLE) test-npm
+test: $(JS_OUTFILE) test-elm
 
-build: $(BUNDLE)
+build: $(JS_OUTFILE) $(CSS_OUTFILE)
 
-push: $(BUNDLE)
+push: $(JS_OUTFILE) $(CSS_OUTFILE)
 
-clean: clean-npm
+clean: clean-elm clean-css
 
-watch-elm: clean-npm ## Start dev frontend
-	@cd elm; npx chokidar-cli "src/**/*.elm" -c "elm make src/Main.elm --output ../public/ruby_event_store_browser.js" --initial
+clean-elm:
+	@rm $(JS_OUTFILE) 2>/dev/null || true
 
-watch-css: clean-npm
-	@cd elm; npx tailwindcss -w -i src/style.css -o ../public/ruby_event_store_browser.css
+watch-elm: clean-elm
+	@cd elm; \
+		npx chokidar-cli "src/**/*.elm" \
+			-c "elm make src/Main.elm --output ../$(JS_OUTFILE)" \
+			--initial
 
-dev-server: ## Start dev backend prepopulated with events
+clean-css:
+	@rm $(CSS_OUTFILE) 2>/dev/null || true
+
+watch-css: clean-css
+	@cd elm; \
+		npx tailwindcss -w \
+			-i src/style.css \
+			-o ../$(CSS_OUTFILE)
+
+dev: ## Start standalone browser seeded with some events and CSS/JS recompile on change
+	@foreman start
+
+serve:
 	@bundle exec rackup --port 9393 devserver/config.ru
 
 install-npm:
-	@echo "Installing npm dependencies"
 	@cd elm; npm install --no-fund --no-audit
 
-test-npm:
+test-elm:
 	@cd elm; npx elm-test
-
-clean-npm:
-	-rm $(BUNDLE)
 
 public/ruby_event_store_browser.css:
 	@echo "Building browser CSS"
-	@cd elm; NODE_ENV=production npx tailwindcss -m -i src/style.css -o ../public/ruby_event_store_browser.css
+	@cd elm; NODE_ENV=production npx tailwindcss -m -i src/style.css -o ../public/ruby_event_store_browser.css 2> /dev/null
 
 public/ruby_event_store_browser.js:
 	@echo "Building browser JS"
-	@cd elm; elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm
+	@cd elm; elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm > /dev/null
 	@cd elm; npx uglify-js ../public/ruby_event_store_browser.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | npx uglify-js --mangle --output ../public/ruby_event_store_browser.js
+

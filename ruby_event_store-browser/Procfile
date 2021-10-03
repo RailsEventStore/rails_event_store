@@ -1,0 +1,3 @@
+browser:   make serve
+watch-css: make watch-css
+watch-elm: make watch-elm

@@ -34,6 +34,7 @@ GEM
     childprocess (3.0.0)
     concurrent-ruby (1.1.9)
     diff-lcs (1.4.4)
+    foreman (0.87.2)
     json-schema (2.8.1)
       addressable (>= 2.4)
     mini_mime (1.1.1)
@@ -102,6 +103,7 @@ PLATFORMS
 
 DEPENDENCIES
   capybara (~> 3.35)
+  foreman
   json-schema
   mutant (~> 0.10.26)
   mutant-license!
