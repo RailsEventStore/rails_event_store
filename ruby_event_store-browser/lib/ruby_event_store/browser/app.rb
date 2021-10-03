@@ -64,7 +64,6 @@ module RubyEventStore
           <html>
             <head>
               <title>RubyEventStore::Browser</title>
-              <link type="text/css" rel="stylesheet" href="<%= path %>/ruby_event_store_browser.css">
               <meta name="ruby-event-store-browser-settings" content='<%= browser_settings %>'>
             </head>
             <body>
