@@ -9,5 +9,5 @@ push:
 	@gem push -k dev_arkency pkg/$(GEM_NAME)-$(GEM_VERSION).gem
 
 clean:
-	@echo "Removing previously built package"
-	-rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem
+	@echo "Removing previously built $(GEM_NAME)-$(GEM_VERSION).gem package"
+	@rm pkg/$(GEM_NAME)-$(GEM_VERSION).gem 2>/dev/null || true
