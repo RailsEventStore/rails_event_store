@@ -58,24 +58,24 @@ class Order
     apply OrderExpired.new
   end
 
-  private
-  attr_reader :state
-
-  def apply_order_submitted(event)
+  on OrderSubmitted do |event|
     @state = :submitted
+    @delivery_date = event.data.fetch(:delivery_date)
   end
 
-  def apply_order_expired(event)
+  on OrderExpired do |event|
     @state = :expired
   end
+
+  private
+
+  attr_reader :state
 end
 ```
 
-The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name)for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called.
+#### Alternative syntax for event handler methods (deprecated)
 
-#### Alternative syntax for event handler methods.
-
-Alternatively, you can use the class method `on(event_klass, &method)` for defining those methods. This is useful because you can more easily grep/find where events are used in your codebase.
+The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name) for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called. The downside is that you can't easily grep for usages of the event class.
 
 ```ruby
 class Order
@@ -98,18 +98,17 @@ class Order
     apply OrderExpired.new
   end
 
-  on OrderSubmitted do |event|
+  private
+  attr_reader :state
+
+  def apply_order_submitted(event)
     @state = :submitted
     @delivery_date = event.data.fetch(:delivery_date)
   end
 
-  on OrderExpired do |event|
+  def apply_order_expired(event)
     @state = :expired
   end
-
-  private
-
-  attr_reader :state
 end
 ```
 
