@@ -11,6 +11,6 @@
     "elm-tailwind-modules": "^0.3.2",
     "elm-test": "^0.19.1-revision7",
     "postcss": "^8.3.8",
-    "tailwindcss": "^2.2.16"
+    "tailwindcss": "^2.2.17"
   }
 }
