@@ -148,7 +148,7 @@ module RubyEventStore
 
         release_lock_for_process(fetch_specification)
 
-        cleanup_strategy.call(fetch_specification)
+        cleanup(fetch_specification)
 
         processor.after_batch
 
@@ -213,6 +213,21 @@ module RubyEventStore
           logger.debug "Refreshing lock for split_key '#{lock.split_key}' unsuccessful (stolen)"
           metrics.write_operation_result("refresh", "stolen")
           return false
+        else
+          raise "Unexpected result #{result}"
+        end
+      end
+
+      def cleanup(fetch_specification)
+        result = cleanup_strategy.call(fetch_specification)
+        case result
+        when :ok
+        when :deadlocked
+          logger.warn "Cleanup for split_key '#{fetch_specification.split_key}' failed (deadlock)"
+          metrics.write_operation_result("cleanup", "deadlocked")
+        when :lock_timeout
+          logger.warn "Cleanup for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
+          metrics.write_operation_result("cleanup", "lock_timeout")
         else
           raise "Unexpected result #{result}"
         end

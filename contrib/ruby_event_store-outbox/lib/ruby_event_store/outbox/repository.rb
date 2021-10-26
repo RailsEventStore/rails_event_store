@@ -147,6 +147,11 @@ module RubyEventStore
           .for_fetch_specification(fetch_specification)
           .where("enqueued_at < ?", duration.ago)
           .delete_all
+        :ok
+      rescue ActiveRecord::Deadlocked
+        :deadlocked
+      rescue ActiveRecord::LockWaitTimeout
+        :lock_timeout
       end
     end
   end

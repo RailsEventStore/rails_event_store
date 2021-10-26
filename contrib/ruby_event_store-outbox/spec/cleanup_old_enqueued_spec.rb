@@ -28,6 +28,40 @@ module RubyEventStore
         expect(Repository::Record.count).to eq(0)
       end
 
+      specify 'clean old jobs - lock timeout' do
+        record = create_record("default", "default")
+        clock = TickingClock.new
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: metrics)
+        result = consumer.one_loop
+        record.reload
+        expect(redis.llen("queue:default")).to eq(1)
+        expect(Repository::Record.count).to eq(1)
+        travel (7.days + 1.minute)
+
+        allow_any_instance_of(ActiveRecord::Relation).to receive(:delete_all).and_raise(ActiveRecord::LockWaitTimeout)
+        consumer.one_loop
+
+        expect(Repository::Record.count).to eq(1)
+        expect(logger_output.string).to include("Cleanup for split_key 'default' failed (lock timeout)")
+      end
+
+      specify 'clean old jobs - deadlock' do
+        record = create_record("default", "default")
+        clock = TickingClock.new
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: metrics)
+        result = consumer.one_loop
+        record.reload
+        expect(redis.llen("queue:default")).to eq(1)
+        expect(Repository::Record.count).to eq(1)
+        travel (7.days + 1.minute)
+
+        allow_any_instance_of(ActiveRecord::Relation).to receive(:delete_all).and_raise(ActiveRecord::Deadlocked)
+        consumer.one_loop
+
+        expect(Repository::Record.count).to eq(1)
+        expect(logger_output.string).to include("Cleanup for split_key 'default' failed (deadlock)")
+      end
+
       def create_record(queue, split_key, format: "sidekiq5")
         payload = {
           class: "SomeAsyncHandler",

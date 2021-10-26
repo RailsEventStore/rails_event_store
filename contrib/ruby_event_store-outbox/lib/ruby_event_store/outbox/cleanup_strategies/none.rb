@@ -6,6 +6,7 @@ module RubyEventStore
         end
 
         def call(_fetch_specification)
+          :ok
         end
       end
     end
