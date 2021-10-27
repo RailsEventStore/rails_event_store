@@ -704,6 +704,54 @@ module RubyEventStore
       end
     end
 
+    it "#event_in_stream? when event does not exist" do
+      skip unless helper.supports_event_in_stream_query?
+      repository.append_to_stream([SRecord.new], stream, version_any)
+      just_an_id = "d5c134c2-db65-4e87-b6ea-d196f8f1a292"
+
+      expect(repository.event_in_stream?(just_an_id, stream)).to eq(false)
+      expect(repository.event_in_stream?(just_an_id, global_stream)).to eq(false)
+    end
+
+    it "#event_in_stream? works for global stream" do
+      skip unless helper.supports_event_in_stream_query?
+      repository.append_to_stream([event0 = SRecord.new], stream, version_any)
+
+      expect(repository.event_in_stream?(event0.event_id, global_stream)).to eq(true)
+    end
+
+    it "#event_in_stream? when event published into stream" do
+      skip unless helper.supports_event_in_stream_query?
+      repository.append_to_stream([event0 = SRecord.new], stream, version_any)
+
+      expect(repository.event_in_stream?(event0.event_id, stream)).to eq(true)
+    end
+
+    it "#event_in_stream? when event not linked into stream" do
+      skip unless helper.supports_event_in_stream_query?
+      repository.append_to_stream([SRecord.new], stream_flow, version_any)
+      repository.append_to_stream([event1 = SRecord.new], stream, version_any)
+
+      expect(repository.event_in_stream?(event1.event_id, stream_flow)).to eq(false)
+    end
+
+    it "#event_in_stream? when event linked into stream" do
+      skip unless helper.supports_event_in_stream_query?
+      repository.append_to_stream([
+        event0 = SRecord.new,
+      ], stream, version_any)
+      repository.link_to_stream([event0.event_id], stream_flow, version_any)
+
+      expect(repository.event_in_stream?(event0.event_id, stream_flow)).to eq(true)
+    end
+
+    it "#event_in_stream? when stream is empty" do
+      skip unless helper.supports_event_in_stream_query?
+      just_an_id = "d5c134c2-db65-4e87-b6ea-d196f8f1a292"
+
+      expect(repository.event_in_stream?(just_an_id, stream)).to eq(false)
+    end
+
     it "knows last event in stream" do
       repository.append_to_stream([a =SRecord.new(event_id: "00000000-0000-0000-0000-000000000001")], stream, version_none)
       repository.append_to_stream([b = SRecord.new(event_id: "00000000-0000-0000-0000-000000000002")], stream, version_0)

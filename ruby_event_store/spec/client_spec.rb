@@ -981,5 +981,12 @@ module RubyEventStore
       client.publish(fact = OrderCreated.new)
       expect(client.global_position(fact.event_id)).to eq(0)
     end
+
+    specify "#event_in_stream?" do
+      client.publish(fact = OrderCreated.new, stream_name: stream)
+
+      expect(client.event_in_stream?(fact.event_id, stream)).to eq(true)
+      expect(client.event_in_stream?("924acfb8-755d-4fd5-b758-f92423b6560a", stream)).to eq(false)
+    end
   end
 end

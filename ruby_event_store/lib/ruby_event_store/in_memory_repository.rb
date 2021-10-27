@@ -134,6 +134,14 @@ module RubyEventStore
       storage.keys.index(event_id) or raise EventNotFound.new(event_id)
     end
 
+    def event_in_stream?(event_id, stream)
+      if stream.global?
+        !storage[event_id].nil?
+      else
+        !streams[stream.name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
+      end
+    end
+
     private
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)

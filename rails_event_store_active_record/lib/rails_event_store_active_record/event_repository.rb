@@ -77,6 +77,10 @@ module RailsEventStoreActiveRecord
       @repo_reader.global_position(event_id)
     end
 
+    def event_in_stream?(event_id, stream)
+      @repo_reader.event_in_stream?(event_id, stream)
+    end
+
     private
     attr_reader :serializer
 

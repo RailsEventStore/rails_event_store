@@ -25,6 +25,10 @@ module RubyEventStore
       true
     end
 
+    def supports_event_in_stream_query?
+      true
+    end
+
     def has_connection_pooling?
       false
     end

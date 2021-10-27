@@ -121,6 +121,15 @@ module RubyEventStore
       repository.global_position(event_id)
     end
 
+    # Checks whether event is linked in given stream
+    #
+    # @param event_id [String]
+    # @param stream_name [String]
+    # @return [Boolean] true if event is linked to given stream, false otherwise
+    def event_in_stream?(event_id, stream_name)
+      repository.event_in_stream?(event_id, Stream.new(stream_name))
+    end
+
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
     #
     # @overload subscribe(subscriber, to:)
