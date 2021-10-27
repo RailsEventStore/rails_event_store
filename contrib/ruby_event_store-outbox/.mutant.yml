@@ -29,7 +29,6 @@ matcher:
    - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
    - RubyEventStore::Outbox::Consumer#prepare_traps
    - RubyEventStore::Outbox::Consumer#one_loop
-   - RubyEventStore::Outbox::Consumer#obtain_lock_for_process
    - RubyEventStore::Outbox::Consumer#initiate_graceful_shutdown
    - RubyEventStore::Outbox::Consumer#initialize
    - RubyEventStore::Outbox::Consumer#init
