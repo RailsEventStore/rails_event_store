@@ -26,7 +26,6 @@ matcher:
    - RubyEventStore::Outbox::Consumer::Configuration
    - RubyEventStore::Outbox::Consumer#run
    - RubyEventStore::Outbox::Consumer#retrieve_batch
-   - RubyEventStore::Outbox::Consumer#release_lock_for_process
    - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
    - RubyEventStore::Outbox::Consumer#prepare_traps
    - RubyEventStore::Outbox::Consumer#one_loop
