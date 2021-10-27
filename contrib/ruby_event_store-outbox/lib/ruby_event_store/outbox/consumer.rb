@@ -221,15 +221,12 @@ module RubyEventStore
       def cleanup(fetch_specification)
         result = cleanup_strategy.call(fetch_specification)
         case result
-        when :ok
         when :deadlocked
           logger.warn "Cleanup for split_key '#{fetch_specification.split_key}' failed (deadlock)"
           metrics.write_operation_result("cleanup", "deadlocked")
         when :lock_timeout
           logger.warn "Cleanup for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
           metrics.write_operation_result("cleanup", "lock_timeout")
-        else
-          raise "Unexpected result #{result}"
         end
       end
 
