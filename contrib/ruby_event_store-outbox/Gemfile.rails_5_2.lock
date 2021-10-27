@@ -8,7 +8,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-outbox (0.0.17)
+    ruby_event_store-outbox (0.0.18)
       activerecord (>= 5.2)
       ruby_event_store (>= 1.0.0)
 
@@ -200,4 +200,4 @@ DEPENDENCIES
   sqlite3 (= 1.3.13)
 
 BUNDLED WITH
-   2.2.25
+   2.2.29
