@@ -11,12 +11,12 @@ module RubyEventStore
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
       let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none, sleep_on_empty: 1) }
-      let(:metrics) { Metrics::Null.new }
+      let(:null_metrics) { Metrics::Null.new }
       let(:test_metrics) { Metrics::Test.new }
 
       specify "updates enqueued_at" do
         record = create_record("default", "default")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         consumer.one_loop
 
@@ -27,7 +27,7 @@ module RubyEventStore
       specify "push the jobs to sidekiq" do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         result = consumer.one_loop
 
         record.reload
@@ -45,7 +45,7 @@ module RubyEventStore
         record2 = create_record("default", "default")
         record3 = create_record("default2", "default2")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -57,7 +57,7 @@ module RubyEventStore
         create_record("queue", "default")
         create_record("queue2", "default2")
         create_record("other_queue", "other_split")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         consumer.one_loop
 
@@ -66,14 +66,14 @@ module RubyEventStore
       end
 
       specify "init logs" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         consumer.init
 
         expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
       end
 
       specify "returns false if no records" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -82,7 +82,7 @@ module RubyEventStore
 
       specify "returns false if didnt aquire lock" do
         record = create_record("default", "default")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         clock = TickingClock.new
         Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "some-other-process-uuid", clock: clock)
 
@@ -95,7 +95,7 @@ module RubyEventStore
       specify "already processed should be ignored" do
         record = create_record("default", "default")
         record.update!(enqueued_at: Time.now.utc)
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -106,7 +106,7 @@ module RubyEventStore
 
       specify "other format should be ignored" do
         record = create_record("default", "default", format: "some_unknown_format")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -117,7 +117,7 @@ module RubyEventStore
 
       specify "records from other split keys should be ignored" do
         record = create_record("other_one", "other_one")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -147,7 +147,7 @@ module RubyEventStore
           enqueued_at: nil,
           payload: payload.to_json,
         )
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: nil), logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: nil), logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -156,7 +156,7 @@ module RubyEventStore
       end
 
       specify "#run wait if nothing was changed" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         expect(consumer).to receive(:one_loop).and_return(false).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -169,7 +169,7 @@ module RubyEventStore
       end
 
       specify "#run doesnt wait if something changed" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         expect(consumer).to receive(:one_loop).and_return(true).ordered
         expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
         allow(consumer).to receive(:sleep)
@@ -186,7 +186,7 @@ module RubyEventStore
         record1.update!(payload: "unparsable garbage")
         record2 = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -200,7 +200,7 @@ module RubyEventStore
       specify "deadlock when obtaining lock just skip that attempt" do
         expect(Repository::Lock).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -212,7 +212,7 @@ module RubyEventStore
       specify "lock timeout when obtaining lock just skip that attempt" do
         expect(Repository::Lock).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -224,7 +224,7 @@ module RubyEventStore
       specify "obtaining taken lock just skip that attempt" do
         clock = TickingClock.new
         Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "other-process-uuid", clock: clock)
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -243,7 +243,7 @@ module RubyEventStore
           end
         end
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -262,7 +262,7 @@ module RubyEventStore
           end
         end
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -274,7 +274,7 @@ module RubyEventStore
       specify "after successful loop, lock is released" do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -286,7 +286,7 @@ module RubyEventStore
       specify "lock disappearing in the meantime, doesnt do anything" do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
           Repository::Lock.delete_all
           m.call(*args)
@@ -302,7 +302,7 @@ module RubyEventStore
       specify "lock stolen in the meantime, doesnt do anything" do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
           Repository::Lock.update_all(locked_by: SecureRandom.uuid)
           m.call(*args)
@@ -318,7 +318,7 @@ module RubyEventStore
       specify "old lock can be reobtained" do
         Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "some-old-uuid", clock: TickingClock.new(start: 10.minutes.ago))
         record = create_record("default", "default")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -330,7 +330,7 @@ module RubyEventStore
       specify "relatively fresh locks are not reobtained" do
         Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "some-old-uuid", clock: TickingClock.new(start: 9.minutes.ago))
         create_record("default", "default")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.one_loop
 
@@ -340,7 +340,7 @@ module RubyEventStore
       specify "when inserting lock, other process may do same concurrently" do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         allow(Repository::Lock).to receive(:create!).and_wrap_original do |m, *args|
           m.call(*args) # To simulate someone inserting a record just before us
           m.call(*args)
@@ -354,7 +354,7 @@ module RubyEventStore
       end
 
       specify "more than one loop works" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         consumer.one_loop
         record = create_record("default", "default")
 
@@ -366,10 +366,10 @@ module RubyEventStore
       end
 
       specify "split keys are respected" do
-        consumer_with_other = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["other"]), logger: logger, metrics: metrics)
+        consumer_with_other = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["other"]), logger: logger, metrics: null_metrics)
         consumer_with_other.one_loop
         record = create_record("other", "other")
-        consumer_without_other = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer_without_other = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer_without_other.one_loop
 
@@ -378,7 +378,7 @@ module RubyEventStore
       end
 
       specify "there are multiple batches in one loop" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         records = (default_configuration.batch_size + 1).times.map {|r| create_record("default", "default") }
 
         result = consumer.one_loop
@@ -389,7 +389,7 @@ module RubyEventStore
       end
 
       specify "death of a consumer shouldnt prevent other processes from processing" do
-        consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         expect(Repository::Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
         expect(Repository::Record).to receive(:where).and_call_original.ordered.at_least(2).times
         expect do
@@ -398,7 +398,7 @@ module RubyEventStore
 
         record1 = create_record("default", "default")
         record2 = create_record("default2", "default2")
-        consumer_2 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer_2 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer_2.one_loop
 
@@ -409,7 +409,7 @@ module RubyEventStore
 
       specify "lock is refreshed after each batch" do
         skip "https://github.com/rspec/rspec-mocks/issues/1306" if RUBY_VERSION >= "3.0"
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         records = (default_configuration.batch_size + 1).times.map {|r| create_record("default", "default") }
         expect_any_instance_of(Repository::Lock).to receive(:refresh).twice.and_call_original
 
@@ -419,7 +419,7 @@ module RubyEventStore
       specify 'clean old jobs' do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: null_metrics)
         result = consumer.one_loop
         record.reload
         expect(redis.llen("queue:default")).to eq(1)
