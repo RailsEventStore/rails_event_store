@@ -55,6 +55,14 @@ module RailsEventStoreActiveRecord
       record.id - 1
     end
 
+    def event_in_stream?(event_id, stream)
+      if stream.global?
+        @event_klass.where(event_id: event_id).exists?
+      else
+        @stream_klass.where(event_id: event_id, stream: stream.name).exists?
+      end
+    end
+
     private
     attr_reader :serializer
 
