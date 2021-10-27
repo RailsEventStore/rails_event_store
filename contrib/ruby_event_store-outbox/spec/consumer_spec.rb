@@ -200,11 +200,15 @@ module RubyEventStore
       specify "deadlock when obtaining lock just skip that attempt" do
         expect(Repository::Lock).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: test_metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to match(/Obtaining lock .* failed \(deadlock\)/)
+        expect(logger_output.string).to include("Obtaining lock for split_key 'default' failed (deadlock)")
+        expect(test_metrics.operation_results).to include({
+          operation: "obtain",
+          result: "deadlocked",
+        })
         expect(result).to eq(false)
         expect(redis.llen("queue:default")).to eq(0)
       end
@@ -212,11 +216,15 @@ module RubyEventStore
       specify "lock timeout when obtaining lock just skip that attempt" do
         expect(Repository::Lock).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: test_metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to match(/Obtaining lock .* failed \(lock timeout\)/)
+        expect(logger_output.string).to include("Obtaining lock for split_key 'default' failed (lock timeout)")
+        expect(test_metrics.operation_results).to include({
+          operation: "obtain",
+          result: "lock_timeout",
+        })
         expect(result).to eq(false)
         expect(redis.llen("queue:default")).to eq(0)
       end
@@ -224,11 +232,15 @@ module RubyEventStore
       specify "obtaining taken lock just skip that attempt" do
         clock = TickingClock.new
         Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "other-process-uuid", clock: clock)
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: test_metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to match(/Obtaining lock .* unsuccessful \(taken\)/)
+        expect(logger_output.string).to include("Obtaining lock for split_key 'default' unsuccessful (taken)")
+        expect(test_metrics.operation_results).to include({
+          operation: "obtain",
+          result: "taken",
+        })
         expect(result).to eq(false)
         expect(redis.llen("queue:default")).to eq(0)
       end

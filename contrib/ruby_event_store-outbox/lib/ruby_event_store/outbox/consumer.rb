@@ -164,17 +164,17 @@ module RubyEventStore
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
           metrics.write_operation_result("obtain", "deadlocked")
-          return false
+          false
         when :lock_timeout
           logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
           metrics.write_operation_result("obtain", "lock_timeout")
-          return false
+          false
         when :taken
           logger.debug "Obtaining lock for split_key '#{fetch_specification.split_key}' unsuccessful (taken)"
           metrics.write_operation_result("obtain", "taken")
-          return false
+          false
         else
-          return result
+          result
         end
       end
 
