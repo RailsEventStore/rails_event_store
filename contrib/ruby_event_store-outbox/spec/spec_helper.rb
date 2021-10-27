@@ -3,6 +3,7 @@ require "ruby_event_store/outbox"
 require "ruby_event_store/outbox/cli"
 require "ruby_event_store/outbox/metrics/null"
 require "ruby_event_store/outbox/metrics/influx"
+require "ruby_event_store/outbox/metrics/test"
 require_relative '../../../support/helpers/rspec_defaults'
 require_relative '../../../support/helpers/schema_helper'
 require_relative '../../../support/helpers/time_enrichment'

@@ -12,6 +12,7 @@ module RubyEventStore
       let(:logger) { Logger.new(logger_output) }
       let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none, sleep_on_empty: 1) }
       let(:metrics) { Metrics::Null.new }
+      let(:test_metrics) { Metrics::Test.new }
 
       specify "updates enqueued_at" do
         record = create_record("default", "default")
@@ -433,7 +434,7 @@ module RubyEventStore
       specify 'clean old jobs - lock timeout' do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: test_metrics)
         result = consumer.one_loop
         record.reload
         expect(redis.llen("queue:default")).to eq(1)
@@ -445,12 +446,16 @@ module RubyEventStore
 
         expect(Repository::Record.count).to eq(1)
         expect(logger_output.string).to include("Cleanup for split_key 'default' failed (lock timeout)")
+        expect(test_metrics.operation_results).to include({
+          operation: "cleanup",
+          result: "lock_timeout",
+        })
       end
 
       specify 'clean old jobs - deadlock' do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D"), clock: clock, logger: logger, metrics: test_metrics)
         result = consumer.one_loop
         record.reload
         expect(redis.llen("queue:default")).to eq(1)
@@ -462,6 +467,10 @@ module RubyEventStore
 
         expect(Repository::Record.count).to eq(1)
         expect(logger_output.string).to include("Cleanup for split_key 'default' failed (deadlock)")
+        expect(test_metrics.operation_results).to include({
+          operation: "cleanup",
+          result: "deadlocked",
+        })
       end
 
       def create_record(queue, split_key, format: "sidekiq5")
