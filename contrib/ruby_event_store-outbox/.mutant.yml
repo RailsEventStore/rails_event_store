@@ -33,7 +33,6 @@ matcher:
    - RubyEventStore::Outbox::Consumer#obtain_lock_for_process
    - RubyEventStore::Outbox::Consumer#initiate_graceful_shutdown
    - RubyEventStore::Outbox::Consumer#initialize
-   - RubyEventStore::Outbox::Consumer#cleanup
    - RubyEventStore::Outbox::Consumer#init
    - RubyEventStore::Outbox::Consumer#handle_split
    - RubyEventStore::Outbox::Consumer::Configuration*
