@@ -181,7 +181,6 @@ module RubyEventStore
       def release_lock_for_process(fetch_specification)
         result = repository.release_lock_for_process(fetch_specification, consumer_uuid)
         case result
-        when :ok
         when :deadlocked
           logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
           metrics.write_operation_result("release", "deadlocked")
@@ -191,8 +190,6 @@ module RubyEventStore
         when :not_taken_by_this_process
           logger.debug "Releasing lock for split_key '#{fetch_specification.split_key}' failed (not taken by this process)"
           metrics.write_operation_result("release", "not_taken_by_this_process")
-        else
-          raise "Unexpected result #{result}"
         end
       end
 

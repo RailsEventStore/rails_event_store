@@ -243,11 +243,15 @@ module RubyEventStore
           end
         end
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: test_metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to match(/Releasing lock .* failed \(deadlock\)/)
+        expect(logger_output.string).to include("Releasing lock for split_key 'default' failed \(deadlock\)")
+        expect(test_metrics.operation_results).to include({
+          operation: "release",
+          result: "deadlocked",
+        })
         expect(result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
       end
@@ -262,11 +266,15 @@ module RubyEventStore
           end
         end
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: null_metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(split_keys: ["default"]), clock: clock, logger: logger, metrics: test_metrics)
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to match(/Releasing lock .* failed \(lock timeout\)/)
+        expect(logger_output.string).to include("Releasing lock for split_key 'default' failed (lock timeout)")
+        expect(test_metrics.operation_results).to include({
+          operation: "release",
+          result: "lock_timeout",
+        })
         expect(result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
       end
@@ -286,7 +294,7 @@ module RubyEventStore
       specify "lock disappearing in the meantime, doesnt do anything" do
         record = create_record("default", "default")
         clock = TickingClock.new
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: test_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
           Repository::Lock.delete_all
           m.call(*args)
@@ -294,7 +302,11 @@ module RubyEventStore
 
         result = consumer.one_loop
 
-        expect(logger_output.string).to match(/Releasing lock .* failed \(not taken by this process\)/)
+        expect(logger_output.string).to include("Releasing lock for split_key 'default' failed (not taken by this process)")
+        expect(test_metrics.operation_results).to include({
+          operation: "release",
+          result: "not_taken_by_this_process",
+        })
         expect(result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
       end
