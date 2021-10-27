@@ -21,6 +21,8 @@ matcher:
    - RubyEventStore::Outbox::SidekiqProcessor#after_batch
    - RubyEventStore::Outbox::Metrics.from_url
    - RubyEventStore::Outbox::FetchSpecification#initialize
+   - RubyEventStore::Outbox::FetchSpecification#hash
+   - RubyEventStore::Outbox::FetchSpecification#==
    - RubyEventStore::Outbox::Consumer::Configuration
    - RubyEventStore::Outbox::Consumer#run
    - RubyEventStore::Outbox::Consumer#retrieve_batch
@@ -31,9 +33,11 @@ matcher:
    - RubyEventStore::Outbox::Consumer#obtain_lock_for_process
    - RubyEventStore::Outbox::Consumer#initiate_graceful_shutdown
    - RubyEventStore::Outbox::Consumer#initialize
+   - RubyEventStore::Outbox::Consumer#cleanup
    - RubyEventStore::Outbox::Consumer#init
    - RubyEventStore::Outbox::Consumer#handle_split
    - RubyEventStore::Outbox::Consumer::Configuration*
    - RubyEventStore::Outbox::Consumer#get_remaining_count
+   - RubyEventStore::Outbox::CleanupStrategies::None*
    - RubyEventStore::Outbox::Repository*
 
