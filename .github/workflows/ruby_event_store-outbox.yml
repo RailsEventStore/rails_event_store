@@ -41,6 +41,14 @@ jobs:
         ports:
           - 10057:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql_80:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: rails_event_store
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 10080:3306
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -73,6 +81,10 @@ jobs:
             gemfile: Gemfile
             os: ubuntu-20.04
             database: mysql2://root:secret@0.0.0.0:10057/rails_event_store
+          - ruby: ruby-3.0
+            gemfile: Gemfile
+            os: ubuntu-20.04
+            database: mysql2://root:secret@0.0.0.0:10080/rails_event_store
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
