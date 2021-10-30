@@ -710,14 +710,6 @@ module RubyEventStore
       just_an_id = "d5c134c2-db65-4e87-b6ea-d196f8f1a292"
 
       expect(repository.event_in_stream?(just_an_id, stream)).to eq(false)
-      expect(repository.event_in_stream?(just_an_id, global_stream)).to eq(false)
-    end
-
-    it "#event_in_stream? works for global stream" do
-      skip unless helper.supports_event_in_stream_query?
-      repository.append_to_stream([event0 = SRecord.new], stream, version_any)
-
-      expect(repository.event_in_stream?(event0.event_id, global_stream)).to eq(true)
     end
 
     it "#event_in_stream? when event published into stream" do

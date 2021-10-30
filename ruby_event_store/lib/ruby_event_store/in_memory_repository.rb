@@ -135,11 +135,7 @@ module RubyEventStore
     end
 
     def event_in_stream?(event_id, stream)
-      if stream.global?
-        !storage[event_id].nil?
-      else
-        !streams[stream.name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
-      end
+      !streams[stream.name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
     end
 
     private

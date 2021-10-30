@@ -127,7 +127,12 @@ module RubyEventStore
     # @param stream_name [String]
     # @return [Boolean] true if event is linked to given stream, false otherwise
     def event_in_stream?(event_id, stream_name)
-      repository.event_in_stream?(event_id, Stream.new(stream_name))
+      stream = Stream.new(stream_name)
+      if stream.global?
+        repository.has_event?(event_id)
+      else
+        repository.event_in_stream?(event_id, stream)
+      end
     end
 
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
