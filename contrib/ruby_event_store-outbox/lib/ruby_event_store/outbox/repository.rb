@@ -36,7 +36,7 @@ module RubyEventStore
           transaction do
             l = get_lock_record(fetch_specification)
 
-            if l.recently_locked?
+            if l.recently_locked?(clock: clock)
               :taken
             else
               l.update!(
@@ -89,8 +89,8 @@ module RubyEventStore
           locked_by.eql?(process_uuid)
         end
 
-        def recently_locked?
-          locked_by && locked_at > RECENTLY_LOCKED_DURATION.ago
+        def recently_locked?(clock:)
+          locked_by && locked_at > RECENTLY_LOCKED_DURATION.ago(clock.now)
         end
 
         def fetch_specification

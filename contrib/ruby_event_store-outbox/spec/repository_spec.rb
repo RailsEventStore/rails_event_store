@@ -21,7 +21,7 @@ module RubyEventStore
         expect(lock).to be_a(Repository::Lock)
         expect(lock.fetch_specification).to eq(expected_fetch_specification)
         expect(lock).to be_locked_by(some_process_uuid)
-        expect(lock).to be_recently_locked
+        expect(lock).to be_recently_locked(clock: clock)
       end
 
       specify "Lock is not considered locked after some time" do
@@ -31,7 +31,7 @@ module RubyEventStore
         result = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
         wait_for_lock_duration
 
-        expect(result).not_to be_recently_locked
+        expect(result).not_to be_recently_locked(clock: clock)
       end
 
       specify "trying to obtain taken Lock" do
@@ -144,14 +144,14 @@ module RubyEventStore
         repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
         lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
-        travel (Repository::RECENTLY_LOCKED_DURATION / 2)
+        clock.test_travel (Repository::RECENTLY_LOCKED_DURATION / 2)
 
         result = lock.refresh(clock: clock)
 
-        travel (Repository::RECENTLY_LOCKED_DURATION / 2 + 1.second)
+        clock.test_travel (Repository::RECENTLY_LOCKED_DURATION / 2 + 1.second)
         expect(result).to be(:ok)
         expect(lock).to be_locked_by(some_process_uuid)
-        expect(lock).to be_recently_locked
+        expect(lock).to be_recently_locked(clock: clock)
       end
 
       specify "refreshing lock when other process stole it" do
@@ -189,7 +189,7 @@ module RubyEventStore
       end
 
       def wait_for_lock_duration
-        travel (Repository::RECENTLY_LOCKED_DURATION + 1.second)
+        clock.test_travel (Repository::RECENTLY_LOCKED_DURATION + 1.second)
       end
     end
   end
