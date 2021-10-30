@@ -84,6 +84,10 @@ class TickingClock
     current
   end
 
+  def test_travel(ticks)
+    @next += ticks
+  end
+
   def tick(index)
     start.dup + index * tick_by
   end
