@@ -73,7 +73,7 @@ end
 
 class TickingClock
   def initialize(start: Time.now.utc, tick_by: 1)
-    @start = start.change(usec: start.usec)
+    @start = start.change(usec: 0)
     @next = @start.dup
     @tick_by = tick_by
   end
