@@ -1,10 +1,15 @@
 require "spec_helper"
 
+class CustomEventClass < RubyEventStore::Event
+end
+
 module RubyEventStore
   ::RSpec.describe Flipper do
     let(:instrumenter) { ActiveSupport::Notifications }
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:flipper) { ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter) }
+
+    before { Flipper.disable }
 
     specify "enable hooks only into flipper notifications" do
       Flipper.enable(event_store)
@@ -178,6 +183,11 @@ module RubyEventStore
       expect(event_store).to have_published(an_event(Flipper::Events::ToggleAdded).with_data(
         feature_name: "foo_bar",
       )).in_stream("toggle-foo_bar")
+    end
+
+    specify "providing different parent klass" do
+      Flipper.enable(event_store, parent_klass: CustomEventClass)
+      expect(Flipper::Events::ToggleAdded.superclass).to eq(CustomEventClass)
     end
   end
 end

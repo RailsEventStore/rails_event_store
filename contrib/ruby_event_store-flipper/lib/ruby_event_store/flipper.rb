@@ -6,47 +6,36 @@ require "ruby_event_store"
 module RubyEventStore
   module Flipper
     DEFAULT_STREAM_PATTERN = ->(feature_name) { "FeatureToggle$#{feature_name}" }
+    EVENT_KLASSES = [
+      :ToggleAdded,
+      :ToggleRemoved,
+      :ToggleGloballyEnabled,
+      :ToggleGloballyDisabled,
+      :ToggleEnabledForActor,
+      :ToggleDisabledForActor,
+      :ToggleEnabledForGroup,
+      :ToggleDisabledForGroup,
+      :ToggleEnabledForPercentageOfActors,
+      :ToggleDisabledForPercentageOfActors,
+      :ToggleEnabledForPercentageOfTime,
+      :ToggleDisabledForPercentageOfTime,
+    ]
 
-    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN)
+    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN, parent_klass: RubyEventStore::Event)
       instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store, stream_pattern))
+
+      EVENT_KLASSES.each do |event_klass|
+        Events.const_set(event_klass, Class.new(parent_klass))
+      end
+    end
+
+    def self.disable
+      EVENT_KLASSES.each do |event_klass|
+        Events.send(:remove_const, event_klass) if Events.const_defined?(event_klass)
+      end
     end
 
     module Events
-      class ToggleAdded < RubyEventStore::Event
-      end
-
-      class ToggleRemoved < RubyEventStore::Event
-      end
-
-      class ToggleGloballyEnabled < RubyEventStore::Event
-      end
-
-      class ToggleGloballyDisabled < RubyEventStore::Event
-      end
-
-      class ToggleEnabledForActor < RubyEventStore::Event
-      end
-
-      class ToggleDisabledForActor < RubyEventStore::Event
-      end
-
-      class ToggleEnabledForGroup < RubyEventStore::Event
-      end
-
-      class ToggleDisabledForGroup < RubyEventStore::Event
-      end
-
-      class ToggleEnabledForPercentageOfActors < RubyEventStore::Event
-      end
-
-      class ToggleDisabledForPercentageOfActors < RubyEventStore::Event
-      end
-
-      class ToggleEnabledForPercentageOfTime < RubyEventStore::Event
-      end
-
-      class ToggleDisabledForPercentageOfTime < RubyEventStore::Event
-      end
     end
 
     class NotificationHandler
