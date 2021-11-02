@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 5.0.0"
+gem "rails", "5.0.7.2"
 gem "rails_event_store",               path: "../../"
 gem "ruby_event_store",                path: "../../../ruby_event_store"
 gem "ruby_event_store-browser",        path: "../../../ruby_event_store-browser"

@@ -165,7 +165,7 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  rails (~> 5.0.0)
+  rails (= 5.0.7.2)
   rails_event_store!
   rails_event_store_active_record!
   ruby_event_store!
