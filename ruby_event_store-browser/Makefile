@@ -24,7 +24,7 @@ clean-elm:
 watch-elm: clean-elm
 	@cd elm; \
 		npx chokidar-cli "src/**/*.elm" \
-			-c "elm make src/Main.elm --output ../$(JS_OUTFILE)" \
+			-c "npx elm make src/Main.elm --output ../$(JS_OUTFILE)" \
 			--initial
 
 dev: ## Start standalone browser seeded with some events and Elm recompile on change
@@ -41,6 +41,6 @@ test-elm:
 
 public/ruby_event_store_browser.js:
 	@echo "Building browser JS"
-	@cd elm; elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm > /dev/null
+	@cd elm; npx elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm > /dev/null
 	@cd elm; npx uglify-js ../public/ruby_event_store_browser.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | npx uglify-js --mangle --output ../public/ruby_event_store_browser.js
 
