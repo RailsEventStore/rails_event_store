@@ -27,6 +27,7 @@ RSpec.describe RailsEventStoreActiveRecord, :integration do
       require 'bundler/inline'
 
       gemfile do
+        source 'https://rubygems.org'
         gem 'ruby_event_store',                path: '../ruby_event_store'
         gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
         gem 'activerecord', '6.0.3.4'
