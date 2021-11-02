@@ -128,7 +128,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: make install test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
