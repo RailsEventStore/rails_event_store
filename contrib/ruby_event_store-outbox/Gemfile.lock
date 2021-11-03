@@ -128,8 +128,6 @@ GEM
     pg (1.2.2)
     racc (1.5.2)
     rack (2.2.3)
-    rack-protection (2.1.0)
-      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (6.1.0)
@@ -159,7 +157,7 @@ GEM
       rake (>= 0.8.7)
       thor (~> 1.0)
     rake (13.0.6)
-    redis (4.4.0)
+    redis (4.5.1)
     regexp_parser (2.1.1)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -175,11 +173,10 @@ GEM
       rspec-support (~> 3.10.0)
     rspec-support (3.10.2)
     ruby2_keywords (0.0.5)
-    sidekiq (5.2.7)
-      connection_pool (~> 2.2, >= 2.2.2)
-      rack (>= 1.5.0)
-      rack-protection (>= 1.5.0)
-      redis (>= 3.3.5, < 5)
+    sidekiq (6.2.2)
+      connection_pool (>= 2.2.2)
+      rack (~> 2.0)
+      redis (>= 4.2.0)
     sorbet-runtime (0.5.9279)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
@@ -217,7 +214,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-outbox!
-  sidekiq (= 5.2.7)
+  sidekiq (= 6.2.2)
   sqlite3 (= 1.4.2)
 
 BUNDLED WITH
