@@ -85,6 +85,10 @@ jobs:
             gemfile: Gemfile
             os: ubuntu-20.04
             database: mysql2://root:secret@0.0.0.0:10080/rails_event_store
+          - ruby: ruby-3.0
+            gemfile: Gemfile.sidekiq_5_2
+            os: ubuntu-20.04
+            database: sqlite3:db.sqlite3
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
