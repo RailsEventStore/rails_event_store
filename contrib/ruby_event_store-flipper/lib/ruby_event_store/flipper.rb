@@ -7,8 +7,9 @@ module RubyEventStore
   module Flipper
     DEFAULT_STREAM_PATTERN = ->(feature_name) { "FeatureToggle$#{feature_name}" }
 
-    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN)
+    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN, custom_events: false)
       instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store, stream_pattern))
+      load File.expand_path("../../generators/ruby_event_store/flipper/templates/events.rb", __FILE__) unless custom_events
     end
 
     class NotificationHandler

@@ -179,5 +179,16 @@ module RubyEventStore
         feature_name: "foo_bar",
       )).in_stream("toggle-foo_bar")
     end
+
+    specify "with custom events" do
+      if Flipper.constants.include?(:Events)
+        Flipper::Events.constants.each {|c| Flipper::Events.send(:remove_const, c) }
+        Flipper.send(:remove_const, :Events)
+      end
+
+      Flipper.enable(event_store, custom_events: true)
+
+      expect(Flipper.constants).not_to include(:Events)
+    end
   end
 end
