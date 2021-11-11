@@ -1,15 +1,15 @@
 PATH
   remote: ../ruby_event_store
   specs:
-    ruby_event_store (2.0.1)
+    ruby_event_store (2.0.2)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    aggregate_root (2.0.1)
+    aggregate_root (2.0.2)
       ruby2_keywords
-      ruby_event_store (= 2.0.1)
+      ruby_event_store (= 2.0.2)
 
 GEM
   remote: https://rubygems.org/
