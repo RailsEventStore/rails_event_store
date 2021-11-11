@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
   }
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test/|spec/|features/|.mutant.yml)}) }
   spec.require_paths = ['lib']
 
   spec.add_dependency 'ruby_event_store', '= 2.0.1'
