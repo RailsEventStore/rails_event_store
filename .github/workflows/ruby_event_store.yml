@@ -11,7 +11,7 @@ on:
       - "contrib/**"
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: ruby_event_store
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
