@@ -65,6 +65,7 @@ ${install_config_runner}
 cd /home/$USER_NAME/actions-runner/
 echo DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock >>.env
 echo PATH=/home/$USER_NAME/bin:$PATH >>.env
+echo ImageOS=ubuntu20 >> .env
 
 ${post_install}
 
