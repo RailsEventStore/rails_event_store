@@ -1,0 +1,47 @@
+name: ruby_event_store-rom_coverage
+on:
+  schedule:
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "contrib/ruby_event_store-rom/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-rom_coverage.yml"
+      - "support/**"
+      - "Gemfile.shared"
+  pull_request:
+    types: [opened, reopened]
+    paths:
+      - "contrib/ruby_event_store-rom/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-rom_coverage.yml"
+      - "support/**"
+      - "Gemfile.shared"
+jobs:
+  mutate:
+    runs-on: ${{ matrix.os }}
+    env:
+      WORKING_DIRECTORY: contrib/ruby_event_store-rom
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: ubuntu-20.04
+            database: "sqlite::memory:"
+            datatype: text
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
