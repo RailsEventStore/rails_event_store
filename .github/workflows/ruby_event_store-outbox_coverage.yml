@@ -1,0 +1,50 @@
+name: ruby_event_store-outbox_coverage
+on:
+  schedule:
+    - cron: "0 17 * * *"
+  push:
+    paths:
+      - "contrib/ruby_event_store-outbox/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-outbox_coverage.yml"
+      - "support/**"
+  pull_request:
+    types: [opened, reopened]
+    paths:
+      - "contrib/ruby_event_store-outbox/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-outbox_coverage.yml"
+      - "support/**"
+jobs:
+  mutate:
+    runs-on: ${{ matrix.os }}
+    env:
+      WORKING_DIRECTORY: contrib/ruby_event_store-outbox
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+      REDIS_URL: redis://localhost:6379/0
+      MUTANT_JOBS: 1
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-3.0
+            gemfile: Gemfile
+            os: ubuntu-20.04
+            database: "sqlite3::memory:"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
