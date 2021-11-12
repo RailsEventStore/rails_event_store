@@ -73,6 +73,15 @@ echo ImageOS=ubuntu20 >> .env
 mkdir /opt/hostedtoolcache
 chmod -R 777 /opt/hostedtoolcache
 
+# Chromedriver
+export CHROME_DRIVER_VERSION=96.0.4664.35
+wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip -P ~/
+unzip ~/chromedriver_linux64.zip -d ~/
+rm ~/chromedriver_linux64.zip
+mv -f ~/chromedriver /usr/local/bin/chromedriver
+chown root:root /usr/local/bin/chromedriver
+chmod 0755 /usr/local/bin/chromedriver
+
 ${post_install}
 
 ./svc.sh start
