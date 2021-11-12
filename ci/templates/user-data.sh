@@ -81,7 +81,7 @@ sudo apt-get -y install google-chrome-stable
 
 
 # Chromedriver
-export CHROME_DRIVER_VERSION=96.0.4664.35
+export CHROME_DRIVER_VERSION=95.0.4638.69
 wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip -P ~/
 unzip ~/chromedriver_linux64.zip -d ~/
 rm ~/chromedriver_linux64.zip
