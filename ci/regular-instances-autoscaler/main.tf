@@ -51,6 +51,8 @@ module "runners" {
 
   scale_down_schedule_expression = "cron(* * * * ? *)"
 
+  runners_maximum_count = 18
+
   # Useful for debugging
   # log_level = "trace"
 }
