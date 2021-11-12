@@ -3,21 +3,21 @@ locals {
 }
 
 module "lambdas" {
-  source  = "philips-labs/github-runner/aws//modules/download-lambda"
+  source = "philips-labs/github-runner/aws//modules/download-lambda"
   version = "0.24.0"
 
   lambdas = [
     {
       name = "webhook"
-      tag  = local.version
+      tag = local.version
     },
     {
       name = "runners"
-      tag  = local.version
+      tag = local.version
     },
     {
       name = "runner-binaries-syncer"
-      tag  = local.version
+      tag = local.version
     }
   ]
 }
