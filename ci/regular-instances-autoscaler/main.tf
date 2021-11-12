@@ -16,9 +16,6 @@ module "runners" {
   subnet_ids = module.vpc.private_subnets
 
   environment = local.environment
-  tags = {
-    Project = "ProjectX"
-  }
 
   github_app = {
     key_base64 = var.github_app_key_base64
