@@ -51,5 +51,6 @@ module "runners" {
 
   scale_down_schedule_expression = "cron(* * * * ? *)"
 
-  log_level = "trace"
+  # Useful for debugging
+  # log_level = "trace"
 }
