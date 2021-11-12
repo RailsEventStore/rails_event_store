@@ -67,6 +67,9 @@ echo DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock >>.env
 echo PATH=/home/$USER_NAME/bin:$PATH >>.env
 echo ImageOS=ubuntu20 >> .env
 
+mkdir /opt/hostedtoolcache
+chmod -R 777 /opt/hostedtoolcache
+
 ${post_install}
 
 ./svc.sh start
