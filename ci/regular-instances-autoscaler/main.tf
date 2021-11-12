@@ -7,10 +7,6 @@ resource "random_password" "random" {
   length = 28
 }
 
-################################################################################
-### Hybrid acccount
-################################################################################
-
 module "runners" {
   source  = "philips-labs/github-runner/aws"
   version = "0.24.0"
