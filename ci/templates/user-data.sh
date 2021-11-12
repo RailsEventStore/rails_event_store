@@ -14,7 +14,9 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   uidmap \
   build-essential \
   unzip \
-  libsqlite3-dev
+  libsqlite3-dev \
+  libpq-dev \
+  libmysqlclient-dev
 
 USER_NAME=runners
 useradd -m -s /bin/bash $USER_NAME
