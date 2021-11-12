@@ -13,7 +13,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   git \
   uidmap \
   build-essential \
-  unzip
+  unzip \
+  libsqlite3-dev
 
 USER_NAME=runners
 useradd -m -s /bin/bash $USER_NAME
