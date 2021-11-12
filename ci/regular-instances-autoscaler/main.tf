@@ -45,7 +45,7 @@ module "runners" {
     device_name = "/dev/sda1"
   }
 
-  instance_types = ["m5.large", "c5.large"]
+  instance_types = ["c6i.large"]
 
   delay_webhook_event = 5
 
