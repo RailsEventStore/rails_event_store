@@ -7,15 +7,29 @@ module RubyEventStore
   module Flipper
     DEFAULT_STREAM_PATTERN = ->(feature_name) { "FeatureToggle$#{feature_name}" }
 
-    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN, custom_events: false)
-      instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store, stream_pattern))
+    def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN, custom_events: nil)
       load File.expand_path("../../generators/ruby_event_store/flipper/templates/events.rb", __FILE__) unless custom_events
+      instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store, stream_pattern, custom_events))
     end
 
     class NotificationHandler
-      def initialize(event_store, stream_pattern)
+      def initialize(event_store, stream_pattern, custom_events)
         @event_store = event_store
         @stream_pattern = stream_pattern
+        @custom_events = custom_events || {
+          "ToggleAdded" => Events::ToggleAdded,
+          "ToggleRemoved" => Events::ToggleRemoved,
+          "ToggleGloballyEnabled" => Events::ToggleGloballyEnabled,
+          "ToggleEnabledForActor" => Events::ToggleEnabledForActor,
+          "ToggleEnabledForGroup" => Events::ToggleEnabledForGroup,
+          "ToggleEnabledForPercentageOfActors" => Events::ToggleEnabledForPercentageOfActors,
+          "ToggleEnabledForPercentageOfTime" => Events::ToggleEnabledForPercentageOfTime,
+          "ToggleGloballyDisabled" => Events::ToggleGloballyDisabled,
+          "ToggleDisabledForActor" => Events::ToggleDisabledForActor,
+          "ToggleDisabledForGroup" => Events::ToggleDisabledForGroup,
+          "ToggleDisabledForPercentageOfActors" => Events::ToggleDisabledForPercentageOfActors,
+          "ToggleDisabledForPercentageOfTime" => Events::ToggleDisabledForPercentageOfTime,
+        }
       end
 
       def call(_name, _start, _finish, _id, payload)
@@ -27,34 +41,34 @@ module RubyEventStore
 
       private
 
-      attr_reader :event_store, :stream_pattern
+      attr_reader :event_store, :stream_pattern, :custom_events
 
       def build_domain_event(common_payload, operation, payload)
         case operation
         when :add
-          Events::ToggleAdded.new(data: common_payload)
+          custom_events.fetch("ToggleAdded").new(data: common_payload)
         when :remove
-          Events::ToggleRemoved.new(data: common_payload)
+          custom_events.fetch("ToggleRemoved").new(data: common_payload)
         when :enable
           gate_name = payload.fetch(:gate_name)
           thing = payload.fetch(:thing)
           case gate_name
           when :boolean
-            Events::ToggleGloballyEnabled.new(data: common_payload)
+            custom_events.fetch("ToggleGloballyEnabled").new(data: common_payload)
           when :actor
-            Events::ToggleEnabledForActor.new(data: common_payload.merge(
+            custom_events.fetch("ToggleEnabledForActor").new(data: common_payload.merge(
               actor: thing.value,
             ))
           when :group
-            Events::ToggleEnabledForGroup.new(data: common_payload.merge(
+            custom_events.fetch("ToggleEnabledForGroup").new(data: common_payload.merge(
               group: thing.value.to_s,
             ))
           when :percentage_of_actors
-            Events::ToggleEnabledForPercentageOfActors.new(data: common_payload.merge(
+            custom_events.fetch("ToggleEnabledForPercentageOfActors").new(data: common_payload.merge(
               percentage: thing.value,
             ))
           when :percentage_of_time
-            Events::ToggleEnabledForPercentageOfTime.new(data: common_payload.merge(
+            custom_events.fetch("ToggleEnabledForPercentageOfTime").new(data: common_payload.merge(
               percentage: thing.value,
             ))
           end
@@ -63,19 +77,19 @@ module RubyEventStore
           thing = payload.fetch(:thing)
           case gate_name
           when :boolean
-            Events::ToggleGloballyDisabled.new(data: common_payload)
+            custom_events.fetch("ToggleGloballyDisabled").new(data: common_payload)
           when :actor
-            Events::ToggleDisabledForActor.new(data: common_payload.merge(
+            custom_events.fetch("ToggleDisabledForActor").new(data: common_payload.merge(
               actor: thing.value,
             ))
           when :group
-            Events::ToggleDisabledForGroup.new(data: common_payload.merge(
+            custom_events.fetch("ToggleDisabledForGroup").new(data: common_payload.merge(
               group: thing.value.to_s,
             ))
           when :percentage_of_actors
-            Events::ToggleDisabledForPercentageOfActors.new(data: common_payload)
+            custom_events.fetch("ToggleDisabledForPercentageOfActors").new(data: common_payload)
           when :percentage_of_time
-            Events::ToggleDisabledForPercentageOfTime.new(data: common_payload)
+            custom_events.fetch("ToggleDisabledForPercentageOfTime").new(data: common_payload)
           end
         end
       end

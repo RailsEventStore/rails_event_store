@@ -1,5 +1,8 @@
 require "spec_helper"
 
+class CustomToggleAdded < RubyEventStore::Event
+end
+
 module RubyEventStore
   ::RSpec.describe Flipper do
     let(:instrumenter) { ActiveSupport::Notifications }
@@ -180,15 +183,37 @@ module RubyEventStore
       )).in_stream("toggle-foo_bar")
     end
 
-    specify "with custom events" do
+    specify "when custom events enabled, we do not define our own" do
       if Flipper.constants.include?(:Events)
         Flipper::Events.constants.each {|c| Flipper::Events.send(:remove_const, c) }
         Flipper.send(:remove_const, :Events)
       end
 
-      Flipper.enable(event_store, custom_events: true)
+      Flipper.enable(event_store, custom_events: {
+        "ToggleAdded" => CustomToggleAdded,
+      })
 
       expect(Flipper.constants).not_to include(:Events)
+
+      instrumenter.unsubscribe('feature_operation.flipper')
+    end
+
+    specify "custom events do work" do
+      if Flipper.constants.include?(:Events)
+        Flipper::Events.constants.each {|c| Flipper::Events.send(:remove_const, c) }
+        Flipper.send(:remove_const, :Events)
+      end
+      Flipper.enable(event_store, custom_events: {
+        "ToggleAdded" => CustomToggleAdded,
+      })
+
+      flipper.add(:foo_bar)
+
+      expect(event_store).to have_published(an_event(CustomToggleAdded).with_data(
+        feature_name: "foo_bar",
+      )).in_stream("FeatureToggle$foo_bar")
+
+      instrumenter.unsubscribe('feature_operation.flipper')
     end
   end
 end
