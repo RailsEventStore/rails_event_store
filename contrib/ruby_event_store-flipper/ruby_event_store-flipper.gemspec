@@ -14,9 +14,10 @@ Gem::Specification.new do |spec|
   spec.require_paths    = ["lib"]
   spec.extra_rdoc_files = %w[README.md]
   spec.metadata = {
-    "homepage_uri"    => spec.homepage,
-    "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
-    "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
+    "homepage_uri"          => spec.homepage,
+    "source_code_uri"       => "https://github.com/RailsEventStore/rails_event_store",
+    "bug_tracker_uri"       => "https://github.com/RailsEventStore/rails_event_store/issues",
+    "rubygems_mfa_required" => "true",
   }
 
   spec.required_ruby_version = ">= 2.6"
