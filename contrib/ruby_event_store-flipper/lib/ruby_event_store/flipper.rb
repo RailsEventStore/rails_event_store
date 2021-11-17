@@ -46,29 +46,29 @@ module RubyEventStore
       def build_domain_event(common_payload, operation, payload)
         case operation
         when :add
-          custom_events.fetch("ToggleAdded").new(data: common_payload)
+          event_klass("ToggleAdded").new(data: common_payload)
         when :remove
-          custom_events.fetch("ToggleRemoved").new(data: common_payload)
+          event_klass("ToggleRemoved").new(data: common_payload)
         when :enable
           gate_name = payload.fetch(:gate_name)
           thing = payload.fetch(:thing)
           case gate_name
           when :boolean
-            custom_events.fetch("ToggleGloballyEnabled").new(data: common_payload)
+            event_klass("ToggleGloballyEnabled").new(data: common_payload)
           when :actor
-            custom_events.fetch("ToggleEnabledForActor").new(data: common_payload.merge(
+            event_klass("ToggleEnabledForActor").new(data: common_payload.merge(
               actor: thing.value,
             ))
           when :group
-            custom_events.fetch("ToggleEnabledForGroup").new(data: common_payload.merge(
+            event_klass("ToggleEnabledForGroup").new(data: common_payload.merge(
               group: thing.value.to_s,
             ))
           when :percentage_of_actors
-            custom_events.fetch("ToggleEnabledForPercentageOfActors").new(data: common_payload.merge(
+            event_klass("ToggleEnabledForPercentageOfActors").new(data: common_payload.merge(
               percentage: thing.value,
             ))
           when :percentage_of_time
-            custom_events.fetch("ToggleEnabledForPercentageOfTime").new(data: common_payload.merge(
+            event_klass("ToggleEnabledForPercentageOfTime").new(data: common_payload.merge(
               percentage: thing.value,
             ))
           end
@@ -77,21 +77,25 @@ module RubyEventStore
           thing = payload.fetch(:thing)
           case gate_name
           when :boolean
-            custom_events.fetch("ToggleGloballyDisabled").new(data: common_payload)
+            event_klass("ToggleGloballyDisabled").new(data: common_payload)
           when :actor
-            custom_events.fetch("ToggleDisabledForActor").new(data: common_payload.merge(
+            event_klass("ToggleDisabledForActor").new(data: common_payload.merge(
               actor: thing.value,
             ))
           when :group
-            custom_events.fetch("ToggleDisabledForGroup").new(data: common_payload.merge(
+            event_klass("ToggleDisabledForGroup").new(data: common_payload.merge(
               group: thing.value.to_s,
             ))
           when :percentage_of_actors
-            custom_events.fetch("ToggleDisabledForPercentageOfActors").new(data: common_payload)
+            event_klass("ToggleDisabledForPercentageOfActors").new(data: common_payload)
           when :percentage_of_time
-            custom_events.fetch("ToggleDisabledForPercentageOfTime").new(data: common_payload)
+            event_klass("ToggleDisabledForPercentageOfTime").new(data: common_payload)
           end
         end
+      end
+
+      def event_klass(event_name)
+        custom_events.fetch(event_name)
       end
     end
   end
