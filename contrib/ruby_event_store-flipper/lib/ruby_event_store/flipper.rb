@@ -2,13 +2,13 @@
 
 require_relative "flipper/version"
 require "ruby_event_store"
+require_relative "flipper/events"
 
 module RubyEventStore
   module Flipper
     DEFAULT_STREAM_PATTERN = ->(feature_name) { "FeatureToggle$#{feature_name}" }
 
     def self.enable(event_store, instrumenter: ActiveSupport::Notifications, stream_pattern: DEFAULT_STREAM_PATTERN, custom_events: nil)
-      load File.expand_path("../../generators/ruby_event_store/flipper/templates/events.rb", __FILE__) unless custom_events
       instrumenter.subscribe("feature_operation.flipper", NotificationHandler.new(event_store, stream_pattern, custom_events))
     end
 
@@ -16,7 +16,7 @@ module RubyEventStore
       def initialize(event_store, stream_pattern, custom_events)
         @event_store = event_store
         @stream_pattern = stream_pattern
-        @custom_events = custom_events || {
+        @custom_events = {
           "ToggleAdded" => Events::ToggleAdded,
           "ToggleRemoved" => Events::ToggleRemoved,
           "ToggleGloballyEnabled" => Events::ToggleGloballyEnabled,
@@ -29,7 +29,7 @@ module RubyEventStore
           "ToggleDisabledForGroup" => Events::ToggleDisabledForGroup,
           "ToggleDisabledForPercentageOfActors" => Events::ToggleDisabledForPercentageOfActors,
           "ToggleDisabledForPercentageOfTime" => Events::ToggleDisabledForPercentageOfTime,
-        }
+        }.merge(custom_events || {})
       end
 
       def call(_name, _start, _finish, _id, payload)
