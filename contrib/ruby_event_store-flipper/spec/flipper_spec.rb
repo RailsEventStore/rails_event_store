@@ -183,26 +183,7 @@ module RubyEventStore
       )).in_stream("toggle-foo_bar")
     end
 
-    specify "when custom events enabled, we do not define our own" do
-      if Flipper.constants.include?(:Events)
-        Flipper::Events.constants.each {|c| Flipper::Events.send(:remove_const, c) }
-        Flipper.send(:remove_const, :Events)
-      end
-
-      Flipper.enable(event_store, custom_events: {
-        "ToggleAdded" => CustomToggleAdded,
-      })
-
-      expect(Flipper.constants).not_to include(:Events)
-
-      instrumenter.unsubscribe('feature_operation.flipper')
-    end
-
-    specify "custom events do work" do
-      if Flipper.constants.include?(:Events)
-        Flipper::Events.constants.each {|c| Flipper::Events.send(:remove_const, c) }
-        Flipper.send(:remove_const, :Events)
-      end
+    specify "custom events are used if defined" do
       Flipper.enable(event_store, custom_events: {
         "ToggleAdded" => CustomToggleAdded,
       })
