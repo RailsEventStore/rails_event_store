@@ -14,7 +14,7 @@ Example:
 Flipper.configure do |config|
   config.default do
     # ... adapter configuration
-    
+
     # Enable instrumentation in Flipper
     Flipper.new(adapter, instrumenter: ActiveSupport::Notifications)
   end
@@ -38,4 +38,25 @@ Anything with the same API as `ActiveSupport::Notifications` is supported.
 
 ```ruby
 RubyEventStore::Flipper.enable(Rails.configuration.event_store, instrumenter: AS::Notifications)
+```
+
+## Customize events being used
+
+You can pass your own events to be used instead of default ones. Example:
+
+```
+Flipper.enable(event_store, custom_events: {
+  "ToggleAdded" => CustomModule::ToggleAdded,
+  "ToggleRemoved" => CustomModule::ToggleRemoved,
+  "ToggleGloballyEnabled" => CustomModule::ToggleGloballyEnabled,
+  "ToggleEnabledForActor" => CustomModule::ToggleEnabledForActor,
+  "ToggleEnabledForGroup" => CustomModule::ToggleEnabledForGroup,
+  "ToggleEnabledForPercentageOfActors" => CustomModule::ToggleEnabledForPercentageOfActors,
+  "ToggleEnabledForPercentageOfTime" => CustomModule::ToggleEnabledForPercentageOfTime,
+  "ToggleGloballyDisabled" => CustomModule::ToggleGloballyDisabled,
+  "ToggleDisabledForActor" => CustomModule::ToggleDisabledForActor,
+  "ToggleDisabledForGroup" => CustomModule::ToggleDisabledForGroup,
+  "ToggleDisabledForPercentageOfActors" => CustomModule::ToggleDisabledForPercentageOfActors,
+  "ToggleDisabledForPercentageOfTime" => CustomModule::ToggleDisabledForPercentageOfTime,
+})
 ```
