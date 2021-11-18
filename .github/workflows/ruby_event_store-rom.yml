@@ -62,6 +62,7 @@ jobs:
             gemfile: Gemfile
             database: sqlite:db.sqlite3
             datatype: text
+            os: ubuntu-20.04
           - ruby: ruby-2.7
             gemfile: Gemfile
             database: sqlite:db.sqlite3
