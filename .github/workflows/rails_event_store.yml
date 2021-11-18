@@ -38,7 +38,7 @@ jobs:
             gemfile: Gemfile
             os: ubuntu-20.04
           - ruby: ruby-2.6
-            gemfile: Gemfile
+            gemfile: Gemfile.rails_5_2
             os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2

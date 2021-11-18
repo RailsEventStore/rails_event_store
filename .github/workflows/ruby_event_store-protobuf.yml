@@ -47,7 +47,7 @@ jobs:
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
           - ruby: ruby-2.6
-            gemfile: Gemfile
+            gemfile: Gemfile.rails_5_2
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
     steps:
