@@ -21,11 +21,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-2.7
+          - ruby: ruby-3.0
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.7
+          - ruby: ruby-3.0
             gemfile: Gemfile.sidekiq_5
+            os: ubuntu-20.04
+          - ruby: ruby-2.7
+            gemfile: Gemfile
             os: ubuntu-20.04
           - ruby: ruby-2.6
             gemfile: Gemfile
