@@ -6,10 +6,12 @@ on:
   push:
     paths:
       - "rails_event_store/Gemfile.lock"
+      - ".github/workflows/rails_event_store_coverage.yml"
   pull_request:
     types: [ opened, reopened ]
     paths:
       - "rails_event_store/Gemfile.lock"
+      - ".github/workflows/rails_event_store_coverage.yml"
 jobs:
   coverage:
     runs-on: ubuntu-20.04

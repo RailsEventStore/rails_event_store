@@ -6,13 +6,13 @@ on:
   push:
     paths:
       - "contrib/ruby_event_store-sidekiq_scheduler/**"
-      - ".github/workflows/ruby_event_store-sidekiq_scheduler.yml"
+      - ".github/workflows/ruby_event_store-sidekiq_scheduler_coverage.yml"
       - "support/**"
   pull_request:
     types: [ opened, reopened ]
     paths:
       - "contrib/ruby_event_store-sidekiq_scheduler/**"
-      - ".github/workflows/ruby_event_store-sidekiq_scheduler.yml"
+      - ".github/workflows/ruby_event_store-sidekiq_scheduler_coverage.yml"
       - "support/**"
 jobs:
   coverage:
