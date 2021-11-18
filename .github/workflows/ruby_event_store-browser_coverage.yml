@@ -18,16 +18,17 @@ jobs:
     timeout-minutes: 120
     env:
       BUNDLE_GEMFILE: Gemfile
+      WORKING_DIRECTORY: ruby_event_store-browser
     strategy:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - run: test -e Gemfile.lock
-        working-directory: ruby_event_store-browser
+        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ruby-2.7
           bundler-cache: true
-          working-directory: ruby_event_store-browser
+          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
-        working-directory: ruby_event_store-browser
+        working-directory: ${{ env.WORKING_DIRECTORY }}
