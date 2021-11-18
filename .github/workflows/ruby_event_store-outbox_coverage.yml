@@ -2,6 +2,7 @@ name: ruby_event_store-outbox_coverage
 on:
   schedule:
     - cron: "0 17 * * *"
+  workflow_dispatch:
   push:
     paths:
       - "contrib/ruby_event_store-outbox/Gemfile.lock"
