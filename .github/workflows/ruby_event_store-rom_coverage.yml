@@ -8,14 +8,12 @@ on:
       - "contrib/ruby_event_store-rom/Gemfile.lock"
       - ".github/workflows/ruby_event_store-rom_coverage.yml"
       - "support/**"
-      - "Gemfile.shared"
   pull_request:
     types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-rom/Gemfile.lock"
       - ".github/workflows/ruby_event_store-rom_coverage.yml"
       - "support/**"
-      - "Gemfile.shared"
 jobs:
   mutate:
     runs-on: ${{ matrix.os }}
