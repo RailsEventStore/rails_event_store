@@ -58,6 +58,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - ruby: ruby-3.0
+            gemfile: Gemfile
+            database: sqlite:db.sqlite3
+            datatype: text
           - ruby: ruby-2.7
             gemfile: Gemfile
             database: sqlite:db.sqlite3
