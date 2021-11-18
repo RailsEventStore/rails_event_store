@@ -52,6 +52,10 @@ module RubyEventStore
         @events.global_position(event_id)
       end
 
+      def event_in_stream?(event_id, stream)
+        @stream_entries.event_in_stream?(event_id, stream)
+      end
+
       def delete_stream(stream)
         @stream_entries.delete(stream)
       end

@@ -41,6 +41,10 @@ module RubyEventStore
           raise EventNotFoundInStream if record.nil?
           record.position
         end
+
+        def event_in_stream?(event_id, stream)
+          stream_entries.by_stream(stream).by_event_id(event_id).exist?
+        end
       end
     end
   end
