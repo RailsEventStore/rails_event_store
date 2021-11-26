@@ -18,6 +18,12 @@ module RailsEventStore
     end
   end
 
+  class HandlerWithEventStoreLocator < ActiveJob::Base
+    def perform(event)
+      $queue.push(event)
+    end
+  end
+
   class HandlerWithSpecifiedSerializer < ActiveJob::Base
     def perform(event)
       $queue.push(event)
@@ -98,6 +104,13 @@ module RailsEventStore
       HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
       event_store.subscribe_to_all_events(HandlerWithAnotherEventStore)
       event_store.publish(ev = RailsEventStore::Event.new)
+      expect($queue.pop).to eq(ev)
+    end
+
+    specify "with specified event store locator" do
+      HandlerWithEventStoreLocator.prepend RailsEventStore::AsyncHandler.with(event_store: nil, event_store_locator: -> { another_event_store })
+      another_event_store.subscribe_to_all_events(HandlerWithEventStoreLocator)
+      another_event_store.publish(ev = RailsEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
