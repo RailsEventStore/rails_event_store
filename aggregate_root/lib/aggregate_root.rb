@@ -75,7 +75,7 @@ module AggregateRoot
     Module.new do
       def self.included(host_class)
         host_class.extend  Constructor
-        include AggregateMethods
+        host_class.include AggregateMethods
       end
 
       define_method :apply_strategy do

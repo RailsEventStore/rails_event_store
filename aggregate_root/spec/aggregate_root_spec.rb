@@ -110,6 +110,17 @@ RSpec.describe AggregateRoot do
     expect(order.status).to eq :created
   end
 
+  it "ruby 2.7 compatibility" do
+    klass = Class.new do
+      include AggregateRoot.with_default_apply_strategy
+    end
+
+    # This is just a way to ensure that the AggregateMethods was included on
+    # the klass directly, not that it was an include to the anonymous module.
+    # This test can be removed when ruby 2.7 will be no longer supported.
+    expect(klass.included_modules[0]).to eq(AggregateRoot::AggregateMethods)
+  end
+
   it "should return applied events" do
     order = order_klass.new(uuid)
     created = Orders::Events::OrderCreated.new
