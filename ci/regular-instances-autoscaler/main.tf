@@ -1,6 +1,6 @@
 locals {
   environment = "default"
-  aws_region  = "eu-west-1"
+  aws_region  = "us-east-2"
 }
 
 resource "random_password" "random" {
