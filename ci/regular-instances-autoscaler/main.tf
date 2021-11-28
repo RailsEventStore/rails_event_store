@@ -52,4 +52,5 @@ module "runners" {
 
   # Useful for debugging
   # log_level = "trace"
+  logging_retention_in_days = 3
 }
