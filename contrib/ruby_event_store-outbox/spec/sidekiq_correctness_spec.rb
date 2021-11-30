@@ -41,6 +41,28 @@ module RubyEventStore
         expect(entry_from_outbox.except("created_at", "enqueued_at", "jid")).to eq(entry_from_sidekiq.except("created_at", "enqueued_at", "jid"))
         expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
       end
+
+      specify "legacy scheduler" do
+        event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+        serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+        class ::CorrectAsyncHandler
+          include Sidekiq::Worker
+          def through_outbox?; true; end
+        end
+
+        LegacySidekiqScheduler.new.call(CorrectAsyncHandler, serialized_record)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
+        consumer.one_loop
+        entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
+
+        CorrectAsyncHandler.perform_async(serialized_record.to_h)
+        entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
+
+        expect(redis.llen("queue:default")).to eq(2)
+        expect(entry_from_outbox.keys).to eq(entry_from_sidekiq.keys)
+        expect(entry_from_outbox.except("created_at", "enqueued_at", "jid")).to eq(entry_from_sidekiq.except("created_at", "enqueued_at", "jid"))
+        expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
+      end
     end
   end
 end
