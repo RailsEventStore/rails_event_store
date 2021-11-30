@@ -11,7 +11,7 @@ module RubyEventStore
       end
 
       def call(klass, record)
-        sidekiq_producer.call(klass, [record.serialize(serializer).to_h])
+        sidekiq_producer.call(klass, [record.serialize(serializer)])
       end
 
       def verify(subscriber)
