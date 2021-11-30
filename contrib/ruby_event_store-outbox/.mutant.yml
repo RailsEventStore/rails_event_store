@@ -15,7 +15,6 @@ matcher:
    - RubyEventStore::Outbox*
    ignore:
    - RubyEventStore::Outbox::CLI*
-   - RubyEventStore::Outbox::SidekiqScheduler#call
    - RubyEventStore::Outbox::SidekiqProducer#call
    - RubyEventStore::Outbox::SidekiqProcessor#process
    - RubyEventStore::Outbox::SidekiqProcessor#after_batch
