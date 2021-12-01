@@ -1,0 +1,5 @@
+changelog:
+  categories:
+    - title: RubyEventStore
+    - title: RailsEventStore
+    - title: RailsEventStoreActiveRecord
