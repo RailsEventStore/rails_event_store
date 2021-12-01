@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require_relative 'sidekiq5_format'
 require_relative "repository"
 
 module RubyEventStore
