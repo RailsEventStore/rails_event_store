@@ -1,19 +1,23 @@
 PATH
   remote: ../ruby_event_store
   specs:
-    ruby_event_store (2.0.1)
+    ruby_event_store (2.0.2)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    ruby_event_store-browser (2.0.1)
-      ruby_event_store (= 2.0.1)
+    ruby_event_store-browser (2.0.2)
+      ruby_event_store (= 2.0.2)
       sinatra
 
 GEM
-  remote: https://rubygems.org/
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
+  specs:
+    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
+
+GEM
+  remote: https://rubygems.org/
   specs:
     abstract_type (0.0.7)
     adamantium (0.2.0)
@@ -38,7 +42,7 @@ GEM
     concord (0.1.6)
       adamantium (~> 0.2.0)
       equalizer (~> 0.0.9)
-    concurrent-ruby (1.1.7)
+    concurrent-ruby (1.1.9)
     diff-lcs (1.4.4)
     equalizer (0.0.11)
     ice_nine (0.11.2)
@@ -47,7 +51,7 @@ GEM
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     mini_mime (1.0.2)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.6.1)
     mprelude (0.1.0)
       abstract_type (~> 0.0.7)
       adamantium (~> 0.2.0)
@@ -72,16 +76,17 @@ GEM
       procto (~> 0.0.2)
       unparser (~> 0.5.6)
       variable (~> 0.0.1)
-    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
     mutant-rspec (0.10.22)
       mutant (= 0.10.22)
       rspec-core (>= 3.8.0, < 4.0.0)
-    nokogiri (1.10.10)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.12.5)
+      mini_portile2 (~> 2.6.1)
+      racc (~> 1.4)
     parser (3.0.0.0)
       ast (~> 2.4.1)
     procto (0.0.3)
     public_suffix (4.0.6)
+    racc (1.6.0)
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
@@ -102,7 +107,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
-    ruby2_keywords (0.0.2)
+    ruby2_keywords (0.0.5)
     rubyzip (2.3.0)
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
@@ -149,4 +154,4 @@ DEPENDENCIES
   webrick
 
 BUNDLED WITH
-   2.1.4
+   2.2.27

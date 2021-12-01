@@ -1,44 +1,44 @@
 PATH
   remote: ../../../aggregate_root
   specs:
-    aggregate_root (2.0.1)
+    aggregate_root (2.0.2)
       ruby2_keywords
-      ruby_event_store (= 2.0.1)
+      ruby_event_store (= 2.0.2)
 
 PATH
   remote: ../../../rails_event_store_active_record
   specs:
-    rails_event_store_active_record (2.0.1)
+    rails_event_store_active_record (2.0.2)
       activemodel (>= 3.0)
       activerecord-import (>= 1.0.2)
       activesupport (>= 3.0)
-      ruby_event_store (= 2.0.1)
+      ruby_event_store (= 2.0.2)
 
 PATH
   remote: ../../../ruby_event_store-browser
   specs:
-    ruby_event_store-browser (2.0.1)
-      ruby_event_store (= 2.0.1)
+    ruby_event_store-browser (2.0.2)
+      ruby_event_store (= 2.0.2)
       sinatra
 
 PATH
   remote: ../../../ruby_event_store
   specs:
-    ruby_event_store (2.0.1)
+    ruby_event_store (2.0.2)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: ../..
   specs:
-    rails_event_store (2.0.1)
+    rails_event_store (2.0.2)
       activejob (>= 3.0)
       activemodel (>= 3.0)
       activesupport (>= 3.0)
-      aggregate_root (= 2.0.1)
+      aggregate_root (= 2.0.2)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.0.1)
-      ruby_event_store (= 2.0.1)
-      ruby_event_store-browser (= 2.0.1)
+      rails_event_store_active_record (= 2.0.2)
+      ruby_event_store (= 2.0.2)
+      ruby_event_store-browser (= 2.0.2)
 
 GEM
   remote: https://rubygems.org/
@@ -75,7 +75,7 @@ GEM
       activemodel (= 5.2.4.4)
       activesupport (= 5.2.4.4)
       arel (>= 9.0)
-    activerecord-import (1.0.7)
+    activerecord-import (1.2.0)
       activerecord (>= 3.2)
     activestorage (5.2.4.4)
       actionpack (= 5.2.4.4)
@@ -105,15 +105,19 @@ GEM
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     method_source (1.0.0)
-    mimemagic (0.3.5)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_mime (1.0.2)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.6.1)
     minitest (5.14.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     nio4r (2.5.4)
-    nokogiri (1.10.10)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.12.5)
+      mini_portile2 (~> 2.6.1)
+      racc (~> 1.4)
+    racc (1.6.0)
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
@@ -144,7 +148,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
     rake (13.0.3)
-    ruby2_keywords (0.0.2)
+    ruby2_keywords (0.0.5)
     sinatra (2.1.0)
       mustermann (~> 1.0)
       rack (~> 2.2)
@@ -178,4 +182,4 @@ DEPENDENCIES
   ruby_event_store-browser!
 
 BUNDLED WITH
-   2.1.4
+   2.2.27

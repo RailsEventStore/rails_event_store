@@ -1,21 +1,25 @@
 PATH
   remote: ../ruby_event_store
   specs:
-    ruby_event_store (2.0.1)
+    ruby_event_store (2.0.2)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    rails_event_store_active_record (2.0.1)
+    rails_event_store_active_record (2.0.2)
       activemodel (>= 3.0)
       activerecord-import (>= 1.0.2)
       activesupport (>= 3.0)
-      ruby_event_store (= 2.0.1)
+      ruby_event_store (= 2.0.2)
+
+GEM
+  remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
+  specs:
+    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
 
 GEM
   remote: https://rubygems.org/
-  remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
   specs:
     abstract_type (0.0.7)
     actioncable (6.1.0)
@@ -64,7 +68,7 @@ GEM
     activerecord (6.1.0)
       activemodel (= 6.1.0)
       activesupport (= 6.1.0)
-    activerecord-import (1.0.7)
+    activerecord-import (1.2.0)
       activerecord (>= 3.2)
     activestorage (6.1.0)
       actionpack (= 6.1.0)
@@ -113,9 +117,11 @@ GEM
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     method_source (1.0.0)
-    mimemagic (0.3.5)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_mime (1.0.2)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.6.1)
     minitest (5.14.2)
     mprelude (0.1.0)
       abstract_type (~> 0.0.7)
@@ -139,18 +145,19 @@ GEM
       procto (~> 0.0.2)
       unparser (~> 0.5.6)
       variable (~> 0.0.1)
-    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.0)
     mutant-rspec (0.10.22)
       mutant (= 0.10.22)
       rspec-core (>= 3.8.0, < 4.0.0)
     mysql2 (0.5.3)
     nio4r (2.5.4)
-    nokogiri (1.10.10)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.12.5)
+      mini_portile2 (~> 2.6.1)
+      racc (~> 1.4)
     parser (3.0.0.0)
       ast (~> 2.4.1)
     pg (1.2.3)
     procto (0.0.3)
+    racc (1.6.0)
     rack (2.2.3)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -180,7 +187,7 @@ GEM
       method_source
       rake (>= 0.8.7)
       thor (~> 1.0)
-    rake (13.0.3)
+    rake (13.0.6)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -242,4 +249,4 @@ DEPENDENCIES
   sqlite3 (= 1.4.2)
 
 BUNDLED WITH
-   2.1.4
+   2.2.27
