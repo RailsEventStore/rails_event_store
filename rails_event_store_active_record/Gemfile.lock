@@ -1,17 +1,17 @@
 PATH
   remote: ../ruby_event_store
   specs:
-    ruby_event_store (2.0.2)
+    ruby_event_store (2.0.3)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    rails_event_store_active_record (2.0.2)
+    rails_event_store_active_record (2.0.3)
       activemodel (>= 3.0)
       activerecord-import (>= 1.0.2)
       activesupport (>= 3.0)
-      ruby_event_store (= 2.0.2)
+      ruby_event_store (= 2.0.3)
 
 GEM
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
@@ -249,4 +249,4 @@ DEPENDENCIES
   sqlite3 (= 1.4.2)
 
 BUNDLED WITH
-   2.2.27
+   2.2.30

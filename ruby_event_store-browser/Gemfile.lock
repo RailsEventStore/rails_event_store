@@ -1,14 +1,14 @@
 PATH
   remote: ../ruby_event_store
   specs:
-    ruby_event_store (2.0.2)
+    ruby_event_store (2.0.3)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    ruby_event_store-browser (2.0.2)
-      ruby_event_store (= 2.0.2)
+    ruby_event_store-browser (2.0.3)
+      ruby_event_store (= 2.0.3)
       sinatra
 
 GEM

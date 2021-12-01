@@ -23,10 +23,10 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test/|spec/|features/|.mutant.yml)}) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'ruby_event_store', '= 2.0.2'
-  spec.add_dependency 'ruby_event_store-browser', '= 2.0.2'
-  spec.add_dependency 'rails_event_store_active_record', '= 2.0.2'
-  spec.add_dependency 'aggregate_root', '= 2.0.2'
+  spec.add_dependency 'ruby_event_store', '= 2.0.3'
+  spec.add_dependency 'ruby_event_store-browser', '= 2.0.3'
+  spec.add_dependency 'rails_event_store_active_record', '= 2.0.3'
+  spec.add_dependency 'aggregate_root', '= 2.0.3'
   spec.add_dependency 'activesupport', '>= 3.0'
   spec.add_dependency 'activemodel', '>= 3.0'
   spec.add_dependency 'activejob', '>= 3.0'
