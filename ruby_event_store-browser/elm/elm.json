@@ -7,7 +7,7 @@
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
-            "NoRedInk/elm-json-decode-pipeline": "1.0.0",
+            "NoRedInk/elm-json-decode-pipeline": "1.0.1",
             "damienklinnert/elm-spinner": "3.0.2",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
