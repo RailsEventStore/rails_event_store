@@ -69,4 +69,4 @@ DEPENDENCIES
   ruby_event_store-newrelic!
 
 BUNDLED WITH
-   2.2.30
+   2.2.33
