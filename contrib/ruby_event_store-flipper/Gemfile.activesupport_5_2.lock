@@ -37,10 +37,10 @@ GEM
     mutant-rspec (0.11.2)
       mutant (= 0.11.2)
       rspec-core (>= 3.8.0, < 4.0.0)
-    parser (3.0.2.0)
+    parser (3.0.3.2)
       ast (~> 2.4.1)
     rake (13.0.6)
-    regexp_parser (2.1.1)
+    regexp_parser (2.2.0)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -60,7 +60,7 @@ GEM
       ruby2_keywords
     ruby_event_store-rspec (2.3.0)
       rspec (~> 3.0)
-    sorbet-runtime (0.5.9358)
+    sorbet-runtime (0.5.9452)
     thread_safe (0.3.6)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
@@ -69,6 +69,7 @@ GEM
       parser (>= 3.0.0)
 
 PLATFORMS
+  arm64-darwin-20
   x86_64-linux
 
 DEPENDENCIES
