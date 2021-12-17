@@ -77,11 +77,17 @@ title: Rails Event Store
             </a>
         </div>
     </div>
-    
     <div class="flex items-stretch h-48 md:w-1/4 w-1/2 my-2 pr-4 text-xl">
         <div class="bg-gray-100 rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-gray-500 text-center">
             <a class="bg-none" href="https://assist-software.net">
                 <img class="w-full" src="/images/assist_logo.png" />
+            </a>
+        </div>
+    </div>
+    <div class="flex items-stretch h-48 md:w-1/4 w-1/2 my-2 pr-4 text-xl">
+        <div class="bg-gray-100 rounded justify-center flex-grow flex items-center px-4 py-4 font-bold text-gray-500 text-center">
+            <a class="bg-none" href="https://gat.engineering">
+                <img class="w-full" src="/images/gat-logo.svg" />
             </a>
         </div>
     </div>
