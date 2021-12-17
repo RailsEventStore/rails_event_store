@@ -115,11 +115,6 @@ jobs:
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.6
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: ruby-2.6
             gemfile: Gemfile.rails_6_1
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
