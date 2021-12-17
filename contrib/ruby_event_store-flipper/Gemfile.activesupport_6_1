@@ -8,4 +8,4 @@ eval_gemfile '../../support/bundler/Gemfile.shared'
 gem 'flipper', '~> 0.19'
 gem 'ruby_event_store-rspec'
 gem 'byebug'
-gem "activesupport", "7.0.0"
+gem "activesupport"
