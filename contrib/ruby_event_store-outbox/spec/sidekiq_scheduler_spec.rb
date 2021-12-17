@@ -98,6 +98,22 @@ module RubyEventStore
           expect(record.hash_payload[:queue]).to eq("custom_queue")
         end
 
+        specify "custom retry queue name is taken into account" do
+          event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+          class ::CorrectAsyncHandlerWithRetryQueue
+            include Sidekiq::Worker
+            sidekiq_options queue: 'custom_queue', retry_queue: 'custom_queue_retries'
+            def through_outbox?; true; end
+          end
+
+          subject.call(CorrectAsyncHandlerWithRetryQueue, serialized_record)
+
+          record = Repository::Record.first
+          expect(record.split_key).to eq('custom_queue')
+          expect(record.hash_payload[:retry_queue]).to eq("custom_queue_retries")
+        end
+
         specify "client middleware may abort scheduling" do
           event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
           event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
