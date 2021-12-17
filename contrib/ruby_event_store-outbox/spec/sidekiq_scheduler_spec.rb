@@ -100,14 +100,14 @@ module RubyEventStore
 
         specify "custom retry queue name is taken into account" do
           event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+          event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandlerWithRetryQueue
             include Sidekiq::Worker
             sidekiq_options queue: 'custom_queue', retry_queue: 'custom_queue_retries'
             def through_outbox?; true; end
           end
 
-          subject.call(CorrectAsyncHandlerWithRetryQueue, serialized_record)
+          subject.call(CorrectAsyncHandlerWithRetryQueue, event_record)
 
           record = Repository::Record.first
           expect(record.split_key).to eq('custom_queue')
