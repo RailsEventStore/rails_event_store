@@ -37,9 +37,6 @@ jobs:
             gemfile: Gemfile.activesupport_6_0
             os: ubuntu-20.04
           - ruby: ruby-2.6
-            gemfile: Gemfile
-            os: ubuntu-20.04
-          - ruby: ruby-2.6
             gemfile: Gemfile.activesupport_6_1
             os: ubuntu-20.04
           - ruby: ruby-2.6
