@@ -10,7 +10,7 @@ PATH
   specs:
     rails_event_store_active_record (2.3.0)
       activerecord (>= 5.0)
-      activerecord-import (>= 1.0.2)
+      activerecord-import (>= 1.3.0)
       ruby_event_store (= 2.3.0)
 
 PATH
@@ -100,8 +100,8 @@ GEM
     activerecord (6.1.0)
       activemodel (= 6.1.0)
       activesupport (= 6.1.0)
-    activerecord-import (1.2.0)
-      activerecord (>= 3.2)
+    activerecord-import (1.3.0)
+      activerecord (>= 4.2)
     activestorage (6.1.0)
       actionpack (= 6.1.0)
       activejob (= 6.1.0)
