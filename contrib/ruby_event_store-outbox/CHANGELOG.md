@@ -1,3 +1,8 @@
+### unreleased
+
+* added support for rails 7.0
+* added support for specifying `retry_queue` for scheduled jobs
+
 ### 0.0.20
 
 * Fixed problem with missing constant `SIDEKIQ5_FORMAT`
