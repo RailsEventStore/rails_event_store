@@ -1,5 +1,8 @@
 name: ruby_event_store-sidekiq_scheduler_coverage
 on:
+  repository_dispatch:
+    types:
+      - script
   schedule:
     - cron: "0 17 * * *"
   workflow_dispatch:

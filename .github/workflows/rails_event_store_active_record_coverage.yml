@@ -1,5 +1,8 @@
 name: rails_event_store_active_record_coverage
 on:
+  repository_dispatch:
+    types:
+      - script
   schedule:
     - cron: "0 17 * * *"
   workflow_dispatch:

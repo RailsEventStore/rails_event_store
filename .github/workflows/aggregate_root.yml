@@ -1,5 +1,8 @@
 name: aggregate_root
 on:
+  repository_dispatch:
+    types:
+      - script
   workflow_dispatch:
   push:
     paths-ignore:

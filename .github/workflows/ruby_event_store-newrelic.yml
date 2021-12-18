@@ -1,5 +1,8 @@
 name: ruby_event_store-newrelic
 on:
+  repository_dispatch:
+    types:
+      - script
   workflow_dispatch:
   push:
     paths:

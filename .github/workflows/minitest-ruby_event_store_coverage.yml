@@ -1,5 +1,8 @@
 name: minitest-ruby_event_store_coverage
 on:
+  repository_dispatch:
+    types:
+      - script
   schedule:
     - cron: "0 17 * * *"
   workflow_dispatch:

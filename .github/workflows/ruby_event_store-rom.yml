@@ -1,5 +1,8 @@
 name: ruby_event_store-rom
 on:
+  repository_dispatch:
+    types:
+      - script
   push:
     paths:
       - "contrib/ruby_event_store-rom/**"

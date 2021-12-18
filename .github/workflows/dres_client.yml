@@ -1,5 +1,8 @@
 name: dres_client
 on:
+  repository_dispatch:
+    types:
+      - script
   workflow_dispatch:
   schedule:
     - cron: "0 17 * * *"
