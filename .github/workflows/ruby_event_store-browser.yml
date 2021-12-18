@@ -1,5 +1,6 @@
 name: ruby_event_store-browser
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
       - "railseventstore.org/**"

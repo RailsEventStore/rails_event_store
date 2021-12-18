@@ -1,5 +1,6 @@
 name: minitest-ruby_event_store
 on:
+  workflow_dispatch:
   push:
     paths:
       - "contrib/minitest-ruby_event_store/**"

@@ -1,5 +1,6 @@
 name: rails_event_store_active_record
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
       - "railseventstore.org/**"

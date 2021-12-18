@@ -1,5 +1,6 @@
 name: ruby_event_store-transformations
 on:
+  workflow_dispatch:
   push:
     paths:
       - "contrib/ruby_event_store-transformations/**"

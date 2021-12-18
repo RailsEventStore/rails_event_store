@@ -1,5 +1,6 @@
 name: ruby_event_store-protobuf
 on:
+  workflow_dispatch:
   push:
     paths:
       - "contrib/ruby_event_store-protobuf/**"
