@@ -4,7 +4,7 @@ gemspec
 eval_gemfile '../../support/bundler/Gemfile.shared'
 
 gem 'protobuf_nested_struct'
-gem 'google-protobuf', '~> 3.14.0'
+gem 'google-protobuf', '~> 3.19.2'
 gem 'rails', '7.0.0'
 
 gem 'ruby_event_store',                path: '../../ruby_event_store'
