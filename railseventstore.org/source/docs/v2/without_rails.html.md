@@ -39,7 +39,7 @@ Add the tasks to your `Rakefile` to import them into your project:
 
 ```ruby
 # In your project Rakefile
-require 'ruby_event_store/rom/adapters/sql/rake_task'
+require 'ruby_event_store/rom/rake_task'
 ```
 
 Then run Rake tasks to get your database setup:
