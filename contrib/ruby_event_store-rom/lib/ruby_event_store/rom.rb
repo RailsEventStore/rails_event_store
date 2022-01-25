@@ -31,8 +31,6 @@ module RubyEventStore
         end
       end
 
-      private
-
       def rom_container(adapter_name, database_uri, &block)
         if adapter_name.is_a?(::ROM::Configuration)
           ::ROM.container(adapter_name.tap(&block), &block)
