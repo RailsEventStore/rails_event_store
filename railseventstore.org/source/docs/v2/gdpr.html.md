@@ -138,7 +138,7 @@ In order to fully disable them, pass an empty lambda:
 
 ```ruby
 RailsEventStore::Client.new(
-  request_metadata: -> (env) { }
+  request_metadata: -> (env) { {} }
 )
 ```
 
