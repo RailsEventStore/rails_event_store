@@ -55,6 +55,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - ruby: ruby-3.1
+            gemfile: Gemfile
+            os: ubuntu-20.04
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-3.1
+            gemfile: Gemfile.rails_6_1
+            os: ubuntu-20.04
+            database: sqlite3:db.sqlite3
           - ruby: ruby-3.0
             gemfile: Gemfile
             os: ubuntu-20.04
@@ -83,19 +91,19 @@ jobs:
             gemfile: Gemfile.rails_6_1
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
-          - ruby: ruby-3.0
+          - ruby: ruby-3.1
             gemfile: Gemfile
             os: ubuntu-20.04
             database: mysql2://root:secret@0.0.0.0:10056/rails_event_store
-          - ruby: ruby-3.0
+          - ruby: ruby-3.1
             gemfile: Gemfile
             os: ubuntu-20.04
             database: mysql2://root:secret@0.0.0.0:10057/rails_event_store
-          - ruby: ruby-3.0
+          - ruby: ruby-3.1
             gemfile: Gemfile
             os: ubuntu-20.04
             database: mysql2://root:secret@0.0.0.0:10080/rails_event_store
-          - ruby: ruby-3.0
+          - ruby: ruby-3.1
             gemfile: Gemfile.sidekiq_5_2
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
