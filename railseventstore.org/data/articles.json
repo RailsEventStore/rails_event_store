@@ -208,19 +208,23 @@
     "title": "Building an Event Sourced application using rails_event_store"
   },
   {
-    "url": "http://blog.arkency.com/2015/03/why-use-event-sourcing/",
+    "url": "https://blog.arkency.com/2015/03/why-use-event-sourcing/",
     "title": "Why use Event Sourcing"
   },
   {
-    "url": "http://blog.arkency.com/2015/04/the-event-store-for-rails-developers/",
+    "url": "https://blog.arkency.com/2015/04/the-event-store-for-rails-developers/",
     "title": "The Event Store for Rails developers"
   },
   {
-    "url": "http://blog.arkency.com/2015/03/fast-introduction-to-event-sourcing-for-ruby-programmers/",
+    "url": "https://blog.arkency.com/2015/03/fast-introduction-to-event-sourcing-for-ruby-programmers/",
     "title": "Fast introduction to Event Sourcing for Ruby programmers"
   },
   {
-    "url": "http://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/",
+    "url": "https://blog.arkency.com/2015/04/why-i-want-to-introduce-mutation-testing-to-the-rails-event-store-gem/",
     "title": "Why I want to introduce mutation testing to the rails_event_store gem"
+  },
+  {
+    "url": "https://www.monterail.com/blog/introduction-to-rails-event-store",
+    "title": "Introduction to Rails Event Store"
   }
 ]
