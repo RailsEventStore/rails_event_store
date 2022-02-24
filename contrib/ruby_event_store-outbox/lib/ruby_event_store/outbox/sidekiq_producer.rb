@@ -11,7 +11,7 @@ module RubyEventStore
         sidekiq_client = Sidekiq::Client.new(Sidekiq.redis_pool)
         item = {
           'class' => klass,
-          'args' => args.map(&:to_h),
+          'args' => args.map(&:to_h).map {|h| h.transform_keys(&:to_s)},
         }
         normalized_item = sidekiq_client.__send__(:normalize_item, item)
         payload = sidekiq_client.__send__(:process_single, normalized_item.fetch('class'), normalized_item)
