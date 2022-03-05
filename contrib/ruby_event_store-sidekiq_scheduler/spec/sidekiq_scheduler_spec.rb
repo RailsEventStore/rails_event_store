@@ -66,6 +66,22 @@ module RubyEventStore
           },
         )
       end
+
+      specify "JSON compatible args with stringified keys" do
+        scheduler = SidekiqScheduler.new(serializer: YAML)
+        expect(MyAsyncHandler).to receive(:perform_async).with(
+          {
+            "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            "event_type"      => "RubyEventStore::Event",
+            "data"            => "--- {}\n",
+            "metadata"        => "--- {}\n",
+            "timestamp"       => "2019-09-30T00:00:00.000000Z",
+            "valid_at"        => "2019-09-30T00:00:00.000000Z",
+          },
+        )
+
+        scheduler.call(MyAsyncHandler, record)
+      end
     end
 
     class MyAsyncHandler
