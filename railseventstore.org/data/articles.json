@@ -226,5 +226,9 @@
   {
     "url": "https://www.monterail.com/blog/introduction-to-rails-event-store",
     "title": "Introduction to Rails Event Store"
+  },
+  {
+    "url": "https://www.monterail.com/blog/introduction-to-domain-events",
+    "title": "Introduction to Domain Events"
   }
 ]
