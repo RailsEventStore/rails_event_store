@@ -24,14 +24,13 @@ jobs:
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
+      REDIS_URL: redis://localhost:6379/0
+      MUTANT_JOBS: 1
     services:
       redis:
         image: redis:6
         ports:
           - 6379:6379
-        options: >-
-          --volume ${{ env.GITHUB_WORKSPACE }}/${{ env.WORKING_DIRECTORY }}/ci/redis:/usr/local/etc/redis/redis.conf
-          redis-server /usr/local/etc/redis/redis.conf
     strategy:
       fail-fast: false
       matrix:
