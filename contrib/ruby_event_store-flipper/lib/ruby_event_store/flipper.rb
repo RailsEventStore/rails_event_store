@@ -36,7 +36,9 @@ module RubyEventStore
         feature_name = payload.fetch(:feature_name).to_s
         operation = payload.fetch(:operation)
         common_payload = { feature_name: feature_name }
-        event_store.publish(build_domain_event(common_payload, operation, payload), stream_name: stream_pattern.(feature_name))
+        if (domain_event = build_domain_event(common_payload, operation, payload))
+          event_store.publish(domain_event, stream_name: stream_pattern.(feature_name))
+        end
       end
 
       private
