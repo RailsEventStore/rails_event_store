@@ -86,4 +86,4 @@ DEPENDENCIES
   ruby_event_store-rspec
 
 BUNDLED WITH
-   2.2.33
+   2.3.9

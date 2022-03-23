@@ -84,4 +84,4 @@ DEPENDENCIES
   ruby_event_store-transformations!
 
 BUNDLED WITH
-   2.2.33
+   2.3.9
