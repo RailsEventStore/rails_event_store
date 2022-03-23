@@ -6,7 +6,7 @@ module RailsEventStore
   RSpec.describe AfterCommitAsyncDispatcher do
     class CustomScheduler
       def call(klass, record)
-        klass.perform_async(record.serialize(YAML))
+        klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML))
       end
 
       def verify(klass)
@@ -27,7 +27,7 @@ module RailsEventStore
 
     let(:event) { TimeEnrichment.with(RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8")) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
-    let(:serialized_record) { record.serialize(YAML) }
+    let(:serialized_record) { record.serialize(RubyEventStore::Serializers::YAML) }
 
     let(:dispatcher) do
       described_class.new(scheduler: CustomScheduler.new)

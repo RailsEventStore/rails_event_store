@@ -143,7 +143,7 @@ Extended implementation of [DefaultMapper](https://github.com/RailsEventStore/ra
 module RubyEventStore
   module Mappers
     class Default < PipelineMapper
-      def initialize(serializer: YAML, events_class_remapping: {})
+      def initialize(serializer: RubyEventStore::Serializers::YAML, events_class_remapping: {})
         super(Pipeline.new(
           to_domain_event: Transformation::DomainEvent.new,
           to_serialized_record: Transformation::Record.new,

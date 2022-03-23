@@ -33,7 +33,7 @@ module RubyEventStore
         consumer.one_loop
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 
-        CorrectAsyncHandler.perform_async(event_record.serialize(YAML).to_h)
+        CorrectAsyncHandler.perform_async(event_record.serialize(RubyEventStore::Serializers::YAML).to_h)
         entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
 
         expect(redis.llen("queue:default")).to eq(2)
@@ -44,7 +44,7 @@ module RubyEventStore
 
       specify "legacy scheduler" do
         event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
-        serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+        serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(RubyEventStore::Serializers::YAML)
         class ::CorrectAsyncHandler
           include Sidekiq::Worker
           def through_outbox?; true; end

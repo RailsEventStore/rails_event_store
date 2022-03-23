@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require "yaml"
-
 module RubyEventStore
   module Mappers
     class EncryptionMapper < PipelineMapper
-      def initialize(key_repository, serializer: YAML, forgotten_data: ForgottenData.new)
+      def initialize(key_repository, serializer: RubyEventStore::Serializers::YAML, forgotten_data: ForgottenData.new)
         super(Pipeline.new(
           Transformation::Encryption.new(key_repository, serializer: serializer, forgotten_data: forgotten_data),
         ))

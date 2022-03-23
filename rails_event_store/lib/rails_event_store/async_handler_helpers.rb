@@ -6,7 +6,7 @@ module RailsEventStore
       with
     end
 
-    def self.with(event_store: Rails.configuration.event_store, event_store_locator: nil, serializer: YAML)
+    def self.with(event_store: Rails.configuration.event_store, event_store_locator: nil, serializer: RubyEventStore::Serializers::YAML)
       Module.new do
         define_method :perform do |payload|
           event_store = event_store_locator.call if event_store_locator

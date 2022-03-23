@@ -1,4 +1,5 @@
 require "spec_helper"
+require "bigdecimal"
 
 module RubyEventStore
 
@@ -93,7 +94,13 @@ module RubyEventStore
     specify "#serialize" do
       actual  = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d", timestamp: time, valid_at: time)
       expected = SerializedRecord.new(event_id: "a", data: "--- b\n", metadata: "--- c\n", event_type: "d", timestamp: timestamp, valid_at: timestamp)
-      expect(actual.serialize(YAML)).to eq(expected)
+      expect(actual.serialize(RubyEventStore::Serializers::YAML)).to eq(expected)
+    end
+
+    specify "serialization works for non-primitive values" do
+      actual = Record.new(data: BigDecimal("12.99"), event_id: "a", event_type: "b", metadata: {}, timestamp: time,  valid_at: time)
+      expected = SerializedRecord.new(event_id: "a", event_type: "b", metadata: "--- {}\n", timestamp: timestamp, valid_at: timestamp, data: "--- !ruby/object:BigDecimal 18:0.1299e2\n")
+      expect(actual.serialize(RubyEventStore::Serializers::YAML)).to eq(expected)
     end
   end
 end

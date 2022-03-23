@@ -5,7 +5,7 @@ require "ruby_event_store/spec/event_repository_lint"
 module RailsEventStoreActiveRecord
   RSpec.describe EventRepository do
     helper = SpecHelper.new
-    mk_repository = ->{ EventRepository.new(serializer: YAML) }
+    mk_repository = ->{ EventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
 
     it_behaves_like :event_repository, mk_repository, helper
 
@@ -116,19 +116,19 @@ module RailsEventStoreActiveRecord
     end
 
     specify "use default models" do
-      repository = EventRepository.new(serializer: YAML)
+      repository = EventRepository.new(serializer: RubyEventStore::Serializers::YAML)
       expect(repository.instance_variable_get(:@event_klass)).to be(Event)
       expect(repository.instance_variable_get(:@stream_klass)).to be(EventInStream)
     end
 
     specify "allows custom base class" do
-      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: RubyEventStore::Serializers::YAML)
       expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
       expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
     end
 
     specify "reading/writting works with custom base class" do
-      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+      repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: RubyEventStore::Serializers::YAML)
       repository.append_to_stream(
         [event = RubyEventStore::SRecord.new],
         RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),

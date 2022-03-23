@@ -32,7 +32,7 @@ module RailsEventStore
 
   class MyLovelyAsyncHandler < ActiveJob::Base
     def perform(payload)
-      $queue.push(Rails.configuration.event_store.deserialize(serializer: YAML, **payload))
+      $queue.push(Rails.configuration.event_store.deserialize(serializer: RubyEventStore::Serializers::YAML, **payload))
     end
   end
 
@@ -60,7 +60,7 @@ module RailsEventStore
 
   class CustomSidekiqScheduler
     def call(klass, record)
-      klass.perform_async(record.serialize(YAML).to_h)
+      klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML).to_h)
     end
 
     def verify(subscriber)
@@ -180,7 +180,7 @@ module RailsEventStore
       )
       ev = RailsEventStore::Event.new
       Sidekiq::Testing.fake! do
-        SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler.with(serializer: YAML)
+        SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler.with(serializer: RubyEventStore::Serializers::YAML)
         event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
         event_store.publish(ev)
         Thread.new{ Sidekiq::Worker.drain_all }.join
@@ -208,7 +208,7 @@ module RailsEventStore
         event_store
         .__send__(:mapper)
         .event_to_record(ev)
-        .serialize(YAML)
+        .serialize(RubyEventStore::Serializers::YAML)
         .to_h
       serialized[:metadata] = "--- {}\n"
       serialized
