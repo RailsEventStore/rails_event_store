@@ -94,7 +94,13 @@ module RubyEventStore
     specify "#deserialize" do
       actual = SerializedRecord.new(event_id: "a", data: "--- b\n", metadata: "--- c\n", event_type: "d", timestamp: timestamp, valid_at: timestamp)
       expected = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d", timestamp: time, valid_at: time)
-      expect(actual.deserialize(YAML)).to eq(expected)
+      expect(actual.deserialize(RubyEventStore::Serializers::YAML)).to eq(expected)
+    end
+
+    specify "deserializes non-primitive values" do
+      actual = SerializedRecord.new(event_id: "a", event_type: "b", metadata: "--- {}\n", timestamp: timestamp, valid_at: timestamp, data: "--- !ruby/object:BigDecimal 18:0.1299e2\n")
+      expected = Record.new(data: BigDecimal("12.99"), event_id: "a", event_type: "b", metadata: {}, timestamp: time,  valid_at: time)
+      expect(actual.deserialize(RubyEventStore::Serializers::YAML)).to eq(expected)
     end
   end
 end

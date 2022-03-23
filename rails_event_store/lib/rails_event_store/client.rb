@@ -5,10 +5,10 @@ module RailsEventStore
     attr_reader :request_metadata
 
     def initialize(mapper: RubyEventStore::Mappers::Default.new,
-                   repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: YAML),
+                   repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
                    subscriptions: RubyEventStore::Subscriptions.new,
                    dispatcher: RubyEventStore::ComposedDispatcher.new(
-                     RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: YAML)),
+                     RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)),
                      RubyEventStore::Dispatcher.new),
                    clock: default_clock,
                    correlation_id_generator: default_correlation_id_generator,

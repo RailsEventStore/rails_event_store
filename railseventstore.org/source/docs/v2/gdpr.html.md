@@ -48,7 +48,7 @@ RailsEventStore provides a specialized mapper to support attribute encryption fo
 RailsEventStore::Client.new(
   mapper: RubyEventStore::Mappers::EncryptionMapper.new(
     key_repository,
-    serializer: YAML
+    serializer: RubyEventStore::Serializers::YAML
   )
 )
 ```

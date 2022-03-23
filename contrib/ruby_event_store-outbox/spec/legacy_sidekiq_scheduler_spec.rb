@@ -51,7 +51,7 @@ module RubyEventStore
 
         specify do
           event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(RubyEventStore::Serializers::YAML)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             def through_outbox?; true; end
@@ -84,7 +84,7 @@ module RubyEventStore
 
         specify "custom queue name is taken into account" do
           event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(RubyEventStore::Serializers::YAML)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             sidekiq_options queue: 'custom_queue'
@@ -100,7 +100,7 @@ module RubyEventStore
 
         specify "client middleware may abort scheduling" do
           event = TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
-          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(YAML)
+          serialized_record = RubyEventStore::Mappers::Default.new.event_to_record(event).serialize(RubyEventStore::Serializers::YAML)
           class ::AlwaysCancellingMiddleware
             def call(_worker_class, _msg, _queue, _redis_pool)
             end

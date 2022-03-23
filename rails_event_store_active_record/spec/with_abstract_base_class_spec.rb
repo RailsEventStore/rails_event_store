@@ -50,7 +50,7 @@ module RailsEventStoreActiveRecord
         establish_database_connection
         load_database_schema
 
-        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: RubyEventStore::Serializers::YAML)
         repository.append_to_stream(
           [event = RubyEventStore::SRecord.new],
           RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
@@ -70,7 +70,7 @@ module RailsEventStoreActiveRecord
         establish_database_connection
         load_database_schema
 
-        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: YAML)
+        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: RubyEventStore::Serializers::YAML)
         repository.append_to_stream(
           [event = RubyEventStore::SRecord.new(event_type: "Dummy")],
           RubyEventStore::Stream.new("some"),

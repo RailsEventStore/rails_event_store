@@ -8,7 +8,7 @@ module RubyEventStore
       MyAsyncHandler.reset
     end
 
-    it_behaves_like :scheduler, SidekiqScheduler.new(serializer: YAML)
+    it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::NULL)
 
     let(:event)  { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
@@ -43,7 +43,7 @@ module RubyEventStore
 
     describe "#call" do
       specify do
-        scheduler = SidekiqScheduler.new(serializer: YAML)
+        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
 
         scheduler.call(MyAsyncHandler, record)
 
@@ -68,7 +68,7 @@ module RubyEventStore
       end
 
       specify "JSON compatible args with stringified keys" do
-        scheduler = SidekiqScheduler.new(serializer: YAML)
+        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         expect(MyAsyncHandler).to receive(:perform_async).with(
           {
             "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",

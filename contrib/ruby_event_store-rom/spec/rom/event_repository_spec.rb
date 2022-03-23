@@ -11,7 +11,7 @@ module RubyEventStore
           when /json/
             JSON
           else
-            YAML
+            RubyEventStore::Serializers::YAML
           end
         EventRepository.new(rom: helper.rom_container, serializer: serializer)
       end

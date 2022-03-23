@@ -5,7 +5,7 @@ require "ruby_event_store/spec/event_repository_lint"
 module RailsEventStoreActiveRecord
   RSpec.describe PgLinearizedEventRepository do
     helper = SpecHelper.new
-    mk_repository = ->{ PgLinearizedEventRepository.new(serializer: YAML) }
+    mk_repository = ->{ PgLinearizedEventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
 
     it_behaves_like :event_repository, mk_repository, helper
 
