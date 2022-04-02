@@ -5,7 +5,7 @@ eval_gemfile '../../support/bundler/Gemfile.shared'
 
 gem 'protobuf_nested_struct'
 gem 'google-protobuf', '~> 3.14.0'
-gem 'rails', '6.0.3.4'
+gem 'rails', '6.0.4.7'
 
 gem 'ruby_event_store',                path: '../../ruby_event_store'
 gem 'aggregate_root',                  path: '../../aggregate_root'
