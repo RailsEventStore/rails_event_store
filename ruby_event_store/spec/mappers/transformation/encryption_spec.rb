@@ -46,8 +46,7 @@ module RubyEventStore
       RSpec.describe Encryption do
         let(:time)           { Time.now.utc }
         let(:key_repository) { InMemoryEncryptionKeyRepository.new }
-        let(:serializer)     { Serializers::YAML }
-        let(:mapper)         { Encryption.new(key_repository, serializer: serializer) }
+        let(:mapper)         { Encryption.new(key_repository) }
         let(:sender_id)      { SecureRandom.uuid }
         let(:recipient_id)   { SecureRandom.uuid }
         let(:owner_id)       { SecureRandom.uuid }
