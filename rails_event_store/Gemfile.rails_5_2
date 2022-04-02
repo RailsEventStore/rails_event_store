@@ -9,6 +9,6 @@ gem 'rails_event_store_active_record', path: '../rails_event_store_active_record
 gem 'aggregate_root', path: '../aggregate_root'
 gem 'sidekiq'
 gem 'rack-test'
-gem 'rails', '5.2.4.4'
+gem 'rails', '5.2.7'
 gem 'sqlite3', '1.3.13'
 
