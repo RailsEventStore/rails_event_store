@@ -27,3 +27,4 @@ matcher:
    - RubyEventStore::Mappers::EncryptionKey#encrypt_authenticated
    - RubyEventStore::Mappers::EncryptionKey#ciphertext_from_authenticated
    - RubyEventStore::Mappers::JSONMapper#initialize
+   - RubyEventStore::Serializers::YAML.load
