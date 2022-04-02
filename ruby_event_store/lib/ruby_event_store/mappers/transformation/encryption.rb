@@ -17,7 +17,7 @@ module RubyEventStore
           end
         end
 
-        def initialize(key_repository, serializer: RubyEventStore::Serializers::YAML, forgotten_data: ForgottenData.new)
+        def initialize(key_repository, serializer: Serializers::YAML, forgotten_data: ForgottenData.new)
           @key_repository = key_repository
           @serializer = serializer
           @forgotten_data = forgotten_data

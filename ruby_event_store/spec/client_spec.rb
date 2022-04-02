@@ -742,7 +742,7 @@ module RubyEventStore
         data:       "---\n:foo: bar\n",
         metadata:   "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n:bar: baz\n",
       }
-      expect(client.deserialize(serializer: RubyEventStore::Serializers::YAML, **payload)).to eq(event)
+      expect(client.deserialize(serializer: Serializers::YAML, **payload)).to eq(event)
     end
 
     specify "can load JSON serialized record of previous release" do
@@ -900,7 +900,7 @@ module RubyEventStore
     end
 
     specify "transform Record to SerializedRecord is only once when using the same serializer" do
-      serializer = RubyEventStore::Serializers::YAML
+      serializer = Serializers::YAML
       expect(serializer).to receive(:dump).and_call_original.exactly(2)
 
       client = RubyEventStore::Client.new(
@@ -919,7 +919,7 @@ module RubyEventStore
     end
 
     specify "transform Record to SerializedRecord is twice when using different serializers" do
-      serializer_1 = RubyEventStore::Serializers::YAML
+      serializer_1 = Serializers::YAML
       expect(serializer_1).to receive(:dump).and_call_original.exactly(2)
       serializer_2 = JSON
       expect(serializer_2).to receive(:dump).and_call_original.exactly(2)
