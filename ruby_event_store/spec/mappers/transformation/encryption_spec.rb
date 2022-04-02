@@ -32,6 +32,16 @@ module RubyEventStore
       end
     end
 
+    BalanceChanged = Class.new(RubyEventStore::Event) do
+      def self.encryption_schema
+        {
+          balance: ->(data) do
+            data.fetch(:user_id)
+          end
+        }
+      end
+    end
+
     module Transformation
       RSpec.describe Encryption do
         let(:time)           { Time.now.utc }
@@ -40,6 +50,7 @@ module RubyEventStore
         let(:mapper)         { Encryption.new(key_repository, serializer: serializer) }
         let(:sender_id)      { SecureRandom.uuid }
         let(:recipient_id)   { SecureRandom.uuid }
+        let(:owner_id)       { SecureRandom.uuid }
         let(:event_id)       { SecureRandom.uuid }
         let(:ticket_id)      { SecureRandom.uuid }
         let(:correlation_id) { SecureRandom.uuid }
@@ -319,6 +330,34 @@ module RubyEventStore
             ticket_id: ticket_id,
             user_id: sender_id,
             email: [sender_email]
+          })
+          expect(event.metadata).to eq(metadata)
+        end
+
+        specify "handles non-primitive values by default too" do
+          key_repository.create(owner_id)
+
+          event =
+            decrypt(
+              encrypt(
+                Record.new(
+                  event_id: event_id,
+                  data: {
+                    user_id: owner_id,
+                    balance: BigDecimal(42)
+                  },
+                  metadata: metadata,
+                  event_type: "RubyEventStore::Mappers::BalanceChanged",
+                  timestamp: time,
+                  valid_at:  time
+                )
+              )
+            )
+
+          expect(event.event_id).to eq(event_id)
+          expect(event.data).to eq({
+            user_id: owner_id,
+            balance: BigDecimal(42),
           })
           expect(event.metadata).to eq(metadata)
         end
