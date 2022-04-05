@@ -11,6 +11,8 @@ module RubyEventStore
           rename_keys timestamp: :created_at
           map_value   :created_at, ->(time) { Time.iso8601(time).localtime }
           map_value   :valid_at,   ->(time) { Time.iso8601(time).localtime }
+          map_value   :data, ->(value) { value.class.name == "Hash" ? value.to_json : value }
+          map_value   :metadata, ->(value) { value.class.name == "Hash" ? value.to_json : value }
           accept_keys %i[event_id data metadata event_type created_at valid_at]
         end
 
