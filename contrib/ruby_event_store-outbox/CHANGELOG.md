@@ -1,7 +1,15 @@
 ### unreleased
 
+### 0.0.22
+
+* make it work with sidekiq 6.4.2
+
+
+### 0.0.21
+
 * added support for rails 7.0
 * added support for specifying `retry_queue` for scheduled jobs
+* get rid of depracation warnings from sidekiq 6.4.1
 
 ### 0.0.20
 
