@@ -1,5 +1,6 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
+jobs: 1
 requires:
 - ruby_event_store/outbox
 - ruby_event_store/outbox/cli
