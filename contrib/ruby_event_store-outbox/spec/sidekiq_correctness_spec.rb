@@ -37,7 +37,7 @@ module RubyEventStore
         entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
 
         expect(redis.llen("queue:default")).to eq(2)
-        expect(entry_from_outbox.keys).to eq(entry_from_sidekiq.keys)
+        expect(entry_from_outbox.keys.sort).to eq(entry_from_sidekiq.keys.sort)
         expect(entry_from_outbox.except("created_at", "enqueued_at", "jid")).to eq(entry_from_sidekiq.except("created_at", "enqueued_at", "jid"))
         expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
       end
@@ -59,7 +59,7 @@ module RubyEventStore
         entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
 
         expect(redis.llen("queue:default")).to eq(2)
-        expect(entry_from_outbox.keys).to eq(entry_from_sidekiq.keys)
+        expect(entry_from_outbox.keys.sort).to eq(entry_from_sidekiq.keys.sort)
         expect(entry_from_outbox.except("created_at", "enqueued_at", "jid")).to eq(entry_from_sidekiq.except("created_at", "enqueued_at", "jid"))
         expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
       end
