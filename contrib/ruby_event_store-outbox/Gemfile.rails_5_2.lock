@@ -8,7 +8,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-outbox (0.0.21)
+    ruby_event_store-outbox (0.0.22)
       activerecord (>= 5.2)
       ruby_event_store (>= 1.0.0)
 
@@ -107,7 +107,7 @@ GEM
     pg (1.2.2)
     racc (1.6.0)
     rack (2.2.3)
-    rack-protection (2.1.0)
+    rack-protection (2.2.0)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -136,7 +136,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
     rake (13.0.6)
-    redis (4.5.1)
+    redis (4.6.0)
     regexp_parser (2.2.1)
     rspec (3.11.0)
       rspec-core (~> 3.11.0)

@@ -8,7 +8,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-outbox (0.0.21)
+    ruby_event_store-outbox (0.0.22)
       activerecord (>= 5.2)
       ruby_event_store (>= 1.0.0)
 
@@ -153,7 +153,7 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0)
     rake (13.0.6)
-    redis (4.5.1)
+    redis (4.6.0)
     regexp_parser (2.2.1)
     rspec (3.11.0)
       rspec-core (~> 3.11.0)
@@ -169,7 +169,7 @@ GEM
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
     ruby2_keywords (0.0.5)
-    sidekiq (6.2.2)
+    sidekiq (6.4.2)
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
@@ -210,7 +210,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-outbox!
-  sidekiq (= 6.2.2)
+  sidekiq (~> 6.2)
   sqlite3 (= 1.4.2)
 
 BUNDLED WITH

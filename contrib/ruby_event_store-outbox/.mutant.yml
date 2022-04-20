@@ -18,6 +18,7 @@ matcher:
    - RubyEventStore::Outbox::SidekiqProducer#call
    - RubyEventStore::Outbox::SidekiqProcessor#process
    - RubyEventStore::Outbox::SidekiqProcessor#after_batch
+   - RubyEventStore::Outbox::SidekiqScheduler#initialize
    - RubyEventStore::Outbox::Metrics.from_url
    - RubyEventStore::Outbox::FetchSpecification#initialize
    - RubyEventStore::Outbox::FetchSpecification#hash
