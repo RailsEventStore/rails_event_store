@@ -25,7 +25,6 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       REDIS_URL: redis://localhost:6379/0
-      MUTANT_JOBS: 1
     services:
       redis:
         image: redis:6
