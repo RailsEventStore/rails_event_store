@@ -18,7 +18,7 @@
             "elm/url": "1.0.0",
             "elm-community/maybe-extra": "5.3.0",
             "klazuka/elm-json-tree-view": "2.1.0",
-            "rtfeldman/elm-css": "17.1.0",
+            "rtfeldman/elm-css": "17.1.1",
             "rtfeldman/elm-iso8601-date-strings": "1.1.4",
             "ryannhg/date-format": "2.3.0"
         },
