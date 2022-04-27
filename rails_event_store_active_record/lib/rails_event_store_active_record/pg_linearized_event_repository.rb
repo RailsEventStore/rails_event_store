@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "activerecord-import"
-
 module RailsEventStoreActiveRecord
   class PgLinearizedEventRepository < EventRepository
 
