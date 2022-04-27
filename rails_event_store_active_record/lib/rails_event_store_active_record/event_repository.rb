@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/array"
-require "activerecord-import"
 
 module RailsEventStoreActiveRecord
   class EventRepository
@@ -23,7 +22,7 @@ module RailsEventStoreActiveRecord
         event_ids << record.event_id
       end
       add_to_stream(event_ids, stream, expected_version) do
-        @event_klass.import(hashes)
+        @event_klass.insert_all(hashes)
       end
     end
 
@@ -97,7 +96,7 @@ module RailsEventStoreActiveRecord
             event_id: event_id,
           }
         end
-        @stream_klass.import(in_stream) unless stream.global?
+        @stream_klass.insert_all(in_stream) unless stream.global?
       end
       self
     rescue ActiveRecord::RecordNotUnique => e
