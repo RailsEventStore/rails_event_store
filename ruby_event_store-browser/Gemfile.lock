@@ -56,7 +56,7 @@ GEM
     mutant-rspec (0.11.4)
       mutant (= 0.11.4)
       rspec-core (>= 3.8.0, < 4.0.0)
-    nokogiri (1.13.3)
+    nokogiri (1.13.6)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     parser (3.1.1.0)
