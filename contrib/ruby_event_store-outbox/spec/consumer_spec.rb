@@ -10,7 +10,7 @@ module RubyEventStore
       let(:redis) { Redis.new(url: redis_url) }
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
-      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none, sleep_on_empty: 1) }
+      let(:default_configuration) { Consumer::Configuration.new(database_url: database_url, redis_url: redis_url, split_keys: ["default", "default2"], message_format: SIDEKIQ5_FORMAT, batch_size: 100, cleanup: :none, cleanup_limit: :all, sleep_on_empty: 1) }
       let(:null_metrics) { Metrics::Null.new }
       let(:test_metrics) { Metrics::Test.new }
 
@@ -453,6 +453,21 @@ module RubyEventStore
         consumer.one_loop
 
         expect(Repository::Record.count).to eq(0)
+      end
+
+      specify 'clean old jobs with limit' do
+        records = 3.times.map{ create_record("default", "default") }
+        clock = TickingClock.new
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration.with(cleanup: "P7D", cleanup_limit: 2), clock: clock, logger: logger, metrics: null_metrics)
+        result = consumer.one_loop
+        records.map(&:reload)
+        expect(redis.llen("queue:default")).to eq(3)
+        expect(Repository::Record.count).to eq(3)
+        travel (7.days + 1.minute)
+
+        consumer.one_loop
+
+        expect(Repository::Record.count).to eq(1)
       end
 
       specify 'clean old jobs - lock timeout' do

@@ -21,6 +21,7 @@ module RubyEventStore
           database_url:,
           redis_url:,
           cleanup:,
+          cleanup_limit:,
           sleep_on_empty:
         )
           @split_keys = split_keys
@@ -29,6 +30,7 @@ module RubyEventStore
           @database_url = database_url
           @redis_url = redis_url
           @cleanup = cleanup
+          @cleanup_limit = cleanup_limit
           @sleep_on_empty = sleep_on_empty
           freeze
         end
@@ -41,11 +43,12 @@ module RubyEventStore
             database_url: overriden_options.fetch(:database_url, database_url),
             redis_url: overriden_options.fetch(:redis_url, redis_url),
             cleanup: overriden_options.fetch(:cleanup, cleanup),
+            cleanup_limit: overriden_options.fetch(:cleanup_limit, cleanup_limit),
             sleep_on_empty: overriden_options.fetch(:sleep_on_empty, sleep_on_empty)
           )
         end
 
-        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url, :cleanup, :sleep_on_empty
+        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url, :cleanup, :cleanup_limit, :sleep_on_empty
       end
 
       def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
@@ -68,7 +71,7 @@ module RubyEventStore
         when :none
           CleanupStrategies::None.new
         else
-          CleanupStrategies::CleanOldEnqueued.new(repository, ActiveSupport::Duration.parse(configuration.cleanup))
+          CleanupStrategies::CleanOldEnqueued.new(repository, ActiveSupport::Duration.parse(configuration.cleanup), configuration.cleanup_limit)
         end
       end
 
