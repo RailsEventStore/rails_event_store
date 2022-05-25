@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ruby_event_store-flipper (0.2.0)
+    ruby_event_store-flipper (0.2.1)
       ruby_event_store (>= 1.0.0)
 
 GEM
@@ -70,6 +70,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-20
+  x86_64-darwin-19
   x86_64-darwin-21
   x86_64-linux
 
