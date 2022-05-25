@@ -15,6 +15,7 @@ module RubyEventStore
         batch_size: 100,
         metrics_url: nil,
         cleanup_strategy: :none,
+        cleanup_limit: :all,
         sleep_on_empty: 0.5
       }
       Options = Struct.new(*DEFAULTS.keys)
@@ -55,6 +56,10 @@ module RubyEventStore
 
             option_parser.on("--cleanup=STRATEGY", "A strategy for cleaning old records. One of: none or iso8601 duration format how old enqueued records should be removed. Default: none") do |cleanup_strategy|
               options.cleanup_strategy = cleanup_strategy
+            end
+
+            option_parser.on("--cleanup-limit=LIMIT", "Amount of records removed in single cleanup run. One of: all or number of records that should be removed. Default: all") do |cleanup_limit|
+              options.cleanup_limit = cleanup_limit
             end
 
             option_parser.on("--sleep-on-empty=SLEEP_TIME", Float, "How long to sleep before next check when there was nothing to do. Default: 0.5") do |sleep_on_empty|

@@ -142,11 +142,12 @@ module RubyEventStore
         record.update_column(:enqueued_at, now)
       end
 
-      def delete_enqueued_older_than(fetch_specification, duration)
-        Record
+      def delete_enqueued_older_than(fetch_specification, duration, limit)
+        scope = Record
           .for_fetch_specification(fetch_specification)
           .where("enqueued_at < ?", duration.ago)
-          .delete_all
+        scope = scope.limit(limit) unless limit == :all
+        scope.delete_all
         :ok
       rescue ActiveRecord::Deadlocked
         :deadlocked
