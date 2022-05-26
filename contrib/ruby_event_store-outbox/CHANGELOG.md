@@ -1,5 +1,11 @@
 ### unreleased
 
+### 0.0.23
+
+* add --cleanup-limit CLI option which allows to set
+  Amount of records removed in single cleanup run.
+  It's default value is `:all` for backward compatibility
+
 ### 0.0.22
 
 * make it work with sidekiq 6.4.2
