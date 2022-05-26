@@ -51,6 +51,22 @@ module RubyEventStore
           expect(Parser.parse(["--sleep-on-empty=5"]).sleep_on_empty).to eq(5)
           expect(Parser.parse([]).sleep_on_empty).to eq(0.5)
         end
+
+        specify "#parse --cleanup" do
+          expect(Parser.parse(["--cleanup=P7D"]).cleanup_strategy).to eq("P7D")
+          expect(Parser.parse([]).cleanup_strategy).to eq(:none)
+        end
+
+        specify "#parse --cleanup-limit" do
+          expect(Parser.parse(["--cleanup-limit=1234"]).cleanup_limit).to eq("1234")
+          expect(Parser.parse([]).cleanup_limit).to eq(:all)
+        end
+      end
+
+      RSpec.describe "build_consumer" do
+        specify "smoke test for building consumer with default options" do
+          expect { CLI.new.build_consumer(Parser.parse([])) }.not_to raise_error
+        end
       end
     end
   end
