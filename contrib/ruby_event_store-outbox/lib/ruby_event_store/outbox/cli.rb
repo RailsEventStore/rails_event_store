@@ -100,16 +100,16 @@ module RubyEventStore
       def build_consumer(options)
         consumer_uuid = SecureRandom.uuid
         logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox #{consumer_uuid}")
-        consumer_configuration =
-          Consumer::Configuration.new(
-            split_keys: options.split_keys,
-            message_format: options.message_format,
-            batch_size: options.batch_size,
-            database_url: options.database_url,
-            redis_url: options.redis_url,
-            cleanup: options.cleanup_strategy,
-            sleep_on_empty: options.sleep_on_empty
-          )
+        consumer_configuration = Consumer::Configuration.new(
+          split_keys: options.split_keys,
+          message_format: options.message_format,
+          batch_size: options.batch_size,
+          database_url: options.database_url,
+          redis_url: options.redis_url,
+          cleanup: options.cleanup_strategy,
+          cleanup_limit: options.cleanup_limit,
+          sleep_on_empty: options.sleep_on_empty,
+        )
         metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer =
           RubyEventStore::Outbox::Consumer.new(consumer_uuid, consumer_configuration, logger: logger, metrics: metrics)
