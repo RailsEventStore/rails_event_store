@@ -1,5 +1,11 @@
 ### unreleased
 
+### 0.0.24
+
+* fixed error with passing `--cleanup-limit` from CLI down to consumer
+* added missing specs for CLI options
+* added simple smoke spec to ensure CLI builds consumer without errors
+
 ### 0.0.23
 
 - add --cleanup-limit CLI option which allows to set
