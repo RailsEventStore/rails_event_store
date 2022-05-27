@@ -18,7 +18,7 @@ module RailsEventStoreActiveRecord
       hashes = []
       event_ids = []
       records.each do |record|
-        hashes << import_hash(record, record.serialize(serializer))
+        hashes << insert_hash(record, record.serialize(serializer))
         event_ids << record.event_id
       end
       add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
@@ -52,7 +52,7 @@ module RailsEventStoreActiveRecord
     end
 
     def update_messages(records)
-      hashes = records.map { |record| import_hash(record, record.serialize(serializer)) }
+      hashes = records.map { |record| upsert_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
       start_transaction do
         existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
@@ -119,7 +119,7 @@ module RailsEventStoreActiveRecord
       @index_violation_detector.detect(message)
     end
 
-    def import_hash(record, serialized_record)
+    def insert_hash(record, serialized_record)
       {
         event_id: serialized_record.event_id,
         data: serialized_record.data,
@@ -129,6 +129,18 @@ module RailsEventStoreActiveRecord
         valid_at: optimize_timestamp(record.valid_at, record.timestamp)
       }
     end
+
+    def upsert_hash(record, serialized_record)
+      {
+        event_id: serialized_record.event_id,
+        data: serialized_record.data,
+        metadata: serialized_record.metadata,
+        event_type: serialized_record.event_type,
+        created_at: record.timestamp,
+        valid_at: optimize_timestamp(record.valid_at, record.timestamp)
+      }
+    end
+
 
     def optimize_timestamp(valid_at, created_at)
       valid_at unless valid_at.eql?(created_at)
