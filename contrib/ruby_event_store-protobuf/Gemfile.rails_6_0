@@ -3,12 +3,12 @@ gemspec
 
 eval_gemfile "../../support/bundler/Gemfile.shared"
 
-gem "protobuf_nested_struct"
-gem "google-protobuf", "~> 3.14.0"
-gem "rails", "6.0.4.7"
-
 gem "ruby_event_store", path: "../../ruby_event_store"
 gem "aggregate_root", path: "../../aggregate_root"
 gem "rails_event_store", path: "../../rails_event_store"
 gem "rails_event_store_active_record", path: "../../rails_event_store_active_record"
 gem "ruby_event_store-browser", path: "../../ruby_event_store-browser"
+
+gem "protobuf_nested_struct"
+gem "google-protobuf", "~> 3.14.0"
+gem "rails", "6.0.5"
