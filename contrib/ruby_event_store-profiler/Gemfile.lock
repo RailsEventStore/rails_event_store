@@ -75,7 +75,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (>= 5.0)
+  activesupport (>= 6.0)
   aggregate_root!
   mutant (= 0.11.4)
   mutant-license!

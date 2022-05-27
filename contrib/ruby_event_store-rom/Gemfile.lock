@@ -133,7 +133,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
+  activesupport (>= 6.0)
   mutant (= 0.11.4)
   mutant-license!
   mutant-minitest (= 0.11.4)
