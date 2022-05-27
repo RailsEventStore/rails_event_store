@@ -19,5 +19,7 @@ matcher:
     - RailsEventStoreActiveRecord::IndexViolationDetector#detect_postgres
     - RailsEventStoreActiveRecord::PgLinearizedEventRepository*
     - RailsEventStoreActiveRecord::EventRepository#update_messages
+    - RailsEventStoreActiveRecord::EventRepository#upsert_hash
+    - RailsEventStoreActiveRecord::EventRepository#add_to_stream
     - RailsEventStoreActiveRecord::WithAbstractBaseClass#build_event_klass
     - RailsEventStoreActiveRecord::WithAbstractBaseClass#build_stream_klass
