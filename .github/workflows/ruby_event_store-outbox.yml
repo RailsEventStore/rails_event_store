@@ -79,16 +79,8 @@ jobs:
             gemfile: Gemfile.rails_6_0
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
-          - ruby: ruby-2.6
-            gemfile: Gemfile.rails_6_0
-            os: ubuntu-20.04
-            database: sqlite3:db.sqlite3
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
-            database: sqlite3:db.sqlite3
-          - ruby: ruby-2.6
-            gemfile: Gemfile.rails_6_1
             os: ubuntu-20.04
             database: sqlite3:db.sqlite3
           - ruby: ruby-3.1

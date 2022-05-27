@@ -55,11 +55,6 @@ jobs:
             os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
-          - ruby: ruby-2.6
-            gemfile: Gemfile
-            os: ubuntu-20.04
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: binary
           - ruby: ruby-3.0
             gemfile: Gemfile
             os: ubuntu-20.04

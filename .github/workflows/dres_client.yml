@@ -37,9 +37,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             os: ubuntu-20.04
-          - ruby: ruby-2.6
-            gemfile: Gemfile
-            os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
