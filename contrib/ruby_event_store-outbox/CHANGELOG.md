@@ -1,5 +1,9 @@
 ### unreleased
 
+### 0.0.25
+
+* added ORDER BY when cleaning up with limit #1338
+
 ### 0.0.24
 
 * fixed error with passing `--cleanup-limit` from CLI down to consumer
