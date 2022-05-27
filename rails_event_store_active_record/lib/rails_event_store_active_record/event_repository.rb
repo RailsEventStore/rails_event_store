@@ -92,7 +92,12 @@ module RailsEventStoreActiveRecord
         yield if block_given?
         in_stream =
           event_ids.map.with_index do |event_id, index|
-            { stream: stream.name, position: compute_position(resolved_version, index), event_id: event_id, created_at: Time.now.utc }
+            {
+              stream: stream.name,
+              position: compute_position(resolved_version, index),
+              event_id: event_id,
+              created_at: Time.now.utc
+            }
           end
         @stream_klass.insert_all!(in_stream) unless stream.global?
       end
