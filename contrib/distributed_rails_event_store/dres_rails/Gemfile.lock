@@ -180,7 +180,7 @@ GEM
     public_suffix (4.0.6)
     racc (1.6.0)
     rack (2.2.3)
-    rack-protection (2.1.0)
+    rack-protection (2.2.0)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -241,10 +241,10 @@ GEM
     ruby_event_store-browser (2.3.0)
       ruby_event_store (= 2.3.0)
       sinatra
-    sinatra (2.1.0)
+    sinatra (2.2.0)
       mustermann (~> 1.0)
       rack (~> 2.2)
-      rack-protection (= 2.1.0)
+      rack-protection (= 2.2.0)
       tilt (~> 2.0)
     sorbet-runtime (0.5.9785)
     strscan (3.0.3)
@@ -277,10 +277,10 @@ DEPENDENCIES
   capybara (~> 3.35)
   childprocess
   dres_rails!
-  mutant (~> 0.11.0)
+  mutant (= 0.11.4)
   mutant-license!
-  mutant-minitest (~> 0.11.0)
-  mutant-rspec (~> 0.11.0)
+  mutant-minitest (= 0.11.4)
+  mutant-rspec (= 0.11.4)
   pg
   rails_event_store!
   rake (>= 10.0)
