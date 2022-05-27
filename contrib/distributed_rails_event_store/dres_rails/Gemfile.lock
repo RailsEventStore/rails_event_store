@@ -5,6 +5,13 @@ PATH
       ruby_event_store (= 2.3.0)
 
 PATH
+  remote: ../../../rails_event_store_active_record
+  specs:
+    rails_event_store_active_record (2.3.0)
+      activerecord (>= 6.0)
+      ruby_event_store (= 2.3.0)
+
+PATH
   remote: ../../../rails_event_store
   specs:
     rails_event_store (2.3.0)
@@ -92,8 +99,6 @@ GEM
     activerecord (7.0.3)
       activemodel (= 7.0.3)
       activesupport (= 7.0.3)
-    activerecord-import (1.2.0)
-      activerecord (>= 3.2)
     activestorage (7.0.3)
       actionpack (= 7.0.3)
       activejob (= 7.0.3)
@@ -203,10 +208,6 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.4.2)
       loofah (~> 2.3)
-    rails_event_store_active_record (2.3.0)
-      activerecord (>= 5.0)
-      activerecord-import (>= 1.0.2)
-      ruby_event_store (= 2.3.0)
     railties (7.0.3)
       actionpack (= 7.0.3)
       activesupport (= 7.0.3)
@@ -283,6 +284,7 @@ DEPENDENCIES
   mutant-rspec (= 0.11.4)
   pg
   rails_event_store!
+  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   rspec-rails (~> 3.7)
