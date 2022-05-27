@@ -21,7 +21,7 @@ module RailsEventStoreActiveRecord
         hashes << import_hash(record, record.serialize(serializer))
         event_ids << record.event_id
       end
-      add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all(hashes) }
+      add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
     end
 
     def link_to_stream(event_ids, stream, expected_version)
@@ -94,7 +94,7 @@ module RailsEventStoreActiveRecord
           event_ids.map.with_index do |event_id, index|
             { stream: stream.name, position: compute_position(resolved_version, index), event_id: event_id }
           end
-        @stream_klass.insert_all(in_stream) unless stream.global?
+        @stream_klass.insert_all!(in_stream) unless stream.global?
       end
       self
     rescue ActiveRecord::RecordNotUnique => e
