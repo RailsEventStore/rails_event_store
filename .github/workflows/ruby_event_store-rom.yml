@@ -63,45 +63,45 @@ jobs:
             gemfile: Gemfile
             database: sqlite:db.sqlite3
             datatype: text
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - ruby: ruby-3.0
             gemfile: Gemfile
             database: sqlite:db.sqlite3
             datatype: text
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - ruby: ruby-2.7
             gemfile: Gemfile
             database: sqlite:db.sqlite3
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             datatype: text
           - ruby: ruby-2.7
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             datatype: text
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: json
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: jsonb
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: text
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
             datatype: text
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
             datatype: text
     steps:
@@ -128,7 +128,7 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             database: "sqlite::memory:"
             datatype: text
     steps:
