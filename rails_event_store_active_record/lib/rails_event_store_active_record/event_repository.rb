@@ -15,6 +15,8 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(records, stream, expected_version)
+      return if records.empty?
+
       hashes = []
       event_ids = []
       records.each do |record|

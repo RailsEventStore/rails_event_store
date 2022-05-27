@@ -291,6 +291,15 @@ module RailsEventStoreActiveRecord
       }.to match_query /SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.id >*.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/
     end
 
+    specify "appending empty list of commits should be a no-op" do
+      repository.append_to_stream(
+        [],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      expect(repository.read(specification.result).count).to eq(0)
+    end
+
     specify do
       events = Array.new(200) { RubyEventStore::SRecord.new }
       repository.append_to_stream(
