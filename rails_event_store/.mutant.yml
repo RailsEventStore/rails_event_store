@@ -16,3 +16,4 @@ matcher:
     - RailsEventStore::Client#initialize
     - RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord*
     - RailsEventStore::AfterCommitAsyncDispatcher#async_record
+    - RailsEventStore::AsyncHandler.with
