@@ -9,7 +9,7 @@ PATH
   remote: .
   specs:
     ruby_event_store-outbox (0.0.23)
-      activerecord (>= 5.2)
+      activerecord (>= 6.0)
       ruby_event_store (>= 1.0.0)
 
 GEM

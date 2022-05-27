@@ -16,7 +16,7 @@ PATH
   remote: ../ruby_event_store-transformations
   specs:
     ruby_event_store-transformations (0.1.0)
-      activesupport (>= 5.0)
+      activesupport (>= 6.0)
       ruby_event_store (>= 2.0.0, < 3.0.0)
 
 PATH
