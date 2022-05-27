@@ -58,7 +58,7 @@ module RailsEventStoreActiveRecord
         existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
         (for_update - existing.keys).each { |id| raise RubyEventStore::EventNotFound.new(id) }
         hashes.each { |h| h[:id] = existing.fetch(h.fetch(:event_id)) }
-        @event_klass.import(hashes, on_duplicate_key_update: %i[data metadata event_type valid_at])
+        @event_klass.upsert_all(hashes, on_duplicate: :update, update_only: %i[data metadata event_type valid_at])
       end
     end
 
