@@ -5,13 +5,15 @@ gemspec
 
 eval_gemfile "../../../support/bundler/Gemfile.shared"
 
-gem "pg"
-gem "childprocess"
-gem "rspec-rails", "~> 3.7"
-gem "capybara", "~> 3.35"
-gem "timecop", "~> 0.9"
-
 gem "ruby_event_store", path: "../../../ruby_event_store"
 gem "rails_event_store", path: "../../../rails_event_store"
 gem "rails_event_store_active_record", path: "../../../rails_event_store_active_record"
 gem "aggregate_root", path: "../../../aggregate_root"
+
+gem "pg"
+gem "childprocess"
+gem "rspec-rails"
+gem "capybara"
+gem "timecop"
+
+

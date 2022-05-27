@@ -5,8 +5,8 @@ gemspec
 
 eval_gemfile "../../../support/bundler/Gemfile.shared"
 
-gem "webmock", "~> 3.3.0"
+gem "ruby_event_store", path: "../../../ruby_event_store"
+
+gem "webmock"
 gem "closed_struct"
 gem "equalizer"
-
-gem "ruby_event_store", path: "../../../ruby_event_store"
