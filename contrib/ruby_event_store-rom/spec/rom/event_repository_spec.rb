@@ -16,27 +16,30 @@ module RubyEventStore
         EventRepository.new(rom: helper.rom_container, serializer: serializer)
       end
 
-
       it_behaves_like :event_repository, mk_repository, helper
 
-      let(:rom_container)  { helper.rom_container }
-      let(:repository)     { mk_repository.call }
-      let(:specification)  { Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new)) }
-
-      around(:each) do |example|
-        helper.run_lifecycle { example.run }
+      let(:rom_container) { helper.rom_container }
+      let(:repository) { mk_repository.call }
+      let(:specification) do
+        Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new))
       end
 
+      around(:each) { |example| helper.run_lifecycle { example.run } }
+
       specify "nested transaction - events still not persisted if append failed" do
-        repository.append_to_stream([
-          event = SRecord.new(event_id: SecureRandom.uuid)
-        ], Stream.new("stream"), ExpectedVersion.none)
+        repository.append_to_stream(
+          [event = SRecord.new(event_id: SecureRandom.uuid)],
+          Stream.new("stream"),
+          ExpectedVersion.none
+        )
 
         helper.with_transaction do
           expect do
-            repository.append_to_stream([
-              SRecord.new(event_id: "9bedf448-e4d0-41a3-a8cd-f94aec7aa763")
-            ], Stream.new("stream"), ExpectedVersion.none)
+            repository.append_to_stream(
+              [SRecord.new(event_id: "9bedf448-e4d0-41a3-a8cd-f94aec7aa763")],
+              Stream.new("stream"),
+              ExpectedVersion.none
+            )
           end.to raise_error(WrongExpectedEventVersion)
           expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be false
           expect(repository.read(specification.limit(2).result).to_a).to eq([event])
@@ -52,12 +55,12 @@ module RubyEventStore
           RubyEventStore::ExpectedVersion.auto
         )
 
-        expect{ repository.read(specification.limit(2).result) }.to                           match_query_count(1)
-        expect{ repository.read(specification.limit(2).backward.result) }.to                  match_query_count(1)
-        expect{ repository.read(specification.stream("stream").result) }.to                   match_query_count(2)
-        expect{ repository.read(specification.stream("stream").backward.result) }.to          match_query_count(2)
-        expect{ repository.read(specification.stream("stream").limit(2).result) }.to          match_query_count(2)
-        expect{ repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count(2)
+        expect { repository.read(specification.limit(2).result) }.to match_query_count(1)
+        expect { repository.read(specification.limit(2).backward.result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").result) }.to match_query_count(2)
+        expect { repository.read(specification.stream("stream").backward.result) }.to match_query_count(2)
+        expect { repository.read(specification.stream("stream").limit(2).result) }.to match_query_count(2)
+        expect { repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count(2)
       end
     end
   end

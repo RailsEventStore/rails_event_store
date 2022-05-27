@@ -13,14 +13,15 @@ module RubyEventStore
         end
 
         private
+
         def symbolize(record)
           Record.new(
-            event_id:   record.event_id,
+            event_id: record.event_id,
             event_type: record.event_type,
-            data:       record.data,
-            metadata:   TransformKeys.symbolize(record.metadata),
-            timestamp:  record.timestamp,
-            valid_at:   record.valid_at,
+            data: record.data,
+            metadata: TransformKeys.symbolize(record.metadata),
+            timestamp: record.timestamp,
+            valid_at: record.valid_at
           )
         end
       end

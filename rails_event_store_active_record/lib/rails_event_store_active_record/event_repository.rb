@@ -7,7 +7,7 @@ module RailsEventStoreActiveRecord
     POSITION_SHIFT = 1
 
     def initialize(model_factory: WithDefaultModels.new, serializer:)
-      @serializer  = serializer
+      @serializer = serializer
 
       @event_klass, @stream_klass = model_factory.call
       @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
@@ -15,15 +15,13 @@ module RailsEventStoreActiveRecord
     end
 
     def append_to_stream(records, stream, expected_version)
-      hashes    = []
+      hashes = []
       event_ids = []
       records.each do |record|
-        hashes    << import_hash(record, record.serialize(serializer))
+        hashes << import_hash(record, record.serialize(serializer))
         event_ids << record.event_id
       end
-      add_to_stream(event_ids, stream, expected_version) do
-        @event_klass.insert_all(hashes)
-      end
+      add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all(hashes) }
     end
 
     def link_to_stream(event_ids, stream, expected_version)
@@ -54,13 +52,13 @@ module RailsEventStoreActiveRecord
     end
 
     def update_messages(records)
-      hashes  = records.map { |record| import_hash(record, record.serialize(serializer)) }
+      hashes = records.map { |record| import_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
       start_transaction do
         existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
-        (for_update - existing.keys).each{|id| raise RubyEventStore::EventNotFound.new(id) }
+        (for_update - existing.keys).each { |id| raise RubyEventStore::EventNotFound.new(id) }
         hashes.each { |h| h[:id] = existing.fetch(h.fetch(:event_id)) }
-        @event_klass.import(hashes, on_duplicate_key_update: [:data, :metadata, :event_type, :valid_at])
+        @event_klass.import(hashes, on_duplicate_key_update: %i[data metadata event_type valid_at])
       end
     end
 
@@ -81,21 +79,21 @@ module RailsEventStoreActiveRecord
     end
 
     private
+
     attr_reader :serializer
 
     def add_to_stream(event_ids, stream, expected_version)
-      last_stream_version = ->(stream_) { @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position) }
+      last_stream_version = ->(stream_) do
+        @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position)
+      end
       resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
       start_transaction do
         yield if block_given?
-        in_stream = event_ids.map.with_index do |event_id, index|
-          {
-            stream:   stream.name,
-            position: compute_position(resolved_version, index),
-            event_id: event_id,
-          }
-        end
+        in_stream =
+          event_ids.map.with_index do |event_id, index|
+            { stream: stream.name, position: compute_position(resolved_version, index), event_id: event_id }
+          end
         @stream_klass.insert_all(in_stream) unless stream.global?
       end
       self
@@ -104,16 +102,12 @@ module RailsEventStoreActiveRecord
     end
 
     def raise_error(e)
-      if detect_index_violated(e.message)
-        raise RubyEventStore::EventDuplicatedInStream
-      end
+      raise RubyEventStore::EventDuplicatedInStream if detect_index_violated(e.message)
       raise RubyEventStore::WrongExpectedEventVersion
     end
 
     def compute_position(resolved_version, index)
-      unless resolved_version.nil?
-        resolved_version + index + POSITION_SHIFT
-      end
+      resolved_version + index + POSITION_SHIFT unless resolved_version.nil?
     end
 
     def detect_index_violated(message)
@@ -122,12 +116,12 @@ module RailsEventStoreActiveRecord
 
     def import_hash(record, serialized_record)
       {
-        event_id:   serialized_record.event_id,
-        data:       serialized_record.data,
-        metadata:   serialized_record.metadata,
+        event_id: serialized_record.event_id,
+        data: serialized_record.data,
+        metadata: serialized_record.metadata,
         event_type: serialized_record.event_type,
         created_at: record.timestamp,
-        valid_at:   optimize_timestamp(record.valid_at, record.timestamp),
+        valid_at: optimize_timestamp(record.valid_at, record.timestamp)
       }
     end
 
@@ -139,5 +133,4 @@ module RailsEventStoreActiveRecord
       @event_klass.transaction(requires_new: true, &block)
     end
   end
-
 end

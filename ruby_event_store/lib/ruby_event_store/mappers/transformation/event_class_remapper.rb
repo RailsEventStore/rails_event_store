@@ -14,16 +14,17 @@ module RubyEventStore
 
         def load(record)
           Record.new(
-            event_id:   record.event_id,
+            event_id: record.event_id,
             event_type: class_map[record.event_type] || record.event_type,
-            data:       record.data,
-            metadata:   record.metadata,
-            timestamp:  record.timestamp,
-            valid_at:   record.valid_at,
+            data: record.data,
+            metadata: record.metadata,
+            timestamp: record.timestamp,
+            valid_at: record.valid_at
           )
         end
 
         private
+
         attr_reader :class_map
       end
     end

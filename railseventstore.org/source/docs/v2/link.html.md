@@ -15,10 +15,7 @@ class Order
   end
 
   def place
-    event_store.publish(
-      OrderPlaced.new(data: { id: @id }),
-      stream_name: stream_name
-    )
+    event_store.publish(OrderPlaced.new(data: { id: @id }), stream_name: stream_name)
   end
 
   private
@@ -32,7 +29,7 @@ class Order
   end
 end
 
-order = Order.new('68a5214d-3194-4cfd-8997-5033bcb7e68a')
+order = Order.new("68a5214d-3194-4cfd-8997-5033bcb7e68a")
 order.place
 ```
 
@@ -41,19 +38,19 @@ Now imagine you'd like to see in one place all facts about placed orders in Jan 
 For repeated use it would be much better to process events only once and store them in some sort of a collection — the stream:
 
 ```ruby
-order_placed = RailsEventStore::Projection
-  .from_all_streams
-  .init( -> { })
-  .when([OrderPlaced], ->(state, event) {
-    time = event.metadata[:timestamp]
-    if time.year == 2018 && time.month == 1
-      event_store.link(
-        event.event_id,
-        stream_name: 'OrderPlaced$2018-01',
-        expected_version: :any
-      )
-    end
-  })
+order_placed =
+  RailsEventStore::Projection
+    .from_all_streams
+    .init(-> {  })
+    .when(
+      [OrderPlaced],
+      ->(state, event) do
+        time = event.metadata[:timestamp]
+        if time.year == 2018 && time.month == 1
+          event_store.link(event.event_id, stream_name: "OrderPlaced$2018-01", expected_version: :any)
+        end
+      end,
+    )
 
 order_placed.run(event_store)
 ```
@@ -61,7 +58,7 @@ order_placed.run(event_store)
 Now going for `OrderPlaced` events in January is as simple as reading:
 
 ```ruby
-event_store.read.stream('OrderPlaced$2018-01').to_a
+event_store.read.stream("OrderPlaced$2018-01").to_a
 ```
 
 Linking can be even managed as soon as event is published, via event handler:
@@ -69,11 +66,7 @@ Linking can be even managed as soon as event is published, via event handler:
 ```ruby
 class OrderPlacedReport
   def call(event)
-    event_store.link(
-      event.event_id,
-      stream_name: stream_name(event.metadata[:timestamp]),
-      expected_version: :any
-    )
+    event_store.link(event.event_id, stream_name: stream_name(event.metadata[:timestamp]), expected_version: :any)
   end
 
   private

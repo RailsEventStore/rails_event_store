@@ -52,7 +52,7 @@ module RubyEventStore
               end
             end
 
-            return (expectations + reality)
+            return expectations + reality
           end
         end
 
@@ -76,6 +76,7 @@ module RubyEventStore
         end
 
         private
+
         attr_reader :differ, :lingo
 
         def failure_message_no_events
@@ -92,13 +93,14 @@ module RubyEventStore
 
             but was #{lingo.published} #{correct_event_count} times
             EOS
-
             if !events_with_correct_type.empty?
               [
                 <<~EOS.strip,
               There are events of correct type but with incorrect payload:
                 EOS
-                events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) },
+                events_with_correct_type.each_with_index.map do |event_with_correct_type, index|
+                  event_diff(expected_event, event_with_correct_type, index)
+                end,
                 nil
               ]
             end
@@ -110,7 +112,7 @@ module RubyEventStore
           , but it was not #{lingo.published}
 
           There are events of correct type but with incorrect payload:
-          #{events_with_correct_type.each_with_index.map {|event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }.join("\n")}
+          #{events_with_correct_type.each_with_index.map { |event_with_correct_type, index| event_diff(expected_event, event_with_correct_type, index) }.join("\n")}
           EOS
         end
 
@@ -118,12 +120,12 @@ module RubyEventStore
           [
             "#{index + 1}) #{event_with_correct_type.inspect}",
             indent(data_diff(expected_event, event_with_correct_type), 4),
-            indent(metadata_diff(expected_event, event_with_correct_type), 4),
+            indent(metadata_diff(expected_event, event_with_correct_type), 4)
           ].reject(&:empty?)
         end
 
         def indent(str, count)
-          str.to_s.split("\n").map {|l| l.sub(//, " " * count) }
+          str.to_s.split("\n").map { |l| l.sub(//, " " * count) }
         end
 
         def failure_message_incorrect_type
@@ -184,7 +186,7 @@ module RubyEventStore
         def expected_events_list(expected)
           <<~EOS.strip
           [
-          #{expected.map(&:description).map {|d| indent(d, 2) }.join("\n")}
+          #{expected.map(&:description).map { |d| indent(d, 2) }.join("\n")}
           ]
           EOS
         end
@@ -192,7 +194,7 @@ module RubyEventStore
         def actual_events_list(actual)
           <<~EOS.strip
           but the following was #{lingo.published}: [
-          #{actual.map(&:inspect).map {|d| indent(d, 2) }.join("\n")}
+          #{actual.map(&:inspect).map { |d| indent(d, 2) }.join("\n")}
           ]
           EOS
         end

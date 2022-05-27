@@ -3,8 +3,8 @@ require "ruby_event_store/batch_enumerator"
 
 module RubyEventStore
   RSpec.describe BatchEnumerator, timeout: 1 do
-    let(:collection) { (1..10000).to_a }
-    let(:reader) { ->(offset,limit) { collection.drop(offset).take(limit) } }
+    let(:collection) { (1..10_000).to_a }
+    let(:reader) { ->(offset, limit) { collection.drop(offset).take(limit) } }
 
     specify { expect(BatchEnumerator.new(100, 900, reader).each).to be_kind_of(Enumerator) }
     specify { expect(BatchEnumerator.new(100, 900, reader).to_a.size).to eq(9) }
@@ -38,7 +38,7 @@ module RubyEventStore
         collection[6000...7000],
         collection[7000...8000],
         collection[8000...9000],
-        collection[9000...10000]
+        collection[9000...10_000]
       )
     end
 

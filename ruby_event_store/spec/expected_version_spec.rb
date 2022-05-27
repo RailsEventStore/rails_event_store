@@ -26,7 +26,9 @@ module RubyEventStore
 
     specify { expect(ExpectedVersion.any.resolve_for(Stream.new(GLOBAL_STREAM))).to eq(nil) }
 
-    specify { expect { ExpectedVersion.auto.resolve_for(Stream.new(GLOBAL_STREAM)) }.to raise_error(InvalidExpectedVersion) }
+    specify do
+      expect { ExpectedVersion.auto.resolve_for(Stream.new(GLOBAL_STREAM)) }.to raise_error(InvalidExpectedVersion)
+    end
 
     specify { expect(ExpectedVersion.none.resolve_for(Stream.new("dummy"))).to eq(ExpectedVersion::POSITION_DEFAULT) }
 
@@ -37,7 +39,7 @@ module RubyEventStore
     specify do
       resolver = ->(stream) do
         case stream.name
-        when "42" then
+        when "42"
           42
         else
           13
@@ -59,11 +61,7 @@ module RubyEventStore
     end
 
     specify "in-equality" do
-      %i(
-        any
-        none
-        auto
-      ).permutation(2).each do |one, two|
+      %i[any none auto].permutation(2).each do |one, two|
         a = ExpectedVersion.new(one)
         b = ExpectedVersion.new(two)
         c = Class.new(ExpectedVersion).new(one)

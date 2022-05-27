@@ -5,28 +5,30 @@ module RubyEventStore
   module Mappers
     module Transformation
       RSpec.describe StringifyMetadataKeys do
-        let(:time)  { Time.now.utc }
-        let(:uuid)  { SecureRandom.uuid }
-        let(:record)  {
+        let(:time) { Time.now.utc }
+        let(:uuid) { SecureRandom.uuid }
+        let(:record) do
           Record.new(
-            event_id:   uuid,
-            metadata:   JSON.parse(JSON.dump({some: "meta"})),
-            data:       JSON.parse(JSON.dump({some: "value"})),
+            event_id: uuid,
+            metadata: JSON.parse(JSON.dump({ some: "meta" })),
+            data: JSON.parse(JSON.dump({ some: "value" })),
             event_type: "TestEvent",
-            timestamp:  time,
-            valid_at:   time
+            timestamp: time,
+            valid_at: time
           )
-        }
-        let(:changed_record)  {
+        end
+        let(:changed_record) do
           Record.new(
-            event_id:   uuid,
-            metadata:   {some: "meta"},
-            data:       JSON.parse(JSON.dump({some: "value"})),
+            event_id: uuid,
+            metadata: {
+              some: "meta"
+            },
+            data: JSON.parse(JSON.dump({ some: "value" })),
             event_type: "TestEvent",
-            timestamp:  time,
-            valid_at:   time
+            timestamp: time,
+            valid_at: time
           )
-        }
+        end
 
         specify "#dump" do
           result = StringifyMetadataKeys.new.dump(changed_record)

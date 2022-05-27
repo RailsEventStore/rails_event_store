@@ -1,29 +1,26 @@
-require 'ruby_event_store'
+require "ruby_event_store"
 require "ruby_event_store/outbox"
 require "ruby_event_store/outbox/cli"
 require "ruby_event_store/outbox/metrics/null"
 require "ruby_event_store/outbox/metrics/influx"
 require "ruby_event_store/outbox/metrics/test"
-require_relative '../../../support/helpers/rspec_defaults'
-require_relative '../../../support/helpers/schema_helper'
-require_relative '../../../support/helpers/time_enrichment'
-require_relative './support/db'
-require 'rails'
-require 'active_support/testing/time_helpers.rb'
+require_relative "../../../support/helpers/rspec_defaults"
+require_relative "../../../support/helpers/schema_helper"
+require_relative "../../../support/helpers/time_enrichment"
+require_relative "./support/db"
+require "rails"
+require "active_support/testing/time_helpers.rb"
 
 RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
   config.after(:each) { travel_back }
-  config.before(:each, redis: true) do |example|
-    redis.flushdb
-  end
+  config.before(:each, redis: true) { |example| redis.flushdb }
 end
 
-$verbose = ENV.has_key?('VERBOSE') ? true : false
+$verbose = ENV.has_key?("VERBOSE") ? true : false
 ActiveRecord::Schema.verbose = $verbose
 
-ENV['DATABASE_URL'] ||= 'sqlite3::memory:'
-
+ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 
 class MutantIdGenerator
   def initialize(redis_url, value_for_main_pid, name)
@@ -36,11 +33,7 @@ class MutantIdGenerator
 
   def id_for_current_pid
     pid = Process.pid
-    if pid == @main_pid
-      @value_for_main_pid
-    else
-      get_id_for_pid(pid) || set_id_for_pid(pid)
-    end
+    pid == @main_pid ? @value_for_main_pid : get_id_for_pid(pid) || set_id_for_pid(pid)
   end
 
   private
@@ -69,7 +62,6 @@ module RedisIsolation
     "redis://localhost:6379/#{RedisMutantIdGenerator.id_for_current_pid}"
   end
 end
-
 
 class TickingClock
   def initialize(start: Time.now.utc, tick_by: 1)

@@ -25,17 +25,13 @@ class TestAggregate
 
   private
 
-  def apply_foo_event(*)
-  end
+  def apply_foo_event(*); end
 
-  def apply_bar_event(*)
-  end
+  def apply_bar_event(*); end
 
-  def apply_baz_event(*)
-  end
+  def apply_baz_event(*); end
 end
 
 class Handler
-  def call(event)
-  end
+  def call(event); end
 end

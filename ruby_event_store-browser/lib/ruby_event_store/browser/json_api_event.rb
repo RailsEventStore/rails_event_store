@@ -19,18 +19,19 @@ module RubyEventStore
             correlation_stream_name: correlation_stream_name,
             causation_stream_name: causation_stream_name,
             type_stream_name: type_stream_name,
-            parent_event_id: parent_event_id,
-          },
+            parent_event_id: parent_event_id
+          }
         }
       end
 
       private
+
       attr_reader :event, :parent_event_id
 
       def metadata
         event.metadata.to_h.tap do |m|
           m[:timestamp] = event.metadata.fetch(:timestamp).iso8601(TIMESTAMP_PRECISION)
-          m[:valid_at]  = event.metadata.fetch(:valid_at).iso8601(TIMESTAMP_PRECISION)
+          m[:valid_at] = event.metadata.fetch(:valid_at).iso8601(TIMESTAMP_PRECISION)
         end
       end
 

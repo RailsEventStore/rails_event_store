@@ -28,17 +28,13 @@ RSpec.describe DresRails::Queue do
     q = DresRails::Queue.create!(name: "app", last_processed_event_id: nil)
 
     processed = 0
-    q.process(event_id = "ffdd79ea-a6c6-4cdc-9802-a8d7525a9072") do
-      processed += 1
-    end
+    q.process(event_id = "ffdd79ea-a6c6-4cdc-9802-a8d7525a9072") { processed += 1 }
 
     expect(q.jobs.where(event_id: event_id).map(&:state)).to eq(["success"])
     expect(q.last_processed_event_id).to eq(event_id)
     expect(processed).to eq(1)
 
-    q.process(event_id) do
-      processed += 1
-    end
+    q.process(event_id) { processed += 1 }
     expect(processed).to eq(1)
     expect(q.jobs.where(event_id: event_id).map(&:state)).to eq(["success"])
   end
@@ -59,13 +55,10 @@ RSpec.describe DresRails::Queue do
     expect(q.last_processed_event_id).to eq(event_id)
     expect(processed).to eq(1)
 
-    q.process(event_id) do
-      processed += 1
-    end
+    q.process(event_id) { processed += 1 }
 
-    expect(q.jobs.where(event_id: event_id).map(&:state)).to eq(["failure", "success"])
+    expect(q.jobs.where(event_id: event_id).map(&:state)).to eq(%w[failure success])
     expect(q.last_processed_event_id).to eq(event_id)
     expect(processed).to eq(2)
   end
-
 end

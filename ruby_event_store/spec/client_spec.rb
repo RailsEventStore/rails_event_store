@@ -4,10 +4,16 @@ require "json"
 
 module RubyEventStore
   RSpec.describe Client do
-    let(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new, correlation_id_generator: correlation_id_generator) }
+    let(:client) do
+      RubyEventStore::Client.new(
+        repository: InMemoryRepository.new,
+        mapper: Mappers::NullMapper.new,
+        correlation_id_generator: correlation_id_generator
+      )
+    end
     let(:stream) { SecureRandom.uuid }
     let(:correlation_id) { SecureRandom.uuid }
-    let(:correlation_id_generator) { ->{ correlation_id } }
+    let(:correlation_id_generator) { -> { correlation_id } }
 
     specify "publish returns self when success" do
       expect(client.publish(TestEvent.new)).to eq(client)
@@ -56,7 +62,9 @@ module RubyEventStore
     specify "publish first event, fail if not empty stream" do
       client.append(first_event = TestEvent.new, stream_name: stream)
 
-      expect { client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: :none) }.to raise_error(WrongExpectedEventVersion)
+      expect {
+        client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: :none)
+      }.to raise_error(WrongExpectedEventVersion)
       expect(client.read.stream(stream).to_a).to eq([first_event])
     end
 
@@ -71,15 +79,14 @@ module RubyEventStore
       client.append(first_event = TestEvent.new, stream_name: stream)
       client.append(second_event = TestEvent.new, stream_name: stream)
 
-      expect { client.publish(third_event = TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(WrongExpectedEventVersion)
+      expect { client.publish(third_event = TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(
+        WrongExpectedEventVersion
+      )
       expect(client.read.stream(stream).to_a).to eq([first_event, second_event])
     end
 
     specify "append many events" do
-      client = RubyEventStore::Client.new(
-        repository: InMemoryRepository.new,
-        mapper: Mappers::Default.new
-      )
+      client = RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::Default.new)
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: stream,
@@ -103,9 +110,7 @@ module RubyEventStore
     end
 
     specify "published event metadata will be enriched by metadata provided in with_metadata when executed inside a block" do
-      client.with_metadata(request_ip: "127.0.0.1") do
-        client.publish(event = TestEvent.new)
-      end
+      client.with_metadata(request_ip: "127.0.0.1") { client.publish(event = TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -130,9 +135,7 @@ module RubyEventStore
         client.publish(TestEvent.new)
         client.with_metadata(request_ip: "1.2.3.4", nested: true) do
           client.publish(TestEvent.new)
-          client.with_metadata(deeply_nested: true) do
-            client.publish(TestEvent.new)
-          end
+          client.with_metadata(deeply_nested: true) { client.publish(TestEvent.new) }
         end
         client.publish(TestEvent.new)
       end
@@ -140,56 +143,56 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(5)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip])
+      expect(published[0].metadata.keys).to match_array(%i[timestamp valid_at correlation_id request_ip])
       expect(published[0].metadata[:request_ip]).to eq("127.0.0.1")
       expect(published[0].metadata[:timestamp]).to be_a Time
-      expect(published[0].metadata[:valid_at]).to  be_a Time
+      expect(published[0].metadata[:valid_at]).to be_a Time
       expect(published[0].metadata[:correlation_id]).to eq(correlation_id)
-      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip, :nested])
+      expect(published[1].metadata.keys).to match_array(%i[timestamp valid_at correlation_id request_ip nested])
       expect(published[1].metadata[:request_ip]).to eq("1.2.3.4")
       expect(published[1].metadata[:nested]).to eq true
       expect(published[1].metadata[:timestamp]).to be_a Time
-      expect(published[1].metadata[:valid_at]).to  be_a Time
+      expect(published[1].metadata[:valid_at]).to be_a Time
       expect(published[1].metadata[:correlation_id]).to eq(correlation_id)
-      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip, :nested, :deeply_nested])
+      expect(published[2].metadata.keys).to match_array(
+        %i[timestamp valid_at correlation_id request_ip nested deeply_nested]
+      )
       expect(published[2].metadata[:request_ip]).to eq("1.2.3.4")
       expect(published[2].metadata[:nested]).to eq true
       expect(published[2].metadata[:deeply_nested]).to eq true
       expect(published[2].metadata[:timestamp]).to be_a Time
-      expect(published[2].metadata[:valid_at]).to  be_a Time
+      expect(published[2].metadata[:valid_at]).to be_a Time
       expect(published[2].metadata[:correlation_id]).to eq(correlation_id)
-      expect(published[3].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :request_ip])
+      expect(published[3].metadata.keys).to match_array(%i[timestamp valid_at correlation_id request_ip])
       expect(published[3].metadata[:request_ip]).to eq("127.0.0.1")
       expect(published[3].metadata[:timestamp]).to be_a Time
-      expect(published[3].metadata[:valid_at]).to  be_a Time
+      expect(published[3].metadata[:valid_at]).to be_a Time
       expect(published[3].metadata[:correlation_id]).to eq(correlation_id)
-      expect(published[4].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id])
+      expect(published[4].metadata.keys).to match_array(%i[timestamp valid_at correlation_id])
       expect(published[4].metadata[:timestamp]).to be_a Time
-      expect(published[4].metadata[:valid_at]).to  be_a Time
+      expect(published[4].metadata[:valid_at]).to be_a Time
       expect(published[4].metadata[:correlation_id]).to eq(correlation_id)
     end
 
     specify "with_metadata is merged when nested" do
       client.with_metadata(remote_ip: "127.0.0.1") do
         client.publish(TestEvent.new)
-        client.with_metadata(remote_ip: "192.168.0.1", request_id: "1234567890") do
-          client.publish(TestEvent.new)
-        end
+        client.with_metadata(remote_ip: "192.168.0.1", request_id: "1234567890") { client.publish(TestEvent.new) }
         client.publish(TestEvent.new)
       end
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(3)
-      expect(published[0].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :remote_ip])
+      expect(published[0].metadata.keys).to match_array(%i[timestamp valid_at correlation_id remote_ip])
       expect(published[0].metadata[:remote_ip]).to eq("127.0.0.1")
       expect(published[0].metadata[:timestamp]).to be_a Time
       expect(published[0].metadata[:valid_at]).to be_a Time
-      expect(published[1].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :remote_ip, :request_id])
+      expect(published[1].metadata.keys).to match_array(%i[timestamp valid_at correlation_id remote_ip request_id])
       expect(published[1].metadata[:timestamp]).to be_a Time
       expect(published[1].metadata[:valid_at]).to be_a Time
       expect(published[1].metadata[:remote_ip]).to eq("192.168.0.1")
       expect(published[1].metadata[:request_id]).to eq("1234567890")
-      expect(published[2].metadata.keys).to match_array([:timestamp, :valid_at, :correlation_id, :remote_ip])
+      expect(published[2].metadata.keys).to match_array(%i[timestamp valid_at correlation_id remote_ip])
       expect(published[2].metadata[:remote_ip]).to eq("127.0.0.1")
       expect(published[2].metadata[:timestamp]).to be_a Time
       expect(published[2].metadata[:valid_at]).to be_a Time
@@ -197,7 +200,7 @@ module RubyEventStore
 
     specify "event's  metadata takes precedence over with_metadata" do
       client.with_metadata(request_ip: "127.0.0.1") do
-        client.publish(@event = TestEvent.new(metadata: {request_ip: "1.2.3.4"}))
+        client.publish(@event = TestEvent.new(metadata: { request_ip: "1.2.3.4" }))
       end
       expect(@event.metadata.fetch(:request_ip)).to eq("1.2.3.4")
     end
@@ -222,48 +225,38 @@ module RubyEventStore
 
     specify "with_metadata is thread-safe" do
       client.with_metadata(thread1: "1") do
-        Thread.new do
-          client.with_metadata(thread2: "2") do
-            client.publish(@event = TestEvent.new)
-          end
-        end.join
+        Thread.new { client.with_metadata(thread2: "2") { client.publish(@event = TestEvent.new) } }.join
       end
       expect(@event.metadata[:thread1]).to be_nil
       expect(@event.metadata[:thread2]).to eq("2")
     end
 
     specify "timestamp can be overwritten by using with_metadata" do
-      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) do
-        client.append(event = TestEvent.new)
-      end
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) { client.append(event = TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to   match_array([:timestamp, :valid_at, :correlation_id])
+      expect(published.first.metadata.to_h.keys).to match_array(%i[timestamp valid_at correlation_id])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
-      expect(published.first.metadata[:valid_at]).to  eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
     end
 
     specify "valid_at will equal timestamp unless specified" do
-      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) do
-        client.append(event = TestEvent.new)
-      end
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) { client.append(event = TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to   match_array([:timestamp, :valid_at, :correlation_id])
+      expect(published.first.metadata.to_h.keys).to match_array(%i[timestamp valid_at correlation_id])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
-      expect(published.first.metadata[:valid_at]).to  eq(Time.utc(2018, 1, 1))
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
     end
 
     specify "valid_at can be overwritten by using with_metadata" do
-      client.with_metadata(valid_at: Time.utc(2018, 1, 1)) do
-        client.append(event = TestEvent.new)
-      end
+      client.with_metadata(valid_at: Time.utc(2018, 1, 1)) { client.append(event = TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to  match_array([:timestamp, :valid_at, :correlation_id])
+      expect(published.first.metadata.to_h.keys).to match_array(%i[timestamp valid_at correlation_id])
       expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 1))
     end
 
@@ -274,9 +267,9 @@ module RubyEventStore
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
-      expect(published.first.metadata.to_h.keys).to   match_array([:timestamp, :valid_at, :correlation_id])
+      expect(published.first.metadata.to_h.keys).to match_array(%i[timestamp valid_at correlation_id])
       expect(published.first.metadata[:timestamp]).to eq(Time.utc(2018, 1, 1))
-      expect(published.first.metadata[:valid_at]).to  eq(Time.utc(2018, 1, 3))
+      expect(published.first.metadata[:valid_at]).to eq(Time.utc(2018, 1, 3))
     end
 
     specify "timestamp is utc time" do
@@ -304,33 +297,25 @@ module RubyEventStore
     end
 
     specify "correlation_id and causation_id in metadata for sync handlers" do
-      client.subscribe(to: [ProductAdded]) do
-        client.publish(@two = OrderCreated.new)
-      end
+      client.subscribe(to: [ProductAdded]) { client.publish(@two = OrderCreated.new) }
       client.subscribe(to: [OrderCreated]) do
         client.publish(@three = TestEvent.new)
-        client.publish(@four  = TestEvent.new(metadata:{
-          correlation_id: "COID",
-          causation_id:   "CAID",
-        }))
+        client.publish(@four = TestEvent.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
       end
       client.publish(one = ProductAdded.new)
 
       expect(@two.correlation_id).to eq(one.correlation_id)
-      expect(@two.causation_id).to   eq(one.event_id)
+      expect(@two.causation_id).to eq(one.event_id)
 
       expect(@three.correlation_id).to eq(one.correlation_id)
-      expect(@three.causation_id).to   eq(@two.event_id)
+      expect(@three.causation_id).to eq(@two.event_id)
 
       expect(@four.correlation_id).to eq("COID")
-      expect(@four.causation_id).to   eq("CAID")
+      expect(@four.causation_id).to eq("CAID")
 
-      client.publish(one = ProductAdded.new(metadata:{
-        correlation_id: "COID",
-        causation_id:   "CAID",
-      }))
+      client.publish(one = ProductAdded.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
       expect(@two.correlation_id).to eq("COID")
-      expect(@two.causation_id).to   eq(one.event_id)
+      expect(@two.causation_id).to eq(one.event_id)
     end
 
     specify "reading particular event" do
@@ -345,18 +330,10 @@ module RubyEventStore
 
     specify "link events" do
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
-      client.append(
-        [first_event = TestEvent.new, second_event = TestEvent.new],
-        stream_name: "stream"
-      )
-      client.link(
-        [first_event.event_id, second_event.event_id],
-        stream_name: "flow",
-        expected_version: -1
-      ).link(
-        [first_event.event_id],
-        stream_name: "cars",
-      )
+      client.append([first_event = TestEvent.new, second_event = TestEvent.new], stream_name: "stream")
+      client
+        .link([first_event.event_id, second_event.event_id], stream_name: "flow", expected_version: -1)
+        .link([first_event.event_id], stream_name: "cars")
 
       expect(client.read.stream("flow").to_a).to eq([first_event, second_event])
       expect(client.read.stream("cars").to_a).to eq([first_event])
@@ -371,7 +348,10 @@ module RubyEventStore
     end
 
     specify "raise exception if event_id does not exist" do
-      expect { client.read.stream("stream_name").from("0").limit(100).to_a }.to raise_error(EventNotFound, /Event not found: 0/)
+      expect { client.read.stream("stream_name").from("0").limit(100).to_a }.to raise_error(
+        EventNotFound,
+        /Event not found: 0/
+      )
       expect { client.read.backward.stream("stream_name").from("0").limit(100).to_a }.to raise_error(EventNotFound, /0/)
     end
 
@@ -437,7 +417,9 @@ module RubyEventStore
       end
 
       expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
-      expect { client.read.backward.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
+      expect { client.read.backward.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
+        EventNotFound
+      )
     end
 
     specify "raise exception if stream name is incorrect" do
@@ -481,8 +463,12 @@ module RubyEventStore
     end
 
     specify "raise exception if stream name is incorrect" do
-      expect { client.append(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(IncorrectStreamData)
-      expect { client.append(OrderCreated.new, stream_name: "", expected_version: -1) }.to raise_error(IncorrectStreamData)
+      expect { client.append(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(
+        IncorrectStreamData
+      )
+      expect { client.append(OrderCreated.new, stream_name: "", expected_version: -1) }.to raise_error(
+        IncorrectStreamData
+      )
     end
 
     specify "return all events ordered forward" do
@@ -510,8 +496,8 @@ module RubyEventStore
     end
 
     specify "return all events ordered forward" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: "order_2")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: "order_2")
       response = client.read.limit(100).to_a
       expect(response.length).to eq 2
       expect(response[0].data[:order_id]).to eq 123
@@ -519,9 +505,9 @@ module RubyEventStore
     end
 
     specify "return batch of events from the beginging ordered forward" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: "order_2")
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: "order_3")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: "order_2")
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: "order_3")
       response = client.read.limit(2).to_a
 
       expect(response.length).to eq 2
@@ -531,9 +517,9 @@ module RubyEventStore
 
     specify "return batch of events from given event ordered forward" do
       uid = SecureRandom.uuid
-      client.publish(OrderCreated.new(event_id: uid, data: {order_id: 123}), stream_name: "order_1")
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: "order_2")
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: "order_3")
+      client.publish(OrderCreated.new(event_id: uid, data: { order_id: 123 }), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: "order_2")
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: "order_3")
       response = client.read.from(uid).limit(1).to_a
 
       expect(response.length).to eq 1
@@ -541,8 +527,8 @@ module RubyEventStore
     end
 
     specify "return all events ordered backward" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: "order_1")
       response = client.read.backward.limit(100).to_a
 
       expect(response.length).to eq 2
@@ -551,9 +537,9 @@ module RubyEventStore
     end
 
     specify "return batch of events from the end ordered backward" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
-      client.publish(OrderCreated.new(data: {order_id: 234}), stream_name: "order_2")
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: "order_3")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 234 }), stream_name: "order_2")
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: "order_3")
       response = client.read.backward.limit(2).to_a
 
       expect(response.length).to eq 2
@@ -562,9 +548,12 @@ module RubyEventStore
     end
 
     specify "return batch of events from given event ordered backward" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
-      client.publish(OrderCreated.new(event_id: uid = SecureRandom.uuid, data: {order_id: 234}), stream_name: "order_2")
-      client.publish(OrderCreated.new(data: {order_id: 345}), stream_name: "order_3")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
+      client.publish(
+        OrderCreated.new(event_id: uid = SecureRandom.uuid, data: { order_id: 234 }),
+        stream_name: "order_2"
+      )
+      client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: "order_3")
       response = client.read.backward.from(uid).limit(1).to_a
 
       expect(response.length).to eq 1
@@ -572,14 +561,14 @@ module RubyEventStore
     end
 
     specify "fails when starting event not exists" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
 
       expect { client.read.from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
       expect { client.read.backward.from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
     end
 
     specify "fails when page size is invalid" do
-      client.publish(OrderCreated.new(data: {order_id: 123}), stream_name: "order_1")
+      client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
 
       expect { client.read.limit(0).to_a }.to raise_error(InvalidPageSize)
       expect { client.read.backward.limit(0).to_a }.to raise_error(InvalidPageSize)
@@ -606,15 +595,14 @@ module RubyEventStore
 
     specify "raise exception if expected version incorrect" do
       client.append(event = OrderCreated.new, stream_name: "stream_name")
-      expect { client.publish(event, stream_name: "stream_name", expected_version: 100) }.to raise_error(WrongExpectedEventVersion)
+      expect { client.publish(event, stream_name: "stream_name", expected_version: 100) }.to raise_error(
+        WrongExpectedEventVersion
+      )
     end
 
     specify "create event with optimistic locking" do
       expect do
-        client.append(
-          OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"),
-          stream_name: "stream_name"
-        )
+        client.append(OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"), stream_name: "stream_name")
         client.append(
           OrderCreated.new(event_id: "724dd49d-6e20-40e6-bc32-ed75258f886b"),
           stream_name: "stream_name",
@@ -661,40 +649,38 @@ module RubyEventStore
     end
 
     specify "append fail if expected version is nil" do
-
-      expect do
-        client.append(event = OrderCreated.new, stream_name: "stream", expected_version: nil)
-      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      expect { client.append(event = OrderCreated.new, stream_name: "stream", expected_version: nil) }.to raise_error(
+        RubyEventStore::InvalidExpectedVersion
+      )
     end
 
     specify "link fail if expected version is nil" do
       client.append(event = OrderCreated.new, stream_name: "stream", expected_version: :any)
 
-      expect do
-        client.link(event.event_id, stream_name: "stream", expected_version: nil)
-      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      expect { client.link(event.event_id, stream_name: "stream", expected_version: nil) }.to raise_error(
+        RubyEventStore::InvalidExpectedVersion
+      )
     end
 
     specify "global stream is unordered, one cannot expect specific version number to work" do
-      expect do
-        client.append(OrderCreated.new, expected_version: 42)
-      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      expect { client.append(OrderCreated.new, expected_version: 42) }.to raise_error(
+        RubyEventStore::InvalidExpectedVersion
+      )
     end
 
     specify "global stream is unordered, one cannot expect :none to work" do
-      expect do
-        client.append(OrderCreated.new, expected_version: :none)
-      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      expect { client.append(OrderCreated.new, expected_version: :none) }.to raise_error(
+        RubyEventStore::InvalidExpectedVersion
+      )
     end
 
     specify "global stream is unordered, one cannot expect :auto to work" do
-      expect do
-        client.append(OrderCreated.new, expected_version: :auto)
-      end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+      expect { client.append(OrderCreated.new, expected_version: :auto) }.to raise_error(
+        RubyEventStore::InvalidExpectedVersion
+      )
     end
 
     specify "only :none, :any, :auto and Integer allowed as expected_version" do
-
       [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
         expect do
           client.append(
@@ -707,7 +693,6 @@ module RubyEventStore
     end
 
     specify "only :none, :any, :auto and Integer allowed as expected_version when linking" do
-
       [Object.new, SecureRandom.uuid, :foo].each do |invalid_expected_version|
         client.append(
           OrderCreated.new(event_id: evid = SecureRandom.uuid),
@@ -727,92 +712,100 @@ module RubyEventStore
 
     specify "can load YAML serialized record of previous release" do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      event  = TimeEnrichment.with(
-        OrderCreated.new(
-          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data:     { foo: "bar" },
-          metadata: { bar: "baz" }
-        ),
-        timestamp: Time.utc(2019, 9, 30),
-        valid_at:  Time.utc(2019, 9, 30)
-      )
+      event =
+        TimeEnrichment.with(
+          OrderCreated.new(
+            event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+            data: {
+              foo: "bar"
+            },
+            metadata: {
+              bar: "baz"
+            }
+          ),
+          timestamp: Time.utc(2019, 9, 30),
+          valid_at: Time.utc(2019, 9, 30)
+        )
       payload = {
         event_type: "OrderCreated",
-        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:       "---\n:foo: bar\n",
-        metadata:   "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n:bar: baz\n",
+        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data: "---\n:foo: bar\n",
+        metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n:bar: baz\n"
       }
       expect(client.deserialize(serializer: Serializers::YAML, **payload)).to eq(event)
     end
 
     specify "can load JSON serialized record of previous release" do
       client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      event  = TimeEnrichment.with(
-        OrderCreated.new(
-          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data:     { "foo" => "bar" },
-          metadata: { bar: "baz" }
-        ),
-        timestamp: Time.utc(2019, 9, 30),
-        valid_at:  Time.utc(2019, 9, 30)
-      )
+      event =
+        TimeEnrichment.with(
+          OrderCreated.new(
+            event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+            data: {
+              "foo" => "bar"
+            },
+            metadata: {
+              bar: "baz"
+            }
+          ),
+          timestamp: Time.utc(2019, 9, 30),
+          valid_at: Time.utc(2019, 9, 30)
+        )
       payload = {
         event_type: "OrderCreated",
-        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:       "{\"foo\":\"bar\"}",
-        metadata:   "{\"bar\":\"baz\",\"timestamp\":\"2019-09-30 00:00:00 UTC\"}",
+        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data: "{\"foo\":\"bar\"}",
+        metadata: "{\"bar\":\"baz\",\"timestamp\":\"2019-09-30 00:00:00 UTC\"}"
       }
       expect(client.deserialize(serializer: JSON, **payload)).to eq(event)
     end
 
     specify "can load serialized event when using Default mapper" do
-      client = RubyEventStore::Client.new(
-        mapper:     RubyEventStore::Mappers::Default.new,
-        repository: InMemoryRepository.new
-      )
-      event = TimeEnrichment.with(
-        OrderCreated.new(
-          event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-          data:     { foo: "bar" },
-          metadata: { bar: "baz" }
-        ),
-        timestamp: Time.utc(2019, 9, 30),
-        valid_at: Time.utc(2019, 9, 30)
-      )
+      client =
+        RubyEventStore::Client.new(mapper: RubyEventStore::Mappers::Default.new, repository: InMemoryRepository.new)
+      event =
+        TimeEnrichment.with(
+          OrderCreated.new(
+            event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+            data: {
+              foo: "bar"
+            },
+            metadata: {
+              bar: "baz"
+            }
+          ),
+          timestamp: Time.utc(2019, 9, 30),
+          valid_at: Time.utc(2019, 9, 30)
+        )
       payload = {
         event_type: "OrderCreated",
-        event_id:   "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:       "---\n:foo: bar\n",
-        metadata:   "---\n:bar: baz\n",
-        timestamp:  "2019-09-30T00:00:00.000000Z",
-        valid_at:   "2019-09-30T00:00:00.000000Z"
+        event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
+        data: "---\n:foo: bar\n",
+        metadata: "---\n:bar: baz\n",
+        timestamp: "2019-09-30T00:00:00.000000Z",
+        valid_at: "2019-09-30T00:00:00.000000Z"
       }
       expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
     end
 
     specify "raise error when no subscriber" do
-      expect { client.subscribe(nil, to: [])}.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.subscribe_to_all_events(nil)}.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.within{}.subscribe(nil, to: []).call}.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.within{}.subscribe_to_all_events(nil).call}.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.subscribe(nil, to: []) }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil) }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.within {}.subscribe(nil, to: []).call }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.within {}.subscribe_to_all_events(nil).call }.to raise_error(RubyEventStore::SubscriberNotExist)
     end
 
     describe "#overwrite" do
       specify "overwrites events data and metadata" do
-        client = RubyEventStore::Client.new(
-          repository: InMemoryRepository.new,
-          mapper: Mappers::Default.new
-        )
+        client = RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::Default.new)
 
         client.publish(
-          old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}),
-          stream_name: "some_stream",
+          old = OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }),
+          stream_name: "some_stream"
         )
         old.data[:amount] = 12
         old.metadata[:server] = "eu-west"
-        client.with_metadata(nonono: "no") do
-          client.overwrite(old)
-        end
+        client.with_metadata(nonono: "no") { client.overwrite(old) }
 
         new = client.read.backward.limit(1).each.first
         expect(new).to eq(old)
@@ -824,8 +817,9 @@ module RubyEventStore
 
       specify "overwrites event type" do
         client.publish(
-          old = OrderCreated.new(event_id: SecureRandom.uuid, data: {customer_id: 44}, metadata: {server: "eu-west"}),
-          stream_name: "some_stream",
+          old =
+            OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }, metadata: { server: "eu-west" }),
+          stream_name: "some_stream"
         )
         client.overwrite([ProductAdded.new(event_id: old.event_id, data: old.data, metadata: old.metadata)])
 
@@ -869,25 +863,26 @@ module RubyEventStore
         block = Proc.new { "Event published!" }
         client.subscribe(to: [OrderCreated], &block)
 
-        expect(client.subscribers_for(ProductAdded)).to   eq [handler]
+        expect(client.subscribers_for(ProductAdded)).to eq [handler]
         expect(client.subscribers_for("ProductAdded")).to eq [handler]
-        expect(client.subscribers_for(OrderCreated)).to   eq [block]
+        expect(client.subscribers_for(OrderCreated)).to eq [block]
       end
 
       specify do
-        event_klass = Class.new do
-          def self.event_type
-            "non-derived-from-class"
+        event_klass =
+          Class.new do
+            def self.event_type
+              "non-derived-from-class"
+            end
           end
-        end
 
-        subscriptions =
-          Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
-        client = RubyEventStore::Client.new(
-          repository: InMemoryRepository.new,
-          mapper: Mappers::NullMapper.new,
-          subscriptions: subscriptions,
-        )
+        subscriptions = Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
+        client =
+          RubyEventStore::Client.new(
+            repository: InMemoryRepository.new,
+            mapper: Mappers::NullMapper.new,
+            subscriptions: subscriptions
+          )
         client.subscribe(handler = Proc.new {}, to: [event_klass])
 
         expect(client.subscribers_for(event_klass)).to eq [handler]
@@ -903,13 +898,15 @@ module RubyEventStore
       serializer = Serializers::YAML
       expect(serializer).to receive(:dump).and_call_original.exactly(2)
 
-      client = RubyEventStore::Client.new(
-        repository: InMemoryRepository.new(serializer: serializer),
-        mapper: Mappers::NullMapper.new,
-        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(
-          scheduler: ScheduledWithSerialization.new(serializer: serializer)
+      client =
+        RubyEventStore::Client.new(
+          repository: InMemoryRepository.new(serializer: serializer),
+          mapper: Mappers::NullMapper.new,
+          dispatcher:
+            RubyEventStore::ImmediateAsyncDispatcher.new(
+              scheduler: ScheduledWithSerialization.new(serializer: serializer)
+            )
         )
-      )
       uuid = SecureRandom.uuid
       client.subscribe(to: [OrderCreated]) do |event|
         expect(event).to be_kind_of(SerializedRecord)
@@ -924,13 +921,15 @@ module RubyEventStore
       serializer_2 = JSON
       expect(serializer_2).to receive(:dump).and_call_original.exactly(2)
 
-      client = RubyEventStore::Client.new(
-        repository: InMemoryRepository.new(serializer: serializer_1),
-        mapper: Mappers::NullMapper.new,
-        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(
-          scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
+      client =
+        RubyEventStore::Client.new(
+          repository: InMemoryRepository.new(serializer: serializer_1),
+          mapper: Mappers::NullMapper.new,
+          dispatcher:
+            RubyEventStore::ImmediateAsyncDispatcher.new(
+              scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
+            )
         )
-      )
       uuid = SecureRandom.uuid
       client.subscribe(to: [OrderCreated]) do |event|
         expect(event).to be_kind_of(SerializedRecord)
@@ -940,29 +939,42 @@ module RubyEventStore
     end
 
     specify "publishing with custom event class where type is not derived from class name" do
-      listener = Class.new do
-        def initialize;  @queue = Queue.new; end
-        def call(event); @queue.push(event); end
-        def value; Timeout.timeout(1, RuntimeError, "did not receive an event") { @queue.pop }; end
-      end.new
+      listener =
+        Class.new do
+          def initialize
+            @queue = Queue.new
+          end
+          def call(event)
+            @queue.push(event)
+          end
+          def value
+            Timeout.timeout(1, RuntimeError, "did not receive an event") { @queue.pop }
+          end
+        end.new
 
-      event_klass = Class.new do
-        def initialize
-          @data     = {}
-          @metadata = {}
+      event_klass =
+        Class.new do
+          def initialize
+            @data = {}
+            @metadata = {}
+          end
+          def self.event_type
+            "custom.event.type"
+          end
+          attr_reader :data, :metadata
+          def event_type
+            self.class.event_type
+          end
+          def event_id
+            "8d69cc2b-c6c5-4494-99f6-954c7f583477"
+          end
         end
-        def self.event_type
-          "custom.event.type"
-        end
-        attr_reader :data, :metadata
-        def event_type; self.class.event_type; end
-        def event_id;   "8d69cc2b-c6c5-4494-99f6-954c7f583477"; end
-      end
 
-      client = Client.new(
-        repository: InMemoryRepository.new,
-        subscriptions: Subscriptions.new(event_type_resolver: ->(klass){ klass.event_type })
-      )
+      client =
+        Client.new(
+          repository: InMemoryRepository.new,
+          subscriptions: Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
+        )
       client.subscribe(listener, to: [event_klass])
       client.publish(event_klass.new)
       event = listener.value

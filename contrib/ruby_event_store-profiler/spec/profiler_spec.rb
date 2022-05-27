@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Profiler do
@@ -15,9 +15,9 @@ module RubyEventStore
 
     class StepClock
       def initialize(initial_time, step_duration = 1)
-        @initial_time  = initial_time
+        @initial_time = initial_time
         @step_duration = step_duration
-        @step          = 0
+        @step = 0
       end
 
       def now
@@ -30,9 +30,7 @@ module RubyEventStore
     let(:step_clock) { StepClock.new(Time.at(0)) }
 
     specify do
-      operation = -> do
-        event_store.publish(DummyEvent.new)
-      end
+      operation = -> { event_store.publish(DummyEvent.new) }
 
       allow(Time).to receive(:now) { step_clock.now }
 
@@ -47,24 +45,18 @@ module RubyEventStore
     end
 
     specify do
-      operation = -> do
-        event_store.publish(DummyEvent.new)
-      end
+      operation = -> { event_store.publish(DummyEvent.new) }
 
       allow(Time).to receive(:now) { step_clock.now }
 
       begin
-        $stdout = File.open('/dev/null', 'w')
+        $stdout = File.open("/dev/null", "w")
         return_value = Profiler.new(instrumenter).measure(&operation)
       ensure
         $stdout = STDOUT
       end
 
-      expect(return_value).to eq({
-        "total" => 6000,
-        "serialize" => 1000.0,
-        "append_to_stream" => 1000.0
-      })
+      expect(return_value).to eq({ "total" => 6000, "serialize" => 1000.0, "append_to_stream" => 1000.0 })
     end
   end
 end

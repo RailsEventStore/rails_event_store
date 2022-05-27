@@ -1,14 +1,14 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-- ruby_event_store/flipper
+  - ruby_event_store/flipper
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 10.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RubyEventStore::Flipper*
+  subjects:
+    - RubyEventStore::Flipper*

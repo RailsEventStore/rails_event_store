@@ -7,9 +7,10 @@ module RubyEventStore
       let(:event_store) do
         RubyEventStore::Client.new(
           repository: RubyEventStore::InMemoryRepository.new,
-          mapper: RubyEventStore::Mappers::PipelineMapper.new(
-            RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
-          )
+          mapper:
+            RubyEventStore::Mappers::PipelineMapper.new(
+              RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
+            )
         )
       end
       let(:handler) { Handler }
@@ -26,9 +27,7 @@ module RubyEventStore
         Matchers::ListPhraser
       end
 
-      specify do
-        expect(handler).not_to matcher(FooEvent, BarEvent, BazEvent).in(event_store)
-      end
+      specify { expect(handler).not_to matcher(FooEvent, BarEvent, BazEvent).in(event_store) }
 
       specify do
         event_store.subscribe(handler, to: [FooEvent])
@@ -50,7 +49,7 @@ module RubyEventStore
           matcher_ = matcher(FooEvent, BarEvent).in(event_store)
           matcher_.matches?(handler)
 
-          expect(matcher_.failure_message). to eq(<<~EOS)
+          expect(matcher_.failure_message).to eq(<<~EOS)
             expected #{handler} to be subscribed to events, diff:
             @@ -1,2 +1,2 @@
             -[FooEvent]
@@ -63,7 +62,7 @@ module RubyEventStore
           matcher_ = matcher(FooEvent, BarEvent).in(event_store)
           matcher_.matches?(handler)
 
-          expect(matcher_.failure_message_when_negated). to eq(<<~EOS)
+          expect(matcher_.failure_message_when_negated).to eq(<<~EOS)
             expected #{handler} not to be subscribed to events, diff:
             @@ -1,2 +1,2 @@
             -[FooEvent]
@@ -75,9 +74,7 @@ module RubyEventStore
           matcher_ = matcher(FooEvent, BarEvent).in(event_store)
           matcher_.matches?(handler)
 
-          expect(matcher_.description).to eq(
-            "have subscribed to events that have to (be a FooEvent and be a BarEvent)"
-          )
+          expect(matcher_.description).to eq("have subscribed to events that have to (be a FooEvent and be a BarEvent)")
         end
       end
     end

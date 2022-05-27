@@ -3,10 +3,10 @@ require "rails_event_store_active_record/batch_enumerator"
 
 module RailsEventStoreActiveRecord
   RSpec.describe BatchEnumerator, timeout: 1 do
-    let(:collection) { (1..10000).to_a }
+    let(:collection) { (1..10_000).to_a }
     let(:reader) do
       lambda do |offset_id, limit|
-        start = offset_id.nil? ? 0 : collection.index(collection.find {|c| c > offset_id}) || collection.count
+        start = offset_id.nil? ? 0 : collection.index(collection.find { |c| c > offset_id }) || collection.count
         batch = collection.slice(start, limit)
         [batch, batch.last]
       end
@@ -44,7 +44,7 @@ module RailsEventStoreActiveRecord
         collection[6000...7000],
         collection[7000...8000],
         collection[8000...9000],
-        collection[9000...10000]
+        collection[9000...10_000]
       )
     end
 

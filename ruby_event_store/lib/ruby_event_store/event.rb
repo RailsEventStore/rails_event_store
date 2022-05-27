@@ -3,7 +3,6 @@
 require "securerandom"
 
 module RubyEventStore
-
   # Data structure representing an event
   class Event
     # Instantiates a new event
@@ -17,7 +16,7 @@ module RubyEventStore
     def initialize(event_id: SecureRandom.uuid, metadata: nil, data: {})
       @event_id = event_id.to_s
       @metadata = Metadata.new(metadata.to_h)
-      @data     = data
+      @data = data
     end
 
     attr_reader :event_id, :metadata, :data
@@ -59,10 +58,8 @@ module RubyEventStore
     # Event equality ignores metadata!
     # @return [TrueClass, FalseClass]
     def ==(other_event)
-      other_event.instance_of?(self.class) &&
-        other_event.event_type.eql?(event_type) &&
-        other_event.event_id.eql?(event_id) &&
-        other_event.data.eql?(data)
+      other_event.instance_of?(self.class) && other_event.event_type.eql?(event_type) &&
+        other_event.event_id.eql?(event_id) && other_event.data.eql?(data)
     end
 
     # @private
@@ -80,12 +77,7 @@ module RubyEventStore
     # * data
     def hash
       # We don't use metadata because == does not use metadata
-      [
-        self.class,
-        event_type,
-        event_id,
-        data
-      ].hash ^ BIG_VALUE
+      [self.class, event_type, event_id, data].hash ^ BIG_VALUE
     end
 
     # Reads correlation_id from metadata.
@@ -119,7 +111,7 @@ module RubyEventStore
     # @param val [String]
     # @return [String]
     def causation_id=(val)
-      metadata[:causation_id]= val
+      metadata[:causation_id] = val
     end
 
     # Sets correlation_id and causation_id in metadata based
@@ -130,7 +122,7 @@ module RubyEventStore
     # @return [String] set causation_id
     def correlate_with(other_message)
       self.correlation_id = other_message.correlation_id || other_message.message_id
-      self.causation_id   = other_message.message_id
+      self.causation_id = other_message.message_id
       self
     end
 

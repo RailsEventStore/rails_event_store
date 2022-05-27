@@ -16,9 +16,7 @@ module RubyEventStore
     end
 
     def verify(subscriber)
-      @dispatchers.any? do |dispatcher|
-        dispatcher.verify(subscriber)
-      end
+      @dispatchers.any? { |dispatcher| dispatcher.verify(subscriber) }
     end
   end
 end

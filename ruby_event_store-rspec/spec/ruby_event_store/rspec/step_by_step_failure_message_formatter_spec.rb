@@ -8,18 +8,27 @@ module RubyEventStore
       let(:event_store) do
         RubyEventStore::Client.new(
           repository: RubyEventStore::InMemoryRepository.new,
-          mapper: RubyEventStore::Mappers::PipelineMapper.new(
-            RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
-          )
+          mapper:
+            RubyEventStore::Mappers::PipelineMapper.new(
+              RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
+            )
         )
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, phraser: phraser, failure_message_formatter: failure_message_formatter.have_published(colorless_differ))
+        HavePublished.new(
+          *expected,
+          phraser: phraser,
+          failure_message_formatter: failure_message_formatter.have_published(colorless_differ)
+        )
       end
 
       def have_applied_matcher(*expected)
-        HaveApplied.new(*expected, phraser: phraser, failure_message_formatter: failure_message_formatter.have_applied(colorless_differ))
+        HaveApplied.new(
+          *expected,
+          phraser: phraser,
+          failure_message_formatter: failure_message_formatter.have_applied(colorless_differ)
+        )
       end
 
       def publish_matcher(*expected)
@@ -148,7 +157,6 @@ module RubyEventStore
         matcher_ = matcher(expected = matchers.an_event(FooEvent).with_metadata({ foo: 124 }))
         matcher_.matches?(event_store)
 
-
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
           be an event FooEvent (with metadata including {:foo=>124})
@@ -195,10 +203,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(actual = FooEvent.new(data: { a: 1, b: 2 }))
-        expected = [
-          matchers.an_event(FooEvent).with_data({ a: 1 }),
-          matchers.an_event(FooEvent).with_data({ b: 3 }),
-        ]
+        expected = [matchers.an_event(FooEvent).with_data({ a: 1 }), matchers.an_event(FooEvent).with_data({ b: 3 })]
         matcher_ = matcher(*expected)
         matcher_.matches?(event_store)
 
@@ -322,10 +327,7 @@ module RubyEventStore
         event_store.publish(FooEvent.new(data: { a: 1 }))
         event_store.publish(FooEvent.new(data: { a: 1 }))
         event_store.publish(FooEvent.new(data: { a: 2 }))
-        expected = [
-          matchers.an_event(FooEvent).with_data(a: 1),
-          matchers.an_event(BarEvent),
-        ]
+        expected = [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(BarEvent)]
         matcher_ = matcher(*expected)
         matcher_.matches?(event_store)
 
@@ -343,7 +345,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new, stream_name: "Foo")
-        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
+        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams(%w[Foo Bar])
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -359,7 +361,7 @@ module RubyEventStore
 
       specify do
         event_store.publish(FooEvent.new, stream_name: "Bar")
-        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
+        matcher_ = matcher(matchers.an_event(FooEvent)).in_streams(%w[Foo Bar])
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -432,7 +434,7 @@ module RubyEventStore
 
       specify do
         matcher_ = apply_matcher(matchers.an_event(FooEvent)).in(aggregate)
-        matcher_.matches?(Proc.new { })
+        matcher_.matches?(Proc.new {})
 
         expect(matcher_.failure_message_when_negated).to eq(<<~EOS)
         expected [
@@ -492,7 +494,7 @@ module RubyEventStore
       end
 
       specify do
-        matcher_ = matcher()
+        matcher_ = matcher
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
@@ -501,7 +503,7 @@ module RubyEventStore
       end
 
       specify do
-        matcher_ = matcher()
+        matcher_ = matcher
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message_when_negated.to_s).to eq(<<~EOS)

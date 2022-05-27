@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   module Outbox
@@ -46,8 +46,16 @@ module RubyEventStore
 
       specify "obtains a lock for given fetch specification" do
         repository = Repository.new(database_url)
-        repository.obtain_lock_for_process(FetchSpecification.new("other_message_format", split_key), some_process_uuid, clock: clock)
-        repository.obtain_lock_for_process(FetchSpecification.new(message_format, "other_split_key"), some_process_uuid, clock: clock)
+        repository.obtain_lock_for_process(
+          FetchSpecification.new("other_message_format", split_key),
+          some_process_uuid,
+          clock: clock
+        )
+        repository.obtain_lock_for_process(
+          FetchSpecification.new(message_format, "other_split_key"),
+          some_process_uuid,
+          clock: clock
+        )
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
 
         lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
@@ -157,9 +165,11 @@ module RubyEventStore
       specify "refreshing lock when other process stole it" do
         repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        lock_for_some_process = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock_for_some_process =
+          repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
         wait_for_lock_duration
-        lock_for_other_process = repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
+        lock_for_other_process =
+          repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
 
         result = lock_for_some_process.refresh(clock: clock)
 

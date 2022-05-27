@@ -9,9 +9,7 @@ module RubyEventStore
 
     def call(event, record)
       subscribers = subscriptions.all_for(event.event_type)
-      subscribers.each do |subscriber|
-        dispatcher.call(subscriber, event, record)
-      end
+      subscribers.each { |subscriber| dispatcher.call(subscriber, event, record) }
     end
 
     def add_subscription(subscriber, event_types)
@@ -35,11 +33,14 @@ module RubyEventStore
     end
 
     private
+
     attr_reader :dispatcher, :subscriptions
 
     def verify_subscription(subscriber)
       raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber
-      raise InvalidHandler.new("Handler #{subscriber} is invalid for dispatcher #{dispatcher}") unless dispatcher.verify(subscriber)
+      unless dispatcher.verify(subscriber)
+        raise InvalidHandler.new("Handler #{subscriber} is invalid for dispatcher #{dispatcher}")
+      end
     end
   end
 end

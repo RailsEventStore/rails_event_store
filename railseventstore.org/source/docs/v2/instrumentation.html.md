@@ -12,9 +12,9 @@ The `ruby_event_store` gem is not integrated with any particular instrumenter im
 
 Instrumentation is provided by repository, mapper and dispatcher decorators:
 
-* `RubyEventStore::InstrumentedRepository`
-* `RubyEventStore::Mappers::InstrumentedMapper`
-* `RubyEventStore::InstrumentedDispatcher`
+- `RubyEventStore::InstrumentedRepository`
+- `RubyEventStore::Mappers::InstrumentedMapper`
+- `RubyEventStore::InstrumentedDispatcher`
 
 In order to enable it, wrap the components you intend to instrument with corresponding decorators and instrumenter of your choice:
 
@@ -22,20 +22,13 @@ In order to enable it, wrap the components you intend to instrument with corresp
 instrumenter = ActiveSupport::Notifications
 
 RubyEventStore::Client.new(
-  repository: RubyEventStore::InstrumentedRepository.new(
-    RubyEventStore::InMemoryRepository.new, instrumenter
-  ),
-  mapper: RubyEventStore::Mappers::InstrumentedMapper.new(
-    RubyEventStore::Mappers::Default.new, instrumenter
-  ),
-  dispatcher: RubyEventStore::InstrumentedDispatcher.new(
-    RubyEventStore::Dispatcher.new, instrumenter
-  )
+  repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
+  mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter),
+  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter),
 )
 ```
 
 You can also instrument your own repository, mapper or dispatcher components the same way.
-
 
 ### AggregateRoot
 
@@ -45,16 +38,12 @@ Instrumentation is provided by `AggregateRoot::InstrumentedReposiory` decorator.
 
 ```ruby
 instrumenter = ActiveSupport::Notifications
-repository   = AggregateRoot::InstrumentedRepository.new(
-  AggregateRoot::Repository.new(event_store),
-  instrumenter
-)
+repository = AggregateRoot::InstrumentedRepository.new(AggregateRoot::Repository.new(event_store), instrumenter)
 ```
-
 
 ### RailsEventStore
 
-The `rails_event_store` gem is integrated with `ActiveSupport::Notifications` that ships with Rails. By default `RailsEventStore::Client` instance ships with already instrumented repository, mapper and a dispatcher. 
+The `rails_event_store` gem is integrated with `ActiveSupport::Notifications` that ships with Rails. By default `RailsEventStore::Client` instance ships with already instrumented repository, mapper and a dispatcher.
 
 You can start [subscribing](https://guides.rubyonrails.org/active_support_instrumentation.html#subscribing-to-an-event) to the instrumentation hooks by now:
 
@@ -63,7 +52,7 @@ hook_name = "append_to_stream.repository.rails_event_store"
 
 ActiveSupport::Notifications.subscribe(hook_name) do |name, start, finish, id, payload|
   metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
-  NewRelic::Agent.record_metric('Custom/RES/append_to_stream', metric.duration)
+  NewRelic::Agent.record_metric("Custom/RES/append_to_stream", metric.duration)
 end
 ```
 
@@ -73,10 +62,10 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 
 #### append_to_stream.repository.rails_event_store
 
-| Key     | Value |
-| ------- | ----- |
+| Key     | Value                                                                                                                       |
+| ------- | --------------------------------------------------------------------------------------------------------------------------- |
 | :events | An array of appended [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) objects |
-| :stream | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we append events to |
+| :stream | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we append events to   |
 
 ```ruby
 {
@@ -85,12 +74,11 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### link_to_stream.repository.rails_event_store
 
-| Key        | Value |
-| ---------- | ----- |
-| :event_ids | An array of linked event identifiers |
+| Key        | Value                                                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| :event_ids | An array of linked event identifiers                                                                                    |
 | :stream    | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we link events to |
 
 ```ruby
@@ -101,11 +89,10 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### delete_stream.repository.rails_event_store
 
-| Key     | Value |
-| ------- | ----- |
+| Key     | Value                                                                                                           |
+| ------- | --------------------------------------------------------------------------------------------------------------- |
 | :stream | A [RubyEventStore::Stream](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Stream) that we delete |
 
 ```ruby
@@ -114,11 +101,10 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### read.repository.rails_event_store
 
-| Key            | Value |
-| -------------- | ----- |
+| Key            | Value                                                                                                                                                                      |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | :specification | A [RubyEventStore::SpecificationResult](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/SpecificationResult) describing the query requested from event store |
 
 ```ruby
@@ -126,12 +112,11 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
   specification: #<RubyEventStore::SpecificationResult:0x0000000113644d80>
 }
 ```
-
 
 #### count.repository.rails_event_store
 
-| Key            | Value |
-| -------------- | ----- |
+| Key            | Value                                                                                                                                                                      |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | :specification | A [RubyEventStore::SpecificationResult](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/SpecificationResult) describing the query requested from event store |
 
 ```ruby
@@ -140,12 +125,11 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### update_messages.repository.rails_event_store
 
-| Key            | Value |
-| -------------- | ----- |
-| :messages      | An array of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) objects to replace existing ones of the same identifiers |
+| Key       | Value                                                                                                                                                               |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :messages | An array of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) objects to replace existing ones of the same identifiers |
 
 ```ruby
 {
@@ -153,25 +137,21 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### streams_of.repository.rails_event_store
 
-| Key            | Value |
-| -------------- | ----- |
-| :event_id      | An identifier of the event used to query for streams it is present in |
+| Key       | Value                                                                 |
+| --------- | --------------------------------------------------------------------- |
+| :event_id | An identifier of the event used to query for streams it is present in |
 
 ```ruby
-{
-  event_id: "8cee1139-4f96-483a-a175-2b947283c3c7"
-}
+{ event_id: "8cee1139-4f96-483a-a175-2b947283c3c7" }
 ```
-
 
 #### call.dispatcher.rails_event_store
 
-| Key         | Value |
-| ----------- | ----- |
-| :event      | An event instance which is being dispatched           |
+| Key         | Value                                        |
+| ----------- | -------------------------------------------- |
+| :event      | An event instance which is being dispatched  |
 | :subscriber | A subscriber to which event is dispatched to |
 
 ```ruby
@@ -181,11 +161,10 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### serialize.mapper.rails_event_store
 
-| Key         | Value |
-| ----------- | ----- |
+| Key           | Value                                                               |
+| ------------- | ------------------------------------------------------------------- |
 | :domain_event | An event instance which is being mapped into RubyEventStore::Record |
 
 ```ruby
@@ -196,8 +175,8 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 
 #### deserialize.mapper.rails_event_store
 
-| Key         | Value |
-| ----------- | ----- |
+| Key     | Value                                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | :record | An instance of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) which is being mapped into an event |
 
 ```ruby
@@ -206,13 +185,12 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### load.repository.aggregate_root
 
-| Key         | Value |
-| ----------- | ----- |
-| :aggregate  | An instance of an aggregate on which loaded events are being applied |
-| :stream     | A stream name to load events from |
+| Key        | Value                                                                |
+| ---------- | -------------------------------------------------------------------- |
+| :aggregate | An instance of an aggregate on which loaded events are being applied |
+| :stream    | A stream name to load events from                                    |
 
 ```ruby
 {
@@ -221,16 +199,14 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-
 #### store.repository.aggregate_root
 
-| Key         | Value |
-| ----------- | ----- |
-| :aggregate  | An instance of an aggregate whose events are being stored |
-| :stream     | A stream name to which events are stored |
-| :version     | An [expected version](https://railseventstore.org/docs/v2/expected_version/#explicit-number-integer-from-1) of the stream to which events are stored |
-| :stored_events | An array of events that are stored as a result of actions performed on this aggregate |
-
+| Key            | Value                                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :aggregate     | An instance of an aggregate whose events are being stored                                                                                            |
+| :stream        | A stream name to which events are stored                                                                                                             |
+| :version       | An [expected version](https://railseventstore.org/docs/v2/expected_version/#explicit-number-integer-from-1) of the stream to which events are stored |
+| :stored_events | An array of events that are stored as a result of actions performed on this aggregate                                                                |
 
 ```ruby
 {

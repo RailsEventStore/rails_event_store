@@ -1,13 +1,10 @@
 require "childprocess"
 require "tempfile"
 
-
 module SubprocessHelper
   def run_subprocess(script, cwd, env)
     process = ChildProcess.build("ruby", script)
-    env.each do |k, v|
-      process.environment[k] = v
-    end
+    env.each { |k, v| process.environment[k] = v }
     process.cwd = cwd
     process.io.stdout = $stdout
     process.io.stderr = $stderr
@@ -24,9 +21,7 @@ module SubprocessHelper
     Tempfile.open do |script|
       script.write(code)
       script.close
-      Bundler.with_unbundled_env do
-        run_subprocess(script.path, cwd, env)
-      end
+      Bundler.with_unbundled_env { run_subprocess(script.path, cwd, env) }
     end
   end
 end

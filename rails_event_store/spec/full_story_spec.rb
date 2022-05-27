@@ -2,7 +2,6 @@ require "spec_helper"
 
 module RailsEventStore
   RSpec.describe Client do
-
     specify "restoring a read model from all events" do
       client = Client.new
       publish_ordering_events(client)
@@ -35,22 +34,15 @@ module RailsEventStore
 
     def ordering_events
       [
-          OrderCreated.new(data: { customer_name: "andrzejkrzywda" }),
-          ProductAdded.new(data: { product_name: "Rails meets ReactJS", quantity: 1, price: 49 }),
-          ProductAdded.new(data: { product_name: "Fearless Refactoring", quantity: 1, price: 49 }),
-          PriceChanged.new(data: { product_name: "Rails meets ReactJS", new_price: 24 })
+        OrderCreated.new(data: { customer_name: "andrzejkrzywda" }),
+        ProductAdded.new(data: { product_name: "Rails meets ReactJS", quantity: 1, price: 49 }),
+        ProductAdded.new(data: { product_name: "Fearless Refactoring", quantity: 1, price: 49 }),
+        PriceChanged.new(data: { product_name: "Rails meets ReactJS", new_price: 24 })
       ]
     end
 
     def assert_invoice_structure(invoice)
-      assert_invoice(
-          [
-              ["Rails meets ReactJS", 1, "24", "24"],
-              ["Fearless Refactoring", 1, "49", "49"]
-          ],
-          "73",
-          invoice
-      )
+      assert_invoice([["Rails meets ReactJS", 1, "24", "24"], ["Fearless Refactoring", 1, "49", "49"]], "73", invoice)
     end
 
     def assert_invoice(expected_items, expected_total, invoice)

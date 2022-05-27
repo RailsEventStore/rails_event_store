@@ -13,7 +13,7 @@ Note that events are updated using upsert capabilities of your MySQL, PostgreSQL
 ```ruby
 event_store.read.each_batch do |events|
   events.each do |ev|
-    ev.data[:tenant_id]     = 1
+    ev.data[:tenant_id] = 1
     ev.metadata[:server_id] = "eu-west-2"
   end
   event_store.overwrite(events)
@@ -23,13 +23,10 @@ end
 ### Change event type
 
 ```ruby
-event_store.read.of_type([OldType]).each_batch do |events|
-  event_store.overwrite(events.map { |ev|
-      NewType.new(
-        event_id: ev.event_id,
-        data: ev.data,
-        metadata: ev.metadata,
-      )
-   })
-end
+event_store
+  .read
+  .of_type([OldType])
+  .each_batch do |events|
+    event_store.overwrite(events.map { |ev| NewType.new(event_id: ev.event_id, data: ev.data, metadata: ev.metadata) })
+  end
 ```

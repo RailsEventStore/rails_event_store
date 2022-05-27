@@ -1,24 +1,24 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-- ruby_event_store/rspec
+  - ruby_event_store/rspec
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 10.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RubyEventStore::RSpec*
-   ignore:
-   - RubyEventStore::RSpec::Matchers#differ 
-   - RubyEventStore::RSpec::Matchers#formatter 
-   - RubyEventStore::RSpec::Matchers#have_published 
-   - RubyEventStore::RSpec::Matchers#have_applied 
-   - RubyEventStore::RSpec::Matchers#have_subscribed_to_events 
-   - RubyEventStore::RSpec::Matchers#publish 
-   - RubyEventStore::RSpec::Matchers#be_an_event 
-   - RubyEventStore::RSpec::Publish#last_event 
-   - RubyEventStore::RSpec::Matchers::ListPhraser.all_but_last
+  subjects:
+    - RubyEventStore::RSpec*
+  ignore:
+    - RubyEventStore::RSpec::Matchers#differ
+    - RubyEventStore::RSpec::Matchers#formatter
+    - RubyEventStore::RSpec::Matchers#have_published
+    - RubyEventStore::RSpec::Matchers#have_applied
+    - RubyEventStore::RSpec::Matchers#have_subscribed_to_events
+    - RubyEventStore::RSpec::Matchers#publish
+    - RubyEventStore::RSpec::Matchers#be_an_event
+    - RubyEventStore::RSpec::Publish#last_event
+    - RubyEventStore::RSpec::Matchers::ListPhraser.all_but_last

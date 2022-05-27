@@ -3,9 +3,9 @@
 module RubyEventStore
   class BatchEnumerator
     def initialize(batch_size, total_limit, reader)
-      @batch_size  = batch_size
+      @batch_size = batch_size
       @total_limit = total_limit
-      @reader      = reader
+      @reader = reader
     end
 
     def each
@@ -13,7 +13,7 @@ module RubyEventStore
 
       0.step(total_limit - 1, batch_size) do |batch_offset|
         batch_limit = [batch_size, total_limit - batch_offset].min
-        result      = reader.call(batch_offset, batch_limit)
+        result = reader.call(batch_offset, batch_limit)
 
         break if result.empty?
         yield result

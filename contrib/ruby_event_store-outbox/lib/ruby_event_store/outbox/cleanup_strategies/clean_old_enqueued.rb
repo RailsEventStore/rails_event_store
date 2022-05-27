@@ -13,6 +13,7 @@ module RubyEventStore
         end
 
         private
+
         attr_reader :repository, :duration, :limit
       end
     end

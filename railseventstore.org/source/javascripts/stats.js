@@ -1,4 +1,4 @@
-import { CountUp } from 'countup.js';
+import { CountUp } from "countup.js";
 
 const countMeUp = (target, count) => {
   let countUp = new CountUp(target, count);
@@ -6,5 +6,5 @@ const countMeUp = (target, count) => {
 };
 
 window.onload = () => {
-  document.querySelectorAll('[data-count]').forEach((element) => countMeUp(element, element.dataset.count));
+  document.querySelectorAll("[data-count]").forEach((element) => countMeUp(element, element.dataset.count));
 };

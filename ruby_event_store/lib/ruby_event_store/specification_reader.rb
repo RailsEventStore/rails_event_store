@@ -20,9 +20,7 @@ module RubyEventStore
     # @api private
     # @private
     def each(specification_result)
-      repository.read(specification_result).each do |batch|
-        yield batch.map { |record| mapper.record_to_event(record) }
-      end
+      repository.read(specification_result).each { |batch| yield batch.map { |record| mapper.record_to_event(record) } }
     end
 
     # @api private
@@ -38,6 +36,7 @@ module RubyEventStore
     end
 
     private
+
     attr_reader :repository, :mapper
   end
 end

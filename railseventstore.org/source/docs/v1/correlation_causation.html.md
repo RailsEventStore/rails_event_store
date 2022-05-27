@@ -21,7 +21,7 @@ Now, the message that you are responding to can be either a command or an event 
 ```ruby
 class MyEventHandler
   def call(previous_event)
-    new_event = MyEvent.new(data: {foo: 'bar'})
+    new_event = MyEvent.new(data: { foo: "bar" })
     new_event.correlate_with(previous_event)
 
     event_store.publish(new_event)
@@ -66,9 +66,7 @@ class SendOrderEmail < ActiveJob::Base
   prepend RailsEventStore::AsyncHandler
 
   def perform(event)
-    event_store.publish(HappenedLater.new(data:{
-      user_id: event.data.fetch(:user_id),
-    }))
+    event_store.publish(HappenedLater.new(data: { user_id: event.data.fetch(:user_id) }))
   end
 
   private
@@ -88,7 +86,7 @@ class ApproveOrder < Struct.new(:order_id, :message_id, :correlation_id)
 end
 
 command = ApproveOrder.new("KTXBN123", SecureRandom.uuid, nil)
-event = OrderApproved.new(data: {foo: 'bar'})
+event = OrderApproved.new(data: { foo: "bar" })
 event.correlate_with(command)
 ```
 
@@ -99,13 +97,8 @@ class MyEventHandler
   def call(previous_event)
     event_store.with_metadata(
       correlation_id: previous_event.correlation_id || previous_event.event_id,
-      causation_id:   previous_event.event_id
-    ) do
-      event_store.publish([
-        MyEvent.new(data: {foo: 'bar'}),
-        AnotherEvent.new(data: {baz: 'bax'}),
-      ])
-    end
+      causation_id: previous_event.event_id,
+    ) { event_store.publish([MyEvent.new(data: { foo: "bar" }), AnotherEvent.new(data: { baz: "bax" })]) }
   end
 end
 ```
@@ -117,9 +110,11 @@ If you use event store and [command bus](/docs/v1/command_bus/) you can correlat
 ```ruby
 config.to_prepare do
   Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+
   # register handlers
 
   command_bus = Arkency::CommandBus.new
+
   # register commands...
 
   # wire event_store and command_bus together
@@ -139,7 +134,7 @@ module CorrelableCommand
 
   def correlate_with(other_message)
     self.correlation_id = other_message.correlation_id || other_message.message_id
-    self.causation_id   = other_message.message_id
+    self.causation_id = other_message.message_id
   end
 end
 

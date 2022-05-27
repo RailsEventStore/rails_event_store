@@ -1,18 +1,18 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-- rails_event_store
+  - rails_event_store
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 10.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RailsEventStore*
-   ignore:
-   - RailsEventStore::Client#initialize
-   - RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord*
-   - RailsEventStore::AfterCommitAsyncDispatcher#async_record
+  subjects:
+    - RailsEventStore*
+  ignore:
+    - RailsEventStore::Client#initialize
+    - RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord*
+    - RailsEventStore::AfterCommitAsyncDispatcher#async_record

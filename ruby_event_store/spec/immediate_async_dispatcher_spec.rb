@@ -18,7 +18,7 @@ module RubyEventStore
     it_behaves_like :scheduler, MyCustomScheduler.new
 
     let(:event) { instance_double(::RubyEventStore::Event) }
-    let(:record) { instance_double(::RubyEventStore::Record)  }
+    let(:record) { instance_double(::RubyEventStore::Record) }
     let(:scheduler) { MyCustomScheduler.new }
 
     describe "#call" do

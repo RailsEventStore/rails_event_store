@@ -8,24 +8,21 @@ module RailsEventStoreActiveRecord
 
     specify "Base for event factory models must be an abstract class" do
       NonAbstractClass = Class.new(ActiveRecord::Base)
-      expect {
-        WithAbstractBaseClass.new(NonAbstractClass)
-      }.to raise_error(ArgumentError)
-       .with_message("RailsEventStoreActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base")
+      expect { WithAbstractBaseClass.new(NonAbstractClass) }.to raise_error(ArgumentError).with_message(
+        "RailsEventStoreActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base"
+      )
     end
 
     specify "Base for event factory models could not be the ActiveRecord::Base" do
-      expect {
-        WithAbstractBaseClass.new(ActiveRecord::Base)
-      }.to raise_error(ArgumentError)
-       .with_message("ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base")
+      expect { WithAbstractBaseClass.new(ActiveRecord::Base) }.to raise_error(ArgumentError).with_message(
+        "ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base"
+      )
     end
 
     specify "Base for event factory models must inherit from ActiveRecord::Base" do
-      expect {
-        WithAbstractBaseClass.new(Object)
-      }.to raise_error(ArgumentError)
-       .with_message("Object must be an abstract class that inherits from ActiveRecord::Base")
+      expect { WithAbstractBaseClass.new(Object) }.to raise_error(ArgumentError).with_message(
+        "Object must be an abstract class that inherits from ActiveRecord::Base"
+      )
     end
 
     specify "AR classes must have the same instance id" do
@@ -50,7 +47,11 @@ module RailsEventStoreActiveRecord
         establish_database_connection
         load_database_schema
 
-        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: RubyEventStore::Serializers::YAML)
+        repository =
+          EventRepository.new(
+            model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
+            serializer: RubyEventStore::Serializers::YAML
+          )
         repository.append_to_stream(
           [event = RubyEventStore::SRecord.new],
           RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
@@ -70,7 +71,11 @@ module RailsEventStoreActiveRecord
         establish_database_connection
         load_database_schema
 
-        repository = EventRepository.new(model_factory: WithAbstractBaseClass.new(CustomApplicationRecord), serializer: RubyEventStore::Serializers::YAML)
+        repository =
+          EventRepository.new(
+            model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
+            serializer: RubyEventStore::Serializers::YAML
+          )
         repository.append_to_stream(
           [event = RubyEventStore::SRecord.new(event_type: "Dummy")],
           RubyEventStore::Stream.new("some"),
@@ -84,7 +89,8 @@ module RailsEventStoreActiveRecord
         end.to match_query /SELECT.*FROM.*event_store_events.*/
 
         expect do
-          read_event = repository.read(RubyEventStore::Specification.new(reader).of_type("Dummy").stream("some").result).first
+          read_event =
+            repository.read(RubyEventStore::Specification.new(reader).of_type("Dummy").stream("some").result).first
           expect(read_event).to eq(event)
         end.to match_query /SELECT.*FROM.*event_store_events_in_streams.*/
       ensure

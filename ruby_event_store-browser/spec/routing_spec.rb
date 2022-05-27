@@ -16,7 +16,9 @@ module RubyEventStore
 
         url = routing.paginated_events_from_stream_url(id: "all", position: "head", direction: "forward", count: 30)
 
-        expect(url).to eq("http://example.com:9393/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=30")
+        expect(url).to eq(
+          "http://example.com:9393/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=30"
+        )
       end
 
       specify "escaping stream name" do

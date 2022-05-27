@@ -26,7 +26,7 @@ module RubyEventStore
     def initialize(serializer: NULL, ensure_supported_any_usage: false)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
-      @mutex   = Mutex.new
+      @mutex = Mutex.new
       @storage = Hash.new
       @ensure_supported_any_usage = ensure_supported_any_usage
     end
@@ -36,7 +36,9 @@ module RubyEventStore
 
       with_synchronize(expected_version, stream) do |resolved_version|
         ensure_supported_any_usage(resolved_version, stream)
-        raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
+        unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
+          raise WrongExpectedEventVersion
+        end
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
@@ -52,7 +54,9 @@ module RubyEventStore
 
       with_synchronize(expected_version, stream) do |resolved_version|
         ensure_supported_any_usage(resolved_version, stream)
-        raise WrongExpectedEventVersion unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
+        unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
+          raise WrongExpectedEventVersion
+        end
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
@@ -91,9 +95,7 @@ module RubyEventStore
         serialized_records.last&.deserialize(serializer)
       else
         Enumerator.new do |y|
-          serialized_records.each do |serialized_record|
-            y << serialized_record.deserialize(serializer)
-          end
+          serialized_records.each { |serialized_record| y << serialized_record.deserialize(serializer) }
         end
       end
     end
@@ -106,26 +108,26 @@ module RubyEventStore
       records.each do |record|
         read_event(record.event_id)
         serialized_record =
-          Record.new(
-            event_id:   record.event_id,
-            event_type: record.event_type,
-            data:       record.data,
-            metadata:   record.metadata,
-            timestamp:  Time.iso8601(storage.fetch(record.event_id).timestamp),
-            valid_at:   record.valid_at,
-          ).serialize(serializer)
+          Record
+            .new(
+              event_id: record.event_id,
+              event_type: record.event_type,
+              data: record.data,
+              metadata: record.metadata,
+              timestamp: Time.iso8601(storage.fetch(record.event_id).timestamp),
+              valid_at: record.valid_at
+            )
+            .serialize(serializer)
         storage[record.event_id] = serialized_record
       end
     end
 
     def streams_of(event_id)
-      streams
-        .select { |name,| has_event_in_stream?(event_id, name) }
-        .map    { |name,| Stream.new(name) }
+      streams.select { |name,| has_event_in_stream?(event_id, name) }.map { |name,| Stream.new(name) }
     end
 
     def position_in_stream(event_id, stream)
-      event_in_stream = streams[stream.name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }
+      event_in_stream = streams[stream.name].find { |event_in_stream| event_in_stream.event_id.eql?(event_id) }
       raise EventNotFoundInStream if event_in_stream.nil?
       event_in_stream.position
     end
@@ -135,23 +137,32 @@ module RubyEventStore
     end
 
     def event_in_stream?(event_id, stream)
-      !streams[stream.name].find {|event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
+      !streams[stream.name].find { |event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
     end
 
     private
+
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)
       serialized_records = ordered(serialized_records, spec)
-      serialized_records = serialized_records.select{|e| spec.with_ids.any?{|x| x.eql?(e.event_id)}} if spec.with_ids?
-      serialized_records = serialized_records.select{|e| spec.with_types.any?{|x| x.eql?(e.event_type)}} if spec.with_types?
+      serialized_records = serialized_records.select { |e| spec.with_ids.any? { |x| x.eql?(e.event_id) } } if spec
+        .with_ids?
+      serialized_records = serialized_records.select { |e| spec.with_types.any? { |x| x.eql?(e.event_type) } } if spec
+        .with_types?
       serialized_records = serialized_records.reverse if spec.backward?
       serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
       serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
       serialized_records = serialized_records.take(spec.limit) if spec.limit?
-      serialized_records = serialized_records.select { |sr| Time.iso8601(sr.timestamp) < spec.older_than } if spec.older_than
-      serialized_records = serialized_records.select { |sr| Time.iso8601(sr.timestamp) <= spec.older_than_or_equal } if spec.older_than_or_equal
-      serialized_records = serialized_records.select { |sr| Time.iso8601(sr.timestamp) > spec.newer_than } if spec.newer_than
-      serialized_records = serialized_records.select { |sr| Time.iso8601(sr.timestamp) >= spec.newer_than_or_equal } if spec.newer_than_or_equal
+      serialized_records = serialized_records.select { |sr| Time.iso8601(sr.timestamp) < spec.older_than } if spec
+        .older_than
+      serialized_records =
+        serialized_records.select { |sr| Time.iso8601(sr.timestamp) <= spec.older_than_or_equal } if spec
+        .older_than_or_equal
+      serialized_records = serialized_records.select { |sr| Time.iso8601(sr.timestamp) > spec.newer_than } if spec
+        .newer_than
+      serialized_records =
+        serialized_records.select { |sr| Time.iso8601(sr.timestamp) >= spec.newer_than_or_equal } if spec
+        .newer_than_or_equal
       serialized_records
     end
 
@@ -193,9 +204,7 @@ module RubyEventStore
       # conditions more likely. And we only use mutex.synchronize for writing
       # not for the whole read+write algorithm.
       Thread.pass
-      mutex.synchronize do
-        block.call(resolved_version)
-      end
+      mutex.synchronize { block.call(resolved_version) }
     end
 
     def has_event_in_stream?(event_id, stream_name)
@@ -203,13 +212,11 @@ module RubyEventStore
     end
 
     def index_of(source, event_id)
-      source.index {|item| item.event_id.eql?(event_id)}
+      source.index { |item| item.event_id.eql?(event_id) }
     end
 
     def compute_position(resolved_version, index)
-      unless resolved_version.nil?
-        resolved_version + index + 1
-      end
+      resolved_version + index + 1 unless resolved_version.nil?
     end
 
     def add_to_stream(stream, serialized_record, resolved_version, index)

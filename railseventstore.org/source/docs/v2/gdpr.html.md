@@ -24,7 +24,7 @@ The challenging part is tracking which events need to be anonymized on PII remov
 
 This solution does not affect domain modeling.
 
-Beware — [changing](https://railseventstore.org/docs/v2/migrating_messages/) event data has further implications. Events can no longer be assumed immutable and all the benefits of immutability [disappear](https://leanpub.com/esversioning/read#leanpub-auto-immutability). All consumers of such mutable events are affected and have to somehow be notified of any  change.
+Beware — [changing](https://railseventstore.org/docs/v2/migrating_messages/) event data has further implications. Events can no longer be assumed immutable and all the benefits of immutability [disappear](https://leanpub.com/esversioning/read#leanpub-auto-immutability). All consumers of such mutable events are affected and have to somehow be notified of any change.
 
 ### Cryptographic erasure
 
@@ -36,9 +36,9 @@ Cryptography is performed on loading/storing of events in the event store. With 
 
 The challenging part is the considerations involved with cryptography:
 
-* Rotating keys and [cryptoperiod](https://www.keylength.com/en/3/) are to be considered.
-* When a particular encryption algorithm becomes weak over time or the key is leaked, the data encrypted with it becomes vulnerable.
-* Cryptography might affect the performance a bit as well.
+- Rotating keys and [cryptoperiod](https://www.keylength.com/en/3/) are to be considered.
+- When a particular encryption algorithm becomes weak over time or the key is leaked, the data encrypted with it becomes vulnerable.
+- Cryptography might affect the performance a bit as well.
 
 #### EncryptionMapper
 
@@ -46,23 +46,15 @@ RailsEventStore provides a specialized mapper to support attribute encryption fo
 
 ```ruby
 RailsEventStore::Client.new(
-  mapper: RubyEventStore::Mappers::EncryptionMapper.new(
-    key_repository,
-    serializer: RubyEventStore::Serializers::YAML
-  )
+  mapper: RubyEventStore::Mappers::EncryptionMapper.new(key_repository, serializer: RubyEventStore::Serializers::YAML),
 )
 ```
 
 This mapper relies on `key_repository` to provide cryptographic keys. Event definitions must include `encryption_schema` which describes what attributes are to be encrypted and an identifier of the key used to perform that operation.
 
-
 ```ruby
 class TicketHolderEmailProvided < RubyEventStore::Event
-  SCHEMA = {
-    ticket_id: Integer,
-    user_id: UUID,
-    email: String
-  }
+  SCHEMA = { ticket_id: Integer, user_id: UUID, email: String }
 
   def self.strict(data: nil, metadata: nil)
     ClassyHash.validate_strict(data, SCHEMA, true)
@@ -70,9 +62,7 @@ class TicketHolderEmailProvided < RubyEventStore::Event
   end
 
   def self.encryption_schema
-    {
-      email: ->(data) { data.fetch(:user_id) }
-    }
+    { email: ->(data) { data.fetch(:user_id) } }
   end
 end
 ```
@@ -85,10 +75,7 @@ When the decryption key is lost and an attribute can no longer be read, an insta
 
 ```ruby
 RailsEventStore::Client.new(
-  mapper: RubyEventStore::Mappers::EncryptionMapper.new(
-    key_repository,
-    forgotten_data: MyCustomObject.new
-  )
+  mapper: RubyEventStore::Mappers::EncryptionMapper.new(key_repository, forgotten_data: MyCustomObject.new),
 )
 ```
 
@@ -100,7 +87,7 @@ You will have to implement your own key repository to meet security demands of y
 
 ```ruby
 class InMemoryEncryptionKeyRepository
-  DEFAULT_CIPHER = 'aes-256-cbc'.freeze
+  DEFAULT_CIPHER = "aes-256-cbc".freeze
 
   def initialize
     @keys = {}
@@ -111,10 +98,7 @@ class InMemoryEncryptionKeyRepository
   end
 
   def create(identifier, cipher: DEFAULT_CIPHER)
-    @keys[[identifier, cipher]] = RubyEventStore::Mappers::EncryptionKey.new(
-      cipher: cipher,
-      key: random_key(cipher)
-    )
+    @keys[[identifier, cipher]] = RubyEventStore::Mappers::EncryptionKey.new(cipher: cipher, key: random_key(cipher))
   end
 
   def forget(identifier)
@@ -122,6 +106,7 @@ class InMemoryEncryptionKeyRepository
   end
 
   private
+
   def random_key(cipher)
     crypto = OpenSSL::Cipher.new(cipher)
     crypto.encrypt
@@ -137,9 +122,7 @@ The unique request ID and IP address from which the request originated are [coll
 In order to fully disable them, pass an empty lambda:
 
 ```ruby
-RailsEventStore::Client.new(
-  request_metadata: -> (env) { {} }
-)
+RailsEventStore::Client.new(request_metadata: ->(env) { {} })
 ```
 
 ## CQRS

@@ -29,9 +29,9 @@ module RubyEventStore
       class FailureMessage
         class ExpectedLine
           def initialize(expected_klass, expected_metadata, expected_data)
-            @expected_klass    = expected_klass
+            @expected_klass = expected_klass
             @expected_metadata = expected_metadata
-            @expected_data     = expected_data
+            @expected_data = expected_data
           end
 
           def to_s
@@ -55,11 +55,11 @@ module RubyEventStore
 
         class ActualLine
           def initialize(actual_klass, actual_metadata, actual_data, expected_metadata, expected_data)
-            @actual_klass      = actual_klass
-            @actual_metadata   = actual_metadata
-            @actual_data       = actual_data
+            @actual_klass = actual_klass
+            @actual_metadata = actual_metadata
+            @actual_data = actual_data
             @expected_metadata = expected_metadata
-            @expected_data     = expected_data
+            @expected_data = expected_data
           end
 
           def to_s
@@ -83,10 +83,10 @@ module RubyEventStore
 
         class Diff
           def initialize(actual, expected, label, differ:)
-            @actual   = actual
+            @actual = actual
             @expected = expected
-            @label    = label
-            @differ   = differ
+            @label = label
+            @differ = differ
           end
 
           def to_s
@@ -94,14 +94,22 @@ module RubyEventStore
           end
         end
 
-        def initialize(expected_klass, actual_klass, expected_data, actual_data, expected_metadata, actual_metadata, differ:)
-          @expected_klass    = expected_klass
-          @actual_klass      = actual_klass
-          @expected_data     = expected_data
-          @actual_data       = actual_data
+        def initialize(
+          expected_klass,
+          actual_klass,
+          expected_data,
+          actual_data,
+          expected_metadata,
+          actual_metadata,
+          differ:
+        )
+          @expected_klass = expected_klass
+          @actual_klass = actual_klass
+          @expected_data = expected_data
+          @actual_data = actual_data
           @expected_metadata = expected_metadata
-          @actual_metadata   = actual_metadata
-          @differ            = differ
+          @actual_metadata = actual_metadata
+          @differ = differ
         end
 
         def to_s
@@ -117,8 +125,8 @@ module RubyEventStore
       include ::RSpec::Matchers::Composable
 
       def initialize(expected, differ:, formatter:)
-        @expected  = expected
-        @differ    = differ
+        @expected = expected
+        @differ = differ
         @formatter = formatter
       end
 
@@ -138,16 +146,24 @@ module RubyEventStore
       end
 
       def failure_message
-        actual_data     = actual.data     if actual.respond_to?(:data)
+        actual_data = actual.data if actual.respond_to?(:data)
         actual_metadata = actual.metadata if actual.respond_to?(:metadata)
-        FailureMessage.new(expected, actual.class, expected_data, actual_data, expected_metadata, actual_metadata, differ: differ).to_s
+        FailureMessage.new(
+          expected,
+          actual.class,
+          expected_data,
+          actual_data,
+          expected_metadata,
+          actual_metadata,
+          differ: differ
+        ).to_s
       end
 
       def failure_message_when_negated
-        %Q{
+        "
 expected: not a kind of #{expected}
      got: #{actual.class}
-}
+"
       end
 
       def strict
@@ -191,4 +207,3 @@ expected: not a kind of #{expected}
     end
   end
 end
-

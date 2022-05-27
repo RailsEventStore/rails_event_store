@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-  Error                     = Class.new(StandardError)
+  Error = Class.new(StandardError)
   WrongExpectedEventVersion = Class.new(Error)
-  InvalidExpectedVersion    = Class.new(Error)
-  IncorrectStreamData       = Class.new(Error)
-  SubscriberNotExist        = Class.new(Error)
-  InvalidPageStart          = Class.new(Error)
-  InvalidPageStop           = Class.new(Error)
-  InvalidPageSize           = Class.new(Error)
-  EventDuplicatedInStream   = Class.new(Error)
-  ReservedInternalName      = Class.new(Error)
-  InvalidHandler            = Class.new(Error)
-  EventNotFoundInStream     = Class.new(Error)
+  InvalidExpectedVersion = Class.new(Error)
+  IncorrectStreamData = Class.new(Error)
+  SubscriberNotExist = Class.new(Error)
+  InvalidPageStart = Class.new(Error)
+  InvalidPageStop = Class.new(Error)
+  InvalidPageSize = Class.new(Error)
+  EventDuplicatedInStream = Class.new(Error)
+  ReservedInternalName = Class.new(Error)
+  InvalidHandler = Class.new(Error)
+  EventNotFoundInStream = Class.new(Error)
 
   class EventNotFound < Error
     attr_reader :event_id

@@ -7,9 +7,7 @@ module RubyEventStore
         schema(:event_store_events_in_streams, as: :stream_entries, infer: true) do
           attribute :created_at, RubyEventStore::ROM::Types::DateTime
 
-          associations do
-            belongs_to :events, as: :event, foreign_key: :event_id
-          end
+          associations { belongs_to :events, as: :event, foreign_key: :event_id }
         end
 
         alias take limit
@@ -54,17 +52,14 @@ module RubyEventStore
           join(:events).where { |r| r.events[:created_at] <= time.localtime }
         end
 
-        DIRECTION_MAP = {
-          forward: %i[asc > <],
-          backward: %i[desc < >]
-        }.freeze
+        DIRECTION_MAP = { forward: %i[asc > <], backward: %i[desc < >] }.freeze
 
         def ordered(direction, stream, offset_entry_id = nil, stop_entry_id = nil, time_sort_by = nil)
           order, operator_offset, operator_stop = DIRECTION_MAP[direction]
 
           raise ArgumentError, "Direction must be :forward or :backward" if order.nil?
 
-          event_order_columns  = []
+          event_order_columns = []
           stream_order_columns = %i[id]
 
           case time_sort_by

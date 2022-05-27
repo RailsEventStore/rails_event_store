@@ -3,25 +3,20 @@ require "pp"
 require "fakefs/safe"
 require_relative "../../support/helpers/silence_stdout"
 
-
 module RailsEventStoreActiveRecord
   RSpec.describe MigrationGenerator do
-    around do |example|
-      SilenceStdout.silence_stdout { example.run }
-    end
+    around { |example| SilenceStdout.silence_stdout { example.run } }
 
     around do |example|
       FakeFS.with_fresh do
-        FakeFS::FileSystem.clone(File.expand_path("../../lib/rails_event_store_active_record/generators/templates", __FILE__))
+        FakeFS::FileSystem.clone(
+          File.expand_path("../../lib/rails_event_store_active_record/generators/templates", __FILE__)
+        )
         example.run
       end
     end
 
-    before do
-      allow(Time).to receive(:now).and_return(
-        Time.new(2016, 8, 9, 22, 22, 22)
-      )
-    end
+    before { allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22)) }
 
     let(:generator) { MigrationGenerator.new }
 
@@ -43,9 +38,7 @@ module RailsEventStoreActiveRecord
     end
 
     context "when data_type option is specified" do
-      let(:generator) do
-        MigrationGenerator.new([], data_type: data_type)
-      end
+      let(:generator) { MigrationGenerator.new([], data_type: data_type) }
 
       context "with a binary datatype" do
         let(:data_type) { "binary" }

@@ -2,7 +2,6 @@
 title: Community
 ---
 
-
 ## Contributing to RailsEventStore organization repositories
 
 Any kind of contribution is welcomed.

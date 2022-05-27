@@ -13,8 +13,6 @@ begin
 
   Rake::Task[:default].enhance [:rubocop]
 
-  RuboCop::RakeTask.new do |task|
-    task.options << "--display-cop-names"
-  end
+  RuboCop::RakeTask.new { |task| task.options << "--display-cop-names" }
 rescue LoadError
 end

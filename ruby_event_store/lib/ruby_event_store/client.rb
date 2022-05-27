@@ -4,23 +4,22 @@ require "concurrent"
 
 module RubyEventStore
   class Client
-    def initialize(repository:,
-                   mapper: Mappers::Default.new,
-                   subscriptions: Subscriptions.new,
-                   dispatcher: Dispatcher.new,
-                   clock: default_clock,
-                   correlation_id_generator: default_correlation_id_generator)
-
-
-      @repository     = repository
-      @mapper         = mapper
-      @subscriptions  = subscriptions
-      @broker         = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
-      @clock          = clock
-      @metadata       = Concurrent::ThreadLocalVar.new
+    def initialize(
+      repository:,
+      mapper: Mappers::Default.new,
+      subscriptions: Subscriptions.new,
+      dispatcher: Dispatcher.new,
+      clock: default_clock,
+      correlation_id_generator: default_correlation_id_generator
+    )
+      @repository = repository
+      @mapper = mapper
+      @subscriptions = subscriptions
+      @broker = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
+      @clock = clock
+      @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
     end
-
 
     # Persists events and notifies subscribed handlers about them
     #
@@ -30,13 +29,10 @@ module RubyEventStore
     # @return [self]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
-      records         = transform(enriched_events)
+      records = transform(enriched_events)
       append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(records) do |event, record|
-        with_metadata(
-          correlation_id: event.metadata.fetch(:correlation_id),
-          causation_id:   event.event_id,
-        ) do
+        with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
           broker.(event, record)
         end
       end
@@ -128,11 +124,7 @@ module RubyEventStore
     # @return [Boolean] true if event is linked to given stream, false otherwise
     def event_in_stream?(event_id, stream_name)
       stream = Stream.new(stream_name)
-      if stream.global?
-        repository.has_event?(event_id)
-      else
-        repository.event_in_stream?(event_id, stream)
-      end
+      stream.global? ? repository.has_event?(event_id) : repository.event_in_stream?(event_id, stream)
     end
 
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
@@ -184,7 +176,7 @@ module RubyEventStore
         @block = block
         @broker = broker
         @global_subscribers = []
-        @subscribers = Hash.new {[]}
+        @subscribers = Hash.new { [] }
       end
 
       # Subscribes temporary handlers that
@@ -216,7 +208,7 @@ module RubyEventStore
       #   @param to [Array<Class>] types of events to subscribe
       #   @param handler [Proc] handler passed as proc
       #   @return [self]
-      def subscribe(handler=nil, to:, &handler2)
+      def subscribe(handler = nil, to:, &handler2)
         raise ArgumentError if handler && handler2
         @subscribers[handler || handler2] += Array(to)
         self
@@ -228,7 +220,7 @@ module RubyEventStore
       #
       # @return [Object] value returned by the invoked block of code
       def call
-        unsubs  = add_thread_global_subscribers
+        unsubs = add_thread_global_subscribers
         unsubs += add_thread_subscribers
         @block.call
       ensure
@@ -238,15 +230,11 @@ module RubyEventStore
       private
 
       def add_thread_subscribers
-        @subscribers.map do |subscriber, types|
-          @broker.add_thread_subscription(subscriber, types)
-        end
+        @subscribers.map { |subscriber, types| @broker.add_thread_subscription(subscriber, types) }
       end
 
       def add_thread_global_subscribers
-        @global_subscribers.map do |subscriber|
-          @broker.add_thread_global_subscription(subscriber)
-        end
+        @global_subscribers.map { |subscriber| @broker.add_thread_global_subscription(subscriber) }
       end
     end
 
@@ -267,7 +255,7 @@ module RubyEventStore
     # @param block [Proc] block of code during which the metadata will be added
     # @return [Object] last value returned by the provided block
     def with_metadata(metadata, &block)
-      previous_metadata = metadata()
+      previous_metadata = metadata
       self.metadata = previous_metadata.merge(metadata)
       block.call if block_given?
     ensure
@@ -279,19 +267,19 @@ module RubyEventStore
     #
     # @return [Event] deserialized event
     def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
-      extract_timestamp = lambda do |m|
-        (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601
-      end
+      extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
 
       mapper.record_to_event(
-        SerializedRecord.new(
-          event_type: event_type,
-          event_id:   event_id,
-          data:       data,
-          metadata:   metadata,
-          timestamp:  timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
-          valid_at:   valid_at  || timestamp_,
-        ).deserialize(serializer)
+        SerializedRecord
+          .new(
+            event_type: event_type,
+            event_id: event_id,
+            data: data,
+            metadata: metadata,
+            timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
+            valid_at: valid_at || timestamp_
+          )
+          .deserialize(serializer)
       )
     end
 
@@ -352,14 +340,14 @@ module RubyEventStore
 
     def enrich_events_metadata(events)
       events = Array(events)
-      events.each{|event| enrich_event_metadata(event) }
+      events.each { |event| enrich_event_metadata(event) }
       events
     end
 
     def enrich_event_metadata(event)
       metadata.each { |key, value| event.metadata[key] ||= value }
-      event.metadata[:timestamp]      ||= clock.call
-      event.metadata[:valid_at]       ||= event.metadata.fetch(:timestamp)
+      event.metadata[:timestamp] ||= clock.call
+      event.metadata[:valid_at] ||= event.metadata.fetch(:timestamp)
       event.metadata[:correlation_id] ||= correlation_id_generator.call
     end
 
@@ -378,11 +366,11 @@ module RubyEventStore
     end
 
     def default_clock
-      ->{ Time.now.utc.round(TIMESTAMP_PRECISION) }
+      -> { Time.now.utc.round(TIMESTAMP_PRECISION) }
     end
 
     def default_correlation_id_generator
-      ->{ SecureRandom.uuid }
+      -> { SecureRandom.uuid }
     end
 
     attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator

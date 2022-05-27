@@ -25,9 +25,7 @@ module RailsEventStoreActiveRecord
     end
 
     def with_transaction
-      ActiveRecord::Base.transaction do
-        yield
-      end
+      ActiveRecord::Base.transaction { yield }
     end
 
     def supports_concurrent_auto?

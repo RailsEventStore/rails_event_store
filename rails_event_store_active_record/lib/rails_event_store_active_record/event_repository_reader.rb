@@ -2,7 +2,6 @@
 
 module RailsEventStoreActiveRecord
   class EventRepositoryReader
-
     def initialize(event_klass, stream_klass, serializer)
       @event_klass = event_klass
       @stream_klass = stream_klass
@@ -38,9 +37,7 @@ module RailsEventStoreActiveRecord
     end
 
     def streams_of(event_id)
-      @stream_klass.where(event_id: event_id)
-        .pluck(:stream)
-        .map { |name| RubyEventStore::Stream.new(name) }
+      @stream_klass.where(event_id: event_id).pluck(:stream).map { |name| RubyEventStore::Stream.new(name) }
     end
 
     def position_in_stream(event_id, stream)
@@ -60,22 +57,23 @@ module RailsEventStoreActiveRecord
     end
 
     private
+
     attr_reader :serializer
 
     def offset_limit_batch_reader(spec, stream)
-      batch_reader = ->(offset, limit) do
-        stream
-          .offset(offset)
-          .limit(limit)
-          .map(&method(:record))
-      end
+      batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
       RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
     end
 
     def monotonic_id_batch_reader(spec, stream)
       batch_reader = ->(offset_id, limit) do
         search_in = spec.stream.global? ? @event_klass.table_name : @stream_klass.table_name
-        records = offset_id.nil? ? stream.limit(limit) : stream.where(start_offset_condition(spec, offset_id, search_in)).limit(limit)
+        records =
+          if offset_id.nil?
+            stream.limit(limit)
+          else
+            stream.where(start_offset_condition(spec, offset_id, search_in)).limit(limit)
+          end
         [records.map(&method(:record)), records.last]
       end
       BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
@@ -84,29 +82,29 @@ module RailsEventStoreActiveRecord
     def read_scope(spec)
       if spec.stream.global?
         stream = @event_klass
-        stream = stream.where(event_id: spec.with_ids)                           if spec.with_ids?
-        stream = stream.where(event_type: spec.with_types)                       if spec.with_types?
+        stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
+        stream = stream.where(event_type: spec.with_types) if spec.with_types?
         stream = ordered(stream, spec)
-        stream = stream.limit(spec.limit)                                        if spec.limit?
-        stream = stream.where(start_condition_in_global_stream(spec))            if spec.start
-        stream = stream.where(stop_condition_in_global_stream(spec))             if spec.stop
-        stream = stream.where(older_than_condition(spec))          if spec.older_than
+        stream = stream.limit(spec.limit) if spec.limit?
+        stream = stream.where(start_condition_in_global_stream(spec)) if spec.start
+        stream = stream.where(stop_condition_in_global_stream(spec)) if spec.stop
+        stream = stream.where(older_than_condition(spec)) if spec.older_than
         stream = stream.where(older_than_or_equal_condition(spec)) if spec.older_than_or_equal
-        stream = stream.where(newer_than_condition(spec))          if spec.newer_than
+        stream = stream.where(newer_than_condition(spec)) if spec.newer_than
         stream = stream.where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
         stream.order(id: order(spec))
       else
         stream = @stream_klass.preload(:event).where(stream: spec.stream.name)
-        stream = stream.where(event_id: spec.with_ids)                                                if spec.with_ids?
-        stream = stream.where(@event_klass.table_name => {event_type: spec.with_types}) if spec.with_types?
+        stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
+        stream = stream.where(@event_klass.table_name => { event_type: spec.with_types }) if spec.with_types?
         stream = ordered(stream.joins(:event), spec)
         stream = stream.order(id: order(spec))
-        stream = stream.limit(spec.limit)                                        if spec.limit?
-        stream = stream.where(start_condition(spec))                             if spec.start
-        stream = stream.where(stop_condition(spec))                              if spec.stop
-        stream = stream.where(older_than_condition(spec))          if spec.older_than
+        stream = stream.limit(spec.limit) if spec.limit?
+        stream = stream.where(start_condition(spec)) if spec.start
+        stream = stream.where(stop_condition(spec)) if spec.stop
+        stream = stream.where(older_than_condition(spec)) if spec.older_than
         stream = stream.where(older_than_or_equal_condition(spec)) if spec.older_than_or_equal
-        stream = stream.where(newer_than_condition(spec))          if spec.newer_than
+        stream = stream.where(newer_than_condition(spec)) if spec.newer_than
         stream = stream.where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
         stream
       end
@@ -124,37 +122,41 @@ module RailsEventStoreActiveRecord
     end
 
     def start_offset_condition(specification, record_id, search_in)
-      condition = "#{search_in}.id #{specification.forward? ? '>' : '<'} ?"
+      condition = "#{search_in}.id #{specification.forward? ? ">" : "<"} ?"
       [condition, record_id]
     end
 
     def stop_offset_condition(specification, record_id, search_in)
-      condition = "#{search_in}.id #{specification.forward? ? '<' : '>'} ?"
+      condition = "#{search_in}.id #{specification.forward? ? "<" : ">"} ?"
       [condition, record_id]
     end
 
     def start_condition(specification)
-      start_offset_condition(specification,
+      start_offset_condition(
+        specification,
         @stream_klass.find_by!(event_id: specification.start, stream: specification.stream.name),
-        @stream_klass.table_name)
+        @stream_klass.table_name
+      )
     end
 
     def stop_condition(specification)
-      stop_offset_condition(specification,
+      stop_offset_condition(
+        specification,
         @stream_klass.find_by!(event_id: specification.stop, stream: specification.stream.name),
-        @stream_klass.table_name)
+        @stream_klass.table_name
+      )
     end
 
     def start_condition_in_global_stream(specification)
-      start_offset_condition(specification,
+      start_offset_condition(
+        specification,
         @event_klass.find_by!(event_id: specification.start),
-        @event_klass.table_name)
+        @event_klass.table_name
+      )
     end
 
     def stop_condition_in_global_stream(specification)
-      stop_offset_condition(specification,
-        @event_klass.find_by!(event_id: specification.stop),
-        @event_klass.table_name)
+      stop_offset_condition(specification, @event_klass.find_by!(event_id: specification.stop), @event_klass.table_name)
     end
 
     def older_than_condition(specification)
@@ -180,14 +182,16 @@ module RailsEventStoreActiveRecord
     def record(record)
       record = record.event if @stream_klass === record
 
-      RubyEventStore::SerializedRecord.new(
-        event_id: record.event_id,
-        metadata: record.metadata,
-        data: record.data,
-        event_type: record.event_type,
-        timestamp: record.created_at.iso8601(RubyEventStore::TIMESTAMP_PRECISION),
-        valid_at: (record.valid_at || record.created_at).iso8601(RubyEventStore::TIMESTAMP_PRECISION),
-      ).deserialize(serializer)
+      RubyEventStore::SerializedRecord
+        .new(
+          event_id: record.event_id,
+          metadata: record.metadata,
+          data: record.data,
+          event_type: record.event_type,
+          timestamp: record.created_at.iso8601(RubyEventStore::TIMESTAMP_PRECISION),
+          valid_at: (record.valid_at || record.created_at).iso8601(RubyEventStore::TIMESTAMP_PRECISION)
+        )
+        .deserialize(serializer)
     end
   end
 

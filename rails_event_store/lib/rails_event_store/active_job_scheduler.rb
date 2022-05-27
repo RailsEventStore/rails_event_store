@@ -17,6 +17,7 @@ module RailsEventStore
     end
 
     private
+
     attr_reader :serializer
   end
 end

@@ -2,40 +2,39 @@
 
 jobs: 1
 requires:
-- ruby_event_store/outbox
-- ruby_event_store/outbox/cli
+  - ruby_event_store/outbox
+  - ruby_event_store/outbox/cli
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 10.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RubyEventStore::Outbox*
-   ignore:
-   - RubyEventStore::Outbox::CLI*
-   - RubyEventStore::Outbox::SidekiqProducer#call
-   - RubyEventStore::Outbox::SidekiqProcessor#process
-   - RubyEventStore::Outbox::SidekiqProcessor#after_batch
-   - RubyEventStore::Outbox::SidekiqScheduler#initialize
-   - RubyEventStore::Outbox::Metrics.from_url
-   - RubyEventStore::Outbox::FetchSpecification#initialize
-   - RubyEventStore::Outbox::FetchSpecification#hash
-   - RubyEventStore::Outbox::FetchSpecification#==
-   - RubyEventStore::Outbox::Consumer::Configuration
-   - RubyEventStore::Outbox::Consumer#run
-   - RubyEventStore::Outbox::Consumer#retrieve_batch
-   - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
-   - RubyEventStore::Outbox::Consumer#prepare_traps
-   - RubyEventStore::Outbox::Consumer#one_loop
-   - RubyEventStore::Outbox::Consumer#initiate_graceful_shutdown
-   - RubyEventStore::Outbox::Consumer#initialize
-   - RubyEventStore::Outbox::Consumer#init
-   - RubyEventStore::Outbox::Consumer#handle_split
-   - RubyEventStore::Outbox::Consumer::Configuration*
-   - RubyEventStore::Outbox::Consumer#get_remaining_count
-   - RubyEventStore::Outbox::CleanupStrategies::None*
-   - RubyEventStore::Outbox::Repository*
-
+  subjects:
+    - RubyEventStore::Outbox*
+  ignore:
+    - RubyEventStore::Outbox::CLI*
+    - RubyEventStore::Outbox::SidekiqProducer#call
+    - RubyEventStore::Outbox::SidekiqProcessor#process
+    - RubyEventStore::Outbox::SidekiqProcessor#after_batch
+    - RubyEventStore::Outbox::SidekiqScheduler#initialize
+    - RubyEventStore::Outbox::Metrics.from_url
+    - RubyEventStore::Outbox::FetchSpecification#initialize
+    - RubyEventStore::Outbox::FetchSpecification#hash
+    - RubyEventStore::Outbox::FetchSpecification#==
+    - RubyEventStore::Outbox::Consumer::Configuration
+    - RubyEventStore::Outbox::Consumer#run
+    - RubyEventStore::Outbox::Consumer#retrieve_batch
+    - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
+    - RubyEventStore::Outbox::Consumer#prepare_traps
+    - RubyEventStore::Outbox::Consumer#one_loop
+    - RubyEventStore::Outbox::Consumer#initiate_graceful_shutdown
+    - RubyEventStore::Outbox::Consumer#initialize
+    - RubyEventStore::Outbox::Consumer#init
+    - RubyEventStore::Outbox::Consumer#handle_split
+    - RubyEventStore::Outbox::Consumer::Configuration*
+    - RubyEventStore::Outbox::Consumer#get_remaining_count
+    - RubyEventStore::Outbox::CleanupStrategies::None*
+    - RubyEventStore::Outbox::Repository*

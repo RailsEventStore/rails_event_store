@@ -4,7 +4,7 @@ class TestClient
   include Rack::Test::Methods
 
   def initialize(app, host = "example.org")
-    @app  = app
+    @app = app
     @host = host
   end
 

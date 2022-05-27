@@ -24,8 +24,8 @@ module RubyEventStore
     class << self
       def setup(adapter_name, database_uri = ENV["DATABASE_URL"])
         rom_container(adapter_name, database_uri) do |rom|
-          rom.register_mapper   Mappers::StreamEntryToSerializedRecord
-          rom.register_mapper   Mappers::EventToSerializedRecord
+          rom.register_mapper Mappers::StreamEntryToSerializedRecord
+          rom.register_mapper Mappers::EventToSerializedRecord
           rom.register_relation Relations::Events
           rom.register_relation Relations::StreamEntries
         end

@@ -6,10 +6,12 @@ module RubyEventStore
       class Events < ::ROM::Relation[:sql]
         schema(:event_store_events, as: :events, infer: true) do
           attribute :event_id, ::ROM::Types::String
-          attribute :data, RubyEventStore::ROM::Types::RecordSerializer,
-            read: RubyEventStore::ROM::Types::RecordDeserializer
-          attribute :metadata, RubyEventStore::ROM::Types::RecordSerializer,
-            read: RubyEventStore::ROM::Types::RecordDeserializer
+          attribute :data,
+                    RubyEventStore::ROM::Types::RecordSerializer,
+                    read: RubyEventStore::ROM::Types::RecordDeserializer
+          attribute :metadata,
+                    RubyEventStore::ROM::Types::RecordSerializer,
+                    read: RubyEventStore::ROM::Types::RecordDeserializer
           attribute :created_at, RubyEventStore::ROM::Types::DateTime
           attribute :valid_at, RubyEventStore::ROM::Types::DateTime
 
@@ -50,10 +52,7 @@ module RubyEventStore
           where { |r| r.events[:created_at] <= time.localtime }
         end
 
-        DIRECTION_MAP = {
-          forward: %i[asc > <],
-          backward: %i[desc < >]
-        }.freeze
+        DIRECTION_MAP = { forward: %i[asc > <], backward: %i[desc < >] }.freeze
 
         def ordered(direction, offset_entry_id = nil, stop_entry_id = nil, time_sort_by = nil)
           order, operator_offset, operator_stop = DIRECTION_MAP[direction]

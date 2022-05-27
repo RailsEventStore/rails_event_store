@@ -7,7 +7,11 @@ module RubyEventStore
       let(:aggregate_root) { TestAggregate.new }
 
       def matcher(*expected)
-        HaveApplied.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_applied(colorless_differ))
+        HaveApplied.new(
+          *expected,
+          phraser: phraser,
+          failure_message_formatter: RSpec.default_formatter.have_applied(colorless_differ)
+        )
       end
 
       def colorless_differ
@@ -18,18 +22,14 @@ module RubyEventStore
         Matchers::ListPhraser
       end
 
-      specify do
-        expect(aggregate_root).not_to matcher
-      end
+      specify { expect(aggregate_root).not_to matcher }
 
       specify do
         aggregate_root.foo
         expect(aggregate_root).to matcher
       end
 
-      specify do
-        expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent))
-      end
+      specify { expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent)) }
 
       specify do
         aggregate_root.foo
@@ -85,29 +85,20 @@ module RubyEventStore
         aggregate_root.foo
         aggregate_root.bar
 
-        expect(aggregate_root).to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent)
-        )
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent))
       end
 
       specify do
         aggregate_root.foo
 
-        expect(aggregate_root).not_to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )
+        expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
       end
 
       specify do
         aggregate_root.foo
         aggregate_root.bar
 
-        expect(aggregate_root).not_to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )
+        expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
       end
 
       specify do
@@ -115,45 +106,33 @@ module RubyEventStore
         aggregate_root.bar
         aggregate_root.baz
 
-        expect(aggregate_root).not_to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent)
-        ).strict
+        expect(aggregate_root).not_to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict
       end
 
       specify do
         aggregate_root.foo
         aggregate_root.bar
 
-        expect(aggregate_root).not_to matcher(
-          matchers.an_event(BarEvent),
-          matchers.an_event(FooEvent)
-        ).strict
+        expect(aggregate_root).not_to matcher(matchers.an_event(BarEvent), matchers.an_event(FooEvent)).strict
       end
 
       specify do
         aggregate_root.foo
         aggregate_root.bar
 
-        expect(aggregate_root).to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent)
-        ).strict
+        expect(aggregate_root).to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict
       end
 
       specify do
         aggregate_root.foo
         aggregate_root.bar
 
-        expect{
-          expect(aggregate_root).to matcher(
-            matchers.an_event(FooEvent),
-            matchers.an_event(BarEvent)
-          ).exactly(2).times
+        expect {
+          expect(aggregate_root).to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).exactly(2).times
         }.to raise_error(NotSupported)
       end
 
-      specify { expect{ HaveApplied.new() }.to raise_error(ArgumentError) }
+      specify { expect { HaveApplied.new }.to raise_error(ArgumentError) }
 
       specify do
         expect(FooEvent).to receive(:new).and_return(actual = FooEvent.new)
@@ -186,29 +165,26 @@ module RubyEventStore
       end
 
       specify do
-        matcher_ = matcher(
-          matchers.an_event(FooEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
-          matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
+        matcher_ =
+          matcher(
+            matchers.an_event(FooEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
+            matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
+          )
+        expect(matcher_.description).to eq(
+          "have applied events that have to (be an event FooEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}) and be an event BazEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}))"
         )
-        expect(matcher_.description)
-          .to eq("have applied events that have to (be an event FooEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}) and be an event BazEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}))")
       end
 
       specify do
-        matcher_ = matcher(
-          FooEvent,
-          BazEvent)
-        expect(matcher_.description)
-          .to eq("have applied events that have to (be a FooEvent and be a BazEvent)")
+        matcher_ = matcher(FooEvent, BazEvent)
+        expect(matcher_.description).to eq("have applied events that have to (be a FooEvent and be a BazEvent)")
       end
 
       specify do
-        matcher_ = matcher(
-            FooEvent,
-            BarEvent,
-            BazEvent)
-        expect(matcher_.description)
-            .to eq("have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)")
+        matcher_ = matcher(FooEvent, BarEvent, BazEvent)
+        expect(matcher_.description).to eq(
+          "have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)"
+        )
       end
     end
   end

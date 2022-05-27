@@ -1,14 +1,14 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-- ruby_event_store/newrelic
+  - ruby_event_store/newrelic
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 10.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RubyEventStore::Newrelic*
+  subjects:
+    - RubyEventStore::Newrelic*

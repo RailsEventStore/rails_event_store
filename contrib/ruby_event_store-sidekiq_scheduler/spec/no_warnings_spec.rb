@@ -1,10 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe 'no warnings', mutant: false do
-    specify do
-      expect(ruby_event_store_sidekiq_scheduler_warnings).to eq([])
-    end
+  RSpec.describe "no warnings", mutant: false do
+    specify { expect(ruby_event_store_sidekiq_scheduler_warnings).to eq([]) }
 
     def ruby_event_store_sidekiq_scheduler_warnings
       warnings.select { |w| w =~ %r{lib/ruby_event_store/sidekiq_scheduler} }

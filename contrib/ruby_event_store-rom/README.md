@@ -7,4 +7,3 @@ A Ruby Object Model (ROM) implementation of events repository for [Ruby Event St
 This version of the ROM adapter supports [rom-sql](https://github.com/rom-rb/rom-sql) at this time. It is an alternative to the ActiveRecord `EventRepository` implementation used in `rails_event_store` gem.
 
 [Read the docs to get started.](http://railseventstore.org/docs/repository/)
-

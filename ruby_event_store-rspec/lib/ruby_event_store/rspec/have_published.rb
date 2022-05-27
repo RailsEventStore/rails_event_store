@@ -4,8 +4,8 @@ module RubyEventStore
   module RSpec
     class HavePublished
       def initialize(*expected, phraser:, failure_message_formatter:)
-        @expected  = ExpectedCollection.new(expected)
-        @phraser   = phraser
+        @expected = ExpectedCollection.new(expected)
+        @phraser = phraser
         @failure_message_formatter = failure_message_formatter
         @fetch_events = FetchEvents.new
       end
@@ -38,7 +38,7 @@ module RubyEventStore
       def times
         self
       end
-      alias :time :times
+      alias time times
 
       def from(event_id)
         fetch_events.from(event_id)

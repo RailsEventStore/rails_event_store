@@ -9,22 +9,22 @@ ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyev
 Add to your `Gemfile`:
 
 ```ruby
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-gem 'ruby_event_store'
+gem "ruby_event_store"
 
 # For ActiveRecord:
-gem 'activerecord'
-gem 'rails_event_store_active_record'
+gem "activerecord"
+gem "rails_event_store_active_record"
 
 # For ROM/Sequel:
-gem 'rom-sql'
-gem 'ruby_event_store-rom', require: 'ruby_event_store/rom/sql'
+gem "rom-sql"
+gem "ruby_event_store-rom", require: "ruby_event_store/rom/sql"
 
 # And one of:
-gem 'sqlite3'
-gem 'pg'
-gem 'mysql2'
+gem "sqlite3"
+gem "pg"
+gem "mysql2"
 ```
 
 ## Creating tables
@@ -39,7 +39,7 @@ Add the tasks to your `Rakefile` to import them into your project:
 
 ```ruby
 # In your project Rakefile
-require 'ruby_event_store/rom/adapters/sql/rake_task'
+require "ruby_event_store/rom/adapters/sql/rake_task"
 ```
 
 Then run Rake tasks to get your database setup:
@@ -69,25 +69,20 @@ NOTE: Make sure the database connection in your app doesn't try to connect and s
 ### ActiveRecord
 
 ```ruby
-require 'active_record'
-require 'rails_event_store_active_record'
-require 'ruby_event_store'
+require "active_record"
+require "rails_event_store_active_record"
+require "ruby_event_store"
 
 ActiveRecord::Base.logger = Logger.new(STDOUT)
-ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
 
 class OrderPlaced < RubyEventStore::Event
 end
 
-event_store = RubyEventStore::Client.new(
-  repository: RailsEventStoreActiveRecord::EventRepository.new
-)
+event_store = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
 
-event_store.publish(OrderPlaced.new(data: {
-    order_id: 1,
-    customer_id: 47271,
-    amount: BigDecimal.new("20.00"),
-  }),
+event_store.publish(
+  OrderPlaced.new(data: { order_id: 1, customer_id: 47_271, amount: BigDecimal.new("20.00") }),
   stream_name: "Order-1",
 )
 ```
@@ -97,16 +92,14 @@ event_store.publish(OrderPlaced.new(data: {
 You simply need to configure your ROM container and then store it globally on `RubyEventStore::ROM.env` or pass it to the repository constructor.
 
 ```ruby
-require 'ruby_event_store/rom/sql'
+require "ruby_event_store/rom/sql"
 
 # Use the `setup` helper to configure repositories and mappers.
 # Then store an Env instance to get access to the ROM container.
-RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
+RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV["DATABASE_URL"])
 
 # Use the repository the same as with ActiveRecord
-client = RubyEventStore::Client.new(
-  repository: RubyEventStore::ROM::EventRepository.new
-)
+client = RubyEventStore::Client.new(repository: RubyEventStore::ROM::EventRepository.new)
 ```
 
 #### Advanced setup
@@ -114,9 +107,9 @@ client = RubyEventStore::Client.new(
 You can use a specific ROM container per repository to customize it more extensively. This example illustrates how to get at the ROM configuration and even run the latest migrations.
 
 ```ruby
-require 'ruby_event_store/rom/sql'
+require "ruby_event_store/rom/sql"
 
-config = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
+config = ROM::Configuration.new(:sql, ENV["DATABASE_URL"])
 
 # Run migrations if you need to (optional)
 config.default.run_migrations
@@ -125,9 +118,7 @@ config.default.run_migrations
 env = RubyEventStore::ROM.setup(config)
 
 # Use the repository the same as with ActiveRecord
-client = RubyEventStore::Client.new(
-  repository: RubyEventStore::ROM::EventRepository.new(rom: env)
-)
+client = RubyEventStore::Client.new(repository: RubyEventStore::ROM::EventRepository.new(rom: env))
 
 # P.S. Access the ROM container
 container = env.container

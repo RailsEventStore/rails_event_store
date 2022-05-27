@@ -1,21 +1,21 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-- ruby_event_store/rom
+  - ruby_event_store/rom
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 1.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RubyEventStore::ROM*
-   ignore:
-   - RubyEventStore::ROM.rom_container
-   - RubyEventStore::ROM.setup
-   - RubyEventStore::ROM::Changesets::UpdateEvents#commit
-   - RubyEventStore::ROM::Changesets::UpdateEvents#commit_insert_conflict_update
-   - RubyEventStore::ROM::Changesets::UpdateEvents#commit_on_duplicate_key_update
-   - RubyEventStore::ROM::Changesets::UpdateEvents#supports_on_duplicate_key_update?
+  subjects:
+    - RubyEventStore::ROM*
+  ignore:
+    - RubyEventStore::ROM.rom_container
+    - RubyEventStore::ROM.setup
+    - RubyEventStore::ROM::Changesets::UpdateEvents#commit
+    - RubyEventStore::ROM::Changesets::UpdateEvents#commit_insert_conflict_update
+    - RubyEventStore::ROM::Changesets::UpdateEvents#commit_on_duplicate_key_update
+    - RubyEventStore::ROM::Changesets::UpdateEvents#supports_on_duplicate_key_update?

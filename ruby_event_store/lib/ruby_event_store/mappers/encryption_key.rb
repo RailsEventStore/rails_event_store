@@ -5,31 +5,22 @@ module RubyEventStore
     class EncryptionKey
       def initialize(cipher:, key:)
         @cipher = cipher
-        @key    = key
+        @key = key
       end
 
       def encrypt(message, iv)
-        crypto     = prepare_encrypt(cipher)
-        crypto.iv  = iv
+        crypto = prepare_encrypt(cipher)
+        crypto.iv = iv
         crypto.key = key
 
-        if crypto.authenticated?
-          encrypt_authenticated(crypto, message)
-        else
-          crypto.update(message) + crypto.final
-        end
+        crypto.authenticated? ? encrypt_authenticated(crypto, message) : crypto.update(message) + crypto.final
       end
 
       def decrypt(message, iv)
-        crypto     = prepare_decrypt(cipher)
-        crypto.iv  = iv
+        crypto = prepare_decrypt(cipher)
+        crypto.iv = iv
         crypto.key = key
-        ciphertext =
-          if crypto.authenticated?
-            ciphertext_from_authenticated(crypto, message)
-          else
-            message
-          end
+        ciphertext = crypto.authenticated? ? ciphertext_from_authenticated(crypto, message) : message
         (crypto.update(ciphertext) + crypto.final).force_encoding("UTF-8")
       end
 

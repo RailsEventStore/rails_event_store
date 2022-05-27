@@ -12,7 +12,13 @@ require_relative "../../support/helpers/time_enrichment"
 RSpec.configure do |config|
   config.around(:each) do |example|
     ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
-    m = Migrator.new(File.expand_path("../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates", __dir__))
+    m =
+      Migrator.new(
+        File.expand_path(
+          "../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates",
+          __dir__
+        )
+      )
     m.run_migration("create_event_store_events")
     example.run
   end
@@ -53,11 +59,12 @@ module GeneratorHelper
   end
 
   def run_generator(generator_args)
-    SilenceStdout.silence_stdout { ::RailsEventStore::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root) }
+    SilenceStdout.silence_stdout do
+      ::RailsEventStore::Generators::BoundedContextGenerator.start(generator_args, destination_root: destination_root)
+    end
   end
 
   def system_run_generator(genetator_args)
-    system("cd #{destination_root}; bin/rails g rails_event_store:bounded_context #{genetator_args.join(' ')} -q")
+    system("cd #{destination_root}; bin/rails g rails_event_store:bounded_context #{genetator_args.join(" ")} -q")
   end
 end
-

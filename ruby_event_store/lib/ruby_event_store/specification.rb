@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-
   # Used for building and executing the query specification.
   class Specification
     DEFAULT_BATCH_SIZE = 100
+
     # @api private
     # @private
     def initialize(reader, result = SpecificationResult.new)
@@ -53,7 +53,7 @@ module RubyEventStore
       Specification.new(
         reader,
         result.dup do |r|
-          r.older_than          = time
+          r.older_than = time
           r.older_than_or_equal = nil
         end
       )
@@ -69,7 +69,7 @@ module RubyEventStore
       Specification.new(
         reader,
         result.dup do |r|
-          r.older_than          = nil
+          r.older_than = nil
           r.older_than_or_equal = time
         end
       )
@@ -86,7 +86,7 @@ module RubyEventStore
         reader,
         result.dup do |r|
           r.newer_than_or_equal = nil
-          r.newer_than          = time
+          r.newer_than = time
         end
       )
     end
@@ -102,7 +102,7 @@ module RubyEventStore
         reader,
         result.dup do |r|
           r.newer_than_or_equal = time
-          r.newer_than          = nil
+          r.newer_than = nil
         end
       )
     end
@@ -125,7 +125,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def as_at
-      Specification.new(reader, result.dup { |r| r.time_sort_by = :as_at})
+      Specification.new(reader, result.dup { |r| r.time_sort_by = :as_at })
     end
 
     # Sets the order of time sorting using validity time
@@ -171,9 +171,7 @@ module RubyEventStore
     def each_batch
       return to_enum(:each_batch) unless block_given?
 
-      reader.each(in_batches(result.batch_size).result) do |batch|
-        yield batch
-      end
+      reader.each(in_batches(result.batch_size).result) { |batch| yield batch }
     end
 
     # Executes the query based on the specification built up to this point.
@@ -185,9 +183,7 @@ module RubyEventStore
     def each
       return to_enum unless block_given?
 
-      each_batch do |batch|
-        batch.each { |event| yield event }
-      end
+      each_batch { |batch| batch.each { |event| yield event } }
     end
 
     # Executes the query based on the specification built up to this point
@@ -242,9 +238,15 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(reader, result.dup { |r| r.read_as = :batch; r.batch_size = batch_size })
+      Specification.new(
+        reader,
+        result.dup do |r|
+          r.read_as = :batch
+          r.batch_size = batch_size
+        end
+      )
     end
-    alias :in_batches_of :in_batches
+    alias in_batches_of in_batches
 
     # Specifies that only first event should be read.
     # {http://railseventstore.org/docs/read/ Find out more}.
@@ -286,7 +288,7 @@ module RubyEventStore
     # @types [Class, Array(Class)] types of event to look for.
     # @return [Specification]
     def of_type(*types)
-      Specification.new(reader, result.dup{ |r| r.with_types = types.flatten })
+      Specification.new(reader, result.dup { |r| r.with_types = types.flatten })
     end
     alias_method :of_types, :of_type
 
@@ -296,7 +298,7 @@ module RubyEventStore
     # @param event_ids [Array(String)] ids of event to look for.
     # @return [Specification]
     def with_id(event_ids)
-      Specification.new(reader, result.dup{ |r| r.with_ids = event_ids })
+      Specification.new(reader, result.dup { |r| r.with_ids = event_ids })
     end
 
     # Reads single event from repository.
@@ -331,7 +333,9 @@ module RubyEventStore
     end
 
     attr_reader :result
+
     private
+
     attr_reader :reader
   end
 end

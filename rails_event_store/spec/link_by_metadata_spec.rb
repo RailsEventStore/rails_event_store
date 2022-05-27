@@ -5,33 +5,25 @@ module RailsEventStore
   RSpec.describe LinkByMetadata do
     let(:event_store) { RailsEventStore::Client.new }
     let(:application) { instance_double(Rails::Application) }
-    let(:config)      { FakeConfiguration.new }
+    let(:config) { FakeConfiguration.new }
 
     before do
-      allow(Rails).to       receive(:application).and_return(application)
+      allow(Rails).to receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
     end
 
     specify "links" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(key: :city))
-      event_store.publish(ev = OrderCreated.new(metadata:{
-        city: "Paris",
-      }))
+      event_store.publish(ev = OrderCreated.new(metadata: { city: "Paris" }))
       expect(event_store.read.stream("$by_city_Paris").to_a).to eq([ev])
     end
 
     specify "defaults to Rails.configuration.event_store and passes rest of options" do
-      event_store.subscribe_to_all_events(LinkByMetadata.new(
-        key: :city,
-        prefix: "sweet+")
-      )
-      event_store.publish(ev = OrderCreated.new(metadata:{
-        city: "Paris",
-      }))
+      event_store.subscribe_to_all_events(LinkByMetadata.new(key: :city, prefix: "sweet+"))
+      event_store.publish(ev = OrderCreated.new(metadata: { city: "Paris" }))
       expect(event_store.read.stream("sweet+Paris").to_a).to eq([ev])
     end
-
   end
 
   RSpec.describe LinkByCorrelationId do
@@ -39,14 +31,14 @@ module RailsEventStore
     let(:event) do
       OrderCreated.new.tap do |ev|
         ev.correlation_id = "COR"
-        ev.causation_id   = "CAU"
+        ev.causation_id = "CAU"
       end
     end
     let(:application) { instance_double(Rails::Application) }
-    let(:config)      { FakeConfiguration.new }
+    let(:config) { FakeConfiguration.new }
 
     before do
-      allow(Rails).to       receive(:application).and_return(application)
+      allow(Rails).to receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
     end
@@ -69,14 +61,14 @@ module RailsEventStore
     let(:event) do
       OrderCreated.new.tap do |ev|
         ev.correlation_id = "COR"
-        ev.causation_id   = "CAU"
+        ev.causation_id = "CAU"
       end
     end
     let(:application) { instance_double(Rails::Application) }
-    let(:config)      { FakeConfiguration.new }
+    let(:config) { FakeConfiguration.new }
 
     before do
-      allow(Rails).to       receive(:application).and_return(application)
+      allow(Rails).to receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
     end
@@ -98,10 +90,10 @@ module RailsEventStore
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) { OrderCreated.new }
     let(:application) { instance_double(Rails::Application) }
-    let(:config)      { FakeConfiguration.new }
+    let(:config) { FakeConfiguration.new }
 
     before do
-      allow(Rails).to       receive(:application).and_return(application)
+      allow(Rails).to receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
     end
@@ -118,5 +110,4 @@ module RailsEventStore
       expect(event_store.read.stream("e-OrderCreated").to_a).to eq([event])
     end
   end
-
 end

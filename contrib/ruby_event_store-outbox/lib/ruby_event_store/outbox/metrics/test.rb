@@ -1,4 +1,4 @@
-require 'influxdb'
+require "influxdb"
 
 module RubyEventStore
   module Outbox
@@ -14,7 +14,13 @@ module RubyEventStore
         end
 
         def write_point_queue(enqueued: 0, failed: 0, remaining: 0, format: nil, split_key: nil)
-          @queue_stats << { enqueued: enqueued, failed: failed, remaining: remaining, format: format, split_key: split_key}
+          @queue_stats << {
+            enqueued: enqueued,
+            failed: failed,
+            remaining: remaining,
+            format: format,
+            split_key: split_key
+          }
         end
 
         attr_reader :operation_results, :queue_stats

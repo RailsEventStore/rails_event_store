@@ -1,5 +1,3 @@
 # frozen_string_literal: true
 
-DresRails::Engine.routes.draw do
-  get "/" => "application#index"
-end
+DresRails::Engine.routes.draw { get "/" => "application#index" }

@@ -19,6 +19,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :serializer, :sidekiq_producer
     end
   end

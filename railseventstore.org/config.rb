@@ -1,9 +1,9 @@
-require 'octokit'
-require 'faraday'
+require "octokit"
+require "faraday"
 
 class Stats
   def initialize
-    @octokit_client               = Octokit::Client.new
+    @octokit_client = Octokit::Client.new
     @octokit_client.auto_paginate = true
   end
 
@@ -35,7 +35,7 @@ class Stats
   end
 
   def repo
-    'RailsEventStore/rails_event_store'
+    "RailsEventStore/rails_event_store"
   end
 end
 
@@ -47,33 +47,33 @@ activate :syntax do |syntax|
   syntax.css_class = "syntax-highlight"
 end
 activate :external_pipeline,
-  name: :parceljs,
-  command: build? ? 'npm run build' : 'npm run watch',
-  source: ".tmp/dist",
-  latency: 1
+         name: :parceljs,
+         command: build? ? "npm run build" : "npm run watch",
+         source: ".tmp/dist",
+         latency: 1
 
 set :markdown_engine, :redcarpet
-set :res_version_v1, '1.3.1'
-set :res_version_v2, '2.3.0'
-set :res_version,    '2.3.0'
+set :res_version_v1, "1.3.1"
+set :res_version_v2, "2.3.0"
+set :res_version, "2.3.0"
 
 set :markdown,
-  tables: true,
-  autolink: true,
-  gh_blockcode: true,
-  fenced_code_blocks: true,
-  with_toc_data: true,
-  no_intra_emphasis: true
+    tables: true,
+    autolink: true,
+    gh_blockcode: true,
+    fenced_code_blocks: true,
+    with_toc_data: true,
+    no_intra_emphasis: true
 
 helpers do
   def version_above(version_string)
-    given_version   = Gem::Version.new(version_string)
+    given_version = Gem::Version.new(version_string)
     current_version = Gem::Version.new(config[:res_version])
     current_version > given_version
   end
 
   def version_gteq(version_string)
-    given_version   = Gem::Version.new(version_string)
+    given_version = Gem::Version.new(version_string)
     current_version = Gem::Version.new(config[:res_version])
     current_version >= given_version
   end
@@ -87,7 +87,7 @@ helpers do
   end
 
   def current_source_file
-    current_page.source_file.gsub(Dir.pwd, '')
+    current_page.source_file.gsub(Dir.pwd, "")
   end
 
   def current_source_file_name
@@ -95,7 +95,7 @@ helpers do
   end
 
   def github_url
-    'https://github.com/RailsEventStore/rails_event_store'
+    "https://github.com/RailsEventStore/rails_event_store"
   end
 
   def page_title
@@ -108,11 +108,15 @@ helpers do
 
   def feedback_link
     issue_title = "Feedback on #{URI.encode(page_title || current_source_file_name)}"
-    link_to "Provide feedback for this page", File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}"), class: "mr-4"
+    link_to "Provide feedback for this page",
+            File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}"),
+            class: "mr-4"
   end
 
   def edit_github_link
-    link_to "Edit this page on GitHub", File.join(github_url, 'blob/master/railseventstore.org', current_source_file), class: "mr-4"
+    link_to "Edit this page on GitHub",
+            File.join(github_url, "blob/master/railseventstore.org", current_source_file),
+            class: "mr-4"
   end
 
   def sidebar_link_to(name, url)

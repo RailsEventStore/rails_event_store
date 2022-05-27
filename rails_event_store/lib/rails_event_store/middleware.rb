@@ -8,9 +8,7 @@ module RailsEventStore
 
     def call(env)
       if config.respond_to?(:event_store)
-        config.event_store.with_request_metadata(env) do
-          @app.call(env)
-        end
+        config.event_store.with_request_metadata(env) { @app.call(env) }
       else
         @app.call(env)
       end

@@ -21,6 +21,7 @@ module RubyEventStore
         end
 
         private
+
         attr_reader :differ
       end
 
@@ -64,13 +65,11 @@ module RubyEventStore
         end
 
         def failure_message(expected, events)
-          "expected #{expected.events} to be applied, diff:" +
-            differ.diff(expected.events.to_s + "\n", events)
+          "expected #{expected.events} to be applied, diff:" + differ.diff(expected.events.to_s + "\n", events)
         end
 
         def failure_message_when_negated(expected, events)
-          "expected #{expected.events} not to be applied, diff:" +
-            differ.diff(expected.events.inspect + "\n", events)
+          "expected #{expected.events} not to be applied, diff:" + differ.diff(expected.events.inspect + "\n", events)
         end
 
         attr_reader :differ

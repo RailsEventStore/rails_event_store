@@ -3,7 +3,6 @@
 require "spec_helper"
 require "active_support/notifications"
 
-
 module AggregateRoot
   RSpec.describe InstrumentedRepository do
     let(:order_klass) do
@@ -12,7 +11,7 @@ module AggregateRoot
 
         def initialize(uuid)
           @status = :draft
-          @uuid   = uuid
+          @uuid = uuid
         end
 
         def create
@@ -56,12 +55,7 @@ module AggregateRoot
           expect(repository).to receive(:load).with(aggregate, "SomeStream")
           instrumented_repository.load(aggregate, "SomeStream")
 
-          expect(notification_calls).to eq(
-            [{
-              aggregate: aggregate,
-              stream:    "SomeStream",
-            }]
-          )
+          expect(notification_calls).to eq([{ aggregate: aggregate, stream: "SomeStream" }])
         end
       end
     end
@@ -89,12 +83,7 @@ module AggregateRoot
           instrumented_repository.store(aggregate, "SomeStream")
 
           expect(notification_calls).to eq(
-            [{
-              aggregate:     aggregate,
-              version:       -1,
-              stored_events: events,
-              stream:        "SomeStream",
-            }]
+            [{ aggregate: aggregate, version: -1, stored_events: events, stream: "SomeStream" }]
           )
         end
       end
@@ -119,21 +108,11 @@ module AggregateRoot
             end
 
             expect(store_notification_calls).to eq(
-              [{
-                aggregate:     aggregate,
-                version:       -1,
-                stored_events: events,
-                stream:        "SomeStream",
-              }]
+              [{ aggregate: aggregate, version: -1, stored_events: events, stream: "SomeStream" }]
             )
           end
 
-          expect(load_notification_calls).to eq(
-            [{
-              aggregate: aggregate,
-              stream:    "SomeStream",
-            }]
-          )
+          expect(load_notification_calls).to eq([{ aggregate: aggregate, stream: "SomeStream" }])
         end
       end
     end
@@ -155,17 +134,16 @@ module AggregateRoot
       instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
       expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
-      expect do
-        instrumented_repository.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name' for #<AggregateRoot::InstrumentedRepository:/)
+      expect { instrumented_repository.arbitrary_method_name }.to raise_error(
+        NoMethodError,
+        /undefined method `arbitrary_method_name' for #<AggregateRoot::InstrumentedRepository:/
+      )
     end
 
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
-      ActiveSupport::Notifications.subscribed(callback, name) do
-        yield received_payloads
-      end
+      ActiveSupport::Notifications.subscribed(callback, name) { yield received_payloads }
     end
   end
 end

@@ -39,7 +39,6 @@ and then execute returned lambda both subscriptions will be removed.
 
 It you need temporary subscription to be defined [read more here](/docs/v2/subscribe/#temporary-subscriptions).
 
-
 ## Synchronous handlers
 
 To subscribe to events publication, you can use `#subscribe` method. It accepts two arguments:
@@ -69,19 +68,20 @@ end
 ```
 
 ```ruby
-invoice_read_model = -> (event) {
+invoice_read_model = ->(event) do
   # Process an event here...
-}
+end
 
 event_store.subscribe(invoice_read_model, to: [InvoiceCreated, InvoiceUpdated])
 ```
 
 ```ruby
-send_invoice_email = Proc.new do |event|
-  # Process an event here...
-end
+send_invoice_email =
+  Proc.new do |event|
+    # Process an event here...
+  end
 
-event_store.subscribe(send_invoice_email,to: [InvoiceAccepted])
+event_store.subscribe(send_invoice_email, to: [InvoiceAccepted])
 ```
 
 ### Handling exceptions
@@ -128,8 +128,7 @@ If you subscribe an instance of a class (`SyncHandler.new`), the same object is 
 
 ```ruby
 class SyncHandler
-  def call(event)
-  end
+  def call(event); end
 end
 ```
 
@@ -170,10 +169,10 @@ event_store.subscribe(SyncHandler, to: [OrderPlaced])
 ```
 
 ```ruby
-event_store.publish(OrderPlaced.new(data: {customer_id: 2}))
+event_store.publish(OrderPlaced.new(data: { customer_id: 2 }))
 # SyncHandler.new.call is invoked (instance A)
 
-event_store.publish(OrderPlaced.new(data: {customer_id: 3}))
+event_store.publish(OrderPlaced.new(data: { customer_id: 3 }))
 # SyncHandler.new.call is invoked (instance B)
 ```
 
@@ -207,13 +206,12 @@ class EventsLogger
   end
 
   private
+
   attr_reader :logger
 end
 
 event_store.subscribe_to_all_events(EventsLogger.new(Rails.logger))
-event_store.subscribe_to_all_events do |event|
-  puts event.inspect
-end
+event_store.subscribe_to_all_events { |event| puts event.inspect }
 ```
 
 ## Temporary subscriptions
@@ -263,13 +261,11 @@ This can be useful also in controllers:
 ```ruby
 class OperationsController < ApplicationController
   def create
-    event_store.within do
-      Operation.new.run(file)
-    end.subscribe(to: [OperationSucceeded]) do
-      redirect_to results_index_path
-    end.subscribe(to: [OperationFailed]) do
-      render :new
-    end.call
+    event_store
+      .within { Operation.new.run(file) }
+      .subscribe(to: [OperationSucceeded]) { redirect_to results_index_path }
+      .subscribe(to: [OperationFailed]) { render :new }
+      .call
   end
 end
 ```
@@ -277,11 +273,11 @@ end
 Temporarily subscribing to all events is also supported.
 
 ```ruby
-event_store.within do
-  Import.new.run(file)
-end.subscribe_to_all_events(EventsLogger).subscribe_to_all_events do |event|
-  puts event.inspect
-end.call
+event_store
+  .within { Import.new.run(file) }
+  .subscribe_to_all_events(EventsLogger)
+  .subscribe_to_all_events { |event| puts event.inspect }
+  .call
 ```
 
 You start the temporary subscription by providing a block `within` which the subscriptions will be active. Then you can chain `subscribe` and `subscribe_to_all_events` as many times as you want to register temporary subscribers. When you are ready call `call` to evaluate the provided block with the temporary subscriptions.
@@ -311,20 +307,23 @@ You can also use our [`scheduler_lint`](https://github.com/RailsEventStore/rails
 Then you have to initialize `RailsEventStore::Client` using asynchronous dispatcher with your custom scheduler:
 
 ```ruby
-event_store = RailsEventStore::Client.new(
-  dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
-)
+event_store =
+  RailsEventStore::Client.new(
+    dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new),
+  )
 ```
 
 Often you will want to be able to specify both asynchronous and synchronous dispatchers. In that case, you can use `ComposedDispatcher`, which accepts arbitrary number of dispatchers and dispatch the event to the first subscriber which is accepted (by `verify` method) by the dispatcher. This is also our default configuration in `RailsEventStore`.
 
 ```ruby
-event_store = RailsEventStore::Client.new(
-  dispatcher: RubyEventStore::ComposedDispatcher.new(
-    RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
-    RubyEventStore::Dispatcher.new # regular synchronous dispatcher
+event_store =
+  RailsEventStore::Client.new(
+    dispatcher:
+      RubyEventStore::ComposedDispatcher.new(
+        RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
+        RubyEventStore::Dispatcher.new, # regular synchronous dispatcher
+      ),
   )
-)
 ```
 
 RailsEventStore provides [implementation of a scheduler](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store/lib/rails_event_store/active_job_scheduler.rb) for `ActiveJob` library.

@@ -2,7 +2,6 @@
 
 module RubyEventStore
   class CorrelatedCommands
-
     def initialize(event_store, command_bus)
       @event_store = event_store
       @command_bus = command_bus
@@ -13,23 +12,13 @@ module RubyEventStore
 
     def call(command)
       correlation_id = event_store.metadata[:correlation_id]
-      causation_id   = event_store.metadata[:causation_id]
+      causation_id = event_store.metadata[:causation_id]
 
       if correlation_id && causation_id
-        command.correlate_with(MiniEvent.new(
-          correlation_id,
-          causation_id,
-        )) if command.respond_to?(:correlate_with)
-        event_store.with_metadata(
-          causation_id: command.message_id,
-        ) do
-          command_bus.call(command)
-        end
+        command.correlate_with(MiniEvent.new(correlation_id, causation_id)) if command.respond_to?(:correlate_with)
+        event_store.with_metadata(causation_id: command.message_id) { command_bus.call(command) }
       else
-        event_store.with_metadata(
-          correlation_id: command.message_id,
-          causation_id: command.message_id,
-        ) do
+        event_store.with_metadata(correlation_id: command.message_id, causation_id: command.message_id) do
           command_bus.call(command)
         end
       end

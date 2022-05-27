@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'active_record'
-require 'active_support/core_ext/numeric/time.rb'
+require "active_record"
+require "active_support/core_ext/numeric/time.rb"
 
 module RubyEventStore
   module Outbox
@@ -10,7 +10,7 @@ module RubyEventStore
 
       class Record < ::ActiveRecord::Base
         self.primary_key = :id
-        self.table_name = 'event_store_outbox'
+        self.table_name = "event_store_outbox"
 
         def self.remaining_for(fetch_specification)
           where(format: fetch_specification.message_format, split_key: fetch_specification.split_key, enqueued_at: nil)
@@ -30,7 +30,7 @@ module RubyEventStore
       end
 
       class Lock < ::ActiveRecord::Base
-        self.table_name = 'event_store_outbox_locks'
+        self.table_name = "event_store_outbox_locks"
 
         def self.obtain(fetch_specification, process_uuid, clock:)
           transaction do
@@ -39,10 +39,7 @@ module RubyEventStore
             if l.recently_locked?(clock: clock)
               :taken
             else
-              l.update!(
-                locked_by: process_uuid,
-                locked_at: clock.now,
-              )
+              l.update!(locked_by: process_uuid, locked_at: clock.now)
               l
             end
           end
@@ -98,6 +95,7 @@ module RubyEventStore
         end
 
         private
+
         def self.lock_for_split_key(fetch_specification)
           lock.find_by(format: fetch_specification.message_format, split_key: fetch_specification.split_key)
         end
@@ -143,9 +141,7 @@ module RubyEventStore
       end
 
       def delete_enqueued_older_than(fetch_specification, duration, limit)
-        scope = Record
-          .for_fetch_specification(fetch_specification)
-          .where("enqueued_at < ?", duration.ago)
+        scope = Record.for_fetch_specification(fetch_specification).where("enqueued_at < ?", duration.ago)
         scope = scope.limit(limit) unless limit == :all
         scope.delete_all
         :ok

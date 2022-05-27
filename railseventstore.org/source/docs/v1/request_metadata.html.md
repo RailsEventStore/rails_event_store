@@ -25,7 +25,7 @@ event.metadata # empty, unless you provided your own data called 'metadata'.
 If you publish an event, the special field called `metadata` will get filled in with request details:
 
 ```ruby
-event_store.publish(MyEvent.new(data: {foo: 'bar'}))
+event_store.publish(MyEvent.new(data: { foo: "bar" }))
 
 my_event = event_store.read.last
 my_event.metadata[:remote_ip] # your IP
@@ -41,7 +41,7 @@ This can be configurable when instantinating the `RailsEventStore::Client` insta
 Here is an example of such configuration (in `config/application.rb`), replicating the default behaviour:
 
 ```ruby
-require File.expand_path('../boot', __FILE__)
+require File.expand_path("../boot", __FILE__)
 
 require "rails"
 # Pick the frameworks you want:
@@ -57,14 +57,13 @@ Bundler.require(*Rails.groups)
 
 module YourAppName
   class Application < Rails::Application
-    config.event_store = RailsEventStore::Client.new(
-      request_metadata: -> (env) do
-        request = ActionDispatch::Request.new(env)
-        { remote_ip:  request.remote_ip,
-          request_id: request.uuid,
-        }
-      end
-    )
+    config.event_store =
+      RailsEventStore::Client.new(
+        request_metadata: ->(env) do
+          request = ActionDispatch::Request.new(env)
+          { remote_ip: request.remote_ip, request_id: request.uuid }
+        end,
+      )
 
     # ...
   end
@@ -78,8 +77,8 @@ You can read more about your possible options by reading [ActionDispatch::Reques
 Apart from using the middleware, you can also set your metadata with `RubyEventStore::Client#with_metadata` method. You can specify custom metadata that will be added to all events published inside a block:
 
 ```ruby
-event_store.with_metadata(remote_ip: '1.2.3.4', request_id: SecureRandom.uuid) do
-  event_store.publish(MyEvent.new(data: {foo: 'bar'}))
+event_store.with_metadata(remote_ip: "1.2.3.4", request_id: SecureRandom.uuid) do
+  event_store.publish(MyEvent.new(data: { foo: "bar" }))
 end
 
 my_event = event_store.read.last
@@ -150,9 +149,7 @@ OrderPlaced = Class.new(RailsEventStore::Event)
 
 module MetadataHandler
   def perform(event)
-    event_store.with_metadata(**event.metadata.to_h) do
-      super
-    end
+    event_store.with_metadata(**event.metadata.to_h) { super }
   end
 
   def event_store

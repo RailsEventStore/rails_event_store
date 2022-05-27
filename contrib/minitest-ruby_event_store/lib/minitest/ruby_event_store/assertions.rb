@@ -31,11 +31,7 @@ module Minitest
 
       def collect_events(event_store, &block)
         collected_events = []
-        event_store.within do
-          block.call
-        end.subscribe_to_all_events do |event|
-          collected_events << event
-        end.call
+        event_store.within { block.call }.subscribe_to_all_events { |event| collected_events << event }.call
         collected_events
       end
     end

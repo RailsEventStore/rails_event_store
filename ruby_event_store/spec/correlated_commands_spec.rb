@@ -3,13 +3,12 @@ require "time"
 
 module RubyEventStore
   RSpec.describe CorrelatedCommands do
-
     module CorrelableCommand
       attr_accessor :correlation_id, :causation_id
 
       def correlate_with(other_message)
         self.correlation_id = other_message.correlation_id || other_message.message_id
-        self.causation_id   = other_message.message_id
+        self.causation_id = other_message.message_id
       end
     end
 
@@ -34,20 +33,12 @@ module RubyEventStore
       end
     end
 
-    let(:event_store) do
-      RubyEventStore::Client.new(repository: InMemoryRepository.new)
-    end
+    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
     let(:command_bus) do
-      -> (cmd) do
+      ->(cmd) do
         {
-          AddProductCommand => -> (c) do
-            event_store.publish(ProductAdded.new(data:{
-              product_id: c.product_id,
-            }))
-          end,
-          TestCommand => -> (_c) do
-            event_store.publish(TestEvent.new())
-          end,
+          AddProductCommand => ->(c) { event_store.publish(ProductAdded.new(data: { product_id: c.product_id })) },
+          TestCommand => ->(_c) { event_store.publish(TestEvent.new) }
         }.fetch(cmd.class).call(cmd)
       end
     end
@@ -64,9 +55,7 @@ module RubyEventStore
     specify "correlate commands with events from sync handlers" do
       cmd2 = nil
       bus = CorrelatedCommands.new(event_store, command_bus)
-      event_store.subscribe(to: [ProductAdded]) do
-        bus.call(cmd2 = TestCommand.new)
-      end
+      event_store.subscribe(to: [ProductAdded]) { bus.call(cmd2 = TestCommand.new) }
       bus.call(cmd1 = AddProductCommand.new(product_id: 20))
 
       expect(cmd1.correlation_id).to be_nil
@@ -92,9 +81,7 @@ module RubyEventStore
       cmd1.instance_eval("undef :correlate_with")
 
       bus = CorrelatedCommands.new(event_store, command_bus)
-      event_store.subscribe(to: [ProductAdded]) do
-        bus.call(cmd2)
-      end
+      event_store.subscribe(to: [ProductAdded]) { bus.call(cmd2) }
       bus.call(cmd1)
 
       expect(cmd1.correlation_id).to be_nil
@@ -127,6 +114,5 @@ module RubyEventStore
         expect(cmd.causation_id).to be_nil
       end
     end
-
   end
 end

@@ -35,6 +35,4 @@ module RubyEventStore
   end
 end
 
-::RSpec.configure do |config|
-  config.include ::RubyEventStore::RSpec::Matchers
-end
+::RSpec.configure { |config| config.include ::RubyEventStore::RSpec::Matchers }

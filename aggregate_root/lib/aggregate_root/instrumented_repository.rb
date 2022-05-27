@@ -8,21 +8,19 @@ module AggregateRoot
     end
 
     def load(aggregate, stream_name)
-      instrumentation.instrument("load.repository.aggregate_root",
-        aggregate: aggregate,
-        stream:    stream_name) do
+      instrumentation.instrument("load.repository.aggregate_root", aggregate: aggregate, stream: stream_name) do
         repository.load(aggregate, stream_name)
       end
     end
 
     def store(aggregate, stream_name)
-      instrumentation.instrument("store.repository.aggregate_root",
-        aggregate:     aggregate,
-        version:       aggregate.version,
+      instrumentation.instrument(
+        "store.repository.aggregate_root",
+        aggregate: aggregate,
+        version: aggregate.version,
         stored_events: aggregate.unpublished_events.to_a,
-        stream:        stream_name) do
-        repository.store(aggregate, stream_name)
-      end
+        stream: stream_name
+      ) { repository.store(aggregate, stream_name) }
     end
 
     def with_aggregate(aggregate, stream_name, &block)

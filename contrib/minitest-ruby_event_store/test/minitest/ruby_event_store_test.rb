@@ -3,23 +3,22 @@ require_relative "../test_helper"
 DummyEvent = Class.new(RubyEventStore::Event)
 
 class Minitest::RubyEventStoreTest < Minitest::Test
-  cover 'Minitest::RubyEventStore*'
+  cover "Minitest::RubyEventStore*"
 
   def setup
     @event_store =
       RubyEventStore::Client.new(
         repository: RubyEventStore::InMemoryRepository.new,
-        mapper: RubyEventStore::Mappers::PipelineMapper.new(
-          RubyEventStore::Mappers::Pipeline.new(to_domain_event: RubyEventStore::Transformations::IdentityMap.new)
-        ),
+        mapper:
+          RubyEventStore::Mappers::PipelineMapper.new(
+            RubyEventStore::Mappers::Pipeline.new(to_domain_event: RubyEventStore::Transformations::IdentityMap.new)
+          ),
         correlation_id_generator: Proc.new {}
       )
   end
 
   def assert_triggered(expected, klass = Minitest::Assertion)
-    e = assert_raises(klass) do
-      yield
-    end
+    e = assert_raises(klass) { yield }
 
     case expected
     when Regexp
@@ -40,9 +39,7 @@ Expected
 to include 
   DummyEvent
 EOM
-    assert_triggered(message) do
-      assert_dispatched(@event_store, [DummyEvent]) { }
-    end
+    assert_triggered(message) { assert_dispatched(@event_store, [DummyEvent]) {} }
   end
 
   def test_assert_dispatched_singular_argument
@@ -50,7 +47,7 @@ EOM
   end
 
   def test_assert_not_dispatched
-    assert_not_dispatched(@event_store, [DummyEvent]) { }
+    assert_not_dispatched(@event_store, [DummyEvent]) {}
   end
 
   def test_assert_not_dispatched_failure
@@ -67,6 +64,6 @@ EOM
   end
 
   def test_assert_not_dispatched_singular_argument
-    assert_not_dispatched(@event_store, DummyEvent) { }
+    assert_not_dispatched(@event_store, DummyEvent) {}
   end
 end

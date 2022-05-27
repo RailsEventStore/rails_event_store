@@ -6,10 +6,14 @@ module RubyEventStore
       event_store.publish(events = 21.times.map { DummyEvent.new })
       test_client.get "/res/api/streams/all/relationships/events"
 
-      expect(test_client.parsed_body["links"]).to eq({
-        "last" => "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
-        "next" => "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-      })
+      expect(test_client.parsed_body["links"]).to eq(
+        {
+          "last" =>
+            "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+          "next" =>
+            "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
+        }
+      )
     end
 
     it "takes host from request" do
@@ -19,11 +23,15 @@ module RubyEventStore
     end
 
     it "builds api url based on the settings" do
-      app = Rack::Builder.new do
-        map "/res" do
-          run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, api_url: "https://example.com/some/custom/api/url")
+      app =
+        Rack::Builder.new do
+          map "/res" do
+            run RubyEventStore::Browser::App.for(
+                  event_store_locator: -> { event_store },
+                  api_url: "https://example.com/some/custom/api/url"
+                )
+          end
         end
-      end
       test_client = TestClient.new(app, "railseventstore.org")
 
       response = test_client.get "/res"

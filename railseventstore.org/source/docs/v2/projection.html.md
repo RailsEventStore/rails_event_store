@@ -11,11 +11,12 @@ client.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_nam
 client.publish(custom_event = MoneyDeposited.new(data: { amount: 20 }), stream_name: stream_name)
 client.publish(MoneyWithdrawn.new(data: { amount: 5 }), stream_name: stream_name)
 
-account_balance = RailsEventStore::Projection.
-  from_stream(stream_name).
-  init(-> { { total: 0 } }).
-  when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-  when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+account_balance =
+  RailsEventStore::Projection
+    .from_stream(stream_name)
+    .init(-> { { total: 0 } })
+    .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+    .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
 account_balance.run(client) # => {total: 25}
 ```
@@ -29,10 +30,11 @@ account_balance.run(client, start: custom_event.event_id) # => {total: -5}
 You may also subscribe one handler to multiple events by passing an array to `#when` method:
 
 ```ruby
-account_cashflow = RailsEventStore::Projection.
-  from_all_streams.
-  init( -> { { total: 0 } }).
-  when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] })
+account_cashflow =
+  RailsEventStore::Projection
+    .from_all_streams
+    .init(-> { { total: 0 } })
+    .when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] })
 
 account_cashflow.run(client) # => {total: 35}
 ```
@@ -45,11 +47,12 @@ client.publish(MoneyDeposited.new(data: { amount: 25 }), stream_name: "Customer$
 client.publish(custom_event = MoneyWithdrawn.new(data: { amount: 10 }), stream_name: "Customer$3")
 client.publish(MoneyWithdrawn.new(data: { amount: 20 }), stream_name: "Customer$3")
 
-account_balance = RailsEventStore::Projection.
-  from_stream(%w[Customer$1 Customer$3]).
-  init( -> { { total: 0 } }).
-  when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-  when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+account_balance =
+  RailsEventStore::Projection
+    .from_stream(%w[Customer$1 Customer$3])
+    .init(-> { { total: 0 } })
+    .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+    .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
 account_balance.run(client) # => {total: -15}
 ```
@@ -68,11 +71,12 @@ client.publish(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$
 client.publish(custom_event = MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$3")
 client.publish(MoneyWithdrawn.new(data: { amount: 20 }), stream_name: "Customer$4")
 
-account_balance = RailsEventStore::Projection.
-  from_all_streams.
-  init( -> { { total: 0 } }).
-  when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] }).
-  when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+account_balance =
+  RailsEventStore::Projection
+    .from_all_streams
+    .init(-> { { total: 0 } })
+    .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+    .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
 
 account_balance.run(client) # => {total: 10}
 account_balance.run(client, start: custom_event.event_id) # => {total: -20}

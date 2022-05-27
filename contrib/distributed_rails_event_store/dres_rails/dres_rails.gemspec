@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Robert Pankowecki"]
   spec.email = ["dev@arkency.com"]
   spec.homepage = ""
-  spec.summary  = ""
+  spec.summary = ""
   spec.license = "MIT"
   spec.files = Dir["app/**/*", "bin/**/*", "config/**/*", "db/**/*", "lib/**/*", "vendor/**/*"]
   spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.6"
 
-  spec.add_dependency "rails",             ">= 6.0", "< 8.0"
-  spec.add_dependency "ruby_event_store",  ">= 2.0", "< 3.0"
+  spec.add_dependency "rails", ">= 6.0", "< 8.0"
+  spec.add_dependency "ruby_event_store", ">= 2.0", "< 3.0"
   spec.add_dependency "rails_event_store", ">= 2.0", "< 3.0"
 end

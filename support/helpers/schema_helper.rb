@@ -1,12 +1,17 @@
 require_relative "migrator"
 require_relative "subprocess_helper"
 
-
 module SchemaHelper
   include SubprocessHelper
 
   def run_migration(name)
-    m = Migrator.new(File.expand_path("../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates", __dir__))
+    m =
+      Migrator.new(
+        File.expand_path(
+          "../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates",
+          __dir__
+        )
+      )
     m.run_migration(name)
   end
 
@@ -80,8 +85,7 @@ module SchemaHelper
     EOF
   end
 
-  def validate_migration(source_gemfile, target_gemfile,
-                         source_template_name: nil)
+  def validate_migration(source_gemfile, target_gemfile, source_template_name: nil)
     begin
       build_schema(source_gemfile, template_name: source_template_name)
       establish_database_connection

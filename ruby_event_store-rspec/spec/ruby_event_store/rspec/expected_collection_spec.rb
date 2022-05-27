@@ -38,22 +38,18 @@ module RubyEventStore
       end
 
       specify do
-        collection = ExpectedCollection.new([
-          matchers.an_event(FooEvent).with_data(a: 1),
-          matchers.an_event(FooEvent).with_data(a: 2),
-        ])
+        collection =
+          ExpectedCollection.new(
+            [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(FooEvent).with_data(a: 2)]
+          )
 
-        expect do
-          collection.event
-        end.to raise_error(NotSupported)
+        expect { collection.event }.to raise_error(NotSupported)
       end
 
       specify do
         collection = ExpectedCollection.new([matchers.an_event(FooEvent)])
 
-        expect do
-          collection.exactly(0)
-        end.to raise_error(NotSupported)
+        expect { collection.exactly(0) }.to raise_error(NotSupported)
       end
 
       specify do
@@ -65,20 +61,16 @@ module RubyEventStore
       end
 
       specify do
-        collection = ExpectedCollection.new([
-          matchers.an_event(FooEvent).with_data(a: 1),
-          matchers.an_event(FooEvent).with_data(a: 2),
-        ])
+        collection =
+          ExpectedCollection.new(
+            [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(FooEvent).with_data(a: 2)]
+          )
 
-        expect do
-          collection.exactly(3)
-        end.to raise_error(NotSupported)
+        expect { collection.exactly(3) }.to raise_error(NotSupported)
       end
 
       specify do
-        collection = ExpectedCollection.new([
-          matchers.an_event(FooEvent)
-        ])
+        collection = ExpectedCollection.new([matchers.an_event(FooEvent)])
 
         expect(collection).not_to be_empty
       end

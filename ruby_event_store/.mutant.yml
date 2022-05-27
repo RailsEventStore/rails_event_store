@@ -1,31 +1,31 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-- ruby_event_store
+  - ruby_event_store
 includes:
-- lib
+  - lib
 integration: rspec
 mutation_timeout: 10.0
 coverage_criteria:
-   timeout: true
-   process_abort: true
+  timeout: true
+  process_abort: true
 matcher:
-   subjects:
-   - RubyEventStore*
-   ignore:
-   - RubyEventStore::InMemoryRepository#with_synchronize
-   - RubyEventStore::Client#initialize
-   - RubyEventStore::Client#default_clock
-   - RubyEventStore::Client#default_correlation_id_generator
-   - RubyEventStore::Client::Within#add_thread_subscribers
-   - RubyEventStore::Client::Within#add_thread_global_subscribers
-   - RubyEventStore::Client::Within#call
-   - RubyEventStore::Mappers::InMemoryEncryptionKeyRepository#prepare_encrypt
-   - RubyEventStore::Mappers::EncryptionKey#prepare_encrypt
-   - RubyEventStore::Mappers::EncryptionKey#prepare_decrypt
-   - RubyEventStore::Mappers::EncryptionKey#prepare_auth_data
-   - RubyEventStore::Mappers::EncryptionKey#encrypt_authenticated
-   - RubyEventStore::Mappers::EncryptionKey#ciphertext_from_authenticated
-   - RubyEventStore::Mappers::JSONMapper#initialize
-   - RubyEventStore::Serializers::YAML.load
-   - RubyEventStore::Mappers::EncryptionMapper#initialize
+  subjects:
+    - RubyEventStore*
+  ignore:
+    - RubyEventStore::InMemoryRepository#with_synchronize
+    - RubyEventStore::Client#initialize
+    - RubyEventStore::Client#default_clock
+    - RubyEventStore::Client#default_correlation_id_generator
+    - RubyEventStore::Client::Within#add_thread_subscribers
+    - RubyEventStore::Client::Within#add_thread_global_subscribers
+    - RubyEventStore::Client::Within#call
+    - RubyEventStore::Mappers::InMemoryEncryptionKeyRepository#prepare_encrypt
+    - RubyEventStore::Mappers::EncryptionKey#prepare_encrypt
+    - RubyEventStore::Mappers::EncryptionKey#prepare_decrypt
+    - RubyEventStore::Mappers::EncryptionKey#prepare_auth_data
+    - RubyEventStore::Mappers::EncryptionKey#encrypt_authenticated
+    - RubyEventStore::Mappers::EncryptionKey#ciphertext_from_authenticated
+    - RubyEventStore::Mappers::JSONMapper#initialize
+    - RubyEventStore::Serializers::YAML.load
+    - RubyEventStore::Mappers::EncryptionMapper#initialize

@@ -14,21 +14,13 @@ module RailsEventStore
       request.get("/")
 
       event_store.read.each do |event|
-        expect(event.metadata.keys).to match_array %i[
-          remote_ip
-          request_id
-          correlation_id
-          timestamp
-          valid_at
-        ]
+        expect(event.metadata.keys).to match_array %i[remote_ip request_id correlation_id timestamp valid_at]
         expect(event.metadata[:timestamp]).to be_a(Time)
       end
     end
 
     specify "sets domain events metadata for events published with global event store instance" do
-      event_store = Client.new(
-        request_metadata: -> env { {server_name: env["SERVER_NAME"]} }
-      )
+      event_store = Client.new(request_metadata: ->(env) { { server_name: env["SERVER_NAME"] } })
       app.config.event_store = event_store
 
       request = ::Rack::MockRequest.new(middleware)
@@ -46,10 +38,15 @@ module RailsEventStore
 
     def app
       TestApplication.tap do |app|
-        app.routes.draw { root(to: ->(_env) { app.config.event_store.publish(DummyEvent.new); [200, {}, [""]]}) }
+        app.routes.draw do
+          root(
+            to: ->(_env) do
+              app.config.event_store.publish(DummyEvent.new)
+              [200, {}, [""]]
+            end
+          )
+        end
       end
     end
   end
 end
-
-

@@ -7,9 +7,7 @@ module RailsEventStore
     end
 
     def call(subscriber, _, record)
-      run do
-        @scheduler.call(subscriber, record)
-      end
+      run { @scheduler.call(subscriber, record) }
     end
 
     def run(&schedule_proc)
@@ -40,18 +38,15 @@ module RailsEventStore
         schedule_proc.call
       end
 
-      def rolledback!(*)
-      end
+      def rolledback!(*); end
 
-      def before_committed!
-      end
+      def before_committed!; end
 
       def add_to_transaction
         dispatcher.run(&schedule_proc)
       end
 
-      def trigger_transactional_callbacks?
-      end
+      def trigger_transactional_callbacks?; end
 
       attr_reader :schedule_proc, :dispatcher
     end

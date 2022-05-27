@@ -20,7 +20,7 @@ module RubyEventStore
             when Hash
               deep_transform(v, &block)
             when Array
-              v.map{|i| Hash === i ? deep_transform(i, &block) : i}
+              v.map { |i| Hash === i ? deep_transform(i, &block) : i }
             else
               v
             end

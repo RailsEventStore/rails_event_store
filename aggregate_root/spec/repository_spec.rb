@@ -2,20 +2,24 @@
 
 require "spec_helper"
 
-
 module AggregateRoot
   RSpec.describe Repository do
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::NullMapper.new) }
-    let(:uuid)        { SecureRandom.uuid }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new,
+        mapper: RubyEventStore::Mappers::NullMapper.new
+      )
+    end
+    let(:uuid) { SecureRandom.uuid }
     let(:stream_name) { "Order$#{uuid}" }
-    let(:repository)  { AggregateRoot::Repository.new(event_store) }
+    let(:repository) { AggregateRoot::Repository.new(event_store) }
     let(:order_klass) do
       Class.new do
         include AggregateRoot
 
         def initialize(uuid)
           @status = :draft
-          @uuid   = uuid
+          @uuid = uuid
         end
 
         def create
@@ -111,7 +115,7 @@ module AggregateRoot
       specify do
         order_created = Orders::Events::OrderCreated.new
         order_expired = Orders::Events::OrderExpired.new
-        order         = order_klass.new(uuid)
+        order = order_klass.new(uuid)
         order.apply(order_created)
         order.apply(order_expired)
 
@@ -119,7 +123,11 @@ module AggregateRoot
         repository.store(order, stream_name)
 
         expect(order.unpublished_events.to_a).to be_empty
-        expect(event_store).to have_received(:publish).with([order_created, order_expired], stream_name: stream_name, expected_version: -1)
+        expect(event_store).to have_received(:publish).with(
+          [order_created, order_expired],
+          stream_name: stream_name,
+          expected_version: -1
+        )
         expect(event_store).not_to have_received(:publish).with(kind_of(Enumerator), any_args)
       end
 
@@ -128,21 +136,13 @@ module AggregateRoot
         order = order_klass.new(uuid)
         order.apply(order_created)
 
-        expect(event_store).to receive(:publish).with(
-          [order_created],
-          stream_name:      stream_name,
-          expected_version: -1
-        )
+        expect(event_store).to receive(:publish).with([order_created], stream_name: stream_name, expected_version: -1)
         repository.store(order, stream_name)
 
         order_expired = Orders::Events::OrderExpired.new
         order.apply(order_expired)
 
-        expect(event_store).to receive(:publish).with(
-          [order_expired],
-          stream_name:      stream_name,
-          expected_version: 0
-        )
+        expect(event_store).to receive(:publish).with([order_expired], stream_name: stream_name, expected_version: 0)
         repository.store(order, stream_name)
       end
     end
@@ -150,9 +150,7 @@ module AggregateRoot
     describe "#with_aggregate" do
       specify do
         order_expired = Orders::Events::OrderExpired.new
-        repository.with_aggregate(order_klass.new(uuid), stream_name) do |order|
-          order.apply(order_expired)
-        end
+        repository.with_aggregate(order_klass.new(uuid), stream_name) { |order| order.apply(order_expired) }
 
         expect(event_store.read.stream(stream_name).last).to eq(order_expired)
       end

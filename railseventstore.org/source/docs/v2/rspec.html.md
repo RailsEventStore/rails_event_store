@@ -8,7 +8,7 @@ Add this line to your application's `Gemfile`:
 
 ```ruby
 group :test do
-  gem 'ruby_event_store-rspec'
+  gem "ruby_event_store-rspec"
 end
 ```
 
@@ -19,32 +19,21 @@ end
 The `be_event` matcher enables you to make expectations on a domain event. It exposes fluent interface.
 
 ```ruby
-OrderPlaced  = Class.new(RubyEventStore::Event)
-domain_event = OrderPlaced.new(
-  data: {
-    order_id: 42,
-    net_value: BigDecimal.new("1999.0")
-  },
-  metadata: {
-    remote_ip: '1.2.3.4'
-  }
-)
+OrderPlaced = Class.new(RubyEventStore::Event)
+domain_event =
+  OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal.new("1999.0") }, metadata: { remote_ip: "1.2.3.4" })
 
-expect(domain_event)
-  .to(be_an_event(OrderPlaced)
+expect(domain_event).to(
+  be_an_event(OrderPlaced)
     .with_data(order_id: 42, net_value: BigDecimal.new("1999.0"))
-    .with_metadata(remote_ip: '1.2.3.4'))
+    .with_metadata(remote_ip: "1.2.3.4"),
+)
 ```
 
 By default the behaviour of `with_data` and `with_metadata` is not strict, that is the expectation is met when all specified values for keys match. Additional data or metadata that is not specified to be expected does not change the outcome.
 
 ```ruby
-domain_event = OrderPlaced.new(
-  data: {
-    order_id: 42,
-    net_value: BigDecimal.new("1999.0")
-  }
-)
+domain_event = OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal.new("1999.0") })
 
 # this would pass even though data contains also net_value
 expect(domain_event).to be_an_event(OrderPlaced).with_data(order_id: 42)
@@ -60,12 +49,7 @@ expect([domain_event]).to include(an_event(OrderPlaced))
 If you depend on matching the exact data or metadata, there's a `strict` modifier.
 
 ```ruby
-domain_event = OrderPlaced.new(
-  data: {
-    order_id: 42,
-    net_value: BigDecimal.new("1999.0")
-  }
-)
+domain_event = OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal.new("1999.0") })
 
 # this would fail as data contains unexpected net_value
 expect(domain_event).to be_an_event(OrderPlaced).with_data(order_id: 42).strict
@@ -80,7 +64,6 @@ expect(domain_event)
 ```
 
 You may have noticed the same matcher being referenced as `be_event`, `be_an_event` and `an_event`. There's also just `event`. Use whichever reads better grammatically.
-
 
 ## Event store matchers
 
@@ -110,7 +93,7 @@ event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRep
 event_store.publish(event = OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
 event_store.link(event.event_id, stream_name: "SalesReport2021")
 
-expect(event_store).to have_published(an_event(OrderPlaced)).in_streams(["Order$42", "SalesReport2021"])
+expect(event_store).to have_published(an_event(OrderPlaced)).in_streams(%w[Order$42 SalesReport2021])
 ```
 
 It is sometimes important to ensure that specific amount of events of given type have been published. Luckily there's a modifier to cover that usecase.
@@ -125,7 +108,7 @@ You can make expectation on several events at once.
 ```ruby
 expect(event_store).to have_published(
   an_event(OrderPlaced),
-  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
+  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow)),
 )
 ```
 
@@ -134,25 +117,20 @@ You can also make expectation to ensure that expected list of events is exact ac
 ```ruby
 expect(event_store).to have_published(
   an_event(OrderPlaced),
-  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
+  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow)),
 ).strict
 ```
 
 Last but not least, you can specify reading starting point for matcher.
 
 ```ruby
-expect(event_store).to have_published(
-  an_event(OrderExpired)
-).from(order_placed.event_id)
+expect(event_store).to have_published(an_event(OrderExpired)).from(order_placed.event_id)
 ```
 
 If there's a usecase not covered by examples above or you need a different set of events to make expectations on you can always resort to a more verbose approach and skip `have_published`.
 
 ```ruby
-expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([
-  an_event(OrderPlaced),
-  an_event(OrderExpired)
-])
+expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([an_event(OrderPlaced), an_event(OrderExpired)])
 ```
 
 ### publish
@@ -161,18 +139,20 @@ This matcher is similar to `have_published` one, but targets only events publish
 
 ```ruby
 event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-expect {
-  event_store.publish(OrderPlaced.new(data: { order_id: 42 }))
-}.to publish(an_event(OrderPlaced)).in(event_store)
+expect { event_store.publish(OrderPlaced.new(data: { order_id: 42 })) }.to publish(an_event(OrderPlaced)).in(
+  event_store,
+)
 ```
 
 Expectation can be narrowed to the specific stream(s).
 
 ```ruby
 event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-expect {
-  event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
-}.to publish(an_event(OrderPlaced)).in(event_store).in_stream("Order$42")
+expect { event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42") }.to publish(
+    an_event(OrderPlaced),
+  )
+  .in(event_store)
+  .in_stream("Order$42")
 ```
 
 ```ruby
@@ -186,9 +166,11 @@ expect {
 It is sometimes important to ensure that specific amount of events of given type have been published. Luckily there's a modifier to cover that usecase.
 
 ```ruby
-expect {
-  event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
-}.to publish(an_event(OrderPlaced)).once.in(event_store)
+expect { event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42") }.to publish(
+    an_event(OrderPlaced),
+  )
+  .once
+  .in(event_store)
 
 expect {
   event_store.publish(OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
@@ -203,7 +185,7 @@ expect {
   # ...tested code here
 }.to publish(
   an_event(OrderPlaced),
-  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow))
+  an_event(OrderExpired).with_data(expired_at: be_between(Date.yesterday, Date.tomorrow)),
 ).in(event_store)
 ```
 
@@ -225,7 +207,6 @@ Checking if handler does not subscribe to any of given event types:
 expect(Handler).not_to have_subscribed_to_events(FooEvent, BarEvent).in(event_store)
 ```
 
-
 ## Aggregate root matchers
 
 The matchers described below are intended to be used on [aggregate root](https://github.com/RailsEventStore/rails_event_store/tree/master/aggregate_root#usage) gem.
@@ -234,13 +215,12 @@ To explain the usage of matchers sample aggregate class is defined:
 
 ```ruby
 OrderSubmitted = Class.new(RubyEventStore::Event)
-OrderExpired   = Class.new(RubyEventStore::Event)
-
+OrderExpired = Class.new(RubyEventStore::Event)
 
 class Order
   include AggregateRoot
   HasBeenAlreadySubmitted = Class.new(StandardError)
-  HasExpired              = Class.new(StandardError)
+  HasExpired = Class.new(StandardError)
 
   def initialize
     self.state = :new
@@ -250,7 +230,7 @@ class Order
   def submit
     raise HasBeenAlreadySubmitted if state == :submitted
     raise HasExpired if state == :expired
-    apply OrderSubmitted.new(data: {delivery_date: Time.now + 24.hours})
+    apply OrderSubmitted.new(data: { delivery_date: Time.now + 24.hours })
   end
 
   def expire
@@ -258,6 +238,7 @@ class Order
   end
 
   private
+
   attr_accessor :state
 
   on OrderSubmitted do |event|
@@ -305,17 +286,13 @@ in given `aggregate_root` object but only during execution of code block.
 aggregate_root = Order.new
 aggregate_root.submit
 
-expect {
-  aggregate_root.expire
-}.to apply(event(OrderExpired)).in(aggregate_root)
+expect { aggregate_root.expire }.to apply(event(OrderExpired)).in(aggregate_root)
 ```
 
 You could define expectations how many events have been applied by using:
 
 ```ruby
-expect do
-  aggregate_root.expire
-end.to apply(an_event(OrderExpired)).once.in(aggregate_root)
+expect { aggregate_root.expire }.to apply(an_event(OrderExpired)).once.in(aggregate_root)
 
 expect do
   aggregate_root.expire
@@ -330,7 +307,5 @@ With `strict` option it checks if only expected events have been applied in give
 aggregate_root = Order.new
 aggregate_root.submit
 
-expect {
-  aggregate_root.expire
-}.to apply(event(OrderExpired)).in(aggregate_root).strict
+expect { aggregate_root.expire }.to apply(event(OrderExpired)).in(aggregate_root).strict
 ```

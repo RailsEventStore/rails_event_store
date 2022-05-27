@@ -4,12 +4,12 @@ Additional transformations for PipelineMapper.
 
 Currently consists of:
 
-* IdentityMap
+- IdentityMap
 
   Loads records into previously-known event instances, retaining their object_id.
   Useful in some test asserting on inpect output.
 
-* WithIndifferentAccess
+- WithIndifferentAccess
 
   Deep-symbolizes data and metadata before writing, decorates with HashWithIndifferentAccess on reads.
-	Useful for JSON-backed data and metadata.
+  Useful for JSON-backed data and metadata.

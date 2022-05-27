@@ -18,25 +18,25 @@ module RailsEventStore
       end
     end
 
-    before(:each) do
-      MyAsyncHandler.reset
-    end
+    before(:each) { MyAsyncHandler.reset }
 
     it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
 
-    let(:event)  { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
+    let(:event) do
+      TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+    end
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
 
     describe "#verify" do
       specify do
-        scheduler      = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
+        scheduler = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
         proper_handler = Class.new(ActiveJob::Base)
         expect(scheduler.verify(proper_handler)).to eq(true)
       end
 
       specify do
-        scheduler  = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
+        scheduler = ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
         some_class = Class.new
         expect(scheduler.verify(some_class)).to eq(false)
       end
@@ -64,17 +64,17 @@ module RailsEventStore
             job: MyAsyncHandler,
             args: [
               {
-                "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-                "event_type"      => "RubyEventStore::Event",
-                "data"            => "--- {}\n",
-                "metadata"        => "--- {}\n",
-                "timestamp"       => "2019-09-30T00:00:00.000000Z",
-                "valid_at"        => "2019-09-30T00:00:00.000000Z",
-                "_aj_symbol_keys" => %w[event_id data metadata event_type timestamp valid_at],
-              },
+                "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                "event_type" => "RubyEventStore::Event",
+                "data" => "--- {}\n",
+                "metadata" => "--- {}\n",
+                "timestamp" => "2019-09-30T00:00:00.000000Z",
+                "valid_at" => "2019-09-30T00:00:00.000000Z",
+                "_aj_symbol_keys" => %w[event_id data metadata event_type timestamp valid_at]
+              }
             ],
-            queue: "default",
-          },
+            queue: "default"
+          }
         )
       end
     end

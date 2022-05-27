@@ -4,24 +4,25 @@ module RubyEventStore
   module ROM
     class EventRepository
       def initialize(rom:, serializer:)
-        @serializer     = serializer
-        @events         = Repositories::Events.new(rom)
+        @serializer = serializer
+        @events = Repositories::Events.new(rom)
         @stream_entries = Repositories::StreamEntries.new(rom)
-        @unit_of_work   = UnitOfWork.new(rom.gateways.fetch(:default))
+        @unit_of_work = UnitOfWork.new(rom.gateways.fetch(:default))
       end
 
       def append_to_stream(records, stream, expected_version)
         serialized_records = records.map { |record| record.serialize(@serializer) }
-        event_ids          = records.map(&:event_id)
+        event_ids = records.map(&:event_id)
 
         handle_unique_violation do
           @unit_of_work.call do |changesets|
             changesets << @events.create_changeset(serialized_records)
-            changesets << @stream_entries.create_changeset(
-              event_ids,
-              stream,
-              @stream_entries.resolve_version(stream, expected_version)
-            )
+            changesets <<
+              @stream_entries.create_changeset(
+                event_ids,
+                stream,
+                @stream_entries.resolve_version(stream, expected_version)
+              )
           end
         end
 
@@ -33,11 +34,12 @@ module RubyEventStore
 
         handle_unique_violation do
           @unit_of_work.call do |changesets|
-            changesets << @stream_entries.create_changeset(
-              event_ids,
-              stream,
-              @stream_entries.resolve_version(stream, expected_version)
-            )
+            changesets <<
+              @stream_entries.create_changeset(
+                event_ids,
+                stream,
+                @stream_entries.resolve_version(stream, expected_version)
+              )
           end
         end
 
@@ -89,17 +91,13 @@ module RubyEventStore
       end
 
       def streams_of(event_id)
-        @stream_entries
-          .streams_of(event_id)
-          .map { |name| Stream.new(name) }
+        @stream_entries.streams_of(event_id).map { |name| Stream.new(name) }
       end
 
       private
 
       def validate_event_ids(event_ids)
-        @events
-          .find_nonexistent_pks(event_ids)
-          .each { |id| raise EventNotFound, id }
+        @events.find_nonexistent_pks(event_ids).each { |id| raise EventNotFound, id }
       end
 
       def handle_unique_violation

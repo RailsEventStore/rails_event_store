@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ruby_event_store'
+require "ruby_event_store"
 
 module RubyEventStore
   ProtobufEncodingFailed = Class.new(Error)
@@ -9,11 +9,11 @@ module RubyEventStore
   end
 end
 
-require_relative 'protobuf/mappers/transformation/proto_event'
-require_relative 'protobuf/mappers/transformation/protobuf_encoder'
-require_relative 'protobuf/mappers/transformation/protobuf_nested_struct_metadata'
-require_relative 'protobuf/mappers/protobuf'
-require_relative 'protobuf/version'
+require_relative "protobuf/mappers/transformation/proto_event"
+require_relative "protobuf/mappers/transformation/protobuf_encoder"
+require_relative "protobuf/mappers/transformation/protobuf_nested_struct_metadata"
+require_relative "protobuf/mappers/protobuf"
+require_relative "protobuf/version"
 
 module RubyEventStore
   Proto = Protobuf::Proto

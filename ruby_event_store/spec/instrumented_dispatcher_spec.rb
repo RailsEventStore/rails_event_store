@@ -13,7 +13,7 @@ module RubyEventStore
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
         event = Object.new
         record = Object.new
-        subscriber = -> { }
+        subscriber = -> {  }
 
         instrumented_dispatcher.call(subscriber, event, record)
 
@@ -25,13 +25,11 @@ module RubyEventStore
         subscribe_to("call.dispatcher.rails_event_store") do |notification_calls|
           event = Object.new
           record = Object.new
-          subscriber = -> { }
+          subscriber = -> {  }
 
           instrumented_dispatcher.call(subscriber, event, record)
 
-          expect(notification_calls).to eq([
-            { event: event, subscriber: subscriber }
-          ])
+          expect(notification_calls).to eq([{ event: event, subscriber: subscriber }])
         end
       end
     end
@@ -40,7 +38,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_dispatcher = spy
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
-        subscriber = -> { }
+        subscriber = -> {  }
 
         instrumented_dispatcher.verify(subscriber)
 
@@ -65,17 +63,16 @@ module RubyEventStore
       instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
 
       expect(instrumented_dispatcher).not_to respond_to(:arbitrary_method_name)
-      expect do
-        instrumented_dispatcher.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name' for #<RubyEventStore::InstrumentedDispatcher:/)
+      expect { instrumented_dispatcher.arbitrary_method_name }.to raise_error(
+        NoMethodError,
+        /undefined method `arbitrary_method_name' for #<RubyEventStore::InstrumentedDispatcher:/
+      )
     end
 
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
-      ActiveSupport::Notifications.subscribed(callback, name) do
-        yield received_payloads
-      end
+      ActiveSupport::Notifications.subscribed(callback, name) { yield received_payloads }
     end
   end
 end

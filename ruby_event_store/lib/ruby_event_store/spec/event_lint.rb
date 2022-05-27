@@ -23,7 +23,7 @@ RSpec.shared_examples :event do |event_class, data, metadata|
   end
 
   it "exposes given event_id to string" do
-    event = event_class.new(event_id: 1234567890)
+    event = event_class.new(event_id: 1_234_567_890)
     expect(event.event_id).to eq "1234567890"
   end
 

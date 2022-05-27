@@ -10,13 +10,9 @@ module RubyEventStore
           end
 
           def call(record)
-            identity   = lambda { |r| r }
+            identity = lambda { |r| r }
             new_record = @upcast_map.fetch(record.event_type, identity)[record]
-            if new_record.equal?(record)
-              record
-            else
-              call(new_record)
-            end
+            new_record.equal?(record) ? record : call(new_record)
           end
         end
 

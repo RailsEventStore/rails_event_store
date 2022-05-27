@@ -3,28 +3,30 @@ require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   RSpec.describe ComposedDispatcher do
-    skippy_dispatcher = Class.new do
-      def call(_subscriber, _event, _record)
-        @called = true
-      end
+    skippy_dispatcher =
+      Class.new do
+        def call(_subscriber, _event, _record)
+          @called = true
+        end
 
-      def verify(_subscriber)
-        false
+        def verify(_subscriber)
+          false
+        end
+        attr_reader :called
       end
-      attr_reader :called
-    end
     it_behaves_like :dispatcher, skippy_dispatcher.new
 
-    real_dispatcher = Class.new do
-      def call(_subscriber, _event, _record)
-        @called = true
-      end
+    real_dispatcher =
+      Class.new do
+        def call(_subscriber, _event, _record)
+          @called = true
+        end
 
-      def verify(_subscriber)
-        true
+        def verify(_subscriber)
+          true
+        end
+        attr_reader :called
       end
-      attr_reader :called
-    end
     it_behaves_like :dispatcher, real_dispatcher.new
 
     it_behaves_like :dispatcher, ComposedDispatcher.new

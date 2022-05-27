@@ -24,11 +24,10 @@ module RubyEventStore
 
       def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
         stream_name = Rack::Utils.escape(id)
-        query_string = URI.encode_www_form({
-          "page[position]" => position,
-          "page[direction]" => direction,
-          "page[count]" => count,
-        }.compact)
+        query_string =
+          URI.encode_www_form(
+            { "page[position]" => position, "page[direction]" => direction, "page[count]" => count }.compact
+          )
 
         if query_string.empty?
           "#{api_url}/streams/#{stream_name}/relationships/events"
@@ -38,6 +37,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :host, :root_path
 
       def base_url

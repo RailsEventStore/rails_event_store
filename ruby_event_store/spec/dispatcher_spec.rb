@@ -5,7 +5,7 @@ module RubyEventStore
   RSpec.describe Dispatcher do
     it_behaves_like :dispatcher, Dispatcher.new
     let(:event) { instance_double(::RubyEventStore::Event) }
-    let(:record) { instance_double(::RubyEventStore::Record)  }
+    let(:record) { instance_double(::RubyEventStore::Record) }
     let(:handler) { HandlerClass.new }
 
     specify "does not allow silly subscribers" do
@@ -19,14 +19,14 @@ module RubyEventStore
     end
 
     specify "does not allow class without constructor requiring arguments" do
-      klass = Class.new do
-        def initialize(something)
-          @something = something
-        end
+      klass =
+        Class.new do
+          def initialize(something)
+            @something = something
+          end
 
-        def call
+          def call; end
         end
-      end
       expect(Dispatcher.new.verify(klass)).to eq(false)
     end
 
@@ -44,7 +44,7 @@ module RubyEventStore
     specify "allows callable classes and instances" do
       expect(Dispatcher.new.verify(HandlerClass)).to eq(true)
       expect(Dispatcher.new.verify(HandlerClass.new)).to eq(true)
-      expect(Dispatcher.new.verify(Proc.new{ "yo" })).to eq(true)
+      expect(Dispatcher.new.verify(Proc.new { "yo" })).to eq(true)
     end
 
     private

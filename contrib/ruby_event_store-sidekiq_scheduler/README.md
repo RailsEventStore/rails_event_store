@@ -22,7 +22,6 @@ event_store = RailsEventStore::Client.new(
 
 Read more about [using asynchronous handlers](https://railseventstore.org/docs/v2/subscribe/#async-handlers)
 
-
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/RailsEventStore/rails_event_store.

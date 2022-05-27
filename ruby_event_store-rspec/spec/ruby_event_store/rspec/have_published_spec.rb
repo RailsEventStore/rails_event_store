@@ -7,14 +7,19 @@ module RubyEventStore
       let(:event_store) do
         RubyEventStore::Client.new(
           repository: RubyEventStore::InMemoryRepository.new,
-          mapper: RubyEventStore::Mappers::PipelineMapper.new(
-            RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
-          )
+          mapper:
+            RubyEventStore::Mappers::PipelineMapper.new(
+              RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
+            )
         )
       end
 
       def matcher(*expected)
-        HavePublished.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_published(colorless_differ))
+        HavePublished.new(
+          *expected,
+          phraser: phraser,
+          failure_message_formatter: RSpec.default_formatter.have_published(colorless_differ)
+        )
       end
 
       def colorless_differ
@@ -25,18 +30,14 @@ module RubyEventStore
         Matchers::ListPhraser
       end
 
-      specify do
-        expect(event_store).not_to matcher
-      end
+      specify { expect(event_store).not_to matcher }
 
       specify do
         event_store.publish(BarEvent.new)
         expect(event_store).to matcher
       end
 
-      specify do
-        expect(event_store).not_to matcher(matchers.an_event(FooEvent))
-      end
+      specify { expect(event_store).not_to matcher(matchers.an_event(FooEvent)) }
 
       specify do
         event_store.publish(FooEvent.new)
@@ -127,58 +128,49 @@ module RubyEventStore
         event_store.publish(event = FooEvent.new, stream_name: "Foo")
         event_store.link(event.event_id, stream_name: "Bar")
 
-        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
+        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams(%w[Foo Bar])
       end
 
       specify do
         event_store.publish(event = FooEvent.new, stream_name: "Foo")
         event_store.link(event.event_id, stream_name: "Bar")
 
-        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
+        expect(event_store).to matcher(matchers.an_event(FooEvent)).in_streams(%w[Foo Bar])
       end
 
       specify do
         event_store.publish(FooEvent.new, stream_name: "Foo")
 
-        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_streams(["Foo", "Bar"])
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).in_streams(%w[Foo Bar])
       end
 
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(BazEvent.new)
 
-        expect(event_store).to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )
+        expect(event_store).to matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
       end
 
       specify do
-        event_store.publish(FooEvent.new(data: { a: 1, b: 2}))
+        event_store.publish(FooEvent.new(data: { a: 1, b: 2 }))
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent).with_data(a: 1),
-          matchers.an_event(FooEvent).with_data(b: 2),
+          matchers.an_event(FooEvent).with_data(b: 2)
         )
       end
 
       specify do
         event_store.publish(FooEvent.new)
 
-        expect(event_store).not_to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
       end
 
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(BarEvent.new)
 
-        expect(event_store).not_to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
-        )
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
       end
 
       specify do
@@ -186,30 +178,21 @@ module RubyEventStore
         event_store.publish(BarEvent.new)
         event_store.publish(BazEvent.new)
 
-        expect(event_store).not_to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent)
-        ).strict
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict
       end
 
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(BarEvent.new)
 
-        expect(event_store).not_to matcher(
-          matchers.an_event(BarEvent),
-          matchers.an_event(FooEvent)
-        ).strict
+        expect(event_store).not_to matcher(matchers.an_event(BarEvent), matchers.an_event(FooEvent)).strict
       end
 
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(BarEvent.new)
 
-        expect(event_store).to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent)
-        ).strict
+        expect(event_store).to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict
       end
 
       specify do
@@ -217,10 +200,7 @@ module RubyEventStore
         event_store.publish(BarEvent.new, stream_name: "Foo")
         event_store.publish(FooEvent.new, stream_name: "Bar")
 
-        expect(event_store).to matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BarEvent)
-        ).strict.in_stream("Foo")
+        expect(event_store).to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict.in_stream("Foo")
       end
 
       specify do
@@ -228,10 +208,7 @@ module RubyEventStore
         event_store.publish(BarEvent.new)
         event_store.publish(BazEvent.new)
 
-        expect(event_store).to matcher(
-          matchers.an_event(BarEvent),
-          matchers.an_event(BazEvent)
-        ).from(start_id)
+        expect(event_store).to matcher(matchers.an_event(BarEvent), matchers.an_event(BazEvent)).from(start_id)
       end
 
       specify do
@@ -239,37 +216,28 @@ module RubyEventStore
         event_store.publish(BarEvent.new)
         event_store.publish(BazEvent.new)
 
-        expect(event_store).not_to matcher(
-          matchers.an_event(FooEvent)
-        ).from(start_id)
+        expect(event_store).not_to matcher(matchers.an_event(FooEvent)).from(start_id)
       end
 
       specify do
         event_store.publish(FooEvent.new)
         event_store.publish(BazEvent.new)
 
-        expect{
-          expect(event_store).to matcher(
-            matchers.an_event(FooEvent),
-            matchers.an_event(BazEvent)
-          ).exactly(2).times
+        expect {
+          expect(event_store).to matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent)).exactly(2).times
         }.to raise_error(NotSupported)
       end
 
       specify do
-        expect{
-          expect(event_store).to matcher(
-            matchers.an_event(FooEvent),
-          ).exactly(0).times
-        }.to raise_error(NotSupported)
+        expect { expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(0).times }.to raise_error(
+          NotSupported
+        )
       end
 
       specify do
-        expect{
-          expect(event_store).to matcher(
-            matchers.an_event(FooEvent),
-          ).exactly(-1).times
-        }.to raise_error(NotSupported)
+        expect { expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(-1).times }.to raise_error(
+          NotSupported
+        )
       end
 
       specify do
@@ -324,24 +292,18 @@ module RubyEventStore
         EOS
       end
 
-      specify { expect{ HavePublished.new() }.to raise_error(ArgumentError) }
+      specify { expect { HavePublished.new }.to raise_error(ArgumentError) }
 
       specify do
-        matcher_ = matcher(
-          matchers.an_event(FooEvent),
-          matchers.an_event(BazEvent)
+        matcher_ = matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
+        expect(matcher_.description).to eq(
+          "have published events that have to (be an event FooEvent and be an event BazEvent)"
         )
-        expect(matcher_.description)
-          .to eq("have published events that have to (be an event FooEvent and be an event BazEvent)")
       end
 
       specify do
-        matcher_ = matcher(
-          FooEvent,
-          BazEvent
-        )
-        expect(matcher_.description)
-          .to eq("have published events that have to (be a FooEvent and be a BazEvent)")
+        matcher_ = matcher(FooEvent, BazEvent)
+        expect(matcher_.description).to eq("have published events that have to (be a FooEvent and be a BazEvent)")
       end
 
       specify do

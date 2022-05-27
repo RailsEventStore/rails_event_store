@@ -10,27 +10,25 @@ module DresClient
     end
 
     def initialize(mapper:, uri:, api_key:)
-      @mapper  = mapper
-      @uri     = uri
+      @mapper = mapper
+      @uri = uri
       @api_key = api_key
     end
 
     def events(after_event_id:)
       uri = @uri.dup
-      uri.query = URI.encode_www_form({after_event_id: after_event_id}) if after_event_id
+      uri.query = URI.encode_www_form({ after_event_id: after_event_id }) if after_event_id
 
       req = Net::HTTP::Get.new(uri)
-      req['RES-Api-Key'] = @api_key
-      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: URI::HTTPS === uri) {|http|
-        http.request(req)
-      }
+      req["RES-Api-Key"] = @api_key
+      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: URI::HTTPS === uri) { |http| http.request(req) }
       raise Error unless Net::HTTPSuccess === res
       json = JSON.parse(res.body)
       json["events"].map do |ev|
         serialized_record = RubyEventStore::SerializedRecord.new(**symbolize_keys(ev))
         @mapper.record_to_event(serialized_record.deserialize(YAML))
       end
-    rescue
+    rescue StandardError
       raise Error.new
     end
 
@@ -54,6 +52,5 @@ module DresClient
     def symbolize_keys(ev)
       ev.transform_keys(&:to_sym)
     end
-
   end
 end

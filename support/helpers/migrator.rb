@@ -9,9 +9,7 @@ class Migrator
     end
 
     def from_hash(**variables)
-      clean_binding.tap do |b|
-        variables.each { |k, v| b.local_variable_set(k, v) }
-      end
+      clean_binding.tap { |b| variables.each { |k, v| b.local_variable_set(k, v) } }
     end
   end
 
@@ -25,12 +23,7 @@ class Migrator
   end
 
   def migration_code(name)
-    migration_template(name).result(
-      Binding.from_hash(
-        migration_version: migration_version,
-        data_type: "binary"
-      )
-    )
+    migration_template(name).result(Binding.from_hash(migration_version: migration_version, data_type: "binary"))
   end
 
   private

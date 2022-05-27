@@ -32,7 +32,7 @@ module AggregateRoot
     end
 
     def event_type(event_type)
-      event_type.split(%r{::|\.}).last
+      event_type.split(/::|\./).last
     end
 
     attr_reader :strict, :on_methods

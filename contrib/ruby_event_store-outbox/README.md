@@ -34,10 +34,11 @@ Additionally, your handler's `through_outbox?` method should return `true`, for 
 
 ```ruby
 class SomeHandler
-  def self.through_outbox?; true; end
+  def self.through_outbox?
+    true
+  end
 end
 ```
-
 
 ## Installation (outbox process)
 
@@ -64,7 +65,6 @@ res_outbox --database-url="mysql2://root@0.0.0.0:3306/my_database" \
   --split-keys=sidekiq_queue1,sidekiq_queue2 \
   --metrics-url=http://user:password@localhost:8086/dbname"
 ```
-
 
 ## Contributing
 

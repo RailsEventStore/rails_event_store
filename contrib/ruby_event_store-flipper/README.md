@@ -2,7 +2,6 @@
 
 Flipper integration for RubyEventStore.
 
-
 ## Installation
 
 1. Ensure that your Flipper has instrumentation enabled
@@ -29,7 +28,10 @@ RubyEventStore::Flipper.enable(Rails.configuration.event_store)
 By default, stream name for toggle `foobar` is `FeatureToggle$foobar`. You can customize it via `stream_pattern` argument:
 
 ```ruby
-RubyEventStore::Flipper.enable(Rails.configuration.event_store, stream_pattern: ->(feature_name) { "feature_toggle-#{feature_name}" })
+RubyEventStore::Flipper.enable(
+  Rails.configuration.event_store,
+  stream_pattern: ->(feature_name) { "feature_toggle-#{feature_name}" },
+)
 ```
 
 ## Customize notifications component

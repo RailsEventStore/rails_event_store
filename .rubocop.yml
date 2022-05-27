@@ -7,13 +7,13 @@ AllCops:
     - contrib/**/*
     - railseventstore.org/**/*
     - bounded_context/spec/dummy_*/**/*
-    - '**/bin/*'
+    - "**/bin/*"
     - ruby_event_store-browser/elm/node_modules/**/*
 
 Lint/UselessAssignment:
   Exclude:
     - ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb
-    - '**/spec/*'
+    - "**/spec/*"
 
 Lint/SuppressedException:
   Enabled: false
@@ -46,4 +46,3 @@ Style/ClassAndModuleChildren:
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
-

@@ -18,6 +18,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :sidekiq_producer
     end
   end

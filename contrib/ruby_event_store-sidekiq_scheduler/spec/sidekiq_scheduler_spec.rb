@@ -1,17 +1,17 @@
-require 'spec_helper'
-require 'ruby_event_store/spec/scheduler_lint'
-require 'sidekiq/testing'
+require "spec_helper"
+require "ruby_event_store/spec/scheduler_lint"
+require "sidekiq/testing"
 
 module RubyEventStore
   RSpec.describe SidekiqScheduler do
-    before(:each) do
-      MyAsyncHandler.reset
-    end
+    before(:each) { MyAsyncHandler.reset }
 
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::NULL)
 
-    let(:event)  { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
+    let(:event) do
+      TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+    end
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
 
     describe "#verify" do
@@ -54,16 +54,16 @@ module RubyEventStore
             "class" => "RubyEventStore::MyAsyncHandler",
             "args" => [
               {
-                "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-                "event_type"      => "RubyEventStore::Event",
-                "data"            => "--- {}\n",
-                "metadata"        => "--- {}\n",
-                "timestamp"       => "2019-09-30T00:00:00.000000Z",
-                "valid_at"        => "2019-09-30T00:00:00.000000Z",
-              },
+                "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                "event_type" => "RubyEventStore::Event",
+                "data" => "--- {}\n",
+                "metadata" => "--- {}\n",
+                "timestamp" => "2019-09-30T00:00:00.000000Z",
+                "valid_at" => "2019-09-30T00:00:00.000000Z"
+              }
             ],
-            "queue" => "default",
-          },
+            "queue" => "default"
+          }
         )
       end
 
@@ -71,13 +71,13 @@ module RubyEventStore
         scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         expect(MyAsyncHandler).to receive(:perform_async).with(
           {
-            "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-            "event_type"      => "RubyEventStore::Event",
-            "data"            => "--- {}\n",
-            "metadata"        => "--- {}\n",
-            "timestamp"       => "2019-09-30T00:00:00.000000Z",
-            "valid_at"        => "2019-09-30T00:00:00.000000Z",
-          },
+            "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            "event_type" => "RubyEventStore::Event",
+            "data" => "--- {}\n",
+            "metadata" => "--- {}\n",
+            "timestamp" => "2019-09-30T00:00:00.000000Z",
+            "valid_at" => "2019-09-30T00:00:00.000000Z"
+          }
         )
 
         scheduler.call(MyAsyncHandler, record)

@@ -10,11 +10,7 @@ module RubyEventStore
       end
 
       def self.load(serialized)
-        if ::YAML.respond_to?(:unsafe_load)
-          ::YAML.unsafe_load(serialized)
-        else
-          ::YAML.load(serialized)
-        end
+        ::YAML.respond_to?(:unsafe_load) ? ::YAML.unsafe_load(serialized) : ::YAML.load(serialized)
       end
     end
   end

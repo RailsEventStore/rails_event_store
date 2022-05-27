@@ -9,23 +9,23 @@ module RubyEventStore
     class WithIndifferentAccess
       def dump(record)
         Record.new(
-          event_id:   record.event_id,
-          metadata:   record.metadata.deep_symbolize_keys,
-          data:       record.data.deep_symbolize_keys,
+          event_id: record.event_id,
+          metadata: record.metadata.deep_symbolize_keys,
+          data: record.data.deep_symbolize_keys,
           event_type: record.event_type,
-          timestamp:  record.timestamp,
-          valid_at:   record.valid_at,
+          timestamp: record.timestamp,
+          valid_at: record.valid_at
         )
       end
 
       def load(record)
         Record.new(
-          event_id:   record.event_id,
-          metadata:   HashWithIndifferentAccess.new(record.metadata),
-          data:       HashWithIndifferentAccess.new(record.data),
+          event_id: record.event_id,
+          metadata: HashWithIndifferentAccess.new(record.metadata),
+          data: HashWithIndifferentAccess.new(record.data),
           event_type: record.event_type,
-          timestamp:  record.timestamp,
-          valid_at:   record.valid_at,
+          timestamp: record.timestamp,
+          valid_at: record.valid_at
         )
       end
     end

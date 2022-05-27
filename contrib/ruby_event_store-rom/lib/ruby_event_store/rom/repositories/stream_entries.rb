@@ -27,9 +27,10 @@ module RubyEventStore
         end
 
         def resolve_version(stream, expected_version)
-          expected_version.resolve_for(stream, lambda { |_stream|
-            (stream_entries.max_position(stream) || {})[:position]
-          })
+          expected_version.resolve_for(
+            stream,
+            lambda { |_stream| (stream_entries.max_position(stream) || {})[:position] }
+          )
         end
 
         def streams_of(event_id)

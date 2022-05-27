@@ -1,4 +1,4 @@
-require 'sidekiq'
+require "sidekiq"
 
 module RubyEventStore
   class SidekiqScheduler
@@ -15,6 +15,7 @@ module RubyEventStore
     end
 
     private
+
     attr_reader :serializer
   end
 end

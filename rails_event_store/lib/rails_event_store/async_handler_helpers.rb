@@ -6,7 +6,11 @@ module RailsEventStore
       with
     end
 
-    def self.with(event_store: Rails.configuration.event_store, event_store_locator: nil, serializer: RubyEventStore::Serializers::YAML)
+    def self.with(
+      event_store: Rails.configuration.event_store,
+      event_store_locator: nil,
+      serializer: RubyEventStore::Serializers::YAML
+    )
       Module.new do
         define_method :perform do |payload|
           event_store = event_store_locator.call if event_store_locator
@@ -22,12 +26,10 @@ module RailsEventStore
 
   module CorrelatedHandler
     def perform(event)
-      Rails.configuration.event_store.with_metadata(
-        correlation_id: event.metadata[:correlation_id],
-        causation_id:   event.event_id
-      ) do
-        super
-      end
+      Rails
+        .configuration
+        .event_store
+        .with_metadata(correlation_id: event.metadata[:correlation_id], causation_id: event.event_id) { super }
     end
   end
 end

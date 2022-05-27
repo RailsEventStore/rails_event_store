@@ -13,12 +13,12 @@ module RubyEventStore
             id: stream_name,
             type: "streams",
             attributes: {
-              related_streams: related_streams,
+              related_streams: related_streams
             },
             relationships: {
               events: {
                 links: {
-                  self: routing.paginated_events_from_stream_url(id: stream_name),
+                  self: routing.paginated_events_from_stream_url(id: stream_name)
                 }
               }
             }
@@ -27,12 +27,11 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :stream_name, :routing, :related_streams_query
 
       def related_streams
-        unless related_streams_query.equal?(DEFAULT_RELATED_STREAMS_QUERY)
-          related_streams_query.call(stream_name)
-        end
+        related_streams_query.call(stream_name) unless related_streams_query.equal?(DEFAULT_RELATED_STREAMS_QUERY)
       end
     end
   end

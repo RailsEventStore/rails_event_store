@@ -12,7 +12,7 @@ on:
       - ".github/workflows/ruby_event_store-browser_coverage.yml"
       - "support/**"
   pull_request:
-    types: [ opened, reopened ]
+    types: [opened, reopened]
     paths:
       - "ruby_event_store-browser/Gemfile.lock"
       - ".github/workflows/ruby_event_store-browser_coverage.yml"

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module RubyEventStore
   module Outbox
@@ -18,7 +18,7 @@ module RubyEventStore
         expect(client.config.port).to eq(9000)
         expect(client.config.database).to eq("db")
         expect(client.config.async).to eq(true)
-        expect(client.config.time_precision).to eq('ns')
+        expect(client.config.time_precision).to eq("ns")
       end
 
       specify "#write_point_queue defaults" do
@@ -28,13 +28,10 @@ module RubyEventStore
 
         influx.write_point_queue(format: "sidekiq5", split_key: "somekey")
 
-        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
-          values: {
-            enqueued: 0,
-            failed: 0,
-            remaining: 0,
-          },
-        }))
+        expect(client).to have_received(:write_point).with(
+          "ruby_event_store.outbox.queue",
+          include({ values: { enqueued: 0, failed: 0, remaining: 0 } })
+        )
       end
 
       specify "#write_point_queue" do
@@ -44,17 +41,12 @@ module RubyEventStore
 
         influx.write_point_queue(format: "sidekiq5", split_key: "somekey", enqueued: 4, failed: 3, remaining: 5)
 
-        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
-          values: {
-            enqueued: 4,
-            failed: 3,
-            remaining: 5,
-          },
-          tags: {
-            format: "sidekiq5",
-            split_key: "somekey",
-          }
-        }))
+        expect(client).to have_received(:write_point).with(
+          "ruby_event_store.outbox.queue",
+          include(
+            { values: { enqueued: 4, failed: 3, remaining: 5 }, tags: { format: "sidekiq5", split_key: "somekey" } }
+          )
+        )
       end
 
       specify "#write_operation_result" do
@@ -64,15 +56,10 @@ module RubyEventStore
 
         influx.write_operation_result("obtain", "deadlocked")
 
-        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.lock", include({
-          values: {
-            value: 1,
-          },
-          tags: {
-            operation: "obtain",
-            result: "deadlocked",
-          }
-        }))
+        expect(client).to have_received(:write_point).with(
+          "ruby_event_store.outbox.lock",
+          include({ values: { value: 1 }, tags: { operation: "obtain", result: "deadlocked" } })
+        )
       end
 
       specify "automatic timestamp assignment" do
@@ -82,9 +69,10 @@ module RubyEventStore
 
         influx.write_point_queue(format: "sidekiq5", split_key: "somekey")
 
-        expect(client).to have_received(:write_point).with("ruby_event_store.outbox.queue", include({
-          timestamp: be_within(nanoseconds_in_second).of(Time.now.to_f * nanoseconds_in_second)
-        }))
+        expect(client).to have_received(:write_point).with(
+          "ruby_event_store.outbox.queue",
+          include({ timestamp: be_within(nanoseconds_in_second).of(Time.now.to_f * nanoseconds_in_second) })
+        )
       end
     end
   end

@@ -9,14 +9,12 @@ _Command Pattern - decoupling what is done from who does it._
 ### Registering commands and their handlers
 
 ```ruby
-require 'arkency/command_bus'
+require "arkency/command_bus"
 
 command_bus = Arkency::CommandBus.new
-register    = command_bus.method(:register)
+register = command_bus.method(:register)
 
-{ FooCommand => FooService.new(event_store: event_store).method(:foo),
-  BarCommand => BarService.new,
-}.map(&register)
+{ FooCommand => FooService.new(event_store: event_store).method(:foo), BarCommand => BarService.new }.map(&register)
 ```
 
 ### Invoking command bus with a command
@@ -33,8 +31,8 @@ If you need a new instance of a service, every time it is called with a command,
 
 ```ruby
 command_bus = Arkency::CommandBus.new
-command_bus.register(FooCommand, -> (foo_cmd) { FooService.new(dependency: dep).foo(foo_cmd) })
-command_bus.register(BarCommand, -> (bar_cmd) { BarService.new.call(bar_cmd) })
+command_bus.register(FooCommand, ->(foo_cmd) { FooService.new(dependency: dep).foo(foo_cmd) })
+command_bus.register(BarCommand, ->(bar_cmd) { BarService.new.call(bar_cmd) })
 ```
 
 ## Working with Rails development mode
@@ -53,7 +51,7 @@ b = User
 b.object_id
 # => 48425300
 
-h = {a => 1, b => 2}
+h = { a => 1, b => 2 }
 h[User]
 # => 2
 
@@ -70,9 +68,7 @@ config.to_prepare do
   config.command_bus = Arkency::CommandBus.new
   register = command_bus.method(:register)
 
-  { FooCommand => FooService.new(event_store: event_store).method(:foo),
-    BarCommand => BarService.new,
-  }.map(&register)
+  { FooCommand => FooService.new(event_store: event_store).method(:foo), BarCommand => BarService.new }.map(&register)
 end
 ```
 
@@ -85,7 +81,7 @@ Rails.configuration.command_bus.call(FooCommand.new)
 ## Convenience alias
 
 ```ruby
-require 'arkency/command_bus/alias'
+require "arkency/command_bus/alias"
 ```
 
 From now on you can use top-level `CommandBus` instead of `Arkency::CommandBus`.

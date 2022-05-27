@@ -43,8 +43,8 @@ jobs:
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: actions/setup-node@v2
         with:
-          node-version: '16.10'
-          cache: 'npm'
+          node-version: "16.10"
+          cache: "npm"
           cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
       - run: make install-npm test
         working-directory: ${{ env.WORKING_DIRECTORY }}

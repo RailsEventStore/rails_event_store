@@ -11,13 +11,14 @@ module RubyEventStore
       attr_reader :rom_container
 
       def initialize(database_uri = ENV["DATABASE_URL"])
-        config = ::ROM::Configuration.new(
-          :sql,
-          database_uri,
-          max_connections: database_uri =~ /sqlite/ ? 1 : 5,
-          preconnect: :concurrently,
-          fractional_seconds: true,
-        )
+        config =
+          ::ROM::Configuration.new(
+            :sql,
+            database_uri,
+            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
+            preconnect: :concurrently,
+            fractional_seconds: true
+          )
         config.default.use_logger(Logger.new(STDOUT)) if ENV.has_key?("VERBOSE")
         config.default.run_migrations
 
@@ -32,9 +33,7 @@ module RubyEventStore
       end
 
       def with_transaction
-        UnitOfWork.new(gateway) do
-          yield
-        end
+        UnitOfWork.new(gateway) { yield }
       end
 
       def supports_concurrent_auto?
@@ -97,9 +96,7 @@ RSpec::Matchers.define :match_query_count do |expected_count|
     count = 0
     ActiveSupport::Notifications.subscribed(
       lambda do |_name, _started, _finished, _unique_id, payload|
-        unless %w[ CACHE SCHEMA ].include?(payload[:name])
-          count += 1
-        end
+        count += 1 unless %w[CACHE SCHEMA].include?(payload[:name])
       end,
       "sql.rom",
       &actual
@@ -109,4 +106,3 @@ RSpec::Matchers.define :match_query_count do |expected_count|
   supports_block_expectations
   diffable
 end
-

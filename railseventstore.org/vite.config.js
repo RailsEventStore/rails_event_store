@@ -10,6 +10,6 @@ export default defineConfig({
       entry: path.resolve(__dirname, "source/index.js"),
       fileName: () => "index.js",
       formats: ["es"],
-    }
-  }
+    },
+  },
 });

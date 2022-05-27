@@ -3,85 +3,56 @@ require "openssl"
 
 module RubyEventStore
   module Mappers
-    TicketTransferred = Class.new(RubyEventStore::Event) do
-      def self.encryption_schema
-        {
-          sender: {
-            name:  ->(data) { data.dig(:sender, :user_id) },
-            email: ->(data) { data.dig(:sender, :user_id) },
-            twitter: ->(data) { data.dig(:sender, :user_id) },
-          },
-          recipient: {
-            name:  ->(data) { data.dig(:recipient, :user_id) },
-            email: ->(data) { data.dig(:recipient, :user_id) },
-            twitter: ->(data) { data.dig(:sender, :user_id) },
+    TicketTransferred =
+      Class.new(RubyEventStore::Event) do
+        def self.encryption_schema
+          {
+            sender: {
+              name: ->(data) { data.dig(:sender, :user_id) },
+              email: ->(data) { data.dig(:sender, :user_id) },
+              twitter: ->(data) { data.dig(:sender, :user_id) }
+            },
+            recipient: {
+              name: ->(data) { data.dig(:recipient, :user_id) },
+              email: ->(data) { data.dig(:recipient, :user_id) },
+              twitter: ->(data) { data.dig(:sender, :user_id) }
+            }
           }
-        }
+        end
       end
-    end
 
     TicketCancelled = Class.new(RubyEventStore::Event)
 
-    TicketHolderEmailProvided = Class.new(RubyEventStore::Event) do
-      def self.encryption_schema
-        {
-          email: ->(data) do
-            data.fetch(:user_id)
-          end
-        }
+    TicketHolderEmailProvided =
+      Class.new(RubyEventStore::Event) do
+        def self.encryption_schema
+          { email: ->(data) { data.fetch(:user_id) } }
+        end
       end
-    end
 
-    BalanceChanged = Class.new(RubyEventStore::Event) do
-      def self.encryption_schema
-        {
-          balance: ->(data) do
-            data.fetch(:user_id)
-          end
-        }
+    BalanceChanged =
+      Class.new(RubyEventStore::Event) do
+        def self.encryption_schema
+          { balance: ->(data) { data.fetch(:user_id) } }
+        end
       end
-    end
 
     module Transformation
       RSpec.describe Encryption do
-        let(:time)           { Time.now.utc }
+        let(:time) { Time.now.utc }
         let(:key_repository) { InMemoryEncryptionKeyRepository.new }
-        let(:mapper)         { Encryption.new(key_repository) }
-        let(:sender_id)      { SecureRandom.uuid }
-        let(:recipient_id)   { SecureRandom.uuid }
-        let(:owner_id)       { SecureRandom.uuid }
-        let(:event_id)       { SecureRandom.uuid }
-        let(:ticket_id)      { SecureRandom.uuid }
+        let(:mapper) { Encryption.new(key_repository) }
+        let(:sender_id) { SecureRandom.uuid }
+        let(:recipient_id) { SecureRandom.uuid }
+        let(:owner_id) { SecureRandom.uuid }
+        let(:event_id) { SecureRandom.uuid }
+        let(:ticket_id) { SecureRandom.uuid }
         let(:correlation_id) { SecureRandom.uuid }
-        let(:sender_email)   { "alice@universe" }
-        let(:recipient) do
-          {
-            user_id: recipient_id,
-            name: "Bob",
-            email: "bob@universe",
-            twitter: nil
-          }
-        end
-        let(:sender) do
-          {
-            user_id: sender_id,
-            name: "Alice",
-            email: sender_email,
-            twitter: "@alice"
-          }
-        end
-        let(:data) do
-          {
-            ticket_id: ticket_id,
-            sender: sender,
-            recipient: recipient
-          }
-        end
-        let(:metadata) do
-          {
-            correlation_id: correlation_id
-          }
-        end
+        let(:sender_email) { "alice@universe" }
+        let(:recipient) { { user_id: recipient_id, name: "Bob", email: "bob@universe", twitter: nil } }
+        let(:sender) { { user_id: sender_id, name: "Alice", email: sender_email, twitter: "@alice" } }
+        let(:data) { { ticket_id: ticket_id, sender: sender, recipient: recipient } }
+        let(:metadata) { { correlation_id: correlation_id } }
 
         let(:ticket_transferred) do
           Record.new(
@@ -90,7 +61,7 @@ module RubyEventStore
             metadata: metadata,
             event_type: "RubyEventStore::Mappers::TicketTransferred",
             timestamp: time,
-            valid_at:  time
+            valid_at: time
           )
         end
 
@@ -98,12 +69,12 @@ module RubyEventStore
           Record.new(
             event_id: event_id,
             data: {
-              ticket_id: ticket_id,
+              ticket_id: ticket_id
             },
             metadata: metadata,
             event_type: "RubyEventStore::Mappers::TicketCancelled",
             timestamp: time,
-            valid_at:  time
+            valid_at: time
           )
         end
 
@@ -122,40 +93,26 @@ module RubyEventStore
           event = decrypt(encrypt(ticket_transferred))
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id,
-            sender: sender,
-            recipient: recipient
-          })
+          expect(event.data).to eq({ ticket_id: ticket_id, sender: sender, recipient: recipient })
           expect(event.metadata).to eq(metadata)
         end
 
         context "when encryptable event keys are missing" do
-           let(:sender) do
-             {
-               user_id: sender_id,
-               email: sender_email,
-               twitter: "@alice"
-             }
-           end
+          let(:sender) { { user_id: sender_id, email: sender_email, twitter: "@alice" } }
 
-           specify "skip missing data keys" do
-             key_repository.create(sender_id)
-             key_repository.create(recipient_id)
+          specify "skip missing data keys" do
+            key_repository.create(sender_id)
+            key_repository.create(recipient_id)
 
-             event = decrypt(encrypt(ticket_transferred))
+            event = decrypt(encrypt(ticket_transferred))
 
-             expect(event.event_id).to eq(event_id)
+            expect(event.event_id).to eq(event_id)
 
-             expect(event.data).to eq({
-               ticket_id: ticket_id,
-               sender: sender,
-               recipient: recipient
-             })
+            expect(event.data).to eq({ ticket_id: ticket_id, sender: sender, recipient: recipient })
 
-             expect(event.metadata).to eq(metadata)
-           end
-         end
+            expect(event.metadata).to eq(metadata)
+          end
+        end
 
         specify "obfuscates data for missing keys on decryption" do
           key_repository.create(sender_id)
@@ -163,19 +120,21 @@ module RubyEventStore
 
           record = encrypt(ticket_transferred)
           key_repository.forget(sender_id.dup)
-          event  = decrypt(record)
+          event = decrypt(record)
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id,
-            sender: {
-              user_id: sender_id,
-              name: ForgottenData::FORGOTTEN_DATA,
-              email: ForgottenData::FORGOTTEN_DATA,
-              twitter: ForgottenData::FORGOTTEN_DATA,
-            },
-            recipient: recipient
-          })
+          expect(event.data).to eq(
+            {
+              ticket_id: ticket_id,
+              sender: {
+                user_id: sender_id,
+                name: ForgottenData::FORGOTTEN_DATA,
+                email: ForgottenData::FORGOTTEN_DATA,
+                twitter: ForgottenData::FORGOTTEN_DATA
+              },
+              recipient: recipient
+            }
+          )
           expect(event.metadata).to eq(metadata)
         end
 
@@ -186,19 +145,21 @@ module RubyEventStore
           record = encrypt(ticket_transferred)
           key_repository.forget(sender_id)
           key_repository.create(sender_id)
-          event  = decrypt(record)
+          event = decrypt(record)
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id,
-            sender: {
-              user_id: sender_id,
-              name: ForgottenData::FORGOTTEN_DATA,
-              email: ForgottenData::FORGOTTEN_DATA,
-              twitter: ForgottenData::FORGOTTEN_DATA,
-            },
-            recipient: recipient
-          })
+          expect(event.data).to eq(
+            {
+              ticket_id: ticket_id,
+              sender: {
+                user_id: sender_id,
+                name: ForgottenData::FORGOTTEN_DATA,
+                email: ForgottenData::FORGOTTEN_DATA,
+                twitter: ForgottenData::FORGOTTEN_DATA
+              },
+              recipient: recipient
+            }
+          )
           expect(event.metadata).to eq(metadata)
         end
 
@@ -206,9 +167,7 @@ module RubyEventStore
           event = decrypt(encrypt(ticket_cancelled))
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id
-          })
+          expect(event.data).to eq({ ticket_id: ticket_id })
           expect(event.metadata).to eq(metadata)
         end
 
@@ -218,9 +177,10 @@ module RubyEventStore
         end
 
         specify "raises error on encryption with missing encryption key" do
-          expect do
-            encrypt(ticket_transferred)
-          end.to raise_error(Encryption::MissingEncryptionKey, "Could not find encryption key for '#{sender_id}'")
+          expect { encrypt(ticket_transferred) }.to raise_error(
+            Encryption::MissingEncryptionKey,
+            "Could not find encryption key for '#{sender_id}'"
+          )
         end
 
         specify "does not modify original event" do
@@ -241,35 +201,36 @@ module RubyEventStore
           key_repository.create(sender_id)
           key_repository.create(recipient_id)
 
-          record   = encrypt(ticket_transferred)
-          data     = record.data.dup
+          record = encrypt(ticket_transferred)
+          data = record.data.dup
           metadata = record.metadata.dup
           decrypt(record)
 
-          expect(record.data).to     eq(data)
+          expect(record.data).to eq(data)
           expect(record.metadata).to eq(metadata)
         end
 
         specify "two cryptograms of the same input and key are not alike" do
           key_repository.create(sender_id)
 
-          record = encrypt(
-            Record.new(
-              event_id: event_id,
-              data: {
-                ticket_id: ticket_id,
-                sender: sender,
-                recipient: sender
-              },
-              metadata: metadata,
-              event_type: "RubyEventStore::Mappers::TicketTransferred",
-              timestamp: time,
-              valid_at:  time
+          record =
+            encrypt(
+              Record.new(
+                event_id: event_id,
+                data: {
+                  ticket_id: ticket_id,
+                  sender: sender,
+                  recipient: sender
+                },
+                metadata: metadata,
+                event_type: "RubyEventStore::Mappers::TicketTransferred",
+                timestamp: time,
+                valid_at: time
+              )
             )
-          )
           data = record.data
 
-          expect(data.dig(:sender, :name)).not_to  eq(data.dig(:recipient, :name))
+          expect(data.dig(:sender, :name)).not_to eq(data.dig(:recipient, :name))
           expect(data.dig(:sender, :email)).not_to eq(data.dig(:recipient, :email))
         end
 
@@ -289,17 +250,13 @@ module RubyEventStore
                   metadata: metadata,
                   event_type: "RubyEventStore::Mappers::TicketHolderEmailProvided",
                   timestamp: time,
-                  valid_at:  time
+                  valid_at: time
                 )
               )
-          )
+            )
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id,
-            user_id: sender_id,
-            email: sender_email
-          })
+          expect(event.data).to eq({ ticket_id: ticket_id, user_id: sender_id, email: sender_email })
           expect(event.metadata).to eq(metadata)
         end
 
@@ -319,17 +276,13 @@ module RubyEventStore
                   metadata: metadata,
                   event_type: "RubyEventStore::Mappers::TicketHolderEmailProvided",
                   timestamp: time,
-                  valid_at:  time
+                  valid_at: time
                 )
               )
-          )
+            )
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id,
-            user_id: sender_id,
-            email: [sender_email]
-          })
+          expect(event.data).to eq({ ticket_id: ticket_id, user_id: sender_id, email: [sender_email] })
           expect(event.metadata).to eq(metadata)
         end
 
@@ -348,16 +301,13 @@ module RubyEventStore
                   metadata: metadata,
                   event_type: "RubyEventStore::Mappers::BalanceChanged",
                   timestamp: time,
-                  valid_at:  time
+                  valid_at: time
                 )
               )
             )
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            user_id: owner_id,
-            balance: BigDecimal(42),
-          })
+          expect(event.data).to eq({ user_id: owner_id, balance: BigDecimal(42) })
           expect(event.metadata).to eq(metadata)
         end
 
@@ -376,17 +326,13 @@ module RubyEventStore
                 metadata: metadata,
                 event_type: "RubyEventStore::Mappers::TicketHolderEmailProvided",
                 timestamp: time,
-                valid_at:  time
+                valid_at: time
               )
-          )
+            )
           event = decrypt(record)
 
           expect(event.event_id).to eq(event_id)
-          expect(event.data).to eq({
-            ticket_id: ticket_id,
-            user_id: sender_id,
-            email: nil
-          })
+          expect(event.data).to eq({ ticket_id: ticket_id, user_id: sender_id, email: nil })
           expect(record.data).to eq(event.data)
           expect(event.metadata).to eq(metadata)
         end
@@ -394,16 +340,10 @@ module RubyEventStore
         specify "defaults" do
           key_repository.create(sender_id)
           key_repository.create(recipient_id)
-          record =
-            Encryption
-            .new(key_repository)
-            .dump(ticket_transferred)
-          event =
-            Encryption
-            .new(key_repository)
-            .load(record)
+          record = Encryption.new(key_repository).dump(ticket_transferred)
+          event = Encryption.new(key_repository).load(record)
 
-          expect(event).to  eq(ticket_transferred)
+          expect(event).to eq(ticket_transferred)
         end
 
         specify "handles decryption after changing cipher" do
@@ -416,19 +356,15 @@ module RubyEventStore
             event = decrypt(record)
 
             expect(event.event_id).to eq(event_id)
-            expect(event.data).to eq({
-              ticket_id: ticket_id,
-              sender: sender,
-              recipient: recipient
-            })
+            expect(event.data).to eq({ ticket_id: ticket_id, sender: sender, recipient: recipient })
             expect(event.metadata).to eq(metadata)
           end
         end
 
         specify "decrypted message is UTF-8 encoded" do
           key = key_repository.create("dummy")
-          iv  = key.random_iv
-          source_message    = "zażółć gęślą jaźń"
+          iv = key.random_iv
+          source_message = "zażółć gęślą jaźń"
           decrypted_message = key.decrypt(key.encrypt(source_message, iv), iv)
 
           expect(decrypted_message).to eq(source_message)
@@ -443,11 +379,7 @@ module RubyEventStore
             event = decrypt(encrypt(ticket_transferred))
 
             expect(event.event_id).to eq(event_id)
-            expect(event.data).to eq({
-              ticket_id: ticket_id,
-              sender: sender,
-              recipient: recipient
-            })
+            expect(event.data).to eq({ ticket_id: ticket_id, sender: sender, recipient: recipient })
             expect(event.metadata).to eq(metadata)
           end
         end

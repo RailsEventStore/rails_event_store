@@ -6,20 +6,22 @@ module RubyEventStore
       test_client.get "/api/streams/all"
 
       expect(test_client.last_response).to be_ok
-      expect(test_client.parsed_body["data"]).to eq({
-        "id" => "all",
-        "type" => "streams",
-        "attributes" => {
-          "related_streams" => nil,
-        },
-        "relationships" => {
-          "events" => {
-            "links" => {
-              "self" => "http://www.example.com/api/streams/all/relationships/events",
+      expect(test_client.parsed_body["data"]).to eq(
+        {
+          "id" => "all",
+          "type" => "streams",
+          "attributes" => {
+            "related_streams" => nil
+          },
+          "relationships" => {
+            "events" => {
+              "links" => {
+                "self" => "http://www.example.com/api/streams/all/relationships/events"
+              }
             }
           }
         }
-      })
+      )
     end
 
     specify do
@@ -66,14 +68,14 @@ module RubyEventStore
           },
           metadata: {
             timestamp: "2020-01-01T12:00:00.000001Z",
-            valid_at:  "2020-01-01T12:00:00.000001Z",
-            correlation_id: correlation_id,
+            valid_at: "2020-01-01T12:00:00.000001Z",
+            correlation_id: correlation_id
           },
           correlation_stream_name: "$by_correlation_id_#{correlation_id}",
           causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
-          type_stream_name: "$by_type_DummyEvent",
-        },
+          type_stream_name: "$by_type_DummyEvent"
+        }
       )
     end
 
@@ -93,31 +95,32 @@ module RubyEventStore
           data: {},
           metadata: {
             timestamp: "2020-01-01T12:00:00.000001Z",
-            valid_at:  "2020-01-01T12:00:00.000001Z",
+            valid_at: "2020-01-01T12:00:00.000001Z"
           },
           correlation_stream_name: nil,
           causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
-          type_stream_name: "$by_type_DummyEvent",
-        },
+          type_stream_name: "$by_type_DummyEvent"
+        }
       )
     end
 
     def dummy_event(id = SecureRandom.uuid)
-      @dummy_event ||= TimeEnrichment.with(
-        DummyEvent.new(
-          event_id: id,
-          data: {
-            foo: 1,
-            bar: 2.0,
-            baz: "3"
-          },
-          metadata: {
-            correlation_id: correlation_id
-          }
-        ),
-        timestamp: Time.utc(2020, 1, 1, 12, 0, 0, 1),
-      )
+      @dummy_event ||=
+        TimeEnrichment.with(
+          DummyEvent.new(
+            event_id: id,
+            data: {
+              foo: 1,
+              bar: 2.0,
+              baz: "3"
+            },
+            metadata: {
+              correlation_id: correlation_id
+            }
+          ),
+          timestamp: Time.utc(2020, 1, 1, 12, 0, 0, 1)
+        )
     end
 
     def event_resource
@@ -133,27 +136,29 @@ module RubyEventStore
           },
           "metadata" => {
             "timestamp" => "2020-01-01T12:00:00.000001Z",
-            "valid_at"  => "2020-01-01T12:00:00.000001Z",
+            "valid_at" => "2020-01-01T12:00:00.000001Z",
             "correlation_id" => correlation_id
           },
           "correlation_stream_name" => "$by_correlation_id_#{correlation_id}",
           "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
           "parent_event_id" => nil,
-          "type_stream_name" => "$by_type_DummyEvent",
-        },
+          "type_stream_name" => "$by_type_DummyEvent"
+        }
       }
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new, correlation_id_generator: correlation_id_generator) }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new,
+        correlation_id_generator: correlation_id_generator
+      )
+    end
     let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store)) }
     let(:correlation_id) { SecureRandom.uuid }
-    let(:correlation_id_generator) { ->{ correlation_id } }
+    let(:correlation_id_generator) { -> { correlation_id } }
 
     def app_builder(event_store)
-      RubyEventStore::Browser::App.for(
-        event_store_locator: -> { event_store },
-        host: "http://www.example.com"
-      )
+      RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, host: "http://www.example.com")
     end
   end
 end

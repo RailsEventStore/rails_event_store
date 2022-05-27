@@ -21,7 +21,7 @@ repository = RailsEventStoreActiveRecord::EventRepository.new # or other repo yo
 dispatcher = RubyEventStore::Dispatcher.new # or other dispatcher you use
 RubyEventStore::Client.new(
   repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications),
-  dispatcher: InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
+  dispatcher: InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications),
 )
 ```
 
@@ -35,7 +35,7 @@ Subscribe to the hooks as [Rails guides](https://guides.rubyonrails.org/active_s
 name = "append_to_stream.repository.rails_event_store"
 ActiveSupport::Notifications.subscribe(name) do |name, start, finish, id, payload|
   metric = ActiveSupport::Notifications::Event.new(name, start, finish, id, payload)
-  NewRelic::Agent.record_metric('Custom/RES/append_to_stream', metric.duration)
+  NewRelic::Agent.record_metric("Custom/RES/append_to_stream", metric.duration)
 end
 ```
 

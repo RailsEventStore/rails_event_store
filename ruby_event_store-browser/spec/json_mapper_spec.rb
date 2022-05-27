@@ -15,16 +15,11 @@ module RubyEventStore
 
     let(:test_client) { TestClient.new(app_builder(event_store)) }
     let(:event_store) do
-      RubyEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new(serializer: JSON),
-      )
+      RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON))
     end
 
     def app_builder(event_store)
-      RubyEventStore::Browser::App.for(
-        event_store_locator: -> { event_store },
-        host: "http://www.example.com"
-      )
+      RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, host: "http://www.example.com")
     end
   end
 end

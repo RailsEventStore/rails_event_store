@@ -20,7 +20,7 @@ It means that publishing events can be part of a bigger transactions.
 
 This makes it relatively easy to also rollback transactions (and thus rollback events).
 
-All in all, it helps introducing events in non-invasive way. 
+All in all, it helps introducing events in non-invasive way.
 There's no need to change your current infrastructure or refactor large pieces of code.
 
 ## Publishing events
@@ -32,26 +32,24 @@ This means that creation of the event (or more events) itself, appending it to a
 Note the `start_transaction` block.
 
 ```ruby
-    def add_to_stream(event_ids, stream, expected_version)
-      last_stream_version = ->(stream_) { @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position) }
-      resolved_version = expected_version.resolve_for(stream, last_stream_version)
+def add_to_stream(event_ids, stream, expected_version)
+  last_stream_version = ->(stream_) do
+    @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position)
+  end
+  resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
-      start_transaction do
-        yield if block_given?
-        in_stream = event_ids.map.with_index do |event_id, index|
-          {
-            stream:   stream.name,
-            position: compute_position(resolved_version, index),
-            event_id: event_id,
-          }
-        end
-        @stream_klass.import(in_stream) unless stream.global?
+  start_transaction do
+    yield if block_given?
+    in_stream =
+      event_ids.map.with_index do |event_id, index|
+        { stream: stream.name, position: compute_position(resolved_version, index), event_id: event_id }
       end
-      self
-    rescue ActiveRecord::RecordNotUnique => e
-      raise_error(e)
-    end
-
+    @stream_klass.import(in_stream) unless stream.global?
+  end
+  self
+rescue ActiveRecord::RecordNotUnique => e
+  raise_error(e)
+end
 ```
 
 ## Application-level transactions
@@ -60,12 +58,12 @@ Many Rails projects follow the concept of one transaction per 1 request (control
 
 Sometimes the transaction is started at the controller level. Sometimes it's done at the service object level.
 
-RES supports this pattern. 
+RES supports this pattern.
 When you use event as part of your service objects, they now become part of your bigger transaction.
 
 ## Refactoring and transactions
 
-When your service objects grow and you start extracting aggregates - you're still safe. 
+When your service objects grow and you start extracting aggregates - you're still safe.
 As long as your code is wrapped with a transaction, your events publishing is now consistent.
 
 If something goes wrong and the transaction is rollbacked, the events are also not persisted in the database.

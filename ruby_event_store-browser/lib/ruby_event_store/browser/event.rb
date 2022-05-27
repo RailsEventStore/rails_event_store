@@ -7,13 +7,11 @@ module RubyEventStore
 
       def initialize(event_store:, params:)
         @event_store = event_store
-        @params      = params
+        @params = params
       end
 
       def as_json
-        {
-          data: JsonApiEvent.new(event, parent_event_id).to_h,
-        }
+        { data: JsonApiEvent.new(event, parent_event_id).to_h }
       end
 
       def event
@@ -21,9 +19,7 @@ module RubyEventStore
       end
 
       def parent_event_id
-        if event.metadata.has_key?(:causation_id)
-          event_store.read.event(event.metadata.fetch(:causation_id))&.event_id
-        end
+        event_store.read.event(event.metadata.fetch(:causation_id))&.event_id if event.metadata.has_key?(:causation_id)
       end
 
       def event_id

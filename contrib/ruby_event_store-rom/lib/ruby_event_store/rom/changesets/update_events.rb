@@ -9,8 +9,8 @@ module RubyEventStore
         map(&:to_h)
         map do
           rename_keys timestamp: :created_at
-          map_value   :created_at, ->(time) { Time.iso8601(time).localtime }
-          map_value   :valid_at,   ->(time) { Time.iso8601(time).localtime }
+          map_value :created_at, ->(time) { Time.iso8601(time).localtime }
+          map_value :valid_at, ->(time) { Time.iso8601(time).localtime }
           accept_keys %i[event_id data metadata event_type created_at valid_at]
         end
 
@@ -31,12 +31,13 @@ module RubyEventStore
         end
 
         def commit_insert_conflict_update
-          relation.dataset.insert_conflict(
-            target: :event_id,
-            update: UPSERT_COLUMNS.each_with_object({}) do |column, memo|
-              memo[column] = Sequel[:excluded][column]
-            end
-          ).multi_insert(to_a)
+          relation
+            .dataset
+            .insert_conflict(
+              target: :event_id,
+              update: UPSERT_COLUMNS.each_with_object({}) { |column, memo| memo[column] = Sequel[:excluded][column] }
+            )
+            .multi_insert(to_a)
         end
       end
     end

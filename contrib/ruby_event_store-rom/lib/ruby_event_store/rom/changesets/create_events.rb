@@ -9,8 +9,8 @@ module RubyEventStore
         map(&:to_h)
         map do
           rename_keys timestamp: :created_at
-          map_value   :created_at, ->(time) { Time.iso8601(time).localtime }
-          map_value   :valid_at,   ->(time) { Time.iso8601(time).localtime }
+          map_value :created_at, ->(time) { Time.iso8601(time).localtime }
+          map_value :valid_at, ->(time) { Time.iso8601(time).localtime }
           accept_keys %i[event_id data metadata event_type created_at valid_at]
         end
 

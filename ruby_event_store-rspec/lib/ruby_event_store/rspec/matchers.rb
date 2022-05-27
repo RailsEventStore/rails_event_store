@@ -8,11 +8,7 @@ module RubyEventStore
           def call(object)
             items = Array(object).compact.map { |o| format(o) }
             return "" if items.empty?
-            if items.one?
-              items.join
-            else
-              "#{items[all_but_last].join(", ")} and #{items.fetch(-1)}"
-            end
+            items.one? ? items.join : "#{items[all_but_last].join(", ")} and #{items.fetch(-1)}"
           end
 
           private
@@ -22,11 +18,7 @@ module RubyEventStore
           end
 
           def format(object)
-            if object.respond_to?(:description)
-              ::RSpec::Support::ObjectFormatter.format(object)
-            else
-              "be a #{object}"
-            end
+            object.respond_to?(:description) ? ::RSpec::Support::ObjectFormatter.format(object) : "be a #{object}"
           end
         end
       end
@@ -34,16 +26,24 @@ module RubyEventStore
       def be_an_event(expected)
         BeEvent.new(expected, differ: differ, formatter: formatter)
       end
-      alias :be_event :be_an_event
-      alias :an_event :be_an_event
-      alias :event    :be_an_event
+      alias be_event be_an_event
+      alias an_event be_an_event
+      alias event be_an_event
 
       def have_published(*expected)
-        HavePublished.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_published(differ))
+        HavePublished.new(
+          *expected,
+          phraser: phraser,
+          failure_message_formatter: RSpec.default_formatter.have_published(differ)
+        )
       end
 
       def have_applied(*expected)
-        HaveApplied.new(*expected, phraser: phraser, failure_message_formatter: RSpec.default_formatter.have_applied(differ))
+        HaveApplied.new(
+          *expected,
+          phraser: phraser,
+          failure_message_formatter: RSpec.default_formatter.have_applied(differ)
+        )
       end
 
       def have_subscribed_to_events(*expected)

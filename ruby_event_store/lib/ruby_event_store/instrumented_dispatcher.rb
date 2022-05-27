@@ -15,7 +15,7 @@ module RubyEventStore
 
     def method_missing(method_name, *arguments, **keyword_arguments, &block)
       if respond_to?(method_name)
-        dispatcher.public_send(method_name, *arguments, **keyword_arguments,  &block)
+        dispatcher.public_send(method_name, *arguments, **keyword_arguments, &block)
       else
         super
       end
@@ -26,6 +26,7 @@ module RubyEventStore
     end
 
     private
+
     attr_reader :instrumentation, :dispatcher
   end
 end

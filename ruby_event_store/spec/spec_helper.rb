@@ -33,8 +33,7 @@ module RubyEventStore
       false
     end
 
-    def connection_pool_size
-    end
+    def connection_pool_size; end
   end
 end
 
@@ -67,7 +66,6 @@ class ReverseYamlSerializer
     YAML.dump(value).reverse
   end
 end
-
 
 class ScheduledWithSerialization
   def initialize(serializer:)

@@ -8,7 +8,7 @@ class PriceChanged < RailsEventStore::Event
 end
 
 class InvoiceReadModel
-  def initialize(events=[])
+  def initialize(events = [])
     @items = []
     events.each { |event| call(event) }
   end
@@ -34,7 +34,6 @@ class InvoiceReadModel
 
   private
 
-
   def add_new_invoice_item(product_name)
     @items << InvoiceItem.new(product_name)
   end
@@ -50,7 +49,6 @@ class InvoiceReadModel
   def find_item_by(product_name)
     @items.detect { |item| item.product_name == product_name }
   end
-
 
   class InvoiceItem
     attr_reader :product_name
@@ -74,7 +72,5 @@ class InvoiceReadModel
     def formatted_value
       value.to_s
     end
-
   end
-
 end

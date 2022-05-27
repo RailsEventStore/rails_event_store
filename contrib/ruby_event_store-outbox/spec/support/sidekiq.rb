@@ -1,15 +1,7 @@
 def reset_sidekiq_middlewares
-  Sidekiq.configure_client do |config|
-    config.client_middleware do |chain|
-      chain.clear
-    end
-  end
+  Sidekiq.configure_client { |config| config.client_middleware { |chain| chain.clear } }
 end
 
 def install_sidekiq_middleware(middleware_klass)
-  Sidekiq.configure_client do |config|
-    config.client_middleware do |chain|
-      chain.add(middleware_klass)
-    end
-  end
+  Sidekiq.configure_client { |config| config.client_middleware { |chain| chain.add(middleware_klass) } }
 end

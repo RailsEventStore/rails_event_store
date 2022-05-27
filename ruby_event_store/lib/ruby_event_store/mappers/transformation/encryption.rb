@@ -6,14 +6,14 @@ module RubyEventStore
       class Encryption
         class Leaf
           def self.===(hash)
-            hash.keys.sort.eql? %i(cipher identifier iv)
+            hash.keys.sort.eql? %i[cipher identifier iv]
           end
         end
         private_constant :Leaf
 
         class MissingEncryptionKey < StandardError
           def initialize(key_identifier)
-            super %Q|Could not find encryption key for '#{key_identifier}'|
+            super "Could not find encryption key for '#{key_identifier}'"
           end
         end
 
@@ -24,20 +24,20 @@ module RubyEventStore
         end
 
         def dump(record)
-          data        = record.data
-          metadata    = record.metadata.dup
+          data = record.data
+          metadata = record.metadata.dup
           event_class = Object.const_get(record.event_type)
 
-          crypto_description    = encryption_metadata(data, encryption_schema(event_class))
+          crypto_description = encryption_metadata(data, encryption_schema(event_class))
           metadata[:encryption] = crypto_description unless crypto_description.empty?
 
           Record.new(
-            event_id:   record.event_id,
+            event_id: record.event_id,
             event_type: record.event_type,
-            data:       encrypt_data(deep_dup(data), crypto_description),
-            metadata:   metadata,
-            timestamp:  record.timestamp,
-            valid_at:   record.valid_at,
+            data: encrypt_data(deep_dup(data), crypto_description),
+            metadata: metadata,
+            timestamp: record.timestamp,
+            valid_at: record.valid_at
           )
         end
 
@@ -46,16 +46,17 @@ module RubyEventStore
           crypto_description = Hash(metadata.delete(:encryption))
 
           Record.new(
-            event_id:   record.event_id,
+            event_id: record.event_id,
             event_type: record.event_type,
-            data:       decrypt_data(record.data, crypto_description),
-            metadata:   metadata,
-            timestamp:  record.timestamp,
-            valid_at:   record.valid_at,
+            data: decrypt_data(record.data, crypto_description),
+            metadata: metadata,
+            timestamp: record.timestamp,
+            valid_at: record.valid_at
           )
         end
 
         private
+
         attr_reader :key_repository, :serializer, :forgotten_data
 
         def encryption_schema(event_class)
@@ -64,9 +65,7 @@ module RubyEventStore
 
         def deep_dup(hash)
           duplicate = hash.dup
-          duplicate.each do |k, v|
-            duplicate[k] = v.instance_of?(Hash) ? deep_dup(v) : v
-          end
+          duplicate.each { |k, v| duplicate[k] = v.instance_of?(Hash) ? deep_dup(v) : v }
           duplicate
         end
 
@@ -79,11 +78,7 @@ module RubyEventStore
               key_identifier = value.call(data)
               encryption_key = key_repository.key_of(key_identifier)
               raise MissingEncryptionKey.new(key_identifier) unless encryption_key
-              acc[key] = {
-                cipher: encryption_key.cipher,
-                iv: encryption_key.random_iv,
-                identifier: key_identifier,
-              }
+              acc[key] = { cipher: encryption_key.cipher, iv: encryption_key.random_iv, identifier: key_identifier }
             end
             acc
           end
@@ -122,7 +117,8 @@ module RubyEventStore
             cryptogram = data.fetch(attribute)
             return unless cryptogram
 
-            encryption_key = key_repository.key_of(meta.fetch(:identifier), cipher: meta.fetch(:cipher)) or return forgotten_data
+            encryption_key = key_repository.key_of(meta.fetch(:identifier), cipher: meta.fetch(:cipher)) or
+              return forgotten_data
             serializer.load(encryption_key.decrypt(cryptogram, meta.fetch(:iv)))
           when Hash
             decrypt_data(data.fetch(attribute), meta)

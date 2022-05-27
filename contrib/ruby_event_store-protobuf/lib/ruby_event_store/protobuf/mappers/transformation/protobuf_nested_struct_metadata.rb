@@ -11,32 +11,33 @@ module RubyEventStore
 
           def dump(record)
             Record.new(
-              event_id:   record.event_id,
+              event_id: record.event_id,
               event_type: record.event_type,
-              data:       record.data,
-              metadata:   ProtobufNestedStruct::HashMapStringValue.dump(record.metadata),
-              timestamp:  record.timestamp,
-              valid_at:   record.valid_at,
+              data: record.data,
+              metadata: ProtobufNestedStruct::HashMapStringValue.dump(record.metadata),
+              timestamp: record.timestamp,
+              valid_at: record.valid_at
             )
           end
 
           def load(record)
             RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new.load(
               Record.new(
-                event_id:   record.event_id,
+                event_id: record.event_id,
                 event_type: record.event_type,
-                data:       record.data,
-                metadata:   ProtobufNestedStruct::HashMapStringValue.load(record.metadata),
-                timestamp:  record.timestamp,
-                valid_at:   record.valid_at,
+                data: record.data,
+                metadata: ProtobufNestedStruct::HashMapStringValue.load(record.metadata),
+                timestamp: record.timestamp,
+                valid_at: record.valid_at
               )
             )
           end
 
           def require_optional_dependency
-            require 'protobuf_nested_struct'
+            require "protobuf_nested_struct"
           rescue LoadError
-            raise LoadError, "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile"
+            raise LoadError,
+                  "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile"
           end
         end
       end

@@ -12,9 +12,7 @@ module RailsEventStore
           @matcher.matches?(File.read(File.join(destination_root, actual)))
         end
 
-        failure_message do
-          @matcher.failure_message
-        end
+        failure_message { @matcher.failure_message }
       end
 
       RSpec::Matchers.define :exists_at_destination_path do |_|
@@ -23,9 +21,7 @@ module RailsEventStore
           @matcher.matches?(File)
         end
 
-        failure_message do
-          @matcher.failure_message
-        end
+        failure_message { @matcher.failure_message }
       end
 
       include GeneratorHelper
@@ -103,12 +99,10 @@ module RailsEventStore
         expect_identity_access_test_helper
       end
 
-
       specify do
         run_generator %w[identity_access]
         expect("identity_access/lib/identity_access/.keep").to exists_at_destination_path
       end
-
 
       def expect_identity_access_spec_helper
         expect("identity_access/spec/spec_helper.rb").to match_content(<<~EOF)

@@ -27,7 +27,7 @@ module RubyEventStore
       def times
         self
       end
-      alias :time :times
+      alias time times
 
       def once
         expected.once

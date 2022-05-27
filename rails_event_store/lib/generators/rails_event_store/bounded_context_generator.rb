@@ -13,9 +13,7 @@ module RailsEventStore
 
         template "module.rb", "#{bounded_context_name}/lib/#{bounded_context_name}.rb"
 
-        application do
-          "config.paths.add '#{bounded_context_name}/lib', eager_load: true"
-        end
+        application { "config.paths.add '#{bounded_context_name}/lib', eager_load: true" }
       end
 
       private

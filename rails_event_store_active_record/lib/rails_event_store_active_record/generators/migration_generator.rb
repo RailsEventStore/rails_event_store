@@ -7,16 +7,18 @@ end
 
 module RailsEventStoreActiveRecord
   class MigrationGenerator < Rails::Generators::Base
-    class Error < Thor::Error; end
+    class Error < Thor::Error
+    end
 
-    DATA_TYPES = %w(binary json jsonb).freeze
+    DATA_TYPES = %w[binary json jsonb].freeze
 
     source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
     class_option(
       :data_type,
       type: :string,
       default: "binary",
-      desc: "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join('/')})"
+      desc:
+        "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join("/")})"
     )
 
     def initialize(*args)

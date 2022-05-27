@@ -5,10 +5,10 @@ require "active_support/notifications"
 
 module RubyEventStore
   RSpec.describe InstrumentedRepository do
-    let(:record)           { SRecord.new }
-    let(:stream)           { Stream.new("SomeStream") }
+    let(:record) { SRecord.new }
+    let(:stream) { Stream.new("SomeStream") }
     let(:expected_version) { ExpectedVersion.any }
-    let(:event_id)         { SecureRandom.uuid }
+    let(:event_id) { SecureRandom.uuid }
 
     describe "#append_to_stream" do
       specify "wraps around original implementation" do
@@ -24,9 +24,7 @@ module RubyEventStore
         subscribe_to("append_to_stream.repository.rails_event_store") do |notification_calls|
           instrumented_repository.append_to_stream([record], stream, expected_version)
 
-          expect(notification_calls).to eq([
-            { events: [record], stream: stream }
-          ])
+          expect(notification_calls).to eq([{ events: [record], stream: stream }])
         end
       end
     end
@@ -45,9 +43,7 @@ module RubyEventStore
         subscribe_to("link_to_stream.repository.rails_event_store") do |notification_calls|
           instrumented_repository.link_to_stream([event_id], stream, expected_version)
 
-          expect(notification_calls).to eq([
-            { event_ids: [event_id], stream: stream }
-          ])
+          expect(notification_calls).to eq([{ event_ids: [event_id], stream: stream }])
         end
       end
     end
@@ -66,9 +62,7 @@ module RubyEventStore
         subscribe_to("delete_stream.repository.rails_event_store") do |notification_calls|
           instrumented_repository.delete_stream("SomeStream")
 
-          expect(notification_calls).to eq([
-            { stream: "SomeStream" }
-          ])
+          expect(notification_calls).to eq([{ stream: "SomeStream" }])
         end
       end
     end
@@ -109,9 +103,7 @@ module RubyEventStore
           specification = double
           instrumented_repository.read(specification)
 
-          expect(notification_calls).to eq([
-            { specification: specification }
-          ])
+          expect(notification_calls).to eq([{ specification: specification }])
         end
       end
     end
@@ -132,9 +124,7 @@ module RubyEventStore
           specification = double
           instrumented_repository.count(specification)
 
-          expect(notification_calls).to eq([
-            { specification: specification }
-          ])
+          expect(notification_calls).to eq([{ specification: specification }])
         end
       end
     end
@@ -153,9 +143,7 @@ module RubyEventStore
         subscribe_to("update_messages.repository.rails_event_store") do |notification_calls|
           instrumented_repository.update_messages([record])
 
-          expect(notification_calls).to eq([
-            { messages: [record] }
-          ])
+          expect(notification_calls).to eq([{ messages: [record] }])
         end
       end
     end
@@ -176,9 +164,7 @@ module RubyEventStore
           uuid = SecureRandom.uuid
           instrumented_repository.streams_of(uuid)
 
-          expect(notification_calls).to eq([
-            { event_id: uuid }
-          ])
+          expect(notification_calls).to eq([{ event_id: uuid }])
         end
       end
     end
@@ -200,23 +186,24 @@ module RubyEventStore
       instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
 
       expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
-      expect do
-        instrumented_repository.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name' for #<RubyEventStore::InstrumentedRepository:/)
+      expect { instrumented_repository.arbitrary_method_name }.to raise_error(
+        NoMethodError,
+        /undefined method `arbitrary_method_name' for #<RubyEventStore::InstrumentedRepository:/
+      )
     end
 
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
-      ActiveSupport::Notifications.subscribed(callback, name) do
-        yield received_payloads
-      end
+      ActiveSupport::Notifications.subscribed(callback, name) { yield received_payloads }
     end
   end
 end
 
 module RubyEventStore
   RSpec.describe InstrumentedRepository do
-    it_behaves_like :event_repository, ->{ InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) }, SpecHelper.new
+    it_behaves_like :event_repository,
+                    -> { InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) },
+                    SpecHelper.new
   end
 end

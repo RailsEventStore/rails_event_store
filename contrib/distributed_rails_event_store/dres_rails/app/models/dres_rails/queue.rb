@@ -13,16 +13,10 @@ module DresRails
         begin
           transaction(requires_new: true) do
             job.call
-            jobs.create!(
-              event_id: event_id,
-              state: "success",
-            )
+            jobs.create!(event_id: event_id, state: "success")
           end
         rescue => x
-          jobs.create!(
-            event_id: event_id,
-            state: "failure",
-          )
+          jobs.create!(event_id: event_id, state: "failure")
           error = x
         ensure
           update!(last_processed_event_id: event_id)
@@ -36,6 +30,5 @@ module DresRails
     def already_processed?(event_id)
       jobs.where(event_id: event_id, state: "success").exists?
     end
-
   end
 end

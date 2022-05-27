@@ -7,37 +7,25 @@ module RailsEventStore
 
     specify "has default request metadata proc if no custom one provided" do
       client = Client.new
-      expect(client.request_metadata.call({
-        "action_dispatch.request_id" => "dummy_id",
-        "action_dispatch.remote_ip"  => "dummy_ip"
-      })).to eq({
-        remote_ip: "dummy_ip",
-        request_id: "dummy_id"
-      })
+      expect(
+        client.request_metadata.call(
+          { "action_dispatch.request_id" => "dummy_id", "action_dispatch.remote_ip" => "dummy_ip" }
+        )
+      ).to eq({ remote_ip: "dummy_ip", request_id: "dummy_id" })
     end
 
     specify "allows to set custom request metadata proc" do
-      client = Client.new(
-        request_metadata: -> env { {server_name: env["SERVER_NAME"]} }
-      )
-      expect(client.request_metadata.call({
-        "SERVER_NAME" => "example.org"
-      })).to eq({
-        server_name: "example.org"
-      })
+      client = Client.new(request_metadata: ->(env) { { server_name: env["SERVER_NAME"] } })
+      expect(client.request_metadata.call({ "SERVER_NAME" => "example.org" })).to eq({ server_name: "example.org" })
     end
 
     specify "published event metadata will be enriched by metadata provided in request metadata when executed inside a with_request_metadata block" do
-      client = Client.new(
-        repository: InMemoryRepository.new,
-      )
+      client = Client.new(repository: InMemoryRepository.new)
       event = TestEvent.new
       client.with_request_metadata(
         "action_dispatch.request_id" => "dummy_id",
-        "action_dispatch.remote_ip"  => "dummy_ip"
-      ) do
-        client.publish(event)
-      end
+        "action_dispatch.remote_ip" => "dummy_ip"
+      ) { client.publish(event) }
       published = client.read.to_a
       expect(published.size).to eq(1)
       expect(published.first.metadata[:remote_ip]).to eq("dummy_ip")
@@ -59,15 +47,10 @@ module RailsEventStore
     end
 
     specify "wraps mapper into instrumentation" do
-      client = Client.new(
-        repository: InMemoryRepository.new,
-        mapper: RubyEventStore::Mappers::NullMapper.new
-      )
+      client = Client.new(repository: InMemoryRepository.new, mapper: RubyEventStore::Mappers::NullMapper.new)
 
       received_notifications = 0
-      ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") do
-        received_notifications += 1
-      end
+      ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") { received_notifications += 1 }
 
       client.publish(TestEvent.new)
 
@@ -75,13 +58,11 @@ module RailsEventStore
     end
 
     specify "#inspect" do
-      client    = Client.new
+      client = Client.new
       object_id = client.object_id.to_s(16)
       expect(client.inspect).to eq("#<RailsEventStore::Client:0x#{object_id}>")
     end
 
-    specify do
-      expect { Client.new }.not_to output.to_stderr
-    end
+    specify { expect { Client.new }.not_to output.to_stderr }
   end
 end

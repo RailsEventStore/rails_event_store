@@ -2,9 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   RSpec.describe "no warnings" do
-    specify do
-      expect(rails_event_store_warnings).to eq([])
-    end
+    specify { expect(rails_event_store_warnings).to eq([]) }
 
     def rails_event_store_warnings
       warnings.select { |w| w =~ %r{lib/rails_event_store} }

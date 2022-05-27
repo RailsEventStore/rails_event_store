@@ -5,9 +5,7 @@ require "spec_helper"
 module RubyEventStore
   module Transformations
     RSpec.describe "no warnings", mutant: false do
-      specify do
-        expect(ruby_event_store_transformations_warnings).to eq([])
-      end
+      specify { expect(ruby_event_store_transformations_warnings).to eq([]) }
 
       def ruby_event_store_transformations_warnings
         warnings.select { |w| w =~ %r{lib/ruby_event_store/transformations} }

@@ -15,9 +15,9 @@ module RubyEventStore
     end
 
     def initialize(streams: [])
-      @streams  = streams
+      @streams = streams
       @handlers = {}
-      @init     = -> { {} }
+      @init = -> { {} }
     end
 
     attr_reader :streams, :handlers
@@ -28,9 +28,7 @@ module RubyEventStore
     end
 
     def when(events, handler)
-      Array(events).each do |event|
-        handlers[event.to_s] = handler
-      end
+      Array(events).each { |event| handlers[event.to_s] = handler }
 
       self
     end
@@ -53,29 +51,23 @@ module RubyEventStore
 
     def run(event_store, start: nil, count: PAGE_SIZE)
       return initial_state if handled_events.empty?
-      if streams.any?
-        reduce_from_streams(event_store, start, count)
-      else
-        reduce_from_all_streams(event_store, start, count)
-      end
+      streams.any? ? reduce_from_streams(event_store, start, count) : reduce_from_all_streams(event_store, start, count)
     end
 
     private
 
     def valid_starting_point?(start)
       return true unless start
-      if streams.any?
-        (start.instance_of?(Array) && start.size === streams.size)
-      else
-        start.instance_of?(String)
-      end
+      streams.any? ? (start.instance_of?(Array) && start.size === streams.size) : start.instance_of?(String)
     end
 
     def reduce_from_streams(event_store, start, count)
       raise ArgumentError.new("Start must be an array with event ids") unless valid_starting_point?(start)
-      streams.zip(start_events(start)).reduce(initial_state) do |state, (stream_name, start_event_id)|
-        read_scope(event_store, stream_name, count, start_event_id).reduce(state, &method(:transition))
-      end
+      streams
+        .zip(start_events(start))
+        .reduce(initial_state) do |state, (stream_name, start_event_id)|
+          read_scope(event_store, stream_name, count, start_event_id).reduce(state, &method(:transition))
+        end
     end
 
     def reduce_from_all_streams(event_store, start, count)

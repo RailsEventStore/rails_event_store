@@ -48,7 +48,14 @@ module RubyEventStore
           )
         end
 
-        attr_reader :split_keys, :message_format, :batch_size, :database_url, :redis_url, :cleanup, :cleanup_limit, :sleep_on_empty
+        attr_reader :split_keys,
+                    :message_format,
+                    :batch_size,
+                    :database_url,
+                    :redis_url,
+                    :cleanup,
+                    :cleanup_limit,
+                    :sleep_on_empty
       end
 
       def initialize(consumer_uuid, configuration, clock: Time, logger:, metrics:)
@@ -67,12 +74,17 @@ module RubyEventStore
         prepare_traps
 
         @repository = Repository.new(configuration.database_url)
-        @cleanup_strategy = case configuration.cleanup
-        when :none
-          CleanupStrategies::None.new
-        else
-          CleanupStrategies::CleanOldEnqueued.new(repository, ActiveSupport::Duration.parse(configuration.cleanup), configuration.cleanup_limit)
-        end
+        @cleanup_strategy =
+          case configuration.cleanup
+          when :none
+            CleanupStrategies::None.new
+          else
+            CleanupStrategies::CleanOldEnqueued.new(
+              repository,
+              ActiveSupport::Duration.parse(configuration.cleanup),
+              configuration.cleanup_limit
+            )
+          end
       end
 
       def init
@@ -81,7 +93,7 @@ module RubyEventStore
       end
 
       def run
-        while !@gracefully_shutting_down do
+        while !@gracefully_shutting_down
           was_something_changed = one_loop
           if !was_something_changed
             STDOUT.flush
@@ -109,9 +121,7 @@ module RubyEventStore
 
         MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK.times do
           batch = retrieve_batch(fetch_specification)
-          if batch.empty?
-            break
-          end
+          break if batch.empty?
 
           failed_record_ids = []
           updated_record_ids = []
@@ -125,7 +135,7 @@ module RubyEventStore
               updated_record_ids << record.id
             rescue => e
               failed_record_ids << record.id
-              e.full_message.split($/).each {|line| logger.error(line) }
+              e.full_message.split($/).each { |line| logger.error(line) }
             end
           end
 
@@ -143,11 +153,13 @@ module RubyEventStore
           break unless refresh_successful
         end
 
-        metrics.write_point_queue(
-          format: fetch_specification.message_format,
-          split_key: fetch_specification.split_key,
-          remaining: get_remaining_count(fetch_specification)
-        ) unless something_processed
+        unless something_processed
+          metrics.write_point_queue(
+            format: fetch_specification.message_format,
+            split_key: fetch_specification.split_key,
+            remaining: get_remaining_count(fetch_specification)
+          )
+        end
 
         release_lock_for_process(fetch_specification)
 
@@ -159,7 +171,16 @@ module RubyEventStore
       end
 
       private
-      attr_reader :split_keys, :logger, :batch_size, :metrics, :processor, :consumer_uuid, :repository, :cleanup_strategy, :sleep_on_empty
+
+      attr_reader :split_keys,
+                  :logger,
+                  :batch_size,
+                  :metrics,
+                  :processor,
+                  :consumer_uuid,
+                  :repository,
+                  :cleanup_strategy,
+                  :sleep_on_empty
 
       def obtain_lock_for_process(fetch_specification)
         result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
@@ -231,12 +252,8 @@ module RubyEventStore
       end
 
       def prepare_traps
-        Signal.trap("INT") do
-          initiate_graceful_shutdown
-        end
-        Signal.trap("TERM") do
-          initiate_graceful_shutdown
-        end
+        Signal.trap("INT") { initiate_graceful_shutdown }
+        Signal.trap("TERM") { initiate_graceful_shutdown }
       end
 
       def initiate_graceful_shutdown

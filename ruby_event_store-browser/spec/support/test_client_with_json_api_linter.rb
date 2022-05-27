@@ -20,7 +20,7 @@ class TestClientWithJsonApiLinter
   end
 
   def initialize(app, host = "example.org")
-    @app  = app
+    @app = app
     @host = host
   end
 
@@ -36,10 +36,12 @@ class TestClientWithJsonApiLinter
   private
 
   def build_rack_mock_session
-    Rack::MockSession.new(app, host).tap do |session|
-      session.after_request { validate_request }
-      session.after_request { validate_response }
-    end
+    Rack::MockSession
+      .new(app, host)
+      .tap do |session|
+        session.after_request { validate_request }
+        session.after_request { validate_response }
+      end
   end
 
   attr_reader :app, :host
@@ -67,6 +69,6 @@ class TestClientWithJsonApiLinter
   end
 
   def match_content_type(content_type)
-    /application\/vnd\.api\+json/.match(content_type)
+    %r{application\/vnd\.api\+json}.match(content_type)
   end
 end
