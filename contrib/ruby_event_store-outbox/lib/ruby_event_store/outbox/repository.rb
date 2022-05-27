@@ -142,7 +142,7 @@ module RubyEventStore
 
       def delete_enqueued_older_than(fetch_specification, duration, limit)
         scope = Record.for_fetch_specification(fetch_specification).where("enqueued_at < ?", duration.ago)
-        scope = scope.limit(limit) unless limit == :all
+        scope = scope.limit(limit).order(:id) unless limit == :all
         scope.delete_all
         :ok
       rescue ActiveRecord::Deadlocked
