@@ -9,6 +9,8 @@
 * fixed error with passing `--cleanup-limit` from CLI down to consumer
 * added missing specs for CLI options
 * added simple smoke spec to ensure CLI builds consumer without errors
+* dropped support for rails 5.2
+* dropped support for ruby 2.6
 
 ### 0.0.23
 
