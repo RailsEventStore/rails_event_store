@@ -55,10 +55,17 @@ module RailsEventStoreActiveRecord
       hashes = records.map { |record| upsert_hash(record, record.serialize(serializer)) }
       for_update = records.map(&:event_id)
       start_transaction do
-        existing = @event_klass.where(event_id: for_update).pluck(:event_id, :id).to_h
+        existing =
+          @event_klass
+            .where(event_id: for_update)
+            .pluck(:event_id, :id, :created_at)
+            .reduce({}) { |acc, (event_id, id, created_at)| acc.merge(event_id => [id, created_at]) }
         (for_update - existing.keys).each { |id| raise RubyEventStore::EventNotFound.new(id) }
-        hashes.each { |h| h[:id] = existing.fetch(h.fetch(:event_id)) }
-        @event_klass.upsert_all(hashes, on_duplicate: :update, update_only: %i[data metadata event_type valid_at])
+        hashes.each do |h|
+          h[:id] = existing.fetch(h.fetch(:event_id)).at(0)
+          h[:created_at] = existing.fetch(h.fetch(:event_id)).at(1)
+        end
+        @event_klass.upsert_all(hashes)
       end
     end
 
@@ -136,11 +143,9 @@ module RailsEventStoreActiveRecord
         data: serialized_record.data,
         metadata: serialized_record.metadata,
         event_type: serialized_record.event_type,
-        created_at: record.timestamp,
         valid_at: optimize_timestamp(record.valid_at, record.timestamp)
       }
     end
-
 
     def optimize_timestamp(valid_at, created_at)
       valid_at unless valid_at.eql?(created_at)
