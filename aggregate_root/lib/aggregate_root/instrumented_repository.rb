@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "ruby2_keywords"
-
 module AggregateRoot
   class InstrumentedRepository
     def initialize(repository, instrumentation)
@@ -32,9 +30,9 @@ module AggregateRoot
       store(aggregate, stream_name)
     end
 
-    ruby2_keywords def method_missing(method_name, *arguments, &block)
+    def method_missing(method_name, *arguments, **keyword_arguments, &block)
       if respond_to?(method_name)
-        repository.public_send(method_name, *arguments, &block)
+        repository.public_send(method_name, *arguments, **keyword_arguments, &block)
       else
         super
       end

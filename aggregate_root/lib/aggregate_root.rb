@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "ruby2_keywords"
 require_relative "aggregate_root/version"
 require_relative "aggregate_root/configuration"
 require_relative "aggregate_root/transform"
@@ -32,7 +31,7 @@ module AggregateRoot
   end
 
   module Constructor
-    ruby2_keywords def new(*)
+    def new(*)
       super.tap do |instance|
         instance.instance_variable_set(:@version, -1)
         instance.instance_variable_set(:@unpublished_events, [])

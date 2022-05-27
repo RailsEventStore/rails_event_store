@@ -2,7 +2,6 @@ PATH
   remote: ../../../aggregate_root
   specs:
     aggregate_root (2.3.0)
-      ruby2_keywords
       ruby_event_store (= 2.3.0)
 
 PATH
@@ -24,7 +23,6 @@ PATH
   specs:
     ruby_event_store (2.3.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
-      ruby2_keywords
 
 PATH
   remote: ../..

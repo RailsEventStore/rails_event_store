@@ -28,6 +28,5 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.6"
 
-  spec.add_dependency "ruby2_keywords"
   spec.add_dependency "concurrent-ruby", "~> 1.0", ">= 1.1.6"
 end
