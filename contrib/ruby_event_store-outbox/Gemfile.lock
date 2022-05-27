@@ -8,7 +8,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-outbox (0.0.22)
+    ruby_event_store-outbox (0.0.23)
       activerecord (>= 5.2)
       ruby_event_store (>= 1.0.0)
 
