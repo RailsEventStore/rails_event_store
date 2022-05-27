@@ -125,17 +125,17 @@ GEM
     minitest (5.15.0)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    mutant (0.11.10)
+    mutant (0.11.4)
       diff-lcs (~> 1.3)
       parser (~> 3.1.0)
-      regexp_parser (~> 2.3, >= 2.3.1)
+      regexp_parser (~> 2.0, >= 2.0.3)
       sorbet-runtime (~> 0.5.0)
-      unparser (~> 0.6.5)
-    mutant-minitest (0.11.10)
+      unparser (~> 0.6.4)
+    mutant-minitest (0.11.4)
       minitest (~> 5.11)
-      mutant (= 0.11.10)
-    mutant-rspec (0.11.10)
-      mutant (= 0.11.10)
+      mutant (= 0.11.4)
+    mutant-rspec (0.11.4)
+      mutant (= 0.11.4)
       rspec-core (>= 3.8.0, < 4.0.0)
     nio4r (2.5.8)
     nokogiri (1.13.6)
@@ -228,10 +228,10 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  mutant (~> 0.11.0)
+  mutant (= 0.11.4)
   mutant-license!
-  mutant-minitest (~> 0.11.0)
-  mutant-rspec (~> 0.11.0)
+  mutant-minitest (= 0.11.4)
+  mutant-rspec (= 0.11.4)
   rack-test
   rails (= 6.0.5)
   rails_event_store!
