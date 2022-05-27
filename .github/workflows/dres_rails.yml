@@ -47,42 +47,42 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-3.0
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: json
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: jsonb
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: json
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-22.04
+            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: jsonb
 
