@@ -1,8 +1,8 @@
 source "https://rubygems.org"
 gemspec
 
-eval_gemfile '../../support/bundler/Gemfile.shared'
+eval_gemfile "../../support/bundler/Gemfile.shared"
 
-gem 'ruby_event_store', path: '../../ruby_event_store'
-gem 'aggregate_root',   path: '../../aggregate_root'
-gem 'ruby_event_store-transformations', path: '../ruby_event_store-transformations'
+gem "ruby_event_store", path: "../../ruby_event_store"
+gem "aggregate_root", path: "../../aggregate_root"
+gem "ruby_event_store-transformations", path: "../ruby_event_store-transformations"

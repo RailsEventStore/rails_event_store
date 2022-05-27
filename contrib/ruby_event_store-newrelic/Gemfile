@@ -3,4 +3,4 @@
 source "https://rubygems.org"
 gemspec
 
-eval_gemfile '../../support/bundler/Gemfile.shared'
+eval_gemfile "../../support/bundler/Gemfile.shared"

@@ -1,9 +1,9 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-gem 'middleman', '~> 4.4'
-gem 'middleman-aria_current'
-gem 'middleman-syntax'
-gem 'redcarpet'
-gem 'octokit'
-gem 'faraday'
-gem 'webrick'
+gem "middleman", "~> 4.4"
+gem "middleman-aria_current"
+gem "middleman-syntax"
+gem "redcarpet"
+gem "octokit"
+gem "faraday"
+gem "webrick"
