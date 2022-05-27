@@ -37,7 +37,7 @@ GEM
       rspec-core (>= 3.8.0, < 4.0.0)
     parser (3.1.2.0)
       ast (~> 2.4.1)
-    rack (2.2.3)
+    rack (2.2.3.1)
     rack-protection (2.2.0)
       rack
     rake (13.0.6)
