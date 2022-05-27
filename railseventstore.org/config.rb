@@ -107,7 +107,7 @@ helpers do
   end
 
   def feedback_link
-    issue_title = "Feedback on #{URI.encode(page_title || current_source_file_name)}"
+    issue_title = "Feedback on #{URI.encode_www_form_component(page_title || current_source_file_name)}"
     link_to "Provide feedback for this page",
             File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}"),
             class: "mr-4"
