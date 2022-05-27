@@ -9,5 +9,5 @@ gem "pg", "1.2.2"
 gem "mysql2", "0.5.3"
 gem "influxdb", "~> 0.8.1", require: false
 gem "childprocess"
-gem "rails", "7.0.2.3"
+gem "rails", "7.0.3"
 gem "sqlite3", "1.4.2"
