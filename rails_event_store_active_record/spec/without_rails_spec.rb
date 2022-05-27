@@ -31,8 +31,8 @@ RSpec.describe RailsEventStoreActiveRecord, :integration do
         gem 'ruby_event_store',                path: '../ruby_event_store'
         gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
         gem 'activerecord', '7.0.3'
-        gem 'pg',           '1.2.3'
-        gem 'mysql2',       '0.5.3'
+        gem 'pg',           '1.3.5'
+        gem 'mysql2',       '0.5.4'
         gem 'sqlite3',      '1.4.2'
       end
 

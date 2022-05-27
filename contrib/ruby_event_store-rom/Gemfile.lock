@@ -138,8 +138,8 @@ DEPENDENCIES
   mutant-license!
   mutant-minitest (= 0.11.4)
   mutant-rspec (= 0.11.4)
-  mysql2 (>= 0.5.3)
-  pg (>= 1.2.2)
+  mysql2 (= 0.5.4)
+  pg (= 1.3.5)
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
