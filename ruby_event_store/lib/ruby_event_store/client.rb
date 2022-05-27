@@ -255,7 +255,7 @@ module RubyEventStore
     # @param block [Proc] block of code during which the metadata will be added
     # @return [Object] last value returned by the provided block
     def with_metadata(metadata, &block)
-      previous_metadata = metadata
+      previous_metadata = metadata()
       self.metadata = previous_metadata.merge(metadata)
       block.call if block_given?
     ensure
