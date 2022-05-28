@@ -3,10 +3,9 @@
 module RubyEventStore
   module Browser
     class JsonApiEvent
-      def initialize(event, parent_event_id, other_streams)
+      def initialize(event, parent_event_id)
         @event = event
         @parent_event_id = parent_event_id
-        @other_streams = other_streams
       end
 
       def to_h
@@ -21,7 +20,6 @@ module RubyEventStore
             causation_stream_name: causation_stream_name,
             type_stream_name: type_stream_name,
             parent_event_id: parent_event_id,
-            other_streams: other_streams_name
           },
         }
       end
@@ -47,12 +45,6 @@ module RubyEventStore
 
       def type_stream_name
         "$by_type_#{event.event_type}"
-      end
-
-      def other_streams_name
-        other_streams.map do |other_stream|
-          "$by_#{other_stream}_#{event.event_id}"
-        end
       end
     end
   end

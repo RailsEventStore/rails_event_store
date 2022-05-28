@@ -12,7 +12,7 @@ module RubyEventStore
 
       def as_json
         {
-          data: JsonApiEvent.new(event, parent_event_id, other_streams).to_h,
+          data: JsonApiEvent.new(event, parent_event_id).to_h,
         }
       end
 
@@ -24,10 +24,6 @@ module RubyEventStore
         if event.metadata.has_key?(:causation_id)
           event_store.read.event(event.metadata.fetch(:causation_id))&.event_id
         end
-      end
-
-      def other_streams
-        event_store.streams_of(event_id).map(&:name)
       end
 
       def event_id
