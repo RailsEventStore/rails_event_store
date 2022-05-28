@@ -43,36 +43,21 @@ module RubyEventStore
       expect(test_client.parsed_body["data"]).to match(event_resource)
     end
 
-    specify "other_streams" do
+    specify "streams_of_event" do
       event_store.publish(dummy_event, stream_name: "dummy")
       event_store.link(dummy_event.event_id, stream_name: "dummy1")
-      test_client.get "/api/events/#{dummy_event.event_id}"
+      test_client.get "/api/events/#{dummy_event.event_id}/streams"
 
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]).to match({
                                                          "id" => dummy_event.event_id,
-                                                         "type" => "events",
+                                                         "type" => "streams",
                                                          "attributes" => {
-                                                           "event_type" => "DummyEvent",
-                                                           "data" => {
-                                                             "foo" => 1,
-                                                             "bar" => 2.0,
-                                                             "baz" => "3"
-                                                           },
-                                                           "metadata" => {
-                                                             "timestamp" => "2020-01-01T12:00:00.000001Z",
-                                                             "valid_at" => "2020-01-01T12:00:00.000001Z",
-                                                             "correlation_id" => correlation_id
-                                                           },
-                                                           "correlation_stream_name" => "$by_correlation_id_#{correlation_id}",
-                                                           "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
-                                                           "parent_event_id" => nil,
-                                                           "type_stream_name" => "$by_type_DummyEvent",
-                                                           "other_streams" => [
+                                                           "streams_of_event" => [
                                                              "$by_dummy_#{dummy_event.event_id}",
-                                                             "$by_dummy1_#{dummy_event.event_id}",
+                                                             "$by_dummy1_#{dummy_event.event_id}"
                                                            ]
-                                                         },
+                                                         }
                                                        })
     end
 

@@ -42,6 +42,13 @@ module RubyEventStore
         end
       end
 
+      get "/api/events/:id/streams" do
+        json GetStreamsOfEvent.new(event_store: settings.event_store_locator,
+                                   params: symbolized_params)
+      rescue RubyEventStore::EventNotFound
+        404
+      end
+
       get "/api/streams/:id" do
         json GetStream.new(
           stream_name: params[:id],
