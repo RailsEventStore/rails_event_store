@@ -3,9 +3,10 @@
 module RubyEventStore
   module Browser
     class JsonApiEvent
-      def initialize(event, parent_event_id)
+      def initialize(event, parent_event_id, other_streams)
         @event = event
         @parent_event_id = parent_event_id
+        @other_streams = other_streams
       end
 
       def to_h
@@ -20,17 +21,19 @@ module RubyEventStore
             causation_stream_name: causation_stream_name,
             type_stream_name: type_stream_name,
             parent_event_id: parent_event_id,
+            other_streams: other_streams_name
           },
         }
       end
 
       private
-      attr_reader :event, :parent_event_id
+
+      attr_reader :event, :parent_event_id, :other_streams
 
       def metadata
         event.metadata.to_h.tap do |m|
           m[:timestamp] = event.metadata.fetch(:timestamp).iso8601(TIMESTAMP_PRECISION)
-          m[:valid_at]  = event.metadata.fetch(:valid_at).iso8601(TIMESTAMP_PRECISION)
+          m[:valid_at] = event.metadata.fetch(:valid_at).iso8601(TIMESTAMP_PRECISION)
         end
       end
 
@@ -44,6 +47,12 @@ module RubyEventStore
 
       def type_stream_name
         "$by_type_#{event.event_type}"
+      end
+
+      def other_streams_name
+        other_streams.map do |other_stream|
+          "$by_#{other_stream}_#{event.event_id}"
+        end
       end
     end
   end
