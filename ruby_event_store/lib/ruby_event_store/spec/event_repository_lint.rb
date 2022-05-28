@@ -1398,6 +1398,15 @@ module RubyEventStore
       expect(repository.read(specification.in_batches.as_of.result).to_a.flatten).to eq_ids([e3, e2, e1])
       expect(repository.read(specification.in_batches.as_of.backward.result).to_a.flatten).to eq_ids([e1, e2, e3])
     end
+
+    specify "appending empty list of commits should be a no-op" do
+      repository.append_to_stream(
+        [],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+      expect(repository.read(specification.result).count).to eq(0)
+    end
   end
 
   ::RSpec::Matchers.define :eq_ids do |expected_ids|
