@@ -1,40 +1,40 @@
 PATH
   remote: ../../../aggregate_root
   specs:
-    aggregate_root (2.4.0)
-      ruby_event_store (= 2.4.0)
+    aggregate_root (2.4.1)
+      ruby_event_store (= 2.4.1)
 
 PATH
   remote: ../../../rails_event_store_active_record
   specs:
-    rails_event_store_active_record (2.4.0)
+    rails_event_store_active_record (2.4.1)
       activerecord (>= 6.0)
-      ruby_event_store (= 2.4.0)
+      ruby_event_store (= 2.4.1)
 
 PATH
   remote: ../../../rails_event_store
   specs:
-    rails_event_store (2.4.0)
+    rails_event_store (2.4.1)
       activejob (>= 3.0)
       activemodel (>= 3.0)
       activesupport (>= 3.0)
-      aggregate_root (= 2.4.0)
+      aggregate_root (= 2.4.1)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.4.0)
-      ruby_event_store (= 2.4.0)
-      ruby_event_store-browser (= 2.4.0)
+      rails_event_store_active_record (= 2.4.1)
+      ruby_event_store (= 2.4.1)
+      ruby_event_store-browser (= 2.4.1)
 
 PATH
   remote: ../../../ruby_event_store-browser
   specs:
-    ruby_event_store-browser (2.4.0)
-      ruby_event_store (= 2.4.0)
+    ruby_event_store-browser (2.4.1)
+      ruby_event_store (= 2.4.1)
       sinatra
 
 PATH
   remote: ../../../ruby_event_store
   specs:
-    ruby_event_store (2.4.0)
+    ruby_event_store (2.4.1)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
