@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
+module Api exposing (Event, StreamsOfEvent, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream, getStreamsOfEvent)
 
 import Flags exposing (Flags)
 import Http
@@ -29,6 +29,8 @@ type alias Event =
     , parentEventId : Maybe String
     }
 
+type alias StreamsOfEvent =
+    { id : String, streams_of_event : Maybe String }
 
 type alias PaginatedList a =
     { events : List a
@@ -63,6 +65,10 @@ eventUrl : Flags -> String -> String
 eventUrl flags eventId =
     buildUrl (Url.toString flags.apiUrl ++ "/events") eventId
 
+streamsOfEventUrl : Flags -> String -> String
+streamsOfEventUrl flags eventId =
+    buildUrl (Url.toString flags.apiUrl ++ "/events") eventId ++ "/streams"
+
 
 streamUrl : Flags -> String -> String
 streamUrl flags streamId =
@@ -76,6 +82,12 @@ getEvent msgBuilder flags eventId =
         , expect = Http.expectJson msgBuilder eventDecoder
         }
 
+getStreamsOfEvent : (Result Http.Error StreamsOfEvent -> msg) -> Flags -> String -> Cmd msg
+getStreamsOfEvent msgBuilder flags eventId =
+    Http.get
+        { url = streamsOfEventUrl flags eventId
+        , expect = Http.expectJson msgBuilder streamsOfEventDecoder
+        }
 
 getStream : (Result Http.Error Stream -> msg) -> Flags -> String -> Cmd msg
 getStream msgBuilder flags streamId =
@@ -103,6 +115,18 @@ eventDecoder_ =
         |> optionalAt [ "attributes", "causation_stream_name" ] (maybe string) Nothing
         |> requiredAt [ "attributes", "type_stream_name" ] string
         |> optionalAt [ "attributes", "parent_event_id" ] (maybe string) Nothing
+
+streamsOfEventDecoder : Decoder StreamsOfEvent
+streamsOfEventDecoder =
+    streamsOfEventDecoder_
+        |> field "streams_of_event"
+
+
+streamsOfEventDecoder_ : Decoder StreamsOfEvent
+streamsOfEventDecoder_ =
+    succeed StreamsOfEvent
+        |> requiredAt [ "id" ] string
+        |> optionalAt [ "attributes", "streams_of_event" ] (maybe string) Nothing
 
 
 streamDecoder : Decoder Stream
