@@ -30,7 +30,7 @@ type alias Event =
     }
 
 type alias StreamsOfEvent =
-    { id : String, streams_of_event : Maybe String }
+    { id : String, streams_of_event : List String  }
 
 type alias PaginatedList a =
     { events : List a
