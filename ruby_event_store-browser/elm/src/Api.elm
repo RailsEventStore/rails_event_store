@@ -126,7 +126,7 @@ streamsOfEventDecoder_ : Decoder StreamsOfEvent
 streamsOfEventDecoder_ =
     succeed StreamsOfEvent
         |> requiredAt [ "id" ] string
-        |> optionalAt [ "attributes", "streams_of_event" ] (maybe string) Nothing
+        |> requiredAt [ "attributes", "streams_of_event" ] (list string)
 
 
 streamDecoder : Decoder Stream
