@@ -15,8 +15,8 @@ PATH
   remote: ../ruby_event_store-browser
   specs:
     ruby_event_store-browser (2.4.1)
+      rack
       ruby_event_store (= 2.4.1)
-      sinatra
 
 PATH
   remote: ../ruby_event_store
@@ -127,8 +127,6 @@ GEM
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
     minitest (5.15.0)
-    mustermann (1.1.1)
-      ruby2_keywords (~> 0.0.1)
     mutant (0.11.4)
       diff-lcs (~> 1.3)
       parser (~> 3.1.0)
@@ -149,8 +147,6 @@ GEM
       ast (~> 2.4.1)
     racc (1.6.0)
     rack (2.2.3.1)
-    rack-protection (2.2.0)
-      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (6.1.6)
@@ -195,16 +191,10 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
-    ruby2_keywords (0.0.5)
     sidekiq (6.4.2)
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
-    sinatra (2.2.0)
-      mustermann (~> 1.0)
-      rack (~> 2.2)
-      rack-protection (= 2.2.0)
-      tilt (~> 2.0)
     sorbet-runtime (0.5.10032)
     sprockets (4.0.3)
       concurrent-ruby (~> 1.0)
@@ -215,7 +205,6 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.4.2)
     thor (1.2.1)
-    tilt (2.0.10)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
     unparser (0.6.5)
