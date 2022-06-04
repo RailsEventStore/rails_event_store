@@ -3,7 +3,6 @@
 module RubyEventStore
   module Browser
     class Event
-
       def initialize(event_store:, event_id:)
         @event_store = event_store
         @event_id = event_id
@@ -14,6 +13,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :event_store, :event_id
 
       def event

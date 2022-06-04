@@ -17,6 +17,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :event_store, :routing, :stream_name, :page
 
       def events
