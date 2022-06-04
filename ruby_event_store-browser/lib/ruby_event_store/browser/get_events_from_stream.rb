@@ -110,7 +110,7 @@ module RubyEventStore
       end
 
       def stream_name
-        params.fetch(:id)
+        params.fetch(:stream_name)
       end
 
       def pagination_param
