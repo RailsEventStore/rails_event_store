@@ -1,6 +1,8 @@
 module RubyEventStore
   module Browser
     class Routing
+      attr_reader :host, :root_path
+
       def initialize(host, root_path)
         @host = host
         @root_path = root_path
@@ -37,8 +39,6 @@ module RubyEventStore
       end
 
       private
-
-      attr_reader :host, :root_path
 
       def base_url
         [host, root_path].join
