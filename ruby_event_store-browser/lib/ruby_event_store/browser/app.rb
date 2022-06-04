@@ -34,8 +34,6 @@ module RubyEventStore
         set :event_store_locator, -> {  }
         set :related_streams_query, nil
         set :protection, except: :path_traversal
-
-        mime_type :json, "application/vnd.api+json"
       end
 
       get "/api/events/:id" do
@@ -98,7 +96,7 @@ module RubyEventStore
         end
 
         def json(data)
-          content_type :json
+          content_type "application/vnd.api+json"
           JSON.dump data.to_h
         end
       end
