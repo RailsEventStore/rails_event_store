@@ -99,7 +99,7 @@ module RubyEventStore
 
         def json(data)
           content_type :json
-          JSON.dump data.as_json
+          JSON.dump data.to_h
         end
       end
     end

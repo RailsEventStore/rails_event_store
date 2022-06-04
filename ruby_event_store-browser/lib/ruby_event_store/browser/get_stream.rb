@@ -7,7 +7,7 @@ module RubyEventStore
         @related_streams_query = related_streams_query
       end
 
-      def as_json
+      def to_h
         {
           data: {
             id: stream_name,

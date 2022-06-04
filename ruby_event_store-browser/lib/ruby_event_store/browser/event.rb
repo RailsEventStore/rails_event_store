@@ -9,7 +9,7 @@ module RubyEventStore
         @event_id = event_id
       end
 
-      def as_json
+      def to_h
         { data: JsonApiEvent.new(event, parent_event_id).to_h }
       end
 

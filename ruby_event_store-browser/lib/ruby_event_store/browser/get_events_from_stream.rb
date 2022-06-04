@@ -12,7 +12,7 @@ module RubyEventStore
         @page = page || {}
       end
 
-      def as_json
+      def to_h
         { data: events.map { |e| JsonApiEvent.new(e, nil).to_h }, links: links }
       end
 
