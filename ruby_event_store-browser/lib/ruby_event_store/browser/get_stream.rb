@@ -27,7 +27,6 @@ module RubyEventStore
       end
 
       private
-
       attr_reader :stream_name, :routing, :related_streams_query
 
       def related_streams

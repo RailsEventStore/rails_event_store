@@ -57,7 +57,8 @@ module RubyEventStore
       get "/api/streams/:stream_name/relationships/events" do
         json GetEventsFromStream.new(
                event_store: settings.event_store_locator,
-               params: params,
+          stream_name: params["stream_name"],
+          page: params["page"],
                routing: routing
              )
       end

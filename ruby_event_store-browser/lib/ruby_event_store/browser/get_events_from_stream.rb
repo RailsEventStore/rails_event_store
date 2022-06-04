@@ -5,17 +5,19 @@ module RubyEventStore
     class GetEventsFromStream
       HEAD = Object.new
 
-      attr_reader :event_store, :params, :routing
-
-      def initialize(event_store:, params:, routing:)
+      def initialize(event_store:, routing:, stream_name:, page:)
         @event_store = event_store
-        @params = params
         @routing = routing
+        @stream_name = stream_name
+        @page = page || {}
       end
 
       def as_json
         { data: events.map { |e| JsonApiEvent.new(e, nil).to_h }, links: links }
       end
+
+      private
+      attr_reader :event_store, :routing, :stream_name, :page
 
       def events
         @events ||=
@@ -88,11 +90,11 @@ module RubyEventStore
       end
 
       def count
-        Integer(pagination_param["count"] || PAGE_SIZE)
+        Integer(page["count"] || PAGE_SIZE)
       end
 
       def direction
-        case pagination_param["direction"]
+        case page["direction"]
         when "forward"
           :forward
         else
@@ -101,20 +103,12 @@ module RubyEventStore
       end
 
       def position
-        case pagination_param["position"]
+        case page["position"]
         when "head", nil
           HEAD
         else
-          pagination_param.fetch("position")
+          page.fetch("position")
         end
-      end
-
-      def stream_name
-        params.fetch("stream_name")
-      end
-
-      def pagination_param
-        params["page"] || {}
       end
     end
   end
