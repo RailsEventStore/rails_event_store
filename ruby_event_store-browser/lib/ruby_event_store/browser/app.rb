@@ -57,7 +57,7 @@ module RubyEventStore
       get "/api/streams/:stream_name/relationships/events" do
         json GetEventsFromStream.new(
                event_store: settings.event_store_locator,
-               params: symbolized_params,
+               params: params,
                routing: routing
              )
       end
@@ -82,10 +82,6 @@ module RubyEventStore
       end
 
       helpers do
-        def symbolized_params
-          params.each_with_object({}) { |(k, v), h| v.nil? ? next : h[k.to_sym] = v }
-        end
-
         def routing
           Routing.new(settings.host || request.base_url, settings.root_path || request.script_name)
         end
