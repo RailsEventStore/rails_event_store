@@ -62,22 +62,19 @@ module RubyEventStore
       end
 
       get %r{/(events/.*|streams/.*)?} do
-        erb "
+        erb(<<~ERB, locals: { path: settings.root_path || request.script_name })
           <!DOCTYPE html>
           <html>
             <head>
               <title>RubyEventStore::Browser</title>
-              <meta name=\"ruby-event-store-browser-settings\" content='<%= browser_settings %>'>
+              <meta name="ruby-event-store-browser-settings" content='<%= browser_settings %>'>
             </head>
             <body>
-              <script type=\"text/javascript\" src=\"<%= path %>/ruby_event_store_browser.js\"></script>
-              <script type=\"text/javascript\" src=\"<%= path %>/bootstrap.js\"></script>
+              <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
+              <script type="text/javascript" src="<%= path %>/bootstrap.js"></script>
             </body>
           </html>
-        ",
-            locals: {
-              path: settings.root_path || request.script_name
-            }
+        ERB
       end
 
       helpers do
