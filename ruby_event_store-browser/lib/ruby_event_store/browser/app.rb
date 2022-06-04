@@ -40,7 +40,7 @@ module RubyEventStore
 
       get "/api/events/:id" do
         begin
-          json Event.new(event_store: settings.event_store_locator, params: symbolized_params)
+          json Event.new(event_store: settings.event_store_locator, event_id: params["id"])
         rescue RubyEventStore::EventNotFound
           404
         end

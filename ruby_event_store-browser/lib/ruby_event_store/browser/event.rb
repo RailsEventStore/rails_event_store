@@ -3,16 +3,18 @@
 module RubyEventStore
   module Browser
     class Event
-      attr_reader :event_store, :params
 
-      def initialize(event_store:, params:)
+      def initialize(event_store:, event_id:)
         @event_store = event_store
-        @params = params
+        @event_id = event_id
       end
 
       def as_json
         { data: JsonApiEvent.new(event, parent_event_id).to_h }
       end
+
+      private
+      attr_reader :event_store, :event_id
 
       def event
         @event ||= event_store.read.event!(event_id)
@@ -20,10 +22,6 @@ module RubyEventStore
 
       def parent_event_id
         event_store.read.event(event.metadata.fetch(:causation_id))&.event_id if event.metadata.has_key?(:causation_id)
-      end
-
-      def event_id
-        params.fetch(:id)
       end
     end
   end
