@@ -28,5 +28,7 @@ module RubyEventStore
       expect(test_client.last_response).to be_ok
       expect(test_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(nil)
     end
+
+    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
   end
 end
