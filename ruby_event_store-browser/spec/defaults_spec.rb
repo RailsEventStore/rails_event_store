@@ -23,18 +23,19 @@ module RubyEventStore
     end
 
     it "builds api url based on the settings" do
-      app =
+      inside_app =
+        RubyEventStore::Browser::App.for(
+          event_store_locator: -> { event_store },
+          api_url: "https://example.com/some/custom/api/url"
+        )
+      outside_app =
         Rack::Builder.new do
           map "/res" do
-            run RubyEventStore::Browser::App.for(
-                  event_store_locator: -> { event_store },
-                  api_url: "https://example.com/some/custom/api/url"
-                )
+            run inside_app
           end
         end
-      test_client = TestClient.new(app, "railseventstore.org")
 
-      response = test_client.get "/res"
+      response = TestClient.new(outside_app, "railseventstore.org").get("/res")
 
       expect(response.body).to match %r{"apiUrl":\s*"https://example.com/some/custom/api/url"}
     end
@@ -49,9 +50,10 @@ module RubyEventStore
     let(:test_client) { TestClient.new(app_builder(event_store), "railseventstore.org") }
 
     def app_builder(event_store)
+      inside_app = RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
       Rack::Builder.new do
         map "/res" do
-          run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
+          run inside_app
         end
       end
     end
