@@ -33,14 +33,7 @@ module RubyEventStore
           },
           root: "#{__dir__}/../../../public"
 
-      configure do
-        set :host, nil
-        set :root_path, nil
-        set :api_url, nil
-        set :event_store_locator, -> {  }
-        set :related_streams_query, nil
-        set :protection, except: :path_traversal
-      end
+      configure { set :protection, except: :path_traversal }
 
       get "/api/events/:id" do
         begin
