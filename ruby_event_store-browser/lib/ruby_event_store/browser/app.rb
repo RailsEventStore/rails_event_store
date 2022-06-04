@@ -36,11 +36,9 @@ module RubyEventStore
       configure { set :protection, except: :path_traversal }
 
       get "/api/events/:id" do
-        begin
-          json Event.new(event_store: settings.event_store_locator, event_id: params["id"])
-        rescue RubyEventStore::EventNotFound
-          404
-        end
+        json Event.new(event_store: settings.event_store_locator, event_id: params["id"])
+      rescue RubyEventStore::EventNotFound
+        404
       end
 
       get "/api/streams/:stream_name" do
