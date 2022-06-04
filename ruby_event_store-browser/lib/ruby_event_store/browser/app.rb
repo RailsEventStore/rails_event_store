@@ -47,9 +47,9 @@ module RubyEventStore
         event_store = event_store_locator.call
 
         case [request.request_method, request.path]
-        in "GET", %r{/api/events/(.+)}
+        in "GET", %r{/api/events/([^/]+)}
           render_json_api(Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1)))
-        in "GET", %r{/api/streams/(.+)/relationships/events}
+        in "GET", %r{/api/streams/([^/]+)/relationships/events}
           render_json_api(
             GetEventsFromStream.new(
               event_store: event_store,
@@ -58,7 +58,7 @@ module RubyEventStore
               page: request.params["page"]
             )
           )
-        in "GET", %r{/api/streams/(.+)}
+        in "GET", %r{/api/streams/([^/]+)}
           render_json_api(
             GetStream.new(
               stream_name: URI.decode_www_form_component($1),
