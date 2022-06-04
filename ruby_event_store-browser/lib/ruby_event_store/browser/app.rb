@@ -22,10 +22,16 @@ module RubyEventStore
             set :root_path, path
             set :api_url, api_url
             set :environment, environment
-            set :public_folder, "#{__dir__}/../../../public"
           end
         end
       end
+
+      use Rack::Static,
+          urls: {
+            "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
+            "/bootstrap.js" => "bootstrap.js"
+          },
+          root: "#{__dir__}/../../../public"
 
       configure do
         set :host, nil
