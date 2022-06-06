@@ -120,7 +120,7 @@ module RubyEventStore
         end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do
-            erb template, root_path: routing.root_path, settings: settings(routing)
+            erb bootstrap_html, root_path: routing.root_path, settings: settings(routing)
           end
         end
         router.handle(request)
@@ -136,7 +136,7 @@ module RubyEventStore
         event_store_locator.call
       end
 
-      def template
+      def bootstrap_html
         <<~HTML
         <!DOCTYPE html>
         <html>
