@@ -72,6 +72,12 @@ module RubyEventStore
         routing = Urls.from_configuration("http://example.com:9393", "/res")
         expect(routing.bootstrap_js_url).to eq("http://example.com:9393/res/bootstrap.js")
       end
+
+      specify "with custom api_url" do
+        routing = Urls.from_configuration("http://example.com:9393", "/res", "http://api.example.com")
+
+        expect(routing.api_url).to eq("http://api.example.com")
+      end
     end
   end
 end
