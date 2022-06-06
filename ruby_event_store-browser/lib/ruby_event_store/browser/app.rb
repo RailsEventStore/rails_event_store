@@ -34,7 +34,7 @@ module RubyEventStore
         private
 
         def regexp
-          %r/\A#{pattern.gsub(NAMED_SEGMENTS_PATTERN, '/\1(?<\2>[^$/]+)')}\Z/
+          /\A#{pattern.gsub(NAMED_SEGMENTS_PATTERN, '/\1(?<\2>[^$/]+)')}\Z/
         end
 
         attr_reader :request_method, :pattern, :handler
@@ -133,21 +133,14 @@ module RubyEventStore
           "/api/events/:event_id",
           ->(params) { json Event.new(event_store: event_store, event_id: params["event_id"]) }
         )
-        router.add_route(
-          "GET",
-          "/",
-          ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
-        )
-        router.add_route(
-          "GET",
-          "/events/:event_id",
-          ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
-        )
-        router.add_route(
-          "GET",
-          "/streams/:stream_name",
-          ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
-        )
+
+        %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
+          router.add_route(
+            "GET",
+            starting_route,
+            ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
+          )
+        end
         router.handle(request)
       rescue RubyEventStore::EventNotFound, Router::NoMatch
         not_found
