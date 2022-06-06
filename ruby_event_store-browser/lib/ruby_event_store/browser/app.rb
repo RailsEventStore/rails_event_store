@@ -65,7 +65,11 @@ module RubyEventStore
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
                 bootstrap_js_src: urls.bootstrap_js_url,
-                initial_data: settings(urls)
+                initial_data: {
+                  rootUrl: urls.app_url,
+                  apiUrl: api_url || urls.api_url,
+                  resVersion: res_version
+                }
           end
         end
         router.handle(Rack::Request.new(env))
@@ -107,10 +111,6 @@ module RubyEventStore
 
       def erb(template, **locals)
         [200, { "Content-Type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
-      end
-
-      def settings(routing)
-        { rootUrl: routing.app_url, apiUrl: api_url || routing.api_url, resVersion: res_version }
       end
 
       def res_version
