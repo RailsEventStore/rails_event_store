@@ -101,11 +101,11 @@ module RubyEventStore
 
         router = Router.new
         router.add_route("GET", "/api/events/:event_id") do |params|
-          json Event.new(event_store: event_store, event_id: params["event_id"])
+          json Event.new(event_store: event_store, event_id: params.fetch("event_id"))
         end
         router.add_route("GET", "/api/streams/:stream_name") do |params|
           json GetStream.new(
-                 stream_name: params["stream_name"],
+                 stream_name: params.fetch("stream_name"),
                  routing: routing,
                  related_streams_query: related_streams_query
                )
@@ -114,12 +114,12 @@ module RubyEventStore
           json GetEventsFromStream.new(
                  event_store: event_store,
                  routing: routing,
-                 stream_name: params["stream_name"],
+                 stream_name: params.fetch("stream_name"),
                  page: params["page"]
                )
         end
         router.add_route("GET", "/api/events/:event_id") do |params|
-          json Event.new(event_store: event_store, event_id: params["event_id"])
+          json Event.new(event_store: event_store, event_id: params.fetch("event_id"))
         end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do
