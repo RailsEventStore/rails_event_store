@@ -123,7 +123,7 @@ module RubyEventStore
         end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do
-            erb template, path: routing.root_path, browser_settings: browser_settings(routing)
+            erb template, path: routing.root_path, settings: settings(routing)
           end
         end
         router.handle(request)
@@ -145,7 +145,7 @@ module RubyEventStore
         <html>
           <head>
             <title>RubyEventStore::Browser</title>
-            <meta name="ruby-event-store-browser-settings" content='<%= browser_settings %>'>
+            <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(settings)) %>">
           </head>
           <body>
             <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
@@ -167,10 +167,8 @@ module RubyEventStore
         [200, { "Content-Type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
       end
 
-      def browser_settings(routing)
-        JSON.dump(
-          { rootUrl: routing.root_url, apiUrl: api_url || routing.api_url, resVersion: RubyEventStore::VERSION }
-        )
+      def settings(routing)
+        { rootUrl: routing.root_url, apiUrl: api_url || routing.api_url, resVersion: RubyEventStore::VERSION }
       end
     end
   end
