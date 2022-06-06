@@ -9,6 +9,7 @@ module RubyEventStore
       event_store.append(DummyEvent.new(event_id: event_id))
       expect(test_client.get("/events/#{event_id}")).to be_ok
     end
+    specify { expect(test_client.get("/").content_type).to eq("text/html;charset=utf-8") }
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:test_client) { TestClient.new(app_builder(event_store)) }
