@@ -105,6 +105,28 @@ module RubyEventStore
       )
     end
 
+    specify "with fancy stream name" do
+      test_client.get "/api/streams/foo%2Fbar.xml"
+
+      expect(test_client.last_response).to be_ok
+      expect(test_client.parsed_body["data"]).to eq(
+        {
+          "id" => "foo/bar.xml",
+          "type" => "streams",
+          "attributes" => {
+            "related_streams" => nil
+          },
+          "relationships" => {
+            "events" => {
+              "links" => {
+                "self" => "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events"
+              }
+            }
+          }
+        }
+      )
+    end
+
     def dummy_event(id = SecureRandom.uuid)
       @dummy_event ||=
         TimeEnrichment.with(
