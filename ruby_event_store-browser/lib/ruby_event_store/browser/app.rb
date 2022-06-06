@@ -63,8 +63,7 @@ module RubyEventStore
                  page: request.params["page"]
                )
         in "GET", %r{/(events/.*|streams/.*)?}
-          render_html(
-            ERB.new(<<~HTML).result_with_hash(path: routing.root_path, browser_settings: browser_settings(routing))
+          erb <<~HTML, path: routing.root_path, browser_settings: browser_settings(routing)
               <!DOCTYPE html>
               <html>
                 <head>
@@ -77,7 +76,6 @@ module RubyEventStore
                 </body>
               </html>
           HTML
-          )
         else
           not_found
         end
@@ -97,8 +95,8 @@ module RubyEventStore
         [200, { "Content-Type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
       end
 
-      def render_html(html)
-        [200, { "Content-Type" => "text/html;charset=utf-8" }, [html]]
+      def erb(template, **locals)
+        [200, { "Content-Type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
       end
 
       def browser_settings(routing)
