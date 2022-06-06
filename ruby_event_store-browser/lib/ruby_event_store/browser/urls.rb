@@ -1,8 +1,6 @@
 module RubyEventStore
   module Browser
     class Urls
-      attr_reader :host, :root_path
-
       def self.from_configuration(host, root_path)
         new(host, root_path)
       end
@@ -15,7 +13,7 @@ module RubyEventStore
         Urls.new(host || request.base_url, root_path || request.script_name)
       end
 
-      attr_reader :app_url
+      attr_reader :app_url, :host, :root_path
 
       def initialize(host, root_path)
         @host = host
