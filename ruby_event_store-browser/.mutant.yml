@@ -15,3 +15,4 @@ matcher:
     - RubyEventStore::Browser*
   ignore:
     - RubyEventStore::Browser::App#res_version
+    - RubyEventStore::Browser::App.for
