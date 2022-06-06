@@ -63,19 +63,7 @@ module RubyEventStore
                  page: request.params["page"]
                )
         in "GET", %r{\A/(events/.*|streams/.*)?\Z}
-          erb <<~HTML, path: routing.root_path, browser_settings: browser_settings(routing)
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <title>RubyEventStore::Browser</title>
-                  <meta name="ruby-event-store-browser-settings" content='<%= browser_settings %>'>
-                </head>
-                <body>
-                  <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
-                  <script type="text/javascript" src="<%= path %>/bootstrap.js"></script>
-                </body>
-              </html>
-          HTML
+          erb template, path: routing.root_path, browser_settings: browser_settings(routing)
         else
           not_found
         end
@@ -86,6 +74,22 @@ module RubyEventStore
       private
 
       attr_reader :event_store_locator, :related_streams_query, :host, :root_path, :api_url
+
+      def template
+        <<~HTML
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>RubyEventStore::Browser</title>
+            <meta name="ruby-event-store-browser-settings" content='<%= browser_settings %>'>
+          </head>
+          <body>
+            <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
+            <script type="text/javascript" src="<%= path %>/bootstrap.js"></script>
+          </body>
+        </html>
+        HTML
+      end
 
       def not_found
         [404, {}, []]
