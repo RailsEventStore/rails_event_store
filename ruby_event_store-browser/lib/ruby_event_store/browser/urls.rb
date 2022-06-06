@@ -15,18 +15,16 @@ module RubyEventStore
         Urls.new(host || request.base_url, root_path || request.script_name)
       end
 
+      attr_reader :app_url
+
       def initialize(host, root_path)
         @host = host
         @root_path = root_path
-        @base_url = [host, root_path].join
-      end
-
-      def app_url
-        @base_url
+        @app_url = [host, root_path].join
       end
 
       def api_url
-        "#{@base_url}/api"
+        "#{app_url}/api"
       end
 
       def events_url
@@ -60,7 +58,7 @@ module RubyEventStore
       end
 
       def ==(o)
-        self.class == o.class && self.host == o.host && self.root_path == o.root_path
+        self.class == o.class && self.app_url == o.app_url && self.api_url == o.api_url
       end
     end
   end
