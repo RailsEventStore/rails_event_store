@@ -3,6 +3,7 @@ require "spec_helper"
 module RubyEventStore
   RSpec.describe Browser do
     specify { expect(test_client.get("/")).to be_ok }
+    specify { expect(test_client.post("/")).to be_not_found }
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:test_client) { TestClient.new(app_builder(event_store)) }
