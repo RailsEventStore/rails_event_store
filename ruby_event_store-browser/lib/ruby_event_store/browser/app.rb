@@ -83,17 +83,17 @@ module RubyEventStore
           HTML
           )
         else
-          render_404
+          not_found
         end
       rescue RubyEventStore::EventNotFound
-        render_404
+        not_found
       end
 
       private
 
       attr_reader :event_store_locator, :related_streams_query, :host, :root_path, :api_url
 
-      def render_404
+      def not_found
         [404, {}, []]
       end
 
