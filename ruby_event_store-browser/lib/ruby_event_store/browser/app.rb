@@ -65,7 +65,7 @@ module RubyEventStore
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
                 bootstrap_js_src: urls.bootstrap_js_url,
-                settings: settings(urls)
+                initial_data: settings(urls)
           end
         end
         router.handle(Rack::Request.new(env))
@@ -87,7 +87,7 @@ module RubyEventStore
         <html>
           <head>
             <title>RubyEventStore::Browser</title>
-            <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(settings)) %>">
+            <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(initial_data)) %>">
           </head>
           <body>
             <script type="text/javascript" src="<%= browser_js_src %>"></script>
