@@ -29,11 +29,13 @@ module RubyEventStore
           api_url: "https://example.com/some/custom/api/url"
         )
       outside_app =
-        Rack::Builder.new do
-          map "/res" do
-            run inside_app
+        Rack::Lint.new(
+          Rack::Builder.new do
+            map "/res" do
+              run inside_app
+            end
           end
-        end
+        )
 
       response = TestClient.new(outside_app, "railseventstore.org").get("/res")
 
@@ -51,7 +53,6 @@ module RubyEventStore
 
       expect(parsed_meta_content(response.body)["rootUrl"]).to eq("http://railseventstore.org/res")
     end
-
 
     it "default #api_url is based on root_path" do
       response = test_client.get "/res"
@@ -72,11 +73,13 @@ module RubyEventStore
 
     def app_builder(event_store)
       inside_app = RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
-      Rack::Builder.new do
-        map "/res" do
-          run inside_app
+      Rack::Lint.new(
+        Rack::Builder.new do
+          map "/res" do
+            run inside_app
+          end
         end
-      end
+      )
     end
   end
 end
