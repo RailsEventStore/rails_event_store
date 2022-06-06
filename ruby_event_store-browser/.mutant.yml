@@ -16,4 +16,4 @@ matcher:
   ignore:
     - RubyEventStore::Browser::App#res_version
     - RubyEventStore::Browser::App.for
-    - RubyEventStore::Browser::Routing#with_request
+    - RubyEventStore::Browser::Urls#with_request
