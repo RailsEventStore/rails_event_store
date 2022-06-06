@@ -18,10 +18,11 @@ module RubyEventStore
       def initialize(host, root_path)
         @host = host
         @root_path = root_path
+        @base_url = [host, root_path].join
       end
 
       def root_url
-        base_url
+        @base_url
       end
 
       def events_url
@@ -29,7 +30,7 @@ module RubyEventStore
       end
 
       def api_url
-        "#{base_url}/api"
+        "#{@base_url}/api"
       end
 
       def streams_url
@@ -52,12 +53,6 @@ module RubyEventStore
 
       def ==(o)
         self.class == o.class && self.host == o.host && self.root_path == o.root_path
-      end
-
-      private
-
-      def base_url
-        [host, root_path].join
       end
     end
   end
