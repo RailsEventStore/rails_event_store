@@ -2,6 +2,7 @@
 
 requires:
   - ruby_event_store/browser
+  - ruby_event_store/browser/app
 includes:
   - lib
 integration: rspec
