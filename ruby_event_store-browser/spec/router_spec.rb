@@ -4,27 +4,30 @@ module RubyEventStore
   module Browser
     RSpec.describe Router do
       specify "params from multiple route segments" do
+        request = mock_request("GET", "/some/foo/bar")
         expect do |probe|
           router = Router.new
           router.add_route("GET", "/some/:funky/:segment", &probe)
-          router.handle(mock_request("GET", "/some/foo/bar"))
-        end.to yield_with_args({ "funky" => "foo", "segment" => "bar" })
+          router.handle(request)
+        end.to yield_with_args({ "funky" => "foo", "segment" => "bar" }, urls.with_request(request))
       end
 
       specify "encoded params" do
+        request = mock_request("GET", "/foo%2Dbar.xml")
         expect do |probe|
           router = Router.new
           router.add_route("GET", "/:try_me", &probe)
-          router.handle(mock_request("GET", "/foo%2Dbar.xml"))
-        end.to yield_with_args({ "try_me" => "foo-bar.xml" })
+          router.handle(request)
+        end.to yield_with_args({ "try_me" => "foo-bar.xml" }, urls.with_request(request))
       end
 
       specify "route params and query params" do
+        request = mock_request("GET", "/dont?try=me")
         expect do |probe|
           router = Router.new
           router.add_route("GET", "/:try_me", &probe)
-          router.handle(mock_request("GET", "/dont?try=me"))
-        end.to yield_with_args({ "try_me" => "dont", "try" => "me" })
+          router.handle(request)
+        end.to yield_with_args({ "try_me" => "dont", "try" => "me" }, urls.with_request(request))
       end
 
       specify "not found by path" do
@@ -58,6 +61,10 @@ module RubyEventStore
             )
             .get("/mounted")
         expect(response).to be_no_content
+      end
+
+      def urls
+        Routing.initial
       end
 
       def no_content

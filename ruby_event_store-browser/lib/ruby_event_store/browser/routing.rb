@@ -7,6 +7,10 @@ module RubyEventStore
         new(host, root_path)
       end
 
+      def self.initial
+        new(nil, nil)
+      end
+
       def with_request(request)
         Routing.new(host || request.base_url, root_path || request.script_name)
       end
@@ -44,6 +48,10 @@ module RubyEventStore
         else
           "#{api_url}/streams/#{stream_name}/relationships/events?#{query_string}"
         end
+      end
+
+      def ==(o)
+        self.class == o.class && self.host == o.host && self.root_path == o.root_path
       end
 
       private

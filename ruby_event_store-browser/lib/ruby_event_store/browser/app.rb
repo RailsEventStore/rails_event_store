@@ -41,41 +41,38 @@ module RubyEventStore
       end
 
       def call(env)
-        request = Rack::Request.new(env)
-        routing = @routing.with_request(request)
-
-        router = Router.new
+        router = Router.new(routing)
         router.add_route("GET", "/api/events/:event_id") do |params|
           json Event.new(event_store: event_store, event_id: params.fetch("event_id"))
         end
-        router.add_route("GET", "/api/streams/:stream_name") do |params|
+        router.add_route("GET", "/api/streams/:stream_name") do |params, urls|
           json GetStream.new(
                  stream_name: params.fetch("stream_name"),
-                 routing: routing,
+                 routing: urls,
                  related_streams_query: related_streams_query
                )
         end
-        router.add_route("GET", "/api/streams/:stream_name/relationships/events") do |params|
+        router.add_route("GET", "/api/streams/:stream_name/relationships/events") do |params, urls|
           json GetEventsFromStream.new(
                  event_store: event_store,
-                 routing: routing,
+                 routing: urls,
                  stream_name: params.fetch("stream_name"),
                  page: params["page"]
                )
         end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
-          router.add_route("GET", starting_route) do
-            erb bootstrap_html, root_path: routing.root_path, settings: settings(routing)
+          router.add_route("GET", starting_route) do |_, urls|
+            erb bootstrap_html, root_path: urls.root_path, settings: settings(urls)
           end
         end
-        router.handle(request)
+        router.handle(Rack::Request.new(env))
       rescue EventNotFound, Router::NoMatch
         not_found
       end
 
       private
 
-      attr_reader :event_store_locator, :related_streams_query, :api_url
+      attr_reader :event_store_locator, :related_streams_query, :routing, :api_url
 
       def event_store
         event_store_locator.call

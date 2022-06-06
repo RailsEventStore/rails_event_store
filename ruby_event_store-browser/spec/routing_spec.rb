@@ -4,6 +4,10 @@ module RubyEventStore
   module Browser
     RSpec.describe Routing do
       specify do
+        expect(Routing.initial).to eq(Routing.initial)
+      end
+
+      specify do
         routing = Routing.from_configuration("http://example.com:9393", nil)
 
         url = routing.paginated_events_from_stream_url(id: "all")
