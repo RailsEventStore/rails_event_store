@@ -48,24 +48,20 @@ module RubyEventStore
 
         case [request.request_method, request.path]
         in "GET", %r{/api/events/([^/]+)$}
-          json(Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1)))
+          json Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1))
         in "GET", %r{/api/streams/([^/]+)$}
-          json(
-            GetStream.new(
-              stream_name: URI.decode_www_form_component($1),
-              routing: routing,
-              related_streams_query: @related_streams_query
-            )
-          )
+          json GetStream.new(
+                 stream_name: URI.decode_www_form_component($1),
+                 routing: routing,
+                 related_streams_query: @related_streams_query
+               )
         in "GET", %r{/api/streams/([^/]+)/relationships/events$}
-          json(
-            GetEventsFromStream.new(
-              event_store: event_store,
-              routing: routing,
-              stream_name: URI.decode_www_form_component($1),
-              page: request.params["page"]
-            )
-          )
+          json GetEventsFromStream.new(
+                 event_store: event_store,
+                 routing: routing,
+                 stream_name: URI.decode_www_form_component($1),
+                 page: request.params["page"]
+               )
         in "GET", %r{/(events/.*|streams/.*)?}
           render_html(
             ERB.new(<<~HTML).result_with_hash(path: routing.root_path, browser_settings: browser_settings(routing))
