@@ -7,6 +7,60 @@ require "json"
 
 module RubyEventStore
   module Browser
+    class Router
+      NoMatch = Class.new(StandardError)
+
+      class Route
+        NAMED_SEGMENTS_PATTERN = %r{\/([^\/]*):([^:$\/]+)}.freeze
+        private_constant :NAMED_SEGMENTS_PATTERN
+
+        def initialize(request_method, pattern, handler)
+          @request_method = request_method
+          @pattern = pattern
+          @handler = handler
+        end
+
+        def match(request)
+          return unless request.request_method == request_method
+
+          match_data = regexp.match(File.join("/", request.path_info))
+          match_data.named_captures.transform_values(&Rack::Utils.method(:unescape)) if match_data
+        end
+
+        def call(params)
+          handler[params]
+        end
+
+        private
+
+        def regexp
+          %r/\A#{pattern.gsub(NAMED_SEGMENTS_PATTERN, '/\1(?<\2>[^$/]+)')}\Z/
+        end
+
+        attr_reader :request_method, :pattern, :handler
+      end
+
+      def initialize(*)
+        @routes = Array.new
+      end
+
+      def add_route(request_method, pattern, handler)
+        routes << Route.new(request_method, pattern, handler)
+      end
+
+      def handle(request)
+        routes.each do |route|
+          route_params = route.match(request)
+          return route.call(request.params.merge(route_params)) if route_params
+        end
+        raise NoMatch
+      end
+
+      private
+
+      attr_reader :routes
+    end
+
     class App
       def self.for(
         event_store_locator:,
@@ -44,36 +98,68 @@ module RubyEventStore
       def call(env)
         request = Rack::Request.new(env)
         routing = Routing.new(host || request.base_url, root_path || request.script_name)
-        event_store = event_store_locator.call
 
-        case [request.request_method, File.join("/", request.path_info)]
-        in "GET", %r{\A/api/events/([^/]+)\Z}
-          json Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1))
-        in "GET", %r{\A/api/streams/([^/]+)\Z}
-          json GetStream.new(
-                 stream_name: URI.decode_www_form_component($1),
-                 routing: routing,
-                 related_streams_query: @related_streams_query
-               )
-        in "GET", %r{\A/api/streams/([^/]+)/relationships/events\Z}
-          json GetEventsFromStream.new(
-                 event_store: event_store,
-                 routing: routing,
-                 stream_name: URI.decode_www_form_component($1),
-                 page: request.params["page"]
-               )
-        in "GET", %r{\A/(events/.*|streams/.*)?\Z}
-          erb template, path: routing.root_path, browser_settings: browser_settings(routing)
-        else
-          not_found
-        end
-      rescue RubyEventStore::EventNotFound
+        router = Router.new
+        router.add_route(
+          "GET",
+          "/api/events/:event_id",
+          ->(params) { json Event.new(event_store: event_store, event_id: params["event_id"]) }
+        )
+        router.add_route(
+          "GET",
+          "/api/streams/:stream_name",
+          ->(params) do
+            json GetStream.new(
+                   stream_name: params["stream_name"],
+                   routing: routing,
+                   related_streams_query: related_streams_query
+                 )
+          end
+        )
+        router.add_route(
+          "GET",
+          "/api/streams/:stream_name/relationships/events",
+          ->(params) do
+            json GetEventsFromStream.new(
+                   event_store: event_store,
+                   routing: routing,
+                   stream_name: params["stream_name"],
+                   page: params["page"]
+                 )
+          end
+        )
+        router.add_route(
+          "GET",
+          "/api/events/:event_id",
+          ->(params) { json Event.new(event_store: event_store, event_id: params["event_id"]) }
+        )
+        router.add_route(
+          "GET",
+          "/",
+          ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
+        )
+        router.add_route(
+          "GET",
+          "/events/:whatever",
+          ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
+        )
+        router.add_route(
+          "GET",
+          "/streams/:whatever",
+          ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
+        )
+        router.handle(request)
+      rescue RubyEventStore::EventNotFound, Router::NoMatch
         not_found
       end
 
       private
 
       attr_reader :event_store_locator, :related_streams_query, :host, :root_path, :api_url
+
+      def event_store
+        event_store_locator.call
+      end
 
       def template
         <<~HTML
