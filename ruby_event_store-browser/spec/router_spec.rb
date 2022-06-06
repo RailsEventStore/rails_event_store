@@ -68,8 +68,8 @@ module RubyEventStore
         Proc.new {}
       end
 
-      def mock_request(method, path, mount_point: nil)
-        Rack::Request.new(Rack::MockRequest.env_for(path, method: method, script_mame: mount_point))
+      def mock_request(method, path)
+        Rack::Request.new(Rack::MockRequest.env_for(path, method: method))
       end
     end
   end
