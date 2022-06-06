@@ -43,7 +43,7 @@ module RubyEventStore
 
       def call(env)
         request = Rack::Request.new(env)
-        routing = Routing.new(host || request.base_url, root_path || request.script_name)
+        routing = Routing.from_configuration(host, root_path).with_request(request)
 
         router = Router.new
         router.add_route("GET", "/api/events/:event_id") do |params|

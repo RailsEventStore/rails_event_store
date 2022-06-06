@@ -3,6 +3,14 @@ module RubyEventStore
     class Routing
       attr_reader :host, :root_path
 
+      def self.from_configuration(host, root_path)
+        new(host, root_path)
+      end
+
+      def with_request(request)
+        Routing.new(host || request.base_url, root_path || request.script_name)
+      end
+
       def initialize(host, root_path)
         @host = host
         @root_path = root_path
