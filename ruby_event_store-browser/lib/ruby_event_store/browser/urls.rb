@@ -21,7 +21,7 @@ module RubyEventStore
         @base_url = [host, root_path].join
       end
 
-      def root_url
+      def app_url
         @base_url
       end
 

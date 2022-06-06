@@ -36,13 +36,13 @@ module RubyEventStore
       specify "#root_url without additional path" do
         routing = Urls.from_configuration("http://example.com:9393", "")
 
-        expect(routing.root_url).to eq("http://example.com:9393")
+        expect(routing.app_url).to eq("http://example.com:9393")
       end
 
       specify "#root_url with additional path" do
         routing = Urls.from_configuration("http://example.com:9393", "/res")
 
-        expect(routing.root_url).to eq("http://example.com:9393/res")
+        expect(routing.app_url).to eq("http://example.com:9393/res")
       end
 
       specify "#streams_url" do

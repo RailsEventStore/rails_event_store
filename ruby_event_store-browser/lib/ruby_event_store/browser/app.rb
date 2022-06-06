@@ -107,7 +107,7 @@ module RubyEventStore
       end
 
       def settings(routing)
-        { rootUrl: routing.root_url, apiUrl: api_url || routing.api_url, resVersion: res_version }
+        { rootUrl: routing.app_url, apiUrl: api_url || routing.api_url, resVersion: res_version }
       end
 
       def res_version
