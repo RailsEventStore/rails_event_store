@@ -25,12 +25,12 @@ module RubyEventStore
         @base_url
       end
 
-      def events_url
-        "#{api_url}/events"
-      end
-
       def api_url
         "#{@base_url}/api"
+      end
+
+      def events_url
+        "#{api_url}/events"
       end
 
       def streams_url
