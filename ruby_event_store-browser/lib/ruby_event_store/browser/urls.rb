@@ -23,7 +23,7 @@ module RubyEventStore
       end
 
       def api_url
-        @raw_api_url || "#{app_url}/api"
+        raw_api_url || "#{app_url}/api"
       end
 
       def events_url
