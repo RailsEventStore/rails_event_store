@@ -123,7 +123,7 @@ module RubyEventStore
         end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do
-            erb template, path: routing.root_path, settings: settings(routing)
+            erb template, root_path: routing.root_path, settings: settings(routing)
           end
         end
         router.handle(request)
@@ -148,8 +148,8 @@ module RubyEventStore
             <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(settings)) %>">
           </head>
           <body>
-            <script type="text/javascript" src="<%= path %>/ruby_event_store_browser.js"></script>
-            <script type="text/javascript" src="<%= path %>/bootstrap.js"></script>
+            <script type="text/javascript" src="<%= root_path %>/ruby_event_store_browser.js"></script>
+            <script type="text/javascript" src="<%= root_path %>/bootstrap.js"></script>
           </body>
         </html>
         HTML
