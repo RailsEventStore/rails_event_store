@@ -127,7 +127,7 @@ module RubyEventStore
           end
         end
         router.handle(request)
-      rescue RubyEventStore::EventNotFound, Router::NoMatch
+      rescue EventNotFound, Router::NoMatch
         not_found
       end
 
