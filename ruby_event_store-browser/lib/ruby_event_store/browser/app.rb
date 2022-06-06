@@ -46,23 +46,23 @@ module RubyEventStore
         routing = Routing.new(host || request.base_url, root_path || request.script_name)
         event_store = event_store_locator.call
 
-        case [request.request_method, request.path]
-        in "GET", %r{/api/events/([^/]+)$}
+        case [request.request_method, File.join("/", request.path_info)]
+        in "GET", %r{\A/api/events/([^/]+)\Z}
           json Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1))
-        in "GET", %r{/api/streams/([^/]+)$}
+        in "GET", %r{\A/api/streams/([^/]+)\Z}
           json GetStream.new(
                  stream_name: URI.decode_www_form_component($1),
                  routing: routing,
                  related_streams_query: @related_streams_query
                )
-        in "GET", %r{/api/streams/([^/]+)/relationships/events$}
+        in "GET", %r{\A/api/streams/([^/]+)/relationships/events\Z}
           json GetEventsFromStream.new(
                  event_store: event_store,
                  routing: routing,
                  stream_name: URI.decode_www_form_component($1),
                  page: request.params["page"]
                )
-        in "GET", %r{/(events/.*|streams/.*)?}
+        in "GET", %r{\A/(events/.*|streams/.*)?\Z}
           erb <<~HTML, path: routing.root_path, browser_settings: browser_settings(routing)
               <!DOCTYPE html>
               <html>
