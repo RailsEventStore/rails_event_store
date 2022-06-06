@@ -62,7 +62,10 @@ module RubyEventStore
         end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do |_, urls|
-            erb bootstrap_html, root_path: urls.root_path, settings: settings(urls)
+            erb bootstrap_html,
+                browser_js_src: urls.browser_js_url,
+                bootstrap_js_src: urls.bootstrap_js_url,
+                settings: settings(urls)
           end
         end
         router.handle(Rack::Request.new(env))
@@ -87,8 +90,8 @@ module RubyEventStore
             <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(settings)) %>">
           </head>
           <body>
-            <script type="text/javascript" src="<%= root_path %>/ruby_event_store_browser.js"></script>
-            <script type="text/javascript" src="<%= root_path %>/bootstrap.js"></script>
+            <script type="text/javascript" src="<%= browser_js_src %>"></script>
+            <script type="text/javascript" src="<%= bootstrap_js_src %>"></script>
           </body>
         </html>
         HTML

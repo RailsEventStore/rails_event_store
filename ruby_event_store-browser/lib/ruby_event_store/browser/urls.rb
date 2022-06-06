@@ -51,6 +51,14 @@ module RubyEventStore
         end
       end
 
+      def browser_js_url
+        "#{root_path}/ruby_event_store_browser.js"
+      end
+
+      def bootstrap_js_url
+        "#{root_path}/bootstrap.js"
+      end
+
       def ==(o)
         self.class == o.class && self.host == o.host && self.root_path == o.root_path
       end
