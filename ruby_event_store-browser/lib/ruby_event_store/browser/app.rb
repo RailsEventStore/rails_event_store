@@ -98,19 +98,11 @@ module RubyEventStore
       end
 
       def render_html(html)
-        [200, html_content_type, [html]]
+        [200, { "Content-Type" => "text/html;charset=utf-8" }, [html]]
       end
 
       def render_json_api(body)
-        [200, json_api_content_type, [JSON.dump(body.to_h)]]
-      end
-
-      def html_content_type
-        { "Content-Type" => "text/html;charset=utf-8" }
-      end
-
-      def json_api_content_type
-        { "Content-Type" => "application/vnd.api+json" }
+        [200, { "Content-Type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
       end
 
       def browser_settings(routing)
