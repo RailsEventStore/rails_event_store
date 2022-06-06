@@ -48,9 +48,9 @@ module RubyEventStore
 
         case [request.request_method, request.path]
         in "GET", %r{/api/events/([^/]+)$}
-          render_json_api(Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1)))
+          json(Event.new(event_store: event_store, event_id: URI.decode_www_form_component($1)))
         in "GET", %r{/api/streams/([^/]+)$}
-          render_json_api(
+          json(
             GetStream.new(
               stream_name: URI.decode_www_form_component($1),
               routing: routing,
@@ -58,7 +58,7 @@ module RubyEventStore
             )
           )
         in "GET", %r{/api/streams/([^/]+)/relationships/events$}
-          render_json_api(
+          json(
             GetEventsFromStream.new(
               event_store: event_store,
               routing: routing,
@@ -97,12 +97,12 @@ module RubyEventStore
         [404, {}, []]
       end
 
-      def render_html(html)
-        [200, { "Content-Type" => "text/html;charset=utf-8" }, [html]]
+      def json(body)
+        [200, { "Content-Type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
       end
 
-      def render_json_api(body)
-        [200, { "Content-Type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
+      def render_html(html)
+        [200, { "Content-Type" => "text/html;charset=utf-8" }, [html]]
       end
 
       def browser_settings(routing)
