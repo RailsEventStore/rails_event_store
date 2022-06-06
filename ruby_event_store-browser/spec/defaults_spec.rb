@@ -37,17 +37,25 @@ module RubyEventStore
 
       response = TestClient.new(outside_app, "railseventstore.org").get("/res")
 
-      expect(response.body).to match %r{"apiUrl":\s*"https://example.com/some/custom/api/url"}
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("https://example.com/some/custom/api/url")
     end
 
     it "default #api_url is based on root_path" do
       response = test_client.get "/res"
 
-      expect(response.body).to match %r{"apiUrl":\s*"http://railseventstore.org/res/api"}
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:test_client) { TestClient.new(app_builder(event_store), "railseventstore.org") }
+
+    def meta_content(response_body)
+      Nokogiri.HTML(response_body).css("meta[name='ruby-event-store-browser-settings']").attribute("content")
+    end
+
+    def parsed_meta_content(response_body)
+      JSON.parse(meta_content(response_body))
+    end
 
     def app_builder(event_store)
       inside_app = RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
