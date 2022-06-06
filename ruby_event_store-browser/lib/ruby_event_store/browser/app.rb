@@ -36,14 +36,13 @@ module RubyEventStore
       def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
-        @host = host
-        @root_path = root_path
         @api_url = api_url
+        @routing = Routing.from_configuration(host, root_path)
       end
 
       def call(env)
         request = Rack::Request.new(env)
-        routing = Routing.from_configuration(host, root_path).with_request(request)
+        routing = @routing.with_request(request)
 
         router = Router.new
         router.add_route("GET", "/api/events/:event_id") do |params|
@@ -76,7 +75,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :event_store_locator, :related_streams_query, :host, :root_path, :api_url
+      attr_reader :event_store_locator, :related_streams_query, :api_url
 
       def event_store
         event_store_locator.call
