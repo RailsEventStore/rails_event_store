@@ -16,12 +16,6 @@ module RubyEventStore
       )
     end
 
-    it "takes host from request" do
-      response = test_client.get "/res"
-
-      expect(response.body).to match %r{<script type="text/javascript" src="/res/ruby_event_store_browser.js"></script>}
-    end
-
     it "builds api url based on the settings" do
       inside_app =
         RubyEventStore::Browser::App.for(
@@ -74,10 +68,10 @@ module RubyEventStore
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
     end
 
-    it "default JS sources are based on root_path" do
+    it "default JS sources are based on app_url" do
       response = test_client.get "/res"
 
-      script_tags(response.body).each { |script| expect(script.attribute("src").value).to match %r{\A/res} }
+      script_tags(response.body).each { |script| expect(script.attribute("src").value).to match %r{\Ahttp://railseventstore.org/res} }
 
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
     end
