@@ -1,28 +1,29 @@
 module RubyEventStore
   module Browser
     class Urls
-      def self.from_configuration(host, root_path)
-        new(host, root_path)
+      def self.from_configuration(host, root_path, api_url = nil)
+        new(host, root_path, api_url)
       end
 
       def self.initial
-        new(nil, nil)
+        new(nil, nil, nil)
       end
 
       def with_request(request)
-        Urls.new(host || request.base_url, root_path || request.script_name)
+        Urls.new(host || request.base_url, root_path || request.script_name, raw_api_url)
       end
 
-      attr_reader :app_url, :host, :root_path
+      attr_reader :app_url, :raw_api_url, :host, :root_path
 
-      def initialize(host, root_path)
+      def initialize(host, root_path, api_url)
         @host = host
         @root_path = root_path
         @app_url = [host, root_path].join
+        @raw_api_url = api_url
       end
 
       def api_url
-        "#{app_url}/api"
+        @raw_api_url || "#{app_url}/api"
       end
 
       def events_url

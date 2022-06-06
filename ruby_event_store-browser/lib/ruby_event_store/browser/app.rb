@@ -37,7 +37,7 @@ module RubyEventStore
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
         @api_url = api_url
-        @routing = Urls.from_configuration(host, root_path)
+        @routing = Urls.from_configuration(host, root_path, api_url)
       end
 
       def call(env)
@@ -67,7 +67,7 @@ module RubyEventStore
                 bootstrap_js_src: urls.bootstrap_js_url,
                 initial_data: {
                   rootUrl: urls.app_url,
-                  apiUrl: api_url || urls.api_url,
+                  apiUrl: urls.api_url,
                   resVersion: res_version
                 }
           end
@@ -79,7 +79,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :event_store_locator, :related_streams_query, :routing, :api_url
+      attr_reader :event_store_locator, :related_streams_query, :routing
 
       def event_store
         event_store_locator.call
