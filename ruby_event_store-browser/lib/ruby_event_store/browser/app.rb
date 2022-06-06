@@ -140,12 +140,12 @@ module RubyEventStore
         )
         router.add_route(
           "GET",
-          "/events/:whatever",
+          "/events/:event_id",
           ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
         )
         router.add_route(
           "GET",
-          "/streams/:whatever",
+          "/streams/:stream_name",
           ->(*) { erb template, path: routing.root_path, browser_settings: browser_settings(routing) }
         )
         router.handle(request)
