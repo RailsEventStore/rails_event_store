@@ -40,6 +40,12 @@ module RubyEventStore
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("https://example.com/some/custom/api/url")
     end
 
+    it "passes RES version" do
+      response = test_client.get "/res"
+
+      expect(parsed_meta_content(response.body)["resVersion"]).to eq(RubyEventStore::VERSION)
+    end
+
     it "default #api_url is based on root_path" do
       response = test_client.get "/res"
 

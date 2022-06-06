@@ -13,3 +13,5 @@ coverage_criteria:
 matcher:
   subjects:
     - RubyEventStore::Browser*
+  ignore:
+    - RubyEventStore::Browser::App#res_version
