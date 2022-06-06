@@ -24,7 +24,7 @@ module RubyEventStore
           return unless request.request_method == request_method
 
           match_data = regexp.match(File.join("/", request.path_info))
-          match_data.named_captures.transform_values(&Rack::Utils.method(:unescape)) if match_data
+          match_data.named_captures.transform_values { |v| Rack::Utils.unescape(v) } if match_data
         end
 
         def call(params)
@@ -40,7 +40,7 @@ module RubyEventStore
         attr_reader :request_method, :pattern, :handler
       end
 
-      def initialize(*)
+      def initialize
         @routes = Array.new
       end
 
