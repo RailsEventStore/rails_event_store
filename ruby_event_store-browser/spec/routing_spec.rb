@@ -52,6 +52,12 @@ module RubyEventStore
 
         expect(routing.events_url).to eq("http://example.com:9393/res/api/events")
       end
+
+      specify "#api_url" do
+        routing = Routing.new("http://example.com:9393", "/res")
+
+        expect(routing.api_url).to eq("http://example.com:9393/res/api")
+      end
     end
   end
 end
