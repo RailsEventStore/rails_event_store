@@ -118,9 +118,6 @@ module RubyEventStore
                  page: params["page"]
                )
         end
-        router.add_route("GET", "/api/events/:event_id") do |params|
-          json Event.new(event_store: event_store, event_id: params.fetch("event_id"))
-        end
         %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do
             erb template, root_path: routing.root_path, settings: settings(routing)
