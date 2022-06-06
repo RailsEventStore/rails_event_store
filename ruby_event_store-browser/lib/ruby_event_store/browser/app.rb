@@ -21,7 +21,7 @@ module RubyEventStore
         end
 
         def match(request)
-          return unless request.request_method == request_method
+          return unless request.request_method.eql?(request_method)
 
           match_data = regexp.match(File.join("/", request.path_info))
           match_data.named_captures.transform_values { |v| Rack::Utils.unescape(v) } if match_data
