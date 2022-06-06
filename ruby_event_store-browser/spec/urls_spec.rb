@@ -2,13 +2,13 @@ require "spec_helper"
 
 module RubyEventStore
   module Browser
-    RSpec.describe Routing do
+    RSpec.describe Urls do
       specify do
-        expect(Routing.initial).to eq(Routing.initial)
+        expect(Urls.initial).to eq(Urls.initial)
       end
 
       specify do
-        routing = Routing.from_configuration("http://example.com:9393", nil)
+        routing = Urls.from_configuration("http://example.com:9393", nil)
 
         url = routing.paginated_events_from_stream_url(id: "all")
 
@@ -16,7 +16,7 @@ module RubyEventStore
       end
 
       specify "passing pagination params" do
-        routing = Routing.from_configuration("http://example.com:9393", "")
+        routing = Urls.from_configuration("http://example.com:9393", "")
 
         url = routing.paginated_events_from_stream_url(id: "all", position: "head", direction: "forward", count: 30)
 
@@ -26,7 +26,7 @@ module RubyEventStore
       end
 
       specify "escaping stream name" do
-        routing = Routing.from_configuration("http://example.com:9393", "")
+        routing = Urls.from_configuration("http://example.com:9393", "")
 
         url = routing.paginated_events_from_stream_url(id: "foo/bar.xml")
 
@@ -34,31 +34,31 @@ module RubyEventStore
       end
 
       specify "#root_url without additional path" do
-        routing = Routing.from_configuration("http://example.com:9393", "")
+        routing = Urls.from_configuration("http://example.com:9393", "")
 
         expect(routing.root_url).to eq("http://example.com:9393")
       end
 
       specify "#root_url with additional path" do
-        routing = Routing.from_configuration("http://example.com:9393", "/res")
+        routing = Urls.from_configuration("http://example.com:9393", "/res")
 
         expect(routing.root_url).to eq("http://example.com:9393/res")
       end
 
       specify "#streams_url" do
-        routing = Routing.from_configuration("http://example.com:9393", "/res")
+        routing = Urls.from_configuration("http://example.com:9393", "/res")
 
         expect(routing.streams_url).to eq("http://example.com:9393/res/api/streams")
       end
 
       specify "#events_url" do
-        routing = Routing.from_configuration("http://example.com:9393", "/res")
+        routing = Urls.from_configuration("http://example.com:9393", "/res")
 
         expect(routing.events_url).to eq("http://example.com:9393/res/api/events")
       end
 
       specify "#api_url" do
-        routing = Routing.from_configuration("http://example.com:9393", "/res")
+        routing = Urls.from_configuration("http://example.com:9393", "/res")
 
         expect(routing.api_url).to eq("http://example.com:9393/res/api")
       end

@@ -1,6 +1,6 @@
 module RubyEventStore
   module Browser
-    class Routing
+    class Urls
       attr_reader :host, :root_path
 
       def self.from_configuration(host, root_path)
@@ -12,7 +12,7 @@ module RubyEventStore
       end
 
       def with_request(request)
-        Routing.new(host || request.base_url, root_path || request.script_name)
+        Urls.new(host || request.base_url, root_path || request.script_name)
       end
 
       def initialize(host, root_path)

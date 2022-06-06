@@ -64,7 +64,7 @@ module RubyEventStore
       end
 
       def urls
-        Routing.initial
+        Urls.initial
       end
 
       def no_content

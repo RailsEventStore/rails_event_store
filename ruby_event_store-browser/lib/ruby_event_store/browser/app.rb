@@ -37,7 +37,7 @@ module RubyEventStore
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
         @api_url = api_url
-        @routing = Routing.from_configuration(host, root_path)
+        @routing = Urls.from_configuration(host, root_path)
       end
 
       def call(env)

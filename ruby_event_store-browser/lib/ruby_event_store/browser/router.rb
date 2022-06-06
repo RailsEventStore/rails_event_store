@@ -35,7 +35,7 @@ module RubyEventStore
         attr_reader :request_method, :pattern, :handler
       end
 
-      def initialize(urls = Routing.initial)
+      def initialize(urls = Urls.initial)
         @routes = Array.new
         @urls = urls
       end
