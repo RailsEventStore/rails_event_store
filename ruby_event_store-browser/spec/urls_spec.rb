@@ -10,6 +10,7 @@ module RubyEventStore
       end
 
       specify { expect(Urls.initial).to eq(Urls.initial) }
+      specify { expect(Urls.initial).not_to eq(Object) }
 
       specify do
         mocked_request = Rack::Request.new(Rack::MockRequest.env_for("http://example.net"))
@@ -60,6 +61,18 @@ module RubyEventStore
 
       specify do
         expect(Urls.from_configuration("http://example.net", nil)).to eq(
+          Urls.from_configuration("http://example.net", nil)
+        )
+      end
+
+      specify do
+        expect(Urls.from_configuration("http://example.net", "/res")).not_to eq(
+          Urls.from_configuration("http://example.net", nil)
+        )
+      end
+
+      specify do
+        expect(Urls.from_configuration("http://example.com", nil)).not_to eq(
           Urls.from_configuration("http://example.net", nil)
         )
       end
