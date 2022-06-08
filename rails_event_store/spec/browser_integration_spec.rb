@@ -11,7 +11,9 @@ module RailsEventStore
       response = request.get("/res")
 
       expect(response.status).to eq(200)
-      expect(response.body).to match %r{<script type="text/javascript" src="/res/ruby_event_store_browser.js"></script>}
+      expect(
+        response.body
+      ).to match %r{<script type="text/javascript" src="http://example.org/res/ruby_event_store_browser.js"></script>}
     end
 
     specify "api" do
