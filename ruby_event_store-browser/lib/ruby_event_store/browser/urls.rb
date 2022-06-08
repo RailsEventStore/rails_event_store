@@ -57,7 +57,7 @@ module RubyEventStore
       end
 
       def ==(o)
-        self.class == o.class && self.app_url == o.app_url && self.api_url == o.api_url
+        self.class.eql?(o.class) && self.app_url.eql?(o.app_url) && self.api_url.eql?(o.api_url)
       end
     end
   end
