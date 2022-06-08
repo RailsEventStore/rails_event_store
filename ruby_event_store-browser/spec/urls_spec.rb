@@ -78,6 +78,12 @@ module RubyEventStore
       end
 
       specify do
+        expect(Urls.from_configuration("http://example.com", nil, "http://api.exmple.net")).not_to eq(
+          Urls.from_configuration("http://example.net", nil, "http://api.exmple.net")
+        )
+      end
+
+      specify do
         expect(Urls.from_configuration("http://example.net", nil, nil)).not_to eq(
           Urls.from_configuration("http://example.net", nil, "http://api.example.net")
         )
