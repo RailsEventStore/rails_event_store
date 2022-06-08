@@ -10,20 +10,16 @@ module RubyEventStore
       end
 
       def with_request(request)
-        Urls.new(host || request.base_url, root_path || request.script_name, raw_api_url)
+        Urls.new(host || request.base_url, root_path || request.script_name, api_url)
       end
 
-      attr_reader :app_url, :raw_api_url, :host, :root_path
+      attr_reader :app_url, :api_url, :host, :root_path
 
       def initialize(host, root_path, api_url)
         @host = host
         @root_path = root_path
         @app_url = [host, root_path].compact.reduce(:+)
-        @raw_api_url = api_url
-      end
-
-      def api_url
-        raw_api_url || "#{app_url}/api" if app_url
+        @api_url = api_url || "#{app_url}/api" if app_url
       end
 
       def events_url
@@ -57,7 +53,7 @@ module RubyEventStore
       end
 
       def ==(o)
-        self.class.eql?(o.class) && self.app_url.eql?(o.app_url) && self.api_url.eql?(o.api_url)
+        self.class.eql?(o.class) && app_url.eql?(o.app_url) && api_url.eql?(o.api_url)
       end
     end
   end
