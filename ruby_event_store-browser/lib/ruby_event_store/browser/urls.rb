@@ -19,7 +19,7 @@ module RubyEventStore
         @host = host
         @root_path = root_path
         @app_url = [host, root_path].compact.reduce(:+)
-        @api_url = api_url || "#{app_url}/api" if app_url
+        @api_url = api_url || ("#{app_url}/api" if app_url)
       end
 
       def events_url

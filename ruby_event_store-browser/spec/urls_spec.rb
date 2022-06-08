@@ -83,6 +83,13 @@ module RubyEventStore
         )
       end
 
+      specify "only api_url from configuration" do
+        only_api_url = Urls.from_configuration(nil, nil, "http://api.example.net")
+
+        expect(only_api_url.app_url).to be_nil
+        expect(only_api_url.api_url).to eq("http://api.example.net")
+      end
+
       specify "paginated_events_from_stream_url" do
         routing = Urls.from_configuration("http://example.com:9393", nil)
         expect(routing.paginated_events_from_stream_url(id: "all")).to eq(
