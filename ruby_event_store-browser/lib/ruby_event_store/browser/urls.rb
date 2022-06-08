@@ -18,12 +18,12 @@ module RubyEventStore
       def initialize(host, root_path, api_url)
         @host = host
         @root_path = root_path
-        @app_url = [host, root_path].join
+        @app_url = [host, root_path].compact.reduce(:+)
         @raw_api_url = api_url
       end
 
       def api_url
-        raw_api_url || "#{app_url}/api"
+        raw_api_url || "#{app_url}/api" if app_url
       end
 
       def events_url
