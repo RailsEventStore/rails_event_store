@@ -2,7 +2,7 @@
 
 module RubyEventStore
   module Browser
-    class Event
+    class GetEvent
       def initialize(event_store:, event_id:)
         @event_store = event_store
         @event_id = event_id

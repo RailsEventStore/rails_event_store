@@ -42,7 +42,7 @@ module RubyEventStore
       def call(env)
         router = Router.new(routing)
         router.add_route("GET", "/api/events/:event_id") do |params|
-          json Event.new(event_store: event_store, event_id: params.fetch("event_id"))
+          json GetEvent.new(event_store: event_store, event_id: params.fetch("event_id"))
         end
         router.add_route("GET", "/api/streams/:stream_name") do |params, urls|
           json GetStream.new(
