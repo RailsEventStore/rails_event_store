@@ -54,8 +54,8 @@ activate :external_pipeline,
 
 set :markdown_engine, :redcarpet
 set :res_version_v1, "1.3.1"
-set :res_version_v2, "2.3.0"
-set :res_version, "2.3.0"
+set :res_version_v2, "2.4.1"
+set :res_version, "2.4.1"
 
 set :markdown,
     tables: true,
