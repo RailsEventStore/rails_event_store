@@ -23,6 +23,8 @@ GEM
       faraday-net_http (~> 2.0)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (2.0.3)
+    faraday-retry (2.0.0)
+      faraday (~> 2.0)
     fast_blank (1.0.1)
     fastimage (2.2.6)
     ffi (1.15.5)
@@ -121,6 +123,7 @@ PLATFORMS
 
 DEPENDENCIES
   faraday
+  faraday-retry
   middleman (~> 4.4)
   middleman-aria_current
   middleman-syntax
