@@ -26,6 +26,7 @@ RSpec.describe "DresRails::ApplicationController" do
       correlation_id_generator: -> { "15b861b5-5697-40ae-bfea-7f01329c3385" }
     )
   end
+  let(:body1) { File.read(File.join(__dir__, "../shared/body1.json")) }
 
   class MyEvent < RubyEventStore::Event
   end
@@ -75,6 +76,6 @@ RSpec.describe "DresRails::ApplicationController" do
         ]
       }
     )
-    expect(JSON.parse(page.body)).to eq(JSON.parse(File.read("../shared_spec/body1.json")))
+    expect(JSON.parse(page.body)).to eq(JSON.parse(body1))
   end
 end

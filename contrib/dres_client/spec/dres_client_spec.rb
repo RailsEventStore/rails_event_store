@@ -5,8 +5,12 @@ class MyEvent < RubyEventStore::Event
 end
 
 RSpec.describe DresClient do
+  let(:body1) { File.read(File.join(__dir__, "shared/body1.json")) }
+  let(:body2) { File.read(File.join(__dir__, "shared/body2.json")) }
+  let(:body3) { File.read(File.join(__dir__, "shared/body3.json")) }
+
   it "gets events" do
-    stub_request(:get, "http://example.org/dres_rails").to_return(body: File.read("../shared_spec/body1.json"))
+    stub_request(:get, "http://example.org/dres_rails").to_return(body: body1)
     client =
       DresClient::Http.new(
         mapper: RubyEventStore::Mappers::Default.new,
@@ -23,12 +27,12 @@ RSpec.describe DresClient do
   end
 
   it "drains events until empty" do
-    stub_request(:get, "http://example.org/dres_rails").to_return(body: File.read("../shared_spec/body1.json"))
+    stub_request(:get, "http://example.org/dres_rails").to_return(body: body1)
     stub_request(:get, "http://example.org/dres_rails?after_event_id=b2f58e9c-0887-4fbf-99a8-0bb19cfebeef").to_return(
-      body: File.read("../shared_spec/body2.json")
+      body: body2
     )
     stub_request(:get, "http://example.org/dres_rails?after_event_id=0d29084e-ad75-4e3a-8e63-5c894c540b8d").to_return(
-      body: File.read("../shared_spec/body3.json")
+      body: body3
     )
     client =
       DresClient::Http.new(
@@ -49,12 +53,12 @@ RSpec.describe DresClient do
   end
 
   it "queries events constantly in a loop" do
-    stub_request(:get, "http://example.org/dres_rails").to_return(body: File.read("../shared_spec/body1.json"))
+    stub_request(:get, "http://example.org/dres_rails").to_return(body: body1)
     stub_request(:get, "http://example.org/dres_rails?after_event_id=b2f58e9c-0887-4fbf-99a8-0bb19cfebeef").to_return(
-      body: File.read("../shared_spec/body2.json")
+      body: body2
     )
     stub_request(:get, "http://example.org/dres_rails?after_event_id=0d29084e-ad75-4e3a-8e63-5c894c540b8d").to_return(
-      body: File.read("../shared_spec/body3.json")
+      body: body3
     )
     client =
       DresClient::Http.new(

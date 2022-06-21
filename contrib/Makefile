@@ -6,7 +6,9 @@ GEMS = minitest-ruby_event_store \
        ruby_event_store-protobuf \
        ruby_event_store-rom \
        ruby_event_store-sidekiq_scheduler \
-       ruby_event_store-transformations
+       ruby_event_store-transformations \
+			 dres_rails \
+			 dres_client
 
 
 define substf

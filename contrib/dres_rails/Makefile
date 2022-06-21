@@ -6,12 +6,14 @@ DATABASE_URL ?= postgres://localhost/rails_event_store?pool=5
 install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
+
+migrate:
 	@echo "Running migrations"
 	@cd spec/dummy/ && bundle exec bin/rails dres_rails:install:migrations && cd ../../
 	@cd spec/dummy/ && bundle exec bin/rails db:migrate && cd ../../
 	@cd spec/dummy/ && RAILS_ENV=test bundle exec bin/rails db:migrate && cd ../../
 
-test: ## Run unit tests
+test: migrate ## Run unit tests
 	@echo "Running unit tests"
 	@env DATABASE_URL=$(DATABASE_URL) bundle exec rspec
 

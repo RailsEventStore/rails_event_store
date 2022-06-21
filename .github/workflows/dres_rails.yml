@@ -8,20 +8,22 @@ on:
     - cron: "0 17 * * *"
   push:
     paths:
-      - "contrib/distributed_rails_event_store/**"
+      - "contrib/dres_rails/**"
+      - "contrib/dres_client/**"
       - ".github/workflows/dres_rails.yml"
       - "support/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/distributed_rails_event_store/**"
+      - "contrib/dres_rails/**"
+      - "contrib/dres_client/**"
       - ".github/workflows/dres_rails.yml"
       - "support/**"
 jobs:
   test:
     runs-on: ${{ matrix.os }}
     env:
-      WORKING_DIRECTORY: contrib/distributed_rails_event_store/dres_rails
+      WORKING_DIRECTORY: contrib/dres_rails
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
     services:
