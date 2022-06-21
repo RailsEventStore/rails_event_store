@@ -28,7 +28,7 @@ watch-elm: clean-elm
 			--initial
 
 dev: ## Start standalone browser seeded with some events and Elm recompile on change
-	@foreman start
+	@$(MAKE) -j2 serve watch-elm
 
 serve:
 	@bundle exec rackup --port 9393 devserver/config.ru
