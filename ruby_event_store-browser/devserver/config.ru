@@ -53,10 +53,19 @@ browser_app =
     related_streams_query: RELATED_STREAMS_QUERY
   )
 mount_point = "/"
-run (
-      Rack::Builder.new do
-        map mount_point do
-          run browser_app
-        end
-      end
-    )
+
+class CspResponse < Struct.new(:app)
+  def call(env)
+    status, headers, response = app.call(env)
+    headers["Content-Security-Policy"] = "script-src 'self'; style-src 'self'"
+    [status, headers, response]
+  end
+end
+
+run(
+  Rack::Builder.new do
+    map mount_point do
+      run CspResponse.new(browser_app)
+    end
+  end
+)
