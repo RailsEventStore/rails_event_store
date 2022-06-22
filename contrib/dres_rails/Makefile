@@ -9,9 +9,9 @@ install: ## Install gem dependencies
 
 migrate:
 	@echo "Running migrations"
-	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) bundle exec bin/rails dres_rails:install:migrations && cd ../..
-	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) bundle exec bin/rails db:migrate && cd ../..
-	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) RAILS_ENV=test bundle exec bin/rails db:migrate && cd ../..
+	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) bundle exec bin/rails dres_rails:install:migrations
+	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) bundle exec bin/rails db:migrate
+	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) RAILS_ENV=test bundle exec bin/rails db:migrate
 
 test: migrate ## Run unit tests
 	@echo "Running unit tests"
