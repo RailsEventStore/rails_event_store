@@ -37,13 +37,7 @@ module RubyEventStore
     end
 
     it "builds root url based on the settings" do
-      app =
-        Rack::Lint.new(
-          RubyEventStore::Browser::App.for(
-            event_store_locator: -> { event_store },
-            path: "/home"
-          )
-        )
+      app = Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, path: "/home"))
 
       response = TestClient.new(app, "localhost").get("/")
 
@@ -71,7 +65,19 @@ module RubyEventStore
     it "default JS sources are based on app_url" do
       response = test_client.get "/res"
 
-      script_tags(response.body).each { |script| expect(script.attribute("src").value).to match %r{\Ahttp://railseventstore.org/res} }
+      script_tags(response.body).each do |script|
+        expect(script.attribute("src").value).to match %r{\Ahttp://railseventstore.org/res}
+      end
+
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
+    end
+
+    it "default CSS sources are based on app_url" do
+      response = test_client.get "/res"
+
+      link_tags(response.body).each do |link|
+        expect(link.attribute("href").value).to match %r{\Ahttp://railseventstore.org/res}
+      end
 
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
     end
@@ -81,6 +87,10 @@ module RubyEventStore
 
     def script_tags(response_body)
       Nokogiri.HTML(response_body).css("script")
+    end
+
+    def link_tags(response_body)
+      Nokogiri.HTML(response_body).css("link")
     end
 
     def meta_content(response_body)

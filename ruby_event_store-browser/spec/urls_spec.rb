@@ -129,6 +129,11 @@ module RubyEventStore
         expect(routing.events_url).to eq("http://example.com:9393/res/api/events")
       end
 
+      specify "browser_css_url" do
+        routing = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(routing.browser_css_url).to eq("http://example.com:9393/res/ruby_event_store_browser.css")
+      end
+
       specify "browser_js_url" do
         routing = Urls.from_configuration("http://example.com:9393", "/res")
         expect(routing.browser_js_url).to eq("http://example.com:9393/res/ruby_event_store_browser.js")
