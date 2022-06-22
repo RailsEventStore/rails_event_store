@@ -49,11 +49,11 @@ install-npm:
 test-elm:
 	@cd elm; npx elm-test
 
-public/ruby_event_store_browser.css:
+$(CSS_OUTFILE):
 	@echo "Building browser CSS"
 	@cd elm; NODE_ENV=production npx tailwindcss -m -i src/style.css -o ../public/ruby_event_store_browser.css 2> /dev/null
 
-public/ruby_event_store_browser.js:
+$(JS_OUTFILE):
 	@echo "Building browser JS"
 	@cd elm; npx elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm > /dev/null
 	@cd elm; npx uglify-js ../public/ruby_event_store_browser.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | npx uglify-js --mangle --output ../public/ruby_event_store_browser.js
