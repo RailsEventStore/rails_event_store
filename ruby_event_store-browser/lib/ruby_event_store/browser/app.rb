@@ -20,6 +20,7 @@ module RubyEventStore
           use Rack::Static,
               urls: {
                 "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
+                "/ruby_event_store_browser.css" => "ruby_event_store_browser.css",
                 "/bootstrap.js" => "bootstrap.js"
               },
               root: "#{__dir__}/../../../public"
@@ -63,6 +64,7 @@ module RubyEventStore
           router.add_route("GET", starting_route) do |_, urls|
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
+                browser_css_src: urls.browser_css_url,
                 bootstrap_js_src: urls.bootstrap_js_url,
                 initial_data: {
                   rootUrl: urls.app_url,
@@ -90,6 +92,7 @@ module RubyEventStore
         <html>
           <head>
             <title>RubyEventStore::Browser</title>
+            <link type="text/css" rel="stylesheet" href="<%= browser_css_src %>">
             <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(initial_data)) %>">
           </head>
           <body>

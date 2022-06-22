@@ -2,11 +2,10 @@ module Layout exposing (Model, Msg, buildModel, update, view, viewIncorrectConfi
 
 import Browser.Navigation
 import Flags exposing (Flags)
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, href, placeholder, value)
-import Html.Styled.Events exposing (onInput, onSubmit)
+import Html exposing (..)
+import Html.Attributes exposing (class, href, placeholder, value)
+import Html.Events exposing (onInput, onSubmit)
 import Route
-import Tailwind.Utilities as Tw
 import Url
 import WrappedModel exposing (..)
 
@@ -40,27 +39,15 @@ update msg model =
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
 view layoutMsgBuilder model pageView =
     div
-        [ css
-            [ Tw.bg_gray_100
-            , Tw.min_h_screen
-            , Tw.w_full
-            , Tw.text_gray_800
-            , Tw.font_sans
-            , Tw.leading_relaxed
-            , Tw.antialiased
-            ]
-        ]
+        [ class "bg-gray-100 min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" ]
         [ header []
-            [ Html.Styled.map layoutMsgBuilder (browserNavigation model)
+            [ Html.map layoutMsgBuilder (browserNavigation model)
             ]
         , main_
-            [ css
-                [ Tw.bg_white
-                ]
-            ]
+            [ class "bg-white" ]
             [ pageView ]
         , footer []
-            [ Html.Styled.map layoutMsgBuilder (browserFooter model.flags)
+            [ Html.map layoutMsgBuilder (browserFooter model.flags)
             ]
         ]
 
@@ -78,45 +65,23 @@ viewIncorrectConfig =
 browserNavigation : WrappedModel Model -> Html Msg
 browserNavigation model =
     nav
-        [ css
-            [ Tw.flex
-            , Tw.bg_red_700
-            , Tw.px_8
-            , Tw.h_16
-            ]
-        ]
+        [ class "flex bg-red-700 px-8 h-16" ]
         [ div
-            [ css
-                [ Tw.flex
-                , Tw.items_center
-                ]
-            ]
+            [ class "flex items-center" ]
             [ a
                 [ href (Url.toString model.flags.rootUrl)
-                , css
-                    [ Tw.text_gray_100
-                    , Tw.font_semibold
-                    ]
+                , class "text-gray-100 font-semibold"
                 ]
                 [ text "Ruby Event Store" ]
             ]
         , div
-            [ css [ Tw.flex_1 ]
-            ]
+            [ class "flex-1" ]
             []
         , div
-            [ css
-                [ Tw.flex
-                , Tw.items_center
-                ]
-            ]
+            [ class "flex items-center" ]
             [ form [ onSubmit GoToStream ]
                 [ input
-                    [ css
-                        [ Tw.rounded
-                        , Tw.px_4
-                        , Tw.py_2
-                        ]
+                    [ class "rounded px-4 py-2"
                     , value model.internal.goToStream
                     , onInput GoToStreamChanged
                     , placeholder "Go to stream..."
@@ -130,53 +95,24 @@ browserNavigation model =
 browserFooter : Flags -> Html Msg
 browserFooter flags =
     footer
-        [ css
-            [ Tw.border_gray_400
-            , Tw.border_t
-            , Tw.py_4
-            ]
-        ]
+        [ class "border-gray-400 border-t py-4" ]
         [ div
-            [ css
-                [ Tw.flex
-                , Tw.justify_center
-                , Tw.text_gray_500
-                , Tw.text_sm
-                ]
-            ]
+            [ class "flex justify-center text-gray-500 text-sm" ]
             [ text ("RubyEventStore v" ++ flags.resVersion)
             , span
-                [ css
-                    [ Tw.font_bold
-                    , Tw.text_gray_400
-                    , Tw.inline_block
-                    , Tw.ml_4
-                    ]
-                ]
+                [ class "font-bold text-gray-400 inline-block ml-4" ]
                 [ text "•" ]
             , a
                 [ href "https://railseventstore.org/docs/install/"
-                , css
-                    [ Tw.text_gray_500
-                    , Tw.ml_4
-                    ]
+                , class "text-gray-500 ml-4"
                 ]
                 [ text "Documentation" ]
             , span
-                [ css
-                    [ Tw.font_bold
-                    , Tw.text_gray_400
-                    , Tw.inline_block
-                    , Tw.ml_4
-                    ]
-                ]
+                [ class "font-bold text-gray-400 inline-block ml-4" ]
                 [ text "•" ]
             , a
                 [ href "https://railseventstore.org/support/"
-                , css
-                    [ Tw.text_gray_500
-                    , Tw.ml_4
-                    ]
+                , class "text-gray-800 ml-4"
                 ]
                 [ text "Support" ]
             ]

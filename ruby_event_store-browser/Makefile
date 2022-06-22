@@ -1,6 +1,7 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
 GEM_NAME     = ruby_event_store-browser
 JS_OUTFILE   = public/ruby_event_store_browser.js
+CSS_OUTFILE   = public/ruby_event_store_browser.css
 
 include ../support/make/install.mk
 include ../support/make/test.mk
@@ -12,14 +13,17 @@ install: install-npm
 
 test: $(JS_OUTFILE) test-elm
 
-build: $(JS_OUTFILE)
+build: $(JS_OUTFILE) $(CSS_OUTFILE)
 
-push: $(JS_OUTFILE)
+push: $(JS_OUTFILE) $(CSS_OUTFILE)
 
-clean: clean-elm
+clean: clean-elm clean-css
 
 clean-elm:
 	@rm $(JS_OUTFILE) 2>/dev/null || true
+
+clean-css:
+	@rm $(CSS_OUTFILE) 2>/dev/null || true
 
 watch-elm: clean-elm
 	@cd elm; \
@@ -27,8 +31,14 @@ watch-elm: clean-elm
 			-c "npx elm make src/Main.elm --output ../$(JS_OUTFILE)" \
 			--initial
 
-dev: ## Start standalone browser seeded with some events and Elm recompile on change
-	@$(MAKE) -j2 serve watch-elm
+watch-css: clean-css
+	@cd elm; \
+		npx tailwindcss -w \
+			-i src/style.css \
+			-o ../$(CSS_OUTFILE)
+
+dev: ## Start standalone browser seeded with some events and Elm/CSS recompile on change
+	@$(MAKE) -j3 serve watch-elm watch-css
 
 serve:
 	@bundle exec rackup --port 9393 devserver/config.ru
@@ -38,6 +48,10 @@ install-npm:
 
 test-elm:
 	@cd elm; npx elm-test
+
+public/ruby_event_store_browser.css:
+	@echo "Building browser CSS"
+	@cd elm; NODE_ENV=production npx tailwindcss -m -i src/style.css -o ../public/ruby_event_store_browser.css 2> /dev/null
 
 public/ruby_event_store_browser.js:
 	@echo "Building browser JS"

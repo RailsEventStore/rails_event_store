@@ -1,14 +1,12 @@
 module Page.ShowStream exposing (Model, Msg(..), initCmd, initModel, update, view)
 
 import Api
-import Css
 import Flags exposing (Flags)
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, disabled, href)
-import Html.Styled.Events exposing (onClick)
+import Html exposing (..)
+import Html.Attributes exposing (class, disabled, href)
+import Html.Events exposing (onClick)
 import Http
 import Route
-import Tailwind.Utilities as Tw
 import TimeHelpers exposing (formatTimestamp)
 import Url
 
@@ -99,15 +97,10 @@ view { streamName, events, relatedStreams, problems, flags } =
 
         _ ->
             ( title
-            , div [ css [ Tw.py_8 ] ]
-                [ div [ css [ Tw.px_8 ] ]
+            , div [ class "py-8" ]
+                [ div [ class "px-8" ]
                     [ ul
-                        [ css
-                            [ Tw.flex
-                            , Tw.items_center
-                            , Tw.justify_center
-                            , Tw.py_24
-                            ]
+                        [ class "flex items-center justify-center py-24"
                         ]
                         (List.map viewProblem problems)
                     ]
@@ -117,24 +110,15 @@ view { streamName, events, relatedStreams, problems, flags } =
 
 browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
 browseEvents baseUrl title { links, events } relatedStreams =
-    div [ css [ Tw.py_8 ] ]
+    div [ class "py-8" ]
         [ div
-            [ css
-                [ Tw.flex
-                , Tw.px_8
-                , Tw.justify_between
-                ]
-            ]
+            [ class "flex px-8 justify-between" ]
             [ h1
-                [ css
-                    [ Tw.font_bold
-                    , Tw.text_2xl
-                    ]
-                ]
+                [ class "font-bold text-2xl" ]
                 [ text title ]
             , div [] [ displayPagination links ]
             ]
-        , div [ css [ Tw.px_8 ] ] [ renderResults baseUrl events ]
+        , div [ class "px-8" ] [ renderResults baseUrl events ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
 
@@ -155,21 +139,13 @@ renderRelatedStreams baseUrl relatedStreams_ =
     case relatedStreams_ of
         Just relatedStreams ->
             div
-                [ css [ Tw.px_8 ]
+                [ class "px-8"
                 ]
                 [ h2
-                    [ css
-                        [ Tw.font_bold
-                        , Tw.text_xl
-                        ]
-                    ]
+                    [ class "font-bold text-xl" ]
                     [ text "Related streams:" ]
                 , ul
-                    [ css
-                        [ Tw.list_disc
-                        , Tw.pl_8
-                        ]
-                    ]
+                    [ class "list-disc pl-8" ]
                     (List.map (\relatedStream -> li [] [ streamLink baseUrl relatedStream ]) relatedStreams)
                 ]
 
@@ -185,10 +161,7 @@ emptyHtml =
 streamLink : Url.Url -> String -> Html Msg
 streamLink baseUrl streamName =
     a
-        [ css
-            [ Tw.text_red_700
-            , Tw.no_underline
-            ]
+        [ class "text-red-700 no-underline"
         , href (Route.streamUrl baseUrl streamName)
         ]
         [ text streamName ]
@@ -196,7 +169,7 @@ streamLink baseUrl streamName =
 
 displayPagination : Api.PaginationLinks -> Html Msg
 displayPagination { first, last, next, prev } =
-    ul [ css [ Tw.flex ] ]
+    ul [ class "flex" ]
         [ li [] [ firstPageButton first ]
         , li [] [ prevPageButton prev ]
         , li [] [ nextPageButton next ]
@@ -218,44 +191,34 @@ maybeHref link =
 
 
 paginationStyle =
-    [ Tw.text_center
-    , Tw.text_sm
-    , Tw.border_red_700
-    , Tw.text_red_700
-    , Tw.border
-    , Tw.rounded
-    , Tw.px_2
-    , Tw.py_1
-    , Tw.mr_1
-    , Css.disabled [ Tw.opacity_50, Tw.cursor_not_allowed ]
-    ]
+    "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
 
 
 nextPageButton : Maybe Api.PaginationLink -> Html Msg
 nextPageButton link =
     button
-        (css paginationStyle :: maybeHref link)
+        (class paginationStyle :: maybeHref link)
         [ text "next" ]
 
 
 prevPageButton : Maybe Api.PaginationLink -> Html Msg
 prevPageButton link =
     button
-        (css paginationStyle :: maybeHref link)
+        (class paginationStyle :: maybeHref link)
         [ text "previous" ]
 
 
 lastPageButton : Maybe Api.PaginationLink -> Html Msg
 lastPageButton link =
     button
-        (css paginationStyle :: maybeHref link)
+        (class paginationStyle :: maybeHref link)
         [ text "last" ]
 
 
 firstPageButton : Maybe Api.PaginationLink -> Html Msg
 firstPageButton link =
     button
-        (css paginationStyle :: maybeHref link)
+        (class paginationStyle :: maybeHref link)
         [ text "first" ]
 
 
@@ -264,76 +227,30 @@ renderResults baseUrl events =
     case events of
         [] ->
             p
-                [ css
-                    [ Tw.flex
-                    , Tw.items_center
-                    , Tw.justify_center
-                    , Tw.py_24
-                    ]
-                ]
+                [ class "flex items-center justify-center py-24" ]
                 [ text "No items" ]
 
         _ ->
             table
-                [ css
-                    [ Tw.my_10
-                    , Tw.w_full
-                    , Tw.text_left
-                    , Tw.table_fixed
-                    , Tw.border_collapse
-                    ]
+                [ class "my-10 w-full text-left table-fixed border-collapse"
                 ]
                 [ thead
-                    [ css
-                        [ Tw.align_bottom
-                        , Tw.leading_tight
-                        ]
+                    [ class "align-bottom leading-tight"
                     ]
                     [ tr []
                         [ th
-                            [ css
-                                [ Tw.border_gray_400
-                                , Tw.border_b
-                                , Tw.text_gray_500
-                                , Tw.uppercase
-                                , Tw.pb_4
-                                , Tw.p_0
-                                , Tw.text_xs
-                                ]
-                            ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 p-0 text-xs" ]
                             [ text "Event name" ]
                         , th
-                            [ css
-                                [ Tw.border_gray_400
-                                , Tw.border_b
-                                , Tw.text_gray_500
-                                , Tw.uppercase
-                                , Tw.p_0
-                                , Tw.pb_4
-                                , Tw.text_xs
-                                ]
-                            ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ]
                             [ text "Event id" ]
                         , th
-                            [ css
-                                [ Tw.border_gray_400
-                                , Tw.border_b
-                                , Tw.text_gray_500
-                                , Tw.uppercase
-                                , Tw.p_0
-                                , Tw.pb_4
-                                , Tw.text_xs
-                                , Tw.text_right
-                                ]
-                            ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs text-right" ]
                             [ text "Created at" ]
                         ]
                     ]
                 , tbody
-                    [ css
-                        [ Tw.align_top
-                        ]
-                    ]
+                    [ class "align-top" ]
                     (List.map (itemRow baseUrl) events)
                 ]
 
@@ -342,34 +259,17 @@ itemRow : Url.Url -> Api.Event -> Html Msg
 itemRow baseUrl { eventType, createdAt, eventId } =
     tr []
         [ td
-            [ css
-                [ Tw.p_0
-                , Tw.pt_2
-                ]
-            ]
+            [ class "p-0 pt-2" ]
             [ a
-                [ css
-                    [ Tw.text_red_700
-                    , Tw.no_underline
-                    ]
+                [ class "text-red-700 no-underline"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
         , td
-            [ css
-                [ Tw.p_0
-                , Tw.pt_2
-                ]
-            ]
+            [ class "p-0 pt-2" ]
             [ text eventId ]
         , td
-            [ css
-                [ Tw.p_0
-                , Tw.pt_2
-                , Tw.text_right
-                ]
-            ]
-            [ text (formatTimestamp createdAt)
-            ]
+            [ class "p-0 pt-2 text-right" ]
+            [ text (formatTimestamp createdAt) ]
         ]

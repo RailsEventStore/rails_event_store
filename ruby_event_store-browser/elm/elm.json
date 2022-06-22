@@ -1,6 +1,6 @@
 {
   "type": "application",
-  "source-directories": ["./src", "./gen"],
+  "source-directories": ["./src"],
   "elm-version": "0.19.1",
   "dependencies": {
     "direct": {
@@ -15,7 +15,6 @@
       "elm/url": "1.0.0",
       "elm-community/maybe-extra": "5.3.0",
       "klazuka/elm-json-tree-view": "2.1.0",
-      "rtfeldman/elm-css": "17.1.1",
       "rtfeldman/elm-iso8601-date-strings": "1.1.4",
       "ryannhg/date-format": "2.3.0"
     },
@@ -25,8 +24,7 @@
       "elm/file": "1.0.5",
       "elm/parser": "1.1.0",
       "elm/virtual-dom": "1.0.2",
-      "robinheghan/murmur3": "1.0.0",
-      "rtfeldman/elm-hex": "1.0.0"
+      "robinheghan/murmur3": "1.0.0"
     }
   },
   "test-dependencies": {

@@ -2,14 +2,12 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation
-import Css.Global
 import Flags exposing (Flags, RawFlags, buildFlags)
-import Html.Styled exposing (..)
+import Html exposing (..)
 import Layout
 import Page.ShowEvent
 import Page.ShowStream
 import Route
-import Tailwind.Utilities as Tw
 import Url
 import Url.Parser exposing ((</>))
 import WrappedModel exposing (..)
@@ -159,11 +157,9 @@ view model =
         Nothing ->
             { title = fullTitle Nothing
             , body =
-                [ toUnstyled <|
-                    div []
-                        [ Css.Global.global Tw.globalStyles
-                        , Layout.viewIncorrectConfig
-                        ]
+                [ div []
+                    [ Layout.viewIncorrectConfig
+                    ]
                 ]
             }
 
@@ -173,14 +169,12 @@ view model =
                     viewPage model.page
             in
             { body =
-                [ toUnstyled <|
-                    div []
-                        [ Css.Global.global Tw.globalStyles
-                        , Layout.view
-                            GotLayoutMsg
-                            (wrapModel model model.layout flags)
-                            pageContent
-                        ]
+                [ div []
+                    [ Layout.view
+                        GotLayoutMsg
+                        (wrapModel model model.layout flags)
+                        pageContent
+                    ]
                 ]
             , title = fullTitle maybePageTitle
             }
@@ -221,7 +215,7 @@ viewOnePage pageMsgBuilder pageViewFunction pageModel =
         ( pageTitle, pageContent ) =
             pageViewFunction pageModel
     in
-    ( Just pageTitle, Html.Styled.map pageMsgBuilder pageContent )
+    ( Just pageTitle, Html.map pageMsgBuilder pageContent )
 
 
 wrapModel : Model -> a -> Flags -> WrappedModel a

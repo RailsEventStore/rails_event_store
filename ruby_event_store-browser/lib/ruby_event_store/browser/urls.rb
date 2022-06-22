@@ -48,6 +48,10 @@ module RubyEventStore
         "#{app_url}/ruby_event_store_browser.js"
       end
 
+      def browser_css_url
+        "#{app_url}/ruby_event_store_browser.css"
+      end
+
       def bootstrap_js_url
         "#{app_url}/bootstrap.js"
       end
