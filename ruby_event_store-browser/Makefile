@@ -11,7 +11,7 @@ include ../support/make/help.mk
 
 install: install-npm
 
-test: $(JS_OUTFILE) test-elm
+test: $(JS_OUTFILE) $(CSS_OUTFILE) test-elm
 
 build: $(JS_OUTFILE) $(CSS_OUTFILE)
 
