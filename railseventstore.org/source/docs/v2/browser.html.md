@@ -20,13 +20,12 @@ It is assumed that you have Rails Event Store configured at `Rails.configuration
 
 The `RailsEventStore::Browser` is just a wrapper around `RubyEventStore::Browser::App` with default options suitable for most applications. Read below the [Rack](#sinatra-rack), in case you need this browser outside as a standalone application or you have a different event store location.
 
-### Sinatra / Rack
+### Rack
 
 Add this line to your application's Gemfile:
 
 ```ruby
 gem "ruby_event_store-browser"
-gem "sinatra"
 ```
 
 Add this to your `config.ru` or wherever you mount your Rack apps to enable web interface. Check the appropriate environment variable (e.g. `ENV['RACK_ENV']`) to only mount the browser in the appropriate environment such as `development`.
@@ -34,29 +33,14 @@ Add this to your `config.ru` or wherever you mount your Rack apps to enable web 
 There is a helper method on the Rack app to configure options `event_store_locator`, `host` and `path`.
 
 ```ruby
-# e.g. Sinatra rackup file
+# e.g. config.ru
 
 require "ruby_event_store/browser/app"
 
 # Example RES client you might configure
 event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
 
-run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, host: "http://localhost:4567")
-```
-
-Specify the `path` option if you are not mounting the browser at the root.
-
-```ruby
-# e.g. mounting the Rack app in Hanami
-
-require "ruby_event_store/browser/app"
-
-run RubyEventStore::Browser::App.for(
-      event_store_locator: -> { event_store },
-      host: "http://localhost:2300",
-      path: "/res",
-    ),
-    at: "/res"
+run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
 ```
 
 ## Usage in production
@@ -119,10 +103,6 @@ Rails.application.routes.draw do
   mount browser => "/res"
 end
 ```
-
-### Sinatra
-
-You can use Rack-based middleware such as HTTP Basic Auth (as illustrated in the Rails example above) to control access to the browser Rack app.
 
 ### Related Streams
 
