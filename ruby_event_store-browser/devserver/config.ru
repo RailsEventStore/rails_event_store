@@ -1,5 +1,6 @@
 require "ruby_event_store"
 require_relative "../lib/ruby_event_store/browser/app"
+require_relative "../spec/support/csp_app"
 
 repository = RubyEventStore::InMemoryRepository.new
 event_store = RubyEventStore::Client.new(repository: repository)
@@ -54,18 +55,10 @@ browser_app =
   )
 mount_point = "/"
 
-class CspResponse < Struct.new(:app)
-  def call(env)
-    status, headers, response = app.call(env)
-    headers["Content-Security-Policy"] = "script-src 'self'; style-src 'self'"
-    [status, headers, response]
-  end
-end
-
 run(
   Rack::Builder.new do
     map mount_point do
-      run CspResponse.new(browser_app)
+      run CspApp.new(browser_app, "script-src 'self'; style-src 'self'")
     end
   end
 )

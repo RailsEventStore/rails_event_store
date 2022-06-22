@@ -39,17 +39,16 @@ module RubyEventStore
     end
 
     specify "Content-Security-Policy", mutant: false do
-      class CspApp < Struct.new(:app)
-        def call(env)
-          status, headers, response = app.call(env)
-
-          headers["Content-Security-Policy"] =
-            "default-src 'self'; connect-src 'self' ws://localhost:41221 http://127.0.0.1; script-src 'self'"
-          [status, headers, response]
-        end
-      end
-
-      Capybara.app = CspApp.new(app_builder(event_store))
+      Capybara.app =
+        CspApp.new(
+          app_builder(event_store),
+          [
+            "default-src 'self'",
+            "connect-src 'self'",
+            "ws://localhost:41221 http://127.0.0.1",
+            "script-src 'self'"
+          ].join(";")
+        )
 
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
       event_store.publish(foo_bar_event, stream_name: "dummy")
