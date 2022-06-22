@@ -77,7 +77,7 @@ set-version: git-check-clean git-check-committed
 	@sed $(SED_OPTS) "s/compare\/v.*\.\.\.master/compare\/v$(RES_VERSION)...master/" RELEASE.md
 	@make -j8 local-install
 	@make -j8 -C contrib local-install
-	@git add $(shell find . -name Gemfile*.lock -print) **/*.gemspec **/version.rb RES_VERSION APP_TEMPLATE RELEASE.md
+	@git add $(shell find . -name Gemfile*.lock -print) **/*.gemspec **/version.rb railseventstore.org/config.rb RES_VERSION APP_TEMPLATE RELEASE.md
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
