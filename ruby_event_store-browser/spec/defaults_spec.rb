@@ -36,14 +36,6 @@ module RubyEventStore
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("https://example.com/some/custom/api/url")
     end
 
-    it "builds root url based on the settings" do
-      app = Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, path: "/home"))
-
-      response = TestClient.new(app, "localhost").get("/")
-
-      expect(parsed_meta_content(response.body)["rootUrl"]).to eq("http://localhost/home")
-    end
-
     it "passes RES version" do
       response = test_client.get "/res"
 
