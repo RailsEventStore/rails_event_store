@@ -6,6 +6,10 @@ install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 
+local-install:
+	@bundle install --local --quiet
+
+
 test: ## Run unit tests
 	@echo "Running unit tests"
 	@bundle exec rspec

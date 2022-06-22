@@ -7,6 +7,9 @@ install: ## Install gem dependencies
 	@echo "Installing gem dependencies"
 	@bundle install
 
+local-install:
+	@bundle install --local --quiet
+
 migrate:
 	@echo "Running migrations"
 	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) bin/rails dres_rails:install:migrations
