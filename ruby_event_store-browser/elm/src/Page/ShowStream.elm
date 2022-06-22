@@ -191,7 +191,7 @@ maybeHref link =
 
 
 paginationStyle =
-    "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
+    "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:text-red-700/50 disabled:border-red-700/50 disabled:cursor-not-allowed"
 
 
 nextPageButton : Maybe Api.PaginationLink -> Html Msg

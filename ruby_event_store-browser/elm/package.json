@@ -6,11 +6,12 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "devDependencies": {
+    "autoprefixer": "^10.4.7",
     "chokidar-cli": "^3.0.0",
     "elm": "^0.19.1-5",
     "elm-test": "^0.19.1-revision8",
-    "postcss": "^8.3.8",
-    "tailwindcss": "^2.2.16",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.4",
     "uglify-js": "^3.16.1"
   }
 }
