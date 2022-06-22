@@ -13,7 +13,7 @@ migrate:
 	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) bin/rails db:migrate
 	@cd spec/dummy && DATABASE_URL=$(DATABASE_URL) RAILS_ENV=test bin/rails db:migrate
 
-test: migrate ## Run unit tests
+test: ## Run unit tests
 	@echo "Running unit tests"
 	@env DATABASE_URL=$(DATABASE_URL) bundle exec rspec
 
