@@ -13,15 +13,13 @@ module RubyEventStore
       expect(metadata["valid_at"]).to eq(dummy_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION))
     end
 
-    let(:test_client) { TestClient.new(app_builder(event_store)) }
+    let(:test_client) { TestClient.new(app_builder(event_store), "www.example.com") }
     let(:event_store) do
       RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON))
     end
 
     def app_builder(event_store)
-      Rack::Lint.new(
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, host: "http://www.example.com")
-      )
+      Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }))
     end
   end
 end

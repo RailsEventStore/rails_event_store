@@ -175,13 +175,13 @@ module RubyEventStore
         correlation_id_generator: correlation_id_generator
       )
     end
-    let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store)) }
+    let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store), "www.example.com") }
     let(:correlation_id) { SecureRandom.uuid }
     let(:correlation_id_generator) { -> { correlation_id } }
 
     def app_builder(event_store)
       Rack::Lint.new(
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, host: "http://www.example.com")
+        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
       )
     end
   end
