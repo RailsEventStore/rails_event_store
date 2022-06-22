@@ -68,7 +68,7 @@ module RubyEventStore
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
     def app_builder(event_store)
-      Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, environment: :test))
+      Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }))
     end
   end
 end
