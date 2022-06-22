@@ -58,6 +58,13 @@ module RubyEventStore
       expect(page).to have_content("Events in all")
     end
 
+    specify "expect no severe browser warnings", mutant: false do
+      Capybara.app = CspApp.new(app_builder(event_store), "style-src 'self'; script-src 'self'")
+      visit("/")
+
+      expect(page.driver.browser.manage.logs.get(:browser).select { |le| le.level == "SEVERE" }).to be_empty
+    end
+
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
 
     def app_builder(event_store)
