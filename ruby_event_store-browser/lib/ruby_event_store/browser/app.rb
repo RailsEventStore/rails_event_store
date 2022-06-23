@@ -40,17 +40,22 @@ module RubyEventStore
           and this option is redundant.
         WARN
 
-        browser_app =
-          new(
-            event_store_locator: event_store_locator,
-            related_streams_query: related_streams_query,
-            host: host,
-            root_path: path,
-            api_url: api_url
-          )
-        static_app =
+        new(
+          event_store_locator: event_store_locator,
+          related_streams_query: related_streams_query,
+          host: host,
+          root_path: path,
+          api_url: api_url
+        )
+      end
+
+      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
+        @event_store_locator = event_store_locator
+        @related_streams_query = related_streams_query
+        @routing = Urls.from_configuration(host, root_path, api_url)
+        @rack_app =
           Rack::Static.new(
-            browser_app,
+            method(:router_app),
             urls: {
               "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
               "/ruby_event_store_browser.css" => "ruby_event_store_browser.css",
@@ -58,16 +63,17 @@ module RubyEventStore
             },
             root: "#{__dir__}/../../../public"
           )
-        static_app
-      end
-
-      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
-        @event_store_locator = event_store_locator
-        @related_streams_query = related_streams_query
-        @routing = Urls.from_configuration(host, root_path, api_url)
       end
 
       def call(env)
+        rack_app.call(env)
+      end
+
+      private
+
+      attr_reader :event_store_locator, :related_streams_query, :routing, :rack_app
+
+      def router_app(env)
         router = Router.new(routing)
         router.add_route("GET", "/api/events/:event_id") do |params|
           json GetEvent.new(event_store: event_store, event_id: params.fetch("event_id"))
@@ -104,10 +110,6 @@ module RubyEventStore
       rescue EventNotFound, Router::NoMatch
         not_found
       end
-
-      private
-
-      attr_reader :event_store_locator, :related_streams_query, :routing
 
       def event_store
         event_store_locator.call
