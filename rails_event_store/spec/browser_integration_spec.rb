@@ -31,12 +31,24 @@ module RailsEventStore
       )
     end
 
+    specify "browser present at auto-generated path helper" do
+      expect(app_session).to respond_to(:ruby_event_store_browser_app_path)
+      expect(app_session.ruby_event_store_browser_app_path).to eq("/res")
+    end
+
     def event_store
       Client.new
     end
 
     def app
       Rails.application
+    end
+
+    def app_session
+      session = ActionDispatch::Integration::Session.new(app)
+      session.extend(app.routes.url_helpers)
+      session.extend(app.routes.mounted_helpers)
+      session
     end
   end
 end
