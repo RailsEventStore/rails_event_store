@@ -1,15 +1,15 @@
 PATH
   remote: ../ruby_event_store
   specs:
-    ruby_event_store (2.5.0)
+    ruby_event_store (2.5.1)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    ruby_event_store-browser (2.5.0)
+    ruby_event_store-browser (2.5.1)
       rack
-      ruby_event_store (= 2.5.0)
+      ruby_event_store (= 2.5.1)
 
 GEM
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
