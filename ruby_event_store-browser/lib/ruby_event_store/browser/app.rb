@@ -21,7 +21,6 @@ module RubyEventStore
 
           This option is no-op, has no effect and will be removed in next major release.
         WARN
-
         warn(<<~WARN) if host
           Passing :host to RubyEventStore::Browser::App.for is deprecated. 
 
@@ -30,7 +29,6 @@ module RubyEventStore
           Host and mount points are correctly recognized from Rack environment 
           and this option is redundant.
         WARN
-
         warn(<<~WARN) if path
           Passing :path to RubyEventStore::Browser::App.for is deprecated. 
 
@@ -40,25 +38,22 @@ module RubyEventStore
           and this option is redundant.
         WARN
 
-        browser_app =
-          new(
-            event_store_locator: event_store_locator,
-            related_streams_query: related_streams_query,
-            host: host,
-            root_path: path,
-            api_url: api_url
-          )
-        static_app =
-          Rack::Static.new(
-            browser_app,
-            urls: {
-              "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
-              "/ruby_event_store_browser.css" => "ruby_event_store_browser.css",
-              "/bootstrap.js" => "bootstrap.js"
-            },
-            root: "#{__dir__}/../../../public"
-          )
-        static_app
+        Rack::Builder.new do
+          use Rack::Static,
+              urls: {
+                "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
+                "/ruby_event_store_browser.css" => "ruby_event_store_browser.css",
+                "/bootstrap.js" => "bootstrap.js"
+              },
+              root: "#{__dir__}/../../../public"
+          run App.new(
+                event_store_locator: event_store_locator,
+                related_streams_query: related_streams_query,
+                host: host,
+                root_path: path,
+                api_url: api_url
+              )
+        end
       end
 
       def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
