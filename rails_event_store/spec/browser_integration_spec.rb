@@ -36,7 +36,7 @@ module RailsEventStore
     end
 
     def app
-      TestApplication.tap { |app| app.routes.draw { mount Browser => "/res" } }
+      Rails.application
     end
   end
 end

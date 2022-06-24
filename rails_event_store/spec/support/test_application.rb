@@ -7,6 +7,9 @@ class TestApplication < Rails::Application
   config.eager_load = false
   config.secret_key_base = SecureRandom.hex(16)
   config.event_store = RailsEventStore::Client.new
-  initialize!
+
+  routes.append { mount RailsEventStore::Browser => "/res" }
   routes.default_url_options = { host: "example.org" }
 end
+
+TestApplication.initialize!
