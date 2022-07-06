@@ -56,6 +56,7 @@ Whenever you fix a bug or add a new feature, we require that the coverage doesn'
 
 ### Unreleased contributed gems
 | Name                                                                              | CI    |
+| --------------------------------------------------------------------------------- | ----- |
 | [ruby_event_store-newrelic](/contrib/ruby_event_store-newrelic)                   | [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RailsEventStore/rails_event_store/ruby_event_store-newrelic?style=flat-square)](https://github.com/RailsEventStore/rails_event_store/actions/workflows/ruby_event_store-newrelic.yml) |
 | [minitest-ruby_event_store](/contrib/minitest-ruby_event_store)                   | [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RailsEventStore/rails_event_store/minitest-ruby_event_store?style=flat-square)](https://github.com/RailsEventStore/rails_event_store/actions/workflows/minitest-ruby_event_store.yml) |
 | [dres_rails](/contrib/distributed_rails_event_store/dres_rails)                   | [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RailsEventStore/rails_event_store/dres_rails?style=flat-square)](https://github.com/RailsEventStore/rails_event_store/actions/workflows/dres_rails.yml) |
