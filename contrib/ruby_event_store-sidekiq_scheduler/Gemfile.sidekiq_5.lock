@@ -7,7 +7,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-sidekiq_scheduler (0.1.0)
+    ruby_event_store-sidekiq_scheduler (0.1.1)
       ruby_event_store (>= 2.0.0, < 3.0.0)
 
 GEM
