@@ -1,4 +1,16 @@
 PATH
+  remote: ../../ruby_event_store-rspec
+  specs:
+    ruby_event_store-rspec (2.5.1)
+      rspec (~> 3.0)
+
+PATH
+  remote: ../../ruby_event_store
+  specs:
+    ruby_event_store (2.5.1)
+      concurrent-ruby (~> 1.0, >= 1.1.6)
+
+PATH
   remote: .
   specs:
     ruby_event_store-flipper (0.2.1)
@@ -55,12 +67,6 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
-    ruby2_keywords (0.0.5)
-    ruby_event_store (2.3.0)
-      concurrent-ruby (~> 1.0, >= 1.1.6)
-      ruby2_keywords
-    ruby_event_store-rspec (2.3.0)
-      rspec (~> 3.0)
     sorbet-runtime (0.5.10125)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -86,8 +92,9 @@ DEPENDENCIES
   mutant-rspec (= 0.11.12)
   rake (>= 10.0)
   rspec (~> 3.6)
+  ruby_event_store!
   ruby_event_store-flipper!
-  ruby_event_store-rspec
+  ruby_event_store-rspec!
 
 BUNDLED WITH
    2.3.14

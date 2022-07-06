@@ -4,8 +4,9 @@ source "https://rubygems.org"
 gemspec
 
 eval_gemfile "../../support/bundler/Gemfile.shared"
+gem "ruby_event_store", path: "../../ruby_event_store"
+gem "ruby_event_store-rspec", path: "../../ruby_event_store-rspec"
 
 gem "flipper", "~> 0.19"
-gem "ruby_event_store-rspec"
 gem "byebug"
 gem "activesupport", "7.0.3"
