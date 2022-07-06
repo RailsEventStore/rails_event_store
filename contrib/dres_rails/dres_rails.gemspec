@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
-$LOAD_PATH.append File.expand_path("lib", __dir__)
-require "dres_rails/identity"
+require_relative "lib/dres_rails/identity"
 
 Gem::Specification.new do |spec|
-  spec.name = DresRails::Identity.name
-  spec.version = DresRails::Identity.version
-  spec.platform = Gem::Platform::RUBY
+  spec.name = "dres_rails"
+  spec.version = DresRails::VERSION
+  spec.license = "MIT"
   spec.authors = ["Robert Pankowecki"]
   spec.email = ["dev@arkency.com"]
   spec.homepage = ""
   spec.summary = ""
-  spec.license = "MIT"
   spec.files = Dir["app/**/*", "bin/**/*", "config/**/*", "db/**/*", "lib/**/*", "vendor/**/*"]
   spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
   spec.require_paths = ["lib"]
