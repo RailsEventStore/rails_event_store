@@ -11,7 +11,7 @@
     "elm": "^0.19.1-5",
     "elm-test": "^0.19.1-revision9",
     "postcss": "^8.4.14",
-    "tailwindcss": "^3.1.5",
+    "tailwindcss": "^3.1.6",
     "uglify-js": "^3.16.2"
   }
 }
