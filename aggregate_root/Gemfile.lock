@@ -60,7 +60,7 @@ GEM
     rspec-support (3.11.0)
     sorbet-runtime (0.5.10152)
     thread_safe (0.3.6)
-    tzinfo (1.2.9)
+    tzinfo (1.2.10)
       thread_safe (~> 0.1)
     unparser (0.6.5)
       diff-lcs (~> 1.3)
