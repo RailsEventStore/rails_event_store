@@ -6,7 +6,7 @@
   "author": "dev@arkency.com",
   "license": "MIT",
   "devDependencies": {
-    "autoprefixer": "^10.4.8",
+    "autoprefixer": "^10.4.9",
     "chokidar-cli": "^3.0.0",
     "elm": "^0.19.1-5",
     "elm-test": "^0.19.1-revision9",
