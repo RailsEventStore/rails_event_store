@@ -8,6 +8,12 @@ require_relative "../../support/helpers/time_enrichment"
 
 ENV["RACK_ENV"] = "test"
 
+begin
+  require "rackup"
+  $LOADED_FEATURES << "rack/handler/webrick.rb"
+rescue LoadError
+end
+
 require "capybara/rspec"
 require "selenium-webdriver"
 

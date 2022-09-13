@@ -58,7 +58,7 @@ class TestClientWithJsonApiLinter
     raise InvalidContentType.new(last_request.content_type) unless match_content_type(last_request.content_type)
 
     document = last_request.body.read
-    last_request.body.rewind
+    last_request.body.rewind if last_request.body.respond_to?(:rewind)
 
     raise InvalidDocument.new(document) unless valid_schema(document)
   end

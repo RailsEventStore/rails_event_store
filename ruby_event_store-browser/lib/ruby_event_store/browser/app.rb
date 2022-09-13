@@ -130,11 +130,11 @@ module RubyEventStore
       end
 
       def json(body)
-        [200, { "Content-Type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
+        [200, { "content-type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
       end
 
       def erb(template, **locals)
-        [200, { "Content-Type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
+        [200, { "content-type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
       end
 
       def res_version
