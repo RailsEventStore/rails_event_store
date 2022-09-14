@@ -81,7 +81,7 @@ module RubyEventStore
       end
 
       def cdn_file_url(name)
-        "https://d3iay4bmfswobf.cloudfront.net/#{gem_source.version}/#{name}"
+        "https://cdn.railseventstore.org/#{gem_source.version}/#{name}"
       end
     end
   end
