@@ -20,6 +20,7 @@ module RubyEventStore
         @root_path = root_path
         @app_url = [host, root_path].compact.reduce(:+)
         @api_url = api_url || ("#{app_url}/api" if app_url)
+        @gem_source = GemSource.new($LOAD_PATH)
       end
 
       def events_url
@@ -63,21 +64,14 @@ module RubyEventStore
       end
 
       private
+      attr_reader :gem_source
 
       def local_file_url(name)
         "#{app_url}/#{name}" if File.exist?(File.join("#{__dir__}/../../../public", name))
       end
 
       def cdn_file_url(name)
-        "https://d3iay4bmfswobf.cloudfront.net/#{commit_sha}/#{name}"
-      end
-
-      def commit_sha
-        $LOAD_PATH
-          .select { |x| x.end_with? "ruby_event_store-browser/lib" }
-          .map { |x| x.split("/")[-3] }
-          .map { |x| x.split("-")[-1] }
-          .first
+        "https://d3iay4bmfswobf.cloudfront.net/#{gem_source.version}/#{name}"
       end
     end
   end
