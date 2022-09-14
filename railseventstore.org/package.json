@@ -6,7 +6,7 @@
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^4.0.3",
-    "autoprefixer": "^10.4.9",
+    "autoprefixer": "^10.4.10",
     "countup.js": "^2.3.2",
     "postcss": "^8.3.8",
     "postcss-url": "^10.1.3",
