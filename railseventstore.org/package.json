@@ -5,7 +5,7 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^4.0.3",
+    "@fullhuman/postcss-purgecss": "^5.0.0",
     "autoprefixer": "^10.4.10",
     "countup.js": "^2.3.2",
     "postcss": "^8.3.8",
