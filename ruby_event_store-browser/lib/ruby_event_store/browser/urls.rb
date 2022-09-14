@@ -47,12 +47,20 @@ module RubyEventStore
 
       def browser_js_url
         name = "ruby_event_store_browser.js"
-        local_file_url(name) || cdn_file_url(name)
+        if gem_source.from_git?
+          cdn_file_url(name)
+        else
+          local_file_url(name)
+        end
       end
 
       def browser_css_url
         name = "ruby_event_store_browser.css"
-        local_file_url(name) || cdn_file_url(name)
+        if gem_source.from_git?
+          cdn_file_url(name)
+        else
+          local_file_url(name)
+        end
       end
 
       def bootstrap_js_url
