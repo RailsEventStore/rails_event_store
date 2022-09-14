@@ -77,7 +77,7 @@ module RubyEventStore
       attr_reader :gem_source
 
       def local_file_url(name)
-        "#{app_url}/#{name}" if File.exist?(File.join("#{__dir__}/../../../public", name))
+        "#{app_url}/#{name}"
       end
 
       def cdn_file_url(name)
