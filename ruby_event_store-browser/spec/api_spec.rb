@@ -185,7 +185,7 @@ module RubyEventStore
     let(:correlation_id_generator) { -> { correlation_id } }
 
     def app_builder(event_store)
-      Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }))
+      RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
     end
   end
 end

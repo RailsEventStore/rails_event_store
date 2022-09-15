@@ -23,13 +23,11 @@ module RubyEventStore
           api_url: "https://example.com/some/custom/api/url"
         )
       outside_app =
-        Rack::Lint.new(
           Rack::Builder.new do
             map "/res" do
               run inside_app
             end
           end
-        )
 
       response = WebClient.new(outside_app, "railseventstore.org").get("/res")
 
@@ -95,13 +93,11 @@ module RubyEventStore
 
     def app_builder(event_store)
       inside_app = RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
-      Rack::Lint.new(
-        Rack::Builder.new do
-          map "/res" do
-            run inside_app
-          end
+      Rack::Builder.new do
+        map "/res" do
+          run inside_app
         end
-      )
+      end
     end
   end
 end

@@ -37,7 +37,7 @@ class ApiClient
 
   def build_rack_mock_session
     Rack::MockSession
-      .new(app, host)
+      .new(Rack::Lint.new(app), host)
       .tap do |session|
         session.after_request { validate_request }
         session.after_request { validate_response }

@@ -20,7 +20,7 @@ class WebClient
   private
 
   def build_rack_mock_session
-    Rack::MockSession.new(app, host)
+    Rack::MockSession.new(Rack::Lint.new(app), host)
   end
 
   attr_reader :app, :host
