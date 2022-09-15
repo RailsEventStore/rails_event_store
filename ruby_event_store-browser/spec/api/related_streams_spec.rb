@@ -8,7 +8,7 @@ module RubyEventStore
           event_store_locator: -> { event_store },
           related_streams_query: ->(stream_name) { stream_name == "dummy" ? ["even-dummier"] : [] }
         )
-      test_client = TestClientWithJsonApiLinter.new(app, "www.example.com")
+      test_client = ApiClient.new(app, "www.example.com")
 
       test_client.get "/api/streams/all"
       expect(test_client.last_response).to be_ok
@@ -21,7 +21,7 @@ module RubyEventStore
 
     specify "default related streams query returns nil" do
       app = RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
-      test_client = TestClientWithJsonApiLinter.new(app, "www.example.com")
+      test_client = ApiClient.new(app, "www.example.com")
 
       test_client.get "/api/streams/all"
       expect(test_client.last_response).to be_ok

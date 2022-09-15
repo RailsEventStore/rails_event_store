@@ -180,7 +180,7 @@ module RubyEventStore
         correlation_id_generator: correlation_id_generator
       )
     end
-    let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store), "www.example.com") }
+    let(:test_client) { ApiClient.new(app_builder(event_store), "www.example.com") }
     let(:correlation_id) { SecureRandom.uuid }
     let(:correlation_id_generator) { -> { correlation_id } }
 

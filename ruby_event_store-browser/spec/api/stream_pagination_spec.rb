@@ -200,7 +200,7 @@ module RubyEventStore
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { TestClientWithJsonApiLinter.new(app_builder(event_store), "www.example.com") }
+    let(:test_client) { ApiClient.new(app_builder(event_store), "www.example.com") }
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })

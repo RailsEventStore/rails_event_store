@@ -1,7 +1,7 @@
 require "rack/test"
 require "json-schema"
 
-class TestClientWithJsonApiLinter
+class ApiClient
   include Rack::Test::Methods
 
   class InvalidContentType < StandardError
