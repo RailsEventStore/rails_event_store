@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   module Browser
     class GetStream
@@ -8,27 +10,16 @@ module RubyEventStore
       end
 
       def to_h
-        {
-          data: {
-            id: stream_name,
-            type: "streams",
-            attributes: {
-              related_streams: related_streams
-            },
-            relationships: {
-              events: {
-                links: {
-                  self: routing.paginated_events_from_stream_url(id: stream_name)
-                }
-              }
-            }
-          }
-        }
+        { data: JsonApiStream.new(stream_name, events_from_stream_url, related_streams).to_h }
       end
 
       private
 
       attr_reader :stream_name, :routing, :related_streams_query
+
+      def events_from_stream_url
+        routing.paginated_events_from_stream_url(id: stream_name)
+      end
 
       def related_streams
         related_streams_query.call(stream_name) unless related_streams_query.equal?(DEFAULT_RELATED_STREAMS_QUERY)
