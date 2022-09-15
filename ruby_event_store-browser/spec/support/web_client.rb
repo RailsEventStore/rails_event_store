@@ -1,6 +1,6 @@
 require "rack/test"
 
-class TestClient
+class WebClient
   include Rack::Test::Methods
 
   def initialize(app, host = "example.org")

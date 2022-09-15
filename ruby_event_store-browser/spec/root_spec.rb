@@ -12,7 +12,7 @@ module RubyEventStore
     specify { expect(test_client.get("/").content_type).to eq("text/html;charset=utf-8") }
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { TestClient.new(app_builder(event_store), "www.example.com") }
+    let(:test_client) { WebClient.new(app_builder(event_store), "www.example.com") }
     let(:event_id) { SecureRandom.uuid }
 
     def app_builder(event_store)

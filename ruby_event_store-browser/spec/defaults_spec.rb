@@ -31,7 +31,7 @@ module RubyEventStore
           end
         )
 
-      response = TestClient.new(outside_app, "railseventstore.org").get("/res")
+      response = WebClient.new(outside_app, "railseventstore.org").get("/res")
 
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("https://example.com/some/custom/api/url")
     end
@@ -75,7 +75,7 @@ module RubyEventStore
     end
 
     let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { TestClient.new(app_builder(event_store), "railseventstore.org") }
+    let(:test_client) { WebClient.new(app_builder(event_store), "railseventstore.org") }
 
     def script_tags(response_body)
       Nokogiri.HTML(response_body).css("script")
