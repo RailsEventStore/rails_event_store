@@ -13,9 +13,9 @@ module RubyEventStore
 
     it "takes path from request" do
       event_store.publish(events = 21.times.map { DummyEvent.new })
-      web_client.get "/res/api/streams/all/relationships/events"
+      api_client.get "/res/api/streams/all/relationships/events"
 
-      expect(web_client.parsed_body["links"]).to eq(
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "last" =>
             "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
