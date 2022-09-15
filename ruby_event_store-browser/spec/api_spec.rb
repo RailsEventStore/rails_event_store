@@ -42,7 +42,7 @@ module RubyEventStore
       test_client.get "/api/events/#{dummy_event.event_id}"
 
       expect(test_client.last_response).to be_ok
-      expect(test_client.parsed_body["data"]).to match(event_resource)
+      expect(test_client.parsed_body["data"]).to match(event_resource_with_streams)
     end
 
     specify "requesting non-existing event" do
@@ -92,7 +92,8 @@ module RubyEventStore
         type: "events",
         attributes: {
           event_type: "DummyEvent",
-          data: {},
+          data: {
+          },
           metadata: {
             timestamp: "2020-01-01T12:00:00.000001Z",
             valid_at: "2020-01-01T12:00:00.000001Z"
@@ -145,6 +146,10 @@ module RubyEventStore
         )
     end
 
+    def event_resource_with_streams
+      event_resource.merge("relationships" => { "streams" => { "data" => [{ "id" => "dummy", "type" => "streams" }] } })
+    end
+
     def event_resource
       {
         "id" => dummy_event.event_id,
@@ -180,9 +185,7 @@ module RubyEventStore
     let(:correlation_id_generator) { -> { correlation_id } }
 
     def app_builder(event_store)
-      Rack::Lint.new(
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
-      )
+      Rack::Lint.new(RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }))
     end
   end
 end

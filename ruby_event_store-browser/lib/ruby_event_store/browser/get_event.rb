@@ -9,10 +9,19 @@ module RubyEventStore
       end
 
       def to_h
-        { data: JsonApiEvent.new(event, parent_event_id).to_h }
+        {
+          data: [
+            JsonApiEvent.new(event, parent_event_id).to_h,
+            { relationships: { streams: { data: streams } } }
+          ].reduce(&:merge)
+        }
       end
 
       private
+
+      def streams
+        event_store.streams_of(event_id).map { |stream| { "id" => stream.name, "type" => "streams" } }
+      end
 
       attr_reader :event_store, :event_id
 
