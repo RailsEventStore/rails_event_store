@@ -9,7 +9,7 @@ class TestClient
   end
 
   def get(*)
-    header "Content-Type", "application/vnd.api+json"
+    header "content-type", "application/vnd.api+json"
     super
   end
 
