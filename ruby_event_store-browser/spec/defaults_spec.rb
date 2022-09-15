@@ -23,57 +23,79 @@ module RubyEventStore
           api_url: "https://example.com/some/custom/api/url"
         )
       outside_app =
-          Rack::Builder.new do
-            map "/res" do
-              run inside_app
-            end
+        Rack::Builder.new do
+          map "/res" do
+            run inside_app
           end
+        end
 
       response = WebClient.new(outside_app, "railseventstore.org").get("/res")
 
-      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("https://example.com/some/custom/api/url")
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq(
+        "https://example.com/some/custom/api/url"
+      )
     end
 
     it "passes RES version" do
       response = test_client.get "/res"
 
-      expect(parsed_meta_content(response.body)["resVersion"]).to eq(RubyEventStore::VERSION)
+      expect(parsed_meta_content(response.body)["resVersion"]).to eq(
+        RubyEventStore::VERSION
+      )
     end
 
     it "passes root_url" do
       response = test_client.get "/res"
 
-      expect(parsed_meta_content(response.body)["rootUrl"]).to eq("http://railseventstore.org/res")
+      expect(parsed_meta_content(response.body)["rootUrl"]).to eq(
+        "http://railseventstore.org/res"
+      )
     end
 
     it "default #api_url is based on root_path" do
       response = test_client.get "/res"
 
-      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq(
+        "http://railseventstore.org/res/api"
+      )
     end
 
     it "default JS sources are based on app_url" do
       response = test_client.get "/res"
 
       script_tags(response.body).each do |script|
-        expect(script.attribute("src").value).to match %r{\Ahttp://railseventstore.org/res}
+        expect(
+          script.attribute("src").value
+        ).to match %r{\Ahttp://railseventstore.org/res}
       end
 
-      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq(
+        "http://railseventstore.org/res/api"
+      )
     end
 
     it "default CSS sources are based on app_url" do
       response = test_client.get "/res"
 
       link_tags(response.body).each do |link|
-        expect(link.attribute("href").value).to match %r{\Ahttp://railseventstore.org/res}
+        expect(
+          link.attribute("href").value
+        ).to match %r{\Ahttp://railseventstore.org/res}
       end
 
-      expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
+      expect(parsed_meta_content(response.body)["apiUrl"]).to eq(
+        "http://railseventstore.org/res/api"
+      )
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { WebClient.new(app_builder(event_store), "railseventstore.org") }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new
+      )
+    end
+    let(:test_client) do
+      WebClient.new(app_builder(event_store), "railseventstore.org")
+    end
 
     def script_tags(response_body)
       Nokogiri.HTML(response_body).css("script")
@@ -84,7 +106,10 @@ module RubyEventStore
     end
 
     def meta_content(response_body)
-      Nokogiri.HTML(response_body).css("meta[name='ruby-event-store-browser-settings']").attribute("content")
+      Nokogiri
+        .HTML(response_body)
+        .css("meta[name='ruby-event-store-browser-settings']")
+        .attribute("content")
     end
 
     def parsed_meta_content(response_body)
@@ -92,7 +117,10 @@ module RubyEventStore
     end
 
     def app_builder(event_store)
-      inside_app = RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
+      inside_app =
+        RubyEventStore::Browser::App.for(
+          event_store_locator: -> { event_store }
+        )
       Rack::Builder.new do
         map "/res" do
           run inside_app

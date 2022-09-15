@@ -17,8 +17,12 @@ module RubyEventStore
       click_on "FooBarEvent"
 
       expect(page).to have_content(foo_bar_event.event_id)
-      expect(page).to have_content("timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\"")
-      expect(page).to have_content("valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\"")
+      expect(page).to have_content(
+        "timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\""
+      )
+      expect(page).to have_content(
+        "valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\""
+      )
       expect(page).to have_content("foo: \"bar\"")
     end
 
@@ -33,8 +37,12 @@ module RubyEventStore
       click_on "FooBarEvent"
 
       expect(page).to have_content(foo_bar_event.event_id)
-      expect(page).to have_content("timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\"")
-      expect(page).to have_content("valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\"")
+      expect(page).to have_content(
+        "timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\""
+      )
+      expect(page).to have_content(
+        "valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\""
+      )
       expect(page).to have_content("foo: \"bar\"")
     end
 
@@ -59,13 +67,29 @@ module RubyEventStore
     end
 
     specify "expect no severe browser warnings", mutant: false do
-      Capybara.app = CspApp.new(app_builder(event_store), "style-src 'self'; script-src 'self'")
+      Capybara.app =
+        CspApp.new(
+          app_builder(event_store),
+          "style-src 'self'; script-src 'self'"
+        )
       visit("/")
 
-      expect(page.driver.browser.manage.logs.get(:browser).select { |le| le.level == "SEVERE" }).to be_empty
+      expect(
+        page
+          .driver
+          .browser
+          .manage
+          .logs
+          .get(:browser)
+          .select { |le| le.level == "SEVERE" }
+      ).to be_empty
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new
+      )
+    end
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })

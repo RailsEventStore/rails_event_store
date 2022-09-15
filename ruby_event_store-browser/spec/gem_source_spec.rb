@@ -4,7 +4,8 @@ module RubyEventStore
   module Browser
     RSpec.describe GemSource do
       specify "git source" do
-        path = "/Users/mostlyobvious/.rbenv/versions/2.7.2/lib/ruby/gems/2.7.0/bundler/gems/rails_event_store-151d0dfbec24/ruby_event_store-browser/lib"
+        path =
+          "/Users/mostlyobvious/.rbenv/versions/2.7.2/lib/ruby/gems/2.7.0/bundler/gems/rails_event_store-151d0dfbec24/ruby_event_store-browser/lib"
         source = GemSource.new([random_unrelated_path, path])
 
         expect(source.version).to eq("151d0dfbec24")
@@ -12,7 +13,8 @@ module RubyEventStore
       end
 
       specify "local path source" do
-        path = "/Users/mostlyobvious/Code/rails_event_store/ruby_event_store-browser/lib"
+        path =
+          "/Users/mostlyobvious/Code/rails_event_store/ruby_event_store-browser/lib"
         source = GemSource.new([random_unrelated_path, path])
 
         expect(source.version).to be_nil
@@ -20,7 +22,8 @@ module RubyEventStore
       end
 
       specify "rubygems source" do
-        path = "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-2.5.1/lib"
+        path =
+          "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-2.5.1/lib"
         source = GemSource.new([random_unrelated_path, path])
 
         expect(source.version).to eq("2.5.1")

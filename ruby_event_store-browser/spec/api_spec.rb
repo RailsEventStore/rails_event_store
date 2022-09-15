@@ -16,7 +16,8 @@ module RubyEventStore
           "relationships" => {
             "events" => {
               "links" => {
-                "self" => "http://www.example.com/api/streams/all/relationships/events"
+                "self" =>
+                  "http://www.example.com/api/streams/all/relationships/events"
               }
             }
           }
@@ -42,7 +43,9 @@ module RubyEventStore
       test_client.get "/api/events/#{dummy_event.event_id}"
 
       expect(test_client.last_response).to be_ok
-      expect(test_client.parsed_body["data"]).to match(event_resource_with_streams)
+      expect(test_client.parsed_body["data"]).to match(
+        event_resource_with_streams
+      )
     end
 
     specify "requesting non-existing event" do
@@ -54,7 +57,11 @@ module RubyEventStore
     end
 
     specify do
-      json = Browser::JsonApiEvent.new(dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f"), nil).to_h
+      json =
+        Browser::JsonApiEvent.new(
+          dummy_event("a562dc5c-97c0-4fe9-8b81-10f9bd0e825f"),
+          nil
+        ).to_h
 
       expect(json).to match(
         id: "a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
@@ -72,7 +79,8 @@ module RubyEventStore
             correlation_id: correlation_id
           },
           correlation_stream_name: "$by_correlation_id_#{correlation_id}",
-          causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+          causation_stream_name:
+            "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
           type_stream_name: "$by_type_DummyEvent"
         }
@@ -99,7 +107,8 @@ module RubyEventStore
             valid_at: "2020-01-01T12:00:00.000001Z"
           },
           correlation_stream_name: nil,
-          causation_stream_name: "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
+          causation_stream_name:
+            "$by_causation_id_a562dc5c-97c0-4fe9-8b81-10f9bd0e825f",
           parent_event_id: nil,
           type_stream_name: "$by_type_DummyEvent"
         }
@@ -120,7 +129,8 @@ module RubyEventStore
           "relationships" => {
             "events" => {
               "links" => {
-                "self" => "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events"
+                "self" =>
+                  "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events"
               }
             }
           }
@@ -147,7 +157,13 @@ module RubyEventStore
     end
 
     def event_resource_with_streams
-      event_resource.merge("relationships" => { "streams" => { "data" => [{ "id" => "dummy", "type" => "streams" }] } })
+      event_resource.merge(
+        "relationships" => {
+          "streams" => {
+            "data" => [{ "id" => "dummy", "type" => "streams" }]
+          }
+        }
+      )
     end
 
     def event_resource
@@ -180,7 +196,9 @@ module RubyEventStore
         correlation_id_generator: correlation_id_generator
       )
     end
-    let(:test_client) { ApiClient.new(app_builder(event_store), "www.example.com") }
+    let(:test_client) do
+      ApiClient.new(app_builder(event_store), "www.example.com")
+    end
     let(:correlation_id) { SecureRandom.uuid }
     let(:correlation_id_generator) { -> { correlation_id } }
 

@@ -199,8 +199,14 @@ module RubyEventStore
       expect(test_client.parsed_body["data"].size).to eq(0)
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { ApiClient.new(app_builder(event_store), "www.example.com") }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new
+      )
+    end
+    let(:test_client) do
+      ApiClient.new(app_builder(event_store), "www.example.com")
+    end
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })

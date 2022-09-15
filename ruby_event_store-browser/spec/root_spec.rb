@@ -9,14 +9,22 @@ module RubyEventStore
       event_store.append(DummyEvent.new(event_id: event_id))
       expect(test_client.get("/events/#{event_id}")).to be_ok
     end
-    specify { expect(test_client.get("/").content_type).to eq("text/html;charset=utf-8") }
+    specify do
+      expect(test_client.get("/").content_type).to eq("text/html;charset=utf-8")
+    end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:test_client) { WebClient.new(app_builder(event_store), "www.example.com") }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new
+      )
+    end
+    let(:test_client) do
+      WebClient.new(app_builder(event_store), "www.example.com")
+    end
     let(:event_id) { SecureRandom.uuid }
 
     def app_builder(event_store)
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
+      RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
     end
   end
 end

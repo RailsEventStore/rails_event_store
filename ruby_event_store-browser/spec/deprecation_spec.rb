@@ -4,7 +4,10 @@ module RubyEventStore
   RSpec.describe Browser do
     specify do
       expect {
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, environment: :test)
+        RubyEventStore::Browser::App.for(
+          event_store_locator: -> { event_store },
+          environment: :test
+        )
       }.to output(<<~EOS).to_stderr
           Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
 
@@ -14,7 +17,10 @@ module RubyEventStore
 
     specify do
       expect {
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, host: "http://localhost:31337")
+        RubyEventStore::Browser::App.for(
+          event_store_locator: -> { event_store },
+          host: "http://localhost:31337"
+        )
       }.to output(<<~EOS).to_stderr
           Passing :host to RubyEventStore::Browser::App.for is deprecated. 
 
@@ -27,7 +33,10 @@ module RubyEventStore
 
     specify do
       expect {
-        RubyEventStore::Browser::App.for(event_store_locator: -> { event_store }, path: "/res")
+        RubyEventStore::Browser::App.for(
+          event_store_locator: -> { event_store },
+          path: "/res"
+        )
       }.to output(<<~EOS).to_stderr
           Passing :path to RubyEventStore::Browser::App.for is deprecated. 
 
@@ -38,6 +47,10 @@ module RubyEventStore
       EOS
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new
+      )
+    end
   end
 end

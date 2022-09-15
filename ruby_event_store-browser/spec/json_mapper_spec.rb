@@ -9,13 +9,21 @@ module RubyEventStore
       expect(response).to be_ok
 
       metadata = JSON.parse(response.body)["data"][0]["attributes"]["metadata"]
-      expect(metadata["timestamp"]).to eq(dummy_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION))
-      expect(metadata["valid_at"]).to eq(dummy_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION))
+      expect(metadata["timestamp"]).to eq(
+        dummy_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)
+      )
+      expect(metadata["valid_at"]).to eq(
+        dummy_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)
+      )
     end
 
-    let(:test_client) { WebClient.new(app_builder(event_store), "www.example.com") }
+    let(:test_client) do
+      WebClient.new(app_builder(event_store), "www.example.com")
+    end
     let(:event_store) do
-      RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON))
+      RubyEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new(serializer: JSON)
+      )
     end
 
     def app_builder(event_store)
