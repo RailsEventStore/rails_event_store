@@ -1,8 +1,8 @@
-require "rack/test"
 require "json-schema"
 
 class ApiClient
-  include Rack::Test::Methods
+  extend Forwardable
+  def_delegators :@session, :last_request, :last_response
 
   class InvalidContentType < StandardError
     def initialize(content_type)
@@ -25,13 +25,14 @@ class ApiClient
   end
 
   def initialize(app, host = "example.org")
-    @app = app
-    @host = host
+    @session = Rack::MockSession.new(Rack::Lint.new(app), host).tap do |session|
+      session.after_request { validate_request }
+      session.after_request { validate_response }
+    end
   end
 
-  def get(*)
-    header "Content-Type", "application/vnd.api+json"
-    super
+  def get(url, params = {}, env = {})
+    @session.get(url, params, { "CONTENT_TYPE" => "application/vnd.api+json" })
   end
 
   def parsed_body
@@ -39,17 +40,6 @@ class ApiClient
   end
 
   private
-
-  def build_rack_mock_session
-    Rack::MockSession
-      .new(Rack::Lint.new(app), host)
-      .tap do |session|
-        session.after_request { validate_request }
-        session.after_request { validate_response }
-      end
-  end
-
-  attr_reader :app, :host
 
   def validate_response
     return if last_response.body.empty?

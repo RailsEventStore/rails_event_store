@@ -1,5 +1,6 @@
 require "ruby_event_store"
 require "ruby_event_store/browser/app"
+require "rack/test"
 require "support/web_client"
 require "support/api_client"
 require "support/csp_app"
