@@ -9,12 +9,7 @@ class WebClient
   end
 
   def get(*)
-    header "content-type", "application/vnd.api+json"
     super
-  end
-
-  def parsed_body
-    JSON.parse(last_response.body)
   end
 
   private
