@@ -2,6 +2,8 @@ require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Browser do
+    include Browser::IntegrationHelpers
+
     specify "requsting stream resource with related streams" do
       app =
         RubyEventStore::Browser::App.for(
@@ -10,18 +12,18 @@ module RubyEventStore
             stream_name == "dummy" ? ["even-dummier"] : []
           end
         )
-      test_client = ApiClient.new(app, "www.example.com")
+      api_client = ApiClient.new(app, "www.example.com")
 
-      test_client.get "/api/streams/all"
-      expect(test_client.last_response).to be_ok
+      api_client.get "/api/streams/all"
+      expect(api_client.last_response).to be_ok
       expect(
-        test_client.parsed_body["data"]["attributes"]["related_streams"]
+        api_client.parsed_body["data"]["attributes"]["related_streams"]
       ).to eq([])
 
-      test_client.get "/api/streams/dummy"
-      expect(test_client.last_response).to be_ok
+      api_client.get "/api/streams/dummy"
+      expect(api_client.last_response).to be_ok
       expect(
-        test_client.parsed_body["data"]["attributes"]["related_streams"]
+        api_client.parsed_body["data"]["attributes"]["related_streams"]
       ).to eq(["even-dummier"])
     end
 
@@ -30,12 +32,12 @@ module RubyEventStore
         RubyEventStore::Browser::App.for(
           event_store_locator: -> { event_store }
         )
-      test_client = ApiClient.new(app, "www.example.com")
+      api_client = ApiClient.new(app, "www.example.com")
 
-      test_client.get "/api/streams/all"
-      expect(test_client.last_response).to be_ok
+      api_client.get "/api/streams/all"
+      expect(api_client.last_response).to be_ok
       expect(
-        test_client.parsed_body["data"]["attributes"]["related_streams"]
+        api_client.parsed_body["data"]["attributes"]["related_streams"]
       ).to eq(nil)
     end
 

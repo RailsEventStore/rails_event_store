@@ -2,14 +2,16 @@ require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Browser do
+    include Browser::IntegrationHelpers
+
     specify "first page, newest events descending" do
       events = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       event_store.publish(events, stream_name: "dummy")
       event_store.publish([DummyEvent.new])
 
-      test_client.get "/api/streams/dummy/relationships/events"
-      expect(test_client.parsed_body["links"]).to eq(
+      api_client.get "/api/streams/dummy/relationships/events"
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "last" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
@@ -17,10 +19,10 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page[19].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
 
-      test_client.get "/api/streams/all/relationships/events"
-      expect(test_client.parsed_body["links"]).to eq(
+      api_client.get "/api/streams/all/relationships/events"
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "last" =>
             "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
@@ -28,16 +30,16 @@ module RubyEventStore
             "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{first_page[18].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
     end
 
     specify "first page, newest events descending" do
       events = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=head&page[direction]=backward&page[count]=20"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=head&page[direction]=backward&page[count]=20"
 
-      expect(test_client.parsed_body["links"]).to eq(
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "last" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
@@ -45,7 +47,7 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
     end
 
     specify "first page, newest events descending" do
@@ -53,9 +55,9 @@ module RubyEventStore
       first_page = events.reverse.take(20)
       last_page = events.reverse.drop(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=#{last_page.first.event_id}&page[direction]=forward&page[count]=20"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=#{last_page.first.event_id}&page[direction]=forward&page[count]=20"
 
-      expect(test_client.parsed_body["links"]).to eq(
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "last" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
@@ -63,7 +65,7 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
     end
 
     specify "last page, oldest events descending" do
@@ -73,8 +75,8 @@ module RubyEventStore
       event_store.publish([DummyEvent.new])
       event_store.publish(events, stream_name: "dummy")
 
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=20"
-      expect(test_client.parsed_body["links"]).to eq(
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=20"
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "first" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
@@ -82,10 +84,10 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
 
-      test_client.get "/api/streams/all/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=20"
-      expect(test_client.parsed_body["links"]).to eq(
+      api_client.get "/api/streams/all/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=20"
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "first" =>
             "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
@@ -97,16 +99,16 @@ module RubyEventStore
             "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
     end
 
     specify "last page, oldest events descending" do
       events = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=head&page[direction]=forward&page[count]=20"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=head&page[direction]=forward&page[count]=20"
 
-      expect(test_client.parsed_body["links"]).to eq(
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "first" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
@@ -114,7 +116,7 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
     end
 
     specify "non-edge page" do
@@ -122,9 +124,9 @@ module RubyEventStore
       first_page = events.reverse.take(20)
       next_page = events.reverse.drop(20).take(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=20"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=20"
 
-      expect(test_client.parsed_body["links"]).to eq(
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "first" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
@@ -136,16 +138,16 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(20)
+      expect(api_client.parsed_body["data"].size).to eq(20)
     end
 
     specify "smaller than page size" do
       events = [DummyEvent.new, DummyEvent.new]
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events"
+      api_client.get "/api/streams/dummy/relationships/events"
 
-      expect(test_client.parsed_body["links"]).to eq({})
-      expect(test_client.parsed_body["data"].size).to eq(2)
+      expect(api_client.parsed_body["links"]).to eq({})
+      expect(api_client.parsed_body["data"].size).to eq(2)
     end
 
     specify "custom page size" do
@@ -154,9 +156,9 @@ module RubyEventStore
       next_page = events.reverse.drop(5).take(5)
 
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=5"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.last.event_id}&page[direction]=backward&page[count]=5"
 
-      expect(test_client.parsed_body["links"]).to eq(
+      expect(api_client.parsed_body["links"]).to eq(
         {
           "first" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=5",
@@ -168,48 +170,35 @@ module RubyEventStore
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=5"
         }
       )
-      expect(test_client.parsed_body["data"].size).to eq(5)
+      expect(api_client.parsed_body["data"].size).to eq(5)
     end
 
     specify "custom page size" do
       events = 40.times.map { DummyEvent.new }
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/all/relationships/events?page[position]=head&page[direction]=forward&page[count]=5"
+      api_client.get "/api/streams/all/relationships/events?page[position]=head&page[direction]=forward&page[count]=5"
 
-      expect(test_client.parsed_body["data"].size).to eq(5)
+      expect(api_client.parsed_body["data"].size).to eq(5)
     end
 
     specify "out of bounds beyond oldest" do
       events = 40.times.map { DummyEvent.new }
       last_page = events.reverse.drop(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=#{last_page.last.event_id}&page[direction]=backward&page[count]=20"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=#{last_page.last.event_id}&page[direction]=backward&page[count]=20"
 
-      expect(test_client.parsed_body["links"]).to eq({})
-      expect(test_client.parsed_body["data"].size).to eq(0)
+      expect(api_client.parsed_body["links"]).to eq({})
+      expect(api_client.parsed_body["data"].size).to eq(0)
     end
 
     specify "out of bounds beyond newest" do
       events = 40.times.map { DummyEvent.new }
       first_page = events.reverse.take(20)
       event_store.publish(events, stream_name: "dummy")
-      test_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.first.event_id}&page[direction]=forward&page[count]=20"
+      api_client.get "/api/streams/dummy/relationships/events?page[position]=#{first_page.first.event_id}&page[direction]=forward&page[count]=20"
 
-      expect(test_client.parsed_body["links"]).to eq({})
-      expect(test_client.parsed_body["data"].size).to eq(0)
-    end
-
-    let(:event_store) do
-      RubyEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new
-      )
-    end
-    let(:test_client) do
-      ApiClient.new(app_builder(event_store), "www.example.com")
-    end
-
-    def app_builder(event_store)
-      RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
+      expect(api_client.parsed_body["links"]).to eq({})
+      expect(api_client.parsed_body["data"].size).to eq(0)
     end
   end
 end

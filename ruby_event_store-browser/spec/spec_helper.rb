@@ -3,6 +3,7 @@ require "ruby_event_store/browser/app"
 require "support/web_client"
 require "support/api_client"
 require "support/csp_app"
+require "support/integration_helpers"
 require_relative "../../support/helpers/rspec_defaults"
 require_relative "../../support/helpers/time_enrichment"
 
