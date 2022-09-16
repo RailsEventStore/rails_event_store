@@ -2,30 +2,23 @@ require "spec_helper"
 
 module RubyEventStore
   RSpec.describe Browser do
-    nested_app = ->(app) do
-      Rack::Builder.new do
-        map "/res" do
-          run app
-        end
-      end
-    end
+    nested_app = ->(app) { Rack::Builder.new { map("/res") { run(app) } } }
     include Browser::IntegrationHelpers.with(host: "railseventstore.org", app: nested_app)
 
-    it "takes path from request" do
-      event_store.publish(events = 21.times.map { DummyEvent.new })
-      api_client.get "/res/api/streams/all/relationships/events"
+    specify "passes RES version" do
+      response = web_client.get "/res"
 
-      expect(api_client.parsed_body["links"]).to eq(
-        {
-          "last" =>
-            "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
-          "next" =>
-            "http://railseventstore.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-        }
-      )
+      expect(parsed_meta_content(response.body)["resVersion"]).to eq(RubyEventStore::VERSION)
     end
 
-    it "builds api url based on the settings" do
+    specify "passes root_url" do
+      response = web_client.get "/res"
+
+      expect(parsed_meta_content(response.body)["rootUrl"]).to eq("http://railseventstore.org/res")
+    end
+
+
+    specify "builds api_url based on the settings" do
       inside_app =
         RubyEventStore::Browser::App.for(
           event_store_locator: -> { event_store },
@@ -43,25 +36,13 @@ module RubyEventStore
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("https://example.com/some/custom/api/url")
     end
 
-    it "passes RES version" do
-      response = web_client.get "/res"
-
-      expect(parsed_meta_content(response.body)["resVersion"]).to eq(RubyEventStore::VERSION)
-    end
-
-    it "passes root_url" do
-      response = web_client.get "/res"
-
-      expect(parsed_meta_content(response.body)["rootUrl"]).to eq("http://railseventstore.org/res")
-    end
-
-    it "default #api_url is based on root_path" do
+    specify "default api_url is based on root_path" do
       response = web_client.get "/res"
 
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
     end
 
-    it "default JS sources are based on app_url" do
+    specify "default JS sources are based on app_url" do
       response = web_client.get "/res"
 
       script_tags(response.body).each do |script|
@@ -71,7 +52,7 @@ module RubyEventStore
       expect(parsed_meta_content(response.body)["apiUrl"]).to eq("http://railseventstore.org/res/api")
     end
 
-    it "default CSS sources are based on app_url" do
+    specify "default CSS sources are based on app_url" do
       response = web_client.get "/res"
 
       link_tags(response.body).each do |link|
