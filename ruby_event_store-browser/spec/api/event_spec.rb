@@ -16,7 +16,7 @@ module RubyEventStore
         correlation_id: correlation_id,
         timestamp: timestamp,
         causation_id: parent_event.event_id
-      ) { event_store.append(dummy_event, stream_name: stream_name) }
+      ) { event_store.publish(dummy_event, stream_name: stream_name) }
 
       api_client.get "/api/events/#{dummy_event.event_id}"
 
@@ -37,7 +37,7 @@ module RubyEventStore
               "valid_at" => timestamp.iso8601(6),
               "correlation_id" => correlation_id,
               "causation_id" => parent_event.event_id
-          },
+            },
             "correlation_stream_name" => "$by_correlation_id_#{dummy_event.correlation_id}",
             "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
             "type_stream_name" => "$by_type_#{dummy_event.event_type}",
@@ -45,7 +45,12 @@ module RubyEventStore
           },
           "relationships" => {
             "streams" => {
-              "data" => [{ "id" => stream_name, "type" => "streams" }]
+              "data" => [
+                { "id" => stream_name, "type" => "streams" },
+                { "id" => "$by_correlation_id_#{dummy_event.correlation_id}", "type" => "streams" },
+                { "id" => "$by_causation_id_#{parent_event.event_id}", "type" => "streams" },
+                { "id" => "$by_type_#{dummy_event.event_type}", "type" => "streams" }
+              ]
             }
           }
         }
