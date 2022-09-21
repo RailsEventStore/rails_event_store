@@ -59,6 +59,7 @@ suite =
                                   , causationStreamName = Nothing
                                   , typeStreamName = "$by_type_DummyEvent"
                                   , parentEventId = Nothing
+                                  , streams = Nothing
                                   }
                                 ]
                             , links =
@@ -92,6 +93,28 @@ suite =
                                     "causation_stream_name": "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2",
                                     "type_stream_name": "$by_type_DummyEvent",
                                     "parent_event_id": "cb12f84b-b9e4-439b-8442-50fae6244dc9"
+                                },
+                                "relationships": {
+                                    "streams": {
+                                        "data": [
+                                            {
+                                                "id": "dummy",
+                                                "type": "streams"
+                                            },
+                                            {
+                                                "id": "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad",
+                                                "type": "streams"
+                                            },
+                                            {
+                                                "id": "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2",
+                                                "type": "streams"
+                                            },
+                                            {
+                                                "id": "$by_type_DummyEvent",
+                                                "type": "streams"
+                                            }
+                                        ]
+                                    }
                                 }
                             }
                             }
@@ -111,6 +134,7 @@ suite =
                             , causationStreamName = Just "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2"
                             , typeStreamName = "$by_type_DummyEvent"
                             , parentEventId = Just "cb12f84b-b9e4-439b-8442-50fae6244dc9"
+                            , streams = Just [ "dummy", "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad", "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2", "$by_type_DummyEvent" ]
                             }
                         )
             ]

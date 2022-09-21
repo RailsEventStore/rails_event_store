@@ -28,6 +28,7 @@ type alias Event =
     , rawMetadata : String
     , dataTreeState : JsonTree.State
     , metadataTreeState : JsonTree.State
+    , streams : Maybe (List String)
     }
 
 
@@ -137,6 +138,7 @@ apiEventToEvent e =
     , parentEventId = e.parentEventId
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
+    , streams = e.streams
     }
 
 
@@ -247,6 +249,7 @@ showEvent baseUrl event maybeCausedEvents =
                     ]
                 ]
             ]
+        , streamsOfEvent baseUrl event
         , relatedStreams baseUrl event
         , case maybeCausedEvents of
             Api.Loading ->
@@ -288,6 +291,27 @@ showEvent baseUrl event maybeCausedEvents =
         ]
 
 
+streamsOfEvent : Url.Url -> Event -> Html Msg
+streamsOfEvent baseUrl event =
+    case event.streams of
+        Just streams ->
+            div
+                [ class "px-8 mt-8"
+                ]
+                [ h2
+                    [ class "font-bold text-xl"
+                    ]
+                    [ text "Event streams" ]
+                , ul
+                    [ class "list-disc pl-8"
+                    ]
+                    (List.map (\id -> li [] [ streamLink baseUrl id ]) streams)
+                ]
+
+        Nothing ->
+            text ""
+
+
 relatedStreams : Url.Url -> Event -> Html Msg
 relatedStreams baseUrl event =
     let
@@ -299,12 +323,12 @@ relatedStreams baseUrl event =
 
     else
         div
-            [ class "px-8"
+            [ class "px-8 mt-8"
             ]
             [ h2
                 [ class "font-bold text-xl"
                 ]
-                [ text "Related streams / events:" ]
+                [ text "Related" ]
             , ul
                 [ class "list-disc pl-8"
                 ]

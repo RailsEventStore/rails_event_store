@@ -27,6 +27,7 @@ type alias Event =
     , causationStreamName : Maybe String
     , typeStreamName : String
     , parentEventId : Maybe String
+    , streams : Maybe (List String)
     }
 
 
@@ -93,6 +94,10 @@ eventDecoder =
 
 eventDecoder_ : Decoder Event
 eventDecoder_ =
+    let
+        inlinedStream =
+            field "id" string
+    in
     succeed Event
         |> requiredAt [ "attributes", "event_type" ] string
         |> requiredAt [ "id" ] string
@@ -103,6 +108,7 @@ eventDecoder_ =
         |> optionalAt [ "attributes", "causation_stream_name" ] (maybe string) Nothing
         |> requiredAt [ "attributes", "type_stream_name" ] string
         |> optionalAt [ "attributes", "parent_event_id" ] (maybe string) Nothing
+        |> optionalAt [ "relationships", "streams", "data" ] (maybe (list inlinedStream)) Nothing
 
 
 streamDecoder : Decoder Stream
