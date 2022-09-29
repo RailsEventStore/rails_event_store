@@ -54,7 +54,7 @@ Listeners subscribe, at runtime (or during configuration phase) to the publisher
 Any object responding to `call` can be subscribed as an event handler.
 
 ```ruby
-cancel_order = CancelOrder.new
+cancel_order = CancelOrderService.new
 event_store = Rails.configuration.event_store
 listener = OrderNotifier.new
 
