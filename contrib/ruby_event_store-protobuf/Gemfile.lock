@@ -127,7 +127,7 @@ GEM
     erubi (1.11.0)
     globalid (1.0.0)
       activesupport (>= 5.0)
-    google-protobuf (3.19.4)
+    google-protobuf (3.19.6)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     loofah (2.18.0)
@@ -238,7 +238,7 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  google-protobuf (~> 3.19.2)
+  google-protobuf (~> 3.19.6)
   mutant (= 0.11.16)
   mutant-license!
   mutant-minitest (= 0.11.16)
