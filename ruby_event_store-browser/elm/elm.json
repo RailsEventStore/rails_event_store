@@ -29,7 +29,7 @@
   },
   "test-dependencies": {
     "direct": {
-      "elm-explorations/test": "1.2.2"
+      "elm-explorations/test": "2.0.1"
     },
     "indirect": {
       "elm/random": "1.0.0"
