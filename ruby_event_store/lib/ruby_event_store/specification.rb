@@ -43,7 +43,7 @@ module RubyEventStore
       Specification.new(reader, result.dup { |r| r.stop = stop })
     end
 
-    # Limits the query to events that later than given time.
+    # Limits the query to events that occurred before given time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @param time [Time]
@@ -59,7 +59,7 @@ module RubyEventStore
       )
     end
 
-    # Limits the query to events that occurred on given time or later.
+    # Limits the query to events that occurred on or before given time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @param time [Time]
@@ -75,7 +75,7 @@ module RubyEventStore
       )
     end
 
-    # Limits the query to events that occurred earlier than given time.
+    # Limits the query to events that occurred after given time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @param time [Time]
@@ -91,7 +91,7 @@ module RubyEventStore
       )
     end
 
-    # Limits the query to events that occurred on given time or earlier.
+    # Limits the query to events that occurred on or after given time.
     # {http://railseventstore.org/docs/read/ Find out more}.
     #
     # @param time [Time]
