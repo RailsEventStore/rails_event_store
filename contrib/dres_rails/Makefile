@@ -3,12 +3,7 @@ GEM_NAME     = dres_rails
 REQUIRE      = $(GEM_NAME)
 DATABASE_URL ?= postgres://localhost/rails_event_store?pool=5
 
-install: ## Install gem dependencies
-	@echo "Installing gem dependencies"
-	@bundle install
-
-local-install:
-	@bundle install --local --quiet
+include ../../support/make/install.mk
 
 migrate:
 	@echo "Running migrations"

@@ -2,13 +2,7 @@ GEM_VERSION  = $(shell cat lib/dres_client/version.rb | grep VERSION | egrep -o 
 GEM_NAME     = dres_client
 REQUIRE      = $(GEM_NAME)
 
-install: ## Install gem dependencies
-	@echo "Installing gem dependencies"
-	@bundle install
-
-local-install:
-	@bundle install --local --quiet
-
+include ../../support/make/install.mk
 
 test: ## Run unit tests
 	@echo "Running unit tests"
