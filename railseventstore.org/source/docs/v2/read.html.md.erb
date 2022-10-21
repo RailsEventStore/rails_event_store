@@ -23,6 +23,11 @@ The available specification methods are:
    RailsEventStore never reads all domain events at once. Even if you don't specify
    a batch size, the read operation will be performed in batches of 100.
 * `of_type(types)` - read only specified types of domain events, ignoring all others.
+* `older_than(time)` - read events that occurred before given time
+* `older_than_or_equal(time)` - read events that occurred on or before given time
+* `newer_than(time)` - read events that occurred later than given time
+* `newer_than_or_equal(time)` - read events that occurred on or later than given time
+* `between(time_range)`- read events that occurred within given time range
 
 The read scope could be defined by chaining the specification methods, e.g.:
 
@@ -186,3 +191,76 @@ client.read.events(['event-1-id', 'event-2-id', ... 'event-N-id'])
 
 The `read.events` method will return only existing events. If none of given ids
 can be found, it will return an empty collection.
+
+## Reading events by time
+
+RailsEventStore lets you read events that occured in certain periods of time.
+You need to specify the date or dates that are interesting to you.
+
+### Reading events newer than specific date
+
+```ruby
+client.read.newer_than(3.days.ago).to_a
+```
+
+```ruby
+client.read.newer_than('2020-10-01').to_a
+```
+
+```ruby
+client.read.newer_than(Time.now).to_a
+```
+
+### Reading events newer than or equal to specific date
+
+```ruby
+client.read.newer_than_or_equal(3.days.ago).to_a
+```
+
+```ruby
+client.read.newer_than_or_equal('2020-10-01').to_a
+```
+
+```ruby
+client.read.newer_than_or_equal(Time.now).to_a
+```
+
+### Reading events older than specific date
+
+```ruby
+client.read.older_than(3.days.ago).to_a
+```
+
+```ruby
+client.read.older_than('2020-10-01').to_a
+```
+
+```ruby
+client.read.older_than(Time.now).to_a
+```
+
+### Reading events older than or equal to specific date
+
+```ruby
+client.read.older_than_or_equal(3.days.ago).to_a
+```
+
+```ruby
+client.read.older_than_or_equal('2020-10-01').to_a
+```
+
+```ruby
+client.read.older_than_or_equal(Time.now).to_a
+```
+
+### Reading events within time range
+```ruby
+client.read.between(10.days.ago..3.days.ago).to_a
+```
+
+```ruby
+client.read.between(Time.utc(2021,10,01)..Time.utc(2021,12,10)).to_a
+```
+
+It's important to notice that the `between` specification method includes the first specified date and it excludes the second date.
+In this case the time range "x" will be between `x >='2021-10-01' && x < '2021-12-10'`
