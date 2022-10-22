@@ -1407,6 +1407,15 @@ module RubyEventStore
       )
       expect(repository.read(specification.result).count).to eq(0)
     end
+
+    specify "linking empty list of commits to stream should be a no-op" do
+      repository.link_to_stream(
+        [],
+        RubyEventStore::Stream.new("whatever-non-globa"),
+        RubyEventStore::ExpectedVersion.any
+      )
+      expect(repository.read(specification.result).count).to eq(0)
+    end
   end
 
   ::RSpec::Matchers.define :eq_ids do |expected_ids|

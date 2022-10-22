@@ -27,6 +27,8 @@ module RailsEventStoreActiveRecord
     end
 
     def link_to_stream(event_ids, stream, expected_version)
+      return if event_ids.empty?
+
       (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each do |id|
         raise RubyEventStore::EventNotFound.new(id)
       end
