@@ -28,6 +28,7 @@ event_store.publish(Event.new(data: {}, metadata: {valid_at: Time.utc(2020,1,1)}
 ```
 
 When reading a stream with bi-temporal events you can either read the events by using:
+
 * `as_at` scope, which orders events by `timestamp`, which is the time of appending the event to the stream
 * `as_of` scope, which orders events by `valid_at`, which is the time of when the event was actually valid
 
