@@ -28,8 +28,9 @@ GEM
     fast_blank (1.0.1)
     fastimage (2.2.6)
     ffi (1.15.5)
-    haml (5.2.2)
-      temple (>= 0.8.0)
+    haml (6.0.7)
+      temple (>= 0.8.2)
+      thor
       tilt
     hamster (3.0.0)
       concurrent-ruby (~> 1.0)
@@ -124,7 +125,7 @@ PLATFORMS
 DEPENDENCIES
   faraday
   faraday-retry
-  haml (< 6)
+  haml (< 7)
   middleman (~> 4.4)
   middleman-aria_current
   middleman-syntax
