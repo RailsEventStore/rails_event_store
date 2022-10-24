@@ -264,3 +264,19 @@ client.read.between(Time.utc(2021,10,01)..Time.utc(2021,12,10)).to_a
 
 It's important to notice that the `between` specification method includes the first specified date and it excludes the second date.
 In this case the time range "x" will be between `x >='2021-10-01' && x < '2021-12-10'`
+
+## Position of an event in the stream
+
+Sometimes you might be interested in the position of an event in the stream. There are two query methods available:
+
+* `position_in_stream(event_id, stream)` - returns the position of given event in stream 
+* `global_position(event_id)` - returns the global position of given event
+
+The return value is an integer that indicates the position of an event in a given stream.
+
+### Usage
+
+```ruby
+client.position_in_stream("stream_name", "event_id") # Raises RubyEventStore::EventNotFoundInStream if event is not found in the specified stream
+client.global_position("event_id") # Raises RubyEventStore::EventNotFound if event doesn't exist
+```
