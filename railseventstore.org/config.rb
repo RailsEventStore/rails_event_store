@@ -47,7 +47,7 @@ activate :syntax do |syntax|
   syntax.css_class = "syntax-highlight"
 end
 activate :external_pipeline,
-         name: :parceljs,
+         name: :whatever,
          command: build? ? "npm run build" : "npm run watch",
          source: ".tmp/dist",
          latency: 1
