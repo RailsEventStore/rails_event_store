@@ -271,12 +271,12 @@ Sometimes you might be interested in the position of an event in the stream. The
 
 * `position_in_stream(event_id, stream)` - returns the position of given event in stream 
 * `global_position(event_id)` - returns the global position of given event
-
-The return value is an integer that indicates the position of an event in a given stream.
+* `event_in_stream?(event_id, stream)` - returns true if the event exists in the stream, false otherwise
 
 ### Usage
 
 ```ruby
 client.position_in_stream("stream_name", "event_id") # Raises RubyEventStore::EventNotFoundInStream if event is not found in the specified stream
 client.global_position("event_id") # Raises RubyEventStore::EventNotFound if event doesn't exist
+client.event_in_stream?("event_id", "stream_name")
 ```
