@@ -1,5 +1,5 @@
 module.exports = {
-  purge: [
+  content: [
     "./source/**/*.html",
     "./source/*.html",
     "./source/**/*.md",
@@ -8,9 +8,4 @@ module.exports = {
     "./source/*.erb",
     "./config.rb",
   ],
-  theme: {
-    extend: {},
-  },
-  variants: {},
-  plugins: [],
 };

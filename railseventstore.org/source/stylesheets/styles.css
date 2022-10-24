@@ -184,7 +184,7 @@ pre > code {
 }
 
 .frame__body {
-  @apply flex-grow;
+  @apply grow;
 }
 
 .frame__sidebar a {
@@ -260,7 +260,7 @@ pre > code {
 }
 
 .site-navigation__links {
-  @apply w-full block flex-grow items-end;
+  @apply w-full block grow items-end;
 }
 
 @screen md {
