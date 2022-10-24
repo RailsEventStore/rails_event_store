@@ -25,7 +25,7 @@ end
 ## Publishing
 
 ```ruby
-class CancelOrdersService
+class CancelOrder
   def call(order_id, user_id)
     order = Order.find_by!(customer_id: user_id, order_id: order_id)
     order.cancel!
@@ -54,7 +54,7 @@ Listeners subscribe, at runtime (or during configuration phase) to the publisher
 Any object responding to `call` can be subscribed as an event handler.
 
 ```ruby
-cancel_order = CancelOrderService.new
+cancel_order = CancelOrder.new
 event_store = Rails.configuration.event_store
 listener = OrderNotifier.new
 
