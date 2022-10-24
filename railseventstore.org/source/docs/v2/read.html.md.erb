@@ -255,11 +255,13 @@ client.read.older_than_or_equal(Time.now).to_a
 
 ### Reading events within time range
 ```ruby
-client.read.between(10.days.ago..3.days.ago).to_a
+client.read.between(10.days.ago..3.days.ago).to_a # includes start and end date
+client.read.between(10.days.ago...3.days.ago).to_a # includes start date, excludes end date
 ```
 
 ```ruby
-client.read.between(Time.utc(2021,10,01)..Time.utc(2021,12,10)).to_a
+client.read.between(Time.utc(2021,10,01)..Time.utc(2021,12,10)).to_a # includes start date and end date
+client.read.between(Time.utc(2021,10,01)...Time.utc(2021,12,10)).to_a # includes start date, excludes end date
 ```
 
 ## Position of an event in the stream
