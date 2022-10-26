@@ -31,11 +31,5 @@ module RubyEventStore
       expect(a).to eql(b)
       expect(a.hash).to eql(b.hash)
     end
-
-    specify "hash" do
-      a = Stream.new("some")
-      expect(a.hash).not_to eq([Stream, "some"].hash)
-      expect(Set.new([a])).to eq(Set.new([a]))
-    end
   end
 end

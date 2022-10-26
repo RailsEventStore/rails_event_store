@@ -82,11 +82,5 @@ module RubyEventStore
       expect(a).to eql(b)
       expect(a.hash).to eql(b.hash)
     end
-
-    specify "hash" do
-      a = ExpectedVersion.new(1)
-      expect(a.hash).not_to eq([ExpectedVersion, 1].hash)
-      expect(Set.new([a])).to eq(Set.new([a]))
-    end
   end
 end

@@ -106,11 +106,6 @@ module RubyEventStore
       expect(h[b]).to eq(:val)
     end
 
-    specify "hash" do
-      a = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d", timestamp: "e", valid_at: "f")
-      expect(a.hash).not_to eq([Record, "a", "b", "c", "d", "e", "f"].hash)
-    end
-
     specify "to_h" do
       a = Record.new(event_id: "a", data: "b", metadata: "c", event_type: "d", timestamp: "e", valid_at: "f")
       expect(a.to_h).to eq({ event_id: "a", data: "b", metadata: "c", event_type: "d", timestamp: "e", valid_at: "f" })
