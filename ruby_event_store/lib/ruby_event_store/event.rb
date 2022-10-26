@@ -62,9 +62,6 @@ module RubyEventStore
         other_event.event_id.eql?(event_id) && other_event.data.eql?(data)
     end
 
-    # @private
-    BIG_VALUE = 0b111111100100000010010010110011101011000101010101001100100110000
-
     # Generates a Fixnum hash value for this object. This function
     # have the property that a.eql?(b) implies a.hash == b.hash.
     #
@@ -77,7 +74,7 @@ module RubyEventStore
     # * data
     def hash
       # We don't use metadata because == does not use metadata
-      [self.class, event_type, event_id, data].hash ^ BIG_VALUE
+      [event_type, event_id, data].hash ^ self.class.hash
     end
 
     # Reads correlation_id from metadata.

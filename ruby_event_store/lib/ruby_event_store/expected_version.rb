@@ -49,11 +49,8 @@ module RubyEventStore
       end
     end
 
-    BIG_VALUE = 0b110111100100000010010010110011101011000101010101001100100110011
-    private_constant :BIG_VALUE
-
     def hash
-      [self.class, version].hash ^ BIG_VALUE
+      version.hash ^ self.class.hash
     end
 
     def ==(other_expected_version)

@@ -244,9 +244,6 @@ module RubyEventStore
       other_spec.hash.eql?(hash)
     end
 
-    # @private
-    BIG_VALUE = 0b100010010100011110111101100001011111100101001010111110101000000
-
     # Generates a Fixnum hash value for this object. This function
     # have the property that a.eql?(b) implies a.hash == b.hash.
     #
@@ -273,7 +270,6 @@ module RubyEventStore
     # @return [Integer]
     def hash
       [
-        self.class,
         get_direction,
         start,
         stop,
@@ -288,7 +284,7 @@ module RubyEventStore
         batch_size,
         with_ids,
         with_types
-      ].hash ^ BIG_VALUE
+      ].hash ^ self.class.hash
     end
 
     private

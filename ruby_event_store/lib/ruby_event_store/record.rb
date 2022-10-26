@@ -17,9 +17,8 @@ module RubyEventStore
 
     attr_reader :event_id, :data, :metadata, :event_type, :timestamp, :valid_at
 
-    BIG_VALUE = 0b110011100100000010010010110011101011110101010101001100111110011
     def hash
-      [self.class, event_id, data, metadata, event_type, timestamp, valid_at].hash ^ BIG_VALUE
+      [event_id, data, metadata, event_type, timestamp, valid_at].hash ^ self.class.hash
     end
 
     def ==(other)
