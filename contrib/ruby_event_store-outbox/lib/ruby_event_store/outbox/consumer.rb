@@ -126,6 +126,7 @@ module RubyEventStore
           failed_record_ids = []
           updated_record_ids = []
           batch.each do |record|
+            retried = false
             begin
               now = @clock.now.utc
               processor.process(record, now)
@@ -133,6 +134,14 @@ module RubyEventStore
               repository.mark_as_enqueued(record, now)
               something_processed |= true
               updated_record_ids << record.id
+            rescue RetriableError => e
+              if retried
+                failed_record_ids << record.id
+                e.full_message.split($/).each { |line| logger.error(line) }
+              else
+                retried = true
+                retry
+              end
             rescue => e
               failed_record_ids << record.id
               e.full_message.split($/).each { |line| logger.error(line) }

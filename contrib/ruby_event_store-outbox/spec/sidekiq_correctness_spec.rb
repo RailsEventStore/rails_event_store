@@ -89,6 +89,38 @@ module RubyEventStore
         )
         expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
       end
+
+      specify "Redis::TimeoutError is retriable" do
+        stub_const("RubyEventStore::Outbox::Consumer::MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK", 1)
+        event =
+          TimeEnrichment.with(
+            Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
+            timestamp: Time.utc(2019, 9, 30)
+          )
+        event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+        class ::CorrectAsyncHandler
+          include Sidekiq::Worker
+          def through_outbox?
+            true
+          end
+        end
+
+        SidekiqScheduler.new.call(CorrectAsyncHandler, event_record)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
+        failed_once = false
+        allow_any_instance_of(Redis).to receive(:lpush).and_wrap_original do |m, *args|
+          if failed_once
+            m.call(*args)
+          else
+            failed_once = true
+            raise Redis::TimeoutError
+          end
+        end
+        consumer.one_loop
+        entry_from_outbox = redis.lindex("queue:default", 0)
+
+        expect(entry_from_outbox).to be_present
+      end
     end
   end
 end

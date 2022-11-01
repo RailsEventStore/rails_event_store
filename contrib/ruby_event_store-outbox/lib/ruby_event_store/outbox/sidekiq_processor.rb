@@ -22,6 +22,8 @@ module RubyEventStore
         redis.lpush("queue:#{queue}", payload)
 
         @recently_used_queues << queue
+      rescue Redis::TimeoutError
+        raise RetriableError
       end
 
       def after_batch

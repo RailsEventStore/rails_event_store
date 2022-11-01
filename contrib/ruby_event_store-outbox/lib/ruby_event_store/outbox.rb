@@ -2,6 +2,8 @@
 
 module RubyEventStore
   module Outbox
+    Error = Class.new(StandardError)
+    RetriableError = Class.new(Error)
   end
 end
 
