@@ -14,11 +14,7 @@ module RubyEventStore
 
       def next_batch_size
         return 1 if @batch_size.nil?
-        if @max_batch_size > @batch_size
-          [@batch_size * 2, @max_batch_size].min
-        else
-          @batch_size
-        end
+        [@batch_size * 2, @max_batch_size].min
       end
     end
   end

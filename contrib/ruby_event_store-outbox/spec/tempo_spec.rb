@@ -37,10 +37,20 @@ module RubyEventStore
         expect(value101).to eq(value102)
       end
 
+      specify "increase multiplier" do
+        tempo = Tempo.new(100)
+
+        first_value = tempo.batch_size
+        second_value = tempo.batch_size
+
+        expect(first_value * 2).to eq(second_value)
+      end
+
       specify "disallows unreasonable size" do
         expect { Tempo.new(0) }.to raise_error(ArgumentError)
         expect { Tempo.new(0.5) }.to raise_error(ArgumentError)
         expect { Tempo.new(-1) }.to raise_error(ArgumentError)
+        expect { Tempo.new(1) }.not_to raise_error
       end
     end
   end
