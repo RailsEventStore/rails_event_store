@@ -19,6 +19,7 @@ matcher:
     - RubyEventStore::Outbox::SidekiqProducer#call
     - RubyEventStore::Outbox::SidekiqProcessor#process
     - RubyEventStore::Outbox::SidekiqProcessor#after_batch
+    - RubyEventStore::Outbox::SidekiqProcessor#ensure_that_sidekiq_knows_about_all_queues
     - RubyEventStore::Outbox::SidekiqScheduler#initialize
     - RubyEventStore::Outbox::Metrics.from_url
     - RubyEventStore::Outbox::FetchSpecification#initialize
