@@ -27,10 +27,7 @@ module RubyEventStore
       end
 
       def after_batch
-        if !@recently_used_queues.empty?
-          redis.sadd("queues", @recently_used_queues.to_a)
-          @recently_used_queues.clear
-        end
+        ensure_that_sidekiq_knows_about_all_queues
       end
 
       def message_format
@@ -38,6 +35,13 @@ module RubyEventStore
       end
 
       private
+
+      def ensure_that_sidekiq_knows_about_all_queues
+        if !@recently_used_queues.empty?
+          redis.sadd("queues", @recently_used_queues.to_a)
+          @recently_used_queues.clear
+        end
+      end
 
       attr_reader :redis
     end
