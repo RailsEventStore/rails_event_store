@@ -63,7 +63,7 @@ module RubyEventStore
         @clock = clock
         @logger = logger
         @metrics = metrics
-        @batch_size = configuration.batch_size
+        @tempo = Tempo.new(configuration.batch_size)
         @sleep_on_empty = configuration.sleep_on_empty
         @consumer_uuid = consumer_uuid
 
@@ -183,12 +183,12 @@ module RubyEventStore
 
       attr_reader :split_keys,
                   :logger,
-                  :batch_size,
                   :metrics,
                   :processor,
                   :consumer_uuid,
                   :repository,
                   :cleanup_strategy,
+                  :tempo,
                   :sleep_on_empty
 
       def obtain_lock_for_process(fetch_specification)
@@ -270,7 +270,7 @@ module RubyEventStore
       end
 
       def retrieve_batch(fetch_specification)
-        repository.retrieve_batch(fetch_specification, batch_size)
+        repository.retrieve_batch(fetch_specification, tempo.batch_size)
       end
 
       def get_remaining_count(fetch_specification)
