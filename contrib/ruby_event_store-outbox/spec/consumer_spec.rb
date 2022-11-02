@@ -492,7 +492,7 @@ module RubyEventStore
       specify "lock is refreshed after each batch" do
         skip "https://github.com/rspec/rspec-mocks/issues/1306" if RUBY_VERSION >= "3.0"
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-        (default_configuration.batch_size + 1).times.map { |r| create_record("default", "default") }
+        2.times.map { |r| create_record("default", "default") }
         expect_any_instance_of(Repository::Lock).to receive(:refresh).twice.and_call_original
 
         consumer.one_loop
