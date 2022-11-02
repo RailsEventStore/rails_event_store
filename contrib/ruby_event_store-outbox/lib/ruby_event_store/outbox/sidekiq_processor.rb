@@ -22,7 +22,7 @@ module RubyEventStore
         redis.lpush("queue:#{queue}", payload)
 
         @recently_used_queues << queue
-      rescue Redis::TimeoutError
+      rescue Redis::TimeoutError, Redis::ConnectionError
         raise RetriableError
       end
 
