@@ -1,6 +1,7 @@
 require "optparse"
 require_relative "version"
 require_relative "consumer"
+require_relative "runner"
 require_relative "metrics"
 
 module RubyEventStore
@@ -92,12 +93,12 @@ module RubyEventStore
 
       def run(argv)
         options = Parser.parse(argv)
-        outbox_consumer = build_consumer(options)
-        outbox_consumer.init
-        outbox_consumer.run
+        build_runner(options)
+          .init
+          .run
       end
 
-      def build_consumer(options)
+      def build_runner(options)
         consumer_uuid = SecureRandom.uuid
         logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox #{consumer_uuid}")
         consumer_configuration = Consumer::Configuration.new(
@@ -113,6 +114,7 @@ module RubyEventStore
         metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer =
           RubyEventStore::Outbox::Consumer.new(consumer_uuid, consumer_configuration, logger: logger, metrics: metrics)
+        Runner.new(outbox_consumer, consumer_configuration, logger: logger)
       end
     end
   end

@@ -64,14 +64,10 @@ module RubyEventStore
         @logger = logger
         @metrics = metrics
         @tempo = Tempo.new(configuration.batch_size)
-        @sleep_on_empty = configuration.sleep_on_empty
         @consumer_uuid = consumer_uuid
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
-
-        @gracefully_shutting_down = false
-        prepare_traps
 
         @repository = Repository.new(configuration.database_url)
         @cleanup_strategy =
@@ -90,17 +86,6 @@ module RubyEventStore
       def init
         logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
         logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
-      end
-
-      def run
-        while !@gracefully_shutting_down
-          was_something_changed = one_loop
-          if !was_something_changed
-            STDOUT.flush
-            sleep sleep_on_empty
-          end
-        end
-        logger.info "Gracefully shutting down"
       end
 
       def one_loop
@@ -188,8 +173,7 @@ module RubyEventStore
                   :consumer_uuid,
                   :repository,
                   :cleanup_strategy,
-                  :tempo,
-                  :sleep_on_empty
+                  :tempo
 
       def obtain_lock_for_process(fetch_specification)
         result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
@@ -258,15 +242,6 @@ module RubyEventStore
           logger.warn "Cleanup for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
           metrics.write_operation_result("cleanup", "lock_timeout")
         end
-      end
-
-      def prepare_traps
-        Signal.trap("INT") { initiate_graceful_shutdown }
-        Signal.trap("TERM") { initiate_graceful_shutdown }
-      end
-
-      def initiate_graceful_shutdown
-        @gracefully_shutting_down = true
       end
 
       def retrieve_batch(fetch_specification)

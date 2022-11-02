@@ -180,28 +180,6 @@ module RubyEventStore
         expect(redis.llen("queue:default")).to eq(1)
       end
 
-      specify "#run wait if nothing was changed" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-        expect(consumer).to receive(:one_loop).and_return(false).ordered
-        expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
-        allow(consumer).to receive(:sleep)
-
-        expect { consumer.run }.to raise_error("End infinite loop")
-
-        expect(consumer).to have_received(:sleep).with(1)
-      end
-
-      specify "#run doesnt wait if something changed" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-        expect(consumer).to receive(:one_loop).and_return(true).ordered
-        expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
-        allow(consumer).to receive(:sleep)
-
-        expect { consumer.run }.to raise_error("End infinite loop")
-
-        expect(consumer).not_to have_received(:sleep)
-      end
-
       specify "incorrect payload wont cause later messages to schedule" do
         record1 = create_record("default", "default")
         record1.update!(payload: "unparsable garbage")
