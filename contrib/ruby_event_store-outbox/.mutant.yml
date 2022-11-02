@@ -26,12 +26,9 @@ matcher:
     - RubyEventStore::Outbox::FetchSpecification#hash
     - RubyEventStore::Outbox::FetchSpecification#==
     - RubyEventStore::Outbox::Consumer::Configuration
-    - RubyEventStore::Outbox::Consumer#run
     - RubyEventStore::Outbox::Consumer#retrieve_batch
     - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
-    - RubyEventStore::Outbox::Consumer#prepare_traps
     - RubyEventStore::Outbox::Consumer#one_loop
-    - RubyEventStore::Outbox::Consumer#initiate_graceful_shutdown
     - RubyEventStore::Outbox::Consumer#initialize
     - RubyEventStore::Outbox::Consumer#init
     - RubyEventStore::Outbox::Consumer#handle_split
@@ -39,3 +36,8 @@ matcher:
     - RubyEventStore::Outbox::Consumer#get_remaining_count
     - RubyEventStore::Outbox::CleanupStrategies::None*
     - RubyEventStore::Outbox::Repository*
+    - RubyEventStore::Outbox::Runner#initialize
+    - RubyEventStore::Outbox::Runner#init
+    - RubyEventStore::Outbox::Runner#run
+    - RubyEventStore::Outbox::Runner#prepare_traps
+    - RubyEventStore::Outbox::Runner#initiate_graceful_shutdown

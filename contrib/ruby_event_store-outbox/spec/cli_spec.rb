@@ -63,10 +63,10 @@ module RubyEventStore
         end
       end
 
-      RSpec.describe "build_consumer" do
+      RSpec.describe "#build_runner" do
         let(:database_url) { ENV["DATABASE_URL"] }
-        specify "smoke test for building consumer with default options" do
-          expect { CLI.new.build_consumer(Parser.parse(["--database-url=#{database_url}"])) }.not_to raise_error
+        specify "smoke test for building runner with default options" do
+          expect { CLI.new.build_runner(Parser.parse(["--database-url=#{database_url}"])) }.not_to raise_error
         end
       end
     end
