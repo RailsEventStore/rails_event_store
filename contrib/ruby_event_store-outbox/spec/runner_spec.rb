@@ -11,7 +11,7 @@ module RubyEventStore
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
       let(:default_configuration) do
-        Consumer::Configuration.new(
+        Configuration.new(
           database_url: database_url,
           redis_url: redis_url,
           split_keys: %w[default default2],

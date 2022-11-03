@@ -3,6 +3,7 @@ require_relative "version"
 require_relative "consumer"
 require_relative "runner"
 require_relative "metrics"
+require_relative "configuration"
 
 module RubyEventStore
   module Outbox
@@ -101,7 +102,7 @@ module RubyEventStore
       def build_runner(options)
         consumer_uuid = SecureRandom.uuid
         logger = Logger.new(STDOUT, level: options.log_level, progname: "RES-Outbox #{consumer_uuid}")
-        consumer_configuration = Consumer::Configuration.new(
+        consumer_configuration = Configuration.new(
           split_keys: options.split_keys,
           message_format: options.message_format,
           batch_size: options.batch_size,
