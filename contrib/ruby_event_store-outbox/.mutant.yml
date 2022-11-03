@@ -25,14 +25,13 @@ matcher:
     - RubyEventStore::Outbox::FetchSpecification#initialize
     - RubyEventStore::Outbox::FetchSpecification#hash
     - RubyEventStore::Outbox::FetchSpecification#==
-    - RubyEventStore::Outbox::Consumer::Configuration
     - RubyEventStore::Outbox::Consumer#retrieve_batch
     - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
     - RubyEventStore::Outbox::Consumer#one_loop
     - RubyEventStore::Outbox::Consumer#initialize
     - RubyEventStore::Outbox::Consumer#init
     - RubyEventStore::Outbox::Consumer#handle_split
-    - RubyEventStore::Outbox::Consumer::Configuration*
+    - RubyEventStore::Outbox::Configuration*
     - RubyEventStore::Outbox::Consumer#get_remaining_count
     - RubyEventStore::Outbox::CleanupStrategies::None*
     - RubyEventStore::Outbox::Repository*
