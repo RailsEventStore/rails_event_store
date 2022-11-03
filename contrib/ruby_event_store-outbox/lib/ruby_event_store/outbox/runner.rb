@@ -5,15 +5,15 @@ module RubyEventStore
         @consumer = consumer
         @logger = logger
         @sleep_on_empty = configuration.sleep_on_empty
+        @split_keys = configuration.split_keys
         @gracefully_shutting_down = false
         prepare_traps
       end
 
-      def init
-        consumer.init
-      end
-
       def run
+        logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
+        logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
+
         while !@gracefully_shutting_down
           was_something_changed = consumer.one_loop
           if !was_something_changed
@@ -21,11 +21,12 @@ module RubyEventStore
             sleep sleep_on_empty
           end
         end
+
         logger.info "Gracefully shutting down"
       end
 
       private
-      attr_reader :consumer, :logger, :sleep_on_empty
+      attr_reader :consumer, :logger, :sleep_on_empty, :split_keys
 
       def prepare_traps
         Signal.trap("INT") { initiate_graceful_shutdown }
