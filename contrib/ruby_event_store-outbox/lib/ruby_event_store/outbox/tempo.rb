@@ -1,6 +1,8 @@
 module RubyEventStore
   module Outbox
     class Tempo
+      EXPONENTIAL_MULTIPLIER = 2
+
       def initialize(max_batch_size)
         raise ArgumentError if max_batch_size < 1
         @max_batch_size = max_batch_size
@@ -14,7 +16,7 @@ module RubyEventStore
 
       def next_batch_size
         return 1 if @batch_size.nil?
-        [@batch_size * 2, @max_batch_size].min
+        [@batch_size * EXPONENTIAL_MULTIPLIER, @max_batch_size].min
       end
     end
   end
