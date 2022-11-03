@@ -63,7 +63,7 @@ module RailsEventStoreActiveRecord
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            described_class::Error,
+            MigrationGenerator::Error,
             "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
           )
         end

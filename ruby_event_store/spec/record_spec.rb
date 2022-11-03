@@ -12,7 +12,7 @@ module RubyEventStore
 
     specify "constructor accept all arguments and returns frozen instance" do
       record =
-        described_class.new(
+        Record.new(
           event_id: event_id,
           data: data,
           metadata: metadata,
@@ -31,7 +31,7 @@ module RubyEventStore
       [[1, 1, 1, 1], [1, "string", "string", "string"], ["string", "string", "string", 1]].each do |sample|
         event_id, data, metadata, event_type = sample
         expect do
-          described_class.new(
+          Record.new(
             event_id: event_id,
             data: data,
             metadata: metadata,
@@ -112,7 +112,7 @@ module RubyEventStore
     end
 
     specify "constructor raised when required args are missing" do
-      expect { described_class.new }.to raise_error ArgumentError
+      expect { Record.new }.to raise_error ArgumentError
     end
 
     specify "#serialize" do

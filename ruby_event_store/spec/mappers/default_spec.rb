@@ -56,7 +56,7 @@ module RubyEventStore
       end
 
       specify "#record_to_event its using events class remapping" do
-        subject = described_class.new(events_class_remapping: { "EventNameBeforeRefactor" => "SomethingHappened" })
+        subject = Default.new(events_class_remapping: { "EventNameBeforeRefactor" => "SomethingHappened" })
         record =
           Record.new(
             event_id: domain_event.event_id,

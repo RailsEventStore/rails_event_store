@@ -29,7 +29,7 @@ module RailsEventStore
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
     let(:serialized_record) { record.serialize(RubyEventStore::Serializers::YAML) }
 
-    let(:dispatcher) { described_class.new(scheduler: CustomScheduler.new) }
+    let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new) }
 
     before(:each) { MyAsyncHandler.reset }
 

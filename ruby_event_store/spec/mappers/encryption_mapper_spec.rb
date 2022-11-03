@@ -33,7 +33,7 @@ module RubyEventStore
       def encrypted_item(event = domain_event)
         coder.dump(Transformation::DomainEvent.new.dump(event))
       end
-      subject { described_class.new(key_repository) }
+      subject { EncryptionMapper.new(key_repository) }
 
       it_behaves_like :mapper,
                       EncryptionMapper.new(InMemoryEncryptionKeyRepository.new),
@@ -92,7 +92,7 @@ module RubyEventStore
       end
 
       context "when key is forgotten" do
-        subject { described_class.new(key_repository) }
+        subject { EncryptionMapper.new(key_repository) }
 
         specify "#record_to_event returns event instance with forgotten data" do
           record =
@@ -148,7 +148,7 @@ module RubyEventStore
 
       context "when key is forgotten and has custom forgotten data text" do
         let(:forgotten_data) { ForgottenData.new("Key is forgotten") }
-        subject { described_class.new(key_repository, forgotten_data: forgotten_data) }
+        subject { EncryptionMapper.new(key_repository, forgotten_data: forgotten_data) }
 
         specify "#record_to_event returns event instance with forgotten data" do
           record =
@@ -178,7 +178,7 @@ module RubyEventStore
 
       context "when ReverseYamlSerializer serializer is provided" do
         let(:coder) { Transformation::Encryption.new(key_repository, serializer: ReverseYamlSerializer) }
-        subject { described_class.new(key_repository, serializer: ReverseYamlSerializer) }
+        subject { EncryptionMapper.new(key_repository, serializer: ReverseYamlSerializer) }
 
         specify "#event_to_record returns serialized record" do
           record = subject.event_to_record(domain_event)
