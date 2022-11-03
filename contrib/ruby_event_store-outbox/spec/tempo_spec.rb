@@ -13,17 +13,10 @@ module RubyEventStore
         tempo = Tempo.new(100)
         first_value = tempo.batch_size
         second_value = tempo.batch_size
+        third_value = tempo.batch_size
 
         expect(second_value).to be > first_value
-      end
-
-      specify "maximum batch size cap is respected" do
-        max_batch_size = 100
-        tempo = Tempo.new(max_batch_size)
-        100.times { tempo.batch_size }
-
-        value101 = tempo.batch_size
-        expect(value101).to eq(max_batch_size)
+        expect(third_value).to be > second_value
       end
 
       specify "batch_size stabilize" do
@@ -35,6 +28,17 @@ module RubyEventStore
         value102 = tempo.batch_size
 
         expect(value101).to eq(value102)
+      end
+
+      specify "maximum batch size cap is respected" do
+        max_batch_size = 100
+        tempo = Tempo.new(max_batch_size)
+        100.times { tempo.batch_size }
+
+        value101 = tempo.batch_size
+        value102 = tempo.batch_size
+        expect(value101).to eq(max_batch_size)
+        expect(value102).to eq(max_batch_size)
       end
 
       specify "increase multiplier" do
