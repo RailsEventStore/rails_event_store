@@ -28,11 +28,6 @@ module RubyEventStore
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 
-      def init
-        logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
-        logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
-      end
-
       def one_loop
         remaining_split_keys = @split_keys.dup
 

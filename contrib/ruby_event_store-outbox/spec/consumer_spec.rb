@@ -78,13 +78,6 @@ module RubyEventStore
         expect(redis.smembers("queues")).to match_array(%w[queue queue2])
       end
 
-      specify "init logs" do
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-        consumer.init
-
-        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
-      end
-
       specify "returns false if no records" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 

@@ -48,6 +48,16 @@ module RubyEventStore
 
         expect(runner).not_to have_received(:sleep)
       end
+
+      specify "init logs" do
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
+        runner = Runner.new(consumer, default_configuration, logger: logger)
+        expect(consumer).to receive(:one_loop).and_raise("End infinite loop")
+
+        expect { runner.run }.to raise_error("End infinite loop")
+
+        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
+      end
     end
   end
 end
