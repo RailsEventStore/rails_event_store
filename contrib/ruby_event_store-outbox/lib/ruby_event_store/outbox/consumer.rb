@@ -25,17 +25,7 @@ module RubyEventStore
         @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
         @repository = Repository.new(configuration.database_url)
-        @cleanup_strategy =
-          case configuration.cleanup
-          when :none
-            CleanupStrategies::None.new
-          else
-            CleanupStrategies::CleanOldEnqueued.new(
-              repository,
-              ActiveSupport::Duration.parse(configuration.cleanup),
-              configuration.cleanup_limit
-            )
-          end
+        @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 
       def init
