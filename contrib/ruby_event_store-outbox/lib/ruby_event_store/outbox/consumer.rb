@@ -51,25 +51,13 @@ module RubyEventStore
           failed_record_ids = []
           updated_record_ids = []
           batch.each do |record|
-            retried = false
-            begin
+            handle_failure(failed_record_ids, record) do
               now = @clock.now.utc
               processor.process(record, now)
 
               repository.mark_as_enqueued(record, now)
               something_processed |= true
               updated_record_ids << record.id
-            rescue RetriableError => error
-              if retried
-                failed_record_ids << record.id
-                log_error(error)
-              else
-                retried = true
-                retry
-              end
-            rescue => error
-              failed_record_ids << record.id
-              log_error(error)
             end
           end
 
@@ -114,6 +102,22 @@ module RubyEventStore
                   :repository,
                   :cleanup_strategy,
                   :tempo
+
+      def handle_failure(failed_record_ids, record)
+        retried = false
+        yield
+      rescue RetriableError => error
+        if retried
+          failed_record_ids << record.id
+          log_error(error)
+        else
+          retried = true
+          retry
+        end
+      rescue => error
+        failed_record_ids << record.id
+        log_error(error)
+      end
 
       def log_error(e)
         e.full_message.split($/).each { |line| logger.error(line) }
