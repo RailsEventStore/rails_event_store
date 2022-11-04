@@ -59,17 +59,17 @@ module RubyEventStore
               repository.mark_as_enqueued(record, now)
               something_processed |= true
               updated_record_ids << record.id
-            rescue RetriableError => e
+            rescue RetriableError => error
               if retried
                 failed_record_ids << record.id
-                e.full_message.split($/).each { |line| logger.error(line) }
+                log_error(error)
               else
                 retried = true
                 retry
               end
-            rescue => e
+            rescue => error
               failed_record_ids << record.id
-              e.full_message.split($/).each { |line| logger.error(line) }
+              log_error(error)
             end
           end
 
@@ -114,6 +114,10 @@ module RubyEventStore
                   :repository,
                   :cleanup_strategy,
                   :tempo
+
+      def log_error(e)
+        e.full_message.split($/).each { |line| logger.error(line) }
+      end
 
       def obtain_lock_for_process(fetch_specification)
         result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
