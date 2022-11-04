@@ -48,28 +48,27 @@ module RubyEventStore
           batch = retrieve_batch(fetch_specification)
           break if batch.empty?
 
-          failed_record_ids = []
-          updated_record_ids = []
+          batch_result = BatchResult.empty
           batch.each do |record|
-            handle_failure(failed_record_ids, record) do
+            handle_failure(batch_result, record) do
               now = @clock.now.utc
               processor.process(record, now)
 
               repository.mark_as_enqueued(record, now)
               something_processed |= true
-              updated_record_ids << record.id
+              batch_result.updated_record_ids << record.id
             end
           end
 
           metrics.write_point_queue(
-            enqueued: updated_record_ids.size,
-            failed: failed_record_ids.size,
+            enqueued: batch_result.updated_record_ids.size,
+            failed: batch_result.failed_record_ids.size,
             format: fetch_specification.message_format,
             split_key: fetch_specification.split_key,
             remaining: get_remaining_count(fetch_specification)
           )
 
-          logger.info "Sent #{updated_record_ids.size} messages from outbox table"
+          logger.info "Sent #{batch_result.updated_record_ids.size} messages from outbox table"
 
           refresh_successful = refresh_lock_for_process(obtained_lock)
           break unless refresh_successful
@@ -103,19 +102,19 @@ module RubyEventStore
                   :cleanup_strategy,
                   :tempo
 
-      def handle_failure(failed_record_ids, record)
+      def handle_failure(batch_result, record)
         retried = false
         yield
       rescue RetriableError => error
         if retried
-          failed_record_ids << record.id
+          batch_result.failed_record_ids << record.id
           log_error(error)
         else
           retried = true
           retry
         end
       rescue => error
-        failed_record_ids << record.id
+        batch_result.failed_record_ids << record.id
         log_error(error)
       end
 
