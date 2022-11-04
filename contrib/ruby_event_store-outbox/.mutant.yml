@@ -30,6 +30,7 @@ matcher:
     - RubyEventStore::Outbox::Consumer#one_loop
     - RubyEventStore::Outbox::Consumer#initialize
     - RubyEventStore::Outbox::Consumer#handle_split
+    - RubyEventStore::Outbox::Consumer#log_error
     - RubyEventStore::Outbox::Configuration*
     - RubyEventStore::Outbox::Consumer#get_remaining_count
     - RubyEventStore::Outbox::CleanupStrategies::None*
