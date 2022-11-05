@@ -61,14 +61,14 @@ module RubyEventStore
           end
 
           metrics.write_point_queue(
-            enqueued: batch_result.updated_record_ids.size,
-            failed: batch_result.failed_record_ids.size,
+            enqueued: batch_result.success_count,
+            failed: batch_result.failed_count,
             format: fetch_specification.message_format,
             split_key: fetch_specification.split_key,
             remaining: get_remaining_count(fetch_specification)
           )
 
-          logger.info "Sent #{batch_result.updated_record_ids.size} messages from outbox table"
+          logger.info "Sent #{batch_result.success_count} messages from outbox table"
 
           refresh_successful = refresh_lock_for_process(obtained_lock)
           break unless refresh_successful
