@@ -50,7 +50,7 @@ module RubyEventStore
 
           batch_result = BatchResult.empty
           batch.each do |record|
-            handle_failure(batch_result, record) do
+            handle_failure(batch_result) do
               now = @clock.now.utc
               processor.process(record, now)
 
@@ -102,7 +102,7 @@ module RubyEventStore
                   :cleanup_strategy,
                   :tempo
 
-      def handle_failure(batch_result, record)
+      def handle_failure(batch_result)
         retried = false
         yield
       rescue RetriableError => error
