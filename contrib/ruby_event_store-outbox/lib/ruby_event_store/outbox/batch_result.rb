@@ -6,18 +6,18 @@ module RubyEventStore
       end
 
       def initialize
-        @failed_record_ids = []
-        @updated_record_ids = []
+        @success_count = 0
+        @failed_count = 0
       end
 
-      attr_reader :failed_record_ids, :updated_record_ids
+      attr_reader :success_count, :failed_count
 
-      def success_count
-        updated_record_ids.size
+      def count_success!
+        @success_count += 1
       end
 
-      def failed_count
-        failed_record_ids.size
+      def count_failed!
+        @failed_count += 1
       end
     end
   end

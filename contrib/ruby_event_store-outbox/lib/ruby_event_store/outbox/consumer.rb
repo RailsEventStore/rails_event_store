@@ -56,7 +56,7 @@ module RubyEventStore
 
               repository.mark_as_enqueued(record, now)
               something_processed |= true
-              batch_result.updated_record_ids << record.id
+              batch_result.count_success!
             end
           end
 
@@ -107,14 +107,14 @@ module RubyEventStore
         yield
       rescue RetriableError => error
         if retried
-          batch_result.failed_record_ids << record.id
+          batch_result.count_failed!
           log_error(error)
         else
           retried = true
           retry
         end
       rescue => error
-        batch_result.failed_record_ids << record.id
+        batch_result.count_failed!
         log_error(error)
       end
 
