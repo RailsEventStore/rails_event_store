@@ -45,7 +45,7 @@ module RubyEventStore
 
         SidekiqScheduler.new.call(CorrectAsyncHandler, event_record)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
-        consumer.one_loop
+        consumer.process
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 
         CorrectAsyncHandler.perform_async(event_record.serialize(RubyEventStore::Serializers::YAML).to_h)
@@ -76,7 +76,7 @@ module RubyEventStore
 
         LegacySidekiqScheduler.new.call(CorrectAsyncHandler, serialized_record)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
-        consumer.one_loop
+        consumer.process
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 
         CorrectAsyncHandler.perform_async(serialized_record.to_h)
@@ -116,7 +116,7 @@ module RubyEventStore
             raise Redis::TimeoutError
           end
         end
-        consumer.one_loop
+        consumer.process
         entry_from_outbox = redis.lindex("queue:default", 0)
 
         expect(entry_from_outbox).to be_present
@@ -148,7 +148,7 @@ module RubyEventStore
             raise Redis::ConnectionError
           end
         end
-        consumer.one_loop
+        consumer.process
         entry_from_outbox = redis.lindex("queue:default", 0)
 
         expect(entry_from_outbox).to be_present

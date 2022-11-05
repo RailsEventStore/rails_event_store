@@ -15,7 +15,7 @@ module RubyEventStore
         logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
 
         while !@gracefully_shutting_down
-          was_something_changed = consumer.one_loop
+          was_something_changed = consumer.process
           if !was_something_changed
             STDOUT.flush
             sleep sleep_on_empty

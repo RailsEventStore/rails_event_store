@@ -28,7 +28,7 @@ module RubyEventStore
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 
-      def one_loop
+      def process
         remaining_split_keys = split_keys.dup
 
         was_something_changed = false
