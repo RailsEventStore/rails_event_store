@@ -8,6 +8,24 @@ module RubyEventStore
 
         expect(batch_result.failed_record_ids).to eq([])
         expect(batch_result.updated_record_ids).to eq([])
+        expect(batch_result.failed_count).to eq(0)
+        expect(batch_result.success_count).to eq(0)
+      end
+
+      specify "adding updated element" do
+        batch_result = BatchResult.empty
+
+        batch_result.updated_record_ids << 42
+
+        expect(batch_result.success_count).to eq(1)
+      end
+
+      specify "adding failed element" do
+        batch_result = BatchResult.empty
+
+        batch_result.failed_record_ids << 42
+
+        expect(batch_result.failed_count).to eq(1)
       end
     end
   end
