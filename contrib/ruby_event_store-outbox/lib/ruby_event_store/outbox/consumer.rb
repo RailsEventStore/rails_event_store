@@ -29,7 +29,7 @@ module RubyEventStore
       end
 
       def one_loop
-        remaining_split_keys = @split_keys.dup
+        remaining_split_keys = split_keys.dup
 
         was_something_changed = false
         while (split_key = remaining_split_keys.shift)
