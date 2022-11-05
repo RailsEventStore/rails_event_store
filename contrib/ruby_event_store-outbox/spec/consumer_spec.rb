@@ -29,7 +29,7 @@ module RubyEventStore
         record = create_record("default", "default")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        consumer.one_loop
+        consumer.process
 
         record.reload
         expect(record.enqueued_at).to be_present
@@ -40,7 +40,7 @@ module RubyEventStore
         clock = TickingClock.new
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
-        result = consumer.one_loop
+        result = consumer.process
 
         record.reload
         expect(redis.llen("queue:default")).to eq(1)
@@ -60,7 +60,7 @@ module RubyEventStore
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
-        consumer.one_loop
+        consumer.process
 
         expect(redis.llen("queue:default")).to eq(2)
         expect(redis.llen("queue:default2")).to eq(1)
@@ -72,7 +72,7 @@ module RubyEventStore
         create_record("other_queue", "other_split")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        consumer.one_loop
+        consumer.process
 
         expect(redis.scard("queues")).to eq(2)
         expect(redis.smembers("queues")).to match_array(%w[queue queue2])
@@ -81,7 +81,7 @@ module RubyEventStore
       specify "returns false if no records" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(false)
       end
@@ -96,7 +96,7 @@ module RubyEventStore
           clock: clock
         )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(false)
         expect(redis.llen("queue:default")).to eq(0)
@@ -107,7 +107,7 @@ module RubyEventStore
         record.update!(enqueued_at: Time.now.utc)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(false)
         expect(redis.llen("queue:default")).to eq(0)
@@ -118,7 +118,7 @@ module RubyEventStore
         create_record("default", "default", format: "some_unknown_format")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(false)
         expect(redis.llen("queue:default")).to eq(0)
@@ -129,7 +129,7 @@ module RubyEventStore
         create_record("other_one", "other_one")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(false)
         expect(redis.llen("queue:other_one")).to eq(0)
@@ -167,7 +167,7 @@ module RubyEventStore
             metrics: null_metrics
           )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
@@ -181,7 +181,7 @@ module RubyEventStore
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(true)
         expect(record1.reload.enqueued_at).to be_nil
@@ -202,7 +202,7 @@ module RubyEventStore
             metrics: test_metrics
           )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to include("Obtaining lock for split_key 'default' failed (deadlock)")
         expect(test_metrics.operation_results).to include({ operation: "obtain", result: "deadlocked" })
@@ -222,7 +222,7 @@ module RubyEventStore
             metrics: test_metrics
           )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to include("Obtaining lock for split_key 'default' failed (lock timeout)")
         expect(test_metrics.operation_results).to include({ operation: "obtain", result: "lock_timeout" })
@@ -242,7 +242,7 @@ module RubyEventStore
             metrics: test_metrics
           )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to include("Obtaining lock for split_key 'default' unsuccessful (taken)")
         expect(test_metrics.operation_results).to include({ operation: "obtain", result: "taken" })
@@ -269,7 +269,7 @@ module RubyEventStore
             metrics: test_metrics
           )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to include("Releasing lock for split_key 'default' failed \(deadlock\)")
         expect(test_metrics.operation_results).to include({ operation: "release", result: "deadlocked" })
@@ -296,7 +296,7 @@ module RubyEventStore
             metrics: test_metrics
           )
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to include("Releasing lock for split_key 'default' failed (lock timeout)")
         expect(test_metrics.operation_results).to include({ operation: "release", result: "lock_timeout" })
@@ -310,7 +310,7 @@ module RubyEventStore
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
-        consumer.one_loop
+        consumer.process
 
         lock = Repository::Lock.find_by!(split_key: "default")
         expect(lock.locked_by).to be_nil
@@ -327,7 +327,7 @@ module RubyEventStore
           m.call(*args)
         end
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to include(
           "Releasing lock for split_key 'default' failed (not taken by this process)"
@@ -347,7 +347,7 @@ module RubyEventStore
           m.call(*args)
         end
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(logger_output.string).to match(/Releasing lock .* failed \(not taken by this process\)/)
         expect(result).to eq(true)
@@ -363,7 +363,7 @@ module RubyEventStore
         record = create_record("default", "default")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
@@ -379,7 +379,7 @@ module RubyEventStore
         create_record("default", "default")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(false)
       end
@@ -394,7 +394,7 @@ module RubyEventStore
           m.call(*args)
         end
 
-        result = consumer.one_loop
+        result = consumer.process
 
         expect(result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
@@ -403,10 +403,10 @@ module RubyEventStore
 
       specify "more than one loop works" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-        consumer.one_loop
+        consumer.process
         record = create_record("default", "default")
 
-        second_loop_result = consumer.one_loop
+        second_loop_result = consumer.process
 
         expect(second_loop_result).to eq(true)
         expect(redis.llen("queue:default")).to eq(1)
@@ -421,12 +421,12 @@ module RubyEventStore
             logger: logger,
             metrics: null_metrics
           )
-        consumer_with_other.one_loop
+        consumer_with_other.process
         record = create_record("other", "other")
         consumer_without_other =
           Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer_without_other.one_loop
+        result = consumer_without_other.process
 
         expect(result).to eq(false)
         expect(record.reload.enqueued_at).to be_nil
@@ -436,7 +436,7 @@ module RubyEventStore
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         records = (default_configuration.batch_size + 1).times.map { |r| create_record("default", "default") }
 
-        result = consumer.one_loop
+        result = consumer.process
 
         records.each(&:reload)
         expect(records.select { |r| r.enqueued? }.size).to eq(101)
@@ -447,13 +447,13 @@ module RubyEventStore
         consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         expect(Repository::Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
         expect(Repository::Record).to receive(:where).and_call_original.ordered.at_least(2).times
-        expect { consumer_1.one_loop }.to raise_error(/Unexpected error/)
+        expect { consumer_1.process }.to raise_error(/Unexpected error/)
 
         create_record("default", "default")
         create_record("default2", "default2")
         consumer_2 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
-        result = consumer_2.one_loop
+        result = consumer_2.process
 
         # We don't expect both records to be processed (because one of the Locks may be obtained by crashed process, but we expect to do SOME work in ANY splits.
         expect(result).to eq(true)
@@ -466,7 +466,7 @@ module RubyEventStore
         2.times.map { |r| create_record("default", "default") }
         expect_any_instance_of(Repository::Lock).to receive(:refresh).twice.and_call_original
 
-        consumer.one_loop
+        consumer.process
       end
 
       specify "clean old jobs" do
@@ -480,12 +480,12 @@ module RubyEventStore
             logger: logger,
             metrics: null_metrics
           )
-        consumer.one_loop
+        consumer.process
         expect(redis.llen("queue:default")).to eq(1)
         expect(Repository::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
-        consumer.one_loop
+        consumer.process
 
         expect(Repository::Record.count).to eq(0)
       end
@@ -501,12 +501,12 @@ module RubyEventStore
             logger: logger,
             metrics: null_metrics
           )
-        consumer.one_loop
+        consumer.process
         expect(redis.llen("queue:default")).to eq(3)
         expect(Repository::Record.count).to eq(3)
         travel (7.days + 1.minute)
 
-        consumer.one_loop
+        consumer.process
 
         expect(Repository::Record.count).to eq(1)
       end
@@ -522,13 +522,13 @@ module RubyEventStore
             logger: logger,
             metrics: test_metrics
           )
-        consumer.one_loop
+        consumer.process
         expect(redis.llen("queue:default")).to eq(1)
         expect(Repository::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
         allow_any_instance_of(ActiveRecord::Relation).to receive(:delete_all).and_raise(ActiveRecord::LockWaitTimeout)
-        consumer.one_loop
+        consumer.process
 
         expect(Repository::Record.count).to eq(1)
         expect(logger_output.string).to include("Cleanup for split_key 'default' failed (lock timeout)")
@@ -546,13 +546,13 @@ module RubyEventStore
             logger: logger,
             metrics: test_metrics
           )
-        consumer.one_loop
+        consumer.process
         expect(redis.llen("queue:default")).to eq(1)
         expect(Repository::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
         allow_any_instance_of(ActiveRecord::Relation).to receive(:delete_all).and_raise(ActiveRecord::Deadlocked)
-        consumer.one_loop
+        consumer.process
 
         expect(Repository::Record.count).to eq(1)
         expect(logger_output.string).to include("Cleanup for split_key 'default' failed (deadlock)")

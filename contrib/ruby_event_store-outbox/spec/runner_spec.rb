@@ -28,8 +28,8 @@ module RubyEventStore
       specify "#run wait if nothing was changed" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         runner = Runner.new(consumer, default_configuration, logger: logger)
-        expect(consumer).to receive(:one_loop).and_return(false).ordered
-        expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
+        expect(consumer).to receive(:process).and_return(false).ordered
+        expect(consumer).to receive(:process).and_raise("End infinite loop").ordered
         allow(runner).to receive(:sleep)
 
         expect { runner.run }.to raise_error("End infinite loop")
@@ -40,8 +40,8 @@ module RubyEventStore
       specify "#run doesnt wait if something changed" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         runner = Runner.new(consumer, default_configuration, logger: logger)
-        expect(consumer).to receive(:one_loop).and_return(true).ordered
-        expect(consumer).to receive(:one_loop).and_raise("End infinite loop").ordered
+        expect(consumer).to receive(:process).and_return(true).ordered
+        expect(consumer).to receive(:process).and_raise("End infinite loop").ordered
         allow(runner).to receive(:sleep)
 
         expect { runner.run }.to raise_error("End infinite loop")
@@ -52,7 +52,7 @@ module RubyEventStore
       specify "init logs" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         runner = Runner.new(consumer, default_configuration, logger: logger)
-        expect(consumer).to receive(:one_loop).and_raise("End infinite loop")
+        expect(consumer).to receive(:process).and_raise("End infinite loop")
 
         expect { runner.run }.to raise_error("End infinite loop")
 

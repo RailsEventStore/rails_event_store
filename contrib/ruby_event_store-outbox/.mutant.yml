@@ -27,7 +27,7 @@ matcher:
     - RubyEventStore::Outbox::FetchSpecification#==
     - RubyEventStore::Outbox::Consumer#retrieve_batch
     - RubyEventStore::Outbox::Consumer#refresh_lock_for_process
-    - RubyEventStore::Outbox::Consumer#one_loop
+    - RubyEventStore::Outbox::Consumer#process
     - RubyEventStore::Outbox::Consumer#initialize
     - RubyEventStore::Outbox::Consumer#handle_split
     - RubyEventStore::Outbox::Consumer#log_error
