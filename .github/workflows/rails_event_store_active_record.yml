@@ -124,7 +124,7 @@ jobs:
             database: sqlite3:db.sqlite3
             datatype: binary
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -150,7 +150,7 @@ jobs:
             os: ubuntu-20.04
             database: "sqlite3::memory:"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
