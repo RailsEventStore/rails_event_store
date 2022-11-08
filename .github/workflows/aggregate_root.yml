@@ -19,6 +19,7 @@ jobs:
     env:
       WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      ImageOS: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -46,6 +47,7 @@ jobs:
     env:
       WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      ImageOS: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
