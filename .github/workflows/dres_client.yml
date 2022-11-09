@@ -21,7 +21,7 @@ on:
       - "support/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: contrib/dres_client
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -29,20 +29,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-          - ruby: ruby-3.0
+          - ruby: ruby_3_0
             gemfile: Gemfile
-          - ruby: ruby-2.7
+          - ruby: ruby_2_7
             gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: |
+          nix-shell --run "make install test" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/${{ matrix.ruby }}.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}

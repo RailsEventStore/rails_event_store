@@ -21,73 +21,58 @@ on:
       - "support/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: contrib/dres_rails
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
-    services:
-      postgres_11:
-        image: postgres:11
-        env:
-          POSTGRES_DB: rails_event_store
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 10011:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      postgres_12:
-        image: postgres:12
-        env:
-          POSTGRES_DB: rails_event_store
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 10012:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            database: postgres_11
             datatype: binary
-          - ruby: ruby-2.7
+          - ruby: ruby_2_7
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database: postgres_12
             datatype: binary
-          - ruby: ruby-3.0
+          - ruby: ruby_3_0
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            database: postgres_11
             datatype: binary
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            database: postgres_11
             datatype: json
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            database: postgres_11
             datatype: jsonb
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database: postgres_12
             datatype: binary
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database: postgres_12
             datatype: json
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database: postgres_12
             datatype: jsonb
-
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: |
+          nix-shell --run "make install test" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/${{ matrix.database }}.nix)
+                (import ../../support/nix/${{ matrix.ruby }}.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}

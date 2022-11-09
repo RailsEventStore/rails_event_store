@@ -19,7 +19,7 @@ on:
       - "support/**"
 jobs:
   mutate:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: Gemfile
@@ -31,10 +31,13 @@ jobs:
           fetch-depth: 0
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ruby-3.1
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
+      - run: |
+          nix-shell --run "make install mutate" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../../support/nix/ruby_3_1.nix)
+               ];
+             }
+           "
         working-directory: ${{ env.WORKING_DIRECTORY }}

@@ -15,7 +15,7 @@ on:
       - "contrib/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -23,26 +23,29 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-          - ruby: ruby-3.0
+          - ruby: ruby_3_0
             gemfile: Gemfile
-          - ruby: ruby-2.7
+          - ruby: ruby_2_7
             gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: |
+          nix-shell --run "make install test" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../support/nix/${{ matrix.ruby }}.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: Gemfile
@@ -54,10 +57,13 @@ jobs:
           fetch-depth: 0
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ruby-3.1
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate-changes
+      - run: |
+          nix-shell --run "make install mutate-changes" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../support/nix/ruby_3_1.nix)
+               ];
+             }
+           "
         working-directory: ${{ env.WORKING_DIRECTORY }}

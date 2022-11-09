@@ -19,16 +19,10 @@ on:
       - "support/**"
 jobs:
   mutate:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       BUNDLE_GEMFILE: Gemfile
-      REDIS_URL: redis://localhost:6379/0
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
     strategy:
       fail-fast: false
     steps:
@@ -37,10 +31,14 @@ jobs:
           fetch-depth: 0
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ruby-3.1
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
+      - run: |
+          nix-shell --run "make install mutate" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../../support/nix/redis.nix)
+                 (import ../../support/nix/ruby_3_1.nix)
+               ];
+             }
+           "
         working-directory: ${{ env.WORKING_DIRECTORY }}

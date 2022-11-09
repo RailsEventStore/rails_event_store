@@ -5,24 +5,32 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "16.10"
-          cache: "npm"
-          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
-      - run: make install-npm
+      - run: |
+          nix-shell --run "make install-npm" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../support/nix/nodejs.nix)
+               ];
+             }
+           "
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make build-npm
+      - run: |
+          nix-shell --run "make build-npm" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../support/nix/nodejs.nix)
+               ];
+             }
+           "
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: actions/upload-artifact@v3
         with:
@@ -49,5 +57,12 @@ jobs:
       - run: echo "::set-output name=short::$(git rev-parse --short=12 HEAD)"
         id: sha
       - run: |
-          aws s3 sync ${{ env.WORKING_DIRECTORY }}/public s3://ruby-event-store-assets/${{ steps.sha.outputs.short }}
-
+          nix-shell --run "aws s3 sync public s3://ruby-event-store-assets/${{ steps.sha.outputs.short }}" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../support/nix/aws.nix)
+               ];
+             }
+           "
+        working-directory: ${{ env.WORKING_DIRECTORY }}

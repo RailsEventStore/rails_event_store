@@ -19,7 +19,7 @@ on:
       - "support/**"
 jobs:
   coverage:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-flipper
@@ -30,10 +30,13 @@ jobs:
       - uses: actions/checkout@v3
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ruby-3.1
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
+      - run: |
+          nix-shell --run "make install mutate" -E"
+             with import <nixpkgs> { };
+             mkShell {
+               inputsFrom = [
+                 (import ../../support/nix/ruby_3_1.nix)
+               ];
+             }
+           "
         working-directory: ${{ env.WORKING_DIRECTORY }}
