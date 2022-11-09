@@ -199,7 +199,8 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    sqlite3 (1.4.2)
+    sqlite3 (1.5.3)
+      mini_portile2 (~> 2.8.0)
     thor (1.2.1)
     thread_safe (0.3.6)
     tzinfo (1.2.10)
@@ -230,7 +231,7 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-browser!
   sidekiq
-  sqlite3 (= 1.4.2)
+  sqlite3 (= 1.5.3)
 
 BUNDLED WITH
    2.3.14

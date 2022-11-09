@@ -210,7 +210,8 @@ GEM
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
     sorbet-runtime (0.5.10508)
-    sqlite3 (1.4.2)
+    sqlite3 (1.5.3)
+      mini_portile2 (~> 2.8.0)
     thor (1.2.1)
     timeout (0.3.0)
     tzinfo (2.0.5)
@@ -241,7 +242,7 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-browser!
   sidekiq
-  sqlite3 (= 1.4.2)
+  sqlite3 (= 1.5.3)
 
 BUNDLED WITH
    2.3.14
