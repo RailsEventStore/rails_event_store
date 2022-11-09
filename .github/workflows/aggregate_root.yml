@@ -19,6 +19,7 @@ jobs:
     env:
       WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      NIX_PATH: nixpkgs=channel:nixos-unstable
     strategy:
       fail-fast: false
       matrix:
