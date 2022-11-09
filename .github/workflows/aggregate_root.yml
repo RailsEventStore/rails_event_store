@@ -24,11 +24,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
-          - ruby: ruby-3.0
+          - ruby: ruby_3_0
             gemfile: Gemfile
-          - ruby: ruby-2.7
+          - ruby: ruby
             gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
@@ -36,12 +36,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: echo $LD_LIBRARY_PATH
       - run: env
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: nix-shell -p ${{ matrix.ruby }} --run "make install test"
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
@@ -62,10 +57,5 @@ jobs:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate-changes
+      - run: nix-shell -p ${{ matrix.ruby }} --run "make install mutate-changes"
         working-directory: ${{ env.WORKING_DIRECTORY }}
