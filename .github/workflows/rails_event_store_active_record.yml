@@ -111,7 +111,7 @@ jobs:
             database: sqlite3:db.sqlite3
             datatype: binary
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: nix-shell -p ${{ matrix.ruby }} --run "make install test"
@@ -131,7 +131,7 @@ jobs:
             gemfile: Gemfile
             database: "sqlite3::memory:"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
