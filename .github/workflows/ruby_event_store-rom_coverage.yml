@@ -19,7 +19,7 @@ on:
       - "support/**"
 jobs:
   mutate:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -30,7 +30,6 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: "sqlite::memory:"
             datatype: text
     steps:

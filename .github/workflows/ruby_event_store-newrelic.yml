@@ -17,7 +17,7 @@ on:
       - "support/**"
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -28,13 +28,10 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
           - ruby: ruby-3.0
             gemfile: Gemfile
-            os: ubuntu-20.04
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
@@ -48,7 +45,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -60,7 +57,6 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
         with:

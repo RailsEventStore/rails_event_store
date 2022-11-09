@@ -15,7 +15,7 @@ on:
       - "contrib/**"
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -60,67 +60,54 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile.rails_6_1
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-3.0
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-3.0
             gemfile: Gemfile.rails_6_1
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_1
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_0
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: json
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: jsonb
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
             datatype: binary
           - ruby: ruby-2.7
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: sqlite3:db.sqlite3
             datatype: binary
     steps:
@@ -136,7 +123,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -147,7 +134,6 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-            os: ubuntu-20.04
             database: "sqlite3::memory:"
     steps:
       - uses: actions/checkout@v3
