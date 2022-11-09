@@ -19,41 +19,16 @@ jobs:
     env:
       WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      ImageOS: ubuntu22
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby_3_1
-            gemfile: Gemfile
-          - ruby: ruby_3_0
-            gemfile: Gemfile
           - ruby: ruby
             gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: env
       - run: nix-shell -p ${{ matrix.ruby }} --run "make install test"
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  mutate:
-    runs-on: [self-hosted]
-    env:
-      WORKING_DIRECTORY: aggregate_root
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      ImageOS: ubuntu22
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby_3_1
-            gemfile: Gemfile
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - run: test -e ${{ matrix.gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: nix-shell -p ${{ matrix.ruby }} --run "make install mutate-changes"
         working-directory: ${{ env.WORKING_DIRECTORY }}
