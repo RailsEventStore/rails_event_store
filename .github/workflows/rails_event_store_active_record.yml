@@ -58,58 +58,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby_3_1
+          - ruby: "ruby_3_1.withPackages (ps: with ps; [ pg mysql2 sqlite3 ])"
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
             datatype: binary
-          - ruby: ruby_3_1
-            gemfile: Gemfile.rails_6_1
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: ruby_3_0
-            gemfile: Gemfile
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: ruby_3_0
-            gemfile: Gemfile.rails_6_1
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: ruby
-            gemfile: Gemfile.rails_6_1
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: ruby
-            gemfile: Gemfile.rails_6_0
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: ruby_3_1
+          - ruby: "ruby_3_1.withPackages (ps: with ps; [ pg mysql2 sqlite3 ])"
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: binary
-          - ruby: ruby_3_1
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: json
-          - ruby: ruby_3_1
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: jsonb
-          - ruby: ruby_3_1
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            datatype: binary
-          - ruby: ruby_3_1
+          - ruby: "ruby_3_1.withPackages (ps: with ps; [ pg mysql2 sqlite3 ])"
             gemfile: Gemfile
             database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
             datatype: binary
-          - ruby: ruby_3_1
-            gemfile: Gemfile
-            database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
-            datatype: binary
-          - ruby: ruby
-            gemfile: Gemfile
-            database: sqlite3:db.sqlite3
-            datatype: binary
+
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
@@ -127,7 +88,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby_3_1
+          - ruby: "ruby_3_1.withPackages (ps: with ps; [ pg mysql2 sqlite3 ])"
             gemfile: Gemfile
             database: "sqlite3::memory:"
     steps:
@@ -136,5 +97,5 @@ jobs:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: nix-shell -p ${{ matrix.ruby }} --run "make install mutate-changes"
+      - run: nix-shell -p "${{ matrix.ruby }} --run "make install mutate-changes"
         working-directory: ${{ env.WORKING_DIRECTORY }}
