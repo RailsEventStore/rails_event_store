@@ -79,7 +79,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted]
     env:
       WORKING_DIRECTORY: rails_event_store_active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
