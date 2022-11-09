@@ -1,0 +1,52 @@
+name: dres_client
+on:
+  repository_dispatch:
+    types:
+      - script
+  workflow_dispatch:
+  schedule:
+    - cron: "0 17 * * *"
+  push:
+    paths:
+      - "contrib/dres_rails/**"
+      - "contrib/dres_client/**"
+      - ".github/workflows/dres_client.yml"
+      - "support/**"
+  pull_request:
+    types: [opened, reopened]
+    paths:
+      - "contrib/dres_rails/**"
+      - "contrib/dres_client/**"
+      - ".github/workflows/dres_client.yml"
+      - "support/**"
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    env:
+      WORKING_DIRECTORY: contrib/dres_client
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: ruby-3.1
+            gemfile: Gemfile
+            os: ubuntu-20.04
+          - ruby: ruby-3.0
+            gemfile: Gemfile
+            os: ubuntu-20.04
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            os: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make test
+        working-directory: ${{ env.WORKING_DIRECTORY }}

@@ -1,4 +1,4 @@
-name: aggregate_root
+name: ruby_event_store-rspec
 on:
   repository_dispatch:
     types:
@@ -15,43 +15,57 @@ on:
       - "contrib/**"
 jobs:
   test:
-    runs-on: [self-hosted]
+    runs-on: ${{ matrix.os }}
     env:
-      WORKING_DIRECTORY: aggregate_root
+      WORKING_DIRECTORY: ruby_event_store-rspec
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby_3_1
+          - ruby: ruby-3.1
             gemfile: Gemfile
-          - ruby: ruby_3_0
+            os: ubuntu-20.04
+          - ruby: ruby-3.0
             gemfile: Gemfile
-          - ruby: ruby
+            os: ubuntu-20.04
+          - ruby: ruby-2.7
             gemfile: Gemfile
+            os: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: nix-shell -p ${{ matrix.ruby }} --run "make install test"
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
-    runs-on: [self-hosted]
+    runs-on: ${{ matrix.os }}
     env:
-      WORKING_DIRECTORY: aggregate_root
+      WORKING_DIRECTORY: ruby_event_store-rspec
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby_3_1
+          - ruby: ruby-3.1
             gemfile: Gemfile
+            os: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: nix-shell -p ${{ matrix.ruby }} --run "make install mutate-changes"
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate-changes
         working-directory: ${{ env.WORKING_DIRECTORY }}
