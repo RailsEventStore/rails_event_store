@@ -34,7 +34,6 @@ jobs:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: nix-channel --update
       - run: nix-shell -p ${{ matrix.ruby }} --run "make install test"
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
@@ -48,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
+          - ruby: ruby_3_1
             gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
@@ -56,6 +55,5 @@ jobs:
           fetch-depth: 0
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: nix-channel --update
       - run: nix-shell -p ${{ matrix.ruby }} --run "make install mutate-changes"
         working-directory: ${{ env.WORKING_DIRECTORY }}
