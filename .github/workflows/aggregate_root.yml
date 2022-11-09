@@ -33,6 +33,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: cat /proc/1/cgroup
       - run: nix-shell -p ${{ matrix.ruby }} --run "make install test"
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
