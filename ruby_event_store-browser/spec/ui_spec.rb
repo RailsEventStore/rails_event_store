@@ -5,7 +5,7 @@ FooBarEvent = Class.new(::RubyEventStore::Event)
 module RubyEventStore
   RSpec.describe Browser, type: :feature, js: true do
     specify "main view", mutant: false do
-      session = Capybara::Session.new(:chrome, app_builder(event_store))
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
 
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
       event_store.publish(foo_bar_event, stream_name: "dummy")
@@ -27,7 +27,7 @@ module RubyEventStore
     end
 
     specify "stream view", mutant: false do
-      session = Capybara::Session.new(:chrome, app_builder(event_store))
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
 
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
       event_store.publish(foo_bar_event, stream_name: "foo/bar.xml")
@@ -51,7 +51,7 @@ module RubyEventStore
     specify "Content-Security-Policy", mutant: false do
       session =
         Capybara::Session.new(
-          :chrome,
+          :cuprite,
           CspApp.new(
             app_builder(event_store),
             [
@@ -72,9 +72,28 @@ module RubyEventStore
     end
 
     specify "expect no severe browser warnings", mutant: false do
+      logger = Class.new do
+        attr_reader :messages
+
+        def initialize
+          @messages = []
+        end
+
+        def puts(message)
+          _, _, body = message.strip.split(' ', 3)
+          body = JSON.parse(body)
+
+          @messages << body if body["method"] == "Log.entryAdded"
+        end
+      end.new
+
+      Capybara.register_driver(:cuprite_with_logger) do |app|
+        Capybara::Cuprite::Driver.new(app, logger: logger)
+      end
+
       session =
         Capybara::Session.new(
-          :chrome,
+          :cuprite_with_logger,
           CspApp.new(
             app_builder(event_store),
             "style-src 'self'; script-src 'self'"
@@ -84,13 +103,9 @@ module RubyEventStore
       session.visit("/")
 
       expect(
-        session
-          .driver
-          .browser
-          .manage
-          .logs
-          .get(:browser)
-          .select { |le| le.level == "SEVERE" }
+        logger
+          .messages
+          .select { |m| m['params']['entry']['level'] == 'error'}
       ).to be_empty
     end
 
