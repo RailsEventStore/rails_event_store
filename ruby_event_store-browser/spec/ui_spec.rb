@@ -72,20 +72,7 @@ module RubyEventStore
     end
 
     specify "expect no severe browser warnings", mutant: false do
-      logger = Class.new do
-        attr_reader :messages
-
-        def initialize
-          @messages = []
-        end
-
-        def puts(message)
-          _, _, body = message.strip.split(' ', 3)
-          body = JSON.parse(body)
-
-          @messages << body if body["method"] == "Log.entryAdded"
-        end
-      end.new
+      logger = mk_logger
 
       Capybara.register_driver(:cuprite_with_logger) do |app|
         Capybara::Cuprite::Driver.new(app, logger: logger)
@@ -117,6 +104,25 @@ module RubyEventStore
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
+    end
+
+    def mk_logger
+      Class
+        .new do
+          attr_reader :messages
+
+          def initialize
+            @messages = []
+          end
+
+          def puts(message)
+            _, _, body = message.strip.split(" ", 3)
+            body = JSON.parse(body)
+
+            @messages << body if body["method"] == "Log.entryAdded"
+          end
+        end
+        .new
     end
   end
 end
