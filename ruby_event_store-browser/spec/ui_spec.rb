@@ -75,7 +75,13 @@ module RubyEventStore
       logger = mk_logger
 
       Capybara.register_driver(:cuprite_with_logger) do |app|
-        Capybara::Cuprite::Driver.new(app, logger: logger)
+        Capybara::Cuprite::Driver.new(
+          app,
+          logger: logger,
+          browser_options: {
+            "no-sandbox" => nil
+          }
+        )
       end
 
       session =
@@ -90,9 +96,7 @@ module RubyEventStore
       session.visit("/")
 
       expect(
-        logger
-          .messages
-          .select { |m| m['params']['entry']['level'] == 'error'}
+        logger.messages.select { |m| m["params"]["entry"]["level"] == "error" }
       ).to be_empty
     end
 

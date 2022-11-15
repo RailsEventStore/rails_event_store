@@ -18,5 +18,8 @@ end
 
 require "capybara/cuprite"
 Capybara.server = :webrick
+Capybara.register_driver(:cuprite) do |app|
+  Capybara::Cuprite::Driver.new(app, browser_options: { "no-sandbox" => nil })
+end
 
 DummyEvent = Class.new(::RubyEventStore::Event)
