@@ -26,7 +26,6 @@ Capybara.register_driver :chrome do |app|
     )
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
-Capybara.javascript_driver = :chrome
 Capybara.server = :webrick
 
 DummyEvent = Class.new(::RubyEventStore::Event)
