@@ -21,7 +21,6 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/minitest-ruby_event_store
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      DATABASE_URL: ${{ matrix.database }}
     strategy:
       fail-fast: false
       matrix:

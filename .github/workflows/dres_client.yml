@@ -25,7 +25,6 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/dres_client
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      DATABASE_URL: ${{ matrix.database }}
     strategy:
       fail-fast: false
       matrix:
