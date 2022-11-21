@@ -22,23 +22,18 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      DATABASE_URL: ${{ matrix.database }}
+      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - ruby: ruby-3.1
-            gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - run: test -e ${{ matrix.gemfile }}.lock
+      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ruby-3.1
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate
