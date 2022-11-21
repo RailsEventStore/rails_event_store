@@ -21,7 +21,6 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      DATABASE_URL: ${{ matrix.database }}
     strategy:
       fail-fast: false
       matrix:
