@@ -24,7 +24,7 @@ ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 
 module RedisIsolation
   def self.redis_url
-    ENV["REDIS_URL"] 
+    ENV["REDIS_URL"]
   end
 end
 
