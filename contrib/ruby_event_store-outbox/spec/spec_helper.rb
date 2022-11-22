@@ -22,44 +22,9 @@ ActiveRecord::Schema.verbose = $verbose
 
 ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 
-class MutantIdGenerator
-  def initialize(redis_url, value_for_main_pid, name)
-    @main_pid = Process.pid
-    @redis = Redis.new(url: redis_url)
-    @value_for_main_pid = value_for_main_pid
-    @redis_key = "mutant-something-#{name}"
-    @redis.del(@redis_key)
-  end
-
-  def id_for_current_pid
-    pid = Process.pid
-    pid == @main_pid ? @value_for_main_pid : get_id_for_pid(pid) || set_id_for_pid(pid)
-  end
-
-  private
-
-  def get_id_for_pid(pid)
-    position = @redis.lpos(@redis_key, pid)
-    position.nil? ? nil : position + 1
-  end
-
-  def set_id_for_pid(pid)
-    length_of_list_after_push = @redis.rpush(@redis_key, pid)
-    length_of_list_after_push
-  end
-end
-
-RedisMutantIdGenerator = MutantIdGenerator.new("redis://localhost:6379/0", 0, "redis")
-
 module RedisIsolation
   def self.redis_url
-    ENV["REDIS_URL"] || per_process_redis_url_for_mutant_runs
-  end
-
-  private
-
-  def self.per_process_redis_url_for_mutant_runs
-    "redis://localhost:6379/#{RedisMutantIdGenerator.id_for_current_pid}"
+    ENV["REDIS_URL"] 
   end
 end
 
