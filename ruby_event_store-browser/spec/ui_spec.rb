@@ -121,8 +121,9 @@ module RubyEventStore
 
           def puts(message)
             _, _, body = message.strip.split(" ", 3)
-            body = JSON.parse(body)
+            return unless body
 
+            body = JSON.parse(body)
             @messages << body if body["method"] == "Log.entryAdded"
           end
         end
