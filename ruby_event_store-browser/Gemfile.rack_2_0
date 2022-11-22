@@ -7,7 +7,6 @@ gem "ruby_event_store", path: "../ruby_event_store"
 
 gem "rack-test"
 gem "capybara", "~> 3.35"
-gem "selenium-webdriver", "~> 3.141"
 gem "json-schema"
 gem "rack", "~> 2.0"
 gem "webrick"
