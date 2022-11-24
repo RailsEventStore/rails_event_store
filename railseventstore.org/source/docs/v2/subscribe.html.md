@@ -394,3 +394,36 @@ ActiveRecord::Base.transaction do
 end
 # Async handlers such as SendOrderEmail scheduled here, after transaction is committed
 ```
+
+### Scheduling async handlers immediately
+
+You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateAsyncDispatcher` instead of `RailsEventStore::AfterCommitAsyncDispatcher`.
+
+```ruby
+class SendOrderEmail < ActiveJob::Base
+  def perform(event)
+    email = event.data.fetch(:customer_email)
+    OrderMailer.notify_customer(email).deliver_now!
+  end
+end
+
+event_store = RailsEventStore::Client.new(
+  dispatcher: RubyEventStore::ComposedDispatcher.new(
+    RailsEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
+    RubyEventStore::Dispatcher.new
+  )
+)
+
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
+
+ActiveRecord::Base.transaction do
+  order = Order.new(...).save!
+  event_store.publish(
+    OrderPlaced.new(data:{order_id: order.id}),
+    stream_name: "Order-#{order.id}"
+  )
+  # Async handlers such as SendOrderEmail scheduled here
+end
+```
+
+It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
