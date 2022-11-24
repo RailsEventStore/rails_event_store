@@ -382,38 +382,3 @@ end
 ```
 
 It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
-
-### Scheduling async handlers after commit
-
-You can configure your dispatcher slightly different, to schedule async handlers after commit. Note the usage of `RailsEventStore::AfterCommitAsyncDispatcher` instead of `RubyEventStore::ImmediateAsyncDispatcher`.
-
-```ruby
-class SendOrderEmail < ActiveJob::Base
-  prepend RailsEventStore::AsyncHandler
-
-  def perform(event)
-    email = event.data.fetch(:customer_email)
-    OrderMailer.notify_customer(email).deliver_now!
-  end
-end
-
-event_store = RailsEventStore::Client.new(
-  dispatcher: RubyEventStore::ComposedDispatcher.new(
-    RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
-    RubyEventStore::Dispatcher.new
-  )
-)
-
-event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
-
-# ...
-
-ActiveRecord::Base.transaction do
-  order = Order.new(...).save!
-  event_store.publish(
-    OrderPlaced.new(data:{order_id: order.id}),
-    stream_name: "Order-#{order.id}"
-  )
-end
-# Async handlers such as SendOrderEmail scheduled here, after transaction is committed
-```
