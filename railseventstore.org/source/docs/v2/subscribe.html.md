@@ -122,7 +122,7 @@ class SyncHandler
 end
 ```
 
-<h3>Fresh handler state</h3>
+### Fresh handler state
 
 If you subscribe an instance of a class (`SyncHandler.new`), the same object is going to be called with new events.
 
@@ -282,7 +282,7 @@ event_store
 
 You start the temporary subscription by providing a block `within` which the subscriptions will be active. Then you can chain `subscribe` and `subscribe_to_all_events` as many times as you want to register temporary subscribers. When you are ready call `call` to evaluate the provided block with the temporary subscriptions.
 
-<h2>Async handlers</h2>
+## Async handlers
 
 It's possible to also subscribe asynchronous handlers to events. To enqueue asynchronous handlers as background jobs scheduler class is needed. RailsEventStore provides [implementation of a scheduler](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store/lib/rails_event_store/active_job_scheduler.rb) for `ActiveJob` library.
 In that case async handlers are just background jobs implemented as:
@@ -324,7 +324,7 @@ event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 
 If you'd like to rely solely on Sidekiq, you can use the [`ruby_event_store-sidekiq_scheduler` gem](https://rubygems.org/search?query=ruby_event_store-sidekiq_scheduler) instead.
 
-<h3>Custom Scheduler</h3>
+### Custom Scheduler
 
 Alternatively you could implement your own, custom scheduler. It has to respond to the `call` and `verify` methods.
 The sample `CustomScheduler` could be implemented as:
