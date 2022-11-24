@@ -3,6 +3,7 @@ on:
   repository_dispatch:
     types:
       - script
+  workflow_dispatch:
   push:
     paths:
       - "contrib/ruby_event_store-rom/**"

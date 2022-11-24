@@ -1,6 +1,7 @@
 name: ruby_event_store-browser_assets
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   test:
