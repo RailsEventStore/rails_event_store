@@ -27,14 +27,6 @@ jobs:
         image: redis:6
         ports:
           - 6379:6379
-      mysql_56:
-        image: mysql:5.6
-        env:
-          MYSQL_DATABASE: rails_event_store
-          MYSQL_ROOT_PASSWORD: secret
-        ports:
-          - 10056:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
       mysql_57:
         image: mysql:5.7
         env:
@@ -76,9 +68,6 @@ jobs:
           - ruby: ruby-2.7
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-            database: mysql2://root:secret@0.0.0.0:10056/rails_event_store
           - ruby: ruby-3.1
             gemfile: Gemfile
             database: mysql2://root:secret@0.0.0.0:10057/rails_event_store
