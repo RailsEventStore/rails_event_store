@@ -368,17 +368,29 @@ event_store =
 ```
 ### When are async handlers scheduled?
 
-The default behaviour and examples above use `RubyEventStore::ImmediateAsyncDispatcher`, which schedule handlers immediately after events are stored in the database.
+The default behaviour and examples above use `RubyEventStore::AfterCommitAsyncDispatcher`, which schedule handlers after the transaction is committed.
 
 ```ruby
+class SendOrderEmail < ActiveJob::Base
+  prepend RailsEventStore::AsyncHandler
+
+  def perform(event)
+    email = event.data.fetch(:customer_email)
+    OrderMailer.notify_customer(email).deliver_now!
+  end
+end
+
+event_store = RailsEventStore::Client.new
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
+
+# ...
+
 ActiveRecord::Base.transaction do
   order = Order.new(...).save!
   event_store.publish(
     OrderPlaced.new(data:{order_id: order.id}),
     stream_name: "Order-#{order.id}"
   )
-  # Async handlers such as SendOrderEmail scheduled here
 end
+# Async handlers such as SendOrderEmail scheduled here, after transaction is committed
 ```
-
-It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
