@@ -324,7 +324,7 @@ event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 
 If you'd like to rely solely on Sidekiq, you can use the [`ruby_event_store-sidekiq_scheduler` gem](https://rubygems.org/search?query=ruby_event_store-sidekiq_scheduler) instead.
 
-<h3 id="custom-scheduler">Custom Scheduler</h3>
+<h3>Custom Scheduler</h3>
 
 Alternatively you could implement your own, custom scheduler. It has to respond to the `call` and `verify` methods.
 The sample `CustomScheduler` could be implemented as:
