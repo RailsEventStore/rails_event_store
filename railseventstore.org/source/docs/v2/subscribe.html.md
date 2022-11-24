@@ -284,8 +284,49 @@ You start the temporary subscription by providing a block `within` which the sub
 
 <h2 id="async-handlers">Async handlers</h2>
 
-It's possible to also subscribe asynchronous handlers to events. To implement asynchronous dispatcher for a background jobs library of your choice firstly you need to implement scheduler class that will enqueue asynchrounous handlers as background jobs.
+It's possible to also subscribe asynchronous handlers to events. To enqueue asynchronous handlers as background jobs scheduler class is needed. RailsEventStore provides [implementation of a scheduler](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store/lib/rails_event_store/active_job_scheduler.rb) for `ActiveJob` library.
+In that case async handlers are just background jobs implemented as:
 
+```ruby
+class SendOrderEmail < ActiveJob::Base
+  def perform(payload)
+    event = event_store.deserialize(payload)
+    email = event.data.fetch(:customer_email)
+    OrderMailer.notify_customer(email).deliver_now!
+  end
+
+  private
+
+  def event_store
+    Rails.configuration.event_store
+  end
+end
+
+event_store = RailsEventStore::Client.new
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
+```
+
+You can also use `RailsEventStore::AsyncHandler` module that will deserialize the event for you:
+
+```ruby
+class SendOrderEmail < ActiveJob::Base
+  prepend RailsEventStore::AsyncHandler
+
+  def perform(event)
+    email = event.data.fetch(:customer_email)
+    OrderMailer.notify_customer(email).deliver_now!
+  end
+end
+
+event_store = RailsEventStore::Client.new
+event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
+```
+
+If you'd like to rely solely on Sidekiq, you can use the [`ruby_event_store-sidekiq_scheduler` gem](https://rubygems.org/search?query=ruby_event_store-sidekiq_scheduler) instead.
+
+<h3>Custom Scheduler</h3>
+
+Alternatively you could implement your own, custom scheduler. It has to respond to the `call` and `verify` methods.
 The sample `CustomScheduler` could be implemented as:
 
 ```ruby
@@ -325,45 +366,6 @@ event_store =
       ),
   )
 ```
-
-RailsEventStore provides [implementation of a scheduler](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store/lib/rails_event_store/active_job_scheduler.rb) for `ActiveJob` library.
-In that case async handlers are just background jobs implemented as:
-
-```ruby
-class SendOrderEmail < ActiveJob::Base
-  def perform(payload)
-    event = event_store.deserialize(payload)
-    email = event.data.fetch(:customer_email)
-    OrderMailer.notify_customer(email).deliver_now!
-  end
-
-  private
-
-  def event_store
-    Rails.configuration.event_store
-  end
-end
-
-event_store = RailsEventStore::Client.new
-event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
-```
-
-You can also use `RailsEventStore::AsyncHandler` module that will deserialize the event for you:
-
-```ruby
-class SendOrderEmail < ActiveJob::Base
-  prepend RailsEventStore::AsyncHandler
-
-  def perform(event)
-    email = event.data.fetch(:customer_email)
-    OrderMailer.notify_customer(email).deliver_now!
-  end
-end
-
-event_store = RailsEventStore::Client.new
-event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
-```
-
 ### When are async handlers scheduled?
 
 The default behaviour and examples above use `RubyEventStore::ImmediateAsyncDispatcher`, which schedule handlers immediately after events are stored in the database.
