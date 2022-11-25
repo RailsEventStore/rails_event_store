@@ -1,16 +1,13 @@
 require "erb"
 require "psych"
 
-name = "aggregate_root"
-ruby = %w[ruby-3.1 ruby-3.0 ruby-2.7]
-gemfile = %w[Gemfile]
+RUBY_VERSIONS = %w[ruby-3.1 ruby-3.0 ruby-2.7]
 
 mk_matrix =
   lambda do |pairs|
-    pairs
-      .map { |name, values| values.map { |value| { name.to_s => value } } }
-      .reduce(&:product)
-      .map { |set| set.reduce(&:merge) }
+    first, *rest =
+      pairs.map { |name, values| values.map { |value| { name.to_s => value } } }
+    first.product(*rest).map { |set| set.reduce(&:merge) }
   end
 
 mk_indented_yaml =
@@ -18,13 +15,66 @@ mk_indented_yaml =
     Psych.dump(shit).lines.drop(1).join(" " * indent).strip
   end
 
-puts ERB.new(DATA.read).result_with_hash(
-       {
-         name: name,
-         working_directory: name,
-         matrix: mk_matrix.call(ruby: ruby, gemfile: gemfile)
-       }
-     )
+template = DATA.read
+
+[
+  {
+    name: "aggregate_root",
+    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile])
+  },
+  {
+    name: "ruby_event_store",
+    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile])
+  },
+  {
+    name: "ruby_event_store-rspec",
+    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile])
+  },
+  {
+    name: "ruby_event_store-browser",
+    matrix:
+      mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile Gemfile.rack_2_0])
+  },
+  {
+    name: "rails_event_store",
+    matrix:
+      mk_matrix.call(
+        ruby: RUBY_VERSIONS,
+        gemfile: %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0]
+      )
+  },
+  {
+    name: "rails_event_store_active_record",
+    matrix:
+      mk_matrix.call(
+        ruby: RUBY_VERSIONS,
+        gemfile: %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0],
+        database: %w[
+          sqlite3:db.sqlite3
+          postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+          postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+          mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
+        ],
+        datatype: %w[binary json jsonb]
+      )
+  }
+].each do |gem|
+  name, matrix = gem.values_at(:name, :matrix)
+
+  yaml =
+    ERB.new(template).result_with_hash(
+      name: name,
+      working_directory: name,
+      matrix: matrix
+    )
+  workflow_path = File.join(__dir__, "../../.github/workflows/#{name}.yml")
+
+  File.write(workflow_path, yaml)
+
+  print "."
+end
+
+puts
 
 __END__
 name: <%= name %>
