@@ -5,9 +5,9 @@ PATH
       ruby_event_store (= 2.6.0)
 
 PATH
-  remote: ../rails_event_store_active_record
+  remote: ../ruby_event_store-active_record
   specs:
-    rails_event_store_active_record (2.6.0)
+     ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
 
@@ -33,7 +33,7 @@ PATH
       activesupport (>= 6.0)
       aggregate_root (= 2.6.0)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.6.0)
+      rails_event_store_active_record(= 2.6.0)
       ruby_event_store (= 2.6.0)
       ruby_event_store-browser (= 2.6.0)
 
@@ -172,19 +172,16 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.20.3, < 2.0)
     rake (13.0.6)
-    redis (4.8.0)
+    redis-client (0.11.2)
+      connection_pool
     regexp_parser (2.6.1)
-    rspec (3.11.0)
-      rspec-core (~> 3.11.0)
-      rspec-expectations (~> 3.11.0)
-      rspec-mocks (~> 3.11.0)
-    rspec-core (3.11.0)
-      rspec-support (~> 3.11.0)
-    rspec-expectations (3.11.1)
-      diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.11.0)
-    rspec-mocks (3.11.1)
-      diff-lcs (>= 1.2.0, < 2.0)
+    rspec (3.12.0)
+      rspec-core (~> 3.12.0)
+      rspec-expectations (~> 3.12.0)
+      rspec-mocks (~> 3.12.0)
+    rspec-core (3.12.0)
+      rspec-support (~> 3.12.0)
+    rspec-expectations (3.12.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.1)
     sidekiq (6.5.7)
@@ -225,10 +222,10 @@ DEPENDENCIES
   rack-test
   rails (= 6.0.6)
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-active_record!
   ruby_event_store-browser!
   sidekiq
   sqlite3 (= 1.5.3)
