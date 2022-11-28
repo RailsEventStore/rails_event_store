@@ -7,7 +7,7 @@ PATH
 PATH
   remote: .
   specs:
-    rails_event_store_active_record (2.6.0)
+    ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
 
@@ -207,10 +207,10 @@ DEPENDENCIES
   mysql2 (= 0.5.4)
   pg (= 1.4.4)
   rails (= 7.0.4)
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-active_record!
   sqlite3 (= 1.5.3)
 
 BUNDLED WITH
