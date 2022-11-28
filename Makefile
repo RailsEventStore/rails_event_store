@@ -22,13 +22,13 @@ $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
 $(addprefix install-all-, $(GEMS)):
-	@make -C $(subst install-all-,,$@) install
+	@make -C $(subst install-all-,,$@) install-all
 
 $(addprefix local-install-, $(GEMS)):
 	@make -C $(subst local-install-,,$@) local-install
 
 $(addprefix update-all-, $(GEMS)):
-	@make -C $(subst update-all-,,$@) update
+	@make -C $(subst update-all-,,$@) update-all
 
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
