@@ -3,8 +3,6 @@
 includes:
   - lib
 integration: rspec
-mutation:
-  timeout: 10.0
 coverage_criteria:
   timeout: true
   process_abort: true
