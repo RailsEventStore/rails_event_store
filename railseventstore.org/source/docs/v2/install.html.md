@@ -37,7 +37,7 @@ Use provided task to generate a table to store events in your database.
 
 ```bash
 spring stop # if you use spring
-rails generate ruby_event_store/active_record:migration
+rails generate ruby_event_store-active_record:migration
 rake db:migrate
 ```
 
