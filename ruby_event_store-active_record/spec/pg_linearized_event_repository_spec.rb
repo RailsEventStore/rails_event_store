@@ -2,7 +2,8 @@ require "spec_helper"
 require "ruby_event_store"
 require "ruby_event_store/spec/event_repository_lint"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   RSpec.describe PgLinearizedEventRepository do
     helper = SpecHelper.new
     mk_repository = -> { PgLinearizedEventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
@@ -75,4 +76,5 @@ module RailsEventStoreActiveRecord
       )
     end
   end if ENV["DATABASE_URL"].include?("postgres")
+end
 end

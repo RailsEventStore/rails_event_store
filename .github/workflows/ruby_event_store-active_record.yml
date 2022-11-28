@@ -1,4 +1,4 @@
-name: rails_event_store_active_record
+name: ruby_event_store-active_record
 on:
   repository_dispatch:
     types:
@@ -17,7 +17,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: rails_event_store_active_record
+      WORKING_DIRECTORY: ruby_event_store-active_record
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
@@ -125,7 +125,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: rails_event_store_active_record
+      WORKING_DIRECTORY: ruby_event_store-active_record
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false

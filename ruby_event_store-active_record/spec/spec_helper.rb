@@ -8,7 +8,8 @@ require "active_record"
 $verbose = ENV.has_key?("VERBOSE") ? true : false
 ActiveRecord::Schema.verbose = $verbose
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class CustomApplicationRecord < ActiveRecord::Base
     self.abstract_class = true
   end
@@ -88,4 +89,5 @@ RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
   end
   supports_block_expectations
   diffable
+end
 end

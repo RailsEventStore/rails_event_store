@@ -44,7 +44,7 @@ template = DATA.read
       )
   },
   {
-    name: "rails_event_store_active_record",
+    name: "ruby_event_store-active_record",
     matrix:
       mk_matrix.call(
         ruby: RUBY_VERSIONS,

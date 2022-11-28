@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class WithAbstractBaseClass
     def initialize(base_klass)
       unless base_klass < ActiveRecord::Base && base_klass.abstract_class?
@@ -36,4 +37,5 @@ module RailsEventStoreActiveRecord
       )
     end
   end
+end
 end

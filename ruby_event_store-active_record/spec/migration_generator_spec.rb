@@ -3,14 +3,15 @@ require "pp"
 require "fakefs/safe"
 require_relative "../../support/helpers/silence_stdout"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   RSpec.describe MigrationGenerator do
     around { |example| SilenceStdout.silence_stdout { example.run } }
 
     around do |example|
       FakeFS.with_fresh do
         FakeFS::FileSystem.clone(
-          File.expand_path("../../lib/rails_event_store_active_record/generators/templates", __FILE__)
+          File.expand_path("../../lib/ruby_event_store-active_record/generators/templates", __FILE__)
         )
         example.run
       end
@@ -70,4 +71,5 @@ module RailsEventStoreActiveRecord
       end
     end
   end
+end
 end

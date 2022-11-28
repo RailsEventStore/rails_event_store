@@ -1,7 +1,8 @@
 require "spec_helper"
 require "rails_event_store_active_record/batch_enumerator"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   RSpec.describe BatchEnumerator, timeout: 1 do
     let(:collection) { (1..10_000).to_a }
     let(:reader) do
@@ -59,4 +60,5 @@ module RailsEventStoreActiveRecord
       BatchEnumerator.new(100, Float::INFINITY, reader).to_a
     end
   end
+end
 end

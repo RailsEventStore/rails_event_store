@@ -19,7 +19,7 @@ RSpec.describe "DresRails::ApplicationController" do
     ActiveRecord::Base.connection.execute("TRUNCATE event_store_events_in_streams")
   end
 
-  let(:repository) { RailsEventStoreActiveRecord::PgLinearizedEventRepository.new(serializer: YAML) }
+  let(:repository) { RubyEventStore::ActiveRecord::PgLinearizedEventRepository.new(serializer: YAML) }
   let(:res) do
     RailsEventStore::Client.new(
       repository: repository,

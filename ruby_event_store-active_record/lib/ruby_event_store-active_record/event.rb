@@ -2,7 +2,8 @@
 
 require "active_record"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class Event < ::ActiveRecord::Base
     self.primary_key = :id
     self.table_name = "event_store_events"
@@ -15,4 +16,5 @@ module RailsEventStoreActiveRecord
     belongs_to :event, primary_key: :event_id
   end
   private_constant :EventInStream
+end
 end

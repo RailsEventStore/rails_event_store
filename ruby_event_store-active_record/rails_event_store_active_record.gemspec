@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/rails_event_store_active_record/version"
+require_relative "lib/ruby_event_store-active_record/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "rails_event_store_active_record"
-  spec.version = RailsEventStoreActiveRecord::VERSION
+  spec.name = "ruby_event_store-active_record"
+  spec.version = RubyEventStore::ActiveRecord::VERSION
   spec.license = "MIT"
   spec.author = "Arkency"
   spec.email = "dev@arkency.com"
@@ -32,4 +32,19 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "ruby_event_store", "= 2.6.0"
   spec.add_dependency "activerecord", ">= 6.0"
+
+  spec.files         = ['lib/rails_event_store_active_record/rspec.rb']
+  spec.bindir        = 'exe'
+  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.require_paths = ['lib']
+
+  spec.post_install_message = <<~EOW
+    The 'rails_event_store_active_record' gem has been renamed.
+
+    Please change your Gemfile or gemspec
+    to reflect its new name:
+
+    'ruby_event_store-active-record'
+
+  EOW
 end

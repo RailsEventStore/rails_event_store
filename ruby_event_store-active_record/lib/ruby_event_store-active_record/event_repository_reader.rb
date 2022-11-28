@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class EventRepositoryReader
     def initialize(event_klass, stream_klass, serializer)
       @event_klass = event_klass
@@ -196,4 +197,5 @@ module RailsEventStoreActiveRecord
   end
 
   private_constant(:EventRepositoryReader)
+end
 end
