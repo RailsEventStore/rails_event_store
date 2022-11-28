@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "ruby_event_store/active_record/version"
+require_relative "lib/ruby_event_store/active_record/version"
 
 Gem::Specification.new do |spec|
   spec.name = "rails_event_store_active_record"
