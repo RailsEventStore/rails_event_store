@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "lib/ruby_event_store-active_record/version"
+require "ruby_event_store/active_record/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "ruby_event_store-active_record"
+  spec.name = "rails_event_store_active_record"
   spec.version = RubyEventStore::ActiveRecord::VERSION
   spec.license = "MIT"
   spec.author = "Arkency"
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
     on top of SQL database engine.
   EOD
   spec.homepage = "https://railseventstore.org"
-  spec.files = Dir["lib/**/*"]
+  spec.files = ["lib/rails_event_store_active_record.rb"]
   spec.require_paths = %w[lib]
   spec.metadata = {
     "homepage_uri" => spec.homepage,

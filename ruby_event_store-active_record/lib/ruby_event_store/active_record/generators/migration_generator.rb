@@ -5,17 +5,18 @@ begin
 rescue LoadError
 end
 
-module RubyEventStore::ActiveRecord
-  class MigrationGenerator < Rails::Generators::Base
-    class Error < Thor::Error
-    end
+module RubyEventStore
+  module ActiveRecord
+    class MigrationGenerator < Rails::Generators::Base
+      class Error < Thor::Error
+      end
 
-    DATA_TYPES = %w[binary json jsonb].freeze
+      DATA_TYPES = %w[binary json jsonb].freeze
 
-    source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
-    class_option(
-      :data_type,
-      type: :string,
+      source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
+      class_option(
+        :data_type,
+        type: :string,
       default: "binary",
       desc:
         "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join("/")})"
@@ -46,5 +47,6 @@ module RubyEventStore::ActiveRecord
     def timestamp
       Time.now.strftime("%Y%m%d%H%M%S")
     end
+  end
   end
 end if defined?(Rails::Generators::Base)

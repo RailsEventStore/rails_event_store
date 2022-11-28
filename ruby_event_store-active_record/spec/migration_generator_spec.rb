@@ -11,7 +11,7 @@ module ActiveRecord
     around do |example|
       FakeFS.with_fresh do
         FakeFS::FileSystem.clone(
-          File.expand_path("../../lib/ruby_event_store-active_record/generators/templates", __FILE__)
+          File.expand_path("../../lib/ruby_event_store/active_record/generators/templates", __FILE__)
         )
         example.run
       end

@@ -1,7 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.5
   Exclude:
-    - ruby_event_store-active_record/lib/ruby_event_store-active_record/generators/templates/*
+    - ruby_event_store/active_record/lib/ruby_event_store/active_record/generators/templates/*
     - bounded_context/lib/generators/templates/*
     - support/helpers/0_18_2_migration_template.rb
     - contrib/**/*

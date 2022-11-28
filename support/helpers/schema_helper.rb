@@ -8,7 +8,7 @@ module SchemaHelper
     m =
       Migrator.new(
         File.expand_path(
-          "../../ruby_event_store-active_record/lib/ruby_event_store-active_record/generators/templates",
+          "../../ruby_event_store/active_record/lib/ruby_event_store/active_record/generators/templates",
           __dir__
         )
       )
@@ -48,7 +48,7 @@ module SchemaHelper
         #{gemfile}
       end
 
-      require 'ruby_event_store-active_record'
+      require 'ruby_event_store/active_record'
       require 'ruby_event_store'
       require 'logger'
       require '../support/helpers/migrator'
@@ -58,8 +58,8 @@ module SchemaHelper
       ActiveRecord::Base.logger    = Logger.new(STDOUT) if $verbose
       ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
-      gem_path = $LOAD_PATH.find { |path| path.match(/ruby_event_store-active_record/) }
-      Migrator.new(File.expand_path('ruby_event_store-active_record/generators/templates', gem_path))
+      gem_path = $LOAD_PATH.find { |path| path.match(/ruby_event_store/active_record/) }
+      Migrator.new(File.expand_path('ruby_event_store/active_record/generators/templates', gem_path))
         .run_migration('create_event_store_events', #{template_name ? "'#{template_name}'" : "nil"})
     EOF
   end
@@ -72,7 +72,7 @@ module SchemaHelper
         #{gemfile}
       end
 
-      require 'ruby_event_store-active_record'
+      require 'ruby_event_store/active_record'
       require 'ruby_event_store'
       require 'logger'
 
