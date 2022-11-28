@@ -1,5 +1,5 @@
 GEM_VERSION  = $(shell cat ../RES_VERSION)
-GEM_NAME     = rails_event_store_active_record
+GEM_NAME     = ruby_event_store-active_record
 DATABASE_URL ?= sqlite3::memory:
 
 include ../support/make/install.mk
