@@ -15,7 +15,7 @@ RSpec.configure do |config|
     m =
       Migrator.new(
         File.expand_path(
-          "../../rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates",
+          "../../ruby_event_store-active_record/lib/ruby_event_store-active_record/generators/templates",
           __dir__
         )
       )

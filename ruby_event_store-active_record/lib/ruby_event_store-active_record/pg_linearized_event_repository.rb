@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class PgLinearizedEventRepository < EventRepository
     def start_transaction(&proc)
       ActiveRecord::Base.transaction(requires_new: true) do
@@ -10,4 +11,5 @@ module RailsEventStoreActiveRecord
       end
     end
   end
+end
 end

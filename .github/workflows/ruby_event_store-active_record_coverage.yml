@@ -1,4 +1,4 @@
-name: rails_event_store_active_record_coverage
+name: ruby_event_store-active_record_coverage
 on:
   repository_dispatch:
     types:
@@ -8,14 +8,14 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "rails_event_store_active_record/Gemfile.lock"
-      - ".github/workflows/rails_event_store_active_record_coverage.yml"
+      - "ruby_event_store-active_record/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-active_record_coverage.yml"
       - "support/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "rails_event_store_active_record/Gemfile.lock"
-      - ".github/workflows/rails_event_store_active_record_coverage.yml"
+      - "ruby_event_store-active_record/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-active_record_coverage.yml"
       - "support/**"
 jobs:
   coverage:
@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 120
     env:
       BUNDLE_GEMFILE: Gemfile
-      WORKING_DIRECTORY: rails_event_store_active_record
+      WORKING_DIRECTORY: ruby_event_store-active_record
     strategy:
       fail-fast: false
     steps:

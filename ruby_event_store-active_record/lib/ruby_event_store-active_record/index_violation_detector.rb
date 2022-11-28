@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class IndexViolationDetector
     def initialize(event_store_events, event_store_events_in_streams)
       @postgres_pkey_error = "Key (event_id)".freeze
@@ -37,4 +38,5 @@ module RailsEventStoreActiveRecord
   end
 
   private_constant(:IndexViolationDetector)
+end
 end

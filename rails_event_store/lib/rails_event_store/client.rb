@@ -6,7 +6,7 @@ module RailsEventStore
 
     def initialize(
       mapper: RubyEventStore::Mappers::Default.new,
-      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
       subscriptions: RubyEventStore::Subscriptions.new,
       dispatcher: RubyEventStore::ComposedDispatcher.new(
         RailsEventStore::AfterCommitAsyncDispatcher.new(

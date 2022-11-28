@@ -12,7 +12,7 @@ module DresRails
     private
 
     def repository
-      RailsEventStoreActiveRecord::PgLinearizedEventRepository.new(serializer: RubyEventStore::NULL)
+      RubyEventStore::ActiveRecord::PgLinearizedEventRepository.new(serializer: RubyEventStore::NULL)
     end
 
     def build_initial_spec

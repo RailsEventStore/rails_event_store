@@ -2,14 +2,15 @@ require "spec_helper"
 require "ruby_event_store"
 require "ruby_event_store/spec/event_repository_lint"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   RSpec.describe WithAbstractBaseClass do
     include SchemaHelper
 
     specify "Base for event factory models must be an abstract class" do
       NonAbstractClass = Class.new(ActiveRecord::Base)
       expect { WithAbstractBaseClass.new(NonAbstractClass) }.to raise_error(ArgumentError).with_message(
-        "RailsEventStoreActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base"
+        "RubyEventStore::ActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base"
       )
     end
 
@@ -98,4 +99,5 @@ module RailsEventStoreActiveRecord
       end
     end
   end
+end
 end

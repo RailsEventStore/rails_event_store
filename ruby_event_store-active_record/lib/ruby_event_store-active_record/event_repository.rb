@@ -2,7 +2,8 @@
 
 require "active_support/core_ext/array"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class EventRepository
     POSITION_SHIFT = 1
 
@@ -159,4 +160,5 @@ module RailsEventStoreActiveRecord
       @event_klass.transaction(requires_new: true, &block)
     end
   end
+end
 end

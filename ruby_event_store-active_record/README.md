@@ -1,4 +1,4 @@
-# RailsEventStoreActiveRecord
+# RubyEventStore::ActiveRecord
 
 Persistent event repository implementation for RubyEventStore based on ActiveRecord. Ships with database schema and migrations suitable for PostgreSQL, MySQL ans SQLite database engines.
 

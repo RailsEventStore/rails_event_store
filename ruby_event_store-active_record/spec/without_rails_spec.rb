@@ -3,7 +3,7 @@ require "pathname"
 require "fileutils"
 require_relative "../../support/helpers/subprocess_helper"
 
-RSpec.describe RailsEventStoreActiveRecord, :integration do
+RSpec.describe RubyEventStore::ActiveRecord, :integration do
   include SchemaHelper
   include SubprocessHelper
 
@@ -29,7 +29,7 @@ RSpec.describe RailsEventStoreActiveRecord, :integration do
       gemfile do
         source 'https://rubygems.org'
         gem 'ruby_event_store',                path: '../ruby_event_store'
-        gem 'rails_event_store_active_record', path: '../rails_event_store_active_record'
+        gem 'ruby_event_store-active_record', path: '../ruby_event_store-active_record'
         gem 'activerecord', '7.0.3'
         gem 'pg',           '1.4.4'
         gem 'mysql2',       '0.5.4'
@@ -37,7 +37,7 @@ RSpec.describe RailsEventStoreActiveRecord, :integration do
       end
 
       require 'active_record'
-      require 'rails_event_store_active_record'
+      require 'ruby_event_store-active_record'
       require 'ruby_event_store'
       require 'logger'
 
@@ -48,7 +48,7 @@ RSpec.describe RailsEventStoreActiveRecord, :integration do
 
       EventA1 = Class.new(RubyEventStore::Event)
 
-      client = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML))
+      client = RubyEventStore::Client.new(repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML))
       client.append(
         EventA1.new(
           data: {

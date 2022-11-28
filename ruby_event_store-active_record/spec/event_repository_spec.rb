@@ -2,7 +2,8 @@ require "spec_helper"
 require "ruby_event_store"
 require "ruby_event_store/spec/event_repository_lint"
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   RSpec.describe EventRepository do
     helper = SpecHelper.new
     mk_repository = -> { EventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
@@ -336,4 +337,5 @@ module RailsEventStoreActiveRecord
       time.round(RubyEventStore::TIMESTAMP_PRECISION)
     end
   end
+end
 end

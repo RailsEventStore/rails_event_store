@@ -24,7 +24,7 @@ events' `data` and `metadata` using `Marshal`.
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: Marshal)
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: Marshal)
     )
   end
 end
@@ -61,7 +61,7 @@ JSON is a popular serialization choice when paired with JSON/JSONB storage on Po
 $ rails generate rails_event_store_active_record:migration --data-type=jsonb
 ```
 
-Next set repository serialization to ` RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
+Next set repository serialization to ` RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
 
 ```ruby
 # config/environments/*.rb
@@ -69,7 +69,7 @@ Next set repository serialization to ` RailsEventStoreActiveRecord::EventReposit
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)
     )
   end
 end

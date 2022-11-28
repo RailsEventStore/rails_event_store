@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-module RailsEventStoreActiveRecord
+module RubyEventStore
+module ActiveRecord
   class BatchEnumerator
     def initialize(batch_size, total_limit, reader)
       @batch_size = batch_size
@@ -33,4 +34,5 @@ module RailsEventStoreActiveRecord
 
     attr_reader :batch_size, :total_limit, :reader
   end
+end
 end

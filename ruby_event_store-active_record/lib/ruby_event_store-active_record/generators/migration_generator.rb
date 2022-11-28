@@ -5,7 +5,7 @@ begin
 rescue LoadError
 end
 
-module RailsEventStoreActiveRecord
+module RubyEventStore::ActiveRecord
   class MigrationGenerator < Rails::Generators::Base
     class Error < Thor::Error
     end

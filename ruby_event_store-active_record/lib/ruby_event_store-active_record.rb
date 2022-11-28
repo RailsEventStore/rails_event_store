@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+require_relative "ruby_event_store-active_record/generators/migration_generator"
+require_relative "ruby_event_store-active_record/event"
+require_relative "ruby_event_store-active_record/with_default_models"
+require_relative "ruby_event_store-active_record/with_abstract_base_class"
+require_relative "ruby_event_store-active_record/event_repository"
+require_relative "ruby_event_store-active_record/batch_enumerator"
+require_relative "ruby_event_store-active_record/event_repository_reader"
+require_relative "ruby_event_store-active_record/index_violation_detector"
+require_relative "ruby_event_store-active_record/pg_linearized_event_repository"
+require_relative "ruby_event_store-active_record/version"
