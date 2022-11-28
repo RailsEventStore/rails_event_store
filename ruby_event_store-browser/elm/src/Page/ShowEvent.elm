@@ -340,42 +340,7 @@ relatedStreamsList : Url.Url -> Event -> List (Html Msg)
 relatedStreamsList baseUrl event =
     values
         [ parentEventLink baseUrl event
-        , Just (typeStreamLink baseUrl event)
-        , correlationStreamLink baseUrl event
-        , causationStreamLink baseUrl event
         ]
-
-
-correlationStreamLink : Url.Url -> Event -> Maybe (Html Msg)
-correlationStreamLink baseUrl event =
-    Maybe.map
-        (\streamName ->
-            li []
-                [ text "Correlation stream: "
-                , streamLink baseUrl streamName
-                ]
-        )
-        event.correlationStreamName
-
-
-typeStreamLink : Url.Url -> Event -> Html Msg
-typeStreamLink baseUrl event =
-    li []
-        [ text "Type stream: "
-        , streamLink baseUrl event.typeStreamName
-        ]
-
-
-causationStreamLink : Url.Url -> Event -> Maybe (Html Msg)
-causationStreamLink baseUrl event =
-    Maybe.map
-        (\streamName ->
-            li []
-                [ text "Causation stream: "
-                , streamLink baseUrl streamName
-                ]
-        )
-        event.causationStreamName
 
 
 parentEventLink : Url.Url -> Event -> Maybe (Html Msg)
