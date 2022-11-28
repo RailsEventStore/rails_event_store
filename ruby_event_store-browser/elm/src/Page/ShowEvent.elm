@@ -305,7 +305,7 @@ streamsOfEvent baseUrl event =
                 , ul
                     [ class "list-disc pl-8"
                     ]
-                    (List.map (\id -> li [] [ streamLink baseUrl id ]) streams)
+                    (List.map (\id -> li [] [ streamLink baseUrl id ]) (List.sort streams))
                 ]
 
         Nothing ->
