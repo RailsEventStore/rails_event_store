@@ -1,5 +1,5 @@
 require "spec_helper"
-require "rails_event_store_active_record/batch_enumerator"
+require "ruby_event_store/active_record/batch_enumerator"
 
 module RubyEventStore
 module ActiveRecord
