@@ -19,7 +19,6 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://railseventstore.org"
   spec.files = Dir["lib/**/*"]
   spec.require_paths = %w[lib]
-  spec.extra_rdoc_files = %w[README.md]
   spec.metadata = {
     "homepage_uri" => spec.homepage,
     "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
