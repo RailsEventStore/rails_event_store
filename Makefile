@@ -8,7 +8,7 @@ GEMS         = aggregate_root \
                ruby_event_store-browser \
                ruby_event_store-rspec \
                rails_event_store \
-               rails_event_store_active_record
+               ruby_event_store-active_record
 
 ifeq ($(NIX_TYPE),Linux)
   SED_OPTS = -i
