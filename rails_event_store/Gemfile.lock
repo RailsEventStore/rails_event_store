@@ -5,9 +5,9 @@ PATH
       ruby_event_store (= 2.6.0)
 
 PATH
-  remote: ../rails_event_store_active_record
+  remote: ../ruby_event_store-active_record
   specs:
-    rails_event_store_active_record (2.6.0)
+    ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
 
@@ -236,10 +236,10 @@ DEPENDENCIES
   rack-test
   rails (= 7.0.4)
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-active_record!
   ruby_event_store-browser!
   sidekiq
   sqlite3 (= 1.5.3)
