@@ -21,11 +21,14 @@ endif
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
+$(addprefix install-all-, $(GEMS)):
+	@make -C $(subst install-all-,,$@) install
+
 $(addprefix local-install-, $(GEMS)):
 	@make -C $(subst local-install-,,$@) local-install
 
-$(addprefix update-, $(GEMS)):
-	@make -C $(subst update-,,$@) update
+$(addprefix update-all-, $(GEMS)):
+	@make -C $(subst update-all-,,$@) update
 
 $(addprefix test-, $(GEMS)):
 	@make -C $(subst test-,,$@) test
@@ -82,9 +85,11 @@ set-version: git-check-clean git-check-committed
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
 
+install-all: $(addprefix install-all-, $(GEMS)) ## Install all dependencies
+
 local-install: $(addprefix local-install-, $(GEMS))
 
-update: $(addprefix update-, $(GEMS)) ## Update all dependencies
+update-all: $(addprefix update-all-, $(GEMS)) ## Update all dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
