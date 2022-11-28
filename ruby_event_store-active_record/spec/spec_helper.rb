@@ -10,7 +10,7 @@ ActiveRecord::Schema.verbose = $verbose
 
 module RubyEventStore
 module ActiveRecord
-  class CustomApplicationRecord < ActiveRecord::Base
+  class CustomApplicationRecord < ::ActiveRecord::Base
     self.abstract_class = true
   end
 

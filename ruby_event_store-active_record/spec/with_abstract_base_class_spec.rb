@@ -8,14 +8,14 @@ module ActiveRecord
     include SchemaHelper
 
     specify "Base for event factory models must be an abstract class" do
-      NonAbstractClass = Class.new(ActiveRecord::Base)
+      NonAbstractClass = Class.new(::ActiveRecord::Base)
       expect { WithAbstractBaseClass.new(NonAbstractClass) }.to raise_error(ArgumentError).with_message(
         "RubyEventStore::ActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base"
       )
     end
 
     specify "Base for event factory models could not be the ActiveRecord::Base" do
-      expect { WithAbstractBaseClass.new(ActiveRecord::Base) }.to raise_error(ArgumentError).with_message(
+      expect { WithAbstractBaseClass.new(::ActiveRecord::Base) }.to raise_error(ArgumentError).with_message(
         "ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base"
       )
     end
