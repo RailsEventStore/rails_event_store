@@ -4,7 +4,7 @@ module RubyEventStore
   module ActiveRecord
     class WithAbstractBaseClass
       def initialize(base_klass)
-        unless base_klass < ActiveRecord::Base && base_klass.abstract_class?
+        unless base_klass < ::ActiveRecord::Base && base_klass.abstract_class?
           raise ArgumentError.new("#{base_klass} must be an abstract class that inherits from ActiveRecord::Base")
         end
         @base_klass = base_klass
