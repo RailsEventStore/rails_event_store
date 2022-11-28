@@ -32,8 +32,9 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "ruby_event_store", "= 2.6.0"
   spec.add_dependency "activerecord", ">= 6.0"
+  spec.add_dependency "ruby_event_store-active_record", RubyEventStore::ActiveRecord::VERSION
 
-  spec.files         = ['lib/rails_event_store_active_record/ruby_event_store-active_record.rb']
+  spec.files         = ['lib/rails_event_store_active_record.rb']
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
