@@ -28,8 +28,6 @@ module RubyEventStore
     # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {http://railseventstore.org/docs/expected_version/ Read more}
     # @return [self]
     def publish(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      assert_nil_events(events)
-
       enriched_events = enrich_events_metadata(events)
       records = transform(enriched_events)
       append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
@@ -46,8 +44,6 @@ module RubyEventStore
     # @param (see #publish)
     # @return [self]
     def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-      assert_nil_events(events)
-
       append_records_to_stream(
         transform(enrich_events_metadata(events)),
         stream_name: stream_name,
@@ -64,8 +60,6 @@ module RubyEventStore
     # @param expected_version (see #publish)
     # @return [self]
     def link(event_ids, stream_name:, expected_version: :any)
-      assert_nil_events(event_ids)
-
       repository.link_to_stream(Array(event_ids), Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
     end
@@ -339,12 +333,6 @@ module RubyEventStore
     private_constant :EMPTY_HASH
 
     private
-
-    def assert_nil_events(events)
-      raise ArgumentError, "Event cannot be `nil`" if events.nil?
-      events = Array(events)
-      raise ArgumentError, "Event cannot be `nil`" if events.any?(&:nil?)
-    end
 
     def transform(events)
       events.map { |ev| mapper.event_to_record(ev) }
