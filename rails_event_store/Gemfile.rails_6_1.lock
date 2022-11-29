@@ -5,9 +5,13 @@ PATH
       ruby_event_store (= 2.6.0)
 
 PATH
-  remote: ../rails_event_store_active_record
+  remote: ../ruby_event_store-active_record
   specs:
+<<<<<<< HEAD
     ruby_event_store-active_record (2.6.0)
+=======
+    ruby_event_store-active_record (2.5.1)
+>>>>>>> 2df853b1 (yes)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
 
@@ -33,9 +37,15 @@ PATH
       activesupport (>= 6.0)
       aggregate_root (= 2.6.0)
       arkency-command_bus (>= 0.4)
+<<<<<<< HEAD
       ruby_event_store-active_record (= 2.6.0)
       ruby_event_store (= 2.6.0)
       ruby_event_store-browser (= 2.6.0)
+=======
+      ruby_event_store (= 2.5.1)
+      ruby_event_store-active_record (= 2.5.1)
+      ruby_event_store-browser (= 2.5.1)
+>>>>>>> 2df853b1 (yes)
 
 GEM
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
@@ -228,10 +238,10 @@ DEPENDENCIES
   rack-test
   rails (= 6.1.7)
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-active_record!
   ruby_event_store-browser!
   sidekiq (< 7.0)
   sqlite3 (= 1.5.3)
