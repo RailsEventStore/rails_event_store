@@ -26,7 +26,7 @@ module ActiveRecord
     end
 
     def with_transaction
-      ActiveRecord::Base.transaction { yield }
+      ::ActiveRecord::Base.transaction { yield }
     end
 
     def supports_concurrent_auto?

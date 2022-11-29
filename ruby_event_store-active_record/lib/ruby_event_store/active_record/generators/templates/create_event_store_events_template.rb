@@ -52,3 +52,4 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
       add_index :event_store_events, :event_type
     end
   end
+end
