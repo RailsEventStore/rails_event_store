@@ -15,6 +15,6 @@ module RubyEventStore
       self.table_name = "event_store_events_in_streams"
       belongs_to :event, primary_key: :event_id
     end
+    private_constant :EventInStream
   end
-  private_constant :EventInStream
 end
