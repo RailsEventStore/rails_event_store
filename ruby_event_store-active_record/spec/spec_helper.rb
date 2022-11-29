@@ -58,7 +58,7 @@ module ActiveRecord
     end
 
     def connection_pool_size
-      ActiveRecord::Base.connection.pool.size
+      ::ActiveRecord::Base.connection.pool.size
     end
   end
 end
