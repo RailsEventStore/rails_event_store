@@ -1,7 +1,7 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
 requires:
-  - ruby_event_store-active_record
+  - ruby_event_store/active_record
 includes:
   - lib
 integration: rspec
