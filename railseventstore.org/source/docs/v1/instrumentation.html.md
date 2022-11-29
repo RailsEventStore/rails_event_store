@@ -17,7 +17,7 @@ Instrumentation is provided by `InstrumentedRepository` and `InstrumentedDispatc
 That having said, if you want to instrument your event store with `ActiveSupport::Notifications`, initialize your client with following repository and/or dispatcher:
 
 ```ruby
-repository = RubyEventStore::ActiveRecord::EventRepository.new # or other repo you use
+repository = RailsEventStoreActiveRecord::EventRepository.new # or other repo you use
 dispatcher = RubyEventStore::Dispatcher.new # or other dispatcher you use
 RubyEventStore::Client.new(
   repository: InstrumentedRepository.new(repository, ActiveSupport::Notifications),
