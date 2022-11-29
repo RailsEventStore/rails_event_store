@@ -51,6 +51,25 @@ module RubyEventStore
       expect(client.read.stream(stream).to_a).to be_empty
     end
 
+    specify "link returns self when success" do
+      client.append(event = TestEvent.new)
+      expect(client.link(event.event_id, stream_name: stream)).to eq(client)
+    end
+
+    specify "link with no events, fail if nil" do
+      client.link([], stream_name: stream)
+
+      expect {
+        client.link(nil, stream_name: stream)
+      }.to raise_error(ArgumentError, "Event cannot be `nil`")
+
+      expect {
+        client.link([nil], stream_name: stream)
+      }.to raise_error(ArgumentError, "Event cannot be `nil`")
+
+      expect(client.read.stream(stream).to_a).to be_empty
+    end
+
     specify "append to default stream when not specified" do
       expect(client.append(test_event = TestEvent.new)).to eq(client)
       expect(client.read.limit(100).to_a).to eq([test_event])
