@@ -23,7 +23,7 @@ class Migrator
   end
 
   def migration_code(name)
-    migration_template(name).result(Binding.from_hash(migration_version: migration_version, data_type: "binary"))
+    migration_template(name).result_with_hash(migration_version: migration_version, data_type: "binary")
   end
 
   private
