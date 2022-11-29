@@ -114,7 +114,7 @@ module RubyEventStore
           @stream_klass.insert_all!(in_stream) unless stream.global?
         end
         self
-      rescue ActiveRecord::RecordNotUnique => e
+      rescue ::ActiveRecord::RecordNotUnique => e
         raise_error(e)
       end
 
