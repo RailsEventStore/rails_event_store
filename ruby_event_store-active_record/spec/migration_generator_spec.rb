@@ -1,6 +1,5 @@
 require "spec_helper"
 require "pp"
-require "fakefs/safe"
 require_relative "../../support/helpers/silence_stdout"
 
 module RubyEventStore
@@ -9,12 +8,9 @@ module RubyEventStore
       around { |example| SilenceStdout.silence_stdout { example.run } }
 
       around do |example|
-        FakeFS.with_fresh do
-          FakeFS::FileSystem.clone(
-            File.expand_path("../../lib/ruby_event_store/active_record/generators/templates", __FILE__)
-          )
-          example.run
-        end
+        @dir = Dir.mktmpdir(nil, "./")
+        example.call
+        FileUtils.rm_r(@dir)
       end
 
       before { allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22)) }
@@ -22,8 +18,8 @@ module RubyEventStore
       let(:generator) { MigrationGenerator.new }
 
       subject do
-        generator.create_migration
-        File.read("db/migrate/20160809222222_create_event_store_events.rb")
+        MigrationGenerator.start([], destination_root: @dir)
+        File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
 
       it "uses particular migration version" do
@@ -39,7 +35,10 @@ module RubyEventStore
       end
 
       context "when data_type option is specified" do
-        let(:generator) { MigrationGenerator.new([], data_type: data_type) }
+        subject do
+          MigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
+          File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
+        end
 
         context "with a binary datatype" do
           let(:data_type) { "binary" }
@@ -63,7 +62,7 @@ module RubyEventStore
           let(:data_type) { "invalid" }
 
           it "raises an error" do
-            expect { subject }.to raise_error(
+            expect { MigrationGenerator.new([], data_type: data_type) }.to raise_error(
               MigrationGenerator::Error,
               "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
             )
