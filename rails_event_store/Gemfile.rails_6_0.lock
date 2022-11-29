@@ -38,12 +38,8 @@ PATH
       ruby_event_store-browser (= 2.6.0)
 
 GEM
-  remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
-  specs:
-    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.4)
-
-GEM
   remote: https://rubygems.org/
+  remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
   specs:
     actioncable (6.0.6)
       actionpack (= 6.0.6)
@@ -129,6 +125,7 @@ GEM
       regexp_parser (~> 2.3, >= 2.3.1)
       sorbet-runtime (~> 0.5.0)
       unparser (~> 0.6.5)
+    mutant-license (0.1.1.2.1627430819213747598431630701693729869473.4)
     mutant-minitest (0.11.17)
       minitest (~> 5.11)
       mutant (= 0.11.17)
