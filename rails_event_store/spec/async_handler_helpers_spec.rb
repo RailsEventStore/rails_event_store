@@ -31,7 +31,12 @@ module RailsEventStore
 
   class MyLovelyAsyncHandler < ActiveJob::Base
     def perform(payload)
-      $queue.push(Rails.configuration.event_store.deserialize(serializer: RubyEventStore::Serializers::YAML, **payload))
+      $queue.push(
+        Rails.configuration.event_store.deserialize(
+          serializer: RubyEventStore::Serializers::YAML,
+          **payload.symbolize_keys
+        )
+      )
     end
   end
 

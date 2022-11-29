@@ -835,18 +835,6 @@ module RubyEventStore
       expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
     end
 
-    specify "can load serialized event with stringified keys" do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-
-      payload = {
-        "event_type" => "OrderCreated",
-        "event_id" => "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        "data" => "{\"foo\":\"bar\"}",
-        "metadata" => "{\"bar\":\"baz\",\"timestamp\":\"2019-09-30 00:00:00 UTC\"}"
-      }
-      expect { client.deserialize(serializer: JSON, **payload) }.not_to raise_error
-    end
-
     specify "raise error when no subscriber" do
       expect { client.subscribe(nil, to: []) }.to raise_error(RubyEventStore::SubscriberNotExist)
       expect { client.subscribe_to_all_events(nil) }.to raise_error(RubyEventStore::SubscriberNotExist)
