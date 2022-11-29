@@ -233,7 +233,7 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-active_record!
   ruby_event_store-browser!
-  sidekiq (< 7.0)
+  sidekiq
   sqlite3 (= 1.5.3)
 
 BUNDLED WITH
