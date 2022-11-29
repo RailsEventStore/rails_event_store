@@ -79,7 +79,7 @@ ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
 class OrderPlaced < RubyEventStore::Event
 end
 
-event_store = RubyEventStore::Client.new(repository: RubyEventStore::ActiveRecord::EventRepository.new)
+event_store = RubyEventStore::Client.new(repository: RailsEventStoreActiveRecord::EventRepository.new)
 
 event_store.publish(
   OrderPlaced.new(data: { order_id: 1, customer_id: 47_271, amount: BigDecimal.new("20.00") }),
