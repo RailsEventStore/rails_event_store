@@ -7,7 +7,7 @@ class AsyncProtoHandler < ActiveJob::Base
   cattr_accessor :event_store
 
   def perform(payload)
-    @@event = self.class.event_store.deserialize(serializer: RubyEventStore::NULL, **payload)
+    @@event = self.class.event_store.deserialize(serializer: RubyEventStore::NULL, **payload.symbolize_keys)
   end
 
   def self.event
