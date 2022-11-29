@@ -5,7 +5,7 @@ PATH
       ruby_event_store (= 2.6.0)
 
 PATH
-  remote: ../ruby_event_store-active_record
+  remote: ../rails_event_store_active_record
   specs:
     ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
@@ -178,21 +178,21 @@ GEM
     rake (13.0.6)
     redis (4.8.0)
     regexp_parser (2.6.1)
-    rspec (3.12.0)
-      rspec-core (~> 3.12.0)
-      rspec-expectations (~> 3.12.0)
-      rspec-mocks (~> 3.12.0)
-    rspec-core (3.12.0)
-      rspec-support (~> 3.12.0)
-    rspec-expectations (3.12.0)
+    rspec (3.11.0)
+      rspec-core (~> 3.11.0)
+      rspec-expectations (~> 3.11.0)
+      rspec-mocks (~> 3.11.0)
+    rspec-core (3.11.0)
+      rspec-support (~> 3.11.0)
+    rspec-expectations (3.11.1)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.12.0)
-    rspec-mocks (3.12.0)
+      rspec-support (~> 3.11.0)
+    rspec-mocks (3.11.1)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.12.0)
-    rspec-support (3.12.0)
-    sidekiq (6.5.8)
-      connection_pool (>= 2.2.5, < 3)
+      rspec-support (~> 3.11.0)
+    rspec-support (3.11.1)
+    sidekiq (6.5.7)
+      connection_pool (>= 2.2.5)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
     sorbet-runtime (0.5.10564)
@@ -228,10 +228,10 @@ DEPENDENCIES
   rack-test
   rails (= 6.1.7)
   rails_event_store!
+  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
-  ruby_event_store-active_record!
   ruby_event_store-browser!
   sidekiq (< 7.0)
   sqlite3 (= 1.5.3)
