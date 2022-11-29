@@ -91,7 +91,7 @@ class SendOrderEmailHandler < ActiveJob::Base
   self.queue_adapter = :inline
 
   def perform(payload)
-    event = event_store.deserialize(payload)
+    event = event_store.deserialize(payload.symbolize_keys)
     # do something
   end
 
