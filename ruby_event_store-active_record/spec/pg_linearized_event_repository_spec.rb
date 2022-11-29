@@ -20,7 +20,7 @@ module ActiveRecord
         exchanger = Concurrent::Exchanger.new
         t =
           Thread.new do
-            ActiveRecord::Base.transaction do
+            ::ActiveRecord::Base.transaction do
               append_an_event_to_repo
               exchanger.exchange!("locked", timeout)
               exchanger.exchange!("unlocked", timeout)
@@ -28,9 +28,9 @@ module ActiveRecord
           end
 
         exchanger.exchange!("locked", timeout)
-        ActiveRecord::Base.transaction do
+        ::ActiveRecord::Base.transaction do
           execute("SET LOCAL lock_timeout = '1s';")
-          expect { append_an_event_to_repo }.to raise_error(ActiveRecord::LockWaitTimeout)
+          expect { append_an_event_to_repo }.to raise_error(::ActiveRecord::LockWaitTimeout)
         end
         exchanger.exchange!("unlocked", timeout)
 
@@ -65,7 +65,7 @@ module ActiveRecord
     private
 
     def execute(sql)
-      ActiveRecord::Base.connection.execute(sql).each.to_a
+      ::ActiveRecord::Base.connection.execute(sql).each.to_a
     end
 
     def append_an_event_to_repo
