@@ -20,7 +20,7 @@ module RubyEventStore
     end
 
     specify "publish with no events, fail if nil" do
-      client.publish([], stream_name: stream)
+      client.append([], stream_name: stream)
 
       expect {
         client.publish(nil, stream_name: stream)
@@ -35,20 +35,6 @@ module RubyEventStore
 
     specify "append returns client when success" do
       expect(client.append(TestEvent.new, stream_name: stream)).to eq(client)
-    end
-
-    specify "append with no events, fail if nil" do
-      client.append([], stream_name: stream)
-
-      expect {
-        client.append(nil, stream_name: stream)
-      }.to raise_error(ArgumentError, "Event cannot be `nil`")
-
-      expect {
-        client.append([nil], stream_name: stream)
-      }.to raise_error(ArgumentError, "Event cannot be `nil`")
-
-      expect(client.read.stream(stream).to_a).to be_empty
     end
 
     specify "append to default stream when not specified" do
