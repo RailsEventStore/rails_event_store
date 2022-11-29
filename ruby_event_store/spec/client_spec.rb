@@ -19,20 +19,6 @@ module RubyEventStore
       expect(client.publish(TestEvent.new)).to eq(client)
     end
 
-    specify "publish with no events, fail if nil" do
-      client.append([], stream_name: stream)
-
-      expect {
-        client.publish(nil, stream_name: stream)
-      }.to raise_error(ArgumentError, "Event cannot be `nil`")
-
-      expect {
-        client.publish([nil], stream_name: stream)
-      }.to raise_error(ArgumentError, "Event cannot be `nil`")
-
-      expect(client.read.stream(stream).to_a).to be_empty
-    end
-
     specify "append returns client when success" do
       expect(client.append(TestEvent.new, stream_name: stream)).to eq(client)
     end
@@ -212,7 +198,7 @@ module RubyEventStore
       expect(published[2].metadata[:valid_at]).to be_a Time
     end
 
-    specify "event's metadata takes precedence over with_metadata" do
+    specify "event's  metadata takes precedence over with_metadata" do
       client.with_metadata(request_ip: "127.0.0.1") do
         client.publish(@event = TestEvent.new(metadata: { request_ip: "1.2.3.4" }))
       end

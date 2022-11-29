@@ -339,16 +339,12 @@ module RubyEventStore
     end
 
     def enrich_events_metadata(events)
-      raise ArgumentError, "Event cannot be `nil`" if events.nil?
-
       events = Array(events)
       events.each { |event| enrich_event_metadata(event) }
       events
     end
 
     def enrich_event_metadata(event)
-      raise ArgumentError, "Event cannot be `nil`" if event.nil?
-
       metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp] ||= clock.call
       event.metadata[:valid_at] ||= event.metadata.fetch(:timestamp)
