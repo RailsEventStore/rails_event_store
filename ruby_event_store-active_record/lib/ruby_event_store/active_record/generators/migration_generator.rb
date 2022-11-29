@@ -13,6 +13,8 @@ module RubyEventStore
 
       DATA_TYPES = %w[binary json jsonb].freeze
 
+      namespace "rails_event_store_active_record:migration"
+
       source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
       class_option(
         :data_type,
