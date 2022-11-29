@@ -272,21 +272,8 @@ module RubyEventStore
     # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
     #
     # @return [Event] deserialized event
-    def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
-      extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
-
-      mapper.record_to_event(
-        SerializedRecord
-          .new(
-            event_type: event_type,
-            event_id: event_id,
-            data: data,
-            metadata: metadata,
-            timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
-            valid_at: valid_at || timestamp_
-          )
-          .deserialize(serializer)
-      )
+    def deserialize(serializer:, **keywords)
+      _deserialize(serializer: serializer, **keywords.transform_keys(&:to_sym))
     end
 
     # Read additional metadata which will be added for published events
@@ -339,6 +326,23 @@ module RubyEventStore
     private_constant :EMPTY_HASH
 
     private
+
+    def _deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
+      extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
+
+      mapper.record_to_event(
+        SerializedRecord
+          .new(
+            event_type: event_type,
+            event_id: event_id,
+            data: data,
+            metadata: metadata,
+            timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
+            valid_at: valid_at || timestamp_
+          )
+          .deserialize(serializer)
+      )
+    end
 
     def assert_nil_events(events)
       raise ArgumentError, "Event cannot be `nil`" if events.nil?

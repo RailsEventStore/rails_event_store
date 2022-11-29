@@ -70,7 +70,7 @@ module RailsEventStore
                 "metadata" => "--- {}\n",
                 "timestamp" => "2019-09-30T00:00:00.000000Z",
                 "valid_at" => "2019-09-30T00:00:00.000000Z",
-                "_aj_symbol_keys" => %w[event_id data metadata event_type timestamp valid_at]
+                "_aj_symbol_keys" => []
               }
             ],
             queue: "default"
