@@ -7,11 +7,7 @@ PATH
 PATH
   remote: ../ruby_event_store-active_record
   specs:
-<<<<<<< HEAD
     ruby_event_store-active_record (2.6.0)
-=======
-    ruby_event_store-active_record (2.5.1)
->>>>>>> 2df853b1 (yes)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
 
@@ -37,15 +33,9 @@ PATH
       activesupport (>= 6.0)
       aggregate_root (= 2.6.0)
       arkency-command_bus (>= 0.4)
-<<<<<<< HEAD
       ruby_event_store-active_record (= 2.6.0)
       ruby_event_store (= 2.6.0)
       ruby_event_store-browser (= 2.6.0)
-=======
-      ruby_event_store (= 2.5.1)
-      ruby_event_store-active_record (= 2.5.1)
-      ruby_event_store-browser (= 2.5.1)
->>>>>>> 2df853b1 (yes)
 
 GEM
   remote: https://oss:7AXfeZdAfCqL1PvHm2nvDJO6Zd9UW8IK@gem.mutant.dev/
