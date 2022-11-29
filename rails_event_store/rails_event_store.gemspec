@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "ruby_event_store", "= 2.6.0"
   spec.add_dependency "ruby_event_store-browser", "= 2.6.0"
-  spec.add_dependency "ruby_event_store/active_record", "= 2.6.0"
+  spec.add_dependency "ruby_event_store-active_record", "= 2.6.0"
   spec.add_dependency "aggregate_root", "= 2.6.0"
   spec.add_dependency "activesupport", ">= 6.0"
   spec.add_dependency "activemodel", ">= 6.0"
