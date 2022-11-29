@@ -17,36 +17,36 @@ module RubyEventStore
       class_option(
         :data_type,
         type: :string,
-      default: "binary",
-      desc:
-        "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join("/")})"
-    )
+        default: "binary",
+        desc:
+          "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join("/")})"
+      )
 
-    def initialize(*args)
-      super
+      def initialize(*args)
+        super
 
-      if DATA_TYPES.exclude?(options.fetch(:data_type))
-        raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
+        if DATA_TYPES.exclude?(options.fetch(:data_type))
+          raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
+        end
       end
-    end
 
-    def create_migration
-      template "create_event_store_events_template.rb", "db/migrate/#{timestamp}_create_event_store_events.rb"
-    end
+      def create_migration
+        template "create_event_store_events_template.rb", "db/migrate/#{timestamp}_create_event_store_events.rb"
+      end
 
-    private
+      private
 
-    def data_type
-      options.fetch("data_type")
-    end
+      def data_type
+        options.fetch("data_type")
+      end
 
-    def migration_version
-      "[4.2]"
-    end
+      def migration_version
+        "[4.2]"
+      end
 
-    def timestamp
-      Time.now.strftime("%Y%m%d%H%M%S")
-    end
+      def timestamp
+        Time.now.strftime("%Y%m%d%H%M%S")
+      end
     end
   end
 end if defined?(Rails::Generators::Base)

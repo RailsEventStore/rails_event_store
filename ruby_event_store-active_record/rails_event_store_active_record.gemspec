@@ -33,10 +33,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activerecord", ">= 6.0"
   spec.add_dependency "ruby_event_store-active_record", RubyEventStore::ActiveRecord::VERSION
 
-  spec.files         = ['lib/rails_event_store_active_record.rb']
-  spec.bindir        = 'exe'
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ['lib']
+  spec.files         = ['lib/ruby_event_store-active_record.rb']
+  spec.bindir = "exe"
+  spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.require_paths = ["lib"]
 
   spec.post_install_message = <<~EOW
     The 'rails_event_store_active_record' gem has been renamed.
