@@ -5,9 +5,9 @@ PATH
       ruby_event_store (= 2.6.0)
 
 PATH
-  remote: ../../rails_event_store_active_record
+  remote: ../../ruby_event_store-active_record
   specs:
-    rails_event_store_active_record (2.6.0)
+    ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
 
@@ -20,9 +20,16 @@ PATH
       activesupport (>= 6.0)
       aggregate_root (= 2.6.0)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.6.0)
+      ruby_event_store-active_record (= 2.6.0)
       ruby_event_store (= 2.6.0)
       ruby_event_store-browser (= 2.6.0)
+
+PATH
+  remote: ../../ruby_event_store-active_record
+  specs:
+    ruby_event_store-active_record (2.5.1)
+      activerecord (>= 6.0)
+      ruby_event_store (= 2.5.1)
 
 PATH
   remote: ../../ruby_event_store-browser
@@ -271,11 +278,11 @@ DEPENDENCIES
   mutant-rspec (= 0.11.17)
   pg
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   rspec-rails
   ruby_event_store!
+  ruby_event_store-active_record!
   ruby_event_store-browser!
   timecop
 
