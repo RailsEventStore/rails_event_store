@@ -29,7 +29,7 @@ RSpec.describe RubyEventStore::ActiveRecord, :integration do
       gemfile do
         source 'https://rubygems.org'
         gem 'ruby_event_store',                path: '../ruby_event_store'
-        gem 'ruby_event_store/active_record', path: '../ruby_event_store/active_record'
+        gem 'ruby_event_store-active_record',  path: '../ruby_event_store/active_record'
         gem 'activerecord', '7.0.3'
         gem 'pg',           '1.4.4'
         gem 'mysql2',       '0.5.4'
