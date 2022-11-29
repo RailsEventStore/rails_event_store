@@ -31,7 +31,7 @@ module RubyEventStore
       end
 
       def create_migration
-        template "create_event_store_events_template.rb", "db/migrate/#{timestamp}_create_event_store_events.rb"
+        template "create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
       end
 
       private
