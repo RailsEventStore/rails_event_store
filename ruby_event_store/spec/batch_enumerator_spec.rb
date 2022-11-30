@@ -48,7 +48,7 @@ module RubyEventStore
     end
 
     specify do
-      expect(reader = double(:reader)).to receive(:call).with(kind_of(Integer), kind_of(Integer)).and_return([])
+      expect(reader = double(:reader)).to receive(:call).with(kind_of(Numeric), kind_of(Numeric)).and_return([])
       BatchEnumerator.new(100, Float::INFINITY, reader).to_a
     end
   end
