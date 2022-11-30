@@ -101,9 +101,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: false
+          bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make install test
+      - run: make test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
