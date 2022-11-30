@@ -15,8 +15,6 @@ module RubyEventStore
 
       before { allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22)) }
 
-      let(:generator) { MigrationGenerator.new }
-
       subject do
         MigrationGenerator.start([], destination_root: @dir)
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
