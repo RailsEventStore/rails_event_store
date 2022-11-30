@@ -7,6 +7,7 @@ require_relative "aggregate_root/default_apply_strategy"
 require_relative "aggregate_root/repository"
 require_relative "aggregate_root/instrumented_repository"
 require_relative "aggregate_root/instrumented_apply_strategy"
+require_relative 'aggregate_root/snapshot_repository'
 
 module AggregateRoot
   module OnDSL
@@ -59,6 +60,21 @@ module AggregateRoot
 
     def unpublished_events
       @unpublished_events.each
+    end
+
+    UNMARSHALED_VARIABLES = [:@version, :@unpublished_events]
+
+    def marshal_dump
+      instance_variables.reject{|m| UNMARSHALED_VARIABLES.include? m}.inject({}) do |vars, attr|
+        vars[attr] = instance_variable_get(attr)
+        vars
+      end
+    end
+
+    def marshal_load(vars)
+      vars.each do |attr, value|
+        instance_variable_set(attr, value) unless UNMARSHALED_VARIABLES.include?(attr)
+      end
     end
   end
 
