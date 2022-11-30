@@ -67,7 +67,8 @@ module AggregateRoot
     end
 
     def time_for_snapshot?(version)
-      version % interval == 0
+      return false if version.zero?
+      (version % interval).zero?
     end
   end
 end
