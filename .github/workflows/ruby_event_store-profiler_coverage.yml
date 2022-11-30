@@ -18,8 +18,9 @@ on:
       - ".github/workflows/ruby_event_store-profiler_coverage.yml"
       - "support/**"
 jobs:
-  mutate:
-    runs-on: ubuntu-20.04
+  coverage:
+    runs-on: mutant
+    timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-profiler
       BUNDLE_GEMFILE: Gemfile
