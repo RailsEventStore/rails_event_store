@@ -1,6 +1,6 @@
 require "active_record"
 require "yaml"
-require_relative "../../support/helpers/migrator"
+require_relative "lib/ruby_event_store/active_record/generators/no_rails_migration_generator"
 
 def migration_code(data_type)
   Migrator.new(
@@ -35,12 +35,10 @@ namespace :g do
   desc "Generate migration"
   task :migration do
     data_type = ARGV[1] || raise("Specify name: rake g:migration data_type")
-    DATA_TYPES = %w[binary json jsonb].freeze
-    raise ArgumentError, "DATA_TYPE must be: #{DATA_TYPES.join(", ")}" unless DATA_TYPES.include?(data_type)
 
-    migration_code = migration_code(data_type)
-
-    write_to_file(migration_code, path)
+    RubyEventStore::ActiveRecord::NoRailsMigrationGenerator
+      .new
+      .call(data_type, migration_path: ARGV[2])
 
     puts "Migration #{path} created"
 
