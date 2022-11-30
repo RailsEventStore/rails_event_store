@@ -32,7 +32,7 @@ module AggregateRoot
 
       aggregate.version = aggregate.version + events.count
 
-      if time_for_snapshot?(aggregate.version)
+      if time_for_snapshot?(aggregate.version, events.size)
         publish_snapshot_event(aggregate, stream_name, events.last.event_id)
       end
     end
@@ -66,9 +66,11 @@ module AggregateRoot
       "#{stream_name}_snapshots"
     end
 
-    def time_for_snapshot?(version)
-      return false if version.zero?
-      (version % interval).zero?
+    def time_for_snapshot?(aggregate_version, published_events)
+      return false if aggregate_version.zero?
+      rest = (aggregate_version + 1) % interval
+      return true if rest.zero?
+      published_events > rest
     end
   end
 end

@@ -82,27 +82,20 @@ module AggregateRoot
       expect_certain_event_types(stream_name, 'Orders::Events::OrderCreated')
       expect_no_snapshot(stream_name)
 
-      order.cancel
-      repository.store(order, stream_name)
-      expect_certain_event_types(
-        stream_name,
-        'Orders::Events::OrderCreated', 'Orders::Events::OrderCanceled'
-      )
-      expect_no_snapshot(stream_name)
-
       order.expire
       repository.store(order, stream_name)
       expect_certain_event_types(
         stream_name,
-        'Orders::Events::OrderCreated', 'Orders::Events::OrderCanceled', 'Orders::Events::OrderExpired'
+        'Orders::Events::OrderCreated', 'Orders::Events::OrderExpired'
       )
       expect_snapshot(stream_name)
     end
 
     specify "restoring snapshot" do
       order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store)
+      repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
       order.create
+      order.cancel
       order.expire
       repository.store(order, stream_name)
 
