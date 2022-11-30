@@ -21,6 +21,10 @@ module AggregateRoot
           apply Orders::Events::OrderCreated.new
         end
 
+        def cancel
+          apply Orders::Events::OrderCanceled.new
+        end
+
         def expire
           apply Orders::Events::OrderExpired.new
         end
@@ -29,12 +33,16 @@ module AggregateRoot
 
         private
 
-        def apply_order_created(_event)
+        def apply_order_created(_)
           @status = :created
         end
 
-        def apply_order_expired(_event)
+        def apply_order_expired(_)
           @status = :expired
+        end
+
+        def apply_order_canceled(_)
+          @status = :canceled
         end
       end
 
@@ -43,33 +51,40 @@ module AggregateRoot
 
     specify do
       order = order_klass.new(uuid)
+      repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
 
       order.create
-
-      repository = AggregateRoot::SnapshotRepository.new(event_store)
       repository.store(order, stream_name)
-
       expect_certain_event_types(stream_name, 'Orders::Events::OrderCreated')
+      expect_no_snapshot(stream_name)
+
+      order.cancel
+      repository.store(order, stream_name)
+      expect_certain_event_types(
+        stream_name,
+        'Orders::Events::OrderCreated', 'Orders::Events::OrderCanceled'
+      )
       expect_no_snapshot(stream_name)
 
       order.expire
       repository.store(order, stream_name)
-      expect_certain_event_types(stream_name, 'Orders::Events::OrderCreated', 'Orders::Events::OrderExpired')
+      expect_certain_event_types(
+        stream_name,
+        'Orders::Events::OrderCreated', 'Orders::Events::OrderCanceled', 'Orders::Events::OrderExpired'
+      )
       expect_snapshot(stream_name)
     end
 
     specify do
       order = order_klass.new(uuid)
+      repository = AggregateRoot::SnapshotRepository.new(event_store)
 
       order.create
       order.expire
-
-      repository = AggregateRoot::SnapshotRepository.new(event_store)
       repository.store(order, stream_name)
       expect_snapshot(stream_name)
 
       order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
-
       expect(order.status).to eq(order_from_snapshot.status)
       expect(order_from_snapshot.status).to eq(:expired)
     end
