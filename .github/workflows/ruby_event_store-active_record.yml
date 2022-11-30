@@ -94,6 +94,10 @@ jobs:
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
             datatype: binary
+          - ruby: truffleruby
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
