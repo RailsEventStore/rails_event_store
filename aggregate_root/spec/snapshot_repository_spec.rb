@@ -3,8 +3,32 @@
 require 'spec_helper'
 
 module AggregateRoot
+  class ReadsStatsRepository < SimpleDelegator
+    def initialize(repository)
+      super(repository)
+      @read_ops = 0
+    end
+
+    attr_reader :read_ops
+
+    def reset_read_stats
+      @read_ops = 0
+    end
+
+    def read(spec)
+      @read_ops += 1
+      super
+    end
+  end
+
   RSpec.describe SnapshotRepository do
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::NullMapper.new) }
+    let(:event_store) do
+      RubyEventStore::Client.new(
+        repository: reporting_repository,
+        mapper: RubyEventStore::Mappers::NullMapper.new
+      )
+    end
+    let(:reporting_repository) { ReadsStatsRepository.new(RubyEventStore::InMemoryRepository.new) }
     let(:uuid) { SecureRandom.uuid }
     let(:stream_name) { "Order$#{uuid}" }
     let(:repository) { AggregateRoot::SnapshotRepository.new(event_store) }
@@ -49,7 +73,7 @@ module AggregateRoot
       Order
     end
 
-    specify do
+    specify "storing snapshots" do
       order = order_klass.new(uuid)
       repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
 
@@ -75,18 +99,19 @@ module AggregateRoot
       expect_snapshot(stream_name)
     end
 
-    specify do
+    specify "restoring snapshot" do
       order = order_klass.new(uuid)
       repository = AggregateRoot::SnapshotRepository.new(event_store)
-
       order.create
       order.expire
       repository.store(order, stream_name)
-      expect_snapshot(stream_name)
 
+      expect_snapshot(stream_name)
+      reporting_repository.reset_read_stats
       order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
       expect(order.status).to eq(order_from_snapshot.status)
       expect(order_from_snapshot.status).to eq(:expired)
+      expect(reporting_repository.read_ops).to eq(2)
     end
 
     private
