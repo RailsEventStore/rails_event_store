@@ -6,17 +6,17 @@ module AggregateRoot
   class ReadsStatsRepository < SimpleDelegator
     def initialize(repository)
       super(repository)
-      @read_ops = 0
+      @records_read = 0
     end
 
-    attr_reader :read_ops
+    attr_reader :records_read
 
     def reset_read_stats
-      @read_ops = 0
+      @records_read = 0
     end
 
     def read(spec)
-      @read_ops += 1
+      @records_read += count(spec)
       super
     end
   end
@@ -111,7 +111,7 @@ module AggregateRoot
       order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
       expect(order.status).to eq(order_from_snapshot.status)
       expect(order_from_snapshot.status).to eq(:expired)
-      expect(reporting_repository.read_ops).to eq(2)
+      expect(reporting_repository.records_read).to eq(1)
     end
 
     private

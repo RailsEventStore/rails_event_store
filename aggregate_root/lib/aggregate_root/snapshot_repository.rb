@@ -59,7 +59,7 @@ module AggregateRoot
     end
 
     def load_marshal(snpashot_event)
-      Marshal.load(snpashot_event.data[:marshal])
+      Marshal.load(snpashot_event.data.fetch(:marshal))
     end
 
     def snapshot_stream_name(stream_name)
