@@ -31,7 +31,7 @@ module RubyEventStore
         return if event_ids.empty?
 
         (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each do |id|
-          raise RubyEventStore::EventNotFound.new(id)
+          raise EventNotFound.new(id)
         end
         add_to_stream(event_ids, stream, expected_version)
       end
@@ -65,7 +65,7 @@ module RubyEventStore
               .where(event_id: for_update)
               .pluck(:event_id, :id, :created_at)
               .reduce({}) { |acc, (event_id, id, created_at)| acc.merge(event_id => [id, created_at]) }
-          (for_update - existing.keys).each { |id| raise RubyEventStore::EventNotFound.new(id) }
+          (for_update - existing.keys).each { |id| raise EventNotFound.new(id) }
           hashes.each do |h|
             h[:id] = existing.fetch(h.fetch(:event_id)).at(0)
             h[:created_at] = existing.fetch(h.fetch(:event_id)).at(1)
@@ -119,8 +119,8 @@ module RubyEventStore
       end
 
       def raise_error(e)
-        raise RubyEventStore::EventDuplicatedInStream if detect_index_violated(e.message)
-        raise RubyEventStore::WrongExpectedEventVersion
+        raise EventDuplicatedInStream if detect_index_violated(e.message)
+        raise WrongExpectedEventVersion
       end
 
       def compute_position(resolved_version, index)

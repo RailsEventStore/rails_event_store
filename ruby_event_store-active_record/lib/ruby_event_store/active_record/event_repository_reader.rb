@@ -38,18 +38,18 @@ module RubyEventStore
       end
 
       def streams_of(event_id)
-        @stream_klass.where(event_id: event_id).pluck(:stream).map { |name| RubyEventStore::Stream.new(name) }
+        @stream_klass.where(event_id: event_id).pluck(:stream).map { |name| Stream.new(name) }
       end
 
       def position_in_stream(event_id, stream)
         record = @stream_klass.select("position").where(stream: stream.name).find_by(event_id: event_id)
-        raise RubyEventStore::EventNotFoundInStream if record.nil?
+        raise EventNotFoundInStream if record.nil?
         record.position
       end
 
       def global_position(event_id)
         record = @event_klass.select("id").find_by(event_id: event_id)
-        raise RubyEventStore::EventNotFound.new(event_id) if record.nil?
+        raise EventNotFound.new(event_id) if record.nil?
         record.id - 1
       end
 
@@ -187,14 +187,14 @@ module RubyEventStore
       def record(record)
         record = record.event if @stream_klass === record
 
-        RubyEventStore::SerializedRecord
+        SerializedRecord
           .new(
             event_id: record.event_id,
             metadata: record.metadata,
             data: record.data,
             event_type: record.event_type,
-            timestamp: record.created_at.iso8601(RubyEventStore::TIMESTAMP_PRECISION),
-            valid_at: (record.valid_at || record.created_at).iso8601(RubyEventStore::TIMESTAMP_PRECISION)
+            timestamp: record.created_at.iso8601(TIMESTAMP_PRECISION),
+            valid_at: (record.valid_at || record.created_at).iso8601(TIMESTAMP_PRECISION)
           )
           .deserialize(serializer)
       end
