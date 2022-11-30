@@ -8,9 +8,12 @@ module RubyEventStore
       around { |example| SilenceStdout.silence_stdout { example.run } }
 
       around do |example|
-        @dir = Dir.mktmpdir(nil, "./")
-        example.call
-        FileUtils.rm_r(@dir)
+        begin
+          @dir = Dir.mktmpdir(nil, "./")
+          example.call
+        ensure
+          FileUtils.rm_r(@dir)
+        end
       end
 
       before { allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22)) }
