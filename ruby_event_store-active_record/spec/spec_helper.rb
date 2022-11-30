@@ -2,7 +2,6 @@ require "ruby_event_store/active_record"
 require_relative "../../support/helpers/rspec_defaults"
 require_relative "../../support/helpers/migrator"
 require_relative "../../support/helpers/schema_helper"
-require "rails"
 require "active_record"
 
 $verbose = ENV.has_key?("VERBOSE") ? true : false

@@ -2,9 +2,8 @@ require "spec_helper"
 require "pp"
 require_relative "../../support/helpers/silence_stdout"
 
-module RubyEventStore
-  module ActiveRecord
-    RSpec.describe MigrationGenerator do
+module RailsEventStore
+    RSpec.describe RubyEventStore::ActiveRecord::MigrationGenerator do
       around { |example| SilenceStdout.silence_stdout { example.run } }
 
       around do |example|
@@ -19,7 +18,7 @@ module RubyEventStore
       before { allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22)) }
 
       subject do
-        MigrationGenerator.start([], destination_root: @dir)
+        RubyEventStore::ActiveRecord::MigrationGenerator.start([], destination_root: @dir)
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
 
@@ -37,7 +36,7 @@ module RubyEventStore
 
       context "when data_type option is specified" do
         subject do
-          MigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
+          RubyEventStore::ActiveRecord::MigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
           File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
         end
 
@@ -63,8 +62,8 @@ module RubyEventStore
           let(:data_type) { "invalid" }
 
           it "raises an error" do
-            expect { MigrationGenerator.new([], data_type: data_type) }.to raise_error(
-              MigrationGenerator::Error,
+            expect {  RubyEventStore::ActiveRecord::MigrationGenerator.new([], data_type: data_type) }.to raise_error(
+              RubyEventStore::ActiveRecord::MigrationGenerator::Error,
               "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
             )
           end
@@ -72,4 +71,3 @@ module RubyEventStore
       end
     end
   end
-end
