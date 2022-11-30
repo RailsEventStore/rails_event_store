@@ -31,6 +31,8 @@ jobs:
             gemfile: Gemfile
           - ruby: ruby-2.7
             gemfile: Gemfile
+          - ruby: truffleruby
+            gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
