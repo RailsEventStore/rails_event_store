@@ -56,9 +56,9 @@ module RubyEventStore
             let(:data_type) { "invalid" }
 
             it "raises an error" do
-              expect { RubyEventStore::ActiveRecord::MigrationGenerator.new([], data_type: data_type) }
+              expect { RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call("invalid", "#{@dir}/") }
                 .to raise_error(
-                      RubyEventStore::ActiveRecord::MigrationGenerator::Error,
+                      ArgumentError,
                       "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
                     )
             end
