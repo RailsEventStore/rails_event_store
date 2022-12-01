@@ -1,54 +1,46 @@
 # frozen_string_literal: true
-
-begin
-  require "rails/generators"
-rescue LoadError
-end
+require_relative "../../../../../support/helpers/migrator"
 
 module RubyEventStore
   module ActiveRecord
-    class MigrationGenerator < Rails::Generators::Base
-      class Error < Thor::Error
-      end
-
+    class MigrationGenerator
       DATA_TYPES = %w[binary json jsonb].freeze
 
-      namespace "rails_event_store_active_record:migration"
+      def call(data_type, migration_path)
+        raise ArgumentError, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
 
-      source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
-      class_option(
-        :data_type,
-        type: :string,
-        default: "binary",
-        desc:
-          "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join("/")})"
-      )
-
-      def initialize(*args)
-        super
-
-        if DATA_TYPES.exclude?(options.fetch(:data_type))
-          raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
-        end
-      end
-
-      def create_migration
-        template "create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
+        migration_code = migration_code(data_type)
+        path = build_path(migration_path)
+        write_to_file(migration_code, path)
+        path
       end
 
       private
 
-      def data_type
-        options.fetch("data_type")
-      end
-
-      def migration_version
-        "[4.2]"
+      def migration_code(data_type)
+        ::Migrator.new(
+          File.expand_path(
+            "./templates",
+            __dir__
+          )
+        ).migration_code("create_event_store_events", data_type: data_type)
       end
 
       def timestamp
         Time.now.strftime("%Y%m%d%H%M%S")
       end
+
+      def write_to_file(migration_code, path)
+        File.open(path, 'w') do |file|
+          file.write <<-EOF
+#{migration_code}
+          EOF
+        end
+      end
+
+      def build_path(migration_path)
+        File.expand_path(File.join(File.dirname(__FILE__), "../../../../", "#{migration_path}", "#{timestamp}_create_event_store_events.rb"))
+      end
     end
   end
-end if defined?(Rails::Generators::Base)
+end
