@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "active_record/generators/migration_generator"
-require_relative "active_record/generators/no_rails_migration_generator"
+require_relative "active_record/generators/rails_migration_generator"
 require_relative "active_record/event"
 require_relative "active_record/with_default_models"
 require_relative "active_record/with_abstract_base_class"
