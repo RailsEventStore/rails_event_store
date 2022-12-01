@@ -1,4 +1,4 @@
-require_relative "lib/ruby_event_store/active_record/generators/no_rails_migration_generator"
+require_relative "lib/ruby_event_store/active_record/generators/migration_generator"
 
 namespace :g do
   desc "Generate migration"
