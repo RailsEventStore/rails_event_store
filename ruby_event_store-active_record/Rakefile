@@ -2,12 +2,12 @@ require_relative "lib/ruby_event_store/active_record/generators/no_rails_migrati
 
 namespace :g do
   desc "Generate migration"
-  task :migration do
-    data_type = ARGV[1] || raise("Specify data type (binary, json, jsonb): rake g:migration data_type")
+  task :migration, :data_type, :migration_path do |_,args|
+    data_type = args[:data_type] || raise("Specify data type (binary, json, jsonb): rake g:migration[data_type]")
 
     path = RubyEventStore::ActiveRecord::NoRailsMigrationGenerator
       .new
-      .call(data_type, ARGV[2])
+      .call(data_type, args[:migration_path])
 
     puts "Migration #{path} created"
 
