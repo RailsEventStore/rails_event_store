@@ -33,7 +33,7 @@ module RubyEventStore
           RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call(data_type, "#{@dir}/")
           File.read("#{@dir}/20221130213700_create_event_store_events.rb")
         end
-        #
+
         context "with a binary datatype" do
           let(:data_type) { "binary" }
           it { is_expected.to match(/t.binary\s+:metadata/) }
