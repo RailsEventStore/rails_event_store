@@ -1,5 +1,3 @@
-require "active_record"
-require "yaml"
 require_relative "lib/ruby_event_store/active_record/generators/no_rails_migration_generator"
 
 namespace :g do
