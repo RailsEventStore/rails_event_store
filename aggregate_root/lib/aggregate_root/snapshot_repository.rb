@@ -5,6 +5,7 @@ require 'ruby_event_store/event'
 module AggregateRoot
   class SnapshotRepository
     def initialize(event_store, interval = 1)
+      raise ArgumentError, 'interval must be greater than 0' unless interval > 0
       @event_store = event_store
       @interval = interval
     end
@@ -16,8 +17,8 @@ module AggregateRoot
       query = event_store.read.stream(stream_name)
       if last_snapshot
         aggregate = load_marshal(last_snapshot)
-        aggregate.version = last_snapshot.data[:version]
-        query = query.from(last_snapshot.data[:last_event_id])
+        aggregate.version = last_snapshot.data.fetch(:version)
+        query = query.from(last_snapshot.data.fetch(:last_event_id))
       end
       query.reduce { |_, ev| aggregate.apply(ev) }
       aggregate.version = aggregate.version + aggregate.unpublished_events.count
@@ -67,9 +68,7 @@ module AggregateRoot
     end
 
     def time_for_snapshot?(aggregate_version, published_events)
-      return false if aggregate_version.zero?
       rest = (aggregate_version + 1) % interval
-      return true if rest.zero?
       published_events > rest
     end
   end
