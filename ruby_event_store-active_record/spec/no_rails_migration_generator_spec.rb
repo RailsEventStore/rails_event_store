@@ -1,5 +1,4 @@
 require "spec_helper"
-require "pp"
 require_relative "../../support/helpers/silence_stdout"
 require "rake"
 
