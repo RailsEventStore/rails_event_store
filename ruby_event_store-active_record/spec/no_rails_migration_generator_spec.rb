@@ -1,6 +1,5 @@
 require "spec_helper"
 require_relative "../../support/helpers/silence_stdout"
-require "rake"
 
 module RubyEventStore
   module ActiveRecord
