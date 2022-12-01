@@ -2,35 +2,6 @@ require "active_record"
 require "yaml"
 require_relative "lib/ruby_event_store/active_record/generators/no_rails_migration_generator"
 
-def migration_code(data_type)
-  Migrator.new(
-    File.expand_path(
-      "./ruby_event_store/active_record/generators/templates",
-      __dir__
-    )
-  ).migration_code("create_event_store_events", data_type: data_type)
-end
-
-def migration_path
-  ARGV[2] || "db/migrate"
-end
-
-def timestamp
-  Time.now.strftime("%Y%m%d%H%M%S")
-end
-
-def write_to_file(migration_code, path)
-  File.open(path, 'w') do |file|
-    file.write <<-EOF
-#{migration_code}
-    EOF
-  end
-end
-
-def path
-  File.expand_path("../#{migration_path}/#{timestamp}_create_event_store_events.rb", __FILE__)
-end
-
 namespace :g do
   desc "Generate migration"
   task :migration do
@@ -38,7 +9,7 @@ namespace :g do
 
     RubyEventStore::ActiveRecord::NoRailsMigrationGenerator
       .new
-      .call(data_type, migration_path: ARGV[2])
+      .call(data_type, ARGV[2])
 
     puts "Migration #{path} created"
 
