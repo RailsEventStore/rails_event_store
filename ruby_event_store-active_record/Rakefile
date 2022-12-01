@@ -7,7 +7,7 @@ namespace :g do
   task :migration do
     data_type = ARGV[1] || raise("Specify name: rake g:migration data_type")
 
-    RubyEventStore::ActiveRecord::NoRailsMigrationGenerator
+    path = RubyEventStore::ActiveRecord::NoRailsMigrationGenerator
       .new
       .call(data_type, ARGV[2])
 

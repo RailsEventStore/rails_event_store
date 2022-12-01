@@ -26,6 +26,11 @@ module RubyEventStore
         expect(subject).to match(/ActiveRecord::Migration\[4\.2\]$/)
       end
 
+      context "returns path to migration file" do
+        subject { RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call("binary", "#{@dir}/") }
+        it { is_expected.to match("#{@dir}/20221130213700_create_event_store_events.rb") }
+      end
+
       context "when data_type option is specified" do
         subject do
           RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call(data_type, "#{@dir}/")
