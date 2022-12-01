@@ -10,7 +10,9 @@ module RubyEventStore
         raise ArgumentError, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
 
         migration_code = migration_code(data_type)
-        write_to_file(migration_code, build_path(migration_path))
+        path = build_path(migration_path)
+        write_to_file(migration_code, path)
+        path
       end
 
       private
