@@ -5,7 +5,7 @@ namespace :g do
   task :migration, :data_type, :migration_path do |_,args|
     data_type = args[:data_type] || raise("Specify data type (binary, json, jsonb): rake g:migration[data_type]")
 
-    path = RubyEventStore::ActiveRecord::NoRailsMigrationGenerator
+    path = RubyEventStore::ActiveRecord::MigrationGenerator
       .new
       .call(data_type, args[:migration_path])
 

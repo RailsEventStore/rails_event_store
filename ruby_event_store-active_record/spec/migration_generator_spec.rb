@@ -3,7 +3,7 @@ require_relative "../../support/helpers/silence_stdout"
 
 module RubyEventStore
   module ActiveRecord
-    RSpec.describe NoRailsMigrationGenerator do
+    RSpec.describe MigrationGenerator do
       around { |example| SilenceStdout.silence_stdout { example.run } }
 
       around do |example|
@@ -18,7 +18,7 @@ module RubyEventStore
       before { allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00)) }
 
       subject do
-        RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call("binary", "#{@dir}/")
+        RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary", "#{@dir}/")
         File.read("#{@dir}/20221130213700_create_event_store_events.rb")
       end
 
@@ -27,13 +27,13 @@ module RubyEventStore
       end
 
       context "returns path to migration file" do
-        subject { RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call("binary", "#{@dir}/") }
+        subject { RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary", "#{@dir}/") }
         it { is_expected.to match("#{@dir}/20221130213700_create_event_store_events.rb") }
       end
 
       context "when data_type option is specified" do
         subject do
-          RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call(data_type, "#{@dir}/")
+          RubyEventStore::ActiveRecord::MigrationGenerator.new.call(data_type, "#{@dir}/")
           File.read("#{@dir}/20221130213700_create_event_store_events.rb")
         end
 
@@ -59,7 +59,7 @@ module RubyEventStore
             let(:data_type) { "invalid" }
 
             it "raises an error" do
-              expect { RubyEventStore::ActiveRecord::NoRailsMigrationGenerator.new.call("invalid", "#{@dir}/") }
+              expect { RubyEventStore::ActiveRecord::MigrationGenerator.new.call("invalid", "#{@dir}/") }
                 .to raise_error(
                       ArgumentError,
                       "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
