@@ -7,7 +7,7 @@ module RubyEventStore
       DATA_TYPES = %w[binary json jsonb].freeze
 
       def call(data_type, migration_path)
-        raise ArgumentError, "DATA_TYPE must be: #{DATA_TYPES.join(", ")}" unless DATA_TYPES.include?(data_type)
+        raise ArgumentError, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
 
         migration_code = migration_code(data_type)
         write_to_file(migration_code, build_path(migration_path))
