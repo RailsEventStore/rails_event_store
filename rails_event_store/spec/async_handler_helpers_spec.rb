@@ -64,7 +64,7 @@ module RailsEventStore
 
   class CustomSidekiqScheduler
     def call(klass, record)
-      klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML).to_h)
+      klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s))
     end
 
     def verify(subscriber)
