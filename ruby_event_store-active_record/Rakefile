@@ -10,7 +10,5 @@ namespace :g do
       .call(data_type, migration_path: args[:migration_path] || "db/migrate")
 
     puts "Migration #{path} created"
-
-    exit
   end
 end
