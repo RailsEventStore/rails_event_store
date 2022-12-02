@@ -15,11 +15,11 @@ module RailsEventStore
 
     before do
       allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00))
+      load File.expand_path(File.expand_path("../../", __FILE__) + "/Rakefile")
     end
 
     context "when custom path provided" do
       it "is created" do
-       load File.expand_path(File.expand_path("../../", __FILE__) + "/Rakefile")
         SilenceStdout.silence_stdout do
           Rake::Task["g:migration"].invoke("jsonb", "#{@dir}/")
         end
