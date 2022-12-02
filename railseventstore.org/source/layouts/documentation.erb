@@ -1,10 +1,5 @@
 <% selected = lambda { |actual, expected| actual == expected ? %Q|selected="selected"| : nil }%>
-<script type="text/javascript">
-  function navigate() {
-    var select = document.getElementById("versionSelect");
-    window.location.href = "/docs/" + select.options[select.selectedIndex].value + "/install";
-  }
-</script>
+
 
 <% wrap_layout :base do %>
   <header class="frame__section">
@@ -69,5 +64,11 @@
       inputSelector: '#search',
       debug: false
     });
+  </script>
+  <script type="text/javascript">
+    function navigate() {
+      var select = document.getElementById("versionSelect");
+      window.location.href = "/docs/" + select.options[select.selectedIndex].value + "/install";
+    }
   </script>
 <% end %>
