@@ -6,7 +6,7 @@ module RubyEventStore
     class MigrationGenerator
       DATA_TYPES = %w[binary json jsonb].freeze
 
-      def call(data_type, migration_path: "db/migrate")
+      def call(data_type, migration_path)
         raise ArgumentError, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
 
         migration_code = migration_code(data_type)
