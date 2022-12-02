@@ -7,3 +7,4 @@ eval_gemfile "../support/bundler/Gemfile.database"
 gem "ruby_event_store", path: "../ruby_event_store"
 
 gem "childprocess"
+gem "rails", "7.0.4"

@@ -6,7 +6,7 @@ eval_gemfile "../../support/bundler/Gemfile.shared"
 gem "ruby_event_store", path: "../../ruby_event_store"
 gem "aggregate_root", path: "../../aggregate_root"
 gem "rails_event_store", path: "../../rails_event_store"
-gem "ruby_event_store-active_record", path: "../../ruby_event_store-active_record"
+gem "rails_event_store_active_record", path: "../../ruby_event_store-active_record"
 gem "ruby_event_store-browser", path: "../../ruby_event_store-browser"
 
 gem "protobuf_nested_struct"
