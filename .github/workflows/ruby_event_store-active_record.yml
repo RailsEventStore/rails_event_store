@@ -66,8 +66,24 @@ jobs:
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
             datatype: binary
+          - ruby: ruby-3.1
+            gemfile: Gemfile.rails_6_1
+            database: sqlite3:db.sqlite3
+            datatype: binary
           - ruby: ruby-3.0
             gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
+          - ruby: ruby-3.0
+            gemfile: Gemfile.rails_6_1
+            database: sqlite3:db.sqlite3
+            datatype: binary
+          - ruby: ruby-2.7
+            gemfile: Gemfile.rails_6_1
+            database: sqlite3:db.sqlite3
+            datatype: binary
+          - ruby: ruby-2.7
+            gemfile: Gemfile.rails_6_0
             database: sqlite3:db.sqlite3
             datatype: binary
           - ruby: ruby-3.1
