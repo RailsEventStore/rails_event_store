@@ -172,7 +172,6 @@ pre > code {
 
 .frame__header {
   @apply bg-gray-900;
-  opacity: 0.95;
 }
 
 .frame__section {
