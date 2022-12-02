@@ -72,6 +72,10 @@ ul {
   @apply font-bold text-left;
 }
 
+.documentation :target {
+  scroll-margin-top: calc(80px + 76px);
+}
+
 li ul {
   margin-bottom: 0;
 }
