@@ -1,8 +1,7 @@
 <% selected = lambda { |actual, expected| actual == expected ? %Q|selected="selected"| : nil }%>
 
-
 <% wrap_layout :base do %>
-  <header class="frame__section">
+  <header class="frame__section sticky top-[70px]">
     <div class="container mx-auto">
       <div class="px-4 py-4 flex flex-wrap items-center justify-center">
         <div class="w-full md:w-1/4">
@@ -25,12 +24,15 @@
   </header>
 
   <main class="frame__body" role="main">
-    <div class="container mx-auto flex flex-wrap mt-6">
-      <nav class="frame__sidebar w-full md:w-1/4 px-4">
-        <%= partial "partials/documentation_nav_#{version}" %>
-      </nav>
+    <div class="container mx-auto flex flex-wrap">
+      <div class="frame__sidebar w-full md:w-1/4 px-4">
+        <nav class="sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden h-[calc(100vh-80px-76px)]">
+          <%= partial "partials/documentation_nav_#{version}" %>
+        </nav>
+      </div>
 
-      <div class="documentation frame__main w-full md:w-3/4 px-4">
+
+      <div class="documentation frame__main w-full md:w-3/4 px-4 mt-6">
         <h1><%= page_title %></h1>
         <%= yield %>
 
