@@ -46,7 +46,9 @@ module RubyEventStore
 
         context "returns path to migration file" do
           subject { RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary", migration_path: "#{@dir}/") }
+
           it { is_expected.to match("#{@dir}/20221130213700_create_event_store_events.rb") }
+          it { is_expected.to match(File.expand_path("../#{@dir}", __dir__)) }
         end
 
         context "when data_type option is specified" do
