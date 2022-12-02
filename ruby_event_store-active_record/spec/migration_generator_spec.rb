@@ -43,29 +43,28 @@ module RubyEventStore
           it { is_expected.to match(/t.binary\s+:data/) }
         end
 
-          context "with a json datatype" do
-            let(:data_type) { "json" }
-            it { is_expected.to match(/t.json\s+:metadata/) }
-            it { is_expected.to match(/t.json\s+:data/) }
-          end
+        context "with a json datatype" do
+          let(:data_type) { "json" }
+          it { is_expected.to match(/t.json\s+:metadata/) }
+          it { is_expected.to match(/t.json\s+:data/) }
+        end
 
-          context "with a jsonb datatype" do
-            let(:data_type) { "jsonb" }
-            it { is_expected.to match(/t.jsonb\s+:metadata/) }
-            it { is_expected.to match(/t.jsonb\s+:data/) }
-          end
+        context "with a jsonb datatype" do
+          let(:data_type) { "jsonb" }
+          it { is_expected.to match(/t.jsonb\s+:metadata/) }
+          it { is_expected.to match(/t.jsonb\s+:data/) }
+        end
 
-          context "with an invalid datatype" do
-            let(:data_type) { "invalid" }
+        context "with an invalid datatype" do
+          let(:data_type) { "invalid" }
 
-            it "raises an error" do
-              expect { RubyEventStore::ActiveRecord::MigrationGenerator.new.call("invalid", "#{@dir}/") }
-                .to raise_error(
-                      ArgumentError,
-                      "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
-                    )
-            end
+          it "raises an error" do
+            expect { RubyEventStore::ActiveRecord::MigrationGenerator.new.call("invalid", "#{@dir}/") }.to raise_error(
+              ArgumentError,
+              "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
+            )
           end
+        end
       end
     end
   end
