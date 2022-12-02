@@ -39,7 +39,7 @@ module RubyEventStore
       end
 
       def build_path(migration_path)
-        File.expand_path(File.join(File.dirname(__FILE__), "../../../../", "#{migration_path}", "#{timestamp}_create_event_store_events.rb"))
+        File.join(File.dirname(__FILE__), "../../../../", "#{migration_path}", "#{timestamp}_create_event_store_events.rb")
       end
     end
   end
