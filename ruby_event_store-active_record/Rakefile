@@ -7,7 +7,7 @@ namespace :g do
 
     path = RubyEventStore::ActiveRecord::MigrationGenerator
       .new
-      .call(data_type, args[:migration_path])
+      .call(data_type, migration_path: args[:migration_path] || "db/migrate")
 
     puts "Migration #{path} created"
 
