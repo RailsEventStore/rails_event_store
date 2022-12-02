@@ -32,9 +32,7 @@ module RubyEventStore
 
       def write_to_file(migration_code, path)
         open(path, 'w') do |file|
-          file.write <<-EOF
-#{migration_code}
-          EOF
+          file.write(migration_code)
         end
       end
 
