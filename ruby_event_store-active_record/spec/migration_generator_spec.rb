@@ -11,6 +11,7 @@ module RubyEventStore
           example.call
         ensure
           FileUtils.rm_r(@dir)
+          FileUtils.rm_f(["./20221130213700_create_event_store_events.rb"])
         end
       end
 
