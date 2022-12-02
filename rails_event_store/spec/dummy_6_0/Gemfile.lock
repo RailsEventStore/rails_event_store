@@ -7,6 +7,10 @@ PATH
 PATH
   remote: ../../../ruby_event_store-active_record
   specs:
+    rails_event_store_active_record (2.6.0)
+      activerecord (>= 6.0)
+      ruby_event_store (= 2.6.0)
+      ruby_event_store-active_record (= 2.6.0)
     ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
@@ -33,8 +37,8 @@ PATH
       activesupport (>= 6.0)
       aggregate_root (= 2.6.0)
       arkency-command_bus (>= 0.4)
+      rails_event_store_active_record (= 2.6.0)
       ruby_event_store (= 2.6.0)
-      ruby_event_store-active_record (= 2.6.0)
       ruby_event_store-browser (= 2.6.0)
 
 GEM
@@ -176,8 +180,8 @@ DEPENDENCIES
   aggregate_root!
   rails (~> 6.0)
   rails_event_store!
+  rails_event_store_active_record!
   ruby_event_store!
-  ruby_event_store-active_record!
   ruby_event_store-browser!
 
 BUNDLED WITH
