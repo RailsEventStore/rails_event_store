@@ -19,7 +19,7 @@ module RailsEventStore
 
     context "when data_type option is specified" do
       it "is created" do
-        Rake::DefaultLoader.new.load File.expand_path(File.expand_path("../../", __FILE__) + "/Rakefile")
+       load File.expand_path(File.expand_path("../../", __FILE__) + "/Rakefile")
         SilenceStdout.silence_stdout do
           Rake::Task["g:migration"].invoke("jsonb", "#{@dir}/")
         end
