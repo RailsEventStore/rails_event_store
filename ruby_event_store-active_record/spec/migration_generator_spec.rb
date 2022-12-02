@@ -8,86 +8,103 @@ module RubyEventStore
 
       before { allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00)) }
 
-      context "with default migration path" do
-        around do |example|
-          begin
-            @dir = FileUtils.mkdir_p("./db/migrate").first
-            example.call
-          ensure
-            FileUtils.rm_rf(@dir)
-            FileUtils.rmdir("./db")
-          end
-        end
+      specify "it is created at default migration path when path is not specified" do
+        dir = FileUtils.mkdir_p("./db/migrate").first
 
-        it "is created" do
-          RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary")
-          File.read("#{@dir}/20221130213700_create_event_store_events.rb")
-        end
+        RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary")
+
+        expect(migration_exists?(dir)).to be_truthy
+      ensure
+        FileUtils.rm_rf(dir)
+        FileUtils.rmdir("./db")
       end
 
-      context "with custom directory" do
-        around do |example|
-          begin
-            @dir = Dir.mktmpdir(nil, "./")
-            example.call
-          ensure
-            FileUtils.rm_r(@dir)
-          end
-        end
+      specify "it is created within specified directory" do
+        dir = Dir.mktmpdir(nil, "./")
 
-        subject do
-          RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary", migration_path: "#{@dir}/")
-          File.read("#{@dir}/20221130213700_create_event_store_events.rb")
-        end
+        migration_generator(dir)
 
-        it "uses particular migration version" do
-          expect(subject).to match(/ActiveRecord::Migration\[4\.2\]$/)
-        end
+        expect(migration_exists?(dir)).to be_truthy
+      ensure
+        FileUtils.rm_r(dir)
+      end
 
-        context "returns path to migration file" do
-          subject { RubyEventStore::ActiveRecord::MigrationGenerator.new.call("binary", migration_path: "#{@dir}/") }
+      specify "returns path to migration file" do
+        dir = Dir.mktmpdir(nil, "./")
 
-          it { is_expected.to match("#{@dir}/20221130213700_create_event_store_events.rb") }
-          it { is_expected.to match(File.expand_path("../#{@dir}", __dir__)) }
-        end
+        path = migration_generator(dir)
 
-        context "when data_type option is specified" do
-          subject do
-            RubyEventStore::ActiveRecord::MigrationGenerator.new.call(data_type, migration_path: "#{@dir}/")
-            File.read("#{@dir}/20221130213700_create_event_store_events.rb")
-          end
+        expect(path).to match(File.expand_path("../#{dir}", __dir__))
+      ensure
+        FileUtils.rm_r(dir)
+      end
 
-          context "with a binary datatype" do
-            let(:data_type) { "binary" }
-            it { is_expected.to match(/t.binary\s+:metadata/) }
-            it { is_expected.to match(/t.binary\s+:data/) }
-          end
+      specify "uses particular migration version" do
+        dir = Dir.mktmpdir(nil, "./")
 
-          context "with a json datatype" do
-            let(:data_type) { "json" }
-            it { is_expected.to match(/t.json\s+:metadata/) }
-            it { is_expected.to match(/t.json\s+:data/) }
-          end
+        migration_generator(dir)
 
-          context "with a jsonb datatype" do
-            let(:data_type) { "jsonb" }
-            it { is_expected.to match(/t.jsonb\s+:metadata/) }
-            it { is_expected.to match(/t.jsonb\s+:data/) }
-          end
+        expect(read_migration(dir)).to match(/ActiveRecord::Migration\[4\.2\]$/)
+      ensure
+        FileUtils.rm_r(dir)
+      end
 
-          context "with an invalid datatype" do
-            let(:data_type) { "invalid" }
+      specify "creates migration with binary data type" do
+        dir = Dir.mktmpdir(nil, "./")
 
-            it "raises an error" do
-              expect {
-                RubyEventStore::ActiveRecord::MigrationGenerator.new.call("invalid", migration_path: "#{@dir}/")
-              }.to raise_error(
-                ArgumentError,
-                "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
-              )
-            end
-          end
-        end
+        migration_generator(dir, "binary")
+
+        expect(read_migration(dir)).to match(/t.binary\s+:data/)
+        expect(read_migration(dir)).to match(/t.binary\s+:metadata/)
+      ensure
+        FileUtils.rm_r(dir)
+      end
+
+      specify "creates migration with json data type" do
+        dir = Dir.mktmpdir(nil, "./")
+
+        migration_generator(dir, "json")
+
+        expect(read_migration(dir)).to match(/t.json\s+:data/)
+        expect(read_migration(dir)).to match(/t.json\s+:metadata/)
+      ensure
+        FileUtils.rm_r(dir)
+      end
+
+      specify "creates migration with jsonb data type" do
+        dir = Dir.mktmpdir(nil, "./")
+
+        migration_generator(dir, "jsonb")
+
+        expect(read_migration(dir)).to match(/t.jsonb\s+:data/)
+        expect(read_migration(dir)).to match(/t.jsonb\s+:metadata/)
+      ensure
+        FileUtils.rm_r(dir)
+      end
+
+      specify "raises error when data type is not supported" do
+        dir = Dir.mktmpdir(nil, "./")
+
+        expect { migration_generator(dir, "invalid") }.to raise_error(
+          ArgumentError,
+          "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
+        )
+      ensure
+        FileUtils.rm_r(dir)
+      end
+
+      private
+
+      def migration_generator(dir, data_type = "binary")
+        RubyEventStore::ActiveRecord::MigrationGenerator.new.call(data_type, migration_path: dir)
+      end
+
+      def migration_exists?(dir)
+        File.exist?("#{dir}/20221130213700_create_event_store_events.rb")
+      end
+
+      def read_migration(dir)
+        File.read("#{dir}/20221130213700_create_event_store_events.rb")
       end
     end
   end
