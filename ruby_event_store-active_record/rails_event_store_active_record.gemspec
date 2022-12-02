@@ -37,14 +37,4 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
-
-  spec.post_install_message = <<~EOW
-    The 'rails_event_store_active_record' gem has been renamed.
-
-    Please change your Gemfile or gemspec
-    to reflect its new name:
-
-    'ruby_event_store-active-record'
-
-  EOW
 end
