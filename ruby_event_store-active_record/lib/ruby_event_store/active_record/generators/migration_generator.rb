@@ -18,7 +18,7 @@ module RubyEventStore
       private
 
       def migration_code(data_type)
-        ::Migrator.new(
+        Migrator.new(
           File.expand_path(
             "./templates",
             __dir__
@@ -31,7 +31,7 @@ module RubyEventStore
       end
 
       def write_to_file(migration_code, path)
-        File.open(path, 'w') do |file|
+        open(path, 'w') do |file|
           file.write <<-EOF
 #{migration_code}
           EOF
