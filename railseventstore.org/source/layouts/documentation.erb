@@ -35,69 +35,69 @@
               <div class="relative inline-block">
                 <select id="versionSelect" class="appearance-none block bg-transparent pl-2 pr-8 py-1 text-gray-600 font-medium text-sm focus:outline-none" onchange="navigate();">
                   <option value="v1" <%= selected[version, "v1"] %>>v<%= config[:res_version_v1] %></option>
-                    <option value="v2" <%= selected[version, "v2"] %>>v<%= config[:res_version_v2] %></option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
-                      <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                    </div>
-                  </div>
-                </div>
-                <div class="w-full md:w-3/4">
-                  <input class="w-full text-sm py-2 px-4 border-gray-400 border-b bg-transparent text-gray-600" id="search" type="text" placeholder="Search" />
+                  <option value="v2" <%= selected[version, "v2"] %>>v<%= config[:res_version_v2] %></option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
+                  <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                 </div>
               </div>
             </div>
-          </header>
-          <main class="grow" role="main">
-            <div class="container mx-auto flex flex-wrap">
-              <div class="frame__sidebar w-full md:w-1/4 px-4">
-                <nav class="sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden h-[calc(100vh-80px-76px)]">
-                  <%= partial "partials/documentation_nav_#{version}" %>
-                </nav>
-              </div>
-              <div class="documentation w-full md:w-3/4 px-4 mt-6">
-                <h1><%= page_title %></h1>
-                <%= yield %>
-                <div class="mt-12 mb-12 flex flex-wrap">
-                  <%= edit_github_link %>
-                  <%= feedback_link %>
-                </div>
-              </div>
+            <div class="w-full md:w-3/4">
+              <input class="w-full text-sm py-2 px-4 border-gray-400 border-b bg-transparent text-gray-600" id="search" type="text" placeholder="Search" />
             </div>
-          </main>
+          </div>
         </div>
-        <style>
-          .anchorjs-link, .anchorjs-link:hover, .anchorjs-link:active {
-            background: none;
-            text-decoration: none;
-            border: none;
-            color: #adb5bd;
-          }
-        </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.js"></script>
-        <script>
-          document.addEventListener("DOMContentLoaded", function(event) {
-            anchors.add('.documentation h2, .documentation h3, .documentation h4');
-          });
-        </script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
-        <script type="text/javascript">
-          docsearch({
-            apiKey: '45776784d078c2fa4495099da7063654',
-            indexName: 'railseventstore',
-            inputSelector: '#search',
-            debug: false
-          });
-        </script>
-        <script type="text/javascript">
-          function navigate() {
-            var select = document.getElementById("versionSelect");
-            window.location.href = "/docs/" + select.options[select.selectedIndex].value + "/install";
-          }
-        </script>
-        <% unless config[:mode] == :server %>
-          <%= javascript_include_tag :index %>
-        <% end %>
-        <%= partial "partials/tracking" %>
-      </body>
-    </html>
+      </header>
+      <main class="grow" role="main">
+        <div class="container mx-auto flex flex-wrap">
+          <div class="frame__sidebar w-full md:w-1/4 px-4">
+            <nav class="sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden h-[calc(100vh-80px-76px)]">
+              <%= partial "partials/documentation_nav_#{version}" %>
+            </nav>
+          </div>
+          <div class="documentation w-full md:w-3/4 px-4 mt-6">
+            <h1><%= page_title %></h1>
+            <%= yield %>
+            <div class="mt-12 mb-12 flex flex-wrap">
+              <%= edit_github_link %>
+              <%= feedback_link %>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <style>
+      .anchorjs-link, .anchorjs-link:hover, .anchorjs-link:active {
+        background: none;
+        text-decoration: none;
+        border: none;
+        color: #adb5bd;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function(event) {
+        anchors.add('.documentation h2, .documentation h3, .documentation h4');
+      });
+    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script type="text/javascript">
+      docsearch({
+        apiKey: '45776784d078c2fa4495099da7063654',
+        indexName: 'railseventstore',
+        inputSelector: '#search',
+        debug: false
+      });
+    </script>
+    <script type="text/javascript">
+      function navigate() {
+        var select = document.getElementById("versionSelect");
+        window.location.href = "/docs/" + select.options[select.selectedIndex].value + "/install";
+      }
+    </script>
+    <% unless config[:mode] == :server %>
+      <%= javascript_include_tag :index %>
+    <% end %>
+    <%= partial "partials/tracking" %>
+  </body>
+</html>
