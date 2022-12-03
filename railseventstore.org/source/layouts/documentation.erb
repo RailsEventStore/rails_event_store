@@ -48,22 +48,20 @@
           </div>
         </div>
       </header>
-      <main class="grow">
-        <div class="container mx-auto flex flex-wrap">
-          <aside class="w-full md:w-1/4 px-4">
-            <nav class="sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden h-[calc(100vh-80px-76px)]">
-              <%= partial "partials/documentation_nav_#{version}" %>
-            </nav>
-          </aside>
-          <article class="documentation w-full md:w-3/4 px-4 mt-6">
-            <h1><%= page_title %></h1>
-            <%= yield %>
-            <footer class="mt-12 mb-12 flex flex-wrap">
-              <%= edit_github_link %>
-              <%= feedback_link %>
-            </div>
-          </article>
-        </div>
+      <main class="container mx-auto flex flex-wrap">
+        <aside class="w-full md:w-1/4 px-4">
+          <nav class="sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden h-[calc(100vh-80px-76px)]">
+            <%= partial "partials/documentation_nav_#{version}" %>
+          </nav>
+        </aside>
+        <article class="documentation w-full md:w-3/4 px-4 mt-6">
+          <h1><%= page_title %></h1>
+          <%= yield %>
+          <footer class="mt-12 mb-12 flex flex-wrap">
+            <%= edit_github_link %>
+            <%= feedback_link %>
+          </div>
+        </article>
       </main>
     </div>
     <style>
