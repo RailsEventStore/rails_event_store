@@ -170,38 +170,6 @@ pre > code {
   @apply text-lg py-4 px-6;
 }
 
-.frame {
-  @apply w-full min-h-screen flex flex-col items-stretch;
-}
-
-.frame__header {
-  @apply bg-gray-900;
-}
-
-.frame__section {
-  @apply bg-gray-200;
-}
-
-.frame__footer {
-  @apply bg-gray-200;
-}
-
-.frame__body {
-  @apply grow;
-}
-
-.frame__sidebar a {
-  @apply bg-none text-gray-700;
-}
-
-.frame__sidebar a[aria-current] {
-  @apply font-bold text-gray-800;
-}
-
-.frame__sidebar a:hover {
-  @apply bg-gradient text-gray-800;
-}
-
 .site-footer {
   text-align: center;
 }

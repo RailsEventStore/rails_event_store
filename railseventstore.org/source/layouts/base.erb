@@ -22,8 +22,8 @@
   </head>
 
   <body class="font-sans text-gray-800 antialiased">
-    <div class="frame">
-      <header class="frame__header sticky top-0">
+    <div class="w-full min-h-screen flex flex-col items-stretch">
+      <header class="bg-gray-900 sticky top-0">
         <div class="container mx-auto">
           <%= partial "partials/site_navigation" %>
         </div>
@@ -31,7 +31,7 @@
 
       <%= yield %>
 
-      <footer class="frame__footer">
+      <footer class="bg-gray-200">
         <div class="container mx-auto">
           <%= partial "partials/site_footer" %>
         </div>

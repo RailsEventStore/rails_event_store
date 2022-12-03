@@ -120,7 +120,20 @@ helpers do
   end
 
   def sidebar_link_to(name, url)
-    current_link_to(name, url, class: "font-normal bg-none")
+    current_link_to(
+      name,
+      url,
+      class: %w[
+        font-normal
+        bg-none
+        bg-none
+        text-gray-700
+        hover:text-gray-800
+        hover:bg-gradient
+        aria[current="page"]:font-bold
+        aria[current="page"]:text-gray-800
+      ]
+    )
   end
 
   def contributors
