@@ -22,13 +22,13 @@
     <link rel="apple-touch-icon" sizes="167x167" href="/images/favicons/res-rubies-167x167.png">
   </head>
   <body class="font-sans text-gray-800 antialiased">
-    <div class="frame">
-      <header class="frame__header sticky top-0">
+    <div class="w-full min-h-screen flex flex-col items-stretch">
+      <header class="bg-gray-900 sticky top-0">
         <div class="container mx-auto">
           <%= partial "partials/site_navigation" %>
         </div>
       </header>
-      <header class="frame__section sticky top-[70px]">
+      <header class="bg-gray-200 sticky top-[70px]">
         <div class="container mx-auto">
           <div class="px-4 py-4 flex flex-wrap items-center justify-center">
             <div class="w-full md:w-1/4">
@@ -48,14 +48,14 @@
               </div>
             </div>
           </header>
-          <main class="frame__body" role="main">
+          <main class="grow" role="main">
             <div class="container mx-auto flex flex-wrap">
               <div class="frame__sidebar w-full md:w-1/4 px-4">
                 <nav class="sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden h-[calc(100vh-80px-76px)]">
                   <%= partial "partials/documentation_nav_#{version}" %>
                 </nav>
               </div>
-              <div class="documentation frame__main w-full md:w-3/4 px-4 mt-6">
+              <div class="documentation w-full md:w-3/4 px-4 mt-6">
                 <h1><%= page_title %></h1>
                 <%= yield %>
                 <div class="mt-12 mb-12 flex flex-wrap">
