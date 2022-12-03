@@ -24,7 +24,10 @@ class Stats
   end
 
   def total_downloads_count
-    response = Faraday.get("https://rubygems.org/api/v1/downloads/rails_event_store-1.0.0.json")
+    response =
+      Faraday.get(
+        "https://rubygems.org/api/v1/downloads/rails_event_store-1.0.0.json"
+      )
     JSON.parse(response.body)["total_downloads"]
   end
 
@@ -107,15 +110,23 @@ helpers do
   end
 
   def feedback_link
-    issue_title = "Feedback on #{URI.encode_www_form_component(page_title || current_source_file_name)}"
+    issue_title =
+      "Feedback on #{URI.encode_www_form_component(page_title || current_source_file_name)}"
     link_to "Provide feedback for this page",
-            File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}"),
+            File.join(
+              github_url,
+              "issues/new?labels=documentation&title=#{issue_title}"
+            ),
             class: "mr-4"
   end
 
   def edit_github_link
     link_to "Edit this page on GitHub",
-            File.join(github_url, "blob/master/railseventstore.org", current_source_file),
+            File.join(
+              github_url,
+              "blob/master/railseventstore.org",
+              current_source_file
+            ),
             class: "mr-4"
   end
 
