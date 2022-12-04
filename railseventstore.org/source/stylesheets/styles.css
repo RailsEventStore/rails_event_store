@@ -262,11 +262,6 @@ pre > code {
   }
 }
 
-.debug {
-  background: linear-gradient(to bottom, rgba(32, 160, 255, 0.35) 1px, transparent 1px);
-  background-size: 100% 30px;
-}
-
 .algolia-autocomplete {
   width: 100%;
 }
