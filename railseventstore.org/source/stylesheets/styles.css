@@ -69,7 +69,7 @@ ul {
 }
 
 .documentation :target {
-  scroll-margin-top: calc(80px + 76px);
+  scroll-margin-top: 4.375rem;
 }
 
 li ul {
