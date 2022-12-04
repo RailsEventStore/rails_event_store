@@ -1,10 +1,15 @@
 <% wrap_layout :base do %>
   <div class="w-full min-h-screen flex flex-col items-stretch">
-    <%= partial "partials/doc_search_top" %>
-
     <main class="container mx-auto flex flex-wrap">
       <aside class="w-full md:w-1/4 px-4">
-        <nav class="pt-6 pb-8 md:sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-80px-76px)]">
+        <div class="md:sticky top-[calc(118px)] z-50 bg-white">
+          <div class="mb-2 block text-gray-700">
+            Release <%= partial "partials/version_select" %>
+          </div>
+          <input class="hidden w-full lg:flex items-center text-sm leading-6 text-slate-400 rounded-md ring-1 ring-slate-900/10 shadow-sm py-1.5 pl-2 pr-3 hover:ring-slate-300" id="search" type="text" placeholder="Search" />
+        </div>
+
+        <nav class="pb-8 md:sticky top-[calc(200px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-200px)]">
           <%= partial "partials/documentation_nav_#{version}" %>
         </nav>
       </aside>

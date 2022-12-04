@@ -1,0 +1,8 @@
+<% selected = lambda { |actual, expected| actual == expected ? %Q|selected="selected"| : nil }%>
+
+<div class="relative inline-block">
+  <select id="versionSelect" class="block pl-2 pr-8 py-1 text-gray-600 font-medium text-sm focus:outline-none" onchange="navigate();">
+    <option value="v1" <%= selected[version, "v1"] %>>v<%= config[:res_version_v1] %></option>
+    <option value="v2" <%= selected[version, "v2"] %>>v<%= config[:res_version_v2] %></option>
+  </select>
+</div>
