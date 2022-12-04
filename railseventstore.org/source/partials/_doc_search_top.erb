@@ -1,0 +1,22 @@
+<% selected = lambda { |actual, expected| actual == expected ? %Q|selected="selected"| : nil }%>
+
+<header class="bg-gray-200 md:sticky top-[70px] z-50">
+  <div class="container mx-auto">
+    <div class="px-4 py-4 flex flex-wrap items-center justify-center">
+      <div class="w-full md:w-1/4">
+        <div class="relative inline-block">
+          <select id="versionSelect" class="appearance-none block bg-transparent pl-2 pr-8 py-1 text-gray-600 font-medium text-sm focus:outline-none" onchange="navigate();">
+            <option value="v1" <%= selected[version, "v1"] %>>v<%= config[:res_version_v1] %></option>
+            <option value="v2" <%= selected[version, "v2"] %>>v<%= config[:res_version_v2] %></option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+          </div>
+        </div>
+      </div>
+      <div class="w-full md:w-3/4">
+        <input class="w-full text-sm py-2 px-4 border-gray-400 border-b bg-transparent text-gray-600" id="search" type="text" placeholder="Search" />
+      </div>
+    </div>
+  </div>
+</header>

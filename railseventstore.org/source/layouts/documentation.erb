@@ -1,101 +1,28 @@
-<% selected = lambda { |actual, expected| actual == expected ? %Q|selected="selected"| : nil }%>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
-    <meta name="viewport"
-          content="width=device-width,initial-scale=1,shrink-to-fit=no">
-    <meta name="google-site-verification" content="woJuZLdHRsvCC5TFcoARaw1Z57sBjE0axaWPshGdJzk" />
-    <title><%= current_page.data.title %></title>
-    <link rel="stylesheet" href="https://use.typekit.net/iox0vwx.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
-    <%= stylesheet_link_tag "style" %>
-    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-160x160.png" sizes="160x160">
-    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-192x192.png" sizes="192x192">
-    <link rel="apple-touch-icon" href="/images/favicons/res-rubies-120x120.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/res-rubies-180x180.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/res-rubies-152x152.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="/images/favicons/res-rubies-167x167.png">
-  </head>
-  <body class="font-sans text-gray-800 antialiased">
-    <div class="w-full min-h-screen flex flex-col items-stretch">
-      <header class="bg-gray-900 md:sticky top-0 z-50">
-        <div class="container mx-auto">
-          <%= partial "partials/site_navigation" %>
-        </div>
-      </header>
-      <header class="bg-gray-200 md:sticky top-[70px] z-50">
-        <div class="container mx-auto">
-          <div class="px-4 py-4 flex flex-wrap items-center justify-center">
-            <div class="w-full md:w-1/4">
-              <div class="relative inline-block">
-                <select id="versionSelect" class="appearance-none block bg-transparent pl-2 pr-8 py-1 text-gray-600 font-medium text-sm focus:outline-none" onchange="navigate();">
-                  <option value="v1" <%= selected[version, "v1"] %>>v<%= config[:res_version_v1] %></option>
-                  <option value="v2" <%= selected[version, "v2"] %>>v<%= config[:res_version_v2] %></option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
-                  <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                </div>
-              </div>
-            </div>
-            <div class="w-full md:w-3/4">
-              <input class="w-full text-sm py-2 px-4 border-gray-400 border-b bg-transparent text-gray-600" id="search" type="text" placeholder="Search" />
-            </div>
-          </div>
-        </div>
-      </header>
-      <main class="container mx-auto flex flex-wrap">
-        <aside class="w-full md:w-1/4 px-4 pt-6 pb-8">
-          <nav class="md:sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-80px-76px)]">
-            <%= partial "partials/documentation_nav_#{version}" %>
-          </nav>
-        </aside>
-        <article class="documentation w-full md:w-3/4 px-4 mt-6">
-          <h1><%= page_title %></h1>
-          <%= yield %>
-          <footer class="mt-12 mb-12 flex flex-wrap">
-            <%= edit_github_link %>
-            <%= feedback_link %>
-          </div>
-        </article>
-      </main>
-    </div>
-    <style>
-      .anchorjs-link, .anchorjs-link:hover, .anchorjs-link:active {
-        background: none;
-        text-decoration: none;
-        border: none;
-        color: #adb5bd;
-      }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function(event) {
-        anchors.add('.documentation h2, .documentation h3, .documentation h4');
-      });
-    </script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
-    <script type="text/javascript">
-      docsearch({
-        apiKey: '45776784d078c2fa4495099da7063654',
-        indexName: 'railseventstore',
-        inputSelector: '#search',
-        debug: false
-      });
-    </script>
-    <script type="text/javascript">
-      function navigate() {
-        var select = document.getElementById("versionSelect");
-        window.location.href = "/docs/" + select.options[select.selectedIndex].value + "/install";
-      }
-    </script>
-    <% unless config[:mode] == :server %>
-      <%= javascript_include_tag :index %>
-    <% end %>
-    <%= partial "partials/tracking" %>
-  </body>
-</html>
+<% wrap_layout :base do %>
+  <div class="w-full min-h-screen flex flex-col items-stretch">
+    <%= partial "partials/doc_search_top" %>
+
+    <main class="container mx-auto flex flex-wrap">
+      <aside class="w-full md:w-1/4 px-4 pt-6 pb-8">
+        <nav class="md:sticky top-[calc(80px+76px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-80px-76px)]">
+          <%= partial "partials/documentation_nav_#{version}" %>
+        </nav>
+      </aside>
+
+      <article class="documentation w-full md:w-3/4 px-4 mt-6">
+        <h1><%= page_title %></h1>
+
+        <%= yield %>
+
+        <footer class="mt-12 mb-12 flex flex-wrap">
+          <%= edit_github_link %>
+          <%= feedback_link %>
+        </footer>
+      </article>
+    </main>
+  </div>
+
+  <%= partial "partials/anchorjs" %>
+  <%= partial "partials/doc_search" %>
+  <%= partial "partials/version_redirect" %>
+<% end %>
