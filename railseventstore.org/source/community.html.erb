@@ -1,120 +1,121 @@
 ---
 title: Community
 ---
+<main>
+  <div class="container mx-auto px-4">
+    <section class="flex flex-wrap grow justify-between mt-12 mb-6 text-gray-500 text-sm lowercase border-b border-gray-200">
+      <dl class="flex flex-col w-full md:w-auto pb-6">
+        <dt class="text-left md:text-center font-normal mt-0 order-2">
+          Stargazers
+        </dt>
+        <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= stargazers_count %>">
+          0
+        </dd>
+      </dl>
 
-<section class="flex flex-wrap grow justify-between mt-12 mb-6 text-gray-500 text-sm lowercase border-b border-gray-200">
-  <dl class="flex flex-col w-full md:w-auto pb-6">
-    <dt class="text-left md:text-center font-normal mt-0 order-2">
-      Stargazers
-    </dt>
-    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= stargazers_count %>">
-      0
-    </dd>
-  </dl>
+      <dl class="flex flex-col w-full md:w-auto pb-6">
+        <dt class="text-left md:text-center font-normal mt-0 order-2">
+          Contributors
+        </dt>
+        <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= contributors_count %>">
+          0
+        </dd>
+      </dl>
 
-  <dl class="flex flex-col w-full md:w-auto pb-6">
-    <dt class="text-left md:text-center font-normal mt-0 order-2">
-      Contributors
-    </dt>
-    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= contributors_count %>">
-      0
-    </dd>
-  </dl>
+      <dl class="flex flex-col w-full md:w-auto pb-6">
+        <dt class="text-left md:text-center font-normal mt-0 order-2">
+          Releases
+        </dt>
+        <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= releases_count %>">
+          0
+        </dd>
+      </dl>
 
-  <dl class="flex flex-col w-full md:w-auto pb-6">
-    <dt class="text-left md:text-center font-normal mt-0 order-2">
-      Releases
-    </dt>
-    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= releases_count %>">
-      0
-    </dd>
-  </dl>
+      <dl class="flex flex-col w-full md:w-auto pb-6">
+        <dt class="text-left md:text-center font-normal mt-0 order-2">
+          Downloads
+        </dt>
+        <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= total_downloads %>">
+          0
+        </dd>
+      </dl>
+    </section>
 
-  <dl class="flex flex-col w-full md:w-auto pb-6">
-    <dt class="text-left md:text-center font-normal mt-0 order-2">
-      Downloads
-    </dt>
-    <dd class="text-left md:text-center text-5xl text-gray-600 order-1" data-count="<%= total_downloads %>">
-      0
-    </dd>
-  </dl>
-</section>
+    <h1 class="font-bold">Discuss</h1>
+    <p>
+      <a href="https://github.com/RailsEventStore/rails_event_store/discussions">GitHub Discussions</a> is the best place to post your questions and answers with the community. We're also on <a href="https://discord.gg/qjPr9ZBpX6">Discord</a> for a quick chat and occasional streaming.
+    </p>
+    <p>
+      Use <b>#RailsEventStore</b> on <a href="https://twitter.com/hashtag/railseventstore">Twitter</a> and tag <b>rails-event-store</b> on <a href="https://stackoverflow.com/questions/tagged/rails-event-store">StackOverflow</a>.
+    </p>
+    <h1 class="font-bold">Contribute</h1>
+    <p>
+      Any kind of contribution is welcomed. See our guide <a href="/contributing">how to start</a> participating as a contributor.
+    </p>
 
+    <ul class="mb-12 flex flex-wrap">
+      <% contributors.each do |contributor| %>
+        <li class="mr-2 mb-1">
+          <a class="bg-none" href="<%= contributor.html_url %>">
+            <img class="h-12 w-12 rounded" src="<%= contributor.avatar_url %>" />
+          </a>
+        </li>
+      <% end %>
+    </ul>
 
-<h1 class="font-bold">Discuss</h1>
-<p>
-  <a href="https://github.com/RailsEventStore/rails_event_store/discussions">GitHub Discussions</a> is the best place to post your questions and answers with the community. We're also on <a href="https://discord.gg/qjPr9ZBpX6">Discord</a> for a quick chat and occasional streaming.
-</p>
-<p>
-  Use <b>#RailsEventStore</b> on <a href="https://twitter.com/hashtag/railseventstore">Twitter</a> and tag <b>rails-event-store</b> on <a href="https://stackoverflow.com/questions/tagged/rails-event-store">StackOverflow</a>.
-</p>
-<h1 class="font-bold">Contribute</h1>
-<p>
-  Any kind of contribution is welcomed. See our guide <a href="/contributing">how to start</a> participating as a contributor.
-</p>
+    <% unless data.events.empty? %>
+      <h1 class="font-bold">Attend</h1>
+      <p>
+        Participate in on-site trainings where Rails Event Store is used. Visit the conferences where RES is on the spotlight. Meet in-person people involved with its development.
+      </p>
 
-<ul class="mb-12 flex flex-wrap">
-  <% contributors.each do |contributor| %>
-    <li class="mr-2 mb-1">
-      <a class="bg-none" href="<%= contributor.html_url %>">
-        <img class="h-12 w-12 rounded" src="<%= contributor.avatar_url %>" />
-      </a>
-    </li>
-  <% end %>
-</ul>
-
-<% unless data.events.empty? %>
-<h1 class="font-bold">Attend</h1>
-<p>
-  Participate in on-site trainings where Rails Event Store is used. Visit the conferences where RES is on the spotlight. Meet in-person people involved with its development.
-</p>
-
-<ul class="mb-12 list-reset">
-  <% data.events.each do |event| %>
-    <li>
-      <a href="<%= event.url %>">
-        <%= event.title %>
-      </a>
-    </li>
-  <% end %>
-</ul>
-<% end %>
-
-
-<h1 class="font-bold">Explore</h1>
-<p>Learn how Rails Event Store helps deliver better software.</p>
-
-
-<h2 class="font-bold">Videos</h2>
-<ul class="list-reset">
-  <% data.videos.each do |video| %>
-    <li>
-      <a href="<%= video.url %>">
-        <%= video.title %>
-      </a>
-    </li>
+      <ul class="mb-12 list-reset">
+        <% data.events.each do |event| %>
+          <li>
+            <a href="<%= event.url %>">
+              <%= event.title %>
+            </a>
+          </li>
+        <% end %>
+      </ul>
     <% end %>
-</ul>
 
-<h2 class="font-bold">Articles</h2>
-<ul class="list-reset grid grid-cols-1 xl:grid-cols-2 gap-x-4">
-  <% data.articles.each do |article| %>
-    <li class="truncate">
-      <a href="<%= article.url %>">
-        <%= article.title %>
-      </a>
-    </li>
-    <% end %>
-</ul>
+    <h1 class="font-bold">Explore</h1>
+    <p>Learn how Rails Event Store helps deliver better software.</p>
 
+    <h2 class="font-bold">Videos</h2>
+    <ul class="list-reset">
+      <% data.videos.each do |video| %>
+        <li>
+          <a href="<%= video.url %>">
+            <%= video.title %>
+          </a>
+        </li>
+      <% end %>
+    </ul>
 
-<h2 class="font-bold">Code</h2>
-<ul class="mb-24">
-  <% data.apps.each do |app| %>
-    <li>
-      <a href="<%= app.url %>">
-        <%= app.title %>
-      </a>
-    </li>
-    <% end %>
-</ul>
+    <h2 class="font-bold">Articles</h2>
+    <ul class="list-reset grid grid-cols-1 xl:grid-cols-2 gap-x-4">
+      <% data.articles.each do |article| %>
+        <li class="truncate">
+          <a href="<%= article.url %>">
+            <%= article.title %>
+          </a>
+        </li>
+      <% end %>
+    </ul>
+
+    <h2 class="font-bold">Code</h2>
+    <ul class="mb-24">
+      <% data.apps.each do |app| %>
+        <li>
+          <a href="<%= app.url %>">
+            <%= app.title %>
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</main>
+
+<%= partial "partials/site_footer" %>

@@ -1,9 +1,32 @@
-<% wrap_layout :base do %>
-  <main>
-    <div class="container mx-auto px-4">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    <meta name="google-site-verification" content="woJuZLdHRsvCC5TFcoARaw1Z57sBjE0axaWPshGdJzk" />
+    <title><%= current_page.data.title %></title>
+    <link rel="stylesheet" href="https://use.typekit.net/iox0vwx.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <%= stylesheet_link_tag "style" %>
+    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/images/favicons/res-rubies-192x192.png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/images/favicons/res-rubies-120x120.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/res-rubies-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/res-rubies-152x152.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/images/favicons/res-rubies-167x167.png">
+  </head>
+  <body class="font-sans text-gray-800 text-lg antialiased">
+    <div class="w-full min-h-screen flex flex-col items-stretch">
+      <%= partial "partials/site_navigation" %>
       <%= yield %>
     </div>
-  </main>
 
-  <%= partial "partials/site_footer" %>
-<% end %>
+    <%= partial "partials/tracking" %>
+    <%= javascript_include_tag :index unless config[:mode] == :server %>
+  </body>
+</html>
