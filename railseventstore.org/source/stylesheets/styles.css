@@ -112,10 +112,6 @@ pre > code {
   background-color: rgba(247, 247, 247, 1);
 }
 
-.hero__title {
-  font-size: 5rem;
-}
-
 .btn {
   @apply inline-block rounded;
   background-image: none;
