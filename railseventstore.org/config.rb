@@ -101,6 +101,22 @@ helpers do
     "https://github.com/RailsEventStore/rails_event_store"
   end
 
+  def discord_url
+    "https://discord.gg/qjPr9ZBpX6"
+  end
+
+  def stackoverflow_url
+    "https://stackoverflow.com/questions/tagged/rails-event-store"
+  end
+
+  def github_discussions_url
+    "https://github.com/RailsEventStore/rails_event_store/discussions"
+  end
+
+  def twitter_hashtag_url
+    "https://twitter.com/hashtag/railseventstore"
+  end
+
   def page_title
     current_page.data.title
   end
