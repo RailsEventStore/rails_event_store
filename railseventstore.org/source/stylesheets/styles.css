@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-h1 {
+.documentation h1 {
   @apply tracking-tight font-bold;
   font-size: 47px;
   line-height: 60px;
@@ -10,7 +10,7 @@ h1 {
   margin-bottom: 16px;
 }
 
-h2 {
+.documentation h2 {
   @apply tracking-tight font-bold;
   font-size: 36px;
   line-height: 60px;
@@ -18,7 +18,7 @@ h2 {
   margin-bottom: 12px;
 }
 
-h3 {
+.documentation h3 {
   @apply font-bold;
   font-size: 27px;
   line-height: 30px;
@@ -26,7 +26,7 @@ h3 {
   margin-bottom: 24px;
 }
 
-h4 {
+.documentation h4 {
   @apply font-bold;
   font-size: 20px;
   line-height: 30px;
@@ -34,21 +34,21 @@ h4 {
   margin-bottom: 22px;
 }
 
-p {
+.documentation p {
   font-size: 20px;
   line-height: 30px;
   padding-top: 8px;
   margin-bottom: 22px;
 }
 
-li {
+.documentation li {
   font-size: 20px;
   line-height: 30px;
   padding-top: 8px;
   margin-bottom: -8px;
 }
 
-ul {
+.documentation ul {
   margin-bottom: 30px;
 }
 
@@ -72,7 +72,7 @@ ul {
   scroll-margin-top: 4.375rem;
 }
 
-li ul {
+.documentation li ul {
   margin-bottom: 0;
 }
 
@@ -237,19 +237,19 @@ pre > code {
 }
 
 .offer__left {
-  @apply w-full;
+  @apply w-full text-2xl font-bold;
 }
 
 .offer__right {
-  @apply w-full;
+  @apply w-full text-xl;
 }
 
 .offer__price {
-  @apply block text-base uppercase text-gray-500 font-bold -mt-4 mb-2;
+  @apply block text-base uppercase text-gray-500 font-bold mt-2 mb-2;
 }
 
 .offer__cta {
-  @apply mt-6;
+  @apply mt-2 inline-block text-lg;
 }
 
 @screen sm {
