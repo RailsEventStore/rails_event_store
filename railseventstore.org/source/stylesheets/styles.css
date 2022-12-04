@@ -261,7 +261,3 @@ pre > code {
     @apply w-3/5;
   }
 }
-
-.algolia-autocomplete {
-  width: 100%;
-}
