@@ -22,21 +22,11 @@
   </head>
   <body class="font-sans text-gray-800 antialiased">
     <div class="w-full min-h-screen flex flex-col items-stretch">
-      <header class="bg-gray-900 sticky top-0">
-        <div class="container mx-auto">
-          <%= partial "partials/site_navigation" %>
-        </div>
-      </header>
+      <%= partial "partials/site_navigation" %>
       <%= yield %>
-      <footer class="bg-gray-200">
-        <div class="container mx-auto">
-          <%= partial "partials/site_footer" %>
-        </div>
-      </footer>
     </div>
-    <% unless config[:mode] == :server %>
-      <%= javascript_include_tag :index %>
-    <% end %>
+
     <%= partial "partials/tracking" %>
+    <%= javascript_include_tag :index unless config[:mode] == :server %>
   </body>
 </html>
