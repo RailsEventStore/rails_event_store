@@ -8,4 +8,5 @@ module.exports = {
     "./source/*.erb",
     "./config.rb",
   ],
+  plugins: [require("@tailwindcss/typography")],
 };

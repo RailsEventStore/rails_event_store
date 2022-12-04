@@ -5,6 +5,7 @@
     "build": "vite build"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.8",
     "autoprefixer": "^10.4.13",
     "countup.js": "^2.3.2",
     "postcss": "^8.4.18",
