@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  font-size: 20px;
-}
-
 h1 {
   @apply tracking-tight font-bold;
   font-size: 47px;
@@ -202,7 +198,7 @@ pre > code {
 }
 
 .site-navigation {
-  @apply -mr-4 py-4 px-4 items-center overflow-x-auto text-base flex flex-wrap items-center justify-between;
+  @apply -mr-4 h-[4.375rem] px-4 items-center overflow-x-auto text-xl flex flex-wrap items-center justify-between;
   -webkit-overflow-scrolling: touch;
 }
 
