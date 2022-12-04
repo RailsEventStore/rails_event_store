@@ -99,7 +99,7 @@ pre {
 }
 
 code {
-  @apply rounded font-mono text-xs leading-normal;
+  @apply rounded font-mono text-sm leading-normal;
   color: #586e75;
 }
 
@@ -151,11 +151,11 @@ pre > code {
 }
 
 .btn--small {
-  @apply text-sm py-2 px-3;
+  @apply text-base py-2 px-3;
 }
 
 .btn--large {
-  @apply text-lg py-4 px-6;
+  @apply text-xl py-4 px-6;
 }
 
 .site-footer {
@@ -245,7 +245,7 @@ pre > code {
 }
 
 .offer__price {
-  @apply block text-sm uppercase text-gray-500 font-bold -mt-4 mb-2;
+  @apply block text-base uppercase text-gray-500 font-bold -mt-4 mb-2;
 }
 
 .offer__cta {
