@@ -24,6 +24,12 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
       BUNDLE_GEMFILE: Gemfile
+      REDIS_URL: redis://localhost:6379/0
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
     strategy:
       fail-fast: false
     steps:
