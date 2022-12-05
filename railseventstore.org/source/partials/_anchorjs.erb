@@ -1,14 +1,12 @@
 <style>
   .anchorjs-link, .anchorjs-link:hover, .anchorjs-link:active {
-    background: none;
-    text-decoration: none;
-    border: none;
-    color: #adb5bd;
+    background-image: none !important;
+    color: #adb5bd !important;
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.1/anchor.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function(event) {
-    anchors.add('.documentation h2, .documentation h3, .documentation h4');
+    anchors.add('.prose h2, .prose h3, .prose h4');
   });
 </script>

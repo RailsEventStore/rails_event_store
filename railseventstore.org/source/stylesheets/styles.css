@@ -2,108 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-.bg-gradient {
-  background-image: linear-gradient(180deg, transparent 70%, rgba(255, 107, 107, 0.4) 0);
-}
-
-a {
-  @apply font-semibold text-gray-800 no-underline bg-gradient;
-}
-
 ::selection {
   @apply bg-red-100;
 }
 
-.documentation pre {
-  @apply rounded px-2 py-2;
-  margin-bottom: 30px;
+a,
+.prose a {
+  @apply font-semibold text-gray-800 no-underline;
+  background-image: linear-gradient(180deg, transparent 70%, rgba(255, 107, 107, 0.4) 0);
+}
+
+.prose h1 {
+  @apply text-5xl tracking-tight;
+}
+
+.prose pre {
   background-color: rgba(247, 247, 247, 1);
 }
 
-.documentation code {
-  @apply rounded font-mono text-sm leading-normal;
-  color: #586e75;
+.prose pre > code {
+  color: rgb(88, 110, 117);
 }
 
-.documentation pre >  .documentation code {
-  @apply bg-none overflow-x-auto block;
-}
-
-.documentation :not(pre) > .documentation code {
-  @apply px-2 py-1;
+.prose :not(pre) > code {
+  @apply px-2 py-1 rounded font-normal;
   background-color: rgba(247, 247, 247, 1);
+  color: rgb(88, 110, 117);
 }
 
-.documentation h1 {
-  @apply tracking-tight font-bold;
-  font-size: 47px;
-  line-height: 60px;
-  padding-top: 14px;
-  margin-bottom: 16px;
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: "";
 }
 
-.documentation h2 {
-  @apply tracking-tight font-bold;
-  font-size: 36px;
-  line-height: 60px;
-  padding-top: 18px;
-  margin-bottom: 12px;
-}
-
-.documentation h3 {
-  @apply font-bold;
-  font-size: 27px;
-  line-height: 30px;
-  padding-top: 6px;
-  margin-bottom: 24px;
-}
-
-.documentation h4 {
-  @apply font-bold;
-  font-size: 20px;
-  line-height: 30px;
-  padding-top: 8px;
-  margin-bottom: 22px;
-}
-
-.documentation p {
-  font-size: 20px;
-  line-height: 30px;
-  padding-top: 8px;
-  margin-bottom: 22px;
-}
-
-.documentation li {
-  font-size: 20px;
-  line-height: 30px;
-  padding-top: 8px;
-  margin-bottom: -8px;
-}
-
-.documentation ul {
-  margin-bottom: 30px;
-}
-
-.documentation ul {
-  @apply list-disc pl-4;
-}
-
-.documentation table {
-  @apply block mb-4;
-}
-
-.documentation table * {
+.prose table td,
+.prose table th {
   @apply border p-2;
 }
 
-.documentation table th {
-  @apply font-bold text-left;
-}
-
-.documentation :target {
+.prose :target {
   scroll-margin-top: 4.375rem;
-}
-
-.documentation li ul {
-  margin-bottom: 0;
 }
