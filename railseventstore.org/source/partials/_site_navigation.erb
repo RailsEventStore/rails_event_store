@@ -1,12 +1,12 @@
 <header class="bg-gray-900 sticky top-0">
   <div class="container mx-auto">
-    <nav class="site-navigation">
-      <%= link_to "Rails Event Store", "/", class: "site-navigation__title" %>
-      <div class="site-navigation__links">
-        <%= link_to "Community", "/community", class: "site-navigation__link" %>
-        <%= link_to "Support", "/support", class: "site-navigation__link" %>
-        <%= link_to "Documentation", "/docs/#{version}/install", class: "site-navigation__link" %>
-        <%= link_to "Changelog", "https://github.com/RailsEventStore/rails_event_store/releases/tag/v#{config[:res_version]}", class: "site-navigation__link site-navigation__link--external" %>
+    <nav class="-mr-4 h-[4.375rem] px-4 items-center overflow-x-auto text-xl flex flex-wrap items-center justify-between">
+      <%= link_to "Rails Event Store", "/", class: "text-red-600 tracking-wide bg-none opacity-95" %>
+      <div class="w-full block grow items-end md:flex md:justify-end md:w-auto">
+        <%= link_to "Community", "/community", class: "block mr-4 font-normal text-gray-500 bg-none hover:text-red-200 active:text-white focus:text-white" %>
+        <%= link_to "Support", "/support", class: "block mr-4 font-normal text-gray-500 bg-none hover:text-red-200 active:text-white focus:text-white" %>
+        <%= link_to "Documentation", "/docs/#{version}/install", class: "block mr-4 font-normal text-gray-500 bg-none hover:text-red-200 active:text-white focus:text-white" %>
+        <%= link_to "Changelog", "https://github.com/RailsEventStore/rails_event_store/releases/tag/v#{config[:res_version]}", class: "block mr-4 font-normal text-gray-500 bg-none hover:text-red-200 active:text-white focus:text-white text-gray-700" %>
       </div>
     </nav>
   </div>

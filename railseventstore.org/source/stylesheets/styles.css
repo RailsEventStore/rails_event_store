@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+.bg-gradient {
+  background-image: linear-gradient(180deg, transparent 70%, rgba(255, 107, 107, 0.4) 0);
+}
+
+a {
+  @apply font-semibold text-gray-800 no-underline bg-gradient;
+}
+
+::selection {
+  @apply bg-red-100;
+}
+
+pre {
+  @apply rounded px-2 py-2;
+  margin-bottom: 30px;
+  background-color: rgba(247, 247, 247, 1);
+}
+
+code {
+  @apply rounded font-mono text-sm leading-normal;
+  color: #586e75;
+}
+
+pre > code {
+  @apply bg-none overflow-x-auto block;
+}
+
+:not(pre) > code {
+  @apply px-2 py-1;
+  background-color: rgba(247, 247, 247, 1);
+}
+
 .documentation h1 {
   @apply tracking-tight font-bold;
   font-size: 47px;
@@ -74,186 +106,4 @@
 
 .documentation li ul {
   margin-bottom: 0;
-}
-
-.bg-gradient {
-  background-image: linear-gradient(180deg, transparent 70%, rgba(255, 107, 107, 0.4) 0);
-}
-
-a {
-  @apply font-semibold text-gray-800 no-underline bg-gradient;
-}
-
-blockquote {
-  @apply text-gray-700 border-l-4 pl-4;
-}
-
-::selection {
-  @apply bg-red-100;
-}
-
-pre {
-  @apply rounded px-2 py-2;
-  margin-bottom: 30px;
-  background-color: rgba(247, 247, 247, 1);
-}
-
-code {
-  @apply rounded font-mono text-sm leading-normal;
-  color: #586e75;
-}
-
-pre > code {
-  @apply bg-none overflow-x-auto block;
-}
-
-:not(pre) > code {
-  @apply px-2 py-1;
-  background-color: rgba(247, 247, 247, 1);
-}
-
-.btn {
-  @apply inline-block rounded;
-  background-image: none;
-}
-
-.btn:hover {
-  transition: all 0.5s ease;
-}
-
-.btn--primary {
-  @apply bg-red-600 text-red-200 border-2 border-red-600;
-}
-
-.btn--primary:hover {
-  @apply bg-red-700 border-red-700;
-}
-
-.btn--secondary {
-  @apply text-gray-500 border-2 border-gray-200 text-red-600;
-}
-
-.btn--secondary:hover {
-  @apply text-red-600 border-red-700;
-}
-
-.btn--ternary {
-  @apply text-red-500 font-semibold border-red-500 border uppercase;
-  background: none;
-}
-
-.btn--ternary:hover {
-  @apply text-white bg-red-500 font-semibold border-red-500 border uppercase;
-}
-
-.btn--small {
-  @apply text-base py-2 px-3;
-}
-
-.btn--large {
-  @apply text-xl py-4 px-6;
-}
-
-.site-footer {
-  text-align: center;
-}
-
-.site-footer ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-.site-footer__link {
-  @apply text-gray-500;
-  background: transparent;
-  border-bottom: none;
-  font-weight: normal;
-}
-
-.site-footer__link:hover {
-  @apply text-red-200;
-  background: inherit;
-  border-bottom: none;
-}
-
-.site-footer__link:active,
-.site-footer__link:focus {
-  @apply text-white;
-  background: inherit;
-  border-bottom: none;
-  outline: none;
-}
-
-.site-navigation {
-  @apply -mr-4 h-[4.375rem] px-4 items-center overflow-x-auto text-xl flex flex-wrap items-center justify-between;
-  -webkit-overflow-scrolling: touch;
-}
-
-.site-navigation__title {
-  @apply text-red-600 tracking-wide;
-  background: none;
-  opacity: 0.95;
-}
-
-.site-navigation__link {
-  @apply block mr-4 font-normal text-gray-500;
-  background: none;
-}
-
-.site-navigation__link:hover {
-  @apply text-red-200;
-}
-
-.site-navigation__link:active,
-.site-navigation__link:focus {
-  @apply text-white;
-}
-
-.site-navigation__link--external {
-  @apply text-gray-700;
-}
-
-.site-navigation__links {
-  @apply w-full block grow items-end;
-}
-
-@screen md {
-  .site-navigation__links {
-    @apply flex justify-end w-auto;
-  }
-}
-
-.offer {
-  @apply flex flex-wrap border-t border-gray-200 py-6;
-}
-
-.offer:first-child {
-  @apply pb-6 pt-4 border-0;
-}
-
-.offer__left {
-  @apply w-full text-2xl font-bold;
-}
-
-.offer__right {
-  @apply w-full text-xl;
-}
-
-.offer__price {
-  @apply block text-base uppercase text-gray-500 font-bold mt-2 mb-2;
-}
-
-.offer__cta {
-  @apply mt-2 inline-block text-lg;
-}
-
-@screen sm {
-  .offer__left {
-    @apply w-2/5;
-  }
-
-  .offer__right {
-    @apply w-3/5;
-  }
 }
