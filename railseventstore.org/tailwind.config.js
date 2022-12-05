@@ -1,11 +1,8 @@
 module.exports = {
   content: [
-    "./source/**/*.html",
-    "./source/*.html",
-    "./source/**/*.md",
-    "./source/*.md",
-    "./source/**/*.erb",
-    "./source/*.erb",
+    "./source/**/*.{html,md,erb}",
+    "./layouts/**/*.erb",
+    "./partials/**/*.erb",
     "./config.rb",
   ],
   plugins: [require("@tailwindcss/typography")],
