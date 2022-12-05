@@ -13,6 +13,8 @@ module RubyEventStore
       TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
     end
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
+    let(:redis_url) { ENV["REDIS_URL"] }
+    let(:redis) { Redis.new(url: redis_url) }
 
     describe "#verify" do
       specify do
@@ -81,6 +83,32 @@ module RubyEventStore
         )
 
         scheduler.call(MyAsyncHandler, record)
+      end
+
+      specify 'Pushing to Redis', redis: true do
+        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+        Sidekiq::Testing.disable! do
+          scheduler.call(MyAsyncHandler, record)
+        end
+
+        expect(redis.llen("queue:default")).to eq(1)
+        payload_from_redis = JSON.parse(redis.lindex("queue:default", 0))
+        expect(payload_from_redis).to include(
+          {
+            "class" => "RubyEventStore::MyAsyncHandler",
+            "args" => [
+              {
+                "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                "event_type" => "RubyEventStore::Event",
+                "data" => "--- {}\n",
+                "metadata" => "--- {}\n",
+                "timestamp" => "2019-09-30T00:00:00.000000Z",
+                "valid_at" => "2019-09-30T00:00:00.000000Z"
+              }
+            ],
+            "queue" => "default"
+          }
+        )
       end
     end
 
