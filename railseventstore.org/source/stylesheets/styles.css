@@ -14,22 +14,22 @@ a {
   @apply bg-red-100;
 }
 
-pre {
+.documentation pre {
   @apply rounded px-2 py-2;
   margin-bottom: 30px;
   background-color: rgba(247, 247, 247, 1);
 }
 
-code {
+.documentation code {
   @apply rounded font-mono text-sm leading-normal;
   color: #586e75;
 }
 
-pre > code {
+.documentation pre >  .documentation code {
   @apply bg-none overflow-x-auto block;
 }
 
-:not(pre) > code {
+.documentation :not(pre) > .documentation code {
   @apply px-2 py-1;
   background-color: rgba(247, 247, 247, 1);
 }
