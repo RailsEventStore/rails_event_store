@@ -63,85 +63,93 @@ module AggregateRoot
       Order
     end
 
-    specify 'initialization' do
-      expect { AggregateRoot::SnapshotRepository.new(event_store, 0) }
-        .to raise_error(ArgumentError, "interval must be greater than 0")
-      expect { AggregateRoot::SnapshotRepository.new(event_store, 'not integer') }
-        .to raise_error(ArgumentError, "interval must be an Integer")
-      expect { AggregateRoot::SnapshotRepository.new(event_store) }
-        .not_to raise_error
-    end
-
-    specify 'storing snapshot' do
-      order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
-      allow(event_store).to receive(:publish)
-
-      order.apply(order_created)
-      repository.store(order, stream_name)
-      expect(event_store).to have_received(:publish).with(
-        [order_created],
-        stream_name: stream_name,
-        expected_version: -1
-      )
-      expect_snapshot(order_created.event_id, 0, Marshal.dump(order))
-    end
-
-    specify 'storing snapshot with given interval' do
-      order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
-      allow(event_store).to receive(:publish)
-
-      order.apply(order_created)
-      repository.store(order, stream_name)
-      expect_no_snapshot
-
-      order.apply(order_expired)
-      repository.store(order, stream_name)
-      expect_snapshot(order_expired.event_id, 1, Marshal.dump(order))
-    end
-
-    specify "restoring snapshot" do
-      order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
-
-      order.apply(order_created)
-      repository.store(order, stream_name)
-      expect_n_records_read(1) do
-        order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
-        expect(order_from_snapshot.status).to eq(:created)
-        expect(order_from_snapshot.version).to eq(0)
+    describe "#intialize" do
+      specify 'initializing with default interval' do
+        expect { AggregateRoot::SnapshotRepository.new(event_store) }
+          .not_to raise_error
       end
-
-      order.apply(order_canceled)
-      repository.store(order, stream_name)
-      expect_n_records_read(1) do
-        order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
-        expect(order_from_snapshot.status).to eq(:canceled)
-        expect(order_from_snapshot.version).to eq(1)
-      end
-
-      order.apply(order_expired)
-      repository.store(order, stream_name)
-      expect_n_records_read(2) do
-        order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
-        expect(order_from_snapshot.status).to eq(:expired)
-        expect(order_from_snapshot.version).to eq(2)
+      specify 'initializing with invalid interval' do
+        expect { AggregateRoot::SnapshotRepository.new(event_store, 0) }
+          .to raise_error(ArgumentError, "interval must be greater than 0")
+        expect { AggregateRoot::SnapshotRepository.new(event_store, 'not integer') }
+          .to raise_error(ArgumentError, "interval must be an Integer")
       end
     end
 
-    specify "restoring from corrupted snapshot" do
-      order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store)
-      order.apply(order_created)
-      repository.store(order, stream_name)
-      event_store.publish(
-        AggregateRoot::SnapshotRepository::Snapshot.new(
-          data: { marshal: "corrupted", last_event_id: order_created.event_id, version: 0 }
-        ),
-        stream_name: "#{stream_name}_snapshots"
-      )
-      repository.load(order_klass.new(uuid), stream_name)
+    describe '#store' do
+      specify 'storing snapshot' do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        allow(event_store).to receive(:publish)
+
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        expect(event_store).to have_received(:publish).with(
+          [order_created],
+          stream_name: stream_name,
+          expected_version: -1
+        )
+        expect_snapshot(order_created.event_id, 0, Marshal.dump(order))
+      end
+
+      specify 'storing snapshot with given interval' do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
+        allow(event_store).to receive(:publish)
+
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        expect_no_snapshot
+
+        order.apply(order_expired)
+        repository.store(order, stream_name)
+        expect_snapshot(order_expired.event_id, 1, Marshal.dump(order))
+      end
+    end
+
+    describe '#load' do
+      specify "restoring snapshot" do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
+
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        expect_n_records_read(1) do
+          order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
+          expect(order_from_snapshot.status).to eq(:created)
+          expect(order_from_snapshot.version).to eq(0)
+        end
+
+        order.apply(order_canceled)
+        repository.store(order, stream_name)
+        expect_n_records_read(1) do
+          order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
+          expect(order_from_snapshot.status).to eq(:canceled)
+          expect(order_from_snapshot.version).to eq(1)
+        end
+
+        order.apply(order_expired)
+        repository.store(order, stream_name)
+        expect_n_records_read(2) do
+          order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
+          expect(order_from_snapshot.status).to eq(:expired)
+          expect(order_from_snapshot.version).to eq(2)
+        end
+      end
+
+      specify "fallback restoring from corrupted snapshot" do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store)
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        event_store.publish(
+          AggregateRoot::SnapshotRepository::Snapshot.new(
+            data: { marshal: "corrupted", last_event_id: order_created.event_id, version: 0 }
+          ),
+          stream_name: "#{stream_name}_snapshots"
+        )
+        repository.load(order_klass.new(uuid), stream_name)
+      end
     end
 
     private
