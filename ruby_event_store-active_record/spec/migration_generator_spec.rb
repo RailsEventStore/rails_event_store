@@ -59,7 +59,7 @@ module RubyEventStore
       specify "raises error when data type is not supported" do
         expect { migration_generator(@dir, "invalid") }.to raise_error(
           ArgumentError,
-          "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
+          "Invalid value for data type. Supported for options are: binary, json, jsonb."
         )
       end
 
