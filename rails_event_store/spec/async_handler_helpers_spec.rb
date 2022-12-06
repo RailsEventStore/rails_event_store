@@ -34,7 +34,7 @@ module RailsEventStore
       $queue.push(
         Rails.configuration.event_store.deserialize(
           serializer: RubyEventStore::Serializers::YAML,
-          **payload.symbolize_keys
+          **payload.transform_keys(&:to_sym)
         )
       )
     end

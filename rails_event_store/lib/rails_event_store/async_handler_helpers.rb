@@ -14,7 +14,7 @@ module RailsEventStore
       Module.new do
         define_method :perform do |payload|
           event_store = event_store_locator.call if event_store_locator
-          super(event_store.deserialize(serializer: serializer, **payload.symbolize_keys))
+          super(event_store.deserialize(serializer: serializer, **payload.transform_keys(&:to_sym)))
         end
       end
     end
