@@ -64,6 +64,23 @@ module AggregateRoot
       Order
     end
 
+    let(:not_dumpable_order_klass) do
+      class Order
+        include AggregateRoot
+
+        def initialize(uuid)
+          @uuid = uuid
+        end
+
+        on Orders::Events::OrderExpired do |_|
+          @expired_at = Time.now
+          @expiration_check = ->(at) { at < @expired_at }
+        end
+      end
+
+      Order
+    end
+
     describe "#intialize" do
       specify 'initializing with default interval' do
         expect { AggregateRoot::SnapshotRepository.new(event_store) }
@@ -105,6 +122,16 @@ module AggregateRoot
         order.apply(order_expired)
         repository.store(order, stream_name)
         expect_snapshot(order_expired.event_id, 1, Marshal.dump(order))
+      end
+
+      specify 'standard storing not dumpable aggregates' do
+        order = not_dumpable_order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        allow(event_store).to receive(:publish)
+
+        order.apply(order_expired)
+        repository.store(order, stream_name)
+        expect_no_snapshot
       end
     end
 
