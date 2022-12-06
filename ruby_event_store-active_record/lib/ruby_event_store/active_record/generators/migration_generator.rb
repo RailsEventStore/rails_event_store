@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require_relative "../../../../../support/helpers/migrator"
 
 module RubyEventStore
   module ActiveRecord
@@ -18,12 +17,15 @@ module RubyEventStore
       private
 
       def migration_code(data_type)
-        Migrator.new(
-          File.expand_path(
-            "./templates",
-            __dir__
-          )
-        ).migration_code("create_event_store_events", data_type: data_type)
+        migration_template(File.expand_path("./templates", __dir__), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
+      end
+
+      def migration_template(template_root, name)
+        ERB.new(File.read(File.join(template_root, "#{name}_template.erb")))
+      end
+
+      def migration_version
+        "[4.2]"
       end
 
       def timestamp
