@@ -6,6 +6,7 @@ module AggregateRoot
   class SnapshotRepository
     DEFAULT_SNAPSHOT_INTERVAL = 100.freeze
     SNAPSHOT_STREAM_PATTERN = ->(base_stream_name) { "#{base_stream_name}_snapshots" }
+    NotRestorableSnapshot = Class.new(StandardError)
 
     def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL)
       raise ArgumentError, 'interval must be an Integer' unless interval.instance_of?(Integer)
@@ -20,9 +21,13 @@ module AggregateRoot
       last_snapshot = load_snapshot_event(stream_name)
       query = event_store.read.stream(stream_name)
       if last_snapshot
-        aggregate = load_marshal(last_snapshot)
-        aggregate.version = last_snapshot.data.fetch(:version)
-        query = query.from(last_snapshot.data.fetch(:last_event_id))
+        begin
+          aggregate = load_marshal(last_snapshot)
+        rescue NotRestorableSnapshot
+        else
+          aggregate.version = last_snapshot.data.fetch(:version)
+          query = query.from(last_snapshot.data.fetch(:last_event_id))
+        end
       end
       query.reduce { |_, ev| aggregate.apply(ev) }
       aggregate.version = aggregate.version + aggregate.unpublished_events.count
@@ -65,6 +70,8 @@ module AggregateRoot
 
     def load_marshal(snpashot_event)
       Marshal.load(snpashot_event.data.fetch(:marshal))
+    rescue TypeError
+      raise NotRestorableSnapshot
     end
 
     def time_for_snapshot?(aggregate_version, published_events)
