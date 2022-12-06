@@ -25,6 +25,8 @@ module RailsEventStore
 
       ensure
         FileUtils.rm_r(dir)
+        ENV.delete("MIGRATION_PATH")
+        ENV.delete("DATA_TYPE")
       end
     end
 
@@ -43,6 +45,7 @@ module RailsEventStore
       ensure
         FileUtils.rm_rf(dir)
         FileUtils.rmdir("./db")
+        ENV.delete("DATA_TYPE")
       end
     end
   end
