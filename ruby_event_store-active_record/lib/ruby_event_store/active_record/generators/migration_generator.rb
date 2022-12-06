@@ -11,13 +11,17 @@ module RubyEventStore
         migration_code = migration_code(data_type)
         path = build_path(migration_path)
         write_to_file(migration_code, path)
-        path
+        absolute_path(path)
       end
 
       private
 
+      def absolute_path(path)
+        File.expand_path(path, __dir__)
+      end
+
       def migration_code(data_type)
-        migration_template(File.expand_path("./templates", __dir__), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
+        migration_template(absolute_path("./templates"), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
       end
 
       def migration_template(template_root, name)
@@ -37,7 +41,7 @@ module RubyEventStore
       end
 
       def build_path(migration_path)
-        File.expand_path(File.join(__dir__, "../../../../", "#{migration_path}", "#{timestamp}_create_event_store_events.rb"))
+        File.join("./", "#{migration_path}", "#{timestamp}_create_event_store_events.rb")
       end
     end
   end
