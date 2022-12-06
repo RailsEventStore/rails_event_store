@@ -130,6 +130,20 @@ module AggregateRoot
       end
     end
 
+    specify "restoring from corrupted snapshot" do
+      order = order_klass.new(uuid)
+      repository = AggregateRoot::SnapshotRepository.new(event_store)
+      order.apply(order_created)
+      repository.store(order, stream_name)
+      event_store.publish(
+        AggregateRoot::SnapshotRepository::Snapshot.new(
+          data: { marshal: "corrupted", last_event_id: order_created.event_id, version: 0 }
+        ),
+        stream_name: "#{stream_name}_snapshots"
+      )
+      repository.load(order_klass.new(uuid), stream_name)
+    end
+
     private
 
     def expect_n_records_read(n, &block)
