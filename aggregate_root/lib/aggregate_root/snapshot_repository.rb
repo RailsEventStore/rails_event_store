@@ -80,9 +80,10 @@ module AggregateRoot
       raise NotRestorableSnapshot
     end
 
-    def time_for_snapshot?(aggregate_version, published_events)
-      rest = (aggregate_version + 1) % interval
-      published_events > rest
+    def time_for_snapshot?(aggregate_version, just_published_events)
+      events_in_stream = aggregate_version + 1
+      events_since_time_for_snapshot = events_in_stream % interval
+      just_published_events > events_since_time_for_snapshot
     end
   end
 end
