@@ -47,15 +47,15 @@ module AggregateRoot
 
         attr_accessor :status
 
-        def apply_order_created(_)
+        on Orders::Events::OrderCreated do |_|
           @status = :created
         end
 
-        def apply_order_expired(_)
+        on Orders::Events::OrderExpired do |_|
           @status = :expired
         end
 
-        def apply_order_canceled(_)
+        on Orders::Events::OrderCanceled do |_|
           @status = :canceled
         end
       end
