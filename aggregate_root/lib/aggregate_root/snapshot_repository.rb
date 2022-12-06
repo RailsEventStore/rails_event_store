@@ -8,6 +8,7 @@ module AggregateRoot
     SNAPSHOT_STREAM_PATTERN = ->(base_stream_name) { "#{base_stream_name}_snapshots" }
 
     def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL)
+      raise ArgumentError, 'interval must be an Integer' unless interval.instance_of?(Integer)
       raise ArgumentError, 'interval must be greater than 0' unless interval > 0
       @event_store = event_store
       @interval = interval
