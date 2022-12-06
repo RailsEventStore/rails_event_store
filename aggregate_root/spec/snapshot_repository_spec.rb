@@ -70,7 +70,7 @@ module AggregateRoot
 
     specify 'storing snapshot' do
       order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store)
+      repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
       allow(event_store).to receive(:publish)
 
       order.apply(order_created)
