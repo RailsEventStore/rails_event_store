@@ -4,7 +4,9 @@ require 'ruby_event_store/event'
 
 module AggregateRoot
   class SnapshotRepository
-    def initialize(event_store, interval = 1)
+    DEFAULT_INTERVAL = 100.freeze
+
+    def initialize(event_store, interval = DEFAULT_INTERVAL)
       raise ArgumentError, 'interval must be greater than 0' unless interval > 0
       @event_store = event_store
       @interval = interval
