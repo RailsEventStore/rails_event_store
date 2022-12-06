@@ -4,9 +4,10 @@ require 'ruby_event_store/event'
 
 module AggregateRoot
   class SnapshotRepository
-    DEFAULT_INTERVAL = 100.freeze
+    DEFAULT_SNAPSHOT_INTERVAL = 100.freeze
+    SNAPSHOT_STREAM_PATTERN = ->(base_stream_name) { "#{base_stream_name}_snapshots" }
 
-    def initialize(event_store, interval = DEFAULT_INTERVAL)
+    def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL)
       raise ArgumentError, 'interval must be greater than 0' unless interval > 0
       @event_store = event_store
       @interval = interval
@@ -49,7 +50,7 @@ module AggregateRoot
         Snapshot.new(
           data: { marshal: build_marshal(aggregate), last_event_id: last_event_id, version: aggregate.version }
         ),
-        stream_name: snapshot_stream_name(stream_name)
+        stream_name: SNAPSHOT_STREAM_PATTERN.(stream_name)
       )
     end
 
@@ -58,15 +59,11 @@ module AggregateRoot
     end
 
     def load_snapshot_event(stream_name)
-      event_store.read.stream(snapshot_stream_name(stream_name)).last
+      event_store.read.stream(SNAPSHOT_STREAM_PATTERN.(stream_name)).last
     end
 
     def load_marshal(snpashot_event)
       Marshal.load(snpashot_event.data.fetch(:marshal))
-    end
-
-    def snapshot_stream_name(stream_name)
-      "#{stream_name}_snapshots"
     end
 
     def time_for_snapshot?(aggregate_version, published_events)
