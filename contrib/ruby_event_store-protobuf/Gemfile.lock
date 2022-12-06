@@ -246,6 +246,7 @@ DEPENDENCIES
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
+  ruby_event_store-active_record!
   ruby_event_store-browser!
   ruby_event_store-protobuf!
 
