@@ -1,14 +1,14 @@
-install: ## Install all dependencies
+install: ## Install dependencies
 	@bundle install
 	@npm install --no-fund --no-audit
 
-build: ## Build static site
+build: ## Output static files (production)
 	@bundle exec middleman build
 
-.PHONY: build
 
-serve: ## Serve documentation files locally at http://localhost:4567
-	@echo "You can check the docs locally at http://localhost:4567"
+dev: ## Run server (development)
 	@bundle exec middleman server
 
 include ../support/make/help.mk
+
+.PHONY: install build dev
