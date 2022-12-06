@@ -45,7 +45,7 @@ module AggregateRoot
           @uuid = uuid
         end
 
-        attr_accessor :status
+        attr_reader :status, :expired_at
 
         on Orders::Events::OrderCreated do |_|
           @status = :created
@@ -53,6 +53,7 @@ module AggregateRoot
 
         on Orders::Events::OrderExpired do |_|
           @status = :expired
+          @expired_at = Time.now
         end
 
         on Orders::Events::OrderCanceled do |_|
@@ -149,6 +150,15 @@ module AggregateRoot
           stream_name: "#{stream_name}_snapshots"
         )
         repository.load(order_klass.new(uuid), stream_name)
+      end
+
+      specify 'dealing with non-primitives attributes' do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        order.apply(order_expired)
+        repository.store(order, stream_name)
+        repository.load(order_klass.new(uuid), stream_name)
+        expect(order.expired_at).to be_an_instance_of(Time)
       end
     end
 
