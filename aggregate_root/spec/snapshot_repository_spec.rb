@@ -66,6 +66,8 @@ module AggregateRoot
     specify 'initialization' do
       expect { AggregateRoot::SnapshotRepository.new(event_store, 0) }
         .to raise_error(ArgumentError, "interval must be greater than 0")
+      expect { AggregateRoot::SnapshotRepository.new(event_store, 'not integer') }
+        .to raise_error(ArgumentError, "interval must be an Integer")
     end
 
     specify 'storing snapshot' do
