@@ -29,7 +29,7 @@ gem "mysql2"
 
 ## Creating tables
 
-**ActiveRecord:** As you are not using rails and its generators, please create required database tables which are equivalent to [what our migration would do](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store_active_record/lib/rails_event_store_active_record/generators/templates/migration_template.rb).
+**ActiveRecord:** As you are not using rails and its generators, please create required database tables which are equivalent to [what our migration would do](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates/create_event_store_events_template.erb).
 
 ### ROM/Sequel migrations
 
