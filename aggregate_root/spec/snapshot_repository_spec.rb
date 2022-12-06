@@ -68,6 +68,8 @@ module AggregateRoot
         .to raise_error(ArgumentError, "interval must be greater than 0")
       expect { AggregateRoot::SnapshotRepository.new(event_store, 'not integer') }
         .to raise_error(ArgumentError, "interval must be an Integer")
+      expect { AggregateRoot::SnapshotRepository.new(event_store) }
+        .not_to raise_error
     end
 
     specify 'storing snapshot' do
@@ -101,23 +103,26 @@ module AggregateRoot
 
     specify "restoring snapshot" do
       order = order_klass.new(uuid)
-      repository = AggregateRoot::SnapshotRepository.new(event_store)
+      repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
 
-      apply_and_publish(order, order_created, order_canceled)
-      expect_n_records_read(2) do
+      order.apply(order_created)
+      repository.store(order, stream_name)
+      expect_n_records_read(1) do
         order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
-        expect(order_from_snapshot.status).to eq(:canceled)
-        expect(order_from_snapshot.version).to eq(1)
+        expect(order_from_snapshot.status).to eq(:created)
+        expect(order_from_snapshot.version).to eq(0)
       end
 
-      publish_snapshot(order, order_canceled.event_id, 1)
+      order.apply(order_canceled)
+      repository.store(order, stream_name)
       expect_n_records_read(1) do
         order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
         expect(order_from_snapshot.status).to eq(:canceled)
         expect(order_from_snapshot.version).to eq(1)
       end
 
-      apply_and_publish(order, order_expired)
+      order.apply(order_expired)
+      repository.store(order, stream_name)
       expect_n_records_read(2) do
         order_from_snapshot = repository.load(order_klass.new(uuid), stream_name)
         expect(order_from_snapshot.status).to eq(:expired)
@@ -131,22 +136,6 @@ module AggregateRoot
       reporting_repository.reset_records_read
       yield block
       expect(reporting_repository.records_read).to eq(n)
-    end
-
-    def apply_and_publish(order, *events)
-      events.each do |e|
-        order.apply(e)
-        event_store.publish(e, stream_name: stream_name)
-      end
-    end
-
-    def publish_snapshot(order, last_event_id, version)
-      event_store.publish(
-        AggregateRoot::SnapshotRepository::Snapshot.new(
-          data: { marshal: Marshal.dump(order), last_event_id: last_event_id, version: version }
-        ),
-        stream_name: "#{stream_name}_snapshots"
-      )
     end
 
     def expect_snapshot(last_event_id, version, marshal)
