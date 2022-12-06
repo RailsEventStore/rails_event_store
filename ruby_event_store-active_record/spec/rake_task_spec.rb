@@ -6,8 +6,8 @@ module RailsEventStore
   RSpec.describe Rake do
     before do
       allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00))
-      load File.expand_path(File.expand_path("../../", __FILE__) + "/Rakefile")
-      Rake::Task["g:migration"].reenable
+      load File.expand_path(File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake")
+      Rake::Task["db:migrations:copy"].reenable
     end
 
     context "when custom path provided" do
@@ -15,7 +15,9 @@ module RailsEventStore
         dir = Dir.mktmpdir(nil, "./")
 
         SilenceStdout.silence_stdout do
-          Rake::Task["g:migration"].invoke("jsonb", "#{dir}/")
+          ENV["DATA_TYPE"] = "jsonb"
+          ENV["MIGRATION_PATH"] = dir
+          Rake::Task["db:migrations:copy"].invoke
         end
 
         expect(File.exists?(File.expand_path(File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb")))
@@ -31,7 +33,8 @@ module RailsEventStore
         dir = FileUtils.mkdir_p("./db/migrate").first
 
         SilenceStdout.silence_stdout do
-          Rake::Task["g:migration"].invoke("jsonb")
+          ENV["DATA_TYPE"] = "jsonb"
+          Rake::Task["db:migrations:copy"].invoke
         end
 
         expect(File.exists?(File.expand_path(File.expand_path("../../", __FILE__) + "/db/migrate/20221130213700_create_event_store_events.rb")))
