@@ -33,9 +33,7 @@ module RubyEventStore
       end
 
       def write_to_file(migration_code, path)
-        open(path, 'w') do |file|
-          file.write(migration_code)
-        end
+        File.write(path, migration_code)
       end
 
       def build_path(migration_path)
