@@ -3,7 +3,6 @@ require_relative "../../support/helpers/rspec_defaults"
 require_relative "../../support/helpers/migrator"
 require_relative "../../support/helpers/schema_helper"
 require "active_record"
-require "rails"
 
 $verbose = ENV.has_key?("VERBOSE") ? true : false
 ActiveRecord::Schema.verbose = $verbose
