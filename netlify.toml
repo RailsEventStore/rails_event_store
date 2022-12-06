@@ -1,6 +1,6 @@
 [build]
   base = "railseventstore.org/"
-  command = "./bin/build"
+  command = "make build"
   publish = "build/"
   ignore  = "false"
 
