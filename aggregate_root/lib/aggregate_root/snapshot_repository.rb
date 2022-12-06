@@ -76,7 +76,7 @@ module AggregateRoot
 
     def load_marshal(snpashot_event)
       Marshal.load(snpashot_event.data.fetch(:marshal))
-    rescue TypeError
+    rescue TypeError, ArgumentError
       raise NotRestorableSnapshot
     end
 

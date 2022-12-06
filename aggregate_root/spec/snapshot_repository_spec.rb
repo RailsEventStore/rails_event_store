@@ -64,6 +64,34 @@ module AggregateRoot
       Order
     end
 
+    let(:renamed_order_klass) do
+      class Cart
+        include AggregateRoot
+
+        def initialize(uuid)
+          @status = :draft
+          @uuid = uuid
+        end
+
+        attr_reader :status, :expired_at
+
+        on Orders::Events::OrderCreated do |_|
+          @status = :created
+        end
+
+        on Orders::Events::OrderExpired do |_|
+          @status = :expired
+          @expired_at = Time.now
+        end
+
+        on Orders::Events::OrderCanceled do |_|
+          @status = :canceled
+        end
+      end
+
+      Cart
+    end
+
     let(:not_dumpable_order_klass) do
       class Order
         include AggregateRoot
@@ -124,7 +152,7 @@ module AggregateRoot
         expect_snapshot(order_expired.event_id, 1, Marshal.dump(order))
       end
 
-      specify 'standard storing not dumpable aggregates' do
+      specify 'standard storing of not dumpable aggregates' do
         order = not_dumpable_order_klass.new(uuid)
         repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
         allow(event_store).to receive(:publish)
@@ -176,7 +204,18 @@ module AggregateRoot
           ),
           stream_name: "#{stream_name}_snapshots"
         )
-        repository.load(order_klass.new(uuid), stream_name)
+        fallback_loaded = repository.load(order_klass.new(uuid), stream_name)
+        expect(fallback_loaded).to be_an_instance_of(Order)
+      end
+
+      specify "fallback restoring after aggregate name changed" do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        AggregateRoot.send(:remove_const, 'Order')
+        fallback_loaded = repository.load(renamed_order_klass.new(uuid), stream_name)
+        expect(fallback_loaded).to be_an_instance_of(Cart)
       end
 
       specify 'dealing with non-primitives attributes' do
