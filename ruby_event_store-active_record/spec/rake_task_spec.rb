@@ -18,8 +18,9 @@ module RubyEventStore
           dir = Dir.mktmpdir(nil, "./")
 
           SilenceStdout.silence_stdout do
-            ENV["DATA_TYPE"] = "jsonb"
-            ENV["MIGRATION_PATH"] = dir
+            allow(ENV).to receive(:[]).and_call_original
+            allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
+            allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
             Rake::Task["db:migrations:copy"].invoke
           end
 
@@ -32,8 +33,6 @@ module RubyEventStore
           ).to be_truthy
         ensure
           FileUtils.rm_r(dir)
-          ENV.delete("MIGRATION_PATH")
-          ENV.delete("DATA_TYPE")
         end
       end
 
@@ -42,7 +41,8 @@ module RubyEventStore
           dir = FileUtils.mkdir_p("./db/migrate").first
 
           SilenceStdout.silence_stdout do
-            ENV["DATA_TYPE"] = "jsonb"
+            allow(ENV).to receive(:[]).and_call_original
+            allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
             Rake::Task["db:migrations:copy"].invoke
           end
 
@@ -56,7 +56,6 @@ module RubyEventStore
         ensure
           FileUtils.rm_rf(dir)
           FileUtils.rmdir("./db")
-          ENV.delete("DATA_TYPE")
         end
       end
     end
