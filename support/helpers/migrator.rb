@@ -22,8 +22,8 @@ class Migrator
     migration_class(name).new.change
   end
 
-  def migration_code(name)
-    migration_template(name).result_with_hash(migration_version: migration_version, data_type: "binary")
+  def migration_code(name, data_type: "binary")
+    migration_template(name).result_with_hash(migration_version: migration_version, data_type: data_type)
   end
 
   private
