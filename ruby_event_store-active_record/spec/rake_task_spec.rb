@@ -20,7 +20,7 @@ module RailsEventStore
           Rake::Task["db:migrations:copy"].invoke
         end
 
-        expect(File.exists?(File.join(File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb")))
+        expect(File.exist?(File.join(File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb")))
           .to be_truthy
 
       ensure
@@ -39,7 +39,7 @@ module RailsEventStore
           Rake::Task["db:migrations:copy"].invoke
         end
 
-        expect(File.exists?(File.join(File.expand_path("../../", __FILE__) + "/db/migrate/20221130213700_create_event_store_events.rb")))
+        expect(File.exist?(File.join(File.expand_path("../../", __FILE__) + "/db/migrate/20221130213700_create_event_store_events.rb")))
           .to be_truthy
 
       ensure
