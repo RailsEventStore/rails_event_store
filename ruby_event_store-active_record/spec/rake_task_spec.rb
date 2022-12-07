@@ -3,7 +3,7 @@ require_relative "../../support/helpers/silence_stdout"
 require "rake"
 
 module RailsEventStore
-  RSpec.describe Rake do
+  RSpec.describe "migration_tasks.rake" do
     before do
       allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00))
       load File.expand_path(File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake")
