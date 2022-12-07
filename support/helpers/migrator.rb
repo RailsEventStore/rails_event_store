@@ -22,7 +22,7 @@ class Migrator
     migration_class(name).new.change
   end
 
-  def migration_code(name, data_type: ENV.fetch("DATA_TYPE"))
+  def migration_code(name)
     migration_template(name).result_with_hash(migration_version: migration_version, data_type: data_type)
   end
 
@@ -30,6 +30,10 @@ class Migrator
 
   def migration_class(name)
     Migrator.const_get(name.camelize)
+  end
+
+  def data_type
+    ENV.fetch("DATA_TYPE")
   end
 
   def migration_version
