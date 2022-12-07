@@ -6,13 +6,13 @@ load "ruby_event_store/active_record/tasks/migration_tasks.rake"
 
 include ActiveRecord::Tasks
 
-db_dir = './db'
+db_dir = ENV["DATABASE_DIR"] || './db'
 
 DatabaseTasks.env = ENV['ENV'] || 'development'
 DatabaseTasks.db_dir = db_dir
 DatabaseTasks.database_configuration = ENV['DATABASE_CONFIG'] || YAML.load(File.read('./config/database.yml'), aliases: true)
 
-DatabaseTasks.migrations_paths = File.join(db_dir, 'migrate')
+DatabaseTasks.migrations_paths = ENV["MIGRATIONS_PATH"] || File.join(db_dir, 'migrate')
 
 task :environment do
   ActiveRecord::Base.configurations = DatabaseTasks.database_configuration
