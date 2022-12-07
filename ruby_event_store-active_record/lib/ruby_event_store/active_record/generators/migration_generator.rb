@@ -17,6 +17,10 @@ module RubyEventStore
 
       private
 
+      def absolute_path(path)
+        File.expand_path(path, __dir__)
+      end
+
       def migration_code(data_type)
         migration_template(absolute_path("./templates"), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
       end
