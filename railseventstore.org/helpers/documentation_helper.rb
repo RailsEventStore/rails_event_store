@@ -17,13 +17,6 @@ module DocumentationHelper
     link_to gem, "https://www.rubydoc.info/gems/#{gem}"
   end
 
-  def feedback_link
-    issue_title = "Feedback on #{URI.encode_www_form_component(page_title || current_source_file_name)}"
-    link_to "Provide feedback for this page",
-            File.join(github_url, "issues/new?labels=documentation&title=#{issue_title}"),
-            class: "mr-4"
-  end
-
   def edit_github_link
     link_to "Edit this page on GitHub",
             File.join(github_url, "blob/master/railseventstore.org", current_source_file),
