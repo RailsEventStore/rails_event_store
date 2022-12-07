@@ -13,50 +13,44 @@ module RubyEventStore
         Rake::Task["db:migrations:copy"].reenable
       end
 
-      context "when custom path provided" do
-        it "is created" do
-          dir = Dir.mktmpdir(nil, "./")
+      specify "custom path provided" do
+        dir = Dir.mktmpdir(nil, "./")
 
-          SilenceStdout.silence_stdout do
-            allow(ENV).to receive(:[]).and_call_original
-            allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
-            allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
-            Rake::Task["db:migrations:copy"].invoke
-          end
-
-          expect(
-            File.exist?(
-              File.join(
-                File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb"
-              )
-            )
-          ).to be_truthy
-        ensure
-          FileUtils.rm_r(dir)
+        SilenceStdout.silence_stdout do
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
+          allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
+          Rake::Task["db:migrations:copy"].invoke
         end
+
+        expect(
+          File.exist?(
+            File.join(
+              File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb"
+            )
+          )
+        ).to be_truthy
+      ensure
+        FileUtils.rm_r(dir)
       end
 
-      context "when no path provided" do
-        it "is created" do
-          dir = FileUtils.mkdir_p("./db/migrate").first
+      specify "no path provided" do
+        dir = FileUtils.mkdir_p("./db/migrate").first
 
-          SilenceStdout.silence_stdout do
-            allow(ENV).to receive(:[]).and_call_original
-            allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
-            Rake::Task["db:migrations:copy"].invoke
-          end
-
-          expect(
-            File.exist?(
-              File.join(
-                File.expand_path("../../", __FILE__) + "/db/migrate/20221130213700_create_event_store_events.rb"
-              )
-            )
-          ).to be_truthy
-        ensure
-          FileUtils.rm_rf(dir)
-          FileUtils.rmdir("./db")
+        SilenceStdout.silence_stdout do
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
+          Rake::Task["db:migrations:copy"].invoke
         end
+
+        expect(
+          File.exist?(
+            File.join(File.expand_path("../../", __FILE__) + "/db/migrate/20221130213700_create_event_store_events.rb")
+          )
+        ).to be_truthy
+      ensure
+        FileUtils.rm_rf(dir)
+        FileUtils.rmdir("./db")
       end
     end
   end
