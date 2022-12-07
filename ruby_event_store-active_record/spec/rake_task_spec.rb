@@ -6,7 +6,7 @@ module RailsEventStore
   RSpec.describe "migration_tasks.rake" do
     before do
       allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00))
-      load File.expand_path(File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake")
+      load File.join(File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake")
       Rake::Task["db:migrations:copy"].reenable
     end
 
@@ -20,7 +20,7 @@ module RailsEventStore
           Rake::Task["db:migrations:copy"].invoke
         end
 
-        expect(File.exists?(File.expand_path(File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb")))
+        expect(File.exists?(File.join(File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb")))
           .to be_truthy
 
       ensure
