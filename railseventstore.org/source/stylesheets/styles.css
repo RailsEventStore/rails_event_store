@@ -90,38 +90,18 @@ html[data-theme="dark"] {
   --docsearch-muted-color: #7f8497;
 }
 .DocSearch-Button {
-  align-items: center;
-  background: var(--docsearch-searchbox-background);
-  border: 0;
-  border-radius: 40px;
-  color: var(--docsearch-muted-color);
-  cursor: pointer;
-  display: flex;
-  font-weight: 500;
-  height: 36px;
-  justify-content: space-between;
-  margin: 0 0 0 16px;
-  padding: 0 8px;
-  user-select: none;
+  @apply hidden w-full lg:flex items-center justify-between text-sm leading-6 text-slate-400 rounded-md ring-1 ring-slate-900/10 shadow-sm py-1.5 pl-2 pr-3 hover:ring-slate-300;
 }
-.DocSearch-Button:active,
-.DocSearch-Button:focus,
-.DocSearch-Button:hover {
-  background: var(--docsearch-searchbox-focus-background);
-  box-shadow: var(--docsearch-searchbox-shadow);
-  color: var(--docsearch-text-color);
-  outline: none;
-}
+
 .DocSearch-Button-Container {
   align-items: center;
   display: flex;
 }
 .DocSearch-Search-Icon {
-  stroke-width: 1.6;
+  stroke-width: 2;
+  @apply h-5 w-5 flex-none fill-slate-400 group-hover:fill-slate-500 md:group-hover:fill-slate-400;
 }
-.DocSearch-Button .DocSearch-Search-Icon {
-  color: var(--docsearch-text-color);
-}
+
 .DocSearch-Button-Placeholder {
   font-size: 1rem;
   padding: 0 12px 0 6px;
@@ -129,22 +109,15 @@ html[data-theme="dark"] {
 .DocSearch-Button-Keys {
   display: flex;
   min-width: calc(40px + 0.8em);
+  justify-content: end;
 }
 .DocSearch-Button-Key {
   align-items: center;
-  background: var(--docsearch-key-gradient);
-  border-radius: 3px;
-  box-shadow: var(--docsearch-key-shadow);
-  color: var(--docsearch-muted-color);
   display: flex;
   height: 18px;
   justify-content: center;
-  margin-right: 0.4em;
+  margin-right: 0.1em;
   position: relative;
-  padding: 0 0 2px;
-  border: 0;
-  top: -1px;
-  width: 20px;
 }
 @media (max-width: 768px) {
   .DocSearch-Button-Keys,
