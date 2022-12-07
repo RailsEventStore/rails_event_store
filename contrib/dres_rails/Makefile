@@ -2,6 +2,7 @@ GEM_VERSION  = $(shell cat lib/dres_rails/identity.rb | egrep -o '\d+\.\d+\.\d+'
 GEM_NAME     = dres_rails
 REQUIRE      = $(GEM_NAME)
 DATABASE_URL ?= postgres://localhost/rails_event_store?pool=5
+DATA_TYPE    ?= binary
 
 include ../../support/make/install.mk
 
@@ -13,7 +14,7 @@ migrate:
 
 test: ## Run unit tests
 	@echo "Running unit tests"
-	@env DATABASE_URL=$(DATABASE_URL) bundle exec rspec
+	@env DATA_TYPE=$(DATA_TYPE) DATABASE_URL=$(DATABASE_URL) bundle exec rspec
 
 build:
 	@echo "Building gem package"
