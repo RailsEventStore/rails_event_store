@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" class="antialiased">
   <head>
     <meta charset="utf-8">
     <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
@@ -9,11 +9,9 @@
     <%= stylesheet_link_tag "style" %>
     <%= partial "partials/favicon" %>
   </head>
-  <body class="font-sans text-gray-800 text-lg antialiased">
-    <div class="w-full min-h-screen flex flex-col items-stretch">
-      <%= partial "partials/site_navigation" %>
-      <%= yield %>
-    </div>
+  <body class="bg-white">
+    <%= partial "partials/site_navigation" %>
+    <%= yield %>
     <%= partial "partials/tracking" %>
   </body>
 </html>
