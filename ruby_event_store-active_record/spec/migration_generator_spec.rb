@@ -26,7 +26,7 @@ module RubyEventStore
       specify "returns path to migration file" do
         path = migration_generator(@dir)
 
-        expected_path = File.join(File.expand_path("../lib/ruby_event_store/active_record/generators/#{@dir}", __dir__), "20221130213700_create_event_store_events.rb")
+        expected_path = "#{@dir}/20221130213700_create_event_store_events.rb"
         expect(path).to match(expected_path)
       end
 
