@@ -9,7 +9,6 @@ gem "ruby_event_store", path: "../.."
 gem "ruby_event_store-browser", path: "../.."
 gem "rails_event_store", path: "../.."
 gem "ruby_event_store-active_record", path: "../.."
-gem "rails_event_store_active_record", path: "../.."
 gem "aggregate_root", path: "../.."
 
 gem "pg"
