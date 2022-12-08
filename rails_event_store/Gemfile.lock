@@ -249,7 +249,6 @@ DEPENDENCIES
   rack-test
   rails (~> 7.0.7)
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
