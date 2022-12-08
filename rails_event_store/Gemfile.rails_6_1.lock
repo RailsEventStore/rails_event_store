@@ -3,8 +3,6 @@ PATH
   specs:
     aggregate_root (2.9.0)
       ruby_event_store (= 2.9.0)
-    rails_event_store_active_record (2.9.0)
-      ruby_event_store-active_record (= 2.9.0)
     ruby_event_store (2.9.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
     ruby_event_store-active_record (2.9.0)
@@ -23,8 +21,8 @@ PATH
       activesupport (>= 6.0)
       aggregate_root (= 2.9.0)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.9.0)
       ruby_event_store (= 2.9.0)
+      ruby_event_store-active_record (= 2.9.0)
       ruby_event_store-browser (= 2.9.0)
 
 GEM
@@ -242,7 +240,6 @@ DEPENDENCIES
   rack-test
   rails (= 6.1.7.2)
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
