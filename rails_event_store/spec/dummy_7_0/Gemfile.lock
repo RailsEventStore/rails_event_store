@@ -190,6 +190,7 @@ DEPENDENCIES
   rails_event_store!
   rails_event_store_active_record!
   ruby_event_store!
+  ruby_event_store-active_record!
   ruby_event_store-browser!
 
 BUNDLED WITH
