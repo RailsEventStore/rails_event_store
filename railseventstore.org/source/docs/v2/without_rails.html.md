@@ -1,10 +1,11 @@
 ---
 title: Using Ruby Event Store without Rails
 ---
-
 ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyevans/sequel)) are supported SQL adapters out-of-the-box.
 
-## Installation
+## Active Record
+
+### Installation
 
 Add to your `Gemfile`:
 
@@ -13,60 +14,23 @@ source "https://rubygems.org"
 
 gem "ruby_event_store"
 
-# For ActiveRecord:
 gem "activerecord"
 gem "rails_event_store_active_record"
+```
 
-# For ROM/Sequel:
-gem "rom-sql"
-gem "ruby_event_store-rom", require: "ruby_event_store/rom/sql"
+You'll also need an SQL adapter. We support PostgreSQL, MySQL and SQLite3.
 
-# And one of:
+```ruby
 gem "sqlite3"
 gem "pg"
 gem "mysql2"
 ```
 
-## Creating tables
+### Migrations
 
 **ActiveRecord:** As you are not using rails and its generators, please create required database tables which are equivalent to [what our migration would do](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates/create_event_store_events_template.erb).
 
-### ROM/Sequel migrations
-
-SQL schema migrations can be copied to your project using Rake tasks. (The ROM migrations use [Sequel](https://github.com/jeremyevans/sequel) under the hood.)
-
-Add the tasks to your `Rakefile` to import them into your project:
-
-```ruby
-# In your project Rakefile
-require "ruby_event_store/rom/rake_task"
-```
-
-Then run Rake tasks to get your database setup:
-
-```shell
-# Copies the migrations to your project (in db/migrate)s
-bundle exec rake db:migrations:copy DATABASE_URL=postgres://localhost/database
-# <= migration file created db/migrate/20180417201709_create_ruby_event_store_tables.rb
-
-# Run the migrations in your project (in db/migrate)
-bundle exec rake db:migrate DATABASE_URL=postgres://localhost/database
-# <= db:migrate executed
-```
-
-By default, `data` and `metadata` are stored in text columns. You can specify the `DATA_TYPE` environment variable when copying migrations to use a JSON or JSONB column in Postgres.
-
-```shell
-bundle exec rake db:migrations:copy DATABASE_URL=postgres://localhost/database DATA_TYPE=jsonb
-```
-
-You can run `bundle exec rake -T` to get a list of all available tasks. You can also programmatically run migrations (see examples above).
-
-NOTE: Make sure the database connection in your app doesn't try to connect and setup RES before the migrations have run.
-
-## Usage
-
-### ActiveRecord
+### Configuration
 
 ```ruby
 require "active_record"
@@ -87,7 +51,65 @@ event_store.publish(
 )
 ```
 
-### ROM/Sequel setup
+## ROM/Sequel
+
+### Installation
+
+Add following gems into your `Gemfile`
+
+```ruby
+source "https://rubygems.org"
+
+gem "ruby_event_store"
+gem "rom-sql"
+gem "ruby_event_store-rom", require: "ruby_event_store/rom/sql"
+```
+
+You'll also need an SQL adapter. We support PostgreSQL, MySQL and SQLite3.
+
+```ruby
+# Choose one of SQL adapters
+gem "sqlite3"
+gem "pg"
+gem "mysql2"
+```
+
+Perform gem install.
+
+### Migrations
+
+SQL schema migrations can be copied to your project using Rake tasks. (The ROM migrations use [Sequel](https://github.com/jeremyevans/sequel) under the hood.)
+
+Add the tasks to your `Rakefile` to import them into your project:
+
+```ruby
+# In your project Rakefile
+require "ruby_event_store/rom/rake_task"
+```
+
+Then run Rake tasks to get your database setup:
+
+```shell
+# Copies the migrations to your project (in db/migrate)
+bundle exec rake db:migrations:copy DATABASE_URL=postgres://localhost/database
+# <= migration file created db/migrate/20180417201709_create_ruby_event_store_tables.rb
+
+# Runs the migrations and creates the tables
+bundle exec rake db:migrate DATABASE_URL=postgres://localhost/database
+# <= db:migrate executed
+```
+
+By default, `data` and `metadata` are stored in text columns. You can specify the `DATA_TYPE` environment variable when copying migrations to use a JSON or JSONB column in Postgres.
+
+```shell
+bundle exec rake db:migrations:copy DATABASE_URL=postgres://localhost/database DATA_TYPE=jsonb
+```
+
+You can run `bundle exec rake -T` to get a list of all available tasks. You can also programmatically run migrations (see examples above).
+
+NOTE: Make sure the database connection in your app doesn't try to connect and setup RES before the migrations have run.
+
+### Configuration 
 
 You simply need to configure your ROM container and then store it globally on `RubyEventStore::ROM.env` or pass it to the repository constructor.
 
