@@ -16,12 +16,10 @@ module RubyEventStore
       specify "custom path provided" do
         dir = Dir.mktmpdir(nil, "./")
 
-        SilenceStdout.silence_stdout do
-          allow(ENV).to receive(:[]).and_call_original
-          allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
-          allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
-          Rake::Task["db:migrations:copy"].invoke
-        end
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
+        allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
+        SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
 
         expect(
           File.exist?(
@@ -37,11 +35,9 @@ module RubyEventStore
       specify "no path provided" do
         dir = FileUtils.mkdir_p("./db/migrate").first
 
-        SilenceStdout.silence_stdout do
-          allow(ENV).to receive(:[]).and_call_original
-          allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
-          Rake::Task["db:migrations:copy"].invoke
-        end
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
+        SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
 
         expect(
           File.exist?(
