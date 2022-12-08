@@ -17,11 +17,7 @@ module RubyEventStore
         with_custom_directory do |dir|
           SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
 
-          expect(
-            File.exist?(
-              File.join(File.expand_path("../../", __FILE__), dir[1..-1], "20221130213700_create_event_store_events.rb")
-            )
-          ).to be_truthy
+          expect_migration_file_in_directory(dir[1..-1])
         end
       end
 
@@ -29,16 +25,16 @@ module RubyEventStore
         with_default_directory do
           SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
 
-          expect(
-            File.exist?(
-              File.join(
-                File.expand_path("../../", __FILE__),
-                "db/migrate",
-                "20221130213700_create_event_store_events.rb"
-              )
-            )
-          ).to be_truthy
+          expect_migration_file_in_directory("db/migrate")
         end
+      end
+
+      def expect_migration_file_in_directory(directory)
+        expect(
+          File.exist?(
+            File.join(File.expand_path("../../", __FILE__), directory, "20221130213700_create_event_store_events.rb")
+          )
+        ).to be_truthy
       end
 
       def with_custom_directory
