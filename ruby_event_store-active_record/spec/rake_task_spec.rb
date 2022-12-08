@@ -17,7 +17,7 @@ module RubyEventStore
         with_custom_directory do |dir|
           SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
 
-          expect_migration_file_in_directory(dir[1..-1])
+          expect_migration_file_in_directory(dir)
         end
       end
 
@@ -42,7 +42,7 @@ module RubyEventStore
           allow(ENV).to receive(:[]).and_call_original
           allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
           allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
-          yield(dir)
+          yield(dir[1..-1])
         end
       end
 
