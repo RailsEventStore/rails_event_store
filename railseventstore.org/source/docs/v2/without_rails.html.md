@@ -1,6 +1,7 @@
 ---
 title: Using Ruby Event Store without Rails
 ---
+
 ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyevans/sequel)) are supported SQL adapters out-of-the-box.
 
 ## Active Record
@@ -109,7 +110,7 @@ You can run `bundle exec rake -T` to get a list of all available tasks. You can 
 
 NOTE: Make sure the database connection in your app doesn't try to connect and setup RES before the migrations have run.
 
-### Configuration 
+### Configuration
 
 You simply need to configure your ROM container and then store it globally on `RubyEventStore::ROM.env` or pass it to the repository constructor.
 
