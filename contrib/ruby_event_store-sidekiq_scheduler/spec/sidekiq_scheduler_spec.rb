@@ -1,6 +1,7 @@
 require "spec_helper"
 require "ruby_event_store/spec/scheduler_lint"
 require "sidekiq/testing"
+require "sidekiq/processor"
 
 module RubyEventStore
   RSpec.describe SidekiqScheduler do
@@ -85,31 +86,40 @@ module RubyEventStore
         scheduler.call(MyAsyncHandler, record)
       end
 
-      specify 'Pushing to Redis', redis: true do
+      specify 'with Redis involved' do
         scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         Sidekiq::Testing.disable! do
           scheduler.call(MyAsyncHandler, record)
         end
-
-        expect(redis.llen("queue:default")).to eq(1)
-        payload_from_redis = JSON.parse(redis.lindex("queue:default", 0))
-        expect(payload_from_redis).to include(
-          {
-            "class" => "RubyEventStore::MyAsyncHandler",
-            "args" => [
-              {
-                "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-                "event_type" => "RubyEventStore::Event",
-                "data" => "--- {}\n",
-                "metadata" => "--- {}\n",
-                "timestamp" => "2019-09-30T00:00:00.000000Z",
-                "valid_at" => "2019-09-30T00:00:00.000000Z"
-              }
-            ],
-            "queue" => "default"
-          }
-        )
+        sidekiq_processor.send :process_one
+        expect(MyAsyncHandler.received).to match(
+                                             {
+                                               "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                                               "event_type" => "RubyEventStore::Event",
+                                               "data" => "--- {}\n",
+                                               "metadata" => "--- {}\n",
+                                               "timestamp" => "2019-09-30T00:00:00.000000Z",
+                                               "valid_at" => "2019-09-30T00:00:00.000000Z"
+                                             }
+                                           )
       end
+    end
+
+    private
+
+    def sidekiq_processor
+      options = case Sidekiq::VERSION.to_i
+             when 5
+               Struct.new(:options).new({ queues: ['default'] })
+             when 6
+               opts = Sidekiq
+               opts[:queues] = ['default']
+               opts[:fetch] = Sidekiq::BasicFetch.new(opts)
+               opts
+             else
+               skip 'Unsupported Sidekiq version'
+             end
+      Sidekiq::Processor.new(options)
     end
 
     class MyAsyncHandler
