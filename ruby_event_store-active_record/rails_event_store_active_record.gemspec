@@ -30,4 +30,13 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.7"
 
   spec.add_dependency "ruby_event_store-active_record", RubyEventStore::ActiveRecord::VERSION
+  spec.post_install_message = <<~EOW
+    The 'rails_event_store_active_record' gem has been renamed.
+
+    Please change your Gemfile or gemspec
+    to reflect its new name:
+
+    'ruby_event_store-active-record'
+
+  EOW
 end
