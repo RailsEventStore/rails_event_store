@@ -9,11 +9,13 @@ module AggregateRoot
     NotRestorableSnapshot = Class.new(StandardError)
     NotDumpableAggregateRoot = Class.new(StandardError)
 
-    def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL)
+    def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL, logger = Logger.new(STDOUT))
       raise ArgumentError, 'interval must be an Integer' unless interval.instance_of?(Integer)
       raise ArgumentError, 'interval must be greater than 0' unless interval > 0
+      raise ArgumentError, 'provide a logger' unless logger.respond_to?(:warn)
       @event_store = event_store
       @interval = interval
+      @logger = logger
     end
 
     Snapshot = Class.new(RubyEventStore::Event)
@@ -24,7 +26,8 @@ module AggregateRoot
       if last_snapshot
         begin
           aggregate = load_marshal(last_snapshot)
-        rescue NotRestorableSnapshot
+        rescue NotRestorableSnapshot => e
+          logger.warn(e.message)
         else
           aggregate.version = last_snapshot.data.fetch(:version)
           query = query.from(last_snapshot.data.fetch(:last_event_id))
@@ -46,14 +49,15 @@ module AggregateRoot
       if time_for_snapshot?(aggregate.version, events.size)
         begin
           publish_snapshot_event(aggregate, stream_name, events.last.event_id)
-        rescue NotDumpableAggregateRoot
+        rescue NotDumpableAggregateRoot => e
+          logger.warn(e.message)
         end
       end
     end
 
     private
 
-    attr_reader :event_store, :interval
+    attr_reader :event_store, :interval, :logger
 
     def publish_snapshot_event(aggregate, stream_name, last_event_id)
       event_store.publish(
@@ -67,7 +71,9 @@ module AggregateRoot
     def build_marshal(aggregate)
       Marshal.dump(aggregate)
     rescue TypeError
-      raise NotDumpableAggregateRoot
+      raise NotDumpableAggregateRoot, "#{aggregate.class} cannot be dumped.
+It may be caused by instance variables being: bindings, procedure or method objects, instances of class IO, or singleton objects.
+Snapshot skipped."
     end
 
     def load_snapshot_event(stream_name)
@@ -77,7 +83,9 @@ module AggregateRoot
     def load_marshal(snpashot_event)
       Marshal.load(snpashot_event.data.fetch(:marshal))
     rescue TypeError, ArgumentError
-      raise NotRestorableSnapshot
+      raise NotRestorableSnapshot, "Aggregate root cannot be restored from the last snapshot (event id: #{snpashot_event.event_id}).
+It may be caused by aggregate class rename or Marshal version mismatch.
+Loading aggregate based on the whole stream."
     end
 
     def time_for_snapshot?(aggregate_version, just_published_events)
