@@ -116,6 +116,8 @@ module RubyEventStore
                opts[:queues] = ['default']
                opts[:fetch] = Sidekiq::BasicFetch.new(opts)
                opts
+             when 7
+               Sidekiq::Config.new.default_capsule
              else
                skip 'Unsupported Sidekiq version'
              end
