@@ -8,15 +8,11 @@ include ActiveRecord::Tasks
 
 db_dir = ENV["DATABASE_DIR"] || './db'
 
-DatabaseTasks.env = ENV['ENV'] || 'development'
-DatabaseTasks.db_dir = db_dir
-DatabaseTasks.database_configuration = ENV['DATABASE_CONFIG'] || YAML.load(File.read('./config/database.yml'), aliases: true)
-
-DatabaseTasks.migrations_paths = ENV["MIGRATIONS_PATH"] || File.join(db_dir, 'migrate')
-
 task :environment do
-  ActiveRecord::Base.configurations = DatabaseTasks.database_configuration
-  ActiveRecord::Base.establish_connection DatabaseTasks.env
+  connection = ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
+  RACK_ENV = DatabaseTasks.env = connection.db_config.env_name
+  DatabaseTasks.db_dir = db_dir
+  DatabaseTasks.migrations_paths = ENV["MIGRATIONS_PATH"] || File.join(db_dir, 'migrate')
 end
 
 load 'active_record/railties/databases.rake'
