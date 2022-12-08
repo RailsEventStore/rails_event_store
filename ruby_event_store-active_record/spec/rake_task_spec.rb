@@ -14,22 +14,20 @@ module RubyEventStore
       end
 
       specify "custom path provided" do
-        dir = Dir.mktmpdir(nil, "./")
+        Dir.mktmpdir(nil, "./") do |dir|
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
+          allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
+          SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
 
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with("DATA_TYPE").and_return("jsonb")
-        allow(ENV).to receive(:[]).with("MIGRATION_PATH").and_return(dir)
-        SilenceStdout.silence_stdout { Rake::Task["db:migrations:copy"].invoke }
-
-        expect(
-          File.exist?(
-            File.join(
-              File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb"
+          expect(
+            File.exist?(
+              File.join(
+                File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb"
+              )
             )
-          )
-        ).to be_truthy
-      ensure
-        FileUtils.rm_r(dir)
+          ).to be_truthy
+        end
       end
 
       specify "no path provided" do
