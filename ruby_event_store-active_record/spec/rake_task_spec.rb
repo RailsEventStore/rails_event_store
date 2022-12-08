@@ -5,6 +5,7 @@ require "rake"
 module RubyEventStore
   module ActiveRecord
     RSpec.describe "migration_tasks.rake" do
+      # mutant:disable
       before do
         allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00))
         load File.join(
