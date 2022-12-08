@@ -10,7 +10,7 @@ db_dir = ENV["DATABASE_DIR"] || './db'
 
 task :environment do
   connection = ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
-  RACK_ENV = DatabaseTasks.env = connection.db_config.env_name
+  DatabaseTasks.env = connection.db_config.env_name
   DatabaseTasks.db_dir = db_dir
   DatabaseTasks.migrations_paths = ENV["MIGRATIONS_PATH"] || File.join(db_dir, 'migrate')
 end
