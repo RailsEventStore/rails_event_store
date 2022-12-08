@@ -20,7 +20,8 @@ module RubyEventStore
           expect(
             File.exist?(
               File.join(
-                File.expand_path("../../", __FILE__) + "#{dir[1..-1]}/20221130213700_create_event_store_events.rb"
+                File.expand_path("../../", __FILE__),
+                "#{dir[1..-1]}/20221130213700_create_event_store_events.rb"
               )
             )
           ).to be_truthy
@@ -33,9 +34,7 @@ module RubyEventStore
 
           expect(
             File.exist?(
-              File.join(
-                File.expand_path("../../", __FILE__) + "/db/migrate/20221130213700_create_event_store_events.rb"
-              )
+              File.join(File.expand_path("../../", __FILE__), "db/migrate/20221130213700_create_event_store_events.rb")
             )
           ).to be_truthy
         end
