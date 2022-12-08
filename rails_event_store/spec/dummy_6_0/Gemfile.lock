@@ -195,7 +195,6 @@ DEPENDENCIES
   aggregate_root!
   rails (= 6.0.6.1)
   rails_event_store!
-  rails_event_store_active_record!
   ruby_event_store!
   ruby_event_store-active_record!
   ruby_event_store-browser!
