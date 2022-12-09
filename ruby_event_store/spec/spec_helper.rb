@@ -14,7 +14,7 @@ module RubyEventStore
     end
 
     def supports_binary?
-      true
+      ENV["DATA_TYPE"] == "binary"
     end
 
     def supports_upsert?
