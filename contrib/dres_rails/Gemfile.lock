@@ -21,8 +21,6 @@ PATH
   remote: ../../ruby_event_store-active_record
   specs:
     rails_event_store_active_record (2.6.0)
-      activerecord (>= 6.0)
-      ruby_event_store (= 2.6.0)
       ruby_event_store-active_record (= 2.6.0)
     ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
