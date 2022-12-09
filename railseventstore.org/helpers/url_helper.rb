@@ -20,4 +20,20 @@ module UrlHelper
   def twitter_hashtag_url
     "https://twitter.com/hashtag/railseventstore"
   end
+
+  def changelog_url
+    "https://github.com/RailsEventStore/rails_event_store/releases/tag/v#{config[:res_version]}"
+  end
+
+  def community_path
+    "/community"
+  end
+
+  def support_path
+    "/support"
+  end
+
+  def docs_path(version)
+    "/docs/#{version}/install"
+  end
 end
