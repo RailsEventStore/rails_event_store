@@ -8,7 +8,16 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe EventRepository do
       helper = SpecHelper.new
-      mk_repository = -> { EventRepository.new(serializer: helper.serializer) }
+      mk_repository = -> do
+        serializer =
+          case ENV["DATA_TYPE"]
+          when /json/
+            JSON
+          else
+            RubyEventStore::Serializers::YAML
+          end
+        EventRepository.new(serializer: serializer)
+      end
 
       it_behaves_like "event repository", mk_repository, helper
 
