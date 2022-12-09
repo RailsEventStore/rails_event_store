@@ -8,22 +8,8 @@ module RubyEventStore
       self.primary_key = :id
       self.table_name = "event_store_events"
 
-      attribute :data,
-                Proc.new {
-                  if %i[json jsonb].include?(self.columns_hash["data"].type)
-                    ActiveModel::Type::Value.new
-                  else
-                    ActiveModel::Type::Binary.new
-                  end
-                }
-      attribute :metadata,
-                Proc.new {
-                  if %i[json jsonb].include?(self.columns_hash["metadata"].type)
-                    ActiveModel::Type::Value.new
-                  else
-                    ActiveModel::Type::Binary.new
-                  end
-                }
+      attribute :data, ->(type) { %i[json jsonb].include?(type.type) ? ActiveModel::Type::Value.new : type }
+      attribute :metadata, ->(type) { %i[json jsonb].include?(type.type) ? ActiveModel::Type::Value.new : type }
     end
     private_constant :Event
 
