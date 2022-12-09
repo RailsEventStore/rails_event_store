@@ -29,9 +29,25 @@ module RubyEventStore
         record = repository.read(specification.result).first
         expect(record.data).to eq({ "foo" => "bar" })
         expect(
-          ::ActiveRecord::Base.connection.execute("SELECT data ->> 'foo' as foo FROM event_store_events").first["foo"]
+          ::ActiveRecord::Base
+            .connection
+            .execute("SELECT data ->> 'foo' as foo FROM event_store_events ORDER BY created_at DESC")
+            .first[
+            "foo"
+          ]
         ).to eq("bar")
+      end if ENV["DATABASE_URL"].include?("postgres") && %w[json jsonb].include?(ENV["DATA_TYPE"])
+
+      specify do
+        repository.append_to_stream(
+          [RubyEventStore::SRecord.new(data: { "foo" => "bar" })],
+          RubyEventStore::Stream.new("stream"),
+          RubyEventStore::ExpectedVersion.auto
+        )
+
+        record = repository.read(specification.result).first
+        expect(record.data).to eq({ "foo" => "bar" })
       end
-    end if ENV["DATABASE_URL"].include?("postgres")
+    end
   end
 end
