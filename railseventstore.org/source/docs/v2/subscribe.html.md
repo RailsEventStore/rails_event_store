@@ -1,5 +1,5 @@
 ---
-title: Event handlers - Subscribing to events
+title: Subscribing to events
 ---
 
 To subscribe a handler to events in Rails Event Store you need to use `#subscribe` method on `RailsEventStore::Client`
