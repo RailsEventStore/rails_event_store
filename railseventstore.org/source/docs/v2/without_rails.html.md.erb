@@ -75,12 +75,8 @@ DATA_TYPE=jsonb MIGRATION_PATH=database/migrations bundle exec rake db:migration
 To perform database migration run
 
 ```bash
-RACK_ENV=development DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrate
+DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrate
 ```
-
-Notice that we're specifying two environment variables.
-
-`RACK_ENV` is used to determine the environment for which the database migration should be performed.
 
 `DATABASE_URL` is used to establish connection to your database and read the config.
 
@@ -94,6 +90,7 @@ Path to the database directory can be provided through `DATABASE_DIR` environmen
 ```bash
 DATABASE_DIR=path/to/database/directory
 ```
+```
 
 Similarly, path to the directory containing migration files can be provided through `MIGRATION_DIR` environment variable.
 
@@ -106,7 +103,7 @@ MIGRATION_DIR=path/to/migration/directory
 The command to run migration with all the environment variables set would look like this
 
 ```bash
-MIGRATION_DIR=migration_path DATABASE_DIR=db_dir RACK_ENV=development DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrate
+MIGRATION_DIR=migration_path DATABASE_DIR=db_dir DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrate
 ```
 
 
