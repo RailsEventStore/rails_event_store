@@ -10,18 +10,9 @@
   @apply bg-red-100;
 }
 
-a,
-.prose a {
+a {
   @apply font-semibold text-gray-800 no-underline;
   background-image: linear-gradient(180deg, transparent 70%, rgba(255, 107, 107, 0.4) 0);
-}
-
-.prose h1 {
-  @apply text-5xl tracking-tight;
-}
-
-.prose pre {
-  background-color: rgba(247, 247, 247, 1);
 }
 
 .prose pre > code {
@@ -34,18 +25,9 @@ a,
   color: rgb(88, 110, 117);
 }
 
-.prose :not(pre) > code::before,
-.prose :not(pre) > code::after {
-  content: "";
-}
-
 .prose table td,
 .prose table th {
   @apply border p-2;
-}
-
-.prose :target {
-  scroll-margin-top: 4.375rem;
 }
 
 :root {

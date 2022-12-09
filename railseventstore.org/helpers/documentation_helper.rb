@@ -20,7 +20,7 @@ module DocumentationHelper
   def edit_github_link
     link_to "Edit this page on GitHub",
             File.join(github_url, "blob/master/railseventstore.org", current_source_file),
-            class: "mr-4"
+            class: "bg-none font-normal text-gray-500"
   end
 
   def sidebar_link_to(name, url)
