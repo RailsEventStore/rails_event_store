@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+require "tilt"
+require "arbre"
+
+class ArbreTemplate < ::Tilt::Template
+  def prepare; end
+
+  def precompiled_template(locals)
+    <<-END
+      Arbre::Context.new(locals, self) {
+        #{data}
+      }.to_s
+    END
+  end
+end
+
+::Tilt.register(ArbreTemplate, "arb")
+
 activate :aria_current
 activate :directory_indexes
 activate :syntax do |syntax|
