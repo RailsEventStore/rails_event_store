@@ -2,8 +2,115 @@
 title: Using Ruby Event Store without Rails
 ---
 
-ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyevans/sequel)) are supported SQL adapters out-of-the-box.
+ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyevans/sequel)) are supported SQL adapters
+out-of-the-box.
 
+<% if version_gteq('2.7.0') %>
+## RubyEventStore::ActiveRecord
+`RubyEventStore::ActiveRecord` enables you to efficiently set up Ruby Event Store with your favorite web framework
+different than Rails. It provides a rake task to generate the migration file to create database tables
+required by Ruby Event Store. The rake task also enables you to perform database migrations.
+
+### Installation
+
+Add following gems into your `Gemfile`
+
+```ruby
+# Gemfile
+source "https://rubygems.org"
+
+gem "ruby_event_store-active_record"
+gem "rake" # required to run rake tasks exposed by RubyEventStore::ActiveRecord
+```
+
+You'll also need SQL adapter of your choice. We support PostgreSQL, MySQL and SQLite3.
+
+```ruby
+# Gemfile
+# ...
+gem "sqlite3"
+gem "pg"
+gem "mysql2"
+```
+
+Now you can install the gems by running `bundle install`
+
+Add following line to your Rakefile
+
+```ruby
+# Rakefile
+require "ruby_event_store/active_record/tasks"
+```
+
+You can now run `bundle exec rake -T` to see the list of available tasks.
+You'll notice that there are a lot of familiar tasks from Rails. That's because `RubyEventStore::ActiveRecord` depends
+on `ActiveRecord::Tasks::DatabaseTasks` to perform database operations.
+
+### Creating migration file
+
+To create database migration file required by Ruby Event Store run
+
+```bash
+DATA_TYPE=jsonb bundle exec rake db:migrations:copy
+```
+
+In the example above we use `jsonb` data type for storing event data. You can use also use `json` or `binary` data type
+if you're using PostgreSQL. For MySQL and SQLite3 we only support `binary` data type.
+
+By default the migration file is created in `db/migrate` directory.
+Your migration path might differ from that. You can specify the path to the migration file by setting `MIGRATION_PATH` environment variable.
+
+```bash
+MIGRATION_PATH=database/migrations
+```
+
+The command to create database migration file with custom migration path would look like this
+
+```bash
+DATA_TYPE=jsonb MIGRATION_PATH=database/migrations bundle exec rake db:migrations:copy
+```
+
+### Performing database migration
+
+To perform database migration run
+
+```bash
+RACK_ENV=development DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrate
+```
+
+Notice that we're specifying two environment variables.
+
+`RACK_ENV` is used to determine the environment for which the database migration should be performed.
+
+`DATABASE_URL` is used to establish connection to your database and read the config.
+
+**We don't read the database config from config/database.yml**
+
+By default migration files are read from the `db/migrate` directory. If your application is structured in a different way,
+you'll have to provide the path to your database directory and path to the directory containing migration files.
+
+Path to the database directory can be provided through `DATABASE_DIR` environment variable.
+
+```bash
+DATABASE_DIR=path/to/database/directory
+```
+
+Similarly, path to the directory containing migration files can be provided through `MIGRATION_DIR` environment variable.
+
+```bash
+MIGRATION_DIR=path/to/migration/directory
+```
+
+**We expect the path to be relative.**
+
+The command to run migration with all the environment variables set would look like this
+
+```bash
+MIGRATION_DIR=migration_path DATABASE_DIR=db_dir RACK_ENV=development DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrate
+```
+
+
+<% else %>
 ## Active Record
 
 ### Installation
@@ -52,6 +159,7 @@ event_store.publish(
 )
 ```
 
+<% end %>
 ## ROM/Sequel
 
 ### Installation
