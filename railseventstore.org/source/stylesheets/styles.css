@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .anchorjs-link {
-  @apply text-gray-500 no-underline bg-none shadow-none hover:shadow-none active:shadow-none hover:text-gray-500 active:text-gray-500;
+  @apply text-gray-500 no-underline bg-none !shadow-none hover:shadow-none active:shadow-none hover:text-gray-500 active:text-gray-500;
 }
 
 ::selection {
