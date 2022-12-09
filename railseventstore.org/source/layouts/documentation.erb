@@ -1,32 +1,41 @@
-<% wrap_layout :layout do %>
-  <div class="w-full min-h-screen flex flex-col items-stretch">
-    <main class="max-w-8xl mx-auto w-full flex flex-wrap">
-      <aside class="w-full md:w-1/4 px-4">
-        <div class="md:sticky top-[calc(118px)] z-50 bg-white">
-          <div class="mb-2 block text-gray-700 text-lg">
-            Release <%= partial "partials/version_select" %>
+<!DOCTYPE html>
+<html lang="en" data-theme="light" class="antialiased">
+  <head>
+    <meta charset="utf-8">
+    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    <title><%= current_page.data.title %></title>
+    <%= stylesheet_link_tag "https://use.typekit.net/iox0vwx.css" %>
+    <%= stylesheet_link_tag "style" %>
+    <%= partial "partials/favicon" %>
+  </head>
+  <body class="bg-white">
+    <%= partial "partials/site_navigation" %>
+    <div class="w-full min-h-screen flex flex-col items-stretch">
+      <main class="max-w-8xl mx-auto w-full flex flex-wrap">
+        <aside class="w-full md:w-1/4 px-4">
+          <div class="md:sticky top-[calc(118px)] z-50 bg-white">
+            <div class="mb-2 block text-gray-700 text-lg">
+              Release <%= partial "partials/version_select" %>
+            </div>
+            <div class="bg-white relative pointer-events-auto" id="search"></div>
           </div>
-          <div class="bg-white relative pointer-events-auto" id="search"></div>
-        </div>
-
-        <nav class="pb-8 md:sticky top-[calc(200px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-200px)]">
-          <%= partial "partials/documentation_nav_#{version}" %>
-        </nav>
-      </aside>
-
-      <article class="prose prose-xl w-full md:w-3/4 px-4 mt-6">
-        <h1><%= page_title %></h1>
-
-        <%= yield %>
-
-        <footer class="mt-12 mb-12 flex flex-wrap not-prose">
-          <%= edit_github_link %>
-        </footer>
-      </article>
-    </main>
-  </div>
-
-  <%= partial "partials/anchorjs" %>
-  <%= partial "partials/doc_search" %>
-  <%= partial "partials/version_redirect" %>
-<% end %>
+          <nav class="pb-8 md:sticky top-[calc(200px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-200px)]">
+            <%= partial "partials/documentation_nav_#{version}" %>
+          </nav>
+        </aside>
+        <article class="prose prose-xl w-full md:w-3/4 px-4 mt-6">
+          <h1><%= page_title %></h1>
+          <%= yield %>
+          <footer class="mt-12 mb-12 flex flex-wrap not-prose">
+            <%= edit_github_link %>
+          </footer>
+        </article>
+      </main>
+    </div>
+    <%= partial "partials/anchorjs" %>
+    <%= partial "partials/doc_search" %>
+    <%= partial "partials/version_redirect" %>
+    <%= partial "partials/tracking" %>
+  </body>
+</html>
