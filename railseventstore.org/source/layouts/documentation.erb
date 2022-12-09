@@ -15,6 +15,7 @@
         <div class="py-4 border-b border-gray-900/10 lg:px-8 lg:border-0 mx-4 lg:mx-0">
           <div class="relative flex items-center">
             <%= link_to "Rails Event Store", "/", class: "mr-3 flex-none w-[2.0625rem] overflow-hidden w-auto text-xl font-bold bg-none tracking-tight text-red-600/90" %>
+            <%= partial "partials/version_select" %>
             <div class="relative hidden sm:flex items-center ml-auto">
               <nav class="text-sm leading-6 font-semibold text-gray-200">
                 <ul class="flex space-x-4 md:space-x-8">
@@ -41,13 +42,10 @@
     <div class="w-full min-h-screen flex flex-col items-stretch">
       <main class="max-w-8xl mx-auto w-full flex flex-wrap">
         <aside class="w-full md:w-1/4 px-4">
-          <div class="md:sticky top-[5.5rem] z-50 bg-white">
-            <div class="mb-8">
-              <%= partial "partials/version_select" %>
-            </div>
+          <div class="md:sticky top-[5.8rem] z-50 bg-white">
             <div class="bg-white relative pointer-events-auto" id="search"></div>
           </div>
-          <nav class="pb-8 md:sticky top-[calc(200px)] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-200px)]">
+          <nav class="pb-8 md:sticky top-[9rem] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-9rem)]">
             <%= partial "partials/documentation_nav_#{version}" %>
           </nav>
         </aside>
