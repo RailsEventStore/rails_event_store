@@ -31,7 +31,7 @@ module AggregateRoot
     let(:reporting_repository) { ReadingStatsRepository.new(RubyEventStore::InMemoryRepository.new) }
     let(:uuid) { SecureRandom.uuid }
     let(:stream_name) { "Order$#{uuid}" }
-    let(:repository) { AggregateRoot::SnapshotRepository.new(event_store) }
+    let(:repository) { SnapshotRepository.new(event_store) }
     let(:order_created) { Orders::Events::OrderCreated.new }
     let(:order_canceled) { Orders::Events::OrderCanceled.new }
     let(:order_expired) { Orders::Events::OrderExpired.new }
@@ -110,13 +110,13 @@ module AggregateRoot
 
     describe "#intialize" do
       specify 'initializing with default interval' do
-        expect { AggregateRoot::SnapshotRepository.new(event_store) }
+        expect { SnapshotRepository.new(event_store) }
           .not_to raise_error
       end
       specify 'initializing with invalid interval' do
-        expect { AggregateRoot::SnapshotRepository.new(event_store, 0) }
+        expect { SnapshotRepository.new(event_store, 0) }
           .to raise_error(ArgumentError, 'interval must be greater than 0')
-        expect { AggregateRoot::SnapshotRepository.new(event_store, 'not integer') }
+        expect { SnapshotRepository.new(event_store, 'not integer') }
           .to raise_error(ArgumentError, 'interval must be an Integer')
       end
     end
@@ -124,7 +124,7 @@ module AggregateRoot
     describe '#store' do
       specify 'storing snapshot' do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository = SnapshotRepository.new(event_store, 1)
         allow(event_store).to receive(:publish)
 
         order.apply(order_created)
@@ -139,7 +139,7 @@ module AggregateRoot
 
       specify 'storing snapshot with given interval' do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
+        repository = SnapshotRepository.new(event_store, 2)
         allow(event_store).to receive(:publish)
 
         order.apply(order_created)
@@ -153,7 +153,7 @@ module AggregateRoot
 
       specify 'standard storing of not dumpable aggregates' do
         order = not_dumpable_order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository = SnapshotRepository.new(event_store, 1)
         allow(event_store).to receive(:publish)
 
         order.apply(order_expired)
@@ -163,7 +163,7 @@ module AggregateRoot
 
       specify 'default error handler is no-operation' do
         order = not_dumpable_order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository = SnapshotRepository.new(event_store, 1)
         repository.error_handler = ->(e) { $handled_error = e }
 
         order.apply(order_expired)
@@ -178,7 +178,7 @@ module AggregateRoot
     describe '#load' do
       specify "restoring snapshot" do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 2)
+        repository = SnapshotRepository.new(event_store, 2)
 
         order.apply(order_created)
         repository.store(order, stream_name)
@@ -207,14 +207,14 @@ module AggregateRoot
 
       specify "fallback restoring from corrupted snapshot" do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(
+        repository = SnapshotRepository.new(
           event_store,
-          AggregateRoot::SnapshotRepository::DEFAULT_SNAPSHOT_INTERVAL
+          SnapshotRepository::DEFAULT_SNAPSHOT_INTERVAL
         )
         order.apply(order_created)
         repository.store(order, stream_name)
         event_store.publish(
-          AggregateRoot::SnapshotRepository::Snapshot.new(
+          SnapshotRepository::Snapshot.new(
             data: { marshal: "corrupted", last_event_id: order_created.event_id, version: 0 }
           ),
           stream_name: "#{stream_name}_snapshots"
@@ -225,7 +225,7 @@ module AggregateRoot
 
       specify "fallback restoring after aggregate name changed" do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository = SnapshotRepository.new(event_store, 1)
         order.apply(order_created)
         repository.store(order, stream_name)
         AggregateRoot.send(:remove_const, 'Order')
@@ -235,7 +235,7 @@ module AggregateRoot
 
       specify 'default error handler is no-operation' do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository = SnapshotRepository.new(event_store, 1)
         repository.error_handler = ->(e) { $handled_error = e }
         order.apply(order_created)
         repository.store(order, stream_name)
@@ -248,7 +248,7 @@ module AggregateRoot
 
       specify 'dealing with non-primitives attributes' do
         order = order_klass.new(uuid)
-        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository = SnapshotRepository.new(event_store, 1)
         order.apply(order_expired)
         repository.store(order, stream_name)
         repository.load(order_klass.new(uuid), stream_name)
@@ -273,7 +273,7 @@ module AggregateRoot
 
     def expect_no_snapshot
       expect(event_store).not_to have_received(:publish).with(
-        kind_of(AggregateRoot::SnapshotRepository::Snapshot),
+        kind_of(SnapshotRepository::Snapshot),
         stream_name: "#{stream_name}_snapshots"
       )
     end
