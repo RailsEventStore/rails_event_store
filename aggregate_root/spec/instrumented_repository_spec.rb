@@ -140,6 +140,23 @@ module AggregateRoot
       )
     end
 
+    describe "#handle_error" do
+      specify "instruments" do
+        $error = StandardError.new("Some error")
+        repository = Class.new do
+          attr_accessor :error_handler
+          def load(_, _)
+            error_handler.call($error)
+          end
+        end.new
+        instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
+        subscribe_to("error_occured.repository.aggregate_root") do |notification_calls|
+          instrumented_repository.load(order_klass.new(SecureRandom.uuid), "SomeStream")
+          expect(notification_calls).to eq([{ :exception => ["StandardError", "Some error"], :exception_object => $error }])
+        end
+      end
+    end
+
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }

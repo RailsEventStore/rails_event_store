@@ -118,8 +118,6 @@ module AggregateRoot
           .to raise_error(ArgumentError, 'interval must be greater than 0')
         expect { AggregateRoot::SnapshotRepository.new(event_store, 'not integer') }
           .to raise_error(ArgumentError, 'interval must be an Integer')
-        expect { AggregateRoot::SnapshotRepository.new(event_store, 1, 'not a loggger') }
-          .to raise_error(ArgumentError, "provide a logger")
       end
     end
 
@@ -159,10 +157,21 @@ module AggregateRoot
         allow(event_store).to receive(:publish)
 
         order.apply(order_expired)
-        expect do
-          repository.store(order, stream_name)
-        end.to output(/WARN -- : AggregateRoot::Order cannot be dumped\..*Snapshot skipped\.\Z/m).to_stdout_from_any_process
+        repository.store(order, stream_name)
         expect_no_snapshot
+      end
+
+      specify 'default error handler is no-operation' do
+        order = not_dumpable_order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository.error_handler = ->(e) { $handled_error = e }
+
+        order.apply(order_expired)
+        repository.store(order, stream_name)
+        expect($handled_error)
+          .to be_a(SnapshotRepository::NotDumpableAggregateRoot)
+                .and having_attributes(message: /\AAggregateRoot::Order cannot be dumped\..*Snapshot skipped\.\Z/m)
+
       end
     end
 
@@ -210,10 +219,8 @@ module AggregateRoot
           ),
           stream_name: "#{stream_name}_snapshots"
         )
-        expect do
-          fallback_loaded = repository.load(order_klass.new(uuid), stream_name)
-          expect(fallback_loaded).to be_an_instance_of(Order)
-        end.to output(/WARN -- : Aggregate root cannot be restored from the last snapshot \(event id: [0-9a-f-]+\)\..*Loading aggregate based on the whole stream\.\Z/m).to_stdout_from_any_process
+        fallback_loaded = repository.load(order_klass.new(uuid), stream_name)
+        expect(fallback_loaded).to be_an_instance_of(Order)
       end
 
       specify "fallback restoring after aggregate name changed" do
@@ -222,10 +229,21 @@ module AggregateRoot
         order.apply(order_created)
         repository.store(order, stream_name)
         AggregateRoot.send(:remove_const, 'Order')
-        expect do
-          fallback_loaded = repository.load(renamed_order_klass.new(uuid), stream_name)
-          expect(fallback_loaded).to be_an_instance_of(Cart)
-        end.to output(/WARN -- : Aggregate root cannot be restored from the last snapshot \(event id: [0-9a-f-]+\)\..*Loading aggregate based on the whole stream\.\Z/m).to_stdout_from_any_process
+        fallback_loaded = repository.load(renamed_order_klass.new(uuid), stream_name)
+        expect(fallback_loaded).to be_an_instance_of(Cart)
+      end
+
+      specify 'default error handler is no-operation' do
+        order = order_klass.new(uuid)
+        repository = AggregateRoot::SnapshotRepository.new(event_store, 1)
+        repository.error_handler = ->(e) { $handled_error = e }
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        AggregateRoot.send(:remove_const, 'Order')
+        repository.load(renamed_order_klass.new(uuid), stream_name)
+        expect($handled_error)
+          .to be_a(SnapshotRepository::NotRestorableSnapshot)
+                .and having_attributes(message: /\AAggregate root cannot be restored from the last snapshot \(event id: [0-9a-f-]+\)\..*Loading aggregate based on the whole stream\.\Z/m)
       end
 
       specify 'dealing with non-primitives attributes' do

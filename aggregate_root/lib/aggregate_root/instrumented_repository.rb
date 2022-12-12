@@ -1,10 +1,11 @@
 # frozen_string_literal: true
-
+require 'delegate'
 module AggregateRoot
   class InstrumentedRepository
     def initialize(repository, instrumentation)
       @repository = repository
       @instrumentation = instrumentation
+      self.error_handler = method(:handle_error) if respond_to?(:error_handler=)
     end
 
     def load(aggregate, stream_name)
@@ -41,6 +42,14 @@ module AggregateRoot
     end
 
     private
+
+    def handle_error(error)
+      instrumentation.instrument(
+        "error_occured.repository.aggregate_root",
+        exception: [error.class.name, error.message],
+        exception_object: error,
+      )
+    end
 
     attr_reader :instrumentation, :repository
   end

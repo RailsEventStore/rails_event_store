@@ -9,14 +9,15 @@ module AggregateRoot
     NotRestorableSnapshot = Class.new(StandardError)
     NotDumpableAggregateRoot = Class.new(StandardError)
 
-    def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL, logger = Logger.new(STDOUT))
+    def initialize(event_store, interval = DEFAULT_SNAPSHOT_INTERVAL)
       raise ArgumentError, 'interval must be an Integer' unless interval.instance_of?(Integer)
       raise ArgumentError, 'interval must be greater than 0' unless interval > 0
-      raise ArgumentError, 'provide a logger' unless logger.respond_to?(:warn)
       @event_store = event_store
       @interval = interval
-      @logger = logger
+      @error_handler = ->(_) { }
     end
+
+    attr_writer :error_handler
 
     Snapshot = Class.new(RubyEventStore::Event)
 
@@ -27,7 +28,7 @@ module AggregateRoot
         begin
           aggregate = load_marshal(last_snapshot)
         rescue NotRestorableSnapshot => e
-          logger.warn(e.message)
+          error_handler.(e)
         else
           aggregate.version = last_snapshot.data.fetch(:version)
           query = query.from(last_snapshot.data.fetch(:last_event_id))
@@ -50,14 +51,14 @@ module AggregateRoot
         begin
           publish_snapshot_event(aggregate, stream_name, events.last.event_id)
         rescue NotDumpableAggregateRoot => e
-          logger.warn(e.message)
+          error_handler.(e)
         end
       end
     end
 
     private
 
-    attr_reader :event_store, :interval, :logger
+    attr_reader :event_store, :interval, :error_handler
 
     def publish_snapshot_event(aggregate, stream_name, last_event_id)
       event_store.publish(
