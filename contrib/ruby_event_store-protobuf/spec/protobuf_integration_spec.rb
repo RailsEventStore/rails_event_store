@@ -15,31 +15,28 @@ class AsyncProtoHandler < ActiveJob::Base
   end
 end
 
-module RailsEventStore
+module RubyEventStore
   RSpec.describe Client do
     include ProtobufHelper
 
     before(:each) { require_protobuf_dependencies }
 
-    specify "can handle protobuf event class instead of RubyEventStore::Event" do
+    specify "can handle protobuf event class instead of Event" do
       client =
         Client.new(
-          mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
-          repository: RubyEventStore::InMemoryRepository.new,
+          mapper: Protobuf::Mappers::Protobuf.new,
+          repository: InMemoryRepository.new,
           dispatcher:
-            RubyEventStore::ComposedDispatcher.new(
-              RubyEventStore::ImmediateAsyncDispatcher.new(
-                scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
-              ),
-              RubyEventStore::Dispatcher.new
+            ComposedDispatcher.new(
+              ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: NULL)),
+              Dispatcher.new
             )
         )
       client.subscribe(->(ev) { @ev = ev }, to: [ResTesting::OrderCreated.descriptor.name])
       client.subscribe(AsyncProtoHandler, to: [ResTesting::OrderCreated.descriptor.name])
       AsyncProtoHandler.event_store = client
 
-      event =
-        RubyEventStore::Protobuf::Proto.new(data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9"))
+      event = Protobuf::Proto.new(data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9"))
       client.publish(event, stream_name: "test")
       expect(client.read.event(event.event_id)).to eq(event)
       expect(client.read.stream("test").to_a).to eq([event])
@@ -49,19 +46,19 @@ module RailsEventStore
     end
   end
 
-  RSpec.describe RubyEventStore::Protobuf::Proto do
+  RSpec.describe Protobuf::Proto do
     include ProtobufHelper
 
     before(:each) { require_protobuf_dependencies }
 
     specify "equality" do
       event1 =
-        RubyEventStore::Protobuf::Proto.new(
+        Protobuf::Proto.new(
           event_id: "40a09ed1-e72f-4cbf-9b34-f28bc4e129bc",
           data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
         )
       event2 =
-        RubyEventStore::Protobuf::Proto.new(
+        Protobuf::Proto.new(
           event_id: "40a09ed1-e72f-4cbf-9b34-f28bc4e129bc",
           data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
         )
