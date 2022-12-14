@@ -122,6 +122,7 @@ GEM
     sequel (5.63.0)
     sorbet-runtime (0.5.10588)
     sqlite3 (1.5.3-arm64-darwin)
+    sqlite3 (1.5.3-x86_64-linux)
     transproc (1.1.1)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
@@ -132,6 +133,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   activesupport (= 7.0.3)
