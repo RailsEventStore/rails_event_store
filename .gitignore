@@ -23,3 +23,4 @@ ruby_event_store-browser/public/*
 !ruby_event_store-browser/public/bootstrap.js
 .inch/
 .tmp
+support/bundler/*.lock
