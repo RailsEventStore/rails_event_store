@@ -1,5 +1,8 @@
 ### unreleased
 
+* predictable redis failures (like timeout errors) are now retried (once) instead of being treated like any other error (being logged)
+* instead of immediately starting with processing full batch size, exponential progress is implemented so that big messages OOMing the infrastructure can be pushed through
+
 ### 0.0.25
 
 * added ORDER BY when cleaning up with limit #1338
