@@ -138,7 +138,7 @@ GEM
     pg (1.4.4)
     racc (1.6.1)
     rack (2.2.4)
-    rack-protection (3.0.2)
+    rack-protection (3.0.4)
       rack
     rack-test (2.0.2)
       rack (>= 1.3)
