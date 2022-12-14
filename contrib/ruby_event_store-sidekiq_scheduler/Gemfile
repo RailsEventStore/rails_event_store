@@ -4,4 +4,4 @@ gemspec
 eval_gemfile "../../support/bundler/Gemfile.shared"
 
 gem "sidekiq", "~> 7.0"
-gem "ruby_event_store", path: "../../ruby_event_store"
+gem "ruby_event_store", path: "../.."

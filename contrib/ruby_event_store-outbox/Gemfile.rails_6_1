@@ -4,7 +4,7 @@ gemspec
 eval_gemfile "../../support/bundler/Gemfile.shared"
 eval_gemfile "../../support/bundler/Gemfile.database"
 
-gem "ruby_event_store", path: "../../ruby_event_store"
+gem "ruby_event_store", path: "../.."
 
 gem "sidekiq", "~> 6.2"
 gem "influxdb", "~> 0.8.1", require: false

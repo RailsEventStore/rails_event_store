@@ -1,12 +1,8 @@
 PATH
-  remote: ../../aggregate_root
+  remote: ../..
   specs:
     aggregate_root (2.6.0)
       ruby_event_store (= 2.6.0)
-
-PATH
-  remote: ../../rails_event_store
-  specs:
     rails_event_store (2.6.0)
       activejob (>= 6.0)
       activemodel (>= 6.0)
@@ -16,28 +12,16 @@ PATH
       rails_event_store_active_record (= 2.6.0)
       ruby_event_store (= 2.6.0)
       ruby_event_store-browser (= 2.6.0)
-
-PATH
-  remote: ../../ruby_event_store-active_record
-  specs:
     rails_event_store_active_record (2.6.0)
       ruby_event_store-active_record (= 2.6.0)
+    ruby_event_store (2.6.0)
+      concurrent-ruby (~> 1.0, >= 1.1.6)
     ruby_event_store-active_record (2.6.0)
       activerecord (>= 6.0)
       ruby_event_store (= 2.6.0)
-
-PATH
-  remote: ../../ruby_event_store-browser
-  specs:
     ruby_event_store-browser (2.6.0)
       rack
       ruby_event_store (= 2.6.0)
-
-PATH
-  remote: ../../ruby_event_store
-  specs:
-    ruby_event_store (2.6.0)
-      concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .

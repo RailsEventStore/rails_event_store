@@ -5,5 +5,5 @@ gemspec
 
 eval_gemfile "../support/bundler/Gemfile.shared"
 
-gem "ruby_event_store", path: "../ruby_event_store"
+gem "ruby_event_store", path: ".."
 gem "activesupport", "~> 5.0"

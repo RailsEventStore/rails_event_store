@@ -1,10 +1,4 @@
 PATH
-  remote: ../aggregate_root
-  specs:
-    aggregate_root (2.6.0)
-      ruby_event_store (= 2.6.0)
-
-PATH
   remote: ../contrib/ruby_event_store-transformations
   specs:
     ruby_event_store-transformations (0.1.0)
@@ -12,8 +6,10 @@ PATH
       ruby_event_store (>= 2.0.0, < 3.0.0)
 
 PATH
-  remote: ../ruby_event_store
+  remote: ..
   specs:
+    aggregate_root (2.6.0)
+      ruby_event_store (= 2.6.0)
     ruby_event_store (2.6.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 

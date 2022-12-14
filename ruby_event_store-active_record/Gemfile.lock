@@ -1,5 +1,5 @@
 PATH
-  remote: ../ruby_event_store
+  remote: ..
   specs:
     ruby_event_store (2.6.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
@@ -71,6 +71,7 @@ GEM
     sorbet-runtime (0.5.10588)
     sqlite3 (1.5.3)
       mini_portile2 (~> 2.8.0)
+    sqlite3 (1.5.3-arm64-darwin)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
     unparser (0.6.5)
