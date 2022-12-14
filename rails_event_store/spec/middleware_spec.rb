@@ -3,7 +3,7 @@ require "rails_event_store/middleware"
 require "support/test_application"
 
 module RailsEventStore
-  RSpec.describe Middleware do
+  ::RSpec.describe Middleware do
     before { allow(Rails.application).to receive(:config).and_return(configuration) }
     specify "calls app within with_request_metadata block when app has configured the event store instance" do
       Rails.application.config.event_store = event_store = Client.new

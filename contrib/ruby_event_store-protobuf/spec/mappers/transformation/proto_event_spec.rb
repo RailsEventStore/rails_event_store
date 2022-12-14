@@ -4,7 +4,7 @@ module RubyEventStore
   module Protobuf
     module Mappers
       module Transformation
-        RSpec.describe ProtoEvent do
+        ::RSpec.describe ProtoEvent do
           include ProtobufHelper
           before(:each) { require_protobuf_dependencies }
 

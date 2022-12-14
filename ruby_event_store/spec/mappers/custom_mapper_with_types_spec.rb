@@ -35,7 +35,7 @@ module RubyEventStore
     end
 
 
-    RSpec.describe MapperWithTypes do
+    ::RSpec.describe MapperWithTypes do
       let(:time)         { Time.new(2021, 8, 5, 12, 00, 00) }
       let(:utc_time)     { Time.new(2021, 8, 5, 12, 00, 00).utc }
       let(:date)         { Date.new(2021, 8, 5) }

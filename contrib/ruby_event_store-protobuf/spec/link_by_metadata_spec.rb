@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe LinkByMetadata do
+  ::RSpec.describe LinkByMetadata do
     let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
 
     specify "links to stream based on selected metadata (proto)" do

@@ -5,7 +5,7 @@ require "active_support/isolated_execution_state"
 require "active_support/notifications"
 
 module RubyEventStore
-  RSpec.describe InstrumentedDispatcher do
+  ::RSpec.describe InstrumentedDispatcher do
     it_behaves_like :dispatcher, InstrumentedDispatcher.new(Dispatcher.new, ActiveSupport::Notifications)
 
     describe "#call" do

@@ -4,7 +4,7 @@ require "spec_helper"
 require "active_support/notifications"
 
 module AggregateRoot
-  RSpec.describe InstrumentedRepository do
+  ::RSpec.describe InstrumentedRepository do
     let(:order_klass) do
       Class.new do
         include AggregateRoot

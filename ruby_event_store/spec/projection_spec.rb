@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Projection do
+  ::RSpec.describe Projection do
     MoneyDeposited = Class.new(RubyEventStore::Event)
     MoneyWithdrawn = Class.new(RubyEventStore::Event)
     EventToBeSkipped = Class.new(RubyEventStore::Event)

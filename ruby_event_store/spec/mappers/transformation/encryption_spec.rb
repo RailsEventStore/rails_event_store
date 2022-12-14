@@ -38,7 +38,7 @@ module RubyEventStore
       end
 
     module Transformation
-      RSpec.describe Encryption do
+      ::RSpec.describe Encryption do
         let(:time) { Time.now.utc }
         let(:key_repository) { InMemoryEncryptionKeyRepository.new }
         let(:mapper) { Encryption.new(key_repository) }

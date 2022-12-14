@@ -3,7 +3,7 @@ require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   module ROM
-    RSpec.describe EventRepository do
+    ::RSpec.describe EventRepository do
       helper = SpecHelper.new
       mk_repository = -> do
         serializer =

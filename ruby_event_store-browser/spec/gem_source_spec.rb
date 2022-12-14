@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Browser
-    RSpec.describe GemSource do
+    ::RSpec.describe GemSource do
       specify "git source" do
         path =
           "/Users/mostlyobvious/.rbenv/versions/2.7.2/lib/ruby/gems/2.7.0/bundler/gems/rails_event_store-151d0dfbec24/ruby_event_store-browser/lib"

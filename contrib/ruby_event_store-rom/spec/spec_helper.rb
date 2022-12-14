@@ -92,7 +92,7 @@ module RubyEventStore
   end
 end
 
-RSpec::Matchers.define :match_query_count do |expected_count|
+::RSpec::Matchers.define :match_query_count do |expected_count|
   match do |query|
     count = 0
     ActiveSupport::Notifications.subscribed(

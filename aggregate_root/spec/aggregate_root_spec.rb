@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe AggregateRoot do
+::RSpec.describe AggregateRoot do
   let(:event_store) do
     RubyEventStore::Client.new(
       repository: RubyEventStore::InMemoryRepository.new,

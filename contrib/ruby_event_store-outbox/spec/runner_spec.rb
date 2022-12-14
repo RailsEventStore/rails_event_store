@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe Consumer, db: true, redis: true do
+    ::RSpec.describe Consumer, db: true, redis: true do
       include SchemaHelper
 
       let(:redis_url) { RedisIsolation.redis_url }

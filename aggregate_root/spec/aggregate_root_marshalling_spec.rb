@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe AggregateRoot do
+::RSpec.describe AggregateRoot do
   let(:uuid) { SecureRandom.uuid }
   let(:order_klass) do
     Class.new do

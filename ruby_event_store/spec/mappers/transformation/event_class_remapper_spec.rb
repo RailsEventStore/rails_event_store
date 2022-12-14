@@ -3,7 +3,7 @@ require "spec_helper"
 module RubyEventStore
   module Mappers
     module Transformation
-      RSpec.describe EventClassRemapper do
+      ::RSpec.describe EventClassRemapper do
         let(:time) { Time.now.utc }
         let(:uuid) { SecureRandom.uuid }
         def record(event_type: "TestEvent")

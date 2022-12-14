@@ -4,7 +4,7 @@ require "json"
 module RubyEventStore
   module Mappers
     module Transformation
-      RSpec.describe StringifyMetadataKeys do
+      ::RSpec.describe StringifyMetadataKeys do
         let(:time) { Time.now.utc }
         let(:uuid) { SecureRandom.uuid }
         let(:record) do

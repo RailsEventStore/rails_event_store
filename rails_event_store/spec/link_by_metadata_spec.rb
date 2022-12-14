@@ -2,7 +2,7 @@ require "spec_helper"
 require "action_controller/railtie"
 
 module RailsEventStore
-  RSpec.describe LinkByMetadata do
+  ::RSpec.describe LinkByMetadata do
     let(:event_store) { RailsEventStore::Client.new }
     let(:application) { instance_double(Rails::Application) }
     let(:config) { FakeConfiguration.new }
@@ -26,7 +26,7 @@ module RailsEventStore
     end
   end
 
-  RSpec.describe LinkByCorrelationId do
+  ::RSpec.describe LinkByCorrelationId do
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) do
       OrderCreated.new.tap do |ev|
@@ -56,7 +56,7 @@ module RailsEventStore
     end
   end
 
-  RSpec.describe LinkByCausationId do
+  ::RSpec.describe LinkByCausationId do
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) do
       OrderCreated.new.tap do |ev|
@@ -86,7 +86,7 @@ module RailsEventStore
     end
   end
 
-  RSpec.describe LinkByEventType do
+  ::RSpec.describe LinkByEventType do
     let(:event_store) { RailsEventStore::Client.new }
     let(:event) { OrderCreated.new }
     let(:application) { instance_double(Rails::Application) }

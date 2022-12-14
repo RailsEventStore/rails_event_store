@@ -2,7 +2,7 @@ require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
-  RSpec.describe Dispatcher do
+  ::RSpec.describe Dispatcher do
     it_behaves_like :dispatcher, Dispatcher.new
     let(:event) { instance_double(::RubyEventStore::Event) }
     let(:record) { instance_double(::RubyEventStore::Record) }

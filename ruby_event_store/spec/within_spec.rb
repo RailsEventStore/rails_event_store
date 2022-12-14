@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Client do
+  ::RSpec.describe Client do
     subject(:within) { Client::Within.new(nil, nil) }
 
     specify "subscribe with handler as object and block" do

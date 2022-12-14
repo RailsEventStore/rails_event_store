@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe BatchResult do
+    ::RSpec.describe BatchResult do
       specify "::empty" do
         batch_result = BatchResult.empty
 

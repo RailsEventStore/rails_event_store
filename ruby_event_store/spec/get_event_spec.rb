@@ -7,7 +7,7 @@ module Test
 end
 
 module RubyEventStore
-  RSpec.describe Event do
+  ::RSpec.describe Event do
     it_behaves_like :event, Event
 
     specify "default values" do

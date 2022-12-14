@@ -3,7 +3,7 @@ require "ruby_event_store/active_record/batch_enumerator"
 
 module RubyEventStore
   module ActiveRecord
-    RSpec.describe BatchEnumerator, timeout: 1 do
+    ::RSpec.describe BatchEnumerator, timeout: 1 do
       let(:collection) { (1..10_000).to_a }
       let(:reader) do
         lambda do |offset_id, limit|

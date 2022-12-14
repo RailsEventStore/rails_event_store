@@ -21,7 +21,7 @@ module AggregateRoot
     end
   end
 
-  RSpec.describe SnapshotRepository do
+  ::RSpec.describe SnapshotRepository do
     let(:event_store) do
       RubyEventStore::Client.new(
         repository: reporting_repository,

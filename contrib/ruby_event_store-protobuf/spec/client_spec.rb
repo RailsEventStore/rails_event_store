@@ -3,7 +3,7 @@ require "time"
 require "json"
 
 module RubyEventStore
-  RSpec.describe Client do
+  ::RSpec.describe Client do
     let(:client) do
       RubyEventStore::Client.new(
         repository: InMemoryRepository.new,

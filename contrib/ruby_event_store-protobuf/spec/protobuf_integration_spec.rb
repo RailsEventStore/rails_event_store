@@ -16,7 +16,7 @@ class AsyncProtoHandler < ActiveJob::Base
 end
 
 module RubyEventStore
-  RSpec.describe Client do
+  ::RSpec.describe Client do
     include ProtobufHelper
 
     before(:each) { require_protobuf_dependencies }
@@ -46,7 +46,7 @@ module RubyEventStore
     end
   end
 
-  RSpec.describe Protobuf::Proto do
+  ::RSpec.describe Protobuf::Proto do
     include ProtobufHelper
 
     before(:each) { require_protobuf_dependencies }

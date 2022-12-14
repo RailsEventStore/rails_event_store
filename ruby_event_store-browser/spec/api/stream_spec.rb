@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Browser do
+  ::RSpec.describe Browser do
     include Browser::IntegrationHelpers
 
     specify "happy path" do

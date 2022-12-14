@@ -2,7 +2,7 @@ require "spec_helper"
 require "time"
 
 module RubyEventStore
-  RSpec.describe CorrelatedCommands do
+  ::RSpec.describe CorrelatedCommands do
     module CorrelableCommand
       attr_accessor :correlation_id, :causation_id
 

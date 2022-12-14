@@ -6,7 +6,7 @@ SomethingHappened = Class.new(RubyEventStore::Event)
 
 module RubyEventStore
   module Mappers
-    RSpec.describe Default do
+    ::RSpec.describe Default do
       let(:time) { Time.now.utc }
       let(:data) { { some_attribute: 5 } }
       let(:metadata) { { some_meta: 1 } }

@@ -3,7 +3,7 @@ require "ruby_event_store/spec/mapper_lint"
 
 module RubyEventStore
   module Protobuf
-    RSpec.describe Proto do
+    ::RSpec.describe Proto do
       include ProtobufHelper
 
       before(:each) { require_protobuf_dependencies }
@@ -133,7 +133,7 @@ module RubyEventStore
     end
 
     module Mappers
-      RSpec.describe Protobuf do
+      ::RSpec.describe Protobuf do
         include ProtobufHelper
         extend ProtobufHelper
 

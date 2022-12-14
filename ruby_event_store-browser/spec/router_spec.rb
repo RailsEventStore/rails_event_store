@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Browser
-    RSpec.describe Router do
+    ::RSpec.describe Router do
       specify "params from multiple route segments" do
         request = mock_request("GET", "/some/foo/bar")
         expect do |probe|

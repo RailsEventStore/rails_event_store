@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Mappers
-    RSpec.describe Pipeline do
+    ::RSpec.describe Pipeline do
       specify "#initialize - default values" do
         pipe = Pipeline.new
         expect(pipe.transformations.map(&:class)).to eq [Transformation::DomainEvent]

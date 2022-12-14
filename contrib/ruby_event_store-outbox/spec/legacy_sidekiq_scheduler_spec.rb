@@ -4,7 +4,7 @@ require_relative "./support/sidekiq"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe LegacySidekiqScheduler do
+    ::RSpec.describe LegacySidekiqScheduler do
       it_behaves_like :scheduler, LegacySidekiqScheduler.new
 
       describe "#verify" do

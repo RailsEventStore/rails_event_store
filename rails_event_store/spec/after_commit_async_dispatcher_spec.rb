@@ -3,7 +3,7 @@ require "ruby_event_store/spec/dispatcher_lint"
 require "ruby_event_store/spec/scheduler_lint"
 
 module RailsEventStore
-  RSpec.describe AfterCommitAsyncDispatcher do
+  ::RSpec.describe AfterCommitAsyncDispatcher do
     class CustomScheduler
       def call(klass, record)
         klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML))

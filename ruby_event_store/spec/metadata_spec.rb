@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Metadata do
+  ::RSpec.describe Metadata do
     specify "default values" do
       expect(Metadata.new.each.to_a).to be_empty
       expect(Metadata.new({ a: "b" }).each.to_a).to eq([[:a, "b"]])

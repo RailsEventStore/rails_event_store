@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Specification do
+  ::RSpec.describe Specification do
     specify { expect(specification.each).to be_kind_of(Enumerator) }
 
     specify { expect(specification.result.forward?).to eq(true) }

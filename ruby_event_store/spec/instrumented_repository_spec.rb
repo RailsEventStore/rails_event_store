@@ -4,7 +4,7 @@ require "active_support/core_ext/object/try"
 require "active_support/notifications"
 
 module RubyEventStore
-  RSpec.describe InstrumentedRepository do
+  ::RSpec.describe InstrumentedRepository do
     let(:record) { SRecord.new }
     let(:stream) { Stream.new("SomeStream") }
     let(:expected_version) { ExpectedVersion.any }
@@ -201,7 +201,7 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  RSpec.describe InstrumentedRepository do
+  ::RSpec.describe InstrumentedRepository do
     it_behaves_like :event_repository,
                     -> { InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) },
                     SpecHelper.new

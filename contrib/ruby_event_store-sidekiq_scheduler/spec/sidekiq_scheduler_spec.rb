@@ -4,7 +4,7 @@ require "sidekiq/testing"
 require "sidekiq/processor"
 
 module RubyEventStore
-  RSpec.describe SidekiqScheduler do
+  ::RSpec.describe SidekiqScheduler do
     before(:each) { MyAsyncHandler.reset }
 
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)

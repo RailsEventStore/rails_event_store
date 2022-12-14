@@ -62,7 +62,7 @@ module RubyEventStore
     end
   end
 
-  RSpec::Matchers.define :match_query_count do |expected_count|
+  ::RSpec::Matchers.define :match_query_count do |expected_count|
     match do
       count = 0
       ActiveSupport::Notifications.subscribed(
@@ -76,7 +76,7 @@ module RubyEventStore
     diffable
   end
 
-  RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
+  ::RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
     match do
       count = 0
       ActiveSupport::Notifications.subscribed(

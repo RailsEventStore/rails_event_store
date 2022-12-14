@@ -2,7 +2,7 @@ require "spec_helper"
 require "bigdecimal"
 
 module RubyEventStore
-  RSpec.describe Record do
+  ::RSpec.describe Record do
     let(:event_id) { "event_id" }
     let(:data) { "data" }
     let(:metadata) { "metadata" }

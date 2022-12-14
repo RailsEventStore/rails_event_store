@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe Tempo do
+    ::RSpec.describe Tempo do
       specify "starts with 1" do
         tempo = Tempo.new(100)
 

@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Browser
-    RSpec.describe Urls do
+    ::RSpec.describe Urls do
       specify do
         initial = Urls.initial
         expect(initial.app_url).to be_nil

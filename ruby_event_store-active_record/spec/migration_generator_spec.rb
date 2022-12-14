@@ -3,7 +3,7 @@ require_relative "../../support/helpers/silence_stdout"
 
 module RubyEventStore
   module ActiveRecord
-    RSpec.describe MigrationGenerator do
+    ::RSpec.describe MigrationGenerator do
       around { |example| SilenceStdout.silence_stdout { example.run } }
       around do |example|
         begin

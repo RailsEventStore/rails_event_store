@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module ROM
-    RSpec.describe "no warnings", mutant: false do
+    ::RSpec.describe "no warnings", mutant: false do
       specify { expect(ruby_event_store_rom_warnings).to eq([]) }
 
       def ruby_event_store_rom_warnings

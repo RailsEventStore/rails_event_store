@@ -2,7 +2,7 @@ require "spec_helper"
 require "ruby_event_store/spec/scheduler_lint"
 
 module RailsEventStore
-  RSpec.describe ActiveJobScheduler do
+  ::RSpec.describe ActiveJobScheduler do
     around do |example|
       begin
         original_logger = ActiveJob::Base.logger

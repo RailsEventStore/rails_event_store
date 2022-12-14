@@ -5,7 +5,7 @@ require "active_support/notifications"
 
 module RubyEventStore
   module Mappers
-    RSpec.describe InstrumentedMapper do
+    ::RSpec.describe InstrumentedMapper do
       let(:domain_event) { instance_double(RubyEventStore::Event) }
       let(:record) { instance_double(RubyEventStore::Record) }
 

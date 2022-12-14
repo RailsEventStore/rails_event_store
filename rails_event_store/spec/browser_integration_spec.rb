@@ -5,7 +5,7 @@ require "rack/lint"
 require "support/test_application"
 
 module RailsEventStore
-  RSpec.describe Browser do
+  ::RSpec.describe Browser do
     specify "root" do
       request = ::Rack::MockRequest.new(app)
       response = request.get("/res")

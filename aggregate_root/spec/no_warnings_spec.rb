@@ -3,7 +3,7 @@
 require "spec_helper"
 
 module AggregateRoot
-  RSpec.describe "no warnings" do
+  ::RSpec.describe "no warnings" do
     specify { expect(aggregate_root_warnings).to eq([]) }
 
     def aggregate_root_warnings

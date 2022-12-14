@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe ExpectedVersion do
+  ::RSpec.describe ExpectedVersion do
     specify { expect(ExpectedVersion.any).to eq(ExpectedVersion.new(:any)) }
 
     specify { expect(ExpectedVersion.none).to eq(ExpectedVersion.new(:none)) }

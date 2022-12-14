@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module ActiveRecord
-    RSpec.describe WithDefaultModels do
+    ::RSpec.describe WithDefaultModels do
       specify do
         event_klass, stream_klass = WithDefaultModels.new.call
 

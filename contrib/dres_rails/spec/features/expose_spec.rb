@@ -3,7 +3,7 @@ require "capybara"
 require "timecop"
 require "ruby_event_store"
 
-RSpec.describe "DresRails::ApplicationController" do
+::RSpec.describe "DresRails::ApplicationController" do
   include SchemaHelper
   around do |example|
     begin

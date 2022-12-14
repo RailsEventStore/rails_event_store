@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Protobuf
-    RSpec.describe "no warnings", mutant: false do
+    ::RSpec.describe "no warnings", mutant: false do
       specify { expect(ruby_event_store_protobuf_warnings).to eq([]) }
 
       def ruby_event_store_protobuf_warnings

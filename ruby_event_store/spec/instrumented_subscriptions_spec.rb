@@ -3,7 +3,7 @@ require "active_support/core_ext/object/try"
 require "active_support/notifications"
 
 module RubyEventStore
-  RSpec.describe InstrumentedSubscriptions do
+  ::RSpec.describe InstrumentedSubscriptions do
 
     describe "#add_subscription" do
       specify "wraps around original implementation" do

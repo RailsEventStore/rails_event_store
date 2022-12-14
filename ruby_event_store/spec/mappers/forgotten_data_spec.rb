@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Mappers
-    RSpec.describe ForgottenData do
+    ::RSpec.describe ForgottenData do
       specify "compares with string" do
         expect(ForgottenData.new).to eq(ForgottenData::FORGOTTEN_DATA)
         expect(ForgottenData.new("bazinga")).to eq("bazinga")

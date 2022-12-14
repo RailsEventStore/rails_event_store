@@ -3,7 +3,7 @@ require "pp"
 require_relative "../../support/helpers/silence_stdout"
 
 module RailsEventStore
-  RSpec.describe RubyEventStore::ActiveRecord::RailsMigrationGenerator do
+  ::RSpec.describe RubyEventStore::ActiveRecord::RailsMigrationGenerator do
     around { |example| SilenceStdout.silence_stdout { example.run } }
 
     around do |example|

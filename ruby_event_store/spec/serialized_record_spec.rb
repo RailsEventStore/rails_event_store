@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe SerializedRecord do
+  ::RSpec.describe SerializedRecord do
     let(:event_id) { "event_id" }
     let(:data) { "data" }
     let(:metadata) { "metadata" }

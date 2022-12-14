@@ -4,7 +4,7 @@ require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   module ActiveRecord
-    RSpec.describe WithAbstractBaseClass do
+    ::RSpec.describe WithAbstractBaseClass do
       include SchemaHelper
 
       specify "Base for event factory models must be an abstract class" do

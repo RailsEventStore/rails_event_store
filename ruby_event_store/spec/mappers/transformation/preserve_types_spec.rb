@@ -4,7 +4,7 @@ require 'json'
 module RubyEventStore
   module Mappers
     module Transformation
-      RSpec.describe PreserveTypes do
+      ::RSpec.describe PreserveTypes do
         let(:time)  { Time.now.utc }
         let(:iso_time) { time.iso8601(9) }
         let(:uuid)  { SecureRandom.uuid }

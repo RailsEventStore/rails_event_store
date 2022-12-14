@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Browser do
+  ::RSpec.describe Browser do
     let(:timestamp) { Time.utc(2020, 1, 1, 12, 0, 0, 1) }
     let(:parent_event) { TimeEnrichment.with(DummyEvent.new, timestamp: timestamp) }
     let(:dummy_event) { TimeEnrichment.with(DummyEvent.new, timestamp: timestamp) }

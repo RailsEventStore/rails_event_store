@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module ROM
-    RSpec.describe "setup" do
+    ::RSpec.describe "setup" do
       specify "via database URL", mutant: "RubyEventStore::ROM.setup" do
         skip if ENV["DATA_TYPE"] =~ /json/
 

@@ -3,7 +3,7 @@ require "spec_helper"
 module RubyEventStore
   module Outbox
     class CLI
-      RSpec.describe Parser do
+      ::RSpec.describe Parser do
         specify "#parse storage urls" do
           argv = %w[--database-url=mysql2://root@0.0.0.0:3306/dbname --redis-url=redis://localhost:6379/0]
 
@@ -63,7 +63,7 @@ module RubyEventStore
         end
       end
 
-      RSpec.describe "#build_runner" do
+      ::RSpec.describe "#build_runner" do
         let(:database_url) { ENV["DATABASE_URL"] }
         specify "smoke test for building runner with default options" do
           expect { CLI.new.build_runner(Parser.parse(["--database-url=#{database_url}"])) }.not_to raise_error

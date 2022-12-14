@@ -2,7 +2,7 @@ require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
-  RSpec.describe ComposedDispatcher do
+  ::RSpec.describe ComposedDispatcher do
     skippy_dispatcher =
       Class.new do
         def call(_subscriber, _event, _record)

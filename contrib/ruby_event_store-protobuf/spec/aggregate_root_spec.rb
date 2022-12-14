@@ -3,7 +3,7 @@
 require "spec_helper"
 require "aggregate_root"
 
-RSpec.describe "aggregate_root proto compatibility" do
+::RSpec.describe "aggregate_root proto compatibility" do
   include ProtobufHelper
   extend ProtobufHelper
 

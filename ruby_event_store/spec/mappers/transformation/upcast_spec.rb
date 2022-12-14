@@ -3,7 +3,7 @@ require "spec_helper"
 module RubyEventStore
   module Mappers
     module Transformation
-      RSpec.describe Upcast do
+      ::RSpec.describe Upcast do
         let(:time) { Time.now.utc }
         let(:uuid) { SecureRandom.uuid }
 

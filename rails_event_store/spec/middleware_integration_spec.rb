@@ -5,7 +5,7 @@ require "rack/lint"
 require "support/test_application"
 
 module RailsEventStore
-  RSpec.describe Middleware do
+  ::RSpec.describe Middleware do
     specify "works without event store instance" do
       event_store = Client.new
       app.config.event_store = event_store

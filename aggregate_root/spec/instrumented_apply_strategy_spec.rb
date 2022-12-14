@@ -5,7 +5,7 @@ require "active_support/notifications"
 
 
 module AggregateRoot
-  RSpec.describe InstrumentedApplyStrategy do
+  ::RSpec.describe InstrumentedApplyStrategy do
     describe "#call" do
       specify "wraps around original implementation" do
         strategy = instance_double(DefaultApplyStrategy)

@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe Metrics do
+    ::RSpec.describe Metrics do
       specify do
         adapter = Metrics.from_url(nil)
 

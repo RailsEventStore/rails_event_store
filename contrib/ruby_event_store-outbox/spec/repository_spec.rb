@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe Repository, db: true do
+    ::RSpec.describe Repository, db: true do
       include SchemaHelper
 
       let(:database_url) { ENV["DATABASE_URL"] }

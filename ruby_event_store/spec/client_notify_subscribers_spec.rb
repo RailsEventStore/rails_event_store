@@ -2,7 +2,7 @@ require "spec_helper"
 require "time"
 
 module RubyEventStore
-  RSpec.describe Client do
+  ::RSpec.describe Client do
     Test1DomainEvent = Class.new(RubyEventStore::Event)
     Test2DomainEvent = Class.new(RubyEventStore::Event)
     Test3DomainEvent = Class.new(RubyEventStore::Event)

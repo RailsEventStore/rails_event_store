@@ -4,7 +4,7 @@ require "uri"
 class MyEvent < RubyEventStore::Event
 end
 
-RSpec.describe DresClient do
+::RSpec.describe DresClient do
   let(:body1) { File.read(File.join(__dir__, "shared/body1.json")) }
   let(:body2) { File.read(File.join(__dir__, "shared/body2.json")) }
   let(:body3) { File.read(File.join(__dir__, "shared/body3.json")) }

@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Browser do
+  ::RSpec.describe Browser do
     specify do
       expect {
         RubyEventStore::Browser::App.for(

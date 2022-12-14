@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Transformations
-    RSpec.describe IdentityMap do
+    ::RSpec.describe IdentityMap do
       DummyEvent = Class.new(RubyEventStore::Event)
 
       specify do

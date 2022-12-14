@@ -5,8 +5,8 @@ require_relative "../lib/generators/rails_event_store/bounded_context_generator"
 
 module RailsEventStore
   module Generators
-    RSpec.describe BoundedContextGenerator do
-      RSpec::Matchers.define :match_content do |expected|
+    ::RSpec.describe BoundedContextGenerator do
+      ::RSpec::Matchers.define :match_content do |expected|
         match do |actual|
           @matcher = ::RSpec::Matchers::BuiltIn::Match.new(expected)
           @matcher.matches?(File.read(File.join(destination_root, actual)))
@@ -15,7 +15,7 @@ module RailsEventStore
         failure_message { @matcher.failure_message }
       end
 
-      RSpec::Matchers.define :exists_at_destination_path do |_|
+      ::RSpec::Matchers.define :exists_at_destination_path do |_|
         match do |actual|
           @matcher = ::RSpec::Matchers::BuiltIn::Exist.new(File.join(destination_root, actual))
           @matcher.matches?(File)
@@ -120,7 +120,7 @@ module RailsEventStore
         expect("identity_access/spec/identity_access_spec.rb").to match_content(<<~EOF)
           require_relative "spec_helper"
 
-          RSpec.describe IdentityAccess do
+          ::RSpec.describe IdentityAccess do
           end
         EOF
       end

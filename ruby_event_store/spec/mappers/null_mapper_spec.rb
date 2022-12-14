@@ -3,7 +3,7 @@ require "ruby_event_store/spec/mapper_lint"
 
 module RubyEventStore
   module Mappers
-    RSpec.describe NullMapper do
+    ::RSpec.describe NullMapper do
       let(:time) { Time.now.utc }
       let(:data) { { some_attribute: 5 } }
       let(:metadata) { { some_meta: 1 } }

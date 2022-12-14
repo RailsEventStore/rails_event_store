@@ -7,7 +7,7 @@ SomethingHappenedJSON = Class.new(RubyEventStore::Event)
 
 module RubyEventStore
   module Mappers
-    RSpec.describe JSONMapper do
+    ::RSpec.describe JSONMapper do
       specify { expect { JSONMapper.new }.to output(<<~EOW).to_stderr }
           Please replace RubyEventStore::Mappers::JSONMapper with RubyEventStore::Mappers::Default
 

@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Browser do
+  ::RSpec.describe Browser do
     nested_app = ->(app) { Rack::Builder.new { map("/res") { run(app) } } }
     include Browser::IntegrationHelpers.with(host: "railseventstore.org", app: nested_app)
 

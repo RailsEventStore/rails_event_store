@@ -4,7 +4,7 @@ require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   module ActiveRecord
-    RSpec.describe EventRepository do
+    ::RSpec.describe EventRepository do
       helper = SpecHelper.new
       mk_repository = -> { EventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
 

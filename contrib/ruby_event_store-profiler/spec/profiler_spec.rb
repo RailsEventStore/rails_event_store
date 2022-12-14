@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Profiler do
+  ::RSpec.describe Profiler do
     let(:instrumenter) { ActiveSupport::Notifications }
     let(:event_store) do
       RubyEventStore::Client.new(

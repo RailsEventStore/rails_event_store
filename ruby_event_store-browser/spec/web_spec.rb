@@ -1,7 +1,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  RSpec.describe Browser do
+  ::RSpec.describe Browser do
     include Browser::IntegrationHelpers
 
     specify { expect(web_client.get("/")).to be_ok }

@@ -72,7 +72,7 @@ module RailsEventStore
     end
   end
 
-  RSpec.describe AsyncHandler do
+  ::RSpec.describe AsyncHandler do
     let(:event_store) { RailsEventStore::Client.new }
     let(:another_event_store) { RailsEventStore::Client.new }
     let(:json_event_store) do

@@ -13,7 +13,7 @@ module RubyEventStore
         end
       end
 
-    RSpec.describe EncryptionMapper do
+    ::RSpec.describe EncryptionMapper do
       let(:time) { Time.now.utc }
       let(:key_repository) { InMemoryEncryptionKeyRepository.new }
       let(:metadata) { { some_meta: 1 } }

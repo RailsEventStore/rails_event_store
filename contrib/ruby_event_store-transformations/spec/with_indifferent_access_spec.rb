@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Transformations
-    RSpec.describe WithIndifferentAccess do
+    ::RSpec.describe WithIndifferentAccess do
       def record(hash, time)
         RubyEventStore::Record.new(
           event_id: "not-important",

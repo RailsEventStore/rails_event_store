@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    RSpec.describe Metrics::Influx do
+    ::RSpec.describe Metrics::Influx do
       let(:influx_url) { "http://localhost:8086" }
       let(:nanoseconds_in_second) { 1_000_000_000 }
 

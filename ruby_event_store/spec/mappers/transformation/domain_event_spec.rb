@@ -3,7 +3,7 @@ require "spec_helper"
 module RubyEventStore
   module Mappers
     module Transformation
-      RSpec.describe DomainEvent do
+      ::RSpec.describe DomainEvent do
         let(:time) { Time.now.utc }
         let(:uuid) { SecureRandom.uuid }
         let(:time) { Time.now.utc }
