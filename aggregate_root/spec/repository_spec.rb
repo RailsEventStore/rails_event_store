@@ -118,8 +118,8 @@ module AggregateRoot
         order = order_klass.new(uuid)
         order.apply(order_created)
         order.apply(order_expired)
-
         allow(event_store).to receive(:publish)
+
         repository.store(order, stream_name)
 
         expect(order.unpublished_events.to_a).to be_empty
@@ -133,17 +133,17 @@ module AggregateRoot
 
       it "updates aggregate stream position and uses it in subsequent publish call as expected_version" do
         order_created = Orders::Events::OrderCreated.new
+        order_expired = Orders::Events::OrderExpired.new
         order = order_klass.new(uuid)
         order.apply(order_created)
+        allow(event_store).to receive(:publish)
 
-        expect(event_store).to receive(:publish).with([order_created], stream_name: stream_name, expected_version: -1)
         repository.store(order, stream_name)
+        expect(event_store).to have_received(:publish).with([order_created], stream_name: stream_name, expected_version: -1)
 
-        order_expired = Orders::Events::OrderExpired.new
         order.apply(order_expired)
-
-        expect(event_store).to receive(:publish).with([order_expired], stream_name: stream_name, expected_version: 0)
         repository.store(order, stream_name)
+        expect(event_store).to have_received(:publish).with([order_expired], stream_name: stream_name, expected_version: 0)
       end
     end
 
