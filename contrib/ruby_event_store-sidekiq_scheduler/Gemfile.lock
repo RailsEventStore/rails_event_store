@@ -66,7 +66,7 @@ GEM
       parser (>= 3.1.0)
 
 PLATFORMS
-  ruby
+  arm64-darwin-22
 
 DEPENDENCIES
   mutant (= 0.11.17)

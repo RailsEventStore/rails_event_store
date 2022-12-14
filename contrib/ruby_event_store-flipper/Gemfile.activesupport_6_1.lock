@@ -77,12 +77,7 @@ GEM
     zeitwerk (2.6.6)
 
 PLATFORMS
-  arm64-darwin-20
-  arm64-darwin-21
   arm64-darwin-22
-  x86_64-darwin-19
-  x86_64-darwin-21
-  x86_64-linux
 
 DEPENDENCIES
   activesupport (= 6.1.6)
