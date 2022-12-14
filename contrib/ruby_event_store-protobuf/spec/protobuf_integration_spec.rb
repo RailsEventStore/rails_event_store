@@ -25,7 +25,7 @@ module RailsEventStore
       client =
         Client.new(
           mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
-          repository: RubyEventStore::InMemoryRepository.new(serializer: RubyEventStore::NULL),
+          repository: RubyEventStore::InMemoryRepository.new,
           dispatcher:
             RubyEventStore::ComposedDispatcher.new(
               RubyEventStore::ImmediateAsyncDispatcher.new(
