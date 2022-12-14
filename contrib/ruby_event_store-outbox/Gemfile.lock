@@ -185,7 +185,7 @@ GEM
       connection_pool (>= 2.2.5)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
-    sorbet-runtime (0.5.10564)
+    sorbet-runtime (0.5.10588)
     sqlite3 (1.5.3)
       mini_portile2 (~> 2.8.0)
     thor (1.2.1)

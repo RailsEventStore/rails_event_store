@@ -68,7 +68,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.0)
-    sorbet-runtime (0.5.10564)
+    sorbet-runtime (0.5.10588)
     sqlite3 (1.5.3)
       mini_portile2 (~> 2.8.0)
     tzinfo (2.0.5)
