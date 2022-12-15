@@ -7,6 +7,10 @@ require_relative "repository"
 module RubyEventStore
   module Outbox
     class SidekiqProducer
+      def initialize(repository = Repository.new)
+        @repository = repository
+      end
+
       def call(klass, args)
         sidekiq_client = Sidekiq::Client.new(Sidekiq.redis_pool)
         item = { "args" => args.map(&:to_h).map { |h| h.transform_keys(&:to_s) }, "class" => klass }
@@ -18,7 +22,7 @@ module RubyEventStore
               normalized_item
             end
         if payload
-          Repository.new.insert_record(SIDEKIQ5_FORMAT, payload.fetch("queue"), payload.to_json)
+          repository.insert_record(SIDEKIQ5_FORMAT, payload.fetch("queue"), payload.to_json)
         end
       end
 
