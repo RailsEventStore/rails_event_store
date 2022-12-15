@@ -30,16 +30,8 @@ jobs:
           path: ${{ env.WORKING_DIRECTORY }}/public/ruby_event_store_browser.js
       - uses: actions/upload-artifact@v3
         with:
-          name: ruby_event_store_browser.js.map
-          path: ${{ env.WORKING_DIRECTORY }}/public/ruby_event_store_browser.js.map
-      - uses: actions/upload-artifact@v3
-        with:
           name: ruby_event_store_browser.css
           path: ${{ env.WORKING_DIRECTORY }}/public/ruby_event_store_browser.css
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ruby_event_store_browser.css.map
-          path: ${{ env.WORKING_DIRECTORY }}/public/ruby_event_store_browser.css.map
       - uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
