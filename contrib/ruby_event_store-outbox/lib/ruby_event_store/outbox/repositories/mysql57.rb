@@ -50,12 +50,13 @@ module RubyEventStore
             :lock_timeout
           end
 
-          def refresh(clock:)
+          def self.refresh(lock, clock:)
             transaction do
-              current_process_uuid = locked_by
-              lock!
-              if locked_by == current_process_uuid
-                update!(locked_at: clock.now)
+              current_process_uuid = lock.locked_by
+              lock_record = Lock.lock.find(lock.id)
+              if lock_record.locked_by == current_process_uuid
+                lock_record.update!(locked_at: clock.now)
+                lock.assign_attributes(lock_record.attributes)
                 :ok
               else
                 :stolen
@@ -140,6 +141,10 @@ module RubyEventStore
 
         def release_lock_for_process(fetch_specification, process_uuid)
           Lock.release(fetch_specification, process_uuid)
+        end
+
+        def refresh_lock(lock, clock:)
+          Lock.refresh(lock, clock: clock)
         end
 
         def mark_as_enqueued(record, now)

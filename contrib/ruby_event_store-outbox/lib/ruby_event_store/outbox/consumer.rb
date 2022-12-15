@@ -158,7 +158,7 @@ module RubyEventStore
       end
 
       def refresh_lock_for_process(lock)
-        result = lock.refresh(clock: @clock)
+        result = repository.refresh_lock(lock, clock: @clock)
         case result
         when :ok
           return true

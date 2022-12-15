@@ -155,7 +155,7 @@ module RubyEventStore
           lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
           clock.test_travel (Mysql57::RECENTLY_LOCKED_DURATION / 2)
 
-          result = lock.refresh(clock: clock)
+          result = repository.refresh_lock(lock, clock: clock)
 
           clock.test_travel (Mysql57::RECENTLY_LOCKED_DURATION / 2 + 1.second)
           expect(result).to be(:ok)
@@ -172,7 +172,7 @@ module RubyEventStore
           lock_for_other_process =
             repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
 
-          result = lock_for_some_process.refresh(clock: clock)
+          result = repository.refresh_lock(lock_for_some_process, clock: clock)
 
           expect(result).to be(:stolen)
         end
@@ -181,9 +181,9 @@ module RubyEventStore
           repository = Mysql57.build_for_consumer(database_url)
           expected_fetch_specification = FetchSpecification.new(message_format, split_key)
           lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
-          expect(lock).to receive(:lock!).and_raise(::ActiveRecord::LockWaitTimeout)
+          expect(Mysql57::Lock).to receive(:lock).and_raise(::ActiveRecord::LockWaitTimeout)
 
-          result = lock.refresh(clock: clock)
+          result = repository.refresh_lock(lock, clock: clock)
 
           expect(result).to be(:lock_timeout)
         end
@@ -192,9 +192,9 @@ module RubyEventStore
           repository = Mysql57.build_for_consumer(database_url)
           expected_fetch_specification = FetchSpecification.new(message_format, split_key)
           lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
-          expect(lock).to receive(:lock!).and_raise(::ActiveRecord::Deadlocked)
+          expect(Mysql57::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
 
-          result = lock.refresh(clock: clock)
+          result = repository.refresh_lock(lock, clock: clock)
 
           expect(result).to be(:deadlocked)
         end
