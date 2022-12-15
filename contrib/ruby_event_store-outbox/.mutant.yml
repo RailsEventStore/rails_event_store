@@ -34,7 +34,7 @@ matcher:
     - RubyEventStore::Outbox::Configuration*
     - RubyEventStore::Outbox::Consumer#get_remaining_count
     - RubyEventStore::Outbox::CleanupStrategies::None*
-    - RubyEventStore::Outbox::Repository*
+    - RubyEventStore::Outbox::Repositories*
     - RubyEventStore::Outbox::Runner#initialize
     - RubyEventStore::Outbox::Runner#run
     - RubyEventStore::Outbox::Runner#prepare_traps

@@ -1,7 +1,7 @@
 require "logger"
 require "redis"
 require "active_record"
-require_relative "repository"
+require_relative "repositories/mysql57"
 require_relative "sidekiq5_format"
 require_relative "sidekiq_processor"
 require_relative "fetch_specification"
@@ -24,7 +24,7 @@ module RubyEventStore
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
-        @repository = Repository.build_for_consumer(configuration.database_url)
+        @repository = Repositories::Mysql57.build_for_consumer(configuration.database_url)
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 

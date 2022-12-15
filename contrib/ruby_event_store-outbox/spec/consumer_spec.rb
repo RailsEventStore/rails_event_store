@@ -90,7 +90,7 @@ module RubyEventStore
         create_record("default", "default")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         clock = TickingClock.new
-        Repository::Lock.obtain(
+        Repositories::Mysql57::Lock.obtain(
           FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
           "some-other-process-uuid",
           clock: clock
@@ -152,7 +152,7 @@ module RubyEventStore
             }
           ]
         }
-        Repository.new.insert_record("sidekiq5", "default", payload.to_json)
+        Repositories::Mysql57.new.insert_record("sidekiq5", "default", payload.to_json)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -185,7 +185,7 @@ module RubyEventStore
       end
 
       specify "deadlock when obtaining lock just skip that attempt" do
-        expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
+        expect(Repositories::Mysql57::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
         clock = TickingClock.new
         consumer =
           Consumer.new(
@@ -205,7 +205,7 @@ module RubyEventStore
       end
 
       specify "lock timeout when obtaining lock just skip that attempt" do
-        expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::LockWaitTimeout)
+        expect(Repositories::Mysql57::Lock).to receive(:lock).and_raise(::ActiveRecord::LockWaitTimeout)
         clock = TickingClock.new
         consumer =
           Consumer.new(
@@ -226,7 +226,7 @@ module RubyEventStore
 
       specify "obtaining taken lock just skip that attempt" do
         clock = TickingClock.new
-        Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "other-process-uuid", clock: clock)
+        Repositories::Mysql57::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "other-process-uuid", clock: clock)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -246,7 +246,7 @@ module RubyEventStore
 
       specify "deadlock when releasing lock doesnt do anything" do
         create_record("default", "default")
-        allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
+        allow(Repositories::Mysql57::Lock).to receive(:lock).and_wrap_original do |m, *args|
           if caller.any? { |l| l.include? "`release'" }
             raise ::ActiveRecord::Deadlocked
           else
@@ -273,7 +273,7 @@ module RubyEventStore
 
       specify "lock timeout when releasing lock doesnt do anything" do
         create_record("default", "default")
-        allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
+        allow(Repositories::Mysql57::Lock).to receive(:lock).and_wrap_original do |m, *args|
           if caller.any? { |l| l.include? "`release'" }
             raise ::ActiveRecord::LockWaitTimeout
           else
@@ -306,7 +306,7 @@ module RubyEventStore
 
         consumer.process
 
-        lock = Repository::Lock.find_by!(split_key: "default")
+        lock = Repositories::Mysql57::Lock.find_by!(split_key: "default")
         expect(lock.locked_by).to be_nil
         expect(lock.locked_at).to be_nil
       end
@@ -317,7 +317,7 @@ module RubyEventStore
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: test_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
-          Repository::Lock.delete_all
+          Repositories::Mysql57::Lock.delete_all
           m.call(*args)
         end
 
@@ -337,7 +337,7 @@ module RubyEventStore
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
-          Repository::Lock.update_all(locked_by: SecureRandom.uuid)
+          Repositories::Mysql57::Lock.update_all(locked_by: SecureRandom.uuid)
           m.call(*args)
         end
 
@@ -349,7 +349,7 @@ module RubyEventStore
       end
 
       specify "old lock can be reobtained" do
-        Repository::Lock.obtain(
+        Repositories::Mysql57::Lock.obtain(
           FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
           "some-old-uuid",
           clock: TickingClock.new(start: 10.minutes.ago)
@@ -365,7 +365,7 @@ module RubyEventStore
       end
 
       specify "relatively fresh locks are not reobtained" do
-        Repository::Lock.obtain(
+        Repositories::Mysql57::Lock.obtain(
           FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
           "some-old-uuid",
           clock: TickingClock.new(start: 9.minutes.ago)
@@ -383,7 +383,7 @@ module RubyEventStore
         clock = TickingClock.new
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
-        allow(Repository::Lock).to receive(:create!).and_wrap_original do |m, *args|
+        allow(Repositories::Mysql57::Lock).to receive(:create!).and_wrap_original do |m, *args|
           m.call(*args) # To simulate someone inserting a record just before us
           m.call(*args)
         end
@@ -439,8 +439,8 @@ module RubyEventStore
 
       specify "death of a consumer shouldnt prevent other processes from processing" do
         consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-        expect(Repository::Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
-        expect(Repository::Record).to receive(:where).and_call_original.ordered.at_least(2).times
+        expect(Repositories::Mysql57::Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
+        expect(Repositories::Mysql57::Record).to receive(:where).and_call_original.ordered.at_least(2).times
         expect { consumer_1.process }.to raise_error(/Unexpected error/)
 
         create_record("default", "default")
@@ -451,14 +451,14 @@ module RubyEventStore
 
         # We don't expect both records to be processed (because one of the Locks may be obtained by crashed process, but we expect to do SOME work in ANY splits.
         expect(result).to eq(true)
-        expect(Repository::Record.where("enqueued_at is not null").count).to be_positive
+        expect(Repositories::Mysql57::Record.where("enqueued_at is not null").count).to be_positive
       end
 
       specify "lock is refreshed after each batch" do
         skip "https://github.com/rspec/rspec-mocks/issues/1306" if RUBY_VERSION >= "3.0"
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         2.times.map { |r| create_record("default", "default") }
-        expect_any_instance_of(Repository::Lock).to receive(:refresh).twice.and_call_original
+        expect_any_instance_of(Repositories::Mysql57::Lock).to receive(:refresh).twice.and_call_original
 
         consumer.process
       end
@@ -476,12 +476,12 @@ module RubyEventStore
           )
         consumer.process
         expect(redis.llen("queue:default")).to eq(1)
-        expect(Repository::Record.count).to eq(1)
+        expect(Repositories::Mysql57::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
         consumer.process
 
-        expect(Repository::Record.count).to eq(0)
+        expect(Repositories::Mysql57::Record.count).to eq(0)
       end
 
       specify "clean old jobs with limit" do
@@ -497,12 +497,12 @@ module RubyEventStore
           )
         consumer.process
         expect(redis.llen("queue:default")).to eq(3)
-        expect(Repository::Record.count).to eq(3)
+        expect(Repositories::Mysql57::Record.count).to eq(3)
         travel (7.days + 1.minute)
 
         consumer.process
 
-        expect(Repository::Record.count).to eq(1)
+        expect(Repositories::Mysql57::Record.count).to eq(1)
       end
 
       specify "clean old jobs - lock timeout" do
@@ -518,13 +518,13 @@ module RubyEventStore
           )
         consumer.process
         expect(redis.llen("queue:default")).to eq(1)
-        expect(Repository::Record.count).to eq(1)
+        expect(Repositories::Mysql57::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
         allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_raise(::ActiveRecord::LockWaitTimeout)
         consumer.process
 
-        expect(Repository::Record.count).to eq(1)
+        expect(Repositories::Mysql57::Record.count).to eq(1)
         expect(logger_output.string).to include("Cleanup for split_key 'default' failed (lock timeout)")
         expect(test_metrics.operation_results).to include({ operation: "cleanup", result: "lock_timeout" })
       end
@@ -542,13 +542,13 @@ module RubyEventStore
           )
         consumer.process
         expect(redis.llen("queue:default")).to eq(1)
-        expect(Repository::Record.count).to eq(1)
+        expect(Repositories::Mysql57::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
         allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_raise(::ActiveRecord::Deadlocked)
         consumer.process
 
-        expect(Repository::Record.count).to eq(1)
+        expect(Repositories::Mysql57::Record.count).to eq(1)
         expect(logger_output.string).to include("Cleanup for split_key 'default' failed (deadlock)")
         expect(test_metrics.operation_results).to include({ operation: "cleanup", result: "deadlocked" })
       end
@@ -569,7 +569,7 @@ module RubyEventStore
             }
           ]
         }
-        Repository.new.insert_record(format, split_key, payload.to_json)
+        Repositories::Mysql57.new.insert_record(format, split_key, payload.to_json)
       end
     end
   end

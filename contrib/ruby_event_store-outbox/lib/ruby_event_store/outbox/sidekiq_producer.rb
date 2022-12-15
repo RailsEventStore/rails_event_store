@@ -2,12 +2,12 @@
 
 require "sidekiq"
 require_relative "sidekiq5_format"
-require_relative "repository"
+require_relative "repositories/mysql57"
 
 module RubyEventStore
   module Outbox
     class SidekiqProducer
-      def initialize(repository = Repository.new)
+      def initialize(repository = Repositories::Mysql57.new)
         @repository = repository
       end
 
