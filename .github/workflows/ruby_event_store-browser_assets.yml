@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v2
         with:
-          node-version: "16.10"
+          node-version: 18
           cache: "npm"
           cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
       - run: make install-npm
