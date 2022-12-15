@@ -47,7 +47,7 @@ def add_to_stream(event_ids, stream, expected_version)
     @stream_klass.import(in_stream) unless stream.global?
   end
   self
-rescue ActiveRecord::RecordNotUnique => e
+rescue ::ActiveRecord::RecordNotUnique => e
   raise_error(e)
 end
 ```

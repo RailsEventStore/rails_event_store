@@ -43,9 +43,9 @@ module RubyEventStore
               l
             end
           end
-        rescue ActiveRecord::Deadlocked
+        rescue ::ActiveRecord::Deadlocked
           :deadlocked
-        rescue ActiveRecord::LockWaitTimeout
+        rescue ::ActiveRecord::LockWaitTimeout
           :lock_timeout
         end
 
@@ -60,9 +60,9 @@ module RubyEventStore
               :stolen
             end
           end
-        rescue ActiveRecord::Deadlocked
+        rescue ::ActiveRecord::Deadlocked
           :deadlocked
-        rescue ActiveRecord::LockWaitTimeout
+        rescue ::ActiveRecord::LockWaitTimeout
           :lock_timeout
         end
 
@@ -76,9 +76,9 @@ module RubyEventStore
               :ok
             end
           end
-        rescue ActiveRecord::Deadlocked
+        rescue ::ActiveRecord::Deadlocked
           :deadlocked
-        rescue ActiveRecord::LockWaitTimeout
+        rescue ::ActiveRecord::LockWaitTimeout
           :lock_timeout
         end
 
@@ -105,7 +105,7 @@ module RubyEventStore
           if l.nil?
             begin
               l = create!(format: fetch_specification.message_format, split_key: fetch_specification.split_key)
-            rescue ActiveRecord::RecordNotUnique
+            rescue ::ActiveRecord::RecordNotUnique
               l = lock_for_split_key(fetch_specification)
             end
           end
@@ -114,9 +114,9 @@ module RubyEventStore
       end
 
       def initialize(database_url)
-        ActiveRecord::Base.establish_connection(database_url) unless ActiveRecord::Base.connected?
-        if ActiveRecord::Base.connection.adapter_name == "Mysql2"
-          ActiveRecord::Base.connection.execute("SET SESSION innodb_lock_wait_timeout = 1;")
+        ::ActiveRecord::Base.establish_connection(database_url) unless ::ActiveRecord::Base.connected?
+        if ::ActiveRecord::Base.connection.adapter_name == "Mysql2"
+          ::ActiveRecord::Base.connection.execute("SET SESSION innodb_lock_wait_timeout = 1;")
         end
       end
 
@@ -145,9 +145,9 @@ module RubyEventStore
         scope = scope.limit(limit).order(:id) unless limit == :all
         scope.delete_all
         :ok
-      rescue ActiveRecord::Deadlocked
+      rescue ::ActiveRecord::Deadlocked
         :deadlocked
-      rescue ActiveRecord::LockWaitTimeout
+      rescue ::ActiveRecord::LockWaitTimeout
         :lock_timeout
       end
     end

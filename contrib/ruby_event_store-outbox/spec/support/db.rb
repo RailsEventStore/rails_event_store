@@ -5,7 +5,7 @@ RSpec.configure do |config|
       begin
         ActiveRecord::Migration.drop_table("event_store_outbox")
         ActiveRecord::Migration.drop_table("event_store_outbox_locks")
-      rescue ActiveRecord::StatementInvalid
+      rescue ::ActiveRecord::StatementInvalid
       end
       m = Migrator.new(File.expand_path("../../lib/generators/ruby_event_store/outbox/templates", __dir__))
       m.run_migration("create_event_store_outbox")

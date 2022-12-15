@@ -1,5 +1,5 @@
 module DresRails
-  class Queue < ActiveRecord::Base
+  class Queue < ::ActiveRecord::Base
     has_many :jobs, -> { order(:id) }
 
     def self.last_processed_event_id_for(app_name)

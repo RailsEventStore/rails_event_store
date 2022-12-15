@@ -30,12 +30,12 @@ module SchemaHelper
   def drop_database
     ActiveRecord::Migration.drop_table("event_store_events")
     ActiveRecord::Migration.drop_table("event_store_events_in_streams")
-  rescue ActiveRecord::StatementInvalid
+  rescue ::ActiveRecord::StatementInvalid
   end
 
   def dump_schema
     schema = StringIO.new
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, schema)
+    ActiveRecord::SchemaDumper.dump(::ActiveRecord::Base.connection, schema)
     schema.rewind
     schema.read
   end

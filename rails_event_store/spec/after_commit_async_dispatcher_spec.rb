@@ -56,7 +56,7 @@ module RailsEventStore
         expect_no_enqueued_job(MyAsyncHandler) do
           ActiveRecord::Base.transaction do
             dispatcher.call(MyAsyncHandler, event, record)
-            raise ActiveRecord::Rollback
+            raise ::ActiveRecord::Rollback
           end
         end
         MyAsyncHandler.perform_enqueued_jobs
@@ -70,7 +70,7 @@ module RailsEventStore
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction do
               dispatcher.call(MyAsyncHandler, event, record)
-              raise ActiveRecord::Rollback
+              raise ::ActiveRecord::Rollback
             end
           end
           MyAsyncHandler.perform_enqueued_jobs
@@ -111,7 +111,7 @@ module RailsEventStore
           expect_no_enqueued_job(MyAsyncHandler) do
             ActiveRecord::Base.transaction(requires_new: true) do
               dispatcher.call(MyAsyncHandler, event, record)
-              raise ActiveRecord::Rollback
+              raise ::ActiveRecord::Rollback
             end
           end
         end

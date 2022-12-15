@@ -191,7 +191,7 @@ module RubyEventStore
       end
 
       specify "deadlock when obtaining lock just skip that attempt" do
-        expect(Repository::Lock).to receive(:lock).and_raise(ActiveRecord::Deadlocked)
+        expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
         clock = TickingClock.new
         consumer =
           Consumer.new(
@@ -211,7 +211,7 @@ module RubyEventStore
       end
 
       specify "lock timeout when obtaining lock just skip that attempt" do
-        expect(Repository::Lock).to receive(:lock).and_raise(ActiveRecord::LockWaitTimeout)
+        expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::LockWaitTimeout)
         clock = TickingClock.new
         consumer =
           Consumer.new(
@@ -254,7 +254,7 @@ module RubyEventStore
         create_record("default", "default")
         allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
           if caller.any? { |l| l.include? "`release'" }
-            raise ActiveRecord::Deadlocked
+            raise ::ActiveRecord::Deadlocked
           else
             m.call(*args)
           end
@@ -281,7 +281,7 @@ module RubyEventStore
         create_record("default", "default")
         allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
           if caller.any? { |l| l.include? "`release'" }
-            raise ActiveRecord::LockWaitTimeout
+            raise ::ActiveRecord::LockWaitTimeout
           else
             m.call(*args)
           end
@@ -527,7 +527,7 @@ module RubyEventStore
         expect(Repository::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
-        allow_any_instance_of(ActiveRecord::Relation).to receive(:delete_all).and_raise(ActiveRecord::LockWaitTimeout)
+        allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_raise(::ActiveRecord::LockWaitTimeout)
         consumer.process
 
         expect(Repository::Record.count).to eq(1)
@@ -551,7 +551,7 @@ module RubyEventStore
         expect(Repository::Record.count).to eq(1)
         travel (7.days + 1.minute)
 
-        allow_any_instance_of(ActiveRecord::Relation).to receive(:delete_all).and_raise(ActiveRecord::Deadlocked)
+        allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_raise(::ActiveRecord::Deadlocked)
         consumer.process
 
         expect(Repository::Record.count).to eq(1)
