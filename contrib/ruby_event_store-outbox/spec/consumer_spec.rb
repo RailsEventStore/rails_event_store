@@ -152,13 +152,7 @@ module RubyEventStore
             }
           ]
         }
-        Repository::Record.create!(
-          split_key: "default",
-          created_at: Time.now.utc,
-          format: "sidekiq5",
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
+        Repository.new.insert_record("sidekiq5", "default", payload.to_json)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -575,13 +569,7 @@ module RubyEventStore
             }
           ]
         }
-        Repository::Record.create!(
-          split_key: split_key,
-          created_at: Time.now.utc,
-          format: format,
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
+        Repository.new.insert_record(format, split_key, payload.to_json)
       end
     end
   end

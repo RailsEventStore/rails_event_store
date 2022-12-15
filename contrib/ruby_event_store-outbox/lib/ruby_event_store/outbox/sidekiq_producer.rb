@@ -18,11 +18,7 @@ module RubyEventStore
               normalized_item
             end
         if payload
-          Repository::Record.create!(
-            format: SIDEKIQ5_FORMAT,
-            split_key: payload.fetch("queue"),
-            payload: payload.to_json
-          )
+          Repository.new.insert_record(SIDEKIQ5_FORMAT, payload.fetch("queue"), payload.to_json)
         end
       end
 

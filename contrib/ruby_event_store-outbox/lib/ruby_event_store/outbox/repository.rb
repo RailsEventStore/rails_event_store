@@ -121,6 +121,10 @@ module RubyEventStore
         new
       end
 
+      def insert_record(format, split_key, payload)
+        Repository::Record.create!(format: format, split_key: split_key, payload: payload)
+      end
+
       def retrieve_batch(fetch_specification, batch_size)
         Record.remaining_for(fetch_specification).order("id ASC").limit(batch_size).to_a
       end
