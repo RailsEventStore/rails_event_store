@@ -24,7 +24,7 @@ module RubyEventStore
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
-        @repository = Repository.new(configuration.database_url)
+        @repository = Repository.build_for_consumer(configuration.database_url)
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 
