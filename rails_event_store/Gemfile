@@ -13,3 +13,5 @@ gem "sidekiq"
 gem "rack-test"
 gem "rails", "7.0.4"
 gem "sqlite3", "1.5.3"
+
+gem "nokogiri", platform: :ruby # to support 3.2.0 pre-release
