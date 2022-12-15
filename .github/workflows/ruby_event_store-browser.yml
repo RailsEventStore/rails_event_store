@@ -44,7 +44,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: "npm"
