@@ -69,7 +69,7 @@ EOM
   end
 
   def test_assert_published
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
     assert_published(@event_store, DummyEvent)
   end
 
@@ -87,7 +87,7 @@ EOM
   end
 
   def test_assert_published_failure_based_on_metadata_mismatch
-    @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new) }
 
     message = <<-EOM.chomp
 Event metadata mismatch.
@@ -100,7 +100,7 @@ Expected: {"foo"=>"foo"}
   end
 
   def test_assert_published_failure_based_on_type_mismatch
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
 
     message = 'Expected some events of AnotherDummyEvent type, none were there'
     assert_triggered(message) do
@@ -109,13 +109,13 @@ Expected: {"foo"=>"foo"}
   end
 
   def test_assert_not_published
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
 
     assert_not_published(@event_store, AnotherDummyEvent)
   end
 
   def test_assert_not_published_failure
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
     message = <<-EOM.chomp
 Expected no event of DummyEvent type.
 Expected: 0
@@ -127,13 +127,13 @@ EOM
   end
 
   def test_assert_published_once
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
-    @event_store.publish(AnotherDummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
+    @event_store.publish(AnotherDummyEvent.new)
     assert_published_once(@event_store, DummyEvent)
   end
 
   def test_assert_published_once_failure_based_on_quantity
-    2.times { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    2.times { @event_store.publish(DummyEvent.new) }
     message = <<-EOM.chomp
 Expected only one event of DummyEvent type.
 Expected: 1
@@ -157,7 +157,7 @@ EOM
   end
 
   def test_assert_published_once_failure_based_on_metadata_mismatch
-    @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new) }
     message = <<-EOM.chomp
 Event metadata mismatch.
 Expected: {"foo"=>"foo"}
@@ -173,7 +173,7 @@ Expected: {"foo"=>"foo"}
   end
 
   def test_assert_nothing_published_failure
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
     message = <<-EOM.chomp
 Expected no events published.
 Expected: 0
@@ -185,30 +185,30 @@ EOM
   end
 
   def test_assert_published_once_with_block
-    2.times { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    2.times { @event_store.publish(DummyEvent.new) }
     assert_published_once(@event_store, DummyEvent) do
-      @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+      @event_store.publish(DummyEvent.new)
     end
   end
 
   def test_assert_nothing_published_with_block
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
     assert_nothing_published(@event_store) {}
   end
 
   def test_assert_not_published_with_block
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
     assert_not_published(@event_store, DummyEvent) {}
   end
 
   def test_assert_not_published_to_specific_stream
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new)
     assert_not_published(@event_store, DummyEvent, within_stream: "specific-stream")
   end
 
   def test_assert_published_once_to_specific_stream
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
-    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }), stream_name: "specific-stream")
+    @event_store.publish(DummyEvent.new)
+    @event_store.publish(DummyEvent.new, stream_name: "specific-stream")
     assert_published_once(@event_store, DummyEvent,  within_stream: "specific-stream")
   end
 end

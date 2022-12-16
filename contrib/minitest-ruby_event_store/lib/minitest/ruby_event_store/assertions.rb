@@ -39,7 +39,9 @@ module Minitest
         refute events.empty?, "Expected some events of #{event_type} type, none were there"
         events.each do |e|
           assert_equal with_data.with_indifferent_access, e.data, "Event data mismatch" if with_data
-          assert_equal with_metadata.with_indifferent_access, e.data, "Event metadata mismatch" if with_metadata
+          assert_equal with_metadata.with_indifferent_access,
+                       e.metadata.to_h.with_indifferent_access.slice(*with_metadata.keys),
+                       "Event metadata mismatch" if with_metadata
         end
       end
 
