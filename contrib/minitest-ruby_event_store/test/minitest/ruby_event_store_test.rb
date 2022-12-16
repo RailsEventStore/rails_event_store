@@ -86,6 +86,19 @@ EOM
     end
   end
 
+  def test_assert_published_failure_based_on_metadata_mismatch
+    @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+
+    message = <<-EOM.chomp
+Event metadata mismatch.
+Expected: {"foo"=>"foo"}
+  Actual: {"foo"=>"bar"}
+    EOM
+    assert_triggered(message) do
+      assert_published(@event_store, DummyEvent, with_metadata: { "foo" => "foo" })
+    end
+  end
+
   def test_assert_published_failure_based_on_type_mismatch
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
 
@@ -140,6 +153,18 @@ Expected: {"foo"=>"foo"}
 EOM
     assert_triggered(message) do
       assert_published_once(@event_store, DummyEvent, with_data: {foo: "foo"})
+    end
+  end
+
+  def test_assert_published_once_failure_based_on_metadata_mismatch
+    @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    message = <<-EOM.chomp
+Event metadata mismatch.
+Expected: {"foo"=>"foo"}
+  Actual: {"foo"=>"bar"}
+    EOM
+    assert_triggered(message) do
+      assert_published_once(@event_store, DummyEvent, with_metadata: {foo: "foo"})
     end
   end
 
