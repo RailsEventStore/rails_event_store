@@ -27,6 +27,18 @@ module Minitest
         end
       end
 
+      def assert_not_published(event_store, event_type)
+        assert_equal 0, event_store.read.of_type(event_type).count, "Expected no event of #{event_type} type"
+      end
+
+      def assert_published(event_store, event_type, event_data)
+        events = event_store.read.of_type(event_type).to_a
+        refute events.empty?, "Expected some events of #{event_type} type, none were there"
+        events.each do |e|
+          assert_equal event_data.with_indifferent_access, e.data, "Event data mismatch"
+        end
+      end
+
       private
 
       def collect_events(event_store, &block)
