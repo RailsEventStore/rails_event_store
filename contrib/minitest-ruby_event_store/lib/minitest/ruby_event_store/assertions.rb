@@ -1,4 +1,3 @@
-require 'byebug'
 module Minitest
   module RubyEventStore
     module Assertions
