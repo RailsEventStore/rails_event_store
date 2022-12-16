@@ -28,20 +28,22 @@ module Minitest
         end
       end
 
-      def assert_not_published(event_store, event_type, stream = nil, &block)
-        assert_equal 0, events_published(event_store, event_type, stream, &block).size, "Expected no event of #{event_type} type"
+      def assert_not_published(event_store, event_type, within_stream: nil, &block)
+        assert_equal 0,
+                     events_published(event_store, event_type, within_stream, &block).size,
+                     "Expected no event of #{event_type} type"
       end
 
-      def assert_published(event_store, event_type, event_data, stream = nil, &block)
-        events = events_published(event_store, event_type, stream, &block)
+      def assert_published(event_store, event_type, with_data: nil, within_stream: nil, &block)
+        events = events_published(event_store, event_type, within_stream, &block)
         refute events.empty?, "Expected some events of #{event_type} type, none were there"
         events.each do |e|
-          assert_equal event_data.with_indifferent_access, e.data, "Event data mismatch"
+          assert_equal with_data.with_indifferent_access, e.data, "Event data mismatch" if with_data
         end
       end
 
-      def assert_published_once(event_store, event_type, event_data, stream = nil, &block)
-        events = assert_published(event_store, event_type, event_data, stream, &block)
+      def assert_published_once(event_store, event_type, with_data: nil, within_stream: nil, &block)
+        events = assert_published(event_store, event_type, with_data:, within_stream:, &block)
         assert_equal 1, events.size, "Expected only one event of #{event_type} type"
       end
 

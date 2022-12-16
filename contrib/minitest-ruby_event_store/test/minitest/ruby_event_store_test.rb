@@ -70,7 +70,7 @@ EOM
 
   def test_assert_published
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
-    assert_published(@event_store, DummyEvent, foo: "bar")
+    assert_published(@event_store, DummyEvent)
   end
 
   def test_assert_published_failure_based_on_data_mismatch
@@ -82,7 +82,7 @@ Expected: {"foo"=>"foo"}
   Actual: {"foo"=>"bar"}
 EOM
     assert_triggered(message) do
-      assert_published(@event_store, DummyEvent, foo: "foo")
+      assert_published(@event_store, DummyEvent, with_data: { "foo" => "foo" })
     end
   end
 
@@ -91,7 +91,7 @@ EOM
 
     message = 'Expected some events of AnotherDummyEvent type, none were there'
     assert_triggered(message) do
-      assert_published(@event_store, AnotherDummyEvent, foo: "bar")
+      assert_published(@event_store, AnotherDummyEvent)
     end
   end
 
@@ -116,7 +116,7 @@ EOM
   def test_assert_published_once
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     @event_store.publish(AnotherDummyEvent.new(data: { "foo" => "bar" }))
-    assert_published_once(@event_store, DummyEvent, foo: "bar")
+    assert_published_once(@event_store, DummyEvent)
   end
 
   def test_assert_published_once_failure_based_on_quantity
@@ -127,7 +127,7 @@ Expected: 1
   Actual: 2
 EOM
     assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent, foo: "bar")
+      assert_published_once(@event_store, DummyEvent)
     end
   end
 
@@ -139,7 +139,7 @@ Expected: {"foo"=>"foo"}
   Actual: {"foo"=>"bar"}
 EOM
     assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent, foo: "foo")
+      assert_published_once(@event_store, DummyEvent, with_data: {foo: "foo"})
     end
   end
 
@@ -161,7 +161,7 @@ EOM
 
   def test_assert_published_once_with_block
     2.times { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
-    assert_published_once(@event_store, DummyEvent, foo: "bar") do
+    assert_published_once(@event_store, DummyEvent) do
       @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     end
   end
@@ -178,12 +178,12 @@ EOM
 
   def test_assert_not_published_to_specific_stream
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
-    assert_not_published(@event_store, DummyEvent,  "specific-stream")
+    assert_not_published(@event_store, DummyEvent, within_stream: "specific-stream")
   end
 
   def test_assert_published_once_to_specific_stream
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }), stream_name: "specific-stream")
-    assert_published_once(@event_store, DummyEvent, { foo: "bar" }, "specific-stream")
+    assert_published_once(@event_store, DummyEvent,  within_stream: "specific-stream")
   end
 end
