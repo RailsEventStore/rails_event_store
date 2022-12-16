@@ -45,7 +45,14 @@ module Minitest
       end
 
       def assert_published_once(event_store, event_type, with_data: nil, with_metadata: nil, within_stream: nil, &block)
-        events = assert_published(event_store, event_type, with_data:, with_metadata:, within_stream:, &block)
+        events = assert_published(
+          event_store,
+          event_type,
+          with_data: with_data,
+          with_metadata: with_metadata,
+          within_stream: within_stream,
+          &block
+        )
         assert_equal 1, events.size, "Expected only one event of #{event_type} type"
       end
 
