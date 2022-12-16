@@ -158,4 +158,21 @@ EOM
       assert_nothing_published(@event_store)
     end
   end
+
+  def test_assert_published_once_with_block
+    2.times { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    assert_published_once(@event_store, DummyEvent, foo: "bar") do
+      @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    end
+  end
+
+  def test_assert_nothing_published_with_block
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    assert_nothing_published(@event_store) {}
+  end
+
+  def test_assert_not_published_with_block
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    assert_not_published(@event_store, DummyEvent) {}
+  end
 end

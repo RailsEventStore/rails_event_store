@@ -27,30 +27,43 @@ module Minitest
         end
       end
 
-      def assert_not_published(event_store, event_type)
-        assert_equal 0, event_store.read.of_type(event_type).count, "Expected no event of #{event_type} type"
+      def assert_not_published(event_store, event_type, &block)
+        assert_equal 0, events_published(event_store, event_type, &block).size, "Expected no event of #{event_type} type"
       end
 
-      def assert_published(event_store, event_type, event_data)
-        events = event_store.read.of_type(event_type).to_a
+      def assert_published(event_store, event_type, event_data, &block)
+        events = events_published(event_store, event_type, &block)
         refute events.empty?, "Expected some events of #{event_type} type, none were there"
         events.each do |e|
           assert_equal event_data.with_indifferent_access, e.data, "Event data mismatch"
         end
       end
 
-      def assert_published_once(event_store, event_type, event_data)
-        assert_equal 1, event_store.read.of_type(event_type).count, "Expected only one event of #{event_type} type"
-        assert_published(event_store, event_type, event_data)
+      def assert_published_once(event_store, event_type, event_data, &block)
+        events = assert_published(event_store, event_type, event_data, &block)
+        assert_equal 1, events.size, "Expected only one event of #{event_type} type"
       end
 
-      def assert_nothing_published(event_store)
+      def assert_nothing_published(event_store, &block)
         assert_equal 0,
-                     event_store.read.count,
+                     events_published(event_store, nil, &block).size,
                      "Expected no events published"
       end
 
       private
+
+      def events_published(event_store, event_type, &block)
+        query = event_store.read
+        query = query.of_type(event_type) if event_type
+        if block
+          events_before = query.to_a
+          block.call
+        else
+          events_before = []
+        end
+        events_after = query.to_a
+        events_after - events_before
+      end
 
       def collect_events(event_store, &block)
         collected_events = []
