@@ -2,11 +2,15 @@
 
 require "sidekiq"
 require_relative "sidekiq5_format"
-require_relative "repository"
+require_relative "repositories/mysql57"
 
 module RubyEventStore
   module Outbox
     class SidekiqProducer
+      def initialize(repository)
+        @repository = repository
+      end
+
       def call(klass, args)
         sidekiq_client = Sidekiq::Client.new(Sidekiq.redis_pool)
         item = { "args" => args.map(&:to_h).map { |h| h.transform_keys(&:to_s) }, "class" => klass }
@@ -18,11 +22,7 @@ module RubyEventStore
               normalized_item
             end
         if payload
-          Repository::Record.create!(
-            format: SIDEKIQ5_FORMAT,
-            split_key: payload.fetch("queue"),
-            payload: payload.to_json
-          )
+          repository.insert_record(SIDEKIQ5_FORMAT, payload.fetch("queue"), payload.to_json)
         end
       end
 

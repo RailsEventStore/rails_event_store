@@ -64,8 +64,8 @@ module RubyEventStore
 
           subject.call(CorrectAsyncHandler, event_record)
 
-          expect(Repository::Record.count).to eq(1)
-          record = Repository::Record.first
+          expect(Repositories::Mysql57::Record.count).to eq(1)
+          record = Repositories::Mysql57::Record.first
           expect(record.created_at).to be_present
           expect(record.enqueued_at).to be_nil
           expect(record.split_key).to eq("default")
@@ -108,7 +108,7 @@ module RubyEventStore
 
           subject.call(CorrectAsyncHandler, event_record)
 
-          record = Repository::Record.first
+          record = Repositories::Mysql57::Record.first
           expect(record.split_key).to eq("custom_queue")
           expect(record.hash_payload[:queue]).to eq("custom_queue")
         end
@@ -130,7 +130,7 @@ module RubyEventStore
 
           subject.call(CorrectAsyncHandlerWithRetryQueue, event_record)
 
-          record = Repository::Record.first
+          record = Repositories::Mysql57::Record.first
           expect(record.split_key).to eq("custom_queue")
           expect(record.hash_payload[:retry_queue]).to eq("custom_queue_retries")
         end
@@ -155,7 +155,7 @@ module RubyEventStore
 
           subject.call(CorrectAsyncHandler, event_record)
 
-          expect(Repository::Record.count).to eq(0)
+          expect(Repositories::Mysql57::Record.count).to eq(0)
         end
       end
     end

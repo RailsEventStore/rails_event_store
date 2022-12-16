@@ -5,9 +5,9 @@ require_relative "sidekiq_producer"
 module RubyEventStore
   module Outbox
     class SidekiqScheduler
-      def initialize(serializer: RubyEventStore::Serializers::YAML)
+      def initialize(repository: Repositories::Mysql57.build_for_producer, serializer: RubyEventStore::Serializers::YAML)
         @serializer = serializer
-        @sidekiq_producer = SidekiqProducer.new
+        @sidekiq_producer = SidekiqProducer.new(repository)
       end
 
       def call(klass, record)
