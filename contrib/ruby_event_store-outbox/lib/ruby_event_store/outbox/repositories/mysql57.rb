@@ -115,12 +115,20 @@ module RubyEventStore
           end
         end
 
-        def self.build_for_consumer(database_url)
+        def self.build_for_consumer(database_url, clock:)
           ::ActiveRecord::Base.establish_connection(database_url) unless ::ActiveRecord::Base.connected?
           if ::ActiveRecord::Base.connection.adapter_name == "Mysql2"
             ::ActiveRecord::Base.connection.execute("SET SESSION innodb_lock_wait_timeout = 1;")
           end
-          new
+          new(clock: clock)
+        end
+
+        def self.build_for_producer(clock: Time)
+          new(clock: clock)
+        end
+
+        def initialize(clock:)
+          @clock = clock
         end
 
         def insert_record(format, split_key, payload)
@@ -135,7 +143,7 @@ module RubyEventStore
           Record.remaining_for(fetch_specification).count
         end
 
-        def obtain_lock_for_process(fetch_specification, process_uuid, clock:)
+        def obtain_lock_for_process(fetch_specification, process_uuid)
           Lock.obtain(fetch_specification, process_uuid, clock: clock)
         end
 
@@ -143,7 +151,7 @@ module RubyEventStore
           Lock.release(fetch_specification, process_uuid)
         end
 
-        def refresh_lock(lock, clock:)
+        def refresh_lock(lock)
           Lock.refresh(lock, clock: clock)
         end
 
@@ -161,6 +169,9 @@ module RubyEventStore
         rescue ::ActiveRecord::LockWaitTimeout
           :lock_timeout
         end
+
+        private
+        attr_reader :clock
       end
     end
   end

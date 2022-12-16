@@ -36,8 +36,8 @@ module RubyEventStore
       end
 
       specify "push the jobs to sidekiq" do
-        record = create_record("default", "default")
         clock = TickingClock.new
+        record = create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         result = consumer.process
@@ -53,10 +53,10 @@ module RubyEventStore
       end
 
       specify "push multiple jobs to different queues" do
-        create_record("default", "default")
-        create_record("default", "default")
-        create_record("default2", "default2")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
+        create_record("default", "default", clock: clock)
+        create_record("default2", "default2", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
@@ -87,9 +87,9 @@ module RubyEventStore
       end
 
       specify "returns false if didnt aquire lock" do
-        create_record("default", "default")
-        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
+        consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
         Repositories::Mysql57::Lock.obtain(
           FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
           "some-other-process-uuid",
@@ -168,10 +168,10 @@ module RubyEventStore
       end
 
       specify "incorrect payload wont cause later messages to schedule" do
-        record1 = create_record("default", "default")
-        record1.update!(payload: "unparsable garbage")
-        record2 = create_record("default", "default")
         clock = TickingClock.new
+        record1 = create_record("default", "default", clock: clock)
+        record1.update!(payload: "unparsable garbage")
+        record2 = create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
@@ -245,7 +245,8 @@ module RubyEventStore
       end
 
       specify "deadlock when releasing lock doesnt do anything" do
-        create_record("default", "default")
+        clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         allow(Repositories::Mysql57::Lock).to receive(:lock).and_wrap_original do |m, *args|
           if caller.any? { |l| l.include? "`release'" }
             raise ::ActiveRecord::Deadlocked
@@ -253,7 +254,6 @@ module RubyEventStore
             m.call(*args)
           end
         end
-        clock = TickingClock.new
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -272,7 +272,6 @@ module RubyEventStore
       end
 
       specify "lock timeout when releasing lock doesnt do anything" do
-        create_record("default", "default")
         allow(Repositories::Mysql57::Lock).to receive(:lock).and_wrap_original do |m, *args|
           if caller.any? { |l| l.include? "`release'" }
             raise ::ActiveRecord::LockWaitTimeout
@@ -281,6 +280,7 @@ module RubyEventStore
           end
         end
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -299,8 +299,8 @@ module RubyEventStore
       end
 
       specify "after successful loop, lock is released" do
-        create_record("default", "default")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
 
@@ -312,8 +312,8 @@ module RubyEventStore
       end
 
       specify "lock disappearing in the meantime, doesnt do anything" do
-        create_record("default", "default")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: test_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
@@ -332,8 +332,8 @@ module RubyEventStore
       end
 
       specify "lock stolen in the meantime, doesnt do anything" do
-        create_record("default", "default")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
@@ -349,12 +349,13 @@ module RubyEventStore
       end
 
       specify "old lock can be reobtained" do
+        clock = TickingClock.new(start: 10.minutes.ago)
         Repositories::Mysql57::Lock.obtain(
           FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
           "some-old-uuid",
-          clock: TickingClock.new(start: 10.minutes.ago)
+          clock: clock
         )
-        record = create_record("default", "default")
+        record = create_record("default", "default", clock: clock)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
 
         result = consumer.process
@@ -365,10 +366,11 @@ module RubyEventStore
       end
 
       specify "relatively fresh locks are not reobtained" do
+        clock = TickingClock.new(start: 9.minutes.ago)
         Repositories::Mysql57::Lock.obtain(
           FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
           "some-old-uuid",
-          clock: TickingClock.new(start: 9.minutes.ago)
+          clock: clock
         )
         create_record("default", "default")
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
@@ -379,8 +381,8 @@ module RubyEventStore
       end
 
       specify "when inserting lock, other process may do same concurrently" do
-        record = create_record("default", "default")
         clock = TickingClock.new
+        record = create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
         allow(Repositories::Mysql57::Lock).to receive(:create!).and_wrap_original do |m, *args|
@@ -464,8 +466,8 @@ module RubyEventStore
       end
 
       specify "clean old jobs" do
-        create_record("default", "default")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -485,8 +487,8 @@ module RubyEventStore
       end
 
       specify "clean old jobs with limit" do
-        3.times.map { create_record("default", "default") }
         clock = TickingClock.new
+        3.times.map { create_record("default", "default", clock: clock) }
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -506,8 +508,8 @@ module RubyEventStore
       end
 
       specify "clean old jobs - lock timeout" do
-        create_record("default", "default")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -530,8 +532,8 @@ module RubyEventStore
       end
 
       specify "clean old jobs - deadlock" do
-        create_record("default", "default")
         clock = TickingClock.new
+        create_record("default", "default", clock: clock)
         consumer =
           Consumer.new(
             SecureRandom.uuid,
@@ -553,7 +555,7 @@ module RubyEventStore
         expect(test_metrics.operation_results).to include({ operation: "cleanup", result: "deadlocked" })
       end
 
-      def create_record(queue, split_key, format: "sidekiq5")
+      def create_record(queue, split_key, format: "sidekiq5", clock: Time)
         payload = {
           class: "SomeAsyncHandler",
           queue: queue,
@@ -569,7 +571,7 @@ module RubyEventStore
             }
           ]
         }
-        Repositories::Mysql57.new.insert_record(format, split_key, payload.to_json)
+        Repositories::Mysql57.build_for_producer(clock: clock).insert_record(format, split_key, payload.to_json)
       end
     end
   end

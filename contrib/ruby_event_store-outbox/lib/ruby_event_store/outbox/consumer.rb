@@ -24,7 +24,7 @@ module RubyEventStore
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
         @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
 
-        @repository = Repositories::Mysql57.build_for_consumer(configuration.database_url)
+        @repository = Repositories::Mysql57.build_for_consumer(configuration.database_url, clock: clock)
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 
@@ -123,7 +123,7 @@ module RubyEventStore
       end
 
       def obtain_lock_for_process(fetch_specification)
-        result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid, clock: @clock)
+        result = repository.obtain_lock_for_process(fetch_specification, consumer_uuid)
         case result
         when :deadlocked
           logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
@@ -158,7 +158,7 @@ module RubyEventStore
       end
 
       def refresh_lock_for_process(lock)
-        result = repository.refresh_lock(lock, clock: @clock)
+        result = repository.refresh_lock(lock)
         case result
         when :ok
           return true
