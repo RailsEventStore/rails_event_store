@@ -1,3 +1,4 @@
+require 'byebug'
 module Minitest
   module RubyEventStore
     module Assertions
@@ -27,33 +28,34 @@ module Minitest
         end
       end
 
-      def assert_not_published(event_store, event_type, &block)
-        assert_equal 0, events_published(event_store, event_type, &block).size, "Expected no event of #{event_type} type"
+      def assert_not_published(event_store, event_type, stream = nil, &block)
+        assert_equal 0, events_published(event_store, event_type, stream, &block).size, "Expected no event of #{event_type} type"
       end
 
-      def assert_published(event_store, event_type, event_data, &block)
-        events = events_published(event_store, event_type, &block)
+      def assert_published(event_store, event_type, event_data, stream = nil, &block)
+        events = events_published(event_store, event_type, stream, &block)
         refute events.empty?, "Expected some events of #{event_type} type, none were there"
         events.each do |e|
           assert_equal event_data.with_indifferent_access, e.data, "Event data mismatch"
         end
       end
 
-      def assert_published_once(event_store, event_type, event_data, &block)
-        events = assert_published(event_store, event_type, event_data, &block)
+      def assert_published_once(event_store, event_type, event_data, stream = nil, &block)
+        events = assert_published(event_store, event_type, event_data, stream, &block)
         assert_equal 1, events.size, "Expected only one event of #{event_type} type"
       end
 
       def assert_nothing_published(event_store, &block)
         assert_equal 0,
-                     events_published(event_store, nil, &block).size,
+                     events_published(event_store, nil, nil, &block).size,
                      "Expected no events published"
       end
 
       private
 
-      def events_published(event_store, event_type, &block)
+      def events_published(event_store, event_type, stream, &block)
         query = event_store.read
+        query = query.stream(stream) if stream
         query = query.of_type(event_type) if event_type
         if block
           events_before = query.to_a

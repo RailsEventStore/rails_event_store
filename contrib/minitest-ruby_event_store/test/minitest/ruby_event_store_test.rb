@@ -175,4 +175,15 @@ EOM
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     assert_not_published(@event_store, DummyEvent) {}
   end
+
+  def test_assert_not_published_to_specific_stream
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    assert_not_published(@event_store, DummyEvent,  "specific-stream")
+  end
+
+  def test_assert_published_once_to_specific_stream
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }), stream_name: "specific-stream")
+    assert_published_once(@event_store, DummyEvent, { foo: "bar" }, "specific-stream")
+  end
 end
