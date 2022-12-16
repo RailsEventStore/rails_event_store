@@ -39,6 +39,11 @@ module Minitest
         end
       end
 
+      def assert_published_once(event_store, event_type, event_data)
+        assert_equal 1, event_store.read.of_type(event_type).count, "Expected only one event of #{event_type} type"
+        assert_published(event_store, event_type, event_data)
+      end
+
       private
 
       def collect_events(event_store, &block)

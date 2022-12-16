@@ -74,12 +74,12 @@ EOM
   end
 
   def test_assert_published_failure_based_on_data_mismatch
-    @event_store.publish(DummyEvent.new(data: { foo: "bar" }))
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
 
     message = <<-EOM.chomp
 Event data mismatch.
 Expected: {"foo"=>"foo"}
-  Actual: {:foo=>"bar"}
+  Actual: {"foo"=>"bar"}
 EOM
     assert_triggered(message) do
       assert_published(@event_store, DummyEvent, foo: "foo")
@@ -96,13 +96,13 @@ EOM
   end
 
   def test_assert_not_published
-    @event_store.publish(DummyEvent.new(data: { foo: "bar" }))
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
 
     assert_not_published(@event_store, AnotherDummyEvent)
   end
 
   def test_assert_not_published_failure
-    @event_store.publish(DummyEvent.new(data: { foo: "bar" }))
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     message = <<-EOM.chomp
 Expected no event of DummyEvent type.
 Expected: 0
@@ -110,6 +110,36 @@ Expected: 0
 EOM
     assert_triggered(message) do
       assert_not_published(@event_store, DummyEvent)
+    end
+  end
+
+  def test_assert_published_once
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    @event_store.publish(AnotherDummyEvent.new(data: { "foo" => "bar" }))
+    assert_published_once(@event_store, DummyEvent, foo: "bar")
+  end
+
+  def test_assert_published_once_failure_based_on_quantity
+    2.times { @event_store.publish(DummyEvent.new(data: { "foo" => "bar" })) }
+    message = <<-EOM.chomp
+Expected only one event of DummyEvent type.
+Expected: 1
+  Actual: 2
+EOM
+    assert_triggered(message) do
+      assert_published_once(@event_store, DummyEvent, foo: "bar")
+    end
+  end
+
+  def test_assert_published_once_failure_based_on_data_mismatch
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    message = <<-EOM.chomp
+Event data mismatch.
+Expected: {"foo"=>"foo"}
+  Actual: {"foo"=>"bar"}
+EOM
+    assert_triggered(message) do
+      assert_published_once(@event_store, DummyEvent, foo: "foo")
     end
   end
 end
