@@ -44,6 +44,12 @@ module Minitest
         assert_published(event_store, event_type, event_data)
       end
 
+      def assert_nothing_published(event_store)
+        assert_equal 0,
+                     event_store.read.count,
+                     "Expected no events published"
+      end
+
       private
 
       def collect_events(event_store, &block)

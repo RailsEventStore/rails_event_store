@@ -142,4 +142,20 @@ EOM
       assert_published_once(@event_store, DummyEvent, foo: "foo")
     end
   end
+
+  def test_assert_nothing_published
+    assert_nothing_published(@event_store)
+  end
+
+  def test_assert_nothing_published_failure
+    @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
+    message = <<-EOM.chomp
+Expected no events published.
+Expected: 0
+  Actual: 1
+EOM
+    assert_triggered(message) do
+      assert_nothing_published(@event_store)
+    end
+  end
 end
