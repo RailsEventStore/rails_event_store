@@ -6,7 +6,7 @@ module RubyEventStore
       attr_reader :path
 
       def initialize(load_path)
-        @path = load_path.find { |x| x.match? %r{ruby_event_store-browser(?:-\d\.\d\.\d)?/lib\z} }
+        @path = load_path.find { |x| x.to_s.match? %r{ruby_event_store-browser(?:-\d\.\d\.\d)?/lib\z} }
       end
 
       def version
