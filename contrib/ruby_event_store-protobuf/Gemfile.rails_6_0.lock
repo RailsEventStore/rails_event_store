@@ -104,6 +104,7 @@ GEM
     globalid (1.0.0)
       activesupport (>= 5.0)
     google-protobuf (3.21.11)
+    google-protobuf (3.21.11-x86_64-darwin)
     google-protobuf (3.21.11-x86_64-linux)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
@@ -142,6 +143,8 @@ GEM
       net-protocol
     nio4r (2.5.8)
     nokogiri (1.13.10-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.13.10-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.13.10-x86_64-linux)
       racc (~> 1.4)
@@ -217,6 +220,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
