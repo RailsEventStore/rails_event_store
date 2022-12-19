@@ -40,14 +40,6 @@ module RailsEventStore
     end
   end
 
-  class SidekiqHandlerWithHelper
-    include Sidekiq::Worker
-
-    def perform(event)
-      $queue.push(event)
-    end
-  end
-
   class HandlerWithHelper < ActiveJob::Base
     def perform(event)
       $queue.push(event)
@@ -59,16 +51,6 @@ module RailsEventStore
 
     def perform(_event)
       $queue.push(Rails.configuration.event_store.metadata)
-    end
-  end
-
-  class CustomSidekiqScheduler
-    def call(klass, record)
-      klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s))
-    end
-
-    def verify(subscriber)
-      Class === subscriber && subscriber.respond_to?(:perform_async)
     end
   end
 
@@ -163,23 +145,6 @@ module RailsEventStore
       ev = RailsEventStore::Event.new
       Sidekiq::Testing.fake! do
         event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
-        event_store.publish(ev)
-        Thread.new { Sidekiq::Worker.drain_all }.join
-      end
-      expect($queue.pop).to eq(ev)
-    end
-
-    specify "Sidekiq::Worker without ActiveJob that requires serialization" do
-      event_store =
-        RailsEventStore::Client.new(
-          dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomSidekiqScheduler.new)
-        )
-      ev = RailsEventStore::Event.new
-      Sidekiq::Testing.fake! do
-        SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler.with(
-                                           serializer: RubyEventStore::Serializers::YAML
-                                         )
-        event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
         event_store.publish(ev)
         Thread.new { Sidekiq::Worker.drain_all }.join
       end
