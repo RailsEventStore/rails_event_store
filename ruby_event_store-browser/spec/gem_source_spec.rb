@@ -30,6 +30,15 @@ module RubyEventStore
         expect(source).not_to be_from_git
       end
 
+      specify "don't crash on Pathname present in $LOAD_PATH" do
+        path =
+          "/Users/mostlyobvious/.rbenv/versions/2.7.2/lib/ruby/gems/2.7.0/bundler/gems/rails_event_store-151d0dfbec24/ruby_event_store-browser/lib"
+        source = GemSource.new([Pathname.new(random_unrelated_path), path])
+
+        expect(source.version).to eq("151d0dfbec24")
+        expect(source).to be_from_git
+      end
+
       def random_unrelated_path
         "/kaka/dudu"
       end
