@@ -4,16 +4,6 @@ require "ruby_event_store/spec/scheduler_lint"
 
 module RailsEventStore
   ::RSpec.describe AfterCommitAsyncDispatcher do
-    class CustomScheduler
-      def call(klass, record)
-        klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML))
-      end
-
-      def verify(klass)
-        klass.respond_to?(:perform_async)
-      end
-    end
-
     DummyError = Class.new(StandardError)
 
     class DummyRecord < ActiveRecord::Base
@@ -21,15 +11,15 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
-    it_behaves_like :scheduler, CustomScheduler.new
+    it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
 
-    it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new)
+    it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
 
     let(:event) { TimeEnrichment.with(RailsEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8")) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
-    let(:serialized_record) { record.serialize(RubyEventStore::Serializers::YAML) }
+    let(:serialized_record) { record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s) }
 
-    let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new) }
+    let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
 
     before(:each) { MyAsyncHandler.reset }
 
@@ -205,7 +195,7 @@ module RailsEventStore
       ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
     end
 
-    class MyAsyncHandler
+    class MyAsyncHandler < ActiveJob::Base
       @@received = nil
       @@queued = nil
       def self.reset
@@ -221,7 +211,7 @@ module RailsEventStore
       def self.perform_enqueued_jobs
         @@received = @@queued
       end
-      def self.perform_async(event)
+      def self.perform_later(event)
         @@queued = event
       end
     end
