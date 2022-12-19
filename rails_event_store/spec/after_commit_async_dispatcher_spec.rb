@@ -21,133 +21,133 @@ module RailsEventStore
 
     let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
 
-    before(:each) { MyAsyncHandler.reset }
+    before(:each) { MyActiveJobAsyncHandler.reset }
 
     it "dispatch job immediately when no transaction is open" do
-      expect_to_have_enqueued_job(MyAsyncHandler) { dispatcher.call(MyAsyncHandler, event, record) }
-      expect(MyAsyncHandler.received).to be_nil
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_record)
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
+      expect(MyActiveJobAsyncHandler.received).to be_nil
+      MyActiveJobAsyncHandler.perform_enqueued_jobs
+      expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
     end
 
     it "dispatch job only after transaction commit" do
-      expect_to_have_enqueued_job(MyAsyncHandler) do
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
         ActiveRecord::Base.transaction do
-          expect_no_enqueued_job(MyAsyncHandler) { dispatcher.call(MyAsyncHandler, event, record) }
+          expect_no_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
         end
       end
-      expect(MyAsyncHandler.received).to be_nil
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_record)
+      expect(MyActiveJobAsyncHandler.received).to be_nil
+      MyActiveJobAsyncHandler.perform_enqueued_jobs
+      expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
     end
 
     context "when transaction is rolledback" do
       it "does not dispatch job" do
-        expect_no_enqueued_job(MyAsyncHandler) do
+        expect_no_enqueued_job(MyActiveJobAsyncHandler) do
           ActiveRecord::Base.transaction do
-            dispatcher.call(MyAsyncHandler, event, record)
+            dispatcher.call(MyActiveJobAsyncHandler, event, record)
             raise ::ActiveRecord::Rollback
           end
         end
-        MyAsyncHandler.perform_enqueued_jobs
-        expect(MyAsyncHandler.received).to be_nil
+        MyActiveJobAsyncHandler.perform_enqueued_jobs
+        expect(MyActiveJobAsyncHandler.received).to be_nil
       end
 
       context "when raise_in_transactional_callbacks is enabled" do
         around { |example| with_raise_in_transactional_callbacks { example.run } }
 
         it "does not dispatch job" do
-          expect_no_enqueued_job(MyAsyncHandler) do
+          expect_no_enqueued_job(MyActiveJobAsyncHandler) do
             ActiveRecord::Base.transaction do
-              dispatcher.call(MyAsyncHandler, event, record)
+              dispatcher.call(MyActiveJobAsyncHandler, event, record)
               raise ::ActiveRecord::Rollback
             end
           end
-          MyAsyncHandler.perform_enqueued_jobs
-          expect(MyAsyncHandler.received).to be_nil
+          MyActiveJobAsyncHandler.perform_enqueued_jobs
+          expect(MyActiveJobAsyncHandler.received).to be_nil
         end
       end
     end
 
     it "dispatch job only after top-level transaction (nested is not new) commit" do
-      expect_to_have_enqueued_job(MyAsyncHandler) do
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
         ActiveRecord::Base.transaction do
-          expect_no_enqueued_job(MyAsyncHandler) do
-            ActiveRecord::Base.transaction(requires_new: false) { dispatcher.call(MyAsyncHandler, event, record) }
+          expect_no_enqueued_job(MyActiveJobAsyncHandler) do
+            ActiveRecord::Base.transaction(requires_new: false) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
           end
         end
       end
-      expect(MyAsyncHandler.received).to be_nil
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_record)
+      expect(MyActiveJobAsyncHandler.received).to be_nil
+      MyActiveJobAsyncHandler.perform_enqueued_jobs
+      expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
     end
 
     it "dispatch job only after top-level transaction commit" do
-      expect_to_have_enqueued_job(MyAsyncHandler) do
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
         ActiveRecord::Base.transaction do
-          expect_no_enqueued_job(MyAsyncHandler) do
-            ActiveRecord::Base.transaction(requires_new: true) { dispatcher.call(MyAsyncHandler, event, record) }
+          expect_no_enqueued_job(MyActiveJobAsyncHandler) do
+            ActiveRecord::Base.transaction(requires_new: true) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
           end
         end
       end
-      expect(MyAsyncHandler.received).to be_nil
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to eq(serialized_record)
+      expect(MyActiveJobAsyncHandler.received).to be_nil
+      MyActiveJobAsyncHandler.perform_enqueued_jobs
+      expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
     end
 
     it "does not dispatch job after nested transaction rollback" do
-      expect_no_enqueued_job(MyAsyncHandler) do
+      expect_no_enqueued_job(MyActiveJobAsyncHandler) do
         ActiveRecord::Base.transaction do
-          expect_no_enqueued_job(MyAsyncHandler) do
+          expect_no_enqueued_job(MyActiveJobAsyncHandler) do
             ActiveRecord::Base.transaction(requires_new: true) do
-              dispatcher.call(MyAsyncHandler, event, record)
+              dispatcher.call(MyActiveJobAsyncHandler, event, record)
               raise ::ActiveRecord::Rollback
             end
           end
         end
       end
-      MyAsyncHandler.perform_enqueued_jobs
-      expect(MyAsyncHandler.received).to be_nil
+      MyActiveJobAsyncHandler.perform_enqueued_jobs
+      expect(MyActiveJobAsyncHandler.received).to be_nil
     end
 
     context "when an exception is raised within after commit callback" do
       before { ActiveRecord::Schema.define { create_table(:dummy_records) } }
 
       it "dispatches the job after commit" do
-        expect_to_have_enqueued_job(MyAsyncHandler) do
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
           begin
             ActiveRecord::Base.transaction do
               DummyRecord.new.save!
-              expect_no_enqueued_job(MyAsyncHandler) { dispatcher.call(MyAsyncHandler, event, record) }
+              expect_no_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
             end
           rescue DummyError
           end
         end
         expect(DummyRecord.count).to eq(1)
-        expect(MyAsyncHandler.received).to be_nil
+        expect(MyActiveJobAsyncHandler.received).to be_nil
 
-        MyAsyncHandler.perform_enqueued_jobs
-        expect(MyAsyncHandler.received).to eq(serialized_record)
+        MyActiveJobAsyncHandler.perform_enqueued_jobs
+        expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
       end
 
       context "when raise_in_transactional_callbacks is enabled" do
         around { |example| with_raise_in_transactional_callbacks { example.run } }
 
         it "dispatches the job after commit" do
-          expect_to_have_enqueued_job(MyAsyncHandler) do
+          expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
             begin
               ActiveRecord::Base.transaction do
                 DummyRecord.new.save!
-                expect_no_enqueued_job(MyAsyncHandler) { dispatcher.call(MyAsyncHandler, event, record) }
+                expect_no_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
               end
             rescue DummyError
             end
           end
           expect(DummyRecord.count).to eq(1)
-          expect(MyAsyncHandler.received).to be_nil
+          expect(MyActiveJobAsyncHandler.received).to be_nil
 
-          MyAsyncHandler.perform_enqueued_jobs
-          expect(MyAsyncHandler.received).to eq(serialized_record)
+          MyActiveJobAsyncHandler.perform_enqueued_jobs
+          expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
         end
       end
     end
@@ -156,20 +156,20 @@ module RailsEventStore
       around { |example| ActiveRecord::Base.transaction(joinable: false) { example.run } }
 
       it "dispatches the job" do
-        expect_to_have_enqueued_job(MyAsyncHandler) { dispatcher.call(MyAsyncHandler, event, record) }
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
       end
 
       it "dispatches the job after a nested transaction commits" do
-        expect_to_have_enqueued_job(MyAsyncHandler) do
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
           ActiveRecord::Base.transaction do
-            expect_no_enqueued_job(MyAsyncHandler) { dispatcher.call(MyAsyncHandler, event, record) }
+            expect_no_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
           end
         end
       end
     end
 
     describe "#verify" do
-      specify { expect(dispatcher.verify(MyAsyncHandler)).to eq(true) }
+      specify { expect(dispatcher.verify(MyActiveJobAsyncHandler)).to eq(true) }
     end
 
     def expect_no_enqueued_job(job)
@@ -195,7 +195,7 @@ module RailsEventStore
       ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
     end
 
-    class MyAsyncHandler < ActiveJob::Base
+    class MyActiveJobAsyncHandler < ActiveJob::Base
       @@received = nil
       @@queued = nil
       def self.reset
