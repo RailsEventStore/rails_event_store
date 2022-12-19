@@ -8,6 +8,7 @@ module RubyEventStore
       def initialize(load_path)
         @path =
           load_path
+            .lazy
             .select { |entry| String === entry }
             .find { |entry| entry.match? %r{ruby_event_store-browser(?:-\d\.\d\.\d)?/lib\z} }
       end

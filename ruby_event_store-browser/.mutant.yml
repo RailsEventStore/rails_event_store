@@ -18,3 +18,4 @@ matcher:
     - RubyEventStore::Browser::Urls#with_request
     - RubyEventStore::Browser::Urls#initialize
     - RubyEventStore::Browser::Router#initialize
+    - RubyEventStore::Browser::GemSource#initialize
