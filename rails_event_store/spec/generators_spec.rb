@@ -92,6 +92,7 @@ module RailsEventStore
       specify do
         run_generator %w[IdentityAccess --test-framework=test_unit]
         expect_identity_access_test_helper
+        expect_identity_access_bc_test
       end
 
       specify do
@@ -139,6 +140,14 @@ module RailsEventStore
       def expect_identity_access_test_helper
         expect("identity_access/test/test_helper.rb").to match_content(<<~EOF)
           require_relative "../lib/identity_access"
+        EOF
+      end
+
+      def expect_identity_access_bc_test
+        expect("test/identity_access_test.rb").to match_content(<<~EOF)
+          require_relative "test_helper"
+
+          Dir[Rails.root.join("identity_access/test/*_test.rb")].each { |file| require file }
         EOF
       end
     end

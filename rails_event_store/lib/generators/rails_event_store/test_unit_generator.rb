@@ -11,6 +11,10 @@ module RailsEventStore
         template "test_helper.rb", "#{bounded_context_name}/test/test_helper.rb"
       end
 
+      def require_bc_test
+        template "require_bc_test.rb", "test/#{bounded_context_name}_test.rb"
+      end
+
       private
 
       def bounded_context_name
