@@ -1,5 +1,5 @@
 module.exports = {
-  content: ["./source/**/*.{html,md,erb}", "./layouts/**/*.erb", "./partials/**/*.erb", "./config.rb"],
+  content: ["./source/**/*.{html,md,erb}", "./config.rb"],
   theme: {
     fontSize: {
       xs: ["0.75rem", { lineHeight: "1rem" }],
