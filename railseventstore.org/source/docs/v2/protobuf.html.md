@@ -78,13 +78,13 @@ event = client.read.stream("test").last
 
 ## Subscribing
 
-#### Sync handlers
+### Sync handlers
 
 ```ruby
 event_store.subscribe(->(ev) {  }, to: [MyApp::OrderPlaced.descriptor.name])
 ```
 
-#### Async handlers
+### Async handlers
 
 ```ruby
 class SendOrderEmailHandler < ActiveJob::Base
