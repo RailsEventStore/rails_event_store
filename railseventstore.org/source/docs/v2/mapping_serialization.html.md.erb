@@ -113,17 +113,17 @@ event_store.publish(OrderPlaced.new(event_id: 'e34fc19a-a92f-4c21-8932-a10f6fb26
 event = event_store.read.event('e34fc19a-a92f-4c21-8932-a10f6fb2602b')
 
 event.data[:foo]
-# => "bar"
+\# => "bar"
 
 event.data['foo']
-# => "bar"
+\# => "bar"
 </code>
 </pre>
 </div>
 
-  <p class="text-base inline-block">
-    Another way to achive that could be define your own <a href="https://railseventstore.org/docs/mapping_serialization/#custom-mapper">custom mapper and transformation</a>
-  </p>
+<p class="text-base inline-block">
+Another way to achive that could be define your own <a href="https://railseventstore.org/docs/mapping_serialization/#custom-mapper">custom mapper and transformation</a>
+</p>
 </div>
 
 
