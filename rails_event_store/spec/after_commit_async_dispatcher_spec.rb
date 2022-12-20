@@ -1,6 +1,5 @@
 require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
-require "ruby_event_store/spec/scheduler_lint"
 
 module RailsEventStore
   ::RSpec.describe AfterCommitAsyncDispatcher do
@@ -10,8 +9,6 @@ module RailsEventStore
       self.table_name = "dummy_records"
       after_commit -> { raise DummyError }
     end
-
-    it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
 
     it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
 
