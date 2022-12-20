@@ -25,7 +25,7 @@ event_store.publish(event, stream_name: "Order-1", expected_version: :any)
 - Good if you use RES as pub-sub and only sometimes you read the events for debugging purposes
 - Good if exact order events is not critical
 
-## explicit number (Integer, from -1..∞)
+## Integer
 
 You start by publishing the first event in a stream with `expected_version` being `-1` (or `:none`). That means you expect no events in the stream right now.
 
