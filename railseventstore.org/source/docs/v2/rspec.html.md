@@ -67,7 +67,7 @@ You may have noticed the same matcher being referenced as `be_event`, `be_an_eve
 
 ## Event store matchers
 
-### have_published
+### have\_published
 
 Use this matcher to target `event_store` and reading from streams specifically.
 In a simplest form it would read all streams forward and check whether the expectation holds true. Its behaviour can be best compared to the `include` matcher — it is satisfied by at least one element present in the collection. You're encouraged to compose it with `be_event`.
@@ -189,7 +189,7 @@ expect {
 ).in(event_store)
 ```
 
-### have_subscribed_to_events
+### have\_subscribed\_to\_events
 
 Use this matcher to make sure that a handler has or has not subscribed to event types in target `event_store`.
 
