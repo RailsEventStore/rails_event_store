@@ -18,27 +18,6 @@ module YourAppName
 end
 ```
 
-#### Removing subscriptions
-
-When you define a new subscription by `subscribe` method execution it will return a lambda that allows to remove defined subscription.
-
-```ruby
-Rails.configuration.event_store = event_store = RailsEventStore::Client.new
-unsubscribe = event_store.subscribe(OrderNotifier.new, to: [OrderCancelled])
-# ...and then when subscription is no longer needed
-unsubscribe.call
-```
-
-Unsubscribe lambda will remove all subscriptions defined by `subscribe` method, when you defined subscription as:
-
-```ruby
-unsubscribe = event_store.subscribe(InvoiceReadModel.new, to: [InvoiceCreated, InvoiceUpdated])
-```
-
-and then execute returned lambda both subscriptions will be removed.
-
-It you need temporary subscription to be defined [read more here](/docs/v2/subscribe/#temporary-subscriptions).
-
 ## Synchronous handlers
 
 To subscribe to events publication, you can use `#subscribe` method. It accepts two arguments:
@@ -427,3 +406,24 @@ end
 ```
 
 It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
+
+## Removing subscriptions
+
+When you define a new subscription by `subscribe` method execution it will return a lambda that allows to remove defined subscription.
+
+```ruby
+Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+unsubscribe = event_store.subscribe(OrderNotifier.new, to: [OrderCancelled])
+# ...and then when subscription is no longer needed
+unsubscribe.call
+```
+
+Unsubscribe lambda will remove all subscriptions defined by `subscribe` method, when you defined subscription as:
+
+```ruby
+unsubscribe = event_store.subscribe(InvoiceReadModel.new, to: [InvoiceCreated, InvoiceUpdated])
+```
+
+and then execute returned lambda both subscriptions will be removed.
+
+It you need temporary subscription to be defined [read more here](/docs/v2/subscribe/#temporary-subscriptions).
