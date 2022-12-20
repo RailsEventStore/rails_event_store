@@ -2,11 +2,11 @@
 title: Deleting stream
 ---
 
-You can permanently delete all events from a specific stream. Use this wisely.
+You can permanently delete all events from a specific stream.
 
 ```ruby
 stream_name = "product_1"
 client.delete_stream(stream_name)
 ```
 
-NOTE: All events from the stream remain intact but they are no longer linked to the stream.
+When you do it, events remain intact but they are no longer linked to the stream.
