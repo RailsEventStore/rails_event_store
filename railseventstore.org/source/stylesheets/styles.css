@@ -639,6 +639,18 @@ svg.DocSearch-Hit-Select-Icon {
   }
 }
 
+.table-of-contents a {
+  @apply font-normal text-gray-800 no-underline bg-none text-sm;
+}
+
+.table-of-contents ul:first-child {
+  @apply mt-4 space-y-3;
+}
+
+.table-of-contents ul ul {
+  @apply mt-2 space-y-3 pl-5;
+}
+
 .syntax-highlight .c {
   color: #93a1a1;
 }
