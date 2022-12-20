@@ -28,14 +28,14 @@ class Order
 end
 ```
 
-#### Define domain events
+### Define domain events
 
 ```ruby
 class OrderSubmitted < RailsEventStore::Event; end
 class OrderExpired < RailsEventStore::Event; end
 ```
 
-#### Define aggregate logic
+### Define aggregate logic
 
 ```ruby
 class Order
@@ -73,7 +73,7 @@ class Order
 end
 ```
 
-#### Alternative syntax for event handler methods (deprecated)
+### Alternative syntax for event handler methods (deprecated)
 
 The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name) for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called. The downside is that you can't easily grep for usages of the event class.
 
@@ -112,7 +112,7 @@ class Order
 end
 ```
 
-#### Loading an aggregate root object from an event store
+### Loading an aggregate root object from an event store
 
 ```ruby
 stream_name = "Order$123"
@@ -121,7 +121,7 @@ order = AggregateRoot::Repository.new.load(Order.new, stream_name)
 
 To restore the state of your aggregate you need to use `AggregateRoot::Repository`. Repository's `#load` gets all domain events stored for the aggregate in the event store stream `Order$123` and applies them to the newly created order object in order to rebuild the aggregate's state.
 
-#### Storing an aggregate root's changes in an event store
+### Storing an aggregate root's changes in an event store
 
 ```ruby
 stream_name = "Order$123"
@@ -133,7 +133,7 @@ repository.store(order, stream_name)
 
 Storing (publishing) aggregate changes is also performed by the `AggregateRoot::Repository` object. Repository's `#store` gets all the unpublished aggregate's domain events (added by executing a domain logic method like `submit`) from `unpublished_events` and publishes them in order of creation to the event store.
 
-#### Simplify loading/storing aggregates
+### Simplify loading/storing aggregates
 
 `AggregateRoot::Repository` delivers a convenient method to handle a typical workflow with aggregates. The `with_aggregate` method will load an aggregate from a given stream, yield a block to allow performing an action on the aggregate object (the aggregate object will be yielded as a block argument), and then publish all changes in aggregate to the event store provided to the repository.
 
