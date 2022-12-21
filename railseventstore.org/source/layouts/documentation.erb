@@ -39,39 +39,37 @@
         </div>
       </div>
     </header>
-    <div>
-      <main class="relative mx-auto flex max-w-8xl justify-center sm:px-2 lg:px-8 xl:px-12">
-        <aside class="hidden lg:relative lg:block lg:flex-none">
-          <div class="md:sticky top-[5.8rem] z-50 bg-white">
-            <div class="bg-white relative pointer-events-auto" id="search"></div>
-          </div>
-          <nav class="pb-8 pt-2 md:sticky top-[9rem] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-9rem)] w-64 pr-8 xl:w-72 xl:pr-16">
-            <%= partial "partials/documentation_nav_#{version}" %>
-          </nav>
-        </aside>
-        <div class="min-w-0 max-w-2xl flex-auto px-4 py-6 lg:max-w-none lg:pr-0 lg:pl-8 xl:px-16">
-          <article class="prose prose-lg ">
-            <header class="mb-9 space-y-1">
-              <h1 class="font-display text-3xl tracking-tight text-gray-900"><%= page_title %></h1>
-            </header>
-            <div class="prose prose-lg prose-gray prose-headings:scroll-mt-28 prose-headings:font-display prose-headings:font-normal lg:prose-headings:scroll-mt-[5.5rem] prose-lead:text-gray-500 prose-a:font-semibold prose-a:no-underline prose-a:shadow-[inset_0_-2px_0_0_var(--tw-prose-background,#fff),inset_0_calc(-1*(var(--tw-prose-underline-size,4px)+2px))_0_0_var(--tw-prose-underline,theme(colors.red.300))] hover:prose-a:[--tw-prose-underline-size:6px] prose-pre:bg-[#f7f7f7] prose-code:before:content-none prose-code:after:content-none">
-              <%= yield %>
-            </div>
-          </article>
-          <footer class="text-sm leading-6 mt-12">
-            <div class="pt-10 pb-16 border-t border-gray-200 sm:flex justify-end text-gray-500">
-              <%= edit_github_link %>
-            </div>
-          </footer>
+    <main class="relative mx-auto flex max-w-8xl justify-center sm:px-2 lg:px-8 xl:px-12">
+      <aside class="hidden lg:relative lg:block lg:flex-none">
+        <div class="md:sticky top-[5.8rem] z-50 bg-white">
+          <div class="bg-white relative pointer-events-auto" id="search"></div>
         </div>
-        <aside class="hidden xl:sticky xl:top-[5.5rem] xl:-mr-6 xl:block xl:h-[calc(100vh-5.5rem)] xl:flex-none xl:overflow-y-auto xl:pr-6">
-          <nav class="table-of-contents w-56">
-            <h2 class="font-display text-sm font-medium text-gray-900">On this page</h2>
-            <%= table_of_contents %>
-          </nav>
-        </aside>
-      </main>
-    </div>
+        <nav class="pb-8 pt-2 md:sticky top-[9rem] overflow-y-auto overflow-x-hidden md:h-[calc(100vh-9rem)] w-64 pr-8 xl:w-72 xl:pr-16">
+          <%= partial "partials/documentation_nav_#{version}" %>
+        </nav>
+      </aside>
+      <div class="min-w-0 max-w-2xl flex-auto px-4 py-6 lg:max-w-none lg:pr-0 lg:pl-8 xl:px-16">
+        <article class="prose prose-lg ">
+          <header class="mb-9 space-y-1">
+            <h1 class="font-display text-3xl tracking-tight text-gray-900"><%= page_title %></h1>
+          </header>
+          <div class="prose prose-lg prose-gray prose-headings:scroll-mt-28 prose-headings:font-display prose-headings:font-normal lg:prose-headings:scroll-mt-[5.5rem] prose-lead:text-gray-500 prose-a:font-semibold prose-a:no-underline prose-a:shadow-[inset_0_-2px_0_0_var(--tw-prose-background,#fff),inset_0_calc(-1*(var(--tw-prose-underline-size,4px)+2px))_0_0_var(--tw-prose-underline,theme(colors.red.300))] hover:prose-a:[--tw-prose-underline-size:6px] prose-pre:bg-[#f7f7f7] prose-code:before:content-none prose-code:after:content-none">
+            <%= yield %>
+          </div>
+        </article>
+        <footer class="text-sm leading-6 mt-12">
+          <div class="pt-10 pb-16 border-t border-gray-200 sm:flex justify-end text-gray-500">
+            <%= edit_github_link %>
+          </div>
+        </footer>
+      </div>
+      <aside class="hidden xl:sticky xl:top-[5.5rem] xl:-mr-6 xl:block xl:h-[calc(100vh-5.5rem)] xl:flex-none xl:overflow-y-auto xl:pr-6">
+        <nav class="table-of-contents w-56">
+          <h2 class="font-display text-sm font-medium text-gray-900">On this page</h2>
+          <%= table_of_contents %>
+        </nav>
+      </aside>
+    </main>
     <%= partial "partials/anchorjs" %>
     <%= partial "partials/doc_search" %>
     <%= partial "partials/tracking" %>
