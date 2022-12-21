@@ -60,7 +60,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 
 ## Hooks and their payloads
 
-#### append_to_stream.repository.rails_event_store
+### append_to_stream.repository.rails_event_store
 
 | Key     | Value                                                                                                                       |
 | ------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -74,7 +74,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### link_to_stream.repository.rails_event_store
+### link_to_stream.repository.rails_event_store
 
 | Key        | Value                                                                                                                   |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -89,7 +89,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### delete_stream.repository.rails_event_store
+### delete_stream.repository.rails_event_store
 
 | Key     | Value                                                                                                           |
 | ------- | --------------------------------------------------------------------------------------------------------------- |
@@ -101,7 +101,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### read.repository.rails_event_store
+### read.repository.rails_event_store
 
 | Key            | Value                                                                                                                                                                      |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -113,7 +113,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### count.repository.rails_event_store
+### count.repository.rails_event_store
 
 | Key            | Value                                                                                                                                                                      |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -125,7 +125,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### update_messages.repository.rails_event_store
+### update_messages.repository.rails_event_store
 
 | Key       | Value                                                                                                                                                               |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -137,7 +137,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### streams_of.repository.rails_event_store
+### streams_of.repository.rails_event_store
 
 | Key       | Value                                                                 |
 | --------- | --------------------------------------------------------------------- |
@@ -147,7 +147,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 { event_id: "8cee1139-4f96-483a-a175-2b947283c3c7" }
 ```
 
-#### call.dispatcher.rails_event_store
+### call.dispatcher.rails_event_store
 
 | Key         | Value                                        |
 | ----------- | -------------------------------------------- |
@@ -161,7 +161,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### serialize.mapper.rails_event_store
+### serialize.mapper.rails_event_store
 
 | Key           | Value                                                               |
 | ------------- | ------------------------------------------------------------------- |
@@ -173,7 +173,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### deserialize.mapper.rails_event_store
+### deserialize.mapper.rails_event_store
 
 | Key     | Value                                                                                                                                             |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -185,7 +185,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### load.repository.aggregate_root
+### load.repository.aggregate_root
 
 | Key        | Value                                                                |
 | ---------- | -------------------------------------------------------------------- |
@@ -199,7 +199,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-#### store.repository.aggregate_root
+### store.repository.aggregate_root
 
 | Key            | Value                                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
