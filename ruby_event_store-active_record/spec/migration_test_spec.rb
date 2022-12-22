@@ -52,6 +52,9 @@ module RubyEventStore
 
           end
         SCHEMA
+      ensure
+        drop_database
+        close_database_connection
       end
     end
   end
