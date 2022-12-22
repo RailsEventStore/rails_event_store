@@ -30,7 +30,7 @@ module RubyEventStore
       end
 
       def migration_version
-        "[4.2]"
+        "[5.0]"
       end
 
       def timestamp
