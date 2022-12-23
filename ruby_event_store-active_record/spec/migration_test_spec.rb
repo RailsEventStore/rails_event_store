@@ -56,8 +56,12 @@ module RubyEventStore
             end
           SCHEMA
         elsif ENV["DATABASE_URL"].include?("mysql")
+          my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
+          collation = my_sql_major_version == 8 ? "collation: \"utf8mb4_0900_ai_ci\", " : ""
+          charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
+
           <<~SCHEMA.strip
-              create_table "event_store_events", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+              create_table "event_store_events", id: :integer, charset: "#{charset}", #{collation}force: :cascade do |t|
                 t.string "event_id", limit: 36, null: false
                 t.string "event_type", null: false
                 t.binary "metadata"
@@ -70,7 +74,7 @@ module RubyEventStore
                 t.index ["valid_at"], name: "index_event_store_events_on_valid_at"
               end
 
-              create_table "event_store_events_in_streams", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+              create_table "event_store_events_in_streams", id: :integer, charset: "#{charset}", #{collation}force: :cascade do |t|
                 t.string "stream", null: false
                 t.integer "position"
                 t.string "event_id", limit: 36, null: false
