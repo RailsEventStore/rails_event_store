@@ -23,6 +23,7 @@ module RubyEventStore
 
       def expected_schema
         if ENV["DATABASE_URL"].include?("postgres")
+          data_type = ENV["DATA_TYPE"]
           <<~SCHEMA.strip
             # This file is auto-generated from the current state of the database. Instead
             # of editing this file, please use the migrations feature of Active Record to
@@ -43,8 +44,8 @@ module RubyEventStore
               create_table \"event_store_events\", force: :cascade do |t|
                 t.uuid \"event_id\", null: false
                 t.string \"event_type\", null: false
-                t.binary \"metadata\"
-                t.binary \"data\", null: false
+                t.#{data_type} \"metadata\"
+                t.#{data_type} \"data\", null: false
                 t.datetime \"created_at\", precision: nil, null: false
                 t.datetime \"valid_at\", precision: nil
                 t.index [\"created_at\"], name: \"index_event_store_events_on_created_at\"
