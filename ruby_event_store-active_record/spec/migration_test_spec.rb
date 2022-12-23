@@ -13,7 +13,7 @@ module RubyEventStore
 
         load_database_schema
 
-        expect(dump_schema.strip).to eq expected_schema
+        expect(table_schema).to eq expected_schema
       ensure
         drop_database
         close_database_connection
@@ -21,26 +21,15 @@ module RubyEventStore
 
       private
 
+      def table_schema
+        schema = dump_schema
+        schema[schema.index("create_table")..schema.length - 1].strip
+      end
+
       def expected_schema
         if ENV["DATABASE_URL"].include?("postgres")
           data_type = ENV["DATA_TYPE"]
           <<~SCHEMA.strip
-            # This file is auto-generated from the current state of the database. Instead
-            # of editing this file, please use the migrations feature of Active Record to
-            # incrementally modify your database, and then regenerate this schema definition.
-            #
-            # This file is the source Rails uses to define your schema when running `bin/rails
-            # db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
-            # be faster and is potentially less error prone than running all of your
-            # migrations from scratch. Old migrations may fail to apply correctly if those
-            # migrations use external dependencies or application code.
-            #
-            # It's strongly recommended that you check this file into your version control system.
-
-            ActiveRecord::Schema[7.0].define(version: 2022_12_08_155138) do
-              # These are extensions that must be enabled in order to support this database
-              enable_extension \"plpgsql\"
-
               create_table \"event_store_events\", force: :cascade do |t|
                 t.uuid \"event_id\", null: false
                 t.string \"event_type\", null: false
@@ -68,19 +57,6 @@ module RubyEventStore
           SCHEMA
         elsif ENV["DATABASE_URL"].include?("mysql")
           <<~SCHEMA.strip
-            # This file is auto-generated from the current state of the database. Instead
-            # of editing this file, please use the migrations feature of Active Record to
-            # incrementally modify your database, and then regenerate this schema definition.
-            #
-            # This file is the source Rails uses to define your schema when running `bin/rails
-            # db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
-            # be faster and is potentially less error prone than running all of your
-            # migrations from scratch. Old migrations may fail to apply correctly if those
-            # migrations use external dependencies or application code.
-            #
-            # It's strongly recommended that you check this file into your version control system.
-
-            ActiveRecord::Schema[7.0].define(version: 0) do
               create_table "event_store_events", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
                 t.string "event_id", limit: 36, null: false
                 t.string "event_type", null: false
@@ -108,19 +84,6 @@ module RubyEventStore
           SCHEMA
         else
           <<~SCHEMA.strip
-            # This file is auto-generated from the current state of the database. Instead
-            # of editing this file, please use the migrations feature of Active Record to
-            # incrementally modify your database, and then regenerate this schema definition.
-            #
-            # This file is the source Rails uses to define your schema when running `bin/rails
-            # db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
-            # be faster and is potentially less error prone than running all of your
-            # migrations from scratch. Old migrations may fail to apply correctly if those
-            # migrations use external dependencies or application code.
-            #
-            # It's strongly recommended that you check this file into your version control system.
-
-            ActiveRecord::Schema[7.0].define(version: 0) do
               create_table \"event_store_events\", force: :cascade do |t|
                 t.string \"event_id\", limit: 36, null: false
                 t.string \"event_type\", null: false
