@@ -73,9 +73,9 @@ module Minitest
       end
 
       def assert_exact_new_events(event_store, expected_new_events, &block)
-        events_so_far = event_store.read.forward.to_a
+        events_so_far = event_store.read.to_a
         block.call
-        new_events = (event_store.read.forward.to_a - events_so_far).map(&:class)
+        new_events = (event_store.read.to_a - events_so_far).map(&:class)
         assert_equal(
           expected_new_events,
           new_events,
@@ -84,9 +84,9 @@ module Minitest
       end
 
       def assert_new_events_include(event_store, expected_events, &block)
-        events_so_far = event_store.read.forward.to_a
+        events_so_far = event_store.read.to_a
         block.call
-        new_events = (event_store.read.forward.to_a - events_so_far).map(&:class)
+        new_events = (event_store.read.to_a - events_so_far).map(&:class)
         assert(
           (expected_events - new_events).empty?,
           "Didn't include all of: #{expected_events} in #{new_events}"
@@ -103,7 +103,7 @@ module Minitest
 
       def assert_equal_events(expected, checked, verify_id: false)
         assert_equal expected.size, checked.size
-        expected.zip(checked).each do |e, c|
+        expected.zip(checked) do |e, c|
           assert_equal_event(e, c, verify_id: verify_id)
         end
       end

@@ -346,6 +346,22 @@ Expected: {:foo=>\"foo\"}
     end
   end
 
+  def test_equal_event_failure_on_class
+    expected_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(AnotherDummyEvent.new(data: { foo: "bar" }, metadata: { bar: "foo" }))
+    actual_event = @event_store.read.backward.first
+
+    message = <<-EOM.chomp
+Expected: DummyEvent
+  Actual: AnotherDummyEvent
+    EOM
+
+    assert_triggered(message) do
+      assert_equal_event(expected_event, actual_event)
+    end
+  end
+
   def test_equal_event_with_id
     event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
 
