@@ -62,6 +62,52 @@ module Minitest
                      "Expected no events published"
       end
 
+      def assert_event_in_stream(event_store, event, stream_name)
+        assert event_store.read.stream(stream_name).event(event.event_id),
+               "Expected event #{event.event_id} in #{stream_name} stream, none was there"
+      end
+
+      def assert_event_not_in_stream(event_store, event, stream_name)
+        refute event_store.read.stream(stream_name).event(event.event_id),
+               "Expected event #{event.event_id} not to be in #{stream_name} stream, but it was there"
+      end
+
+      def assert_exact_new_events(event_store, expected_new_events, &block)
+        events_so_far = event_store.read.forward.to_a
+        block.call
+        new_events = (event_store.read.forward.to_a - events_so_far).map(&:class)
+        assert_equal(
+          expected_new_events,
+          new_events,
+          "Expected new events weren't found"
+        )
+      end
+
+      def assert_new_events_include(event_store, expected_events, &block)
+        events_so_far = event_store.read.forward.to_a
+        block.call
+        new_events = (event_store.read.forward.to_a - events_so_far).map(&:class)
+        assert(
+          (expected_events - new_events).empty?,
+          "Didn't include all of: #{expected_events} in #{new_events}"
+        )
+      end
+
+      def assert_equal_event(expected, actual, verify_id: false)
+        if verify_id
+          assert_equal expected.event_id, actual.event_id
+        end
+        assert_equal expected.class, actual.class
+        assert_equal expected.data, actual.data
+      end
+
+      def assert_equal_events(expected, checked, verify_id: false)
+        assert_equal expected.size, checked.size
+        expected.zip(checked).each do |e, c|
+          assert_equal_event(e, c, verify_id: verify_id)
+        end
+      end
+
       private
 
       def events_published(event_store, event_type, stream, &block)

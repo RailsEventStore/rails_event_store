@@ -150,9 +150,9 @@ EOM
 Event data mismatch.
 Expected: {"foo"=>"foo"}
   Actual: {"foo"=>"bar"}
-EOM
+    EOM
     assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent, with_data: {foo: "foo"})
+      assert_published_once(@event_store, DummyEvent, with_data: { foo: "foo" })
     end
   end
 
@@ -164,7 +164,7 @@ Expected: {"foo"=>"foo"}
   Actual: {"foo"=>"bar"}
     EOM
     assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent, with_metadata: {foo: "foo"})
+      assert_published_once(@event_store, DummyEvent, with_metadata: { foo: "foo" })
     end
   end
 
@@ -178,7 +178,7 @@ Expected: {"foo"=>"foo"}
 Expected no events published.
 Expected: 0
   Actual: 1
-EOM
+    EOM
     assert_triggered(message) do
       assert_nothing_published(@event_store)
     end
@@ -209,6 +209,231 @@ EOM
   def test_assert_published_once_to_specific_stream
     @event_store.publish(DummyEvent.new)
     @event_store.publish(DummyEvent.new, stream_name: "specific-stream")
-    assert_published_once(@event_store, DummyEvent,  within_stream: "specific-stream")
+    assert_published_once(@event_store, DummyEvent, within_stream: "specific-stream")
+  end
+
+  def test_assert_event_in_stream
+    event = DummyEvent.new
+    @event_store.publish(event, stream_name: "specific-stream")
+
+    assert_event_in_stream(@event_store, event, "specific-stream")
+  end
+
+  def test_assert_event_in_stream_failure
+    event = DummyEvent.new
+    @event_store.publish(event)
+
+    message = <<-EOM.strip
+      Expected event #{event.event_id} in specific-stream stream, none was there
+    EOM
+
+    assert_triggered(message) do
+      assert_event_in_stream(@event_store, event, "specific-stream")
+    end
+  end
+
+  def test_assert_event_not_in_stream
+    event = DummyEvent.new
+    @event_store.publish(event)
+
+    assert_event_not_in_stream(@event_store, event, "specific-stream")
+  end
+
+  def test_assert_event_not_in_stream_failure
+    event = DummyEvent.new
+    @event_store.publish(event, stream_name: "specific-stream")
+
+    message = <<-EOM.strip
+      Expected event #{event.event_id} not to be in specific-stream stream, but it was there
+    EOM
+
+    assert_triggered(message) do
+      assert_event_not_in_stream(@event_store, event, "specific-stream")
+    end
+  end
+
+  def test_exact_new_events
+    events = [DummyEvent.new, DummyEvent.new]
+    events.each { |event| @event_store.publish(event) }
+
+    new_events = [AnotherDummyEvent.new, AnotherDummyEvent.new]
+
+    assert_exact_new_events(@event_store, new_events.map(&:class)) do
+      new_events.each { |event| @event_store.publish(event) }
+    end
+  end
+
+  def test_exact_new_events_failure
+    events = [DummyEvent.new, DummyEvent.new]
+    events.each { |event| @event_store.publish(event) }
+
+    new_events = [AnotherDummyEvent.new, AnotherDummyEvent.new]
+
+    message = <<-EOM.chomp
+Expected new events weren't found.
+--- expected
++++ actual
+@@ -1 +1 @@
+-[AnotherDummyEvent, AnotherDummyEvent]
++[]
+
+    EOM
+
+    assert_triggered(message) do
+      assert_exact_new_events(@event_store, new_events.map(&:class)) {}
+    end
+  end
+
+  def test_new_events_include
+    events = [DummyEvent.new, DummyEvent.new]
+    events.each { |event| @event_store.publish(event) }
+
+    new_events = [AnotherDummyEvent.new, AnotherDummyEvent.new, DummyEvent.new]
+
+    assert_new_events_include(@event_store, [DummyEvent]) do
+      new_events.each { |event| @event_store.publish(event) }
+    end
+  end
+
+  def test_new_events_include_failure_no_new_messages
+    events = [DummyEvent.new, DummyEvent.new]
+    events.each { |event| @event_store.publish(event) }
+
+    message = <<-EOM.chomp
+Didn't include all of: [DummyEvent] in []
+    EOM
+
+    assert_triggered(message) do
+      assert_new_events_include(@event_store, [DummyEvent]) {}
+    end
+  end
+
+  def test_new_events_include_failure_expected_message_not_included
+    events = [DummyEvent.new, DummyEvent.new]
+    events.each { |event| @event_store.publish(event) }
+
+    message = <<-EOM.chomp
+Didn't include all of: [DummyEvent] in [AnotherDummyEvent]
+    EOM
+
+    assert_triggered(message) do
+      assert_new_events_include(@event_store, [DummyEvent]) { @event_store.publish(AnotherDummyEvent.new) }
+    end
+  end
+
+  def test_equal_event
+    expected_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" }))
+    actual_event = @event_store.read.backward.first
+
+    assert_equal_event(expected_event, actual_event)
+  end
+
+  def test_equal_event_failure
+    expected_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(DummyEvent.new(data: { foo: "bar" }, metadata: { bar: "foo" }))
+    actual_event = @event_store.read.backward.first
+
+    message = <<-EOM.chomp
+Expected: {:foo=>\"foo\"}
+  Actual: {:foo=>\"bar\"}
+    EOM
+
+    assert_triggered(message) do
+      assert_equal_event(expected_event, actual_event)
+    end
+  end
+
+  def test_equal_event_with_id
+    event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(event)
+    actual_event = @event_store.read.backward.first
+
+    assert_equal_event(event, actual_event, verify_id: true)
+  end
+
+  def test_equal_event_with_id_failure
+    expected_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    dummy_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+    @event_store.publish(dummy_event)
+    actual_event = @event_store.read.backward.first
+    message = <<-EOM
+--- expected
++++ actual
+@@ -1,3 +1,3 @@
+ # encoding: US-ASCII
+ #    valid: true
+-#{expected_event.event_id.inspect}
++#{dummy_event.event_id.inspect}
+    EOM
+
+    assert_triggered(message) do
+      assert_equal_event(expected_event, actual_event, verify_id: true)
+    end
+  end
+
+  def test_equal_events
+    event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+    second_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(event)
+    @event_store.publish(second_event)
+    events = @event_store.read.backward.limit(2).to_a
+
+    assert_equal_events([event, second_event], events)
+  end
+
+  def test_equal_events_failure
+    event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+    second_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(event)
+    events = @event_store.read.backward.limit(2).to_a
+
+    message = <<-EOM.chomp
+Expected: 2
+  Actual: 1
+    EOM
+
+    assert_triggered(message) do
+      assert_equal_events([event, second_event], events)
+    end
+  end
+
+  def test_equal_events_with_id_verification
+    event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(event)
+    events = @event_store.read.backward.limit(2).to_a
+
+    assert_equal_events([event], events, verify_id: true)
+  end
+
+  def test_equal_events_with_id_verification_failure
+    event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+    second_event = DummyEvent.new(data: { foo: "foo" }, metadata: { bar: "bar" })
+
+    @event_store.publish(event)
+    @event_store.publish(second_event)
+    events = @event_store.read.backward.limit(2).to_a
+
+    message = <<-EOM.chomp
+--- expected
++++ actual
+@@ -1,3 +1,3 @@
+ # encoding: US-ASCII
+ #    valid: true
+-#{event.event_id.inspect}
++#{second_event.event_id.inspect}
+
+    EOM
+
+    assert_triggered(message) do
+      assert_equal_events([event, second_event], events, verify_id: true)
+    end
   end
 end
