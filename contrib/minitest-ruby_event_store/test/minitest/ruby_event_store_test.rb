@@ -39,7 +39,7 @@ Expected
   []
 to include 
   DummyEvent
-EOM
+    EOM
     assert_triggered(message) { assert_dispatched(@event_store, [DummyEvent]) {} }
   end
 
@@ -58,7 +58,7 @@ Expected
   [#{dummy_event.inspect}]
 to NOT include 
   DummyEvent
-EOM
+    EOM
     assert_triggered(message) do
       assert_not_dispatched(@event_store, [DummyEvent]) { @event_store.publish(dummy_event) }
     end
@@ -80,7 +80,7 @@ EOM
 Event data mismatch.
 Expected: {"foo"=>"foo"}
   Actual: {"foo"=>"bar"}
-EOM
+    EOM
     assert_triggered(message) do
       assert_published(@event_store, DummyEvent, with_data: { "foo" => "foo" })
     end
@@ -120,7 +120,7 @@ Expected: {"foo"=>"foo"}
 Expected no event of DummyEvent type.
 Expected: 0
   Actual: 1
-EOM
+    EOM
     assert_triggered(message) do
       assert_not_published(@event_store, DummyEvent)
     end
@@ -138,7 +138,7 @@ EOM
 Expected only one event of DummyEvent type.
 Expected: 1
   Actual: 2
-EOM
+    EOM
     assert_triggered(message) do
       assert_published_once(@event_store, DummyEvent)
     end
