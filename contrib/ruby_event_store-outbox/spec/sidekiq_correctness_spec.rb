@@ -48,7 +48,7 @@ module RubyEventStore
         consumer.process
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 
-        CorrectAsyncHandler.perform_async(event_record.serialize(RubyEventStore::Serializers::YAML).to_h)
+        CorrectAsyncHandler.perform_async(event_record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s))
         entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
 
         expect(redis.llen("queue:default")).to eq(2)
