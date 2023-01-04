@@ -63,7 +63,6 @@ module RubyEventStore
           data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
         )
 
-      # expect(event1.data).to eql(event2.data)
       expect(event1.data).to eq(event2.data)
       expect(event1).to eq(event2)
     end
