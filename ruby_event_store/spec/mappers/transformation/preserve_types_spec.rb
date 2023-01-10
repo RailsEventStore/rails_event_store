@@ -339,7 +339,7 @@ module RubyEventStore
 
           expect(transformation.dump(record).metadata[:types])
             .to eq({ data: { "active_support_time_with_zone" => ["Symbol", "ActiveSupport::TimeWithZone"] }, :metadata => {} })
-          expect(transformation.load(SymbolizeMetadataKeys.new.load(transformation.dump(record)))).to eq(record)
+          expect(transformation.load(transformation.dump(record))).to eq(record)
         ensure
           Time.zone = current_tz
         end

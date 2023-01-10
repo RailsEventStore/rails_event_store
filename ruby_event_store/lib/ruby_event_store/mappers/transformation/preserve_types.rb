@@ -95,7 +95,7 @@ module RubyEventStore
 
         def restore_types(argument, types)
           argument.each_with_object({}) do |(key, value), hash|
-            key_type, value_type = types.fetch(key.to_sym)
+            key_type, value_type = types.fetch(key.to_sym) { types.fetch(key.to_s) }
             restored_key = restore_type(key, key_type)
             hash[restored_key] = restore_type(value, value_type)
           end
