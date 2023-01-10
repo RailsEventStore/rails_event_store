@@ -57,6 +57,7 @@ module RubyEventStore
 
         private
         PASS_THROUGH = ->(v) { v }
+        DEFAULT_STORE_TYPE = -> (argument) { argument.class.name }
 
         def transform_hash(argument)
           argument.each_with_object({}) do |(key, value), hash|
@@ -120,7 +121,7 @@ module RubyEventStore
         end
 
         def store_type_of(argument)
-          @registered_type_serializers.dig(@type_resolver.(argument.class), :store_type) || -> (argument) { argument.class.name }
+          @registered_type_serializers.dig(@type_resolver.(argument.class), :store_type) || DEFAULT_STORE_TYPE
         end
       end
     end
