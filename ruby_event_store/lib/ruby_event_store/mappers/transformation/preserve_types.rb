@@ -85,7 +85,9 @@ module RubyEventStore
           when Hash
             store_types(argument)
           when Array
-            argument.map{|i| store_type(i)}
+            argument.map { |i| store_type(i) }
+          when ActiveSupport::TimeWithZone
+            "ActiveSupport::TimeWithZone"
           else
             argument.class.name
           end

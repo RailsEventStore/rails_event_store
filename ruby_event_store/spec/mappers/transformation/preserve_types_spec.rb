@@ -323,6 +323,25 @@ module RubyEventStore
           expect(transformation.dump(record)).to eq(record)
           expect(transformation.load(record)).to eq(record)
         end
+
+        specify do
+          current_tz = Time.zone
+          Time.zone = 'Europe/Warsaw'
+          active_support_time_with_zone = Time.zone.local(2015, 10, 21, 11, 5, 0)
+          record = Record.new(
+            event_id: uuid,
+            metadata: {},
+            data: { :active_support_time_with_zone => active_support_time_with_zone },
+            event_type: 'TestEvent',
+            timestamp: nil,
+            valid_at: nil,
+          )
+
+          expect(transformation.dump(record).metadata[:types])
+            .to eq({ data: { "active_support_time_with_zone" => ["Symbol", "ActiveSupport::TimeWithZone"] }, :metadata => {} })
+        ensure
+          Time.zone = current_tz
+        end
       end
     end
   end
