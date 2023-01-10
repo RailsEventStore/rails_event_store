@@ -9,7 +9,7 @@ module RubyEventStore
           @type_resolver = type_resolver
         end
 
-        def register(type, serializer:, deserializer:, stored_type: nil)
+        def register(type, serializer:, deserializer:, stored_type: DEFAULT_STORE_TYPE)
           @registered_type_serializers[@type_resolver.(type)] = {
             serializer: serializer,
             deserializer: deserializer,
