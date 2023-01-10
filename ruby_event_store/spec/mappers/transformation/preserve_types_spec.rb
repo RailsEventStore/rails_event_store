@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'json'
+require "active_support/all"
 
 module RubyEventStore
   module Mappers
