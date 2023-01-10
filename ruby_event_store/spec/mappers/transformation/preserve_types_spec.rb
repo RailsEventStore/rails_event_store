@@ -121,6 +121,12 @@ module RubyEventStore
               serializer: ->(v) { v.to_s },
               deserializer: ->(v) { v.to_sym },
             )
+            .register(
+              ActiveSupport::TimeWithZone,
+              serializer: -> (v) { v.iso8601(9) },
+              deserializer: -> (v) { Time.iso8601(v).in_time_zone },
+              stored_type: -> (*) { "ActiveSupport::TimeWithZone" }
+            )
         }
 
         specify '#dump' do

@@ -9,10 +9,11 @@ module RubyEventStore
           @type_resolver = type_resolver
         end
 
-        def register(type, serializer:, deserializer:)
+        def register(type, serializer:, deserializer:, stored_type: nil)
           @registered_type_serializers[@type_resolver.(type)] = {
             serializer: serializer,
-            deserializer: deserializer
+            deserializer: deserializer,
+            store_type: stored_type,
           }
           self
         end
@@ -86,10 +87,8 @@ module RubyEventStore
             store_types(argument)
           when Array
             argument.map { |i| store_type(i) }
-          when ActiveSupport::TimeWithZone
-            "ActiveSupport::TimeWithZone"
           else
-            argument.class.name
+            store_type_of(argument).call(argument)
           end
         end
 
@@ -118,6 +117,10 @@ module RubyEventStore
 
         def deserializer_of(type)
           @registered_type_serializers.dig(type, :deserializer) || PASS_THROUGH
+        end
+
+        def store_type_of(argument)
+          @registered_type_serializers.dig(@type_resolver.(argument.class), :store_type) || -> (argument) { argument.class.name }
         end
       end
     end
