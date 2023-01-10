@@ -89,7 +89,7 @@ module RubyEventStore
           when Array
             argument.map { |i| store_type(i) }
           else
-            store_type_of(argument).call(argument)
+            store_type_of(argument.class).call(argument)
           end
         end
 
@@ -120,8 +120,8 @@ module RubyEventStore
           @registered_type_serializers.dig(type, :deserializer) || PASS_THROUGH
         end
 
-        def store_type_of(argument)
-          @registered_type_serializers.dig(@type_resolver.(argument.class), :store_type) || DEFAULT_STORE_TYPE
+        def store_type_of(type)
+          @registered_type_serializers.dig(@type_resolver.(type), :store_type) || DEFAULT_STORE_TYPE
         end
       end
     end
