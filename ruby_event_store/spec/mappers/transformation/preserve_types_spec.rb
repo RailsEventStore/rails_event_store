@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'json'
+require "spec_helper"
+require "json"
 require "active_support"
 require "active_support/core_ext/time"
 
