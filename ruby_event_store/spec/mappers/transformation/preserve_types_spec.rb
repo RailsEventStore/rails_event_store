@@ -332,7 +332,7 @@ module RubyEventStore
           expect(transformation.load(record)).to eq(record)
         end
 
-        specify do
+        specify "preserves ActiveSupport::TimeWithZone type passed by stored type lambda" do
           current_tz = Time.zone
           Time.zone = 'Europe/Warsaw'
           active_support_time_with_zone = Time.zone.local(2015, 10, 21, 11, 5, 0)
