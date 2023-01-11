@@ -55,9 +55,13 @@ module RubyEventStore
           )
         end
 
-        private
         PASS_THROUGH = ->(v) { v }
+        private_constant :PASS_THROUGH
+
         DEFAULT_STORE_TYPE = -> (argument) { argument.class.name }
+        private_constant :DEFAULT_STORE_TYPE
+
+        private
 
         def transform_hash(argument)
           argument.each_with_object({}) do |(key, value), hash|
