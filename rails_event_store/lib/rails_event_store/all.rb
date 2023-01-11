@@ -9,6 +9,7 @@ require_relative "client"
 require_relative "version"
 require_relative "railtie"
 require_relative "browser"
+require_relative "default_client_profile"
 
 module RailsEventStore
   Event = RubyEventStore::Event

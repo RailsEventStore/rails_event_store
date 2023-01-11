@@ -1,5 +1,4 @@
 require "spec_helper"
-require "rails_event_store/default_client_profile"
 
 module RailsEventStore
   ::RSpec.describe DefaultClientProfile do

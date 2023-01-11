@@ -1,5 +1,4 @@
 require "spec_helper"
-require "ruby_event_store/mappers/preserve_types_mapper"
 require "active_support"
 require "active_support/core_ext/time"
 
