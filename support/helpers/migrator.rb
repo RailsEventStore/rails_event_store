@@ -33,7 +33,7 @@ class Migrator
   end
 
   def data_type
-    ENV.fetch("DATA_TYPE")
+    ENV.fetch("DATA_TYPE") { "binary" }
   end
 
   def migration_version
