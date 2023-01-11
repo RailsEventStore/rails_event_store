@@ -4,17 +4,64 @@ module RubyEventStore
   module Mappers
     module Transformation
       class PreserveTypes
-        def initialize(type_resolver: ->(type) { type.to_s } )
-          @registered_type_serializers = {}
-          @type_resolver = type_resolver
+        def initialize(type_resolver: ->(type) { type.to_s })
+          @registry = Registry.new(type_resolver)
         end
 
+        private attr_reader :registry
+
+        class NullType
+          PASS_THROUGH = ->(v) { v }
+          private_constant :PASS_THROUGH
+
+          def serializer
+            PASS_THROUGH
+          end
+
+          def deserializer
+            PASS_THROUGH
+          end
+
+          def stored_type
+            DEFAULT_STORE_TYPE
+          end
+        end
+        private_constant :NullType
+
+        class RegisteredType
+          def initialize(serializer, deserializer, stored_type)
+            @serializer = serializer
+            @deserializer = deserializer
+            @stored_type = stored_type
+          end
+
+          attr_reader :serializer, :deserializer, :stored_type
+        end
+        private_constant :RegisteredType
+
+        class Registry
+          def initialize(resolver)
+            @types = {}
+            @resolver = resolver
+          end
+
+          private attr_reader :resolver, :types
+
+          NULL_TYPE = NullType.new
+          private_constant :NULL_TYPE
+
+          def add(type, serializer, deserializer, stored_type)
+            types[resolver[type]] = RegisteredType.new(serializer, deserializer, stored_type)
+          end
+
+          def of(type)
+            types.fetch(resolver[type]) { NULL_TYPE }
+          end
+        end
+        private_constant :Registry
+
         def register(type, serializer:, deserializer:, stored_type: DEFAULT_STORE_TYPE)
-          @registered_type_serializers[@type_resolver.(type)] = {
-            serializer: serializer,
-            deserializer: deserializer,
-            store_type: stored_type,
-          }
+          registry.add(type, serializer, deserializer, stored_type)
           self
         end
 
@@ -22,51 +69,48 @@ module RubyEventStore
           data = transform(record.data)
           metadata = transform(record.metadata)
           if (metadata.respond_to?(:[]=))
-            metadata[:types] = {
-              data: store_type(record.data),
-              metadata: store_type(record.metadata),
-            }
+            metadata[:types] = { data: store_type(record.data), metadata: store_type(record.metadata) }
           end
 
           Record.new(
-            event_id:   record.event_id,
+            event_id: record.event_id,
             event_type: record.event_type,
-            data:       data,
-            metadata:   metadata,
-            timestamp:  record.timestamp,
-            valid_at:   record.valid_at,
+            data: data,
+            metadata: metadata,
+            timestamp: record.timestamp,
+            valid_at: record.valid_at
           )
         end
 
         def load(record)
-          types = record.metadata.delete(:types) rescue nil
+          types =
+            begin
+              record.metadata.delete(:types)
+            rescue StandardError
+              nil
+            end
           data_types = types&.fetch(:data, nil)
           metadata_types = types&.fetch(:metadata, nil)
           data = data_types ? restore_type(record.data, data_types) : record.data
           metadata = metadata_types ? restore_type(record.metadata, metadata_types) : record.metadata
 
           Record.new(
-            event_id:   record.event_id,
+            event_id: record.event_id,
             event_type: record.event_type,
-            data:       data,
-            metadata:   metadata,
-            timestamp:  record.timestamp,
-            valid_at:   record.valid_at,
+            data: data,
+            metadata: metadata,
+            timestamp: record.timestamp,
+            valid_at: record.valid_at
           )
         end
 
-        PASS_THROUGH = ->(v) { v }
-        private_constant :PASS_THROUGH
-
-        DEFAULT_STORE_TYPE = -> (argument) { argument.class.name }
+        DEFAULT_STORE_TYPE = ->(argument) { argument.class.name }
         private_constant :DEFAULT_STORE_TYPE
 
         private
 
         def transform_hash(argument)
-          argument.each_with_object({}) do |(key, value), hash|
-            hash[transform(key)] = transform(value)
-          end
+          argument.each_with_object({}) { |(key, value), hash| hash[transform(key)] = transform(value) }
         end
 
         def transform(argument)
@@ -74,9 +118,9 @@ module RubyEventStore
           when Hash
             transform_hash(argument)
           when Array
-            argument.map{|i| transform(i)}
+            argument.map { |i| transform(i) }
           else
-            serializer_of(argument.class).call(argument)
+            registry.of(argument.class).serializer[argument]
           end
         end
 
@@ -93,7 +137,7 @@ module RubyEventStore
           when Array
             argument.map { |i| store_type(i) }
           else
-            store_type_of(argument.class).call(argument)
+            registry.of(argument.class).stored_type[argument]
           end
         end
 
@@ -110,22 +154,10 @@ module RubyEventStore
           when Hash
             restore_types(argument, type)
           when Array
-            argument.each_with_index.map{|a,idx| restore_type(a, type.fetch(idx))}
+            argument.each_with_index.map { |a, idx| restore_type(a, type.fetch(idx)) }
           else
-            deserializer_of(type).call(argument)
+            registry.of(type).deserializer[argument]
           end
-        end
-
-        def serializer_of(type)
-          @registered_type_serializers.dig(@type_resolver.(type), :serializer) || PASS_THROUGH
-        end
-
-        def deserializer_of(type)
-          @registered_type_serializers.dig(type, :deserializer) || PASS_THROUGH
-        end
-
-        def store_type_of(type)
-          @registered_type_serializers.dig(@type_resolver.(type), :store_type) || DEFAULT_STORE_TYPE
         end
       end
     end
