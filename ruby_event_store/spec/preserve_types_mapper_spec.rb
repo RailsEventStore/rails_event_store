@@ -78,23 +78,30 @@ module RubyEventStore
         time_zone = Time.zone
         Time.zone = "Europe/Warsaw"
 
-        event = TestEvent.new(data: { active_support_time_with_zone: Time.zone.local(2021, 8, 5, 12, 0, 0) })
+        event =
+          TestEvent.new(
+            data: {
+              active_support_time_with_zone: with_precision(Time.zone.local(2021, 8, 5, 12, 0, 0.1))
+            }
+          )
         client.append(event)
 
-        expect(client.read.event(event.event_id)).to eq(event)
+        event_ = client.read.event(event.event_id)
+        expect(event_).to eq(event)
+        expect(event_.data[:active_support_time_with_zone]).to be_a(ActiveSupport::TimeWithZone)
       ensure
         Time.zone = time_zone
       end
 
       specify "reads type of Time" do
-        event = TestEvent.new(data: { time: Time.new(2021, 8, 5, 12, 0, 0) })
+        event = TestEvent.new(data: { time: with_precision(Time.new(2021, 8, 5, 12, 0, 0.1)) })
         client.append(event)
 
         expect(client.read.event(event.event_id)).to eq(event)
       end
 
       specify "reads type of UTC Time" do
-        event = TestEvent.new(data: { time: Time.new(2021, 8, 5, 12, 0, 0).utc })
+        event = TestEvent.new(data: { time: with_precision(Time.new(2021, 8, 5, 12, 0, 0.1).utc) })
         client.append(event)
 
         expect(client.read.event(event.event_id)).to eq(event)
@@ -119,6 +126,12 @@ module RubyEventStore
         client.append(event)
 
         expect(client.read.event(event.event_id)).to eq(event)
+      end
+
+      private
+
+      def with_precision(time)
+        time.round(RubyEventStore::TIMESTAMP_PRECISION)
       end
     end
   end

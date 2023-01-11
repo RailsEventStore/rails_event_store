@@ -14,12 +14,12 @@ module RubyEventStore
             )
             .register(
               Time,
-              serializer: ->(v) { v.iso8601(9) },
+              serializer: ->(v) { v.iso8601(TIMESTAMP_PRECISION) },
               deserializer: ->(v) { Time.iso8601(v) },
             )
             .register(
               ActiveSupport::TimeWithZone,
-              serializer: ->(v) { v.iso8601(9) },
+              serializer: ->(v) { v.iso8601(TIMESTAMP_PRECISION) },
               deserializer: ->(v) { Time.iso8601(v).in_time_zone },
               stored_type: -> (*) { "ActiveSupport::TimeWithZone" }
             )
