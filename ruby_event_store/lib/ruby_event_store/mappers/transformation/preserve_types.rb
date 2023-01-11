@@ -8,8 +8,6 @@ module RubyEventStore
           @registry = Registry.new(type_resolver)
         end
 
-        private attr_reader :registry
-
         class NullType
           PASS_THROUGH = ->(v) { v }
           private_constant :PASS_THROUGH
@@ -45,7 +43,6 @@ module RubyEventStore
             @resolver = resolver
           end
 
-          private attr_reader :resolver, :types
 
           NULL_TYPE = NullType.new
           private_constant :NULL_TYPE
@@ -57,6 +54,9 @@ module RubyEventStore
           def of(type)
             types.fetch(resolver[type]) { NULL_TYPE }
           end
+
+          private
+          attr_reader :resolver, :types
         end
         private_constant :Registry
 
@@ -108,6 +108,7 @@ module RubyEventStore
         private_constant :DEFAULT_STORE_TYPE
 
         private
+        attr_reader :registry
 
         def transform_hash(argument)
           argument.each_with_object({}) { |(key, value), hash| hash[transform(key)] = transform(value) }
