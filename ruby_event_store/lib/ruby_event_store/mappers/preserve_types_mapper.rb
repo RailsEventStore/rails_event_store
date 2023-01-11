@@ -30,7 +30,7 @@ module RubyEventStore
             )
             .register(
               DateTime,
-              serializer: ->(v) { v.iso8601(9) },
+              serializer: ->(v) { v.iso8601 },
               deserializer: ->(v) { DateTime.iso8601(v) },
             ),
           Transformation::SymbolizeMetadataKeys.new,
