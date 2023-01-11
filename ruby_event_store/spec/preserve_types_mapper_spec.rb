@@ -59,6 +59,7 @@ module RubyEventStore
         record = subject.event_to_record(TestEvent.new(data: { date: Date.new(2021, 8, 5, 12) }))
 
         expect(record.metadata[:types]).to eq({ data: { date: %w[Symbol Date] }, metadata: {} })
+        expect(record.data).to eq({ "date" => "2021-08-05" })
       end
 
       specify "preserves type of metadata keys" do
