@@ -9,7 +9,7 @@ module RubyEventStore
             .new
             .register(
               Symbol,
-              serializer: ->(v) { v.to_s },
+              serializer: ->(v) { v },
               deserializer: ->(v) { v.to_sym },
             )
             .register(
