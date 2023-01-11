@@ -13,6 +13,13 @@ module RubyEventStore
         )
       end
 
+      specify "preserves Symbol" do
+        record = subject.event_to_record(TestEvent.new(data: { foo: :bar }))
+
+        expect(record.metadata[:types]).to eq({ data: { foo: %w[Symbol Symbol] }, metadata: {} })
+        expect(record.data).to eq({ "foo" => "bar" })
+      end
+
       specify "preserves type of ActiveSupport::TimeWithZone" do
         time_zone = Time.zone
         Time.zone = "Europe/Warsaw"
