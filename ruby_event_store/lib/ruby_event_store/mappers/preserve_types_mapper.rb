@@ -5,7 +5,7 @@ module RubyEventStore
     class PreserveTypesMapper < RubyEventStore::Mappers::PipelineMapper
       def initialize
         super(Pipeline.new(
-          RubyEventStore::Mappers::Transformation::PreserveTypes
+          Transformation::PreserveTypes
             .new
             .register(
               Symbol,
@@ -33,7 +33,7 @@ module RubyEventStore
               serializer: ->(v) { v.iso8601(9) },
               deserializer: ->(v) { DateTime.iso8601(v) },
             ),
-          RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
+          Transformation::SymbolizeMetadataKeys.new,
         ))
       end
     end
