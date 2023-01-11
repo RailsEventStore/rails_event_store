@@ -1,7 +1,7 @@
 require "erb"
 require "psych"
 
-RUBY_VERSIONS = %w[ruby-3.1 ruby-3.0 ruby-2.7]
+RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
 
 mk_matrix =
   lambda do |pairs|
