@@ -9,7 +9,7 @@
     <%= stylesheet_link_tag "style" %>
     <%= partial "partials/favicon" %>
   </head>
-  <body class="bg-white">
+  <body class="bg-white min-h-screen flex flex-col">
     <header class="sticky top-0 z-50 border-b border-gray-900/10 w-full bg-gray-800 flex-none shadow-md shadow-gray-900/5">
       <div class="max-w-8xl mx-auto sm:px-2 lg:px-8 xl:px-12">
         <div class="py-4 border-b border-gray-900/10 lg:border-0 mx-4 lg:mx-0">
@@ -39,7 +39,7 @@
         </div>
       </div>
     </header>
-    <main class="relative mx-auto flex max-w-8xl justify-center sm:px-2 lg:px-8 xl:px-12">
+    <main class="relative mx-auto flex max-w-8xl grow justify-center sm:px-2 lg:px-8 xl:px-12">
       <aside class="hidden lg:relative lg:block lg:flex-none">
         <div class="md:sticky top-[6.7rem] z-50 bg-white">
           <div class="bg-white relative pointer-events-auto" id="search"></div>
