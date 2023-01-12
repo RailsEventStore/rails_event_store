@@ -215,6 +215,28 @@ module RubyEventStore
         expect(event_record.valid_at).to be_nil
       end
 
+      specify "valid-at storage optimization doesn't break reading order" do
+        skip
+        repository.append_to_stream(
+          records = [
+            RubyEventStore::SRecord.new(timestamp: with_precision(6.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            RubyEventStore::SRecord.new(
+              timestamp: with_precision(3.minutes.ago),
+              valid_at: with_precision(5.minutes.ago)
+            ),
+            RubyEventStore::SRecord.new(
+              timestamp: with_precision(3.minutes.ago),
+              valid_at: with_precision(4.minutes.ago)
+            )
+          ],
+          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+          RubyEventStore::ExpectedVersion.any
+        )
+
+        expect(repository.read(specification.as_of.result).to_a).to eq([records[0], records[2], records[3], records[1]])
+      end
+
       specify "no valid-at storage optimization when different from created-at" do
         repository.append_to_stream(
           [
