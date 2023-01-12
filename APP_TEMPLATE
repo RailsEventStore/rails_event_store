@@ -33,6 +33,7 @@ after_bundle do
     end
   CODE
 
+  rails_command 'db:create'
   generate 'rails_event_store_active_record:migration'
   rails_command 'db:migrate'
   route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
