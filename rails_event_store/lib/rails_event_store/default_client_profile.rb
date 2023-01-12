@@ -3,7 +3,7 @@
 module RailsEventStore
   class DefaultClientProfile
     def call(adapter)
-      if adapter.downcase == "postgresql"
+      if adapter.downcase.eql?("postgresql")
         <<~PROFILE
           RailsEventStore::PgClient.new
         PROFILE
