@@ -116,7 +116,7 @@ module RubyEventStore
         when :as_at
           stream.order("#{@event_klass.table_name}.created_at #{order(spec)}")
         when :as_of
-          stream.order("#{@event_klass.table_name}.valid_at #{order(spec)}")
+          stream.order(Arel.sql("COALESCE(#{@event_klass.table_name}.valid_at, #{@event_klass.table_name}.created_at) #{order(spec)}"))
         else
           stream
         end
