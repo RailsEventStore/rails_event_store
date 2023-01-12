@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RailsEventStore
-  class PgClient < Client
+  class JSONClient < Client
     def initialize
       super(
         repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),

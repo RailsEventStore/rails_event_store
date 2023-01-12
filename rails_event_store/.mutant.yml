@@ -12,7 +12,7 @@ matcher:
     - RailsEventStore*
   ignore:
     - RailsEventStore::Client#initialize
-    - RailsEventStore::PgClient#initialize
+    - RailsEventStore::JSONClient#initialize
     - RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord*
     - RailsEventStore::AfterCommitAsyncDispatcher#async_record
     - RailsEventStore::AsyncHandler.with
