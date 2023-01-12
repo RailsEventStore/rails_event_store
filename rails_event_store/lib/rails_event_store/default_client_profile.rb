@@ -5,10 +5,7 @@ module RailsEventStore
     def call(adapter)
       if adapter.downcase == "postgresql"
         <<~PROFILE
-          RailsEventStore::Client.new(
-            repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
-            mapper: RubyEventStore::Mappers::PreserveTypesMapper.new
-          )
+          RailsEventStore::PgClient.new
         PROFILE
       else
         "RailsEventStore::Client.new"

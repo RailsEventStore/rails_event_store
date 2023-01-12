@@ -6,10 +6,7 @@ module RailsEventStore
       expect(DefaultClientProfile.new.call("PostgreSQL"))
         .to eq(
               <<~PROFILE
-                RailsEventStore::Client.new(
-                  repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
-                  mapper: RubyEventStore::Mappers::PreserveTypesMapper.new
-                )
+                RailsEventStore::PgClient.new
             PROFILE
             )
     end
@@ -18,10 +15,7 @@ module RailsEventStore
       expect(DefaultClientProfile.new.call("postgresql"))
         .to eq(
               <<~PROFILE
-                RailsEventStore::Client.new(
-                  repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
-                  mapper: RubyEventStore::Mappers::PreserveTypesMapper.new
-                )
+                RailsEventStore::PgClient.new
             PROFILE
             )
     end
