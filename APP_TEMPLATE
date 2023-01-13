@@ -1,4 +1,4 @@
-gem "rails_event_store", "~> 2.7.0"
+gem "rails_event_store", "~> 2.8.0"
 
 after_bundle do
   initializer 'rails_event_store.rb', <<~CODE
