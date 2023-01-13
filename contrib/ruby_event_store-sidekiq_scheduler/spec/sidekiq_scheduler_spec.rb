@@ -14,8 +14,7 @@ module RubyEventStore
       TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
     end
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
-    let(:redis_url) { ENV["REDIS_URL"] }
-    let(:redis) { Redis.new(url: redis_url) }
+    let(:redis) { Sidekiq.redis(&:itself) }
 
     describe "#verify" do
       specify do
@@ -86,7 +85,7 @@ module RubyEventStore
         scheduler.call(MyAsyncHandler, record)
       end
 
-      specify 'with Redis involved' do
+      specify 'with Redis involved', redis: true do
         scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         Sidekiq::Testing.disable! do
           scheduler.call(MyAsyncHandler, record)
