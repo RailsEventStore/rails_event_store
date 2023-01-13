@@ -216,7 +216,6 @@ module RubyEventStore
       end
 
       specify "valid-at storage optimization doesn't break reading order" do
-        skip
         repository.append_to_stream(
           records = [
             RubyEventStore::SRecord.new(timestamp: with_precision(6.minutes.ago)),
