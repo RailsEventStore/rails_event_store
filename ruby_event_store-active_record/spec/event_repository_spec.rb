@@ -369,6 +369,12 @@ module RubyEventStore
         }.to match_query /SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/
       end
 
+      specify "don't join events when no event filtering criteria" do
+        expect {
+          repository.read(specification.stream("stream").result).to_a
+        }.to match_query /SELECT\s+.event_store_events_in_streams.\.\*\s+FROM\s+.event_store_events_in_streams.\s+WHERE\s+.event_store_events_in_streams.\..stream.\s+=\s+\?\s+ORDER\s+BY\s+.event_store_events_in_streams.\..id.\s+ASC/
+      end
+
       private
 
       def with_precision(time)
