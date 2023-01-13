@@ -85,7 +85,8 @@ module RubyEventStore
           stream = @event_klass
           stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
           stream = stream.where(event_type: spec.with_types) if spec.with_types?
-          stream = ordered(stream, spec)
+          stream = stream.order(as_at(spec)) if spec.time_sort_by_as_at?
+          stream = stream.order(as_of(spec)) if spec.time_sort_by_as_of?
           stream = stream.limit(spec.limit) if spec.limit?
           stream = stream.where(start_condition_in_global_stream(spec)) if spec.start
           stream = stream.where(stop_condition_in_global_stream(spec)) if spec.stop
@@ -98,7 +99,9 @@ module RubyEventStore
           stream = @stream_klass.preload(:event).where(stream: spec.stream.name)
           stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
           stream = stream.where(@event_klass.table_name => { event_type: spec.with_types }) if spec.with_types?
-          stream = ordered(stream.joins(:event), spec)
+          stream = stream.joins(:event)
+          stream = stream.order(as_at(spec)) if spec.time_sort_by_as_at?
+          stream = stream.order(as_of(spec)) if spec.time_sort_by_as_of?
           stream = stream.order(id: order(spec))
           stream = stream.limit(spec.limit) if spec.limit?
           stream = stream.where(start_condition(spec)) if spec.start
@@ -111,15 +114,12 @@ module RubyEventStore
         end
       end
 
-      def ordered(stream, spec)
-        case spec.time_sort_by
-        when :as_at
-          stream.order("#{@event_klass.table_name}.created_at #{order(spec)}")
-        when :as_of
-          stream.order(Arel.sql("COALESCE(#{@event_klass.table_name}.valid_at, #{@event_klass.table_name}.created_at) #{order(spec)}"))
-        else
-          stream
-        end
+      def as_of(spec)
+        Arel.sql("COALESCE(#{@event_klass.table_name}.valid_at, #{@event_klass.table_name}.created_at) #{order(spec)}")
+      end
+
+      def as_at(spec)
+        "#{@event_klass.table_name}.created_at #{order(spec)}"
       end
 
       def start_offset_condition(specification, record_id, search_in)

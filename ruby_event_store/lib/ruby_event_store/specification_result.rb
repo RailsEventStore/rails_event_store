@@ -223,6 +223,22 @@ module RubyEventStore
       attributes.read_as.equal?(:all)
     end
 
+    # Read strategy. True if results will be sorted by timestamp
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Boolean]
+    def time_sort_by_as_at?
+      time_sort_by.equal?(:as_at)
+    end
+
+    # Read strategy. True if results will be sorted by valid_at
+    # {http://railseventstore.org/docs/read/ Find out more}.
+    #
+    # @return [Boolean]
+    def time_sort_by_as_of?
+      time_sort_by.equal?(:as_of)
+    end
+
     # Clone [SpecificationResult]
     # If block is given cloned attributes might be modified.
     #

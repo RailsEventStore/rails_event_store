@@ -215,25 +215,38 @@ module RubyEventStore
         expect(event_record.valid_at).to be_nil
       end
 
-      specify "valid-at storage optimization doesn't break reading order" do
+      specify "global stream order" do
         repository.append_to_stream(
           records = [
-            RubyEventStore::SRecord.new(timestamp: with_precision(6.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
             RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            RubyEventStore::SRecord.new(
-              timestamp: with_precision(3.minutes.ago),
-              valid_at: with_precision(5.minutes.ago)
-            ),
-            RubyEventStore::SRecord.new(
-              timestamp: with_precision(3.minutes.ago),
-              valid_at: with_precision(4.minutes.ago)
-            )
+            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
           ],
           RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
           RubyEventStore::ExpectedVersion.any
         )
 
-        expect(repository.read(specification.as_of.result).to_a).to eq([records[0], records[2], records[3], records[1]])
+        expect(repository.read(specification.result).to_a).to eq([records[0], records[1], records[2], records[3]])
+        expect(repository.read(specification.as_at.result).to_a).to eq([records[3], records[2], records[1], records[0]])
+        expect(repository.read(specification.as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
+      end
+
+      specify "named stream order" do
+        repository.append_to_stream(
+          records = [
+            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+          ],
+          RubyEventStore::Stream.new("stream"),
+          RubyEventStore::ExpectedVersion.any
+        )
+
+        expect(repository.read(specification.stream("stream").result).to_a).to eq([records[0], records[1], records[2], records[3]])
+        expect(repository.read(specification.stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1], records[0]])
+        expect(repository.read(specification.stream("stream").as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
       end
 
       specify "no valid-at storage optimization when different from created-at" do

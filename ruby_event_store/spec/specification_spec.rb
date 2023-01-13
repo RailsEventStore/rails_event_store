@@ -835,6 +835,16 @@ module RubyEventStore
       expect(specification.as_of.map(&:event_id)).to eq [e3, e2, e1]
     end
 
+    specify "time_sort_by_as_at?" do
+      expect(specification.as_at.result.time_sort_by_as_at?).to eq true
+      expect(specification.result.time_sort_by_as_at?).to eq false
+    end
+
+    specify "time_sort_by_as_of?" do
+      expect(specification.as_of.result.time_sort_by_as_of?).to eq true
+      expect(specification.result.time_sort_by_as_of?).to eq false
+    end
+
     let(:repository) { InMemoryRepository.new }
     let(:mapper) { Mappers::NullMapper.new }
     let(:reader) { SpecificationReader.new(repository, mapper) }
