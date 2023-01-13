@@ -11,6 +11,8 @@ require_relative "./support/db"
 require "rails"
 require "active_support/testing/time_helpers.rb"
 
+ENV["DATABASE_URL"] ||= "sqlite3::memory:"
+
 RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
   config.after(:each) { travel_back }

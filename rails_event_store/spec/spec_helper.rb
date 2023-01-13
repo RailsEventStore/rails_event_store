@@ -9,6 +9,9 @@ require_relative "../../support/helpers/migrator"
 require_relative "../../support/helpers/silence_stdout"
 require_relative "../../support/helpers/time_enrichment"
 
+ENV["DATABASE_URL"] ||= "sqlite3::memory:"
+ENV["DATA_TYPE"] ||= "binary"
+
 RSpec.configure do |config|
   config.around(:each) do |example|
     ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")

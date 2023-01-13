@@ -6,4 +6,6 @@ require_relative "../../../support/helpers/protobuf_helper"
 require_relative "../../../support/helpers/rspec_defaults"
 require_relative "../../../support/helpers/time_enrichment"
 
+ENV["DATABASE_URL"] ||= "sqlite3::memory:"
+
 TestEvent = Class.new(RubyEventStore::Event)

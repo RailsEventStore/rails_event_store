@@ -3,6 +3,9 @@ require_relative "../../support/helpers/rspec_defaults"
 require_relative "../../support/helpers/migrator"
 require_relative "../../support/helpers/schema_helper"
 
+ENV["DATABASE_URL"] ||= "sqlite3::memory:"
+ENV["DATA_TYPE"] ||= "binary"
+
 $verbose = ENV.has_key?("VERBOSE") ? true : false
 ActiveRecord::Schema.verbose = $verbose
 
