@@ -238,7 +238,6 @@ DEPENDENCIES
   mutant-license!
   mutant-minitest (= 0.11.17)
   mutant-rspec (= 0.11.17)
-  nokogiri
   rack-test
   rails (= 7.0.4)
   rails_event_store!
