@@ -249,6 +249,39 @@ module RubyEventStore
         expect(repository.read(specification.stream("stream").as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
       end
 
+      describe "filter by time" do
+        let(:records) do
+          [
+            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+          ]
+        end
+
+        specify "older than" do
+          repository.append_to_stream(
+            records,
+            RubyEventStore::Stream.new("stream"),
+            RubyEventStore::ExpectedVersion.any
+          )
+
+          expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1]])
+          expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_of.result).to_a).to eq([records[2], records[1]])
+        end
+
+        specify "newer than" do
+          repository.append_to_stream(
+            records,
+            RubyEventStore::Stream.new("stream"),
+            RubyEventStore::ExpectedVersion.any
+          )
+
+          expect(repository.read(specification.newer_than(3.minutes.ago).stream("stream").as_at.result).to_a).to eq([records[1], records[0]])
+          expect(repository.read(specification.newer_than(3.minutes.ago).stream("stream").as_of.result).to_a).to eq([records[1], records[0], records[3]])
+        end
+      end
+
       specify "no valid-at storage optimization when different from created-at" do
         repository.append_to_stream(
           [

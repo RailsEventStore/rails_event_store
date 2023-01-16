@@ -163,20 +163,28 @@ module RubyEventStore
         )
       end
 
+      def time_comparison_field(specification)
+        if specification.time_sort_by_as_of?
+          "COALESCE(#{@event_klass.table_name}.valid_at, #{@event_klass.table_name}.created_at)"
+        else
+          "#{@event_klass.table_name}.created_at"
+        end
+      end
+
       def older_than_condition(specification)
-        ["#{@event_klass.table_name}.created_at < ?", specification.older_than]
+        ["#{time_comparison_field(specification)} < ?", specification.older_than]
       end
 
       def older_than_or_equal_condition(specification)
-        ["#{@event_klass.table_name}.created_at <= ?", specification.older_than_or_equal]
+        ["#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal]
       end
 
       def newer_than_condition(specification)
-        ["#{@event_klass.table_name}.created_at > ?", specification.newer_than]
+        ["#{time_comparison_field(specification)} > ?", specification.newer_than]
       end
 
       def newer_than_or_equal_condition(specification)
-        ["#{@event_klass.table_name}.created_at >= ?", specification.newer_than_or_equal]
+        ["#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal]
       end
 
       def order(spec)
