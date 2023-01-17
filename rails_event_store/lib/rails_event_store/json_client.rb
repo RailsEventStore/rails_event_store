@@ -22,7 +22,8 @@ module RailsEventStore
                   stored_type: ->(*) { "ActiveSupport::TimeWithZone" }
                 )
                 .register(Date, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { Date.iso8601(v) })
-                .register(DateTime, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { DateTime.iso8601(v) }),
+                .register(DateTime, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { DateTime.iso8601(v) },)
+                .register(BigDecimal, serializer: ->(v) { v.to_s }, deserializer: ->(v) { BigDecimal(v) }),
               RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new
             )
           ),

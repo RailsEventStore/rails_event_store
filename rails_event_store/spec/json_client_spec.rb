@@ -22,6 +22,13 @@ module RailsEventStore
       Time.zone = time_zone
     end
 
+    specify "reads type of BigDecimal" do
+      event = DummyEvent.new(data: { money: BigDecimal("123.45") })
+      client.append(event)
+
+      expect(client.read.event(event.event_id)).to eq(event)
+    end
+
     specify "reads type of Time" do
       event = DummyEvent.new(data: { time: with_precision(Time.new(2021, 8, 5, 12, 0, 0.1)) })
       client.append(event)
