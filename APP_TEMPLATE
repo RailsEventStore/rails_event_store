@@ -1,13 +1,42 @@
+class Profile
+  def initialize(options)
+    @options = options.dup
+  end
+
+  private attr_reader :options
+
+  def client
+    postgres? ? "RailsEventStore::JSONClient.new" : "RailsEventStore::Client.new"
+  end
+
+  def data_type
+    postgres? ? "jsonb" : "binary"
+  end
+
+  private
+
+  def postgres?
+    database.downcase.eql?("postgresql")
+  end
+
+  def database
+    options.fetch(:database)
+  end
+end
+
+profile = Profile.new(options)
+
 gem "rails_event_store", "~> 2.8.1"
 
 after_bundle do
+  require 'rails_event_store'
   initializer 'rails_event_store.rb', <<~CODE
     require 'rails_event_store'
     require 'aggregate_root'
     require 'arkency/command_bus'
 
     Rails.configuration.to_prepare do
-      Rails.configuration.event_store = RailsEventStore::Client.new
+      Rails.configuration.event_store = #{profile.client}
       Rails.configuration.command_bus = Arkency::CommandBus.new
 
       AggregateRoot.configure do |config|
@@ -34,7 +63,7 @@ after_bundle do
   CODE
 
   rails_command 'db:create'
-  generate 'rails_event_store_active_record:migration'
+  generate "rails_event_store_active_record:migration --data-type=#{profile.data_type}"
   rails_command 'db:migrate'
   route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
 end
