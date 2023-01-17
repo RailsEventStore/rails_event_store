@@ -93,10 +93,6 @@ local-install: $(addprefix local-install-, $(GEMS))
 update-all: $(addprefix update-all-, $(GEMS)) ## Update all dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
-	@make -C contrib test
-
-test-contrib: ## Run all contrib unit tests
-	@make -C contrib test
 
 mutate: $(addprefix mutate-, $(GEMS)) ## Run all mutation tests
 
