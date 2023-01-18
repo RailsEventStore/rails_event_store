@@ -1,9 +1,10 @@
 class Profile
-  def initialize(options)
+  def initialize(options, location)
     @options = options.dup
+    @location = location
   end
 
-  private attr_reader :options
+  private attr_reader :options, :location
 
   def client
     postgres? ? "RailsEventStore::JSONClient.new" : "RailsEventStore::Client.new"
@@ -13,6 +14,10 @@ class Profile
     postgres? ? "jsonb" : "binary"
   end
 
+  def existing_app?
+    !!location
+  end
+
   private
 
   def postgres?
@@ -20,11 +25,11 @@ class Profile
   end
 
   def database
-    options.fetch(:database)
+    existing_app? ? ActiveRecord::Base.connection_db_config.adapter : options.fetch(:database)
   end
 end
 
-profile = Profile.new(options)
+profile = Profile.new(options, ENV["LOCATION"])
 
 gem "rails_event_store", "~> 2.8.1"
 
@@ -62,8 +67,12 @@ CODE
 
 route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
 
+run_bundle unless run "bundle check"
+
 after_bundle do
   rails_command 'db:create'
   generate "rails_event_store_active_record:migration --data-type=#{profile.data_type}"
   rails_command 'db:migrate'
 end
+
+run_after_bundle_callbacks if profile.existing_app?
