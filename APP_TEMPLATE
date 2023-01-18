@@ -14,11 +14,15 @@ class Profile
     postgres? ? "jsonb" : "binary"
   end
 
-  def existing_app?
-    !!location
+  def for_existing_app
+    yield if existing_app?
   end
 
   private
+
+  def existing_app?
+    !!location
+  end
 
   def postgres?
     database.downcase.eql?("postgresql")
@@ -67,7 +71,9 @@ CODE
 
 route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
 
-run_bundle unless run "bundle check"
+profile.for_existing_app do
+  run_bundle unless run "bundle check"
+end
 
 after_bundle do
   rails_command 'db:create'
@@ -75,4 +81,6 @@ after_bundle do
   rails_command 'db:migrate'
 end
 
-run_after_bundle_callbacks if profile.existing_app?
+profile.for_existing_app do
+  run_after_bundle_callbacks
+end
