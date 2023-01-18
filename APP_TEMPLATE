@@ -37,10 +37,10 @@ profile = Profile.new(options, ENV["LOCATION"])
 
 gem "rails_event_store", "~> 2.8.1"
 
-initializer 'rails_event_store.rb', <<~CODE
-  require 'rails_event_store'
-  require 'aggregate_root'
-  require 'arkency/command_bus'
+initializer "rails_event_store.rb", <<~CODE
+  require "rails_event_store"
+  require "aggregate_root"
+  require "arkency/command_bus"
 
   Rails.configuration.to_prepare do
     Rails.configuration.event_store = #{profile.client}
@@ -76,9 +76,9 @@ profile.for_existing_app do
 end
 
 after_bundle do
-  rails_command 'db:create'
+  rails_command "db:create"
   generate "rails_event_store_active_record:migration --data-type=#{profile.data_type}"
-  rails_command 'db:migrate'
+  rails_command "db:migrate"
 end
 
 profile.for_existing_app do
