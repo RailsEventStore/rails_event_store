@@ -60,9 +60,10 @@ initializer 'rails_event_store.rb', <<~CODE
   end
 CODE
 
+route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
+
 after_bundle do
   rails_command 'db:create'
   generate "rails_event_store_active_record:migration --data-type=#{profile.data_type}"
   rails_command 'db:migrate'
-  route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
 end
