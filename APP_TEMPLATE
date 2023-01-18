@@ -64,7 +64,7 @@ initializer 'rails_event_store.rb', <<~CODE
     # Register command handlers below
     # Rails.configuration.command_bus.tap do |bus|
     #   bus.register(PrintInvoice, Invoicing::OnPrint.new)
-    #   bus.register(SubmitOrder,  ->(cmd) { Ordering::OnSubmitOrder.new.call(cmd) })
+    #   bus.register(SubmitOrder, ->(cmd) { Ordering::OnSubmitOrder.new.call(cmd) })
     # end
   end
 CODE
