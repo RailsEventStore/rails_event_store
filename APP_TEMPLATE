@@ -29,7 +29,6 @@ profile = Profile.new(options)
 gem "rails_event_store", "~> 2.8.1"
 
 after_bundle do
-  require 'rails_event_store'
   initializer 'rails_event_store.rb', <<~CODE
     require 'rails_event_store'
     require 'aggregate_root'
