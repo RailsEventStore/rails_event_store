@@ -105,6 +105,9 @@ push: $(addprefix push-, $(GEMS)) ## Push all gem packages to RubyGems
 clean: $(addprefix clean-, $(GEMS)) ## Remove all previously built packages
 
 release: git-check-clean git-check-committed install test git-tag clean build push ## Make a new release on RubyGems
+	@cd "ruby_event_store-active_record" \
+		&& gem build -V rails_event_store_active_record.gemspec \
+		&& gem push -k dev_arkency rails_event_store_active_record-$(RES_VERSION).gem
 	@echo Released v$(RES_VERSION)
 
 rebase: git-rebase-from-upstream
