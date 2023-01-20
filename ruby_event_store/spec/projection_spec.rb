@@ -48,28 +48,27 @@ module RubyEventStore
       expect(account_balance).to eq(total: 5)
     end
 
-    specify "reduce events from many streams in order" do
-      event_store.with_metadata(timestamp: Time.utc(2018, 1, 1, 1, 1, 1)) {
-        event_store.append(MoneyDeposited.new(data: { order: 1 }), stream_name: "Customer$1")
-      }
-      event_store.with_metadata(timestamp: Time.utc(2018, 1, 1, 1, 1, 2)) {
-        event_store.append(MoneyDeposited.new(data: { order: 2 }), stream_name: "Customer$1")
-      }
-      event_store.with_metadata(timestamp: Time.utc(2018, 1, 1, 1, 1, 3)) {
-        event_store.append(MoneyDeposited.new(data: { order: 3 }), stream_name: "Customer$2")
-      }
+specify "reduce events from many streams in order" do
+  event_store.with_metadata(timestamp: Time.utc(2018, 1, 1, 1, 1, 1)) {
+    event_store.append(MoneyDeposited.new(data: { order: 1 }), stream_name: "Customer$1")
+  }
+  event_store.with_metadata(timestamp: Time.utc(2018, 1, 1, 1, 1, 2)) {
+    event_store.append(MoneyDeposited.new(data: { order: 2 }), stream_name: "Customer$1")
+  }
+  event_store.with_metadata(timestamp: Time.utc(2018, 1, 1, 1, 1, 3)) {
+    event_store.append(MoneyDeposited.new(data: { order: 3 }), stream_name: "Customer$2")
+  }
 
-      account_balance =
-        Projection
-          .from_stream(%w[Customer$2 Customer$1])
-          .init(-> { { order: nil } })
-          .when(MoneyDeposited, ->(state, event) {
-            puts event.timestamp
-            state[:order] = event.data[:order]
-          })
-          .run(event_store)
-      expect(account_balance).to eq(order: 3)
-    end
+  account_balance =
+    Projection
+      .from_stream(%w[Customer$2 Customer$1])
+      .init(-> { { order: nil } })
+      .when(MoneyDeposited, ->(state, event) {
+        state[:order] = event.data[:order]
+      })
+      .run(event_store)
+  expect(account_balance).to eq(order: 3)
+end
 
     specify "raises proper errors when wrong argument were passed (stream mode)" do
       projection =
