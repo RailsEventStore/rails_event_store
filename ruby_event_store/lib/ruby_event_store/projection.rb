@@ -73,34 +73,32 @@ module RubyEventStore
     end
 
     def enumerate_events_in_order_from_streams(scopes)
-      enumerators = scopes.map.with_index { |c, i| [i, c.to_enum] }.to_h
-      # keep track of which enumerators are active
-      active_enumerators = enumerators.map { true }
-
       Enumerator.new do |y|
-        # Load initial candicdate values of the enumerator
-        memo = enumerators.map do |i, enumerator|
+        enumerators = scopes.map(&:to_enum)
+        # Load initial values of each enumerator
+        #   and deactivate the enumerators that yielded nothing
+        memo = enumerators.map.with_index do |enumerator, i|
           enumerator.next
         rescue StopIteration
-          active_enumerators[i] = false
+          enumerators[i] = false
         end
 
-        while active_enumerators.any? do
+        while enumerators.any?
           value_index = begin
             memo
-              .map.with_index { |e, i| [e, i] } # keep track of index
-              .select { |_, i| active_enumerators[i] } # ignore memo position of stopped enumerators
-              .map { |e, i| [e&.timestamp, i] } # yield the value we want to sort by
-              .sort_by(&:first) # sort by that value
-              .first.last # get the first result after sorting, and return the index
+              .each.with_index # keep track of index
+              .select { |_, i| enumerators.fetch(i) } # skip stopped enumerators
+              .map { |e, i| [e.timestamp, i] } # yield the sort value
+              .min_by(&:first) # sort by that value
+              .last # get the first result after sorting, and return the index
           end
 
-          y.yield(memo[value_index])
+          y.yield(memo.fetch(value_index))
 
           begin
-            memo[value_index] = enumerators[value_index].next
+            memo[value_index] = enumerators.fetch(value_index).next
           rescue StopIteration
-            active_enumerators[value_index] = false
+            enumerators[value_index] = false
           end
         end
       end
