@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "active_support"
 require "active_support/notifications"
 
 module AggregateRoot
