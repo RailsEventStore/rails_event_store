@@ -71,7 +71,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activesupport
+  activesupport (= 7.0.4.1)
   aggregate_root!
   mutant (= 0.11.17)
   mutant-license!
