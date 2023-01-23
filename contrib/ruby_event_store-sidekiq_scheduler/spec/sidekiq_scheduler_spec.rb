@@ -8,7 +8,7 @@ module RubyEventStore
     before(:each) { MyAsyncHandler.reset }
 
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
-    it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::NULL)
+    it_behaves_like :scheduler, SidekiqScheduler.new(serializer: JSON)
 
     let(:event) do
       TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
@@ -18,27 +18,27 @@ module RubyEventStore
 
     describe "#verify" do
       specify do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::NULL)
+        scheduler = SidekiqScheduler.new(serializer: JSON)
         proper_handler = Class.new { include Sidekiq::Worker }
 
         expect(scheduler.verify(proper_handler)).to eq(true)
       end
 
       specify do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::NULL)
+        scheduler = SidekiqScheduler.new(serializer: JSON)
         some_class = Class.new
 
         expect(scheduler.verify(some_class)).to eq(false)
       end
 
       specify do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::NULL)
+        scheduler = SidekiqScheduler.new(serializer: JSON)
 
         expect(scheduler.verify(Sidekiq::Worker)).to eq(false)
       end
 
       specify do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::NULL)
+        scheduler = SidekiqScheduler.new(serializer: JSON)
         expect(scheduler.verify(Object.new)).to eq(false)
       end
     end
