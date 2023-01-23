@@ -7,7 +7,7 @@ require_relative "aggregate_root/default_apply_strategy"
 require_relative "aggregate_root/repository"
 require_relative "aggregate_root/instrumented_repository"
 require_relative "aggregate_root/instrumented_apply_strategy"
-require_relative 'aggregate_root/snapshot_repository'
+require_relative "aggregate_root/snapshot_repository"
 
 module AggregateRoot
   module OnDSL
