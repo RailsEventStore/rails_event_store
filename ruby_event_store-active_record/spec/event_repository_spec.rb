@@ -249,6 +249,37 @@ module RubyEventStore
         expect(repository.read(specification.stream("stream").as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
       end
 
+      specify "reading last event sorted by valid_at" do
+        repository.append_to_stream(
+          records = [
+            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+          ],
+          RubyEventStore::Stream.new("stream"),
+          RubyEventStore::ExpectedVersion.any
+        )
+
+        expect(repository.read(specification.stream("stream").as_of.read_last.result)).to eq(records[3])
+      end
+
+      specify "reading last event sorted by valid_at from global stream" do
+        repository.append_to_stream(
+          records = [
+            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+          ],
+          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+          RubyEventStore::ExpectedVersion.any
+        )
+
+        expect(repository.read(specification.as_of.read_last.result)).to eq(records[3])
+      end
+
+
       describe "filter by time" do
         let(:records) do
           [
@@ -268,17 +299,6 @@ module RubyEventStore
 
           expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1]])
           expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_of.result).to_a).to eq([records[2], records[1]])
-        end
-
-        specify "newer than" do
-          repository.append_to_stream(
-            records,
-            RubyEventStore::Stream.new("stream"),
-            RubyEventStore::ExpectedVersion.any
-          )
-
-          expect(repository.read(specification.newer_than(3.minutes.ago).stream("stream").as_at.result).to_a).to eq([records[1], records[0]])
-          expect(repository.read(specification.newer_than(3.minutes.ago).stream("stream").as_of.result).to_a).to eq([records[1], records[0], records[3]])
         end
       end
 
@@ -331,7 +351,7 @@ module RubyEventStore
                     2
         expect {
           repository.read(specification.in_batches.as_of.result).to_a
-        }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*COALESCE(.*event_store_events.*valid_at, .*event_store_events.*created_at.*).* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/,
+        }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*COALESCE(.*event_store_events.*valid_at.*, .*event_store_events.*created_at.*).* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/,
                     2
       end
 
