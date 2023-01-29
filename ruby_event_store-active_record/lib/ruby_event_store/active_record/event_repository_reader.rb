@@ -114,7 +114,11 @@ module RubyEventStore
       end
 
       def as_of(spec)
-        Arel.sql("COALESCE(#{@event_klass.table_name}.valid_at, #{@event_klass.table_name}.created_at) #{order(spec)}")
+        Arel::Nodes::NamedFunction.new(
+          "COALESCE",
+          [@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at]]
+        )
+        .public_send("#{order(spec).downcase}")
       end
 
       def as_at(spec)
