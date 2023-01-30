@@ -21,7 +21,7 @@ module RubyEventStore
             end
 
             define_method :event_store do
-              @event_store ||= RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new).tap do |event_store|
+              @event_store ||= RubyEventStore::Client.new.tap do |event_store|
                 event_store.subscribe_to_all_events(RubyEventStore::LinkByCorrelationId.new(event_store: event_store))
                 event_store.subscribe_to_all_events(RubyEventStore::LinkByCausationId.new(event_store: event_store))
                 event_store.subscribe_to_all_events(RubyEventStore::LinkByEventType.new(event_store: event_store))

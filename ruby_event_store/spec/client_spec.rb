@@ -206,8 +206,8 @@ module RubyEventStore
     end
 
     specify "metadata is bound to the current instance and does not leak to others" do
-      client_a = RubyEventStore::Client.new(repository: InMemoryRepository.new)
-      client_b = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client_a = RubyEventStore::Client.new
+      client_b = RubyEventStore::Client.new
       client_a.with_metadata(client: "a") do
         client_b.with_metadata(client: "b") do
           client_a.publish(TestEvent.new)
@@ -711,7 +711,7 @@ module RubyEventStore
     end
 
     specify "can load YAML serialized record of previous release" do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(
@@ -736,7 +736,7 @@ module RubyEventStore
     end
 
     specify "can load JSON serialized record of previous release" do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new)
+      client = RubyEventStore::Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(

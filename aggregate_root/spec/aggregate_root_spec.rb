@@ -5,7 +5,6 @@ require "spec_helper"
 ::RSpec.describe AggregateRoot do
   let(:event_store) do
     RubyEventStore::Client.new(
-      repository: RubyEventStore::InMemoryRepository.new,
       mapper: RubyEventStore::Mappers::NullMapper.new
     )
   end

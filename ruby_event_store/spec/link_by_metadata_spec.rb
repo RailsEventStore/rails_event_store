@@ -2,7 +2,7 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe LinkByMetadata do
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new }
 
     specify "links to stream based on selected metadata" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :string))
@@ -37,7 +37,7 @@ module RubyEventStore
   end
 
   ::RSpec.describe LinkByCorrelationId do
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new }
     let(:event) do
       OrderCreated.new.tap do |ev|
         ev.correlation_id = "COR"
@@ -59,7 +59,7 @@ module RubyEventStore
   end
 
   ::RSpec.describe LinkByCausationId do
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new }
     let(:event) do
       OrderCreated.new.tap do |ev|
         ev.correlation_id = "COR"
@@ -81,7 +81,7 @@ module RubyEventStore
   end
 
   ::RSpec.describe LinkByEventType do
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new }
     let(:event) { OrderCreated.new }
 
     specify "default prefix" do

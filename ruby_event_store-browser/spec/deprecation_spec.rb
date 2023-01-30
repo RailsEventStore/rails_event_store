@@ -47,10 +47,6 @@ module RubyEventStore
       EOS
     end
 
-    let(:event_store) do
-      RubyEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new
-      )
-    end
+    let(:event_store) { RubyEventStore::Client.new }
   end
 end

@@ -4,7 +4,7 @@ module RubyEventStore
   module RSpec
     ::RSpec.describe Matchers do
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
-      let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+      let(:event_store) { RubyEventStore::Client.new }
 
       specify { expect(matchers.be_an_event(FooEvent.new)).to be_an(BeEvent) }
       specify { expect(matchers.be_event(FooEvent.new)).to be_an(BeEvent) }

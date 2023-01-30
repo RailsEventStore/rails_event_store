@@ -6,7 +6,7 @@ end
 module RubyEventStore
   ::RSpec.describe Flipper do
     let(:instrumenter) { ActiveSupport::Notifications }
-    let(:event_store) { RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new }
     let(:flipper) { ::Flipper.new(::Flipper::Adapters::Memory.new, instrumenter: instrumenter) }
 
     specify "enable hooks only into flipper notifications" do

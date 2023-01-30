@@ -9,7 +9,6 @@ class Minitest::RubyEventStoreTest < Minitest::Test
   def setup
     @event_store =
       RubyEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new,
         mapper:
           RubyEventStore::Mappers::PipelineMapper.new(
             RubyEventStore::Mappers::Pipeline.new(to_domain_event: RubyEventStore::Transformations::IdentityMap.new)

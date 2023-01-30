@@ -100,11 +100,7 @@ module RubyEventStore
       ).to be_empty
     end
 
-    let(:event_store) do
-      RubyEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new
-      )
-    end
+    let(:event_store) { RubyEventStore::Client.new }
 
     def app_builder(event_store)
       RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })

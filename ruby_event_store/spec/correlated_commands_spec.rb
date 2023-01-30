@@ -33,7 +33,7 @@ module RubyEventStore
       end
     end
 
-    let(:event_store) { RubyEventStore::Client.new(repository: InMemoryRepository.new) }
+    let(:event_store) { RubyEventStore::Client.new }
     let(:command_bus) do
       ->(cmd) do
         {
