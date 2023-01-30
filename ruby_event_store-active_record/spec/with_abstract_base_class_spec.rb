@@ -58,7 +58,7 @@ module RubyEventStore
             RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
             RubyEventStore::ExpectedVersion.any
           )
-          reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+          reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
           specification = RubyEventStore::Specification.new(reader)
           read_event = repository.read(specification.result).first
           expect(read_event).to eq(event)
@@ -82,7 +82,7 @@ module RubyEventStore
             RubyEventStore::Stream.new("some"),
             RubyEventStore::ExpectedVersion.any
           )
-          reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+          reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
 
           expect do
             read_event = repository.read(RubyEventStore::Specification.new(reader).result).first

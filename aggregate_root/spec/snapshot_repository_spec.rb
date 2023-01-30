@@ -22,12 +22,7 @@ module AggregateRoot
   end
 
   ::RSpec.describe SnapshotRepository do
-    let(:event_store) do
-      RubyEventStore::Client.new(
-        repository: reporting_repository,
-        mapper: RubyEventStore::Mappers::NullMapper.new
-      )
-    end
+    let(:event_store) { RubyEventStore::Client.new(repository: reporting_repository) }
     let(:reporting_repository) { ReadingStatsRepository.new(RubyEventStore::InMemoryRepository.new) }
     let(:uuid) { SecureRandom.uuid }
     let(:stream_name) { "Order$#{uuid}" }

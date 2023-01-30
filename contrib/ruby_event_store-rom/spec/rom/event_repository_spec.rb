@@ -21,7 +21,7 @@ module RubyEventStore
       let(:rom_container) { helper.rom_container }
       let(:repository) { mk_repository.call }
       let(:specification) do
-        Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::NullMapper.new))
+        Specification.new(SpecificationReader.new(repository, ::RubyEventStore::Mappers::Default.new))
       end
 
       around(:each) { |example| helper.run_lifecycle { example.run } }

@@ -3,11 +3,7 @@
 require "spec_helper"
 
 ::RSpec.describe AggregateRoot do
-  let(:event_store) do
-    RubyEventStore::Client.new(
-      mapper: RubyEventStore::Mappers::NullMapper.new
-    )
-  end
+  let(:event_store) { RubyEventStore::Client.new }
   let(:uuid) { SecureRandom.uuid }
   let(:order_klass) do
     Class.new do
