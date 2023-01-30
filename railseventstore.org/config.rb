@@ -39,4 +39,5 @@ set :res_version, "2.9.0"
 page "/"
 page "/docs/v1/*", locals: { version: "v1" }, layout: "documentation"
 page "/docs/v2/*", locals: { version: "v2" }, layout: "documentation"
+page "/docs/v3/*", locals: { version: "v3" }, layout: "documentation"
 page "*", locals: { version: "v2" }
