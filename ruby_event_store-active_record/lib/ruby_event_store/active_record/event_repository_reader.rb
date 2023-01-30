@@ -63,7 +63,7 @@ module RubyEventStore
 
       def offset_limit_batch_reader(spec, stream)
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
-        ::RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
+        RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
       end
 
       def monotonic_id_batch_reader(spec, stream)
