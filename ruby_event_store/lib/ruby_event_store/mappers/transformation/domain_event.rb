@@ -4,15 +4,15 @@ module RubyEventStore
   module Mappers
     module Transformation
       class DomainEvent
-        def dump(domain_event)
-          metadata = domain_event.metadata.dup.to_h
+        def dump(event)
+          metadata = event.metadata.dup.to_h
           timestamp = metadata.delete(:timestamp)
           valid_at = metadata.delete(:valid_at)
           Record.new(
-            event_id: domain_event.event_id,
+            event_id: event.event_id,
             metadata: metadata,
-            data: domain_event.data,
-            event_type: domain_event.event_type,
+            data: event.data,
+            event_type: event.event_type,
             timestamp: timestamp,
             valid_at: valid_at
           )

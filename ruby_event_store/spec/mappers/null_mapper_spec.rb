@@ -8,7 +8,7 @@ module RubyEventStore
       let(:data) { { some_attribute: 5 } }
       let(:metadata) { { some_meta: 1 } }
       let(:event_id) { SecureRandom.uuid }
-      let(:domain_event) do
+      let(:event) do
         TimeEnrichment.with(
           TestEvent.new(data: data, metadata: metadata, event_id: event_id),
           timestamp: time,
@@ -19,10 +19,10 @@ module RubyEventStore
       it_behaves_like :mapper, NullMapper.new, TimeEnrichment.with(TestEvent.new)
 
       specify "#event_to_record" do
-        record = subject.event_to_record(domain_event)
+        record = subject.event_to_record(event)
 
-        expect(record.event_id).to eq(domain_event.event_id)
-        expect(record.data).to eq(domain_event.data)
+        expect(record.event_id).to eq(event.event_id)
+        expect(record.data).to eq(event.data)
         expect(record.metadata.to_h).to eq(metadata)
         expect(record.event_type).to eq("TestEvent")
         expect(record.timestamp).to eq(time)
@@ -30,13 +30,13 @@ module RubyEventStore
       end
 
       specify "#record_to_event" do
-        record = subject.event_to_record(domain_event)
+        record = subject.event_to_record(event)
         event = subject.record_to_event(record)
 
-        expect(event).to eq(domain_event)
-        expect(event.event_id).to eq(domain_event.event_id)
-        expect(event.data).to eq(domain_event.data)
-        expect(event.metadata.to_h).to eq(domain_event.metadata.to_h)
+        expect(event).to eq(event)
+        expect(event.event_id).to eq(event.event_id)
+        expect(event.data).to eq(event.data)
+        expect(event.metadata.to_h).to eq(event.metadata.to_h)
         expect(event.event_type).to eq("TestEvent")
         expect(event.metadata[:timestamp]).to eq(time)
         expect(event.metadata[:valid_at]).to eq(time)

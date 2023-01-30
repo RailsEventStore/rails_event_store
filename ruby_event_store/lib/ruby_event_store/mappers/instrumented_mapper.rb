@@ -8,9 +8,9 @@ module RubyEventStore
         @instrumentation = instrumentation
       end
 
-      def event_to_record(domain_event)
-        instrumentation.instrument("serialize.mapper.rails_event_store", domain_event: domain_event) do
-          mapper.event_to_record(domain_event)
+      def event_to_record(event)
+        instrumentation.instrument("serialize.mapper.rails_event_store", domain_event: event) do
+          mapper.event_to_record(event)
         end
       end
 

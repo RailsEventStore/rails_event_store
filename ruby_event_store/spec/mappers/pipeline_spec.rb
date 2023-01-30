@@ -39,10 +39,10 @@ module RubyEventStore
         transformation_1 = Transformation::SymbolizeMetadataKeys.new
         transformation_2 = Transformation::StringifyMetadataKeys.new
         pipe = Pipeline.new(transformation_1, transformation_2, to_domain_event: domain_mapper)
-        domain_event = TestEvent.new
+        event = TestEvent.new
         record1 =
           Record.new(
-            event_id: domain_event.event_id,
+            event_id: event.event_id,
             data: {
               item: 1
             },
@@ -53,7 +53,7 @@ module RubyEventStore
           )
         record2 =
           Record.new(
-            event_id: domain_event.event_id,
+            event_id: event.event_id,
             data: {
               item: 2
             },
@@ -62,10 +62,10 @@ module RubyEventStore
             timestamp: Time.now.utc,
             valid_at: Time.now.utc
           )
-        expect(domain_mapper).to receive(:dump).with(domain_event).and_return(record1)
+        expect(domain_mapper).to receive(:dump).with(event).and_return(record1)
         expect(transformation_1).to receive(:dump).with(record1).and_return(record2)
         expect(transformation_2).to receive(:dump).with(record2)
-        expect { pipe.dump(domain_event) }.not_to raise_error
+        expect { pipe.dump(event) }.not_to raise_error
       end
 
       specify "#dump" do

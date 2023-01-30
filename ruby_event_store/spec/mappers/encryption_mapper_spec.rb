@@ -23,14 +23,14 @@ module RubyEventStore
       def build_data(value = "test@example.com")
         { personal_info: value, user_id: 123 }
       end
-      def domain_event(data = build_data)
+      def event(data = build_data)
         TimeEnrichment.with(
           SomeEventWithPersonalInfo.new(data: data, metadata: metadata, event_id: event_id),
           timestamp: time,
           valid_at: time
         )
       end
-      def encrypted_item(event = domain_event)
+      def encrypted_item(event = event())
         coder.dump(Transformation::DomainEvent.new.dump(event))
       end
       subject { EncryptionMapper.new(key_repository) }
@@ -45,7 +45,7 @@ module RubyEventStore
       end
 
       specify "#event_to_record returns YAML serialized record" do
-        record = subject.event_to_record(domain_event)
+        record = subject.event_to_record(event)
         expect(record).to be_a Record
         expect(record.event_id).to eq event_id
         expect(record.data).to eq encrypted_item.data
@@ -58,7 +58,7 @@ module RubyEventStore
       specify "#record_to_event returns event instance" do
         record =
           Record.new(
-            event_id: domain_event.event_id,
+            event_id: event.event_id,
             data: encrypted_item.data,
             metadata: encrypted_item.metadata,
             event_type: SomeEventWithPersonalInfo.name,
@@ -66,7 +66,7 @@ module RubyEventStore
             valid_at: time
           )
         event = subject.record_to_event(record)
-        expect(event).to eq(domain_event)
+        expect(event).to eq(event)
         expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
         expect(event.metadata[:timestamp]).to eq(time)
         expect(event.metadata[:valid_at]).to eq(time)
@@ -74,7 +74,7 @@ module RubyEventStore
 
       specify "make sure encryption & decryption do not tamper event data" do
         [false, true, 123, "Any string value", 123.45, nil].each do |value|
-          source_event = domain_event(build_data(value))
+          source_event = event(build_data(value))
           encrypted = encrypted_item(source_event)
           record =
             Record.new(
@@ -97,7 +97,7 @@ module RubyEventStore
         specify "#record_to_event returns event instance with forgotten data" do
           record =
             Record.new(
-              event_id: domain_event.event_id,
+              event_id: event.event_id,
               data: encrypted_item.data,
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
@@ -122,7 +122,7 @@ module RubyEventStore
         specify "#record_to_event returns event instance with forgotten data when a new key is created" do
           record =
             Record.new(
-              event_id: domain_event.event_id,
+              event_id: event.event_id,
               data: encrypted_item.data,
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
@@ -153,7 +153,7 @@ module RubyEventStore
         specify "#record_to_event returns event instance with forgotten data" do
           record =
             Record.new(
-              event_id: domain_event.event_id,
+              event_id: event.event_id,
               data: encrypted_item.data,
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
@@ -181,7 +181,7 @@ module RubyEventStore
         subject { EncryptionMapper.new(key_repository, serializer: ReverseYamlSerializer) }
 
         specify "#event_to_record returns serialized record" do
-          record = subject.event_to_record(domain_event)
+          record = subject.event_to_record(event)
           expect(record).to be_a Record
           expect(record.event_id).to eq event_id
           expect(record.data).to eq encrypted_item.data
@@ -194,7 +194,7 @@ module RubyEventStore
         specify "#record_to_event returns event instance" do
           record =
             Record.new(
-              event_id: domain_event.event_id,
+              event_id: event.event_id,
               data: encrypted_item.data,
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
@@ -202,8 +202,8 @@ module RubyEventStore
               valid_at: time
             )
           event = subject.record_to_event(record)
-          expect(event).to eq(domain_event)
-          expect(event.metadata.to_h).to eq(domain_event.metadata.to_h)
+          expect(event).to eq(event)
+          expect(event.metadata.to_h).to eq(event.metadata.to_h)
           expect(event.metadata[:timestamp]).to eq(time)
           expect(event.metadata[:valid_at]).to eq(time)
         end

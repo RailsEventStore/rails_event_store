@@ -7,8 +7,8 @@ module RubyEventStore
         @transformations = [to_domain_event, transformations].flatten.freeze
       end
 
-      def dump(domain_event)
-        transformations.reduce(domain_event) { |item, transform| transform.dump(item) }
+      def dump(event)
+        transformations.reduce(event) { |item, transform| transform.dump(item) }
       end
 
       def load(record)
