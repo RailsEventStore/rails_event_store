@@ -6,10 +6,10 @@ module RubyEventStore
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:aggregate) { TestAggregate.new }
       let(:event_store) do
-        RubyEventStore::Client.new(
+        Client.new(
           mapper:
-            RubyEventStore::Mappers::PipelineMapper.new(
-              RubyEventStore::Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
+            Mappers::PipelineMapper.new(
+              Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
             )
         )
       end
