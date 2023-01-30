@@ -69,62 +69,6 @@ module RubyEventStore
         end.to match_query /SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/
       end
 
-      specify "read in batches forward" do
-        events = Array.new(200) { SRecord.new }
-        repository.append_to_stream(
-          events,
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
-
-        batches = repository.read(specification.forward.limit(101).in_batches.result).to_a
-        expect(batches.size).to eq(2)
-        expect(batches[0].size).to eq(100)
-        expect(batches[1].size).to eq(1)
-        expect(batches[0]).to eq(events[0..99])
-        expect(batches[1]).to eq([events[100]])
-      end
-
-      specify "read in batches backward" do
-        events = Array.new(200) { SRecord.new }
-        repository.append_to_stream(
-          events,
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
-
-        batches = repository.read(specification.backward.limit(101).in_batches.result).to_a
-        expect(batches.size).to eq(2)
-        expect(batches[0].size).to eq(100)
-        expect(batches[1].size).to eq(1)
-        expect(batches[0]).to eq(events[100..-1].reverse)
-        expect(batches[1]).to eq([events[99]])
-      end
-
-      specify "read in batches forward from named stream" do
-        all_events = Array.new(400) { SRecord.new }
-        all_events.each_slice(2) do |(first, second)|
-          repository.append_to_stream(
-            [first],
-            Stream.new("bazinga"),
-            ExpectedVersion.any
-          )
-          repository.append_to_stream(
-            [second],
-            Stream.new(GLOBAL_STREAM),
-            ExpectedVersion.any
-          )
-        end
-        stream_events =
-          all_events.each_with_index.select { |event, idx| event if idx % 2 == 0 }.map { |event, idx| event }
-        batches = repository.read(specification.stream("bazinga").forward.limit(101).in_batches.result).to_a
-        expect(batches.size).to eq(2)
-        expect(batches[0].size).to eq(100)
-        expect(batches[1].size).to eq(1)
-        expect(batches[0]).to eq(stream_events[0..99])
-        expect(batches[1]).to eq([stream_events[100]])
-      end
-
       specify "use default models" do
         repository = EventRepository.new(serializer: Serializers::YAML)
         expect(repository.instance_variable_get(:@event_klass)).to be(Event)
@@ -215,93 +159,6 @@ module RubyEventStore
         expect(event_record.valid_at).to be_nil
       end
 
-      specify "global stream order" do
-        repository.append_to_stream(
-          records = [
-            SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
-          ],
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
-
-        expect(repository.read(specification.result).to_a).to eq([records[0], records[1], records[2], records[3]])
-        expect(repository.read(specification.as_at.result).to_a).to eq([records[3], records[2], records[1], records[0]])
-        expect(repository.read(specification.as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
-      end
-
-      specify "named stream order" do
-        repository.append_to_stream(
-          records = [
-            SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
-          ],
-          Stream.new("stream"),
-          ExpectedVersion.any
-        )
-
-        expect(repository.read(specification.stream("stream").result).to_a).to eq([records[0], records[1], records[2], records[3]])
-        expect(repository.read(specification.stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1], records[0]])
-        expect(repository.read(specification.stream("stream").as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
-      end
-
-      specify "reading last event sorted by valid_at" do
-        repository.append_to_stream(
-          records = [
-            SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
-          ],
-          Stream.new("stream"),
-          ExpectedVersion.any
-        )
-
-        expect(repository.read(specification.stream("stream").as_of.read_last.result)).to eq(records[3])
-      end
-
-      specify "reading last event sorted by valid_at from global stream" do
-        repository.append_to_stream(
-          records = [
-            SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
-          ],
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
-
-        expect(repository.read(specification.as_of.read_last.result)).to eq(records[3])
-      end
-
-
-      describe "filter by time" do
-        let(:records) do
-          [
-            SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
-          ]
-        end
-
-        specify "older than" do
-          repository.append_to_stream(
-            records,
-            Stream.new("stream"),
-            ExpectedVersion.any
-          )
-
-          expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1]])
-          expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_of.result).to_a).to eq([records[2], records[1]])
-        end
-      end
-
       specify "no valid-at storage optimization when different from created-at" do
         repository.append_to_stream(
           [
@@ -384,6 +241,7 @@ module RubyEventStore
       end
 
       specify do
+<<<<<<< HEAD
         events = Array.new(200) { SRecord.new }
         repository.append_to_stream(
           events,
@@ -400,6 +258,8 @@ module RubyEventStore
       end
 
       specify do
+=======
+>>>>>>> b77a972e (Move repository API tests from RES::AR to RES)
         repository.append_to_stream(
           [event0 = SRecord.new, event1 = SRecord.new],
           stream = Stream.new("stream"),
