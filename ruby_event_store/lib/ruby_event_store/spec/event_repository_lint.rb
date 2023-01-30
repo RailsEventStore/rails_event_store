@@ -969,6 +969,22 @@ module RubyEventStore
     end
 
     specify do
+      events = Array.new(200) { RubyEventStore::SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      batches = repository.read(specification.as_at.forward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(events[0..99])
+      expect(batches[1]).to eq([events[100]])
+    end
+
+    specify do
       events = Array.new(200) { SRecord.new }
       repository.append_to_stream(events, Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
 
@@ -1415,6 +1431,148 @@ module RubyEventStore
         RubyEventStore::ExpectedVersion.any
       )
       expect(repository.read(specification.result).count).to eq(0)
+    end
+
+    specify "read in batches backward" do
+      events = Array.new(200) { RubyEventStore::SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      batches = repository.read(specification.backward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(events[100..-1].reverse)
+      expect(batches[1]).to eq([events[99]])
+    end
+
+    specify "read in batches forward" do
+      events = Array.new(200) { RubyEventStore::SRecord.new }
+      repository.append_to_stream(
+        events,
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      batches = repository.read(specification.forward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(events[0..99])
+      expect(batches[1]).to eq([events[100]])
+    end
+
+    specify "read in batches forward from named stream" do
+      all_events = Array.new(400) { RubyEventStore::SRecord.new }
+      all_events.each_slice(2) do |(first, second)|
+        repository.append_to_stream(
+          [first],
+          RubyEventStore::Stream.new("bazinga"),
+          RubyEventStore::ExpectedVersion.any
+        )
+        repository.append_to_stream(
+          [second],
+          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+          RubyEventStore::ExpectedVersion.any
+        )
+      end
+      stream_events =
+        all_events.each_with_index.select { |event, idx| event if idx % 2 == 0 }.map { |event, idx| event }
+      batches = repository.read(specification.stream("bazinga").forward.limit(101).in_batches.result).to_a
+      expect(batches.size).to eq(2)
+      expect(batches[0].size).to eq(100)
+      expect(batches[1].size).to eq(1)
+      expect(batches[0]).to eq(stream_events[0..99])
+      expect(batches[1]).to eq([stream_events[100]])
+    end
+
+    specify "global stream order" do
+      repository.append_to_stream(
+        records = [
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 29, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 28, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 27, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 26, 0)), valid_at: with_precision(Time.new(2023, 1, 1, 12, 30, 0))),
+        ],
+        RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      expect(repository.read(specification.result).to_a).to eq([records[0], records[1], records[2], records[3]])
+      expect(repository.read(specification.as_at.result).to_a).to eq([records[3], records[2], records[1], records[0]])
+      expect(repository.read(specification.as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
+    end
+
+    specify "named stream order" do
+      repository.append_to_stream(
+        records = [
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 29, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 28, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 27, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 26, 0)), valid_at: with_precision(Time.new(2023, 1, 1, 12, 30, 0))),
+        ],
+        RubyEventStore::Stream.new("stream"),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      expect(repository.read(specification.stream("stream").result).to_a).to eq([records[0], records[1], records[2], records[3]])
+      expect(repository.read(specification.stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1], records[0]])
+      expect(repository.read(specification.stream("stream").as_of.result).to_a).to eq([records[2], records[1], records[0], records[3]])
+    end
+
+    specify "reading last event sorted by valid_at" do
+      repository.append_to_stream(
+        records = [
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 29, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 28, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 27, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 26, 0)), valid_at: with_precision(Time.new(2023, 1, 1, 12, 30, 0))),
+        ],
+        RubyEventStore::Stream.new("stream"),
+        RubyEventStore::ExpectedVersion.any
+      )
+
+      expect(repository.read(specification.stream("stream").as_of.read_last.result)).to eq(records[3])
+    end
+
+    specify "reading last event sorted by valid_at from global stream" do
+      repository.append_to_stream(
+        records = [
+          SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 29, 0))),
+          SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 28, 0))),
+          SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 27, 0))),
+          SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 26, 0)), valid_at: with_precision(Time.new(2023, 1, 1, 12, 30, 0))),
+        ],
+        Stream.new(GLOBAL_STREAM),
+        ExpectedVersion.any
+      )
+
+      expect(repository.read(specification.as_of.read_last.result)).to eq(records[3])
+    end
+
+    specify "filter time by older than" do
+      repository.append_to_stream(
+        records = [
+          SRecord.new(timestamp: with_precision(Time.utc(2023, 1, 1, 12, 29))),
+          SRecord.new(timestamp: with_precision(Time.utc(2023, 1, 1, 12, 28))),
+          SRecord.new(timestamp: with_precision(Time.utc(2023, 1, 1, 12, 27))),
+          SRecord.new(timestamp: with_precision(Time.utc(2023, 1, 1, 12, 26)), valid_at: with_precision(Time.utc(2023, 1, 1, 12, 30))),
+        ],
+        Stream.new("stream"),
+        ExpectedVersion.any
+      )
+
+      expect(repository.read(specification.older_than(Time.utc(2023,1,1,12,28,1)).stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1]])
+      expect(repository.read(specification.older_than(Time.utc(2023,1,1,12,28,1)).stream("stream").as_of.result).to_a).to eq([records[2], records[1]])
+    end
+
+    private
+
+    def with_precision(time)
+      time.round(TIMESTAMP_PRECISION)
     end
   end
 
