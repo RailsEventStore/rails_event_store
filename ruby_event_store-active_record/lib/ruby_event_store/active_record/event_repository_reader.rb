@@ -114,12 +114,13 @@ module RubyEventStore
       end
 
       def as_of(spec)
-        coalesce(@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at])
-          .public_send("#{order(spec).downcase}")
+        expr = coalesce(@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at])
+        spec.forward? ? expr.asc : expr.desc
       end
 
       def as_at(spec)
-        @event_klass.arel_table[:created_at].public_send("#{order(spec).downcase}")
+        expr = @event_klass.arel_table[:created_at]
+        spec.forward? ? expr.asc : expr.desc
       end
 
       def start_offset_condition(specification, record_id, search_in)
