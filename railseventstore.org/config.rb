@@ -33,6 +33,7 @@ set :markdown, tables: true, autolink: true, fenced_code_blocks: true, with_toc_
 
 set :res_version_v1, "1.3.1"
 set :res_version_v2, "2.9.0"
+set :res_version_v3, "3.0.0"
 set :res_version, "2.9.0"
 
 page "/"
