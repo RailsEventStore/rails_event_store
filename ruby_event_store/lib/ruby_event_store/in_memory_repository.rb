@@ -167,10 +167,7 @@ module RubyEventStore
     end
 
     def time_comparison_field(spec, sr)
-      case spec.time_sort_by
-      when :as_at
-        sr.timestamp
-      when :as_of
+      if spec.time_sort_by_as_of?
         sr.valid_at
       else
         sr.timestamp
