@@ -67,7 +67,7 @@ module RubyEventStore
       private
 
       def migration_generator(dir, data_type = "binary")
-        RubyEventStore::ActiveRecord::MigrationGenerator.new.call(data_type, dir)
+        ActiveRecord::MigrationGenerator.new.call(data_type, dir)
       end
 
       def migration_exists?(dir)

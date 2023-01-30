@@ -6,7 +6,7 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe PgLinearizedEventRepository do
       helper = SpecHelper.new
-      mk_repository = -> { PgLinearizedEventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
+      mk_repository = -> { PgLinearizedEventRepository.new(serializer: Serializers::YAML) }
 
       it_behaves_like :event_repository, mk_repository, helper
 
@@ -54,9 +54,9 @@ module RubyEventStore
         helper.with_transaction do
           expect do
             repository.append_to_stream(
-              [RubyEventStore::SRecord.new, RubyEventStore::SRecord.new],
-              RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-              RubyEventStore::ExpectedVersion.any
+              [SRecord.new, SRecord.new],
+              Stream.new(GLOBAL_STREAM),
+              ExpectedVersion.any
             )
           end.not_to raise_error
         end
@@ -70,9 +70,9 @@ module RubyEventStore
 
       def append_an_event_to_repo
         repository.append_to_stream(
-          [RubyEventStore::SRecord.new],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          [SRecord.new],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
       end
     end if ENV["DATABASE_URL"].include?("postgres")

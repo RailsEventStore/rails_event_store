@@ -6,15 +6,15 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe EventRepository do
       helper = SpecHelper.new
-      mk_repository = -> { EventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
+      mk_repository = -> { EventRepository.new(serializer: Serializers::YAML) }
 
       it_behaves_like :event_repository, mk_repository, helper
 
       let(:time) { Time.now.utc }
       let(:repository) { mk_repository.call }
       let(:specification) do
-        RubyEventStore::Specification.new(
-          RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
+        Specification.new(
+          SpecificationReader.new(repository, Mappers::Default.new)
         )
       end
 
@@ -22,19 +22,19 @@ module RubyEventStore
 
       specify "nested transaction - events still not persisted if append failed" do
         repository.append_to_stream(
-          [event = RubyEventStore::SRecord.new(event_id: SecureRandom.uuid)],
-          RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.none
+          [event = SRecord.new(event_id: SecureRandom.uuid)],
+          Stream.new("stream"),
+          ExpectedVersion.none
         )
 
         helper.with_transaction do
           expect do
             repository.append_to_stream(
-              [RubyEventStore::SRecord.new(event_id: "9bedf448-e4d0-41a3-a8cd-f94aec7aa763")],
-              RubyEventStore::Stream.new("stream"),
-              RubyEventStore::ExpectedVersion.none
+              [SRecord.new(event_id: "9bedf448-e4d0-41a3-a8cd-f94aec7aa763")],
+              Stream.new("stream"),
+              ExpectedVersion.none
             )
-          end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+          end.to raise_error(WrongExpectedEventVersion)
           expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be false
           expect(repository.read(specification.limit(2).result).to_a).to eq([event])
         end
@@ -44,9 +44,9 @@ module RubyEventStore
 
       specify "avoid N+1" do
         repository.append_to_stream(
-          [RubyEventStore::SRecord.new, RubyEventStore::SRecord.new],
-          RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.auto
+          [SRecord.new, SRecord.new],
+          Stream.new("stream"),
+          ExpectedVersion.auto
         )
 
         expect { repository.read(specification.limit(2).result) }.to match_query_count(1)
@@ -62,19 +62,19 @@ module RubyEventStore
           expect do
             repository.link_to_stream(
               ["72922e65-1b32-4e97-8023-03ae81dd3a27"],
-              RubyEventStore::Stream.new("flow"),
-              RubyEventStore::ExpectedVersion.none
+              Stream.new("flow"),
+              ExpectedVersion.none
             )
-          end.to raise_error(RubyEventStore::EventNotFound)
+          end.to raise_error(EventNotFound)
         end.to match_query /SELECT.*event_store_events.*id.*FROM.*event_store_events.*WHERE.*event_store_events.*id.*=.*/
       end
 
       specify "read in batches forward" do
-        events = Array.new(200) { RubyEventStore::SRecord.new }
+        events = Array.new(200) { SRecord.new }
         repository.append_to_stream(
           events,
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
 
         batches = repository.read(specification.forward.limit(101).in_batches.result).to_a
@@ -86,11 +86,11 @@ module RubyEventStore
       end
 
       specify "read in batches backward" do
-        events = Array.new(200) { RubyEventStore::SRecord.new }
+        events = Array.new(200) { SRecord.new }
         repository.append_to_stream(
           events,
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
 
         batches = repository.read(specification.backward.limit(101).in_batches.result).to_a
@@ -102,17 +102,17 @@ module RubyEventStore
       end
 
       specify "read in batches forward from named stream" do
-        all_events = Array.new(400) { RubyEventStore::SRecord.new }
+        all_events = Array.new(400) { SRecord.new }
         all_events.each_slice(2) do |(first, second)|
           repository.append_to_stream(
             [first],
-            RubyEventStore::Stream.new("bazinga"),
-            RubyEventStore::ExpectedVersion.any
+            Stream.new("bazinga"),
+            ExpectedVersion.any
           )
           repository.append_to_stream(
             [second],
-            RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-            RubyEventStore::ExpectedVersion.any
+            Stream.new(GLOBAL_STREAM),
+            ExpectedVersion.any
           )
         end
         stream_events =
@@ -126,7 +126,7 @@ module RubyEventStore
       end
 
       specify "use default models" do
-        repository = EventRepository.new(serializer: RubyEventStore::Serializers::YAML)
+        repository = EventRepository.new(serializer: Serializers::YAML)
         expect(repository.instance_variable_get(:@event_klass)).to be(Event)
         expect(repository.instance_variable_get(:@stream_klass)).to be(EventInStream)
       end
@@ -135,7 +135,7 @@ module RubyEventStore
         repository =
           EventRepository.new(
             model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-            serializer: RubyEventStore::Serializers::YAML
+            serializer: Serializers::YAML
           )
         expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
         expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
@@ -145,24 +145,24 @@ module RubyEventStore
         repository =
           EventRepository.new(
             model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-            serializer: RubyEventStore::Serializers::YAML
+            serializer: Serializers::YAML
           )
         repository.append_to_stream(
-          [event = RubyEventStore::SRecord.new],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          [event = SRecord.new],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
-        reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
-        specification = RubyEventStore::Specification.new(reader)
+        reader = SpecificationReader.new(repository, Mappers::Default.new)
+        specification = Specification.new(reader)
         read_event = repository.read(specification.result).first
         expect(read_event).to eq(event)
       end
 
       specify "timestamps not overwritten by activerecord-import" do
         repository.append_to_stream(
-          [event = RubyEventStore::SRecord.new(timestamp: time = Time.at(0))],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          [event = SRecord.new(timestamp: time = Time.at(0))],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
         event_ = repository.read(specification.result).first
         expect(event_.timestamp).to eq(time)
@@ -202,9 +202,9 @@ module RubyEventStore
 
       specify "valid-at storage optimization when same as created-at" do
         repository.append_to_stream(
-          [RubyEventStore::SRecord.new(timestamp: time = with_precision(Time.at(0)))],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          [SRecord.new(timestamp: time = with_precision(Time.at(0)))],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
         record = repository.read(specification.result).first
         expect(record.timestamp).to eq(time)
@@ -218,13 +218,13 @@ module RubyEventStore
       specify "global stream order" do
         repository.append_to_stream(
           records = [
-            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+            SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
           ],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
 
         expect(repository.read(specification.result).to_a).to eq([records[0], records[1], records[2], records[3]])
@@ -235,13 +235,13 @@ module RubyEventStore
       specify "named stream order" do
         repository.append_to_stream(
           records = [
-            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+            SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
           ],
-          RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new("stream"),
+          ExpectedVersion.any
         )
 
         expect(repository.read(specification.stream("stream").result).to_a).to eq([records[0], records[1], records[2], records[3]])
@@ -252,13 +252,13 @@ module RubyEventStore
       specify "reading last event sorted by valid_at" do
         repository.append_to_stream(
           records = [
-            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+            SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
           ],
-          RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new("stream"),
+          ExpectedVersion.any
         )
 
         expect(repository.read(specification.stream("stream").as_of.read_last.result)).to eq(records[3])
@@ -267,13 +267,13 @@ module RubyEventStore
       specify "reading last event sorted by valid_at from global stream" do
         repository.append_to_stream(
           records = [
-            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+            SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
           ],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
 
         expect(repository.read(specification.as_of.read_last.result)).to eq(records[3])
@@ -283,18 +283,18 @@ module RubyEventStore
       describe "filter by time" do
         let(:records) do
           [
-            RubyEventStore::SRecord.new(timestamp: with_precision(1.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(2.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(3.minutes.ago)),
-            RubyEventStore::SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
+            SRecord.new(timestamp: with_precision(1.minutes.ago)),
+            SRecord.new(timestamp: with_precision(2.minutes.ago)),
+            SRecord.new(timestamp: with_precision(3.minutes.ago)),
+            SRecord.new(timestamp: with_precision(4.minutes.ago), valid_at: with_precision(0.minutes.ago))
           ]
         end
 
         specify "older than" do
           repository.append_to_stream(
             records,
-            RubyEventStore::Stream.new("stream"),
-            RubyEventStore::ExpectedVersion.any
+            Stream.new("stream"),
+            ExpectedVersion.any
           )
 
           expect(repository.read(specification.older_than(2.minutes.ago).stream("stream").as_at.result).to_a).to eq([records[3], records[2], records[1]])
@@ -305,13 +305,13 @@ module RubyEventStore
       specify "no valid-at storage optimization when different from created-at" do
         repository.append_to_stream(
           [
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               timestamp: t1 = with_precision(Time.at(0)),
               valid_at: t2 = with_precision(Time.at(1))
             )
           ],
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
         record = repository.read(specification.result).first
         expect(record.timestamp).to eq(t1)
@@ -325,24 +325,24 @@ module RubyEventStore
       specify "with batches and bi-temporal queries use offset + limit" do
         repository.append_to_stream(
           [
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               event_id: e1 = SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 1),
               valid_at: Time.new(2020, 1, 9)
             ),
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               event_id: e2 = SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 3),
               valid_at: Time.new(2020, 1, 6)
             ),
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               event_id: e3 = SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 2),
               valid_at: Time.new(2020, 1, 3)
             )
           ],
-          RubyEventStore::Stream.new("Dummy"),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new("Dummy"),
+          ExpectedVersion.any
         )
 
         expect {
@@ -358,24 +358,24 @@ module RubyEventStore
       specify "with batches and non-bi-temporal queries use monotnic ids" do
         repository.append_to_stream(
           [
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               event_id: e1 = SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 1),
               valid_at: Time.new(2020, 1, 9)
             ),
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               event_id: e2 = SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 3),
               valid_at: Time.new(2020, 1, 6)
             ),
-            RubyEventStore::SRecord.new(
+            SRecord.new(
               event_id: e3 = SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 2),
               valid_at: Time.new(2020, 1, 3)
             )
           ],
-          RubyEventStore::Stream.new("Dummy"),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new("Dummy"),
+          ExpectedVersion.any
         )
 
         expect {
@@ -384,11 +384,11 @@ module RubyEventStore
       end
 
       specify do
-        events = Array.new(200) { RubyEventStore::SRecord.new }
+        events = Array.new(200) { SRecord.new }
         repository.append_to_stream(
           events,
-          RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-          RubyEventStore::ExpectedVersion.any
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
         )
 
         batches = repository.read(specification.as_at.forward.limit(101).in_batches.result).to_a
@@ -401,9 +401,9 @@ module RubyEventStore
 
       specify do
         repository.append_to_stream(
-          [event0 = RubyEventStore::SRecord.new, event1 = RubyEventStore::SRecord.new],
-          stream = RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.auto
+          [event0 = SRecord.new, event1 = SRecord.new],
+          stream = Stream.new("stream"),
+          ExpectedVersion.auto
         )
 
         expect {
@@ -413,9 +413,9 @@ module RubyEventStore
 
       specify do
         repository.append_to_stream(
-          [event = RubyEventStore::SRecord.new],
-          RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.any
+          [event = SRecord.new],
+          Stream.new("stream"),
+          ExpectedVersion.any
         )
         expect {
           repository.global_position(event.event_id)
@@ -436,7 +436,7 @@ module RubyEventStore
       private
 
       def with_precision(time)
-        time.round(RubyEventStore::TIMESTAMP_PRECISION)
+        time.round(TIMESTAMP_PRECISION)
       end
     end
   end

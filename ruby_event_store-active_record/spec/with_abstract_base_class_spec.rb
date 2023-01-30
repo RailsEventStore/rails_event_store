@@ -51,15 +51,15 @@ module RubyEventStore
           repository =
             EventRepository.new(
               model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-              serializer: RubyEventStore::Serializers::YAML
+              serializer: Serializers::YAML
             )
           repository.append_to_stream(
-            [event = RubyEventStore::SRecord.new],
-            RubyEventStore::Stream.new(RubyEventStore::GLOBAL_STREAM),
-            RubyEventStore::ExpectedVersion.any
+            [event = SRecord.new],
+            Stream.new(GLOBAL_STREAM),
+            ExpectedVersion.any
           )
-          reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
-          specification = RubyEventStore::Specification.new(reader)
+          reader = SpecificationReader.new(repository, Mappers::Default.new)
+          specification = Specification.new(reader)
           read_event = repository.read(specification.result).first
           expect(read_event).to eq(event)
         ensure
@@ -75,23 +75,23 @@ module RubyEventStore
           repository =
             EventRepository.new(
               model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-              serializer: RubyEventStore::Serializers::YAML
+              serializer: Serializers::YAML
             )
           repository.append_to_stream(
-            [event = RubyEventStore::SRecord.new(event_type: "Dummy")],
-            RubyEventStore::Stream.new("some"),
-            RubyEventStore::ExpectedVersion.any
+            [event = SRecord.new(event_type: "Dummy")],
+            Stream.new("some"),
+            ExpectedVersion.any
           )
-          reader = RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
+          reader = SpecificationReader.new(repository, Mappers::Default.new)
 
           expect do
-            read_event = repository.read(RubyEventStore::Specification.new(reader).result).first
+            read_event = repository.read(Specification.new(reader).result).first
             expect(read_event).to eq(event)
           end.to match_query /SELECT.*FROM.*event_store_events.*/
 
           expect do
             read_event =
-              repository.read(RubyEventStore::Specification.new(reader).of_type("Dummy").stream("some").result).first
+              repository.read(Specification.new(reader).of_type("Dummy").stream("some").result).first
             expect(read_event).to eq(event)
           end.to match_query /SELECT.*FROM.*event_store_events_in_streams.*/
         ensure
