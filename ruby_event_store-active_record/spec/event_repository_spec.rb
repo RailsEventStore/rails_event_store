@@ -241,25 +241,6 @@ module RubyEventStore
       end
 
       specify do
-<<<<<<< HEAD
-        events = Array.new(200) { SRecord.new }
-        repository.append_to_stream(
-          events,
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
-
-        batches = repository.read(specification.as_at.forward.limit(101).in_batches.result).to_a
-        expect(batches.size).to eq(2)
-        expect(batches[0].size).to eq(100)
-        expect(batches[1].size).to eq(1)
-        expect(batches[0]).to eq(events[0..99])
-        expect(batches[1]).to eq([events[100]])
-      end
-
-      specify do
-=======
->>>>>>> b77a972e (Move repository API tests from RES::AR to RES)
         repository.append_to_stream(
           [event0 = SRecord.new, event1 = SRecord.new],
           stream = Stream.new("stream"),
