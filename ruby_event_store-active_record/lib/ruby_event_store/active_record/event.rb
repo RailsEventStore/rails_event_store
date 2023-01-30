@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
+require "active_record"
+
 module RubyEventStore
   module ActiveRecord
     class Event < ::ActiveRecord::Base
       self.primary_key = :id
       self.table_name = "event_store_events"
 
-      attribute :data, PassThrough.new
-      attribute :metadata, PassThrough.new
+      attribute :data, ActiveModel::Type::Value.new
+      attribute :metadata, ActiveModel::Type::Value.new
     end
     private_constant :Event
 
