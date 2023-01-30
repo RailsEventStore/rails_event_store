@@ -6,7 +6,7 @@ require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   module ActiveRecord
-    ::RSpec.describe "Skip ActiveRecord serialization of data and metadata for json(b) columns" do
+    ::RSpec.describe "PassThrough" do
       helper = SpecHelper.new
       mk_repository = -> { EventRepository.new(serializer: JSON) }
 
