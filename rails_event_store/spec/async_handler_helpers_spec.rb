@@ -78,14 +78,14 @@ module RailsEventStore
     specify "with defaults" do
       HandlerWithDefaults.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(HandlerWithDefaults)
-      event_store.publish(ev = RailsEventStore::Event.new)
+      event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
     specify "with specified event store" do
       HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
       event_store.subscribe_to_all_events(HandlerWithAnotherEventStore)
-      event_store.publish(ev = RailsEventStore::Event.new)
+      event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
@@ -95,7 +95,7 @@ module RailsEventStore
                                              event_store_locator: -> { another_event_store }
                                            )
       another_event_store.subscribe_to_all_events(HandlerWithEventStoreLocator)
-      another_event_store.publish(ev = RailsEventStore::Event.new)
+      another_event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
@@ -105,20 +105,20 @@ module RailsEventStore
                                                serializer: JSON
                                              )
       json_event_store.subscribe_to_all_events(HandlerWithSpecifiedSerializer)
-      json_event_store.publish(ev = RailsEventStore::Event.new)
+      json_event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
     specify "default dispatcher can into ActiveJob" do
       event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
-      event_store.publish(ev = RailsEventStore::Event.new)
+      event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
     specify "ActiveJob with AsyncHandler prepended" do
       HandlerWithHelper.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(HandlerWithHelper)
-      event_store.publish(ev = RailsEventStore::Event.new)
+      event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
     end
 
@@ -127,7 +127,7 @@ module RailsEventStore
       HandlerA.prepend RailsEventStore::CorrelatedHandler
       HandlerA.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(HandlerA)
-      event_store.publish(ev = RailsEventStore::Event.new)
+      event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq({ correlation_id: ev.correlation_id, causation_id: ev.event_id })
     end
 
@@ -136,13 +136,13 @@ module RailsEventStore
       HandlerB.prepend RailsEventStore::CorrelatedHandler
       HandlerB.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(HandlerB)
-      event_store.publish(ev = RailsEventStore::Event.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
+      event_store.publish(ev = RubyEventStore::Event.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
       expect($queue.pop).to eq({ correlation_id: "COID", causation_id: ev.event_id })
     end
 
     specify "ActiveJob with sidekiq adapter that requires serialization", mutant: false do
       ActiveJob::Base.queue_adapter = :sidekiq
-      ev = RailsEventStore::Event.new
+      ev = RubyEventStore::Event.new
       Sidekiq::Testing.fake! do
         event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
         event_store.publish(ev)
@@ -155,7 +155,7 @@ module RailsEventStore
       HandlerB = Class.new(MetadataHandler)
       HandlerB.prepend RailsEventStore::CorrelatedHandler
       HandlerB.prepend RailsEventStore::AsyncHandler
-      event_store.append(ev = RailsEventStore::Event.new)
+      event_store.append(ev = RubyEventStore::Event.new)
       ev = event_store.read.event(ev.event_id)
       HandlerB.perform_now(serialize_without_correlation_id(ev))
       expect($queue.pop).to eq({ correlation_id: nil, causation_id: ev.event_id })

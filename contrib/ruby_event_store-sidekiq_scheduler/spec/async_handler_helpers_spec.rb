@@ -48,7 +48,7 @@ module RubyEventStore
         RailsEventStore::Client.new(
           dispatcher: ImmediateAsyncDispatcher.new(scheduler: SidekiqScheduler.new(serializer: YAML))
         )
-      ev = RailsEventStore::Event.new
+      ev = RubyEventStore::Event.new
       Sidekiq::Testing.fake! do
         SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler.with(
           event_store: event_store,
