@@ -8,9 +8,7 @@ module RubyEventStore
       self.primary_key = :id
       self.table_name = "event_store_events"
 
-      skip_json_serialization = ->(initial_column_type) do
-        %i[json jsonb].include?(initial_column_type.type) ? ActiveModel::Type::Value.new : initial_column_type
-      end
+      skip_json_serialization = ->(type) { %i[json jsonb].include?(type.type) ? ActiveModel::Type::Value.new : type }
 
       attribute :data, skip_json_serialization
       attribute :metadata, skip_json_serialization
