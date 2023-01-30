@@ -3,9 +3,9 @@ require "time"
 
 module RubyEventStore
   ::RSpec.describe Client do
-    Test1DomainEvent = Class.new(RubyEventStore::Event)
-    Test2DomainEvent = Class.new(RubyEventStore::Event)
-    Test3DomainEvent = Class.new(RubyEventStore::Event)
+    Test1DomainEvent = Class.new(Event)
+    Test2DomainEvent = Class.new(Event)
+    Test3DomainEvent = Class.new(Event)
 
     class InvalidTestHandler
     end
@@ -38,7 +38,7 @@ module RubyEventStore
       end
     end
 
-    subject(:client) { RubyEventStore::Client.new }
+    subject(:client) { Client.new }
 
     it "notifies subscribed handlers" do
       handler = TestHandler.new
@@ -83,25 +83,25 @@ module RubyEventStore
 
     it "raises error when no valid method on handler" do
       subscriber = InvalidTestHandler.new
-      expect { client.subscribe(subscriber, to: [Test1DomainEvent]) }.to raise_error(RubyEventStore::InvalidHandler)
+      expect { client.subscribe(subscriber, to: [Test1DomainEvent]) }.to raise_error(InvalidHandler)
     end
 
     it "raises error when no valid method on global handler" do
       subscriber = InvalidTestHandler.new
-      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(RubyEventStore::InvalidHandler)
+      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler)
     end
 
     it "raises error when no valid method on thread handler" do
       subscriber = InvalidTestHandler.new
       expect { client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call }.to raise_error(
-        RubyEventStore::InvalidHandler
+        InvalidHandler
       )
     end
 
     it "raises error when no valid method on global thread handler" do
       subscriber = InvalidTestHandler.new
       expect { client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call }.to raise_error(
-        RubyEventStore::InvalidHandler
+        InvalidHandler
       )
     end
 
@@ -172,7 +172,7 @@ module RubyEventStore
 
       mapper = Mappers::Default.new
       client_with_custom_dispatcher =
-        RubyEventStore::Client.new(
+        Client.new(
           mapper: mapper,
           dispatcher: dispatcher
         )

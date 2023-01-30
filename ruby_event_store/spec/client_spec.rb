@@ -4,7 +4,7 @@ require "json"
 
 module RubyEventStore
   ::RSpec.describe Client do
-    let(:client) { RubyEventStore::Client.new(correlation_id_generator: correlation_id_generator) }
+    let(:client) { Client.new(correlation_id_generator: correlation_id_generator) }
     let(:stream) { SecureRandom.uuid }
     let(:correlation_id) { SecureRandom.uuid }
     let(:correlation_id_generator) { -> { correlation_id } }
@@ -80,7 +80,7 @@ module RubyEventStore
     end
 
     specify "append many events" do
-      client = RubyEventStore::Client.new
+      client = Client.new
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: stream,
@@ -200,8 +200,8 @@ module RubyEventStore
     end
 
     specify "metadata is bound to the current instance and does not leak to others" do
-      client_a = RubyEventStore::Client.new
-      client_b = RubyEventStore::Client.new
+      client_a = Client.new
+      client_b = Client.new
       client_a.with_metadata(client: "a") do
         client_b.with_metadata(client: "b") do
           client_a.publish(TestEvent.new)
@@ -644,7 +644,7 @@ module RubyEventStore
 
     specify "append fail if expected version is nil" do
       expect { client.append(event = OrderCreated.new, stream_name: "stream", expected_version: nil) }.to raise_error(
-        RubyEventStore::InvalidExpectedVersion
+        InvalidExpectedVersion
       )
     end
 
@@ -652,25 +652,25 @@ module RubyEventStore
       client.append(event = OrderCreated.new, stream_name: "stream", expected_version: :any)
 
       expect { client.link(event.event_id, stream_name: "stream", expected_version: nil) }.to raise_error(
-        RubyEventStore::InvalidExpectedVersion
+        InvalidExpectedVersion
       )
     end
 
     specify "global stream is unordered, one cannot expect specific version number to work" do
       expect { client.append(OrderCreated.new, expected_version: 42) }.to raise_error(
-        RubyEventStore::InvalidExpectedVersion
+        InvalidExpectedVersion
       )
     end
 
     specify "global stream is unordered, one cannot expect :none to work" do
       expect { client.append(OrderCreated.new, expected_version: :none) }.to raise_error(
-        RubyEventStore::InvalidExpectedVersion
+        InvalidExpectedVersion
       )
     end
 
     specify "global stream is unordered, one cannot expect :auto to work" do
       expect { client.append(OrderCreated.new, expected_version: :auto) }.to raise_error(
-        RubyEventStore::InvalidExpectedVersion
+        InvalidExpectedVersion
       )
     end
 
@@ -682,7 +682,7 @@ module RubyEventStore
             stream_name: "some_stream",
             expected_version: invalid_expected_version
           )
-        end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+        end.to raise_error(InvalidExpectedVersion)
       end
     end
 
@@ -695,7 +695,7 @@ module RubyEventStore
         )
         expect do
           client.link(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
-        end.to raise_error(RubyEventStore::InvalidExpectedVersion)
+        end.to raise_error(InvalidExpectedVersion)
       end
     end
 
@@ -705,7 +705,7 @@ module RubyEventStore
     end
 
     specify "can load YAML serialized record of previous release" do
-      client = RubyEventStore::Client.new
+      client = Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(
@@ -730,7 +730,7 @@ module RubyEventStore
     end
 
     specify "can load JSON serialized record of previous release" do
-      client = RubyEventStore::Client.new
+      client = Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(
@@ -756,7 +756,7 @@ module RubyEventStore
 
     specify "can load serialized event when using Default mapper" do
       client =
-        RubyEventStore::Client.new
+        Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(
@@ -783,15 +783,15 @@ module RubyEventStore
     end
 
     specify "raise error when no subscriber" do
-      expect { client.subscribe(nil, to: []) }.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.subscribe_to_all_events(nil) }.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.within {}.subscribe(nil, to: []).call }.to raise_error(RubyEventStore::SubscriberNotExist)
-      expect { client.within {}.subscribe_to_all_events(nil).call }.to raise_error(RubyEventStore::SubscriberNotExist)
+      expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
+      expect { client.subscribe_to_all_events(nil) }.to raise_error(SubscriberNotExist)
+      expect { client.within {}.subscribe(nil, to: []).call }.to raise_error(SubscriberNotExist)
+      expect { client.within {}.subscribe_to_all_events(nil).call }.to raise_error(SubscriberNotExist)
     end
 
     describe "#overwrite" do
       specify "overwrites events data and metadata" do
-        client = RubyEventStore::Client.new
+        client = Client.new
         client.publish(
           old = OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }),
           stream_name: "some_stream"
@@ -871,7 +871,7 @@ module RubyEventStore
 
         subscriptions = Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
         client =
-          RubyEventStore::Client.new(subscriptions: subscriptions)
+          Client.new(subscriptions: subscriptions)
         client.subscribe(handler = Proc.new {}, to: [event_klass])
 
         expect(client.subscribers_for(event_klass)).to eq [handler]
@@ -888,10 +888,10 @@ module RubyEventStore
       expect(serializer).to receive(:dump).and_call_original.exactly(2)
 
       client =
-        RubyEventStore::Client.new(
+        Client.new(
           repository: InMemoryRepository.new(serializer: serializer),
           dispatcher:
-            RubyEventStore::ImmediateAsyncDispatcher.new(
+            ImmediateAsyncDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer)
             )
         )
@@ -910,10 +910,10 @@ module RubyEventStore
       expect(serializer_2).to receive(:dump).and_call_original.exactly(2)
 
       client =
-        RubyEventStore::Client.new(
+        Client.new(
           repository: InMemoryRepository.new(serializer: serializer_1),
           dispatcher:
-            RubyEventStore::ImmediateAsyncDispatcher.new(
+            ImmediateAsyncDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
             )
         )

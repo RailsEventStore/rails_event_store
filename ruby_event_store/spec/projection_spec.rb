@@ -2,13 +2,13 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe Projection do
-    MoneyDeposited = Class.new(RubyEventStore::Event)
-    MoneyWithdrawn = Class.new(RubyEventStore::Event)
-    EventToBeSkipped = Class.new(RubyEventStore::Event)
-    MoneyLost = Class.new(RubyEventStore::Event)
-    MoneyInvested = Class.new(RubyEventStore::Event)
+    MoneyDeposited = Class.new(Event)
+    MoneyWithdrawn = Class.new(Event)
+    EventToBeSkipped = Class.new(Event)
+    MoneyLost = Class.new(Event)
+    MoneyInvested = Class.new(Event)
 
-    let(:event_store) { RubyEventStore::Client.new(repository: repository, mapper: mapper) }
+    let(:event_store) { Client.new(repository: repository, mapper: mapper) }
     let(:mapper) { Mappers::Default.new }
     let(:repository) { InMemoryRepository.new }
     let(:stream_name) { "Customer$123" }
@@ -312,7 +312,7 @@ module RubyEventStore
 
     specify "supports event class remapping" do
       event_store =
-        RubyEventStore::Client.new(
+        Client.new(
           mapper: Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s })
         )
       event_store.append(MoneyInvested.new(data: { amount: 1 }))

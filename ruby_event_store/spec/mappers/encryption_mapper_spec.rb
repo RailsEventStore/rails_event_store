@@ -5,9 +5,9 @@ require "ruby_event_store/spec/mapper_lint"
 
 module RubyEventStore
   module Mappers
-    SomeEventWithoutPersonalInfo = Class.new(RubyEventStore::Event)
+    SomeEventWithoutPersonalInfo = Class.new(Event)
     SomeEventWithPersonalInfo =
-      Class.new(RubyEventStore::Event) do
+      Class.new(Event) do
         def self.encryption_schema
           { personal_info: ->(data) { data.fetch(:user_id) } }
         end

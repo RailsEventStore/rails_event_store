@@ -4,8 +4,8 @@ require "ruby_event_store/spec/dispatcher_lint"
 module RubyEventStore
   ::RSpec.describe Dispatcher do
     it_behaves_like :dispatcher, Dispatcher.new
-    let(:event) { instance_double(::RubyEventStore::Event) }
-    let(:record) { instance_double(::RubyEventStore::Record) }
+    let(:event) { instance_double(Event) }
+    let(:record) { instance_double(Record) }
     let(:handler) { HandlerClass.new }
 
     specify "does not allow silly subscribers" do

@@ -61,8 +61,8 @@ module RubyEventStore
       specify "pass arguments to dispatcher" do
         dispatcher = spy
         composed_dispatcher = ComposedDispatcher.new(dispatcher)
-        event = instance_double(::RubyEventStore::Event)
-        record = instance_double(::RubyEventStore::Record)
+        event = instance_double(Event)
+        record = instance_double(Record)
         subscriber = double
 
         composed_dispatcher.call(subscriber, event, record)
@@ -75,8 +75,8 @@ module RubyEventStore
         skippy = skippy_dispatcher.new
         real = real_dispatcher.new
         composed_dispatcher = ComposedDispatcher.new(skippy, real)
-        event = instance_double(::RubyEventStore::Event)
-        record = instance_double(::RubyEventStore::Record)
+        event = instance_double(Event)
+        record = instance_double(Record)
         subscriber = double
 
         composed_dispatcher.call(subscriber, event, record)
@@ -89,8 +89,8 @@ module RubyEventStore
         real1 = real_dispatcher.new
         real2 = real_dispatcher.new
         composed_dispatcher = ComposedDispatcher.new(real1, real2)
-        event = instance_double(::RubyEventStore::Event)
-        record = instance_double(::RubyEventStore::Record)
+        event = instance_double(Event)
+        record = instance_double(Record)
         subscriber = double
 
         composed_dispatcher.call(subscriber, event, record)

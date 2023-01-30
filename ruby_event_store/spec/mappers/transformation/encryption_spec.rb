@@ -4,7 +4,7 @@ require "openssl"
 module RubyEventStore
   module Mappers
     TicketTransferred =
-      Class.new(RubyEventStore::Event) do
+      Class.new(Event) do
         def self.encryption_schema
           {
             sender: {
@@ -21,17 +21,17 @@ module RubyEventStore
         end
       end
 
-    TicketCancelled = Class.new(RubyEventStore::Event)
+    TicketCancelled = Class.new(Event)
 
     TicketHolderEmailProvided =
-      Class.new(RubyEventStore::Event) do
+      Class.new(Event) do
         def self.encryption_schema
           { email: ->(data) { data.fetch(:user_id) } }
         end
       end
 
     BalanceChanged =
-      Class.new(RubyEventStore::Event) do
+      Class.new(Event) do
         def self.encryption_schema
           { balance: ->(data) { data.fetch(:user_id) } }
         end

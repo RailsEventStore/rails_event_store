@@ -105,7 +105,7 @@ module RubyEventStore
     end
 
     specify "two events are not equal if their types are different" do
-      TestDeleted = Class.new(RubyEventStore::Event)
+      TestDeleted = Class.new(Event)
       event_metadata = { timestamp: Time.now.utc }
       event = Test::TestCreated.new(event_id: "1", metadata: event_metadata)
       different_event = TestDeleted.new(event_id: "1", metadata: event_metadata)

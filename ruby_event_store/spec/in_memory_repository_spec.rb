@@ -29,7 +29,7 @@ module RubyEventStore
           Stream.new("stream"),
           ExpectedVersion.new(0)
         )
-      end.to raise_error(RubyEventStore::EventDuplicatedInStream)
+      end.to raise_error(EventDuplicatedInStream)
     end
 
     it "global position starts at 0" do
@@ -61,7 +61,7 @@ module RubyEventStore
 
       expect do
         repository.append_to_stream([event1 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
+      end.to raise_error(InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
     it "publishing with any position to stream with any position does not raise an error" do
@@ -79,7 +79,7 @@ module RubyEventStore
 
       expect do
         repository.append_to_stream([event1 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-      end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
+      end.to raise_error(InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
     it "linking with any position to stream with specific position raise an error" do
@@ -88,7 +88,7 @@ module RubyEventStore
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
       expect { repository.link_to_stream([event1.event_id], Stream.new("stream"), ExpectedVersion.any) }.to raise_error(
-        RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage
+        InMemoryRepository::UnsupportedVersionAnyUsage
       )
     end
 
@@ -109,7 +109,7 @@ module RubyEventStore
 
       expect do
         repository.link_to_stream([event1.event_id], Stream.new("stream"), ExpectedVersion.auto)
-      end.to raise_error(RubyEventStore::InMemoryRepository::UnsupportedVersionAnyUsage)
+      end.to raise_error(InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
     it "message for UnsupportedVersionAnyUsage" do

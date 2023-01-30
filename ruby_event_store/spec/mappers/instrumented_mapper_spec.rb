@@ -6,12 +6,12 @@ require "active_support/notifications"
 module RubyEventStore
   module Mappers
     ::RSpec.describe InstrumentedMapper do
-      let(:domain_event) { instance_double(RubyEventStore::Event) }
-      let(:record) { instance_double(RubyEventStore::Record) }
+      let(:domain_event) { instance_double(Event) }
+      let(:record) { instance_double(Record) }
 
       describe "#event_to_record" do
         specify "wraps around original implementation" do
-          some_mapper = instance_double(RubyEventStore::Mappers::Default)
+          some_mapper = instance_double(Mappers::Default)
           allow(some_mapper).to receive(:event_to_record).with(domain_event).and_return(record)
           instrumented_mapper = InstrumentedMapper.new(some_mapper, ActiveSupport::Notifications)
 
@@ -29,7 +29,7 @@ module RubyEventStore
 
       describe "#record_to_event" do
         specify "wraps around original implementation" do
-          some_mapper = instance_double(RubyEventStore::Mappers::Default)
+          some_mapper = instance_double(Mappers::Default)
           allow(some_mapper).to receive(:record_to_event).with(record).and_return(domain_event)
           instrumented_mapper = InstrumentedMapper.new(some_mapper, ActiveSupport::Notifications)
 
