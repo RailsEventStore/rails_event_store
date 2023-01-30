@@ -22,9 +22,8 @@ end
 
 module RubyEventStore
   ::RSpec.describe Client do
-    let(:repository) { InMemoryRepository.new }
     let(:mapper) { RubyEventStore::Mappers::Default.new }
-    let(:client) { RubyEventStore::Client.new(repository: repository, mapper: mapper) }
+    let(:client) { RubyEventStore::Client.new(mapper: mapper) }
 
     specify "throws exception if subscriber is not defined" do
       expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
@@ -103,7 +102,7 @@ module RubyEventStore
 
     specify "allows to provide a custom dispatcher" do
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, dispatcher: dispatcher, mapper: mapper)
+      client = RubyEventStore::Client.new(dispatcher: dispatcher, mapper: mapper)
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
@@ -136,7 +135,7 @@ module RubyEventStore
     end
 
     specify "subscribers receive event with enriched metadata" do
-      client = RubyEventStore::Client.new(repository: repository, clock: -> { Time.at(0) })
+      client = RubyEventStore::Client.new(clock: -> { Time.at(0) })
       received_event = nil
       client.subscribe(to: [OrderCreated]) { |event| received_event = event }
       client.publish(OrderCreated.new)
@@ -155,7 +154,7 @@ module RubyEventStore
 
     specify "dispatch events to subscribers via proxy" do
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, mapper: mapper, dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(mapper: mapper, dispatcher: dispatcher)
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
@@ -165,7 +164,7 @@ module RubyEventStore
 
     specify "dispatch all events to subscribers via proxy" do
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, mapper: mapper, dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(mapper: mapper, dispatcher: dispatcher)
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish(event)
@@ -175,14 +174,14 @@ module RubyEventStore
 
     specify "lambda is an output of global subscribe via proxy" do
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, mapper: mapper, dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(mapper: mapper, dispatcher: dispatcher)
       result = client.subscribe_to_all_events(Subscribers::ValidHandler)
       expect(result).to respond_to(:call)
     end
 
     specify "lambda is an output of subscribe via proxy" do
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, mapper: mapper, dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(mapper: mapper, dispatcher: dispatcher)
       result = client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       expect(result).to respond_to(:call)
     end
@@ -191,7 +190,7 @@ module RubyEventStore
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(repository: repository, mapper: mapper, dispatcher: dispatcher)
+      client = RubyEventStore::Client.new(mapper: mapper, dispatcher: dispatcher)
       result =
         client
           .within do
@@ -271,7 +270,7 @@ module RubyEventStore
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         dispatcher = CustomDispatcher.new
-        client = RubyEventStore::Client.new(repository: repository, mapper: mapper, dispatcher: dispatcher)
+        client = RubyEventStore::Client.new(mapper: mapper, dispatcher: dispatcher)
 
         result =
           client
