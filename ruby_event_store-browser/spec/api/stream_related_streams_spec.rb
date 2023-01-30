@@ -24,7 +24,7 @@ module RubyEventStore
     end
 
     let(:app_with_related_streams) do
-      RubyEventStore::Browser::App.for(
+      Browser::App.for(
         event_store_locator: -> { event_store },
         related_streams_query: ->(stream_name) { stream_name == "dummy" ? ["dummy_too"] : [] }
       )

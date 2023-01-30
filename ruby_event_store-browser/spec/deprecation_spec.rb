@@ -4,7 +4,7 @@ module RubyEventStore
   ::RSpec.describe Browser do
     specify do
       expect {
-        RubyEventStore::Browser::App.for(
+        Browser::App.for(
           event_store_locator: -> { event_store },
           environment: :test
         )
@@ -17,7 +17,7 @@ module RubyEventStore
 
     specify do
       expect {
-        RubyEventStore::Browser::App.for(
+        Browser::App.for(
           event_store_locator: -> { event_store },
           host: "http://localhost:31337"
         )
@@ -33,7 +33,7 @@ module RubyEventStore
 
     specify do
       expect {
-        RubyEventStore::Browser::App.for(
+        Browser::App.for(
           event_store_locator: -> { event_store },
           path: "/res"
         )
@@ -47,6 +47,6 @@ module RubyEventStore
       EOS
     end
 
-    let(:event_store) { RubyEventStore::Client.new }
+    let(:event_store) { Client.new }
   end
 end

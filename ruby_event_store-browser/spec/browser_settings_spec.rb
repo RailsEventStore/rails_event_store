@@ -20,7 +20,7 @@ module RubyEventStore
 
     specify "builds api_url based on the settings" do
       inside_app =
-        RubyEventStore::Browser::App.for(
+        Browser::App.for(
           event_store_locator: -> { event_store },
           api_url: "https://example.com/some/custom/api/url"
         )

@@ -100,10 +100,10 @@ module RubyEventStore
       ).to be_empty
     end
 
-    let(:event_store) { RubyEventStore::Client.new }
+    let(:event_store) { Client.new }
 
     def app_builder(event_store)
-      RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
+      Browser::App.for(event_store_locator: -> { event_store })
     end
 
     def mk_logger
