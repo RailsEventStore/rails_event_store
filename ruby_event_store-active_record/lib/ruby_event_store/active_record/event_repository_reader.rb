@@ -114,11 +114,8 @@ module RubyEventStore
       end
 
       def as_of(spec)
-        Arel::Nodes::NamedFunction.new(
-          "COALESCE",
-          [@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at]]
-        )
-        .public_send("#{order(spec).downcase}")
+        coalesce(@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at])
+          .public_send("#{order(spec).downcase}")
       end
 
       def as_at(spec)
@@ -167,12 +164,13 @@ module RubyEventStore
         )
       end
 
+      def coalesce(*exprs)
+        Arel::Nodes::NamedFunction.new "COALESCE", exprs
+      end
+
       def time_comparison_field(specification)
         if specification.time_sort_by_as_of?
-          Arel::Nodes::NamedFunction.new(
-            "COALESCE",
-            [@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at]]
-          )
+          coalesce(@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at])
         else
           @event_klass.arel_table[:created_at]
         end
