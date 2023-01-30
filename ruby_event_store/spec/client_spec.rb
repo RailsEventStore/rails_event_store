@@ -54,7 +54,7 @@ module RubyEventStore
     end
 
     specify "publish first event, fail if not empty stream" do
-      client.append(first_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
       expect {
         client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: :none)
@@ -63,15 +63,15 @@ module RubyEventStore
     end
 
     specify "publish event, expect last event to be the last read one" do
-      client.append(first_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
       expect(client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: 0)).to eq(client)
       expect(client.read.stream(stream).to_a).to eq([first_event, second_event])
     end
 
     specify "publish event, fail if last event is not the last read one" do
-      client.append(first_event = TestEvent.new, stream_name: stream)
-      client.append(second_event = TestEvent.new, stream_name: stream)
+      client.append(first_event = TestEvent.new, stream_name: stream, expected_version: :auto)
+      client.append(second_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
       expect { client.publish(third_event = TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(
         WrongExpectedEventVersion
@@ -588,7 +588,7 @@ module RubyEventStore
     end
 
     specify "raise exception if expected version incorrect" do
-      client.append(event = OrderCreated.new, stream_name: "stream_name")
+      client.append(event = OrderCreated.new, stream_name: "stream_name", expected_version: :auto)
       expect { client.publish(event, stream_name: "stream_name", expected_version: 100) }.to raise_error(
         WrongExpectedEventVersion
       )
@@ -596,7 +596,7 @@ module RubyEventStore
 
     specify "create event with optimistic locking" do
       expect do
-        client.append(OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"), stream_name: "stream_name")
+        client.append(OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"), stream_name: "stream_name", expected_version: :auto)
         client.append(
           OrderCreated.new(event_id: "724dd49d-6e20-40e6-bc32-ed75258f886b"),
           stream_name: "stream_name",
