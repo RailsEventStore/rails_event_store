@@ -4,13 +4,7 @@ require "json"
 
 module RubyEventStore
   ::RSpec.describe Client do
-    let(:client) do
-      RubyEventStore::Client.new(
-        repository: InMemoryRepository.new,
-        mapper: Mappers::Default.new,
-        correlation_id_generator: correlation_id_generator
-      )
-    end
+    let(:client) { RubyEventStore::Client.new(correlation_id_generator: correlation_id_generator) }
     let(:stream) { SecureRandom.uuid }
     let(:correlation_id) { SecureRandom.uuid }
     let(:correlation_id_generator) { -> { correlation_id } }
@@ -22,7 +16,6 @@ module RubyEventStore
         client =
           RubyEventStore::Client.new(
             mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
-            repository: InMemoryRepository.new
           )
         event =
           RubyEventStore::Protobuf::Proto.new(
@@ -45,7 +38,6 @@ module RubyEventStore
         client =
           RubyEventStore::Client.new(
             mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
-            repository: InMemoryRepository.new
           )
         event =
           TimeEnrichment.with(

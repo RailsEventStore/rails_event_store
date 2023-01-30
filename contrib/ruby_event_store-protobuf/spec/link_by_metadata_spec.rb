@@ -11,7 +11,6 @@ module RubyEventStore
         event_store =
           RubyEventStore::Client.new(
             mapper: RubyEventStore::Protobuf::Mappers::Protobuf.new,
-            repository: InMemoryRepository.new
           )
         event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
         ev =
