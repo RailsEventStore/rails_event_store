@@ -4,13 +4,7 @@ require "json"
 
 module RubyEventStore
   ::RSpec.describe Client do
-    let(:client) do
-      RubyEventStore::Client.new(
-        repository: InMemoryRepository.new,
-        mapper: Mappers::Default.new,
-        correlation_id_generator: correlation_id_generator
-      )
-    end
+    let(:client) { RubyEventStore::Client.new(correlation_id_generator: correlation_id_generator) }
     let(:stream) { SecureRandom.uuid }
     let(:correlation_id) { SecureRandom.uuid }
     let(:correlation_id_generator) { -> { correlation_id } }
@@ -86,7 +80,7 @@ module RubyEventStore
     end
 
     specify "append many events" do
-      client = RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::Default.new)
+      client = RubyEventStore::Client.new
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: stream,
@@ -762,7 +756,7 @@ module RubyEventStore
 
     specify "can load serialized event when using Default mapper" do
       client =
-        RubyEventStore::Client.new(mapper: RubyEventStore::Mappers::Default.new, repository: InMemoryRepository.new)
+        RubyEventStore::Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(
@@ -797,8 +791,7 @@ module RubyEventStore
 
     describe "#overwrite" do
       specify "overwrites events data and metadata" do
-        client = RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::Default.new)
-
+        client = RubyEventStore::Client.new
         client.publish(
           old = OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }),
           stream_name: "some_stream"
@@ -878,11 +871,7 @@ module RubyEventStore
 
         subscriptions = Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
         client =
-          RubyEventStore::Client.new(
-            repository: InMemoryRepository.new,
-            mapper: Mappers::Default.new,
-            subscriptions: subscriptions
-          )
+          RubyEventStore::Client.new(subscriptions: subscriptions)
         client.subscribe(handler = Proc.new {}, to: [event_klass])
 
         expect(client.subscribers_for(event_klass)).to eq [handler]
@@ -901,7 +890,6 @@ module RubyEventStore
       client =
         RubyEventStore::Client.new(
           repository: InMemoryRepository.new(serializer: serializer),
-          mapper: Mappers::Default.new,
           dispatcher:
             RubyEventStore::ImmediateAsyncDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer)
@@ -924,7 +912,6 @@ module RubyEventStore
       client =
         RubyEventStore::Client.new(
           repository: InMemoryRepository.new(serializer: serializer_1),
-          mapper: Mappers::Default.new,
           dispatcher:
             RubyEventStore::ImmediateAsyncDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
@@ -970,11 +957,7 @@ module RubyEventStore
           end
         end
 
-      client =
-        Client.new(
-          repository: InMemoryRepository.new,
-          subscriptions: Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
-        )
+      client = Client.new(subscriptions: Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type }))
       client.subscribe(listener, to: [event_klass])
       client.publish(event_klass.new)
       event = listener.value

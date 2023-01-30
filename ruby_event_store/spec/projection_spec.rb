@@ -313,7 +313,6 @@ module RubyEventStore
     specify "supports event class remapping" do
       event_store =
         RubyEventStore::Client.new(
-          repository: repository,
           mapper: Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s })
         )
       event_store.append(MoneyInvested.new(data: { amount: 1 }))
