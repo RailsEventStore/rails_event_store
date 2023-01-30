@@ -6,7 +6,17 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe PgLinearizedEventRepository do
       helper = SpecHelper.new
-      mk_repository = -> { PgLinearizedEventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
+
+      mk_repository = -> {
+        serializer =
+          case ENV["DATA_TYPE"]
+          when /json/
+            JSON
+          else
+            RubyEventStore::Serializers::YAML
+          end
+        PgLinearizedEventRepository.new(serializer: serializer)
+      }
 
       it_behaves_like :event_repository, mk_repository, helper
 
