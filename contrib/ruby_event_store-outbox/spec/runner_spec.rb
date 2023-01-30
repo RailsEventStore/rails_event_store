@@ -56,7 +56,7 @@ module RubyEventStore
 
         expect { runner.run }.to raise_error("End infinite loop")
 
-        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{RubyEventStore::Outbox::VERSION}")
+        expect(logger_output.string).to include("Initiated RubyEventStore::Outbox v#{VERSION}")
       end
     end
   end

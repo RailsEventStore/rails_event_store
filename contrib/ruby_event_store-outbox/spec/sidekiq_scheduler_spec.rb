@@ -54,7 +54,7 @@ module RubyEventStore
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
               timestamp: Time.utc(2019, 9, 30)
             )
-          event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+          event_record = Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             def through_outbox?
@@ -97,7 +97,7 @@ module RubyEventStore
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
               timestamp: Time.utc(2019, 9, 30)
             )
-          event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+          event_record = Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandler
             include Sidekiq::Worker
             sidekiq_options queue: "custom_queue"
@@ -119,7 +119,7 @@ module RubyEventStore
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
               timestamp: Time.utc(2019, 9, 30)
             )
-          event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+          event_record = Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandlerWithRetryQueue
             include Sidekiq::Worker
             sidekiq_options queue: "custom_queue", retry_queue: "custom_queue_retries"
@@ -141,7 +141,7 @@ module RubyEventStore
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
               timestamp: Time.utc(2019, 9, 30)
             )
-          event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+          event_record = Mappers::Default.new.event_to_record(event)
           class ::AlwaysCancellingMiddleware
             def call(_worker_class, _msg, _queue, _redis_pool); end
           end

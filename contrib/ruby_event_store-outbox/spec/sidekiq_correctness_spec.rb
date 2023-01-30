@@ -35,7 +35,7 @@ module RubyEventStore
             Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
             timestamp: Time.utc(2019, 9, 30)
           )
-        event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+        event_record = Mappers::Default.new.event_to_record(event)
         class ::CorrectAsyncHandler
           include Sidekiq::Worker
           def through_outbox?
@@ -48,7 +48,7 @@ module RubyEventStore
         consumer.process
         entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
 
-        CorrectAsyncHandler.perform_async(event_record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s))
+        CorrectAsyncHandler.perform_async(event_record.serialize(Serializers::YAML).to_h.transform_keys(&:to_s))
         entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
 
         expect(redis.llen("queue:default")).to eq(2)
@@ -66,7 +66,7 @@ module RubyEventStore
             Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
             timestamp: Time.utc(2019, 9, 30)
           )
-        event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+        event_record = Mappers::Default.new.event_to_record(event)
         class ::CorrectAsyncHandler
           include Sidekiq::Worker
           def through_outbox?
@@ -98,7 +98,7 @@ module RubyEventStore
             Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
             timestamp: Time.utc(2019, 9, 30)
           )
-        event_record = RubyEventStore::Mappers::Default.new.event_to_record(event)
+        event_record = Mappers::Default.new.event_to_record(event)
         class ::CorrectAsyncHandler
           include Sidekiq::Worker
           def through_outbox?
