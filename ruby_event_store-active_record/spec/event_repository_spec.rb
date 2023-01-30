@@ -347,7 +347,7 @@ module RubyEventStore
 
         expect {
           repository.read(specification.in_batches.as_at.result).to_a
-        }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.*,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/,
+        }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/,
                     2
         expect {
           repository.read(specification.in_batches.as_of.result).to_a
