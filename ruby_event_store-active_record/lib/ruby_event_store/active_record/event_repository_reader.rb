@@ -122,7 +122,7 @@ module RubyEventStore
       end
 
       def as_at(spec)
-        "#{@event_klass.table_name}.created_at #{order(spec)}"
+        @event_klass.arel_table[:created_at].public_send("#{order(spec).downcase}")
       end
 
       def start_offset_condition(specification, record_id, search_in)
@@ -169,26 +169,29 @@ module RubyEventStore
 
       def time_comparison_field(specification)
         if specification.time_sort_by_as_of?
-          "COALESCE(#{@event_klass.table_name}.valid_at, #{@event_klass.table_name}.created_at)"
+          Arel::Nodes::NamedFunction.new(
+            "COALESCE",
+            [@event_klass.arel_table[:valid_at], @event_klass.arel_table[:created_at]]
+          )
         else
-          "#{@event_klass.table_name}.created_at"
+          @event_klass.arel_table[:created_at]
         end
       end
 
       def older_than_condition(specification)
-        ["#{time_comparison_field(specification)} < ?", specification.older_than]
+        time_comparison_field(specification).lt(specification.older_than)
       end
 
       def older_than_or_equal_condition(specification)
-        ["#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal]
+        time_comparison_field(specification).lteq(specification.older_than_or_equal)
       end
 
       def newer_than_condition(specification)
-        ["#{time_comparison_field(specification)} > ?", specification.newer_than]
+        time_comparison_field(specification).gt(specification.newer_than)
       end
 
       def newer_than_or_equal_condition(specification)
-        ["#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal]
+        time_comparison_field(specification).gteq(specification.newer_than_or_equal)
       end
 
       def order(spec)
