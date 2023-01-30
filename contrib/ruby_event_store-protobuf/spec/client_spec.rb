@@ -7,7 +7,7 @@ module RubyEventStore
     let(:client) do
       RubyEventStore::Client.new(
         repository: InMemoryRepository.new,
-        mapper: Mappers::NullMapper.new,
+        mapper: Mappers::Default.new,
         correlation_id_generator: correlation_id_generator
       )
     end

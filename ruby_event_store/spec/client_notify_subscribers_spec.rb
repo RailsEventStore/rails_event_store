@@ -38,7 +38,7 @@ module RubyEventStore
       end
     end
 
-    subject(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::NullMapper.new) }
+    subject(:client) { RubyEventStore::Client.new(repository: InMemoryRepository.new, mapper: Mappers::Default.new) }
 
     it "notifies subscribed handlers" do
       handler = TestHandler.new
@@ -173,13 +173,13 @@ module RubyEventStore
       client_with_custom_dispatcher =
         RubyEventStore::Client.new(
           repository: InMemoryRepository.new,
-          mapper: Mappers::NullMapper.new,
+          mapper: Mappers::Default.new,
           dispatcher: dispatcher
         )
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
       expect(dispatcher.dispatched).to eq(
-        [{ subscriber: handler, event: event1, record: Mappers::NullMapper.new.event_to_record(event1) }]
+        [{ subscriber: handler, event: event1, record: Mappers::Default.new.event_to_record(event1) }]
       )
     end
 

@@ -7,7 +7,7 @@ module RubyEventStore
     let(:client) do
       RubyEventStore::Client.new(
         repository: InMemoryRepository.new,
-        mapper: Mappers::NullMapper.new,
+        mapper: Mappers::Default.new,
         correlation_id_generator: correlation_id_generator
       )
     end
@@ -880,7 +880,7 @@ module RubyEventStore
         client =
           RubyEventStore::Client.new(
             repository: InMemoryRepository.new,
-            mapper: Mappers::NullMapper.new,
+            mapper: Mappers::Default.new,
             subscriptions: subscriptions
           )
         client.subscribe(handler = Proc.new {}, to: [event_klass])
@@ -901,7 +901,7 @@ module RubyEventStore
       client =
         RubyEventStore::Client.new(
           repository: InMemoryRepository.new(serializer: serializer),
-          mapper: Mappers::NullMapper.new,
+          mapper: Mappers::Default.new,
           dispatcher:
             RubyEventStore::ImmediateAsyncDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer)
@@ -924,7 +924,7 @@ module RubyEventStore
       client =
         RubyEventStore::Client.new(
           repository: InMemoryRepository.new(serializer: serializer_1),
-          mapper: Mappers::NullMapper.new,
+          mapper: Mappers::Default.new,
           dispatcher:
             RubyEventStore::ImmediateAsyncDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
