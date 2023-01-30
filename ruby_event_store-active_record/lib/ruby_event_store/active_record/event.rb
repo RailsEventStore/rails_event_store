@@ -6,8 +6,8 @@ module RubyEventStore
       self.primary_key = :id
       self.table_name = "event_store_events"
 
-      attribute :data, PassThrough.new
-      attribute :metadata, PassThrough.new
+      attribute :data, :pass_through
+      attribute :metadata, :pass_through
     end
     private_constant :Event
 
