@@ -12,4 +12,4 @@ gem "ruby_event_store-browser", path: "../.."
 
 gem "protobuf_nested_struct"
 gem "google-protobuf", "~> 3.21.11"
-gem "rails", "6.1.7.1"
+gem "rails", "6.1.7.2"

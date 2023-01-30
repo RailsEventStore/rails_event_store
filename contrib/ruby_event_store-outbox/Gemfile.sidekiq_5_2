@@ -9,4 +9,4 @@ gem "ruby_event_store", path: "../.."
 gem "sidekiq", "5.2.9"
 gem "influxdb", "~> 0.8.1", require: false
 gem "childprocess"
-gem "rails", "6.1.7.1"
+gem "rails", "6.1.7.2"
