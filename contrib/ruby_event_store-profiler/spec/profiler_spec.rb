@@ -4,14 +4,14 @@ module RubyEventStore
   ::RSpec.describe Profiler do
     let(:instrumenter) { ActiveSupport::Notifications }
     let(:event_store) do
-      RubyEventStore::Client.new(
-        repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
-        mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter),
-        dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter)
+      Client.new(
+        repository: InstrumentedRepository.new(InMemoryRepository.new, instrumenter),
+        mapper: Mappers::InstrumentedMapper.new(Mappers::Default.new, instrumenter),
+        dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)
       )
     end
 
-    DummyEvent = Class.new(RubyEventStore::Event)
+    DummyEvent = Class.new(Event)
 
     class StepClock
       def initialize(initial_time, step_duration = 1)
