@@ -93,7 +93,7 @@ module RubyEventStore
           int_lenght = my_sql_major_version == 8 ? "" : "(11)"
           <<~SCHEMA.strip
             CREATE TABLE `event_store_events` (
-              `id` int#{int_lenght} NOT NULL AUTO_INCREMENT,
+              `id` bigint#{int_lenght} NOT NULL AUTO_INCREMENT,
               `event_id` varchar(36) NOT NULL,
               `event_type` varchar(255) NOT NULL,
               `metadata` blob,
@@ -107,7 +107,7 @@ module RubyEventStore
               KEY `index_event_store_events_on_event_type` (`event_type`)
             ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
             CREATE TABLE `event_store_events_in_streams` (
-              `id` int#{int_lenght} NOT NULL AUTO_INCREMENT,
+              `id` bigint#{int_lenght} NOT NULL AUTO_INCREMENT,
               `stream` varchar(255) NOT NULL,
               `position` int#{int_lenght} DEFAULT NULL,
               `event_id` varchar(36) NOT NULL,
