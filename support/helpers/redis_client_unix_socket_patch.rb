@@ -3,6 +3,8 @@ class RedisClient
     prepend(
       Module.new do
         def initialize(url: nil, **kwargs)
+          return super unless url
+
           uri = URI.parse(url)
           if uri.scheme == "unix"
             super(**kwargs, url: nil)
