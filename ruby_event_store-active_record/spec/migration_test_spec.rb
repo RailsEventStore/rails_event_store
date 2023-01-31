@@ -90,10 +90,11 @@ module RubyEventStore
           my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
           collation = my_sql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
           charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
-          int_lenght = my_sql_major_version == 8 ? "" : "(20)"
+          int_lenght = my_sql_major_version == 8 ? "" : "(11)"
+          bigint_lenght = my_sql_major_version == 8 ? "" : "(20)"
           <<~SCHEMA.strip
             CREATE TABLE `event_store_events` (
-              `id` bigint#{int_lenght} NOT NULL AUTO_INCREMENT,
+              `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
               `event_id` varchar(36) NOT NULL,
               `event_type` varchar(255) NOT NULL,
               `metadata` blob,
@@ -107,7 +108,7 @@ module RubyEventStore
               KEY `index_event_store_events_on_event_type` (`event_type`)
             ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
             CREATE TABLE `event_store_events_in_streams` (
-              `id` bigint#{int_lenght} NOT NULL AUTO_INCREMENT,
+              `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
               `stream` varchar(255) NOT NULL,
               `position` int#{int_lenght} DEFAULT NULL,
               `event_id` varchar(36) NOT NULL,
