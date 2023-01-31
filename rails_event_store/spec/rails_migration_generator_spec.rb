@@ -23,7 +23,7 @@ module RailsEventStore
     end
 
     it "uses particular migration version" do
-      expect(subject).to match(/ActiveRecord::Migration\[5\.2\]$/)
+      expect(subject).to match(/ActiveRecord::Migration\[6\.0\]$/)
     end
 
     it "uses binary data type for metadata" do
