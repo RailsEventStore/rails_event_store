@@ -22,11 +22,6 @@ jobs:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       REDIS_URL: redis://localhost:6379/0
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
     strategy:
       fail-fast: false
       matrix:
@@ -47,6 +42,9 @@ jobs:
             gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -54,7 +52,15 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: |
+          nix-shell --run "make test" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/redis.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
@@ -63,17 +69,15 @@ jobs:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
       BUNDLE_GEMFILE: Gemfile
       REDIS_URL: redis://localhost:6379/0
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
     strategy:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -81,5 +85,13 @@ jobs:
           ruby-version: ruby-3.1
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate-changes
+      - run: |
+          nix-shell --run "make mutate-changes" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/redis.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}
