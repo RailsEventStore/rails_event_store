@@ -23,18 +23,17 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       BUNDLE_GEMFILE: Gemfile
-      REDIS_URL: redis://localhost:6379/0
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
     strategy:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v18
         with:
-          fetch-depth: 0
+          nix_path: nixpkgs=channel:nixos-unstable
+      - uses: cachix/cachix-action@v12
+        with:
+          name: railseventstore
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -42,5 +41,13 @@ jobs:
           ruby-version: ruby-3.1
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
+      - run: |
+          nix-shell --run "make mutate" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/redis.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}
