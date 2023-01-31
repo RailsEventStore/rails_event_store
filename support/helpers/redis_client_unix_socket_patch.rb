@@ -1,3 +1,5 @@
+raise unless RedisClient::VERSION == "0.11.2"
+
 class RedisClient
   class Config
     prepend(
