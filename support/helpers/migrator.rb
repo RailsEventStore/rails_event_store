@@ -37,7 +37,7 @@ class Migrator
   end
 
   def migration_version
-    "[5.1]"
+    "[5.2]"
   end
 
   def migration_template(name)

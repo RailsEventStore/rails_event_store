@@ -18,7 +18,7 @@ if defined?(Rails::Generators::Base)
         private
 
         def migration_version
-          "[5.1]"
+          "[5.2]"
         end
 
         def timestamp

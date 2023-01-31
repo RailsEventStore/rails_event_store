@@ -33,7 +33,7 @@ module RubyEventStore
       specify "uses particular migration version" do
         migration_generator(@dir)
 
-        expect(read_migration(@dir)).to match(/ActiveRecord::Migration\[5\.1\]$/)
+        expect(read_migration(@dir)).to match(/ActiveRecord::Migration\[5\.2\]$/)
       end
 
       specify "creates migration with binary data type" do
