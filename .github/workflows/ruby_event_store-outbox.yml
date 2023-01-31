@@ -23,10 +23,6 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
     services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
       mysql_57:
         image: mysql:5.7
         env:
@@ -79,6 +75,13 @@ jobs:
             database: sqlite3:db.sqlite3
     steps:
       - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - uses: cachix/cachix-action@v12
+        with:
+          name: railseventstore
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: test -e ${{ matrix.gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -86,7 +89,15 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: |
+          nix-shell --run "make test" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/redis.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
@@ -94,18 +105,19 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       BUNDLE_GEMFILE: Gemfile
-      REDIS_URL: redis://localhost:6379/0
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
     strategy:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - uses: cachix/cachix-action@v12
+        with:
+          name: railseventstore
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -113,5 +125,13 @@ jobs:
           ruby-version: ruby-3.1
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate-changes
+      - run: |
+          nix-shell --run "make mutate-changes" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                (import ../../support/nix/redis.nix)
+              ];
+            }
+          "
         working-directory: ${{ env.WORKING_DIRECTORY }}
