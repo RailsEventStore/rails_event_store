@@ -7,54 +7,29 @@ module RubyEventStore
     ::RSpec.describe "Gold master test for create table schema" do
       include SchemaHelper
 
-      specify do
+      around do |example|
         establish_database_connection
         drop_database
 
         load_database_schema
 
-        expect(create_table_schema).to eq expected_create_schema
+        example.run
       ensure
         drop_database
         close_database_connection
       end
 
-      private
+      specify "postgres" do
+        skip unless ENV["DATABASE_URL"].include?("postgres")
 
-      def create_table_schema
-        if ENV["DATABASE_URL"].include?("mysql")
-          create_event_store_events = mysql_show_create_table("event_store_events")
-          create_event_store_events_in_streams = mysql_show_create_table("event_store_events_in_streams")
-          [create_event_store_events, create_event_store_events_in_streams].join("\n")
-        elsif ENV["DATABASE_URL"].include?("postgres")
-          begin
-            create_event_store_events = pg_show_create_table("event_store_events")
-            create_event_store_events_in_streams = pg_show_create_table("event_store_events_in_streams")
-            [create_event_store_events, create_event_store_events_in_streams].join("\n").gsub(/\s+/, ' ')
-          end
-        else
-          ::ActiveRecord::Base.connection.execute(<<~SQL
-            SELECT  sql
-            FROM    sqlite_schema
-            WHERE   NAME LIKE '%event_store_events%'
-          SQL
-          ).map { |x| x["sql"] }.join("\n")
-        end
-      end
+        data_type = data_type_to_pg_type(ENV["DATA_TYPE"])
 
-      def table_schema
-        schema = dump_schema
-        schema[schema.index("create_table")..schema.length - 1].strip
-      end
+        create_event_store_events = pg_show_create_table("event_store_events")
+        create_event_store_events_in_streams = pg_show_create_table("event_store_events_in_streams")
 
-      def data_type_to_pg_type(data_type)
-        { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }[data_type]
-      end
-
-      def expected_create_schema
-        if ENV["DATABASE_URL"].include?("postgres")
-          data_type = data_type_to_pg_type(ENV["DATA_TYPE"])
-          <<~SCHEMA.strip
+        expect(
+          [create_event_store_events, create_event_store_events_in_streams].join("\n").gsub(/\s+/, " ")
+        ).to eq <<~SCHEMA.strip.gsub(/\s+/, " ")
             Table "public.event_store_events"
                Column   |            Type             | Collation | Nullable |                    Default                     
             ------------+-----------------------------+-----------+----------+------------------------------------------------
@@ -85,14 +60,21 @@ module RubyEventStore
                 "index_event_store_events_in_streams_on_stream_and_event_id" UNIQUE, btree (stream, event_id)
                 "index_event_store_events_in_streams_on_stream_and_position" UNIQUE, btree (stream, "position")
           SCHEMA
-                   .gsub(/\s+/, ' ')
-        elsif ENV["DATABASE_URL"].include?("mysql")
-          my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
-          collation = my_sql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
-          charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
-          int_lenght = my_sql_major_version == 8 ? "" : "(11)"
-          bigint_lenght = my_sql_major_version == 8 ? "" : "(20)"
-          <<~SCHEMA.strip
+      end
+
+      specify "mysql" do
+        skip unless ENV["DATABASE_URL"].include?("mysql")
+
+        my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
+        collation = my_sql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
+        charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
+        int_lenght = my_sql_major_version == 8 ? "" : "(11)"
+        bigint_lenght = my_sql_major_version == 8 ? "" : "(20)"
+
+        create_event_store_events = mysql_show_create_table("event_store_events")
+        create_event_store_events_in_streams = mysql_show_create_table("event_store_events_in_streams")
+
+        expect([create_event_store_events, create_event_store_events_in_streams].join("\n")).to eq <<~SCHEMA.strip
             CREATE TABLE `event_store_events` (
               `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
               `event_id` varchar(36) NOT NULL,
@@ -118,20 +100,33 @@ module RubyEventStore
               UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
               KEY `index_event_store_events_in_streams_on_created_at` (`created_at`)
             ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
-          SCHEMA
-        else
-          <<~SCHEMA.strip
-            CREATE TABLE "event_store_events_in_streams" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "stream" varchar NOT NULL, "position" integer, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL)
-            CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
-            CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
-            CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_event_id" ON "event_store_events_in_streams" ("stream", "event_id")
-            CREATE TABLE "event_store_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" varchar(36) NOT NULL, "event_type" varchar NOT NULL, "metadata" blob, "data" blob NOT NULL, "created_at" datetime(6) NOT NULL, "valid_at" datetime(6))
-            CREATE UNIQUE INDEX "index_event_store_events_on_event_id" ON "event_store_events" ("event_id")
-            CREATE INDEX "index_event_store_events_on_created_at" ON "event_store_events" ("created_at")
-            CREATE INDEX "index_event_store_events_on_valid_at" ON "event_store_events" ("valid_at")
-            CREATE INDEX "index_event_store_events_on_event_type" ON "event_store_events" ("event_type")
-          SCHEMA
-        end
+        SCHEMA
+      end
+
+      specify "sqlite" do
+        skip unless ENV["DATABASE_URL"].include?("sqlite")
+
+        expect(::ActiveRecord::Base.connection.execute(<<~SQL).map { |x| x["sql"] }.join("\n")).to eq <<~SCHEMA.strip
+            SELECT  sql
+            FROM    sqlite_schema
+            WHERE   NAME LIKE '%event_store_events%'
+          SQL
+          CREATE TABLE "event_store_events_in_streams" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "stream" varchar NOT NULL, "position" integer, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL)
+          CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
+          CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
+          CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_event_id" ON "event_store_events_in_streams" ("stream", "event_id")
+          CREATE TABLE "event_store_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" varchar(36) NOT NULL, "event_type" varchar NOT NULL, "metadata" blob, "data" blob NOT NULL, "created_at" datetime(6) NOT NULL, "valid_at" datetime(6))
+          CREATE UNIQUE INDEX "index_event_store_events_on_event_id" ON "event_store_events" ("event_id")
+          CREATE INDEX "index_event_store_events_on_created_at" ON "event_store_events" ("created_at")
+          CREATE INDEX "index_event_store_events_on_valid_at" ON "event_store_events" ("valid_at")
+          CREATE INDEX "index_event_store_events_on_event_type" ON "event_store_events" ("event_type")
+        SCHEMA
+      end
+
+      private
+
+      def data_type_to_pg_type(data_type)
+        { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }[data_type]
       end
 
       def pg_show_create_table(table_name)
