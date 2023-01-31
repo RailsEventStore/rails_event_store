@@ -126,7 +126,7 @@ module RubyEventStore
       private
 
       def data_type_to_pg_type(data_type)
-        { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }[data_type]
+        { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }.fetch(data_type)
       end
 
       def pg_show_create_table(table_name)
