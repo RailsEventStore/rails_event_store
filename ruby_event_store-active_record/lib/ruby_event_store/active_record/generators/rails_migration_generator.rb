@@ -33,13 +33,21 @@ module RubyEventStore
       end
 
       def create_migration
-        template "create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
+        template "#{"postgres/" if postgres?}create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
       end
 
       private
 
       def data_type
         options.fetch("data_type")
+      end
+
+      def postgres?
+        adapter == "postgresql"
+      end
+
+      def adapter
+        ::ActiveRecord::Base.connection.adapter_name.downcase
       end
 
       def migration_version
