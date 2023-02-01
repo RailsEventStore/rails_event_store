@@ -75,31 +75,31 @@ module RubyEventStore
         create_event_store_events_in_streams = mysql_show_create_table("event_store_events_in_streams")
 
         expect([create_event_store_events, create_event_store_events_in_streams].join("\n")).to eq <<~SCHEMA.strip
-            CREATE TABLE `event_store_events` (
-              `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
-              `event_id` varchar(36) NOT NULL,
-              `event_type` varchar(255) NOT NULL,
-              `metadata` blob,
-              `data` blob NOT NULL,
-              `created_at` datetime(6) NOT NULL,
-              `valid_at` datetime(6) DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              UNIQUE KEY `index_event_store_events_on_event_id` (`event_id`),
-              KEY `index_event_store_events_on_created_at` (`created_at`),
-              KEY `index_event_store_events_on_valid_at` (`valid_at`),
-              KEY `index_event_store_events_on_event_type` (`event_type`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
-            CREATE TABLE `event_store_events_in_streams` (
-              `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
-              `stream` varchar(255) NOT NULL,
-              `position` int#{int_lenght} DEFAULT NULL,
-              `event_id` varchar(36) NOT NULL,
-              `created_at` datetime(6) NOT NULL,
-              PRIMARY KEY (`id`),
-              UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_event_id` (`stream`,`event_id`),
-              UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
-              KEY `index_event_store_events_in_streams_on_created_at` (`created_at`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
+          CREATE TABLE `event_store_events` (
+            `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
+            `event_id` varchar(36) NOT NULL,
+            `event_type` varchar(255) NOT NULL,
+            `metadata` blob,
+            `data` blob NOT NULL,
+            `created_at` datetime(6) NOT NULL,
+            `valid_at` datetime(6) DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `index_event_store_events_on_event_id` (`event_id`),
+            KEY `index_event_store_events_on_created_at` (`created_at`),
+            KEY `index_event_store_events_on_valid_at` (`valid_at`),
+            KEY `index_event_store_events_on_event_type` (`event_type`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
+          CREATE TABLE `event_store_events_in_streams` (
+            `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
+            `stream` varchar(255) NOT NULL,
+            `position` int#{int_lenght} DEFAULT NULL,
+            `event_id` varchar(36) NOT NULL,
+            `created_at` datetime(6) NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_event_id` (`stream`,`event_id`),
+            UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
+            KEY `index_event_store_events_in_streams_on_created_at` (`created_at`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
       end
 
@@ -107,10 +107,10 @@ module RubyEventStore
         skip unless ENV["DATABASE_URL"].include?("sqlite")
 
         expect(::ActiveRecord::Base.connection.execute(<<~SQL).map { |x| x["sql"] }.join("\n")).to eq <<~SCHEMA.strip
-            SELECT  sql
-            FROM    sqlite_schema
-            WHERE   NAME LIKE '%event_store_events%'
-          SQL
+          SELECT  sql
+          FROM    sqlite_schema
+          WHERE   NAME LIKE '%event_store_events%'
+        SQL
           CREATE TABLE "event_store_events_in_streams" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "stream" varchar NOT NULL, "position" integer, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL)
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
           CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
