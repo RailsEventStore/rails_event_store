@@ -9,7 +9,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.string      :stream,      null: false
         t.integer     :position,    null: true
         t.references  :event,       null: false, type: :uuid, index: false
-        t.datetime    :created_at,  null: false
+        t.datetime    :created_at,  null: false, type: :timestamp
       end
       add_index :event_store_events_in_streams, [:stream, :position], unique: true
       add_index :event_store_events_in_streams, [:created_at]
@@ -20,8 +20,8 @@ class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
         t.string      :event_type,  null: false
         t.<%= data_type %>      :metadata
         t.<%= data_type %>      :data, null: false
-        t.datetime    :created_at,  null: false
-        t.datetime    :valid_at,    null: true
+        t.datetime    :created_at,  null: false, type: :timestamp
+        t.datetime    :valid_at,    null: true, type: :timestamp
       end
       add_index :event_store_events, :event_id, unique: true
       add_index :event_store_events, :created_at
