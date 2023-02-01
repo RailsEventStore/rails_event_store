@@ -60,6 +60,7 @@ module RubyEventStore
       end
 
       specify "creates migration with json data type" do
+        skip unless ENV["DATABASE_URL"].include?("postgres")
         migration_generator(@dir, "json")
 
         expect(read_migration(@dir)).to match(/t.json\s+:data/)
@@ -67,6 +68,7 @@ module RubyEventStore
       end
 
       specify "creates migration with jsonb data type" do
+        skip unless ENV["DATABASE_URL"].include?("postgres")
         migration_generator(@dir, "jsonb")
 
         expect(read_migration(@dir)).to match(/t.jsonb\s+:data/)
