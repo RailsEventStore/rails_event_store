@@ -70,8 +70,8 @@ module RubyEventStore
             timestamp: time,
             valid_at: time
           )
-        event = subject.record_to_event(record)
-        expect(event).to eq(event)
+        event_ = subject.record_to_event(record)
+        expect(event_).to eq(event)
       end
 
       specify "metadata keys are symbolized" do
