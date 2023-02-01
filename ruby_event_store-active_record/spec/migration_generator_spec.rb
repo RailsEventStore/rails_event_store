@@ -60,16 +60,14 @@ module RubyEventStore
       end
 
       specify "creates migration with json data type" do
-        skip unless ENV["DATABASE_URL"].include?("postgres")
-        migration_generator(@dir, "json")
+        migration_generator(@dir, "json", "PostgreSQL")
 
         expect(read_migration(@dir)).to match(/t.json\s+:data/)
         expect(read_migration(@dir)).to match(/t.json\s+:metadata/)
       end
 
       specify "creates migration with jsonb data type" do
-        skip unless ENV["DATABASE_URL"].include?("postgres")
-        migration_generator(@dir, "jsonb")
+        migration_generator(@dir, "jsonb", "postgresql")
 
         expect(read_migration(@dir)).to match(/t.jsonb\s+:data/)
         expect(read_migration(@dir)).to match(/t.jsonb\s+:metadata/)
@@ -84,8 +82,8 @@ module RubyEventStore
 
       private
 
-      def migration_generator(dir, data_type = "binary")
-        ActiveRecord::MigrationGenerator.new.call(data_type, dir)
+      def migration_generator(dir, data_type = "binary", database_adapter = "sqlite3")
+        ActiveRecord::MigrationGenerator.new.call(data_type, database_adapter, dir)
       end
 
       def migration_exists?(dir)
