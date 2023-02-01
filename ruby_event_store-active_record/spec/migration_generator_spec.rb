@@ -59,6 +59,13 @@ module RubyEventStore
         expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
       end
 
+      specify "creates migration with binary data type when adapter is not postgres" do
+        migration_generator(@dir, "json", "MySQL")
+
+        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
+        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+      end
+
       specify "creates migration with json data type" do
         migration_generator(@dir, "json", "PostgreSQL")
 
