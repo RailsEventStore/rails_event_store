@@ -6,10 +6,10 @@ module RubyEventStore
     class MigrationGenerator
       DATA_TYPES = %w[binary json jsonb].freeze
 
-      def call(data_type, migration_path)
+      def call(data_type, database_adapter, migration_path)
         raise ArgumentError, "Invalid value for data type. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
 
-        migration_code = migration_code(data_type)
+        migration_code = migration_code(data_type, database_adapter.downcase)
         path = build_path(migration_path)
         write_to_file(migration_code, path)
         path
@@ -21,10 +21,12 @@ module RubyEventStore
         File.expand_path(path, __dir__)
       end
 
-      def migration_code(data_type)
-        ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
-        postgres = ::ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
-        migration_template(absolute_path("./templates#{postgres ? "/postgres" : ""}"), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
+      def migration_code(data_type, database_adapter)
+        migration_template(template_root(database_adapter), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
+      end
+
+      def template_root(database_adapter)
+        absolute_path("./templates#{"/postgres" if database_adapter.eql?("postgresql")}")
       end
 
       def migration_template(template_root, name)
