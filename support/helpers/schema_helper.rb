@@ -5,10 +5,11 @@ module SchemaHelper
   include SubprocessHelper
 
   def run_migration(name)
+    postgres = ENV["DATABASE_URL"].include?("postgres")
     m =
       Migrator.new(
         File.expand_path(
-          "../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates",
+          "../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates#{postgres ? '/postgres' : ''}",
           __dir__
         )
       )
