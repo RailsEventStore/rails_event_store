@@ -76,7 +76,7 @@ module RubyEventStore
     end
 
     def read_scope(event_store, stream, count, start)
-      scope = event_store.read.in_batches(count)
+      scope = event_store.read.in_batches(count).as_of
       scope = scope.of_type(handled_events)
       scope = scope.stream(stream) if stream
       scope = scope.from(start) if start
