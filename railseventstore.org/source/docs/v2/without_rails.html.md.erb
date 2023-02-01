@@ -51,7 +51,7 @@ on `ActiveRecord::Tasks::DatabaseTasks` to perform database operations.
 To create database migration file required by Ruby Event Store run
 
 ```bash
-DATA_TYPE=jsonb bundle exec rake db:migrations:copy
+DATA_TYPE=jsonb DATABASE_URL=postgres://localhost/somedb_development bundle exec rake db:migrations:copy
 ```
 
 In the example above we use `jsonb` data type for storing event data. You can use also use `json` or `binary` data type
