@@ -33,7 +33,23 @@ module RubyEventStore
       specify "uses particular migration version" do
         migration_generator(@dir)
 
-        expect(read_migration(@dir)).to match(/ActiveRecord::Migration\[6\.0\]$/)
+        expect(read_migration(@dir)).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
+      end
+
+      specify "uses particular migration version for rails 6.0" do
+        skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_0")
+
+        migration_generator(@dir)
+
+        expect(read_migration(@dir)).to include("ActiveRecord::Migration[6.0]")
+      end
+
+      specify "uses particular migration version for rails 6.1" do
+        skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_1")
+
+        migration_generator(@dir)
+
+        expect(read_migration(@dir)).to include("ActiveRecord::Migration[6.1]")
       end
 
       specify "creates migration with binary data type" do

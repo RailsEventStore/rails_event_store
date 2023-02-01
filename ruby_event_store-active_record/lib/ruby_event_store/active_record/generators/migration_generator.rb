@@ -30,7 +30,7 @@ module RubyEventStore
       end
 
       def migration_version
-        "[6.0]"
+        "[#{::ActiveRecord::Migration.current_version}]"
       end
 
       def timestamp
