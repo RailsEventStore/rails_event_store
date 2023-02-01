@@ -9,7 +9,7 @@ module RubyEventStore
       def call(data_type, database_adapter, migration_path)
         raise ArgumentError, "Invalid value for data type. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
 
-        migration_code = migration_code(data_type, database_adapter.downcase)
+        migration_code = migration_code(data_type, database_adapter)
         path = build_path(migration_path)
         write_to_file(migration_code, path)
         path
@@ -26,7 +26,7 @@ module RubyEventStore
       end
 
       def template_root(database_adapter)
-        absolute_path("./templates#{"/postgres" if database_adapter.eql?("postgresql")}")
+        absolute_path("./templates#{"/postgres" if database_adapter.downcase.eql?("postgresql")}")
       end
 
       def migration_template(template_root, name)
