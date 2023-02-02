@@ -37,7 +37,7 @@ module RubyEventStore
       end
 
       specify "uses particular migration version for rails 6.0" do
-        skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_0")
+        skip unless ENV["BUNDLE_GEMFILE"]&.include?("rails_6_0")
 
         migration_generator(@dir)
 
@@ -45,7 +45,7 @@ module RubyEventStore
       end
 
       specify "uses particular migration version for rails 6.1" do
-        skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_1")
+        skip unless ENV["BUNDLE_GEMFILE"]&.include?("rails_6_1")
 
         migration_generator(@dir)
 
