@@ -33,13 +33,22 @@ module RubyEventStore
       end
 
       def create_migration
-        template "#{"postgres/" if postgres?}create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
+        template "#{template_directory}create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
       end
 
       private
 
+      def template_directory
+        return "postgres/" if postgres?
+        return "mysql/" if mysql?
+      end
+
       def data_type
         options.fetch("data_type")
+      end
+
+      def mysql?
+        adapter == "mysql2"
       end
 
       def postgres?
