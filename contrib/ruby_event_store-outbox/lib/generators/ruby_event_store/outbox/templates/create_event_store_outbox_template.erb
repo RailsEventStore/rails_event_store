@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateEventStoreOutbox < ActiveRecord::Migration<%= migration_version %>
+class CreateEventStoreOutbox < ActiveRecord::Migration[<%= migration_version %>]
   def change
     create_table(:event_store_outbox, force: false) do |t|
       t.string :split_key, null: true
