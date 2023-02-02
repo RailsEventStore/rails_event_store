@@ -12,7 +12,7 @@ if defined?(Rails::Generators::Base)
         source_root File.expand_path(File.join(File.dirname(__FILE__), "./templates"))
 
         def create_migration
-          template "create_event_store_outbox_template.rb", "db/migrate/#{timestamp}_create_event_store_outbox.rb"
+          template "create_event_store_outbox_template.erb", "db/migrate/#{timestamp}_create_event_store_outbox.rb"
         end
 
         private
