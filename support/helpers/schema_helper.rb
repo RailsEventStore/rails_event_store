@@ -98,7 +98,16 @@ module SchemaHelper
   private
 
   def template_path
-    "../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates#{'/postgres' if postgres?}"
+    "../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates/#{template_directory}"
+  end
+
+  def template_directory
+    return "postgres" if postgres?
+    return "mysql" if mysql?
+  end
+
+  def mysql?
+    ENV["DATABASE_URL"].include?("mysql2")
   end
 
   def postgres?
