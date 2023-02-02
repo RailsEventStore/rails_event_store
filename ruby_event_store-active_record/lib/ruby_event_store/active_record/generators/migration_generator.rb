@@ -26,7 +26,16 @@ module RubyEventStore
       end
 
       def template_root(database_adapter)
-        absolute_path("./templates#{"/postgres" if database_adapter.downcase.eql?("postgresql")}")
+        absolute_path("./templates/#{template_directory(database_adapter)}")
+      end
+
+      def template_directory(database_adapter)
+        case database_adapter.downcase
+        when "postgresql"
+          "postgres/"
+        when "mysql2"
+          "mysql/"
+        end
       end
 
       def migration_template(template_root, name)
