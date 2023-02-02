@@ -85,9 +85,9 @@ module RubyEventStore
             `valid_at` datetime(6) DEFAULT NULL,
             PRIMARY KEY (`id`),
             UNIQUE KEY `index_event_store_events_on_event_id` (`event_id`),
+            KEY `index_event_store_events_on_event_type` (`event_type`),
             KEY `index_event_store_events_on_created_at` (`created_at`),
-            KEY `index_event_store_events_on_valid_at` (`valid_at`),
-            KEY `index_event_store_events_on_event_type` (`event_type`)
+            KEY `index_event_store_events_on_valid_at` (`valid_at`)
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
           CREATE TABLE `event_store_events_in_streams` (
             `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
