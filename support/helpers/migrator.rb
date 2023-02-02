@@ -37,7 +37,7 @@ class Migrator
   end
 
   def migration_version
-    "[#{::ActiveRecord::Migration.current_version}]"
+    ::ActiveRecord::Migration.current_version
   end
 
   def migration_template(name)

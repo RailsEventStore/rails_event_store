@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateEventStoreEvents < ActiveRecord::Migration<%= migration_version %>
+class CreateEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
   def change
     create_table(:event_store_events_in_streams, id: :bigserial, force: false) do |t|
       t.string      :stream,      null: false

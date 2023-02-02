@@ -18,7 +18,7 @@ if defined?(Rails::Generators::Base)
         private
 
         def migration_version
-          "[#{::ActiveRecord::Migration.current_version}]"
+          ::ActiveRecord::Migration.current_version
         end
 
         def timestamp
