@@ -55,7 +55,7 @@ module RubyEventStore
       end
 
       def build_path(migration_path)
-        File.join( "#{migration_path}", "#{timestamp}_create_event_store_events.rb")
+        File.join("#{migration_path}", "#{timestamp}_create_event_store_events.rb")
       end
     end
   end
