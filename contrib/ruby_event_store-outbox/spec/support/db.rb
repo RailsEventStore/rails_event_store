@@ -10,6 +10,8 @@ RSpec.configure do |config|
       m = Migrator.new(File.expand_path("../../lib/generators/ruby_event_store/outbox/templates", __dir__))
       m.run_migration("create_event_store_outbox")
       example.run
+    ensure
+      close_database_connection
     end
   end
 end
