@@ -112,14 +112,14 @@ module RubyEventStore
           WHERE   NAME LIKE '%event_store_events%'
         SQL
           CREATE TABLE "event_store_events_in_streams" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "stream" varchar NOT NULL, "position" integer, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL)
-          CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
           CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
+          CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_event_id" ON "event_store_events_in_streams" ("stream", "event_id")
           CREATE TABLE "event_store_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" varchar(36) NOT NULL, "event_type" varchar NOT NULL, "metadata" blob, "data" blob NOT NULL, "created_at" datetime(6) NOT NULL, "valid_at" datetime(6))
           CREATE UNIQUE INDEX "index_event_store_events_on_event_id" ON "event_store_events" ("event_id")
+          CREATE INDEX "index_event_store_events_on_event_type" ON "event_store_events" ("event_type")
           CREATE INDEX "index_event_store_events_on_created_at" ON "event_store_events" ("created_at")
           CREATE INDEX "index_event_store_events_on_valid_at" ON "event_store_events" ("valid_at")
-          CREATE INDEX "index_event_store_events_on_event_type" ON "event_store_events" ("event_type")
         SCHEMA
       end
 
