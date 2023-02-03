@@ -89,14 +89,19 @@ module RailsEventStore
 
       context "json type is not used when adapter is not postgres" do
         let(:data_type) { "json" }
-        it { is_expected.to match(/t.binary\s+:metadata/) }
-        it { is_expected.to match(/t.binary\s+:data/) }
+        it { is_expected.to match(/t.json\s+:metadata/) }
+        it { is_expected.to match(/t.json\s+:data/) }
       end
 
       context "jsonb type is not used when adapter is not postgres" do
         let(:data_type) { "jsonb" }
-        it { is_expected.to match(/t.binary\s+:metadata/) }
-        it { is_expected.to match(/t.binary\s+:data/) }
+        it "raises an error" do
+          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
+            .to raise_error(
+                  RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+                  "jsonb is not supported for MySQL. Please use binary or json."
+                )
+        end
       end
     end
 
