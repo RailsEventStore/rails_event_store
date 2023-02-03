@@ -27,7 +27,7 @@ module RubyEventStore
       def initialize(*args)
         super
 
-        if DATA_TYPES.exclude?(options.fetch(:data_type))
+        if DATA_TYPES.exclude?(data_type)
           raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
         end
       end
