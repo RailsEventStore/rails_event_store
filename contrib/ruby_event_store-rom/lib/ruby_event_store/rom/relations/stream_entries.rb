@@ -10,8 +10,6 @@ module RubyEventStore
           associations { belongs_to :events, as: :event, foreign_key: :event_id }
         end
 
-        alias take limit
-
         def create_changeset(tuples)
           changeset(ROM::Changesets::CreateStreamEntries, tuples)
         end

@@ -53,7 +53,7 @@ module RubyEventStore
 
         def count(specification)
           query = read_scope(specification)
-          query = query.take(specification.limit) if specification.limit?
+          query = query.limit(specification.limit) if specification.limit?
           query.count
         end
 
@@ -111,7 +111,7 @@ module RubyEventStore
 
         def query_builder(serializer, query, offset: nil, limit: nil)
           query = query.offset(offset) if offset
-          query = query.take(limit) if limit
+          query = query.limit(limit) if limit
           query.to_a.map { |serialized_record| serialized_record.deserialize(serializer) }
         end
       end

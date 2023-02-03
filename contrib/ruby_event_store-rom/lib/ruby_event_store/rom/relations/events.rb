@@ -18,8 +18,6 @@ module RubyEventStore
           primary_key :event_id
         end
 
-        alias take limit
-
         def create_changeset(tuples)
           events.changeset(Changesets::CreateEvents, tuples)
         end
