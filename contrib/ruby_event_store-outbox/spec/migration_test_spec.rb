@@ -10,9 +10,14 @@ module RubyEventStore
       specify "mysql" do
         skip unless ENV["DATABASE_URL"].include?("mysql")
 
+        my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
+        collation = my_sql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
+        charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
+        bigint_lenght = my_sql_major_version == 8 ? "" : "(20)"
+
         expect(mysql_show_create_table("event_store_outbox")).to eq <<~SCHEMA.strip
           CREATE TABLE `event_store_outbox` (
-            `id` bigint NOT NULL AUTO_INCREMENT,
+            `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
             `split_key` varchar(255) DEFAULT NULL,
             `format` varchar(255) NOT NULL,
             `payload` blob NOT NULL,
@@ -21,19 +26,19 @@ module RubyEventStore
             PRIMARY KEY (`id`),
             KEY `index_event_store_outbox_for_pool` (`format`,`enqueued_at`,`split_key`),
             KEY `index_event_store_outbox_for_clear` (`created_at`,`enqueued_at`)
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+          ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
 
         expect(mysql_show_create_table("event_store_outbox_locks")).to eq <<~SCHEMA.strip
        CREATE TABLE `event_store_outbox_locks` (
-         `id` bigint NOT NULL AUTO_INCREMENT,
+         `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
          `format` varchar(255) NOT NULL,
          `split_key` varchar(255) NOT NULL,
          `locked_at` datetime(6) DEFAULT NULL,
          `locked_by` varchar(36) DEFAULT NULL,
          PRIMARY KEY (`id`),
          UNIQUE KEY `index_event_store_outbox_locks_for_locking` (`format`,`split_key`)
-       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+       ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
       end
 
