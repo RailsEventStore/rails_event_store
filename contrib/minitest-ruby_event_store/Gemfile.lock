@@ -1,9 +1,9 @@
 PATH
   remote: ../..
   specs:
-    aggregate_root (2.9.0)
-      ruby_event_store (= 2.9.0)
-    ruby_event_store (2.9.0)
+    aggregate_root (2.9.1)
+      ruby_event_store (= 2.9.1)
+    ruby_event_store (2.9.1)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
@@ -75,6 +75,7 @@ GEM
       parser (>= 3.1.0)
 
 PLATFORMS
+  arm64-darwin-21
   arm64-darwin-22
   x86_64-darwin-22
   x86_64-linux

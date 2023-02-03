@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    ruby_event_store (2.9.0)
+    ruby_event_store (2.9.1)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
@@ -22,7 +22,7 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.2)
     closed_struct (1.0.0)
-    concurrent-ruby (1.1.10)
+    concurrent-ruby (1.2.0)
     crack (0.4.5)
       rexml
     diff-lcs (1.5.0)
@@ -70,6 +70,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
+  arm64-darwin-21
   arm64-darwin-22
   x86_64-darwin-22
   x86_64-linux

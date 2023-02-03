@@ -32,9 +32,9 @@ set :markdown_engine, :redcarpet
 set :markdown, tables: true, autolink: true, fenced_code_blocks: true, with_toc_data: true, no_intra_emphasis: true
 
 set :res_version_v1, "1.3.1"
-set :res_version_v2, "2.9.0"
+set :res_version_v2, "2.9.1"
 set :res_version_v3, "3.0.0"
-set :res_version, "2.9.0"
+set :res_version, "2.9.1"
 
 page "/"
 page "/docs/v1/*", locals: { version: "v1" }, layout: "documentation"
