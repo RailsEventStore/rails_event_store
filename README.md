@@ -4,17 +4,15 @@
 
 You can use it:
 
-<ul>
-<li>as your <a href="https://railseventstore.org/docs/pubsub/">Publish-Subscribe bus</a></li>
-<li>to decouple core business logic from external concerns in Hexagonal style architectures</li>
-<li>as <a href="https://blog.arkency.com/2016/05/domain-events-over-active-record-callbacks/">an alternative to ActiveRecord callbacks and Observers</a></li>
-<li>as a communication layer between loosely coupled components</li>
-<li>to react to published events synchronously or asynchronously</li>
-<li>to extract side-effects (notifications, metrics etc) from your controllers and services into event handlers</li>
-<li>to build an audit-log</li>
-<li>to create read-models</li>
-<li>to implement event-sourcing</li>
-</ul>
+*   as your [Publish-Subscribe bus](https://railseventstore.org/docs/pubsub/)
+*   to decouple core business logic from external concerns in Hexagonal style architectures
+*   as [an alternative to ActiveRecord callbacks and Observers](https://blog.arkency.com/2016/05/domain-events-over-active-record-callbacks/)
+*   as a communication layer between loosely coupled components
+*   to react to published events synchronously or asynchronously
+*   to extract side-effects (notifications, metrics etc) from your controllers and services into event handlers
+*   to build an audit-log
+*   to create read-models
+*   to implement event-sourcing
 
 ## Documentation
 
