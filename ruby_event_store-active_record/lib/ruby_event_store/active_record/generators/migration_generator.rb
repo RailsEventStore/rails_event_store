@@ -30,12 +30,7 @@ module RubyEventStore
       end
 
       def template_directory(database_adapter)
-        case database_adapter.downcase
-        when "postgresql"
-          "postgres/"
-        when "mysql2"
-          "mysql/"
-        end
+        TemplateDirectory.for_adapter(database_adapter)
       end
 
       def migration_template(template_root, name)

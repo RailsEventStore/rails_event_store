@@ -39,20 +39,11 @@ module RubyEventStore
       private
 
       def template_directory
-        return "postgres/" if postgres?
-        return "mysql/" if mysql?
+        TemplateDirectory.for_adapter(adapter)
       end
 
       def data_type
         options.fetch("data_type")
-      end
-
-      def mysql?
-        adapter == "mysql2"
-      end
-
-      def postgres?
-        adapter == "postgresql"
       end
 
       def adapter

@@ -2,6 +2,7 @@
 
 require_relative "active_record/generators/migration_generator"
 require_relative "active_record/generators/rails_migration_generator"
+require_relative "active_record/generators/templates/template_directory"
 require_relative "active_record/event"
 require_relative "active_record/with_default_models"
 require_relative "active_record/with_abstract_base_class"
