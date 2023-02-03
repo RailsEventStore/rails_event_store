@@ -1,7 +1,0 @@
-# https://github.com/mbj/mutant/blob/master/docs/configuration.md
-
-includes:
-  - lib
-integration: rspec
-coverage_criteria:
-  process_abort: true
