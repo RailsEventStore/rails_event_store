@@ -65,6 +65,8 @@ module RubyEventStore
       specify "mysql" do
         skip unless ENV["DATABASE_URL"].include?("mysql")
 
+        data_type = data_type_to_mysql_type(ENV["DATA_TYPE"])
+
         my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
         collation = my_sql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
         charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
@@ -79,8 +81,8 @@ module RubyEventStore
             `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
             `event_id` varchar(36) NOT NULL,
             `event_type` varchar(255) NOT NULL,
-            `metadata` blob,
-            `data` blob NOT NULL,
+            `metadata` #{data_type}#{" DEFAULT NULL" if data_type == "json"},
+            `data` #{data_type} NOT NULL,
             `created_at` datetime(6) NOT NULL,
             `valid_at` datetime(6) DEFAULT NULL,
             PRIMARY KEY (`id`),
@@ -127,6 +129,10 @@ module RubyEventStore
 
       def data_type_to_pg_type(data_type)
         { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }.fetch(data_type)
+      end
+
+      def data_type_to_mysql_type(data_type)
+        { "binary" => "blob", "json" => "json" }.fetch(data_type)
       end
 
       def pg_show_create_table(table_name)
