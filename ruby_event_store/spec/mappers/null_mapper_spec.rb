@@ -31,15 +31,15 @@ module RubyEventStore
 
       specify "#record_to_event" do
         record = subject.event_to_record(event)
-        event = subject.record_to_event(record)
+        event_ = subject.record_to_event(record)
 
-        expect(event).to eq(event)
-        expect(event.event_id).to eq(event.event_id)
-        expect(event.data).to eq(event.data)
-        expect(event.metadata.to_h).to eq(event.metadata.to_h)
-        expect(event.event_type).to eq("TestEvent")
-        expect(event.metadata[:timestamp]).to eq(time)
-        expect(event.metadata[:valid_at]).to eq(time)
+        expect(event_).to eq(event)
+        expect(event_.event_id).to eq(event.event_id)
+        expect(event_.data).to eq(event.data)
+        expect(event_.metadata.to_h).to eq(event.metadata.to_h)
+        expect(event_.event_type).to eq("TestEvent")
+        expect(event_.metadata[:timestamp]).to eq(time)
+        expect(event_.metadata[:valid_at]).to eq(time)
       end
     end
   end

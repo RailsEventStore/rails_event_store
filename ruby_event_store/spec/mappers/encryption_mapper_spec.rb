@@ -65,11 +65,11 @@ module RubyEventStore
             timestamp: time,
             valid_at: time
           )
-        event = subject.record_to_event(record)
-        expect(event).to eq(event)
-        expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
-        expect(event.metadata[:timestamp]).to eq(time)
-        expect(event.metadata[:valid_at]).to eq(time)
+        event_ = subject.record_to_event(record)
+        expect(event_).to eq(event)
+        expect(event_.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
+        expect(event_.metadata[:timestamp]).to eq(time)
+        expect(event_.metadata[:valid_at]).to eq(time)
       end
 
       specify "make sure encryption & decryption do not tamper event data" do
@@ -85,9 +85,9 @@ module RubyEventStore
               timestamp: time,
               valid_at: time
             )
-          event = subject.record_to_event(record)
-          expect(event).to eq(source_event)
-          expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
+          event_ = subject.record_to_event(record)
+          expect(event_).to eq(source_event)
+          expect(event_.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
         end
       end
 
@@ -201,11 +201,11 @@ module RubyEventStore
               timestamp: time,
               valid_at: time
             )
-          event = subject.record_to_event(record)
-          expect(event).to eq(event)
-          expect(event.metadata.to_h).to eq(event.metadata.to_h)
-          expect(event.metadata[:timestamp]).to eq(time)
-          expect(event.metadata[:valid_at]).to eq(time)
+          event_ = subject.record_to_event(record)
+          expect(event_).to eq(event)
+          expect(event_.metadata.to_h).to eq(event.metadata.to_h)
+          expect(event_.metadata[:timestamp]).to eq(time)
+          expect(event_.metadata[:valid_at]).to eq(time)
         end
       end
     end
