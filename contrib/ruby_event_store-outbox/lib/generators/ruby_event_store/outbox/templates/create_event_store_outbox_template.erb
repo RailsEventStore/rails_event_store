@@ -6,8 +6,8 @@ class CreateEventStoreOutbox < ActiveRecord::Migration[<%= migration_version %>]
       t.string :split_key, null: true
       t.string :format, null: false
       t.binary :payload, null: false
-      t.datetime :created_at, null: false
-      t.datetime :enqueued_at, null: true
+      t.datetime :created_at, null: false, precision: 6
+      t.datetime :enqueued_at, null: true, precision: 6
     end
     add_index :event_store_outbox, [:format, :enqueued_at, :split_key], name: "index_event_store_outbox_for_pool"
     add_index :event_store_outbox, [:created_at, :enqueued_at], name: "index_event_store_outbox_for_clear"
@@ -15,7 +15,7 @@ class CreateEventStoreOutbox < ActiveRecord::Migration[<%= migration_version %>]
     create_table(:event_store_outbox_locks, force: false) do |t|
       t.string :format, null: false
       t.string :split_key, null: false
-      t.datetime :locked_at, null: true
+      t.datetime :locked_at, null: true, precision: 6
       t.string :locked_by, null: true, limit: 36
     end
     add_index :event_store_outbox_locks, [:format, :split_key], name: "index_event_store_outbox_locks_for_locking", unique: true
