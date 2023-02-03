@@ -13,6 +13,7 @@ RSpec.configure do |config|
       m.run_migration("create_event_store_outbox")
       example.run
     ensure
+      drop_tables
       close_database_connection
     end
   end
