@@ -197,4 +197,4 @@ DEPENDENCIES
   ruby_event_store-browser!
 
 BUNDLED WITH
-   2.3.26
+   2.4.6
