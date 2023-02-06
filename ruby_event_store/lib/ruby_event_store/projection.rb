@@ -2,11 +2,17 @@
 
 module RubyEventStore
   class Projection
+    private_class_method :new
+
     ANONYMOUS_CLASS = "#<Class:".freeze
 
     def initialize(initial_state = nil)
       @handlers = {}
       @init = -> { initial_state }
+    end
+
+    def self.init(initial_state = nil)
+      new(initial_state)
     end
 
     def on(*event_klasses, &block)
