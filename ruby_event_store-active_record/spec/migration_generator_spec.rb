@@ -60,17 +60,13 @@ module RubyEventStore
       end
 
       specify "creates migration with binary data type when adapter is sqlite" do
-        migration_generator(@dir, "json", "sqlite")
-
-        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
-        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+        expect {migration_generator(@dir, "json", "sqlite")}
+          .to raise_error "sqlite doesn't support json"
       end
 
       specify "creates migration with jsonb data type when adapter is not postgres" do
-        migration_generator(@dir, "jsonb", "MySQL2")
-
-        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
-        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+        expect { migration_generator(@dir, "jsonb", "MySQL2") }
+          .to raise_error("MySQL2 doesn't support jsonb")
       end
 
       specify "creates migration with json data type when adapter is MySQL2" do
