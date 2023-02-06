@@ -19,6 +19,8 @@ module RubyEventStore
 
       private
 
+      private_constant :SUPPORTED_POSTGRES_DATA_TYPES, :SUPPORTED_MYSQL_DATA_TYPES, :SUPPORTED_SQLITE_DATA_TYPES
+
       def supported?(adapter)
         %w[mysql2 postgresql sqlite].include?(adapter.downcase)
       end
