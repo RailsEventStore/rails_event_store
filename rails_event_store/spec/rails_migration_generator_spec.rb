@@ -87,7 +87,7 @@ module RailsEventStore
         it { is_expected.to match(/t.binary\s+:data/) }
       end
 
-      context "json type is not used when adapter is not postgres" do
+      context "with json datatype" do
         let(:data_type) { "json" }
         it { is_expected.to match(/t.json\s+:metadata/) }
         it { is_expected.to match(/t.json\s+:data/) }
@@ -97,15 +97,12 @@ module RailsEventStore
         let(:data_type) { "jsonb" }
         it "raises an error" do
           expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error(
-                  RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
-                  "jsonb is not supported for MySQL. Please use binary or json."
-                )
+            .to raise_error "MySQL2 doesn't support jsonb"
         end
       end
     end
 
-    context "when data_type option is specified" do
+    context "when sqlite adapter is used and data_type option is specified" do
       subject do
         RubyEventStore::ActiveRecord::RailsMigrationGenerator
           .start(["--data-type=#{data_type}"], destination_root: @dir)
@@ -120,14 +117,20 @@ module RailsEventStore
 
       context "json type is not used when adapter is not postgres" do
         let(:data_type) { "json" }
-        it { is_expected.to match(/t.binary\s+:metadata/) }
-        it { is_expected.to match(/t.binary\s+:data/) }
+
+        it "raises an error" do
+          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
+            .to raise_error "sqlite doesn't support json"
+        end
       end
 
       context "jsonb type is not used when adapter is not postgres" do
         let(:data_type) { "jsonb" }
-        it { is_expected.to match(/t.binary\s+:metadata/) }
-        it { is_expected.to match(/t.binary\s+:data/) }
+
+        it "raises an error" do
+          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
+            .to raise_error "sqlite doesn't support jsonb"
+        end
       end
 
       context "with an invalid datatype" do
