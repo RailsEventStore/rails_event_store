@@ -66,7 +66,7 @@ module RubyEventStore
         expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
       end
 
-      xspecify "creates migration with jsonb data type when adapter is not postgres" do
+      specify "creates migration with jsonb data type when adapter is not postgres" do
         migration_generator(@dir, "jsonb", "MySQL2")
 
         expect(read_migration(@dir)).to match(/t.binary\s+:data/)
