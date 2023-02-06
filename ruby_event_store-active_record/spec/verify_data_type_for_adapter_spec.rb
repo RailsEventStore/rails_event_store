@@ -14,7 +14,7 @@ module RubyEventStore
         end
 
         specify "MySQL doesn't support jsonb" do
-          expect { VerifyDataTypeForAdapter.new.call("MySQL2", "jsonb") }.to raise_error "MySQL2 doesn't support jsonb"
+          expect { VerifyDataTypeForAdapter.new.call("MySQL2", "jsonb") }.to raise_error InvalidDataTypeForAdapter,"MySQL2 doesn't support jsonb"
         end
 
         specify "PostgreSQL supports binary" do
@@ -30,7 +30,7 @@ module RubyEventStore
         end
 
         specify "PostgreSQL doesn't support bla" do
-          expect { VerifyDataTypeForAdapter.new.call("PostgreSQL", "bla") }.to raise_error "PostgreSQL doesn't support bla"
+          expect { VerifyDataTypeForAdapter.new.call("PostgreSQL", "bla") }.to raise_error InvalidDataTypeForAdapter,"PostgreSQL doesn't support bla"
         end
 
         specify "sqlite supports binary" do
@@ -38,15 +38,15 @@ module RubyEventStore
         end
 
         specify "sqlite doesn't support json" do
-          expect { VerifyDataTypeForAdapter.new.call("sqlite", "json") }.to raise_error "sqlite doesn't support json"
+          expect { VerifyDataTypeForAdapter.new.call("sqlite", "json") }.to raise_error InvalidDataTypeForAdapter,"sqlite doesn't support json"
         end
 
         specify "sqlite doesn't support jsonb" do
-          expect { VerifyDataTypeForAdapter.new.call("sqlite", "jsonb") }.to raise_error "sqlite doesn't support jsonb"
+          expect { VerifyDataTypeForAdapter.new.call("sqlite", "jsonb") }.to raise_error InvalidDataTypeForAdapter, "sqlite doesn't support jsonb"
         end
 
         specify "unsupported adapter" do
-        expect { VerifyDataTypeForAdapter.new.call("MSSQL", "json") }.to raise_error "unsupported adapter"
+        expect { VerifyDataTypeForAdapter.new.call("MSSQL", "json") }.to raise_error UnsupportedAdapter, "Unsupported adapter"
       end
     end
   end

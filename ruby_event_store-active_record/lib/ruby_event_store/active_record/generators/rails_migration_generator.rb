@@ -32,7 +32,7 @@ module RubyEventStore
         end
 
         VerifyDataTypeForAdapter.new.call(adapter, data_type)
-      rescue StandardError => e
+      rescue InvalidDataTypeForAdapter => e
         raise Error, e.message
       end
 
