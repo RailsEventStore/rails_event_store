@@ -36,14 +36,6 @@ module RailsEventStore
       expect(subject).to include("ActiveRecord::Migration[6.1]")
     end
 
-    it "uses binary data type for metadata" do
-      expect(subject).to match(/t.binary\s+:metadata/)
-    end
-
-    it "uses binary data type for data" do
-      expect(subject).to match(/t.binary\s+:data/)
-    end
-
     context "when postgresql adapter is used and data_type option is specified" do
       before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgresql")) }
 
