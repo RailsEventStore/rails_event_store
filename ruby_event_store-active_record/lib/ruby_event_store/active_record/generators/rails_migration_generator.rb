@@ -32,6 +32,8 @@ module RubyEventStore
         end
 
         VerifyDataTypeForAdapter.new.call(adapter, data_type)
+      rescue StandardError => e
+        raise Error, e.message
       end
 
       def create_migration

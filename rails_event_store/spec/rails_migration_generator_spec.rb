@@ -97,7 +97,7 @@ module RailsEventStore
         let(:data_type) { "jsonb" }
         it "raises an error" do
           expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error "MySQL2 doesn't support jsonb"
+            .to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error, "MySQL2 doesn't support jsonb"
         end
       end
     end
@@ -120,7 +120,7 @@ module RailsEventStore
 
         it "raises an error" do
           expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error "sqlite doesn't support json"
+            .to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error, "sqlite doesn't support json"
         end
       end
 
@@ -129,7 +129,7 @@ module RailsEventStore
 
         it "raises an error" do
           expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error "sqlite doesn't support jsonb"
+            .to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error, "sqlite doesn't support jsonb"
         end
       end
 
