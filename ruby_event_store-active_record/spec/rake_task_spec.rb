@@ -7,6 +7,8 @@ module RubyEventStore
     ::RSpec.describe "migration_tasks.rake", mutant: false do
       before do
         allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00))
+        allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "PostgreSQL"))
+
         load File.join(
                File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake"
              )
