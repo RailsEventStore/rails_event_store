@@ -96,14 +96,14 @@ module RubyEventStore
 
       specify "raises error when data type is not supported" do
         expect { migration_generator(@dir, "invalid") }.to raise_error(
-          ArgumentError,
-          "Invalid value for data type. Supported for options are: binary, json, jsonb."
-        )
+                                                             ArgumentError,
+                                                             "Invalid value for data type. Supported for options are: binary, json, jsonb."
+                                                           )
       end
 
       private
 
-      def migration_generator(dir, data_type = "binary", database_adapter = "sqlite3")
+      def migration_generator(dir, data_type = "binary", database_adapter = "sqlite")
         ActiveRecord::MigrationGenerator.new.call(data_type, database_adapter, dir)
       end
 
