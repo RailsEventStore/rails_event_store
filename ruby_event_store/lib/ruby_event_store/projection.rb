@@ -21,12 +21,10 @@ module RubyEventStore
       self
     end
 
-    def call(*scopes)
+    def call(scope)
       return initial_state if handled_events.empty?
 
-      scopes.reduce(initial_state) do |state, scope|
-        scope.of_types(handled_events).reduce(state, &method(:transition))
-      end
+      scope.of_types(handled_events).reduce(initial_state, &method(:transition))
     end
 
     private
