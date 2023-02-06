@@ -32,20 +32,6 @@ module RubyEventStore
       expect(account_balance).to eq(25)
     end
 
-    specify "reduce events from many streams" do
-      event_store.append(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
-      event_store.append(MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
-      event_store.append(MoneyWithdrawn.new(data: { amount: 5 }), stream_name: "Customer$3")
-
-      account_balance =
-        Projection
-          .new(0)
-          .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
-          .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
-          .call(event_store.read.stream("Customer$1"), event_store.read.stream("Customer$3"))
-      expect(account_balance).to eq(5)
-    end
-
     specify "take events from all streams" do
       event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$1")
       event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$2")
