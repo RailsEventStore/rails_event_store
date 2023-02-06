@@ -100,7 +100,7 @@ GEM
     arkency-command_bus (0.4.1)
       concurrent-ruby
     builder (3.2.4)
-    concurrent-ruby (1.1.10)
+    concurrent-ruby (1.2.0)
     crass (1.0.6)
     date (3.3.3)
     erubi (1.12.0)
