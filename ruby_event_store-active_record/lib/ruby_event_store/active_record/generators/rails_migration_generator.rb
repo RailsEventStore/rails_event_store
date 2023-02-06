@@ -31,9 +31,7 @@ module RubyEventStore
           raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
         end
 
-        if adapter == "mysql2" && data_type == "jsonb"
-          raise Error, "jsonb is not supported for MySQL. Please use binary or json."
-        end
+        VerifyDataTypeForAdapter.new.call(adapter, data_type)
       end
 
       def create_migration
