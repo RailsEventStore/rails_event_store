@@ -25,7 +25,7 @@ module RubyEventStore
 
       account_balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
           .call(event_store.read)
@@ -40,7 +40,7 @@ module RubyEventStore
 
       account_balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
           .call(event_store.read)
@@ -59,7 +59,7 @@ module RubyEventStore
       )
 
       stats =
-        Projection.new({})
+        Projection.init({})
           .on(MoneyDeposited) { |state, event| state[:last_deposit] = event.data[:amount]; state }
           .on(MoneyWithdrawn) { |state, event| state[:last_withdrawal] = event.data[:amount]; state }
           .call(event_store.read.stream(stream_name))
@@ -74,7 +74,7 @@ module RubyEventStore
 
       deposits =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .call(event_store.read.stream(stream_name))
       expect(deposits).to eq(10)
@@ -88,7 +88,7 @@ module RubyEventStore
 
       cashflow =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited, MoneyWithdrawn) { |state, event| state += event.data[:amount] }
           .call(event_store.read.stream(stream_name))
       expect(cashflow).to eq(12)
@@ -108,7 +108,7 @@ module RubyEventStore
 
       balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
           .call(event_store.read.stream(stream_name).in_batches(2))
@@ -129,7 +129,7 @@ module RubyEventStore
 
       balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
           .call(event_store.read.stream(stream_name).from(starting.event_id).in_batches(2))
@@ -145,7 +145,7 @@ module RubyEventStore
 
       balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
           .call(event_store.read.in_batches(2))
@@ -161,7 +161,7 @@ module RubyEventStore
 
       balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
           .call(event_store.read.from(starting.event_id).in_batches(2))
@@ -185,7 +185,7 @@ module RubyEventStore
 
       balance =
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .on(MoneyWithdrawn, MoneyLost) { |state, event| state -= event.data[:amount] }
           .call(event_store.read.in_batches(100))
@@ -198,31 +198,31 @@ module RubyEventStore
       expect(repository).to receive(:read).with(scope.result).and_return([])
 
       Projection
-        .new(0)
+        .init(0)
         .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
         .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
         .call(scope)
     end
 
     specify "default initial state" do
-      expect(Projection.new.call([])).to eq(nil)
+      expect(Projection.init.call([])).to eq(nil)
     end
 
     specify "block must be given to on event handlers" do
       expect do
-        Projection.new.on(MoneyDeposited)
+        Projection.init.on(MoneyDeposited)
       end.to raise_error(ArgumentError, "No handler block given")
     end
 
     it "does not support anonymous events" do
       expect do
-        Projection.new.on(Class.new) { |_state, _event| }
+        Projection.init.on(Class.new) { |_state, _event| }
       end.to raise_error(ArgumentError, "Anonymous class is missing name")
     end
 
     specify do
       expect(repository).not_to receive(:read)
-      state = Projection.new.call(event_store.read)
+      state = Projection.init.call(event_store.read)
       expect(state).to eq(nil)
     end
 
@@ -230,7 +230,7 @@ module RubyEventStore
       expect(repository).not_to receive(:read)
 
       initial_state = Object.new
-      state = Projection.new(initial_state).call(event_store.read)
+      state = Projection.init(initial_state).call(event_store.read)
 
       expect(state).to eq(initial_state)
     end
