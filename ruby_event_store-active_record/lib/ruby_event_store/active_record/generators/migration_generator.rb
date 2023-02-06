@@ -8,7 +8,7 @@ module RubyEventStore
 
       def call(data_type, database_adapter, migration_path)
         raise ArgumentError, "Invalid value for data type. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
-        AdapterDataType.new.call(database_adapter, data_type)
+        VerifyDataTypeForAdapter.new.call(database_adapter, data_type)
 
         migration_code = migration_code(data_type, database_adapter)
         path = build_path(migration_path)

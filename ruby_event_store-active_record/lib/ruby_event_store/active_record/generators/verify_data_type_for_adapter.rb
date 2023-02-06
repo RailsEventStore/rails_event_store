@@ -2,7 +2,7 @@
 
 module RubyEventStore
   module ActiveRecord
-    class AdapterDataType
+    class VerifyDataTypeForAdapter
 
       SUPPORTED_POSTGRES_DATA_TYPES = %w[binary json jsonb].freeze
       SUPPORTED_MYSQL_DATA_TYPES = %w[binary json].freeze
