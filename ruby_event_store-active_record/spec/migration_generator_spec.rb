@@ -60,7 +60,7 @@ module RubyEventStore
       end
 
       specify "throws on attempt to create migration with json data type for SQLite adapter" do
-        expect {migration_generator(@dir, "json", "SQLite")}
+        expect { migration_generator(@dir, "json", "SQLite") }
           .to raise_error "sqlite doesn't support json"
       end
 
@@ -110,10 +110,11 @@ module RubyEventStore
       end
 
       specify "raises error when data type is not supported" do
-        expect { migration_generator(@dir, "invalid") }.to raise_error(
-                                                             ArgumentError,
-                                                             "Invalid value for data type. Supported for options are: binary, json, jsonb."
-                                                           )
+        expect { migration_generator(@dir, "invalid") }
+          .to raise_error(
+                ArgumentError,
+                "Invalid value for data type. Supported for options are: binary, json, jsonb."
+              )
       end
 
       private
