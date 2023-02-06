@@ -34,15 +34,15 @@ module RubyEventStore
         end
 
         specify "sqlite supports binary" do
-          expect { VerifyDataTypeForAdapter.new.call("sqlite", "binary") }.not_to raise_error
+          expect { VerifyDataTypeForAdapter.new.call("SQLite", "binary") }.not_to raise_error
         end
 
         specify "sqlite doesn't support json" do
-          expect { VerifyDataTypeForAdapter.new.call("sqlite", "json") }.to raise_error InvalidDataTypeForAdapter,"sqlite doesn't support json"
+          expect { VerifyDataTypeForAdapter.new.call("SQLite", "json") }.to raise_error InvalidDataTypeForAdapter,"sqlite doesn't support json"
         end
 
         specify "sqlite doesn't support jsonb" do
-          expect { VerifyDataTypeForAdapter.new.call("sqlite", "jsonb") }.to raise_error InvalidDataTypeForAdapter, "sqlite doesn't support jsonb"
+          expect { VerifyDataTypeForAdapter.new.call("SQLite", "jsonb") }.to raise_error InvalidDataTypeForAdapter, "sqlite doesn't support jsonb"
         end
 
         specify "unsupported adapter" do
