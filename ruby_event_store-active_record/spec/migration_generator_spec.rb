@@ -52,38 +52,57 @@ module RubyEventStore
         expect(read_migration(@dir)).to include("ActiveRecord::Migration[6.1]")
       end
 
-      specify "creates migration with binary data type" do
-        migration_generator(@dir, "binary")
+      specify "creates migration with binary data type for SQLite adapter" do
+        migration_generator(@dir, "binary", "SQLite")
 
         expect(read_migration(@dir)).to match(/t.binary\s+:data/)
         expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
       end
 
-      specify "creates migration with binary data type when adapter is sqlite" do
-        expect {migration_generator(@dir, "json", "sqlite")}
+      specify "throws on attempt to create migration with json data type for SQLite adapter" do
+        expect {migration_generator(@dir, "json", "SQLite")}
           .to raise_error "sqlite doesn't support json"
       end
 
-      specify "creates migration with jsonb data type when adapter is not postgres" do
+      specify "throws on attempt to create migration with jsonb data type for SQLite adapter" do
+        expect { migration_generator(@dir, "jsonb", "SQLite") }
+          .to raise_error("sqlite doesn't support jsonb")
+      end
+
+      specify "throws on attempt to create migration with jsonb data type for MySQL2 adapter" do
         expect { migration_generator(@dir, "jsonb", "MySQL2") }
           .to raise_error("MySQL2 doesn't support jsonb")
       end
 
-      specify "creates migration with json data type when adapter is MySQL2" do
+      specify "creates migration with binary data type for MySQL2 adapter" do
+        migration_generator(@dir, "binary", "MySQL2")
+
+        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
+        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+      end
+
+      specify "creates migration with json data type for MySQL2 adapter" do
         migration_generator(@dir, "json", "MySQL2")
 
         expect(read_migration(@dir)).to match(/t.json\s+:data/)
         expect(read_migration(@dir)).to match(/t.json\s+:metadata/)
       end
 
-      specify "creates migration with json data type" do
+      specify "creates migration with binary data type for PostgreSQL adapter" do
+        migration_generator(@dir, "binary", "PostgreSQL")
+
+        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
+        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+      end
+
+      specify "creates migration with json data type for PostgreSQL adapter" do
         migration_generator(@dir, "json", "PostgreSQL")
 
         expect(read_migration(@dir)).to match(/t.json\s+:data/)
         expect(read_migration(@dir)).to match(/t.json\s+:metadata/)
       end
 
-      specify "creates migration with jsonb data type" do
+      specify "creates migration with jsonb data type for PostgreSQL adapter" do
         migration_generator(@dir, "jsonb", "postgresql")
 
         expect(read_migration(@dir)).to match(/t.jsonb\s+:data/)
