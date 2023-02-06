@@ -29,6 +29,10 @@ module RubyEventStore
           expect { AdapterDataType.new.call("PostgreSQL", "jsonb") }.not_to raise_error
         end
 
+        specify "PostgreSQL doesn't support bla" do
+          expect { AdapterDataType.new.call("PostgreSQL", "bla") }.to raise_error "PostgreSQL doesn't support bla"
+        end
+
         specify "sqlite supports binary" do
           expect { AdapterDataType.new.call("sqlite", "binary") }.not_to raise_error
         end
