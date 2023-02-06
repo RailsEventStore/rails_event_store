@@ -72,6 +72,7 @@ GEM
     sqlite3 (1.6.0)
       mini_portile2 (~> 2.8.0)
     sqlite3 (1.6.0-arm64-darwin)
+    sqlite3 (1.6.0-x86_64-darwin)
     sqlite3 (1.6.0-x86_64-linux)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -82,6 +83,7 @@ GEM
 PLATFORMS
   arm64-darwin-22
   ruby
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
