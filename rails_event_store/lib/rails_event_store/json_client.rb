@@ -30,7 +30,7 @@ module RailsEventStore
       repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
       subscriptions: RubyEventStore::Subscriptions.new,
       dispatcher: RubyEventStore::ComposedDispatcher.new(
-        RailsEventStore::AfterCommitAsyncDispatcher.new(
+        RailsEventStore::AfterCommitDispatcher.new(
           scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         ),
         RubyEventStore::Dispatcher.new
