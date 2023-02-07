@@ -926,7 +926,7 @@ module RubyEventStore
         Client.new(
           repository: InMemoryRepository.new(serializer: serializer),
           dispatcher:
-            ImmediateAsyncDispatcher.new(
+            ImmediateDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer)
             )
         )
@@ -948,7 +948,7 @@ module RubyEventStore
         Client.new(
           repository: InMemoryRepository.new(serializer: serializer_1),
           dispatcher:
-            ImmediateAsyncDispatcher.new(
+            ImmediateDispatcher.new(
               scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
             )
         )

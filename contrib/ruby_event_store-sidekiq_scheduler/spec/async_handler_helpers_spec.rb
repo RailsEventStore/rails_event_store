@@ -13,7 +13,7 @@ module RubyEventStore
     let(:event_store) do
       RubyEventStore::Client.new(
         dispatcher:
-          ImmediateAsyncDispatcher.new(
+          ImmediateDispatcher.new(
             scheduler: SidekiqScheduler.new(serializer: serializer)
           )
       )

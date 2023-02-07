@@ -71,7 +71,7 @@ module RailsEventStore
     let(:another_event_store) { RailsEventStore::Client.new }
     let(:json_event_store) do
       RailsEventStore::Client.new(
-        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON))
+        dispatcher: RubyEventStore::ImmediateDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON))
       )
     end
     let(:application) { instance_double(Rails::Application) }
