@@ -7,11 +7,21 @@ class Profile
   private attr_reader :options, :location
 
   def client
-    postgres? ? "RailsEventStore::JSONClient.new" : "RailsEventStore::Client.new"
+    if postgres? || mysql?
+      "RailsEventStore::JSONClient.new"
+    else
+      "RailsEventStore::Client.new"
+    end
   end
 
   def data_type
-    postgres? ? "jsonb" : "binary"
+    if postgres?
+      "jsonb"
+    elsif mysql?
+      "json"
+    else
+      "binary"
+    end
   end
 
   def for_existing_app
@@ -22,6 +32,10 @@ class Profile
 
   def existing_app?
     !!location
+  end
+
+  def mysql?
+    database.downcase.eql?("mysql2") || database.downcase.eql?("mysql")
   end
 
   def postgres?
