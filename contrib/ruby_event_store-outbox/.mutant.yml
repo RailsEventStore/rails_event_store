@@ -7,8 +7,11 @@ requires:
 includes:
   - lib
 integration: rspec
+mutation:
+  timeout: 10.0
 coverage_criteria:
   process_abort: true
+  timeout: true
 matcher:
   subjects:
     - RubyEventStore::Outbox*
