@@ -56,7 +56,7 @@ initModel flags eventId =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.map SpinnerTicked Spinner.subscription
 
 
