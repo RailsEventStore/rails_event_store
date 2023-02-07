@@ -3,7 +3,29 @@
 module RailsEventStore
   class JSONClient < Client
     def initialize(
-      mapper: RubyEventStore::Mappers::Default.new,
+      mapper:
+        RubyEventStore::Mappers::PipelineMapper.new(
+          RubyEventStore::Mappers::Pipeline.new(
+            RubyEventStore::Mappers::Transformation::PreserveTypes
+              .new
+              .register(Symbol, serializer: ->(v) { v.to_s }, deserializer: ->(v) { v.to_sym })
+              .register(
+                Time,
+                serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
+                deserializer: ->(v) { Time.iso8601(v) }
+              )
+              .register(
+                ActiveSupport::TimeWithZone,
+                serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
+                deserializer: ->(v) { Time.iso8601(v).in_time_zone },
+                stored_type: ->(*) { "ActiveSupport::TimeWithZone" }
+              )
+              .register(Date, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { Date.iso8601(v) })
+              .register(DateTime, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { DateTime.iso8601(v) })
+              .register(BigDecimal, serializer: ->(v) { v.to_s }, deserializer: ->(v) { BigDecimal(v) }),
+            RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new
+          )
+        ),
       repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
       subscriptions: RubyEventStore::Subscriptions.new,
       dispatcher: RubyEventStore::ComposedDispatcher.new(
@@ -17,32 +39,7 @@ module RailsEventStore
       request_metadata: default_request_metadata
     )
       super(
-        mapper:
-          RubyEventStore::Mappers::InstrumentedMapper.new(
-            RubyEventStore::Mappers::PipelineMapper.new(
-              RubyEventStore::Mappers::Pipeline.new(
-                RubyEventStore::Mappers::Transformation::PreserveTypes
-                  .new
-                  .register(Symbol, serializer: ->(v) { v.to_s }, deserializer: ->(v) { v.to_sym })
-                  .register(
-                    Time,
-                    serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
-                    deserializer: ->(v) { Time.iso8601(v) }
-                  )
-                  .register(
-                    ActiveSupport::TimeWithZone,
-                    serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
-                    deserializer: ->(v) { Time.iso8601(v).in_time_zone },
-                    stored_type: ->(*) { "ActiveSupport::TimeWithZone" }
-                  )
-                  .register(Date, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { Date.iso8601(v) })
-                  .register(DateTime, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { DateTime.iso8601(v) })
-                  .register(BigDecimal, serializer: ->(v) { v.to_s }, deserializer: ->(v) { BigDecimal(v) }),
-                RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new
-              )
-            ),
-            ActiveSupport::Notifications
-          ),
+        mapper: RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
         repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
         subscriptions: RubyEventStore::InstrumentedSubscriptions.new(subscriptions, ActiveSupport::Notifications),
         clock: clock,
