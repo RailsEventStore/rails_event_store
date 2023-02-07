@@ -38,11 +38,11 @@ module RubyEventStore
     specify "calls subscribed class" do
       expect(HandlerClass).to receive(:new).and_return(handler)
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(HandlerClass, event, record)
+      Dispatcher.new.call(-> (event) { HandlerClass.new.call(event) }, event, record)
     end
 
     specify "allows callable classes and instances" do
-      expect(Dispatcher.new.verify(HandlerClass)).to eq(true)
+      expect(Dispatcher.new.verify(-> { HandlerClass.new })).to eq(true)
       expect(Dispatcher.new.verify(HandlerClass.new)).to eq(true)
       expect(Dispatcher.new.verify(Proc.new { "yo" })).to eq(true)
     end
