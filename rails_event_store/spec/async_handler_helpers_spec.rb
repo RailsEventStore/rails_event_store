@@ -54,6 +54,18 @@ module RailsEventStore
     end
   end
 
+  class IdOnlyHandler < ActiveJob::Base
+    def perform(event)
+      $queue.push(event)
+    end
+  end
+
+  class YetAnotherIdOnlyHandler < ActiveJob::Base
+    def perform(event)
+      $queue.push(event)
+    end
+  end
+
   ::RSpec.describe AsyncHandler do
     let(:event_store) { RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:another_event_store) { RailsEventStore::Client.new }
@@ -159,6 +171,32 @@ module RailsEventStore
       ev = event_store.read.event(ev.event_id)
       HandlerB.perform_now(serialize_without_correlation_id(ev))
       expect($queue.pop).to eq({ correlation_id: nil, causation_id: ev.event_id })
+    end
+
+    specify "ActiveJob with AsyncHandlerJobIdOnly prepended" do
+      HandlerD = Class.new(IdOnlyHandler)
+      HandlerD.prepend AsyncHandlerJobIdOnly
+      event_store.subscribe_to_all_events(HandlerD)
+      event_store.publish(ev = RubyEventStore::Event.new)
+
+      expect($queue.pop).to eq(ev)
+    end
+
+    specify "ActiveJob with AsyncHandlerJobIdOnly prepended with event store locator" do
+      HandlerE = Class.new(IdOnlyHandler)
+      HandlerE.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
+      event_store.subscribe_to_all_events(HandlerE)
+      event_store.publish(ev = RubyEventStore::Event.new)
+
+      expect($queue.pop).to eq(ev)
+    end
+
+    specify "ActiveJob with AsyncHandlerJobIdOnly prepended to host class" do
+      YetAnotherIdOnlyHandler.prepend AsyncHandlerJobIdOnly
+      event_store.subscribe_to_all_events(YetAnotherIdOnlyHandler)
+      event_store.publish(ev = RubyEventStore::Event.new)
+
+      expect($queue.pop).to eq(ev)
     end
 
     private
