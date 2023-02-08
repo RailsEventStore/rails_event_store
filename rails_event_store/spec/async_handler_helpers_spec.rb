@@ -146,7 +146,7 @@ module RailsEventStore
       Sidekiq::Testing.fake! do
         event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
         event_store.publish(ev)
-        Thread.new { Sidekiq::Worker.drain_all }.join
+        Sidekiq::Worker.drain_all
       end
       expect($queue.pop).to eq(ev)
     end
