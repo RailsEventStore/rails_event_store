@@ -9,7 +9,7 @@
     "chokidar-cli": "^3.0.0",
     "elm": "^0.19.1-5",
     "elm-test": "^0.19.1-revision11",
-    "tailwindcss": "^3.2.4",
+    "tailwindcss": "^3.2.6",
     "uglify-js": "^3.17.4"
   }
 }
