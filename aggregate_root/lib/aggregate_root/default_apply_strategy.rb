@@ -32,4 +32,5 @@ module AggregateRoot
 
     attr_reader :strict, :on_methods
   end
+  private_constant :DefaultApplyStrategy
 end
