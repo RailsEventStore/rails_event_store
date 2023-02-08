@@ -55,7 +55,7 @@ module RailsEventStore
   end
 
   ::RSpec.describe AsyncHandler do
-    let(:event_store) { RailsEventStore::Client.new }
+    let(:event_store) { RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
     let(:another_event_store) { RailsEventStore::Client.new }
     let(:json_event_store) do
       RailsEventStore::Client.new(
