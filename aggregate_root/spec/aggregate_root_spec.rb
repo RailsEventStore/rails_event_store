@@ -68,7 +68,7 @@ require "spec_helper"
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
     klass =
-      Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
+      Class.new { include AggregateRoot.with_default_apply_strategy(strict: false) }
     order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to_not raise_error
