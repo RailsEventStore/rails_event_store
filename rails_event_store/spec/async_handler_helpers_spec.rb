@@ -148,7 +148,7 @@ module RailsEventStore
         event_store.publish(ev)
         Sidekiq::Worker.drain_all
       end
-      expect($queue.pop).to eq(ev)
+      expect($queue.pop(true)).to eq(ev)
     end
 
     specify "CorrelatedHandler with event not yet scheduled with correlation_id" do
