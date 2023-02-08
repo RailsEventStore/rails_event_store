@@ -84,6 +84,14 @@ module AggregateRoot
     end
   end
 
+  def self.with_non_strict_default_apply_strategy
+    Module.new do
+      def self.included(host_class)
+        host_class.include AggregateRoot.with_strategy(-> { DefaultApplyStrategy.new(strict: false) })
+      end
+    end
+  end
+
   def self.with_strategy(strategy)
     Module.new do
       def self.included(host_class)
