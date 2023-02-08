@@ -68,7 +68,7 @@ require "spec_helper"
 
   it "should ignore missing apply method based on a default non-strict apply strategy" do
     klass =
-      Class.new { include AggregateRoot.with_default_apply_strategy(strict: false) }
+      Class.new { include AggregateRoot.with_default_strategy(strict: false) }
     order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to_not raise_error
@@ -111,7 +111,7 @@ require "spec_helper"
   end
 
   it "ruby 2.7 compatibility" do
-    klass = Class.new { include AggregateRoot.with_default_apply_strategy }
+    klass = Class.new { include AggregateRoot.with_default_strategy }
 
     # This is just a way to ensure that the AggregateMethods was included on
     # the klass directly, not that it was an include to the anonymous module.
