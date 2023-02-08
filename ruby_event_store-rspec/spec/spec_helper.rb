@@ -9,7 +9,7 @@ BarEvent = Class.new(RubyEventStore::Event)
 BazEvent = Class.new(RubyEventStore::Event)
 
 class TestAggregate
-  include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) })
+  include AggregateRoot.with_default_strategy(strict: false)
 
   def foo
     apply(FooEvent.new)
