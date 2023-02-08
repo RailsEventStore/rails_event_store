@@ -12,7 +12,7 @@ module RubyEventStore
             )
         )
       end
-      let(:handler) { Handler }
+      let(:handler) { Handler.new }
 
       def matcher(*expected)
         HaveSubscribedToEvents.new(*expected, differ: colorless_differ, phraser: phraser)

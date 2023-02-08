@@ -19,9 +19,10 @@ module RubyEventStore
         specify { expect(matchers.have_subscribed_to_events(FooEvent, BarEvent)).to be_an(HaveSubscribedToEvents) }
 
         specify do
-          event_store.subscribe(Handler, to: [FooEvent])
-          expect(Handler).to matchers.have_subscribed_to_events(FooEvent).in(event_store)
-          expect(Handler).not_to matchers.have_subscribed_to_events(BarEvent).in(event_store)
+          handler = Handler.new
+          event_store.subscribe(handler, to: [FooEvent])
+          expect(handler).to matchers.have_subscribed_to_events(FooEvent).in(event_store)
+          expect(handler).not_to matchers.have_subscribed_to_events(BarEvent).in(event_store)
         end
       end
 
