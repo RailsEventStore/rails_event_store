@@ -8,7 +8,7 @@ module RubyEventStore
       repository: InMemoryRepository.new,
       mapper: Mappers::Default.new,
       subscriptions: Subscriptions.new,
-      dispatcher: Dispatcher.new,
+      dispatcher: SyncScheduler.new,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       event_type_resolver: EventTypeResolver.new

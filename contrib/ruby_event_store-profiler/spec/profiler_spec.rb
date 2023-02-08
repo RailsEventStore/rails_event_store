@@ -7,7 +7,7 @@ module RubyEventStore
       Client.new(
         repository: InstrumentedRepository.new(InMemoryRepository.new, instrumenter),
         mapper: Mappers::InstrumentedMapper.new(Mappers::Default.new, instrumenter),
-        dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)
+        dispatcher: InstrumentedDispatcher.new(SyncScheduler.new, instrumenter)
       )
     end
 

@@ -3,7 +3,7 @@ RSpec.shared_examples :broker do |broker_klass|
   let(:record) { instance_double(::RubyEventStore::Record) }
   let(:handler) { HandlerClass.new }
   let(:subscriptions) { ::RubyEventStore::Subscriptions.new }
-  let(:dispatcher) { ::RubyEventStore::Dispatcher.new }
+  let(:dispatcher) { ::RubyEventStore::SyncScheduler.new }
   let(:broker) { broker_klass.new(subscriptions: subscriptions, dispatcher: dispatcher) }
 
   specify "no dispatch when no subscriptions" do
@@ -48,7 +48,7 @@ RSpec.shared_examples :broker do |broker_klass|
     allow(dispatcher).to receive(:verify).and_return(false)
     expect { broker.add_subscription(HandlerClass, []) }.to raise_error(
       RubyEventStore::InvalidHandler,
-      /Handler HandlerClass is invalid for dispatcher .*Dispatcher/
+      /Handler HandlerClass is invalid for dispatcher .*SyncScheduler/
     )
     expect { broker.add_global_subscription(HandlerClass) }.to raise_error(
       RubyEventStore::InvalidHandler,

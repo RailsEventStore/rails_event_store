@@ -28,7 +28,7 @@ module RubyEventStore
           dispatcher:
             ComposedDispatcher.new(
               ImmediateDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: NULL)),
-              Dispatcher.new
+              SyncScheduler.new
             )
         )
       client.subscribe(->(ev) { @ev = ev }, to: [ResTesting::OrderCreated.descriptor.name])

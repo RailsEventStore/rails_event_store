@@ -12,7 +12,7 @@ module RailsEventStore
         RailsEventStore::AfterCommitDispatcher.new(
           scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         ),
-        RubyEventStore::Dispatcher.new
+        RubyEventStore::SyncScheduler.new
       ),
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
