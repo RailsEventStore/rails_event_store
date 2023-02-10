@@ -4,8 +4,7 @@ require "concurrent"
 
 module RubyEventStore
   class Subscriptions
-    def initialize(event_type_resolver: default_event_type_resolver)
-      @event_type_resolver = event_type_resolver
+    def initialize
       @local = LocalSubscriptions.new
       @global = GlobalSubscriptions.new
       @thread = ThreadSubscriptions.new
@@ -31,15 +30,9 @@ module RubyEventStore
       [local, global, thread].map { |r| r.all_for(event_type) }.reduce(&:+)
     end
 
-    attr_reader :event_type_resolver
-
     private
 
     attr_reader :local, :global, :thread
-
-    def default_event_type_resolver
-      ->(value) { value.to_s }
-    end
 
     class ThreadSubscriptions
       def initialize

@@ -10,7 +10,8 @@ module RubyEventStore
       subscriptions: Subscriptions.new,
       dispatcher: Dispatcher.new,
       clock: default_clock,
-      correlation_id_generator: default_correlation_id_generator
+      correlation_id_generator: default_correlation_id_generator,
+      event_type_resolver: EventTypeResolver
     )
       @repository = repository
       @mapper = mapper
@@ -19,7 +20,7 @@ module RubyEventStore
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
-      @event_type_resolver = subscriptions.event_type_resolver
+      @event_type_resolver = event_type_resolver
     end
 
     # Persists events and notifies subscribed handlers about them
