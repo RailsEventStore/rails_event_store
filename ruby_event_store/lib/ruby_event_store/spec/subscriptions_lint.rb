@@ -116,10 +116,18 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
   end
 
   it 'subscribes by type of event which is a class' do
-    handler         = TestHandler.new
+    handler = TestHandler.new
     subscriptions.add_subscription(handler, ['Test1DomainEvent'])
     subscriptions.add_thread_subscription(handler, ['Test1DomainEvent'])
 
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler, handler])
+  end
+
+  it "has default event type resolver" do
+    expect(subscriptions.event_type_resolver).to_not be_nil
+  end
+
+  it "default type resolver returns event type as string" do
+    expect(subscriptions.event_type_resolver.call(Test1DomainEvent)).to eq("Test1DomainEvent")
   end
 end
