@@ -11,7 +11,7 @@ module RubyEventStore
       dispatcher: Dispatcher.new,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
-      event_type_resolver: EventTypeResolver
+      event_type_resolver: EventTypeResolver.new
     )
       @repository = repository
       @mapper = mapper
@@ -144,7 +144,7 @@ module RubyEventStore
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       subscriber ||= proc
-      broker.add_subscription(subscriber, to.map(&event_type_resolver))
+      broker.add_subscription(subscriber, to.map { |event_klass| event_type_resolver.call(event_klass) })
     end
 
     # Subscribes a handler (subscriber) that will be invoked for all published events
@@ -213,7 +213,7 @@ module RubyEventStore
       #   @return [self]
       def subscribe(handler = nil, to:, &handler2)
         raise ArgumentError if handler && handler2
-        @subscribers[handler || handler2] += Array(to).map(&resolver)
+        @subscribers[handler || handler2] += Array(to).map { |event_klass| resolver.call(event_klass) }
         self
       end
 
