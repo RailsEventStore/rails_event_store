@@ -869,9 +869,8 @@ module RubyEventStore
             end
           end
 
-        subscriptions = Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type })
         client =
-          Client.new(subscriptions: subscriptions)
+          Client.new(event_type_resolver: ->(klass) { klass.event_type })
         client.subscribe(handler = Proc.new {}, to: [event_klass])
 
         expect(client.subscribers_for(event_klass)).to eq [handler]
@@ -957,7 +956,7 @@ module RubyEventStore
           end
         end
 
-      client = Client.new(subscriptions: Subscriptions.new(event_type_resolver: ->(klass) { klass.event_type }))
+      client = Client.new(event_type_resolver: ->(klass) { klass.event_type })
       client.subscribe(listener, to: [event_klass])
       client.publish(event_klass.new)
       event = listener.value

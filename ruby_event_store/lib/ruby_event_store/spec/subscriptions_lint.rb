@@ -122,12 +122,4 @@ RSpec.shared_examples :subscriptions do |subscriptions_class|
 
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler, handler])
   end
-
-  it "has default event type resolver" do
-    expect(subscriptions.event_type_resolver).to_not be_nil
-  end
-
-  it "default type resolver returns event type as string" do
-    expect(subscriptions.event_type_resolver.call(Test1DomainEvent)).to eq("Test1DomainEvent")
-  end
 end
