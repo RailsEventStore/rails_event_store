@@ -4,8 +4,6 @@ module RubyEventStore
   class Projection
     private_class_method :new
 
-    ANONYMOUS_CLASS = "#<Class:".freeze
-
     def initialize(initial_state = nil)
       @handlers = {}
       @init = -> { initial_state }
@@ -20,7 +18,6 @@ module RubyEventStore
 
       event_klasses.each do |event_klass|
         name = event_klass.to_s
-        raise(ArgumentError, 'Anonymous class is missing name') if name.start_with? ANONYMOUS_CLASS
 
         @handlers[name] = ->(state, event) { block.call(state, event) }
       end

@@ -256,16 +256,6 @@ require "spec_helper"
       order.apply(Orders::Events::OrderExpired.new)
       expect(order.status).to eq(%i[base_expired inherited_expired])
     end
-
-    it "does not support anonymous events" do
-      expect do
-        Class.new do
-          include AggregateRoot
-
-          on(Class.new) { |_ev| }
-        end
-      end.to raise_error(ArgumentError, "Anonymous class is missing name")
-    end
   end
 
   describe "#initialize" do
