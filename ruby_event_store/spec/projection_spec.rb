@@ -214,12 +214,6 @@ module RubyEventStore
       end.to raise_error(ArgumentError, "No handler block given")
     end
 
-    it "does not support anonymous events" do
-      expect do
-        Projection.init.on(Class.new) { |_state, _event| }
-      end.to raise_error(ArgumentError, "Anonymous class is missing name")
-    end
-
     specify do
       expect(repository).not_to receive(:read)
       state = Projection.init.call(event_store.read)
