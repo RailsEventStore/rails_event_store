@@ -228,5 +228,33 @@ module RubyEventStore
 
       expect(state).to eq(initial_state)
     end
+
+    specify "events with event type defined as class method" do
+      class Snowflake < Event
+        def self.event_type
+          "snowflake"
+        end
+      end
+
+      class SnowflakeV2 < Event
+        def self.event_type
+          "snowflake"
+        end
+      end
+
+      event_store.append(Snowflake.new(data: { arms: 13 }), stream_name: "snowflake$1")
+      event_store.append(SnowflakeV2.new(data: { arms: 11 }), stream_name: "snowflake$1")
+
+      state =
+        Projection
+          .init({ snowflake: 0 })
+          .on(Snowflake, SnowflakeV2) do |state, event|
+            state[event.class.event_type.to_sym] += event.data.fetch(:arms)
+            state
+          end
+          .call(event_store.read.stream("snowflake$1"))
+
+      expect(state).to eq({ snowflake: 24 })
+    end
   end
 end
