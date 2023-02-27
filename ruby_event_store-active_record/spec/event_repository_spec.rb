@@ -212,7 +212,7 @@ module RubyEventStore
                     2
       end
 
-      specify "with batches and non-bi-temporal queries use monotnic ids" do
+      specify "with batches and non-bi-temporal queries use monotonic ids" do
         repository.append_to_stream(
           [
             SRecord.new(
