@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
     "rubygems_mfa_required" => "true"
   }
 
-  spec.required_ruby_version = ">= 2.5"
+  spec.required_ruby_version = ">= 2.7"
 
   spec.add_dependency "dry-container", ">= 0.6"
   spec.add_dependency "dry-initializer", ">= 3.0"
