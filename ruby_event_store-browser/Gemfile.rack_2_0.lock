@@ -102,6 +102,7 @@ GEM
       nokogiri (~> 1.8)
 
 PLATFORMS
+  arm64-darwin-21
   arm64-darwin-22
   ruby
   x86_64-darwin-22
