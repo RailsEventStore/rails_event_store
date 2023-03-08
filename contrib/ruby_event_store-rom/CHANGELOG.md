@@ -1,3 +1,15 @@
+### Unreleased
+
+- Add: Support for Ruby 3.0 [59027ff8ad078e0948bbb190b8a6985c075dcc08]
+
+- Add: Support for `event_in_stream?` queries [56ecdccfde5c2c794fcf01fa7ef396c18c558ec2]
+
+  Read more: https://railseventstore.org/docs/v2/read/#position-of-an-event-in-the-stream
+
+- Fix: Correct initialization for ROM to run migrations [#1262, a6accaf89c1fbeb172d0b5acf8c3fb9917328be6]
+
+- Fix: Compatibility with Psych 4.x by introducing `RubyEventStore::Serializers::YAML` as default serializer  [7917bbd64238d2239294daec360dd9a1a4746ec2]
+
 ### 2.0.0
 
 This release brings compatibility of `RubyEventStore::ROM::EventRepository` with RubyEventStore >= 2.0.
