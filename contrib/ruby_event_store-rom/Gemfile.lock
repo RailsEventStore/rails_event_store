@@ -7,7 +7,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-rom (2.0.0)
+    ruby_event_store-rom (2.1.0)
       dry-container (>= 0.6)
       dry-initializer (>= 3.0)
       dry-types (>= 1.0)

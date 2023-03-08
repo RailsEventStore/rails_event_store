@@ -1,4 +1,4 @@
-### Unreleased
+### 2.1.0
 
 - Add: Support for Ruby 3.0 [59027ff8ad078e0948bbb190b8a6985c075dcc08]
 
