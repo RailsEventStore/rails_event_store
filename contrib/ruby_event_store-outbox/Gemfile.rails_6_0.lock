@@ -133,7 +133,7 @@ GEM
       ast (~> 2.4.1)
     pg (1.4.4)
     racc (1.6.2)
-    rack (2.2.4)
+    rack (2.2.6.3)
     rack-protection (3.0.4)
       rack
     rack-test (2.0.2)
