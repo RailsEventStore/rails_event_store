@@ -22,8 +22,8 @@ $(addprefix install-, $(GEMS)):
 $(addprefix local-install-, $(GEMS)):
 	@make -C $(subst local-install-,,$@) local-install
 
-$(addprefix update-, $(GEMS)):
-	@make -C $(subst update-,,$@) update
+$(addprefix update-all-, $(GEMS)):
+	@make -C $(subst update-all-,,$@) update-all
 
 $(addprefix test-, $(GEMS)):
 	@make -C $(call substf,test-,,$@) test
@@ -38,7 +38,7 @@ install: $(addprefix install-, $(GEMS)) ## Install all dependencies
 
 local-install: $(addprefix local-install-, $(GEMS))
 
-update: $(addprefix update-, $(GEMS)) ## Update all dependencies
+update-all: $(addprefix update-all-, $(GEMS)) ## Update all dependencies
 
 test: $(addprefix test-, $(GEMS)) ## Run all unit tests
 
