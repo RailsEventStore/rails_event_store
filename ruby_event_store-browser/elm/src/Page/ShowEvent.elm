@@ -201,51 +201,32 @@ view_ model =
 showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> Html Msg
 showEvent baseUrl event maybeCausedEvents =
     div
-        [ class "py-12"
+        [ class "py-12 px-4 lg:px-8 space-y-10"
         ]
         [ h1
-            [ class "font-bold px-8 text-2xl"
+            [ class "font-bold text-2xl"
             ]
             [ text event.eventType ]
         , div
-            [ class "px-8"
-            ]
-            [ table
-                [ class "my-10 w-full text-left table-fixed border-collapse"
+            []
+            [ div
+                [ class "w-full text-left grid md:grid-cols-3 gap-8 overflow-hidden"
                 ]
-                [ thead
-                    [ class "align-bottom leading-tight"
-                    ]
-                    [ tr []
-                        [ th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs"
-                            ]
-                            [ text "Event id" ]
-                        , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs"
-                            ]
-                            [ text "Raw Data" ]
-                        , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs"
-                            ]
-                            [ text "Raw Metadata" ]
+                [ section [ class "space-y-4" ]
+                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ]
+                        [ button [ class "flex justify-between w-full" ] [ span [] [ text "Event Type" ], span [ class "text-gray-500" ] [ text "copy" ] ]
                         ]
+                    , div [] [ text event.eventId ]
                     ]
-                , tbody [ class "align-top" ]
-                    [ tr []
-                        [ td
-                            [ class "p-0 pt-2"
-                            ]
-                            [ text event.eventId ]
-                        , td
-                            [ class "p-0 pt-2"
-                            ]
-                            [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
-                        , td
-                            [ class "p-0 pt-2"
-                            ]
-                            [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
-                        ]
+                , section [ class "space-y-4" ]
+                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ]
+                        [ button [ class "flex justify-between w-full" ] [ span [] [ text "Raw Data" ], span [ class "text-gray-500" ] [ text "copy" ] ] ]
+                    , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                    ]
+                , section [ class "space-y-4" ]
+                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ]
+                        [ button [ class "flex justify-between w-full" ] [ span [] [ text "Raw Metadata" ], span [ class "text-gray-500" ] [ text "copy" ] ] ]
+                    , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                     ]
                 ]
             ]
@@ -254,8 +235,7 @@ showEvent baseUrl event maybeCausedEvents =
         , case maybeCausedEvents of
             Api.Loading ->
                 div
-                    [ class "px-8 mt-8"
-                    ]
+                    []
                     [ h2
                         [ class "font-bold text-xl"
                         ]
@@ -267,8 +247,7 @@ showEvent baseUrl event maybeCausedEvents =
                 case causedEvents of
                     [] ->
                         div
-                            [ class "px-8 mt-8"
-                            ]
+                            []
                             [ h2
                                 [ class "font-bold text-xl"
                                 ]
@@ -277,8 +256,7 @@ showEvent baseUrl event maybeCausedEvents =
 
                     _ ->
                         div
-                            [ class "px-8 mt-8"
-                            ]
+                            [ class "space-y-4" ]
                             [ h2
                                 [ class "font-bold text-xl"
                                 ]
@@ -296,8 +274,7 @@ streamsOfEvent baseUrl event =
     case event.streams of
         Just streams ->
             div
-                [ class "px-8 mt-8"
-                ]
+                []
                 [ h2
                     [ class "font-bold text-xl"
                     ]
@@ -323,8 +300,7 @@ relatedStreams baseUrl event =
 
     else
         div
-            [ class "px-8 mt-8"
-            ]
+            []
             [ h2
                 [ class "font-bold text-xl"
                 ]
@@ -384,18 +360,18 @@ renderCausedEvents baseUrl causedEvents =
 
         _ ->
             table
-                [ class "my-10 w-full text-left table-fixed border-collapse"
+                [ class "w-full text-left table-fixed border-collapse"
                 ]
                 [ thead
                     [ class "align-bottom leading-tight"
                     ]
                     [ tr []
                         [ th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs"
+                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-2 text-xs"
                             ]
                             [ text "Event name" ]
                         , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs"
+                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-2 text-xs"
                             ]
                             [ text "Event id" ]
                         ]
