@@ -25,7 +25,7 @@ GEM
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.0.4.1)
+    activesupport (7.0.4.3)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -139,7 +139,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activesupport (= 7.0.4.1)
+  activesupport (= 7.0.4.3)
   mutant (= 0.11.18)
   mutant-license!
   mutant-minitest (= 0.11.18)
