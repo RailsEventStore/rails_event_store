@@ -1,5 +1,5 @@
 if defined? RedisClient
-  raise unless RedisClient::VERSION == "0.11.2"
+  raise "RedisClient version changed" unless RedisClient::VERSION == "0.14.1"
 
   class RedisClient
     class Config
