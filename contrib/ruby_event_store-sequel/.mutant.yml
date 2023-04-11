@@ -1,0 +1,15 @@
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+requires:
+  - ruby_event_store/sequel
+includes:
+  - lib
+integration: rspec
+mutation:
+  timeout: 1.0
+coverage_criteria:
+  timeout: true
+  process_abort: true
+matcher:
+  subjects:
+    - RubyEventStore::Sequel*
