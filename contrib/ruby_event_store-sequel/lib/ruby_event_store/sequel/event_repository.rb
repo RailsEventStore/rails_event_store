@@ -15,6 +15,8 @@ module RubyEventStore
           File :metadata
           Time :created_at
           Time :valid_at
+
+          index :event_id, unique: true
         end
         @db.create_table(:event_store_events_in_streams) do
           primary_key :id
@@ -22,6 +24,9 @@ module RubyEventStore
           String :stream
           Integer :position
           Time :created_at
+
+          index [:stream, :position], unique: true
+          index [:stream, :event_id], unique: true
         end
       end
 
@@ -98,6 +103,7 @@ module RubyEventStore
                 :valid_at
               )
               .where(stream: specification.stream.name)
+              .order(::Sequel[:event_store_events_in_streams][:id])
           end
 
         dataset.map do |h|
