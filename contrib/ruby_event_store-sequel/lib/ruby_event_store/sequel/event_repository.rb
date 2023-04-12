@@ -77,21 +77,28 @@ module RubyEventStore
 
       def read(specification)
         dataset =
-          @db[:event_store_events].join(
-            :event_store_events_in_streams,
-            event_id: :event_id
-          ).select(
-            ::Sequel[:event_store_events][:event_id],
-            :event_type,
-            :data,
-            :metadata,
-            ::Sequel[:event_store_events][:created_at],
-            :valid_at
-          )
-        dataset =
-          dataset.where(
-            stream: specification.stream.name
-          ) unless specification.stream.global?
+          if specification.stream.global?
+            @db[:event_store_events].select(
+              :event_id,
+              :event_type,
+              :data,
+              :metadata,
+              :created_at,
+              :valid_at
+            )
+          else
+            @db[:event_store_events]
+              .join(:event_store_events_in_streams, event_id: :event_id)
+              .select(
+                ::Sequel[:event_store_events][:event_id],
+                :event_type,
+                :data,
+                :metadata,
+                ::Sequel[:event_store_events][:created_at],
+                :valid_at
+              )
+              .where(stream: specification.stream.name)
+          end
 
         dataset.map do |h|
           SerializedRecord.new(
