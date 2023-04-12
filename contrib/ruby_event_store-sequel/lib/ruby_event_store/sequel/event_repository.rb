@@ -148,7 +148,12 @@ module RubyEventStore
           stream = read_(specification)
           batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
         RubyEventStore::BatchEnumerator.new(specification.batch_size, specification.limit, batch_reader).each
-
+        elsif specification.first?
+          record_ = read_(specification).first
+          record(record_) if record_
+        elsif specification.last?
+          record_ = read_(specification).last
+          record(record_) if record_
         else
           read_(specification).map do |h|
           record(h)
