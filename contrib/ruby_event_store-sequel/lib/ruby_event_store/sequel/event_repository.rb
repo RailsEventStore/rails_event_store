@@ -31,35 +31,49 @@ module RubyEventStore
       end
 
       def append_to_stream(records, stream, expected_version)
-        records.map do |r|
-          sr = r.serialize(@serializer)
+        resolved_version = expected_version.resolve_for(stream)
 
-          @db[:event_store_events].insert(
-            event_id: sr.event_id,
-            event_type: sr.event_type,
-            data: sr.data,
-            metadata: sr.metadata,
-            created_at: sr.timestamp,
-            valid_at: sr.valid_at
-          )
-          @db[:event_store_events_in_streams].insert(
-            event_id: sr.event_id,
-            stream: stream.name,
-            created_at: Time.now.utc
-          )
+        @db.transaction do
+          records.map.with_index do |r, index|
+            sr = r.serialize(@serializer)
+
+            @db[:event_store_events].insert(
+              event_id: sr.event_id,
+              event_type: sr.event_type,
+              data: sr.data,
+              metadata: sr.metadata,
+              created_at: sr.timestamp,
+              valid_at: sr.valid_at
+            )
+            @db[:event_store_events_in_streams].insert(
+              event_id: sr.event_id,
+              stream: stream.name,
+              created_at: Time.now.utc,
+              position: resolved_version ? resolved_version + index + 1 : nil
+            )
+          end
         end
         self
+      rescue ::Sequel::UniqueConstraintViolation
+        raise WrongExpectedEventVersion
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-        event_ids.map do |event_id|
-          @db[:event_store_events_in_streams].insert(
-            event_id: event_id,
-            stream: stream.name,
-            created_at: Time.now.utc
-          )
+        resolved_version = expected_version.resolve_for(stream)
+
+        @db.transaction do
+          event_ids.map.with_index do |event_id, index|
+            @db[:event_store_events_in_streams].insert(
+              event_id: event_id,
+              stream: stream.name,
+              created_at: Time.now.utc,
+              position: resolved_version ? resolved_version + index + 1 : nil
+            )
+          end
         end
         self
+      rescue ::Sequel::UniqueConstraintViolation
+        raise WrongExpectedEventVersion
       end
 
       def position_in_stream(event_id, stream)
