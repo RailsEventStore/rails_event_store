@@ -172,6 +172,8 @@ module RubyEventStore
               :created_at,
               :valid_at
             )
+            .order(:id)
+
 
           if specification.start
             id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
