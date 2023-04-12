@@ -16,6 +16,13 @@ module RubyEventStore
           Time :created_at
           Time :valid_at
         end
+        @db.create_table(:event_store_events_in_streams) do
+          primary_key :id
+          String :event_id
+          String :stream
+          Integer :position
+          Time :created_at
+        end
       end
 
       def append_to_stream(records, stream, expected_version)
@@ -30,11 +37,23 @@ module RubyEventStore
             created_at: sr.timestamp,
             valid_at: sr.valid_at
           )
+          @db[:event_store_events_in_streams].insert(
+            event_id: sr.event_id,
+            stream: stream.name,
+            created_at: Time.now.utc
+          )
         end
         self
       end
 
       def link_to_stream(event_ids, stream, expected_version)
+        event_ids.map do |event_id|
+          @db[:event_store_events_in_streams].insert(
+            event_id: event_id,
+            stream: stream.name,
+            created_at: Time.now.utc
+          )
+        end
         self
       end
 
@@ -57,7 +76,24 @@ module RubyEventStore
       end
 
       def read(specification)
-        @db[:event_store_events].all.map do |h|
+        dataset =
+          @db[:event_store_events].join(
+            :event_store_events_in_streams,
+            event_id: :event_id
+          ).select(
+            ::Sequel[:event_store_events][:event_id],
+            :event_type,
+            :data,
+            :metadata,
+            ::Sequel[:event_store_events][:created_at],
+            :valid_at
+          )
+        dataset =
+          dataset.where(
+            stream: specification.stream.name
+          ) unless specification.stream.global?
+
+        dataset.map do |h|
           SerializedRecord.new(
             event_id: h[:event_id],
             event_type: h[:event_type],
