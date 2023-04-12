@@ -6,6 +6,7 @@ module RubyEventStore
       def initialize(serializer:)
         @serializer = serializer
         @db = ::Sequel.sqlite
+        @db.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
         @db.create_table(:event_store_events) do
           primary_key :id
           String :event_id
