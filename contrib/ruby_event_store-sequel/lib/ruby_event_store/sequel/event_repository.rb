@@ -155,10 +155,9 @@ module RubyEventStore
           record_ = read_(specification).last
           record(record_) if record_
         else
-          read_(specification).map do |h|
-          record(h)
-        end.each
-
+            read_(specification).map do |h|
+            record(h)
+          end.each
         end
       end
 
