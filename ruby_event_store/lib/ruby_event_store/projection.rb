@@ -4,7 +4,7 @@ module RubyEventStore
   class Projection
     private_class_method :new
 
-    def initialize(initial_state = nil, event_type_resolver)
+    def initialize(initial_state, event_type_resolver)
       @handlers = {}
       @event_type_resolver = event_type_resolver
       @init = -> { initial_state }
