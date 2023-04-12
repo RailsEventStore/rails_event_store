@@ -117,8 +117,8 @@ module RubyEventStore
       end
 
       def read(specification)
-        dataset =
-          if specification.stream.global?
+        if specification.stream.global?
+          dataset =
             @db[:event_store_events].select(
               :event_id,
               :event_type,
@@ -127,7 +127,10 @@ module RubyEventStore
               :created_at,
               :valid_at
             )
-          else
+          dataset = dataset.limit(specification.limit) if specification.limit?
+          dataset
+        else
+          dataset =
             @db[:event_store_events]
               .join(:event_store_events_in_streams, event_id: :event_id)
               .select(
@@ -140,7 +143,7 @@ module RubyEventStore
               )
               .where(stream: specification.stream.name)
               .order(::Sequel[:event_store_events_in_streams][:id])
-          end
+        end
 
         dataset.map do |h|
           SerializedRecord.new(
