@@ -116,6 +116,21 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
+        row =
+          @db[:event_store_events_in_streams]
+            .where(stream: stream.name)
+            .order(:position, :id)
+            .last
+        return row if row.nil?
+        event = @db[:event_store_events].where(event_id: row[:event_id]).first
+        SerializedRecord.new(
+          event_id: event[:event_id],
+          event_type: event[:event_type],
+          data: event[:data],
+          metadata: event[:metadata],
+          timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
+          valid_at: event[:valid_at].iso8601(TIMESTAMP_PRECISION)
+        ).deserialize(@serializer)
       end
 
       def read(specification)
