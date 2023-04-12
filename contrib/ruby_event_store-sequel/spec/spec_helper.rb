@@ -37,19 +37,19 @@ module RubyEventStore
       end
 
       def supports_upsert?
-        true
+        false
       end
 
       def supports_position_queries?
-        true
+        false
       end
 
       def supports_event_in_stream_query?
-        true
+        false
       end
 
       def has_connection_pooling?
-        true
+        false
       end
 
       def connection_pool_size
