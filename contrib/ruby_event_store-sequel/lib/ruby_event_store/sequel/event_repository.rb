@@ -264,6 +264,10 @@ module RubyEventStore
       end
 
       def streams_of(event_id)
+        @db[:event_store_events_in_streams].where(event_id: event_id)
+          .map do |h|
+            Stream.new(h[:stream])
+          end
       end
 
       def record(h)
