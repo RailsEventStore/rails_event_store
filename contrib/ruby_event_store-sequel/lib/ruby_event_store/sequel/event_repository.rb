@@ -112,6 +112,7 @@ module RubyEventStore
       end
 
       def has_event?(event_id)
+        @db[:event_store_events].where(event_id: event_id).any?
       end
 
       def last_stream_event(stream)
