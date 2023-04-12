@@ -4,20 +4,21 @@ module RubyEventStore
   class Projection
     private_class_method :new
 
-    def initialize(initial_state = nil)
+    def initialize(initial_state = nil, event_type_resolver)
       @handlers = {}
+      @event_type_resolver = event_type_resolver
       @init = -> { initial_state }
     end
 
-    def self.init(initial_state = nil)
-      new(initial_state)
+    def self.init(initial_state = nil, event_type_resolver: EventTypeResolver.new)
+      new(initial_state, event_type_resolver)
     end
 
     def on(*event_klasses, &block)
       raise(ArgumentError, 'No handler block given') unless block_given?
 
       event_klasses.each do |event_klass|
-        name = event_klass.to_s
+        name = @event_type_resolver.call(event_klass)
 
         @handlers[name] = ->(state, event) { block.call(state, event) }
       end

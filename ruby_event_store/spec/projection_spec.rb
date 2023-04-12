@@ -229,15 +229,29 @@ module RubyEventStore
       expect(state).to eq(initial_state)
     end
 
-    specify "events with event type defined as class method" do
+    specify "events with custom event type" do
+      class CustomResolver
+        def call(event)
+          event.resolves_as
+        end
+      end
+
       class Snowflake < Event
-        def self.event_type
+        def self.resolves_as
+          "snowflake"
+        end
+
+        def event_type
           "snowflake"
         end
       end
 
       class SnowflakeV2 < Event
-        def self.event_type
+        def self.resolves_as
+          "snowflake"
+        end
+
+        def event_type
           "snowflake"
         end
       end
@@ -247,9 +261,9 @@ module RubyEventStore
 
       state =
         Projection
-          .init({ snowflake: 0 })
+          .init({ snowflake: 0 }, event_type_resolver: CustomResolver.new)
           .on(Snowflake, SnowflakeV2) do |state, event|
-            state[event.class.event_type.to_sym] += event.data.fetch(:arms)
+            state[:snowflake] += event.data.fetch(:arms)
             state
           end
           .call(event_store.read.stream("snowflake$1"))
