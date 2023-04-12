@@ -59,7 +59,7 @@ module RubyEventStore
       )
 
       stats =
-        Projection.init({})
+        Projection.init({}, **{})
           .on(MoneyDeposited) { |state, event| state[:last_deposit] = event.data[:amount]; state }
           .on(MoneyWithdrawn) { |state, event| state[:last_withdrawal] = event.data[:amount]; state }
           .call(event_store.read.stream(stream_name))
