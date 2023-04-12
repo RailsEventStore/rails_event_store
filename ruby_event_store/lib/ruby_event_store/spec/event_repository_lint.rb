@@ -69,7 +69,7 @@ module RubyEventStore
       read_events(repository, specification.backward, stream, from: from, to: to, count: count)
     end
 
-    it "just created is empty" do
+    specify "just created is empty" do
       expect(read_events_forward(repository)).to be_empty
     end
 
