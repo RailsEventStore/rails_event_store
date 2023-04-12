@@ -218,7 +218,7 @@ module RubyEventStore
             timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
             valid_at: h[:valid_at].iso8601(TIMESTAMP_PRECISION)
           ).deserialize(@serializer)
-        end
+        end.each
       end
 
       def count(specification)
