@@ -65,19 +65,3 @@ module RubyEventStore
     end
   end
 end
-
-::RSpec::Matchers.define :match_query_count do |expected_count|
-  match do |query|
-    count = 0
-    ActiveSupport::Notifications.subscribed(
-      lambda do |_name, _started, _finished, _unique_id, payload|
-        count += 1 unless %w[CACHE SCHEMA].include?(payload[:name])
-      end,
-      "sequel",
-      &actual
-    )
-    values_match?(expected_count, count)
-  end
-  supports_block_expectations
-  diffable
-end
