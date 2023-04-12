@@ -144,7 +144,25 @@ module RubyEventStore
               :created_at,
               :valid_at
             )
+
+          if specification.start
+            id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
+            condition = "event_store_events.id #{specification.forward? ? ">" : "<"} ?"
+
+            dataset = dataset.where(::Sequel.lit(condition, id))
+          end
+
+          if specification.stop
+            id = @db[:event_store_events].select(:id).where(event_id: specification.stop).first[:id]
+            condition = "event_store_events.id #{specification.forward? ? "<" : ">"} ?"
+
+            dataset = dataset.where(::Sequel.lit(condition, id))
+          end
+
+
           dataset = dataset.limit(specification.limit) if specification.limit?
+          dataset = dataset.order(::Sequel[:event_store_events][:id]).reverse if specification.backward?
+
           dataset
         else
           dataset =
