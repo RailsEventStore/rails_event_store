@@ -31,7 +31,18 @@ module RubyEventStore
       end
 
       def append_to_stream(records, stream, expected_version)
-        resolved_version = expected_version.resolve_for(stream)
+        resolved_version =
+          expected_version.resolve_for(
+            stream,
+            ->(stream) do
+              @db[:event_store_events_in_streams]
+                .select(:position)
+                .where(stream: stream.name)
+                .order(:position)
+                .last
+                &.fetch(:position)
+            end
+          )
 
         @db.transaction do
           records.map.with_index do |r, index|
@@ -59,7 +70,18 @@ module RubyEventStore
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-        resolved_version = expected_version.resolve_for(stream)
+        resolved_version =
+          expected_version.resolve_for(
+            stream,
+            ->(stream) do
+              @db[:event_store_events_in_streams]
+                .select(:position)
+                .where(stream: stream.name)
+                .order(:position)
+                .last
+                &.fetch(:position)
+            end
+          )
 
         @db.transaction do
           event_ids.map.with_index do |event_id, index|
