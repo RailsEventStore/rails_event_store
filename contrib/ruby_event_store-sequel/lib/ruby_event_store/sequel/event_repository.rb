@@ -5,6 +5,7 @@ module RubyEventStore
     class EventRepository
       def initialize(serializer:)
         @serializer = serializer
+        @index_violation_detector = IndexViolationDetector.new("event_store_events", "event_store_events_in_streams")
         @db = ::Sequel.sqlite
         @db.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
         @db.create_table(:event_store_events) do
@@ -29,6 +30,8 @@ module RubyEventStore
           index %i[stream event_id], unique: true
         end
       end
+
+      attr_reader :index_violation_detector
 
       def append_to_stream(records, stream, expected_version)
         resolved_version =
