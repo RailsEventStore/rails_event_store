@@ -144,6 +144,20 @@ module RubyEventStore
       end
 
       def read(specification)
+        if specification.batched?
+          stream = read_(specification)
+          batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
+        RubyEventStore::BatchEnumerator.new(specification.batch_size, specification.limit, batch_reader).each
+
+        else
+          read_(specification).map do |h|
+          record(h)
+        end.each
+
+        end
+      end
+
+      def read_(specification)
         if specification.stream.global?
           dataset =
             @db[:event_store_events].select(
@@ -208,17 +222,6 @@ module RubyEventStore
 
           dataset
         end
-
-        dataset.map do |h|
-          SerializedRecord.new(
-            event_id: h[:event_id],
-            event_type: h[:event_type],
-            data: h[:data],
-            metadata: h[:metadata],
-            timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
-            valid_at: h[:valid_at].iso8601(TIMESTAMP_PRECISION)
-          ).deserialize(@serializer)
-        end.each
       end
 
       def count(specification)
@@ -228,6 +231,17 @@ module RubyEventStore
       end
 
       def streams_of(event_id)
+      end
+
+      def record(h)
+         SerializedRecord.new(
+            event_id: h[:event_id],
+            event_type: h[:event_type],
+            data: h[:data],
+            metadata: h[:metadata],
+            timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
+            valid_at: h[:valid_at].iso8601(TIMESTAMP_PRECISION)
+          ).deserialize(@serializer)
       end
     end
   end
