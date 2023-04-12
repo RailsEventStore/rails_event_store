@@ -64,11 +64,12 @@ module RubyEventStore
               stream: stream.name,
               created_at: Time.now.utc,
               position: resolved_version ? resolved_version + index + 1 : nil
-            )
+            ) unless stream.global?
           end
         end
         self
-      rescue ::Sequel::UniqueConstraintViolation
+      rescue ::Sequel::UniqueConstraintViolation => ex
+        raise EventDuplicatedInStream if index_violation_detector.detect(ex.message)
         raise WrongExpectedEventVersion
       end
 
@@ -97,7 +98,8 @@ module RubyEventStore
           end
         end
         self
-      rescue ::Sequel::UniqueConstraintViolation
+      rescue ::Sequel::UniqueConstraintViolation => ex
+        raise EventDuplicatedInStream if index_violation_detector.detect(ex.message)
         raise WrongExpectedEventVersion
       end
 
