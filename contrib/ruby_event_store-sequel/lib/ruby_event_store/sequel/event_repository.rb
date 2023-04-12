@@ -108,6 +108,7 @@ module RubyEventStore
       end
 
       def delete_stream(stream)
+        @db[:event_store_events_in_streams].where(stream: stream.name).delete
       end
 
       def has_event?(event_id)
