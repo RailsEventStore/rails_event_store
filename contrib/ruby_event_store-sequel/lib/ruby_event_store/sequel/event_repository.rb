@@ -178,6 +178,10 @@ module RubyEventStore
               dataset = dataset.where(event_id: specification.with_ids)
             end
 
+            if specification.with_types?
+              dataset = dataset.where(event_type: specification.with_types)
+            end
+
 
           if specification.start
             id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
@@ -212,6 +216,10 @@ module RubyEventStore
               )
               .where(stream: specification.stream.name)
               .order(::Sequel[:event_store_events_in_streams][:id])
+
+            if specification.with_types?
+              dataset = dataset.where(event_type: specification.with_types)
+            end
 
 
           if specification.with_ids?
