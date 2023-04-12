@@ -197,6 +197,10 @@ module RubyEventStore
             dataset = dataset.where(::Sequel.lit(condition, id))
           end
 
+          if specification.older_than
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
+          end
+
 
           dataset = dataset.limit(specification.limit) if specification.limit?
           dataset = dataset.order(::Sequel[:event_store_events][:id]).reverse if specification.backward?
@@ -241,6 +245,10 @@ module RubyEventStore
             dataset = dataset.where(::Sequel.lit(condition, id))
           end
 
+          if specification.older_than
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
+          end
+
           dataset = dataset.limit(specification.limit) if specification.limit?
           dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward?
 
@@ -249,6 +257,7 @@ module RubyEventStore
       end
 
       def count(specification)
+        read_(specification).count
       end
 
       def update_messages(records)
