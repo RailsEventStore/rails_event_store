@@ -25,8 +25,8 @@ module RubyEventStore
           Integer :position
           Time :created_at
 
-          index [:stream, :position], unique: true
-          index [:stream, :event_id], unique: true
+          index %i[stream position], unique: true
+          index %i[stream event_id], unique: true
         end
       end
 
