@@ -160,6 +160,25 @@ module RubyEventStore
               )
               .where(stream: specification.stream.name)
               .order(::Sequel[:event_store_events_in_streams][:id])
+
+          if specification.start
+            id = @db[:event_store_events_in_streams].select(:id).where(event_id: specification.start, stream: specification.stream.name).first[:id]
+            condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
+
+            dataset = dataset.where(::Sequel.lit(condition, id))
+          end
+
+          if specification.stop
+            id = @db[:event_store_events_in_streams].select(:id).where(event_id: specification.stop, stream: specification.stream.name).first[:id]
+            condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
+
+            dataset = dataset.where(::Sequel.lit(condition, id))
+          end
+
+          dataset = dataset.limit(specification.limit) if specification.limit?
+          dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward?
+
+          dataset
         end
 
         dataset.map do |h|
