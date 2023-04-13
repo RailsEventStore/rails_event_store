@@ -111,10 +111,6 @@ module RubyEventStore
         end
       end
 
-      def read_(specification)
-        specification.stream.global? ? read_from_global_stream(specification) : read_from_specific_stream(specification)
-      end
-
       def count(specification)
         read_(specification).count
       end
@@ -124,6 +120,8 @@ module RubyEventStore
       def streams_of(event_id)
         @db[:event_store_events_in_streams].where(event_id: event_id).map { |h| Stream.new(h[:stream]) }
       end
+
+      private
 
       def record(h)
         SerializedRecord
@@ -138,7 +136,9 @@ module RubyEventStore
           .deserialize(@serializer)
       end
 
-      private
+      def read_(specification)
+        specification.stream.global? ? read_from_global_stream(specification) : read_from_specific_stream(specification)
+      end
 
       def resolved_version(expected_version, stream)
         expected_version.resolve_for(
