@@ -261,7 +261,6 @@ module RubyEventStore
 
         if specification.time_sort_by_as_of?
           dataset = dataset.order(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at)"))
-          dataset = dataset.reverse if specification.backward?
         end
 
         dataset = dataset.limit(specification.limit) if specification.limit?
