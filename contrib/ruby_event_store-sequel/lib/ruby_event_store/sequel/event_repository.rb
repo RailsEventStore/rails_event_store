@@ -69,7 +69,9 @@ module RubyEventStore
 
       def global_position(event_id); end
 
-      def event_in_stream?(event_id, stream); end
+      def event_in_stream?(event_id, stream)
+        @db[:event_store_events_in_streams].where(event_id: event_id, stream: stream.name).any?
+      end
 
       def delete_stream(stream)
         @db[:event_store_events_in_streams].where(stream: stream.name).delete

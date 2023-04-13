@@ -49,7 +49,7 @@ module RubyEventStore
       end
 
       def supports_event_in_stream_query?
-        false
+        true
       end
 
       def has_connection_pooling?
