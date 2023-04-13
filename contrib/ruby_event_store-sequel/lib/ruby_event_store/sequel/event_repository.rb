@@ -156,155 +156,7 @@ module RubyEventStore
       end
 
       def read_(specification)
-        if specification.stream.global?
-          dataset =
-            @db[:event_store_events].select(:event_id, :event_type, :data, :metadata, :created_at, :valid_at).order(:id)
-
-          dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
-
-          dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
-
-          if specification.start
-            id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
-            condition = "event_store_events.id #{specification.forward? ? ">" : "<"} ?"
-
-            dataset = dataset.where(::Sequel.lit(condition, id))
-          end
-
-          if specification.stop
-            id = @db[:event_store_events].select(:id).where(event_id: specification.stop).first[:id]
-            condition = "event_store_events.id #{specification.forward? ? "<" : ">"} ?"
-
-            dataset = dataset.where(::Sequel.lit(condition, id))
-          end
-
-          if specification.older_than
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
-          end
-
-          if specification.older_than_or_equal
-            dataset =
-              dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
-          end
-
-          if specification.newer_than
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
-          end
-
-          if specification.newer_than_or_equal
-            dataset =
-              dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
-          end
-
-          if specification.time_sort_by_as_at?
-            dataset = specification.forward? ? dataset.order(:created_at) : dataset.order(:created_at).reverse
-          end
-
-          if specification.time_sort_by_as_of?
-            dataset = specification.forward? ? dataset.order(:valid_at) : dataset.order(:valid_at).reverse
-          end
-
-          dataset = dataset.limit(specification.limit) if specification.limit?
-          dataset = dataset.order(::Sequel[:event_store_events][:id]) unless specification.time_sort_by
-          dataset = dataset.reverse if specification.backward? && !specification.time_sort_by
-
-          dataset
-        else
-          dataset =
-            @db[:event_store_events]
-              .join(:event_store_events_in_streams, event_id: :event_id)
-              .select(
-                ::Sequel[:event_store_events][:event_id],
-                :event_type,
-                :data,
-                :metadata,
-                ::Sequel[:event_store_events][:created_at],
-                :valid_at
-              )
-              .where(stream: specification.stream.name)
-              .order(::Sequel[:event_store_events_in_streams][:id])
-
-          dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
-
-          if specification.with_ids?
-            dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids)
-          end
-
-          if specification.start
-            id =
-              @db[:event_store_events_in_streams]
-                .select(:id)
-                .where(event_id: specification.start, stream: specification.stream.name)
-                .first[
-                :id
-              ]
-            condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
-
-            dataset = dataset.where(::Sequel.lit(condition, id))
-          end
-
-          if specification.stop
-            id =
-              @db[:event_store_events_in_streams]
-                .select(:id)
-                .where(event_id: specification.stop, stream: specification.stream.name)
-                .first[
-                :id
-              ]
-            condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
-
-            dataset = dataset.where(::Sequel.lit(condition, id))
-          end
-
-          if specification.older_than
-            if specification.time_sort_by_as_of?
-              dataset =
-                dataset.where(
-                  ::Sequel.lit(
-                    "COALESCE(event_store_events.valid_at, event_store_events.created_at) < ?",
-                    specification.older_than
-                  )
-                )
-            else
-              dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
-            end
-          end
-
-          if specification.older_than_or_equal
-            dataset =
-              dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
-          end
-
-          if specification.newer_than
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
-          end
-
-          if specification.newer_than_or_equal
-            dataset =
-              dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
-          end
-
-          if specification.time_sort_by_as_at?
-            dataset =
-              if specification.forward?
-                dataset.order(::Sequel[:event_store_events][:created_at])
-              else
-                dataset.order(::Sequel[:event_store_events][:created_at]).reverse
-              end
-          end
-
-          if specification.time_sort_by_as_of?
-            dataset =
-              dataset.order(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at)"))
-            dataset = dataset.reverse if specification.backward?
-          end
-
-          dataset = dataset.limit(specification.limit) if specification.limit?
-          dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward? &&
-            !specification.time_sort_by
-
-          dataset
-        end
+        specification.stream.global? ? read_from_global_stream(specification) : read_from_specific_stream(specification)
       end
 
       def count(specification)
@@ -328,6 +180,155 @@ module RubyEventStore
             valid_at: h[:valid_at].iso8601(TIMESTAMP_PRECISION)
           )
           .deserialize(@serializer)
+      end
+
+      private
+
+      def read_from_specific_stream(specification)
+        dataset =
+          @db[:event_store_events]
+            .join(:event_store_events_in_streams, event_id: :event_id)
+            .select(
+              ::Sequel[:event_store_events][:event_id],
+              :event_type,
+              :data,
+              :metadata,
+              ::Sequel[:event_store_events][:created_at],
+              :valid_at
+            )
+            .where(stream: specification.stream.name)
+            .order(::Sequel[:event_store_events_in_streams][:id])
+
+        dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
+
+        if specification.with_ids?
+          dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids)
+        end
+
+        if specification.start
+          id =
+            @db[:event_store_events_in_streams]
+              .select(:id)
+              .where(event_id: specification.start, stream: specification.stream.name)
+              .first[
+              :id
+            ]
+          condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
+
+          dataset = dataset.where(::Sequel.lit(condition, id))
+        end
+
+        if specification.stop
+          id =
+            @db[:event_store_events_in_streams]
+              .select(:id)
+              .where(event_id: specification.stop, stream: specification.stream.name)
+              .first[
+              :id
+            ]
+          condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
+
+          dataset = dataset.where(::Sequel.lit(condition, id))
+        end
+
+        if specification.older_than
+          if specification.time_sort_by_as_of?
+            dataset =
+              dataset.where(
+                ::Sequel.lit(
+                  "COALESCE(event_store_events.valid_at, event_store_events.created_at) < ?",
+                  specification.older_than
+                )
+              )
+          else
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
+          end
+        end
+
+        if specification.older_than_or_equal
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
+        end
+
+        if specification.newer_than
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
+        end
+
+        if specification.newer_than_or_equal
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
+        end
+
+        if specification.time_sort_by_as_at?
+          dataset =
+            if specification.forward?
+              dataset.order(::Sequel[:event_store_events][:created_at])
+            else
+              dataset.order(::Sequel[:event_store_events][:created_at]).reverse
+            end
+        end
+
+        if specification.time_sort_by_as_of?
+          dataset = dataset.order(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at)"))
+          dataset = dataset.reverse if specification.backward?
+        end
+
+        dataset = dataset.limit(specification.limit) if specification.limit?
+        dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward? &&
+          !specification.time_sort_by
+
+        dataset
+      end
+
+      def read_from_global_stream(specification)
+        dataset =
+          @db[:event_store_events].select(:event_id, :event_type, :data, :metadata, :created_at, :valid_at).order(:id)
+
+        dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
+
+        dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
+
+        if specification.start
+          id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
+          condition = "event_store_events.id #{specification.forward? ? ">" : "<"} ?"
+
+          dataset = dataset.where(::Sequel.lit(condition, id))
+        end
+
+        if specification.stop
+          id = @db[:event_store_events].select(:id).where(event_id: specification.stop).first[:id]
+          condition = "event_store_events.id #{specification.forward? ? "<" : ">"} ?"
+
+          dataset = dataset.where(::Sequel.lit(condition, id))
+        end
+
+        if specification.older_than
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
+        end
+
+        if specification.older_than_or_equal
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
+        end
+
+        if specification.newer_than
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
+        end
+
+        if specification.newer_than_or_equal
+          dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
+        end
+
+        if specification.time_sort_by_as_at?
+          dataset = specification.forward? ? dataset.order(:created_at) : dataset.order(:created_at).reverse
+        end
+
+        if specification.time_sort_by_as_of?
+          dataset = specification.forward? ? dataset.order(:valid_at) : dataset.order(:valid_at).reverse
+        end
+
+        dataset = dataset.limit(specification.limit) if specification.limit?
+        dataset = dataset.order(::Sequel[:event_store_events][:id]) unless specification.time_sort_by
+        dataset = dataset.reverse if specification.backward? && !specification.time_sort_by
+
+        dataset
       end
     end
   end
