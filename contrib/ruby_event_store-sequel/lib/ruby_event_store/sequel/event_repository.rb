@@ -16,20 +16,20 @@ module RubyEventStore
         resolved_version = resolved_version(expected_version, stream)
 
         @db.transaction do
-          records.map.with_index do |r, index|
-            sr = r.serialize(@serializer)
+          records.map.with_index do |record, index|
+            serialized_record = record.serialize(@serializer)
 
             @db[:event_store_events].insert(
-              event_id: sr.event_id,
-              event_type: sr.event_type,
-              data: sr.data,
-              metadata: sr.metadata,
-              created_at: r.timestamp,
-              valid_at: r.valid_at
+              event_id: serialized_record.event_id,
+              event_type: serialized_record.event_type,
+              data: serialized_record.data,
+              metadata: serialized_record.metadata,
+              created_at: record.timestamp,
+              valid_at: record.valid_at
             )
             unless stream.global?
               @db[:event_store_events_in_streams].insert(
-                event_id: sr.event_id,
+                event_id: serialized_record.event_id,
                 stream: stream.name,
                 created_at: Time.now.utc,
                 position: resolved_version ? resolved_version + index + 1 : nil
