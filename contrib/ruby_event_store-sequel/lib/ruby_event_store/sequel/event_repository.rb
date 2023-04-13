@@ -265,8 +265,7 @@ module RubyEventStore
         end
 
         dataset = dataset.limit(specification.limit) if specification.limit?
-        dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward? &&
-          !specification.time_sort_by
+        dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward?
 
         dataset
       end
