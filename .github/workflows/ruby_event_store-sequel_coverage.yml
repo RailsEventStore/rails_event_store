@@ -1,0 +1,40 @@
+name: ruby_event_store-sequel_coverage
+on:
+  repository_dispatch:
+    types:
+      - script
+  schedule:
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "contrib/ruby_event_store-sequel/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-sequel_coverage.yml"
+      - "support/**"
+  pull_request:
+    types: [opened, reopened]
+    paths:
+      - "contrib/ruby_event_store-sequel/Gemfile.lock"
+      - ".github/workflows/ruby_event_store-sequel_coverage.yml"
+      - "support/**"
+jobs:
+  mutate:
+    runs-on: ubuntu-20.04
+    env:
+      WORKING_DIRECTORY: contrib/ruby_event_store-sequel
+      BUNDLE_GEMFILE: Gemfile
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-3.1
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
