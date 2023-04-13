@@ -200,7 +200,8 @@ module RubyEventStore
             .order(::Sequel[:event_store_events_in_streams][:id])
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
-        dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids) if specification.with_ids?
+        dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids) if specification
+          .with_ids?
 
         if specification.start
           id =
@@ -229,17 +230,7 @@ module RubyEventStore
         end
 
         if specification.older_than
-          if specification.time_sort_by_as_of?
-            dataset =
-              dataset.where(
-                ::Sequel.lit(
-                  "COALESCE(event_store_events.valid_at, event_store_events.created_at) < ?",
-                  specification.older_than
-                )
-              )
-          else
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
-          end
+          dataset = dataset.where(::Sequel.lit("#{time_comparison_field(specification)} < ?", specification.older_than))
         end
 
         if specification.older_than_or_equal
@@ -254,14 +245,9 @@ module RubyEventStore
           dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
         end
 
-        if specification.time_sort_by_as_at?
-          dataset =
-              dataset.order(::Sequel[:event_store_events][:created_at])
-        end
+        dataset = dataset.order(::Sequel[:event_store_events][:created_at]) if specification.time_sort_by_as_at?
 
-        if specification.time_sort_by_as_of?
-          dataset = dataset.order(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at)"))
-        end
+        dataset = dataset.order(::Sequel.lit(coalesced_date)) if specification.time_sort_by_as_of?
 
         dataset = dataset.limit(specification.limit) if specification.limit?
         dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward?
@@ -320,6 +306,14 @@ module RubyEventStore
         dataset = dataset.reverse if specification.backward? && !specification.time_sort_by
 
         dataset
+      end
+
+      def coalesced_date
+        "COALESCE(event_store_events.valid_at, event_store_events.created_at)"
+      end
+
+      def time_comparison_field(specification)
+        specification.time_sort_by_as_of? ? coalesced_date : "event_store_events.created_at"
       end
     end
   end
