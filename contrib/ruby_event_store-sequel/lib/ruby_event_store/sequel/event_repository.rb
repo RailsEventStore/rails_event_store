@@ -10,21 +10,21 @@ module RubyEventStore
         @db.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
         @db.create_table(:event_store_events) do
           primary_key :id
-          String :event_id
-          String :event_type
-          File :data
-          File :metadata
-          Time :created_at
-          Time :valid_at
+          column :event_id, "varchar(36)", null: false
+          column :event_type, "varchar", null: false
+          column :data, "blob", null: false
+          column :metadata, "blob"
+          column :created_at, "datetime(6)", null: false
+          column :valid_at, "datetime(6)"
 
           index :event_id, unique: true
         end
         @db.create_table(:event_store_events_in_streams) do
           primary_key :id
-          String :event_id
-          String :stream
-          Integer :position
-          Time :created_at
+          column :event_id, "varchar(36)", null: false
+          column :stream, "varchar", null: false
+          column :position, "integer"
+          column :created_at, "datetime(6)", null: false
 
           index %i[stream position], unique: true
           index %i[stream event_id], unique: true
