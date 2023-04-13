@@ -3,33 +3,11 @@
 module RubyEventStore
   module Sequel
     class EventRepository
-      def initialize(serializer:)
+      def initialize(sequel:, serializer:)
         @serializer = serializer
         @index_violation_detector = IndexViolationDetector.new("event_store_events", "event_store_events_in_streams")
-        @db = ::Sequel.connect(ENV.fetch("DATABASE_URL"))
+        @db = sequel
         @db.timezone = :utc
-        @db.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
-        @db.create_table(:event_store_events) do
-          primary_key :id
-          column :event_id, "varchar(36)", null: false
-          column :event_type, "varchar", null: false
-          column :data, "blob", null: false
-          column :metadata, "blob"
-          column :created_at, "datetime(6)", null: false
-          column :valid_at, "datetime(6)"
-
-          index :event_id, unique: true
-        end
-        @db.create_table(:event_store_events_in_streams) do
-          primary_key :id
-          column :event_id, "varchar(36)", null: false
-          column :stream, "varchar", null: false
-          column :position, "integer"
-          column :created_at, "datetime(6)", null: false
-
-          index %i[stream position], unique: true
-          index %i[stream event_id], unique: true
-        end
       end
 
       attr_reader :index_violation_detector

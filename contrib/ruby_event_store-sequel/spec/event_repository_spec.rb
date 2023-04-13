@@ -13,7 +13,7 @@ module RubyEventStore
           else
             RubyEventStore::Serializers::YAML
           end
-        EventRepository.new(serializer: serializer)
+        EventRepository.new(sequel: helper.sequel, serializer: serializer)
       end
 
       it_behaves_like :event_repository, mk_repository, helper
