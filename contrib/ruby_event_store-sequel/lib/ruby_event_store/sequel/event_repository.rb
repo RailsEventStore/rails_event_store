@@ -257,9 +257,8 @@ module RubyEventStore
         dataset =
           @db[:event_store_events].select(:event_id, :event_type, :data, :metadata, :created_at, :valid_at).order(:id)
 
-        dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
-
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
+        dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
 
         if specification.start
           id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
