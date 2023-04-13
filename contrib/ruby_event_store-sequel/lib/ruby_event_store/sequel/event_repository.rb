@@ -7,6 +7,7 @@ module RubyEventStore
         @serializer = serializer
         @index_violation_detector = IndexViolationDetector.new("event_store_events", "event_store_events_in_streams")
         @db = ::Sequel.connect(ENV.fetch("DATABASE_URL"))
+        @db.timezone = :utc
         @db.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
         @db.create_table(:event_store_events) do
           primary_key :id
@@ -56,8 +57,8 @@ module RubyEventStore
               event_type: sr.event_type,
               data: sr.data,
               metadata: sr.metadata,
-              created_at: sr.timestamp,
-              valid_at: sr.valid_at
+              created_at: r.timestamp,
+              valid_at: r.valid_at
             )
             @db[:event_store_events_in_streams].insert(
               event_id: sr.event_id,
