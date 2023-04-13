@@ -204,26 +204,14 @@ module RubyEventStore
           .with_ids?
 
         if specification.start
-          id =
-            @db[:event_store_events_in_streams]
-              .select(:id)
-              .where(event_id: specification.start, stream: specification.stream.name)
-              .first[
-              :id
-            ]
+          id = find_event_id(specification.start, specification.stream.name)
           condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
 
           dataset = dataset.where(::Sequel.lit(condition, id))
         end
 
         if specification.stop
-          id =
-            @db[:event_store_events_in_streams]
-              .select(:id)
-              .where(event_id: specification.stop, stream: specification.stream.name)
-              .first[
-              :id
-            ]
+          id = find_event_id(specification.stop, specification.stream.name)
           condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
 
           dataset = dataset.where(::Sequel.lit(condition, id))
@@ -246,13 +234,18 @@ module RubyEventStore
         end
 
         dataset = dataset.order(::Sequel[:event_store_events][:created_at]) if specification.time_sort_by_as_at?
-
         dataset = dataset.order(::Sequel.lit(coalesced_date)) if specification.time_sort_by_as_of?
-
         dataset = dataset.limit(specification.limit) if specification.limit?
         dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward?
 
         dataset
+      end
+
+      def find_event_id(specification_event_id, specification_stream_name)
+        @db[:event_store_events_in_streams]
+          .select(:id)
+          .where(event_id: specification_event_id, stream: specification_stream_name)
+          .first[:id]
       end
 
       def read_from_global_stream(specification)
