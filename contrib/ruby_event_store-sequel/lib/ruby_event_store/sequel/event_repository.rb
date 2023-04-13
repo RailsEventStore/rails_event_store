@@ -204,17 +204,14 @@ module RubyEventStore
           .with_ids?
 
         if specification.start
-          id = find_event_id(specification.start, specification.stream.name)
           condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
-
-          dataset = dataset.where(::Sequel.lit(condition, id))
+          dataset =
+            dataset.where(::Sequel.lit(condition, find_event_id(specification.start, specification.stream.name)))
         end
 
         if specification.stop
-          id = find_event_id(specification.stop, specification.stream.name)
           condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
-
-          dataset = dataset.where(::Sequel.lit(condition, id))
+          dataset = dataset.where(::Sequel.lit(condition, find_event_id(specification.stop, specification.stream.name)))
         end
 
         if specification.older_than
@@ -222,7 +219,10 @@ module RubyEventStore
         end
 
         if specification.older_than_or_equal
-          dataset = dataset.where(::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal))
+          dataset =
+            dataset.where(
+              ::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal)
+            )
         end
 
         if specification.newer_than
@@ -230,7 +230,10 @@ module RubyEventStore
         end
 
         if specification.newer_than_or_equal
-          dataset = dataset.where(::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal))
+          dataset =
+            dataset.where(
+              ::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal)
+            )
         end
 
         dataset = dataset.order(::Sequel[:event_store_events][:created_at]) if specification.time_sort_by_as_at?
@@ -245,7 +248,9 @@ module RubyEventStore
         @db[:event_store_events_in_streams]
           .select(:id)
           .where(event_id: specification_event_id, stream: specification_stream_name)
-          .first[:id]
+          .first[
+          :id
+        ]
       end
 
       def read_from_global_stream(specification)
