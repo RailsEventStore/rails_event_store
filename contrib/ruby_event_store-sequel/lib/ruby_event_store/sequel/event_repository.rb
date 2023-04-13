@@ -13,18 +13,7 @@ module RubyEventStore
       attr_reader :index_violation_detector
 
       def append_to_stream(records, stream, expected_version)
-        resolved_version =
-          expected_version.resolve_for(
-            stream,
-            ->(stream) do
-              @db[:event_store_events_in_streams]
-                .select(:position)
-                .where(stream: stream.name)
-                .order(:position)
-                .last
-                &.fetch(:position)
-            end
-          )
+        resolved_version = resolved_version(expected_version, stream)
 
         @db.transaction do
           records.map.with_index do |r, index|
@@ -58,18 +47,7 @@ module RubyEventStore
         (event_ids - @db[:event_store_events].select(:event_id).where(event_id: event_ids).map { |e| e[:event_id] })
           .each { |id| raise EventNotFound.new(id) }
 
-        resolved_version =
-          expected_version.resolve_for(
-            stream,
-            ->(stream) do
-              @db[:event_store_events_in_streams]
-                .select(:position)
-                .where(stream: stream.name)
-                .order(:position)
-                .last
-                &.fetch(:position)
-            end
-          )
+        resolved_version = resolved_version(expected_version, stream)
 
         @db.transaction do
           event_ids.map.with_index do |event_id, index|
@@ -161,6 +139,20 @@ module RubyEventStore
       end
 
       private
+
+      def resolved_version(expected_version, stream)
+        expected_version.resolve_for(
+          stream,
+          ->(stream) do
+            @db[:event_store_events_in_streams]
+              .select(:position)
+              .where(stream: stream.name)
+              .order(:position)
+              .last
+              &.fetch(:position)
+          end
+        )
+      end
 
       def read_from_specific_stream(specification)
         dataset =
