@@ -297,17 +297,11 @@ module RubyEventStore
             )
         end
 
-        if specification.time_sort_by_as_at?
-          dataset = specification.forward? ? dataset.order(:created_at) : dataset.order(:created_at).reverse
-        end
-
-        if specification.time_sort_by_as_of?
-          dataset = specification.forward? ? dataset.order(:valid_at) : dataset.order(:valid_at).reverse
-        end
-
+        dataset = dataset.order(:created_at) if specification.time_sort_by_as_at?
+        dataset = dataset.order(:valid_at) if specification.time_sort_by_as_of?
         dataset = dataset.limit(specification.limit) if specification.limit?
         dataset = dataset.order(::Sequel[:event_store_events][:id]) unless specification.time_sort_by
-        dataset = dataset.reverse if specification.backward? && !specification.time_sort_by
+        dataset = dataset.reverse if specification.backward?
 
         dataset
       end
