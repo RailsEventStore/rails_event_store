@@ -65,9 +65,17 @@ module RubyEventStore
         raise WrongExpectedEventVersion
       end
 
-      def position_in_stream(event_id, stream); end
+      def position_in_stream(event_id, stream)
+        record = @db[:event_store_events_in_streams].where(event_id: event_id, stream: stream.name).first
+        raise EventNotFoundInStream.new if record.nil?
+        record[:position]
+      end
 
-      def global_position(event_id); end
+      def global_position(event_id)
+        record = @db[:event_store_events].where(event_id: event_id).first
+        raise EventNotFound.new(event_id) if record.nil?
+        record[:id] - 1
+      end
 
       def event_in_stream?(event_id, stream)
         @db[:event_store_events_in_streams].where(event_id: event_id, stream: stream.name).any?

@@ -45,7 +45,7 @@ module RubyEventStore
       end
 
       def supports_position_queries?
-        false
+        true
       end
 
       def supports_event_in_stream_query?
