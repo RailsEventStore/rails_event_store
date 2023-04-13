@@ -6,7 +6,7 @@ module RubyEventStore
       def initialize(serializer:)
         @serializer = serializer
         @index_violation_detector = IndexViolationDetector.new("event_store_events", "event_store_events_in_streams")
-        @db = ::Sequel.sqlite
+        @db = ::Sequel.connect(ENV.fetch("DATABASE_URL"))
         @db.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
         @db.create_table(:event_store_events) do
           primary_key :id
