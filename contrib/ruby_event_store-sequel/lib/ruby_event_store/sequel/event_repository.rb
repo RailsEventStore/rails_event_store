@@ -60,12 +60,14 @@ module RubyEventStore
               created_at: r.timestamp,
               valid_at: r.valid_at
             )
-            @db[:event_store_events_in_streams].insert(
-              event_id: sr.event_id,
-              stream: stream.name,
-              created_at: Time.now.utc,
-              position: resolved_version ? resolved_version + index + 1 : nil
-            ) unless stream.global?
+            unless stream.global?
+              @db[:event_store_events_in_streams].insert(
+                event_id: sr.event_id,
+                stream: stream.name,
+                created_at: Time.now.utc,
+                position: resolved_version ? resolved_version + index + 1 : nil
+              )
+            end
           end
         end
         self
@@ -75,10 +77,8 @@ module RubyEventStore
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-
-        (event_ids - @db[:event_store_events].select(:event_id).where(event_id: event_ids).map { |e| e[:event_id] }).each do |id|
-          raise EventNotFound.new(id)
-        end
+        (event_ids - @db[:event_store_events].select(:event_id).where(event_id: event_ids).map { |e| e[:event_id] })
+          .each { |id| raise EventNotFound.new(id) }
 
         resolved_version =
           expected_version.resolve_for(
@@ -109,14 +109,11 @@ module RubyEventStore
         raise WrongExpectedEventVersion
       end
 
-      def position_in_stream(event_id, stream)
-      end
+      def position_in_stream(event_id, stream); end
 
-      def global_position(event_id)
-      end
+      def global_position(event_id); end
 
-      def event_in_stream?(event_id, stream)
-      end
+      def event_in_stream?(event_id, stream); end
 
       def delete_stream(stream)
         @db[:event_store_events_in_streams].where(stream: stream.name).delete
@@ -127,28 +124,26 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        row =
-          @db[:event_store_events_in_streams]
-            .where(stream: stream.name)
-            .order(:position, :id)
-            .last
+        row = @db[:event_store_events_in_streams].where(stream: stream.name).order(:position, :id).last
         return row if row.nil?
         event = @db[:event_store_events].where(event_id: row[:event_id]).first
-        SerializedRecord.new(
-          event_id: event[:event_id],
-          event_type: event[:event_type],
-          data: event[:data],
-          metadata: event[:metadata],
-          timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
-          valid_at: event[:valid_at].iso8601(TIMESTAMP_PRECISION)
-        ).deserialize(@serializer)
+        SerializedRecord
+          .new(
+            event_id: event[:event_id],
+            event_type: event[:event_type],
+            data: event[:data],
+            metadata: event[:metadata],
+            timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
+            valid_at: event[:valid_at].iso8601(TIMESTAMP_PRECISION)
+          )
+          .deserialize(@serializer)
       end
 
       def read(specification)
         if specification.batched?
           stream = read_(specification)
           batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
-        RubyEventStore::BatchEnumerator.new(specification.batch_size, specification.limit, batch_reader).each
+          RubyEventStore::BatchEnumerator.new(specification.batch_size, specification.limit, batch_reader).each
         elsif specification.first?
           record_ = read_(specification).first
           record(record_) if record_
@@ -156,33 +151,18 @@ module RubyEventStore
           record_ = read_(specification).last
           record(record_) if record_
         else
-            read_(specification).map do |h|
-            record(h)
-          end.each
+          read_(specification).map { |h| record(h) }.each
         end
       end
 
       def read_(specification)
         if specification.stream.global?
           dataset =
-            @db[:event_store_events].select(
-              :event_id,
-              :event_type,
-              :data,
-              :metadata,
-              :created_at,
-              :valid_at
-            )
-            .order(:id)
+            @db[:event_store_events].select(:event_id, :event_type, :data, :metadata, :created_at, :valid_at).order(:id)
 
-            if specification.with_ids?
-              dataset = dataset.where(event_id: specification.with_ids)
-            end
+          dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
 
-            if specification.with_types?
-              dataset = dataset.where(event_type: specification.with_types)
-            end
-
+          dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
 
           if specification.start
             id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
@@ -203,7 +183,8 @@ module RubyEventStore
           end
 
           if specification.older_than_or_equal
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
+            dataset =
+              dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
           end
 
           if specification.newer_than
@@ -211,7 +192,8 @@ module RubyEventStore
           end
 
           if specification.newer_than_or_equal
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
+            dataset =
+              dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
           end
 
           if specification.time_sort_by_as_at?
@@ -242,25 +224,33 @@ module RubyEventStore
               .where(stream: specification.stream.name)
               .order(::Sequel[:event_store_events_in_streams][:id])
 
-            if specification.with_types?
-              dataset = dataset.where(event_type: specification.with_types)
-            end
-
+          dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
 
           if specification.with_ids?
-             dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids)
+            dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids)
           end
 
-
           if specification.start
-            id = @db[:event_store_events_in_streams].select(:id).where(event_id: specification.start, stream: specification.stream.name).first[:id]
+            id =
+              @db[:event_store_events_in_streams]
+                .select(:id)
+                .where(event_id: specification.start, stream: specification.stream.name)
+                .first[
+                :id
+              ]
             condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
 
             dataset = dataset.where(::Sequel.lit(condition, id))
           end
 
           if specification.stop
-            id = @db[:event_store_events_in_streams].select(:id).where(event_id: specification.stop, stream: specification.stream.name).first[:id]
+            id =
+              @db[:event_store_events_in_streams]
+                .select(:id)
+                .where(event_id: specification.stop, stream: specification.stream.name)
+                .first[
+                :id
+              ]
             condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
 
             dataset = dataset.where(::Sequel.lit(condition, id))
@@ -268,14 +258,21 @@ module RubyEventStore
 
           if specification.older_than
             if specification.time_sort_by_as_of?
-              dataset = dataset.where(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at) < ?", specification.older_than))
+              dataset =
+                dataset.where(
+                  ::Sequel.lit(
+                    "COALESCE(event_store_events.valid_at, event_store_events.created_at) < ?",
+                    specification.older_than
+                  )
+                )
             else
               dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
             end
           end
 
           if specification.older_than_or_equal
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
+            dataset =
+              dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
           end
 
           if specification.newer_than
@@ -283,20 +280,28 @@ module RubyEventStore
           end
 
           if specification.newer_than_or_equal
-            dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
+            dataset =
+              dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
           end
 
           if specification.time_sort_by_as_at?
-            dataset = specification.forward? ? dataset.order(::Sequel[:event_store_events][:created_at]) : dataset.order(::Sequel[:event_store_events][:created_at]).reverse
+            dataset =
+              if specification.forward?
+                dataset.order(::Sequel[:event_store_events][:created_at])
+              else
+                dataset.order(::Sequel[:event_store_events][:created_at]).reverse
+              end
           end
 
           if specification.time_sort_by_as_of?
-            dataset = dataset.order(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at)"))
-            dataset = dataset.reverse if specification.backward? 
+            dataset =
+              dataset.order(::Sequel.lit("COALESCE(event_store_events.valid_at, event_store_events.created_at)"))
+            dataset = dataset.reverse if specification.backward?
           end
 
           dataset = dataset.limit(specification.limit) if specification.limit?
-          dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward? && !specification.time_sort_by
+          dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward? &&
+            !specification.time_sort_by
 
           dataset
         end
@@ -306,25 +311,23 @@ module RubyEventStore
         read_(specification).count
       end
 
-      def update_messages(records)
-      end
+      def update_messages(records); end
 
       def streams_of(event_id)
-        @db[:event_store_events_in_streams].where(event_id: event_id)
-          .map do |h|
-            Stream.new(h[:stream])
-          end
+        @db[:event_store_events_in_streams].where(event_id: event_id).map { |h| Stream.new(h[:stream]) }
       end
 
       def record(h)
-         SerializedRecord.new(
+        SerializedRecord
+          .new(
             event_id: h[:event_id],
             event_type: h[:event_type],
             data: h[:data],
             metadata: h[:metadata],
             timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
             valid_at: h[:valid_at].iso8601(TIMESTAMP_PRECISION)
-          ).deserialize(@serializer)
+          )
+          .deserialize(@serializer)
       end
     end
   end
