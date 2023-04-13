@@ -27,7 +27,14 @@ module RubyEventStore
               created_at: record.timestamp,
               valid_at: record.valid_at
             )
-            add_to_stream([serialized_record.event_id], resolved_version, stream) unless stream.global?
+            unless stream.global?
+              @db[:event_store_events_in_streams].insert(
+                event_id: serialized_record.event_id,
+                stream: stream.name,
+                created_at: Time.now.utc,
+                position: resolved_version ? resolved_version + index + 1 : nil
+              )
+            end
           end
         end
         self
@@ -40,7 +47,18 @@ module RubyEventStore
         (event_ids - @db[:event_store_events].select(:event_id).where(event_id: event_ids).map { |e| e[:event_id] })
           .each { |id| raise EventNotFound.new(id) }
 
-        @db.transaction { add_to_stream(event_ids, resolved_version(expected_version, stream), stream) }
+        resolved_version = resolved_version(expected_version, stream)
+
+        @db.transaction do
+          event_ids.map.with_index do |event_id, index|
+            @db[:event_store_events_in_streams].insert(
+              event_id: event_id,
+              stream: stream.name,
+              created_at: Time.now.utc,
+              position: resolved_version ? resolved_version + index + 1 : nil
+            )
+          end
+        end
         self
       rescue ::Sequel::UniqueConstraintViolation => ex
         raise EventDuplicatedInStream if index_violation_detector.detect(ex.message)
@@ -104,17 +122,6 @@ module RubyEventStore
       end
 
       private
-
-      def add_to_stream(event_ids, expected_version, stream)
-        event_ids.map.with_index do |event_id, index|
-          @db[:event_store_events_in_streams].insert(
-            event_id: event_id,
-            stream: stream.name,
-            created_at: Time.now.utc,
-            position: expected_version ? expected_version + index + 1 : nil
-          )
-        end
-      end
 
       def record(h)
         SerializedRecord
