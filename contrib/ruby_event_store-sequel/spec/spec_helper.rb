@@ -41,7 +41,7 @@ module RubyEventStore
       end
 
       def supports_upsert?
-        false
+        true
       end
 
       def supports_position_queries?

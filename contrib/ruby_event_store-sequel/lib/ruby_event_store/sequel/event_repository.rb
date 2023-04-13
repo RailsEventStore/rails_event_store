@@ -125,7 +125,31 @@ module RubyEventStore
         read_(specification).count
       end
 
-      def update_messages(records); end
+      def update_messages(records)
+        hashes = records.map { |record| upsert_hash(record, record.serialize(@serializer)) }
+        for_update = records.map(&:event_id)
+        @db.transaction do
+          existing =
+            @db[:event_store_events]
+              .where(event_id: for_update)
+              .select(:event_id, :id, :created_at)
+              .reduce({}) { |acc, record| acc.merge(record[:event_id] => [record[:id], record[:created_at]]) }
+
+          (for_update - existing.keys).each { |id| raise EventNotFound.new(id) }
+          hashes.each do |h|
+            h[:id] = existing.fetch(h.fetch(:event_id)).at(0)
+            h[:created_at] = existing.fetch(h.fetch(:event_id)).at(1)
+          end
+
+          @db[:event_store_events]
+            .insert_conflict(update: {
+              data: ::Sequel[:excluded][:data],
+              metadata: ::Sequel[:excluded][:metadata],
+              event_type: ::Sequel[:excluded][:event_type],
+            })
+            .multi_insert(hashes)
+        end
+      end
 
       def streams_of(event_id)
         @db[:event_store_events_in_streams].where(event_id: event_id).map { |h| Stream.new(h[:stream]) }
@@ -292,6 +316,21 @@ module RubyEventStore
       def time_comparison_field(specification)
         specification.time_sort_by_as_of? ? coalesced_date : "event_store_events.created_at"
       end
+
+      def upsert_hash(record, serialized_record)
+        {
+          event_id: serialized_record.event_id,
+          data: serialized_record.data,
+          metadata: serialized_record.metadata,
+          event_type: serialized_record.event_type,
+          valid_at: optimize_timestamp(record.valid_at, record.timestamp)
+        }
+      end
+
+      def optimize_timestamp(valid_at, created_at)
+        valid_at unless valid_at.eql?(created_at)
+      end
+
     end
   end
 end
