@@ -206,6 +206,14 @@ module RubyEventStore
             dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
           end
 
+          if specification.newer_than
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
+          end
+
+          if specification.newer_than_or_equal
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
+          end
+
           dataset = dataset.limit(specification.limit) if specification.limit?
           dataset = dataset.order(::Sequel[:event_store_events][:id]).reverse if specification.backward?
 
@@ -255,6 +263,14 @@ module RubyEventStore
 
           if specification.older_than_or_equal
             dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
+          end
+
+          if specification.newer_than
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
+          end
+
+          if specification.newer_than_or_equal
+            dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
           end
 
           dataset = dataset.limit(specification.limit) if specification.limit?
