@@ -276,19 +276,25 @@ module RubyEventStore
         end
 
         if specification.older_than
-          dataset = dataset.where(::Sequel.lit("event_store_events.created_at < ?", specification.older_than))
+          dataset = dataset.where(::Sequel.lit("#{time_comparison_field(specification)} < ?", specification.older_than))
         end
 
         if specification.older_than_or_equal
-          dataset = dataset.where(::Sequel.lit("event_store_events.created_at <= ?", specification.older_than_or_equal))
+          dataset =
+            dataset.where(
+              ::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal)
+            )
         end
 
         if specification.newer_than
-          dataset = dataset.where(::Sequel.lit("event_store_events.created_at > ?", specification.newer_than))
+          dataset = dataset.where(::Sequel.lit("#{time_comparison_field(specification)} > ?", specification.newer_than))
         end
 
         if specification.newer_than_or_equal
-          dataset = dataset.where(::Sequel.lit("event_store_events.created_at >= ?", specification.newer_than_or_equal))
+          dataset =
+            dataset.where(
+              ::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal)
+            )
         end
 
         if specification.time_sort_by_as_at?
