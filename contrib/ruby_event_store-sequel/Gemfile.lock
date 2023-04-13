@@ -64,6 +64,8 @@ GEM
     sequel (5.67.0)
     sorbet-runtime (0.5.10767)
     sqlite3 (1.6.0-arm64-darwin)
+    sqlite3 (1.6.0-x86_64-darwin)
+    sqlite3 (1.6.0-x86_64-linux)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unparser (0.6.7)
@@ -71,7 +73,10 @@ GEM
       parser (>= 3.2.0)
 
 PLATFORMS
+  arm64-darwin-21
   arm64-darwin-22
+  x86_64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   activesupport (= 7.0.4.3)
