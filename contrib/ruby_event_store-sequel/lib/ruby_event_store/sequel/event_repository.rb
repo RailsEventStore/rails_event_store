@@ -200,10 +200,7 @@ module RubyEventStore
             .order(::Sequel[:event_store_events_in_streams][:id])
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
-
-        if specification.with_ids?
-          dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids)
-        end
+        dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids) if specification.with_ids?
 
         if specification.start
           id =
@@ -259,11 +256,7 @@ module RubyEventStore
 
         if specification.time_sort_by_as_at?
           dataset =
-            if specification.forward?
               dataset.order(::Sequel[:event_store_events][:created_at])
-            else
-              dataset.order(::Sequel[:event_store_events][:created_at]).reverse
-            end
         end
 
         if specification.time_sort_by_as_of?
