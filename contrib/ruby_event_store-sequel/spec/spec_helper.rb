@@ -76,32 +76,14 @@ module RubyEventStore
       protected
 
       def load_schema
-        @sequel.create_table(:event_store_events) do
-          primary_key :id
-          column :event_id, String, null: false, limit: 36
-          column :event_type, String, null: false
-          column :data, File, null: false
-          column :metadata, File
-          column :created_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time, null: false
-          column :valid_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time
-
-          index :event_id, unique: true,  name: "index_event_store_events_on_event_id"
-        end
-        @sequel.create_table(:event_store_events_in_streams) do
-          primary_key :id
-          column :event_id, String, null: false, limit: 36
-          column :stream, String, null: false
-          column :position, Integer
-          column :created_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time, null: false
-
-          index %i[stream position], unique: true, name: "index_event_store_events_in_streams_on_stream_and_position"
-          index %i[stream event_id], unique: true, name: "index_event_store_events_in_streams_on_stream_and_event_id"
-        end
+        ::Sequel.extension :migration
+        ::Sequel::Migrator.run(@sequel, "lib/ruby_event_store/generators/templates", version: 0)
       end
 
       def drop_schema
-        @sequel.drop_table(:event_store_events)
-        @sequel.drop_table(:event_store_events_in_streams)
+        @sequel.drop_table?(:event_store_events)
+        @sequel.drop_table?(:event_store_events_in_streams)
+        @sequel.drop_table?(:schema_info)
       end
     end
   end
