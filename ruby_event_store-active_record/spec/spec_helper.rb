@@ -19,6 +19,10 @@ module RubyEventStore
     class SpecHelper
       include SchemaHelper
 
+      def serializer
+        Serializers::YAML
+      end
+
       def run_lifecycle
         establish_database_connection
         load_database_schema

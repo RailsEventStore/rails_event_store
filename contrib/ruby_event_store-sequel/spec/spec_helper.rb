@@ -36,6 +36,15 @@ module RubyEventStore
         @sequel.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
       end
 
+      def serializer
+        case ENV["DATA_TYPE"]
+        when /json/
+          JSON
+        else
+          RubyEventStore::Serializers::YAML
+        end
+      end
+
       def run_lifecycle
         load_schema
         yield

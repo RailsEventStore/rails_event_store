@@ -5,16 +5,7 @@ module RubyEventStore
   module ROM
     ::RSpec.describe EventRepository do
       helper = SpecHelper.new
-      mk_repository = -> do
-        serializer =
-          case ENV["DATA_TYPE"]
-          when /json/
-            JSON
-          else
-            RubyEventStore::Serializers::YAML
-          end
-        EventRepository.new(rom: helper.rom_container, serializer: serializer)
-      end
+      mk_repository = ->{ EventRepository.new(rom: helper.rom_container, serializer: helper.serializer) }
 
       it_behaves_like :event_repository, mk_repository, helper
 
