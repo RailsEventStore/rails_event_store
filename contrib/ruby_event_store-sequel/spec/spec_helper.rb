@@ -13,7 +13,13 @@ module RubyEventStore
       attr_reader :sequel
 
       def initialize(database_uri = ENV["DATABASE_URL"])
-        @sequel = ::Sequel.connect(database_uri, :fractional_seconds => true, :max_connections => database_uri.include?("sqlite") ? 1 : 5)
+        @sequel =
+          ::Sequel.connect(
+            database_uri,
+            fractional_seconds: true,
+            preconnect: :concurrently,
+            max_connections: database_uri.include?("sqlite") ? 1 : 5
+          )
         @sequel.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
       end
 
