@@ -27,7 +27,7 @@ module RubyEventStore
               data: serialized_record.data,
               metadata: serialized_record.metadata,
               created_at: record.timestamp,
-              valid_at: record.valid_at
+              valid_at: optimize_timestamp(record.valid_at, record.timestamp)
             )
             unless stream.global?
               @db[:event_store_events_in_streams].insert(
@@ -102,7 +102,7 @@ module RubyEventStore
             data: event[:data],
             metadata: event[:metadata],
             timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
-            valid_at: event[:valid_at].iso8601(TIMESTAMP_PRECISION)
+            valid_at: (event[:valid_at] || event[:created_at]).iso8601(TIMESTAMP_PRECISION)
           )
           .deserialize(@serializer)
       end
@@ -159,6 +159,10 @@ module RubyEventStore
       end
 
       private
+
+      def optimize_timestamp(valid_at, created_at)
+        valid_at unless valid_at.eql?(created_at)
+      end
 
       def record(h)
         SerializedRecord
@@ -304,7 +308,7 @@ module RubyEventStore
         end
 
         dataset = dataset.order(:created_at) if specification.time_sort_by_as_at?
-        dataset = dataset.order(:valid_at) if specification.time_sort_by_as_of?
+        dataset = dataset.order(::Sequel.lit(coalesced_date)) if specification.time_sort_by_as_of?
         dataset = dataset.limit(specification.limit) if specification.limit?
         dataset = dataset.order(::Sequel[:event_store_events][:id]) unless specification.time_sort_by
         dataset = dataset.reverse if specification.backward?
