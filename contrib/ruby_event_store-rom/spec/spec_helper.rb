@@ -101,4 +101,4 @@ module RubyEventStore
   end
 end
 
-ROM::SQL.load_extensions(:active_support_notifications, :rails_log_subscriber)
+ROM::SQL.load_extensions(:active_support_notifications)
