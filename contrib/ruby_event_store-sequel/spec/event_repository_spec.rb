@@ -5,18 +5,14 @@ module RubyEventStore
   module Sequel
     ::RSpec.describe EventRepository do
       helper = SpecHelper.new
-      mk_repository = ->{ EventRepository.new(sequel: helper.sequel, serializer: helper.serializer) }
+      mk_repository = -> { EventRepository.new(sequel: helper.sequel, serializer: helper.serializer) }
 
       it_behaves_like :event_repository, mk_repository, helper
 
       around(:each) { |example| helper.run_lifecycle { example.run } }
 
       let(:repository) { mk_repository.call }
-      let(:specification) do
-        Specification.new(
-          SpecificationReader.new(repository, Mappers::Default.new)
-        )
-      end
+      let(:specification) { Specification.new(SpecificationReader.new(repository, Mappers::Default.new)) }
 
       specify "nested transaction - events still not persisted if append failed" do
         repository.append_to_stream(
@@ -41,11 +37,7 @@ module RubyEventStore
       end
 
       specify "avoid N+1" do
-        repository.append_to_stream(
-          [SRecord.new, SRecord.new],
-          Stream.new("stream"),
-          ExpectedVersion.auto
-        )
+        repository.append_to_stream([SRecord.new, SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
 
         expect { repository.read(specification.limit(2).result) }.to match_query_count(1)
         expect { repository.read(specification.limit(2).backward.result) }.to match_query_count(1)
