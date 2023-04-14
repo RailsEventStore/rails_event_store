@@ -3,8 +3,6 @@ require "dry/inflector"
 require_relative "../../../support/helpers/rspec_defaults"
 require_relative "../../../support/helpers/rspec_sql_matchers"
 
-ROM::SQL.load_extensions(:active_support_notifications, :rails_log_subscriber)
-
 ENV["DATABASE_URL"] ||= "sqlite::memory:"
 ENV["DATA_TYPE"] ||= "text"
 
@@ -102,3 +100,5 @@ module RubyEventStore
     end
   end
 end
+
+ROM::SQL.load_extensions(:active_support_notifications, :rails_log_subscriber)
