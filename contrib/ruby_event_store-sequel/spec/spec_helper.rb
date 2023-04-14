@@ -2,9 +2,6 @@ require "ruby_event_store/sequel"
 require_relative "../../../support/helpers/rspec_defaults"
 require_relative "../../../support/helpers/rspec_sql_matchers"
 
-require "active_support/isolated_execution_state"
-require "active_support/notifications"
-
 ENV["DATABASE_URL"] ||= "sqlite::memory:"
 ENV["DATA_TYPE"] ||= "text"
 
