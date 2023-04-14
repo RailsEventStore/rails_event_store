@@ -131,6 +131,30 @@ module RubyEventStore
         expect(event_record[:valid_at]).to eq(t2)
       end
 
+      specify do
+        repository.append_to_stream(
+          [event0 = SRecord.new, event1 = SRecord.new],
+          stream = Stream.new("stream"),
+          ExpectedVersion.auto
+        )
+
+        expect {
+          repository.position_in_stream(event0.event_id, stream)
+        }.to match_query /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/
+      end
+
+      specify do
+        repository.append_to_stream(
+          [event = SRecord.new],
+          Stream.new("stream"),
+          ExpectedVersion.any
+        )
+        expect {
+          repository.global_position(event.event_id)
+        }.to match_query /SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/
+      end
+
+
 
       private
 
