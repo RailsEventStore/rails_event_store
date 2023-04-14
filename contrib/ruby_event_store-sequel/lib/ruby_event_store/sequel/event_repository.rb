@@ -3,6 +3,8 @@
 module RubyEventStore
   module Sequel
     class EventRepository
+      UPSERT_COLUMNS = %i[event_type data metadata valid_at].freeze
+
       def initialize(sequel:, serializer:)
         @serializer = serializer
         @index_violation_detector = IndexViolationDetector.new("event_store_events", "event_store_events_in_streams")
@@ -132,22 +134,23 @@ module RubyEventStore
           existing =
             @db[:event_store_events]
               .where(event_id: for_update)
-              .select(:event_id, :id, :created_at)
-              .reduce({}) { |acc, record| acc.merge(record[:event_id] => [record[:id], record[:created_at]]) }
+              .select(:event_id, :id, :created_at, :valid_at)
+              .reduce({}) do |acc, record|
+                acc.merge(record[:event_id] => [record[:id], record[:created_at], record[:valid_at]])
+              end
 
           (for_update - existing.keys).each { |id| raise EventNotFound.new(id) }
           hashes.each do |h|
             h[:id] = existing.fetch(h.fetch(:event_id)).at(0)
             h[:created_at] = existing.fetch(h.fetch(:event_id)).at(1)
+            h[:valid_at] = existing.fetch(h.fetch(:event_id)).at(2)
           end
 
-          @db[:event_store_events]
-            .insert_conflict(update: {
-              data: ::Sequel[:excluded][:data],
-              metadata: ::Sequel[:excluded][:metadata],
-              event_type: ::Sequel[:excluded][:event_type],
-            })
-            .multi_insert(hashes)
+          if supports_on_duplicate_key_update?
+            commit_on_duplicate_key_update(hashes)
+          else
+            commit_insert_conflict_update(hashes)
+          end
         end
       end
 
@@ -331,6 +334,22 @@ module RubyEventStore
         valid_at unless valid_at.eql?(created_at)
       end
 
+      def supports_on_duplicate_key_update?
+        @db.adapter_scheme =~ /mysql/
+      end
+
+      def commit_on_duplicate_key_update(hashes)
+        @db[:event_store_events].on_duplicate_key_update(*UPSERT_COLUMNS).multi_insert(hashes)
+      end
+
+      def commit_insert_conflict_update(hashes)
+        @db[:event_store_events]
+          .insert_conflict(
+            target: :event_id,
+            update: UPSERT_COLUMNS.each_with_object({}) { |column, memo| memo[column] = ::Sequel[:excluded][column] }
+          )
+          .multi_insert(hashes)
+      end
     end
   end
 end
