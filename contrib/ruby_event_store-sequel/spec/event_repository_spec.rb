@@ -18,6 +18,21 @@ module RubyEventStore
         )
       end
 
+      specify "avoid N+1" do
+        repository.append_to_stream(
+          [SRecord.new, SRecord.new],
+          Stream.new("stream"),
+          ExpectedVersion.auto
+        )
+
+        expect { repository.read(specification.limit(2).result) }.to match_query_count(1)
+        expect { repository.read(specification.limit(2).backward.result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").backward.result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").limit(2).result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").limit(2).backward.result) }.to match_query_count(1)
+      end
+
       specify "limited query when looking for non-existing events during linking" do
         expect do
           expect do
