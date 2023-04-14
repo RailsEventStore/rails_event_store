@@ -111,6 +111,27 @@ module RubyEventStore
         expect(event_record[:valid_at]).to be_nil
       end
 
+      specify "no valid-at storage optimization when different from created-at" do
+        repository.append_to_stream(
+          [
+            SRecord.new(
+              timestamp: t1 = with_precision(Time.at(0)),
+              valid_at: t2 = with_precision(Time.at(1))
+            )
+          ],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any
+        )
+        record = repository.read(specification.result).first
+        expect(record.timestamp).to eq(t1)
+        expect(record.valid_at).to eq(t2)
+
+        event_record = helper.sequel[:event_store_events].where(event_id: record.event_id).first
+        expect(event_record[:created_at]).to eq(t1)
+        expect(event_record[:valid_at]).to eq(t2)
+      end
+
+
       private
 
       def with_precision(time)
