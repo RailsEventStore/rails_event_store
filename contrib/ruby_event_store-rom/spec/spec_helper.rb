@@ -1,6 +1,7 @@
 require "ruby_event_store/rom"
-require_relative "../../../support/helpers/rspec_defaults"
 require "dry/inflector"
+require_relative "../../../support/helpers/rspec_defaults"
+require_relative "../../../support/helpers/rspec_sql_matchers"
 
 require "active_support/isolated_execution_state"
 require "active_support/notifications"
@@ -93,20 +94,4 @@ module RubyEventStore
       end
     end
   end
-end
-
-::RSpec::Matchers.define :match_query_count do |expected_count|
-  match do |query|
-    count = 0
-    ActiveSupport::Notifications.subscribed(
-      lambda do |_name, _started, _finished, _unique_id, payload|
-        count += 1 unless %w[CACHE SCHEMA].include?(payload[:name])
-      end,
-      "sql.rom",
-      &actual
-    )
-    values_match?(expected_count, count)
-  end
-  supports_block_expectations
-  diffable
 end

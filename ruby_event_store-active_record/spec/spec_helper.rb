@@ -1,5 +1,6 @@
 require "ruby_event_store/active_record"
 require_relative "../../support/helpers/rspec_defaults"
+require_relative "../../support/helpers/rspec_sql_matchers"
 require_relative "../../support/helpers/migrator"
 require_relative "../../support/helpers/schema_helper"
 
@@ -62,33 +63,5 @@ module RubyEventStore
         ::ActiveRecord::Base.connection.pool.size
       end
     end
-  end
-
-  ::RSpec::Matchers.define :match_query_count do |expected_count|
-    match do
-      count = 0
-      ActiveSupport::Notifications.subscribed(
-        lambda { |_, _, _, _, payload| count += 1 unless %w[CACHE SCHEMA].include?(payload[:name]) },
-        "sql.active_record",
-        &actual
-      )
-      values_match?(expected_count, count)
-    end
-    supports_block_expectations
-    diffable
-  end
-
-  ::RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
-    match do
-      count = 0
-      ActiveSupport::Notifications.subscribed(
-        lambda { |_, _, _, _, payload| count += 1 if expected_query === payload[:sql] },
-        "sql.active_record",
-        &actual
-      )
-      values_match?(expected_count, count)
-    end
-    supports_block_expectations
-    diffable
   end
 end

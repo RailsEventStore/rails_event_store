@@ -1,5 +1,6 @@
 require "ruby_event_store/sequel"
 require_relative "../../../support/helpers/rspec_defaults"
+require_relative "../../../support/helpers/rspec_sql_matchers"
 
 require "active_support/isolated_execution_state"
 require "active_support/notifications"
@@ -110,18 +111,4 @@ module RubyEventStore
       end
     end
   end
-end
-
-::RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
-  match do
-    count = 0
-    ActiveSupport::Notifications.subscribed(
-      lambda { |_, _, _, _, payload| count += 1 if expected_query === payload[:sql] },
-      "sql.sequel",
-      &actual
-    )
-    values_match?(expected_count, count)
-  end
-  supports_block_expectations
-  diffable
 end
