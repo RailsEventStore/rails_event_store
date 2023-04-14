@@ -78,7 +78,7 @@ module RubyEventStore
           column :created_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time, null: false
           column :valid_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time
 
-          index :event_id, unique: true
+          index :event_id, unique: true,  name: "index_event_store_events_on_event_id"
         end
         @sequel.create_table(:event_store_events_in_streams) do
           timestamp_column_type =
@@ -96,8 +96,8 @@ module RubyEventStore
           column :position, Integer
           column :created_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time, null: false
 
-          index %i[stream position], unique: true
-          index %i[stream event_id], unique: true
+          index %i[stream position], unique: true, name: "index_event_store_events_in_streams_on_stream_and_position"
+          index %i[stream event_id], unique: true, name: "index_event_store_events_in_streams_on_stream_and_event_id"
         end
       end
 
