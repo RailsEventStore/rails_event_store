@@ -93,15 +93,6 @@ module RubyEventStore
           index :event_id, unique: true,  name: "index_event_store_events_on_event_id"
         end
         @sequel.create_table(:event_store_events_in_streams) do
-          timestamp_column_type =
-            lambda do
-              if ENV.fetch("DATABASE_URL").start_with? "mysql"
-                "datetime(6)"
-              else
-                Time
-              end
-            end
-
           primary_key :id
           column :event_id, String, null: false, limit: 36
           column :stream, String, null: false
