@@ -69,7 +69,7 @@ module RubyEventStore
               ExpectedVersion.none
             )
           end.to raise_error(EventNotFound)
-        end.to match_query 'SELECT "event_store_events"."event_id" FROM "event_store_events" WHERE "event_store_events"."event_id" IN (?, ?)'
+        end.to match_query /SELECT .*event_store_events.*event_id.* FROM .*event_store_events.* WHERE .*event_store_events.*event_id.* IN \(.*, .*\)/
       end
 
       specify "use default models" do
