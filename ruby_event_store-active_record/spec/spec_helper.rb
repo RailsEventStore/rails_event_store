@@ -12,10 +12,6 @@ ActiveRecord::Schema.verbose = $verbose
 
 module RubyEventStore
   module ActiveRecord
-    class CustomApplicationRecord < ::ActiveRecord::Base
-      self.abstract_class = true
-    end
-
     class SpecHelper
       include SchemaHelper
 
@@ -67,5 +63,9 @@ module RubyEventStore
         ::ActiveRecord::Base.connection.pool.size
       end
     end
+  end
+
+  class CustomApplicationRecord < ::ActiveRecord::Base
+    self.abstract_class = true
   end
 end
