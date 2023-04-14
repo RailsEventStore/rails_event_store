@@ -9,6 +9,18 @@ ENV["DATA_TYPE"] ||= "text"
 
 module RubyEventStore
   module Sequel
+    module Instrumentation
+      def log_connection_yield(sql, _conn, args = nil)
+        ActiveSupport::Notifications.instrument(
+          "sql.sequel",
+          sql: sql,
+          name: "RubyEventStore::Sequel[#{database_type}]",
+          binds: args
+        ) { super }
+      end
+    end
+    ::Sequel::Database.prepend Instrumentation
+
     class SpecHelper
       attr_reader :sequel
 
@@ -107,4 +119,18 @@ module RubyEventStore
       end
     end
   end
+end
+
+::RSpec::Matchers.define :match_query do |expected_query, expected_count = 1|
+  match do
+    count = 0
+    ActiveSupport::Notifications.subscribed(
+      lambda { |_, _, _, _, payload| count += 1 if expected_query === payload[:sql] },
+      "sql.sequel",
+      &actual
+    )
+    values_match?(expected_count, count)
+  end
+  supports_block_expectations
+  diffable
 end
