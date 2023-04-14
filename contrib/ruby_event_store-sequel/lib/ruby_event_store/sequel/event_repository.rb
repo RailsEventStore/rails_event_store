@@ -168,7 +168,7 @@ module RubyEventStore
             data: h[:data],
             metadata: h[:metadata],
             timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
-            valid_at: h[:valid_at].iso8601(TIMESTAMP_PRECISION)
+            valid_at: (h[:valid_at].nil? ? h[:created_at] : h[:valid_at]).iso8601(TIMESTAMP_PRECISION)
           )
           .deserialize(@serializer)
       end
