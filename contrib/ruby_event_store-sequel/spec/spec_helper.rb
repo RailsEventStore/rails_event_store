@@ -75,17 +75,26 @@ module RubyEventStore
           column :event_type, String, null: false
           column :data, File, null: false
           column :metadata, File
-          column :created_at, Time, null: false
-          column :valid_at, Time
+          column :created_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time, null: false
+          column :valid_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time
 
           index :event_id, unique: true
         end
         @sequel.create_table(:event_store_events_in_streams) do
+          timestamp_column_type =
+            lambda do
+              if ENV.fetch("DATABASE_URL").start_with? "mysql"
+                "datetime(6)"
+              else
+                Time
+              end
+            end
+
           primary_key :id
           column :event_id, String, null: false, limit: 36
           column :stream, String, null: false
           column :position, Integer
-          column :created_at, Time, null: false
+          column :created_at, ENV.fetch("DATABASE_URL").start_with?("mysql") ? "datetime(6)" : Time, null: false
 
           index %i[stream position], unique: true
           index %i[stream event_id], unique: true
