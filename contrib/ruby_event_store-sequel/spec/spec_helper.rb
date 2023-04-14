@@ -77,13 +77,23 @@ module RubyEventStore
 
       def load_schema
         ::Sequel.extension :migration
-        ::Sequel::Migrator.run(@sequel, "lib/ruby_event_store/generators/templates", version: 0)
+        ::Sequel::Migrator.run(@sequel, "lib/ruby_event_store/generators/templates/#{template_dir}", version: 0)
       end
 
       def drop_schema
         @sequel.drop_table?(:event_store_events)
         @sequel.drop_table?(:event_store_events_in_streams)
         @sequel.drop_table?(:schema_info)
+      end
+
+      private
+
+      def template_dir
+        if ENV["DATABASE_URL"].include?("postgres")
+          "postgres"
+        elsif ENV["DATABASE_URL"].include?("mysql")
+          "mysql"
+        end
       end
     end
   end
