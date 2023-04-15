@@ -46,8 +46,13 @@ module RubyEventStore
       end
 
       def link_to_stream(event_ids, stream, expected_version)
-        (event_ids - @db[:event_store_events].select(::Sequel[:event_store_events][:event_id]).where(::Sequel[:event_store_events][:event_id] => event_ids).map { |e| e[:event_id] })
-          .each { |id| raise EventNotFound.new(id) }
+        (
+          event_ids -
+            @db[:event_store_events]
+              .select(::Sequel[:event_store_events][:event_id])
+              .where(::Sequel[:event_store_events][:event_id] => event_ids)
+              .map { |e| e[:event_id] }
+        ).each { |id| raise EventNotFound.new(id) }
 
         resolved_version = resolved_version(expected_version, stream)
 
