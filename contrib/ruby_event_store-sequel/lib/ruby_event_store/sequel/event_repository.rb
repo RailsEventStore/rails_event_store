@@ -325,7 +325,7 @@ module RubyEventStore
             )
         end
 
-        dataset = dataset.order(:created_at) if specification.time_sort_by_as_at?
+        dataset = dataset.order(::Sequel[:event_store_events][:created_at]) if specification.time_sort_by_as_at?
         dataset = dataset.order(::Sequel.lit(coalesced_date)) if specification.time_sort_by_as_of?
         dataset = dataset.limit(specification.limit) if specification.limit?
         dataset = dataset.order(::Sequel[:event_store_events][:id]) unless specification.time_sort_by
@@ -335,7 +335,7 @@ module RubyEventStore
       end
 
       def coalesced_date
-        "COALESCE(event_store_events.valid_at, event_store_events.created_at)"
+        "COALESCE(`event_store_events`.`valid_at`, `event_store_events`.`created_at`)"
       end
 
       def time_comparison_field(specification)

@@ -155,6 +155,39 @@ module RubyEventStore
       end
 
 
+      specify "with batches and bi-temporal queries use offset + limit" do
+        repository.append_to_stream(
+          [
+            SRecord.new(
+              event_id: e1 = SecureRandom.uuid,
+              timestamp: Time.new(2020, 1, 1),
+              valid_at: Time.new(2020, 1, 9)
+            ),
+            SRecord.new(
+              event_id: e2 = SecureRandom.uuid,
+              timestamp: Time.new(2020, 1, 3),
+              valid_at: Time.new(2020, 1, 6)
+            ),
+            SRecord.new(
+              event_id: e3 = SecureRandom.uuid,
+              timestamp: Time.new(2020, 1, 2),
+              valid_at: Time.new(2020, 1, 3)
+            )
+          ],
+          Stream.new("Dummy"),
+          ExpectedVersion.any
+        )
+
+        expect {
+          repository.read(specification.in_batches.as_at.result).to_a
+        }.to match_query(%r{
+          SELECT\s+(.*)\s+FROM\s+.event_store_events.\s+ORDER\s+BY\s+.event_store_events.\..created_at.\s+LIMIT.\d+\sOFFSET.\d+
+}x, 2)
+        expect {
+          repository.read(specification.in_batches.as_of.result).to_a
+        }.to match_query(/SELECT.*FROM .*event_store_events.* ORDER BY COALESCE.*event_store_events.*valid_at.*event_store_events.*created_at.*LIMIT \d+ OFFSET \d+/,
+                         2)
+      end
 
       private
 
