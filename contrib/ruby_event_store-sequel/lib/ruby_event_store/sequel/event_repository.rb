@@ -340,7 +340,7 @@ module RubyEventStore
       end
 
       def coalesced_date
-        "COALESCE(`event_store_events`.`valid_at`, `event_store_events`.`created_at`)"
+        "COALESCE(event_store_events.valid_at, event_store_events.created_at)"
       end
 
       def time_comparison_field(specification)
