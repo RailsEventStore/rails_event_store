@@ -10,7 +10,7 @@
 
       column :stream, String, null: false
       column :position, Integer
-      column :event_id, :uuid, null: false
+      column :event_id, String, null: false
       column :created_at,
              Time,
              null: false,
@@ -24,7 +24,7 @@
     create_table :event_store_events do
       primary_key :id, type: :Bignum, null: false
 
-      column :event_id, :uuid, null: false
+      column :event_id, String, null: false
       column :event_type, String, null: false
       column :metadata, data_type
       column :data, data_type, null: false
