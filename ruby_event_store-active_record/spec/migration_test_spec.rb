@@ -59,6 +59,7 @@ module RubyEventStore
               "index_event_store_events_in_streams_on_created_at" btree (created_at)
               "index_event_store_events_in_streams_on_stream_and_event_id" UNIQUE, btree (stream, event_id)
               "index_event_store_events_in_streams_on_stream_and_position" UNIQUE, btree (stream, "position")
+              "index_event_store_events_in_streams_on_event_id" btree (event_id)
         SCHEMA
       end
 
@@ -100,6 +101,7 @@ module RubyEventStore
             PRIMARY KEY (`id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_event_id` (`stream`,`event_id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
+            KEY `index_event_store_events_in_streams_on_event_id` (`event_id`),
             KEY `index_event_store_events_in_streams_on_created_at` (`created_at`)
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
@@ -117,6 +119,7 @@ module RubyEventStore
           CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_event_id" ON "event_store_events_in_streams" ("stream", "event_id")
+          CREATE INDEX "index_event_store_events_in_streams_on_event_id" ON "event_store_events_in_streams" ("event_id")
           CREATE TABLE "event_store_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" varchar(36) NOT NULL, "event_type" varchar NOT NULL, "metadata" blob, "data" blob NOT NULL, "created_at" datetime(6) NOT NULL, "valid_at" datetime(6))
           CREATE UNIQUE INDEX "index_event_store_events_on_event_id" ON "event_store_events" ("event_id")
           CREATE INDEX "index_event_store_events_on_event_type" ON "event_store_events" ("event_type")

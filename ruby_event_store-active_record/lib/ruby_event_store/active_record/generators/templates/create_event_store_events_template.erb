@@ -10,6 +10,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
     end
     add_index :event_store_events_in_streams, [:stream, :position], unique: true
     add_index :event_store_events_in_streams, [:stream, :event_id], unique: true
+    add_index :event_store_events_in_streams, [:event_id]
 
     create_table(:event_store_events, force: false) do |t|
       t.references  :event,       null: false, type: :string, limit: 36, index: { unique: true }
