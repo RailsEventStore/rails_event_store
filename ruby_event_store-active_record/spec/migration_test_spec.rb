@@ -57,9 +57,9 @@ module RubyEventStore
           Indexes:
               "event_store_events_in_streams_pkey" PRIMARY KEY, btree (id)
               "index_event_store_events_in_streams_on_created_at" btree (created_at)
+              "index_event_store_events_in_streams_on_event_id" btree (event_id)
               "index_event_store_events_in_streams_on_stream_and_event_id" UNIQUE, btree (stream, event_id)
               "index_event_store_events_in_streams_on_stream_and_position" UNIQUE, btree (stream, "position")
-              "index_event_store_events_in_streams_on_event_id" btree (event_id)
         SCHEMA
       end
 
@@ -101,8 +101,8 @@ module RubyEventStore
             PRIMARY KEY (`id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_event_id` (`stream`,`event_id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
-            KEY `index_event_store_events_in_streams_on_event_id` (`event_id`),
-            KEY `index_event_store_events_in_streams_on_created_at` (`created_at`)
+            KEY `index_event_store_events_in_streams_on_created_at` (`created_at`),
+            KEY `index_event_store_events_in_streams_on_event_id` (`event_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
       end
