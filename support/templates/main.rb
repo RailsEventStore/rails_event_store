@@ -25,40 +25,22 @@ mk_indented_yaml =
     Psych.dump(shit).lines.drop(1).join(" " * indent).strip
   end
 
-[
-  {
-    name: "aggregate_root",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES]
-  },
-  {
-    name: "ruby_event_store",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES]
-  },
-  {
-    name: "ruby_event_store-rspec",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES]
-  },
-  {
-    name: "ruby_event_store-browser",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RACK_GEMFILES]
-  },
-  {
-    name: "rails_event_store",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RAILS_GEMFILES]
-  },
-  {
-    name: "ruby_event_store-active_record",
-    matrix:
-      mk_matrix[
-        ruby: RUBY_VERSIONS,
-        gemfile: RAILS_GEMFILES,
-        database: DATABASE_URLS,
-        datatype: DATA_TYPES
-      ]
-  }
-].each do |gem|
-  name, matrix = gem.values_at(:name, :matrix)
-
+{
+  "aggregate_root" => mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+  "ruby_event_store" => mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+  "ruby_event_store-rspec" => mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+  "ruby_event_store-browser" =>
+    mk_matrix[ruby: RUBY_VERSIONS, gemfile: RACK_GEMFILES],
+  "rails_event_store" =>
+    mk_matrix[ruby: RUBY_VERSIONS, gemfile: RAILS_GEMFILES],
+  "ruby_event_store-active_record" =>
+    mk_matrix[
+      ruby: RUBY_VERSIONS,
+      gemfile: RAILS_GEMFILES,
+      database: DATABASE_URLS,
+      datatype: DATA_TYPES
+    ]
+}.each do |name, matrix|
   File.write(
     File.join(__dir__, "../../.github/workflows/#{name}.yml"),
     ERB.new(File.read(File.join(__dir__, "res_gem.yaml.erb"))).result_with_hash(
