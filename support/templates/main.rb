@@ -5,6 +5,13 @@ RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
 RAILS_GEMFILES = %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0]
 RACK_GEMFILES = %w[Gemfile Gemfile.rack_2_0]
 GEMFILES = %w[Gemfile]
+DATA_TYPES = %w[binary json jsonb]
+DATABASE_URLS = %w[
+  sqlite3:db.sqlite3
+  postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+  postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+  mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
+]
 
 mk_matrix =
   lambda do |pairs|
@@ -45,13 +52,8 @@ mk_indented_yaml =
       mk_matrix[
         ruby: RUBY_VERSIONS,
         gemfile: RAILS_GEMFILES,
-        database: %w[
-          sqlite3:db.sqlite3
-          postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-          postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-          mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-        ],
-        datatype: %w[binary json jsonb]
+        database: DATABASE_URLS,
+        datatype: DATA_TYPES
       ]
   }
 ].each do |gem|
