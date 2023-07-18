@@ -28,23 +28,28 @@ mk_indented_yaml =
 [
   {
     name: "aggregate_root",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES]
+    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+    template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES]
+    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+    template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store-rspec",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES]
+    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+    template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store-browser",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RACK_GEMFILES]
+    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RACK_GEMFILES],
+    template: "elm.yaml.erb"
   },
   {
     name: "rails_event_store",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RAILS_GEMFILES]
+    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RAILS_GEMFILES],
+    template: "ruby.yaml.erb",
   },
   {
     name: "ruby_event_store-active_record",
@@ -54,14 +59,15 @@ mk_indented_yaml =
         gemfile: RAILS_GEMFILES,
         database: DATABASE_URLS,
         datatype: DATA_TYPES
-      ]
+      ],
+    template: "ruby.yaml.erb"
   }
 ].each do |gem|
-  name, matrix = gem.values_at(:name, :matrix)
+  name, matrix, template = gem.values_at(:name, :matrix, :template)
 
   File.write(
     File.join(__dir__, "../../.github/workflows/#{name}.yml"),
-    ERB.new(File.read(File.join(__dir__, "res_gem.yaml.erb"))).result_with_hash(
+    ERB.new(File.read(File.join(__dir__, template))).result_with_hash(
       name: name,
       working_directory: name,
       matrix: mk_indented_yaml[matrix, 10]

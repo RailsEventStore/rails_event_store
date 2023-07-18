@@ -33,7 +33,16 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
+      - uses: actions/cache@v3
+        with:
+          path: ~/.elm
+          key: elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}
+      - run: make install-npm test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
