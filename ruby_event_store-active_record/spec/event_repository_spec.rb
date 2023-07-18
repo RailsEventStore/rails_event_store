@@ -243,7 +243,7 @@ module RubyEventStore
         }.to match_query /SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.id >*.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/
       end
 
-      specify do
+      specify "produces expected query for position in stream call" do
         repository.append_to_stream(
           [event0 = SRecord.new, event1 = SRecord.new],
           stream = Stream.new("stream"),
@@ -255,7 +255,7 @@ module RubyEventStore
         }.to match_query /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/
       end
 
-      specify do
+      specify "produces expected query for global position call" do
         repository.append_to_stream(
           [event = SRecord.new],
           Stream.new("stream"),
