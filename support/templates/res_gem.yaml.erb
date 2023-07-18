@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          <%= mk_indented_yaml.call(matrix, 10) %>
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock

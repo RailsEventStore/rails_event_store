@@ -65,7 +65,7 @@ mk_indented_yaml =
   File.write(File.join(__dir__, "../../.github/workflows/#{name}.yml"), ERB.new(File.read(File.join(__dir__, "res_gem.yaml.erb"))).result_with_hash(
     name: name,
     working_directory: name,
-    matrix: matrix
+    matrix: mk_indented_yaml[matrix, 10]
   ))
 
   print "."
