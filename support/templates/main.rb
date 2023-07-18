@@ -2,6 +2,9 @@ require "erb"
 require "psych"
 
 RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
+RAILS_GEMFILES = %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0]
+RACK_GEMFILES = %w[Gemfile Gemfile.rack_2_0]
+GEMFILES = %w[Gemfile]
 
 mk_matrix =
   lambda do |pairs|
@@ -20,27 +23,27 @@ template = DATA.read
 [
   {
     name: "aggregate_root",
-    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile])
+    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: GEMFILES)
   },
   {
     name: "ruby_event_store",
-    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile])
+    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: GEMFILES)
   },
   {
     name: "ruby_event_store-rspec",
-    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile])
+    matrix: mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: GEMFILES)
   },
   {
     name: "ruby_event_store-browser",
     matrix:
-      mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: %w[Gemfile Gemfile.rack_2_0])
+      mk_matrix.call(ruby: RUBY_VERSIONS, gemfile: RACK_GEMFILES)
   },
   {
     name: "rails_event_store",
     matrix:
       mk_matrix.call(
         ruby: RUBY_VERSIONS,
-        gemfile: %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0]
+        gemfile: RAILS_GEMFILES
       )
   },
   {
@@ -48,7 +51,7 @@ template = DATA.read
     matrix:
       mk_matrix.call(
         ruby: RUBY_VERSIONS,
-        gemfile: %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0],
+        gemfile: RAILS_GEMFILES,
         database: %w[
           sqlite3:db.sqlite3
           postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
