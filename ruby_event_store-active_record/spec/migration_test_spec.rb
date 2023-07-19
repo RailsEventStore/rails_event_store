@@ -106,7 +106,8 @@ module RubyEventStore
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_event_id` (`stream`,`event_id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
             KEY `index_event_store_events_in_streams_on_created_at` (`created_at`),
-            KEY `index_event_store_events_in_streams_on_event_id` (`event_id`)
+            KEY `index_event_store_events_in_streams_on_event_id` (`event_id`),
+            CONSTRAINT `fk_rails_c8d52b5857` FOREIGN KEY (`event_id`) REFERENCES `event_store_events` (`event_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
       end
