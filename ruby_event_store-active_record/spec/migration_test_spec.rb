@@ -46,6 +46,8 @@ module RubyEventStore
               "index_event_store_events_on_event_id" UNIQUE, btree (event_id)
               "index_event_store_events_on_event_type" btree (event_type)
               "index_event_store_events_on_valid_at" btree (valid_at)
+          Referenced by:
+              TABLE "event_store_events_in_streams" CONSTRAINT "fk_rails_c8d52b5857" FOREIGN KEY (event_id) REFERENCES event_store_events(event_id)
           Table "public.event_store_events_in_streams"
              Column   |            Type                | Collation | Nullable |                          Default                          
           ------------+--------------------------------+-----------+----------+-----------------------------------------------------------
@@ -60,6 +62,8 @@ module RubyEventStore
               "index_event_store_events_in_streams_on_event_id" btree (event_id)
               "index_event_store_events_in_streams_on_stream_and_event_id" UNIQUE, btree (stream, event_id)
               "index_event_store_events_in_streams_on_stream_and_position" UNIQUE, btree (stream, "position")
+          Foreign-key constraints:
+              "fk_rails_c8d52b5857" FOREIGN KEY (event_id) REFERENCES event_store_events(event_id)
         SCHEMA
       end
 

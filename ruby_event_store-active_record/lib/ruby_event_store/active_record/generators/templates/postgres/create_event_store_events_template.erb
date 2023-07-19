@@ -20,5 +20,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
       t.datetime    :created_at,  null: false, type: :timestamp, precision: 6, index: true
       t.datetime    :valid_at,    null: true, type: :timestamp, precision: 6, index: true
     end
+
+    add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   end
 end
