@@ -91,8 +91,8 @@ module RubyEventStore
             end
           data_types = types&.fetch(:data, nil)
           metadata_types = types&.fetch(:metadata, nil)
-          data = data_types ? restore_type(record.data, data_types) : record.data
-          metadata = metadata_types ? restore_type(record.metadata, metadata_types) : record.metadata
+          data = restore_type(record.data, data_types)
+          metadata = restore_type(record.metadata, metadata_types)
 
           Record.new(
             event_id: record.event_id,
@@ -151,7 +151,7 @@ module RubyEventStore
         end
 
         def restore_type(argument, type)
-          case argument
+          case type
           when Hash
             restore_types(argument, type)
           when Array

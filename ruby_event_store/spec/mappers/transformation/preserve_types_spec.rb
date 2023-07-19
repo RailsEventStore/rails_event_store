@@ -351,6 +351,27 @@ module RubyEventStore
         ensure
           Time.zone = current_tz
         end
+
+        specify "preserves OpenStruct data type passed by stored type lambda" do
+          transformation = PreserveTypes.new.register(
+            OpenStruct,
+            serializer: ->(v) { v.to_h },
+            deserializer: ->(v) { OpenStruct.new(v) }
+          )
+          ostruct = OpenStruct.new(foo: "bar")
+          record =
+            Record.new(
+              event_id: uuid,
+              metadata: {},
+              data: ostruct,
+              event_type: "TestEvent",
+              timestamp: nil,
+              valid_at: nil
+            )
+
+          expect(transformation.dump(record).metadata[:types]).to eq({ data: "OpenStruct", metadata: {} })
+          expect(transformation.load(transformation.dump(record))).to eq(record)
+        end
       end
     end
   end
