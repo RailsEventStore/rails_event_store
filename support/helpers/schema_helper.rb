@@ -22,8 +22,8 @@ module SchemaHelper
   end
 
   def drop_database
-    ActiveRecord::Migration.drop_table("event_store_events")
     ActiveRecord::Migration.drop_table("event_store_events_in_streams")
+    ActiveRecord::Migration.drop_table("event_store_events")
   rescue ::ActiveRecord::StatementInvalid
   end
 

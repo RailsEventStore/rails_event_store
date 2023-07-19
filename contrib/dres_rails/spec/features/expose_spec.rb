@@ -15,8 +15,8 @@ require "ruby_event_store"
   end
 
   before(:each) do
-    ::ActiveRecord::Base.connection.execute("TRUNCATE event_store_events")
     ::ActiveRecord::Base.connection.execute("TRUNCATE event_store_events_in_streams")
+    ::ActiveRecord::Base.connection.execute("TRUNCATE event_store_events")
   end
 
   let(:repository) { RubyEventStore::ActiveRecord::PgLinearizedEventRepository.new(serializer: YAML) }
