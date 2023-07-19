@@ -305,7 +305,7 @@ module RubyEventStore
             event_id: uuid,
             metadata: {
               types: {
-                data: ['Symbol', 'Symbol'],
+                data: 'Symbol',
               }
             },
             data: :any_given_symbol,
