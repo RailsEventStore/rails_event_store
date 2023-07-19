@@ -17,6 +17,7 @@ task "db:migrations:copy" do
   puts "Migration file created #{path}"
 end
 
+desc "Generate migration for missing event_id index"
 task "db:migrations:fix_missing_event_id_index" do
   ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
 
