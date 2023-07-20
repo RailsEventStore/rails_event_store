@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 120
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-flipper
       BUNDLE_GEMFILE: Gemfile
+      WORKING_DIRECTORY: contrib/ruby_event_store-flipper
     strategy:
       fail-fast: false
     steps:

@@ -25,19 +25,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
+          - ruby: ruby-3.2
             gemfile: Gemfile
           - ruby: ruby-3.1
-            gemfile: Gemfile.activesupport_6_1
+            gemfile: Gemfile
           - ruby: ruby-3.0
             gemfile: Gemfile
           - ruby: ruby-2.7
             gemfile: Gemfile
-          - ruby: ruby-3.0
+          - ruby: ruby-3.2
             gemfile: Gemfile.activesupport_6_1
-          - ruby: ruby-2.7
-            gemfile: Gemfile.activesupport_6_1
-          - ruby: ruby-2.7
+          - ruby: ruby-3.2
             gemfile: Gemfile.activesupport_6_0
     steps:
       - uses: actions/checkout@v3

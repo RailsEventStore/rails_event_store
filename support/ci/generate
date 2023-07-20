@@ -12,12 +12,14 @@ gemfile do
 end
 
 RUBY_VERSIONS = [
-  RUBY_3_2 = "ruby-3.2",
-  RUBY_3_1 = "ruby-3.1",
-  RUBY_3_0 = "ruby-3.0",
-  RUBY_2_7 = "ruby-2.7",
+  MRI_RUBY = [
+    RUBY_3_2 = "ruby-3.2",
+    RUBY_3_1 = "ruby-3.1",
+    RUBY_3_0 = "ruby-3.0",
+    RUBY_2_7 = "ruby-2.7",
+  ],
   TRUFFLE_RUBY = "truffleruby",
-]
+].flatten
 
 DATA_TYPES = [
   DATA_BINARY = "binary",
@@ -33,6 +35,20 @@ DATABASE_URLS = [
   MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5"
 ]
 
+GEMFILES = %w[Gemfile]
+
+RAILS_GEMFILES = [
+  *GEMFILES,
+  GEMFILE_RAILS_6_1 = "Gemfile.rails_6_1",
+  GEMFILE_RAILS_6_0 = "Gemfile.rails_6_0",
+].flatten
+
+AS_GEMFILES = [
+  *GEMFILES,
+  GEMFILE_AS_6_1 = "Gemfile.activesupport_6_1",
+  GEMFILE_AS_6_0 = "Gemfile.activesupport_6_0",
+]
+
 [
   {
     name: "aggregate_root",
@@ -40,7 +56,7 @@ DATABASE_URLS = [
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
-        Szczupac.axis("gemfile", %w[Gemfile])
+        Szczupac.axis("gemfile", GEMFILES)
       ),
     template: "ruby.yaml.erb"
   },
@@ -55,7 +71,7 @@ DATABASE_URLS = [
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
-        Szczupac.axis("gemfile", %w[Gemfile])
+        Szczupac.axis("gemfile", GEMFILES)
       ),
     template: "ruby.yaml.erb"
   },
@@ -70,7 +86,7 @@ DATABASE_URLS = [
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
-        Szczupac.axis("gemfile", %w[Gemfile])
+        Szczupac.axis("gemfile", GEMFILES)
       ),
     template: "ruby.yaml.erb"
   },
@@ -100,7 +116,7 @@ DATABASE_URLS = [
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
-        Szczupac.axis("gemfile", %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0])
+        Szczupac.axis("gemfile", RAILS_GEMFILES)
       ),
     template: "ruby.yaml.erb"
   },
@@ -115,7 +131,7 @@ DATABASE_URLS = [
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
-        Szczupac.axis("gemfile", %w[Gemfile]),
+        Szczupac.axis("gemfile", GEMFILES),
         [
           *Szczupac.generate(
             Szczupac.axis("database", [SQLITE]),
@@ -138,6 +154,191 @@ DATABASE_URLS = [
     working_directory: "ruby_event_store-active_record",
     template: "coverage.yaml.erb"
   },
+  {
+    name: "ruby_event_store-flipper",
+    working_directory: "contrib/ruby_event_store-flipper",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY),
+        Szczupac.axis("gemfile", AS_GEMFILES)
+      ),
+    template: "contrib.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-flipper_coverage",
+    working_directory: "contrib/ruby_event_store-flipper",
+    template: "coverage.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-newrelic",
+    working_directory: "contrib/ruby_event_store-newrelic",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY),
+        Szczupac.axis("gemfile", GEMFILES)
+      ),
+    template: "contrib.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-newrelic_coverage",
+    working_directory: "contrib/ruby_event_store-newrelic",
+    template: "coverage.yaml.erb"
+  },
+  # {
+  #   name: "ruby_event_store-outbox",
+  #   working_directory: "contrib/ruby_event_store-outbox",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", RAILS_GEMFILES),
+  #       Szczupac.axis("database", %w[sqlite3:db.sqlite3])
+  #   ),
+  #   template: "contrib.yaml.erb"
+  # },
+  # {
+  #   name: "ruby_event_store-outbox_coverage",
+  #   working_directory: "contrib/ruby_event_store-outbox",
+  #   template: "coverage.yaml.erb"
+  # },
+  {
+    name: "ruby_event_store-profiler",
+    working_directory: "contrib/ruby_event_store-profiler",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY),
+        Szczupac.axis("gemfile", GEMFILES)
+      ),
+    template: "contrib.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-profiler_coverage",
+    working_directory: "contrib/ruby_event_store-profiler",
+    template: "coverage.yaml.erb"
+  },
+  # {
+  #   name: "ruby_event_store-protobuf",
+  #   working_directory: "contrib/ruby_event_store-protobuf",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", RAILS_GEMFILES),
+  #       Szczupac.axis("database", %w[sqlite3:db.sqlite3])
+  #     ),
+  #   template: "contrib.yaml.erb"
+  # },
+  {
+    name: "ruby_event_store-protobuf_coverage",
+    working_directory: "contrib/ruby_event_store-protobuf",
+    template: "coverage.yaml.erb"
+  },
+  # {
+  #   name: "ruby_event_store-rom",
+  #   working_directory: "contrib/ruby_event_store-rom",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", GEMFILES),
+  #       [
+  #         *Szczupac.generate(
+  #           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
+  #           Szczupac.axis("datatype", ["text"])
+  #         ),
+  #         *Szczupac.generate(
+  #           Szczupac.axis("database", [POSTGGRES_12, POSTGRES_11]),
+  #           Szczupac.axis("datatype", [DATA_JSONB, DATA_JSON, "text"])
+  #         ),
+  #         *Szczupac.generate(
+  #           Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
+  #           Szczupac.axis("datatype", ["text", DATA_JSON])
+  #         )
+  #       ]
+  #     ),
+  #   template: "contrib.yaml.erb"
+  # },
+  {
+    name: "ruby_event_store-rom_coverage",
+    working_directory: "contrib/ruby_event_store-rom",
+    template: "coverage.yaml.erb"
+  },
+  # {
+  #   name: "ruby_event_store-sequel",
+  #   working_directory: "contrib/ruby_event_store-sequel",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", GEMFILES),
+  #       [
+  #         *Szczupac.generate(
+  #           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
+  #           Szczupac.axis("datatype", ["text"])
+  #         ),
+  #         *Szczupac.generate(
+  #           Szczupac.axis("database", [POSTGGRES_12, POSTGRES_11]),
+  #           Szczupac.axis("datatype", [DATA_JSONB, DATA_JSON, "text"])
+  #         ),
+  #         *Szczupac.generate(
+  #           Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
+  #           Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON])
+  #         )
+  #       ]
+  #     ),
+  #   template: "contrib.yaml.erb"
+  # },
+  {
+    name: "ruby_event_store-sequel_coverage",
+    working_directory: "contrib/ruby_event_store-sequel",
+    template: "coverage.yaml.erb"
+  },
+  # {
+  #   name: "ruby_event_store-sidekiq_scheduler",
+  #   working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", GEMFILES)
+  #     ),
+  #   template: "contrib.yaml.erb"
+  # },
+  # {
+  #   name: "ruby_event_store-sidekiq_scheduler_coverage",
+  #   working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
+  #   template: "coverage.yaml.erb"
+  # },
+  {
+    name: "ruby_event_store-transformations",
+    working_directory: "contrib/ruby_event_store-transformations",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY),
+        Szczupac.axis("gemfile", GEMFILES)
+      ),
+    template: "contrib.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-transformations_coverage",
+    working_directory: "contrib/ruby_event_store-transformations",
+    template: "coverage.yaml.erb"
+  },
+  # {
+  #   name: "dres_client",
+  #   working_directory: "contrib/dres_client",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", GEMFILES)
+  #     ),
+  #   template: "contrib.yaml.erb"
+  # },
+  # {
+  #   name: "dres_rails",
+  #   working_directory: "contrib/dres_rails",
+  #   matrix:
+  #     Szczupac.generate(
+  #       Szczupac.axis("ruby", MRI_RUBY),
+  #       Szczupac.axis("gemfile", GEMFILES)
+  #     ),
+  #   template: "contrib.yaml.erb"
+  # },
 ].each do |gem|
   name = gem.fetch(:name)
   filename = File.join(__dir__, "../../.github/workflows/#{name}.yml")

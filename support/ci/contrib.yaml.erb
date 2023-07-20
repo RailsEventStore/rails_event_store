@@ -1,4 +1,4 @@
-name: ruby_event_store-profiler
+name: <%= name %>
 on:
   repository_dispatch:
     types:
@@ -6,33 +6,26 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-profiler/**"
-      - ".github/workflows/ruby_event_store-profiler.yml"
+      - "<%= working_directory %>/**"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-profiler/**"
-      - ".github/workflows/ruby_event_store-profiler.yml"
+      - "<%= working_directory %>/**"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-profiler
+      WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.2
-            gemfile: Gemfile
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-          - ruby: ruby-2.7
-            gemfile: Gemfile
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
@@ -48,7 +41,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-profiler
+      WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
