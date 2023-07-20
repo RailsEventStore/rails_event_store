@@ -27,20 +27,16 @@ jobs:
             gemfile: Gemfile
           - ruby: ruby-3.1
             gemfile: Gemfile
-          - ruby: ruby-3.1
-            gemfile: Gemfile.rails_6_1
           - ruby: ruby-3.0
             gemfile: Gemfile
-          - ruby: ruby-3.0
-            gemfile: Gemfile.rails_6_1
-          - ruby: ruby-2.7
-            gemfile: Gemfile.rails_6_1
-          - ruby: ruby-2.7
-            gemfile: Gemfile.rails_6_0
           - ruby: ruby-2.7
             gemfile: Gemfile
           - ruby: truffleruby
             gemfile: Gemfile
+          - ruby: ruby-3.2
+            gemfile: Gemfile.rails_6_1
+          - ruby: ruby-3.2
+            gemfile: Gemfile.rails_6_0
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
