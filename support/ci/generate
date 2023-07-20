@@ -11,14 +11,26 @@ gemfile do
   gem "szczupac", ">= 0.4.0"
 end
 
-RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
-DATA_TYPES = %w[binary json jsonb]
-DATABASE_URLS = %w[
-  sqlite3:db.sqlite3
-  postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-  postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-  mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-  mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
+RUBY_VERSIONS = [
+  RUBY_3_2 = "ruby-3.2",
+  RUBY_3_1 = "ruby-3.1",
+  RUBY_3_0 = "ruby-3.0",
+  RUBY_2_7 = "ruby-2.7",
+  TRUFFLE_RUBY = "truffleruby",
+]
+
+DATA_TYPES = [
+  DATA_BINARY = "binary",
+  DATA_JSON = "json",
+  DATA_JSONB = "jsonb"
+]
+
+DATABASE_URLS = [
+  SQLITE = "sqlite3:db.sqlite3",
+  POSTGGRES_12 = "postgres://postgres:secret@localhost:10012/rails_event_store?pool=5",
+  POSTGRES_11 = "postgres://postgres:secret@localhost:10011/rails_event_store?pool=5",
+  MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5",
+  MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5"
 ]
 
 [
