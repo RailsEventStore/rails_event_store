@@ -58,7 +58,7 @@ end
         database: DATABASE_URLS,
         datatype: DATA_TYPES
       ],
-    template: "ruby.yaml.erb"
+    template: "db.yaml.erb"
   }
 ].each do |gem|
   name, matrix, template = gem.values_at(:name, :matrix, :template)
