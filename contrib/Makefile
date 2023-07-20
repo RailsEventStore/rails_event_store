@@ -20,6 +20,9 @@ endef
 $(addprefix install-, $(GEMS)):
 	@make -C $(subst install-,,$@) install
 
+$(addprefix install-all-, $(GEMS)):
+	@make -C $(subst install-all-,,$@) install-all
+
 $(addprefix local-install-, $(GEMS)):
 	@make -C $(subst local-install-,,$@) local-install
 
@@ -36,6 +39,8 @@ $(addprefix mutate-, $(GEMS)):
 	@make -C $(subst mutate-,,$@) mutate
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
+
+install-all: $(addprefix install-all-, $(GEMS)) ## Install all dependencies
 
 local-install: $(addprefix local-install-, $(GEMS))
 
