@@ -1,5 +1,11 @@
+require "bundler/inline"
 require "erb"
 require "psych"
+
+gemfile do
+  source "https://rubygems.org"
+  gem "szczupac", ">= 0.2.0"
+end
 
 RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
 RAILS_GEMFILES = %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0]
@@ -13,17 +19,13 @@ DATABASE_URLS = %w[
   mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
 ]
 
-mk_matrix =
-  lambda do |pairs|
-    first, *rest =
-      pairs.map { |name, values| values.map { |value| { name.to_s => value } } }
-    first.product(*rest).map { |set| set.reduce(&:merge) }
-  end
+mk_matrix = ->(**pairs) do
+  Szczupac[**pairs].map { |pair| pair.transform_keys(&:to_s) }
+end
 
-mk_indented_yaml =
-  lambda do |shit, indent|
-    Psych.dump(shit).lines.drop(1).join(" " * indent).strip
-  end
+mk_indented_yaml = ->(shit, indent) do
+  Psych.dump(shit).lines.drop(1).join(" " * indent).strip
+end
 
 [
   {
@@ -49,7 +51,7 @@ mk_indented_yaml =
   {
     name: "rails_event_store",
     matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RAILS_GEMFILES],
-    template: "ruby.yaml.erb",
+    template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store-active_record",
