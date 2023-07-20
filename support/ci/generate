@@ -45,6 +45,11 @@ DATABASE_URLS = [
     template: "ruby.yaml.erb"
   },
   {
+    name: "aggregate_root_coverage",
+    working_directory: "aggregate_root",
+    template: "coverage.yaml.erb"
+  },
+  {
     name: "ruby_event_store",
     working_directory: "ruby_event_store",
     matrix:
@@ -53,6 +58,11 @@ DATABASE_URLS = [
         Szczupac.axis("gemfile", %w[Gemfile])
       ),
     template: "ruby.yaml.erb"
+  },
+  {
+    name: "ruby_event_store_coverage",
+    working_directory: "ruby_event_store",
+    template: "coverage.yaml.erb"
   },
   {
     name: "ruby_event_store-rspec",
@@ -65,6 +75,11 @@ DATABASE_URLS = [
     template: "ruby.yaml.erb"
   },
   {
+    name: "ruby_event_store-rspec_coverage",
+    working_directory: "ruby_event_store-rspec",
+    template: "coverage.yaml.erb"
+  },
+  {
     name: "ruby_event_store-browser",
     working_directory: "ruby_event_store-browser",
     matrix:
@@ -75,6 +90,11 @@ DATABASE_URLS = [
     template: "elm.yaml.erb"
   },
   {
+    name: "ruby_event_store-browser_coverage",
+    working_directory: "ruby_event_store-browser",
+    template: "coverage.yaml.erb"
+  },
+  {
     name: "rails_event_store",
     working_directory: "rails_event_store",
     matrix:
@@ -83,6 +103,11 @@ DATABASE_URLS = [
         Szczupac.axis("gemfile", %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0])
       ),
     template: "ruby.yaml.erb"
+  },
+  {
+    name: "rails_event_store_coverage",
+    working_directory: "rails_event_store",
+    template: "coverage.yaml.erb"
   },
   {
     name: "ruby_event_store-active_record",
@@ -107,20 +132,22 @@ DATABASE_URLS = [
         ]
       ),
     template: "db.yaml.erb"
-  }
+  },
+  {
+    name: "ruby_event_store-active_record_coverage",
+    working_directory: "ruby_event_store-active_record",
+    template: "coverage.yaml.erb"
+  },
 ].each do |gem|
   name = gem.fetch(:name)
-  working_directory = gem.fetch(:working_directory)
-  matrix = gem.fetch(:matrix)
-  template = gem.fetch(:template)
   filename = File.join(__dir__, "../../.github/workflows/#{name}.yml")
 
   File.write(
     filename,
-    ERB.new(File.read(File.join(__dir__, template))).result_with_hash(
+    ERB.new(File.read(File.join(__dir__, gem.fetch(:template)))).result_with_hash(
       name: name,
-      working_directory: working_directory,
-      matrix: Psych.dump(matrix).lines.drop(1).join(" " * 10).strip
+      working_directory: gem.fetch(:working_directory),
+      matrix: Psych.dump(gem[:matrix]).lines.drop(1).join(" " * 10).strip
     )
   )
 
