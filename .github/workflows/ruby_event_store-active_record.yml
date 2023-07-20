@@ -81,11 +81,11 @@ jobs:
           - ruby: ruby-3.2
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: binary
+            datatype: jsonb
           - ruby: ruby-3.2
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            datatype: binary
+            datatype: jsonb
           - ruby: ruby-3.2
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
@@ -93,7 +93,7 @@ jobs:
           - ruby: ruby-3.2
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: jsonb
+            datatype: binary
           - ruby: ruby-3.2
             gemfile: Gemfile
             database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
