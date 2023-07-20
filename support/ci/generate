@@ -85,10 +85,20 @@ DATABASE_URLS = [
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
         Szczupac.axis("gemfile", %w[Gemfile]),
-        Szczupac.permutation(
-          Szczupac.axis("database", DATABASE_URLS),
-          Szczupac.axis("datatype", DATA_TYPES)
-        )
+        [
+          *Szczupac.generate(
+            Szczupac.axis("database", [SQLITE]),
+            Szczupac.axis("datatype", [DATA_BINARY])
+          ),
+          *Szczupac.generate(
+            Szczupac.axis("database", [POSTGGRES_12, POSTGRES_11]),
+            Szczupac.axis("datatype", [DATA_JSONB, DATA_JSON, DATA_BINARY])
+          ),
+          *Szczupac.generate(
+            Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
+            Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON])
+          )
+        ]
       ),
     template: "db.yaml.erb"
   }
