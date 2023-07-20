@@ -22,7 +22,8 @@ module RailsEventStore
               )
               .register(Date, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { Date.iso8601(v) })
               .register(DateTime, serializer: ->(v) { v.iso8601 }, deserializer: ->(v) { DateTime.iso8601(v) })
-              .register(BigDecimal, serializer: ->(v) { v.to_s }, deserializer: ->(v) { BigDecimal(v) }),
+              .register(BigDecimal, serializer: ->(v) { v.to_s }, deserializer: ->(v) { BigDecimal(v) })
+              .register(OpenStruct, serializer: ->(v) { v.to_h }, deserializer: ->(v) { OpenStruct.new(v) }),
             RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new
           )
         ),

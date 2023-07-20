@@ -64,6 +64,13 @@ module RailsEventStore
       expect(client.read.event(event.event_id)).to eq(event)
     end
 
+    specify "reads type of OpenStruct" do
+      event = DummyEvent.new(data: OpenStruct.new(a: 1))
+      client.append(event)
+
+      expect(client.read.event(event.event_id)).to eq(event)
+    end
+
     private
 
     def with_precision(time)
