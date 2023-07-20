@@ -54,7 +54,7 @@ end
     matrix:
       mk_matrix[
         ruby: RUBY_VERSIONS,
-        gemfile: RAILS_GEMFILES,
+        gemfile: GEMFILES,
         database: DATABASE_URLS,
         datatype: DATA_TYPES
       ],
