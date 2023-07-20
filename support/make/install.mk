@@ -9,6 +9,3 @@ install-all: ## Install gem dependencies from all Gemfiles
 update-all: ## Update gem dependencies in all Gemfiles
 	@echo "Updating gem dependencies"
 	@find . -name Gemfile\* -a ! -name \*.lock -exec bundle update --gemfile {} \;
-
-local-install:
-	@find . -name Gemfile\* -a ! -name \*.lock -exec bundle install --local --quiet --gemfile {} \;

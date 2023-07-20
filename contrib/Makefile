@@ -23,9 +23,6 @@ $(addprefix install-, $(GEMS)):
 $(addprefix install-all-, $(GEMS)):
 	@make -C $(subst install-all-,,$@) install-all
 
-$(addprefix local-install-, $(GEMS)):
-	@make -C $(subst local-install-,,$@) local-install
-
 $(addprefix update-all-, $(GEMS)):
 	@make -C $(subst update-all-,,$@) update-all
 
@@ -41,8 +38,6 @@ $(addprefix mutate-, $(GEMS)):
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
 
 install-all: $(addprefix install-all-, $(GEMS)) ## Install all dependencies
-
-local-install: $(addprefix local-install-, $(GEMS))
 
 update-all: $(addprefix update-all-, $(GEMS)) ## Update all dependencies
 
