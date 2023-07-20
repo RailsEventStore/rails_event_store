@@ -104,16 +104,16 @@ DATABASE_URLS = [
   }
 ].each do |gem|
   name, matrix, template = gem.values_at(:name, :matrix, :template)
+  filename = File.join(__dir__, "../../.github/workflows/#{name}.yml")
 
   File.write(
-    File.join(__dir__, "../../.github/workflows/#{name}.yml"),
+    filename,
     ERB.new(File.read(File.join(__dir__, template))).result_with_hash(
       name: name,
       working_directory: name,
       matrix: Psych.dump(matrix).lines.drop(1).join(" " * 10).strip
     )
   )
-  print "."
-end
 
-puts
+  puts "generating #{File.basename(filename)}"
+end
