@@ -36,6 +36,7 @@ DATABASE_URLS = [
 [
   {
     name: "aggregate_root",
+    working_directory: "aggregate_root",
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
@@ -45,6 +46,7 @@ DATABASE_URLS = [
   },
   {
     name: "ruby_event_store",
+    working_directory: "ruby_event_store",
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
@@ -54,6 +56,7 @@ DATABASE_URLS = [
   },
   {
     name: "ruby_event_store-rspec",
+    working_directory: "ruby_event_store-rspec",
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
@@ -63,6 +66,7 @@ DATABASE_URLS = [
   },
   {
     name: "ruby_event_store-browser",
+    working_directory: "ruby_event_store-browser",
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
@@ -72,6 +76,7 @@ DATABASE_URLS = [
   },
   {
     name: "rails_event_store",
+    working_directory: "rails_event_store",
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
@@ -81,6 +86,7 @@ DATABASE_URLS = [
   },
   {
     name: "ruby_event_store-active_record",
+    working_directory: "ruby_event_store-active_record",
     matrix:
       Szczupac.generate(
         Szczupac.axis("ruby", RUBY_VERSIONS),
@@ -103,14 +109,17 @@ DATABASE_URLS = [
     template: "db.yaml.erb"
   }
 ].each do |gem|
-  name, matrix, template = gem.values_at(:name, :matrix, :template)
+  name = gem.fetch(:name)
+  working_directory = gem.fetch(:working_directory)
+  matrix = gem.fetch(:matrix)
+  template = gem.fetch(:template)
   filename = File.join(__dir__, "../../.github/workflows/#{name}.yml")
 
   File.write(
     filename,
     ERB.new(File.read(File.join(__dir__, template))).result_with_hash(
       name: name,
-      working_directory: name,
+      working_directory: working_directory,
       matrix: Psych.dump(matrix).lines.drop(1).join(" " * 10).strip
     )
   )
