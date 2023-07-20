@@ -4,7 +4,7 @@ require "psych"
 
 gemfile do
   source "https://rubygems.org"
-  gem "szczupac", ">= 0.2.0"
+  gem "szczupac", ">= 0.3.0"
 end
 
 RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
