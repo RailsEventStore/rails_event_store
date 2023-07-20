@@ -57,6 +57,10 @@ module RubyEventStore
         @stream_klass.where(event_id: event_id, stream: stream.name).exists?
       end
 
+      def search_streams(stream)
+        @stream_klass.where("stream LIKE ?", "#{stream}%").pluck(:stream).uniq
+      end
+
       private
 
       attr_reader :serializer
