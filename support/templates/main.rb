@@ -4,13 +4,10 @@ require "psych"
 
 gemfile do
   source "https://rubygems.org"
-  gem "szczupac", ">= 0.3.0"
+  gem "szczupac", ">= 0.4.0"
 end
 
 RUBY_VERSIONS = %w[ruby-3.2 ruby-3.1 ruby-3.0 ruby-2.7 truffleruby]
-RAILS_GEMFILES = %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0]
-RACK_GEMFILES = %w[Gemfile Gemfile.rack_2_0]
-GEMFILES = %w[Gemfile]
 DATA_TYPES = %w[binary json jsonb]
 DATABASE_URLS = %w[
   sqlite3:db.sqlite3
@@ -20,45 +17,63 @@ DATABASE_URLS = %w[
   mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
 ]
 
-mk_matrix = ->(**pairs) do
-  Szczupac[**pairs].map { |pair| pair.transform_keys(&:to_s) }
-end
-
 [
   {
     name: "aggregate_root",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", RUBY_VERSIONS),
+        Szczupac.axis("gemfile", %w[Gemfile])
+      ),
     template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", RUBY_VERSIONS),
+        Szczupac.axis("gemfile", %w[Gemfile])
+      ),
     template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store-rspec",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: GEMFILES],
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", RUBY_VERSIONS),
+        Szczupac.axis("gemfile", %w[Gemfile])
+      ),
     template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store-browser",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RACK_GEMFILES],
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", RUBY_VERSIONS),
+        Szczupac.axis("gemfile", %w[Gemfile Gemfile.rack_2_0])
+      ),
     template: "elm.yaml.erb"
   },
   {
     name: "rails_event_store",
-    matrix: mk_matrix[ruby: RUBY_VERSIONS, gemfile: RAILS_GEMFILES],
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", RUBY_VERSIONS),
+        Szczupac.axis("gemfile", %w[Gemfile Gemfile.rails_6_1 Gemfile.rails_6_0])
+      ),
     template: "ruby.yaml.erb"
   },
   {
     name: "ruby_event_store-active_record",
     matrix:
-      mk_matrix[
-        ruby: RUBY_VERSIONS,
-        gemfile: GEMFILES,
-        database: DATABASE_URLS,
-        datatype: DATA_TYPES
-      ],
+      Szczupac.generate(
+        Szczupac.axis("ruby", RUBY_VERSIONS),
+        Szczupac.axis("gemfile", %w[Gemfile]),
+        Szczupac.permutation(
+          Szczupac.axis("database", DATABASE_URLS),
+          Szczupac.axis("datatype", DATA_TYPES)
+        )
+      ),
     template: "db.yaml.erb"
   }
 ].each do |gem|
@@ -69,10 +84,9 @@ end
     ERB.new(File.read(File.join(__dir__, template))).result_with_hash(
       name: name,
       working_directory: name,
-      matrix:   Psych.dump(matrix).lines.drop(1).join(" " * 10).strip
+      matrix: Psych.dump(matrix).lines.drop(1).join(" " * 10).strip
     )
   )
-
   print "."
 end
 
