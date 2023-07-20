@@ -23,10 +23,6 @@ mk_matrix = ->(**pairs) do
   Szczupac[**pairs].map { |pair| pair.transform_keys(&:to_s) }
 end
 
-mk_indented_yaml = ->(shit, indent) do
-  Psych.dump(shit).lines.drop(1).join(" " * indent).strip
-end
-
 [
   {
     name: "aggregate_root",
@@ -72,7 +68,7 @@ end
     ERB.new(File.read(File.join(__dir__, template))).result_with_hash(
       name: name,
       working_directory: name,
-      matrix: mk_indented_yaml[matrix, 10]
+      matrix:   Psych.dump(matrix).lines.drop(1).join(" " * 10).strip
     )
   )
 
