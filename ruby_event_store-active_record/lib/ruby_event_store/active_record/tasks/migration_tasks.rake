@@ -25,3 +25,12 @@ task "db:migrations:fix_missing_event_id_index" do
 
   puts "Migration file created #{path}"
 end
+
+desc "Generate migration for adding foreign key on event_store_events_in_streams.event_id"
+task "db:migrations:add_foreign_key_on_event_id" do
+  ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
+
+  path = RubyEventStore::ActiveRecord::ForeignKeyOnEventIdMigrationGenerator.new.call(ENV["MIGRATION_PATH"] || "db/migrate")
+
+  puts "Migration file created #{path}"
+end
