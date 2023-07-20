@@ -14,9 +14,10 @@ GEMFILES = %w[Gemfile]
 DATA_TYPES = %w[binary json jsonb]
 DATABASE_URLS = %w[
   sqlite3:db.sqlite3
-  postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
   postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+  postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
   mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
+  mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
 ]
 
 mk_matrix = ->(**pairs) do
