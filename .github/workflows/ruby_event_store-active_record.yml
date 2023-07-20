@@ -70,6 +70,14 @@ jobs:
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
             datatype: binary
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
+          - ruby: truffleruby
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+            datatype: binary
           - ruby: ruby-3.1
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
@@ -102,14 +110,6 @@ jobs:
             gemfile: Gemfile
             database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
             datatype: json
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: sqlite3:db.sqlite3
-            datatype: binary
-          - ruby: truffleruby
-            gemfile: Gemfile
-            database: sqlite3:db.sqlite3
-            datatype: binary
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
