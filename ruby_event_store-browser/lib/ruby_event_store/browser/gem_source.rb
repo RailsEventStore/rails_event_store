@@ -9,7 +9,7 @@ module RubyEventStore
         @path =
           load_path
             .select { |entry| String === entry }
-            .find { |entry| entry.match? %r{ruby_event_store-browser(?:-\d\.\d\.\d)?/lib\z} }
+            .find { |entry| entry.match? %r{ruby_event_store-browser(?:-\d+\.\d+\.\d+)?/lib\z} }
       end
 
       def version
@@ -21,7 +21,7 @@ module RubyEventStore
       end
 
       def from_rubygems?
-        path.match? %r{/gems/ruby_event_store-browser-\d\.\d\.\d/lib\z}
+        path.match? %r{/gems/ruby_event_store-browser-\d+\.\d+\.\d+/lib\z}
       end
 
       def from_git?
