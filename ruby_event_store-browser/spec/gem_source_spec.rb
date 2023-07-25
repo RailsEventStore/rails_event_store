@@ -38,6 +38,14 @@ module RubyEventStore
       end
 
       specify "don't crash on two–digit number in version string" do
+        path = "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-22.33.44/lib"
+        source = GemSource.new([random_unrelated_path, path])
+
+        expect(source.version).to eq("22.33.44")
+        expect(source).not_to be_from_git
+      end
+
+      specify "don't crash on current version number" do
         path = "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-#{RubyEventStore::VERSION}/lib"
         source = GemSource.new([random_unrelated_path, path])
 
