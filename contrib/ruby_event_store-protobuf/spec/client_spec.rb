@@ -4,10 +4,10 @@ require "json"
 
 module RubyEventStore
   ::RSpec.describe Client do
-    let(:client) { RubyEventStore::Client.new(correlation_id_generator: correlation_id_generator) }
-    let(:stream) { SecureRandom.uuid }
-    let(:correlation_id) { SecureRandom.uuid }
-    let(:correlation_id_generator) { -> { correlation_id } }
+    
+    
+    
+    
 
     specify "can handle protobuf event class instead of RubyEventStore::Event" do
       begin
