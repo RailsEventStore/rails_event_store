@@ -23,7 +23,7 @@ module RubyEventStore
         )
       end
       let(:null_metrics) { Metrics::Null.new }
-      let(:test_metrics) { Metrics::Test.new }
+      
 
       specify "#run wait if nothing was changed" do
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
