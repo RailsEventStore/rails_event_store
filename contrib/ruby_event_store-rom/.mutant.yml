@@ -4,7 +4,8 @@ requires:
   - ruby_event_store/rom
 includes:
   - lib
-integration: rspec
+integration:
+  name: rspec
 mutation:
   timeout: 1.0
 coverage_criteria:

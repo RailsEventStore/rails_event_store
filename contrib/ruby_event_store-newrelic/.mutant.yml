@@ -4,7 +4,8 @@ requires:
   - ruby_event_store/newrelic
 includes:
   - lib
-integration: rspec
+integration:
+  name: rspec
 coverage_criteria:
   process_abort: true
 matcher:

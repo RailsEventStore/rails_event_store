@@ -4,7 +4,8 @@ requires:
   - ruby_event_store/active_record
 includes:
   - lib
-integration: rspec
+integration:
+  name: rspec
 mutation:
   timeout: 10.0
 coverage_criteria:
