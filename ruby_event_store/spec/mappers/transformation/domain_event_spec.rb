@@ -4,7 +4,7 @@ module RubyEventStore
   module Mappers
     module Transformation
       ::RSpec.describe DomainEvent do
-        let(:time) { Time.now.utc }
+        
         let(:uuid) { SecureRandom.uuid }
         let(:time) { Time.now.utc }
         let(:event) do

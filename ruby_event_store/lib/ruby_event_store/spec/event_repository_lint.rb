@@ -38,7 +38,7 @@ module RubyEventStore
     let(:stream) { Stream.new(SecureRandom.uuid) }
     let(:stream_flow) { Stream.new("flow") }
     let(:stream_other) { Stream.new("other") }
-    let(:stream_test) { Stream.new("test") }
+    
     let(:version_none) { ExpectedVersion.none }
     let(:version_auto) { ExpectedVersion.auto }
     let(:version_any) { ExpectedVersion.any }
