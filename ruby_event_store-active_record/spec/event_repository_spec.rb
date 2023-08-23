@@ -10,7 +10,7 @@ module RubyEventStore
 
       it_behaves_like :event_repository, mk_repository, helper
 
-      let(:time) { Time.now.utc }
+      
       let(:repository) { mk_repository.call }
       let(:specification) do
         Specification.new(
