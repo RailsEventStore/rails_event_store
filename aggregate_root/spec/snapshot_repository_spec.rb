@@ -26,7 +26,7 @@ module AggregateRoot
     let(:reporting_repository) { ReadingStatsRepository.new(RubyEventStore::InMemoryRepository.new) }
     let(:uuid) { SecureRandom.uuid }
     let(:stream_name) { "Order$#{uuid}" }
-    let(:repository) { SnapshotRepository.new(event_store) }
+    
     let(:order_created) { Orders::Events::OrderCreated.new }
     let(:order_canceled) { Orders::Events::OrderCanceled.new }
     let(:order_expired) { Orders::Events::OrderExpired.new }
