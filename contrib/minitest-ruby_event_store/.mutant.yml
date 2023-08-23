@@ -4,7 +4,8 @@ requires:
   - minitest/ruby_event_store
 includes:
   - lib
-integration: minitest
+integration:
+  name: minitest
 coverage_criteria:
   process_abort: true
 matcher:

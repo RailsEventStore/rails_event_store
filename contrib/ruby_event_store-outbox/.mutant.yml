@@ -6,7 +6,8 @@ requires:
   - ruby_event_store/outbox/cli
 includes:
   - lib
-integration: rspec
+integration:
+  name: rspec
 mutation:
   timeout: 10.0
 coverage_criteria:
