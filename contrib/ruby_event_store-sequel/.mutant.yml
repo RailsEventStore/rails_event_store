@@ -7,6 +7,7 @@ includes:
 integration:
   name: rspec
 mutation:
+  operators: full
   timeout: 1.0
 coverage_criteria:
   timeout: true
