@@ -9,7 +9,7 @@ module RubyEventStore
     it_behaves_like :event_repository, mk_repository, helper
 
     let(:repository) { mk_repository.call }
-    let(:stream) { Stream.new(SecureRandom.uuid) }
+    
 
     it "does not allow same event twice in a stream - checks stream events before checking all events" do
       repository.append_to_stream(
