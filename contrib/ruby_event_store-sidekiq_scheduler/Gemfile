@@ -3,6 +3,7 @@ gemspec
 
 eval_gemfile "../../support/bundler/Gemfile.shared"
 
+gem "redis-client", "< 0.15"
 gem "sidekiq", "~> 7.0"
 gem "ruby_event_store", path: "../.."
 gem "rails_event_store", path: "../.."
