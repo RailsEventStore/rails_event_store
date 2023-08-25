@@ -4,6 +4,7 @@ module RubyEventStore
   module ActiveRecord
     class ForeignKeyOnEventIdMigrationGenerator
       def call(database_adapter, migration_path)
+        VerifyAdapter.new.call(database_adapter)
         each_migration(database_adapter) do |migration_name|
           path = build_path(migration_path, migration_name)
           write_to_file(path, migration_code(database_adapter, migration_name))

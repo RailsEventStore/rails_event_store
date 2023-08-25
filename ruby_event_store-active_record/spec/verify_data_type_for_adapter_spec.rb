@@ -35,6 +35,23 @@ module RubyEventStore
                     "PostgreSQL doesn't support bla"
       end
 
+      specify "PostGIS supports binary" do
+        expect { VerifyDataTypeForAdapter.new.call("PostGIS", "binary") }.not_to raise_error
+      end
+
+      specify "PostGIS supports json" do
+        expect { VerifyDataTypeForAdapter.new.call("PostGIS", "json") }.not_to raise_error
+      end
+
+      specify "PostGIS supports jsonb" do
+        expect { VerifyDataTypeForAdapter.new.call("PostGIS", "jsonb") }.not_to raise_error
+      end
+
+      specify "PostGIS doesn't support bla" do
+        expect { VerifyDataTypeForAdapter.new.call("PostGIS", "bla") }.to raise_error InvalidDataTypeForAdapter,
+                    "PostgreSQL doesn't support bla"
+      end
+
       specify "sqlite supports binary" do
         expect { VerifyDataTypeForAdapter.new.call("SQLite", "binary") }.not_to raise_error
       end

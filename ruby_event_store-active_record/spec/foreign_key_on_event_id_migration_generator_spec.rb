@@ -66,6 +66,10 @@ module RubyEventStore
         end
       end
 
+      specify "unsupported adapter raises error" do
+        expect { migration_generator('unsupported', @dir) }.to raise_error(UnsupportedAdapter)
+      end
+
       private
 
       def migration_generator(adapter, dir)

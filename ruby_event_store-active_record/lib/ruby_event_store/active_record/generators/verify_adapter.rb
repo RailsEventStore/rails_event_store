@@ -5,7 +5,7 @@ module RubyEventStore
     UnsupportedAdapter = Class.new(StandardError)
 
     class VerifyAdapter
-      SUPPORTED_ADAPTERS = %w[mysql2 postgresql sqlite].freeze
+      SUPPORTED_ADAPTERS = %w[mysql2 postgresql postgis sqlite].freeze
 
       def call(adapter)
         raise UnsupportedAdapter, "Unsupported adapter" unless supported?(adapter)
