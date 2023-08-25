@@ -37,10 +37,20 @@ module RailsEventStore
     end
 
     context "when postgresql adapter is used" do
-      before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: 'postgresql')) }
-
       specify "should do migration in two steps" do
+        allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgresql"))
+
         generate_migration
+
+        expect(second_step_migration_exists?(@dir)).to be_truthy
+        expect(generated_files_count(@dir)).to eq(2)
+      end
+
+      specify "should do the same for postgis" do
+        allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgis"))
+
+        generate_migration
+
         expect(second_step_migration_exists?(@dir)).to be_truthy
         expect(generated_files_count(@dir)).to eq(2)
       end
@@ -59,6 +69,7 @@ module RailsEventStore
 
     specify "Unsupported adapter is used" do
       allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "not_a_supported_adapter"))
+
       expect { generate_migration }.to output(/Unsupported adapter/).to_stderr
     end
 

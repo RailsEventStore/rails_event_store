@@ -7,6 +7,7 @@ module RubyEventStore
     ::RSpec.describe TemplateDirectory do
       specify "returns template directory for postgresql adapter" do
         expect(TemplateDirectory.for_adapter("PostgreSQL")).to eq("postgres/")
+        expect(TemplateDirectory.for_adapter("PostGIS")).to eq("postgres/")
       end
 
       specify "returns template directory for mysql2 adapter" do
