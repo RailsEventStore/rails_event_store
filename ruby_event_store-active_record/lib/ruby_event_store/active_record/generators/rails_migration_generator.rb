@@ -43,7 +43,7 @@ module RubyEventStore
       private
 
       def template_directory
-        TemplateDirectory.for_adapter(adapter)
+        TemplateDirectory.for_adapter(DatabaseAdapter.new(adapter))
       end
 
       def data_type

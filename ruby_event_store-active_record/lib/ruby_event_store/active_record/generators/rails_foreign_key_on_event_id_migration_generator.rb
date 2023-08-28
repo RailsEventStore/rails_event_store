@@ -19,14 +19,16 @@ if defined?(Rails::Generators::Base)
         def initialize(*args)
           super
 
-          DatabaseAdapter.new(adapter)
+          @database_adapter = DatabaseAdapter.new(adapter)
         rescue UnsupportedAdapter => e
           raise Error, e.message
         end
 
+        private attr_reader :database_adapter
+
         def create_migration
-          case adapter
-          when "postgresql", "postgis"
+          case database_adapter
+          when DatabaseAdapter::Postgres
             template "#{template_directory}add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
                      "db/migrate/#{timestamp}_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb"
             template "#{template_directory}validate_add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
