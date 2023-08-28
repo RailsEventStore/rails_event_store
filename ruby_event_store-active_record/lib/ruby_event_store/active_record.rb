@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "active_record/generators/database_adapter"
 require_relative "active_record/generators/migration_generator"
 require_relative "active_record/generators/rails_migration_generator"
 require_relative "active_record/generators/templates/template_directory"
-require_relative "active_record/generators/database_adapter"
-require_relative "active_record/generators/verify_data_type_for_adapter"
 require_relative "active_record/generators/event_id_index_migration_generator"
 require_relative "active_record/generators/rails_event_id_index_migration_generator"
 require_relative "active_record/generators/foreign_key_on_event_id_migration_generator"

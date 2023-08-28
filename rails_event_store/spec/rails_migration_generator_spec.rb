@@ -111,8 +111,10 @@ module RailsEventStore
         let(:data_type) { "json" }
 
         it "raises an error" do
-          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error, "sqlite doesn't support json"
+          expect {
+            RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
+          }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+                      "Invalid value for --data-type option. Supported for options are: binary."
         end
       end
 
@@ -120,8 +122,10 @@ module RailsEventStore
         let(:data_type) { "jsonb" }
 
         it "raises an error" do
-          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error, "sqlite doesn't support jsonb"
+          expect {
+            RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
+          }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+                      "Invalid value for --data-type option. Supported for options are: binary."
         end
       end
 
@@ -129,11 +133,10 @@ module RailsEventStore
         let(:data_type) { "invalid" }
 
         it "raises an error" do
-          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error(
-                  RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
-                  "Invalid value for --data-type option. Supported for options are: binary, json, jsonb."
-                )
+          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }.to raise_error(
+            RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+            "Invalid value for --data-type option. Supported for options are: binary."
+          )
         end
       end
     end

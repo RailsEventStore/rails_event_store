@@ -4,13 +4,8 @@ require "erb"
 module RubyEventStore
   module ActiveRecord
     class MigrationGenerator
-      DATA_TYPES = %w[binary json jsonb].freeze
-
-      def call(data_type, database_adapter, migration_path)
-        raise ArgumentError, "Invalid value for data type. Supported for options are: #{DATA_TYPES.join(", ")}." unless DATA_TYPES.include?(data_type)
-        VerifyDataTypeForAdapter.new.call(database_adapter, data_type)
-
-        migration_code = migration_code(data_type, database_adapter)
+      def call(database_adapter, migration_path)
+        migration_code = migration_code(database_adapter)
         path = build_path(migration_path)
         write_to_file(migration_code, path)
         path
@@ -22,8 +17,8 @@ module RubyEventStore
         File.expand_path(path, __dir__)
       end
 
-      def migration_code(data_type, database_adapter)
-        migration_template(template_root(database_adapter), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: data_type)
+      def migration_code(database_adapter)
+        migration_template(template_root(database_adapter), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: database_adapter.data_type)
       end
 
       def template_root(database_adapter)

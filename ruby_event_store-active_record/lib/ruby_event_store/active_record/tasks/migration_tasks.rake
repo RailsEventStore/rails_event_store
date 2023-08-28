@@ -5,14 +5,11 @@ task "db:migrations:copy" do
   data_type =
     ENV["DATA_TYPE"] || raise("Specify data type (binary, json, jsonb): rake db:migrations:copy DATA_TYPE=json")
   ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
-  database_adapter = RubyEventStore::ActiveRecord::DatabaseAdapter.new(::ActiveRecord::Base.connection.adapter_name)
+  database_adapter =
+    RubyEventStore::ActiveRecord::DatabaseAdapter.new(::ActiveRecord::Base.connection.adapter_name, data_type)
 
   path =
-    RubyEventStore::ActiveRecord::MigrationGenerator.new.call(
-      data_type,
-      database_adapter,
-      ENV["MIGRATION_PATH"] || "db/migrate"
-    )
+    RubyEventStore::ActiveRecord::MigrationGenerator.new.call(database_adapter, ENV["MIGRATION_PATH"] || "db/migrate")
 
   puts "Migration file created #{path}"
 end
@@ -30,7 +27,8 @@ desc "Generate migration for adding foreign key on event_store_events_in_streams
 task "db:migrations:add_foreign_key_on_event_id" do
   ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
 
-  path = RubyEventStore::ActiveRecord::ForeignKeyOnEventIdMigrationGenerator.new.call(ENV["MIGRATION_PATH"] || "db/migrate")
+  path =
+    RubyEventStore::ActiveRecord::ForeignKeyOnEventIdMigrationGenerator.new.call(ENV["MIGRATION_PATH"] || "db/migrate")
 
   puts "Migration file created #{path}"
 end
