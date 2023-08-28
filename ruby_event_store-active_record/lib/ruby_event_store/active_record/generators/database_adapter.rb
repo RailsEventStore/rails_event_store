@@ -3,21 +3,56 @@
 module RubyEventStore
   module ActiveRecord
     class DatabaseAdapter
-      def initialize(adapter_name)
-        @adapter_name = adapter_name.eql?("postgis") ? "postgresql" : adapter_name
+      BIG_NUM = 169614201293062129
+
+      class Postgres
+        def eql?(other)
+          other.instance_of?(Postgres)
+        end
+
+        alias == eql?
+
+        def hash
+          Postgres.hash ^ BIG_NUM
+        end
       end
 
-      attr_reader :adapter_name
+      class MySQL
+        def eql?(other)
+          other.instance_of?(MySQL)
+        end
 
-      Postgres = new("postgresql")
-      MySQL = new("mysql")
-      Sqlite = new("sqlite")
+        alias == eql?
 
-      def eql?(other)
-        other.instance_of?(DatabaseAdapter) && adapter_name.eql?(other.adapter_name)
+        def hash
+          MySQL.hash ^ BIG_NUM
+        end
       end
 
-      alias == eql?
+      class Sqlite
+        def eql?(other)
+          other.instance_of?(Sqlite)
+        end
+
+        alias == eql?
+
+        def hash
+          Sqlite.hash ^ BIG_NUM
+        end
+      end
+
+      def self.new(adapter_name)
+        case adapter_name
+        when "postgresql", "postgis"
+          Postgres.new
+        when "mysql"
+          MySQL.new
+        when "sqlite"
+          Sqlite.new
+        else
+          raise ArgumentError, "Unsupported adapter: #{adapter_name}"
+        end
+      end
     end
   end
 end
