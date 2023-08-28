@@ -42,7 +42,7 @@ module RubyEventStore
       end
 
       def self.new(adapter_name)
-        case adapter_name
+        case adapter_name.to_s.downcase
         when "postgresql", "postgis"
           Postgres.new
         when "mysql"
@@ -50,7 +50,7 @@ module RubyEventStore
         when "sqlite"
           Sqlite.new
         else
-          raise ArgumentError, "Unsupported adapter: #{adapter_name}"
+          raise ArgumentError, "Unsupported adapter: #{adapter_name.inspect}"
         end
       end
     end
