@@ -3,8 +3,8 @@
 module RubyEventStore
   module ActiveRecord
     class ForeignKeyOnEventIdMigrationGenerator
-      def call(database_adapter, migration_path)
-        VerifyAdapter.new.call(database_adapter)
+      def call(database_adapter_name, migration_path)
+        database_adapter = DatabaseAdapter.new(database_adapter_name)
         each_migration(database_adapter) do |migration_name|
           path = build_path(migration_path, migration_name)
           write_to_file(path, migration_code(database_adapter, migration_name))
@@ -15,7 +15,7 @@ module RubyEventStore
 
       def each_migration(database_adapter, &block)
         case database_adapter
-        when 'postgresql'
+        when DatabaseAdapter::Postgres
           [
             'add_foreign_key_on_event_id_to_event_store_events_in_streams',
             'validate_add_foreign_key_on_event_id_to_event_store_events_in_streams'
