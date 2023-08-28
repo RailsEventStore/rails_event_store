@@ -5,7 +5,7 @@ module RubyEventStore
     class TemplateDirectory
       def self.for_adapter(database_adapter)
         case database_adapter
-        when DatabaseAdapter::Postgres
+        when DatabaseAdapter::PostgreSQL
           "postgres/"
         when DatabaseAdapter::MySQL2
           "mysql/"

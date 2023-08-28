@@ -19,34 +19,34 @@ module RubyEventStore
       end
 
       specify "PostgreSQL supports binary" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Postgres.new, "binary") }.not_to raise_error
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::PostgreSQL.new, "binary") }.not_to raise_error
       end
 
       specify "PostgreSQL supports json" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Postgres.new, "json") }.not_to raise_error
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::PostgreSQL.new, "json") }.not_to raise_error
       end
 
       specify "PostgreSQL supports jsonb" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Postgres.new, "jsonb") }.not_to raise_error
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::PostgreSQL.new, "jsonb") }.not_to raise_error
       end
 
       specify "PostgreSQL doesn't support bla" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Postgres.new, "bla") }.to raise_error InvalidDataTypeForAdapter,
-                    "PostgreSQL doesn't support bla"
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::PostgreSQL.new, "bla") }.to raise_error InvalidDataTypeForAdapter,
+                                                                                                            "PostgreSQL doesn't support bla"
       end
 
       specify "sqlite supports binary" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Sqlite.new, "binary") }.not_to raise_error
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::SQLite.new, "binary") }.not_to raise_error
       end
 
       specify "sqlite doesn't support json" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Sqlite.new, "json") }.to raise_error InvalidDataTypeForAdapter,
-                    "sqlite doesn't support json"
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::SQLite.new, "json") }.to raise_error InvalidDataTypeForAdapter,
+                                                                                                         "sqlite doesn't support json"
       end
 
       specify "sqlite doesn't support jsonb" do
-        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::Sqlite.new, "jsonb") }.to raise_error InvalidDataTypeForAdapter,
-                    "sqlite doesn't support jsonb"
+        expect { VerifyDataTypeForAdapter.new.call(DatabaseAdapter::SQLite.new, "jsonb") }.to raise_error InvalidDataTypeForAdapter,
+                                                                                                          "sqlite doesn't support jsonb"
       end
     end
   end
