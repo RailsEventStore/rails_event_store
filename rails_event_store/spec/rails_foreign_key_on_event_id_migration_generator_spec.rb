@@ -57,6 +57,11 @@ module RailsEventStore
       end
     end
 
+    specify "Unsupported adapter is used" do
+      allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "not_a_supported_adapter"))
+      expect { generate_migration }.to output(/Unsupported adapter/).to_stderr
+    end
+
     def generate_migration
       RubyEventStore::ActiveRecord::RailsForeignKeyOnEventIdMigrationGenerator.start([], destination_root: @dir)
     end
