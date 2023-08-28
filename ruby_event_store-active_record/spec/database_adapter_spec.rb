@@ -40,7 +40,7 @@ module RubyEventStore
       end
 
       specify "raises exception on unsupported adapter" do
-        expect { DatabaseAdapter.new("foo") }.to raise_error(ArgumentError, "Unsupported adapter: \"foo\"")
+        expect { DatabaseAdapter.new("foo") }.to raise_error(UnsupportedAdapter, "Unsupported adapter: \"foo\"")
       end
 
       specify "case insensitive adapter name" do
@@ -48,8 +48,8 @@ module RubyEventStore
       end
 
       specify "junk adapter name" do
-        expect{DatabaseAdapter.new(nil)}.to raise_error(ArgumentError, "Unsupported adapter: nil")
-        expect{DatabaseAdapter.new(123)}.to raise_error(ArgumentError, "Unsupported adapter: 123")
+        expect{DatabaseAdapter.new(nil)}.to raise_error(UnsupportedAdapter, "Unsupported adapter: nil")
+        expect{DatabaseAdapter.new(123)}.to raise_error(UnsupportedAdapter, "Unsupported adapter: 123")
       end
     end
   end
