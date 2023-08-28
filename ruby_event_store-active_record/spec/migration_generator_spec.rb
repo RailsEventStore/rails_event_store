@@ -120,7 +120,7 @@ module RubyEventStore
       private
 
       def migration_generator(dir, data_type = "binary", database_adapter = "sqlite")
-        ActiveRecord::MigrationGenerator.new.call(data_type, database_adapter, dir)
+        ActiveRecord::MigrationGenerator.new.call(data_type, DatabaseAdapter.new(database_adapter), dir)
       end
 
       def migration_exists?(dir)

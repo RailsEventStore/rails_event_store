@@ -31,7 +31,7 @@ module RubyEventStore
           raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
         end
 
-        VerifyDataTypeForAdapter.new.call(adapter, data_type)
+        VerifyDataTypeForAdapter.new.call(DatabaseAdapter.new(adapter), data_type)
       rescue InvalidDataTypeForAdapter, UnsupportedAdapter => e
         raise Error, e.message
       end
