@@ -16,7 +16,7 @@ module RailsEventStore
       if Class === subscriber
         !!(subscriber < ActiveJob::Base)
       else
-        subscriber.is_a?(ActiveJob::ConfiguredJob)
+        subscriber.instance_of?(ActiveJob::ConfiguredJob)
       end
     end
 

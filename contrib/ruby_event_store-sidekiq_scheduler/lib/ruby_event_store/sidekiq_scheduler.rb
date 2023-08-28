@@ -14,7 +14,7 @@ module RubyEventStore
       if Class === subscriber
         !!(subscriber < Sidekiq::Worker)
       else
-        subscriber.is_a?(Sidekiq::Job::Setter)
+        subscriber.instance_of?(Sidekiq::Job::Setter)
       end
     end
 
