@@ -68,7 +68,7 @@ module RubyEventStore
 
       specify "unsupported adapter" do
         expect { VerifyDataTypeForAdapter.new.call("MSSQL", "json") }.to raise_error UnsupportedAdapter,
-                    "Unsupported adapter"
+                    "Unsupported adapter: \"MSSQL\""
       end
     end
   end

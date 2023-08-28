@@ -2,6 +2,8 @@
 
 module RubyEventStore
   module ActiveRecord
+    UnsupportedAdapter = Class.new(StandardError)
+
     class DatabaseAdapter
       BIG_NUM = 169614201293062129
 
@@ -50,7 +52,7 @@ module RubyEventStore
         when "sqlite"
           Sqlite.new
         else
-          raise ArgumentError, "Unsupported adapter: #{adapter_name.inspect}"
+          raise UnsupportedAdapter, "Unsupported adapter: #{adapter_name.inspect}"
         end
       end
     end
