@@ -60,18 +60,24 @@ module RubyEventStore
       end
 
       specify "throws on attempt to create migration with json data type for SQLite adapter" do
-        expect { migration_generator(@dir, "json", "SQLite") }
-          .to raise_error "sqlite doesn't support json"
+        expect { migration_generator(@dir, "json", "SQLite") }.to raise_error(
+          InvalidDataTypeForAdapter,
+          "SQLite doesn't support \"json\". Supported types are: binary."
+        )
       end
 
       specify "throws on attempt to create migration with jsonb data type for SQLite adapter" do
-        expect { migration_generator(@dir, "jsonb", "SQLite") }
-          .to raise_error("sqlite doesn't support jsonb")
+        expect { migration_generator(@dir, "jsonb", "SQLite") }.to raise_error(
+          InvalidDataTypeForAdapter,
+          "SQLite doesn't support \"jsonb\". Supported types are: binary."
+        )
       end
 
       specify "throws on attempt to create migration with jsonb data type for MySQL2 adapter" do
-        expect { migration_generator(@dir, "jsonb", "MySQL2") }
-          .to raise_error("MySQL2 doesn't support jsonb")
+        expect { migration_generator(@dir, "jsonb", "MySQL2") }.to raise_error(
+          InvalidDataTypeForAdapter,
+          "MySQL2 doesn't support \"jsonb\". Supported types are: binary, json."
+        )
       end
 
       specify "creates migration with binary data type for MySQL2 adapter" do
@@ -110,17 +116,16 @@ module RubyEventStore
       end
 
       specify "raises error when data type is not supported" do
-        expect { migration_generator(@dir, "invalid") }
-          .to raise_error(
-                ArgumentError,
-                "Invalid value for data type. Supported for options are: binary, json, jsonb."
-              )
+        expect { migration_generator(@dir, "invalid") }.to raise_error(
+          InvalidDataTypeForAdapter,
+          "SQLite doesn't support \"invalid\". Supported types are: binary."
+        )
       end
 
       private
 
       def migration_generator(dir, data_type = "binary", database_adapter = "sqlite")
-        ActiveRecord::MigrationGenerator.new.call(data_type, DatabaseAdapter.new(database_adapter), dir)
+        ActiveRecord::MigrationGenerator.new.call(DatabaseAdapter.new(database_adapter, data_type), dir)
       end
 
       def migration_exists?(dir)

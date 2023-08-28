@@ -11,8 +11,6 @@ module RubyEventStore
       class Error < Thor::Error
       end
 
-      DATA_TYPES = %w[binary json jsonb].freeze
-
       namespace "rails_event_store_active_record:migration"
 
       source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
@@ -21,36 +19,36 @@ module RubyEventStore
         type: :string,
         default: "binary",
         desc:
-          "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DATA_TYPES.join("/")})"
+          "Configure the data type for `data` and `meta data` fields in Postgres migration (options: #{DatabaseAdapter::PostgreSQL.new.supported_data_types.join(", ")})"
       )
 
       def initialize(*args)
         super
 
-        if DATA_TYPES.exclude?(data_type)
-          raise Error, "Invalid value for --data-type option. Supported for options are: #{DATA_TYPES.join(", ")}."
-        end
-
-        VerifyDataTypeForAdapter.new.call(DatabaseAdapter.new(adapter), data_type)
-      rescue InvalidDataTypeForAdapter, UnsupportedAdapter => e
+        @adapter = DatabaseAdapter.new(adapter_name, data_type)
+      rescue UnsupportedAdapter => e
         raise Error, e.message
+      rescue InvalidDataTypeForAdapter => e
+        raise Error,
+              "Invalid value for --data-type option. Supported for options are: #{DatabaseAdapter.new(adapter_name).supported_data_types.join(", ")}."
       end
 
       def create_migration
-        template "#{template_directory}create_event_store_events_template.erb", "db/migrate/#{timestamp}_create_event_store_events.rb"
+        template "#{template_directory}create_event_store_events_template.erb",
+                 "db/migrate/#{timestamp}_create_event_store_events.rb"
       end
 
       private
 
       def template_directory
-        TemplateDirectory.for_adapter(DatabaseAdapter.new(adapter))
+        TemplateDirectory.for_adapter(@adapter)
       end
 
       def data_type
         options.fetch("data_type")
       end
 
-      def adapter
+      def adapter_name
         ::ActiveRecord::Base.connection.adapter_name.downcase
       end
 
