@@ -17,15 +17,15 @@ module RubyEventStore
         end
       end
 
-      class MySQL
+      class MySQL2
         def eql?(other)
-          other.instance_of?(MySQL)
+          other.instance_of?(MySQL2)
         end
 
         alias == eql?
 
         def hash
-          MySQL.hash ^ BIG_NUM
+          MySQL2.hash ^ BIG_NUM
         end
       end
 
@@ -45,8 +45,8 @@ module RubyEventStore
         case adapter_name.to_s.downcase
         when "postgresql", "postgis"
           Postgres.new
-        when "mysql"
-          MySQL.new
+        when "mysql2"
+          MySQL2.new
         when "sqlite"
           Sqlite.new
         else
