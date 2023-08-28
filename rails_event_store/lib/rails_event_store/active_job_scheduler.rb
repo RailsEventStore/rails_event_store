@@ -13,7 +13,11 @@ module RailsEventStore
     end
 
     def verify(subscriber)
-      Class === subscriber && !!(subscriber < ActiveJob::Base)
+      if Class === subscriber
+        !!(subscriber < ActiveJob::Base)
+      else
+        subscriber.is_a?(ActiveJob::ConfiguredJob)
+      end
     end
 
     private
