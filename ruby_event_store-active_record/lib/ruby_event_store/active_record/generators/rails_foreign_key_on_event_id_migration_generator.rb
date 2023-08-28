@@ -19,7 +19,7 @@ if defined?(Rails::Generators::Base)
         def initialize(*args)
           super
 
-          VerifyAdapter.new.call(adapter)
+          DatabaseAdapter.new(adapter)
         rescue UnsupportedAdapter => e
           raise Error, e.message
         end
