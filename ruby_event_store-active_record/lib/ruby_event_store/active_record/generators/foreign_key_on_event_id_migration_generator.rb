@@ -15,7 +15,7 @@ module RubyEventStore
 
       def each_migration(database_adapter, &block)
         case database_adapter
-        when DatabaseAdapter::Postgres
+        when DatabaseAdapter::PostgreSQL
           [
             'add_foreign_key_on_event_id_to_event_store_events_in_streams',
             'validate_add_foreign_key_on_event_id_to_event_store_events_in_streams'

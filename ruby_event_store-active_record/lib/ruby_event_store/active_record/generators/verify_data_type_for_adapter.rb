@@ -20,7 +20,7 @@ module RubyEventStore
       private_constant :SUPPORTED_POSTGRES_DATA_TYPES, :SUPPORTED_MYSQL_DATA_TYPES, :SUPPORTED_SQLITE_DATA_TYPES
 
       def is_sqlite?(adapter)
-        adapter.eql?(DatabaseAdapter::Sqlite.new)
+        adapter.eql?(DatabaseAdapter::SQLite.new)
       end
 
       def is_mysql2?(adapter)

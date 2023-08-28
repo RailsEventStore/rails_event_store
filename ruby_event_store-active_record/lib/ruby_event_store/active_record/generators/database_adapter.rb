@@ -7,15 +7,15 @@ module RubyEventStore
     class DatabaseAdapter
       BIG_NUM = 169614201293062129
 
-      class Postgres
+      class PostgreSQL
         def eql?(other)
-          other.instance_of?(Postgres)
+          other.instance_of?(PostgreSQL)
         end
 
         alias == eql?
 
         def hash
-          Postgres.hash ^ BIG_NUM
+          PostgreSQL.hash ^ BIG_NUM
         end
       end
 
@@ -31,26 +31,26 @@ module RubyEventStore
         end
       end
 
-      class Sqlite
+      class SQLite
         def eql?(other)
-          other.instance_of?(Sqlite)
+          other.instance_of?(SQLite)
         end
 
         alias == eql?
 
         def hash
-          Sqlite.hash ^ BIG_NUM
+          SQLite.hash ^ BIG_NUM
         end
       end
 
       def self.new(adapter_name)
         case adapter_name.to_s.downcase
         when "postgresql", "postgis"
-          Postgres.new
+          PostgreSQL.new
         when "mysql2"
           MySQL2.new
         when "sqlite"
-          Sqlite.new
+          SQLite.new
         else
           raise UnsupportedAdapter, "Unsupported adapter: #{adapter_name.inspect}"
         end

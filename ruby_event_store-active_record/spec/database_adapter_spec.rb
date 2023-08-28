@@ -6,13 +6,13 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe DatabaseAdapter do
       specify "equality" do
-        expect(DatabaseAdapter.new("postgresql")).to eql(DatabaseAdapter::Postgres.new)
+        expect(DatabaseAdapter.new("postgresql")).to eql(DatabaseAdapter::PostgreSQL.new)
         expect(DatabaseAdapter.new("mysql2")).to eql(DatabaseAdapter::MySQL2.new)
-        expect(DatabaseAdapter.new("sqlite")).to eql(DatabaseAdapter::Sqlite.new)
+        expect(DatabaseAdapter.new("sqlite")).to eql(DatabaseAdapter::SQLite.new)
 
-        expect(DatabaseAdapter.new("postgresql")).to eq(DatabaseAdapter::Postgres.new)
+        expect(DatabaseAdapter.new("postgresql")).to eq(DatabaseAdapter::PostgreSQL.new)
         expect(DatabaseAdapter.new("mysql2")).to eq(DatabaseAdapter::MySQL2.new)
-        expect(DatabaseAdapter.new("sqlite")).to eq(DatabaseAdapter::Sqlite.new)
+        expect(DatabaseAdapter.new("sqlite")).to eq(DatabaseAdapter::SQLite.new)
       end
 
       specify "does not equal different type" do
@@ -22,13 +22,13 @@ module RubyEventStore
       end
 
       specify "hash" do
-        expect(DatabaseAdapter::Postgres.new.hash).to eql(DatabaseAdapter::Postgres.hash ^ DatabaseAdapter::BIG_NUM)
+        expect(DatabaseAdapter::PostgreSQL.new.hash).to eql(DatabaseAdapter::PostgreSQL.hash ^ DatabaseAdapter::BIG_NUM)
         expect(DatabaseAdapter::MySQL2.new.hash).to eql(DatabaseAdapter::MySQL2.hash ^ DatabaseAdapter::BIG_NUM)
-        expect(DatabaseAdapter::Sqlite.new.hash).to eql(DatabaseAdapter::Sqlite.hash ^ DatabaseAdapter::BIG_NUM)
+        expect(DatabaseAdapter::SQLite.new.hash).to eql(DatabaseAdapter::SQLite.hash ^ DatabaseAdapter::BIG_NUM)
 
-        expect(DatabaseAdapter::Postgres.new.hash).to eql(DatabaseAdapter::Postgres.new.hash)
+        expect(DatabaseAdapter::PostgreSQL.new.hash).to eql(DatabaseAdapter::PostgreSQL.new.hash)
         expect(DatabaseAdapter::MySQL2.new.hash).to eql(DatabaseAdapter::MySQL2.new.hash)
-        expect(DatabaseAdapter::Sqlite.new.hash).to eql(DatabaseAdapter::Sqlite.new.hash)
+        expect(DatabaseAdapter::SQLite.new.hash).to eql(DatabaseAdapter::SQLite.new.hash)
       end
 
       specify "different adapters does not compare" do
