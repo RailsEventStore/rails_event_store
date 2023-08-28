@@ -11,7 +11,11 @@ module RubyEventStore
     end
 
     def verify(subscriber)
-      Class === subscriber && !!(subscriber < Sidekiq::Worker)
+      if Class === subscriber
+        !!(subscriber < Sidekiq::Worker)
+      else
+        subscriber.is_a?(Sidekiq::Job::Setter)
+      end
     end
 
     private

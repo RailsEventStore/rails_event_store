@@ -5,7 +5,7 @@ require "sidekiq/processor"
 
 module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
-    before(:each) { MyAsyncHandler.reset }
+    before(:each) { MyAsyncHandler.reset; MyAsyncHandler.clear }
 
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: JSON)
@@ -17,36 +17,35 @@ module RubyEventStore
     let(:redis) { Sidekiq.redis(&:itself) }
 
     describe "#verify" do
-      specify do
-        scheduler = SidekiqScheduler.new(serializer: JSON)
-        proper_handler = Class.new { include Sidekiq::Worker }
+      let(:scheduler) { SidekiqScheduler.new(serializer: JSON) }
+      let(:proper_handler) { Class.new { include Sidekiq::Worker } }
 
+      specify do
         expect(scheduler.verify(proper_handler)).to eq(true)
       end
 
+      specify "Sidekiq::Job::Setter is also acceptable" do
+        expect(scheduler.verify(proper_handler.set({}))).to eq(true)
+      end
+
       specify do
-        scheduler = SidekiqScheduler.new(serializer: JSON)
         some_class = Class.new
 
         expect(scheduler.verify(some_class)).to eq(false)
       end
 
       specify do
-        scheduler = SidekiqScheduler.new(serializer: JSON)
-
         expect(scheduler.verify(Sidekiq::Worker)).to eq(false)
       end
 
       specify do
-        scheduler = SidekiqScheduler.new(serializer: JSON)
         expect(scheduler.verify(Object.new)).to eq(false)
       end
     end
 
     describe "#call" do
+      let(:scheduler) { SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML) }
       specify do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
-
         scheduler.call(MyAsyncHandler, record)
 
         enqueued_jobs = MyAsyncHandler.jobs
@@ -69,8 +68,30 @@ module RubyEventStore
         )
       end
 
+      specify "pass Sidekiq::Job::Setter" do
+        scheduler.call(MyAsyncHandler.set({queue: 'non-default'}), record)
+
+        enqueued_jobs = MyAsyncHandler.jobs
+        expect(enqueued_jobs.size).to eq(1)
+        expect(enqueued_jobs[0]).to include(
+                                      {
+                                        "class" => "RubyEventStore::MyAsyncHandler",
+                                        "args" => [
+                                          {
+                                            "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                                            "event_type" => "RubyEventStore::Event",
+                                            "data" => "--- {}\n",
+                                            "metadata" => "--- {}\n",
+                                            "timestamp" => "2019-09-30T00:00:00.000000Z",
+                                            "valid_at" => "2019-09-30T00:00:00.000000Z"
+                                          }
+                                        ],
+                                        "queue" => "non-default"
+                                      }
+                                    )
+      end
+
       specify "JSON compatible args with stringified keys" do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         expect(MyAsyncHandler).to receive(:perform_async).with(
           {
             "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
@@ -86,7 +107,6 @@ module RubyEventStore
       end
 
       specify 'with Redis involved', redis: true do
-        scheduler = SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
         Sidekiq::Testing.disable! do
           scheduler.call(MyAsyncHandler, record)
         end
