@@ -14,6 +14,10 @@ module RubyEventStore
         def initialize(data_type = NOT_SET)
           super("postgresql", data_type)
         end
+
+        def template_directory
+          "postgres/"
+        end
       end
 
       class MySQL < self
@@ -21,6 +25,10 @@ module RubyEventStore
 
         def initialize(data_type = NOT_SET)
           super("mysql2", data_type)
+        end
+
+        def template_directory
+          "mysql/"
         end
       end
 
@@ -55,6 +63,9 @@ module RubyEventStore
 
       def hash
         DatabaseAdapter.hash ^ adapter_name.hash
+      end
+
+      def template_directory
       end
 
       def self.from_string(adapter_name, data_type = NOT_SET)

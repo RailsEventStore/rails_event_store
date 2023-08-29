@@ -27,12 +27,12 @@ if defined?(Rails::Generators::Base)
         def create_migration
           case @database_adapter
           when DatabaseAdapter::PostgreSQL
-            template "#{template_directory}add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
+            template "#{@database_adapter.template_directory}add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
                      "db/migrate/#{timestamp}_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb"
-            template "#{template_directory}validate_add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
+            template "#{@database_adapter.template_directory}validate_add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
                      "db/migrate/#{timestamp}_validate_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb"
           else
-            template "#{template_directory}add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
+            template "#{@database_adapter.template_directory}add_foreign_key_on_event_id_to_event_store_events_in_streams_template.erb",
                      "db/migrate/#{timestamp}_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb"
           end
         end
@@ -49,10 +49,6 @@ if defined?(Rails::Generators::Base)
 
         def timestamp
           Time.now.strftime("%Y%m%d%H%M%S")
-        end
-
-        def template_directory
-          TemplateDirectory.for_adapter(@database_adapter)
         end
       end
     end
