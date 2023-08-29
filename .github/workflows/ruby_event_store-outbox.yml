@@ -23,16 +23,16 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
     services:
-      mysql_57:
-        image: mysql:5.7
+      mysql_5:
+        image: mysql:5
         env:
           MYSQL_DATABASE: rails_event_store
           MYSQL_ROOT_PASSWORD: secret
         ports:
           - 10057:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
-      mysql_80:
-        image: mysql:8.0
+      mysql_8:
+        image: mysql:8
         env:
           MYSQL_DATABASE: rails_event_store
           MYSQL_ROOT_PASSWORD: secret
@@ -66,10 +66,10 @@ jobs:
             database: sqlite3:db.sqlite3
           - ruby: ruby-3.1
             gemfile: Gemfile
-            database: mysql2://root:secret@0.0.0.0:10057/rails_event_store
+            database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
           - ruby: ruby-3.1
             gemfile: Gemfile
-            database: mysql2://root:secret@0.0.0.0:10080/rails_event_store
+            database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
           - ruby: ruby-3.1
             gemfile: Gemfile.sidekiq_5_2
             database: sqlite3:db.sqlite3
