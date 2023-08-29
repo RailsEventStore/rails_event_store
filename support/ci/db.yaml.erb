@@ -17,7 +17,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: ruby_event_store-active_record
+      WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       DATABASE_URL: ${{ matrix.database }}
       DATA_TYPE: ${{ matrix.datatype }}
