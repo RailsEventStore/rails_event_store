@@ -40,8 +40,10 @@ module RailsEventStore
       before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgresql")) }
 
       subject do
-        RubyEventStore::ActiveRecord::RailsMigrationGenerator
-          .start(["--data-type=#{data_type}"], destination_root: @dir)
+        RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
+          ["--data-type=#{data_type}"],
+          destination_root: @dir
+        )
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
 
@@ -68,8 +70,10 @@ module RailsEventStore
       before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "Mysql2")) }
 
       subject do
-        RubyEventStore::ActiveRecord::RailsMigrationGenerator
-          .start(["--data-type=#{data_type}"], destination_root: @dir)
+        RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
+          ["--data-type=#{data_type}"],
+          destination_root: @dir
+        )
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
 
@@ -88,16 +92,20 @@ module RailsEventStore
       context "jsonb type is not used when adapter is not postgres" do
         let(:data_type) { "jsonb" }
         it "raises an error" do
-          expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }
-            .to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error, "MySQL2 doesn't support jsonb"
+          expect {
+            RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
+          }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+                      "Invalid value for --data-type option. Supported for options are: binary, json."
         end
       end
     end
 
     context "when sqlite adapter is used and data_type option is specified" do
       subject do
-        RubyEventStore::ActiveRecord::RailsMigrationGenerator
-          .start(["--data-type=#{data_type}"], destination_root: @dir)
+        RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
+          ["--data-type=#{data_type}"],
+          destination_root: @dir
+        )
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
 
