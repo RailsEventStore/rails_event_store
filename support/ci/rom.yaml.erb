@@ -1,0 +1,95 @@
+name: <%= name %>
+on:
+  repository_dispatch:
+    types:
+      - script
+  workflow_dispatch:
+  push:
+    paths:
+      - "contrib/ruby_event_store-rom/**"
+      - ".github/workflows/ruby_event_store-rom.yml"
+      - "support/**"
+  pull_request:
+    types: [opened, reopened]
+    paths:
+      - "contrib/ruby_event_store-rom/**"
+      - ".github/workflows/ruby_event_store-rom.yml"
+      - "support/**"
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    env:
+      WORKING_DIRECTORY: <%= working_directory %>
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      DATABASE_URL: ${{ matrix.database }}
+      DATA_TYPE: ${{ matrix.datatype }}
+    services:
+      postgres_11:
+        image: postgres:11
+        env:
+          POSTGRES_DB: rails_event_store
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 10011:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      postgres_12:
+        image: postgres:12
+        env:
+          POSTGRES_DB: rails_event_store
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 10012:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql_5:
+        image: mysql:5
+        env:
+          MYSQL_DATABASE: rails_event_store
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 10005:3306
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql_8:
+        image: mysql:8
+        env:
+          MYSQL_DATABASE: rails_event_store
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 10008:3306
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          <%= matrix %>
+    steps:
+      - uses: actions/checkout@v3
+      - run: test -e ${{ matrix.gemfile }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make test
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+  mutate:
+    runs-on: ubuntu-20.04
+    env:
+      WORKING_DIRECTORY: <%= working_directory %>
+      BUNDLE_GEMFILE: Gemfile
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-3.1
+          bundler-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+      - run: make mutate-changes
+        working-directory: ${{ env.WORKING_DIRECTORY }}

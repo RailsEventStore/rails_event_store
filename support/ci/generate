@@ -255,30 +255,32 @@ AS_GEMFILES = [
     working_directory: "contrib/ruby_event_store-protobuf",
     template: "coverage.yaml.erb"
   },
-  # {
-  #   name: "ruby_event_store-rom",
-  #   working_directory: "contrib/ruby_event_store-rom",
-  #   matrix:
-  #     Szczupac.generate(
-  #       Szczupac.axis("ruby", MRI_RUBY),
-  #       Szczupac.axis("gemfile", GEMFILES),
-  #       [
-  #         *Szczupac.generate(
-  #           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
-  #           Szczupac.axis("datatype", ["text"])
-  #         ),
-  #         *Szczupac.generate(
-  #           Szczupac.axis("database", [POSTGGRES_12, POSTGRES_11]),
-  #           Szczupac.axis("datatype", [DATA_JSONB, DATA_JSON, "text"])
-  #         ),
-  #         *Szczupac.generate(
-  #           Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
-  #           Szczupac.axis("datatype", ["text", DATA_JSON])
-  #         )
-  #       ]
-  #     ),
-  #   template: "contrib.yaml.erb"
-  # },
+  {
+    name: "ruby_event_store-rom",
+    working_directory: "contrib/ruby_event_store-rom",
+    matrix:
+      [
+        Szczupac.generate(
+          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("gemfile", GEMFILES),
+          Szczupac.axis("database", %w[sqlite:db.sqlite3]),
+          Szczupac.axis("datatype", ["text"])
+        ),
+        Szczupac.generate(
+          Szczupac.axis("ruby", [RUBY_2_7]),
+          Szczupac.axis("gemfile", GEMFILES),
+          Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
+          Szczupac.axis("datatype", ["text", DATA_JSON, DATA_JSONB])
+        ),
+        Szczupac.generate(
+          Szczupac.axis("ruby", [RUBY_2_7]),
+          Szczupac.axis("gemfile", GEMFILES),
+          Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
+          Szczupac.axis("datatype", ["text"])
+        )
+      ].flatten,
+    template: "rom.yaml.erb"
+  },
   {
     name: "ruby_event_store-rom_coverage",
     working_directory: "contrib/ruby_event_store-rom",
