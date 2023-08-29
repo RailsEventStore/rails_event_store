@@ -149,7 +149,7 @@ module RubyEventStore
       def pg_show_create_table(table_name)
         db_config = ::ActiveRecord::Base.connection_db_config
         <<~RESULT.strip
-          #{IO.popen("psql #{db_config.adapter_name}://postgres:#{db_config.configuration_hash[:password]}@#{db_config.host}:#{db_config.configuration_hash[:port]}/#{db_config.database}  -c '\\d #{table_name}'").readlines.join}
+          #{IO.popen("psql #{db_config.adapter}://postgres:#{db_config.configuration_hash[:password]}@#{db_config.host}:#{db_config.configuration_hash[:port]}/#{db_config.database}  -c '\\d #{table_name}'").readlines.join}
         RESULT
       end
 

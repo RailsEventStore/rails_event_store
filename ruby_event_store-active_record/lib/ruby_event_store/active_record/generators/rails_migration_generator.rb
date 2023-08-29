@@ -25,10 +25,10 @@ module RubyEventStore
       def initialize(*args)
         super
 
-        @adapter = DatabaseAdapter.new(adapter_name, data_type)
+        @database_adapter = DatabaseAdapter.new(adapter_name, data_type)
       rescue UnsupportedAdapter => e
         raise Error, e.message
-      rescue InvalidDataTypeForAdapter => e
+      rescue InvalidDataTypeForAdapter
         raise Error,
               "Invalid value for --data-type option. Supported for options are: #{DatabaseAdapter.new(adapter_name).supported_data_types.join(", ")}."
       end
@@ -41,7 +41,7 @@ module RubyEventStore
       private
 
       def template_directory
-        TemplateDirectory.for_adapter(@adapter)
+        TemplateDirectory.for_adapter(@database_adapter)
       end
 
       def data_type
