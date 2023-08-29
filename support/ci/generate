@@ -227,17 +227,29 @@ AS_GEMFILES = [
     working_directory: "contrib/ruby_event_store-profiler",
     template: "coverage.yaml.erb"
   },
-  # {
-  #   name: "ruby_event_store-protobuf",
-  #   working_directory: "contrib/ruby_event_store-protobuf",
-  #   matrix:
-  #     Szczupac.generate(
-  #       Szczupac.axis("ruby", MRI_RUBY),
-  #       Szczupac.axis("gemfile", RAILS_GEMFILES),
-  #       Szczupac.axis("database", %w[sqlite3:db.sqlite3])
-  #     ),
-  #   template: "contrib.yaml.erb"
-  # },
+  {
+    name: "ruby_event_store-protobuf",
+    working_directory: "contrib/ruby_event_store-protobuf",
+    matrix:
+      [
+        Szczupac.generate(
+          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("gemfile", GEMFILES),
+          Szczupac.axis("database", %w[sqlite3:db.sqlite3])
+        ),
+        Szczupac.generate(
+          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("gemfile", [GEMFILE_RAILS_6_1]),
+          Szczupac.axis("database", [SQLITE])
+        ),
+        Szczupac.generate(
+          Szczupac.axis("ruby", [RUBY_2_7]),
+          Szczupac.axis("gemfile", [GEMFILE_RAILS_6_0]),
+          Szczupac.axis("database", [SQLITE])
+        )
+      ].flatten,
+    template: "contrib_database.yaml.erb"
+  },
   {
     name: "ruby_event_store-protobuf_coverage",
     working_directory: "contrib/ruby_event_store-protobuf",
