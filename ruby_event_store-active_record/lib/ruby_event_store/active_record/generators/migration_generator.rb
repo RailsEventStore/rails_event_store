@@ -22,11 +22,7 @@ module RubyEventStore
       end
 
       def template_root(database_adapter)
-        absolute_path("./templates/#{template_directory(database_adapter)}")
-      end
-
-      def template_directory(database_adapter)
-        TemplateDirectory.for_adapter(database_adapter)
+        absolute_path("./templates/#{database_adapter.template_directory}")
       end
 
       def migration_template(template_root, name)

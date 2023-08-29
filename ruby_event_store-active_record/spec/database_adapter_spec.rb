@@ -55,6 +55,12 @@ module RubyEventStore
         expect { DatabaseAdapter.new("postgresql", "jsonb") }.to raise_error(UnsupportedAdapter)
       end
 
+      specify "template directory" do
+        expect(DatabaseAdapter::PostgreSQL.new.template_directory).to eq("postgres/")
+        expect(DatabaseAdapter::MySQL.new.template_directory).to eq("mysql/")
+        expect(DatabaseAdapter::SQLite.new.template_directory).to be_nil
+      end
+
       context "data type verification" do
         specify "MySQL supports binary" do
           expect(DatabaseAdapter::MySQL.new("binary").data_type).to eq("binary")

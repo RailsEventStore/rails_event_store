@@ -34,15 +34,11 @@ module RubyEventStore
       end
 
       def create_migration
-        template "#{template_directory}create_event_store_events_template.erb",
+        template "#{@database_adapter.template_directory}create_event_store_events_template.erb",
                  "db/migrate/#{timestamp}_create_event_store_events.rb"
       end
 
       private
-
-      def template_directory
-        TemplateDirectory.for_adapter(@database_adapter)
-      end
 
       def data_type
         options.fetch("data_type")
