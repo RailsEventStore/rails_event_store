@@ -49,7 +49,7 @@ module RubyEventStore
       end
 
       def adapter_name
-        ::ActiveRecord::Base.connection.adapter_name.downcase
+        ::ActiveRecord::Base.connection.adapter_name
       end
 
       def migration_version
