@@ -207,11 +207,11 @@ AS_GEMFILES = [
       ].flatten,
     template: "outbox.yaml.erb"
   },
-  # {
-  #   name: "ruby_event_store-outbox_coverage",
-  #   working_directory: "contrib/ruby_event_store-outbox",
-  #   template: "coverage.yaml.erb"
-  # },
+  {
+    name: "ruby_event_store-outbox_coverage",
+    working_directory: "contrib/ruby_event_store-outbox",
+    template: "outbox_coverage.yaml.erb"
+  },
   {
     name: "ruby_event_store-profiler",
     working_directory: "contrib/ruby_event_store-profiler",
