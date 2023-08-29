@@ -50,6 +50,10 @@ module RubyEventStore
         expect { DatabaseAdapter::SQLite.from_string("sqlite") }.to raise_error(NoMethodError)
       end
 
+      specify "don't allow instance of parent class directly" do
+        expect { DatabaseAdapter.new("postgresql", "jsonb") }.to raise_error(UnsupportedAdapter)
+      end
+
       context "data type verification" do
         specify "MySQL supports binary" do
           expect(DatabaseAdapter::MySQL2.new("binary").data_type).to eq("binary")
