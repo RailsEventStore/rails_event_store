@@ -63,7 +63,7 @@ module RubyEventStore
         case adapter_name.to_s.downcase
         when "postgresql", "postgis"
           PostgreSQL.new(data_type)
-        when "mysql2"
+        when "mysql2", "trilogy"
           MySQL.new(data_type)
         when "sqlite"
           SQLite.new(data_type)

@@ -9,6 +9,7 @@ module RubyEventStore
         expect(DatabaseAdapter.from_string("PostgreSQL")).to eql(DatabaseAdapter::PostgreSQL.new)
         expect(DatabaseAdapter.from_string("PostGIS")).to eql(DatabaseAdapter::PostgreSQL.new)
         expect(DatabaseAdapter.from_string("MySQL2")).to eql(DatabaseAdapter::MySQL.new)
+        expect(DatabaseAdapter.from_string("Trilogy")).to eql(DatabaseAdapter::MySQL.new)
         expect(DatabaseAdapter.from_string("SQLite")).to eql(DatabaseAdapter::SQLite.new)
       end
 
