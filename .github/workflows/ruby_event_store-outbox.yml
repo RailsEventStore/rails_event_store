@@ -46,12 +46,24 @@ jobs:
           - ruby: ruby-3.1
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
-          - ruby: ruby-3.1
-            gemfile: Gemfile.rails_6_1
-            database: sqlite3:db.sqlite3
           - ruby: ruby-3.0
             gemfile: Gemfile
             database: sqlite3:db.sqlite3
+          - ruby: ruby-2.7
+            gemfile: Gemfile
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-3.1
+            gemfile: Gemfile.rails_6_1
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-3.1
+            gemfile: Gemfile.sidekiq_5_2
+            database: sqlite3:db.sqlite3
+          - ruby: ruby-3.1
+            gemfile: Gemfile
+            database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
+          - ruby: ruby-3.1
+            gemfile: Gemfile
+            database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
           - ruby: ruby-3.0
             gemfile: Gemfile.rails_6_1
             database: sqlite3:db.sqlite3
@@ -60,18 +72,6 @@ jobs:
             database: sqlite3:db.sqlite3
           - ruby: ruby-2.7
             gemfile: Gemfile.rails_6_0
-            database: sqlite3:db.sqlite3
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: sqlite3:db.sqlite3
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-            database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-            database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-          - ruby: ruby-3.1
-            gemfile: Gemfile.sidekiq_5_2
             database: sqlite3:db.sqlite3
     steps:
       - uses: actions/checkout@v3
