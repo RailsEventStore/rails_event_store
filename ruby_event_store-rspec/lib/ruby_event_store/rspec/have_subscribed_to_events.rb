@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module RubyEventStore
   module RSpec
     class HaveSubscribedToEvents
@@ -12,7 +11,7 @@ module RubyEventStore
 
       def matches?(handler)
         @handler = handler
-        @subscribed_to = expected.select { |event| event_store.subscribers_for(event).include?(handler) }
+        @subscribed_to = expected.select { |event| event_store.subscribers_for(event).any?(handler) }
 
         matcher.matches?(subscribed_to)
       end

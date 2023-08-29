@@ -28,9 +28,19 @@ module RubyEventStore
       specify { expect(handler).not_to matcher(FooEvent, BarEvent, BazEvent).in(event_store) }
 
       specify do
+        event_store.subscribe(Proc.new {}, to: [FooEvent])
+        expect(handler).not_to matcher(FooEvent).in(event_store)
+      end
+
+      specify do
         event_store.subscribe(handler, to: [FooEvent])
         expect(handler).to matcher(FooEvent).in(event_store)
         expect(handler).not_to matcher(BarEvent).in(event_store)
+      end
+
+      specify 'match handler instance with handler class' do
+        event_store.subscribe(handler, to: [FooEvent])
+        expect(Handler).to matcher(FooEvent).in(event_store)
       end
 
       specify do
