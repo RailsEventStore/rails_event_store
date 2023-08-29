@@ -42,7 +42,7 @@ if defined?(Rails::Generators::Base)
         private
 
         def adapter
-          ::ActiveRecord::Base.connection.adapter_name.downcase
+          ::ActiveRecord::Base.connection.adapter_name
         end
 
         def migration_version
