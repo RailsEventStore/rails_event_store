@@ -3,7 +3,6 @@ require "spec_helper"
 module RubyEventStore
   module RSpec
     ::RSpec.describe HaveSubscribedToEvents do
-      let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
         Client.new(
           mapper:
