@@ -6,102 +6,57 @@ module RubyEventStore
     InvalidDataTypeForAdapter = Class.new(StandardError)
 
     class DatabaseAdapter
-      BIG_NUM = 169_614_201_293_062_129
-
       NOT_SET = Object.new.freeze
-      private_constant :NOT_SET
 
-      class PostgreSQL
+      class PostgreSQL < self
         SUPPORTED_DATA_TYPES = %w[binary json jsonb].freeze
-        private_constant :SUPPORTED_DATA_TYPES
 
         def initialize(data_type = NOT_SET)
-          if !data_type.eql?(NOT_SET) && !supported_data_types.include?(data_type)
-            raise InvalidDataTypeForAdapter,
-                  "PostgreSQL doesn't support #{data_type.inspect}. Supported types are: #{supported_data_types.join(", ")}."
-          end
-
-          @data_type = data_type
-        end
-
-        attr_reader :data_type
-
-        def supported_data_types
-          SUPPORTED_DATA_TYPES
-        end
-
-        def eql?(other)
-          other.instance_of?(PostgreSQL)
-        end
-
-        alias == eql?
-
-        def hash
-          PostgreSQL.hash ^ BIG_NUM
+          super("postgresql", data_type)
         end
       end
 
-      class MySQL2
+      class MySQL2 < self
         SUPPORTED_DATA_TYPES = %w[binary json].freeze
-        private_constant :SUPPORTED_DATA_TYPES
 
         def initialize(data_type = NOT_SET)
-          if !data_type.eql?(NOT_SET) && !supported_data_types.include?(data_type)
-            raise InvalidDataTypeForAdapter,
-                  "MySQL2 doesn't support #{data_type.inspect}. Supported types are: #{supported_data_types.join(", ")}."
-          end
-
-          @data_type = data_type
-        end
-
-        attr_reader :data_type
-
-        def supported_data_types
-          SUPPORTED_DATA_TYPES
-        end
-
-        def eql?(other)
-          other.instance_of?(MySQL2)
-        end
-
-        alias == eql?
-
-        def hash
-          MySQL2.hash ^ BIG_NUM
+          super("mysql2", data_type)
         end
       end
 
-      class SQLite
+      class SQLite < self
         SUPPORTED_DATA_TYPES = %w[binary].freeze
-        private_constant :SUPPORTED_DATA_TYPES
 
         def initialize(data_type = NOT_SET)
-          if !data_type.eql?(NOT_SET) && !supported_data_types.include?(data_type)
-            raise InvalidDataTypeForAdapter,
-                  "SQLite doesn't support #{data_type.inspect}. Supported types are: #{supported_data_types.join}."
-          end
-
-          @data_type = data_type
-        end
-
-        attr_reader :data_type
-
-        def supported_data_types
-          SUPPORTED_DATA_TYPES
-        end
-
-        def eql?(other)
-          other.instance_of?(SQLite)
-        end
-
-        alias == eql?
-
-        def hash
-          SQLite.hash ^ BIG_NUM
+          super("sqlite", data_type)
         end
       end
 
-      def self.new(adapter_name, data_type = NOT_SET)
+      def initialize(adapter_name, data_type)
+        validate_data_type!(data_type)
+
+        @adapter_name = adapter_name
+        @data_type = data_type
+      end
+
+      attr_reader :adapter_name, :data_type
+
+      def supported_data_types
+        self.class::SUPPORTED_DATA_TYPES
+      end
+
+      def eql?(other)
+        other.is_a?(DatabaseAdapter) && adapter_name.eql?(other.adapter_name)
+      end
+
+      alias == eql?
+
+      def hash
+        DatabaseAdapter.hash ^ adapter_name.hash
+      end
+
+      def self.from_string(adapter_name, data_type = NOT_SET)
+        raise NoMethodError unless eql?(DatabaseAdapter)
         case adapter_name.to_s.downcase
         when "postgresql", "postgis"
           PostgreSQL.new(data_type)
@@ -112,6 +67,19 @@ module RubyEventStore
         else
           raise UnsupportedAdapter, "Unsupported adapter: #{adapter_name.inspect}"
         end
+      end
+
+      private
+
+      def validate_data_type!(data_type)
+        if !data_type.eql?(NOT_SET) && !supported_data_types.include?(data_type)
+          raise InvalidDataTypeForAdapter,
+                "#{class_name} doesn't support #{data_type.inspect}. Supported types are: #{supported_data_types.join(", ")}."
+        end
+      end
+
+      def class_name
+        self.class.name.split("::").last
       end
     end
   end
