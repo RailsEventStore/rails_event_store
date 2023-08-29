@@ -248,7 +248,7 @@ AS_GEMFILES = [
           Szczupac.axis("database", [SQLITE])
         )
       ].flatten,
-    template: "contrib_database.yaml.erb"
+    template: "protobuf.yaml.erb"
   },
   {
     name: "ruby_event_store-protobuf_coverage",
