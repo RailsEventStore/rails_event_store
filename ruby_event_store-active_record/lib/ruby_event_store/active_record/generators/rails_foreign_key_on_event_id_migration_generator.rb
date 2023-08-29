@@ -19,7 +19,7 @@ if defined?(Rails::Generators::Base)
         def initialize(*args)
           super
 
-          @database_adapter = DatabaseAdapter.new(adapter_name)
+          @database_adapter = DatabaseAdapter.from_string(adapter_name)
         rescue UnsupportedAdapter => e
           raise Error, e.message
         end

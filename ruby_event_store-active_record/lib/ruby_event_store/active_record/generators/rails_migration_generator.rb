@@ -25,12 +25,12 @@ module RubyEventStore
       def initialize(*args)
         super
 
-        @database_adapter = DatabaseAdapter.new(adapter_name, data_type)
+        @database_adapter = DatabaseAdapter.from_string(adapter_name, data_type)
       rescue UnsupportedAdapter => e
         raise Error, e.message
       rescue InvalidDataTypeForAdapter
         raise Error,
-              "Invalid value for --data-type option. Supported for options are: #{DatabaseAdapter.new(adapter_name).supported_data_types.join(", ")}."
+              "Invalid value for --data-type option. Supported for options are: #{DatabaseAdapter.from_string(adapter_name).supported_data_types.join(", ")}."
       end
 
       def create_migration

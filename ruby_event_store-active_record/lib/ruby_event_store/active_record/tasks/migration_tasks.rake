@@ -6,7 +6,7 @@ task "db:migrations:copy" do
     ENV["DATA_TYPE"] || raise("Specify data type (binary, json, jsonb): rake db:migrations:copy DATA_TYPE=json")
   ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
   database_adapter =
-    RubyEventStore::ActiveRecord::DatabaseAdapter.new(::ActiveRecord::Base.connection.adapter_name, data_type)
+    RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name, data_type)
 
   path =
     RubyEventStore::ActiveRecord::MigrationGenerator.new.call(database_adapter, ENV["MIGRATION_PATH"] || "db/migrate")
