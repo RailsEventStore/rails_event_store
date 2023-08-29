@@ -29,7 +29,7 @@ DATA_TYPES = [
 
 DATABASE_URLS = [
   SQLITE = "sqlite3:db.sqlite3",
-  POSTGGRES_12 = "postgres://postgres:secret@localhost:10012/rails_event_store?pool=5",
+  POSTGRES_12 = "postgres://postgres:secret@localhost:10012/rails_event_store?pool=5",
   POSTGRES_11 = "postgres://postgres:secret@localhost:10011/rails_event_store?pool=5",
   MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5",
   MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5"
@@ -138,7 +138,7 @@ AS_GEMFILES = [
             Szczupac.axis("datatype", [DATA_BINARY])
           ),
           *Szczupac.generate(
-            Szczupac.axis("database", [POSTGGRES_12, POSTGRES_11]),
+            Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
             Szczupac.axis("datatype", [DATA_JSONB, DATA_JSON, DATA_BINARY])
           ),
           *Szczupac.generate(
