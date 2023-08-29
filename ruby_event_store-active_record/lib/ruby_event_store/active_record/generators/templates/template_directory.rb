@@ -7,7 +7,7 @@ module RubyEventStore
         case database_adapter
         when DatabaseAdapter::PostgreSQL
           "postgres/"
-        when DatabaseAdapter::MySQL2
+        when DatabaseAdapter::MySQL
           "mysql/"
         end
       end

@@ -73,14 +73,14 @@ module RubyEventStore
         )
       end
 
-      specify "throws on attempt to create migration with jsonb data type for MySQL2 adapter" do
+      specify "throws on attempt to create migration with jsonb data type for MySQL adapter" do
         expect { migration_generator(@dir, "jsonb", "MySQL2") }.to raise_error(
           InvalidDataTypeForAdapter,
-          "MySQL2 doesn't support \"jsonb\". Supported types are: binary, json."
+          "MySQL doesn't support \"jsonb\". Supported types are: binary, json."
         )
       end
 
-      specify "creates migration with binary data type for MySQL2 adapter" do
+      specify "creates migration with binary data type for MySQL adapter" do
         migration_generator(@dir, "binary", "MySQL2")
 
         expect(read_migration(@dir)).to match(/t.binary\s+:data/)

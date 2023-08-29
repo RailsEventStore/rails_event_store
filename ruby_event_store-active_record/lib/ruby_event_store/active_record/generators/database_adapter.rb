@@ -16,7 +16,7 @@ module RubyEventStore
         end
       end
 
-      class MySQL2 < self
+      class MySQL < self
         SUPPORTED_DATA_TYPES = %w[binary json].freeze
 
         def initialize(data_type = NOT_SET)
@@ -64,7 +64,7 @@ module RubyEventStore
         when "postgresql", "postgis"
           PostgreSQL.new(data_type)
         when "mysql2"
-          MySQL2.new(data_type)
+          MySQL.new(data_type)
         when "sqlite"
           SQLite.new(data_type)
         else

@@ -8,18 +8,18 @@ module RubyEventStore
       specify "from_string" do
         expect(DatabaseAdapter.from_string("PostgreSQL")).to eql(DatabaseAdapter::PostgreSQL.new)
         expect(DatabaseAdapter.from_string("PostGIS")).to eql(DatabaseAdapter::PostgreSQL.new)
-        expect(DatabaseAdapter.from_string("MySQL2")).to eql(DatabaseAdapter::MySQL2.new)
+        expect(DatabaseAdapter.from_string("MySQL2")).to eql(DatabaseAdapter::MySQL.new)
         expect(DatabaseAdapter.from_string("SQLite")).to eql(DatabaseAdapter::SQLite.new)
       end
 
       specify "equality" do
-        expect(DatabaseAdapter::PostgreSQL.new).not_to eql(DatabaseAdapter::MySQL2.new)
+        expect(DatabaseAdapter::PostgreSQL.new).not_to eql(DatabaseAdapter::MySQL.new)
         expect(DatabaseAdapter::PostgreSQL.new).not_to eql("postgresql")
       end
 
       specify "adapter_name" do
         expect(DatabaseAdapter::PostgreSQL.new.adapter_name).to eql("postgresql")
-        expect(DatabaseAdapter::MySQL2.new.adapter_name).to eql("mysql2")
+        expect(DatabaseAdapter::MySQL.new.adapter_name).to eql("mysql2")
         expect(DatabaseAdapter::SQLite.new.adapter_name).to eql("sqlite")
       end
 
@@ -40,13 +40,13 @@ module RubyEventStore
 
       specify "hash" do
         expect(DatabaseAdapter::PostgreSQL.new.hash).to eql(DatabaseAdapter.hash ^ "postgresql".hash)
-        expect(DatabaseAdapter::MySQL2.new.hash).to eql(DatabaseAdapter.hash ^ "mysql2".hash)
+        expect(DatabaseAdapter::MySQL.new.hash).to eql(DatabaseAdapter.hash ^ "mysql2".hash)
         expect(DatabaseAdapter::SQLite.new.hash).to eql(DatabaseAdapter.hash ^ "sqlite".hash)
       end
 
       specify "child classes don't implement #from_string" do
         expect { DatabaseAdapter::PostgreSQL.from_string("postgresql") }.to raise_error(NoMethodError)
-        expect { DatabaseAdapter::MySQL2.from_string("mysql2") }.to raise_error(NoMethodError)
+        expect { DatabaseAdapter::MySQL.from_string("mysql2") }.to raise_error(NoMethodError)
         expect { DatabaseAdapter::SQLite.from_string("sqlite") }.to raise_error(NoMethodError)
       end
 
@@ -56,16 +56,16 @@ module RubyEventStore
 
       context "data type verification" do
         specify "MySQL supports binary" do
-          expect(DatabaseAdapter::MySQL2.new("binary").data_type).to eq("binary")
+          expect(DatabaseAdapter::MySQL.new("binary").data_type).to eq("binary")
         end
 
         specify "MySQL supports json" do
-          expect(DatabaseAdapter::MySQL2.new("json").data_type).to eq("json")
+          expect(DatabaseAdapter::MySQL.new("json").data_type).to eq("json")
         end
 
         specify "MySQL doesn't support jsonb" do
-          expect { DatabaseAdapter::MySQL2.new("jsonb") }.to raise_error InvalidDataTypeForAdapter,
-                      "MySQL2 doesn't support \"jsonb\". Supported types are: binary, json."
+          expect { DatabaseAdapter::MySQL.new("jsonb") }.to raise_error InvalidDataTypeForAdapter,
+                                                                        "MySQL doesn't support \"jsonb\". Supported types are: binary, json."
         end
 
         specify "PostgreSQL supports binary" do
