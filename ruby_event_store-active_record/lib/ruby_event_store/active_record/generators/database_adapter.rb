@@ -33,6 +33,8 @@ module RubyEventStore
       end
 
       def initialize(adapter_name, data_type)
+        raise UnsupportedAdapter if instance_of?(DatabaseAdapter)
+
         validate_data_type!(data_type)
 
         @adapter_name = adapter_name
@@ -57,6 +59,7 @@ module RubyEventStore
 
       def self.from_string(adapter_name, data_type = NOT_SET)
         raise NoMethodError unless eql?(DatabaseAdapter)
+
         case adapter_name.to_s.downcase
         when "postgresql", "postgis"
           PostgreSQL.new(data_type)
