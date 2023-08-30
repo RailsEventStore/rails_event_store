@@ -1055,6 +1055,36 @@ module RubyEventStore
       expect(repository.read(specification.to(events[4].event_id).backward.read_last.result)).to be_nil
     end
 
+    specify do
+      event = SRecord.new
+      repository.append_to_stream([event], Stream.new('dummy'), ExpectedVersion.any)
+      expect do
+        repository.read(specification.stream('another').from(event.event_id).result).to_a
+      end.to raise_error(RubyEventStore::EventNotFoundInStream)
+    end
+
+    specify do
+      event = SRecord.new
+      repository.append_to_stream([event], Stream.new('dummy'), ExpectedVersion.any)
+      expect do
+        repository.read(specification.stream('another').to(event.event_id).result).to_a
+      end.to raise_error(RubyEventStore::EventNotFoundInStream)
+    end
+
+    specify do
+      not_existing_uuid = SecureRandom.uuid
+      expect do
+        repository.read(specification.from(not_existing_uuid).result).to_a
+      end.to raise_error(RubyEventStore::EventNotFound)
+    end
+
+    specify do
+      not_existing_uuid = SecureRandom.uuid
+      expect do
+        repository.read(specification.to(not_existing_uuid).result).to_a
+      end.to raise_error(RubyEventStore::EventNotFound)
+    end
+
     context "#update_messages" do
       specify "changes events" do
         skip unless helper.supports_upsert?
