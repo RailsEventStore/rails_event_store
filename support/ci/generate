@@ -22,9 +22,22 @@ RUBY_VERSIONS = [
 ].flatten
 
 DATA_TYPES = [
+  DATA_TEXT = "text",
   DATA_BINARY = "binary",
   DATA_JSON = "json",
   DATA_JSONB = "jsonb"
+]
+
+DATA_TYPES_IN_AR = [
+  DATA_BINARY,
+  DATA_JSON,
+  DATA_JSONB
+]
+
+DATA_TYPES_IN_SEQUEL = [
+  DATA_TEXT,
+  DATA_JSON,
+  DATA_JSONB,
 ]
 
 DATABASE_URLS = [
@@ -135,15 +148,15 @@ AS_GEMFILES = [
         [
           *Szczupac.generate(
             Szczupac.axis("database", [SQLITE]),
-            Szczupac.axis("datatype", [DATA_BINARY])
+            Szczupac.axis("datatype", DATA_TYPES_IN_AR.take(1))
           ),
           *Szczupac.generate(
             Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
-            Szczupac.axis("datatype", [DATA_JSONB, DATA_JSON, DATA_BINARY])
+            Szczupac.axis("datatype",  DATA_TYPES_IN_AR.reverse),
           ),
           *Szczupac.generate(
             Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
-            Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON])
+            Szczupac.axis("datatype",  DATA_TYPES_IN_AR.take(2))
           )
         ]
       ),
@@ -264,19 +277,19 @@ AS_GEMFILES = [
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
-          Szczupac.axis("datatype", ["text"])
+          Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
-          Szczupac.axis("datatype", ["text", DATA_JSON, DATA_JSONB])
+          Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL)
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
-          Szczupac.axis("datatype", ["text"])
+          Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         )
       ].flatten,
     template: "rom.yaml.erb"
@@ -295,19 +308,19 @@ AS_GEMFILES = [
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
-          Szczupac.axis("datatype", ["text"])
+          Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
-          Szczupac.axis("datatype", ["text", DATA_JSON, DATA_JSONB])
+          Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL)
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
-          Szczupac.axis("datatype", ["text"])
+          Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         )
       ].flatten,
     template: "rom.yaml.erb"
@@ -397,13 +410,13 @@ AS_GEMFILES = [
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [POSTGRES_11]),
-          Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON, DATA_JSONB])
+          Szczupac.axis("datatype", DATA_TYPES_IN_AR)
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_3_1]),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [POSTGRES_12]),
-          Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON, DATA_JSONB])
+          Szczupac.axis("datatype", DATA_TYPES_IN_AR)
         )
       ].flatten,
     template: "dres_rails.yaml.erb"
