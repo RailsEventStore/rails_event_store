@@ -28,18 +28,19 @@ jobs:
         include:
           - ruby: ruby-3.1
             gemfile: Gemfile
-          - ruby: ruby-3.1
-            gemfile: Gemfile.sidekiq_6
-          - ruby: ruby-3.1
-            gemfile: Gemfile.sidekiq_5
           - ruby: ruby-3.0
             gemfile: Gemfile
-          - ruby: ruby-3.0
-            gemfile: Gemfile.sidekiq_6
-          - ruby: ruby-3.0
-            gemfile: Gemfile.sidekiq_5
           - ruby: ruby-2.7
             gemfile: Gemfile
+          - ruby: ruby-3.1
+            gemfile: Gemfile.sidekiq_6
+          - ruby: ruby-3.1
+            gemfile: Gemfile.sidekiq_5
+          - ruby: ruby-3.0
+            gemfile: Gemfile.sidekiq_6
+          - ruby: ruby-3.0
+            gemfile: Gemfile.sidekiq_5
+
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v20
