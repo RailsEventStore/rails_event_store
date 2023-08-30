@@ -152,7 +152,7 @@ AS_GEMFILES = [
           ),
           *Szczupac.generate(
             Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
-            Szczupac.axis("datatype",  DATA_TYPES_IN_AR.reverse),
+            Szczupac.axis("datatype",  DATA_TYPES_IN_AR),
           ),
           *Szczupac.generate(
             Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
