@@ -190,7 +190,7 @@ AS_GEMFILES = [
     matrix:
       [
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", RAILS_GEMFILES - [GEMFILE_RAILS_6_0] + %w[Gemfile.sidekiq_5_2]),
           Szczupac.axis("database", [SQLITE, MYSQL_5, MYSQL_8]),
         ),
@@ -233,12 +233,12 @@ AS_GEMFILES = [
     matrix:
       [
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", %w[sqlite3:db.sqlite3])
         ),
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", [GEMFILE_RAILS_6_1]),
           Szczupac.axis("database", [SQLITE])
         ),
@@ -261,7 +261,7 @@ AS_GEMFILES = [
     matrix:
       [
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
           Szczupac.axis("datatype", ["text"])
@@ -292,7 +292,7 @@ AS_GEMFILES = [
     matrix:
       [
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", %w[sqlite:db.sqlite3]),
           Szczupac.axis("datatype", ["text"])
@@ -323,7 +323,7 @@ AS_GEMFILES = [
     matrix:
       [
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES + %w[Gemfile.sidekiq_6 Gemfile.sidekiq_5])
         ),
         Szczupac.generate(
@@ -358,7 +358,7 @@ AS_GEMFILES = [
     working_directory: "contrib/minitest-ruby_event_store",
     matrix:
       Szczupac.generate(
-        Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+        Szczupac.axis("ruby", MRI_RUBY.drop(1)),
         Szczupac.axis("gemfile", GEMFILES)
       ),
     template: "contrib.yaml.erb"
@@ -368,7 +368,7 @@ AS_GEMFILES = [
     working_directory: "contrib/minitest-ruby_event_store",
     matrix:
       Szczupac.generate(
-        Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+        Szczupac.axis("ruby", MRI_RUBY.drop(1)),
         Szczupac.axis("gemfile", GEMFILES)
       ),
     template: "coverage.yaml.erb"
@@ -383,7 +383,7 @@ AS_GEMFILES = [
     working_directory: "contrib/dres_client",
     matrix:
       Szczupac.generate(
-        Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+        Szczupac.axis("ruby", MRI_RUBY.drop(1)),
         Szczupac.axis("gemfile", GEMFILES)
       ),
     template: "dres_client.yaml.erb"
@@ -394,7 +394,7 @@ AS_GEMFILES = [
     matrix:
       [
         Szczupac.generate(
-          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
           Szczupac.axis("database", [POSTGRES_11]),
           Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON, DATA_JSONB])
