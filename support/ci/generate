@@ -41,12 +41,18 @@ DATA_TYPES_IN_SEQUEL = [
 ]
 
 DATABASE_URLS = [
-  SQLITE = "sqlite3:db.sqlite3",
-  POSTGRES_12 = "postgres://postgres:secret@localhost:10012/rails_event_store?pool=5",
-  POSTGRES_11 = "postgres://postgres:secret@localhost:10011/rails_event_store?pool=5",
-  MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5",
-  MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5"
-]
+  SQLITE = "sqlite:db.sqlite3",
+  SQLITE3 = "sqlite3:db.sqlite3",
+  POSTGRES = [
+    POSTGRES_12 = "postgres://postgres:secret@localhost:10012/rails_event_store?pool=5",
+    POSTGRES_11 = "postgres://postgres:secret@localhost:10011/rails_event_store?pool=5",
+  ],
+  MYSQL = [
+    MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5",
+    MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5"
+  ],
+].flatten
+
 
 GEMFILES = %w[Gemfile]
 
@@ -60,6 +66,11 @@ AS_GEMFILES = [
   *GEMFILES,
   GEMFILE_AS_6_1 = "Gemfile.activesupport_6_1",
   GEMFILE_AS_6_0 = "Gemfile.activesupport_6_0",
+]
+
+SIDEKIQ_GEMFILES= [
+  GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2",
+  GEMFILE_SIDEKIQ_6_0 = "Gemfile.sidekiq_6_0",
 ]
 
 [
@@ -147,16 +158,16 @@ AS_GEMFILES = [
         Szczupac.axis("gemfile", GEMFILES),
         [
           *Szczupac.generate(
-            Szczupac.axis("database", [SQLITE]),
+            Szczupac.axis("database", [SQLITE3]),
             Szczupac.axis("datatype", DATA_TYPES_IN_AR.take(1))
           ),
           *Szczupac.generate(
-            Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
-            Szczupac.axis("datatype",  DATA_TYPES_IN_AR),
+            Szczupac.axis("database", POSTGRES),
+            Szczupac.axis("datatype", DATA_TYPES_IN_AR),
           ),
           *Szczupac.generate(
-            Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
-            Szczupac.axis("datatype",  DATA_TYPES_IN_AR.take(2))
+            Szczupac.axis("database", MYSQL),
+            Szczupac.axis("datatype", DATA_TYPES_IN_AR.take(2))
           )
         ]
       ),
@@ -204,18 +215,18 @@ AS_GEMFILES = [
       [
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
-          Szczupac.axis("gemfile", RAILS_GEMFILES - [GEMFILE_RAILS_6_0] + %w[Gemfile.sidekiq_5_2]),
-          Szczupac.axis("database", [SQLITE, MYSQL_5, MYSQL_8]),
+          Szczupac.axis("gemfile", [*GEMFILES, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2]),
+          Szczupac.axis("database", [SQLITE3, MYSQL_5, MYSQL_8]),
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_3_0]),
           Szczupac.axis("gemfile", [GEMFILE_RAILS_6_1]),
-          Szczupac.axis("database", [SQLITE])
+          Szczupac.axis("database", [SQLITE3])
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", [GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0]),
-          Szczupac.axis("database", [SQLITE])
+          Szczupac.axis("database", [SQLITE3])
         )
       ].flatten,
     template: "outbox.yaml.erb"
@@ -248,17 +259,17 @@ AS_GEMFILES = [
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", %w[sqlite3:db.sqlite3])
+          Szczupac.axis("database", [SQLITE3])
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", [GEMFILE_RAILS_6_1]),
-          Szczupac.axis("database", [SQLITE])
+          Szczupac.axis("database", [SQLITE3])
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", [GEMFILE_RAILS_6_0]),
-          Szczupac.axis("database", [SQLITE])
+          Szczupac.axis("database", [SQLITE3])
         )
       ].flatten,
     template: "protobuf.yaml.erb"
@@ -276,19 +287,19 @@ AS_GEMFILES = [
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", %w[sqlite:db.sqlite3]),
+          Szczupac.axis("database", [SQLITE]),
           Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
+          Szczupac.axis("database", POSTGRES),
           Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL)
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
+          Szczupac.axis("database", MYSQL),
           Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         )
       ].flatten,
@@ -307,19 +318,19 @@ AS_GEMFILES = [
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", %w[sqlite:db.sqlite3]),
+          Szczupac.axis("database", [SQLITE]),
           Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", [POSTGRES_12, POSTGRES_11]),
+          Szczupac.axis("database", POSTGRES),
           Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL)
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_2_7]),
           Szczupac.axis("gemfile", GEMFILES),
-          Szczupac.axis("database", [MYSQL_8, MYSQL_5]),
+          Szczupac.axis("database", MYSQL),
           Szczupac.axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
         )
       ].flatten,
