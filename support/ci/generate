@@ -353,26 +353,31 @@ AS_GEMFILES = [
     working_directory: "contrib/ruby_event_store-transformations",
     template: "coverage.yaml.erb"
   },
-{
-  name: "minitest-ruby_event_store",
-  working_directory: "contrib/minitest-ruby_event_store",
-  matrix:
-    Szczupac.generate(
-      Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
-      Szczupac.axis("gemfile", GEMFILES)
-    ),
-  template: "contrib.yaml.erb"
-},
-{
-  name: "minitest-ruby_event_store_coverage",
-  working_directory: "contrib/minitest-ruby_event_store",
-  matrix:
-    Szczupac.generate(
-      Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
-      Szczupac.axis("gemfile", GEMFILES)
-    ),
-  template: "coverage.yaml.erb"
-},
+  {
+    name: "minitest-ruby_event_store",
+    working_directory: "contrib/minitest-ruby_event_store",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+        Szczupac.axis("gemfile", GEMFILES)
+      ),
+    template: "contrib.yaml.erb"
+  },
+  {
+    name: "minitest-ruby_event_store_coverage",
+    working_directory: "contrib/minitest-ruby_event_store",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+        Szczupac.axis("gemfile", GEMFILES)
+      ),
+    template: "coverage.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-browser_assets",
+    working_directory: "ruby_event_store-browser",
+    template: "assets.yaml.erb"
+  },
 # {
 #   name: "dres_client",
 #   working_directory: "contrib/dres_client",
