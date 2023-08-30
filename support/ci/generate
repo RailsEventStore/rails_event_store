@@ -378,26 +378,36 @@ AS_GEMFILES = [
     working_directory: "ruby_event_store-browser",
     template: "assets.yaml.erb"
   },
-# {
-#   name: "dres_client",
-#   working_directory: "contrib/dres_client",
-#   matrix:
-#     Szczupac.generate(
-#       Szczupac.axis("ruby", MRI_RUBY),
-#       Szczupac.axis("gemfile", GEMFILES)
-#     ),
-#   template: "contrib.yaml.erb"
-# },
-# {
-#   name: "dres_rails",
-#   working_directory: "contrib/dres_rails",
-#   matrix:
-#     Szczupac.generate(
-#       Szczupac.axis("ruby", MRI_RUBY),
-#       Szczupac.axis("gemfile", GEMFILES)
-#     ),
-#   template: "contrib.yaml.erb"
-# },
+  {
+    name: "dres_client",
+    working_directory: "contrib/dres_client",
+    matrix:
+      Szczupac.generate(
+        Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+        Szczupac.axis("gemfile", GEMFILES)
+      ),
+    template: "dres_client.yaml.erb"
+  },
+  {
+    name: "dres_rails",
+    working_directory: "contrib/dres_rails",
+    matrix:
+      [
+        Szczupac.generate(
+          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("gemfile", GEMFILES),
+          Szczupac.axis("database", [POSTGRES_11]),
+          Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON, DATA_JSONB])
+        ),
+        Szczupac.generate(
+          Szczupac.axis("ruby", [RUBY_3_1]),
+          Szczupac.axis("gemfile", GEMFILES),
+          Szczupac.axis("database", [POSTGRES_12]),
+          Szczupac.axis("datatype", [DATA_BINARY, DATA_JSON, DATA_JSONB])
+        )
+      ].flatten,
+    template: "dres_rails.yaml.erb"
+  },
 ].each do |gem|
   name = gem.fetch(:name)
   filename = File.join(__dir__, "../../.github/workflows/#{name}.yml")

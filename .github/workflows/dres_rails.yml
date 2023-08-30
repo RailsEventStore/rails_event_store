@@ -79,7 +79,6 @@ jobs:
             gemfile: Gemfile
             database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
             datatype: jsonb
-
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock

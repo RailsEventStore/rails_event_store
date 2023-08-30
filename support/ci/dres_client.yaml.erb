@@ -1,4 +1,4 @@
-name: dres_client
+name: <%= name %>
 on:
   repository_dispatch:
     types:
@@ -8,33 +8,28 @@ on:
     - cron: "0 17 * * *"
   push:
     paths:
-      - "contrib/dres_client/**"
+      - "<%= working_directory %>/**"
       - "contrib/dres_rails/**"
-      - ".github/workflows/dres_client.yml"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/dres_client/**"
+      - "<%= working_directory %>/**"
       - "contrib/dres_rails/**"
-      - ".github/workflows/dres_client.yml"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/dres_client
+      WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-          - ruby: ruby-2.7
-            gemfile: Gemfile
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.gemfile }}.lock
