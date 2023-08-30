@@ -3,7 +3,7 @@ gemspec
 
 eval_gemfile "../../support/bundler/Gemfile.shared"
 
-gem "sidekiq", "~> 5.0"
+gem "sidekiq", "~> 6.5"
 gem "ruby_event_store", path: "../.."
 gem "rails_event_store", path: "../.."
 gem "rails", "7.0.4.2"

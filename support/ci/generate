@@ -53,24 +53,26 @@ DATABASE_URLS = [
   ],
 ].flatten
 
-
-GEMFILES = %w[Gemfile]
+GEMFILES = [
+  GEMFILE = "Gemfile"
+]
 
 RAILS_GEMFILES = [
-  *GEMFILES,
+  GEMFILE,
   GEMFILE_RAILS_6_1 = "Gemfile.rails_6_1",
   GEMFILE_RAILS_6_0 = "Gemfile.rails_6_0",
 ].flatten
 
 AS_GEMFILES = [
-  *GEMFILES,
+  GEMFILE,
   GEMFILE_AS_6_1 = "Gemfile.activesupport_6_1",
   GEMFILE_AS_6_0 = "Gemfile.activesupport_6_0",
 ]
 
-SIDEKIQ_GEMFILES= [
+SIDEKIQ_GEMFILES = [
+  GEMFILE,
+  GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5",
   GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2",
-  GEMFILE_SIDEKIQ_6_0 = "Gemfile.sidekiq_6_0",
 ]
 
 [
@@ -215,7 +217,7 @@ SIDEKIQ_GEMFILES= [
       [
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
-          Szczupac.axis("gemfile", [*GEMFILES, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2]),
+          Szczupac.axis("gemfile", [GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2]),
           Szczupac.axis("database", [SQLITE3, MYSQL_5, MYSQL_8]),
         ),
         Szczupac.generate(
@@ -348,11 +350,11 @@ SIDEKIQ_GEMFILES= [
       [
         Szczupac.generate(
           Szczupac.axis("ruby", MRI_RUBY.drop(1)),
-          Szczupac.axis("gemfile", GEMFILES + %w[Gemfile.sidekiq_6 Gemfile.sidekiq_5])
+          Szczupac.axis("gemfile", SIDEKIQ_GEMFILES)
         ),
         Szczupac.generate(
           Szczupac.axis("ruby", [RUBY_3_0]),
-          Szczupac.axis("gemfile", %w[Gemfile.sidekiq_6 Gemfile.sidekiq_5])
+          Szczupac.axis("gemfile", SIDEKIQ_GEMFILES.drop(1))
         )
       ].flatten,
     template: "scheduler.yaml.erb"

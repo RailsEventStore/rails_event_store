@@ -244,7 +244,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-sidekiq_scheduler!
-  sidekiq (~> 6.4)
+  sidekiq (~> 6.5)
   sqlite3
 
 BUNDLED WITH
