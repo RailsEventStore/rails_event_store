@@ -69,7 +69,7 @@ class CI
       {
         name: "aggregate_root",
         working_directory: "aggregate_root",
-        matrix: generate(axis("ruby", RUBY_VERSIONS), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(RUBY_VERSIONS), gemfile(GEMFILE)),
         template: "ruby.yaml.erb"
       },
       {
@@ -80,7 +80,7 @@ class CI
       {
         name: "ruby_event_store",
         working_directory: "ruby_event_store",
-        matrix: generate(axis("ruby", RUBY_VERSIONS), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(RUBY_VERSIONS), gemfile(GEMFILE)),
         template: "ruby.yaml.erb"
       },
       {
@@ -91,7 +91,7 @@ class CI
       {
         name: "ruby_event_store-rspec",
         working_directory: "ruby_event_store-rspec",
-        matrix: generate(axis("ruby", RUBY_VERSIONS), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(RUBY_VERSIONS), gemfile(GEMFILE)),
         template: "ruby.yaml.erb"
       },
       {
@@ -103,10 +103,7 @@ class CI
         name: "ruby_event_store-browser",
         working_directory: "ruby_event_store-browser",
         matrix:
-          generate(
-            axis("ruby", RUBY_VERSIONS),
-            axis("gemfile", GEMFILE, "Gemfile.rack_2_0")
-          ),
+          generate(ruby(RUBY_VERSIONS), gemfile(GEMFILE, "Gemfile.rack_2_0")),
         template: "elm.yaml.erb"
       },
       {
@@ -117,11 +114,7 @@ class CI
       {
         name: "rails_event_store",
         working_directory: "rails_event_store",
-        matrix:
-          generate(
-            axis("ruby", RUBY_VERSIONS),
-            axis("gemfile", GEMFILE, RAILS_GEMFILES)
-          ),
+        matrix: generate(ruby(RUBY_VERSIONS), gemfile(GEMFILE, RAILS_GEMFILES)),
         template: "ruby.yaml.erb"
       },
       {
@@ -134,21 +127,12 @@ class CI
         working_directory: "ruby_event_store-active_record",
         matrix:
           generate(
-            axis("ruby", RUBY_VERSIONS),
-            axis("gemfile", GEMFILE),
+            ruby(RUBY_VERSIONS),
+            gemfile(GEMFILE),
             join(
-              generate(
-                axis("database", SQLITE3),
-                axis("datatype", DATA_TYPES_IN_AR.take(1))
-              ),
-              generate(
-                axis("database", POSTGRES),
-                axis("datatype", DATA_TYPES_IN_AR)
-              ),
-              generate(
-                axis("database", MYSQL),
-                axis("datatype", DATA_TYPES_IN_AR.take(2))
-              )
+              generate(database(SQLITE3), datatype(DATA_TYPES_IN_AR.take(1))),
+              generate(database(POSTGRES), datatype(DATA_TYPES_IN_AR)),
+              generate(database(MYSQL), datatype(DATA_TYPES_IN_AR.take(2)))
             )
           ),
         template: "db.yaml.erb"
@@ -161,11 +145,7 @@ class CI
       {
         name: "ruby_event_store-flipper",
         working_directory: "contrib/ruby_event_store-flipper",
-        matrix:
-          generate(
-            axis("ruby", MRI_RUBY),
-            axis("gemfile", GEMFILE, AS_GEMFILES)
-          ),
+        matrix: generate(ruby(MRI_RUBY), gemfile(GEMFILE, AS_GEMFILES)),
         template: "contrib.yaml.erb"
       },
       {
@@ -176,7 +156,7 @@ class CI
       {
         name: "ruby_event_store-newrelic",
         working_directory: "contrib/ruby_event_store-newrelic",
-        matrix: generate(axis("ruby", MRI_RUBY), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(MRI_RUBY), gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
       },
       {
@@ -187,23 +167,24 @@ class CI
       {
         name: "ruby_event_store-outbox",
         working_directory: "contrib/ruby_event_store-outbox",
-        matrix: join(
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2),
-            axis("database", SQLITE3, MYSQL_5, MYSQL_8)
+        matrix:
+          join(
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2),
+              database(SQLITE3, MYSQL_5, MYSQL_8)
+            ),
+            generate(
+              ruby(RUBY_3_0),
+              gemfile(GEMFILE_RAILS_6_1),
+              database(SQLITE3)
+            ),
+            generate(
+              ruby(RUBY_2_7),
+              gemfile(GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
+              database(SQLITE3)
+            )
           ),
-          generate(
-            axis("ruby", RUBY_3_0),
-            axis("gemfile", GEMFILE_RAILS_6_1),
-            axis("database", SQLITE3)
-          ),
-          generate(
-            axis("ruby", RUBY_2_7),
-            axis("gemfile", GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
-            axis("database", SQLITE3)
-          )
-        ),
         template: "outbox.yaml.erb"
       },
       {
@@ -214,7 +195,7 @@ class CI
       {
         name: "ruby_event_store-profiler",
         working_directory: "contrib/ruby_event_store-profiler",
-        matrix: generate(axis("ruby", MRI_RUBY), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(MRI_RUBY), gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
       },
       {
@@ -225,23 +206,24 @@ class CI
       {
         name: "ruby_event_store-protobuf",
         working_directory: "contrib/ruby_event_store-protobuf",
-        matrix: join(
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE),
-            axis("database", SQLITE3)
+        matrix:
+          join(
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE),
+              database(SQLITE3)
+            ),
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE_RAILS_6_1),
+              database(SQLITE3)
+            ),
+            generate(
+              ruby(RUBY_2_7),
+              gemfile(GEMFILE_RAILS_6_0),
+              database(SQLITE3)
+            )
           ),
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE_RAILS_6_1),
-            axis("database", SQLITE3)
-          ),
-          generate(
-            axis("ruby", RUBY_2_7),
-            axis("gemfile", GEMFILE_RAILS_6_0),
-            axis("database", SQLITE3)
-          )
-        ),
         template: "protobuf.yaml.erb"
       },
       {
@@ -252,26 +234,27 @@ class CI
       {
         name: "ruby_event_store-rom",
         working_directory: "contrib/ruby_event_store-rom",
-        matrix: join(
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE),
-            axis("database", SQLITE),
-            axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
+        matrix:
+          join(
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE),
+              database(SQLITE),
+              datatype(DATA_TYPES_IN_SEQUEL.take(1))
+            ),
+            generate(
+              ruby(RUBY_2_7),
+              gemfile(GEMFILE),
+              database(POSTGRES),
+              datatype(DATA_TYPES_IN_SEQUEL)
+            ),
+            generate(
+              ruby(RUBY_2_7),
+              gemfile(GEMFILE),
+              database(MYSQL),
+              datatype(DATA_TYPES_IN_SEQUEL.take(1))
+            )
           ),
-          generate(
-            axis("ruby", RUBY_2_7),
-            axis("gemfile", GEMFILE),
-            axis("database", POSTGRES),
-            axis("datatype", DATA_TYPES_IN_SEQUEL)
-          ),
-          generate(
-            axis("ruby", RUBY_2_7),
-            axis("gemfile", GEMFILE),
-            axis("database", MYSQL),
-            axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
-          )
-        ),
         template: "rom.yaml.erb"
       },
       {
@@ -282,26 +265,27 @@ class CI
       {
         name: "ruby_event_store-sequel",
         working_directory: "contrib/ruby_event_store-sequel",
-        matrix: join(
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE),
-            axis("database", SQLITE),
-            axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
+        matrix:
+          join(
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE),
+              database(SQLITE),
+              datatype(DATA_TYPES_IN_SEQUEL.take(1))
+            ),
+            generate(
+              ruby(RUBY_2_7),
+              gemfile(GEMFILE),
+              database(POSTGRES),
+              datatype(DATA_TYPES_IN_SEQUEL)
+            ),
+            generate(
+              ruby(RUBY_2_7),
+              gemfile(GEMFILE),
+              database(MYSQL),
+              datatype(DATA_TYPES_IN_SEQUEL.take(1))
+            )
           ),
-          generate(
-            axis("ruby", RUBY_2_7),
-            axis("gemfile", GEMFILE),
-            axis("database", POSTGRES),
-            axis("datatype", DATA_TYPES_IN_SEQUEL)
-          ),
-          generate(
-            axis("ruby", RUBY_2_7),
-            axis("gemfile", GEMFILE),
-            axis("database", MYSQL),
-            axis("datatype", DATA_TYPES_IN_SEQUEL.take(1))
-          )
-        ),
         template: "rom.yaml.erb"
       },
       {
@@ -312,16 +296,14 @@ class CI
       {
         name: "ruby_event_store-sidekiq_scheduler",
         working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
-        matrix: join(
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE, SIDEKIQ_GEMFILES)
+        matrix:
+          join(
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE, SIDEKIQ_GEMFILES)
+            ),
+            generate(ruby(RUBY_3_0), gemfile(SIDEKIQ_GEMFILES))
           ),
-          generate(
-            axis("ruby", RUBY_3_0),
-            axis("gemfile", SIDEKIQ_GEMFILES)
-          )
-        ),
         template: "scheduler.yaml.erb"
       },
       {
@@ -332,7 +314,7 @@ class CI
       {
         name: "ruby_event_store-transformations",
         working_directory: "contrib/ruby_event_store-transformations",
-        matrix: generate(axis("ruby", MRI_RUBY), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(MRI_RUBY), gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
       },
       {
@@ -343,15 +325,13 @@ class CI
       {
         name: "minitest-ruby_event_store",
         working_directory: "contrib/minitest-ruby_event_store",
-        matrix:
-          generate(axis("ruby", MRI_RUBY.drop(1)), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(MRI_RUBY.drop(1)), gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
       },
       {
         name: "minitest-ruby_event_store_coverage",
         working_directory: "contrib/minitest-ruby_event_store",
-        matrix:
-          generate(axis("ruby", MRI_RUBY.drop(1)), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(MRI_RUBY.drop(1)), gemfile(GEMFILE)),
         template: "coverage.yaml.erb"
       },
       {
@@ -362,27 +342,27 @@ class CI
       {
         name: "dres_client",
         working_directory: "contrib/dres_client",
-        matrix:
-          generate(axis("ruby", MRI_RUBY.drop(1)), axis("gemfile", GEMFILE)),
+        matrix: generate(ruby(MRI_RUBY.drop(1)), gemfile(GEMFILE)),
         template: "dres_client.yaml.erb"
       },
       {
         name: "dres_rails",
         working_directory: "contrib/dres_rails",
-        matrix: join(
-          generate(
-            axis("ruby", MRI_RUBY.drop(1)),
-            axis("gemfile", GEMFILE),
-            axis("database", POSTGRES_11),
-            axis("datatype", DATA_TYPES_IN_AR)
+        matrix:
+          join(
+            generate(
+              ruby(MRI_RUBY.drop(1)),
+              gemfile(GEMFILE),
+              database(POSTGRES_11),
+              datatype(DATA_TYPES_IN_AR)
+            ),
+            generate(
+              ruby(RUBY_3_1),
+              gemfile(GEMFILE),
+              database(POSTGRES_12),
+              datatype(DATA_TYPES_IN_AR)
+            )
           ),
-          generate(
-            axis("ruby", RUBY_3_1),
-            axis("gemfile", GEMFILE),
-            axis("database", POSTGRES_12),
-            axis("datatype", DATA_TYPES_IN_AR)
-          )
-        ),
         template: "dres_rails.yaml.erb"
       }
     ]
@@ -398,6 +378,22 @@ class CI
 
   def join(*axes)
     axes.flatten
+  end
+
+  def ruby(*ruby_version)
+    axis("ruby", *ruby_version)
+  end
+
+  def gemfile(*gemfile)
+    axis("gemfile", *gemfile)
+  end
+
+  def database(*database_url)
+    axis("database", *database_url)
+  end
+
+  def datatype(*data_type)
+    axis("datatype", *data_type)
   end
 
   def as_github_actions
@@ -428,4 +424,7 @@ class CI
   attr_reader :workflows_root, :template_root
 end
 
-CI.new(File.join(__dir__, "../../.github/workflows/"), __dir__).as_github_actions
+CI.new(
+  File.join(__dir__, "../../.github/workflows/"),
+  __dir__
+).as_github_actions
