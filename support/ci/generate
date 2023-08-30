@@ -317,21 +317,27 @@ AS_GEMFILES = [
     working_directory: "contrib/ruby_event_store-sequel",
     template: "coverage.yaml.erb"
   },
-  # {
-  #   name: "ruby_event_store-sidekiq_scheduler",
-  #   working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
-  #   matrix:
-  #     Szczupac.generate(
-  #       Szczupac.axis("ruby", MRI_RUBY),
-  #       Szczupac.axis("gemfile", GEMFILES)
-  #     ),
-  #   template: "contrib.yaml.erb"
-  # },
-  # {
-  #   name: "ruby_event_store-sidekiq_scheduler_coverage",
-  #   working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
-  #   template: "coverage.yaml.erb"
-  # },
+  {
+    name: "ruby_event_store-sidekiq_scheduler",
+    working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
+    matrix:
+      [
+        Szczupac.generate(
+          Szczupac.axis("ruby", MRI_RUBY - [RUBY_3_2]),
+          Szczupac.axis("gemfile", GEMFILES + %w[Gemfile.sidekiq_6 Gemfile.sidekiq_5])
+        ),
+        Szczupac.generate(
+          Szczupac.axis("ruby", [RUBY_3_0]),
+          Szczupac.axis("gemfile", %w[Gemfile.sidekiq_6 Gemfile.sidekiq_5])
+        )
+      ].flatten,
+    template: "scheduler.yaml.erb"
+  },
+  {
+    name: "ruby_event_store-sidekiq_scheduler_coverage",
+    working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
+    template: "scheduler_coverage.yaml.erb"
+  },
   {
     name: "ruby_event_store-transformations",
     working_directory: "contrib/ruby_event_store-transformations",

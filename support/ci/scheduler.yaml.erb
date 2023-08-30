@@ -1,4 +1,4 @@
-name: ruby_event_store-sidekiq_scheduler
+name: <%= name %>
 on:
   repository_dispatch:
     types:
@@ -6,40 +6,27 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-sidekiq_scheduler/**"
-      - ".github/workflows/ruby_event_store-sidekiq_scheduler.yml"
+      - "<%= working_directory %>/**"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-sidekiq_scheduler/**"
-      - ".github/workflows/ruby_event_store-sidekiq_scheduler.yml"
+      - "<%= working_directory %>/**"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
+      WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       REDIS_URL: redis://localhost:6379/0
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-          - ruby: ruby-3.1
-            gemfile: Gemfile.sidekiq_6
-          - ruby: ruby-3.1
-            gemfile: Gemfile.sidekiq_5
-          - ruby: ruby-3.0
-            gemfile: Gemfile.sidekiq_6
-          - ruby: ruby-3.0
-            gemfile: Gemfile.sidekiq_5
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v20
@@ -70,7 +57,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
+      WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: Gemfile
       REDIS_URL: redis://localhost:6379/0
     strategy:
