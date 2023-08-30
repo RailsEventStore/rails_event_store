@@ -139,6 +139,8 @@ module RubyEventStore
           @stream_klass.find_by!(event_id: specification.start, stream: specification.stream.name),
           @stream_klass.table_name
         )
+      rescue ::ActiveRecord::RecordNotFound
+        raise RubyEventStore::EventNotFoundInStream.new(specification.start)
       end
 
       def stop_condition(specification)
@@ -147,6 +149,8 @@ module RubyEventStore
           @stream_klass.find_by!(event_id: specification.stop, stream: specification.stream.name),
           @stream_klass.table_name
         )
+      rescue ::ActiveRecord::RecordNotFound
+        raise RubyEventStore::EventNotFoundInStream.new(specification.stop)
       end
 
       def start_condition_in_global_stream(specification)
@@ -155,6 +159,8 @@ module RubyEventStore
           @event_klass.find_by!(event_id: specification.start),
           @event_klass.table_name
         )
+      rescue ::ActiveRecord::RecordNotFound
+        raise RubyEventStore::EventNotFound.new(specification.start)
       end
 
       def stop_condition_in_global_stream(specification)
@@ -163,6 +169,8 @@ module RubyEventStore
           @event_klass.find_by!(event_id: specification.stop),
           @event_klass.table_name
         )
+      rescue ::ActiveRecord::RecordNotFound
+        raise RubyEventStore::EventNotFound.new(specification.stop)
       end
 
       def coalesce(*exprs)
