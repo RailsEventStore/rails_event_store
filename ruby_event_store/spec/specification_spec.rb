@@ -40,11 +40,19 @@ module RubyEventStore
     specify { expect { specification.from("") }.to raise_error(InvalidPageStart) }
     specify { expect { specification.from(:dummy) }.to raise_error(EventNotFound, /dummy/) }
     specify { expect { specification.from(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
+    specify do
+      repository.append_to_stream([test_record(event_id)], Stream.new("Dummy"), ExpectedVersion.none)
+      expect { specification.stream('Another').from(event_id) }.not_to raise_error
+    end
 
     specify { expect { specification.to(nil) }.to raise_error(InvalidPageStop) }
     specify { expect { specification.to("") }.to raise_error(InvalidPageStop) }
     specify { expect { specification.to(:dummy) }.to raise_error(EventNotFound, /dummy/) }
     specify { expect { specification.to(none_such_id) }.to raise_error(EventNotFound, /#{none_such_id}/) }
+    specify do
+      repository.append_to_stream([test_record(event_id)], Stream.new("Dummy"), ExpectedVersion.none)
+      expect { specification.stream('Another').to(event_id) }.not_to raise_error
+    end
 
     specify { expect { specification.older_than(nil) }.to raise_error(ArgumentError) }
     specify { expect { specification.older_than("") }.to raise_error(ArgumentError) }
