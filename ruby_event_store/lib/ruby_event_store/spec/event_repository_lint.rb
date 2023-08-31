@@ -1075,14 +1075,14 @@ module RubyEventStore
       not_existing_uuid = SecureRandom.uuid
       expect do
         repository.read(specification.from(not_existing_uuid).result).to_a
-      end.to raise_error(RubyEventStore::EventNotFound)
+      end.to raise_error(RubyEventStore::EventNotFound, "Event not found: #{not_existing_uuid}")
     end
 
     specify do
       not_existing_uuid = SecureRandom.uuid
       expect do
         repository.read(specification.to(not_existing_uuid).result).to_a
-      end.to raise_error(RubyEventStore::EventNotFound)
+      end.to raise_error(RubyEventStore::EventNotFound, "Event not found: #{not_existing_uuid}")
     end
 
     context "#update_messages" do
