@@ -7,6 +7,7 @@ module RubyEventStore
         @expected = ExpectedCollection.new(expected)
         @failure_message_formatter = failure_message_formatter
         @fetch_events = FetchEvents.new
+        @start_for_stream = {}
       end
 
       def in(event_store)
@@ -45,10 +46,16 @@ module RubyEventStore
       end
 
       def matches?(event_proc)
-        fetch_events.from_last
+        stream_names.each do |stream_name|
+          fetch_events.stream(stream_name)
+          @start_for_stream[stream_name] = fetch_events.call.last&.event_id
+        end
+
         event_proc.call
+
         stream_names.all? do |stream_name|
           fetch_events.stream(stream_name)
+          fetch_events.from(@start_for_stream.fetch(stream_name))
           @published_events = fetch_events.call.to_a
           @failed_on_stream = stream_name
           MatchEvents.new.call(expected, published_events)

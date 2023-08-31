@@ -15,10 +15,6 @@ module RubyEventStore
         @event_store = event_store
       end
 
-      def from_last
-        @start = call.last&.event_id
-      end
-
       def call
         raise MissingEventStore if event_store.nil?
         events = event_store.read

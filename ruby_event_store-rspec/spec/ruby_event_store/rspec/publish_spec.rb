@@ -246,6 +246,18 @@ module RubyEventStore
           event_store.publish(BarEvent.new)
         end.to matcher(matchers.an_event(FooEvent), matchers.an_event(BarEvent)).strict.in(event_store)
       end
+
+      specify do
+        event_store.publish(FooEvent.new, stream_name: "Stream$1")
+        event_store.publish(FooEvent.new, stream_name: "Stream$2")
+        expect do
+          event_store.publish(BarEvent.new, stream_name: "Stream$1")
+          event_store.publish(BarEvent.new, stream_name: "Stream$3")
+        end.to matcher(matchers.an_event(BarEvent))
+                 .strict
+                 .in(event_store)
+                 .in_streams(%w[Stream$1 Stream$3])
+      end
     end
   end
 end
