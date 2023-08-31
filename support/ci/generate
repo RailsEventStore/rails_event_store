@@ -408,12 +408,16 @@ class CI
         ).result_with_hash(
           name: name,
           working_directory: gem.fetch(:working_directory),
-          matrix: Psych.dump(gem[:matrix]).lines.drop(1).join(" " * 10).strip
+          matrix: as_formatted_yaml(gem[:matrix], indent: 10),
         )
       )
 
       puts "writing #{filename}"
     end
+  end
+
+  def as_formatted_yaml(content, indent:)
+    Psych.dump(content).lines.drop(1).join(" " * indent).strip
   end
 
   def initialize(workflows_root, template_root)
