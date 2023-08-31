@@ -20,8 +20,9 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
-      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
-      DATABASE_URL: ${{ matrix.database_url }}
+      RUBY_VERSION: "${{ matrix.ruby_version }}"
+      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      DATABASE_URL: "${{ matrix.database_url }}"
     services:
       mysql_5:
         image: mysql:5

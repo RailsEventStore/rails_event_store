@@ -19,9 +19,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: <%= working_directory %>
-      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
-      REDIS_URL: redis://localhost:6379/0
+      <%= env %>
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +57,6 @@ jobs:
     env:
       WORKING_DIRECTORY: <%= working_directory %>
       BUNDLE_GEMFILE: Gemfile
-      REDIS_URL: redis://localhost:6379/0
     strategy:
       fail-fast: false
     steps:

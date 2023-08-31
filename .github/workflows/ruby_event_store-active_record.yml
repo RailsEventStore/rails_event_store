@@ -18,9 +18,10 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: ruby_event_store-active_record
-      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
-      DATABASE_URL: ${{ matrix.database_url }}
-      DATA_TYPE: ${{ matrix.data_type }}
+      RUBY_VERSION: "${{ matrix.ruby_version }}"
+      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      DATABASE_URL: "${{ matrix.database_url }}"
+      DATA_TYPE: "${{ matrix.data_type }}"
     services:
       postgres_11:
         image: postgres:11

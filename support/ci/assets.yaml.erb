@@ -7,7 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: <%= working_directory %>
+      <%= env %>
     strategy:
       fail-fast: false
       matrix:
