@@ -28,7 +28,6 @@ module RubyEventStore
     # @return [Specification]
     def from(start)
       raise InvalidPageStart if start.nil? || start.empty?
-      raise EventNotFound.new(start) unless reader.has_event?(start)
       Specification.new(reader, result.dup { |r| r.start = start })
     end
 
@@ -39,7 +38,6 @@ module RubyEventStore
     # @return [Specification]
     def to(stop)
       raise InvalidPageStop if stop.nil? || stop.empty?
-      raise EventNotFound.new(stop) unless reader.has_event?(stop)
       Specification.new(reader, result.dup { |r| r.stop = stop })
     end
 
