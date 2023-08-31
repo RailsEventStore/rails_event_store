@@ -1060,7 +1060,7 @@ module RubyEventStore
       repository.append_to_stream([event], Stream.new('dummy'), ExpectedVersion.any)
       expect do
         repository.read(specification.stream('another').from(event.event_id).result).to_a
-      end.to raise_error(RubyEventStore::EventNotFoundInStream)
+      end.to raise_error(RubyEventStore::EventNotFound, "Event not found: #{event.event_id}")
     end
 
     specify do
@@ -1068,7 +1068,7 @@ module RubyEventStore
       repository.append_to_stream([event], Stream.new('dummy'), ExpectedVersion.any)
       expect do
         repository.read(specification.stream('another').to(event.event_id).result).to_a
-      end.to raise_error(RubyEventStore::EventNotFoundInStream)
+      end.to raise_error(RubyEventStore::EventNotFound, "Event not found: #{event.event_id}")
     end
 
     specify do
