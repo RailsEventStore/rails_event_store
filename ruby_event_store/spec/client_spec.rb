@@ -398,10 +398,10 @@ module RubyEventStore
       end
 
       expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
-        EventNotFoundInStream
+        EventNotFound
       )
       expect { client.read.backward.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
-        EventNotFoundInStream
+        EventNotFound
       )
     end
 

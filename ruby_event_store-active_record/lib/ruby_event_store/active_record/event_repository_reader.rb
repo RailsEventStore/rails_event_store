@@ -140,7 +140,7 @@ module RubyEventStore
           @stream_klass.table_name
         )
       rescue ::ActiveRecord::RecordNotFound
-        raise EventNotFoundInStream
+        raise EventNotFound.new(specification.start)
       end
 
       def stop_condition(specification)
@@ -150,7 +150,7 @@ module RubyEventStore
           @stream_klass.table_name
         )
       rescue ::ActiveRecord::RecordNotFound
-        raise EventNotFoundInStream
+        raise EventNotFound.new(specification.stop)
       end
 
       def start_condition_in_global_stream(specification)

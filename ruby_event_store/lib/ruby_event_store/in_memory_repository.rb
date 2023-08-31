@@ -150,12 +150,8 @@ module RubyEventStore
       serialized_records = serialized_records.select { |e| spec.with_types.any? { |x| x.eql?(e.event_type) } } if spec
         .with_types?
       serialized_records = serialized_records.reverse if spec.backward?
-      begin
-        serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
-        serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
-      rescue EventNotFound => e
-        raise spec.stream.global? ? e : EventNotFoundInStream
-      end
+      serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
+      serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
       serialized_records = serialized_records.take(spec.limit) if spec.limit?
       serialized_records = serialized_records.select { |sr| Time.iso8601(time_comparison_field(spec, sr)) < spec.older_than } if spec
         .older_than
