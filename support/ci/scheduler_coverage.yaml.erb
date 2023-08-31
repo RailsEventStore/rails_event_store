@@ -22,11 +22,12 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 120
     env:
-      WORKING_DIRECTORY: <%= working_directory %>
-      BUNDLE_GEMFILE: Gemfile
-      REDIS_URL: redis://localhost:6379/0
+      <%= env %>
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v20

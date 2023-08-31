@@ -23,9 +23,11 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-transformations
-      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock

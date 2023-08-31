@@ -23,9 +23,14 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: ruby_event_store-rspec
-      BUNDLE_GEMFILE: Gemfile
+      RUBY_VERSION: "${{ matrix.ruby_version }}"
+      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock

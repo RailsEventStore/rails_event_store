@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
-      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
+      RUBY_VERSION: "${{ matrix.ruby_version }}"
+      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
       fail-fast: false
       matrix:

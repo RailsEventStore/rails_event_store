@@ -23,9 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: <%= working_directory %>
-      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
-      DATABASE_URL: ${{ matrix.database_url }}
+      <%= env %>
     services:
       postgres_11:
         image: postgres:11

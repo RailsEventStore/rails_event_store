@@ -20,22 +20,28 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
-      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
-      REDIS_URL: redis://localhost:6379/0
+      RUBY_VERSION: "${{ matrix.ruby_version }}"
+      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      REDIS_URL: "${{ matrix.redis_url }}"
     strategy:
       fail-fast: false
       matrix:
         include:
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
+            redis_url: redis://localhost:6379/0
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
+            redis_url: redis://localhost:6379/0
           - ruby_version: ruby-2.7
             bundle_gemfile: Gemfile
+            redis_url: redis://localhost:6379/0
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile.sidekiq_6_5
+            redis_url: redis://localhost:6379/0
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile.sidekiq_5_2
+            redis_url: redis://localhost:6379/0
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile.sidekiq_6_5
           - ruby_version: ruby-3.0
@@ -72,7 +78,6 @@ jobs:
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler
       BUNDLE_GEMFILE: Gemfile
-      REDIS_URL: redis://localhost:6379/0
     strategy:
       fail-fast: false
     steps:
