@@ -341,19 +341,6 @@ module RubyEventStore
       expect { client.read.backward.stream("").limit(100).to_a }.to raise_error(IncorrectStreamData)
     end
 
-    specify "raise exception if event_id does not exist" do
-      expect { client.read.stream("stream_name").from("0").limit(100).to_a }.to raise_error(
-        EventNotFound,
-        /Event not found: 0/
-      )
-      expect { client.read.backward.stream("stream_name").from("0").limit(100).to_a }.to raise_error(EventNotFound, /0/)
-    end
-
-    specify "raise exception if event_id is not given or invalid" do
-      expect { client.read.stream("stream_name").from(nil).limit(100).to_a }.to raise_error(InvalidPageStart)
-      expect { client.read.backward.stream("stream_name").from(:invalid).limit(100).to_a }.to raise_error(EventNotFound)
-    end
-
     specify "fails when page size is invalid" do
       expect { client.read.stream("stream_name").limit(0).to_a }.to raise_error(InvalidPageSize)
       expect { client.read.backward.stream("stream_name").limit(0).to_a }.to raise_error(InvalidPageSize)
@@ -410,9 +397,11 @@ module RubyEventStore
         client.publish(event, stream_name: "stream_name")
       end
 
-      expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
+      expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
+        EventNotFoundInStream
+      )
       expect { client.read.backward.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
-        EventNotFound
+        EventNotFoundInStream
       )
     end
 

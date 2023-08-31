@@ -29,12 +29,6 @@ module RubyEventStore
       repository.count(specification_result)
     end
 
-    # @api private
-    # @private
-    def has_event?(event_id)
-      repository.has_event?(event_id)
-    end
-
     private
 
     attr_reader :repository, :mapper
