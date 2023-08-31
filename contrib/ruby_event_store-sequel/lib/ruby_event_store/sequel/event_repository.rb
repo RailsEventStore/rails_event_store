@@ -231,12 +231,12 @@ module RubyEventStore
         if specification.start
           condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
           dataset =
-            dataset.where(::Sequel.lit(condition, find_event_id(specification.start, specification.stream.name)))
+            dataset.where(::Sequel.lit(condition, find_event_id_in_stream(specification.start, specification.stream.name)))
         end
 
         if specification.stop
           condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
-          dataset = dataset.where(::Sequel.lit(condition, find_event_id(specification.stop, specification.stream.name)))
+          dataset = dataset.where(::Sequel.lit(condition, find_event_id_in_stream(specification.stop, specification.stream.name)))
         end
 
         if specification.older_than
@@ -269,13 +269,24 @@ module RubyEventStore
         dataset
       end
 
-      def find_event_id(specification_event_id, specification_stream_name)
-        @db[:event_store_events_in_streams]
+      def find_event_id_in_stream(specification_event_id, specification_stream_name)
+        event = @db[:event_store_events_in_streams]
           .select(:id)
           .where(event_id: specification_event_id, stream: specification_stream_name)
-          .first[
-          :id
-        ]
+          .first
+        raise EventNotFound.new(specification_event_id) unless event
+
+        event[:id]
+      end
+
+      def find_event_id_globally(specification_event_id)
+        event = @db[:event_store_events]
+                  .select(:id)
+                  .where(event_id: specification_event_id)
+                  .first
+        raise EventNotFound.new(specification_event_id) unless event
+
+        event[:id]
       end
 
       def read_from_global_stream(specification)
@@ -295,14 +306,14 @@ module RubyEventStore
         dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
 
         if specification.start
-          id = @db[:event_store_events].select(:id).where(event_id: specification.start).first[:id]
+          id = find_event_id_globally(specification.start)
           condition = "event_store_events.id #{specification.forward? ? ">" : "<"} ?"
 
           dataset = dataset.where(::Sequel.lit(condition, id))
         end
 
         if specification.stop
-          id = @db[:event_store_events].select(:id).where(event_id: specification.stop).first[:id]
+          id = find_event_id_globally(specification.stop)
           condition = "event_store_events.id #{specification.forward? ? "<" : ">"} ?"
 
           dataset = dataset.where(::Sequel.lit(condition, id))
