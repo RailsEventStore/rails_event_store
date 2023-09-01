@@ -65,6 +65,20 @@ module RubyEventStore
 
         protected
 
+        def find_event_id_in_stream(specification_event_id, specification_stream_name)
+          stream_entries
+            .by_stream_and_event_id(specification_stream_name, specification_event_id)
+            .fetch(:id)
+        rescue ::ROM::TupleCountMismatchError
+          raise EventNotFound.new(specification_event_id)
+        end
+
+        def find_event_id_globally(specification_event_id)
+          events.by_event_id(specification_event_id).one!.fetch(:id)
+        rescue ::ROM::TupleCountMismatchError
+          raise EventNotFound.new(specification_event_id)
+        end
+
         def read_scope(specification)
           direction = specification.forward? ? :forward : :backward
 
@@ -73,20 +87,14 @@ module RubyEventStore
           end
 
           if specification.stream.global?
-            offset_entry_id = events.by_event_id(specification.start).one!.fetch(:id) if specification.start
-            stop_entry_id = events.by_event_id(specification.stop).one!.fetch(:id) if specification.stop
+            offset_entry_id = find_event_id_globally(specification.start) if specification.start
+            stop_entry_id = find_event_id_globally(specification.stop) if specification.stop
 
             query = events.ordered(direction, offset_entry_id, stop_entry_id, specification.time_sort_by)
             query = query.map_with(:event_to_serialized_record, auto_struct: false)
           else
-            offset_entry_id =
-              stream_entries
-                .by_stream_and_event_id(specification.stream, specification.start)
-                .fetch(:id) if specification.start
-            stop_entry_id =
-              stream_entries
-                .by_stream_and_event_id(specification.stream, specification.stop)
-                .fetch(:id) if specification.stop
+            offset_entry_id = find_event_id_in_stream(specification.start, specification.stream) if specification.start
+            stop_entry_id = find_event_id_in_stream(specification.stop, specification.stream) if specification.stop
 
             query =
               stream_entries.ordered(
