@@ -4,8 +4,9 @@ module RubyEventStore
   module ActiveRecord
     class ForeignKeyOnEventIdMigrationGenerator
       def call(database_adapter, migration_path)
-        each_migration(database_adapter) do |migration_name|
-          path = build_path(migration_path, migration_name)
+        time = Time.now
+        each_migration(database_adapter) do |migration_name, i|
+          path = build_path(migration_path, migration_name, time + i)
           write_to_file(path, migration_code(database_adapter, migration_name))
         end
       end
@@ -21,7 +22,7 @@ module RubyEventStore
           ]
         else
           ['add_foreign_key_on_event_id_to_event_store_events_in_streams']
-        end.each(&block)
+        end.each.with_index(&block)
       end
 
       def absolute_path(path)
@@ -52,8 +53,12 @@ module RubyEventStore
         File.write(path, migration_code)
       end
 
-      def build_path(migration_path, migration_name)
-        File.join("#{migration_path}", "#{timestamp}_#{migration_name}.rb")
+      def build_path(migration_path, migration_name, time)
+        File.join("#{migration_path}", "#{migration_verion_number(time)}_#{migration_name}.rb")
+      end
+
+      def migration_verion_number(time)
+        time.strftime("%Y%m%d%H%M%S")
       end
     end
   end

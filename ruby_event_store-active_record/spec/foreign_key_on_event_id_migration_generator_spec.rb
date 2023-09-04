@@ -83,7 +83,7 @@ module RubyEventStore
       end
 
       def second_step_migration_exists?(dir)
-        File.exist?("#{dir}/20221130213700_validate_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb")
+        File.exist?("#{dir}/20221130213701_validate_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb")
       end
 
       def generated_files_count(dir)
