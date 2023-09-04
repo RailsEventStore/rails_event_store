@@ -1,6 +1,10 @@
-### Unreleased
+### 2.2.0
 
 - Change: Minimum required Ruby version is 2.7.0
+
+- Add: Support for bi–temporal queries [#1674]
+
+- Fix: Raise `RubyEventStore::EventNotFound` instead of `ROM::TupleCountMismatchError` if the `event_id` passed to `Specification#from` or `Specification#to` does not exist [#1673]
 
 ### 2.1.0
 
