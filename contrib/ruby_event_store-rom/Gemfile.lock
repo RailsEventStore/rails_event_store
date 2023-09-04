@@ -33,12 +33,12 @@ GEM
     ast (2.4.2)
     concurrent-ruby (1.2.2)
     diff-lcs (1.5.0)
-    dry-configurable (1.1.0)
+    dry-configurable (1.0.1)
       dry-core (~> 1.0, < 2)
       zeitwerk (~> 2.6)
     dry-container (0.11.0)
       concurrent-ruby (~> 1.0)
-    dry-core (1.0.1)
+    dry-core (1.0.0)
       concurrent-ruby (~> 1.0)
       zeitwerk (~> 2.6)
     dry-inflector (1.0.0)
@@ -142,6 +142,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (= 7.0.4.3)
+  dry-core (<= 1.0.0)
   mutant (= 0.11.22)
   mutant-license!
   mutant-minitest (= 0.11.22)
