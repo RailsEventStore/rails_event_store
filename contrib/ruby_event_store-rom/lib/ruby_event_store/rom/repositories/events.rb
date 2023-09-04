@@ -110,10 +110,10 @@ module RubyEventStore
 
           query = query.by_event_id(specification.with_ids) if specification.with_ids
           query = query.by_event_type(specification.with_types) if specification.with_types?
-          query = query.older_than(specification.older_than) if specification.older_than
-          query = query.older_than_or_equal(specification.older_than_or_equal) if specification.older_than_or_equal
-          query = query.newer_than(specification.newer_than) if specification.newer_than
-          query = query.newer_than_or_equal(specification.newer_than_or_equal) if specification.newer_than_or_equal
+          query = query.older_than(specification.older_than, specification.time_sort_by) if specification.older_than
+          query = query.older_than_or_equal(specification.older_than_or_equal, specification.time_sort_by) if specification.older_than_or_equal
+          query = query.newer_than(specification.newer_than, specification.time_sort_by) if specification.newer_than
+          query = query.newer_than_or_equal(specification.newer_than_or_equal, specification.time_sort_by) if specification.newer_than_or_equal
           query
         end
 

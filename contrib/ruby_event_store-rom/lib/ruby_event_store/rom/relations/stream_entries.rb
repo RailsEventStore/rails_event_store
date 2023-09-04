@@ -34,20 +34,36 @@ module RubyEventStore
           by_stream(stream).select(:position).order(Sequel.desc(:position)).first
         end
 
-        def newer_than(time)
-          join_events.where { |r| r.events[:created_at] > time.localtime }
+        def newer_than(time, time_sort_by)
+          if time_sort_by == :as_of
+            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) > time.localtime }
+          else
+            join_events.where { |r| r.events[:created_at] > time.localtime }
+          end
         end
 
-        def newer_than_or_equal(time)
-          join_events.where { |r| r.events[:created_at] >= time.localtime }
+        def newer_than_or_equal(time, time_sort_by)
+          if time_sort_by == :as_of
+            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) >= time.localtime }
+          else
+            join_events.where { |r| r.events[:created_at] >= time.localtime }
+          end
         end
 
-        def older_than(time)
-          join_events.where { |r| r.events[:created_at] < time.localtime }
+        def older_than(time, time_sort_by)
+          if time_sort_by == :as_of
+            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) < time.localtime }
+          else
+            join_events.where { |r| r.events[:created_at] < time.localtime }
+          end
         end
 
-        def older_than_or_equal(time)
-          join_events.where { |r| r.events[:created_at] <= time.localtime }
+        def older_than_or_equal(time, time_sort_by)
+          if time_sort_by == :as_of
+            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) <= time.localtime }
+          else
+            join_events.where { |r| r.events[:created_at] <= time.localtime }
+          end
         end
 
         DIRECTION_MAP = { forward: %i[asc > <], backward: %i[desc < >] }.freeze
