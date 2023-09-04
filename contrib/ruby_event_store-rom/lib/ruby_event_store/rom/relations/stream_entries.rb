@@ -23,7 +23,7 @@ module RubyEventStore
         end
 
         def by_event_type(types)
-          join(:events).where(event_type: types)
+          join_events.where(event_type: types)
         end
 
         def by_stream_and_event_id(stream, event_id)
@@ -35,19 +35,19 @@ module RubyEventStore
         end
 
         def newer_than(time)
-          join(:events).where { |r| r.events[:created_at] > time.localtime }
+          join_events.where { |r| r.events[:created_at] > time.localtime }
         end
 
         def newer_than_or_equal(time)
-          join(:events).where { |r| r.events[:created_at] >= time.localtime }
+          join_events.where { |r| r.events[:created_at] >= time.localtime }
         end
 
         def older_than(time)
-          join(:events).where { |r| r.events[:created_at] < time.localtime }
+          join_events.where { |r| r.events[:created_at] < time.localtime }
         end
 
         def older_than_or_equal(time)
-          join(:events).where { |r| r.events[:created_at] <= time.localtime }
+          join_events.where { |r| r.events[:created_at] <= time.localtime }
         end
 
         DIRECTION_MAP = { forward: %i[asc > <], backward: %i[desc < >] }.freeze
@@ -74,7 +74,15 @@ module RubyEventStore
           if event_order_columns.empty?
             query.order { |r| stream_order_columns.map { |c| r[:stream_entries][c].public_send(order) } }
           else
-            query.join(:events).order { |r| event_order_columns.map { |c| r.events[c].public_send(order) } }
+            query.join_events.order { |r| event_order_columns.map { |c| r.events[c].public_send(order) } }
+          end
+        end
+
+        def join_events
+          if dataset.opts[:join]&.map(&:table)&.include?(events.dataset.first_source_table)
+            self
+          else
+            join(:events)
           end
         end
       end
