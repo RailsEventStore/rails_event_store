@@ -19,7 +19,8 @@ module RubyEventStore
 
       before { allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00)) }
 
-      %w[mysql2 postgresql sqlite].each do |adapter|
+      [DatabaseAdapter::MySQL, DatabaseAdapter::SQLite, DatabaseAdapter::PostgreSQL].each do |adapter_class|
+        adapter = adapter_class.new
         specify "it is created within specified directory" do
           migration_generator(adapter, @dir)
 
@@ -51,23 +52,20 @@ module RubyEventStore
 
       context "when postgresql adapter is used" do
         specify "should do migration in two steps" do
-          migration_generator('postgresql', @dir)
+          migration_generator(DatabaseAdapter::PostgreSQL.new, @dir)
           expect(second_step_migration_exists?(@dir)).to be_truthy
           expect(generated_files_count(@dir)).to eq(2)
         end
       end
 
-      %w[mysql2 sqlite].each do |adapter|
+      [DatabaseAdapter::MySQL, DatabaseAdapter::SQLite].each do |adapter_class|
+        adapter = adapter_class.new
         context "when #{adapter} adapter is used" do
           specify "should do migration in single step" do
             migration_generator(adapter, @dir)
             expect(generated_files_count(@dir)).to eq(1)
           end
         end
-      end
-
-      specify "unsupported adapter raises error" do
-        expect { migration_generator('unsupported', @dir) }.to raise_error(UnsupportedAdapter)
       end
 
       private
