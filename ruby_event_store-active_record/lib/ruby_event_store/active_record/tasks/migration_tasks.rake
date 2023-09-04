@@ -27,7 +27,7 @@ task "db:migrations:add_foreign_key_on_event_id" do
   task.establish_connection
 
   path =
-    RubyEventStore::ActiveRecord::ForeignKeyOnEventIdMigrationGenerator.new.call(task.migration_path)
+    RubyEventStore::ActiveRecord::ForeignKeyOnEventIdMigrationGenerator.new.call(task.adapter, task.migration_path)
 
   puts "Migration file created #{path}"
 end
