@@ -13,6 +13,10 @@ RSpec.configure do |config|
   config.before(:each, redis: true) { redis.flushdb }
 end
 
+Sidekiq.configure_client do |config|
+  config.logger.level = Logger::WARN
+end
+
 TestEvent = Class.new(RubyEventStore::Event)
 
 module RubyEventStore

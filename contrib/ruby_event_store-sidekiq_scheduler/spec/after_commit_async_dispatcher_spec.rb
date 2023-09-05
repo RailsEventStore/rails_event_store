@@ -126,7 +126,9 @@ module RubyEventStore
     end
 
     context "when an exception is raised within after commit callback" do
-      before { ::ActiveRecord::Schema.define { create_table(:dummy_records) } }
+      before do
+        SilenceStdout.silence_stdout {::ActiveRecord::Schema.define { create_table(:dummy_records) } }
+      end
 
       it "dispatches the job after commit" do
         expect_to_have_enqueued_job(TestAsyncHandler) do

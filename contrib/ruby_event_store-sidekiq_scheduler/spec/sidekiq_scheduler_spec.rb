@@ -129,19 +129,21 @@ module RubyEventStore
 
     def sidekiq_processor
       options = case Sidekiq::VERSION.to_i
-             when 5
-               Struct.new(:options).new({ queues: ['default'] })
-             when 6
-               opts = Sidekiq
-               opts[:queues] = ['default']
-               opts[:fetch] = Sidekiq::BasicFetch.new(opts)
-               opts
-             when 7
-               Sidekiq::Config.new.default_capsule
-             else
-               skip 'Unsupported Sidekiq version'
-             end
-      Sidekiq::Processor.new(options)
+                when 5
+                  Struct.new(:options).new({ queues: ['default'] })
+                when 6
+                  opts = Sidekiq
+                  opts[:queues] = ['default']
+                  opts[:fetch] = Sidekiq::BasicFetch.new(opts)
+                  opts
+                when 7
+                  Sidekiq::Config.new.default_capsule
+                else
+                  skip 'Unsupported Sidekiq version'
+                end
+      processor = Sidekiq::Processor.new(options)
+      processor.logger.level = Logger::WARN
+      processor
     end
 
     class MyAsyncHandler
