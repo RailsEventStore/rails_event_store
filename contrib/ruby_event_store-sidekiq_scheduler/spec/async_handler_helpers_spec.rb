@@ -33,7 +33,7 @@ module RubyEventStore
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
       ActiveJob::Base.queue_adapter = :async
-      $queue = RubyEventStore::Queue.new
+      $queue = Queue.new
     end
 
     specify "Sidekiq::Worker without ActiveJob that requires serialization" do
