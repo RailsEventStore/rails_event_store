@@ -32,7 +32,7 @@ module RubyEventStore
         )
       SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
 
-      Timeout.timeout(2) { example.run }
+      example.run
     end
 
     before do
@@ -40,7 +40,7 @@ module RubyEventStore
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
       ActiveJob::Base.queue_adapter = :async
-      $queue = Queue.new
+      $queue = RubyEventStore::Queue.new
     end
 
     specify "Sidekiq::Worker without ActiveJob that requires serialization" do

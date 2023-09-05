@@ -13,3 +13,25 @@ end
 
 TestEvent = Class.new(RubyEventStore::Event)
 
+module RubyEventStore
+  class Queue
+    TIMEOUT = 2
+
+    Timeout = Class.new(StandardError)
+
+    def initialize
+      @mvar = Concurrent::MVar.new
+    end
+
+    def push(event)
+      @mvar.put(event)
+    end
+
+    def pop(timeout = TIMEOUT)
+      res = @mvar.take(timeout)
+      raise Timeout if res == Concurrent::MVar::TIMEOUT
+
+      res
+    end
+  end
+end
