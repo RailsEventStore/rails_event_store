@@ -5,7 +5,8 @@ require "sidekiq/processor"
 
 module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
-    before(:each) { MyAsyncHandler.reset; MyAsyncHandler.clear }
+    before(:each) { MyAsyncHandler.reset }
+    before(:each) { Sidekiq::Worker.clear_all }
 
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: JSON)
