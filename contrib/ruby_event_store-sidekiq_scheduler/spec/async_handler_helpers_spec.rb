@@ -21,7 +21,7 @@ module RubyEventStore
     let(:application) { instance_double(Rails::Application) }
     let(:config) { FakeConfiguration.new }
 
-    around(:each) do |example|
+    before do
       ::ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
       m =
         Migrator.new(
@@ -31,11 +31,6 @@ module RubyEventStore
           )
         )
       SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
-
-      example.run
-    end
-
-    before do
       allow(Rails).to receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store

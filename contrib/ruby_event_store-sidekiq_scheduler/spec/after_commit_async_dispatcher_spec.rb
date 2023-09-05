@@ -5,19 +5,8 @@ require "rails_event_store"
 
 module RubyEventStore
   ::RSpec.describe RailsEventStore::AfterCommitAsyncDispatcher do
-    around(:each) do |example|
-      ::ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
-      m =
-        Migrator.new(
-          File.expand_path(
-            "../../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates",
-            __dir__
-          )
-        )
-      SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
 
-      example.run
-    end
+
 
     DummyError = Class.new(StandardError)
 
@@ -36,7 +25,18 @@ module RubyEventStore
 
     let(:dispatcher) { RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
 
-    before(:each) { TestAsyncHandler.reset }
+    before do
+      ::ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+      m =
+        Migrator.new(
+          File.expand_path(
+            "../../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates",
+            __dir__
+          )
+        )
+      SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
+      TestAsyncHandler.reset
+    end
 
     it "dispatch job immediately when no transaction is open" do
       expect_to_have_enqueued_job(TestAsyncHandler) { dispatcher.call(TestAsyncHandler, event, record) }
