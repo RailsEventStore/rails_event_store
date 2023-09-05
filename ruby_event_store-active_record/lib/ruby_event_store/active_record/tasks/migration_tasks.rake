@@ -33,21 +33,29 @@ task "db:migrations:add_foreign_key_on_event_id" do
 end
 
 class MigrationTask
-  def initialize(task)
+  def initialize(
+    task,
+    database_url: ENV["DATABASE_URL"],
+    data_type: ENV["DATA_TYPE"],
+    migration_path: ENV["MIGRATION_PATH"]
+  )
     @task = task
+    @data_type = data_type
+    @migration_path = migration_path
+    @database_url = database_url
   end
 
   def establish_connection
-    ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
+    ::ActiveRecord::Base.establish_connection(@database_url)
   end
 
   def adapter
-    data_type = ENV["DATA_TYPE"] || raise("Specify data type (binary, json, jsonb): rake #{@task} DATA_TYPE=json")
+    data_type = @data_type || raise("Specify data type (binary, json, jsonb): rake #{@task} DATA_TYPE=json")
 
     RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name, data_type)
   end
 
   def migration_path
-    ENV["MIGRATION_PATH"] || "db/migrate"
+    @migration_path || "db/migrate"
   end
 end
