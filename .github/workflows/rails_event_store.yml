@@ -34,8 +34,6 @@ jobs:
             bundle_gemfile: Gemfile
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-          - ruby_version: ruby-2.7
-            bundle_gemfile: Gemfile
           - ruby_version: truffleruby
             bundle_gemfile: Gemfile
           - ruby_version: ruby-3.2
