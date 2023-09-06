@@ -53,6 +53,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            data_type: binary
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
@@ -61,11 +65,11 @@ jobs:
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             data_type: binary
-          - ruby_version: ruby-3.1
+          - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             data_type: json
-          - ruby_version: ruby-3.1
+          - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
             data_type: jsonb

@@ -199,7 +199,7 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2),
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
             ),
@@ -242,12 +242,12 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE3)
             ),
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE_RAILS_6_1),
               database_url(SQLITE3)
             ),
@@ -272,7 +272,7 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE),
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
@@ -305,7 +305,7 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE),
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
@@ -338,7 +338,7 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
               redis_url("redis://localhost:6379/0")
             ),
@@ -370,7 +370,7 @@ class CI
         name: "minitest-ruby_event_store",
         working_directory: "contrib/minitest-ruby_event_store",
         matrix:
-          generate(ruby_version(MRI_RUBY.drop(1)), bundle_gemfile(GEMFILE)),
+          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
       },
       {
@@ -389,7 +389,7 @@ class CI
         name: "dres_client",
         working_directory: "contrib/dres_client",
         matrix:
-          generate(ruby_version(MRI_RUBY.drop(1)), bundle_gemfile(GEMFILE)),
+          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "dres_client.yaml.erb"
       },
       {
@@ -398,7 +398,7 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES_11),
               data_type(DATA_TYPES_IN_AR)
