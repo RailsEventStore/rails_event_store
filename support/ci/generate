@@ -17,7 +17,6 @@ class CI
       RUBY_3_2 = "ruby-3.2",
       RUBY_3_1 = "ruby-3.1",
       RUBY_3_0 = "ruby-3.0",
-      RUBY_2_7 = "ruby-2.7"
     ],
     TRUFFLE_RUBY = "truffleruby"
   ].flatten
@@ -210,7 +209,7 @@ class CI
               database_url(SQLITE3)
             ),
             generate(
-              ruby_version(RUBY_2_7),
+              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
               database_url(SQLITE3)
             )
@@ -253,7 +252,7 @@ class CI
               database_url(SQLITE3)
             ),
             generate(
-              ruby_version(RUBY_2_7),
+              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE_RAILS_6_0),
               database_url(SQLITE3)
             )
@@ -279,13 +278,13 @@ class CI
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
             ),
             generate(
-              ruby_version(RUBY_2_7),
+              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
               data_type(DATA_TYPES_IN_SEQUEL)
             ),
             generate(
-              ruby_version(RUBY_2_7),
+              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE),
               database_url(MYSQL),
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
@@ -312,13 +311,13 @@ class CI
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
             ),
             generate(
-              ruby_version(RUBY_2_7),
+              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
               data_type(DATA_TYPES_IN_SEQUEL)
             ),
             generate(
-              ruby_version(RUBY_2_7),
+              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE),
               database_url(MYSQL),
               data_type(DATA_TYPES_IN_SEQUEL.take(1))

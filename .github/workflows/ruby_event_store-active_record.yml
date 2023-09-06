@@ -75,10 +75,6 @@ jobs:
             bundle_gemfile: Gemfile
             database_url: sqlite3:db.sqlite3
             data_type: binary
-          - ruby_version: ruby-2.7
-            bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
-            data_type: binary
           - ruby_version: truffleruby
             bundle_gemfile: Gemfile
             database_url: sqlite3:db.sqlite3
