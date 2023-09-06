@@ -46,10 +46,6 @@ jobs:
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile.sidekiq_5_2
             redis_url: redis://localhost:6379/0
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile.sidekiq_6_5
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile.sidekiq_5_2
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v20

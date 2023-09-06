@@ -322,7 +322,6 @@ class CI
               bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
               redis_url("redis://localhost:6379/0")
             ),
-            generate(ruby_version(RUBY_3_0), bundle_gemfile(SIDEKIQ_GEMFILES))
           ),
         template: "scheduler.yaml.erb"
       },
