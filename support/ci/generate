@@ -383,7 +383,7 @@ class CI
               data_type(DATA_TYPES_IN_AR)
             ),
             generate(
-              ruby_version(RUBY_3_1),
+              ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES_12),
               data_type(DATA_TYPES_IN_AR)
