@@ -1,4 +1,4 @@
-### unreleased
+### 0.1.2
 
 - Add: Support Sidekiq::Job::Setter as a valid handler for SidekiqScheduler [b82d61b6a046d79e0c58473cd3aa1ca9d10a10fe]
 
