@@ -70,9 +70,6 @@ jobs:
             bundle_gemfile: Gemfile.rails_6_1
             database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile.rails_6_1
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile.rails_6_0
             database_url: sqlite3:db.sqlite3
     steps:

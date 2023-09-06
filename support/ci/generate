@@ -424,7 +424,7 @@ class CI
   end
 
   def join(*axes)
-    axes.flatten
+    axes.flatten.uniq
   end
 
   def ruby_version(*ruby_version)
