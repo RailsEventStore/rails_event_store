@@ -5,18 +5,30 @@ on:
       - script
   workflow_dispatch:
   push:
-    paths-ignore:
-      - "railseventstore.org/**"
-      - "contrib/**"
-      - "support/bundler/**"
-      - "support/ci/**"
+    paths:
+      - "aggregate_root/**"
+      - "rails_event_store/**"
+      - "ruby_event_store/**"
+      - "ruby_event_store-active_record/**"
+      - "ruby_event_store-browser/**"
+      - "ruby_event_store-rspec/**"
+      - ".github/workflows/<%= name %>.yml"
+      - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
-    paths-ignore:
-      - "railseventstore.org/**"
-      - "contrib/**"
-      - "support/bundler/**"
-      - "support/ci/**"
+    paths:
+      - "aggregate_root/**"
+      - "rails_event_store/**"
+      - "ruby_event_store/**"
+      - "ruby_event_store-active_record/**"
+      - "ruby_event_store-browser/**"
+      - "ruby_event_store-rspec/**"
+      - ".github/workflows/<%= name %>.yml"
+      - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
