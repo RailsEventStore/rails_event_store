@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 120
     env:
-      BUNDLE_GEMFILE: Gemfile
       WORKING_DIRECTORY: contrib/ruby_event_store-sequel
+      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
     steps:
