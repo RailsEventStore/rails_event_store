@@ -200,14 +200,9 @@ class CI
           join(
             generate(
               ruby_version(MRI_RUBY),
-              bundle_gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_SIDEKIQ_5_2),
+              bundle_gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0, GEMFILE_SIDEKIQ_5_2),
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
             ),
-            generate(
-              ruby_version(RUBY_3_0),
-              bundle_gemfile(GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
-              database_url(SQLITE3)
-            )
           ),
         template: "outbox.yaml.erb"
       },
