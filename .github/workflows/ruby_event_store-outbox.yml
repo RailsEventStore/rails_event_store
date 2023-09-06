@@ -61,6 +61,9 @@ jobs:
             bundle_gemfile: Gemfile.rails_6_1
             database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile.rails_6_0
+            database_url: sqlite3:db.sqlite3
+          - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile.sidekiq_5_2
             database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.2
@@ -69,12 +72,6 @@ jobs:
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
             database_url: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile.rails_6_1
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile.rails_6_0
-            database_url: sqlite3:db.sqlite3
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v20
