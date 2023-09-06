@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: <%= working_directory %>
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      DATABASE_URL: ${{ matrix.database }}
+      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
+      DATABASE_URL: ${{ matrix.database_url }}
     services:
       mysql_5:
         image: mysql:5
@@ -53,11 +53,11 @@ jobs:
         with:
           name: railseventstore
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-      - run: test -e ${{ matrix.gemfile }}.lock
+      - run: test -e ${{ matrix.bundle_gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: |

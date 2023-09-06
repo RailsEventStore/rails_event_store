@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-sequel
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      DATABASE_URL: ${{ matrix.database }}
-      DATA_TYPE: ${{ matrix.datatype }}
+      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
+      DATABASE_URL: ${{ matrix.database_url }}
+      DATA_TYPE: ${{ matrix.data_type }}
     services:
       postgres_11:
         image: postgres:11
@@ -60,49 +60,49 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-            database: sqlite:db.sqlite3
-            datatype: text
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-            database: sqlite:db.sqlite3
-            datatype: text
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: sqlite:db.sqlite3
-            datatype: text
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: text
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            datatype: text
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: json
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
-            datatype: jsonb
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-            datatype: text
-          - ruby: ruby-2.7
-            gemfile: Gemfile
-            database: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
-            datatype: text
+          - ruby_version: ruby-3.1
+            bundle_gemfile: Gemfile
+            database_url: sqlite:db.sqlite3
+            data_type: text
+          - ruby_version: ruby-3.0
+            bundle_gemfile: Gemfile
+            database_url: sqlite:db.sqlite3
+            data_type: text
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: sqlite:db.sqlite3
+            data_type: text
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            data_type: text
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            data_type: text
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            data_type: json
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            data_type: jsonb
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
+            data_type: text
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
+            database_url: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
+            data_type: text
     steps:
       - uses: actions/checkout@v3
-      - run: test -e ${{ matrix.gemfile }}.lock
+      - run: test -e ${{ matrix.bundle_gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test

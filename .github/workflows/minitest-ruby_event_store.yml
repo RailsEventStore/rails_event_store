@@ -20,24 +20,24 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: contrib/minitest-ruby_event_store
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      BUNDLE_GEMFILE: ${{ matrix.bundle_gemfile }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby: ruby-3.1
-            gemfile: Gemfile
-          - ruby: ruby-3.0
-            gemfile: Gemfile
-          - ruby: ruby-2.7
-            gemfile: Gemfile
+          - ruby_version: ruby-3.1
+            bundle_gemfile: Gemfile
+          - ruby_version: ruby-3.0
+            bundle_gemfile: Gemfile
+          - ruby_version: ruby-2.7
+            bundle_gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
-      - run: test -e ${{ matrix.gemfile }}.lock
+      - run: test -e ${{ matrix.bundle_gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test

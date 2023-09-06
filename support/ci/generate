@@ -381,19 +381,19 @@ class CI
   end
 
   def ruby(*ruby_version)
-    axis("ruby", *ruby_version)
+    axis("ruby_version", *ruby_version)
   end
 
   def gemfile(*gemfile)
-    axis("gemfile", *gemfile)
+    axis("bundle_gemfile", *gemfile)
   end
 
   def database(*database_url)
-    axis("database", *database_url)
+    axis("database_url", *database_url)
   end
 
   def datatype(*data_type)
-    axis("datatype", *data_type)
+    axis("data_type", *data_type)
   end
 
   def as_github_actions
