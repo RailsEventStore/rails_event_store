@@ -11,5 +11,5 @@ gem "rails_event_store_active_record", path: "../.."
 gem "ruby_event_store-browser", path: "../.."
 
 gem "protobuf_nested_struct"
-gem "google-protobuf", "~> 3.21.11"
+gem "google-protobuf", "~> 3.24"
 gem "rails", "6.0.6.1"
