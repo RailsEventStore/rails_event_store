@@ -205,11 +205,6 @@ class CI
             ),
             generate(
               ruby_version(RUBY_3_0),
-              bundle_gemfile(GEMFILE_RAILS_6_1),
-              database_url(SQLITE3)
-            ),
-            generate(
-              ruby_version(RUBY_3_0),
               bundle_gemfile(GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
               database_url(SQLITE3)
             )
