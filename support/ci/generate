@@ -349,6 +349,7 @@ class CI
       {
         name: "ruby_event_store-transformations_coverage",
         working_directory: "contrib/ruby_event_store-transformations",
+        matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
         template: "coverage.yaml.erb"
       },
       {
