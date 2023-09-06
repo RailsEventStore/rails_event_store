@@ -8,11 +8,15 @@ on:
     paths-ignore:
       - "railseventstore.org/**"
       - "contrib/**"
+      - "support/bundler/**"
+      - "support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths-ignore:
       - "railseventstore.org/**"
       - "contrib/**"
+      - "support/bundler/**"
+      - "support/ci/**"
 jobs:
   test:
     runs-on: ubuntu-20.04

@@ -11,12 +11,16 @@ on:
       - "contrib/ruby_event_store-transformations/Gemfile.lock"
       - ".github/workflows/ruby_event_store-transformations_coverage.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-transformations/Gemfile.lock"
       - ".github/workflows/ruby_event_store-transformations_coverage.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
 jobs:
   coverage:
     runs-on: ubuntu-20.04

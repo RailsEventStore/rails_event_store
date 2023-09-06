@@ -11,12 +11,16 @@ on:
       - "<%= working_directory %>/Gemfile.lock"
       - ".github/workflows/<%= name %>.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
       - "<%= working_directory %>/Gemfile.lock"
       - ".github/workflows/<%= name %>.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
 jobs:
   coverage:
     runs-on: ubuntu-20.04
