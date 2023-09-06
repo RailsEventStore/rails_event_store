@@ -45,10 +45,6 @@ module RubyEventStore
         ::ActiveRecord::Migration.current_version
       end
 
-      def timestamp
-        Time.now.strftime("%Y%m%d%H%M%S")
-      end
-
       def write_to_file(path, migration_code)
         File.write(path, migration_code)
       end
