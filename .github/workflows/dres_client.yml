@@ -12,6 +12,8 @@ on:
       - "contrib/dres_rails/**"
       - ".github/workflows/dres_client.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
@@ -19,6 +21,8 @@ on:
       - "contrib/dres_rails/**"
       - ".github/workflows/dres_client.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
 jobs:
   test:
     runs-on: ubuntu-20.04

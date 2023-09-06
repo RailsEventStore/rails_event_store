@@ -9,12 +9,16 @@ on:
       - "contrib/ruby_event_store-profiler/**"
       - ".github/workflows/ruby_event_store-profiler.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-profiler/**"
       - ".github/workflows/ruby_event_store-profiler.yml"
       - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
 jobs:
   test:
     runs-on: ubuntu-20.04
