@@ -14,11 +14,11 @@ require "sidekiq/processor"
 ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 ENV["DATA_TYPE"] ||= "binary"
 
-RSpec.configure { |config| config.before(:each, redis: true) { redis.flushdb } }
+RSpec.configure do |config|
+  config.before(:each, redis: true) { Sidekiq.redis(&:itself).flushdb }
+end
 
 Sidekiq.configure_client { |config| config.logger.level = Logger::WARN }
-
-TestEvent = Class.new(RubyEventStore::Event)
 
 module RubyEventStore
   class Queue

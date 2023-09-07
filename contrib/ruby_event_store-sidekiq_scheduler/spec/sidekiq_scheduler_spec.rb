@@ -2,23 +2,9 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
-    before(:each) { MyAsyncHandler.reset }
-    before(:each) { Sidekiq::Worker.clear_all }
-
     it_behaves_like :scheduler,
-                    SidekiqScheduler.new(
-                      serializer: RubyEventStore::Serializers::YAML
-                    )
+                    SidekiqScheduler.new(serializer: Serializers::YAML)
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: JSON)
-
-    let(:event) do
-      TimeEnrichment.with(
-        Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-        timestamp: Time.utc(2019, 9, 30)
-      )
-    end
-    let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
-    let(:redis) { Sidekiq.redis(&:itself) }
 
     describe "#verify" do
       let(:scheduler) { SidekiqScheduler.new(serializer: JSON) }
@@ -30,11 +16,7 @@ module RubyEventStore
         expect(scheduler.verify(proper_handler.set({}))).to eq(true)
       end
 
-      specify do
-        some_class = Class.new
-
-        expect(scheduler.verify(some_class)).to eq(false)
-      end
+      specify { expect(scheduler.verify(Class.new)).to eq(false) }
 
       specify { expect(scheduler.verify(Sidekiq::Worker)).to eq(false) }
 
@@ -42,9 +24,21 @@ module RubyEventStore
     end
 
     describe "#call" do
-      let(:scheduler) do
-        SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+      before do
+        MyAsyncHandler.reset
+        Sidekiq::Worker.clear_all
       end
+
+      let(:event) do
+        TimeEnrichment.with(
+          Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
+          timestamp: Time.utc(2019, 9, 30)
+        )
+      end
+      let(:record) { Mappers::Default.new.event_to_record(event) }
+
+      let(:scheduler) { SidekiqScheduler.new(serializer: Serializers::YAML) }
+
       specify do
         scheduler.call(MyAsyncHandler, record)
 
