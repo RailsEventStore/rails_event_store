@@ -41,13 +41,13 @@ jobs:
         ports:
           - 10011:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      postgres_12:
-        image: postgres:12
+      postgres_15:
+        image: postgres:15
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
-          - 10012:5432
+          - 10015:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
@@ -55,15 +55,15 @@ jobs:
         include:
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
-            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
             data_type: binary
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
-            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
             data_type: binary
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
             data_type: binary
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
@@ -71,11 +71,11 @@ jobs:
             data_type: binary
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
-            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
             data_type: json
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
-            database_url: postgres://postgres:secret@localhost:10012/rails_event_store?pool=5
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
             data_type: jsonb
     steps:
       - uses: actions/checkout@v3

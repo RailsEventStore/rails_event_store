@@ -35,8 +35,8 @@ class CI
     SQLITE = "sqlite:db.sqlite3",
     SQLITE3 = "sqlite3:db.sqlite3",
     POSTGRES = [
-      POSTGRES_12 =
-        "postgres://postgres:secret@localhost:10012/rails_event_store?pool=5",
+      POSTGRES_15 =
+        "postgres://postgres:secret@localhost:10015/rails_event_store?pool=5",
       POSTGRES_11 =
         "postgres://postgres:secret@localhost:10011/rails_event_store?pool=5"
     ],
