@@ -34,7 +34,7 @@ module RubyEventStore
       )
       event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
       event_store.publish(event)
-      Thread.new { Sidekiq::Worker.drain_all }.join
+      Sidekiq::Worker.drain_all
 
       expect($queue.pop).to eq(event)
     end
