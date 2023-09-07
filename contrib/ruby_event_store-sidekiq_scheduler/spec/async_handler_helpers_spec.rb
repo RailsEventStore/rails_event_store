@@ -14,15 +14,7 @@ module RubyEventStore
 
   ::RSpec.describe RailsEventStore::AsyncHandler do
     specify "Sidekiq::Worker without ActiveJob that requires serialization" do
-      ::ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
-      m =
-        Migrator.new(
-          File.expand_path(
-            "../../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates",
-            __dir__
-          )
-        )
-      SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
+      prepare_database_schema
       $queue = Queue.new
 
       event_store =
@@ -41,6 +33,18 @@ module RubyEventStore
       end
 
       expect($queue.pop).to eq(ev)
+    end
+
+    def prepare_database_schema
+      ::ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+      m =
+        Migrator.new(
+          File.expand_path(
+            "../../../ruby_event_store-active_record/lib/ruby_event_store/active_record/generators/templates",
+            __dir__
+          )
+        )
+      SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
     end
   end
 end
