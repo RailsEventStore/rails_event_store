@@ -1,7 +1,4 @@
 require "spec_helper"
-require "rails_event_store"
-
-SilenceStdout.silence_stdout { require "sidekiq/testing" }
 
 module RubyEventStore
   class SidekiqHandlerWithHelper

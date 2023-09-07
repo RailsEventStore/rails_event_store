@@ -1,10 +1,13 @@
 require "ruby_event_store"
 require "ruby_event_store/sidekiq_scheduler"
+require "rails_event_store"
 require_relative "../../../support/helpers/rspec_defaults"
 require_relative "../../../support/helpers/time_enrichment"
 require_relative "../../../support/helpers/redis_client_unix_socket_patch"
 require_relative "../../../support/helpers/silence_stdout"
 require_relative "../../../support/helpers/migrator"
+
+SilenceStdout.silence_stdout { require "sidekiq/testing" }
 
 ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 ENV["DATA_TYPE"] ||= "binary"
