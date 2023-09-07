@@ -17,11 +17,12 @@ module RubyEventStore
       RubyEventStore::Client.new(
         dispatcher:
           ImmediateAsyncDispatcher.new(
-            scheduler: SidekiqScheduler.new(serializer: YAML)
+            scheduler: SidekiqScheduler.new(serializer: serializer)
           )
       )
     end
     let(:event) { RubyEventStore::Event.new }
+    let(:serializer) { JSON }
 
     specify "integration with RailsEventStore::AsyncHandler helper" do
       $queue = Queue.new
@@ -29,7 +30,7 @@ module RubyEventStore
       SidekiqHandlerWithHelper.prepend(
         RailsEventStore::AsyncHandler.with(
           event_store: event_store,
-          serializer: YAML
+          serializer: serializer
         )
       )
       event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
