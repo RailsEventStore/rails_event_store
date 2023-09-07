@@ -1,7 +1,5 @@
 require "spec_helper"
-require "ruby_event_store/active_record"
 require "rails_event_store"
-require "rails"
 
 SilenceStdout.silence_stdout { require "sidekiq/testing" }
 
