@@ -7,4 +7,4 @@ gem "ruby_event_store-active_record", path: "../../../ruby_event_store-active_re
 gem "rails_event_store_active_record", path: "../../../ruby_event_store-active_record"
 gem "aggregate_root", path: "../../../aggregate_root"
 
-gem "rails", "6.1.7.2"
+gem "rails", "~> 6.1.7"
