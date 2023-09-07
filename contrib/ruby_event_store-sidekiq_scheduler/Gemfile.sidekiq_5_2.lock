@@ -215,9 +215,6 @@ GEM
       rack-protection (>= 1.5.0)
       redis (~> 4.5, < 4.6.0)
     sorbet-runtime (0.5.10985)
-    sqlite3 (1.6.3-arm64-darwin)
-    sqlite3 (1.6.3-x86_64-darwin)
-    sqlite3 (1.6.3-x86_64-linux)
     thor (1.2.2)
     timeout (0.4.0)
     tzinfo (2.0.6)
@@ -248,7 +245,6 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-sidekiq_scheduler!
   sidekiq (~> 5.2)
-  sqlite3
 
 BUNDLED WITH
    2.4.6

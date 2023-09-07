@@ -11,9 +11,6 @@ require_relative "../../../support/helpers/migrator"
 SilenceStdout.silence_stdout { require "sidekiq/testing" }
 require "sidekiq/processor"
 
-ENV["DATABASE_URL"] ||= "sqlite3::memory:"
-ENV["DATA_TYPE"] ||= "binary"
-
 RSpec.configure do |config|
   config.around(:each, redis: true) do |example|
     Sidekiq.redis(&:itself).flushdb
