@@ -237,7 +237,7 @@ class CI
               database_url(SQLITE3)
             ),
           ),
-        template: "protobuf.yaml.erb"
+        template: "contrib.yaml.erb"
       },
       {
         name: "ruby_event_store-protobuf_coverage",
