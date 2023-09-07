@@ -379,15 +379,9 @@ class CI
             generate(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
-              database_url(POSTGRES_11),
+              database_url(POSTGRES),
               data_type(DATA_TYPES_IN_AR)
             ),
-            generate(
-              ruby_version(MRI_RUBY.take(1)),
-              bundle_gemfile(GEMFILE),
-              database_url(POSTGRES_12),
-              data_type(DATA_TYPES_IN_AR)
-            )
           ),
         template: "dres_rails.yaml.erb"
       }
