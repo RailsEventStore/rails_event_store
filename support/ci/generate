@@ -211,7 +211,7 @@ class CI
         working_directory: "contrib/ruby_event_store-outbox",
         matrix:
           generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "outbox_coverage.yaml.erb"
+        template: "coverage_with_redis.yaml.erb"
       },
       {
         name: "ruby_event_store-profiler",
@@ -330,7 +330,7 @@ class CI
         working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
         matrix:
           generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "scheduler_coverage.yaml.erb"
+        template: "coverage_with_redis.yaml.erb"
       },
       {
         name: "ruby_event_store-transformations",
