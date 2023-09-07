@@ -15,7 +15,10 @@ ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 ENV["DATA_TYPE"] ||= "binary"
 
 RSpec.configure do |config|
-  config.before(:each, redis: true) { Sidekiq.redis(&:itself).flushdb }
+  config.around(:each, redis: true) do |example|
+    Sidekiq.redis(&:itself).flushdb
+    Sidekiq::Testing.disable! { example.run }
+  end
 end
 
 Sidekiq.configure_client { |config| config.logger.level = Logger::WARN }

@@ -101,7 +101,7 @@ module RubyEventStore
       end
 
       specify "with Redis involved", redis: true do
-        Sidekiq::Testing.disable! { scheduler.call(MyAsyncHandler, record) }
+       scheduler.call(MyAsyncHandler, record)
         sidekiq_processor.send :process_one
         expect(MyAsyncHandler.received).to match(
           {
