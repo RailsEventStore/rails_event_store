@@ -14,13 +14,9 @@ require "sidekiq/processor"
 ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 ENV["DATA_TYPE"] ||= "binary"
 
-RSpec.configure do |config|
-  config.before(:each, redis: true) { redis.flushdb }
-end
+RSpec.configure { |config| config.before(:each, redis: true) { redis.flushdb } }
 
-Sidekiq.configure_client do |config|
-  config.logger.level = Logger::WARN
-end
+Sidekiq.configure_client { |config| config.logger.level = Logger::WARN }
 
 TestEvent = Class.new(RubyEventStore::Event)
 

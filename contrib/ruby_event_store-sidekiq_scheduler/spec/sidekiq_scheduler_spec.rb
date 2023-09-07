@@ -5,11 +5,17 @@ module RubyEventStore
     before(:each) { MyAsyncHandler.reset }
     before(:each) { Sidekiq::Worker.clear_all }
 
-    it_behaves_like :scheduler, SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+    it_behaves_like :scheduler,
+                    SidekiqScheduler.new(
+                      serializer: RubyEventStore::Serializers::YAML
+                    )
     it_behaves_like :scheduler, SidekiqScheduler.new(serializer: JSON)
 
     let(:event) do
-      TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
+      TimeEnrichment.with(
+        Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
+        timestamp: Time.utc(2019, 9, 30)
+      )
     end
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
     let(:redis) { Sidekiq.redis(&:itself) }
@@ -18,9 +24,7 @@ module RubyEventStore
       let(:scheduler) { SidekiqScheduler.new(serializer: JSON) }
       let(:proper_handler) { Class.new { include Sidekiq::Worker } }
 
-      specify do
-        expect(scheduler.verify(proper_handler)).to eq(true)
-      end
+      specify { expect(scheduler.verify(proper_handler)).to eq(true) }
 
       specify "Sidekiq::Job::Setter is also acceptable" do
         expect(scheduler.verify(proper_handler.set({}))).to eq(true)
@@ -32,17 +36,15 @@ module RubyEventStore
         expect(scheduler.verify(some_class)).to eq(false)
       end
 
-      specify do
-        expect(scheduler.verify(Sidekiq::Worker)).to eq(false)
-      end
+      specify { expect(scheduler.verify(Sidekiq::Worker)).to eq(false) }
 
-      specify do
-        expect(scheduler.verify(Object.new)).to eq(false)
-      end
+      specify { expect(scheduler.verify(Object.new)).to eq(false) }
     end
 
     describe "#call" do
-      let(:scheduler) { SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML) }
+      let(:scheduler) do
+        SidekiqScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+      end
       specify do
         scheduler.call(MyAsyncHandler, record)
 
@@ -67,26 +69,26 @@ module RubyEventStore
       end
 
       specify "pass Sidekiq::Job::Setter" do
-        scheduler.call(MyAsyncHandler.set({queue: 'non-default'}), record)
+        scheduler.call(MyAsyncHandler.set({ queue: "non-default" }), record)
 
         enqueued_jobs = MyAsyncHandler.jobs
         expect(enqueued_jobs.size).to eq(1)
         expect(enqueued_jobs[0]).to include(
-                                      {
-                                        "class" => "RubyEventStore::MyAsyncHandler",
-                                        "args" => [
-                                          {
-                                            "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-                                            "event_type" => "RubyEventStore::Event",
-                                            "data" => "--- {}\n",
-                                            "metadata" => "--- {}\n",
-                                            "timestamp" => "2019-09-30T00:00:00.000000Z",
-                                            "valid_at" => "2019-09-30T00:00:00.000000Z"
-                                          }
-                                        ],
-                                        "queue" => "non-default"
-                                      }
-                                    )
+          {
+            "class" => "RubyEventStore::MyAsyncHandler",
+            "args" => [
+              {
+                "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+                "event_type" => "RubyEventStore::Event",
+                "data" => "--- {}\n",
+                "metadata" => "--- {}\n",
+                "timestamp" => "2019-09-30T00:00:00.000000Z",
+                "valid_at" => "2019-09-30T00:00:00.000000Z"
+              }
+            ],
+            "queue" => "non-default"
+          }
+        )
       end
 
       specify "JSON compatible args with stringified keys" do
@@ -104,40 +106,39 @@ module RubyEventStore
         scheduler.call(MyAsyncHandler, record)
       end
 
-      specify 'with Redis involved', redis: true do
-        Sidekiq::Testing.disable! do
-          scheduler.call(MyAsyncHandler, record)
-        end
+      specify "with Redis involved", redis: true do
+        Sidekiq::Testing.disable! { scheduler.call(MyAsyncHandler, record) }
         sidekiq_processor.send :process_one
         expect(MyAsyncHandler.received).to match(
-                                             {
-                                               "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-                                               "event_type" => "RubyEventStore::Event",
-                                               "data" => "--- {}\n",
-                                               "metadata" => "--- {}\n",
-                                               "timestamp" => "2019-09-30T00:00:00.000000Z",
-                                               "valid_at" => "2019-09-30T00:00:00.000000Z"
-                                             }
-                                           )
+          {
+            "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+            "event_type" => "RubyEventStore::Event",
+            "data" => "--- {}\n",
+            "metadata" => "--- {}\n",
+            "timestamp" => "2019-09-30T00:00:00.000000Z",
+            "valid_at" => "2019-09-30T00:00:00.000000Z"
+          }
+        )
       end
     end
 
     private
 
     def sidekiq_processor
-      options = case Sidekiq::VERSION.to_i
-                when 5
-                  Struct.new(:options).new({ queues: ['default'] })
-                when 6
-                  opts = Sidekiq
-                  opts[:queues] = ['default']
-                  opts[:fetch] = Sidekiq::BasicFetch.new(opts)
-                  opts
-                when 7
-                  Sidekiq::Config.new.default_capsule
-                else
-                  skip 'Unsupported Sidekiq version'
-                end
+      options =
+        case Sidekiq::VERSION.to_i
+        when 5
+          Struct.new(:options).new({ queues: ["default"] })
+        when 6
+          opts = Sidekiq
+          opts[:queues] = ["default"]
+          opts[:fetch] = Sidekiq::BasicFetch.new(opts)
+          opts
+        when 7
+          Sidekiq::Config.new.default_capsule
+        else
+          skip "Unsupported Sidekiq version"
+        end
       processor = Sidekiq::Processor.new(options)
       processor.logger.level = Logger::WARN
       processor
