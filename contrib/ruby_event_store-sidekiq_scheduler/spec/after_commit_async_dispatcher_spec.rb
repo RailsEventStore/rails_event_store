@@ -5,9 +5,6 @@ require "rails_event_store"
 
 module RubyEventStore
   ::RSpec.describe RailsEventStore::AfterCommitAsyncDispatcher do
-
-
-
     DummyError = Class.new(StandardError)
 
     class DummyRecord < ::ActiveRecord::Base

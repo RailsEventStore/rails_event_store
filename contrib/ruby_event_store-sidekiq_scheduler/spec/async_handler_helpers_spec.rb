@@ -15,11 +15,7 @@ module RubyEventStore
   end
 
   ::RSpec.describe RailsEventStore::AsyncHandler do
-    let(:event_store) { RailsEventStore::Client.new }
-    let(:application) { instance_double(Rails::Application) }
-    let(:config) { FakeConfiguration.new }
-
-    before do
+    specify "Sidekiq::Worker without ActiveJob that requires serialization" do
       ::ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
       m =
         Migrator.new(
@@ -29,14 +25,8 @@ module RubyEventStore
           )
         )
       SilenceStdout.silence_stdout { m.run_migration("create_event_store_events") }
-      allow(Rails).to receive(:application).and_return(application)
-      allow(application).to receive(:config).and_return(config)
-      Rails.configuration.event_store = event_store
-      ActiveJob::Base.queue_adapter = :async
       $queue = Queue.new
-    end
 
-    specify "Sidekiq::Worker without ActiveJob that requires serialization" do
       event_store =
         RailsEventStore::Client.new(
           dispatcher: ImmediateAsyncDispatcher.new(scheduler: SidekiqScheduler.new(serializer: YAML))
@@ -51,23 +41,8 @@ module RubyEventStore
         event_store.publish(ev)
         Thread.new { Sidekiq::Worker.drain_all }.join
       end
+
       expect($queue.pop).to eq(ev)
-    end
-  end
-
-  private
-
-  class FakeConfiguration
-    def initialize
-      @options = {}
-    end
-
-    private
-
-    def method_missing(name, *args, &blk)
-      if name.to_s =~ /=$/
-        @options[$`.to_sym] = args.first
-      end
     end
   end
 end
