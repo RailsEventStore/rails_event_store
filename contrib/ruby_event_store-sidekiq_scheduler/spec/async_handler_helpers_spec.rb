@@ -26,15 +26,15 @@ module RubyEventStore
     specify "Sidekiq::Worker without ActiveJob that requires serialization" do
       $queue = Queue.new
 
-      Sidekiq::Testing.fake! do
-        SidekiqHandlerWithHelper.prepend RailsEventStore::AsyncHandler.with(
-                                           event_store: event_store,
-                                           serializer: YAML
-                                         )
-        event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
-        event_store.publish(event)
-        Thread.new { Sidekiq::Worker.drain_all }.join
-      end
+      SidekiqHandlerWithHelper.prepend(
+        RailsEventStore::AsyncHandler.with(
+          event_store: event_store,
+          serializer: YAML
+        )
+      )
+      event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
+      event_store.publish(event)
+      Thread.new { Sidekiq::Worker.drain_all }.join
 
       expect($queue.pop).to eq(event)
     end
