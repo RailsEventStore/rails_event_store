@@ -12,7 +12,7 @@ module RubyEventStore
     end
   end
 
-  ::RSpec.describe RailsEventStore::AsyncHandler do
+  ::RSpec.describe SidekiqScheduler do
     let(:event_store) do
       RubyEventStore::Client.new(
         dispatcher:
@@ -23,7 +23,7 @@ module RubyEventStore
     end
     let(:event) { RubyEventStore::Event.new }
 
-    specify "Sidekiq::Worker without ActiveJob that requires serialization" do
+    specify "integration with RailsEventStore::AsyncHandler helper" do
       $queue = Queue.new
 
       SidekiqHandlerWithHelper.prepend(
