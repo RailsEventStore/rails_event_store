@@ -120,7 +120,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.4)
-    minitest (5.19.0)
+    minitest (5.20.0)
     net-imap (0.3.7)
       date
       net-protocol
@@ -173,7 +173,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.20.3, < 2.0)
     rake (13.0.6)
-    sprockets (4.2.0)
+    sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
     sprockets-rails (3.4.2)
@@ -199,7 +199,7 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
-  rails (= 6.0.6.1)
+  rails (~> 6.0.6)
   rails_event_store!
   rails_event_store_active_record!
   ruby_event_store!
