@@ -35,9 +35,15 @@ module RubyEventStore
       )
       event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
       event_store.publish(event)
-      Sidekiq::Worker.drain_all
+      perform_all_enqueued_jobs
 
       expect($queue.pop).to eq(event)
+    end
+
+    private
+
+    def perform_all_enqueued_jobs
+      Sidekiq::Worker.drain_all
     end
   end
 end
