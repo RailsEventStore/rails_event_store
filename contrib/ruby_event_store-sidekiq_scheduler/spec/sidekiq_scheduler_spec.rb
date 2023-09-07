@@ -1,7 +1,4 @@
 require "spec_helper"
-require "ruby_event_store/spec/scheduler_lint"
-require "sidekiq/testing"
-require "sidekiq/processor"
 
 module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
