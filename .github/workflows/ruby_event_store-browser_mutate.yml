@@ -1,4 +1,4 @@
-name: ruby_event_store-rspec_test
+name: ruby_event_store-browser_mutate
 on:
   repository_dispatch:
     types:
@@ -12,7 +12,7 @@ on:
       - "ruby_event_store-active_record/**"
       - "ruby_event_store-browser/**"
       - "ruby_event_store-rspec/**"
-      - ".github/workflows/ruby_event_store-rspec_test.yml"
+      - ".github/workflows/ruby_event_store-browser_mutate.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -25,37 +25,28 @@ on:
       - "ruby_event_store-active_record/**"
       - "ruby_event_store-browser/**"
       - "ruby_event_store-rspec/**"
-      - ".github/workflows/ruby_event_store-rspec_test.yml"
+      - ".github/workflows/ruby_event_store-browser_mutate.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:
-  test:
+  mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: ruby_event_store-rspec
-      RUBY_VERSION: "${{ matrix.ruby_version }}"
-      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      WORKING_DIRECTORY: ruby_event_store-browser
+      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile
-          - ruby_version: ruby-3.1
-            bundle_gemfile: Gemfile
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile
-          - ruby_version: truffleruby
-            bundle_gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
-      - run: test -e ${{ matrix.bundle_gemfile }}.lock
+        with:
+          fetch-depth: 0
+      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: ruby-3.2
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: make mutate-changes
         working-directory: ${{ env.WORKING_DIRECTORY }}

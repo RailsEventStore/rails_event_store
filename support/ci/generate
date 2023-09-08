@@ -77,6 +77,20 @@ class CI
     }
   end
 
+  def mutate(
+    name,
+    working_directory: nil,
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+    template: "mutate.yaml.erb"
+  )
+    {
+      name: "#{name}_mutate",
+      working_directory: working_directory || name,
+      matrix: matrix,
+      template: template
+    }
+  end
+
   def coverage(
     name,
     working_directory: nil,
@@ -102,10 +116,13 @@ class CI
   def workflows
     [
       test("aggregate_root"),
+      mutate("aggregate_root"),
       coverage("aggregate_root"),
       test("ruby_event_store"),
+      mutate("ruby_event_store"),
       coverage("ruby_event_store"),
       test("ruby_event_store-rspec"),
+      mutate("ruby_event_store-rspec"),
       coverage("ruby_event_store-rspec"),
       test(
         "ruby_event_store-browser",
@@ -116,6 +133,7 @@ class CI
             bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")
           )
       ),
+      mutate("ruby_event_store-browser"),
       coverage("ruby_event_store-browser"),
       test(
         "rails_event_store",
@@ -125,6 +143,7 @@ class CI
             bundle_gemfile(GEMFILE, RAILS_GEMFILES)
           )
       ),
+      mutate("rails_event_store"),
       coverage("rails_event_store"),
       test(
         "ruby_event_store-active_record",
@@ -143,6 +162,7 @@ class CI
           ),
         template: "db.yaml.erb"
       ),
+      mutate("ruby_event_store-active_record"),
       coverage("ruby_event_store-active_record"),
       test(
         "ruby_event_store-flipper",
