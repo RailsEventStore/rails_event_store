@@ -33,10 +33,12 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: <%= working_directory %>
-      BUNDLE_GEMFILE: Gemfile
+      <%= env %>
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,7 +47,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ruby-3.2
+          ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate-changes
