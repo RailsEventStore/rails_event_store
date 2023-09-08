@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-    - "aggregate_root/**"
-    - "rails_event_store/**"
-    - "ruby_event_store/**"
-    - "ruby_event_store-active_record/**"
-    - "ruby_event_store-browser/**"
-    - "ruby_event_store-rspec/**"
-    - ".github/workflows/<%= name %>.yml"
-    - "support/**"
-    - "!support/bundler/**"
-    - "!support/ci/**"
+      - "aggregate_root/**"
+      - "rails_event_store/**"
+      - "ruby_event_store/**"
+      - "ruby_event_store-active_record/**"
+      - "ruby_event_store-browser/**"
+      - "ruby_event_store-rspec/**"
+      - ".github/workflows/<%= name %>.yml"
+      - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
@@ -30,32 +30,23 @@ on:
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:
-  test:
+  mutate:
     runs-on: ubuntu-20.04
     env:
-      <%= env %>
+      WORKING_DIRECTORY: <%= working_directory %>
+      BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
-      - run: test -e ${{ matrix.bundle_gemfile }}.lock
+        with:
+          fetch-depth: 0
+      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: ruby-3.2
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "npm"
-          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
-      - uses: actions/cache@v3
-        with:
-          path: ~/.elm
-          key: elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}
-      - run: make install-npm test
+      - run: make mutate-changes
         working-directory: ${{ env.WORKING_DIRECTORY }}
