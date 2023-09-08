@@ -1,4 +1,4 @@
-name: ruby_event_store-profiler_test
+name: <%= name %>
 on:
   repository_dispatch:
     types:
@@ -6,38 +6,33 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-profiler/**"
-      - ".github/workflows/ruby_event_store-profiler_test.yml"
+      - "<%= working_directory %>/**"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-profiler/**"
-      - ".github/workflows/ruby_event_store-profiler_test.yml"
+      - "<%= working_directory %>/**"
+      - ".github/workflows/<%= name %>.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:
-  test:
+  mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-profiler
-      RUBY_VERSION: "${{ matrix.ruby_version }}"
-      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      <%= env %>
     strategy:
       fail-fast: false
       matrix:
         include:
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile
-          - ruby_version: ruby-3.1
-            bundle_gemfile: Gemfile
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile
+          <%= matrix %>
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -45,5 +40,5 @@ jobs:
           ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make test
+      - run: make mutate-changes
         working-directory: ${{ env.WORKING_DIRECTORY }}
