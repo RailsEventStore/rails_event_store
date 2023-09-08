@@ -1,4 +1,4 @@
-name: ruby_event_store-browser
+name: ruby_event_store-newrelic_test
 on:
   repository_dispatch:
     types:
@@ -6,26 +6,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-    - "aggregate_root/**"
-    - "rails_event_store/**"
-    - "ruby_event_store/**"
-    - "ruby_event_store-active_record/**"
-    - "ruby_event_store-browser/**"
-    - "ruby_event_store-rspec/**"
-    - ".github/workflows/ruby_event_store-browser.yml"
-    - "support/**"
-    - "!support/bundler/**"
-    - "!support/ci/**"
+      - "contrib/ruby_event_store-newrelic/**"
+      - ".github/workflows/ruby_event_store-newrelic_test.yml"
+      - "support/**"
+      - "!support/bundler/**"
+      - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "aggregate_root/**"
-      - "rails_event_store/**"
-      - "ruby_event_store/**"
-      - "ruby_event_store-active_record/**"
-      - "ruby_event_store-browser/**"
-      - "ruby_event_store-rspec/**"
-      - ".github/workflows/ruby_event_store-browser.yml"
+      - "contrib/ruby_event_store-newrelic/**"
+      - ".github/workflows/ruby_event_store-newrelic_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -33,7 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: ruby_event_store-browser
+      WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
@@ -46,10 +36,6 @@ jobs:
             bundle_gemfile: Gemfile
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-          - ruby_version: truffleruby
-            bundle_gemfile: Gemfile
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.rack_2_0
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.bundle_gemfile }}.lock
@@ -59,22 +45,13 @@ jobs:
           ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "npm"
-          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/elm/package-lock.json
-      - uses: actions/cache@v3
-        with:
-          path: ~/.elm
-          key: elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}
-      - run: make install-npm test
+      - run: make test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: ruby_event_store-browser
+      WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false

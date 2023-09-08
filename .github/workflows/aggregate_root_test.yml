@@ -1,4 +1,4 @@
-name: ruby_event_store
+name: aggregate_root_test
 on:
   repository_dispatch:
     types:
@@ -12,7 +12,7 @@ on:
       - "ruby_event_store-active_record/**"
       - "ruby_event_store-browser/**"
       - "ruby_event_store-rspec/**"
-      - ".github/workflows/ruby_event_store.yml"
+      - ".github/workflows/aggregate_root_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -25,7 +25,7 @@ on:
       - "ruby_event_store-active_record/**"
       - "ruby_event_store-browser/**"
       - "ruby_event_store-rspec/**"
-      - ".github/workflows/ruby_event_store.yml"
+      - ".github/workflows/aggregate_root_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -33,7 +33,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: ruby_event_store
+      WORKING_DIRECTORY: aggregate_root
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
@@ -63,7 +63,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: ruby_event_store
+      WORKING_DIRECTORY: aggregate_root
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false

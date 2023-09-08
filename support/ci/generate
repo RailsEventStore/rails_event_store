@@ -70,7 +70,7 @@ class CI
     template: "ruby.yaml.erb"
   )
     {
-      name: name,
+      name: "#{name}_test",
       working_directory: working_directory || name,
       matrix: matrix,
       template: template

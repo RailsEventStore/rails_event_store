@@ -1,4 +1,4 @@
-name: minitest-ruby_event_store
+name: ruby_event_store_test
 on:
   repository_dispatch:
     types:
@@ -6,16 +6,26 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/minitest-ruby_event_store/**"
-      - ".github/workflows/minitest-ruby_event_store.yml"
+      - "aggregate_root/**"
+      - "rails_event_store/**"
+      - "ruby_event_store/**"
+      - "ruby_event_store-active_record/**"
+      - "ruby_event_store-browser/**"
+      - "ruby_event_store-rspec/**"
+      - ".github/workflows/ruby_event_store_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/minitest-ruby_event_store/**"
-      - ".github/workflows/minitest-ruby_event_store.yml"
+      - "aggregate_root/**"
+      - "rails_event_store/**"
+      - "ruby_event_store/**"
+      - "ruby_event_store-active_record/**"
+      - "ruby_event_store-browser/**"
+      - "ruby_event_store-rspec/**"
+      - ".github/workflows/ruby_event_store_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -23,7 +33,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/minitest-ruby_event_store
+      WORKING_DIRECTORY: ruby_event_store
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
@@ -35,6 +45,8 @@ jobs:
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
           - ruby_version: ruby-3.0
+            bundle_gemfile: Gemfile
+          - ruby_version: truffleruby
             bundle_gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
@@ -51,7 +63,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/minitest-ruby_event_store
+      WORKING_DIRECTORY: ruby_event_store
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false

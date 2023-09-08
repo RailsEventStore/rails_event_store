@@ -1,21 +1,25 @@
-name: ruby_event_store-rom
+name: dres_rails_test
 on:
   repository_dispatch:
     types:
       - script
   workflow_dispatch:
+  schedule:
+    - cron: "0 17 * * *"
   push:
     paths:
-      - "contrib/ruby_event_store-rom/**"
-      - ".github/workflows/ruby_event_store-rom.yml"
+      - "contrib/dres_rails/**"
+      - "contrib/dres_client/**"
+      - ".github/workflows/dres_rails_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-rom/**"
-      - ".github/workflows/ruby_event_store-rom.yml"
+      - "contrib/dres_rails/**"
+      - "contrib/dres_client/**"
+      - ".github/workflows/dres_rails_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -23,7 +27,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-rom
+      WORKING_DIRECTORY: contrib/dres_rails
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
@@ -45,46 +49,26 @@ jobs:
         ports:
           - 10015:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      mysql_5:
-        image: mysql:5
-        env:
-          MYSQL_DATABASE: rails_event_store
-          MYSQL_ROOT_PASSWORD: secret
-        ports:
-          - 10005:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
-      mysql_8:
-        image: mysql:8
-        env:
-          MYSQL_DATABASE: rails_event_store
-          MYSQL_ROOT_PASSWORD: secret
-        ports:
-          - 10008:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
       matrix:
         include:
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
-            database_url: sqlite:db.sqlite3
-            data_type: text
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
+            data_type: binary
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
-            database_url: sqlite:db.sqlite3
-            data_type: text
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
+            data_type: binary
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-            database_url: sqlite:db.sqlite3
-            data_type: text
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
-            data_type: text
+            data_type: binary
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
-            data_type: text
+            data_type: binary
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
@@ -93,14 +77,6 @@ jobs:
             bundle_gemfile: Gemfile
             database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
             data_type: jsonb
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile
-            database_url: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
-            data_type: text
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile
-            database_url: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
-            data_type: text
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.bundle_gemfile }}.lock
@@ -111,25 +87,4 @@ jobs:
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  mutate:
-    runs-on: ubuntu-20.04
-    env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-rom
-      BUNDLE_GEMFILE: Gemfile
-    strategy:
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ruby-3.2
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate-changes
         working-directory: ${{ env.WORKING_DIRECTORY }}

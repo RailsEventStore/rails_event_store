@@ -1,4 +1,4 @@
-name: ruby_event_store-sequel
+name: ruby_event_store-sequel_test
 on:
   repository_dispatch:
     types:
@@ -7,7 +7,7 @@ on:
   push:
     paths:
       - "contrib/ruby_event_store-sequel/**"
-      - ".github/workflows/ruby_event_store-sequel.yml"
+      - ".github/workflows/ruby_event_store-sequel_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -15,7 +15,7 @@ on:
     types: [opened, reopened]
     paths:
       - "contrib/ruby_event_store-sequel/**"
-      - ".github/workflows/ruby_event_store-sequel.yml"
+      - ".github/workflows/ruby_event_store-sequel_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
