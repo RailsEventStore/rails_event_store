@@ -16,7 +16,7 @@ class CI
     MRI_RUBY = [
       RUBY_3_2 = "ruby-3.2",
       RUBY_3_1 = "ruby-3.1",
-      RUBY_3_0 = "ruby-3.0",
+      RUBY_3_0 = "ruby-3.0"
     ],
     TRUFFLE_RUBY = "truffleruby"
   ].flatten
@@ -63,84 +63,71 @@ class CI
     GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
   ]
 
+  def test(
+    name,
+    working_directory: nil,
+    matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+    template: "ruby.yaml.erb"
+  )
+    {
+      name: name,
+      working_directory: working_directory || name,
+      matrix: matrix,
+      template: template
+    }
+  end
+
+  def coverage(
+    name,
+    working_directory: nil,
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+    template: "coverage.yaml.erb"
+  )
+    {
+      name: "#{name}_coverage",
+      working_directory: working_directory || name,
+      matrix: matrix,
+      template: template
+    }
+  end
+
+  def assets(name, working_directory: nil, template: "assets.yaml.erb")
+    {
+      name: "#{name}_assets",
+      working_directory: working_directory || name,
+      template: template
+    }
+  end
+
   def workflows
     [
-      {
-        name: "aggregate_root",
-        working_directory: "aggregate_root",
-        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-        template: "ruby.yaml.erb"
-      },
-      {
-        name: "aggregate_root_coverage",
-        working_directory: "aggregate_root",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store",
-        working_directory: "ruby_event_store",
-        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-        template: "ruby.yaml.erb"
-      },
-      {
-        name: "ruby_event_store_coverage",
-        working_directory: "ruby_event_store",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-rspec",
-        working_directory: "ruby_event_store-rspec",
-        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-        template: "ruby.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-rspec_coverage",
-        working_directory: "ruby_event_store-rspec",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-browser",
-        working_directory: "ruby_event_store-browser",
+      test("aggregate_root"),
+      coverage("aggregate_root"),
+      test("ruby_event_store"),
+      coverage("ruby_event_store"),
+      test("ruby_event_store-rspec"),
+      coverage("ruby_event_store-rspec"),
+      test(
+        "ruby_event_store-browser",
+        template: "elm.yaml.erb",
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
             bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")
-          ),
-        template: "elm.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-browser_coverage",
-        working_directory: "ruby_event_store-browser",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "rails_event_store",
-        working_directory: "rails_event_store",
+          )
+      ),
+      coverage("ruby_event_store-browser"),
+      test(
+        "rails_event_store",
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
             bundle_gemfile(GEMFILE, RAILS_GEMFILES)
-          ),
-        template: "ruby.yaml.erb"
-      },
-      {
-        name: "rails_event_store_coverage",
-        working_directory: "rails_event_store",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-active_record",
-        working_directory: "ruby_event_store-active_record",
+          )
+      ),
+      coverage("rails_event_store"),
+      test(
+        "ruby_event_store-active_record",
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
@@ -155,16 +142,10 @@ class CI
             )
           ),
         template: "db.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-active_record_coverage",
-        working_directory: "ruby_event_store-active_record",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-flipper",
+      ),
+      coverage("ruby_event_store-active_record"),
+      test(
+        "ruby_event_store-flipper",
         working_directory: "contrib/ruby_event_store-flipper",
         matrix:
           generate(
@@ -172,29 +153,27 @@ class CI
             bundle_gemfile(GEMFILE, AS_GEMFILES)
           ),
         template: "contrib.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-flipper_coverage",
+      ),
+      coverage(
+        "ruby_event_store-flipper",
         working_directory: "contrib/ruby_event_store-flipper",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-newrelic",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "ruby_event_store-newrelic",
         working_directory: "contrib/ruby_event_store-newrelic",
         matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-newrelic_coverage",
+      ),
+      coverage(
+        "ruby_event_store-newrelic",
         working_directory: "contrib/ruby_event_store-newrelic",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-outbox",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "ruby_event_store-outbox",
         working_directory: "contrib/ruby_event_store-outbox",
         matrix:
           join(
@@ -202,32 +181,31 @@ class CI
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, RAILS_GEMFILES, GEMFILE_SIDEKIQ_5_2),
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
-            ),
+            )
           ),
         template: "outbox.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-outbox_coverage",
+      ),
+      coverage(
+        "ruby_event_store-outbox",
         working_directory: "contrib/ruby_event_store-outbox",
         matrix:
           generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
         template: "coverage_with_redis.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-profiler",
+      ),
+      test(
+        "ruby_event_store-profiler",
         working_directory: "contrib/ruby_event_store-profiler",
         matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-profiler_coverage",
+      ),
+      coverage(
+        "ruby_event_store-profiler",
         working_directory: "contrib/ruby_event_store-profiler",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-protobuf",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "ruby_event_store-protobuf",
         working_directory: "contrib/ruby_event_store-protobuf",
         matrix:
           join(
@@ -235,19 +213,18 @@ class CI
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
               database_url(SQLITE3)
-            ),
+            )
           ),
         template: "contrib.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-protobuf_coverage",
+      ),
+      coverage(
+        "ruby_event_store-protobuf",
         working_directory: "contrib/ruby_event_store-protobuf",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-rom",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "ruby_event_store-rom",
         working_directory: "contrib/ruby_event_store-rom",
         matrix:
           join(
@@ -271,16 +248,15 @@ class CI
             )
           ),
         template: "rom.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-rom_coverage",
+      ),
+      coverage(
+        "ruby_event_store-rom",
         working_directory: "contrib/ruby_event_store-rom",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-sequel",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "ruby_event_store-sequel",
         working_directory: "contrib/ruby_event_store-sequel",
         matrix:
           join(
@@ -304,16 +280,15 @@ class CI
             )
           ),
         template: "rom.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-sequel_coverage",
+      ),
+      coverage(
+        "ruby_event_store-sequel",
         working_directory: "contrib/ruby_event_store-sequel",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-sidekiq_scheduler",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "ruby_event_store-sidekiq_scheduler",
         working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
         matrix:
           join(
@@ -321,58 +296,50 @@ class CI
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
               redis_url("redis://localhost:6379/0")
-            ),
+            )
           ),
         template: "scheduler.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-sidekiq_scheduler_coverage",
+      ),
+      coverage(
+        "ruby_event_store-sidekiq_scheduler",
         working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
         matrix:
           generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
         template: "coverage_with_redis.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-transformations",
+      ),
+      test(
+        "ruby_event_store-transformations",
         working_directory: "contrib/ruby_event_store-transformations",
         matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-transformations_coverage",
+      ),
+      coverage(
+        "ruby_event_store-transformations",
         working_directory: "contrib/ruby_event_store-transformations",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "minitest-ruby_event_store",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      test(
+        "minitest-ruby_event_store",
         working_directory: "contrib/minitest-ruby_event_store",
-        matrix:
-          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "contrib.yaml.erb"
-      },
-      {
-        name: "minitest-ruby_event_store_coverage",
+      ),
+      coverage(
+        "minitest-ruby_event_store",
         working_directory: "contrib/minitest-ruby_event_store",
         matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-        template: "coverage.yaml.erb"
-      },
-      {
-        name: "ruby_event_store-browser_assets",
-        working_directory: "ruby_event_store-browser",
-        template: "assets.yaml.erb"
-      },
-      {
-        name: "dres_client",
+          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+      ),
+      assets("ruby_event_store-browser"),
+      test(
+        "dres_client",
         working_directory: "contrib/dres_client",
-        matrix:
-          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
         template: "dres_client.yaml.erb"
-      },
-      {
-        name: "dres_rails",
+      ),
+      test(
+        "dres_rails",
         working_directory: "contrib/dres_rails",
         matrix:
           join(
@@ -381,10 +348,10 @@ class CI
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
               data_type(DATA_TYPES_IN_AR)
-            ),
+            )
           ),
         template: "dres_rails.yaml.erb"
-      }
+      )
     ]
   end
 
