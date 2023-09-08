@@ -29,6 +29,9 @@ on:
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
+defaults:
+  run:
+    working-directory: ruby_event_store
 jobs:
   test:
     runs-on: ubuntu-20.04
@@ -51,14 +54,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.bundle_gemfile }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make test
-        working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
     runs-on: ubuntu-20.04
@@ -72,11 +72,8 @@ jobs:
         with:
           fetch-depth: 0
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ruby-3.2
           bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate-changes
-        working-directory: ${{ env.WORKING_DIRECTORY }}
