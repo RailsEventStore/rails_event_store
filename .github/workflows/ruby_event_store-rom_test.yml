@@ -1,4 +1,4 @@
-name: ruby_event_store-outbox
+name: ruby_event_store-rom_test
 on:
   repository_dispatch:
     types:
@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-outbox/**"
-      - ".github/workflows/ruby_event_store-outbox.yml"
+      - "contrib/ruby_event_store-rom/**"
+      - ".github/workflows/ruby_event_store-rom_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-outbox/**"
-      - ".github/workflows/ruby_event_store-outbox.yml"
+      - "contrib/ruby_event_store-rom/**"
+      - ".github/workflows/ruby_event_store-rom_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -23,11 +23,28 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-outbox
+      WORKING_DIRECTORY: contrib/ruby_event_store-rom
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
+      DATA_TYPE: "${{ matrix.data_type }}"
     services:
+      postgres_11:
+        image: postgres:11
+        env:
+          POSTGRES_DB: rails_event_store
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 10011:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      postgres_15:
+        image: postgres:15
+        env:
+          POSTGRES_DB: rails_event_store
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 10015:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       mysql_5:
         image: mysql:5
         env:
@@ -50,37 +67,42 @@ jobs:
         include:
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
+            database_url: sqlite:db.sqlite3
+            data_type: text
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
+            database_url: sqlite:db.sqlite3
+            data_type: text
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.rails_6_1
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.rails_6_0
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.sidekiq_5_2
-            database_url: sqlite3:db.sqlite3
+            database_url: sqlite:db.sqlite3
+            data_type: text
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
-            database_url: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
+            data_type: text
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10011/rails_event_store?pool=5
+            data_type: text
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
+            data_type: json
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
+            database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
+            data_type: jsonb
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
             database_url: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
+            data_type: text
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
+            database_url: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
+            data_type: text
     steps:
       - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v20
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v12
-        with:
-          name: railseventstore
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: test -e ${{ matrix.bundle_gemfile }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -88,21 +110,13 @@ jobs:
           ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: |
-          nix-shell --run "make test" -E"
-            with import <nixpkgs> { };
-            mkShell {
-              inputsFrom = [
-                (import ../../support/nix/redis.nix)
-              ];
-            }
-          "
+      - run: make test
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-outbox
+      WORKING_DIRECTORY: contrib/ruby_event_store-rom
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
@@ -110,13 +124,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: cachix/install-nix-action@v20
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v12
-        with:
-          name: railseventstore
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
@@ -124,13 +131,5 @@ jobs:
           ruby-version: ruby-3.2
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: |
-          nix-shell --run "make mutate-changes" -E"
-            with import <nixpkgs> { };
-            mkShell {
-              inputsFrom = [
-                (import ../../support/nix/redis.nix)
-              ];
-            }
-          "
+      - run: make mutate-changes
         working-directory: ${{ env.WORKING_DIRECTORY }}

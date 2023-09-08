@@ -1,4 +1,4 @@
-name: rails_event_store
+name: ruby_event_store-protobuf_test
 on:
   repository_dispatch:
     types:
@@ -6,26 +6,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "aggregate_root/**"
-      - "rails_event_store/**"
-      - "ruby_event_store/**"
-      - "ruby_event_store-active_record/**"
-      - "ruby_event_store-browser/**"
-      - "ruby_event_store-rspec/**"
-      - ".github/workflows/rails_event_store.yml"
+      - "contrib/ruby_event_store-protobuf/**"
+      - ".github/workflows/ruby_event_store-protobuf_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "aggregate_root/**"
-      - "rails_event_store/**"
-      - "ruby_event_store/**"
-      - "ruby_event_store-active_record/**"
-      - "ruby_event_store-browser/**"
-      - "ruby_event_store-rspec/**"
-      - ".github/workflows/rails_event_store.yml"
+      - "contrib/ruby_event_store-protobuf/**"
+      - ".github/workflows/ruby_event_store-protobuf_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -33,25 +23,29 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: rails_event_store
+      WORKING_DIRECTORY: contrib/ruby_event_store-protobuf
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      DATABASE_URL: "${{ matrix.database_url }}"
     strategy:
       fail-fast: false
       matrix:
         include:
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile
+            database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.1
             bundle_gemfile: Gemfile
+            database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-          - ruby_version: truffleruby
-            bundle_gemfile: Gemfile
+            database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile.rails_6_1
+            database_url: sqlite3:db.sqlite3
           - ruby_version: ruby-3.2
             bundle_gemfile: Gemfile.rails_6_0
+            database_url: sqlite3:db.sqlite3
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.bundle_gemfile }}.lock
@@ -67,7 +61,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: rails_event_store
+      WORKING_DIRECTORY: contrib/ruby_event_store-protobuf
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false

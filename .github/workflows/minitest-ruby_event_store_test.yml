@@ -1,4 +1,4 @@
-name: ruby_event_store-flipper
+name: minitest-ruby_event_store_test
 on:
   repository_dispatch:
     types:
@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-flipper/**"
-      - ".github/workflows/ruby_event_store-flipper.yml"
+      - "contrib/minitest-ruby_event_store/**"
+      - ".github/workflows/minitest-ruby_event_store_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-flipper/**"
-      - ".github/workflows/ruby_event_store-flipper.yml"
+      - "contrib/minitest-ruby_event_store/**"
+      - ".github/workflows/minitest-ruby_event_store_test.yml"
       - "support/**"
       - "!support/bundler/**"
       - "!support/ci/**"
@@ -23,7 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-flipper
+      WORKING_DIRECTORY: contrib/minitest-ruby_event_store
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
@@ -36,10 +36,6 @@ jobs:
             bundle_gemfile: Gemfile
           - ruby_version: ruby-3.0
             bundle_gemfile: Gemfile
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.activesupport_6_1
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.activesupport_6_0
     steps:
       - uses: actions/checkout@v3
       - run: test -e ${{ matrix.bundle_gemfile }}.lock
@@ -55,7 +51,7 @@ jobs:
   mutate:
     runs-on: ubuntu-20.04
     env:
-      WORKING_DIRECTORY: contrib/ruby_event_store-flipper
+      WORKING_DIRECTORY: contrib/minitest-ruby_event_store
       BUNDLE_GEMFILE: Gemfile
     strategy:
       fail-fast: false
