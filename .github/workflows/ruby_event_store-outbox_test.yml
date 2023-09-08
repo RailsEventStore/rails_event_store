@@ -81,7 +81,7 @@ jobs:
         with:
           name: railseventstore
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-      - run: test -e ${{ matrix.bundle_gemfile }}.lock
+      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
