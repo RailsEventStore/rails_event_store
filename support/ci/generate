@@ -63,22 +63,21 @@ class CI
     GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
   ]
 
-  def test(
-    name,
-    working_directory: nil,
-    matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-    template: "test.yaml.erb"
-  )
+  def test(name, working_directory:, matrix:, template:)
     {
       name: "#{name}_test",
-      working_directory: working_directory || name,
+      working_directory: working_directory,
       matrix: matrix,
       template: template
     }
   end
 
-  def release_test(*, **)
-    test(*, **)
+  def release_test(
+    name,
+    template: "test.yaml.erb",
+    matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE))
+  )
+    test(name, working_directory: name, template: template, matrix: matrix)
   end
 
   def contrib_test(
@@ -96,42 +95,42 @@ class CI
 
   def mutate(
     name,
-    working_directory: nil,
+    working_directory:,
     matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
     template: "mutate.yaml.erb"
   )
     {
       name: "#{name}_mutate",
-      working_directory: working_directory || name,
+      working_directory: working_directory,
       matrix: matrix,
       template: template
     }
   end
 
-  def release_mutate(*, **)
-    mutate(*, **)
+  def release_mutate(name)
+    mutate(name, working_directory: name)
   end
 
-  def contrib_mutate(name, **)
-    mutate(name, working_directory: "contrib/#{name}", **)
+  def contrib_mutate(name)
+    mutate(name, working_directory: "contrib/#{name}")
   end
 
   def coverage(
     name,
-    working_directory: nil,
+    working_directory:,
     matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
     template: "coverage.yaml.erb"
   )
     {
       name: "#{name}_coverage",
-      working_directory: working_directory || name,
+      working_directory: working_directory,
       matrix: matrix,
       template: template
     }
   end
 
-  def release_coverage(*, **)
-    coverage(*, **)
+  def release_coverage(name)
+    coverage(name, working_directory: name)
   end
 
   def contrib_coverage(name, **)
