@@ -34,9 +34,14 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       WORKING_DIRECTORY: ruby_event_store-active_record
-      BUNDLE_GEMFILE: Gemfile
+      RUBY_VERSION: "${{ matrix.ruby_version }}"
+      BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - ruby_version: ruby-3.2
+            bundle_gemfile: Gemfile
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,7 +50,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ruby-3.2
+          ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
           working-directory: ${{ env.WORKING_DIRECTORY }}
       - run: make mutate-changes
