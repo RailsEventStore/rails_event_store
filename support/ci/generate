@@ -77,6 +77,23 @@ class CI
     }
   end
 
+  def release_test(*, **)
+    test(*, **)
+  end
+
+  def contrib_test(
+    name,
+    template: "contrib.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE))
+  )
+    test(
+      name,
+      working_directory: "contrib/#{name}",
+      template: template,
+      matrix: matrix
+    )
+  end
+
   def mutate(
     name,
     working_directory: nil,
@@ -89,6 +106,14 @@ class CI
       matrix: matrix,
       template: template
     }
+  end
+
+  def release_mutate(*, **)
+    mutate(*, **)
+  end
+
+  def contrib_mutate(name, **)
+    mutate(name, working_directory: "contrib/#{name}", **)
   end
 
   def coverage(
@@ -123,16 +148,16 @@ class CI
 
   def workflows
     [
-      test("aggregate_root"),
-      mutate("aggregate_root"),
+      release_test("aggregate_root"),
+      release_mutate("aggregate_root"),
       release_coverage("aggregate_root"),
-      test("ruby_event_store"),
-      mutate("ruby_event_store"),
+      release_test("ruby_event_store"),
+      release_mutate("ruby_event_store"),
       release_coverage("ruby_event_store"),
-      test("ruby_event_store-rspec"),
-      mutate("ruby_event_store-rspec"),
+      release_test("ruby_event_store-rspec"),
+      release_mutate("ruby_event_store-rspec"),
       release_coverage("ruby_event_store-rspec"),
-      test(
+      release_test(
         "ruby_event_store-browser",
         template: "elm.yaml.erb",
         matrix:
@@ -141,9 +166,9 @@ class CI
             bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")
           )
       ),
-      mutate("ruby_event_store-browser"),
+      release_mutate("ruby_event_store-browser"),
       release_coverage("ruby_event_store-browser"),
-      test(
+      release_test(
         "rails_event_store",
         matrix:
           generate(
@@ -151,9 +176,9 @@ class CI
             bundle_gemfile(GEMFILE, RAILS_GEMFILES)
           )
       ),
-      mutate("rails_event_store"),
+      release_mutate("rails_event_store"),
       release_coverage("rails_event_store"),
-      test(
+      release_test(
         "ruby_event_store-active_record",
         matrix:
           generate(
@@ -170,29 +195,18 @@ class CI
           ),
         template: "db.yaml.erb"
       ),
-      mutate("ruby_event_store-active_record"),
+      release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
-      test(
+      contrib_test(
         "ruby_event_store-flipper",
-        working_directory: "contrib/ruby_event_store-flipper",
         matrix:
-          generate(
-            ruby_version(MRI_RUBY),
-            bundle_gemfile(GEMFILE, AS_GEMFILES)
-          ),
-        template: "contrib.yaml.erb"
+          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, AS_GEMFILES))
       ),
       contrib_coverage("ruby_event_store-flipper"),
-      test(
-        "ruby_event_store-newrelic",
-        working_directory: "contrib/ruby_event_store-newrelic",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-        template: "contrib.yaml.erb"
-      ),
+      contrib_test("ruby_event_store-newrelic"),
       contrib_coverage("ruby_event_store-newrelic"),
-      test(
+      contrib_test(
         "ruby_event_store-outbox",
-        working_directory: "contrib/ruby_event_store-outbox",
         matrix:
           join(
             generate(
@@ -207,16 +221,10 @@ class CI
         "ruby_event_store-outbox",
         template: "coverage_with_redis.yaml.erb"
       ),
-      test(
-        "ruby_event_store-profiler",
-        working_directory: "contrib/ruby_event_store-profiler",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-        template: "contrib.yaml.erb"
-      ),
+      contrib_test("ruby_event_store-profiler"),
       contrib_coverage("ruby_event_store-profiler"),
-      test(
+      contrib_test(
         "ruby_event_store-protobuf",
-        working_directory: "contrib/ruby_event_store-protobuf",
         matrix:
           join(
             generate(
@@ -224,13 +232,11 @@ class CI
               bundle_gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
               database_url(SQLITE3)
             )
-          ),
-        template: "contrib.yaml.erb"
+          )
       ),
       contrib_coverage("ruby_event_store-protobuf"),
-      test(
+      contrib_test(
         "ruby_event_store-rom",
-        working_directory: "contrib/ruby_event_store-rom",
         matrix:
           join(
             generate(
@@ -255,9 +261,8 @@ class CI
         template: "rom.yaml.erb"
       ),
       contrib_coverage("ruby_event_store-rom"),
-      test(
+      contrib_test(
         "ruby_event_store-sequel",
-        working_directory: "contrib/ruby_event_store-sequel",
         matrix:
           join(
             generate(
@@ -282,9 +287,8 @@ class CI
         template: "rom.yaml.erb"
       ),
       contrib_coverage("ruby_event_store-sequel"),
-      test(
+      contrib_test(
         "ruby_event_store-sidekiq_scheduler",
-        working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
         matrix:
           join(
             generate(
@@ -299,30 +303,14 @@ class CI
         "ruby_event_store-sidekiq_scheduler",
         template: "coverage_with_redis.yaml.erb"
       ),
-      test(
-        "ruby_event_store-transformations",
-        working_directory: "contrib/ruby_event_store-transformations",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-        template: "contrib.yaml.erb"
-      ),
+      contrib_test("ruby_event_store-transformations"),
       contrib_coverage("ruby_event_store-transformations"),
-      test(
-        "minitest-ruby_event_store",
-        working_directory: "contrib/minitest-ruby_event_store",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-        template: "contrib.yaml.erb"
-      ),
+      contrib_test("minitest-ruby_event_store"),
       contrib_coverage("minitest-ruby_event_store"),
       assets("ruby_event_store-browser"),
-      test(
-        "dres_client",
-        working_directory: "contrib/dres_client",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-        template: "dres_client.yaml.erb"
-      ),
-      test(
+      contrib_test("dres_client", template: "dres_client.yaml.erb"),
+      contrib_test(
         "dres_rails",
-        working_directory: "contrib/dres_rails",
         matrix:
           join(
             generate(
