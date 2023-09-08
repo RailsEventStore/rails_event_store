@@ -4,5 +4,5 @@ gemspec
 
 eval_gemfile "../support/bundler/Gemfile.shared"
 
-gem "activesupport", "7.0.4.3"
+gem "activesupport", "~> 7.0.7"
 gem "concurrent-ruby", "1.1.8"

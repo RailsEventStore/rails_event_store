@@ -6,4 +6,4 @@ eval_gemfile "../../support/bundler/Gemfile.shared"
 gem "ruby_event_store", path: "../.."
 gem "aggregate_root", path: "../.."
 
-gem "activesupport", "7.0.4.3"
+gem "activesupport", "~> 7.0.7"
