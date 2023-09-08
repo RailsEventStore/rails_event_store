@@ -93,12 +93,7 @@ class CI
     )
   end
 
-  def mutate(
-    name,
-    working_directory:,
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-    template: "mutate.yaml.erb"
-  )
+  def mutate(name, working_directory:, matrix:, template:)
     {
       name: "#{name}_mutate",
       working_directory: working_directory,
@@ -107,12 +102,25 @@ class CI
     }
   end
 
-  def release_mutate(name)
-    mutate(name, working_directory: name)
+  def release_mutate(
+    name,
+    template: "mutate.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+  )
+    mutate(name, working_directory: name, template: template, matrix: matrix)
   end
 
-  def contrib_mutate(name)
-    mutate(name, working_directory: "contrib/#{name}")
+  def contrib_mutate(
+    name,
+    template: "contrib_mutate.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+  )
+    mutate(
+      name,
+      working_directory: "contrib/#{name}",
+      template: template,
+      matrix: matrix
+    )
   end
 
   def coverage(
@@ -201,8 +209,10 @@ class CI
         matrix:
           generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, AS_GEMFILES))
       ),
+      contrib_mutate("ruby_event_store-flipper"),
       contrib_coverage("ruby_event_store-flipper"),
       contrib_test("ruby_event_store-newrelic"),
+      contrib_mutate("ruby_event_store-newrelic"),
       contrib_coverage("ruby_event_store-newrelic"),
       contrib_test(
         "ruby_event_store-outbox",
@@ -216,11 +226,16 @@ class CI
           ),
         template: "outbox.yaml.erb"
       ),
+      contrib_mutate(
+        "ruby_event_store-outbox",
+        template: "contrib_mutate_with_redis.yaml.erb"
+      ),
       contrib_coverage(
         "ruby_event_store-outbox",
         template: "coverage_with_redis.yaml.erb"
       ),
       contrib_test("ruby_event_store-profiler"),
+      contrib_mutate("ruby_event_store-profiler"),
       contrib_coverage("ruby_event_store-profiler"),
       contrib_test(
         "ruby_event_store-protobuf",
@@ -233,6 +248,7 @@ class CI
             )
           )
       ),
+      contrib_mutate("ruby_event_store-protobuf"),
       contrib_coverage("ruby_event_store-protobuf"),
       contrib_test(
         "ruby_event_store-rom",
@@ -259,6 +275,7 @@ class CI
           ),
         template: "rom.yaml.erb"
       ),
+      contrib_mutate("ruby_event_store-rom"),
       contrib_coverage("ruby_event_store-rom"),
       contrib_test(
         "ruby_event_store-sequel",
@@ -285,6 +302,7 @@ class CI
           ),
         template: "rom.yaml.erb"
       ),
+      contrib_mutate("ruby_event_store-sequel"),
       contrib_coverage("ruby_event_store-sequel"),
       contrib_test(
         "ruby_event_store-sidekiq_scheduler",
@@ -298,15 +316,20 @@ class CI
           ),
         template: "scheduler.yaml.erb"
       ),
+      contrib_mutate(
+        "ruby_event_store-sidekiq_scheduler",
+        template: "contrib_mutate_with_redis.yaml.erb"
+      ),
       contrib_coverage(
         "ruby_event_store-sidekiq_scheduler",
         template: "coverage_with_redis.yaml.erb"
       ),
       contrib_test("ruby_event_store-transformations"),
+      contrib_mutate("ruby_event_store-transformations"),
       contrib_coverage("ruby_event_store-transformations"),
       contrib_test("minitest-ruby_event_store"),
+      contrib_mutate("minitest-ruby_event_store"),
       contrib_coverage("minitest-ruby_event_store"),
-      assets("ruby_event_store-browser"),
       contrib_test("dres_client", template: "dres_client.yaml.erb"),
       contrib_test(
         "dres_rails",
@@ -320,7 +343,8 @@ class CI
             )
           ),
         template: "dres_rails.yaml.erb"
-      )
+      ),
+      assets("ruby_event_store-browser")
     ]
   end
 
