@@ -67,7 +67,7 @@ class CI
     name,
     working_directory: nil,
     matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-    template: "ruby.yaml.erb"
+    template: "test.yaml.erb"
   )
     {
       name: "#{name}_test",
