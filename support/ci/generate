@@ -176,9 +176,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-flipper",
-        working_directory: "contrib/ruby_event_store-flipper",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-flipper"
       ),
       test(
         "ruby_event_store-newrelic",
@@ -188,9 +186,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-newrelic",
-        working_directory: "contrib/ruby_event_store-newrelic",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-newrelic"
       ),
       test(
         "ruby_event_store-outbox",
@@ -208,8 +204,6 @@ class CI
       coverage(
         "ruby_event_store-outbox",
         working_directory: "contrib/ruby_event_store-outbox",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
         template: "coverage_with_redis.yaml.erb"
       ),
       test(
@@ -220,9 +214,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-profiler",
-        working_directory: "contrib/ruby_event_store-profiler",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-profiler"
       ),
       test(
         "ruby_event_store-protobuf",
@@ -239,9 +231,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-protobuf",
-        working_directory: "contrib/ruby_event_store-protobuf",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-protobuf"
       ),
       test(
         "ruby_event_store-rom",
@@ -271,9 +261,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-rom",
-        working_directory: "contrib/ruby_event_store-rom",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-rom"
       ),
       test(
         "ruby_event_store-sequel",
@@ -303,9 +291,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-sequel",
-        working_directory: "contrib/ruby_event_store-sequel",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-sequel"
       ),
       test(
         "ruby_event_store-sidekiq_scheduler",
@@ -323,8 +309,6 @@ class CI
       coverage(
         "ruby_event_store-sidekiq_scheduler",
         working_directory: "contrib/ruby_event_store-sidekiq_scheduler",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
         template: "coverage_with_redis.yaml.erb"
       ),
       test(
@@ -335,9 +319,7 @@ class CI
       ),
       coverage(
         "ruby_event_store-transformations",
-        working_directory: "contrib/ruby_event_store-transformations",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/ruby_event_store-transformations"
       ),
       test(
         "minitest-ruby_event_store",
@@ -347,9 +329,7 @@ class CI
       ),
       coverage(
         "minitest-ruby_event_store",
-        working_directory: "contrib/minitest-ruby_event_store",
-        matrix:
-          generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+        working_directory: "contrib/minitest-ruby_event_store"
       ),
       assets("ruby_event_store-browser"),
       test(
