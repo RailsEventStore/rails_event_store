@@ -141,10 +141,11 @@ class CI
     }
   end
 
-  def assets(name, working_directory: nil, template: "assets.yaml.erb")
+  def assets(name, template: "assets.yaml.erb")
     {
       name: "#{name}_assets",
-      working_directory: working_directory || name,
+      working_directory: name,
+      matrix: nil,
       template: template
     }
   end
@@ -388,11 +389,11 @@ class CI
         ).result_with_hash(
           name: name,
           working_directory: gem.fetch(:working_directory),
-          matrix: as_formatted_yaml(gem[:matrix], indent: 10),
+          matrix: as_formatted_yaml(gem.fetch(:matrix), indent: 10),
           env:
             as_formatted_yaml(
               { "WORKING_DIRECTORY" => gem.fetch(:working_directory) }.merge(
-                matrix_env_vars(gem[:matrix])
+                matrix_env_vars(gem.fetch(:matrix))
               ),
               indent: 6
             )
