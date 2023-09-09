@@ -63,21 +63,17 @@ class CI
     GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
   ]
 
-  def test(name, working_directory:, matrix:, template:)
-    {
-      name: "#{name}_test",
-      working_directory: working_directory,
-      matrix: matrix,
-      template: template
-    }
-  end
-
   def release_test(
     name,
     template: "test.yaml.erb",
     matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE))
   )
-    test(name, working_directory: name, template: template, matrix: matrix)
+    {
+      name: "#{name}_test",
+      working_directory: name,
+      matrix: matrix,
+      template: template
+    }
   end
 
   def contrib_test(
@@ -85,18 +81,9 @@ class CI
     template: "contrib.yaml.erb",
     matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE))
   )
-    test(
-      name,
-      working_directory: "contrib/#{name}",
-      template: template,
-      matrix: matrix
-    )
-  end
-
-  def mutate(name, working_directory:, matrix:, template:)
     {
-      name: "#{name}_mutate",
-      working_directory: working_directory,
+      name: "#{name}_test",
+      working_directory: "contrib/#{name}",
       matrix: matrix,
       template: template
     }
@@ -107,7 +94,12 @@ class CI
     template: "mutate.yaml.erb",
     matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
   )
-    mutate(name, working_directory: name, template: template, matrix: matrix)
+    {
+      name: "#{name}_mutate",
+      working_directory: name,
+      matrix: matrix,
+      template: template
+    }
   end
 
   def contrib_mutate(
@@ -115,34 +107,38 @@ class CI
     template: "contrib_mutate.yaml.erb",
     matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
   )
-    mutate(
-      name,
-      working_directory: "contrib/#{name}",
-      template: template,
-      matrix: matrix
-    )
-  end
-
-  def coverage(
-    name,
-    working_directory:,
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-    template: "coverage.yaml.erb"
-  )
     {
-      name: "#{name}_coverage",
-      working_directory: working_directory,
+      name: "#{name}_mutate",
+      working_directory: "contrib/#{name}",
       matrix: matrix,
       template: template
     }
   end
 
-  def release_coverage(name)
-    coverage(name, working_directory: name)
+  def release_coverage(
+    name,
+    template: "coverage.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+  )
+    {
+      name: "#{name}_coverage",
+      working_directory: name,
+      matrix: matrix,
+      template: template
+    }
   end
 
-  def contrib_coverage(name, **)
-    coverage(name, working_directory: "contrib/#{name}", **)
+  def contrib_coverage(
+    name,
+    template: "coverage.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+  )
+    {
+      name: "#{name}_coverage",
+      working_directory: "contrib/#{name}",
+      matrix: matrix,
+      template: template
+    }
   end
 
   def assets(name, working_directory: nil, template: "assets.yaml.erb")
