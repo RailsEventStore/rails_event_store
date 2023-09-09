@@ -33,13 +33,4 @@ jobs:
         include:
           <%= matrix %>
     steps:
-      - uses: actions/checkout@v3
-      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ env.RUBY_VERSION }}
-          bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-      - run: make mutate
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+      <%= steps %>

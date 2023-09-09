@@ -63,81 +63,196 @@ class CI
     GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
   ]
 
+  def checkout(depth: 1)
+    { "uses" => "actions/checkout@v3", "with" => { "fetch-depth" => depth } }
+  end
+
+  def verify_lockfile
+    {
+      "run" => "test -e ${{ env.BUNDLE_GEMFILE }}.lock",
+      "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+    }
+  end
+
+  def setup_ruby
+    {
+      "uses" => "ruby/setup-ruby@v1",
+      "with" => {
+        "ruby-version" => "${{ env.RUBY_VERSION }}",
+        "bundler-cache" => true,
+        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+      }
+    }
+  end
+
+  def setup_node
+    {
+      "uses" => "actions/setup-node@v3",
+      "with" => {
+        "node-version" => 18,
+        "cache" => "npm",
+        "cache-dependency-path" =>
+          "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json"
+      }
+    }
+  end
+
+  def cache_elm
+    {
+      "uses" => "actions/cache@v3",
+      "with" => {
+        "path" => "~/.elm",
+        "key" =>
+          "elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}"
+      }
+    }
+  end
+
+  def setup_nix
+    {
+      "uses" => "cachix/install-nix-action@v20",
+      "with" => {
+        "nix_path" => "nixpkgs=channel:nixos-unstable",
+      }
+    }
+  end
+
+  def setup_cachix
+    {
+      "uses" => "cachix/cachix-action@v12",
+      "with" => {
+        "name" => "railseventstore",
+        "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      }
+    }
+  end
+
+  def make_nix_shell(target, imports: ["redis.nix"])
+    {
+      "run" => <<~SHELL,
+        nix-shell --run "make #{target}" -E"
+          with import <nixpkgs> { };
+          mkShell {
+            inputsFrom = [
+              #{imports.map { |i| "(import ../../support/nix/#{i})" }.join("\n")}
+            ];
+          }
+        "
+      SHELL
+      "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+    }
+  end
+
+  def make(target)
+    {
+      "run" => "make #{target}",
+      "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+    }
+  end
+
   def release_test(
     name,
-    template: "test.yaml.erb",
-    matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE))
+    template: "release.yaml.erb",
+    matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+    steps: [checkout, verify_lockfile, setup_ruby, make("test")]
   )
     {
       name: "#{name}_test",
       working_directory: name,
       matrix: matrix,
-      template: template
+      template: template,
+      job_name: "test",
+      steps: steps
     }
   end
 
   def contrib_test(
     name,
     template: "contrib.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE))
+    matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+    steps: [checkout, verify_lockfile, setup_ruby, make("test")]
   )
     {
       name: "#{name}_test",
       working_directory: "contrib/#{name}",
       matrix: matrix,
-      template: template
+      template: template,
+      job_name: "test",
+      steps: steps
     }
   end
 
   def release_mutate(
     name,
-    template: "mutate.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+    template: "release.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+    steps: [
+      checkout(depth: 0),
+      verify_lockfile,
+      setup_ruby,
+      make("mutate-changes")
+    ]
   )
     {
       name: "#{name}_mutate",
       working_directory: name,
       matrix: matrix,
-      template: template
+      template: template,
+      job_name: "mutate",
+      steps: steps
     }
   end
 
   def contrib_mutate(
     name,
-    template: "contrib_mutate.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+    template: "contrib.yaml.erb",
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+    steps: [
+      checkout(depth: 0),
+      verify_lockfile,
+      setup_ruby,
+      make("mutate-changes")
+    ]
   )
     {
       name: "#{name}_mutate",
       working_directory: "contrib/#{name}",
       matrix: matrix,
-      template: template
+      template: template,
+      job_name: "mutate",
+      steps: steps
     }
   end
 
   def release_coverage(
     name,
     template: "coverage.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+    steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
   )
     {
       name: "#{name}_coverage",
       working_directory: name,
       matrix: matrix,
-      template: template
+      template: template,
+      job_name: "coverage",
+      steps: steps
     }
   end
 
   def contrib_coverage(
     name,
     template: "coverage.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE))
+    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+    steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
   )
     {
       name: "#{name}_coverage",
       working_directory: "contrib/#{name}",
       matrix: matrix,
-      template: template
+      template: template,
+      job_name: "coverage",
+      steps: steps
     }
   end
 
@@ -163,7 +278,14 @@ class CI
       release_coverage("ruby_event_store-rspec"),
       release_test(
         "ruby_event_store-browser",
-        template: "elm.yaml.erb",
+        steps: [
+          checkout,
+          verify_lockfile,
+          setup_ruby,
+          setup_node,
+          cache_elm,
+          make("install-npm test")
+        ],
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
@@ -225,11 +347,11 @@ class CI
       ),
       contrib_mutate(
         "ruby_event_store-outbox",
-        template: "contrib_mutate_with_redis.yaml.erb"
+        steps: [checkout(depth: 0), setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate-changes")]
       ),
       contrib_coverage(
         "ruby_event_store-outbox",
-        template: "coverage_with_redis.yaml.erb"
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")]
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
@@ -311,15 +433,15 @@ class CI
               redis_url("redis://localhost:6379/0")
             )
           ),
-        template: "scheduler.yaml.erb"
-      ),
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")]
+    ),
       contrib_mutate(
         "ruby_event_store-sidekiq_scheduler",
-        template: "contrib_mutate_with_redis.yaml.erb"
+        steps: [checkout(depth: 0), setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate-changes")]
       ),
       contrib_coverage(
         "ruby_event_store-sidekiq_scheduler",
-        template: "coverage_with_redis.yaml.erb"
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")]
       ),
       contrib_test("ruby_event_store-transformations"),
       contrib_mutate("ruby_event_store-transformations"),
@@ -390,6 +512,8 @@ class CI
           name: name,
           working_directory: gem.fetch(:working_directory),
           matrix: as_formatted_yaml(gem.fetch(:matrix), indent: 10),
+          steps: as_formatted_yaml(gem.fetch(:steps, []), indent: 6),
+          job_name: gem.fetch(:job_name, nil),
           env:
             as_formatted_yaml(
               { "WORKING_DIRECTORY" => gem.fetch(:working_directory) }.merge(

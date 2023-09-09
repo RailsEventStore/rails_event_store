@@ -42,14 +42,14 @@ jobs:
       - uses: cachix/cachix-action@v12
         with:
           name: railseventstore
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: "${{ env.WORKING_DIRECTORY }}"
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: "${{ env.RUBY_VERSION }}"
           bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
+          working-directory: "${{ env.WORKING_DIRECTORY }}"
       - run: |
           nix-shell --run "make mutate-changes" -E"
             with import <nixpkgs> { };
@@ -59,4 +59,4 @@ jobs:
               ];
             }
           "
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: "${{ env.WORKING_DIRECTORY }}"
