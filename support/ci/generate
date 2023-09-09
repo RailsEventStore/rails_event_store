@@ -63,208 +63,6 @@ class CI
     GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
   ]
 
-  def checkout(depth: 1)
-    { "uses" => "actions/checkout@v3", "with" => { "fetch-depth" => depth } }
-  end
-
-  def verify_lockfile
-    {
-      "run" => "test -e ${{ env.BUNDLE_GEMFILE }}.lock",
-      "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-    }
-  end
-
-  def setup_ruby
-    {
-      "uses" => "ruby/setup-ruby@v1",
-      "with" => {
-        "ruby-version" => "${{ env.RUBY_VERSION }}",
-        "bundler-cache" => true,
-        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-      }
-    }
-  end
-
-  def setup_node
-    {
-      "uses" => "actions/setup-node@v3",
-      "with" => {
-        "node-version" => 18,
-        "cache" => "npm",
-        "cache-dependency-path" =>
-          "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json"
-      }
-    }
-  end
-
-  def cache_elm
-    {
-      "uses" => "actions/cache@v3",
-      "with" => {
-        "path" => "~/.elm",
-        "key" =>
-          "elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}"
-      }
-    }
-  end
-
-  def setup_nix
-    {
-      "uses" => "cachix/install-nix-action@v20",
-      "with" => {
-        "nix_path" => "nixpkgs=channel:nixos-unstable",
-      }
-    }
-  end
-
-  def setup_cachix
-    {
-      "uses" => "cachix/cachix-action@v12",
-      "with" => {
-        "name" => "railseventstore",
-        "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      }
-    }
-  end
-
-  def make_nix_shell(target, imports: ["redis.nix"])
-    {
-      "run" => <<~SHELL,
-        nix-shell --run "make #{target}" -E"
-          with import <nixpkgs> { };
-          mkShell {
-            inputsFrom = [
-              #{imports.map { |i| "(import ../../support/nix/#{i})" }.join("\n")}
-            ];
-          }
-        "
-      SHELL
-      "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-    }
-  end
-
-  def make(target)
-    {
-      "run" => "make #{target}",
-      "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-    }
-  end
-
-  def release_test(
-    name,
-    template: "release.yaml.erb",
-    matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-    steps: [checkout, verify_lockfile, setup_ruby, make("test")]
-  )
-    {
-      name: "#{name}_test",
-      working_directory: name,
-      matrix: matrix,
-      template: template,
-      job_name: "test",
-      steps: steps
-    }
-  end
-
-  def contrib_test(
-    name,
-    template: "contrib.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-    steps: [checkout, verify_lockfile, setup_ruby, make("test")]
-  )
-    {
-      name: "#{name}_test",
-      working_directory: "contrib/#{name}",
-      matrix: matrix,
-      template: template,
-      job_name: "test",
-      steps: steps
-    }
-  end
-
-  def release_mutate(
-    name,
-    template: "release.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-    steps: [
-      checkout(depth: 0),
-      verify_lockfile,
-      setup_ruby,
-      make("mutate-changes")
-    ]
-  )
-    {
-      name: "#{name}_mutate",
-      working_directory: name,
-      matrix: matrix,
-      template: template,
-      job_name: "mutate",
-      steps: steps
-    }
-  end
-
-  def contrib_mutate(
-    name,
-    template: "contrib.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-    steps: [
-      checkout(depth: 0),
-      verify_lockfile,
-      setup_ruby,
-      make("mutate-changes")
-    ]
-  )
-    {
-      name: "#{name}_mutate",
-      working_directory: "contrib/#{name}",
-      matrix: matrix,
-      template: template,
-      job_name: "mutate",
-      steps: steps
-    }
-  end
-
-  def release_coverage(
-    name,
-    template: "coverage.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-    steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
-  )
-    {
-      name: "#{name}_coverage",
-      working_directory: name,
-      matrix: matrix,
-      template: template,
-      job_name: "coverage",
-      steps: steps
-    }
-  end
-
-  def contrib_coverage(
-    name,
-    template: "coverage.yaml.erb",
-    matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-    steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
-  )
-    {
-      name: "#{name}_coverage",
-      working_directory: "contrib/#{name}",
-      matrix: matrix,
-      template: template,
-      job_name: "coverage",
-      steps: steps
-    }
-  end
-
-  def assets(name, template: "assets.yaml.erb")
-    {
-      name: "#{name}_assets",
-      working_directory: name,
-      matrix: nil,
-      template: template
-    }
-  end
-
   def workflows
     [
       release_test("aggregate_root"),
@@ -347,11 +145,25 @@ class CI
       ),
       contrib_mutate(
         "ruby_event_store-outbox",
-        steps: [checkout(depth: 0), setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate-changes")]
+        steps: [
+          checkout(depth: 0),
+          setup_nix,
+          setup_cachix,
+          verify_lockfile,
+          setup_ruby,
+          make_nix_shell("mutate-changes")
+        ]
       ),
       contrib_coverage(
         "ruby_event_store-outbox",
-        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")]
+        steps: [
+          checkout,
+          setup_nix,
+          setup_cachix,
+          verify_lockfile,
+          setup_ruby,
+          make_nix_shell("mutate")
+        ]
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
@@ -433,15 +245,36 @@ class CI
               redis_url("redis://localhost:6379/0")
             )
           ),
-        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")]
-    ),
+        steps: [
+          checkout,
+          setup_nix,
+          setup_cachix,
+          verify_lockfile,
+          setup_ruby,
+          make_nix_shell("test")
+        ]
+      ),
       contrib_mutate(
         "ruby_event_store-sidekiq_scheduler",
-        steps: [checkout(depth: 0), setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate-changes")]
+        steps: [
+          checkout(depth: 0),
+          setup_nix,
+          setup_cachix,
+          verify_lockfile,
+          setup_ruby,
+          make_nix_shell("mutate-changes")
+        ]
       ),
       contrib_coverage(
         "ruby_event_store-sidekiq_scheduler",
-        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")]
+        steps: [
+          checkout,
+          setup_nix,
+          setup_cachix,
+          verify_lockfile,
+          setup_ruby,
+          make_nix_shell("mutate")
+        ]
       ),
       contrib_test("ruby_event_store-transformations"),
       contrib_mutate("ruby_event_store-transformations"),
@@ -467,37 +300,248 @@ class CI
     ]
   end
 
-  def generate(*axes)
-    Szczupac.generate(*axes)
-  end
+  module Actions
+    def checkout(depth: 1)
+      { "uses" => "actions/checkout@v3", "with" => { "fetch-depth" => depth } }
+    end
 
-  def axis(name, *items)
-    Szczupac.axis(name, Array(items.flatten))
-  end
+    def verify_lockfile
+      {
+        "run" => "test -e ${{ env.BUNDLE_GEMFILE }}.lock",
+        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+      }
+    end
 
-  def join(*axes)
-    axes.flatten.uniq
-  end
+    def setup_ruby
+      {
+        "uses" => "ruby/setup-ruby@v1",
+        "with" => {
+          "ruby-version" => "${{ env.RUBY_VERSION }}",
+          "bundler-cache" => true,
+          "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+        }
+      }
+    end
 
-  def ruby_version(*ruby_version)
-    axis("ruby_version", *ruby_version)
-  end
+    def setup_node
+      {
+        "uses" => "actions/setup-node@v3",
+        "with" => {
+          "node-version" => 18,
+          "cache" => "npm",
+          "cache-dependency-path" =>
+            "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json"
+        }
+      }
+    end
 
-  def bundle_gemfile(*gemfile)
-    axis("bundle_gemfile", *gemfile)
-  end
+    def cache_elm
+      {
+        "uses" => "actions/cache@v3",
+        "with" => {
+          "path" => "~/.elm",
+          "key" =>
+            "elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}"
+        }
+      }
+    end
 
-  def database_url(*database_url)
-    axis("database_url", *database_url)
-  end
+    def setup_nix
+      {
+        "uses" => "cachix/install-nix-action@v20",
+        "with" => {
+          "nix_path" => "nixpkgs=channel:nixos-unstable"
+        }
+      }
+    end
 
-  def redis_url(*redis_url)
-    axis("redis_url", *redis_url)
-  end
+    def setup_cachix
+      {
+        "uses" => "cachix/cachix-action@v12",
+        "with" => {
+          "name" => "railseventstore",
+          "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}"
+        }
+      }
+    end
 
-  def data_type(*data_type)
-    axis("data_type", *data_type)
+    def make_nix_shell(target, imports: ["redis.nix"])
+      {
+        "run" => <<~SHELL,
+          nix-shell --run "make #{target}" -E"
+            with import <nixpkgs> { };
+            mkShell {
+              inputsFrom = [
+                #{imports.map { |i| "(import ../../support/nix/#{i})" }.join("\n")}
+              ];
+            }
+          "
+        SHELL
+        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+      }
+    end
+
+    def make(target)
+      {
+        "run" => "make #{target}",
+        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
+      }
+    end
   end
+  include Actions
+
+  module Workflows
+    def release_test(
+      name,
+      template: "release.yaml.erb",
+      matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+      steps: [checkout, verify_lockfile, setup_ruby, make("test")]
+    )
+      {
+        name: "#{name}_test",
+        working_directory: name,
+        matrix: matrix,
+        template: template,
+        job_name: "test",
+        steps: steps
+      }
+    end
+
+    def contrib_test(
+      name,
+      template: "contrib.yaml.erb",
+      matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+      steps: [checkout, verify_lockfile, setup_ruby, make("test")]
+    )
+      {
+        name: "#{name}_test",
+        working_directory: "contrib/#{name}",
+        matrix: matrix,
+        template: template,
+        job_name: "test",
+        steps: steps
+      }
+    end
+
+    def release_mutate(
+      name,
+      template: "release.yaml.erb",
+      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      steps: [
+        checkout(depth: 0),
+        verify_lockfile,
+        setup_ruby,
+        make("mutate-changes")
+      ]
+    )
+      {
+        name: "#{name}_mutate",
+        working_directory: name,
+        matrix: matrix,
+        template: template,
+        job_name: "mutate",
+        steps: steps
+      }
+    end
+
+    def contrib_mutate(
+      name,
+      template: "contrib.yaml.erb",
+      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      steps: [
+        checkout(depth: 0),
+        verify_lockfile,
+        setup_ruby,
+        make("mutate-changes")
+      ]
+    )
+      {
+        name: "#{name}_mutate",
+        working_directory: "contrib/#{name}",
+        matrix: matrix,
+        template: template,
+        job_name: "mutate",
+        steps: steps
+      }
+    end
+
+    def release_coverage(
+      name,
+      template: "coverage.yaml.erb",
+      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
+    )
+      {
+        name: "#{name}_coverage",
+        working_directory: name,
+        matrix: matrix,
+        template: template,
+        job_name: "coverage",
+        steps: steps
+      }
+    end
+
+    def contrib_coverage(
+      name,
+      template: "coverage.yaml.erb",
+      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
+    )
+      {
+        name: "#{name}_coverage",
+        working_directory: "contrib/#{name}",
+        matrix: matrix,
+        template: template,
+        job_name: "coverage",
+        steps: steps
+      }
+    end
+
+    def assets(name, template: "assets.yaml.erb")
+      {
+        name: "#{name}_assets",
+        working_directory: name,
+        matrix: nil,
+        template: template
+      }
+    end
+  end
+  include Workflows
+
+  module Matrix
+    def generate(*axes)
+      Szczupac.generate(*axes)
+    end
+
+    def axis(name, *items)
+      Szczupac.axis(name, Array(items.flatten))
+    end
+
+    def join(*axes)
+      axes.flatten.uniq
+    end
+
+    def ruby_version(*ruby_version)
+      axis("ruby_version", *ruby_version)
+    end
+
+    def bundle_gemfile(*gemfile)
+      axis("bundle_gemfile", *gemfile)
+    end
+
+    def database_url(*database_url)
+      axis("database_url", *database_url)
+    end
+
+    def redis_url(*redis_url)
+      axis("redis_url", *redis_url)
+    end
+
+    def data_type(*data_type)
+      axis("data_type", *data_type)
+    end
+  end
+  include Matrix
 
   def as_github_actions
     workflows.each do |gem|
