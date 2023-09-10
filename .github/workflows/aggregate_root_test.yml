@@ -3,32 +3,24 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types:
-      - script
+    - script
   push:
-    paths:
-      - aggregate_root/**
-      - rails_event_store/**
-      - ruby_event_store/**
-      - ruby_event_store-active_record/**
-      - ruby_event_store-browser/**
-      - ruby_event_store-rspec/**
-      - ".github/workflows/aggregate_root_test.yml"
-      - support/**
-      - "!support/bundler/**"
-      - "!support/ci/**"
+    paths: &1
+    - aggregate_root/**
+    - rails_event_store/**
+    - ruby_event_store/**
+    - ruby_event_store-active_record/**
+    - ruby_event_store-browser/**
+    - ruby_event_store-rspec/**
+    - ".github/workflows/aggregate_root_test.yml"
+    - support/**
+    - "!support/bundler/**"
+    - "!support/ci/**"
   pull_request:
-    types: [opened, reopened]
-    paths:
-      - aggregate_root/**
-      - rails_event_store/**
-      - ruby_event_store/**
-      - ruby_event_store-active_record/**
-      - ruby_event_store-browser/**
-      - ruby_event_store-rspec/**
-      - ".github/workflows/aggregate_root_test.yml"
-      - support/**
-      - "!support/bundler/**"
-      - "!support/ci/**"
+    types:
+    - opened
+    - reopened
+    paths: *1
 jobs:
   test:
     runs-on: ubuntu-20.04

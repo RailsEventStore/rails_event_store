@@ -3,24 +3,21 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types:
-      - script
+    - script
   push:
-    paths:
-      - rails_event_store/Gemfile.lock
-      - ".github/workflows/rails_event_store_coverage.yml"
-      - support/**
-      - "!support/bundler/**"
-      - "!support/ci/**"
+    paths: &1
+    - rails_event_store/Gemfile.lock
+    - ".github/workflows/rails_event_store_coverage.yml"
+    - support/**
+    - "!support/bundler/**"
+    - "!support/ci/**"
   pull_request:
-    types: [opened, reopened]
-    paths:
-      - rails_event_store/Gemfile.lock
-      - ".github/workflows/rails_event_store_coverage.yml"
-      - support/**
-      - "!support/bundler/**"
-      - "!support/ci/**"
+    types:
+    - opened
+    - reopened
+    paths: *1
   schedule:
-    - cron: "0 17 * * *"
+  - cron: 0 17 * * *
 jobs:
   coverage:
     runs-on: ubuntu-20.04
