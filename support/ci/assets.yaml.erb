@@ -3,14 +3,4 @@ on:
   push:
   workflow_dispatch:
 jobs:
-  <%= job_name %>:
-  runs-on: ubuntu-20.04
-  timeout-minutes: 120
-  env:
-      <%= env %>
-<% unless services.empty? %>
-  services:
-      <%= services %>
-<% end %>
-    steps:
-      <%= steps %>
+  <%= job %>

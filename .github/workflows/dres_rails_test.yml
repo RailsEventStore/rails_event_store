@@ -31,27 +31,25 @@ jobs:
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
       DATA_TYPE: "${{ matrix.data_type }}"
-
     services:
-      postgres_11:
+    - postgres_11:
         image: postgres:11
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
         - 10011:5432
-        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
-          5
-      postgres_15:
+        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s
+          --health-retries 5
+    - postgres_15:
         image: postgres:15
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
         - 10015:5432
-        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
-          5
-
+        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -81,15 +79,15 @@ jobs:
           database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
           data_type: jsonb
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+    - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
+      working-directory: "${{ env.WORKING_DIRECTORY }}"
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "${{ env.RUBY_VERSION }}"
+        bundler-cache: true
         working-directory: "${{ env.WORKING_DIRECTORY }}"
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "${{ env.RUBY_VERSION }}"
-          bundler-cache: true
-          working-directory: "${{ env.WORKING_DIRECTORY }}"
-      - run: make test
-        working-directory: "${{ env.WORKING_DIRECTORY }}"
+    - run: make test
+      working-directory: "${{ env.WORKING_DIRECTORY }}"

@@ -14,12 +14,4 @@ on:
     paths:
       <%= paths %>
 jobs:
-  <%= job_name %>:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 120
-    env:
-      <%= env %>
-    strategy:
-      <%= strategy %>
-    steps:
-      <%= steps %>
+  <%= job %>
