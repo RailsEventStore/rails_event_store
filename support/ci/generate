@@ -533,7 +533,7 @@ class CI
       {
         name: "#{name}_assets",
         working_directory: name,
-        matrix: [{}],
+        matrix: [],
         template: template,
         job_name: "assets",
         services: [],
@@ -726,9 +726,12 @@ class CI
 
   def matrix_env_vars(matrix)
     matrix
-      .first
-      .keys
-      .reduce({}) { |acc, key| acc.merge(key.upcase => "${{ matrix.#{key} }}") }
+      .take(1)
+      .reduce({}) do |acc, matrix_item|
+        matrix_item.reduce(acc) do |acc, (key, _)|
+          acc.merge(key.upcase => "${{ matrix.#{key} }}")
+        end
+      end
   end
 
   def as_formatted_yaml(content, indent:)
