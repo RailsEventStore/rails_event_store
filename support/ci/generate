@@ -476,8 +476,8 @@ class CI
         on: [
           manual_trigger,
           api_trigger,
-          push_trigger(paths),
-          pr_trigger(paths)
+          push_trigger(paths.dup),
+          pr_trigger(paths.dup)
         ]
       }
     end
@@ -500,8 +500,8 @@ class CI
         on: [
           manual_trigger,
           api_trigger,
-          push_trigger(paths),
-          pr_trigger(paths)
+          push_trigger(paths.dup),
+          pr_trigger(paths.dup)
         ]
       }
     end
@@ -529,8 +529,8 @@ class CI
         on: [
           manual_trigger,
           api_trigger,
-          push_trigger(paths),
-          pr_trigger(paths)
+          push_trigger(paths.dup),
+          pr_trigger(paths.dup)
         ]
       }
     end
@@ -558,8 +558,8 @@ class CI
         on: [
           manual_trigger,
           api_trigger,
-          push_trigger(paths),
-          pr_trigger(paths)
+          push_trigger(paths.dup),
+          pr_trigger(paths.dup)
         ]
       }
     end
@@ -582,8 +582,8 @@ class CI
         on: [
           manual_trigger,
           api_trigger,
-          push_trigger(paths),
-          pr_trigger(paths),
+          push_trigger(paths.dup),
+          pr_trigger(paths.dup),
           scheduled_trigger
         ]
       }
@@ -607,8 +607,8 @@ class CI
         on: [
           manual_trigger,
           api_trigger,
-          push_trigger(paths),
-          pr_trigger(paths),
+          push_trigger(paths.dup),
+          pr_trigger(paths.dup),
           scheduled_trigger
         ]
       }
@@ -837,7 +837,7 @@ class CI
   end
 
   def as_formatted_yaml(content, indent:)
-    Psych.dump(content, line_length: 120).lines.drop(1).join(" " * indent).strip
+    Psych.safe_dump(content, line_length: 120).lines.drop(1).join(" " * indent).strip
   end
 
   def initialize(workflows_root, template_root)
