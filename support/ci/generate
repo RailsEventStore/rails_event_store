@@ -117,8 +117,7 @@ class CI
               generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
               generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2)))
             )
-          ),
-        template: "db.yaml.erb"
+          )
       ),
       release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
@@ -143,7 +142,6 @@ class CI
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
             )
           ),
-        template: "rom.yaml.erb",
         steps: [
           checkout,
           setup_nix,
@@ -214,8 +212,7 @@ class CI
               database_url(MYSQL),
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
             )
-          ),
-        template: "rom.yaml.erb"
+          )
       ),
       contrib_mutate("ruby_event_store-rom"),
       contrib_coverage("ruby_event_store-rom"),
@@ -242,8 +239,7 @@ class CI
               database_url(MYSQL),
               data_type(DATA_TYPES_IN_SEQUEL.take(1))
             )
-          ),
-        template: "rom.yaml.erb"
+          )
       ),
       contrib_mutate("ruby_event_store-sequel"),
       contrib_coverage("ruby_event_store-sequel"),
@@ -253,7 +249,7 @@ class CI
           join(
             generate(
               ruby_version(MRI_RUBY),
-              bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
+              bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)
             )
           ),
         steps: [
@@ -293,7 +289,7 @@ class CI
       contrib_test("minitest-ruby_event_store"),
       contrib_mutate("minitest-ruby_event_store"),
       contrib_coverage("minitest-ruby_event_store"),
-      contrib_test("dres_client", template: "dres_client.yaml.erb"),
+      contrib_test("dres_client", paths: dres_paths("dres_client_test")),
       contrib_test(
         "dres_rails",
         services: [postgres_11, postgres_15],
@@ -306,7 +302,7 @@ class CI
               data_type(DATA_TYPES_IN_AR)
             )
           ),
-        template: "dres_rails.yaml.erb"
+        paths: dres_paths("dres_rails_test")
       ),
       assets("ruby_event_store-browser")
     ]
@@ -405,10 +401,11 @@ class CI
   module Workflows
     def release_test(
       name,
-      template: "release.yaml.erb",
+      template: "template.yaml.erb",
       matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("test")],
-      services: []
+      services: [],
+      paths: release_paths("#{name}_test")
     )
       {
         name: "#{name}_test",
@@ -417,16 +414,18 @@ class CI
         template: template,
         job_name: "test",
         services: services,
-        steps: steps
+        steps: steps,
+        paths: paths
       }
     end
 
     def contrib_test(
       name,
-      template: "contrib.yaml.erb",
+      template: "template.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("test")],
-      services: []
+      services: [],
+      paths: contrib_paths("#{name}_test", "contrib/#{name}")
     )
       {
         name: "#{name}_test",
@@ -435,13 +434,14 @@ class CI
         template: template,
         job_name: "test",
         services: services,
-        steps: steps
+        steps: steps,
+        paths: paths
       }
     end
 
     def release_mutate(
       name,
-      template: "release.yaml.erb",
+      template: "template.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [
         checkout(depth: 0),
@@ -449,7 +449,8 @@ class CI
         setup_ruby,
         make("mutate-changes")
       ],
-      services: []
+      services: [],
+      paths: release_paths("#{name}_mutate")
     )
       {
         name: "#{name}_mutate",
@@ -458,13 +459,14 @@ class CI
         template: template,
         job_name: "mutate",
         services: services,
-        steps: steps
+        steps: steps,
+        paths: paths
       }
     end
 
     def contrib_mutate(
       name,
-      template: "contrib.yaml.erb",
+      template: "template.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [
         checkout(depth: 0),
@@ -472,7 +474,8 @@ class CI
         setup_ruby,
         make("mutate-changes")
       ],
-      services: []
+      services: [],
+      paths: contrib_paths("#{name}_mutate", "contrib/#{name}")
     )
       {
         name: "#{name}_mutate",
@@ -481,7 +484,8 @@ class CI
         template: template,
         job_name: "mutate",
         services: services,
-        steps: steps
+        steps: steps,
+        paths: paths
       }
     end
 
@@ -490,7 +494,8 @@ class CI
       template: "coverage.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
-      services: []
+      services: [],
+      paths: coverage_paths("#{name}_coverage", name)
     )
       {
         name: "#{name}_coverage",
@@ -499,7 +504,8 @@ class CI
         template: template,
         job_name: "coverage",
         services: services,
-        steps: steps
+        steps: steps,
+        paths: paths
       }
     end
 
@@ -508,7 +514,8 @@ class CI
       template: "coverage.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
-      services: []
+      services: [],
+      paths: coverage_paths("#{name}_coverage", "contrib/#{name}")
     )
       {
         name: "#{name}_coverage",
@@ -517,7 +524,8 @@ class CI
         template: template,
         job_name: "coverage",
         services: services,
-        steps: steps
+        steps: steps,
+        paths: paths
       }
     end
 
@@ -529,11 +537,66 @@ class CI
         template: template,
         job_name: "assets",
         services: [],
-        steps: []
+        steps: [],
+        paths: []
       }
     end
   end
   include Workflows
+
+  module Paths
+    def release_paths(workflow_name)
+      [
+        %w[
+          aggregate_root
+          rails_event_store
+          ruby_event_store
+          ruby_event_store-active_record
+          ruby_event_store-browser
+          ruby_event_store-rspec
+        ].map { |name| "#{name}/**" },
+        workflow_paths(workflow_name),
+        support_paths
+      ].reduce(&:concat).uniq
+    end
+
+    def contrib_paths(workflow_name, working_directory)
+      [
+        own_paths(working_directory),
+        workflow_paths(workflow_name),
+        support_paths
+      ].reduce(&:concat).uniq
+    end
+
+    def coverage_paths(workflow_name, working_directory)
+      [
+        [working_directory].map { |wd| "#{wd}/Gemfile.lock" },
+        workflow_paths(workflow_name),
+        support_paths
+      ].reduce(&:concat).uniq
+    end
+
+    def dres_paths(workflow_name)
+      [
+        %w[dres_client dres_rails].map { |name| "contrib/#{name}/**" },
+        workflow_paths(workflow_name),
+        support_paths
+      ].reduce(&:concat).uniq
+    end
+
+    def own_paths(working_directory)
+      %W[#{working_directory}/**]
+    end
+
+    def workflow_paths(workflow_name)
+      %W[.github/workflows/#{workflow_name}.yml]
+    end
+
+    def support_paths
+      %w[support/** !support/bundler/** !support/ci/**]
+    end
+  end
+  include Paths
 
   module Services
     def postgres_11
@@ -643,7 +706,9 @@ class CI
           working_directory: gem.fetch(:working_directory),
           matrix: as_formatted_yaml(gem.fetch(:matrix), indent: 10),
           steps: as_formatted_yaml(gem.fetch(:steps), indent: 6),
-          services: as_formatted_yaml(gem.fetch(:services).reduce(&:merge), indent: 6),
+          services:
+            as_formatted_yaml(gem.fetch(:services).reduce(&:merge), indent: 6),
+          paths: as_formatted_yaml(gem.fetch(:paths), indent: 6),
           job_name: gem.fetch(:job_name),
           env:
             as_formatted_yaml(

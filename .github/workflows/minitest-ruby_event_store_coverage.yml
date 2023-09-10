@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/minitest-ruby_event_store/Gemfile.lock"
+      - contrib/minitest-ruby_event_store/Gemfile.lock
       - ".github/workflows/minitest-ruby_event_store_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/minitest-ruby_event_store/Gemfile.lock"
+      - contrib/minitest-ruby_event_store/Gemfile.lock
       - ".github/workflows/minitest-ruby_event_store_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:

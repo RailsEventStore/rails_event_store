@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "ruby_event_store-browser/Gemfile.lock"
+      - ruby_event_store-browser/Gemfile.lock
       - ".github/workflows/ruby_event_store-browser_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "ruby_event_store-browser/Gemfile.lock"
+      - ruby_event_store-browser/Gemfile.lock
       - ".github/workflows/ruby_event_store-browser_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:

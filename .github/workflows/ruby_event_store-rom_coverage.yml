@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-rom/Gemfile.lock"
+      - contrib/ruby_event_store-rom/Gemfile.lock
       - ".github/workflows/ruby_event_store-rom_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-rom/Gemfile.lock"
+      - contrib/ruby_event_store-rom/Gemfile.lock
       - ".github/workflows/ruby_event_store-rom_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:

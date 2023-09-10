@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/minitest-ruby_event_store/**"
+      - contrib/minitest-ruby_event_store/**
       - ".github/workflows/minitest-ruby_event_store_mutate.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/minitest-ruby_event_store/**"
+      - contrib/minitest-ruby_event_store/**
       - ".github/workflows/minitest-ruby_event_store_mutate.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:
@@ -26,6 +26,8 @@ jobs:
       WORKING_DIRECTORY: contrib/minitest-ruby_event_store
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+    services:
+      
     strategy:
       fail-fast: false
       matrix:
