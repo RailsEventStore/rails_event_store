@@ -742,6 +742,22 @@ class CI
     workflows.each do |gem|
       name = gem.fetch(:name)
       filename = "#{name}.yml"
+      env = { "WORKING_DIRECTORY" => gem.fetch(:working_directory) }.merge(
+        matrix_env_vars(gem.fetch(:matrix))
+      )
+      job = {
+        "runs-on" => "ubuntu-20.04",
+        "timeout-minutes" => 120,
+        "env" => env,
+        "services" => gem.fetch(:services),
+        "strategy" => {
+          "fail-fast" => false,
+          "matrix" => {
+            "include" => gem.fetch(:matrix)
+          }
+        },
+        "steps" => gem.fetch(:steps)
+      }.reject { |k, v| k == "services" && v.empty? }
 
       File.write(
         File.join(workflows_root, filename),
@@ -749,29 +765,8 @@ class CI
           File.read(File.join(template_root, gem.fetch(:template)))
         ).result_with_hash(
           name: name,
-          working_directory: gem.fetch(:working_directory),
-          strategy:
-            as_formatted_yaml(
-              {
-                "fail-fast" => false,
-                "matrix" => {
-                  "include" => gem.fetch(:matrix)
-                }
-              },
-              indent: 6
-            ),
-          steps: as_formatted_yaml(gem.fetch(:steps), indent: 6),
-          services:
-            as_formatted_yaml(gem.fetch(:services).reduce(&:merge), indent: 6),
           paths: as_formatted_yaml(gem.fetch(:paths), indent: 6),
-          job_name: gem.fetch(:job_name),
-          env:
-            as_formatted_yaml(
-              { "WORKING_DIRECTORY" => gem.fetch(:working_directory) }.merge(
-                matrix_env_vars(gem.fetch(:matrix))
-              ),
-              indent: 6
-            )
+          job: as_formatted_yaml({ gem.fetch(:job_name) => job }, indent: 2)
         )
       )
 
