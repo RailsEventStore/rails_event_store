@@ -22,6 +22,7 @@ on:
 jobs:
   mutate:
     runs-on: ubuntu-20.04
+    timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
       RUBY_VERSION: "${{ matrix.ruby_version }}"

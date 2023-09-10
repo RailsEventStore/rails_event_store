@@ -22,6 +22,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-20.04
+    timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/minitest-ruby_event_store
       RUBY_VERSION: "${{ matrix.ruby_version }}"
