@@ -750,7 +750,7 @@ class CI
           "runs-on" => "ubuntu-20.04",
           "timeout-minutes" => 120,
           "env" => env,
-          "services" => gem.fetch(:services),
+          "services" => gem.fetch(:services).reduce(&:merge),
           "strategy" => {
             "fail-fast" => false,
             "matrix" => {

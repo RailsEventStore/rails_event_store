@@ -29,7 +29,7 @@ jobs:
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
     services:
-    - mysql_5:
+      mysql_5:
         image: mysql:5
         env:
           MYSQL_DATABASE: rails_event_store
@@ -38,7 +38,7 @@ jobs:
         - 10005:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout
           5s --health-retries 5
-    - mysql_8:
+      mysql_8:
         image: mysql:8
         env:
           MYSQL_DATABASE: rails_event_store

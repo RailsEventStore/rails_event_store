@@ -40,7 +40,7 @@ jobs:
       DATABASE_URL: "${{ matrix.database_url }}"
       DATA_TYPE: "${{ matrix.data_type }}"
     services:
-    - postgres_11:
+      postgres_11:
         image: postgres:11
         env:
           POSTGRES_DB: rails_event_store
@@ -49,7 +49,7 @@ jobs:
         - 10011:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s
           --health-retries 5
-    - postgres_15:
+      postgres_15:
         image: postgres:15
         env:
           POSTGRES_DB: rails_event_store
@@ -58,7 +58,7 @@ jobs:
         - 10015:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s
           --health-retries 5
-    - mysql_5:
+      mysql_5:
         image: mysql:5
         env:
           MYSQL_DATABASE: rails_event_store
@@ -67,7 +67,7 @@ jobs:
         - 10005:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout
           5s --health-retries 5
-    - mysql_8:
+      mysql_8:
         image: mysql:8
         env:
           MYSQL_DATABASE: rails_event_store
