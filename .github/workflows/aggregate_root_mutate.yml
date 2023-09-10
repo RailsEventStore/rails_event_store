@@ -1,9 +1,9 @@
 name: aggregate_root_mutate
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - script
-  workflow_dispatch:
   push:
     paths:
       - aggregate_root/**

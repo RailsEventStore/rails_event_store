@@ -1,9 +1,9 @@
 name: ruby_event_store_test
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - script
-  workflow_dispatch:
   push:
     paths:
       - aggregate_root/**

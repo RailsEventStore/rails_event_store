@@ -1,9 +1,9 @@
 name: minitest-ruby_event_store_mutate
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - script
-  workflow_dispatch:
   push:
     paths:
       - contrib/minitest-ruby_event_store/**

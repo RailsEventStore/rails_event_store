@@ -1,6 +1,9 @@
 name: <%= name %>
 on:
-  push:
   workflow_dispatch:
+  repository_dispatch:
+    types:
+      - script
+  push:
 jobs:
   <%= job %>

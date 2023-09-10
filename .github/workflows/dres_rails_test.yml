@@ -1,9 +1,9 @@
 name: dres_rails_test
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - script
-  workflow_dispatch:
   push:
     paths:
       - contrib/dres_client/**
