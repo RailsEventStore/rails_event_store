@@ -433,10 +433,33 @@ class CI
   end
   include Actions
 
+  module Triggers
+    def manual_trigger
+      { "workflow_dispatch" => nil }
+    end
+
+    def api_trigger
+      { "repository_dispatch" => { "types" => ["script"] } }
+    end
+
+    def push_trigger(paths = [])
+      return { "push" => nil } if paths.empty?
+      { "push" => { "paths" => paths } }
+    end
+
+    def pr_trigger(paths)
+      { "pull_request" => { "types" => %w[opened reopened], "paths" => paths } }
+    end
+
+    def scheduled_trigger
+      { "schedule" => [{ "cron" => "0 17 * * *" }] }
+    end
+  end
+  include Triggers
+
   module Workflows
     def release_test(
       name,
-      template: "template.yaml.erb",
       matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("test")],
       services: [],
@@ -446,17 +469,21 @@ class CI
         name: "#{name}_test",
         working_directory: name,
         matrix: matrix,
-        template: template,
         job_name: "test",
         services: services,
         steps: steps,
-        paths: paths
+        paths: paths,
+        on: [
+          manual_trigger,
+          api_trigger,
+          push_trigger(paths),
+          pr_trigger(paths)
+        ]
       }
     end
 
     def contrib_test(
       name,
-      template: "template.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("test")],
       services: [],
@@ -466,17 +493,21 @@ class CI
         name: "#{name}_test",
         working_directory: "contrib/#{name}",
         matrix: matrix,
-        template: template,
         job_name: "test",
         services: services,
         steps: steps,
-        paths: paths
+        paths: paths,
+        on: [
+          manual_trigger,
+          api_trigger,
+          push_trigger(paths),
+          pr_trigger(paths)
+        ]
       }
     end
 
     def release_mutate(
       name,
-      template: "template.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [
         checkout(depth: 0),
@@ -491,17 +522,21 @@ class CI
         name: "#{name}_mutate",
         working_directory: name,
         matrix: matrix,
-        template: template,
         job_name: "mutate",
         services: services,
         steps: steps,
-        paths: paths
+        paths: paths,
+        on: [
+          manual_trigger,
+          api_trigger,
+          push_trigger(paths),
+          pr_trigger(paths)
+        ]
       }
     end
 
     def contrib_mutate(
       name,
-      template: "template.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [
         checkout(depth: 0),
@@ -516,17 +551,21 @@ class CI
         name: "#{name}_mutate",
         working_directory: "contrib/#{name}",
         matrix: matrix,
-        template: template,
         job_name: "mutate",
         services: services,
         steps: steps,
-        paths: paths
+        paths: paths,
+        on: [
+          manual_trigger,
+          api_trigger,
+          push_trigger(paths),
+          pr_trigger(paths)
+        ]
       }
     end
 
     def release_coverage(
       name,
-      template: "coverage.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
       services: [],
@@ -536,17 +575,22 @@ class CI
         name: "#{name}_coverage",
         working_directory: name,
         matrix: matrix,
-        template: template,
         job_name: "coverage",
         services: services,
         steps: steps,
-        paths: paths
+        paths: paths,
+        on: [
+          manual_trigger,
+          api_trigger,
+          push_trigger(paths),
+          pr_trigger(paths),
+          scheduled_trigger
+        ]
       }
     end
 
     def contrib_coverage(
       name,
-      template: "coverage.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
       services: [],
@@ -556,20 +600,25 @@ class CI
         name: "#{name}_coverage",
         working_directory: "contrib/#{name}",
         matrix: matrix,
-        template: template,
         job_name: "coverage",
         services: services,
         steps: steps,
-        paths: paths
+        paths: paths,
+        on: [
+          manual_trigger,
+          api_trigger,
+          push_trigger(paths),
+          pr_trigger(paths),
+          scheduled_trigger
+        ]
       }
     end
 
-    def assets(name, template: "assets.yaml.erb")
+    def assets(name)
       {
         name: "#{name}_assets",
         working_directory: name,
         matrix: [],
-        template: template,
         job_name: "assets",
         services: [],
         steps: [
@@ -584,7 +633,8 @@ class CI
           set_short_sha_env,
           aws_s3_sync
         ],
-        paths: []
+        paths: [],
+        on: [manual_trigger, api_trigger, push_trigger]
       }
     end
   end
@@ -764,10 +814,10 @@ class CI
       File.write(
         File.join(workflows_root, filename),
         ERB.new(
-          File.read(File.join(template_root, gem.fetch(:template)))
+          File.read(File.join(template_root, "template.yaml.erb"))
         ).result_with_hash(
           name: name,
-          paths: as_formatted_yaml(gem.fetch(:paths), indent: 6),
+          on: as_formatted_yaml(gem.fetch(:on).reduce(&:merge), indent: 2),
           job: as_formatted_yaml({ gem.fetch(:job_name) => job }, indent: 2)
         )
       )

@@ -3,22 +3,19 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types:
-      - script
+    - script
   push:
-    paths:
-      - contrib/ruby_event_store-sequel/**
-      - ".github/workflows/ruby_event_store-sequel_test.yml"
-      - support/**
-      - "!support/bundler/**"
-      - "!support/ci/**"
+    paths: &1
+    - contrib/ruby_event_store-sequel/**
+    - ".github/workflows/ruby_event_store-sequel_test.yml"
+    - support/**
+    - "!support/bundler/**"
+    - "!support/ci/**"
   pull_request:
-    types: [opened, reopened]
-    paths:
-      - contrib/ruby_event_store-sequel/**
-      - ".github/workflows/ruby_event_store-sequel_test.yml"
-      - support/**
-      - "!support/bundler/**"
-      - "!support/ci/**"
+    types:
+    - opened
+    - reopened
+    paths: *1
 jobs:
   test:
     runs-on: ubuntu-20.04

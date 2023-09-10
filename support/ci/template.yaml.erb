@@ -1,15 +1,5 @@
 name: <%= name %>
 on:
-  workflow_dispatch:
-  repository_dispatch:
-    types:
-      - script
-  push:
-    paths:
-      <%= paths %>
-  pull_request:
-    types: [opened, reopened]
-    paths:
-      <%= paths %>
+  <%= on %>
 jobs:
   <%= job %>
