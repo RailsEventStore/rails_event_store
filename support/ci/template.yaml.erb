@@ -16,8 +16,10 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       <%= env %>
+<% unless services.empty? %>
     services:
       <%= services %>
+<% end %>
     strategy:
       fail-fast: false
       matrix:

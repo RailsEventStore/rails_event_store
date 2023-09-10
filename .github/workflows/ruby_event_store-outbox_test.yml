@@ -27,6 +27,7 @@ jobs:
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
+
     services:
       mysql_5:
         image: mysql:5
@@ -46,6 +47,7 @@ jobs:
         - 10008:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s
           --health-retries 5
+
     strategy:
       fail-fast: false
       matrix:

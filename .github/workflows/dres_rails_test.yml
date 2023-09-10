@@ -30,6 +30,7 @@ jobs:
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
       DATA_TYPE: "${{ matrix.data_type }}"
+
     services:
       postgres_11:
         image: postgres:11
@@ -49,6 +50,7 @@ jobs:
         - 10015:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries
           5
+
     strategy:
       fail-fast: false
       matrix:

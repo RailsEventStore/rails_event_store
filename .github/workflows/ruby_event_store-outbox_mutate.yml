@@ -26,8 +26,7 @@ jobs:
       WORKING_DIRECTORY: contrib/ruby_event_store-outbox
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
-    services:
-      
+
     strategy:
       fail-fast: false
       matrix:
