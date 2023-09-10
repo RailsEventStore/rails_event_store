@@ -501,8 +501,9 @@ class CI
       {
         name: "#{name}_assets",
         working_directory: name,
-        matrix: nil,
-        template: template
+        matrix: [{}],
+        template: template,
+        job_name: "assets",
       }
     end
   end
@@ -557,7 +558,7 @@ class CI
           working_directory: gem.fetch(:working_directory),
           matrix: as_formatted_yaml(gem.fetch(:matrix), indent: 10),
           steps: as_formatted_yaml(gem.fetch(:steps, []), indent: 6),
-          job_name: gem.fetch(:job_name, nil),
+          job_name: gem.fetch(:job_name),
           env:
             as_formatted_yaml(
               { "WORKING_DIRECTORY" => gem.fetch(:working_directory) }.merge(
@@ -573,8 +574,6 @@ class CI
   end
 
   def matrix_env_vars(matrix)
-    return {} unless matrix
-
     matrix
       .first
       .keys
