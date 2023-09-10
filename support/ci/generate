@@ -837,7 +837,12 @@ class CI
   end
 
   def as_formatted_yaml(content, indent:)
-    Psych.safe_dump(content, line_length: 120).lines.drop(1).join(" " * indent).strip
+    Psych
+      .safe_dump(content, line_width: 120)
+      .lines
+      .drop(1)
+      .join(" " * indent)
+      .strip
   end
 
   def initialize(workflows_root, template_root)

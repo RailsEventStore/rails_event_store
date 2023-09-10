@@ -39,8 +39,7 @@ jobs:
           POSTGRES_PASSWORD: secret
         ports:
         - 10011:5432
-        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
       postgres_15:
         image: postgres:15
         env:
@@ -48,8 +47,7 @@ jobs:
           POSTGRES_PASSWORD: secret
         ports:
         - 10015:5432
-        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
       mysql_5:
         image: mysql:5
         env:
@@ -57,8 +55,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: secret
         ports:
         - 10005:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout
-          5s --health-retries 5
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
       mysql_8:
         image: mysql:8
         env:
@@ -66,8 +63,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: secret
         ports:
         - 10008:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout
-          5s --health-retries 5
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
       matrix:
