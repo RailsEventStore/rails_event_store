@@ -8,19 +8,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "<%= working_directory %>/Gemfile.lock"
-      - ".github/workflows/<%= name %>.yml"
-      - "support/**"
-      - "!support/bundler/**"
-      - "!support/ci/**"
+      <%= paths %>
   pull_request:
     types: [opened, reopened]
     paths:
-      - "<%= working_directory %>/Gemfile.lock"
-      - ".github/workflows/<%= name %>.yml"
-      - "support/**"
-      - "!support/bundler/**"
-      - "!support/ci/**"
+      <%= paths %>
 jobs:
   <%= job_name %>:
     runs-on: ubuntu-20.04

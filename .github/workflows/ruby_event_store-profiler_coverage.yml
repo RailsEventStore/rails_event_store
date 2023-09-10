@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "contrib/ruby_event_store-profiler/Gemfile.lock"
+      - contrib/ruby_event_store-profiler/Gemfile.lock
       - ".github/workflows/ruby_event_store-profiler_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
   pull_request:
     types: [opened, reopened]
     paths:
-      - "contrib/ruby_event_store-profiler/Gemfile.lock"
+      - contrib/ruby_event_store-profiler/Gemfile.lock
       - ".github/workflows/ruby_event_store-profiler_coverage.yml"
-      - "support/**"
+      - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:
