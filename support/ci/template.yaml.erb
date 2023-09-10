@@ -22,9 +22,6 @@ jobs:
       <%= services %>
 <% end %>
     strategy:
-      fail-fast: false
-      matrix:
-        include:
-          <%= matrix %>
+      <%= strategy %>
     steps:
       <%= steps %>

@@ -704,7 +704,16 @@ class CI
         ).result_with_hash(
           name: name,
           working_directory: gem.fetch(:working_directory),
-          matrix: as_formatted_yaml(gem.fetch(:matrix), indent: 10),
+          strategy:
+            as_formatted_yaml(
+              {
+                "fail-fast" => false,
+                "matrix" => {
+                  "include" => gem.fetch(:matrix)
+                }
+              },
+              indent: 6
+            ),
           steps: as_formatted_yaml(gem.fetch(:steps), indent: 6),
           services:
             as_formatted_yaml(gem.fetch(:services).reduce(&:merge), indent: 6),

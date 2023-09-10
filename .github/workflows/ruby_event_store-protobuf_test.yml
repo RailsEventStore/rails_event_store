@@ -33,21 +33,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.1
-            bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.0
-            bundle_gemfile: Gemfile
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.rails_6_1
-            database_url: sqlite3:db.sqlite3
-          - ruby_version: ruby-3.2
-            bundle_gemfile: Gemfile.rails_6_0
-            database_url: sqlite3:db.sqlite3
+        - ruby_version: ruby-3.2
+          bundle_gemfile: Gemfile
+          database_url: sqlite3:db.sqlite3
+        - ruby_version: ruby-3.1
+          bundle_gemfile: Gemfile
+          database_url: sqlite3:db.sqlite3
+        - ruby_version: ruby-3.0
+          bundle_gemfile: Gemfile
+          database_url: sqlite3:db.sqlite3
+        - ruby_version: ruby-3.2
+          bundle_gemfile: Gemfile.rails_6_1
+          database_url: sqlite3:db.sqlite3
+        - ruby_version: ruby-3.2
+          bundle_gemfile: Gemfile.rails_6_0
+          database_url: sqlite3:db.sqlite3
     steps:
       - uses: actions/checkout@v3
         with:
