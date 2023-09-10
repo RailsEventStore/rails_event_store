@@ -254,7 +254,6 @@ class CI
             generate(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
-              redis_url("redis://localhost:6379/0")
             )
           ),
         steps: [
@@ -622,10 +621,6 @@ class CI
 
     def database_url(*database_url)
       axis("database_url", *database_url)
-    end
-
-    def redis_url(*redis_url)
-      axis("redis_url", *redis_url)
     end
 
     def data_type(*data_type)
