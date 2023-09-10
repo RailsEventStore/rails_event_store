@@ -5,7 +5,7 @@ on:
     types:
     - script
   push:
-    paths: &1
+    paths:
     - contrib/ruby_event_store-newrelic/Gemfile.lock
     - ".github/workflows/ruby_event_store-newrelic_coverage.yml"
     - support/**
@@ -15,7 +15,12 @@ on:
     types:
     - opened
     - reopened
-    paths: *1
+    paths:
+    - contrib/ruby_event_store-newrelic/Gemfile.lock
+    - ".github/workflows/ruby_event_store-newrelic_coverage.yml"
+    - support/**
+    - "!support/bundler/**"
+    - "!support/ci/**"
   schedule:
   - cron: 0 17 * * *
 jobs:
