@@ -30,7 +30,7 @@ on:
       - "!support/bundler/**"
       - "!support/ci/**"
 jobs:
-  test:
+  <%= job_name %>:
     runs-on: ubuntu-20.04
     env:
       <%= env %>
