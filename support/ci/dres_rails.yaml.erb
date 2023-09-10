@@ -29,22 +29,7 @@ jobs:
     env:
       <%= env %>
     services:
-      postgres_11:
-        image: postgres:11
-        env:
-          POSTGRES_DB: rails_event_store
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 10011:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      postgres_15:
-        image: postgres:15
-        env:
-          POSTGRES_DB: rails_event_store
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 10015:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      <%= services %>
     strategy:
       fail-fast: false
       matrix:

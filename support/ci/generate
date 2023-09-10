@@ -104,6 +104,7 @@ class CI
       release_coverage("rails_event_store"),
       release_test(
         "ruby_event_store-active_record",
+        services: [postgres_11, postgres_15, mysql_5, mysql_8],
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
@@ -133,6 +134,7 @@ class CI
       contrib_coverage("ruby_event_store-newrelic"),
       contrib_test(
         "ruby_event_store-outbox",
+        services: [mysql_5, mysql_8],
         matrix:
           join(
             generate(
@@ -183,6 +185,7 @@ class CI
       contrib_coverage("ruby_event_store-protobuf"),
       contrib_test(
         "ruby_event_store-rom",
+        services: [postgres_11, postgres_15, mysql_5, mysql_8],
         matrix:
           join(
             generate(
@@ -210,6 +213,7 @@ class CI
       contrib_coverage("ruby_event_store-rom"),
       contrib_test(
         "ruby_event_store-sequel",
+        services: [postgres_11, postgres_15, mysql_5, mysql_8],
         matrix:
           join(
             generate(
@@ -285,6 +289,7 @@ class CI
       contrib_test("dres_client", template: "dres_client.yaml.erb"),
       contrib_test(
         "dres_rails",
+        services: [postgres_11, postgres_15],
         matrix:
           join(
             generate(
@@ -395,7 +400,8 @@ class CI
       name,
       template: "release.yaml.erb",
       matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-      steps: [checkout, verify_lockfile, setup_ruby, make("test")]
+      steps: [checkout, verify_lockfile, setup_ruby, make("test")],
+      services: []
     )
       {
         name: "#{name}_test",
@@ -403,6 +409,7 @@ class CI
         matrix: matrix,
         template: template,
         job_name: "test",
+        services: services,
         steps: steps
       }
     end
@@ -411,7 +418,8 @@ class CI
       name,
       template: "contrib.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-      steps: [checkout, verify_lockfile, setup_ruby, make("test")]
+      steps: [checkout, verify_lockfile, setup_ruby, make("test")],
+      services: []
     )
       {
         name: "#{name}_test",
@@ -419,6 +427,7 @@ class CI
         matrix: matrix,
         template: template,
         job_name: "test",
+        services: services,
         steps: steps
       }
     end
@@ -432,7 +441,8 @@ class CI
         verify_lockfile,
         setup_ruby,
         make("mutate-changes")
-      ]
+      ],
+      services: []
     )
       {
         name: "#{name}_mutate",
@@ -440,6 +450,7 @@ class CI
         matrix: matrix,
         template: template,
         job_name: "mutate",
+        services: services,
         steps: steps
       }
     end
@@ -453,7 +464,8 @@ class CI
         verify_lockfile,
         setup_ruby,
         make("mutate-changes")
-      ]
+      ],
+      services: []
     )
       {
         name: "#{name}_mutate",
@@ -461,6 +473,7 @@ class CI
         matrix: matrix,
         template: template,
         job_name: "mutate",
+        services: services,
         steps: steps
       }
     end
@@ -469,7 +482,8 @@ class CI
       name,
       template: "coverage.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-      steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
+      steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
+      services: []
     )
       {
         name: "#{name}_coverage",
@@ -477,6 +491,7 @@ class CI
         matrix: matrix,
         template: template,
         job_name: "coverage",
+        services: services,
         steps: steps
       }
     end
@@ -485,7 +500,8 @@ class CI
       name,
       template: "coverage.yaml.erb",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-      steps: [checkout, verify_lockfile, setup_ruby, make("mutate")]
+      steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
+      services: []
     )
       {
         name: "#{name}_coverage",
@@ -493,6 +509,7 @@ class CI
         matrix: matrix,
         template: template,
         job_name: "coverage",
+        services: services,
         steps: steps
       }
     end
@@ -504,11 +521,75 @@ class CI
         matrix: [{}],
         template: template,
         job_name: "assets",
+        services: [],
         steps: []
       }
     end
   end
   include Workflows
+
+  module Services
+    def postgres_11
+      {
+        "postgres_11" => {
+          "image" => "postgres:11",
+          "env" => {
+            "POSTGRES_DB" => "rails_event_store",
+            "POSTGRES_PASSWORD" => "secret"
+          },
+          "ports" => ["10011:5432"],
+          "options" =>
+            "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5"
+        }
+      }
+    end
+
+    def postgres_15
+      {
+        "postgres_15" => {
+          "image" => "postgres:15",
+          "env" => {
+            "POSTGRES_DB" => "rails_event_store",
+            "POSTGRES_PASSWORD" => "secret"
+          },
+          "ports" => ["10015:5432"],
+          "options" =>
+            "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5"
+        }
+      }
+    end
+
+    def mysql_8
+      {
+        "mysql_8" => {
+          "image" => "mysql:8",
+          "env" => {
+            "MYSQL_DATABASE" => "rails_event_store",
+            "MYSQL_ROOT_PASSWORD" => "secret"
+          },
+          "ports" => ["10008:3306"],
+          "options" =>
+            "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5"
+        }
+      }
+    end
+
+    def mysql_5
+      {
+        "mysql_5" => {
+          "image" => "mysql:5",
+          "env" => {
+            "MYSQL_DATABASE" => "rails_event_store",
+            "MYSQL_ROOT_PASSWORD" => "secret"
+          },
+          "ports" => ["10005:3306"],
+          "options" =>
+            "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5"
+        }
+      }
+    end
+  end
+  include Services
 
   module Matrix
     def generate(*axes)
@@ -559,6 +640,7 @@ class CI
           working_directory: gem.fetch(:working_directory),
           matrix: as_formatted_yaml(gem.fetch(:matrix), indent: 10),
           steps: as_formatted_yaml(gem.fetch(:steps), indent: 6),
+          services: as_formatted_yaml(gem.fetch(:services).reduce(&:merge), indent: 6),
           job_name: gem.fetch(:job_name),
           env:
             as_formatted_yaml(
@@ -582,7 +664,7 @@ class CI
   end
 
   def as_formatted_yaml(content, indent:)
-    Psych.dump(content).lines.drop(1).join(" " * indent).strip
+    Psych.dump(content, line_length: 120).lines.drop(1).join(" " * indent).strip
   end
 
   def initialize(workflows_root, template_root)
