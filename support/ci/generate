@@ -745,19 +745,21 @@ class CI
       env = { "WORKING_DIRECTORY" => gem.fetch(:working_directory) }.merge(
         matrix_env_vars(gem.fetch(:matrix))
       )
-      job = {
-        "runs-on" => "ubuntu-20.04",
-        "timeout-minutes" => 120,
-        "env" => env,
-        "services" => gem.fetch(:services),
-        "strategy" => {
-          "fail-fast" => false,
-          "matrix" => {
-            "include" => gem.fetch(:matrix)
-          }
-        },
-        "steps" => gem.fetch(:steps)
-      }.reject { |k, v| k == "services" && v.empty? }
+      job =
+        {
+          "runs-on" => "ubuntu-20.04",
+          "timeout-minutes" => 120,
+          "env" => env,
+          "services" => gem.fetch(:services),
+          "strategy" => {
+            "fail-fast" => false,
+            "matrix" => {
+              "include" => gem.fetch(:matrix)
+            }
+          },
+          "steps" => gem.fetch(:steps)
+        }.reject { |k, v| k == "services" && gem.fetch(:services).empty? }
+          .reject { |k, v| k == "strategy" && gem.fetch(:matrix).empty? }
 
       File.write(
         File.join(workflows_root, filename),
