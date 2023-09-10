@@ -395,6 +395,41 @@ class CI
         "working-directory" => "${{ env.WORKING_DIRECTORY }}"
       }
     end
+
+    def upload_artifact(name)
+      {
+        "uses" => "actions/upload-artifact@v3",
+        "with" => {
+          "name" => name,
+          "path" => "${{ env.WORKING_DIRECTORY }}/public/#{name}"
+        }
+      }
+    end
+
+    def configure_aws_credentials
+      {
+        "uses" => "aws-actions/configure-aws-credentials@v1-node16",
+        "with" => {
+          "aws-access-key-id" => "${{ secrets.AWS_ACCESS_KEY_ID }}",
+          "aws-secret-access-key" => "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+          "aws-region" => "eu-central-1"
+        }
+      }
+    end
+
+    def set_short_sha_env
+      {
+        "run" =>
+          "echo \"SHORT_SHA=$(git rev-parse --short=12 HEAD)\" >> $GITHUB_ENV"
+      }
+    end
+
+    def aws_s3_sync
+      {
+        "run" =>
+          "aws s3 sync ${{ env.WORKING_DIRECTORY }}/public s3://ruby-event-store-assets/${{ env.SHORT_SHA }}"
+      }
+    end
   end
   include Actions
 
@@ -537,7 +572,18 @@ class CI
         template: template,
         job_name: "assets",
         services: [],
-        steps: [],
+        steps: [
+          checkout,
+          setup_node,
+          cache_elm,
+          make("install-npm"),
+          make("build-npm"),
+          upload_artifact("ruby_event_store_browser.js"),
+          upload_artifact("ruby_event_store_browser.css"),
+          configure_aws_credentials,
+          set_short_sha_env,
+          aws_s3_sync
+        ],
         paths: []
       }
     end
