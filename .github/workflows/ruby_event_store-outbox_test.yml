@@ -76,20 +76,22 @@ jobs:
             database_url: mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
       - uses: cachix/install-nix-action@v20
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - uses: cachix/cachix-action@v12
         with:
           name: railseventstore
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: "${{ env.WORKING_DIRECTORY }}"
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: "${{ env.RUBY_VERSION }}"
           bundler-cache: true
-          working-directory: ${{ env.WORKING_DIRECTORY }}
+          working-directory: "${{ env.WORKING_DIRECTORY }}"
       - run: |
           nix-shell --run "make test" -E"
             with import <nixpkgs> { };
@@ -99,4 +101,4 @@ jobs:
               ];
             }
           "
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: "${{ env.WORKING_DIRECTORY }}"
