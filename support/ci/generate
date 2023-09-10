@@ -143,7 +143,15 @@ class CI
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
             )
           ),
-        template: "outbox.yaml.erb"
+        template: "outbox.yaml.erb",
+        steps: [
+          checkout,
+          setup_nix,
+          setup_cachix,
+          verify_lockfile,
+          setup_ruby,
+          make_nix_shell("test")
+        ]
       ),
       contrib_mutate(
         "ruby_event_store-outbox",
