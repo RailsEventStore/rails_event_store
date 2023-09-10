@@ -3,7 +3,6 @@
 # frozen_string_literal: true
 
 require "bundler/inline"
-require "erb"
 require "psych"
 
 gemfile do
@@ -813,12 +812,14 @@ class CI
 
       File.write(
         File.join(workflows_root, filename),
-        ERB.new(
-          File.read(File.join(template_root, "template.yaml.erb"))
-        ).result_with_hash(
-          name: name,
-          on: as_formatted_yaml(gem.fetch(:on).reduce(&:merge), indent: 2),
-          job: as_formatted_yaml({ gem.fetch(:job_name) => job }, indent: 2)
+        as_formatted_yaml(
+          {
+            "name" => name,
+            "on" => gem.fetch(:on).reduce(&:merge),
+            "jobs" => {
+              gem.fetch(:job_name) => job
+            }
+          }
         )
       )
 
@@ -836,13 +837,14 @@ class CI
       end
   end
 
-  def as_formatted_yaml(content, indent:)
+  def as_formatted_yaml(content)
     Psych
       .safe_dump(content, line_width: 120)
       .lines
       .drop(1)
-      .join(" " * indent)
+      .join
       .strip
+      .gsub(/'on':\n/, "on:\n")
   end
 
   def initialize(workflows_root, template_root)
