@@ -1,11 +1,9 @@
 name: ruby_event_store_coverage
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - script
-  schedule:
-    - cron: "0 17 * * *"
-  workflow_dispatch:
   push:
     paths:
       - ruby_event_store/Gemfile.lock
@@ -21,6 +19,8 @@ on:
       - support/**
       - "!support/bundler/**"
       - "!support/ci/**"
+  schedule:
+    - cron: "0 17 * * *"
 jobs:
   coverage:
     runs-on: ubuntu-20.04

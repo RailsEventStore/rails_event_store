@@ -1,7 +1,10 @@
 name: ruby_event_store-browser_assets
 on:
-  push:
   workflow_dispatch:
+  repository_dispatch:
+    types:
+      - script
+  push:
 jobs:
   assets:
     runs-on: ubuntu-20.04

@@ -1,11 +1,9 @@
 name: <%= name %>
 on:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - script
-  schedule:
-    - cron: "0 17 * * *"
-  workflow_dispatch:
   push:
     paths:
       <%= paths %>
@@ -13,5 +11,7 @@ on:
     types: [opened, reopened]
     paths:
       <%= paths %>
+  schedule:
+    - cron: "0 17 * * *"
 jobs:
   <%= job %>
