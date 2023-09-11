@@ -56,7 +56,7 @@ jobs:
         - ruby_version: ruby-3.2
           bundle_gemfile: Gemfile.rails_6_0
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock

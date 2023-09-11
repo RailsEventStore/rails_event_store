@@ -12,7 +12,7 @@ jobs:
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - uses: actions/setup-node@v3

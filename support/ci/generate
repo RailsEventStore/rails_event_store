@@ -236,7 +236,7 @@ class CI
 
   module Actions
     def checkout(depth: 1)
-      { "uses" => "actions/checkout@v3", "with" => { "fetch-depth" => depth } }
+      { "uses" => "actions/checkout@v4", "with" => { "fetch-depth" => depth } }
     end
 
     def verify_lockfile

@@ -79,7 +79,7 @@ jobs:
           database_url: postgres://postgres:secret@localhost:10015/rails_event_store?pool=5
           data_type: jsonb
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock

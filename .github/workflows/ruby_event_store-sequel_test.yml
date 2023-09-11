@@ -105,7 +105,7 @@ jobs:
           database_url: mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5
           data_type: text
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - run: test -e ${{ env.BUNDLE_GEMFILE }}.lock
