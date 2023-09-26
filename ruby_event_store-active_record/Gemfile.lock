@@ -19,12 +19,12 @@ GEM
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (7.0.7.2)
-      activesupport (= 7.0.7.2)
-    activerecord (7.0.7.2)
-      activemodel (= 7.0.7.2)
-      activesupport (= 7.0.7.2)
-    activesupport (7.0.7.2)
+    activemodel (7.0.8)
+      activesupport (= 7.0.8)
+    activerecord (7.0.8)
+      activemodel (= 7.0.8)
+      activesupport (= 7.0.8)
+    activesupport (7.0.8)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -70,7 +70,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
-    sorbet-runtime (0.5.11010)
+    sorbet-runtime (0.5.11042)
     sqlite3 (1.6.0)
       mini_portile2 (~> 2.8.0)
     sqlite3 (1.6.0-arm64-darwin)
