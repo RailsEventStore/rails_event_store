@@ -183,7 +183,7 @@ module RailsEventStore
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended with event store locator" do
       HandlerE = Class.new(IdOnlyHandler)
-      HandlerE.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
+      HandlerE.prepend AsyncHandlerJobIdOnly.with(event_store_locator: -> { event_store })
       event_store.subscribe_to_all_events(HandlerE)
       event_store.publish(ev = RubyEventStore::Event.new)
 

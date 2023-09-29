@@ -26,7 +26,7 @@ module RubyEventStore
 
       SidekiqHandlerWithHelper.prepend(
         RailsEventStore::AsyncHandler.with(
-          event_store: event_store,
+          event_store_locator: ->{ event_store },
           serializer: serializer
         )
       )
