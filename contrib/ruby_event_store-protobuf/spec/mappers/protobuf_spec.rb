@@ -203,29 +203,6 @@ module RubyEventStore
           expect(event.metadata[:timestamp]).to eq(time)
           expect(event.metadata[:valid_at]).to eq(time)
         end
-
-        specify "#record_to_event is using events class remapping" do
-          subject =
-            RubyEventStore::Protobuf::Mappers::Protobuf.new(
-              events_class_remapping: {
-                "res_testing.OrderCreatedBeforeRefactor" => "res_testing.OrderCreated"
-              }
-            )
-          record =
-            Record.new(
-              event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-              data: "",
-              metadata: "",
-              event_type: "res_testing.OrderCreatedBeforeRefactor",
-              timestamp: time,
-              valid_at: time
-            )
-          event = subject.record_to_event(record)
-          expect(event.data.class).to eq(ResTesting::OrderCreated)
-          expect(event.event_type).to eq("res_testing.OrderCreated")
-          expect(event.metadata[:timestamp]).to eq(time)
-          expect(event.metadata[:valid_at]).to eq(time)
-        end
       end
     end
   end
