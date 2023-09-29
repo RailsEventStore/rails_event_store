@@ -187,7 +187,7 @@ module RubyEventStore
           expect(record).to be_a(Record)
           expect(record.event_id).to eq(event_id)
           expect(record.data).not_to be_empty
-          expect(record.metadata).not_to be_empty
+          expect(record.metadata).to match(/\n.+\x00/)
           expect(record.event_type).to eq("res_testing.OrderCreated")
           expect(record.timestamp).to eq(time)
           expect(record.valid_at).to eq(time)
