@@ -85,9 +85,7 @@ CODE
 
 route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
 
-profile.for_existing_app do
-  run_bundle unless run "bundle check"
-end
+profile.for_existing_app { run_bundle unless run "bundle check" }
 
 after_bundle do
   rails_command "db:create"
@@ -95,6 +93,4 @@ after_bundle do
   rails_command "db:migrate"
 end
 
-profile.for_existing_app do
-  run_after_bundle_callbacks
-end
+profile.for_existing_app { run_after_bundle_callbacks }
