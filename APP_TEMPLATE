@@ -35,7 +35,7 @@ class Profile
   end
 
   def mysql?
-    database.downcase.eql?("mysql2") || database.downcase.eql?("mysql")
+    %w[mysql2 mysql trilogy].include?(database.downcase)
   end
 
   def postgres?
