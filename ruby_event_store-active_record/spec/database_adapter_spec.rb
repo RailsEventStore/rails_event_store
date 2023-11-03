@@ -27,7 +27,7 @@ module RubyEventStore
       specify "raise on unknown adapter" do
         expect { DatabaseAdapter.from_string("kakadudu") }.to raise_error(
           UnsupportedAdapter,
-          "Unsupported adapter: \"kakadudu\""
+          "Unsupported adapter: \"kakadudu\"",
         )
         expect { DatabaseAdapter.from_string(nil) }.to raise_error(UnsupportedAdapter, "Unsupported adapter: nil")
         expect { DatabaseAdapter.from_string(123) }.to raise_error(UnsupportedAdapter, "Unsupported adapter: 123")
@@ -72,7 +72,7 @@ module RubyEventStore
 
         specify "MySQL doesn't support jsonb" do
           expect { DatabaseAdapter::MySQL.new("jsonb") }.to raise_error InvalidDataTypeForAdapter,
-                                                                        "MySQL doesn't support \"jsonb\". Supported types are: binary, json."
+                      "MySQL doesn't support \"jsonb\". Supported types are: binary, json."
         end
 
         specify "PostgreSQL supports binary" do
