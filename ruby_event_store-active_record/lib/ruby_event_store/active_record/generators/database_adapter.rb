@@ -11,8 +11,8 @@ module RubyEventStore
       class PostgreSQL < self
         SUPPORTED_DATA_TYPES = %w[binary json jsonb].freeze
 
-        def initialize(data_type = NOT_SET)
-          super("postgresql", data_type)
+        def adapter_name
+          "postgresql"
         end
 
         def template_directory
@@ -23,8 +23,8 @@ module RubyEventStore
       class MySQL < self
         SUPPORTED_DATA_TYPES = %w[binary json].freeze
 
-        def initialize(data_type = NOT_SET)
-          super("mysql2", data_type)
+        def adapter_name
+          "mysql2"
         end
 
         def template_directory
@@ -35,21 +35,20 @@ module RubyEventStore
       class SQLite < self
         SUPPORTED_DATA_TYPES = %w[binary].freeze
 
-        def initialize(data_type = NOT_SET)
-          super("sqlite", data_type)
+        def adapter_name
+          "sqlite"
         end
       end
 
-      def initialize(adapter_name, data_type)
+      def initialize(data_type = NOT_SET)
         raise UnsupportedAdapter if instance_of?(DatabaseAdapter)
 
         validate_data_type!(data_type)
 
-        @adapter_name = adapter_name
         @data_type = data_type
       end
 
-      attr_reader :adapter_name, :data_type
+      attr_reader :data_type
 
       def supported_data_types
         self.class::SUPPORTED_DATA_TYPES

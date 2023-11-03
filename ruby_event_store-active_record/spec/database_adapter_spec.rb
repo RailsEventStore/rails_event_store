@@ -52,7 +52,7 @@ module RubyEventStore
       end
 
       specify "don't allow instance of parent class directly" do
-        expect { DatabaseAdapter.new("postgresql", "jsonb") }.to raise_error(UnsupportedAdapter)
+        expect { DatabaseAdapter.new("jsonb") }.to raise_error(UnsupportedAdapter)
       end
 
       specify "template directory" do
