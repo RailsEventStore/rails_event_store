@@ -6,7 +6,7 @@ module RubyEventStore
     InvalidDataTypeForAdapter = Class.new(StandardError)
 
     class DatabaseAdapter
-      NOT_SET = Object.new.freeze
+      NONE = Object.new.freeze
 
       class PostgreSQL < self
         SUPPORTED_DATA_TYPES = %w[binary json jsonb].freeze
@@ -40,7 +40,7 @@ module RubyEventStore
         end
       end
 
-      def initialize(data_type = NOT_SET)
+      def initialize(data_type = NONE)
         raise UnsupportedAdapter if instance_of?(DatabaseAdapter)
 
         validate_data_type!(data_type)
@@ -67,7 +67,7 @@ module RubyEventStore
       def template_directory
       end
 
-      def self.from_string(adapter_name, data_type = NOT_SET)
+      def self.from_string(adapter_name, data_type = NONE)
         raise NoMethodError unless eql?(DatabaseAdapter)
 
         case adapter_name.to_s.downcase
@@ -85,7 +85,7 @@ module RubyEventStore
       private
 
       def validate_data_type!(data_type)
-        if !data_type.eql?(NOT_SET) && !supported_data_types.include?(data_type)
+        if !data_type.eql?(NONE) && !supported_data_types.include?(data_type)
           raise InvalidDataTypeForAdapter,
                 "#{class_name} doesn't support #{data_type.inspect}. Supported types are: #{supported_data_types.join(", ")}."
         end
