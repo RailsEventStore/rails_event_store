@@ -26,7 +26,11 @@ module AggregateRoot
       query = event_store.read.stream(stream_name)
       if last_snapshot
         begin
-          aggregate = load_marshal(last_snapshot)
+          loaded_aggregate = load_marshal(last_snapshot)
+          loaded_aggregate.instance_variables.each do |var|
+            value = loaded_aggregate.instance_variable_get(var)
+            aggregate.instance_variable_set(var, value)
+          end
         rescue NotRestorableSnapshot => e
           error_handler.(e)
         else
@@ -44,7 +48,6 @@ module AggregateRoot
       event_store.publish(events,
                           stream_name: stream_name,
                           expected_version: aggregate.version)
-
       aggregate.version = aggregate.version + events.count
 
       if time_for_snapshot?(aggregate.version, events.size)
@@ -54,6 +57,8 @@ module AggregateRoot
           error_handler.(e)
         end
       end
+
+      aggregate.version
     end
 
     private
