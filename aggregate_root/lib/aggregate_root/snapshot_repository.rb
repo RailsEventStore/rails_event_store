@@ -75,7 +75,7 @@ module AggregateRoot
     end
 
     def build_marshal(aggregate)
-      Marshal.dump(aggregate)
+      Base64.encode64(Marshal.dump(aggregate))
     rescue TypeError
       raise NotDumpableAggregateRoot, "#{aggregate.class} cannot be dumped.
 It may be caused by instance variables being: bindings, procedure or method objects, instances of class IO, or singleton objects.
@@ -87,7 +87,7 @@ Snapshot skipped."
     end
 
     def load_marshal(snpashot_event)
-      Marshal.load(snpashot_event.data.fetch(:marshal))
+      Marshal.load(Base64.decode64(snpashot_event.data.fetch(:marshal)))
     rescue TypeError, ArgumentError
       raise NotRestorableSnapshot, "Aggregate root cannot be restored from the last snapshot (event id: #{snpashot_event.event_id}).
 It may be caused by aggregate class rename or Marshal version mismatch.
