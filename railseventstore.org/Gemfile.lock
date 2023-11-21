@@ -12,7 +12,7 @@ GEM
       activesupport (>= 3.0.0)
       ruby2_keywords (>= 0.0.2)
     backports (3.24.1)
-    base64 (0.1.1)
+    base64 (0.2.0)
     coffee-script (2.4.1)
       coffee-script-source
       execjs
@@ -22,7 +22,7 @@ GEM
     dotenv (2.8.1)
     erubis (2.7.0)
     execjs (2.8.1)
-    faraday (2.7.11)
+    faraday (2.7.12)
       base64
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
