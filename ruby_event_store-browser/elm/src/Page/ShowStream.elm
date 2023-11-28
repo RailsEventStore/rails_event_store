@@ -233,20 +233,20 @@ renderResults baseUrl events =
 
         _ ->
             table
-                [ class "my-10 w-full text-left table-fixed border-collapse"
+                [ class "my-10 w-full text-left border-collapse"
                 ]
                 [ thead
                     [ class "align-bottom leading-tight"
                     ]
                     [ tr []
                         [ th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 p-0 text-xs" ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 px-4 text-xs" ]
                             [ text "Event name" ]
                         , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs" ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs" ]
                             [ text "Event id" ]
                         , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-4 text-xs text-right" ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs text-right" ]
                             [ text "Created at" ]
                         ]
                     ]
@@ -258,9 +258,9 @@ renderResults baseUrl events =
 
 itemRow : Url.Url -> Api.Event -> Html Msg
 itemRow baseUrl { eventType, createdAt, eventId } =
-    tr []
+    tr [ class "border-gray-50 border-b hover:bg-gray-100"]
         [ td
-            [ class "p-0 pt-2" ]
+            [ class "py-2 px-4 align-middle" ]
             [ a
                 [ class "text-red-700 no-underline"
                 , href (Route.eventUrl baseUrl eventId)
@@ -268,9 +268,9 @@ itemRow baseUrl { eventType, createdAt, eventId } =
                 [ text eventType ]
             ]
         , td
-            [ class "p-0 pt-2" ]
+            [ class "py-2  pr-4 font-mono text-sm leading-none font-medium align-middle" ]
             [ text eventId ]
         , td
-            [ class "p-0 pt-2 text-right" ]
+            [ class "py-2  pr-4 font-mono text-sm leading-none font-medium text-right align-middle" ]
             [ text (formatTimestamp createdAt) ]
         ]
