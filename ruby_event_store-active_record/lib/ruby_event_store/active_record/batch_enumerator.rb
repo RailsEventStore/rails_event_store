@@ -17,8 +17,8 @@ module RubyEventStore
           batch_limit = [batch_size, total_limit - batch_offset].min
           results, offset_id = reader.call(offset_id, batch_limit)
 
-          break if results.empty?
-          yield results
+          yield results if results.any?
+          break if results.size < batch_size
         end
       end
 
