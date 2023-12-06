@@ -276,6 +276,16 @@ module RubyEventStore
         }x
       end
 
+      specify "don't join events when no event filtering criteria when counting" do
+        expect {
+          repository.count(specification.stream("stream").result)
+        }.to match_query %r{
+          SELECT\s+COUNT\(\*\)\s+
+          FROM\s+.event_store_events_in_streams.\s+
+          WHERE\s+.event_store_events_in_streams.\..stream.\s+=\s+(\?|\$1|'stream')
+        }x
+      end
+
       private
 
       def with_precision(time)
