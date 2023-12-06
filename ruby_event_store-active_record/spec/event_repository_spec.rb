@@ -10,7 +10,6 @@ module RubyEventStore
 
       it_behaves_like :event_repository, mk_repository, helper
 
-      
       let(:repository) { mk_repository.call }
       let(:specification) do
         Specification.new(
@@ -275,6 +274,22 @@ module RubyEventStore
           WHERE\s+.event_store_events_in_streams.\..stream.\s+=\s+(\?|\$1|'stream')\s+
           ORDER\s+BY\s+.event_store_events_in_streams.\..id.\s+ASC
         }x
+      end
+
+      specify 'inner join events when event filtering criteria present' do
+        [
+          specification.stream("stream").of_type("type"),
+          specification.stream("stream").as_of,
+          specification.stream("stream").as_at,
+          specification.stream("stream").older_than(Time.now),
+          specification.stream("stream").older_than_or_equal(Time.now),
+          specification.stream("stream").newer_than(Time.now),
+          specification.stream("stream").newer_than_or_equal(Time.now),
+        ].each do |spec|
+          expect {
+            repository.read(spec.result).to_a
+          }.to match_query /INNER\s+JOIN\s+.event_store_events./
+        end
       end
 
       specify "don't join events when no event filtering criteria when counting" do
