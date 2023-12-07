@@ -180,13 +180,10 @@ module RubyEventStore
 
         expect {
           repository.read(specification.in_batches.as_at.result).to_a
-        }.to match_query(%r{
-          SELECT\s+(.*)\s+FROM\s+.event_store_events.\s+ORDER\s+BY\s+.event_store_events.\..created_at.\s+LIMIT.\d+\sOFFSET.\d+
-}x, 2)
+        }.to match_query(/SELECT\s+(.*)\s+FROM\s+.event_store_events.\s+ORDER\s+BY\s+.event_store_events.\..created_at.\s+LIMIT.\d+\sOFFSET.\d+/)
         expect {
           repository.read(specification.in_batches.as_of.result).to_a
-        }.to match_query(/SELECT.*FROM .*event_store_events.* ORDER BY COALESCE.*event_store_events.*valid_at.*event_store_events.*created_at.*LIMIT \d+ OFFSET \d+/,
-                         2)
+        }.to match_query(/SELECT.*FROM .*event_store_events.* ORDER BY COALESCE.*event_store_events.*valid_at.*event_store_events.*created_at.*LIMIT \d+ OFFSET \d+/)
       end
 
       private
