@@ -51,5 +51,10 @@ module RubyEventStore
       expect(reader = double(:reader)).to receive(:call).with(kind_of(Numeric), kind_of(Numeric)).and_return([])
       BatchEnumerator.new(100, Float::INFINITY, reader).to_a
     end
+
+    specify "ensure not fetching next batch if the previous one was smaller than specified batch size" do
+      expect(reader).to receive(:call).exactly(4).times.and_call_original
+      expect(BatchEnumerator.new(3000, Float::INFINITY, reader).to_a)
+    end
   end
 end
