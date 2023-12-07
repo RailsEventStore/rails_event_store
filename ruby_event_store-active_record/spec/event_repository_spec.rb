@@ -10,7 +10,6 @@ module RubyEventStore
 
       it_behaves_like :event_repository, mk_repository, helper
 
-      
       let(:repository) { mk_repository.call }
       let(:specification) do
         Specification.new(
@@ -236,9 +235,11 @@ module RubyEventStore
           ExpectedVersion.any
         )
 
-        expect {
-          repository.read(specification.in_batches(3).result).to_a
-        }.to match_query /SELECT.*FROM.*event_store_events.*WHERE.*event_store_events.id >*.*ORDER BY .*event_store_events.*id.* ASC LIMIT.*/
+        expect do
+          expect do
+            repository.read(specification.in_batches(3).result).to_a
+          end.to match_query /SELECT.*FROM .event_store_events. ORDER BY .event_store_events.\..id. ASC LIMIT/
+        end.to match_query /SELECT.*FROM .event_store_events. WHERE .event_store_events\.id >.* ORDER BY .event_store_events.\..id. ASC LIMIT/
       end
 
       specify "produces expected query for position in stream call" do
