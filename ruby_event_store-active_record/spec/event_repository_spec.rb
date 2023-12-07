@@ -292,6 +292,21 @@ module RubyEventStore
         end
       end
 
+      specify "avoid N+1 without additional query when join is used for querying" do
+        repository.append_to_stream(
+          [SRecord.new, SRecord.new],
+          Stream.new("stream"),
+          ExpectedVersion.auto
+        )
+        expect { repository.read(specification.stream("stream").of_type("type").result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").as_of.result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").as_at.result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").older_than(Time.now).result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").older_than_or_equal(Time.now).result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").newer_than(Time.now).result) }.to match_query_count(1)
+        expect { repository.read(specification.stream("stream").newer_than_or_equal(Time.now).result) }.to match_query_count(1)
+      end
+
       specify "don't join events when no event filtering criteria when counting" do
         expect {
           repository.count(specification.stream("stream").result)
