@@ -107,6 +107,7 @@ GEM
       concurrent-ruby
     ast (2.4.2)
     base64 (0.2.0)
+    bigdecimal (3.1.5)
     builder (3.2.4)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
@@ -142,6 +143,7 @@ GEM
     mutant-rspec (0.11.22)
       mutant (= 0.11.22)
       rspec-core (>= 3.8.0, < 4.0.0)
+    mutex_m (0.2.0)
     net-imap (0.3.7)
       date
       net-protocol
@@ -236,10 +238,12 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  bigdecimal
   mutant (= 0.11.22)
   mutant-license!
   mutant-minitest (= 0.11.22)
   mutant-rspec (= 0.11.22)
+  mutex_m
   rails (~> 7.0.7)
   rails_event_store!
   rake (>= 10.0)
