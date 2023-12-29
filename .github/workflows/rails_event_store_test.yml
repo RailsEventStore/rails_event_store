@@ -49,7 +49,7 @@ jobs:
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.0
           bundle_gemfile: Gemfile
-        - ruby_version: truffleruby-dev
+        - ruby_version: truffleruby-head
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.2
           bundle_gemfile: Gemfile.rails_6_1

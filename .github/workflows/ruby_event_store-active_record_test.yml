@@ -90,7 +90,7 @@ jobs:
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
           data_type: binary
-        - ruby_version: truffleruby-dev
+        - ruby_version: truffleruby-head
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
           data_type: binary
