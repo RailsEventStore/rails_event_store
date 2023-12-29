@@ -5,8 +5,8 @@
   ignore  = "false"
 
 [build.environment]
-  NODE_VERSION = "18.12"
-  RUBY_VERSION = "3.0.4"
+  NODE_VERSION = "20.10"
+  RUBY_VERSION = "3.2.2"
 
 [[redirects]]
   from = "http://www.railseventstore.org/*"
