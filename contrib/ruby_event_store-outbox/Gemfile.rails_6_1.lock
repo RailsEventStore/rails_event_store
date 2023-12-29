@@ -197,9 +197,9 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    sqlite3 (1.6.0-arm64-darwin)
-    sqlite3 (1.6.0-x86_64-darwin)
-    sqlite3 (1.6.0-x86_64-linux)
+    sqlite3 (1.7.0-arm64-darwin)
+    sqlite3 (1.7.0-x86_64-darwin)
+    sqlite3 (1.7.0-x86_64-linux)
     thor (1.2.2)
     timeout (0.4.0)
     tzinfo (2.0.6)
@@ -233,7 +233,7 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-outbox!
   sidekiq (~> 6.2)
-  sqlite3 (= 1.6.0)
+  sqlite3 (~> 1.7)
 
 BUNDLED WITH
    2.4.6

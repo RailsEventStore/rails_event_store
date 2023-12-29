@@ -35,7 +35,7 @@ GEM
     diff-lcs (1.5.0)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
-    mini_portile2 (2.8.4)
+    mini_portile2 (2.8.5)
     minitest (5.20.0)
     mutant (0.11.22)
       diff-lcs (~> 1.3)
@@ -71,11 +71,11 @@ GEM
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
     sorbet-runtime (0.5.11042)
-    sqlite3 (1.6.0)
+    sqlite3 (1.7.0)
       mini_portile2 (~> 2.8.0)
-    sqlite3 (1.6.0-arm64-darwin)
-    sqlite3 (1.6.0-x86_64-darwin)
-    sqlite3 (1.6.0-x86_64-linux)
+    sqlite3 (1.7.0-arm64-darwin)
+    sqlite3 (1.7.0-x86_64-darwin)
+    sqlite3 (1.7.0-x86_64-linux)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unparser (0.6.8)
@@ -101,7 +101,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-active_record!
-  sqlite3 (= 1.6.0)
+  sqlite3 (~> 1.7)
 
 BUNDLED WITH
    2.4.6
