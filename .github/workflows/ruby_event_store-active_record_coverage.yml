@@ -35,7 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby_version: ruby-3.2
+        - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
     steps:
     - uses: actions/checkout@v4

@@ -12,7 +12,7 @@ end
 
 class CI
   RUBY_VERSIONS = [
-    MRI_RUBY = [RUBY_3_2 = "ruby-3.2", RUBY_3_1 = "ruby-3.1", RUBY_3_0 = "ruby-3.0"],
+    MRI_RUBY = [RUBY_3_3 = "ruby-3.3", RUBY_3_2 = "ruby-3.2", RUBY_3_1 = "ruby-3.1", RUBY_3_0 = "ruby-3.0"],
     TRUFFLE_RUBY = "truffleruby-head"
   ].flatten
 
