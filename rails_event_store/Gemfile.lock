@@ -2,6 +2,7 @@ PATH
   remote: ..
   specs:
     aggregate_root (2.13.0)
+      base64
       ruby_event_store (= 2.13.0)
     rails_event_store_active_record (2.13.0)
       ruby_event_store-active_record (= 2.13.0)
@@ -103,6 +104,7 @@ GEM
     arkency-command_bus (0.4.1)
       concurrent-ruby
     ast (2.4.2)
+    base64 (0.2.0)
     builder (3.2.4)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
