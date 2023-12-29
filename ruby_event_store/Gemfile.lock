@@ -81,4 +81,4 @@ DEPENDENCIES
   ruby_event_store!
 
 BUNDLED WITH
-   2.4.6
+   2.5.3

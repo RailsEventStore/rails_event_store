@@ -248,4 +248,4 @@ DEPENDENCIES
   sidekiq (~> 7.0)
 
 BUNDLED WITH
-   2.4.6
+   2.5.3
