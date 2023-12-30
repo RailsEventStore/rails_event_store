@@ -29,6 +29,7 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-newrelic
+      RUBYOPT: "--enable-frozen-string-literal"
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:

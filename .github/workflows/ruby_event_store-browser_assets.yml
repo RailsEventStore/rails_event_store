@@ -11,6 +11,7 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
+      RUBYOPT: "--enable-frozen-string-literal"
     steps:
     - uses: actions/checkout@v4
       with:
