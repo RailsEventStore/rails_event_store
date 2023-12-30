@@ -37,6 +37,7 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: rails_event_store
+      RUBYOPT: "--enable-frozen-string-literal"
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
