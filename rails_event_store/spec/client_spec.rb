@@ -37,7 +37,7 @@ module RailsEventStore
       client = Client.new(repository: RubyEventStore::InMemoryRepository.new)
 
       received_notifications = 0
-      ActiveSupport::Notifications.subscribe("append_to_stream.repository.rails_event_store") do
+      ActiveSupport::Notifications.subscribe("append_to_stream.repository.ruby_event_store") do
         received_notifications += 1
       end
 
@@ -48,9 +48,8 @@ module RailsEventStore
 
     specify "wraps mapper into instrumentation" do
       client = Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::Default.new)
-
       received_notifications = 0
-      ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") { received_notifications += 1 }
+      ActiveSupport::Notifications.subscribe("event_to_record.mapper.ruby_event_store") { received_notifications += 1 }
 
       client.publish(TestEvent.new)
 

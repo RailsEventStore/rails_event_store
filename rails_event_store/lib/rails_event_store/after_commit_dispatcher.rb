@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RailsEventStore
-  class AfterCommitAsyncDispatcher
+  class AfterCommitDispatcher
     def initialize(scheduler:)
       @scheduler = scheduler
     end

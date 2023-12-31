@@ -3,7 +3,7 @@ require "ruby_event_store/spec/dispatcher_lint"
 require "ruby_event_store/spec/scheduler_lint"
 
 module RubyEventStore
-  ::RSpec.describe ImmediateAsyncDispatcher do
+  ::RSpec.describe ImmediateDispatcher do
     class MyCustomScheduler
       def call(klass, record)
         klass.perform_async(record)
@@ -14,7 +14,7 @@ module RubyEventStore
       end
     end
 
-    it_behaves_like :dispatcher, ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
+    it_behaves_like :dispatcher, ImmediateDispatcher.new(scheduler: MyCustomScheduler.new)
     it_behaves_like :scheduler, MyCustomScheduler.new
 
     let(:event) { instance_double(Event) }
@@ -23,7 +23,7 @@ module RubyEventStore
 
     describe "#call" do
       specify do
-        dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
+        dispatcher = ImmediateDispatcher.new(scheduler: scheduler)
 
         handler = spy
         dispatcher.call(handler, event, record)
@@ -34,14 +34,14 @@ module RubyEventStore
 
     describe "#verify" do
       specify do
-        dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
+        dispatcher = ImmediateDispatcher.new(scheduler: scheduler)
 
         handler = double(perform_async: true)
         expect(dispatcher.verify(handler)).to eq(true)
       end
 
       specify do
-        dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
+        dispatcher = ImmediateDispatcher.new(scheduler: scheduler)
 
         handler = double
         expect(dispatcher.verify(handler)).to eq(false)

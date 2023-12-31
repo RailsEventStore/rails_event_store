@@ -16,7 +16,12 @@ module RubyEventStore
       include SchemaHelper
 
       def serializer
-        Serializers::YAML
+        case ENV["DATA_TYPE"]
+        when /json/
+          JSON
+        else
+          Serializers::YAML
+        end
       end
 
       def run_lifecycle

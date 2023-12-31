@@ -29,47 +29,12 @@ module AggregateRoot
 
         private
 
-        def apply_order_created(_event)
+        on Orders::Events::OrderCreated do |_event|
           @status = :created
         end
 
-        def apply_order_expired(_event)
+        on Orders::Events::OrderExpired do |_event|
           @status = :expired
-        end
-      end
-    end
-
-    def with_default_event_store(store)
-      previous = AggregateRoot.configuration.default_event_store
-      AggregateRoot.configure { |config| config.default_event_store = store }
-      yield
-      AggregateRoot.configure { |config| config.default_event_store = previous }
-    end
-
-    describe "#initialize" do
-      it "should use default client if event_store not provided" do
-        with_default_event_store(event_store) do
-          repository = AggregateRoot::Repository.new
-
-          order = repository.load(order_klass.new(uuid), stream_name)
-          order_created = Orders::Events::OrderCreated.new
-          order.apply(order_created)
-          repository.store(order, stream_name)
-
-          expect(event_store.read.stream(stream_name).to_a).to eq [order_created]
-        end
-      end
-
-      it "should prefer provided event_store client" do
-        with_default_event_store(double(:event_store)) do
-          repository = AggregateRoot::Repository.new(event_store)
-
-          order = repository.load(order_klass.new(uuid), stream_name)
-          order_created = Orders::Events::OrderCreated.new
-          order.apply(order_created)
-          repository.store(order, stream_name)
-
-          expect(event_store.read.stream(stream_name).to_a).to eq [order_created]
         end
       end
     end

@@ -7,14 +7,12 @@ module RailsEventStore
     end
 
     def self.with(
-      event_store: Rails.configuration.event_store,
-      event_store_locator: nil,
-      serializer: RubyEventStore::Serializers::YAML
+      serializer: RubyEventStore::Serializers::YAML,
+      event_store_locator: -> { Rails.configuration.event_store }
     )
       Module.new do
         define_method :perform do |payload|
-          event_store = event_store_locator.call if event_store_locator
-          super(event_store.deserialize(serializer: serializer, **payload.transform_keys(&:to_sym)))
+          super(event_store_locator.call.deserialize(serializer: serializer, **payload.transform_keys(&:to_sym)))
         end
       end
     end

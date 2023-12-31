@@ -26,12 +26,14 @@ require "spec_helper"
 
       private
 
-      def apply_order_created(_event)
-        @status = :created
+      on Orders::Events::OrderCreated do |event|
+        @status     = :created
+        @created_at =  event.valid_at
       end
 
-      def apply_order_expired(_event)
-        @status = :expired
+      on Orders::Events::OrderExpired do |event|
+        @status     = :expired
+        @expired_at =  event.valid_at
       end
     end
   end
@@ -39,9 +41,8 @@ require "spec_helper"
   it "should have ability to apply event on itself" do
     order = order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
-
-    expect(order).to receive(:"apply_order_created").with(order_created).and_call_original
     order.apply(order_created)
+
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to eq([order_created])
   end
@@ -49,6 +50,12 @@ require "spec_helper"
   it "brand new aggregate does not have any unpublished events" do
     order = order_klass.new(uuid)
     expect(order.unpublished_events.to_a).to be_empty
+  end
+
+  it "should raise error for missing apply method based on a default apply strategy" do
+    order = order_klass.new(uuid)
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect { order.apply(spanish_inquisition) }.to raise_error(AggregateRoot::MissingHandler, "Missing handler method on aggregate #{order_klass} for Orders::Events::SpanishInquisition")
   end
 
   it "should receive a method call based on a default apply strategy" do
@@ -59,18 +66,9 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
-  it "should raise error for missing apply method based on a default apply strategy" do
-    order = order_klass.new(uuid)
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to raise_error(
-      AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate #{order_klass}"
-    )
-  end
-
   it "should ignore missing apply method based on a default non-strict apply strategy" do
     klass =
-      Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
+      Class.new { include AggregateRoot.with_default_strategy(strict: false) }
     order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to_not raise_error
@@ -113,7 +111,7 @@ require "spec_helper"
   end
 
   it "ruby 2.7 compatibility" do
-    klass = Class.new { include AggregateRoot.with_default_apply_strategy }
+    klass = Class.new { include AggregateRoot.with_default_strategy }
 
     # This is just a way to ensure that the AggregateMethods was included on
     # the klass directly, not that it was an include to the anonymous module.
@@ -257,16 +255,6 @@ require "spec_helper"
       expect(order.status).to eq(%i[base_created inherited_created])
       order.apply(Orders::Events::OrderExpired.new)
       expect(order.status).to eq(%i[base_expired inherited_expired])
-    end
-
-    it "does not support anonymous events" do
-      expect do
-        Class.new do
-          include AggregateRoot
-
-          on(Class.new) { |_ev| }
-        end
-      end.to raise_error(ArgumentError, "Anonymous class is missing name")
     end
   end
 

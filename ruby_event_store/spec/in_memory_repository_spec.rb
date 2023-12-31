@@ -56,7 +56,7 @@ module RubyEventStore
     end
 
     it "publishing with any position to stream with specific position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
 
       expect do
@@ -65,7 +65,7 @@ module RubyEventStore
     end
 
     it "publishing with any position to stream with any position does not raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
@@ -74,7 +74,7 @@ module RubyEventStore
     end
 
     it "publishing with specific position to stream with any position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
@@ -83,7 +83,7 @@ module RubyEventStore
     end
 
     it "linking with any position to stream with specific position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
@@ -93,7 +93,7 @@ module RubyEventStore
     end
 
     it "linking with any position to stream with any position does not raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
@@ -103,7 +103,7 @@ module RubyEventStore
     end
 
     it "linking with specific position to stream with any position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
@@ -138,14 +138,6 @@ module RubyEventStore
 
       expect do
         repository.append_to_stream([event1 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-      end.not_to raise_error
-    end
-
-    it "stream position verification is turned off by default" do
-      repository.append_to_stream([event0 = SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-
-      expect do
-        repository.append_to_stream([event1 = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
       end.not_to raise_error
     end
   end

@@ -7,7 +7,7 @@ module RubyEventStore
       Client.new(
         repository: InstrumentedRepository.new(InMemoryRepository.new, instrumenter),
         mapper: Mappers::InstrumentedMapper.new(Mappers::Default.new, instrumenter),
-        dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)
+        dispatcher: InstrumentedDispatcher.new(SyncScheduler.new, instrumenter)
       )
     end
 
@@ -37,7 +37,7 @@ module RubyEventStore
       expect { Profiler.new(instrumenter).measure(&operation) }.to output(<<~EOS).to_stdout
         metric                  ms      %
         ─────────────────────────────────
-        serialize          1000.00  16.67
+        event_to_record    1000.00  16.67
         append_to_stream   1000.00  16.67
   
         total              6000.00 100.00
@@ -56,7 +56,7 @@ module RubyEventStore
         $stdout = STDOUT
       end
 
-      expect(return_value).to eq({ "total" => 6000, "serialize" => 1000.0, "append_to_stream" => 1000.0 })
+      expect(return_value).to eq({ "total" => 6000, "event_to_record" => 1000.0, "append_to_stream" => 1000.0 })
     end
   end
 end

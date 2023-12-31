@@ -6,7 +6,7 @@ require "active_support/notifications"
 
 module RubyEventStore
   ::RSpec.describe InstrumentedDispatcher do
-    it_behaves_like :dispatcher, InstrumentedDispatcher.new(Dispatcher.new, ActiveSupport::Notifications)
+    it_behaves_like :dispatcher, InstrumentedDispatcher.new(SyncScheduler.new, ActiveSupport::Notifications)
 
     describe "#call" do
       specify "wraps around original implementation" do
@@ -23,7 +23,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_dispatcher = InstrumentedDispatcher.new(spy, ActiveSupport::Notifications)
-        subscribe_to("call.dispatcher.rails_event_store") do |notification_calls|
+        subscribe_to("call.dispatcher.ruby_event_store") do |notification_calls|
           event = Object.new
           record = Object.new
           subscriber = -> {  }
@@ -60,7 +60,7 @@ module RubyEventStore
     end
 
     specify "method unknown by instrumentation and unknown by dispatcher" do
-      some_dispatcher = Dispatcher.new
+      some_dispatcher = SyncScheduler.new
       instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
 
       expect(instrumented_dispatcher).not_to respond_to(:arbitrary_method_name)

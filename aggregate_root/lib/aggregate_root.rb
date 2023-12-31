@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "aggregate_root/version"
-require_relative "aggregate_root/configuration"
-require_relative "aggregate_root/transform"
 require_relative "aggregate_root/default_apply_strategy"
 require_relative "aggregate_root/repository"
 require_relative "aggregate_root/instrumented_repository"
@@ -11,12 +9,9 @@ require_relative "aggregate_root/snapshot_repository"
 
 module AggregateRoot
   module OnDSL
-    ANONYMOUS_CLASS = "#<Class:".freeze
-
     def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
         name = event_klass.to_s
-        raise(ArgumentError, "Anonymous class is missing name") if name.start_with? ANONYMOUS_CLASS
 
         handler_name = "on_#{name}"
         define_method(handler_name, &block)
@@ -78,11 +73,16 @@ module AggregateRoot
     end
   end
 
-  def self.with_default_apply_strategy
+  def self.with_default_strategy(strict: true)
     Module.new do
       def self.included(host_class)
         host_class.extend OnDSL
-        host_class.include AggregateRoot.with_strategy(-> { DefaultApplyStrategy.new })
+        host_class.extend Constructor
+        host_class.include AggregateMethods
+      end
+
+      define_method :apply_strategy do
+        DefaultApplyStrategy.new(strict: strict)
       end
     end
   end
@@ -90,7 +90,7 @@ module AggregateRoot
   def self.with_strategy(strategy)
     Module.new do
       def self.included(host_class)
-        host_class.extend Constructor
+        host_class.extend  Constructor
         host_class.include AggregateMethods
       end
 
@@ -101,6 +101,6 @@ module AggregateRoot
   end
 
   def self.included(host_class)
-    host_class.include with_default_apply_strategy
+    host_class.include with_default_strategy
   end
 end

@@ -34,7 +34,7 @@ require "aggregate_root"
 
       private
 
-      def apply_order_created(*)
+      on "res_testing.OrderCreated" do |_event|
         @status = :created
       end
 
@@ -78,7 +78,7 @@ require "aggregate_root"
 
     expect { order.apply(spanish_inquisition) }.to raise_error(
       AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate ResTesting::Order"
+      "Missing handler method on aggregate ResTesting::Order for res_testing.SpanishInquisition"
     )
   end
 end

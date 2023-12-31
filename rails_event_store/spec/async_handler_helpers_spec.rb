@@ -71,7 +71,7 @@ module RailsEventStore
     let(:another_event_store) { RailsEventStore::Client.new }
     let(:json_event_store) do
       RailsEventStore::Client.new(
-        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON))
+        dispatcher: RubyEventStore::ImmediateDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON))
       )
     end
     let(:application) { instance_double(Rails::Application) }
@@ -95,7 +95,7 @@ module RailsEventStore
     end
 
     specify "with specified event store" do
-      HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
+      HandlerWithAnotherEventStore.prepend RailsEventStore::AsyncHandler.with(event_store_locator: -> { another_event_store} )
       event_store.subscribe_to_all_events(HandlerWithAnotherEventStore)
       event_store.publish(ev = RubyEventStore::Event.new)
       expect($queue.pop).to eq(ev)
@@ -103,7 +103,6 @@ module RailsEventStore
 
     specify "with specified event store locator" do
       HandlerWithEventStoreLocator.prepend RailsEventStore::AsyncHandler.with(
-                                             event_store: nil,
                                              event_store_locator: -> { another_event_store }
                                            )
       another_event_store.subscribe_to_all_events(HandlerWithEventStoreLocator)
@@ -113,7 +112,7 @@ module RailsEventStore
 
     specify "with specified serializer" do
       HandlerWithSpecifiedSerializer.prepend RailsEventStore::AsyncHandler.with(
-                                               event_store: json_event_store,
+                                               event_store_locator: -> { json_event_store },
                                                serializer: JSON
                                              )
       json_event_store.subscribe_to_all_events(HandlerWithSpecifiedSerializer)
@@ -184,7 +183,7 @@ module RailsEventStore
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended with event store locator" do
       HandlerE = Class.new(IdOnlyHandler)
-      HandlerE.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
+      HandlerE.prepend AsyncHandlerJobIdOnly.with(event_store_locator: -> { event_store })
       event_store.subscribe_to_all_events(HandlerE)
       event_store.publish(ev = RubyEventStore::Event.new)
 

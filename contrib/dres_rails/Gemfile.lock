@@ -266,7 +266,6 @@ DEPENDENCIES
   mutant-rspec (= 0.11.22)
   pg
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   rspec-rails

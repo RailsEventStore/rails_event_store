@@ -2,7 +2,7 @@ require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
 
 module RailsEventStore
-  ::RSpec.describe AfterCommitAsyncDispatcher do
+  ::RSpec.describe AfterCommitDispatcher do
     DummyError = Class.new(StandardError)
 
     class DummyRecord < ActiveRecord::Base
@@ -10,13 +10,13 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
-    it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
+    it_behaves_like :dispatcher, AfterCommitDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
 
     let(:event) { TimeEnrichment.with(RubyEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8")) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
     let(:serialized_record) { record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s) }
 
-    let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
+    let(:dispatcher) { AfterCommitDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
 
     before(:each) { MyActiveJobAsyncHandler.reset }
 

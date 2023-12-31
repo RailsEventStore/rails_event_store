@@ -2,20 +2,20 @@ require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
-  ::RSpec.describe Dispatcher do
-    it_behaves_like :dispatcher, Dispatcher.new
+  ::RSpec.describe SyncScheduler do
+    it_behaves_like :dispatcher, SyncScheduler.new
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }
     let(:handler) { HandlerClass.new }
 
     specify "does not allow silly subscribers" do
-      expect(Dispatcher.new.verify(:symbol)).to eq(false)
-      expect(Dispatcher.new.verify(Object.new)).to eq(false)
+      expect(SyncScheduler.new.verify(:symbol)).to eq(false)
+      expect(SyncScheduler.new.verify(Object.new)).to eq(false)
     end
 
     specify "does not allow class without instance method #call" do
       klass = Class.new
-      expect(Dispatcher.new.verify(klass)).to eq(false)
+      expect(SyncScheduler.new.verify(klass)).to eq(false)
     end
 
     specify "does not allow class without constructor requiring arguments" do
@@ -27,24 +27,24 @@ module RubyEventStore
 
           def call; end
         end
-      expect(Dispatcher.new.verify(klass)).to eq(false)
+      expect(SyncScheduler.new.verify(klass)).to eq(false)
     end
 
     specify "calls subscribed instance" do
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(handler, event, record)
+      SyncScheduler.new.call(handler, event, record)
     end
 
     specify "calls subscribed class" do
       expect(HandlerClass).to receive(:new).and_return(handler)
       expect(handler).to receive(:call).with(event)
-      Dispatcher.new.call(HandlerClass, event, record)
+      SyncScheduler.new.call(-> (event) { HandlerClass.new.call(event) }, event, record)
     end
 
     specify "allows callable classes and instances" do
-      expect(Dispatcher.new.verify(HandlerClass)).to eq(true)
-      expect(Dispatcher.new.verify(HandlerClass.new)).to eq(true)
-      expect(Dispatcher.new.verify(Proc.new { "yo" })).to eq(true)
+      expect(SyncScheduler.new.verify(-> { HandlerClass.new })).to eq(true)
+      expect(SyncScheduler.new.verify(HandlerClass.new)).to eq(true)
+      expect(SyncScheduler.new.verify(Proc.new { "yo" })).to eq(true)
     end
 
     private

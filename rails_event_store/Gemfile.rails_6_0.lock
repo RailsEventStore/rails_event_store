@@ -250,7 +250,6 @@ DEPENDENCIES
   rack-test
   rails (~> 6.0.6)
   rails_event_store!
-  rails_event_store_active_record!
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
