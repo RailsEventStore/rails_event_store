@@ -107,6 +107,8 @@ module RailsEventStore
 
       def expect_identity_access_spec_helper
         expect("identity_access/spec/spec_helper.rb").to match_content(<<~EOF)
+          # frozen_string_literal: true
+
           ENV["RAILS_ENV"] = "test"
 
           $LOAD_PATH.push File.expand_path("../../../spec", __FILE__)
@@ -119,6 +121,8 @@ module RailsEventStore
 
       def expect_identity_access_bc_spec
         expect("identity_access/spec/identity_access_spec.rb").to match_content(<<~EOF)
+          # frozen_string_literal: true
+
           require_relative "spec_helper"
 
           ::RSpec.describe IdentityAccess do
@@ -128,6 +132,8 @@ module RailsEventStore
 
       def expect_identity_access_require_bc_spec
         expect("spec/identity_access_spec.rb").to match_content(<<~'EOF')
+          # frozen_string_literal: true
+
           require "rails_helper"
 
           path = Rails.root.join("identity_access/spec")
@@ -139,12 +145,16 @@ module RailsEventStore
 
       def expect_identity_access_test_helper
         expect("identity_access/test/test_helper.rb").to match_content(<<~EOF)
+          # frozen_string_literal: true
+
           require_relative "../lib/identity_access"
         EOF
       end
 
       def expect_identity_access_bc_test
         expect("test/identity_access_test.rb").to match_content(<<~EOF)
+          # frozen_string_literal: true
+
           require_relative "test_helper"
 
           Dir[Rails.root.join("identity_access/test/*_test.rb")].each { |file| require file }
