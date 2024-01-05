@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def reset_sidekiq_middlewares
   Sidekiq.configure_client { |config| config.client_middleware { |chain| chain.clear } }
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 require "ruby_event_store/spec/scheduler_lint"
 require_relative "./support/sidekiq"

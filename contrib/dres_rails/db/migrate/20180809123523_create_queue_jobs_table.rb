@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateQueueJobsTable < ActiveRecord::Migration[5.2]
   def change
     create_table :dres_rails_queue_jobs do |t|

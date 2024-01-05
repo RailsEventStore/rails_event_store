@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This migration comes from dres_rails (originally 20180809123523)
 class CreateQueueJobsTable < ActiveRecord::Migration[5.2]
   def change

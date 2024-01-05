@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../support/helpers/rspec_defaults"
 require_relative "../../../support/helpers/migrator"
 require_relative "../../../support/helpers/schema_helper"

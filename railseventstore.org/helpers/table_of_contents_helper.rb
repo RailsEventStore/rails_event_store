@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TableOfContentsHelper
   def table_of_contents
     content_without_frontmatter = File.readlines(current_page.source_file).drop(3).join("\n")

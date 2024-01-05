@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   module RSpec
     class MatchEvents

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "migrator"
 require_relative "subprocess_helper"
 

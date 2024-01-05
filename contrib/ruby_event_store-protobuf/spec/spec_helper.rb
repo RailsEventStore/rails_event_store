@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ruby_event_store"
 require "ruby_event_store/protobuf"
 require_relative "mappers/events_pb"

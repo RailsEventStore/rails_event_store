@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ::Sequel.migration do
   up do
     ENV["DATA_TYPE"] ||= "text"

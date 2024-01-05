@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 FooBarEvent = Class.new(::RubyEventStore::Event)

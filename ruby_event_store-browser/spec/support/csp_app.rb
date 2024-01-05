@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CspApp
   def initialize(app, policy)
     @app = app

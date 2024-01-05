@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_event_store"
 require "example_invoicing_app"
 require "support/fake_configuration"

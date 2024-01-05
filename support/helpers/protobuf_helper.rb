@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ProtobufHelper
   def require_protobuf_dependencies
     begin

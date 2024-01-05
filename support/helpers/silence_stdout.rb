@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SilenceStdout
   def silence_stdout
     $stdout = StringIO.new

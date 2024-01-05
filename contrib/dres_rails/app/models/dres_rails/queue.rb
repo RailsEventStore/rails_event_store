@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DresRails
   class Queue < ::ActiveRecord::Base
     has_many :jobs, -> { order(:id) }

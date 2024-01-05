@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "dres_client/version"
 require "net/http"
 require "net/https"

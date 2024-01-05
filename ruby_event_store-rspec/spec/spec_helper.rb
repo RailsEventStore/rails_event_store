@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "aggregate_root"
 require "ruby_event_store"
 require "ruby_event_store/rspec"

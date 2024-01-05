@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def drop_tables
   ActiveRecord::Migration.drop_table("event_store_outbox")
   ActiveRecord::Migration.drop_table("event_store_outbox_locks")

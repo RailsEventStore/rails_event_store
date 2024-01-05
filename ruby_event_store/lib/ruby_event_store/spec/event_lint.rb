@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples :event do |event_class, data, metadata|
   it "allows initialization" do
     expect {
