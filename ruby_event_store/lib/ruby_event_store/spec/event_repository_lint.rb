@@ -909,7 +909,7 @@ module RubyEventStore
 
     specify "can store arbitrary binary data" do
       skip unless helper.supports_binary?
-      binary = "\xB0"
+      binary = String.new("\xB0")
       expect(binary.valid_encoding?).to eq(false)
       binary.force_encoding("binary")
       expect(binary.valid_encoding?).to eq(true)
