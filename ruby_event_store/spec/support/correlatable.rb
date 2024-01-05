@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples :correlatable do |factory|
   specify "correlation_id && causation_id" do
     e0 = factory.call(event_id: "doh")

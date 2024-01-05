@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 require "rails_event_store/middleware"
 require "rack/test"

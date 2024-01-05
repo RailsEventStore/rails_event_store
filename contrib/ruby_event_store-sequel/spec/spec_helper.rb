@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ruby_event_store/sequel"
 require_relative "../../../support/helpers/rspec_defaults"
 require_relative "../../../support/helpers/rspec_sql_matchers"

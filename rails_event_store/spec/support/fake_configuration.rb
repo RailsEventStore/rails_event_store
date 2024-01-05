@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FakeConfiguration
   def initialize
     @options = {}

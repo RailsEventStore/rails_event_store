@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "logger"
 require "redis"
 require "active_record"

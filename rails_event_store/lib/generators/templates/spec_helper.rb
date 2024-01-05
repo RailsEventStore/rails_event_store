@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV["RAILS_ENV"] = "test"
 
 $LOAD_PATH.push File.expand_path("../../../spec", __FILE__)

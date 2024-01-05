@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ruby_event_store/rom"
 require "dry/inflector"
 require_relative "../../../support/helpers/rspec_defaults"

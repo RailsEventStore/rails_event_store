@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RubyEventStore
   class Profiler
     METRICS = [/rails_event_store/, /aggregate_root/, "total"].freeze

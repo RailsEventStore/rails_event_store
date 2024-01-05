@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ruby_event_store"
 require_relative "../lib/ruby_event_store/browser/app"
 require_relative "../spec/support/csp_app"

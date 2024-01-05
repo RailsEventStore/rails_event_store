@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'json'
 require 'ruby_event_store/spec/mapper_lint'

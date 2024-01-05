@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WebClient
   extend Forwardable
   def_delegators :@session, :get, :post

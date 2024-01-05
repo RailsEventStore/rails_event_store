@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This migration comes from dres_rails (originally 20180802140810)
 class CreateDresRailsQueues < ActiveRecord::Migration[5.2]
   def change

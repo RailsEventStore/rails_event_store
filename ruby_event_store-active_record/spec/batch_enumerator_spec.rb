@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 require "ruby_event_store/active_record/batch_enumerator"
 

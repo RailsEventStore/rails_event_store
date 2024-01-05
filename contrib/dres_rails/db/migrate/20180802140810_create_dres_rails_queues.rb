@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateDresRailsQueues < ActiveRecord::Migration[5.2]
   def change
     create_table :dres_rails_queues do |t|

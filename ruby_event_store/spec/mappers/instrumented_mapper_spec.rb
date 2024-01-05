@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
 require "active_support/core_ext/object/try"

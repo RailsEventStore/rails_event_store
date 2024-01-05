@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require_relative "../../db/migrate/20180802140810_create_dres_rails_queues"
 require_relative "../../db/migrate/20180809123523_create_queue_jobs_table"
