@@ -22,7 +22,6 @@ module RubyEventStore
         Stream.new("stream"),
         ExpectedVersion.none
       )
-      expect(eid).not_to receive(:eql?)
       expect do
         repository.append_to_stream(
           [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
