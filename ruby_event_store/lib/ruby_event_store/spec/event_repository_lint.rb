@@ -909,10 +909,7 @@ module RubyEventStore
 
     specify "can store arbitrary binary data" do
       skip unless helper.supports_binary?
-      binary = String.new("\xB0")
-      expect(binary.valid_encoding?).to eq(false)
-      binary.force_encoding("binary")
-      expect(binary.valid_encoding?).to eq(true)
+      binary = String.new("\xB0").force_encoding("binary")
 
       repository.append_to_stream([event = SRecord.new(data: binary, metadata: binary)], stream, version_none)
     end
