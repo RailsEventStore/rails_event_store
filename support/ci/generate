@@ -309,7 +309,14 @@ class CI
     end
 
     def make(target)
-      { "run" => "make #{target}", "working-directory" => "${{ env.WORKING_DIRECTORY }}" }
+      body = {
+        "run" => "make #{target}",
+        "working-directory" => "${{ env.WORKING_DIRECTORY }}",
+        "env" => {
+          "RUBYOPT" => "--enable-frozen-string-literal"
+        }
+      }
+      body
     end
 
     def upload_artifact(name)
@@ -560,7 +567,7 @@ class CI
         {
           "runs-on" => "ubuntu-20.04",
           "timeout-minutes" => 120,
-          "env" => { "WORKING_DIRECTORY" => working_directory, "RUBYOPT" => "--enable-frozen-string-literal" }.merge(env(matrix)),
+          "env" => { "WORKING_DIRECTORY" => working_directory }.merge(env(matrix)),
           "services" => services.reduce(&:merge),
           "strategy" => {
             "fail-fast" => false,

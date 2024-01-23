@@ -11,7 +11,6 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
-      RUBYOPT: "--enable-frozen-string-literal"
     steps:
     - uses: actions/checkout@v4
       with:
@@ -27,8 +26,12 @@ jobs:
         key: elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}
     - run: make install-npm
       working-directory: "${{ env.WORKING_DIRECTORY }}"
+      env:
+        RUBYOPT: "--enable-frozen-string-literal"
     - run: make build-npm
       working-directory: "${{ env.WORKING_DIRECTORY }}"
+      env:
+        RUBYOPT: "--enable-frozen-string-literal"
     - uses: actions/upload-artifact@v3
       with:
         name: ruby_event_store_browser.js

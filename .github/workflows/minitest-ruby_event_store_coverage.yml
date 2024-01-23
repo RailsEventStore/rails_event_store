@@ -29,7 +29,6 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/minitest-ruby_event_store
-      RUBYOPT: "--enable-frozen-string-literal"
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
@@ -51,3 +50,5 @@ jobs:
         working-directory: "${{ env.WORKING_DIRECTORY }}"
     - run: make mutate
       working-directory: "${{ env.WORKING_DIRECTORY }}"
+      env:
+        RUBYOPT: "--enable-frozen-string-literal"

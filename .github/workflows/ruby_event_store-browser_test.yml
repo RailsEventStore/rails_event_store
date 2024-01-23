@@ -37,7 +37,6 @@ jobs:
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
-      RUBYOPT: "--enable-frozen-string-literal"
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
     strategy:
@@ -78,3 +77,5 @@ jobs:
         key: elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}
     - run: make install-npm test
       working-directory: "${{ env.WORKING_DIRECTORY }}"
+      env:
+        RUBYOPT: "--enable-frozen-string-literal"
