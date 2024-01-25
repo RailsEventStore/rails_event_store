@@ -9,6 +9,7 @@ import Http
 import Route
 import TimeHelpers exposing (formatTimestamp)
 import Url
+import Time
 
 
 
@@ -272,5 +273,5 @@ itemRow baseUrl { eventType, createdAt, eventId } =
             [ text eventId ]
         , td
             [ class "py-2  pr-4 font-mono text-sm leading-none font-medium text-right align-middle" ]
-            [ text (formatTimestamp createdAt) ]
+            [ text (formatTimestamp createdAt Time.utc) ]
         ]
