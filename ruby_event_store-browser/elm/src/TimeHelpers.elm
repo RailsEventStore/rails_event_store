@@ -4,8 +4,8 @@ import DateFormat exposing (..)
 import Time
 
 
-formatTimestamp : Time.Posix -> Time.Zone -> String
-formatTimestamp time zone =
+formatTimestamp : Time.Posix -> Time.Zone -> String -> String
+formatTimestamp time zone zoneName =
     format
         [ dayOfMonthFixed
         , text "."
@@ -21,7 +21,7 @@ formatTimestamp time zone =
         , text "."
         , millisecondFixed
         , text " "
-        , text "UTC"
+        , text zoneName
         ]
         zone
         time
