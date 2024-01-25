@@ -20,6 +20,8 @@ formatTimestamp time zone =
         , secondFixed
         , text "."
         , millisecondFixed
+        , text " "
+        , text "UTC"
         ]
         zone
         time
