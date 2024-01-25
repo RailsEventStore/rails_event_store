@@ -7,9 +7,11 @@ import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
 import Route
-import TimeHelpers exposing (formatTimestamp)
-import Url
+import Task exposing (Task)
 import Time
+import TimeHelpers exposing (formatTimestamp)
+import TimeZone
+import Url
 
 
 
@@ -22,6 +24,8 @@ type alias Model =
     , flags : Flags
     , relatedStreams : Maybe (List String)
     , problems : List Problem
+    , zone : Time.Zone
+    , zoneName : String
     }
 
 
@@ -36,6 +40,8 @@ initModel flags streamName =
     , relatedStreams = Nothing
     , flags = flags
     , problems = []
+    , zone = Time.utc
+    , zoneName = "UTC"
     }
 
 
@@ -47,11 +53,15 @@ type Msg
     = GoToPage Api.PaginationLink
     | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | StreamFetched (Result Http.Error Api.Stream)
+    | ReceiveTimeZone (Result TimeZone.Error ( String, Time.Zone ))
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getStream StreamFetched flags streamId
+    Cmd.batch
+        [ Api.getStream StreamFetched flags streamId
+        , TimeZone.getZone |> Task.attempt ReceiveTimeZone
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,9 +90,15 @@ update msg model =
             in
             ( { model | problems = serverErrors }, Cmd.none )
 
+        ReceiveTimeZone (Ok ( zoneName, zone )) ->
+            ( { model | zone = zone, zoneName = zoneName }, Cmd.none )
+
+        ReceiveTimeZone (Err error) ->
+            ( model, Cmd.none )
+
 
 view : Model -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags } =
+view { streamName, events, relatedStreams, problems, flags, zone, zoneName } =
     let
         title =
             "Stream " ++ streamName
@@ -93,7 +109,7 @@ view { streamName, events, relatedStreams, problems, flags } =
     case problems of
         [] ->
             ( title
-            , browseEvents flags.rootUrl header events relatedStreams
+            , browseEvents flags.rootUrl header events relatedStreams zone zoneName
             )
 
         _ ->
@@ -109,8 +125,8 @@ view { streamName, events, relatedStreams, problems, flags } =
             )
 
 
-browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Html Msg
-browseEvents baseUrl title { links, events } relatedStreams =
+browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Time.Zone -> String -> Html Msg
+browseEvents baseUrl title { links, events } relatedStreams zone zoneName =
     div [ class "py-8" ]
         [ div
             [ class "flex px-8 justify-between" ]
@@ -119,7 +135,7 @@ browseEvents baseUrl title { links, events } relatedStreams =
                 [ text title ]
             , div [] [ displayPagination links ]
             ]
-        , div [ class "px-8" ] [ renderResults baseUrl events ]
+        , div [ class "px-8" ] [ renderResults baseUrl events zone zoneName ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
 
@@ -224,8 +240,8 @@ firstPageButton link =
         [ text "first" ]
 
 
-renderResults : Url.Url -> List Api.Event -> Html Msg
-renderResults baseUrl events =
+renderResults : Url.Url -> List Api.Event -> Time.Zone -> String -> Html Msg
+renderResults baseUrl events zone zoneName =
     case events of
         [] ->
             p
@@ -253,13 +269,13 @@ renderResults baseUrl events =
                     ]
                 , tbody
                     [ class "align-top" ]
-                    (List.map (itemRow baseUrl) events)
+                    (List.map (itemRow baseUrl zone zoneName) events)
                 ]
 
 
-itemRow : Url.Url -> Api.Event -> Html Msg
-itemRow baseUrl { eventType, createdAt, eventId } =
-    tr [ class "border-gray-50 border-b hover:bg-gray-100"]
+itemRow : Url.Url -> Time.Zone -> String -> Api.Event -> Html Msg
+itemRow baseUrl zone zoneName { eventType, createdAt, eventId } =
+    tr [ class "border-gray-50 border-b hover:bg-gray-100" ]
         [ td
             [ class "py-2 px-4 align-middle" ]
             [ a
@@ -273,5 +289,5 @@ itemRow baseUrl { eventType, createdAt, eventId } =
             [ text eventId ]
         , td
             [ class "py-2  pr-4 font-mono text-sm leading-none font-medium text-right align-middle" ]
-            [ text (formatTimestamp createdAt Time.utc) ]
+            [ text (formatTimestamp createdAt zone zoneName) ]
         ]

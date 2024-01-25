@@ -213,8 +213,8 @@ showEvent baseUrl event maybeCausedEvents =
                 [ class "w-full text-left grid md:grid-cols-3 gap-8 overflow-hidden"
                 ]
                 [ section [ class "space-y-4" ]
-                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ] [ text "Event ID"]
-                     , div [ class "text-sm font-medium font-mono"] [ text event.eventId ]
+                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ] [ text "Event ID" ]
+                    , div [ class "text-sm font-medium font-mono" ] [ text event.eventId ]
                     ]
                 , section [ class "space-y-4" ]
                     [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ] [ text "Raw Data" ]
