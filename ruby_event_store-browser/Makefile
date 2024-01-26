@@ -28,7 +28,7 @@ clean-css:
 watch-elm: clean-elm
 	@cd elm; \
 		npx chokidar-cli "src/**/*.elm" \
-			-c "npx elm make src/Main.elm --output ../$(JS_OUTFILE)" \
+			-c "npx elm make src/Main.elm --debug --output ../$(JS_OUTFILE)" \
 			--initial
 
 watch-css: clean-css
