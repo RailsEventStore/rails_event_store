@@ -89,12 +89,22 @@ update msg model =
                     )
 
         ( GotShowStreamMsg showStreamUIMsg, ShowStream showStreamModel ) ->
-            Page.ShowStream.update showStreamUIMsg showStreamModel
-                |> updateWith ShowStream GotShowStreamMsg model
+            let
+                ( subModel, subCmd ) =
+                    Page.ShowStream.update showStreamUIMsg showStreamModel
+            in
+            ( { model | page = ShowStream subModel }
+            , Cmd.map GotShowStreamMsg subCmd
+            )
 
         ( GotShowEventMsg openedEventUIMsg, ShowEvent showEventModel ) ->
-            Page.ShowEvent.update openedEventUIMsg showEventModel
-                |> updateWith ShowEvent GotShowEventMsg model
+            let
+                ( subModel, subCmd ) =
+                    Page.ShowEvent.update openedEventUIMsg showEventModel
+            in
+            ( { model | page = ShowEvent subModel }
+            , Cmd.map GotShowEventMsg subCmd
+            )
 
         ( GotLayoutMsg layoutMsg, _ ) ->
             case model.flags of
@@ -110,13 +120,6 @@ update msg model =
 
         ( _, _ ) ->
             ( model, Cmd.none )
-
-
-updateWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
-updateWith toPageModel toMsg model ( subModel, subCmd ) =
-    ( { model | page = toPageModel subModel }
-    , Cmd.map toMsg subCmd
-    )
 
 
 urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
