@@ -104,7 +104,7 @@ update msg model =
                 Just flags ->
                     let
                         ( layoutModel, layoutCmd ) =
-                            Layout.update layoutMsg (wrapModel model model.layout flags)
+                            Layout.update layoutMsg (WrappedModel model.layout model.key flags)
                     in
                     ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
@@ -172,7 +172,7 @@ view model =
                 [ div []
                     [ Layout.view
                         GotLayoutMsg
-                        (wrapModel model model.layout flags)
+                        (WrappedModel model.layout model.key flags)
                         pageContent
                     ]
                 ]
@@ -216,11 +216,3 @@ viewOnePage pageMsgBuilder pageViewFunction pageModel =
             pageViewFunction pageModel
     in
     ( Just pageTitle, Html.map pageMsgBuilder pageContent )
-
-
-wrapModel : Model -> a -> Flags -> WrappedModel a
-wrapModel globalModel internalModel flags =
-    { internal = internalModel
-    , key = globalModel.key
-    , flags = flags
-    }
