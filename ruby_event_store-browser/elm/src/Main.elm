@@ -220,7 +220,7 @@ viewPage page timeModel =
         ShowEvent pageModel ->
             let
                 ( title, content ) =
-                    Page.ShowEvent.view pageModel timeModel
+                    Page.ShowEvent.view pageModel
             in
             ( Just title, Html.map GotShowEventMsg content )
 
