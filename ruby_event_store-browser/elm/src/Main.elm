@@ -71,10 +71,7 @@ buildModel rawFlags location key =
             , flags = buildFlags rawFlags
             , key = key
             , layout = Layout.buildModel
-            , time =
-                { zone = Time.utc
-                , zoneName = "UTC"
-                }
+            , time = BrowserTime.defaultTimeZone
             }
 
         ( model, cmd ) =
