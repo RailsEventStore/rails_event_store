@@ -34,7 +34,10 @@ type alias Model =
     , flags : Maybe Flags
     , key : Browser.Navigation.Key
     , layout : Layout.Model
-    , time : BrowserTime.TimeZone
+    , time :
+        { detected : BrowserTime.TimeZone
+        , selected : BrowserTime.TimeZone
+        }
     }
 
 
@@ -71,7 +74,10 @@ buildModel rawFlags location key =
             , flags = buildFlags rawFlags
             , key = key
             , layout = Layout.buildModel
-            , time = BrowserTime.defaultTimeZone
+            , time =
+                { detected = BrowserTime.defaultTimeZone
+                , selected = BrowserTime.defaultTimeZone
+                }
             }
 
         ( model, cmd ) =
@@ -128,17 +134,31 @@ update msg model =
 
                 Just flags ->
                     let
-                        ( layoutModel, layoutCmd ) =
-                            Layout.update layoutMsg (WrappedModel model.layout model.key flags)
+                        ( wrappedModel, layoutCmd ) =
+                            Layout.update layoutMsg (WrappedModel model.layout model.key model.time flags)
+
+                        time =
+                            model.time
+
+                        newTime =
+                            { time | selected = wrappedModel.time.selected }
                     in
-                    ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
+                    ( { model | layout = wrappedModel.internal, time = newTime }
+                    , Cmd.map GotLayoutMsg layoutCmd
+                    )
 
         ( ReceiveTimeZone (Ok ( zoneName, zone )), _ ) ->
             let
-                time =
+                detectedTime =
                     { zone = zone, zoneName = zoneName }
+
+                time =
+                    model.time
+
+                newTime =
+                    { time | detected = detectedTime, selected = detectedTime }
             in
-            ( { model | time = time }, Cmd.none )
+            ( { model | time = newTime }, Cmd.none )
 
         ( _, _ ) ->
             ( model, Cmd.none )
@@ -187,10 +207,10 @@ view model =
         Just flags ->
             let
                 ( title, content ) =
-                    viewPage model.page model.time
+                    viewPage model.page model.time.selected
 
                 wrappedModel =
-                    WrappedModel model.layout model.key flags
+                    WrappedModel model.layout model.key model.time flags
             in
             { title = fullTitle title
             , body = [ div [] [ Layout.view GotLayoutMsg wrappedModel content ] ]
@@ -208,12 +228,12 @@ fullTitle maybePageTitle =
 
 
 viewPage : Page -> BrowserTime.TimeZone -> ( Maybe String, Html Msg )
-viewPage page timeModel =
+viewPage page selectedTime =
     case page of
         ShowStream pageModel ->
             let
                 ( title, content ) =
-                    Page.ShowStream.view pageModel timeModel
+                    Page.ShowStream.view pageModel selectedTime
             in
             ( Just title, Html.map GotShowStreamMsg content )
 

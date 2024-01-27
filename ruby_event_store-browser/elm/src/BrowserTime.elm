@@ -21,7 +21,7 @@ format { zone, zoneName } time =
         , monthFixed
         , text "."
         , yearNumber
-        , text ", "
+        , text " "
         , hourMilitaryFixed
         , text ":"
         , minuteFixed
@@ -29,8 +29,6 @@ format { zone, zoneName } time =
         , secondFixed
         , text "."
         , millisecondFixed
-        , text " "
-        , text zoneName
         ]
         zone
         time
