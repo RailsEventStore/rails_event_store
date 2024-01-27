@@ -1,4 +1,4 @@
-module BrowserTime exposing (TimeZone, format)
+module BrowserTime exposing (TimeZone, defaultTimeZone, format)
 
 import DateFormat exposing (dayOfMonthFixed, hourMilitaryFixed, millisecondFixed, minuteFixed, monthFixed, secondFixed, text, yearNumber)
 import Time
@@ -6,6 +6,11 @@ import Time
 
 type alias TimeZone =
     { zone : Time.Zone, zoneName : String }
+
+
+defaultTimeZone : TimeZone
+defaultTimeZone =
+    { zone = Time.utc, zoneName = "UTC" }
 
 
 format : TimeZone -> Time.Posix -> String
