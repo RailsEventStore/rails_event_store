@@ -94,25 +94,27 @@ browserNavigation model =
 
 browserFooter : Flags -> Html Msg
 browserFooter flags =
+    let
+        spacer =
+            span
+                [ class "ml-4 font-bold inline-block text-gray-400" ]
+                [ text "•" ]
+    in
     footer
         [ class "border-gray-400 border-t py-4" ]
         [ div
             [ class "flex justify-center text-gray-500 text-sm" ]
             [ text ("RubyEventStore v" ++ flags.resVersion)
-            , span
-                [ class "font-bold text-gray-400 inline-block ml-4" ]
-                [ text "•" ]
+            , spacer
             , a
                 [ href "https://railseventstore.org/docs/install/"
-                , class "text-gray-500 ml-4"
+                , class "ml-4"
                 ]
                 [ text "Documentation" ]
-            , span
-                [ class "font-bold text-gray-400 inline-block ml-4" ]
-                [ text "•" ]
+            , spacer
             , a
                 [ href "https://railseventstore.org/support/"
-                , class "text-gray-800 ml-4"
+                , class "ml-4"
                 ]
                 [ text "Support" ]
             ]
