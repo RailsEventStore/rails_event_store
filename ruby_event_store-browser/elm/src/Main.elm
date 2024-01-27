@@ -189,26 +189,19 @@ fullTitle maybePageTitle =
 viewPage : Page -> ( Maybe String, Html Msg )
 viewPage page =
     case page of
-        ShowStream showStreamUIModel ->
-            viewOnePage
-                GotShowStreamMsg
-                Page.ShowStream.view
-                showStreamUIModel
+        ShowStream pageModel ->
+            let
+                ( title, content ) =
+                    Page.ShowStream.view pageModel 
+            in
+            ( Just title, Html.map GotShowStreamMsg content )
 
-        ShowEvent openedEventUIModel ->
-            viewOnePage
-                GotShowEventMsg
-                Page.ShowEvent.view
-                openedEventUIModel
+        ShowEvent pageModel ->
+            let
+                ( title, content ) =
+                    Page.ShowEvent.view pageModel 
+            in
+            ( Just title, Html.map GotShowEventMsg content )
 
         NotFound ->
             ( Nothing, Layout.viewNotFound )
-
-
-viewOnePage : (pageMsg -> Msg) -> (model -> ( String, Html pageMsg )) -> model -> ( Maybe String, Html Msg )
-viewOnePage pageMsgBuilder pageViewFunction pageModel =
-    let
-        ( pageTitle, pageContent ) =
-            pageViewFunction pageModel
-    in
-    ( Just pageTitle, Html.map pageMsgBuilder pageContent )
