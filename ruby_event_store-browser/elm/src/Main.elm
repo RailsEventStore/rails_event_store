@@ -67,14 +67,14 @@ buildModel rawFlags location key =
             , layout = Layout.buildModel
             }
     in
-    urlUpdate initModel location
+    navigate initModel location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model.page ) of
         ( ChangeUrl location, _ ) ->
-            urlUpdate model location
+            navigate model location
 
         ( ClickedLink urlRequest, _ ) ->
             case urlRequest of
@@ -122,8 +122,8 @@ update msg model =
             ( model, Cmd.none )
 
 
-urlUpdate : Model -> Url.Url -> ( Model, Cmd Msg )
-urlUpdate model location =
+navigate : Model -> Url.Url -> ( Model, Cmd Msg )
+navigate model location =
     case model.flags of
         Nothing ->
             ( model, Cmd.none )
