@@ -8,6 +8,9 @@ import Layout
 import Page.ShowEvent
 import Page.ShowStream
 import Route
+import Task
+import Time
+import TimeZone
 import Url
 import Url.Parser exposing ((</>))
 import WrappedModel exposing (..)
@@ -30,6 +33,10 @@ type alias Model =
     , flags : Maybe Flags
     , key : Browser.Navigation.Key
     , layout : Layout.Model
+    , time :
+        { zone : Time.Zone
+        , zoneName : String
+        }
     }
 
 
@@ -39,6 +46,7 @@ type Msg
     | GotLayoutMsg Layout.Msg
     | GotShowEventMsg Page.ShowEvent.Msg
     | GotShowStreamMsg Page.ShowStream.Msg
+    | ReceiveTimeZone (Result TimeZone.Error ( String, Time.Zone ))
 
 
 type Page
@@ -65,9 +73,21 @@ buildModel rawFlags location key =
             , flags = buildFlags rawFlags
             , key = key
             , layout = Layout.buildModel
+            , time =
+                { zone = Time.utc
+                , zoneName = "UTC"
+                }
             }
+
+        ( model, cmd ) =
+            navigate initModel location
     in
-    navigate initModel location
+    ( model
+    , Cmd.batch
+        [ cmd
+        , TimeZone.getZone |> Task.attempt ReceiveTimeZone
+        ]
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -118,6 +138,13 @@ update msg model =
                     in
                     ( { model | layout = layoutModel }, Cmd.map GotLayoutMsg layoutCmd )
 
+        ( ReceiveTimeZone (Ok ( zoneName, zone )), _ ) ->
+            let
+                time =
+                    { zone = zone, zoneName = zoneName }
+            in
+            ( { model | time = time }, Cmd.none )
+
         ( _, _ ) ->
             ( model, Cmd.none )
 
@@ -159,17 +186,13 @@ view model =
     case model.flags of
         Nothing ->
             { title = fullTitle Nothing
-            , body =
-                [ div []
-                    [ Layout.viewIncorrectConfig
-                    ]
-                ]
+            , body = [ div [] [ Layout.viewIncorrectConfig ] ]
             }
 
         Just flags ->
             let
                 ( title, content ) =
-                    viewPage model.page
+                    viewPage model.page model.time
 
                 wrappedModel =
                     WrappedModel model.layout model.key flags
@@ -189,20 +212,20 @@ fullTitle maybePageTitle =
             "RubyEventStore::Browser"
 
 
-viewPage : Page -> ( Maybe String, Html Msg )
-viewPage page =
+viewPage : Page -> { zone : Time.Zone, zoneName : String } -> ( Maybe String, Html Msg )
+viewPage page timeModel =
     case page of
         ShowStream pageModel ->
             let
                 ( title, content ) =
-                    Page.ShowStream.view pageModel 
+                    Page.ShowStream.view pageModel timeModel
             in
             ( Just title, Html.map GotShowStreamMsg content )
 
         ShowEvent pageModel ->
             let
                 ( title, content ) =
-                    Page.ShowEvent.view pageModel 
+                    Page.ShowEvent.view pageModel timeModel
             in
             ( Just title, Html.map GotShowEventMsg content )
 
