@@ -1,6 +1,7 @@
 module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, subscriptions, update, view)
 
 import Api
+import BrowserTime
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, colspan, href)
@@ -10,7 +11,6 @@ import Maybe
 import Maybe.Extra exposing (values)
 import Route
 import Spinner
-import TimeHelpers
 import Url
 
 
@@ -162,8 +162,8 @@ getCausedEvents flags event =
 -- VIEW
 
 
-view : Model -> TimeHelpers.Model -> ( String, Html Msg )
-view model { zone, zoneName } =
+view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
+view model _ =
     ( "Event " ++ model.eventId, view_ model )
 
 

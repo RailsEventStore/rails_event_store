@@ -1,16 +1,16 @@
-module TimeHelpers exposing (Model, formatTimestamp)
+module BrowserTime exposing (TimeZone, format)
 
-import DateFormat exposing (..)
+import DateFormat exposing (dayOfMonthFixed, hourMilitaryFixed, millisecondFixed, minuteFixed, monthFixed, secondFixed, text, yearNumber)
 import Time
 
 
-type alias Model =
+type alias TimeZone =
     { zone : Time.Zone, zoneName : String }
 
 
-formatTimestamp : Time.Posix -> Time.Zone -> String -> String
-formatTimestamp time zone zoneName =
-    format
+format : TimeZone -> Time.Posix -> String
+format { zone, zoneName } time =
+    DateFormat.format
         [ dayOfMonthFixed
         , text "."
         , monthFixed

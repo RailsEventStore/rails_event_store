@@ -1,14 +1,13 @@
 module Page.ShowStream exposing (Model, Msg(..), initCmd, initModel, update, view)
 
 import Api
+import BrowserTime
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
 import Route
-import Time
-import TimeHelpers exposing (formatTimestamp)
 import Url
 
 
@@ -81,8 +80,8 @@ update msg model =
             ( { model | problems = serverErrors }, Cmd.none )
 
 
-view : Model -> TimeHelpers.Model -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags } { zone, zoneName } =
+view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
+view { streamName, events, relatedStreams, problems, flags } timeZone =
     let
         title =
             "Stream " ++ streamName
@@ -93,7 +92,7 @@ view { streamName, events, relatedStreams, problems, flags } { zone, zoneName } 
     case problems of
         [] ->
             ( title
-            , browseEvents flags.rootUrl header events relatedStreams zone zoneName
+            , browseEvents flags.rootUrl header events relatedStreams timeZone
             )
 
         _ ->
@@ -109,8 +108,8 @@ view { streamName, events, relatedStreams, problems, flags } { zone, zoneName } 
             )
 
 
-browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> Time.Zone -> String -> Html Msg
-browseEvents baseUrl title { links, events } relatedStreams zone zoneName =
+browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> BrowserTime.TimeZone -> Html Msg
+browseEvents baseUrl title { links, events } relatedStreams timeZone =
     div [ class "py-8" ]
         [ div
             [ class "flex px-8 justify-between" ]
@@ -119,7 +118,7 @@ browseEvents baseUrl title { links, events } relatedStreams zone zoneName =
                 [ text title ]
             , div [] [ displayPagination links ]
             ]
-        , div [ class "px-8" ] [ renderResults baseUrl events zone zoneName ]
+        , div [ class "px-8" ] [ renderResults baseUrl events timeZone ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         ]
 
@@ -224,8 +223,8 @@ firstPageButton link =
         [ text "first" ]
 
 
-renderResults : Url.Url -> List Api.Event -> Time.Zone -> String -> Html Msg
-renderResults baseUrl events zone zoneName =
+renderResults : Url.Url -> List Api.Event -> BrowserTime.TimeZone -> Html Msg
+renderResults baseUrl events timeZone =
     case events of
         [] ->
             p
@@ -253,12 +252,12 @@ renderResults baseUrl events zone zoneName =
                     ]
                 , tbody
                     [ class "align-top" ]
-                    (List.map (itemRow baseUrl zone zoneName) events)
+                    (List.map (itemRow baseUrl timeZone) events)
                 ]
 
 
-itemRow : Url.Url -> Time.Zone -> String -> Api.Event -> Html Msg
-itemRow baseUrl zone zoneName { eventType, createdAt, eventId } =
+itemRow : Url.Url -> BrowserTime.TimeZone -> Api.Event -> Html Msg
+itemRow baseUrl timeZone { eventType, createdAt, eventId } =
     tr [ class "border-gray-50 border-b hover:bg-gray-100" ]
         [ td
             [ class "py-2 px-4 align-middle" ]
@@ -273,5 +272,5 @@ itemRow baseUrl zone zoneName { eventType, createdAt, eventId } =
             [ text eventId ]
         , td
             [ class "py-2  pr-4 font-mono text-sm leading-none font-medium text-right align-middle" ]
-            [ text (formatTimestamp createdAt zone zoneName) ]
+            [ text (BrowserTime.format timeZone createdAt) ]
         ]
