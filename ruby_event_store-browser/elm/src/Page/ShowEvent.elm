@@ -162,8 +162,8 @@ getCausedEvents flags event =
 -- VIEW
 
 
-view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
-view model _ =
+view : Model -> ( String, Html Msg )
+view model =
     ( "Event " ++ model.eventId, view_ model )
 
 
