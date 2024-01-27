@@ -1,7 +1,11 @@
-module TimeHelpers exposing (formatTimestamp)
+module TimeHelpers exposing (Model, formatTimestamp)
 
 import DateFormat exposing (..)
 import Time
+
+
+type alias Model =
+    { zone : Time.Zone, zoneName : String }
 
 
 formatTimestamp : Time.Posix -> Time.Zone -> String -> String

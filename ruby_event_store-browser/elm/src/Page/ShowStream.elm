@@ -81,7 +81,7 @@ update msg model =
             ( { model | problems = serverErrors }, Cmd.none )
 
 
-view : Model -> { zone : Time.Zone, zoneName : String } -> ( String, Html Msg )
+view : Model -> TimeHelpers.Model -> ( String, Html Msg )
 view { streamName, events, relatedStreams, problems, flags } { zone, zoneName } =
     let
         title =

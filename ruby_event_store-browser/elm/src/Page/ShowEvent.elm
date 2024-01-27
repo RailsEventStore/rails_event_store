@@ -10,7 +10,7 @@ import Maybe
 import Maybe.Extra exposing (values)
 import Route
 import Spinner
-import Time
+import TimeHelpers
 import Url
 
 
@@ -162,7 +162,7 @@ getCausedEvents flags event =
 -- VIEW
 
 
-view : Model -> { zone : Time.Zone, zoneName : String } -> ( String, Html Msg )
+view : Model -> TimeHelpers.Model -> ( String, Html Msg )
 view model { zone, zoneName } =
     ( "Event " ++ model.eventId, view_ model )
 
