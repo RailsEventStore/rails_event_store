@@ -2,6 +2,7 @@ module WrappedModel exposing (WrappedModel)
 
 import Browser.Navigation
 import Flags exposing (Flags)
+import Time
 
 
 type alias WrappedModel a =

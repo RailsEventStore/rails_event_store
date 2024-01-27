@@ -7,10 +7,8 @@ import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
 import Route
-import Task exposing (Task)
 import Time
 import TimeHelpers exposing (formatTimestamp)
-import TimeZone
 import Url
 
 
@@ -24,8 +22,6 @@ type alias Model =
     , flags : Flags
     , relatedStreams : Maybe (List String)
     , problems : List Problem
-    , zone : Time.Zone
-    , zoneName : String
     }
 
 
@@ -40,8 +36,6 @@ initModel flags streamName =
     , relatedStreams = Nothing
     , flags = flags
     , problems = []
-    , zone = Time.utc
-    , zoneName = "UTC"
     }
 
 
@@ -53,15 +47,11 @@ type Msg
     = GoToPage Api.PaginationLink
     | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | StreamFetched (Result Http.Error Api.Stream)
-    | ReceiveTimeZone (Result TimeZone.Error ( String, Time.Zone ))
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Cmd.batch
-        [ Api.getStream StreamFetched flags streamId
-        , TimeZone.getZone |> Task.attempt ReceiveTimeZone
-        ]
+    Api.getStream StreamFetched flags streamId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -90,15 +80,9 @@ update msg model =
             in
             ( { model | problems = serverErrors }, Cmd.none )
 
-        ReceiveTimeZone (Ok ( zoneName, zone )) ->
-            ( { model | zone = zone, zoneName = zoneName }, Cmd.none )
 
-        ReceiveTimeZone (Err error) ->
-            ( model, Cmd.none )
-
-
-view : Model -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags, zone, zoneName } =
+view : Model -> { zone : Time.Zone, zoneName : String } -> ( String, Html Msg )
+view { streamName, events, relatedStreams, problems, flags } { zone, zoneName } =
     let
         title =
             "Stream " ++ streamName
