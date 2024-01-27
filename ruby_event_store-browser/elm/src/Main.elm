@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation
+import BrowserTime
 import Flags exposing (Flags, RawFlags, buildFlags)
 import Html exposing (..)
 import Layout
@@ -10,7 +11,6 @@ import Page.ShowStream
 import Route
 import Task
 import Time
-import TimeHelpers
 import TimeZone
 import Url
 import Url.Parser exposing ((</>))
@@ -34,7 +34,7 @@ type alias Model =
     , flags : Maybe Flags
     , key : Browser.Navigation.Key
     , layout : Layout.Model
-    , time : TimeHelpers.Model
+    , time : BrowserTime.TimeZone
     }
 
 
@@ -210,7 +210,7 @@ fullTitle maybePageTitle =
             "RubyEventStore::Browser"
 
 
-viewPage : Page -> TimeHelpers.Model -> ( Maybe String, Html Msg )
+viewPage : Page -> BrowserTime.TimeZone -> ( Maybe String, Html Msg )
 viewPage page timeModel =
     case page of
         ShowStream pageModel ->
