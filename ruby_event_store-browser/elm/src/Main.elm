@@ -28,15 +28,16 @@ main =
         }
 
 
+type alias BrowserTimeZone =
+    { zone : Time.Zone, zoneName : String }
+
+
 type alias Model =
     { page : Page
     , flags : Maybe Flags
     , key : Browser.Navigation.Key
     , layout : Layout.Model
-    , time :
-        { zone : Time.Zone
-        , zoneName : String
-        }
+    , time : BrowserTimeZone
     }
 
 
@@ -212,7 +213,7 @@ fullTitle maybePageTitle =
             "RubyEventStore::Browser"
 
 
-viewPage : Page -> { zone : Time.Zone, zoneName : String } -> ( Maybe String, Html Msg )
+viewPage : Page -> BrowserTimeZone -> ( Maybe String, Html Msg )
 viewPage page timeModel =
     case page of
         ShowStream pageModel ->
