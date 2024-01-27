@@ -165,18 +165,14 @@ view model =
 
         Just flags ->
             let
-                ( maybePageTitle, pageContent ) =
+                ( title, content ) =
                     viewPage model.page
+
+                wrappedModel =
+                    WrappedModel model.layout model.key flags
             in
-            { body =
-                [ div []
-                    [ Layout.view
-                        GotLayoutMsg
-                        (WrappedModel model.layout model.key flags)
-                        pageContent
-                    ]
-                ]
-            , title = fullTitle maybePageTitle
+            { title = fullTitle title
+            , body = [ div [] [ Layout.view GotLayoutMsg wrappedModel content ] ]
             }
 
 
