@@ -10,6 +10,7 @@ import Page.ShowStream
 import Route
 import Task
 import Time
+import TimeHelpers
 import TimeZone
 import Url
 import Url.Parser exposing ((</>))
@@ -28,16 +29,12 @@ main =
         }
 
 
-type alias BrowserTimeZone =
-    { zone : Time.Zone, zoneName : String }
-
-
 type alias Model =
     { page : Page
     , flags : Maybe Flags
     , key : Browser.Navigation.Key
     , layout : Layout.Model
-    , time : BrowserTimeZone
+    , time : TimeHelpers.Model
     }
 
 
@@ -213,7 +210,7 @@ fullTitle maybePageTitle =
             "RubyEventStore::Browser"
 
 
-viewPage : Page -> BrowserTimeZone -> ( Maybe String, Html Msg )
+viewPage : Page -> TimeHelpers.Model -> ( Maybe String, Html Msg )
 viewPage page timeModel =
     case page of
         ShowStream pageModel ->
