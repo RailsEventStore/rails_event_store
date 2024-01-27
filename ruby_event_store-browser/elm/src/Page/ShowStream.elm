@@ -81,7 +81,7 @@ update msg model =
 
 
 view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags } timeZone =
+view { streamName, events, relatedStreams, problems, flags } selectedTime =
     let
         title =
             "Stream " ++ streamName
@@ -92,7 +92,7 @@ view { streamName, events, relatedStreams, problems, flags } timeZone =
     case problems of
         [] ->
             ( title
-            , browseEvents flags.rootUrl header events relatedStreams timeZone
+            , browseEvents flags.rootUrl header events relatedStreams selectedTime
             )
 
         _ ->

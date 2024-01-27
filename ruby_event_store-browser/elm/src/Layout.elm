@@ -1,11 +1,14 @@
 module Layout exposing (Model, Msg, buildModel, update, view, viewIncorrectConfig, viewNotFound)
 
 import Browser.Navigation
-import Flags exposing (Flags)
+import BrowserTime
+import Dict
 import Html exposing (..)
-import Html.Attributes exposing (class, href, placeholder, value)
+import Html.Attributes exposing (class, href, placeholder, selected, value)
 import Html.Events exposing (onInput, onSubmit)
+import List.Extra
 import Route
+import TimeZone exposing (zones)
 import Url
 import WrappedModel exposing (..)
 
@@ -13,6 +16,7 @@ import WrappedModel exposing (..)
 type Msg
     = GoToStream
     | GoToStreamChanged String
+    | TimeZoneSelected String
 
 
 type alias Model =
@@ -26,14 +30,48 @@ buildModel =
     }
 
 
-update : Msg -> WrappedModel Model -> ( Model, Cmd Msg )
+update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
         GoToStream ->
-            ( { goToStream = "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl model.internal.goToStream) )
+            ( { model | internal = Model "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl model.internal.goToStream) )
 
         GoToStreamChanged newValue ->
-            ( { goToStream = newValue }, Cmd.none )
+            ( { model | internal = Model newValue }, Cmd.none )
+
+        TimeZoneSelected zoneName ->
+            let
+                defaultTimeZone =
+                    BrowserTime.defaultTimeZone
+            in
+            if zoneName == defaultTimeZone.zoneName then
+                let
+                    time =
+                        model.time
+
+                    newTime =
+                        { time | selected = defaultTimeZone }
+                in
+                ( { model | time = newTime }, Cmd.none )
+
+            else
+                let
+                    maybeZone =
+                        Dict.get zoneName zones
+                in
+                case maybeZone of
+                    Just zone ->
+                        let
+                            time =
+                                model.time
+
+                            newTime =
+                                { time | selected = BrowserTime.TimeZone (zone ()) zoneName }
+                        in
+                        ( { model | time = newTime }, Cmd.none )
+
+                    Nothing ->
+                        ( model, Cmd.none )
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
@@ -47,7 +85,7 @@ view layoutMsgBuilder model pageView =
             [ class "bg-white" ]
             [ pageView ]
         , footer []
-            [ Html.map layoutMsgBuilder (browserFooter model.flags)
+            [ Html.map layoutMsgBuilder (browserFooter model)
             ]
         ]
 
@@ -92,8 +130,13 @@ browserNavigation model =
         ]
 
 
-browserFooter : Flags -> Html Msg
-browserFooter flags =
+availableTimeZones : BrowserTime.TimeZone -> List BrowserTime.TimeZone
+availableTimeZones detectedTime =
+    List.Extra.unique [ BrowserTime.defaultTimeZone, detectedTime ]
+
+
+browserFooter : WrappedModel Model -> Html Msg
+browserFooter { flags, time } =
     let
         spacer =
             span
@@ -101,9 +144,9 @@ browserFooter flags =
                 [ text "•" ]
     in
     footer
-        [ class "border-gray-400 border-t py-4" ]
+        [ class "border-gray-400 border-t py-4 px-8 flex justify-between" ]
         [ div
-            [ class "flex justify-center text-gray-500 text-sm" ]
+            [ class "text-gray-500 text-sm" ]
             [ text ("RubyEventStore v" ++ flags.resVersion)
             , spacer
             , a
@@ -117,5 +160,21 @@ browserFooter flags =
                 , class "ml-4"
                 ]
                 [ text "Support" ]
+            ]
+        , div
+            [ class "text-gray-500 text-sm" ]
+            [ Html.select
+                [ onInput TimeZoneSelected ]
+                (List.map
+                    (\timeZone ->
+                        option
+                            [ value timeZone.zoneName
+                            , selected (timeZone == time.selected)
+                            ]
+                            [ text timeZone.zoneName
+                            ]
+                    )
+                    (availableTimeZones time.detected)
+                )
             ]
         ]
