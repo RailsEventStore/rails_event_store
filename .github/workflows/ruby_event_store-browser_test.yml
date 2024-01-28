@@ -51,8 +51,6 @@ jobs:
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.0
           bundle_gemfile: Gemfile
-        - ruby_version: truffleruby-head
-          bundle_gemfile: Gemfile
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile.rack_2_0
     steps:
