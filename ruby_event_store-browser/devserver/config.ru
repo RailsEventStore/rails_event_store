@@ -7,47 +7,86 @@ require_relative "../spec/support/csp_app"
 repository = RubyEventStore::InMemoryRepository.new
 event_store = RubyEventStore::Client.new(repository: repository)
 
-event_store.subscribe_to_all_events(RubyEventStore::LinkByCorrelationId.new(event_store: event_store))
-event_store.subscribe_to_all_events(RubyEventStore::LinkByCausationId.new(event_store: event_store))
-event_store.subscribe_to_all_events(RubyEventStore::LinkByEventType.new(event_store: event_store))
+event_store.subscribe_to_all_events(
+  RubyEventStore::LinkByCorrelationId.new(event_store: event_store)
+)
+event_store.subscribe_to_all_events(
+  RubyEventStore::LinkByCausationId.new(event_store: event_store)
+)
+event_store.subscribe_to_all_events(
+  RubyEventStore::LinkByEventType.new(event_store: event_store)
+)
 
-DummyEvent = Class.new(::RubyEventStore::Event)
-OtherEvent = Class.new(::RubyEventStore::Event)
+sample_data = {
+  some_integer_attribute: 42,
+  some_string_attribute: "foobar",
+  some_float_attribute: 3.14
+}
 
-90.times do
-  event_store.publish(
-    DummyEvent.new(data: { some_integer_attribute: 42, some_string_attribute: "foobar", some_float_attribute: 3.14 }),
-    stream_name: "DummyStream$78"
-  )
-end
+sample_event_type =
+  lambda do
+    namespaces = %w[
+      IdentityAndAccess
+      Subscriptions
+      Payments
+      Accounting
+      Banking
+      Reporting
+    ]
 
-some_correlation_id = "469904c5-46ee-43a3-857f-16a455cfe337"
+    events = %w[SomethingHappened SomeoneDidThing ThingConfirmed ThingRejected]
+
+    [namespaces.sample, events.sample].join("::")
+  end
+
+stream_names = %w[]
+
+event_store.publish(
+  90.times.map do
+    RubyEventStore::Event.new(
+      data: sample_data,
+      metadata: {
+        event_type: sample_event_type.call
+      }
+    )
+  end,
+  stream_name: "DummyStream$78"
+)
+
 other_event =
-  OtherEvent.new(
-    data: {
-      some_integer_attribute: 42,
-      some_string_attribute: "foobar",
-      some_float_attribute: 3.14
-    },
+  RubyEventStore::Event.new(
+    data: sample_data,
     metadata: {
-      correlation_id: some_correlation_id
+      event_type: sample_event_type.call,
+      correlation_id: "469904c5-46ee-43a3-857f-16a455cfe337"
     }
   )
+
 event_store.publish(other_event, stream_name: "OtherStream$91")
 21.times do
   event_store.with_metadata(
-    correlation_id: other_event.metadata[:correlation_id] || other_event.event_id,
+    correlation_id:
+      other_event.metadata[:correlation_id] || other_event.event_id,
     causation_id: other_event.event_id
   ) do
     event_store.publish(
-      DummyEvent.new(data: { some_integer_attribute: 42, some_string_attribute: "foobar", some_float_attribute: 3.14 }),
+      RubyEventStore::Event.new(
+        data: sample_data,
+        metadata: {
+          event_type: sample_event_type.call
+        }
+      ),
       stream_name: "DummyStream$79"
     )
   end
 end
 
 RELATED_STREAMS_QUERY = ->(stream_name) do
-  stream_name.start_with?("$by_type_DummyEvent") ? %w[all $by_type_OtherEvent] : []
+  if stream_name.start_with?("$by_type_#{sample_event_type.call}")
+    %w[all $by_type_#{sample_event_type.call}]
+  else
+    []
+  end
 end
 
 browser_app =
