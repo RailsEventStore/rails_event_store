@@ -66,7 +66,7 @@ jobs:
         working-directory: "${{ env.WORKING_DIRECTORY }}"
     - uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
         cache: npm
         cache-dependency-path: "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json"
     - uses: actions/cache@v3
