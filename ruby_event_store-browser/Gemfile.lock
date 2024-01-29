@@ -50,7 +50,6 @@ GEM
       websocket-driver (>= 0.6, < 0.8)
     matrix (0.4.2)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.5)
     minitest (5.20.0)
     mutant (0.11.22)
       diff-lcs (~> 1.3)
@@ -64,9 +63,6 @@ GEM
     mutant-rspec (0.11.22)
       mutant (= 0.11.22)
       rspec-core (>= 3.8.0, < 4.0.0)
-    nokogiri (1.16.0)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
     nokogiri (1.16.0-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.0-x86_64-darwin)
@@ -114,7 +110,6 @@ PLATFORMS
   arm64-darwin-21
   arm64-darwin-22
   arm64-darwin-23
-  ruby
   x86_64-darwin-22
   x86_64-linux
 
