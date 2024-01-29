@@ -32,15 +32,15 @@ jobs:
       working-directory: "${{ env.WORKING_DIRECTORY }}"
       env:
         RUBYOPT: "--enable-frozen-string-literal"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ruby_event_store_browser.js
         path: "${{ env.WORKING_DIRECTORY }}/public/ruby_event_store_browser.js"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ruby_event_store_browser.css
         path: "${{ env.WORKING_DIRECTORY }}/public/ruby_event_store_browser.css"
-    - uses: aws-actions/configure-aws-credentials@v3
+    - uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"

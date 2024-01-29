@@ -369,7 +369,7 @@ class CI
 
     def setup_nix
       {
-        "uses" => "cachix/install-nix-action@v22",
+        "uses" => "cachix/install-nix-action@v25",
         "with" => {
           "nix_path" => "nixpkgs=channel:nixos-unstable"
         }
@@ -378,7 +378,7 @@ class CI
 
     def setup_cachix
       {
-        "uses" => "cachix/cachix-action@v12",
+        "uses" => "cachix/cachix-action@v14",
         "with" => {
           "name" => "railseventstore",
           "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}"
@@ -415,7 +415,7 @@ class CI
 
     def upload_artifact(name)
       {
-        "uses" => "actions/upload-artifact@v3",
+        "uses" => "actions/upload-artifact@v4",
         "with" => {
           "name" => name,
           "path" => "${{ env.WORKING_DIRECTORY }}/public/#{name}"
@@ -425,7 +425,7 @@ class CI
 
     def configure_aws_credentials
       {
-        "uses" => "aws-actions/configure-aws-credentials@v3",
+        "uses" => "aws-actions/configure-aws-credentials@v4",
         "with" => {
           "aws-access-key-id" => "${{ secrets.AWS_ACCESS_KEY_ID }}",
           "aws-secret-access-key" => "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
