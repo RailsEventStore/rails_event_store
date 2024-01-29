@@ -358,7 +358,7 @@ class CI
 
     def cache_elm
       {
-        "uses" => "actions/cache@v3",
+        "uses" => "actions/cache@v4",
         "with" => {
           "path" => "~/.elm",
           "key" =>
