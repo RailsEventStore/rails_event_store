@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.7"
 
-  spec.add_dependency "ruby_event_store", "= 2.13.0"
+  spec.add_dependency "ruby_event_store", "= 2.14.0"
   spec.add_dependency "base64"
 end
