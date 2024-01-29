@@ -64,7 +64,7 @@ jobs:
         ruby-version: "${{ env.RUBY_VERSION }}"
         bundler-cache: true
         working-directory: "${{ env.WORKING_DIRECTORY }}"
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
         cache: npm
