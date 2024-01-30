@@ -48,6 +48,7 @@ class CI
   GEMFILE = "Gemfile"
 
   RAILS_GEMFILES = [
+    GEMFILE_RAILS_7_0 = "Gemfile.rails_7_0",
     GEMFILE_RAILS_6_1 = "Gemfile.rails_6_1",
     GEMFILE_RAILS_6_0 = "Gemfile.rails_6_0"
   ].flatten
@@ -181,7 +182,7 @@ class CI
           join(
             generate(
               ruby_version(MRI_RUBY.drop(1)),
-              bundle_gemfile(GEMFILE, GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
+              bundle_gemfile(GEMFILE, GEMFILE_RAILS_7_0, GEMFILE_RAILS_6_1, GEMFILE_RAILS_6_0),
               database_url(SQLITE3)
             )
           )
