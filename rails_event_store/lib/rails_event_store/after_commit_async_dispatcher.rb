@@ -21,7 +21,7 @@ module RailsEventStore
     end
 
     def async_record(schedule_proc)
-      AsyncRecord.new(self, schedule_proc)
+      AsyncRecord.new(schedule_proc)
     end
 
     def verify(subscriber)
@@ -29,8 +29,7 @@ module RailsEventStore
     end
 
     class AsyncRecord
-      def initialize(dispatcher, schedule_proc)
-        @dispatcher = dispatcher
+      def initialize(schedule_proc)
         @schedule_proc = schedule_proc
       end
 
@@ -42,13 +41,9 @@ module RailsEventStore
 
       def before_committed!; end
 
-      def add_to_transaction
-        dispatcher.run(&schedule_proc)
-      end
-
       def trigger_transactional_callbacks?; end
 
-      attr_reader :schedule_proc, :dispatcher
+      attr_reader :schedule_proc
     end
   end
 end
