@@ -157,7 +157,7 @@ module RubyEventStore
       end
 
       def start_transaction(&block)
-        @event_klass.transaction(requires_new: $use_savepoint, &block)
+        @event_klass.transaction(requires_new: $use_savepoint || true, &block)
       end
     end
   end
