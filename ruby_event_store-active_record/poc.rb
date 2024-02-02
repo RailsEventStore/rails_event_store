@@ -30,7 +30,16 @@ event_store =
   )
 
 mk_event =
-  lambda { RubyEventStore::Event.new(metadata: { event_type: "whatever" }) }
+  lambda do
+    RubyEventStore::Event.new(
+      data: {
+        kaka: "dudu"
+      },
+      metadata: {
+        event_type: "whatever"
+      }
+    )
+  end
 
 logged_keywords = %w[COMMIT BEGIN SAVEPOINT RELEASE].freeze
 
@@ -44,7 +53,12 @@ log_transaction =
 perform_100_appends_in_outer_transaction =
   lambda do
     ActiveRecord::Base.transaction do
-      100.times { event_store.append(mk_event.call) }
+      100.times do
+        event_store.append(
+          100.times.map { mk_event.call },
+          stream_name: "benchmark"
+        )
+      end
     end
   end
 
