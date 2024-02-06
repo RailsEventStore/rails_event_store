@@ -94,7 +94,7 @@ module RubyEventStore
         expect(stream_to_a).to eq([foo])
       end
 
-      specify "application transaction, event_id conflict — rescued" do
+      specify "application transaction, event_id conflict — block rescued" do
         repository.append_to_stream([foo], stream, ExpectedVersion.any)
 
         helper.with_transaction do
@@ -109,12 +109,42 @@ module RubyEventStore
         expect(stream_to_a).to eq([foo, bar])
       end
 
-      specify "application transaction, expected_version conflict — rescued" do
+      specify "application transaction, expected_version conflict — block rescued" do
         repository.append_to_stream([foo], stream, ExpectedVersion.none)
 
         helper.with_transaction do
           begin
             repository.append_to_stream([bar], stream, ExpectedVersion.any)
+            repository.append_to_stream([baz], stream, ExpectedVersion.none)
+          rescue WrongExpectedEventVersion
+          end
+        end
+
+        expect(global_to_a).to eq([foo, bar])
+        expect(stream_to_a).to eq([foo, bar])
+      end
+
+      specify "application transaction, event_id conflict — append rescued" do
+        repository.append_to_stream([foo], stream, ExpectedVersion.any)
+
+        helper.with_transaction do
+          repository.append_to_stream([bar], stream, ExpectedVersion.any)
+          begin
+            repository.append_to_stream([foo], stream, ExpectedVersion.any)
+          rescue EventDuplicatedInStream
+          end
+        end
+
+        expect(global_to_a).to eq([foo, bar])
+        expect(stream_to_a).to eq([foo, bar])
+      end
+
+      specify "application transaction, expected_version conflict — append rescued" do
+        repository.append_to_stream([foo], stream, ExpectedVersion.none)
+
+        helper.with_transaction do
+          repository.append_to_stream([bar], stream, ExpectedVersion.any)
+          begin
             repository.append_to_stream([baz], stream, ExpectedVersion.none)
           rescue WrongExpectedEventVersion
           end
