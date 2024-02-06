@@ -29,15 +29,17 @@ module RubyEventStore
       around(:each) { |example| helper.run_lifecycle { example.run } }
 
       around(:each) do |example|
+        previous_logger = ::ActiveRecord::Base.logger
         ::ActiveRecord::Base.logger =
           Logger
             .new(STDOUT)
             .tap do |l|
               l.formatter =
                 proc { |severity, datetime, progname, msg| "#{msg}\n" }
-            end
+            end if ENV.has_key?("VERBOSE")
         example.run
-        ::ActiveRecord::Base.logger = nil
+      ensure
+        ::ActiveRecord::Base.logger = previous_logger
       end
 
       specify "no application transaction, event_id conflict" do
