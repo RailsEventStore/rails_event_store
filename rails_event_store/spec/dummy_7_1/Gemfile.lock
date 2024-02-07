@@ -2,7 +2,6 @@ PATH
   remote: ../../../aggregate_root
   specs:
     aggregate_root (2.14.0)
-      base64
       ruby_event_store (= 2.14.0)
 
 PATH
