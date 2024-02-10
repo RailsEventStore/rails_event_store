@@ -1,8 +1,8 @@
 ---
-title: Backwards compatibility
+title: Maintenance Policy
 ---
 
-## Backwards compatibility
+## Maintenance Policy
 
 Rails Event Store project aims to follow [semver](https://semver.org). There are a couple of situations which may be perceived as exceptions from following it and they are described in this article.
 
