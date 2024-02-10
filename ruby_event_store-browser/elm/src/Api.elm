@@ -6,6 +6,7 @@ import Iso8601
 import Json.Decode exposing (Decoder, field, list, maybe, string, succeed, value)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
+import Route exposing (PaginationSpecification)
 import Time
 import Url
 
@@ -63,6 +64,16 @@ buildUrl baseUrl id =
 eventUrl : Flags -> String -> String
 eventUrl flags eventId =
     buildUrl (Url.toString flags.apiUrl ++ "/events") eventId
+
+
+eventsUrl : Flags -> String -> PaginationSpecification -> String
+eventsUrl flags streamId pagination =
+    case pagination.position of
+        -- Temporary assumption that if one parameter is there, all are there
+        Just position -> 
+            Url.toString flags.apiUrl ++ "/streams/" ++ (Url.percentEncode streamId) ++ "/relationships/events" ++ "?page%5Bposition%5D=" ++ (Maybe.withDefault "" pagination.position) ++ "&page%5Bdirection%5D=" ++ (Maybe.withDefault "" pagination.direction) ++ "&page%5Bcount%5D=" ++ (Maybe.withDefault "" pagination.count)
+        Nothing -> 
+            Url.toString flags.apiUrl ++ "/streams/" ++ (Url.percentEncode streamId) ++ "/relationships/events"
 
 
 streamUrl : Flags -> String -> String
@@ -124,10 +135,10 @@ streamDecoder_ =
         |> optionalAt [ "attributes", "related_streams" ] (maybe (list string)) Nothing
 
 
-getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> String -> Cmd msg
-getEvents msgBuilder url =
+getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> Flags -> String -> PaginationSpecification -> Cmd msg
+getEvents msgBuilder flags streamId paginationSpecification =
     Http.get
-        { url = url
+        { url = eventsUrl flags streamId paginationSpecification
         , expect = Http.expectJson msgBuilder eventsDecoder
         }
 

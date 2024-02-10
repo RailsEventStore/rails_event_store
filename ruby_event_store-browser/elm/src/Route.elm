@@ -1,4 +1,4 @@
-module Route exposing (Route(..), PaginationSpecification, buildUrl, decodeLocation, eventUrl, streamUrl)
+module Route exposing (Route(..), PaginationSpecification, buildUrl, decodeLocation, eventUrl, streamUrl, emptyPaginationSpecification)
 
 import Url
 import Url.Builder
