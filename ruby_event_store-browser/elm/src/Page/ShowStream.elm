@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
+import Regex
 import Route
 import Url
 
@@ -45,7 +46,7 @@ initModel flags streamName paginationSpecification =
 
 
 type Msg
-    = GoToPage Api.PaginationLink
+    = GoToPage Route.PaginationSpecification
     | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | StreamFetched (Result Http.Error Api.Stream)
 
@@ -58,8 +59,8 @@ initCmd flags streamId =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GoToPage paginationLink ->
-            ( model, Api.getEvents EventsFetched paginationLink )
+        GoToPage paginationSpecification ->
+            ( model, Api.getEvents EventsFetched model.flags model.streamName paginationSpecification )
 
         EventsFetched (Ok result) ->
             ( { model | events = result }, Cmd.none )
@@ -72,7 +73,7 @@ update msg model =
             ( { model | problems = serverErrors }, Cmd.none )
 
         StreamFetched (Ok streamResource) ->
-            ( { model | relatedStreams = streamResource.relatedStreams }, Api.getEvents EventsFetched streamResource.eventsRelationshipLink )
+            ( { model | relatedStreams = streamResource.relatedStreams }, Api.getEvents EventsFetched model.flags model.streamName model.pagination )
 
         StreamFetched (Err _) ->
             let
@@ -184,12 +185,25 @@ maybeHref link =
     case link of
         Just url ->
             [ href url
-            , onClick (GoToPage url)
+            , onClick (GoToPage (extractPaginationSpecification url))
             ]
 
         Nothing ->
             [ disabled True
             ]
+
+extractStringFromMatch : Regex.Match -> String
+extractStringFromMatch match =
+    Maybe.withDefault "" (Maybe.withDefault (Just "") (List.head match.submatches))
+
+
+extractPaginationPart : String -> Api.PaginationLink -> Maybe String
+extractPaginationPart regexString link = 
+    List.head (List.map extractStringFromMatch (Regex.find (Maybe.withDefault Regex.never (Regex.fromString regexString)) link))
+
+extractPaginationSpecification : Api.PaginationLink -> Route.PaginationSpecification
+extractPaginationSpecification link =
+    Route.PaginationSpecification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
 
 
 paginationStyle : String

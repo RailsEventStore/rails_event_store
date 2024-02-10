@@ -108,7 +108,13 @@ update msg model =
             ( { model | event = Api.Failure }, Cmd.none )
 
         CausedStreamFetched (Ok streamResource) ->
-            ( model, Api.getEvents CausedEventsFetched streamResource.eventsRelationshipLink )
+            ( model,
+            case (causationStreamName model.event) of
+                Just streamName ->
+                    Api.getEvents CausedEventsFetched model.flags streamName Route.emptyPaginationSpecification
+                Nothing ->
+                    Cmd.none
+                    )
 
         CausedStreamFetched (Err _) ->
             ( { model | causedEvents = Api.Failure }, Cmd.none )
@@ -424,3 +430,11 @@ showJsonTree rawJson treeState changeState =
             )
         |> Result.withDefault
             (pre [] [ text rawJson ])
+
+causationStreamName : Api.RemoteResource Event -> Maybe String
+causationStreamName remoteResource  =
+    case remoteResource of
+        Api.Loaded event ->
+            event.causationStreamName
+        _ ->
+            Nothing
