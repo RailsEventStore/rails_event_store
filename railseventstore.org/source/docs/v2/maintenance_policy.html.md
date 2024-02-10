@@ -15,6 +15,8 @@ Our aim is to only support ruby versions which are not EOL. Therefore:
 
 On CI, all latest minor versions of CRuby are tested. Currently other Ruby implementations are not supported, but we are open to changing that situation depending on external funding.
 
+Check also [Ruby Releases](https://www.ruby-lang.org/en/downloads/) for a list of current stable releases.
+
 ### Rails versions
 
 Our aim is to support all Rails versions which are not EOL.
@@ -22,6 +24,8 @@ Our aim is to support all Rails versions which are not EOL.
 Similar to Ruby version compatibility, whenever Rails version goes EOL, we drop the support for it in next minor version without any consideration.
 
 On CI, we test _some_ of the projects on all minor Rails versions, other ones only against newest minor Rails version. That's because CI capacity is limited and we value quick feedback loop for our changes.
+
+Check also [Rails' Maintenance Policy](https://guides.rubyonrails.org/maintenance_policy.html).
 
 ### Experimental features
 
