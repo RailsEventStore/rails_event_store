@@ -172,10 +172,10 @@ navigate model location =
 
         Just flags ->
             case Route.decodeLocation flags.rootUrl location of
-                Just (Route.BrowseEvents encodedStreamId) ->
+                Just (Route.BrowseEvents encodedStreamId paginationSpecification) ->
                     case Url.percentDecode encodedStreamId of
                         Just streamId ->
-                            ( { model | page = ShowStream (Page.ShowStream.initModel flags streamId) }
+                            ( { model | page = ShowStream (Page.ShowStream.initModel flags streamId paginationSpecification) }
                             , Cmd.map GotShowStreamMsg (Page.ShowStream.initCmd flags streamId)
                             )
 

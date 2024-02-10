@@ -21,6 +21,7 @@ type alias Model =
     , flags : Flags
     , relatedStreams : Maybe (List String)
     , problems : List Problem
+    , pagination : Route.PaginationSpecification
     }
 
 
@@ -28,13 +29,14 @@ type Problem
     = ServerError String
 
 
-initModel : Flags -> String -> Model
-initModel flags streamName =
+initModel : Flags -> String -> Route.PaginationSpecification -> Model
+initModel flags streamName paginationSpecification =
     { streamName = streamName
     , events = Api.emptyPaginatedList
     , relatedStreams = Nothing
     , flags = flags
     , problems = []
+    , pagination = paginationSpecification
     }
 
 
@@ -81,7 +83,7 @@ update msg model =
 
 
 view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags } selectedTime =
+view { streamName, events, relatedStreams, problems, flags, pagination } selectedTime =
     let
         title =
             "Stream " ++ streamName
