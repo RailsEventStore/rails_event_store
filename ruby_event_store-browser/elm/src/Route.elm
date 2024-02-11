@@ -61,19 +61,24 @@ browseEvents streamName maybePosition maybeDirection maybeCount =
     BrowseEvents streamName (Pagination.Specification maybePosition maybeDirection maybeCount)
 
 
+maybeQueryParameter : String -> Maybe String -> Maybe Url.Builder.QueryParameter
+maybeQueryParameter name maybeValue =
+    Maybe.map (\val -> Url.Builder.string name val) maybeValue
+
+
 positionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
 positionQueryParameter specification =
-    Maybe.map (\val -> Url.Builder.string "page[position]" val) specification.position
+    maybeQueryParameter "page[position]" specification.position
 
 
 directionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
 directionQueryParameter specification =
-    Maybe.map (\val -> Url.Builder.string "page[direction]" val) specification.direction
+    maybeQueryParameter "page[direction]" specification.direction
 
 
 countQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
 countQueryParameter specification =
-    Maybe.map (\val -> Url.Builder.string "page[count]" val) specification.count
+    maybeQueryParameter "page[count]" specification.count
 
 
 paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
