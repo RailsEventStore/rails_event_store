@@ -6,9 +6,11 @@ import Iso8601
 import Json.Decode exposing (Decoder, field, list, maybe, string, succeed, value)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
+import Maybe.Extra
 import Pagination
 import Time
 import Url
+import Url.Builder
 
 
 type RemoteResource a
@@ -68,12 +70,7 @@ eventUrl flags eventId =
 
 eventsUrl : Flags -> String -> Pagination.Specification -> String
 eventsUrl flags streamId pagination =
-    case pagination.position of
-        -- Temporary assumption that if one parameter is there, all are there
-        Just position -> 
-            Url.toString flags.apiUrl ++ "/streams/" ++ (Url.percentEncode streamId) ++ "/relationships/events" ++ "?page%5Bposition%5D=" ++ (Maybe.withDefault "" pagination.position) ++ "&page%5Bdirection%5D=" ++ (Maybe.withDefault "" pagination.direction) ++ "&page%5Bcount%5D=" ++ (Maybe.withDefault "" pagination.count)
-        Nothing -> 
-            Url.toString flags.apiUrl ++ "/streams/" ++ (Url.percentEncode streamId) ++ "/relationships/events"
+    Url.toString flags.apiUrl ++ "/streams/" ++ (Url.percentEncode streamId) ++ "/relationships/events" ++ (Url.Builder.toQuery (paginationQueryParameters pagination))
 
 
 streamUrl : Flags -> String -> String
@@ -170,3 +167,33 @@ emptyPaginatedList =
             }
     in
     PaginatedList [] initLinks
+
+
+positionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
+positionQueryParameter specification =
+    case specification.position of
+        Just position -> Just (Url.Builder.string "page[position]" position)
+        Nothing -> Nothing
+
+
+directionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
+directionQueryParameter specification =
+    case specification.direction of
+        Just direction -> Just (Url.Builder.string "page[direction]" direction)
+        Nothing -> Nothing
+
+
+countQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
+countQueryParameter specification =
+    case specification.count of
+        Just count -> Just (Url.Builder.string "page[count]" count)
+        Nothing -> Nothing
+
+
+paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
+paginationQueryParameters specification =
+    Maybe.Extra.values
+        [ positionQueryParameter specification
+        , directionQueryParameter specification
+        , countQueryParameter specification
+        ]
