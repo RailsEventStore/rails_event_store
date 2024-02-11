@@ -4,6 +4,7 @@ import Maybe.Extra
 import Pagination
 import Url
 import Url.Builder
+import Url.OurExtra
 import Url.Parser exposing ((</>), (<?>))
 import Url.Parser.Query as Query
 
@@ -61,15 +62,10 @@ browseEvents streamName maybePosition maybeDirection maybeCount =
     BrowseEvents streamName (Pagination.Specification maybePosition maybeDirection maybeCount)
 
 
-maybeQueryParameter : String -> Maybe String -> Maybe Url.Builder.QueryParameter
-maybeQueryParameter name maybeValue =
-    Maybe.map (\val -> Url.Builder.string name val) maybeValue
-
-
 paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
 paginationQueryParameters specification =
     Maybe.Extra.values
-        [ maybeQueryParameter "page[position]" specification.position
-        , maybeQueryParameter "page[direction]" specification.direction
-        , maybeQueryParameter "page[count]" specification.count
+        [ Url.OurExtra.maybeQueryParameter "page[position]" specification.position
+        , Url.OurExtra.maybeQueryParameter "page[direction]" specification.direction
+        , Url.OurExtra.maybeQueryParameter "page[count]" specification.count
         ]
