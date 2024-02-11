@@ -119,7 +119,7 @@ browseEvents baseUrl title { links, events } relatedStreams timeZone =
             [ h1
                 [ class "font-bold text-2xl" ]
                 [ text title ]
-            , div [] [ displayPagination links ]
+            , div [] [ displayPagination baseUrl links ]
             ]
         , div [ class "px-8" ] [ renderResults baseUrl events timeZone ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
@@ -170,22 +170,21 @@ streamLink baseUrl streamName =
         [ text streamName ]
 
 
-displayPagination : Api.PaginationLinks -> Html Msg
-displayPagination { first, last, next, prev } =
+displayPagination : Url.Url -> Api.PaginationLinks -> Html Msg
+displayPagination baseUrl { first, last, next, prev } =
     ul [ class "flex" ]
-        [ li [] [ firstPageButton first ]
-        , li [] [ prevPageButton prev ]
-        , li [] [ nextPageButton next ]
-        , li [] [ lastPageButton last ]
+        [ li [] [ firstPageButton baseUrl first ]
+        , li [] [ prevPageButton baseUrl prev ]
+        , li [] [ nextPageButton baseUrl next ]
+        , li [] [ lastPageButton baseUrl last ]
         ]
 
 
-maybeHref : Maybe Api.PaginationLink -> List (Attribute Msg)
-maybeHref link =
+maybeHref : Url.Url -> Maybe Api.PaginationLink -> List (Attribute Msg)
+maybeHref baseUrl link =
     case link of
         Just url ->
-            [ href url
-            , onClick (GoToPage (Pagination.specificationFromUrl url))
+            [ href (Route.paginatedStreamUrl baseUrl (Pagination.streamIdFromUrl url) (Pagination.specificationFromUrl url))
             ]
 
         Nothing ->
@@ -197,31 +196,31 @@ paginationStyle =
     "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:text-red-700/50 disabled:border-red-700/50 disabled:cursor-not-allowed"
 
 
-nextPageButton : Maybe Api.PaginationLink -> Html Msg
-nextPageButton link =
-    button
-        (class paginationStyle :: maybeHref link)
+nextPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
+nextPageButton baseUrl link =
+    a
+        (class paginationStyle :: maybeHref baseUrl link)
         [ text "next" ]
 
 
-prevPageButton : Maybe Api.PaginationLink -> Html Msg
-prevPageButton link =
-    button
-        (class paginationStyle :: maybeHref link)
+prevPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
+prevPageButton baseUrl link =
+    a
+        (class paginationStyle :: maybeHref baseUrl link)
         [ text "previous" ]
 
 
-lastPageButton : Maybe Api.PaginationLink -> Html Msg
-lastPageButton link =
-    button
-        (class paginationStyle :: maybeHref link)
+lastPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
+lastPageButton baseUrl link =
+    a
+        (class paginationStyle :: maybeHref baseUrl link)
         [ text "last" ]
 
 
-firstPageButton : Maybe Api.PaginationLink -> Html Msg
-firstPageButton link =
-    button
-        (class paginationStyle :: maybeHref link)
+firstPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
+firstPageButton baseUrl link =
+    a
+        (class paginationStyle :: maybeHref baseUrl link)
         [ text "first" ]
 
 

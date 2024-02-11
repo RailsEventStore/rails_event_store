@@ -1,6 +1,7 @@
-module Pagination exposing (Specification, empty, specificationFromUrl)
+module Pagination exposing (Specification, empty, specificationFromUrl, streamIdFromUrl)
 
 import Regex
+import Url
 
 type alias Specification =
     { position : Maybe String
@@ -26,3 +27,7 @@ extractPaginationPart regexString link =
 specificationFromUrl : String -> Specification
 specificationFromUrl link =
     Specification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
+
+streamIdFromUrl : String -> String
+streamIdFromUrl link =
+    Maybe.withDefault "" (Url.percentDecode (Maybe.withDefault "" (extractPaginationPart "streams/([a-zA-Z0-9-%]+)/" link)))
