@@ -9,6 +9,7 @@ import Http
 import JsonTree
 import Maybe
 import Maybe.Extra exposing (values)
+import Pagination
 import Route
 import Spinner
 import Url
@@ -111,7 +112,7 @@ update msg model =
             ( model,
             case (causationStreamName model.event) of
                 Just streamName ->
-                    Api.getEvents CausedEventsFetched model.flags streamName Route.emptyPaginationSpecification
+                    Api.getEvents CausedEventsFetched model.flags streamName Pagination.empty
                 Nothing ->
                     Cmd.none
                     )
