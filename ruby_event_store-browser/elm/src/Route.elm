@@ -1,5 +1,6 @@
-module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
+module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl, paginatedStreamUrl)
 
+import Maybe.Extra
 import Pagination
 import Url
 import Url.Builder
@@ -30,25 +31,61 @@ urlWithoutBase baseUrl url =
     { url | path = String.dropLeft (String.length baseUrl.path) url.path }
 
 
-buildUrl : Url.Url -> List String -> String
-buildUrl baseUrl segments =
-    Url.Builder.absolute (pathSegments baseUrl ++ segments) []
+buildUrl : Url.Url -> List String -> List Url.Builder.QueryParameter -> String
+buildUrl baseUrl segments query =
+    Url.Builder.absolute (pathSegments baseUrl ++ segments) query
 
 
 streamUrl : Url.Url -> String -> String
 streamUrl baseUrl streamName =
-    buildUrl baseUrl [ "streams", Url.percentEncode streamName ]
+    paginatedStreamUrl baseUrl streamName Pagination.empty
+
+
+paginatedStreamUrl : Url.Url -> String -> Pagination.Specification -> String
+paginatedStreamUrl baseUrl streamName pagination =
+    buildUrl baseUrl [ "streams", Url.percentEncode streamName ] (paginationQueryParameters pagination)
 
 
 eventUrl : Url.Url -> String -> String
 eventUrl baseUrl eventId =
-    buildUrl baseUrl [ "events", Url.percentEncode eventId ]
+    buildUrl baseUrl [ "events", Url.percentEncode eventId ] []
 
 
 pathSegments : Url.Url -> List String
 pathSegments baseUrl =
     List.filter (\e -> e /= "") (String.split "/" baseUrl.path)
 
+
 browseEvents : String -> Maybe String -> Maybe String -> Maybe String -> Route
 browseEvents streamName maybePosition maybeDirection maybeCount =
     BrowseEvents streamName (Pagination.Specification maybePosition maybeDirection maybeCount)
+
+
+positionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
+positionQueryParameter specification =
+    case specification.position of
+        Just position -> Just (Url.Builder.string "page[position]" position)
+        Nothing -> Nothing
+
+
+directionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
+directionQueryParameter specification =
+    case specification.direction of
+        Just direction -> Just (Url.Builder.string "page[direction]" direction)
+        Nothing -> Nothing
+
+
+countQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
+countQueryParameter specification =
+    case specification.count of
+        Just count -> Just (Url.Builder.string "page[count]" count)
+        Nothing -> Nothing
+
+
+paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
+paginationQueryParameters specification =
+    Maybe.Extra.values
+        [ positionQueryParameter specification
+        , directionQueryParameter specification
+        , countQueryParameter specification
+        ]
