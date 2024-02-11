@@ -185,7 +185,7 @@ maybeHref link =
     case link of
         Just url ->
             [ href url
-            , onClick (GoToPage (Pagination.extractPaginationSpecification url))
+            , onClick (GoToPage (Pagination.specificationFromUrl url))
             ]
 
         Nothing ->
