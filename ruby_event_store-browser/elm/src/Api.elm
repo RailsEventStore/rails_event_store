@@ -36,7 +36,8 @@ type alias Event =
 
 
 type alias PaginatedList a =
-    { events : List a
+    { pagination : Pagination.Specification
+    , events : List a
     , links : PaginationLinks
     }
 
@@ -137,13 +138,13 @@ getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> Flags -> String 
 getEvents msgBuilder flags streamId paginationSpecification =
     Http.get
         { url = eventsUrl flags streamId paginationSpecification
-        , expect = Http.expectJson msgBuilder eventsDecoder
+        , expect = Http.expectJson msgBuilder (eventsDecoder paginationSpecification)
         }
 
 
-eventsDecoder : Decoder (PaginatedList Event)
-eventsDecoder =
-    succeed PaginatedList
+eventsDecoder : Pagination.Specification -> Decoder (PaginatedList Event)
+eventsDecoder pagination =
+    succeed (PaginatedList pagination)
         |> required "data" (list eventDecoder_)
         |> required "links" linksDecoder
 
@@ -167,7 +168,7 @@ emptyPaginatedList =
             , last = Nothing
             }
     in
-    PaginatedList [] initLinks
+    PaginatedList Pagination.empty [] initLinks
 
 
 paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
