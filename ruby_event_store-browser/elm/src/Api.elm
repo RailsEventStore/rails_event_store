@@ -171,23 +171,17 @@ emptyPaginatedList =
 
 positionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
 positionQueryParameter specification =
-    case specification.position of
-        Just position -> Just (Url.Builder.string "page[position]" position)
-        Nothing -> Nothing
+    Maybe.map (\val -> Url.Builder.string "page[position]" val) specification.position
 
 
 directionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
 directionQueryParameter specification =
-    case specification.direction of
-        Just direction -> Just (Url.Builder.string "page[direction]" direction)
-        Nothing -> Nothing
+    Maybe.map (\val -> Url.Builder.string "page[direction]" val) specification.direction
 
 
 countQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
 countQueryParameter specification =
-    case specification.count of
-        Just count -> Just (Url.Builder.string "page[count]" count)
-        Nothing -> Nothing
+    Maybe.map (\val -> Url.Builder.string "page[count]" val) specification.count
 
 
 paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
