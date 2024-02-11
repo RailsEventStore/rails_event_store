@@ -46,8 +46,7 @@ initModel flags streamName paginationSpecification =
 
 
 type Msg
-    = GoToPage Pagination.Specification
-    | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
+    = EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | StreamFetched (Result Http.Error Api.Stream)
 
 
@@ -59,9 +58,6 @@ initCmd flags streamId =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GoToPage paginationSpecification ->
-            ( model, Api.getEvents EventsFetched model.flags model.streamName paginationSpecification )
-
         EventsFetched (Ok result) ->
             ( { model | events = result }, Cmd.none )
 
