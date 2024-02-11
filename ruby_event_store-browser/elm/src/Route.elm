@@ -1,5 +1,6 @@
-module Route exposing (Route(..), PaginationSpecification, buildUrl, decodeLocation, eventUrl, streamUrl, emptyPaginationSpecification)
+module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
 
+import Pagination
 import Url
 import Url.Builder
 import Url.Parser exposing ((</>), (<?>))
@@ -7,14 +8,8 @@ import Url.Parser.Query as Query
 
 
 type Route
-    = BrowseEvents String PaginationSpecification
+    = BrowseEvents String Pagination.Specification
     | ShowEvent String
-
-type alias PaginationSpecification =
-    { position : Maybe String
-    , direction : Maybe String
-    , count : Maybe String
-    }
 
 decodeLocation : Url.Url -> Url.Url -> Maybe Route
 decodeLocation baseUrl loc =
@@ -24,7 +19,7 @@ decodeLocation baseUrl loc =
 routeParser : Url.Parser.Parser (Route -> a) a
 routeParser =
     Url.Parser.oneOf
-        [ Url.Parser.map (BrowseEvents "all" emptyPaginationSpecification) Url.Parser.top
+        [ Url.Parser.map (BrowseEvents "all" Pagination.empty) Url.Parser.top
         , Url.Parser.map browseEvents (Url.Parser.s "streams" </> Url.Parser.string <?> Query.string "page[position]" <?> Query.string "page[direction]" <?> Query.string "page[count]")
         , Url.Parser.map ShowEvent (Url.Parser.s "events" </> Url.Parser.string)
         ]
@@ -56,7 +51,4 @@ pathSegments baseUrl =
 
 browseEvents : String -> Maybe String -> Maybe String -> Maybe String -> Route
 browseEvents streamName maybePosition maybeDirection maybeCount =
-    BrowseEvents streamName (PaginationSpecification maybePosition maybeDirection maybeCount)
-
-emptyPaginationSpecification : PaginationSpecification
-emptyPaginationSpecification = PaginationSpecification Nothing Nothing Nothing
+    BrowseEvents streamName (Pagination.Specification maybePosition maybeDirection maybeCount)

@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
+import Pagination
 import Regex
 import Route
 import Url
@@ -22,7 +23,7 @@ type alias Model =
     , flags : Flags
     , relatedStreams : Maybe (List String)
     , problems : List Problem
-    , pagination : Route.PaginationSpecification
+    , pagination : Pagination.Specification
     }
 
 
@@ -30,7 +31,7 @@ type Problem
     = ServerError String
 
 
-initModel : Flags -> String -> Route.PaginationSpecification -> Model
+initModel : Flags -> String -> Pagination.Specification -> Model
 initModel flags streamName paginationSpecification =
     { streamName = streamName
     , events = Api.emptyPaginatedList
@@ -46,7 +47,7 @@ initModel flags streamName paginationSpecification =
 
 
 type Msg
-    = GoToPage Route.PaginationSpecification
+    = GoToPage Pagination.Specification
     | EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | StreamFetched (Result Http.Error Api.Stream)
 
@@ -201,9 +202,9 @@ extractPaginationPart : String -> Api.PaginationLink -> Maybe String
 extractPaginationPart regexString link = 
     List.head (List.map extractStringFromMatch (Regex.find (Maybe.withDefault Regex.never (Regex.fromString regexString)) link))
 
-extractPaginationSpecification : Api.PaginationLink -> Route.PaginationSpecification
+extractPaginationSpecification : Api.PaginationLink -> Pagination.Specification
 extractPaginationSpecification link =
-    Route.PaginationSpecification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
+    Pagination.Specification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
 
 
 paginationStyle : String
