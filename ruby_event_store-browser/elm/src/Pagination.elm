@@ -1,4 +1,4 @@
-module Pagination exposing (Specification, empty, extractPaginationSpecification)
+module Pagination exposing (Specification, empty, specificationFromUrl)
 
 import Regex
 
@@ -23,6 +23,6 @@ extractPaginationPart regexString link =
     List.head (List.map extractStringFromMatch (Regex.find (Maybe.withDefault Regex.never (Regex.fromString regexString)) link))
 
 
-extractPaginationSpecification : String -> Specification
-extractPaginationSpecification link =
+specificationFromUrl : String -> Specification
+specificationFromUrl link =
     Specification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
