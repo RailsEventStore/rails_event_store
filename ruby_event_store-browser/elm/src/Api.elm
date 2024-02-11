@@ -173,25 +173,10 @@ maybeQueryParameter name maybeValue =
     Maybe.map (\val -> Url.Builder.string name val) maybeValue
 
 
-positionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
-positionQueryParameter specification =
-    maybeQueryParameter "page[position]" specification.position
-
-
-directionQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
-directionQueryParameter specification =
-    maybeQueryParameter "page[direction]" specification.direction
-
-
-countQueryParameter : Pagination.Specification -> Maybe Url.Builder.QueryParameter
-countQueryParameter specification =
-    maybeQueryParameter "page[count]" specification.count
-
-
 paginationQueryParameters : Pagination.Specification -> List Url.Builder.QueryParameter
 paginationQueryParameters specification =
     Maybe.Extra.values
-        [ positionQueryParameter specification
-        , directionQueryParameter specification
-        , countQueryParameter specification
+        [ maybeQueryParameter "page[position]" specification.position
+        , maybeQueryParameter "page[direction]" specification.direction
+        , maybeQueryParameter "page[count]" specification.count
         ]
