@@ -8,7 +8,6 @@ import Html.Attributes exposing (class, disabled, href)
 import Html.Events exposing (onClick)
 import Http
 import Pagination
-import Regex
 import Route
 import Url
 
@@ -186,26 +185,12 @@ maybeHref link =
     case link of
         Just url ->
             [ href url
-            , onClick (GoToPage (extractPaginationSpecification url))
+            , onClick (GoToPage (Pagination.extractPaginationSpecification url))
             ]
 
         Nothing ->
             [ disabled True
             ]
-
-extractStringFromMatch : Regex.Match -> String
-extractStringFromMatch match =
-    Maybe.withDefault "" (Maybe.withDefault (Just "") (List.head match.submatches))
-
-
-extractPaginationPart : String -> Api.PaginationLink -> Maybe String
-extractPaginationPart regexString link = 
-    List.head (List.map extractStringFromMatch (Regex.find (Maybe.withDefault Regex.never (Regex.fromString regexString)) link))
-
-extractPaginationSpecification : Api.PaginationLink -> Pagination.Specification
-extractPaginationSpecification link =
-    Pagination.Specification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
-
 
 paginationStyle : String
 paginationStyle =
