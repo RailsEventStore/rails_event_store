@@ -45,8 +45,7 @@ type alias PaginatedList a =
 
 
 type alias PaginationLink =
-    { url : String
-    , specification : Pagination.Specification
+    { specification : Pagination.Specification
     }
 
 
@@ -164,7 +163,7 @@ linksDecoder =
 
 extractSpecification : Decoder (Maybe String) -> Decoder (Maybe PaginationLink)
 extractSpecification decoder =
-    Json.Decode.map (\maybeLink -> Maybe.map (\link -> { url = link, specification = specificationFromUrl link }) maybeLink) decoder
+    Json.Decode.map (\maybeLink -> Maybe.map (\link -> { specification = specificationFromUrl link }) maybeLink) decoder
 
 
 emptyPaginatedList : PaginatedList Event
