@@ -8,11 +8,12 @@ import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt
 import Json.Encode exposing (encode)
 import Maybe.Extra
 import Pagination
-import Regex
 import Time
 import Url
 import Url.Builder
 import Url.OurExtra
+import Url.Parser
+import Url.Parser.Query
 
 
 type RemoteResource a
@@ -188,16 +189,15 @@ paginationQueryParameters specification =
         ]
 
 
+extractQueryArgument : String -> Url.Url -> Maybe String
+extractQueryArgument key location =
+    { location | path = "" } -- https://github.com/elm/url/issues/17#issuecomment-482947419
+    |> Url.Parser.parse (Url.Parser.query (Url.Parser.Query.string key))
+    |> Maybe.withDefault Nothing
+
+
 specificationFromUrl : String -> Pagination.Specification
-specificationFromUrl link =
-    Pagination.Specification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
-
-
-extractStringFromMatch : Regex.Match -> String
-extractStringFromMatch match =
-    Maybe.withDefault "" (Maybe.withDefault (Just "") (List.head match.submatches))
-
-
-extractPaginationPart : String -> String -> Maybe String
-extractPaginationPart regexString link =
-    List.head (List.map extractStringFromMatch (Regex.find (Maybe.withDefault Regex.never (Regex.fromString regexString)) link))
+specificationFromUrl stringUrl =
+    case (Url.fromString stringUrl) of
+        Just url -> Pagination.Specification (extractQueryArgument "page[position]" url) (extractQueryArgument "page[direction]" url) (extractQueryArgument "page[count]" url)
+        Nothing -> Pagination.empty
