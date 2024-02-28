@@ -8,6 +8,7 @@ import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt
 import Json.Encode exposing (encode)
 import Maybe.Extra
 import Pagination
+import Regex
 import Time
 import Url
 import Url.Builder
@@ -162,7 +163,7 @@ linksDecoder =
 
 extractSpecification : Decoder (Maybe String) -> Decoder (Maybe PaginationLink)
 extractSpecification decoder =
-    Json.Decode.map (\maybeLink -> Maybe.map (\link -> { url = link, specification = Pagination.specificationFromUrl link }) maybeLink) decoder
+    Json.Decode.map (\maybeLink -> Maybe.map (\link -> { url = link, specification = specificationFromUrl link }) maybeLink) decoder
 
 
 emptyPaginatedList : PaginatedList Event
@@ -185,3 +186,18 @@ paginationQueryParameters specification =
         , Url.OurExtra.maybeQueryParameter "page[direction]" specification.direction
         , Url.OurExtra.maybeQueryParameter "page[count]" specification.count
         ]
+
+
+specificationFromUrl : String -> Pagination.Specification
+specificationFromUrl link =
+    Pagination.Specification (extractPaginationPart "page%5Bposition%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bdirection%5D=([a-zA-Z0-9-]+)" link) (extractPaginationPart "page%5Bcount%5D=([a-zA-Z0-9-]+)" link)
+
+
+extractStringFromMatch : Regex.Match -> String
+extractStringFromMatch match =
+    Maybe.withDefault "" (Maybe.withDefault (Just "") (List.head match.submatches))
+
+
+extractPaginationPart : String -> String -> Maybe String
+extractPaginationPart regexString link =
+    List.head (List.map extractStringFromMatch (Regex.find (Maybe.withDefault Regex.never (Regex.fromString regexString)) link))
