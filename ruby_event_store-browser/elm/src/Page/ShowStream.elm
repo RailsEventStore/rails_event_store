@@ -180,7 +180,7 @@ maybeHref : Url.Url -> Maybe Api.PaginationLink -> List (Attribute Msg)
 maybeHref baseUrl link =
     case link of
         Just url ->
-            [ href (Route.paginatedStreamUrl baseUrl (Pagination.streamIdFromUrl url) (Pagination.specificationFromUrl url))
+            [ href (Route.paginatedStreamUrl baseUrl (Pagination.streamIdFromUrl url.url) url.specification)
             ]
 
         Nothing ->
