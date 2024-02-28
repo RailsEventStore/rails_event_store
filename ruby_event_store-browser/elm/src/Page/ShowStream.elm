@@ -91,7 +91,7 @@ view { streamName, events, relatedStreams, problems, flags, pagination } selecte
     case problems of
         [] ->
             ( title
-            , browseEvents flags.rootUrl header events relatedStreams selectedTime
+            , browseEvents flags.rootUrl header streamName events relatedStreams selectedTime
             )
 
         _ ->
@@ -107,15 +107,15 @@ view { streamName, events, relatedStreams, problems, flags, pagination } selecte
             )
 
 
-browseEvents : Url.Url -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> BrowserTime.TimeZone -> Html Msg
-browseEvents baseUrl title { links, events } relatedStreams timeZone =
+browseEvents : Url.Url -> String -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> BrowserTime.TimeZone -> Html Msg
+browseEvents baseUrl title streamName { links, events } relatedStreams timeZone =
     div [ class "py-8" ]
         [ div
             [ class "flex px-8 justify-between" ]
             [ h1
                 [ class "font-bold text-2xl" ]
                 [ text title ]
-            , div [] [ displayPagination baseUrl links ]
+            , div [] [ displayPagination streamName baseUrl links ]
             ]
         , div [ class "px-8" ] [ renderResults baseUrl events timeZone ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
@@ -166,21 +166,21 @@ streamLink baseUrl streamName =
         [ text streamName ]
 
 
-displayPagination : Url.Url -> Api.PaginationLinks -> Html Msg
-displayPagination baseUrl { first, last, next, prev } =
+displayPagination : String -> Url.Url -> Api.PaginationLinks -> Html Msg
+displayPagination streamName baseUrl { first, last, next, prev } =
     ul [ class "flex" ]
-        [ li [] [ firstPageButton baseUrl first ]
-        , li [] [ prevPageButton baseUrl prev ]
-        , li [] [ nextPageButton baseUrl next ]
-        , li [] [ lastPageButton baseUrl last ]
+        [ li [] [ firstPageButton streamName baseUrl first ]
+        , li [] [ prevPageButton streamName baseUrl prev ]
+        , li [] [ nextPageButton streamName baseUrl next ]
+        , li [] [ lastPageButton streamName baseUrl last ]
         ]
 
 
-maybeHref : Url.Url -> Maybe Api.PaginationLink -> List (Attribute Msg)
-maybeHref baseUrl link =
+maybeHref : String -> Url.Url -> Maybe Api.PaginationLink -> List (Attribute Msg)
+maybeHref streamName baseUrl link =
     case link of
         Just url ->
-            [ href (Route.paginatedStreamUrl baseUrl (Pagination.streamIdFromUrl url.url) url.specification)
+            [ href (Route.paginatedStreamUrl baseUrl streamName url.specification)
             ]
 
         Nothing ->
@@ -192,31 +192,31 @@ paginationStyle =
     "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:text-red-700/50 disabled:border-red-700/50 disabled:cursor-not-allowed"
 
 
-nextPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
-nextPageButton baseUrl link =
+nextPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
+nextPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref baseUrl link)
+        (class paginationStyle :: maybeHref streamName baseUrl link)
         [ text "next" ]
 
 
-prevPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
-prevPageButton baseUrl link =
+prevPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
+prevPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref baseUrl link)
+        (class paginationStyle :: maybeHref streamName baseUrl link)
         [ text "previous" ]
 
 
-lastPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
-lastPageButton baseUrl link =
+lastPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
+lastPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref baseUrl link)
+        (class paginationStyle :: maybeHref streamName baseUrl link)
         [ text "last" ]
 
 
-firstPageButton : Url.Url -> Maybe Api.PaginationLink -> Html Msg
-firstPageButton baseUrl link =
+firstPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
+firstPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref baseUrl link)
+        (class paginationStyle :: maybeHref streamName baseUrl link)
         [ text "first" ]
 
 
