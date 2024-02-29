@@ -182,41 +182,41 @@ maybeHref streamName baseUrl link =
         Just url ->
             [ href (Route.paginatedStreamUrl baseUrl streamName url.specification)
             ]
-
         Nothing ->
-            [ disabled True
-            ]
+            []
 
-paginationStyle : String
-paginationStyle =
-    "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1 disabled:text-red-700/50 disabled:border-red-700/50 disabled:cursor-not-allowed"
+paginationStyle : Maybe Api.PaginationLink -> String
+paginationStyle link =
+    case link of
+        Just _ -> "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
+        Nothing -> "text-center text-sm border rounded px-2 py-1 mr-1 text-red-700/50 border-red-700/50 cursor-not-allowed"
 
 
 nextPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
 nextPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref streamName baseUrl link)
+        (class (paginationStyle link) :: maybeHref streamName baseUrl link)
         [ text "next" ]
 
 
 prevPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
 prevPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref streamName baseUrl link)
+        (class (paginationStyle link) :: maybeHref streamName baseUrl link)
         [ text "previous" ]
 
 
 lastPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
 lastPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref streamName baseUrl link)
+        (class (paginationStyle link) :: maybeHref streamName baseUrl link)
         [ text "last" ]
 
 
 firstPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg
 firstPageButton streamName baseUrl link =
     a
-        (class paginationStyle :: maybeHref streamName baseUrl link)
+        (class (paginationStyle link) :: maybeHref streamName baseUrl link)
         [ text "first" ]
 
 
