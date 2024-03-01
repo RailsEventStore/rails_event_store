@@ -75,7 +75,7 @@ eventUrl flags eventId =
 
 eventsUrl : Flags -> String -> Pagination.Specification -> String
 eventsUrl flags streamId pagination =
-    Url.toString flags.apiUrl ++ "/streams/" ++ (Url.percentEncode streamId) ++ "/relationships/events" ++ (Url.Builder.toQuery (paginationQueryParameters pagination))
+    Url.toString flags.apiUrl ++ "/streams/" ++ Url.percentEncode streamId ++ "/relationships/events" ++ Url.Builder.toQuery (paginationQueryParameters pagination)
 
 
 streamUrl : Flags -> String -> String
@@ -190,13 +190,17 @@ paginationQueryParameters specification =
 
 extractQueryArgument : String -> Url.Url -> Maybe String
 extractQueryArgument key location =
-    { location | path = "" } -- https://github.com/elm/url/issues/17#issuecomment-482947419
-    |> Url.Parser.parse (Url.Parser.query (Url.Parser.Query.string key))
-    |> Maybe.withDefault Nothing
+    { location | path = "" }
+        -- https://github.com/elm/url/issues/17#issuecomment-482947419
+        |> Url.Parser.parse (Url.Parser.query (Url.Parser.Query.string key))
+        |> Maybe.withDefault Nothing
 
 
 specificationFromUrl : String -> Pagination.Specification
 specificationFromUrl stringUrl =
-    case (Url.fromString stringUrl) of
-        Just url -> Pagination.Specification (extractQueryArgument "page[position]" url) (extractQueryArgument "page[direction]" url) (extractQueryArgument "page[count]" url)
-        Nothing -> Pagination.empty
+    case Url.fromString stringUrl of
+        Just url ->
+            Pagination.Specification (extractQueryArgument "page[position]" url) (extractQueryArgument "page[direction]" url) (extractQueryArgument "page[count]" url)
+
+        Nothing ->
+            Pagination.empty
