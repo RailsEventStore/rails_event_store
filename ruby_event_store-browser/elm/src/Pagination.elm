@@ -2,6 +2,7 @@ module Pagination exposing (Specification, empty)
 
 import Url
 
+
 type alias Specification =
     { position : Maybe String
     , direction : Maybe String
@@ -10,4 +11,5 @@ type alias Specification =
 
 
 empty : Specification
-empty = Specification Nothing Nothing Nothing
+empty =
+    Specification Nothing Nothing Nothing

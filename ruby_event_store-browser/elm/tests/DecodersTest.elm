@@ -66,10 +66,10 @@ suite =
                             , pagination =
                                 Pagination.empty
                             , links =
-                                { next = Just { specification = (Pagination.Specification (Just "664ada1e-2f01-4ed0-9c16-63dbc82269d2") (Just "backward") (Just "20")) }
+                                { next = Just { specification = Pagination.Specification (Just "664ada1e-2f01-4ed0-9c16-63dbc82269d2") (Just "backward") (Just "20") }
                                 , prev = Nothing
                                 , first = Nothing
-                                , last = Just { specification = (Pagination.Specification (Just "head") (Just "forward") (Just "20")) }
+                                , last = Just { specification = Pagination.Specification (Just "head") (Just "forward") (Just "20") }
                                 }
                             }
                         )

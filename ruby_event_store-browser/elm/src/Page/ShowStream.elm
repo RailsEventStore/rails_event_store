@@ -182,14 +182,19 @@ maybeHref streamName baseUrl link =
         Just url ->
             [ href (Route.paginatedStreamUrl baseUrl streamName url.specification)
             ]
+
         Nothing ->
             []
+
 
 paginationStyle : Maybe Api.PaginationLink -> String
 paginationStyle link =
     case link of
-        Just _ -> "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
-        Nothing -> "text-center text-sm border rounded px-2 py-1 mr-1 text-red-700/50 border-red-700/50 cursor-not-allowed"
+        Just _ ->
+            "text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1"
+
+        Nothing ->
+            "text-center text-sm border rounded px-2 py-1 mr-1 text-red-700/50 border-red-700/50 cursor-not-allowed"
 
 
 nextPageButton : String -> Url.Url -> Maybe Api.PaginationLink -> Html Msg

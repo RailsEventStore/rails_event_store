@@ -1,4 +1,4 @@
-module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl, paginatedStreamUrl)
+module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, paginatedStreamUrl, streamUrl)
 
 import Maybe.Extra
 import Pagination
@@ -12,6 +12,7 @@ import Url.Parser.Query as Query
 type Route
     = BrowseEvents String Pagination.Specification
     | ShowEvent String
+
 
 decodeLocation : Url.Url -> Url.Url -> Maybe Route
 decodeLocation baseUrl loc =
