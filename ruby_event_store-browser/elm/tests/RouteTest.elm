@@ -117,6 +117,50 @@ suite =
                                     (Just (BrowseEvents "foo" Pagination.empty))
                             )
                     )
+        , test "decodeLocation correctly stream url with pagination" <|
+            \_ ->
+                withUrl "https://example.org/res/"
+                    (\baseUrl ->
+                        withUrl "https://example.org/res/streams/foo?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
+                            (\parsedUrl ->
+                                Expect.equal
+                                    (decodeLocation baseUrl parsedUrl)
+                                    (Just (BrowseEvents "foo" (Pagination.Specification (Just "head") (Just "forward") (Just "20"))))
+                            )
+                    )
+        , test "decodeLocation correctly stream url pagination, without position" <|
+            \_ ->
+                withUrl "https://example.org/res/"
+                    (\baseUrl ->
+                        withUrl "https://example.org/res/streams/foo?page%5Bdirection%5D=forward&page%5Bcount%5D=20"
+                            (\parsedUrl ->
+                                Expect.equal
+                                    (decodeLocation baseUrl parsedUrl)
+                                    (Just (BrowseEvents "foo" (Pagination.Specification Nothing (Just "forward") (Just "20"))))
+                            )
+                    )
+        , test "decodeLocation correctly stream url pagination, without direction" <|
+            \_ ->
+                withUrl "https://example.org/res/"
+                    (\baseUrl ->
+                        withUrl "https://example.org/res/streams/foo?page%5Bposition%5D=head&page%5Bcount%5D=20"
+                            (\parsedUrl ->
+                                Expect.equal
+                                    (decodeLocation baseUrl parsedUrl)
+                                    (Just (BrowseEvents "foo" (Pagination.Specification (Just "head") Nothing (Just "20"))))
+                            )
+                    )
+        , test "decodeLocation correctly stream url pagination, without count" <|
+            \_ ->
+                withUrl "https://example.org/res/"
+                    (\baseUrl ->
+                        withUrl "https://example.org/res/streams/foo?page%5Bposition%5D=head&page%5Bdirection%5D=forward"
+                            (\parsedUrl ->
+                                Expect.equal
+                                    (decodeLocation baseUrl parsedUrl)
+                                    (Just (BrowseEvents "foo" (Pagination.Specification (Just "head") (Just "forward") Nothing)))
+                            )
+                    )
         , test "decodeLocation correctly stream url with double subdirectory" <|
             \_ ->
                 withUrl "https://example.org/bar/res"
