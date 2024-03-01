@@ -1,6 +1,7 @@
 module RouteTest exposing (suite)
 
 import Expect
+import Pagination
 import Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, streamUrl)
 import Test exposing (..)
 import Url
@@ -37,7 +38,7 @@ suite =
                 withUrl "https://example.org"
                     (\baseUrl ->
                         Expect.equal
-                            (buildUrl baseUrl [ "something" ])
+                            (buildUrl baseUrl [ "something" ] [])
                             "/something"
                     )
         , test "buildUrl generates proper url when subdirectory absent, but with slash" <|
@@ -45,7 +46,7 @@ suite =
                 withUrl "https://example.org/"
                     (\baseUrl ->
                         Expect.equal
-                            (buildUrl baseUrl [ "something" ])
+                            (buildUrl baseUrl [ "something" ] [])
                             "/something"
                     )
         , test "buildUrl generates proper url with subdirectory" <|
@@ -53,7 +54,7 @@ suite =
                 withUrl "https://example.org/res"
                     (\baseUrl ->
                         Expect.equal
-                            (buildUrl baseUrl [ "something" ])
+                            (buildUrl baseUrl [ "something" ] [])
                             "/res/something"
                     )
         , test "buildUrl generates proper url with subdirectory and slash" <|
@@ -61,7 +62,7 @@ suite =
                 withUrl "https://example.org/res/"
                     (\baseUrl ->
                         Expect.equal
-                            (buildUrl baseUrl [ "something" ])
+                            (buildUrl baseUrl [ "something" ] [])
                             "/res/something"
                     )
         , test "buildUrl generates proper url with double subdirectory" <|
@@ -69,7 +70,7 @@ suite =
                 withUrl "https://example.org/res/foo"
                     (\baseUrl ->
                         Expect.equal
-                            (buildUrl baseUrl [ "something" ])
+                            (buildUrl baseUrl [ "something" ] [])
                             "/res/foo/something"
                     )
         , test "decodeLocation correctly stream url" <|
@@ -80,7 +81,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "foo"))
+                                    (Just (BrowseEvents "foo" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly stream url with slash" <|
@@ -91,7 +92,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "foo"))
+                                    (Just (BrowseEvents "foo" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly stream url with subdirectory" <|
@@ -102,7 +103,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "foo"))
+                                    (Just (BrowseEvents "foo" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly stream url with subdirectory and slash" <|
@@ -113,7 +114,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "foo"))
+                                    (Just (BrowseEvents "foo" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly stream url with double subdirectory" <|
@@ -124,7 +125,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "foo"))
+                                    (Just (BrowseEvents "foo" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly top url" <|
@@ -135,7 +136,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "all"))
+                                    (Just (BrowseEvents "all" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly top url with slash" <|
@@ -146,7 +147,7 @@ suite =
                             (\parsedUrl ->
                                 Expect.equal
                                     (decodeLocation baseUrl parsedUrl)
-                                    (Just (BrowseEvents "all"))
+                                    (Just (BrowseEvents "all" Pagination.empty))
                             )
                     )
         , test "decodeLocation correctly event url" <|

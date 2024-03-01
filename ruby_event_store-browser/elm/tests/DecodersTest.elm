@@ -4,6 +4,7 @@ import Api exposing (eventDecoder, eventsDecoder)
 import Expect
 import Json.Decode
 import Main exposing (..)
+import Pagination
 import Test exposing (..)
 import Time
 
@@ -19,8 +20,8 @@ suite =
                             """
                             {
                             "links": {
-                                "last": "/streams/all/head/forward/20",
-                                "next": "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
+                                "last": "http://localhost:9393/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+                                "next": "http://localhost:9393/api/streams/all/relationships/events?page%5Bposition%5D=664ada1e-2f01-4ed0-9c16-63dbc82269d2&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
                             },
                             "data": [
                                 {
@@ -45,7 +46,7 @@ suite =
                             """
 
                         output =
-                            Json.Decode.decodeString eventsDecoder input
+                            Json.Decode.decodeString (eventsDecoder Pagination.empty) input
                     in
                     Expect.equal output
                         (Ok
@@ -62,11 +63,13 @@ suite =
                                   , streams = Nothing
                                   }
                                 ]
+                            , pagination =
+                                Pagination.empty
                             , links =
-                                { next = Just "/streams/all/004ada1e-2f01-4ed0-9c16-63dbc82269d2/backward/20"
+                                { next = Just { specification = (Pagination.Specification (Just "664ada1e-2f01-4ed0-9c16-63dbc82269d2") (Just "backward") (Just "20")) }
                                 , prev = Nothing
                                 , first = Nothing
-                                , last = Just "/streams/all/head/forward/20"
+                                , last = Just { specification = (Pagination.Specification (Just "head") (Just "forward") (Just "20")) }
                                 }
                             }
                         )
