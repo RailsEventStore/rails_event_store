@@ -43,7 +43,11 @@ module RubyEventStore
               urls: {
                 "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
                 "/ruby_event_store_browser.css" => "ruby_event_store_browser.css",
-                "/bootstrap.js" => "bootstrap.js"
+                "/bootstrap.js" => "bootstrap.js",
+                "/favicon-16x16.png" => "favicon-16x16.png",
+                "/favicon-32x32.png" => "favicon-32x32.png",
+                "/apple-touch-icon.png" => "apple-touch-icon.png",
+                "/safari-pinned-tab.svg" => "safari-pinned-tab.svg"
               },
               root: "#{__dir__}/../../../public"
           run App.new(
@@ -116,6 +120,12 @@ module RubyEventStore
             <title>RubyEventStore::Browser</title>
             <link type="text/css" rel="stylesheet" href="<%= browser_css_src %>">
             <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(initial_data)) %>">
+            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+            <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+            <meta name="msapplication-TileColor" content="#da532c">
+            <meta name="theme-color" content="#ffffff">
           </head>
           <body>
             <script type="text/javascript" src="<%= browser_js_src %>"></script>
