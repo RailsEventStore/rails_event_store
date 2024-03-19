@@ -21,7 +21,7 @@
             "justinmimbs/timezone-data": "10.1.1",
             "klazuka/elm-json-tree-view": "2.1.0",
             "rtfeldman/elm-iso8601-date-strings": "1.1.4",
-            "ryannhg/date-format": "2.3.0"
+            "ryan-haskell/date-format": "1.0.0"
         },
         "indirect": {
             "avh4/elm-color": "1.0.0",
