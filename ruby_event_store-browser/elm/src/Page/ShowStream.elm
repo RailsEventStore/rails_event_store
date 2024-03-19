@@ -280,24 +280,28 @@ itemRow baseUrl timeZone { eventType, createdAt, eventId } =
         [ td
             []
             [ a
-                [ class "text-red-700 block no-underline py-2 px-4 align-middle break-words	"
+                [ class "text-red-700 no-underline min-h-11 w-full flex items-center px-4"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
-                [ text eventType ]
+                [
+                    span
+                    [ class "break-words min-w-0" ]
+                    [ text eventType ]
+                ]
             ]
         , td
             [ class "font-mono text-sm leading-none font-medium align-middle" ]
             [ a
-                [ class "no-underline block py-2 "
+                [ class "no-underline h-full min-h-11 flex items-center"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventId ]
             ]
             
         , td
-            [ class "font-mono text-sm leading-none font-medium text-right align-middle" ]
+            [ class "font-mono text-sm leading-none font-medium" ]
             [ a
-                [ class "no-underline block py-2 px-4"
+                [ class "no-underline min-h-11 flex items-center justify-end px-4"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text (BrowserTime.format timeZone createdAt) ]
