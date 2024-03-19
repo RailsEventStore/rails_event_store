@@ -14,7 +14,23 @@ Gem::Specification.new do |spec|
     Explore correlation and causation connections.
   EOD
   spec.homepage = "https://railseventstore.org"
-  spec.files = Dir["{lib,public}/**/*"]
+  spec.files = Dir["lib/**/*"] + %w[
+    bootstrap.js
+    ruby_event_store_browser.css
+    ruby_event_store_browser.js
+    android-chrome-192x192.png
+    android-chrome-512x512.png
+    apple-touch-icon.png
+    favicon.ico
+    favicon-16x16.png
+    favicon-32x32.png
+    mstile-70x70.png
+    mstile-144x144.png
+    mstile-150x150.png
+    mstile-310x150.png
+    mstile-310x310.png
+    safari-pinned-tab.svg
+  ].map {|f| "public/#{f}" }
   spec.require_paths = %w[lib]
   spec.extra_rdoc_files = %w[README.md]
   spec.metadata = {

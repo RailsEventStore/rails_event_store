@@ -40,15 +40,23 @@ module RubyEventStore
 
         Rack::Builder.new do
           use Rack::Static,
-              urls: {
-                "/ruby_event_store_browser.js" => "ruby_event_store_browser.js",
-                "/ruby_event_store_browser.css" => "ruby_event_store_browser.css",
-                "/bootstrap.js" => "bootstrap.js",
-                "/favicon-16x16.png" => "favicon-16x16.png",
-                "/favicon-32x32.png" => "favicon-32x32.png",
-                "/apple-touch-icon.png" => "apple-touch-icon.png",
-                "/safari-pinned-tab.svg" => "safari-pinned-tab.svg"
-              },
+              urls: %w[
+                bootstrap.js
+                ruby_event_store_browser.css
+                ruby_event_store_browser.js
+                android-chrome-192x192.png
+                android-chrome-512x512.png
+                apple-touch-icon.png
+                favicon.ico
+                favicon-16x16.png
+                favicon-32x32.png
+                mstile-70x70.png
+                mstile-144x144.png
+                mstile-150x150.png
+                mstile-310x150.png
+                mstile-310x310.png
+                safari-pinned-tab.svg
+              ].map {|f| ["/#{f}", f] }.to_h,
               root: "#{__dir__}/../../../public"
           run App.new(
                 event_store_locator: event_store_locator,
