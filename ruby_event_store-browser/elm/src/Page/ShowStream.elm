@@ -250,27 +250,31 @@ renderResults baseUrl events timeZone =
                 [ text "No items" ]
 
         _ ->
-            table
-                [ class "my-10 w-full table-fixed text-left border-collapse"
-                ]
-                [ thead
-                    [ class "align-bottom leading-tight"
+            div 
+                [ class "overflow-x-scroll sm:overflow-visible w-full" ]
+                [ table
+                    [ class "my-10 w-full lg:table-fixed text-left"
                     ]
-                    [ tr []
-                        [ th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 px-4 text-xs" ]
-                            [ text "Event name" ]
-                        , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs w-80" ]
-                            [ text "Event id" ]
-                        , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs text-right w-60" ]
-                            [ text "Created at" ]
+                    [ thead
+                        [ class "align-bottom leading-tight sticky top-0 bg-white/70 backdrop-blur-sm text-gray-500 uppercase text-xs"
                         ]
+                        [ tr 
+                            [ class "border-gray-400 border-b" ]
+                            [ th
+                                [ class "py-4  px-4" ]
+                                [ text "Event name" ]
+                            , th
+                                [ class "py-4  pr-4 lg:w-80" ]
+                                [ text "Event id" ]
+                            , th
+                                [ class "py-4  pr-4  text-right lg:w-60" ]
+                                [ text "Created at" ]
+                            ]
+                        ]
+                    , tbody
+                        [ class "align-top" ]
+                        (List.map (itemRow baseUrl timeZone) events)
                     ]
-                , tbody
-                    [ class "align-top" ]
-                    (List.map (itemRow baseUrl timeZone) events)
                 ]
 
 
