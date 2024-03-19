@@ -48,7 +48,7 @@ GEM
     mutant-rspec (0.11.22)
       mutant (= 0.11.22)
       rspec-core (>= 3.8.0, < 4.0.0)
-    mysql2 (0.5.5)
+    mysql2 (0.5.6)
     parser (3.2.2.3)
       ast (~> 2.4.1)
       racc
@@ -92,7 +92,7 @@ DEPENDENCIES
   mutant-license!
   mutant-minitest (= 0.11.22)
   mutant-rspec (= 0.11.22)
-  mysql2 (~> 0.5.5)
+  mysql2 (~> 0.5.6)
   pg (~> 1.5.4)
   rake (>= 10.0)
   rspec (~> 3.6)
