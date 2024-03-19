@@ -1,6 +1,6 @@
 module DecodersTest exposing (suite)
 
-import Api exposing (eventDecoder, eventsDecoder)
+import Api exposing (eventDecoder, eventsDecoder, searchStreamsDecoder)
 import Expect
 import Json.Decode
 import Main exposing (..)
@@ -139,6 +139,36 @@ suite =
                             , parentEventId = Just "cb12f84b-b9e4-439b-8442-50fae6244dc9"
                             , streams = Just [ "dummy", "$by_correlation_id_a7243789-999f-4ef2-8511-b1c686b83fad", "$by_causation_id_664ada1e-2f01-4ed0-9c16-63dbc82269d2", "$by_type_DummyEvent" ]
                             }
+                        )
+            , test "search decoder" <|
+                \_ ->
+                    let
+                        input =
+                            """
+                        {
+                            "data": [
+                                {
+                                    "id": "$by_tenant_id_133",
+                                    "type": "streams"
+                                },
+                                {
+                                    "id": "$by_tenant_id_444",
+                                    "type": "streams"
+                                }
+                            ]
+                        }
+                        """
+
+                        output =
+                            Json.Decode.decodeString searchStreamsDecoder input
+                    in
+                    Expect.equal output
+                        (Ok
+                            [ { streamId = "$by_tenant_id_133"
+                              }
+                            , { streamId = "$by_tenant_id_444"
+                              }
+                            ]
                         )
             ]
         ]
