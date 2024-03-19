@@ -23,6 +23,7 @@ type alias Model =
     , relatedStreams : Maybe (List String)
     , problems : List Problem
     , pagination : Pagination.Specification
+    , searchStreams : List Api.SearchStream
     }
 
 
@@ -38,6 +39,7 @@ initModel flags streamName paginationSpecification =
     , flags = flags
     , problems = []
     , pagination = paginationSpecification
+    , searchStreams = []
     }
 
 
@@ -48,11 +50,12 @@ initModel flags streamName paginationSpecification =
 type Msg
     = EventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | StreamFetched (Result Http.Error Api.Stream)
+    | SearchedStreamsFetched (Result Http.Error (List Api.SearchStream))
 
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Api.getStream StreamFetched flags streamId
+    Cmd.batch [ Api.getStream StreamFetched flags streamId, Api.getSearchStreams SearchedStreamsFetched ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,9 +81,15 @@ update msg model =
             in
             ( { model | problems = serverErrors }, Cmd.none )
 
+        SearchedStreamsFetched (Ok result) ->
+            ( { model | searchStreams = result }, Cmd.none )
+
+        SearchedStreamsFetched (Err _) ->
+            ( model, Cmd.none )
+
 
 view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags, pagination } selectedTime =
+view { streamName, events, relatedStreams, problems, flags, pagination, searchStreams } selectedTime =
     let
         title =
             "Stream " ++ streamName
@@ -91,7 +100,7 @@ view { streamName, events, relatedStreams, problems, flags, pagination } selecte
     case problems of
         [] ->
             ( title
-            , browseEvents flags.rootUrl header streamName events relatedStreams selectedTime
+            , browseEvents flags.rootUrl header streamName events relatedStreams selectedTime searchStreams
             )
 
         _ ->
@@ -107,8 +116,8 @@ view { streamName, events, relatedStreams, problems, flags, pagination } selecte
             )
 
 
-browseEvents : Url.Url -> String -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> BrowserTime.TimeZone -> Html Msg
-browseEvents baseUrl title streamName { links, events } relatedStreams timeZone =
+browseEvents : Url.Url -> String -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> BrowserTime.TimeZone -> List Api.SearchStream -> Html Msg
+browseEvents baseUrl title streamName { links, events } relatedStreams timeZone searchStreams =
     div [ class "py-8" ]
         [ div
             [ class "flex px-8 justify-between" ]
@@ -119,6 +128,7 @@ browseEvents baseUrl title streamName { links, events } relatedStreams timeZone 
             ]
         , div [ class "px-8" ] [ renderResults baseUrl events timeZone ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
+        , div [ class "bg-red-500" ] [ renderSearchStreams searchStreams ]
         ]
 
 
@@ -131,6 +141,12 @@ viewProblem problem =
                     str
     in
     li [] [ text errorMessage ]
+
+
+renderSearchStreams : List Api.SearchStream -> Html msg
+renderSearchStreams searchStreams =
+    ul []
+        (List.map (\searchStream -> li [] [ text searchStream.streamId ]) searchStreams)
 
 
 renderRelatedStreams : Url.Url -> Maybe (List String) -> Html Msg
