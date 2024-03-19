@@ -55,7 +55,7 @@ type Msg
 
 initCmd : Flags -> String -> Cmd Msg
 initCmd flags streamId =
-    Cmd.batch [ Api.getStream StreamFetched flags streamId, Api.getSearchStreams SearchedStreamsFetched ]
+    Api.getStream StreamFetched flags streamId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
