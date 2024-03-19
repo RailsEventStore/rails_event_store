@@ -4,8 +4,7 @@ import Api
 import BrowserTime
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled, href)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, href)
 import Http
 import Pagination
 import Route

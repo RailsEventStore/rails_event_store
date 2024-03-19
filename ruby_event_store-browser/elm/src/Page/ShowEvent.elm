@@ -1,4 +1,4 @@
-module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
+port module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
 
 import Api
 import BrowserTime
@@ -12,7 +12,7 @@ import Maybe
 import Maybe.Extra exposing (values)
 import Pagination
 import Route
-import Svg exposing (svg, path)
+import Svg exposing (path, svg)
 import Svg.Attributes as SvgAttr
 import Url
 
@@ -54,7 +54,15 @@ initModel flags eventId =
 
 
 
+-- PORT
+
+
+port copyToClipboard : String -> Cmd msg
+
+
+
 -- UPDATE
+
 
 type Msg
     = ChangeOpenedEventDataTreeState JsonTree.State
@@ -62,6 +70,7 @@ type Msg
     | EventFetched (Result Http.Error Api.Event)
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | CausedStreamFetched (Result Http.Error Api.Stream)
+    | Copy String
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -87,6 +96,9 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        Copy content ->
+            ( model, copyToClipboard content )
 
         EventFetched (Ok result) ->
             let
@@ -201,9 +213,6 @@ view_ model =
                     ]
                     [ text "Loading..." ]
                 ]
-            
-                        
-    
 
         Api.Loaded event ->
             showEvent model.flags.rootUrl event model.causedEvents
@@ -234,18 +243,24 @@ showEvent baseUrl event maybeCausedEvents =
                 [ class "w-full text-left grid md:grid-cols-3 gap-8 overflow-hidden"
                 ]
                 [ section [ class "space-y-4" ]
-                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ] [
-                        h2 [ class "text-gray-500 uppercase font-bold " ] [ text "Event ID" ],
-                        button [ class "text-red-700 no-underline" ] [ text "Copy" ]
-                    ]
+                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
+                        [ h2 [ class "text-gray-500 uppercase font-bold " ] [ text "Event ID" ]
+                        , button [ class "text-red-700 no-underline", onClick (Copy event.eventId) ] [ text "Copy" ]
+                        ]
                     , div [ class "text-sm font-medium font-mono" ] [ text event.eventId ]
                     ]
                 , section [ class "space-y-4" ]
-                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ] [ text "Raw Data" ]
+                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
+                        [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Data" ]
+                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawData) ] [ text "Copy" ]
+                        ]
                     , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
                     ]
                 , section [ class "space-y-4" ]
-                    [ h2 [ class "border-gray-400 border-b text-gray-500 uppercase font-bold text-xs pb-2" ] [ text "Raw Metadata" ]
+                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
+                        [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Metadata" ]
+                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawMetadata) ] [ text "Copy" ]
+                        ]
                     , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                     ]
                 ]
