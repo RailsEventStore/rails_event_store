@@ -57,13 +57,8 @@ type Page
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    case model.page of
-        ShowEvent pageModel ->
-            Sub.map GotShowEventMsg (Page.ShowEvent.subscriptions pageModel)
-
-        _ ->
-            Sub.none
+subscriptions _ =
+    Sub.none
 
 
 buildModel : RawFlags -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
