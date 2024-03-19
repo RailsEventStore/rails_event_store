@@ -251,7 +251,7 @@ renderResults baseUrl events timeZone =
 
         _ ->
             table
-                [ class "my-10 w-full text-left border-collapse"
+                [ class "my-10 w-full table-fixed text-left border-collapse"
                 ]
                 [ thead
                     [ class "align-bottom leading-tight"
@@ -261,10 +261,10 @@ renderResults baseUrl events timeZone =
                             [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 px-4 text-xs" ]
                             [ text "Event name" ]
                         , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs" ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs w-80" ]
                             [ text "Event id" ]
                         , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs text-right" ]
+                            [ class "border-gray-400 border-b text-gray-500 uppercase pb-4 pr-4 text-xs text-right w-60" ]
                             [ text "Created at" ]
                         ]
                     ]
@@ -278,17 +278,28 @@ itemRow : Url.Url -> BrowserTime.TimeZone -> Api.Event -> Html Msg
 itemRow baseUrl timeZone { eventType, createdAt, eventId } =
     tr [ class "border-gray-50 border-b hover:bg-gray-100" ]
         [ td
-            [ class "py-2 px-4 align-middle" ]
+            []
             [ a
-                [ class "text-red-700 no-underline"
+                [ class "text-red-700 block no-underline py-2 px-4 align-middle break-words	"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
         , td
-            [ class "py-2  pr-4 font-mono text-sm leading-none font-medium align-middle" ]
-            [ text eventId ]
+            [ class "font-mono text-sm leading-none font-medium align-middle" ]
+            [ a
+                [ class "no-underline block py-2 "
+                , href (Route.eventUrl baseUrl eventId)
+                ]
+                [ text eventId ]
+            ]
+            
         , td
-            [ class "py-2  pr-4 font-mono text-sm leading-none font-medium text-right align-middle" ]
-            [ text (BrowserTime.format timeZone createdAt) ]
+            [ class "font-mono text-sm leading-none font-medium text-right align-middle" ]
+            [ a
+                [ class "no-underline block py-2 px-4"
+                , href (Route.eventUrl baseUrl eventId)
+                ]
+                [ text (BrowserTime.format timeZone createdAt) ]
+            ]
         ]
