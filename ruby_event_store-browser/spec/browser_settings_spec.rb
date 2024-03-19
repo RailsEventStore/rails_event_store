@@ -69,7 +69,7 @@ module RubyEventStore
     end
 
     def link_tags(response_body)
-      Nokogiri.HTML(response_body).css("link")
+      Nokogiri.HTML(response_body).css("link[rel=stylesheet]")
     end
 
     def meta_content(response_body)
