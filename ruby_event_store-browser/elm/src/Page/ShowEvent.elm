@@ -5,7 +5,7 @@ import BrowserTime
 import FeatherIcons
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, colspan, href, selected)
+import Html.Attributes exposing (attribute, class, colspan, href, selected, title)
 import Html.Events exposing (onClick)
 import Http
 import JsonTree
@@ -264,7 +264,7 @@ showEvent baseUrl event maybeCausedEvents selectedTime =
             , div
                 [ class "space-y-4"
                 ]
-                [ section [ class "space-y-1 pt-3" ]
+                [ section [ class "space-y-1 pt-3 cursor-help", title selectedTime.zoneName ]
                     [ header [ class "flex items-center gap-1  text-xs" ]
                         [ FeatherIcons.clock
                             |> FeatherIcons.withClass "size-3 text-gray-400"
@@ -273,7 +273,7 @@ showEvent baseUrl event maybeCausedEvents selectedTime =
                         ]
                     , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-4 text-gray-700 tracking-tight" ] [ text (BrowserTime.format selectedTime event.createdAt) ]
                     ]
-                , section [ class "space-y-1" ]
+                , section [ class "space-y-1 cursor-help", title selectedTime.zoneName ]
                     [ header [ class "flex items-center gap-1 text-xs" ]
                         [ FeatherIcons.clock
                             |> FeatherIcons.withClass "size-3 text-gray-400"

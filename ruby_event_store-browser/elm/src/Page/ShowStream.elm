@@ -4,7 +4,7 @@ import Api
 import BrowserTime
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (class, href, title)
 import Http
 import Pagination
 import Route
@@ -266,7 +266,10 @@ renderResults baseUrl events timeZone =
                                 [ text "Event id" ]
                             , th
                                 [ class "py-4  pr-4  text-right lg:w-60" ]
-                                [ text "Created at" ]
+                                [ span
+                                    [ class "cursor-help", title timeZone.zoneName]
+                                    [text "Created at" ]
+                                ]
                             ]
                         ]
                     , tbody
@@ -306,6 +309,9 @@ itemRow baseUrl timeZone { eventType, createdAt, eventId } =
                 [ class "no-underline min-h-11 flex items-center justify-end px-4"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
-                [ text (BrowserTime.format timeZone createdAt) ]
+                [ span
+                    [ title timeZone.zoneName ]
+                    [ text (BrowserTime.format timeZone createdAt) ]
+                ]
             ]
         ]
