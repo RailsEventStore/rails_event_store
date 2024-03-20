@@ -4,6 +4,7 @@ import Browser.Events
 import Browser.Navigation
 import BrowserTime
 import Dict
+import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (class, href, id, list, placeholder, selected, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -219,9 +220,15 @@ fakeSearchInput : Html Msg
 fakeSearchInput =
     button
         [ onClick ToggleDialog
-        , class "bg-white"
+        , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 py-2 px-3 rounded"
         ]
-        [ text "Go to stream..." ]
+        [ 
+             FeatherIcons.search
+                            |> FeatherIcons.withClass "size-4"
+                            |> FeatherIcons.toHtml [],
+            text "Quick search…",
+            span [ class "text-xs" ] [ text "⌘K" ]
+        ]
 
 
 realSearchInput : WrappedModel Model -> Html Msg
@@ -236,5 +243,5 @@ searchModalId =
 searchModal : WrappedModel Model -> Html Msg
 searchModal model =
     node "dialog"
-        [ id searchModalId ]
+        [ id searchModalId, class "backdrop:bg-white/30 backdrop:backdrop-blur-sm" ]
         [ realSearchInput model ]
