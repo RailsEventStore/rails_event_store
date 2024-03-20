@@ -38,12 +38,18 @@ searchStreams flags stream =
     getSearchStreams SearchedStreamsFetched flags stream
 
 
+isExactStream : String -> List String -> Bool
+isExactStream stream streams =
+    List.any (\s -> s == stream) streams
+
+
 update : Msg -> Model -> Flags -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
 update msg model flags onSubmit =
     case msg of
         StreamChanged stream ->
-            if List.any (\s -> s == stream) model.streams then
-                ( model,  onSubmit stream )
+            if isExactStream stream model.streams then
+                ( model, onSubmit stream )
+
             else
                 ( { model | value = stream }, searchStreams flags stream )
 
