@@ -7,7 +7,7 @@ import Dict
 import Flags exposing (Flags, RawFlags, buildFlags)
 import Html exposing (..)
 import Layout
-import LinkedTimezones exposing(mapLinkedTimeZone)
+import LinkedTimezones exposing (mapLinkedTimeZone)
 import Page.ShowEvent
 import Page.ShowStream
 import Route
@@ -60,7 +60,7 @@ type Page
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Sub.map GotLayoutMsg Layout.subscriptions
 
 
 buildModel : RawFlags -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
@@ -87,9 +87,11 @@ buildModel rawFlags location key =
         ]
     )
 
+
 requestBrowserTimeZone : Cmd Msg
 requestBrowserTimeZone =
     Task.attempt ReceiveTimeZone Time.getZoneName
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -163,12 +165,12 @@ update msg model =
                                             model.time
 
                                         detectedTime =
-                                            { zone = zone (), zoneName = newZoneName}
+                                            { zone = zone (), zoneName = newZoneName }
 
                                         newTime =
-                                            { time | detected = detectedTime, selected = detectedTime}
+                                            { time | detected = detectedTime, selected = detectedTime }
                                     in
-                                    ( { model | time = newTime}, Cmd.none )
+                                    ( { model | time = newTime }, Cmd.none )
 
                                 Nothing ->
                                     ( model, Cmd.none )

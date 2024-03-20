@@ -1,12 +1,14 @@
-module Layout exposing (Model, Msg, buildModel, update, view, viewIncorrectConfig, viewNotFound)
+port module Layout exposing (Model, Msg, buildModel, subscriptions, update, view, viewIncorrectConfig, viewNotFound)
 
+import Browser.Events
 import Browser.Navigation
 import BrowserTime
 import Dict
 import Html exposing (..)
-import Html.Attributes exposing (class, href, list, placeholder, selected, value)
-import Html.Events exposing (onInput, onSubmit)
-import LinkedTimezones exposing(mapLinkedTimeZone)
+import Html.Attributes exposing (class, href, id, list, placeholder, selected, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
+import Json.Decode
+import LinkedTimezones exposing (mapLinkedTimeZone)
 import List.Extra
 import Route
 import Search exposing (..)
@@ -18,11 +20,29 @@ import WrappedModel exposing (..)
 type Msg
     = TimeZoneSelected String
     | SearchMsg Search.Msg
+    | KeyPress String Bool
+    | ToggleDialog
 
 
 type alias Model =
     { search : Search.Model
     }
+
+
+port toggleDialog : String -> Cmd msg
+
+
+subscriptions : Sub Msg
+subscriptions =
+    Browser.Events.onKeyDown keyboardDecoder
+
+
+keyboardDecoder : Json.Decode.Decoder Msg
+keyboardDecoder =
+    Json.Decode.map2
+        KeyPress
+        (Json.Decode.field "key" Json.Decode.string)
+        (Json.Decode.field "metaKey" Json.Decode.bool)
 
 
 buildModel : Model
@@ -65,6 +85,7 @@ update msg model =
                 let
                     betterZoneName =
                         mapLinkedTimeZone zoneName
+
                     maybeZone =
                         Dict.get betterZoneName zones
                 in
@@ -82,6 +103,17 @@ update msg model =
                     Nothing ->
                         ( model, Cmd.none )
 
+        KeyPress key isDown ->
+            case ( key, isDown ) of
+                ( "k", True ) ->
+                    ( model, toggleDialog searchModalId )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ToggleDialog ->
+            ( model, toggleDialog searchModalId )
+
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
 view layoutMsgBuilder model pageView =
@@ -92,7 +124,9 @@ view layoutMsgBuilder model pageView =
             ]
         , main_
             [ class "bg-white" ]
-            [ pageView ]
+            [ pageView
+            , Html.map layoutMsgBuilder (searchModal model)
+            ]
         , footer []
             [ Html.map layoutMsgBuilder (browserFooter model)
             ]
@@ -126,10 +160,7 @@ browserNavigation model =
             []
         , div
             [ class "flex items-center" ]
-            [ Search.view
-                model.internal.search
-                |> Html.map SearchMsg
-            ]
+            [ fakeSearchInput ]
         ]
 
 
@@ -181,3 +212,28 @@ browserFooter { flags, time } =
                 )
             ]
         ]
+
+
+fakeSearchInput : Html Msg
+fakeSearchInput =
+    button
+        [ onClick ToggleDialog
+        , class "bg-white"
+        ]
+        [ text "Go to stream..." ]
+
+
+realSearchInput : WrappedModel Model -> Html Msg
+realSearchInput model =
+    Html.map SearchMsg (Search.view model.internal.search)
+
+
+searchModalId =
+    "search-modal"
+
+
+searchModal : WrappedModel Model -> Html Msg
+searchModal model =
+    node "dialog"
+        [ id searchModalId ]
+        [ realSearchInput model ]
