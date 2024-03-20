@@ -11,7 +11,7 @@ type alias Stream =
 
 type alias Model =
     { streams : List Stream
-    , value : Maybe Stream
+    , value : Stream
     }
 
 
@@ -23,25 +23,15 @@ type Msg
 init : Model
 init =
     { streams = []
-    , value = Nothing
+    , value = ""
     }
-
-
-extractStream : Maybe Stream -> Stream
-extractStream maybeStream =
-    case maybeStream of
-        Just stream ->
-            stream
-
-        Nothing ->
-            ""
 
 
 update : Msg -> Model -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
 update msg model onSubmit =
     case msg of
         StreamChanged stream ->
-            ( { model | value = Just stream }, Cmd.none )
+            ( { model | value = stream }, Cmd.none )
 
         GoToStream stream ->
             ( model, onSubmit stream )
@@ -49,10 +39,10 @@ update msg model onSubmit =
 
 view : Model -> Html Msg
 view model =
-    form [ onSubmit (GoToStream (extractStream model.value)) ]
+    form [ onSubmit (GoToStream model.value) ]
         [ input
             [ class "rounded px-4 py-2"
-            , value (extractStream model.value)
+            , value model.value
             , onInput StreamChanged
             , placeholder "Go to stream..."
             , list "streams"
