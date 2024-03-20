@@ -265,22 +265,22 @@ showEvent baseUrl event maybeCausedEvents selectedTime =
                 [ class "space-y-4"
                 ]
                 [ section [ class "space-y-1 pt-3" ]
-                    [ header [ class "flex items-center gap-2  text-xs" ]
+                    [ header [ class "flex items-center gap-1  text-xs" ]
                         [ FeatherIcons.clock
-                            |> FeatherIcons.withClass "size-4 text-gray-400 hover:text-red-700"
+                            |> FeatherIcons.withClass "size-3 text-gray-400"
                             |> FeatherIcons.toHtml []
                         , h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Created at" ]
                         ]
-                    , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-6" ] [ text (BrowserTime.format selectedTime event.createdAt) ]
+                    , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-4 text-gray-700 tracking-tight" ] [ text (BrowserTime.format selectedTime event.createdAt) ]
                     ]
                 , section [ class "space-y-1" ]
-                    [ header [ class "flex items-center gap-2 text-xs" ]
+                    [ header [ class "flex items-center gap-1 text-xs" ]
                         [ FeatherIcons.clock
-                            |> FeatherIcons.withClass "size-4 text-gray-400 hover:text-red-700"
+                            |> FeatherIcons.withClass "size-3 text-gray-400"
                             |> FeatherIcons.toHtml []
                         , h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Valid at" ]
                         ]
-                    , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-6" ] [ text (BrowserTime.format selectedTime event.validAt) ]
+                    , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-4 text-gray-700 tracking-tight" ] [ text (BrowserTime.format selectedTime event.validAt) ]
                     ]
                 ]
             ]
