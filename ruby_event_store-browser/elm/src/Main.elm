@@ -10,6 +10,7 @@ import Layout
 import LinkedTimezones exposing (mapLinkedTimeZone)
 import Page.ShowEvent
 import Page.ShowStream
+import Page.Debug
 import Route
 import Task
 import Time
@@ -270,7 +271,11 @@ viewPage page selectedTime =
             ( Just title, Html.map GotShowEventMsg content )
 
         Debug ->
-            ( Just "Debug", text "to be filled with some helpful content" )
+            let
+                content =
+                    Page.Debug.view
+            in
+            ( Just "Debug", content )
 
         NotFound ->
             ( Nothing, Layout.viewNotFound )
