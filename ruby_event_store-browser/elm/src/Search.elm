@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
 import Http
+import List exposing (any)
 import Page.ShowStream exposing (Msg(..))
 
 
@@ -41,7 +42,10 @@ update : Msg -> Model -> Flags -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
 update msg model flags onSubmit =
     case msg of
         StreamChanged stream ->
-            ( { model | value = stream }, searchStreams flags stream )
+            if List.any (\s -> s == stream) model.streams then
+                ( model,  onSubmit stream )
+            else
+                ( { model | value = stream }, searchStreams flags stream )
 
         GoToStream stream ->
             ( model, onSubmit stream )
