@@ -1,7 +1,7 @@
 port module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
 
 import Api
-import BrowserTime
+import FeatherIcons
 import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, colspan, href)
@@ -245,21 +245,36 @@ showEvent baseUrl event maybeCausedEvents =
                 [ section [ class "space-y-4" ]
                     [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
                         [ h2 [ class "text-gray-500 uppercase font-bold " ] [ text "Event ID" ]
-                        , button [ class "text-red-700 no-underline", onClick (Copy event.eventId) ] [ text "Copy" ]
+                        , button [ class "text-red-700 no-underline", onClick (Copy event.eventId) ]
+                            [ FeatherIcons.clipboard
+                                |> FeatherIcons.withSize 16
+                                |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
+                                |> FeatherIcons.toHtml []
+                            ]
                         ]
                     , div [ class "text-sm font-medium font-mono" ] [ text event.eventId ]
                     ]
                 , section [ class "space-y-4" ]
                     [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
                         [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Data" ]
-                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawData) ] [ text "Copy" ]
+                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawData) ]
+                            [ FeatherIcons.clipboard
+                                |> FeatherIcons.withSize 16
+                                |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
+                                |> FeatherIcons.toHtml []
+                            ]
                         ]
                     , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
                     ]
                 , section [ class "space-y-4" ]
                     [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
                         [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Metadata" ]
-                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawMetadata) ] [ text "Copy" ]
+                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawMetadata) ]
+                            [ FeatherIcons.clipboard
+                                |> FeatherIcons.withSize 16
+                                |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
+                                |> FeatherIcons.toHtml []
+                            ]
                         ]
                     , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                     ]
@@ -400,7 +415,7 @@ renderCausedEvents baseUrl causedEvents =
                 [ thead
                     [ class "align-bottom leading-tight sticky top-0 bg-white/70 backdrop-blur-sm text-gray-500 uppercase text-xs"
                     ]
-                    [ tr                             
+                    [ tr
                         [ class "border-gray-400 border-b" ]
                         [ th
                             [ class "p-4"
