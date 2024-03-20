@@ -48,7 +48,7 @@ update msg model flags onSubmit =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
-                ( model, onSubmit stream )
+                ( {model | value = stream }, onSubmit stream )
 
             else
                 ( { model | value = stream }, searchStreams flags stream )
