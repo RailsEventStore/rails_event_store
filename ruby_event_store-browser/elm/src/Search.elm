@@ -55,7 +55,7 @@ update msg model flags onSubmit =
                 ( { model | value = stream }, searchStreams flags stream )
 
         GoToStream stream ->
-            ( model, onSubmit stream )
+            ( { model | value = "" }, onSubmit stream )
 
         SearchedStreamsFetched (Ok streams) ->
             ( { model | streams = "all" :: List.map .streamId streams }, Cmd.none )
