@@ -21,7 +21,7 @@ import WrappedModel exposing (..)
 type Msg
     = TimeZoneSelected String
     | SearchMsg Search.Msg
-    | KeyPress String Bool
+    | KeyPress String Bool Bool
     | ToggleDialog
 
 
@@ -40,10 +40,11 @@ subscriptions =
 
 keyboardDecoder : Json.Decode.Decoder Msg
 keyboardDecoder =
-    Json.Decode.map2
+    Json.Decode.map3
         KeyPress
         (Json.Decode.field "key" Json.Decode.string)
         (Json.Decode.field "metaKey" Json.Decode.bool)
+        (Json.Decode.field "ctrlKey" Json.Decode.bool)
 
 
 buildModel : Model
@@ -104,9 +105,11 @@ update msg model =
                     Nothing ->
                         ( model, Cmd.none )
 
-        KeyPress key isDown ->
-            case ( key, isDown ) of
-                ( "k", True ) ->
+        KeyPress key isMetaDown isCtrlDown ->
+            case ( key, isMetaDown, isCtrlDown ) of
+                ( "k", True, False ) ->
+                    ( model, toggleDialog searchModalId )
+                ( "k", False, True ) ->
                     ( model, toggleDialog searchModalId )
 
                 _ ->
