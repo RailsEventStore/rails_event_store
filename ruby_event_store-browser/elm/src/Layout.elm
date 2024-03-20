@@ -205,8 +205,9 @@ browserFooter { flags, time } =
                 [ text "Support" ]
             ]
         , div
-            [ class "text-gray-500 text-sm" ]
-            [ Html.select
+            [ class "text-gray-500 text-sm flex item-center gap-2" ]
+            [ text "Display times in timezone:"
+            , Html.select
                 [ onInput TimeZoneSelected ]
                 (List.map
                     (\timeZone ->
