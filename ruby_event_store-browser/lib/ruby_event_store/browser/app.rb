@@ -110,7 +110,8 @@ module RubyEventStore
                 initial_data: {
                   rootUrl: urls.app_url,
                   apiUrl: urls.api_url,
-                  resVersion: res_version
+                  resVersion: res_version,
+                  repositoryAdapter: repository_adapter
                 }
           end
         end
@@ -164,6 +165,10 @@ module RubyEventStore
 
       def res_version
         RubyEventStore::VERSION
+      end
+
+      def repository_adapter
+        'dummy'
       end
     end
   end

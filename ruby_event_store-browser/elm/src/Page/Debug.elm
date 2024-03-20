@@ -1,13 +1,17 @@
 module Page.Debug exposing (..)
 
 import Html exposing (..)
+import Flags exposing (Flags)
 
-type alias Model = { resVersion : String }
+type alias Model = { resVersion : String, repositoryAdapter : String }
 
-init : String -> Model
-init resVersion =
-  { resVersion = resVersion }
+init : Flags -> Model
+init flags  =
+  { resVersion = flags.resVersion, repositoryAdapter = flags.repositoryAdapter }
 
 view: Model -> Html a
 view model =
-    text ("RubyEventStore version: " ++ model.resVersion)
+    div [] [
+        p [] [text ("RubyEventStore version: " ++ model.resVersion)],
+        p [] [text ("RubyEventStore adapter: " ++ model.repositoryAdapter)]
+    ]

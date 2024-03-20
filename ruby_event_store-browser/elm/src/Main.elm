@@ -216,7 +216,7 @@ navigate model location =
                             ( { model | page = NotFound }, Cmd.none )
 
                 Just (Route.Debug) ->
-                    ( { model | page = Debug (Page.Debug.init flags.resVersion) }, Cmd.none )
+                    ( { model | page = Debug (Page.Debug.init flags) }, Cmd.none )
 
                 Nothing ->
                     ( { model | page = NotFound }, Cmd.none )
