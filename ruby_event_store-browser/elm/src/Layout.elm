@@ -245,11 +245,11 @@ searchModalId =
 searchModal : WrappedModel Model -> Html Msg
 searchModal model =
     node "dialog"
-        [ id searchModalId, class "backdrop:bg-white/30 backdrop:backdrop-blur-sm" ]
+        [ id searchModalId, class "backdrop:bg-white/30 backdrop:backdrop-blur-sm max-w-96 p-4 rounded bg-white w-full" ]
         [ button [ onClick ToggleDialog, class "inset-0 fixed z-0" ]
             [ text ""
             ]
-        , div [ class "isolate"]
+        , div [ class "isolate "]
             [ realSearchInput model
             ]
         ]
