@@ -54,6 +54,7 @@ buildModel =
     }
 
 
+goToStream : WrappedModel Model -> String -> Cmd msg
 goToStream model stream =
     Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl stream)
 
