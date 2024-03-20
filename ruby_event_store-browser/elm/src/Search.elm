@@ -29,7 +29,7 @@ type Msg
 
 init : Model
 init =
-    { streams = []
+    { streams = [ "all" ]
     , value = ""
     }
 
@@ -58,7 +58,7 @@ update msg model flags onSubmit =
             ( model, onSubmit stream )
 
         SearchedStreamsFetched (Ok streams) ->
-            ( { model | streams = List.map .streamId streams }, Cmd.none )
+            ( { model | streams = "all" :: List.map .streamId streams }, Cmd.none )
 
         SearchedStreamsFetched (Err _) ->
             ( { model | streams = [] }, Cmd.none )
