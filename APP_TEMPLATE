@@ -82,5 +82,5 @@ after_bundle do
 end
 
 profile.for_existing_app do
-  run_after_bundle_callbacks
+  run_after_bundle_callbacks if Gem::Version.new(Rails.version) < Gem::Version.new("7.1.0")
 end
