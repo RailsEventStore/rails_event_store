@@ -237,23 +237,23 @@ view_ model selectedTime =
 showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> BrowserTime.TimeZone -> Html Msg
 showEvent baseUrl event maybeCausedEvents selectedTime =
     div
-        [ class "py-12  container mx-auto space-y-10"
+        [ class "py-8 md:py-12  container mx-auto space-y-10"
         ]
         [ header
-            [ class "flex items-start justify-between gap-4"
+            [ class "flex items-start justify-between gap-4 flex-wrap md:flex-nowrap"
             ]
             [ div [ class "flex flex-col"]
                 [ h1
                     [ class "font-bold text-2xl break-words min-w-0 mb-2"
                     ]
                     [ text event.eventType ]
-                , p [ class "flex gap-2 items-center min-w-0 text-sm "]
+                , p [ class "flex gap-2 md:items-center min-w-0 text-sm flex-wrap"]
                     [ 
                         span [ class "whitespace-nowrap text-xs text-gray-500 uppercase font-bold uppercase"] 
                         [ text "Event ID:"
                         ],
                         
-                        button [ class "flex items-center gap-2 group font-mono text-gray-800 font-bold text-sm", onClick (Copy event.eventId) ]
+                        button [ class "flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm", onClick (Copy event.eventId) ]
                         [ text event.eventId
                         , FeatherIcons.clipboard
                             |> FeatherIcons.withClass "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100 "

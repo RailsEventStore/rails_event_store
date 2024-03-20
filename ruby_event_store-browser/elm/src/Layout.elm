@@ -132,7 +132,7 @@ view layoutMsgBuilder model pageView =
             [ Html.map layoutMsgBuilder (browserNavigation model)
             ]
         , main_
-            [ class "bg-white flex w-full grow" ]
+            [ class "bg-white flex w-full grow px-4" ]
             [ pageView
             , Html.map layoutMsgBuilder (searchModal model)
             ]
