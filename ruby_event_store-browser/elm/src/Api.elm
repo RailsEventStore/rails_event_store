@@ -34,6 +34,7 @@ type alias Event =
     , typeStreamName : String
     , parentEventId : Maybe String
     , streams : Maybe (List String)
+    , validAt : Time.Posix
     }
 
 
@@ -140,6 +141,7 @@ eventDecoder_ =
         |> requiredAt [ "attributes", "type_stream_name" ] string
         |> optionalAt [ "attributes", "parent_event_id" ] (maybe string) Nothing
         |> optionalAt [ "relationships", "streams", "data" ] (maybe (list inlinedStream)) Nothing
+        |> requiredAt [ "attributes", "metadata", "valid_at" ] Iso8601.decoder
 
 
 streamDecoder : Decoder Stream

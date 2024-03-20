@@ -259,7 +259,7 @@ viewPage page selectedTime =
         ShowEvent pageModel ->
             let
                 ( title, content ) =
-                    Page.ShowEvent.view pageModel
+                    Page.ShowEvent.view pageModel selectedTime
             in
             ( Just title, Html.map GotShowEventMsg content )
 

@@ -1,10 +1,11 @@
 port module Page.ShowEvent exposing (Model, Msg(..), initCmd, initModel, showJsonTree, update, view)
 
 import Api
+import BrowserTime
 import FeatherIcons
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, colspan, href)
+import Html.Attributes exposing (attribute, class, colspan, href, selected)
 import Html.Events exposing (onClick)
 import Http
 import JsonTree
@@ -14,6 +15,7 @@ import Pagination
 import Route
 import Svg exposing (path, svg)
 import Svg.Attributes as SvgAttr
+import Time exposing (Posix, posixToMillis)
 import Url
 
 
@@ -26,6 +28,7 @@ type alias Event =
     , eventId : String
     , correlationStreamName : Maybe String
     , causationStreamName : Maybe String
+    , createdAt : Posix
     , typeStreamName : String
     , parentEventId : Maybe String
     , rawData : String
@@ -33,6 +36,7 @@ type alias Event =
     , dataTreeState : JsonTree.State
     , metadataTreeState : JsonTree.State
     , streams : Maybe (List String)
+    , validAt : Posix
     }
 
 
@@ -141,11 +145,13 @@ apiEventToEvent e =
     , rawMetadata = e.rawMetadata
     , correlationStreamName = e.correlationStreamName
     , causationStreamName = e.causationStreamName
+    , createdAt = e.createdAt
     , typeStreamName = e.typeStreamName
     , parentEventId = e.parentEventId
     , dataTreeState = JsonTree.defaultState
     , metadataTreeState = JsonTree.defaultState
     , streams = e.streams
+    , validAt = e.validAt
     }
 
 
@@ -168,13 +174,13 @@ getCausedEvents flags event =
 -- VIEW
 
 
-view : Model -> ( String, Html Msg )
-view model =
-    ( "Event " ++ model.eventId, view_ model )
+view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
+view model selectedTime =
+    ( "Event " ++ model.eventId, view_ model selectedTime )
 
 
-view_ : Model -> Html Msg
-view_ model =
+view_ : Model -> BrowserTime.TimeZone -> Html Msg
+view_ model selectedTime =
     case model.event of
         Api.NotFound ->
             div
@@ -215,7 +221,7 @@ view_ model =
                 ]
 
         Api.Loaded event ->
-            showEvent model.flags.rootUrl event model.causedEvents
+            showEvent model.flags.rootUrl event model.causedEvents selectedTime
 
         Api.Failure ->
             div
@@ -228,56 +234,83 @@ view_ model =
                 ]
 
 
-showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> Html Msg
-showEvent baseUrl event maybeCausedEvents =
+showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> BrowserTime.TimeZone -> Html Msg
+showEvent baseUrl event maybeCausedEvents selectedTime =
     div
         [ class "py-12 px-4 lg:px-8 space-y-10"
         ]
-        [ h1
-            [ class "font-bold text-2xl"
+        [ header
+            [ class "flex items-start justify-between gap-4"
             ]
-            [ text event.eventType ]
-        , div
-            []
-            [ div
-                [ class "w-full text-left grid md:grid-cols-3 gap-8 overflow-hidden"
+            [ div [ class "flex flex-col"]
+                [ h1
+                    [ class "font-bold text-2xl break-words min-w-0 mb-2"
+                    ]
+                    [ text event.eventType ]
+                , p [ class "flex gap-2 items-center min-w-0 text-sm "]
+                    [ 
+                        span [ class "whitespace-nowrap text-xs text-gray-500 uppercase font-bold uppercase"] 
+                        [ text "Event ID:"
+                        ],
+                        
+                        button [ class "flex items-center gap-2 group font-mono text-gray-800 font-bold text-sm", onClick (Copy event.eventId) ]
+                        [ text event.eventId
+                        , FeatherIcons.clipboard
+                            |> FeatherIcons.withClass "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100 "
+                            |> FeatherIcons.toHtml []
+                        ]
+                    ]
                 ]
-                [ section [ class "space-y-4" ]
-                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
-                        [ h2 [ class "text-gray-500 uppercase font-bold " ] [ text "Event ID" ]
-                        , button [ class "text-red-700 no-underline", onClick (Copy event.eventId) ]
-                            [ FeatherIcons.clipboard
-                                |> FeatherIcons.withSize 16
-                                |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
-                                |> FeatherIcons.toHtml []
-                            ]
+            , div
+                [ class "space-y-4"
+                ]
+                [ section [ class "space-y-2 pt-3" ]
+                    [ header [ class "flex items-center gap-2  text-xs" ]
+                        [ FeatherIcons.clock
+                            |> FeatherIcons.withClass "size-4 text-gray-400 hover:text-red-700"
+                            |> FeatherIcons.toHtml []
+                        , h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Created at" ]
                         ]
-                    , div [ class "text-sm font-medium font-mono" ] [ text event.eventId ]
+                    , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-6" ] [ text (BrowserTime.format selectedTime event.createdAt) ]
                     ]
-                , section [ class "space-y-4" ]
-                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
-                        [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Data" ]
-                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawData) ]
-                            [ FeatherIcons.clipboard
-                                |> FeatherIcons.withSize 16
-                                |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
-                                |> FeatherIcons.toHtml []
-                            ]
+                , section [ class "space-y-2" ]
+                    [ header [ class "flex items-center gap-2 text-xs" ]
+                        [ FeatherIcons.clock
+                            |> FeatherIcons.withClass "size-4 text-gray-400 hover:text-red-700"
+                            |> FeatherIcons.toHtml []
+                        , h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Valid at" ]
                         ]
-                    , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                    , div [ class "overflow-auto w-full text-sm font-bold font-mono pl-6" ] [ text (BrowserTime.format selectedTime event.validAt) ]
                     ]
-                , section [ class "space-y-4" ]
-                    [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
-                        [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Metadata" ]
-                        , button [ class "text-red-700 no-underline", onClick (Copy event.rawMetadata) ]
-                            [ FeatherIcons.clipboard
-                                |> FeatherIcons.withSize 16
-                                |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
-                                |> FeatherIcons.toHtml []
-                            ]
+                ]
+            ]
+        
+        , div
+            [ class "w-full text-left grid md:grid-cols-2 gap-8 overflow-hidden"
+            ]
+            [ section [ class "space-y-4" ]
+                [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
+                    [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Data" ]
+                    , button [ class "text-red-700 no-underline", onClick (Copy event.rawData) ]
+                        [ FeatherIcons.clipboard
+                            |> FeatherIcons.withSize 16
+                            |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
+                            |> FeatherIcons.toHtml []
                         ]
-                    , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                     ]
+                , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawData event.dataTreeState (\s -> ChangeOpenedEventDataTreeState s) ]
+                ]
+            , section [ class "space-y-4" ]
+                [ header [ class "flex justify-between border-gray-400 border-b text-xs pb-2" ]
+                    [ h2 [ class "text-gray-500 uppercase font-bold" ] [ text "Raw Metadata" ]
+                    , button [ class "text-red-700 no-underline", onClick (Copy event.rawMetadata) ]
+                        [ FeatherIcons.clipboard
+                            |> FeatherIcons.withSize 16
+                            |> FeatherIcons.withClass "text-gray-400 hover:text-red-700"
+                            |> FeatherIcons.toHtml []
+                        ]
+                    ]
+                , div [ class "overflow-auto w-full" ] [ showJsonTree event.rawMetadata event.metadataTreeState (\s -> ChangeOpenedEventMetadataTreeState s) ]
                 ]
             ]
         , streamsOfEvent baseUrl event
@@ -326,11 +359,11 @@ streamsOfEvent baseUrl event =
             div
                 []
                 [ h2
-                    [ class "font-bold text-xl"
+                    [ class "font-bold text-xl mb-4"
                     ]
                     [ text "Event streams" ]
                 , ul
-                    [ class "list-disc pl-8"
+                    [ class "list-disc pl-4 space-y-2"
                     ]
                     (List.map (\id -> li [] [ streamLink baseUrl id ]) (List.sort streams))
                 ]
@@ -352,11 +385,11 @@ relatedStreams baseUrl event =
         div
             []
             [ h2
-                [ class "font-bold text-xl"
+                [ class "font-bold text-xl mb-4"
                 ]
                 [ text "Related" ]
             , ul
-                [ class "list-disc pl-8"
+                [ class "list-disc pl-4 space-y-2"
                 ]
                 (relatedStreamsList baseUrl event)
             ]

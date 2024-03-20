@@ -260,7 +260,7 @@ renderResults baseUrl events timeZone =
                         [ tr 
                             [ class "border-gray-400 border-b" ]
                             [ th
-                                [ class "py-4  px-4" ]
+                                [ class "p-4" ]
                                 [ text "Event name" ]
                             , th
                                 [ class "py-4  pr-4 lg:w-80" ]
