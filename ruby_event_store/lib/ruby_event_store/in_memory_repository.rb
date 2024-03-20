@@ -130,6 +130,7 @@ module RubyEventStore
       streams
         .select { |name,| name.downcase.include?(stream_name.downcase) }
         .to_a
+        .take(10)
         .reverse
         .map { |name,| Stream.new(name) }
     end
