@@ -6,6 +6,7 @@ import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, href, placeholder, selected, value)
 import Html.Events exposing (onInput, onSubmit)
+import LinkedTimezones exposing(mapLinkedTimeZone)
 import List.Extra
 import Route
 import TimeZone exposing (zones)
@@ -56,8 +57,10 @@ update msg model =
 
             else
                 let
+                    betterZoneName =
+                        mapLinkedTimeZone zoneName
                     maybeZone =
-                        Dict.get zoneName zones
+                        Dict.get betterZoneName zones
                 in
                 case maybeZone of
                     Just zone ->

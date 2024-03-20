@@ -3,9 +3,11 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation
 import BrowserTime
+import Dict
 import Flags exposing (Flags, RawFlags, buildFlags)
 import Html exposing (..)
 import Layout
+import LinkedTimezones exposing(mapLinkedTimeZone)
 import Page.ShowEvent
 import Page.ShowStream
 import Route
@@ -47,7 +49,7 @@ type Msg
     | GotLayoutMsg Layout.Msg
     | GotShowEventMsg Page.ShowEvent.Msg
     | GotShowStreamMsg Page.ShowStream.Msg
-    | ReceiveTimeZone (Result TimeZone.Error ( String, Time.Zone ))
+    | ReceiveTimeZone (Result String Time.ZoneName)
 
 
 type Page
@@ -81,10 +83,13 @@ buildModel rawFlags location key =
     ( model
     , Cmd.batch
         [ cmd
-        , TimeZone.getZone |> Task.attempt ReceiveTimeZone
+        , requestBrowserTimeZone
         ]
     )
 
+requestBrowserTimeZone : Cmd Msg
+requestBrowserTimeZone =
+    Task.attempt ReceiveTimeZone Time.getZoneName
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -142,18 +147,37 @@ update msg model =
                     , Cmd.map GotLayoutMsg layoutCmd
                     )
 
-        ( ReceiveTimeZone (Ok ( zoneName, zone )), _ ) ->
-            let
-                detectedTime =
-                    { zone = zone, zoneName = zoneName }
+        ( ReceiveTimeZone result, _ ) ->
+            case result of
+                Ok zoneName ->
+                    case zoneName of
+                        Time.Name newZoneName ->
+                            let
+                                betterZoneName =
+                                    mapLinkedTimeZone newZoneName
+                            in
+                            case Dict.get betterZoneName TimeZone.zones of
+                                Just zone ->
+                                    let
+                                        time =
+                                            model.time
 
-                time =
-                    model.time
+                                        detectedTime =
+                                            { zone = zone (), zoneName = newZoneName}
 
-                newTime =
-                    { time | detected = detectedTime, selected = detectedTime }
-            in
-            ( { model | time = newTime }, Cmd.none )
+                                        newTime =
+                                            { time | detected = detectedTime, selected = detectedTime}
+                                    in
+                                    ( { model | time = newTime}, Cmd.none )
+
+                                Nothing ->
+                                    ( model, Cmd.none )
+
+                        Time.Offset _ ->
+                            ( model, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
         ( _, _ ) ->
             ( model, Cmd.none )
