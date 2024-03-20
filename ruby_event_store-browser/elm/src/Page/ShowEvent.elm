@@ -395,18 +395,19 @@ renderCausedEvents baseUrl causedEvents =
 
         _ ->
             table
-                [ class "w-full text-left table-fixed border-collapse"
+                [ class "w-full text-left table-fixed"
                 ]
                 [ thead
-                    [ class "align-bottom leading-tight"
+                    [ class "align-bottom leading-tight sticky top-0 bg-white/70 backdrop-blur-sm text-gray-500 uppercase text-xs"
                     ]
-                    [ tr []
+                    [ tr                             
+                        [ class "border-gray-400 border-b" ]
                         [ th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-2 text-xs"
+                            [ class "p-4"
                             ]
                             [ text "Event name" ]
                         , th
-                            [ class "border-gray-400 border-b text-gray-500 uppercase p-0 pb-2 text-xs"
+                            [ class "py-4 pr-4 lg:w-80"
                             ]
                             [ text "Event id" ]
                         ]
@@ -415,7 +416,7 @@ renderCausedEvents baseUrl causedEvents =
                 , tfoot []
                     [ tr []
                         [ td
-                            [ class "text-gray-500 p-0 pb-4 text-xs"
+                            [ class "text-gray-500 py-4 text-center  text-xs"
                             , colspan 2
                             ]
                             [ if List.length causedEvents == 20 then
@@ -431,20 +432,23 @@ renderCausedEvents baseUrl causedEvents =
 
 renderCausedEvent : Url.Url -> Api.Event -> Html Msg
 renderCausedEvent baseUrl { eventType, eventId } =
-    tr []
+    tr [ class "border-gray-50 border-b hover:bg-gray-100" ]
         [ td
-            [ class "p-0 pt-2"
-            ]
+            []
             [ a
-                [ class "text-red-700 no-underline"
+                [ class "text-red-700 no-underline min-h-11 w-full flex items-center px-4"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
                 [ text eventType ]
             ]
         , td
-            [ class "p-0 pt-2"
+            [ class "font-mono text-sm leading-none font-medium align-middle" ]
+            [ a
+                [ class "no-underline h-full min-h-11 flex items-center"
+                , href (Route.eventUrl baseUrl eventId)
+                ]
+                [ text eventId ]
             ]
-            [ text eventId ]
         ]
 
 
