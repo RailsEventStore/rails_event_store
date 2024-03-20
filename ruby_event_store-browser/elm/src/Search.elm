@@ -9,6 +9,7 @@ import Html.Events exposing (onInput, onSubmit)
 import Http
 import List exposing (any)
 import Page.ShowStream exposing (Msg(..))
+import Task
 
 
 type alias Stream =
@@ -25,6 +26,7 @@ type Msg
     = StreamChanged Stream
     | GoToStream Stream
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
+    | OnSelect Stream
 
 
 init : Model
@@ -32,6 +34,11 @@ init =
     { streams = [ "all" ]
     , value = ""
     }
+
+
+hackWithInternalOnSelectMsg : Stream -> Cmd Msg
+hackWithInternalOnSelectMsg stream =
+    Task.perform OnSelect (Task.succeed stream)
 
 
 searchStreams : Flags -> Stream -> Cmd Msg
@@ -49,19 +56,32 @@ update msg model flags onSubmit =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
-                ( { model | value = stream }, onSubmit stream )
+                ( { model | value = stream }
+                , Cmd.batch
+                    [ onSubmit stream
+                    , hackWithInternalOnSelectMsg stream
+                    ]
+                )
 
             else
                 ( { model | value = stream }, searchStreams flags stream )
 
         GoToStream stream ->
-            ( { model | value = "" }, onSubmit stream )
+            ( { model | value = "" }
+            , Cmd.batch
+                [ onSubmit stream
+                , hackWithInternalOnSelectMsg stream
+                ]
+            )
 
         SearchedStreamsFetched (Ok streams) ->
             ( { model | streams = "all" :: List.map .streamId streams }, Cmd.none )
 
         SearchedStreamsFetched (Err _) ->
             ( { model | streams = [] }, Cmd.none )
+
+        OnSelect _ ->
+            ( model, Cmd.none )
 
 
 view : Model -> Html Msg
