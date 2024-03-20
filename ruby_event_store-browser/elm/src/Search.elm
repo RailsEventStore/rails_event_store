@@ -8,6 +8,7 @@ import Html.Events exposing (onInput, onSubmit)
 import Http
 import List exposing (any)
 import Page.ShowStream exposing (Msg(..))
+import Html.Attributes exposing (autofocus)
 
 
 type alias Stream =
@@ -72,6 +73,7 @@ view model =
             , onInput StreamChanged
             , placeholder "Go to stream..."
             , list "streams"
+            , autofocus True
             ]
             []
         , datalist

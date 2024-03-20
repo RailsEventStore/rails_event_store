@@ -225,12 +225,11 @@ fakeSearchInput =
         [ onClick ToggleDialog
         , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 py-2 px-3 rounded"
         ]
-        [ 
-             FeatherIcons.search
-                            |> FeatherIcons.withClass "size-4"
-                            |> FeatherIcons.toHtml [],
-            text "Quick search…",
-            span [ class "text-xs" ] [ text "⌘K" ]
+        [ FeatherIcons.search
+            |> FeatherIcons.withClass "size-4"
+            |> FeatherIcons.toHtml []
+        , text "Quick search…"
+        , span [ class "text-xs" ] [ text "⌘K" ]
         ]
 
 
@@ -247,4 +246,10 @@ searchModal : WrappedModel Model -> Html Msg
 searchModal model =
     node "dialog"
         [ id searchModalId, class "backdrop:bg-white/30 backdrop:backdrop-blur-sm" ]
-        [ realSearchInput model ]
+        [ button [ onClick ToggleDialog, class "inset-0 fixed z-0" ]
+            [ text ""
+            ]
+        , div [ class "isolate"]
+            [ realSearchInput model
+            ]
+        ]
