@@ -4,41 +4,47 @@ import Browser.Navigation
 import BrowserTime
 import Dict
 import Html exposing (..)
-import Html.Attributes exposing (class, href, placeholder, selected, value)
+import Html.Attributes exposing (class, href, list, placeholder, selected, value)
 import Html.Events exposing (onInput, onSubmit)
 import LinkedTimezones exposing(mapLinkedTimeZone)
 import List.Extra
 import Route
+import Search exposing (..)
 import TimeZone exposing (zones)
 import Url
 import WrappedModel exposing (..)
 
 
 type Msg
-    = GoToStream
-    | GoToStreamChanged String
-    | TimeZoneSelected String
+    = TimeZoneSelected String
+    | SearchMsg Search.Msg
 
 
 type alias Model =
-    { goToStream : String
+    { search : Search.Model
     }
 
 
 buildModel : Model
 buildModel =
-    { goToStream = ""
+    { search =
+        Search.init
     }
+
+
+goToStream model stream =
+    Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl stream)
 
 
 update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
-        GoToStream ->
-            ( { model | internal = Model "" }, Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl model.internal.goToStream) )
-
-        GoToStreamChanged newValue ->
-            ( { model | internal = Model newValue }, Cmd.none )
+        SearchMsg searchMsg ->
+            let
+                ( newSearch, cmd ) =
+                    Search.update searchMsg model.internal.search (goToStream model)
+            in
+            ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
         TimeZoneSelected zoneName ->
             let
@@ -120,15 +126,9 @@ browserNavigation model =
             []
         , div
             [ class "flex items-center" ]
-            [ form [ onSubmit GoToStream ]
-                [ input
-                    [ class "rounded px-4 py-2"
-                    , value model.internal.goToStream
-                    , onInput GoToStreamChanged
-                    , placeholder "Go to stream..."
-                    ]
-                    []
-                ]
+            [ Search.view
+                model.internal.search
+                |> Html.map SearchMsg
             ]
         ]
 
