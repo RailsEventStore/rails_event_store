@@ -118,12 +118,12 @@ update msg model =
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
 view layoutMsgBuilder model pageView =
     div
-        [ class "bg-gray-100 min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" ]
+        [ class "bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" ]
         [ header []
             [ Html.map layoutMsgBuilder (browserNavigation model)
             ]
         , main_
-            [ class "bg-white" ]
+            [ class "bg-white flex w-full grow" ]
             [ pageView
             , Html.map layoutMsgBuilder (searchModal model)
             ]

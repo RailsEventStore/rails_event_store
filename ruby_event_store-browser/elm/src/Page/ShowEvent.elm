@@ -194,7 +194,7 @@ view_ model selectedTime =
 
         Api.Loading ->
             div
-                [ class "min-h-[calc(100vh_-_7rem)] grid place-items-center"
+                [ class "grow grid place-items-center"
                 , attribute "role" "status"
                 ]
                 [ svg
@@ -237,7 +237,7 @@ view_ model selectedTime =
 showEvent : Url.Url -> Event -> Api.RemoteResource (List Api.Event) -> BrowserTime.TimeZone -> Html Msg
 showEvent baseUrl event maybeCausedEvents selectedTime =
     div
-        [ class "py-12 px-4 lg:px-8 space-y-10"
+        [ class "py-12  container mx-auto space-y-10"
         ]
         [ header
             [ class "flex items-start justify-between gap-4"

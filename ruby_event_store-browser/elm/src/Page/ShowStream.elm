@@ -105,7 +105,7 @@ view { streamName, events, relatedStreams, problems, flags, pagination, searchSt
         _ ->
             ( title
             , div [ class "py-8" ]
-                [ div [ class "px-8" ]
+                [ div [ ]
                     [ ul
                         [ class "flex items-center justify-center py-24"
                         ]
@@ -117,15 +117,15 @@ view { streamName, events, relatedStreams, problems, flags, pagination, searchSt
 
 browseEvents : Url.Url -> String -> String -> Api.PaginatedList Api.Event -> Maybe (List String) -> BrowserTime.TimeZone -> List Api.SearchStream -> Html Msg
 browseEvents baseUrl title streamName { links, events } relatedStreams timeZone searchStreams =
-    div [ class "py-8" ]
+    div [ class "py-8 container mx-auto" ]
         [ div
-            [ class "flex px-8 justify-between" ]
+            [ class "flex justify-between" ]
             [ h1
                 [ class "font-bold text-2xl" ]
                 [ text title ]
             , div [] [ displayPagination streamName baseUrl links ]
             ]
-        , div [ class "px-8" ] [ renderResults baseUrl events timeZone ]
+        , div [  ] [ renderResults baseUrl events timeZone ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         , div [ class "bg-red-500" ] [ renderSearchStreams searchStreams ]
         ]
@@ -153,8 +153,7 @@ renderRelatedStreams baseUrl relatedStreams_ =
     case relatedStreams_ of
         Just relatedStreams ->
             div
-                [ class "px-8"
-                ]
+                []
                 [ h2
                     [ class "font-bold text-xl" ]
                     [ text "Related streams:" ]
