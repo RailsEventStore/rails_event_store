@@ -15,6 +15,7 @@ import LinkedTimezones exposing (mapLinkedTimeZone)
 import List.Extra
 import Route
 import Search exposing (..)
+import String
 import TimeZone exposing (zones)
 import Url
 import WrappedModel exposing (..)
@@ -215,7 +216,7 @@ browserNavigation model =
             ]
         , div
             [ class "flex items-center gap-2" ]
-            [ fakeSearchInput, bookmarksMenu model ]
+            [ fakeSearchInput model.flags.platform, bookmarksMenu model ]
         ]
 
 
@@ -322,8 +323,8 @@ bookmarksMenu model =
         ]
 
 
-fakeSearchInput : Html Msg
-fakeSearchInput =
+fakeSearchInput : String -> Html Msg
+fakeSearchInput platform =
     button
         [ onClick ToggleDialog
         , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 h-9 px-3 rounded"
@@ -332,8 +333,17 @@ fakeSearchInput =
             |> FeatherIcons.withClass "size-4"
             |> FeatherIcons.toHtml []
         , text "Quick search…"
-        , span [ class "text-xs" ] [ text "⌘K" ]
+        , span [ class "text-xs" ] [ text (platformModifier platform), text "K" ]
         ]
+
+
+platformModifier : String -> String
+platformModifier platform =
+    if String.startsWith "Mac" platform then
+        "⌘"
+
+    else
+        "Ctrl "
 
 
 realSearchInput : WrappedModel Model -> Html Msg

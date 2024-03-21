@@ -8,6 +8,7 @@ type alias RawFlags =
     , apiUrl : String
     , resVersion : String
     , repositoryAdapter : String
+    , platform : String
     }
 
 
@@ -16,9 +17,10 @@ type alias Flags =
     , apiUrl : Url.Url
     , resVersion : String
     , repositoryAdapter : String
+    , platform : String
     }
 
 
 buildFlags : RawFlags -> Maybe Flags
-buildFlags { rootUrl, apiUrl, resVersion, repositoryAdapter } =
-    Maybe.map4 Flags (Url.fromString rootUrl) (Url.fromString apiUrl) (Just resVersion) (Just repositoryAdapter)
+buildFlags { rootUrl, apiUrl, resVersion, repositoryAdapter, platform } =
+    Maybe.map5 Flags (Url.fromString rootUrl) (Url.fromString apiUrl) (Just resVersion) (Just repositoryAdapter) (Just platform)
