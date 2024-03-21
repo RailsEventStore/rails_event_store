@@ -245,6 +245,12 @@ browserFooter { flags, time } =
                 , class "ml-4"
                 ]
                 [ text "Support" ]
+            , spacer
+            , a
+                [ href (Route.debugUrl flags.rootUrl)
+                , class "ml-4"
+                ]
+                [ text "Debug" ]
             ]
         , div
             [ class "text-gray-500 text-sm flex item-center gap-2" ]
