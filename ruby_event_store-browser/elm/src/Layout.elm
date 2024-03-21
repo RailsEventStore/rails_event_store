@@ -23,7 +23,6 @@ import WrappedModel exposing (..)
 type Msg
     = TimeZoneSelected String
     | SearchMsg Search.Msg
-    | KeyPress String Bool Bool
     | ToggleBookmarksMenu
     | ToggleDialog
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
@@ -139,17 +138,6 @@ update msg model =
 
         ToggleBookmarksMenu ->
             ( { model | internal = Model model.internal.search (not model.internal.displayBookmarksMenu) model.internal.bookmarks }, Cmd.none )
-
-        KeyPress key isMetaDown isCtrlDown ->
-            case ( key, isMetaDown, isCtrlDown ) of
-                ( "k", True, False ) ->
-                    ( model, toggleDialog searchModalId )
-
-                ( "k", False, True ) ->
-                    ( model, toggleDialog searchModalId )
-
-                _ ->
-                    ( model, Cmd.none )
 
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
@@ -297,7 +285,10 @@ visibleBookmarksMenu displayBookmarksMenu =
 bookmarkToHtml : Bookmark -> Html Msg
 bookmarkToHtml bookmark =
     li []
-        [ a [ href bookmark.link, class "whitespace-nowrap p-4 hover:bg-gray-100" ] [ text bookmark.label ]
+        [ a [ href bookmark.link, class "whitespace-nowrap px-4 py-2 block hover:bg-gray-100" ]
+            [ text bookmark.label
+            , button [ onClick (ToggleBookmark bookmark.link) ] []
+            ]
         ]
 
 
@@ -312,10 +303,10 @@ bookmarksMenu model =
                 |> FeatherIcons.withClass "size-4"
                 |> FeatherIcons.toHtml []
             ]
-        , div [ class ("absolute translate-y-4 right-0 top-full bg-white shadow rounded-lg " ++ visibleBookmarksMenu model.internal.displayBookmarksMenu) ]
+        , div [ class ("absolute translate-y-4 right-0 top-full bg-white overflow-clip shadow rounded-lg " ++ visibleBookmarksMenu model.internal.displayBookmarksMenu) ]
             [ model.internal.bookmarks
                 |> List.map bookmarkToHtml
-                |> ul [ class "text-gray-800 text-sm space-y-4" ]
+                |> ul [ class "text-gray-800 text-sm " ]
             ]
         ]
 
