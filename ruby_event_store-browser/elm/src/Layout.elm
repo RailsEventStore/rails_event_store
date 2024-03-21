@@ -27,10 +27,12 @@ type Msg
     | KeyPress String Bool Bool
     | ToggleDialog
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
+    | OnSelect Search.Stream
+    | OnQueryChanged Search.Stream
 
 
 type alias Model =
-    { search : Search.Model
+    { search : Search.Model Msg
     }
 
 
@@ -54,7 +56,7 @@ keyboardDecoder =
 buildModel : Model
 buildModel =
     { search =
-        Search.init
+        Search.init OnSelect OnQueryChanged
     }
 
 
@@ -72,24 +74,22 @@ update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
         SearchMsg searchMsg ->
-            case searchMsg of
-                OnSelect streamName ->
-                    ( model
-                    , Cmd.batch
-                        [ toggleDialog searchModalId
-                        , goToStream model streamName
-                        ]
-                    )
+            let
+                ( newSearch, cmd ) =
+                    Search.update searchMsg model.internal.search
+            in
+            ( { model | internal = Model newSearch }, cmd )
 
-                OnQueryChanged streamName ->
-                    ( model, searchStreams model.flags streamName )
+        OnSelect streamName ->
+            ( model
+            , Cmd.batch
+                [ toggleDialog searchModalId
+                , goToStream model streamName
+                ]
+            )
 
-                _ ->
-                    let
-                        ( newSearch, cmd ) =
-                            Search.update searchMsg model.internal.search
-                    in
-                    ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
+        OnQueryChanged streamName ->
+            ( model, searchStreams model.flags streamName )
 
         TimeZoneSelected zoneName ->
             let
