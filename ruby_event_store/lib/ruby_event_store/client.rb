@@ -234,6 +234,14 @@ module RubyEventStore
         unsubs.each(&:call) if unsubs
       end
 
+      def repository_specification
+        if repository.respond_to?(:specification)
+          repository.specification
+        else
+          repository.class.to_s
+        end
+      end
+
       private
       attr_reader :resolver
 

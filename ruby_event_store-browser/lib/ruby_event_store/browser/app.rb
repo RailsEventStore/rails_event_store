@@ -168,7 +168,7 @@ module RubyEventStore
       end
 
       def repository_adapter
-        'dummy'
+        event_store.repository_specification
       end
     end
   end
