@@ -122,7 +122,7 @@ GEM
     mutant-rspec (0.11.22)
       mutant (= 0.11.22)
       rspec-core (>= 3.8.0, < 4.0.0)
-    mysql2 (0.5.5)
+    mysql2 (0.5.6)
     net-imap (0.4.10)
       date
       net-protocol
@@ -225,7 +225,7 @@ DEPENDENCIES
   mutant-license!
   mutant-minitest (= 0.11.22)
   mutant-rspec (= 0.11.22)
-  mysql2 (~> 0.5.5)
+  mysql2 (~> 0.5.6)
   pg (~> 1.5.4)
   rails (~> 7.0.7)
   rake (>= 10.0)
