@@ -255,21 +255,25 @@ browserFooter { flags, time } =
         , div
             [ class "text-gray-500 text-sm flex item-center gap-2" ]
             [ text "Display times in timezone:"
-            , Html.select
-                [ onInput TimeZoneSelected ]
-                (List.map
-                    (\timeZone ->
-                        option
-                            [ value timeZone.zoneName
-                            , selected (timeZone == time.selected)
-                            ]
-                            [ text timeZone.zoneName
-                            ]
-                    )
-                    (availableTimeZones time.detected)
-                )
+            , timeZoneSelect time
             ]
         ]
+
+
+timeZoneSelect time =
+    Html.select
+        [ onInput TimeZoneSelected ]
+        (List.map
+            (\timeZone ->
+                option
+                    [ value timeZone.zoneName
+                    , selected (timeZone == time.selected)
+                    ]
+                    [ text timeZone.zoneName
+                    ]
+            )
+            (availableTimeZones time.detected)
+        )
 
 
 fakeSearchInput : Html Msg
