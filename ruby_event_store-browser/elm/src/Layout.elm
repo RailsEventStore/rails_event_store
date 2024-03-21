@@ -28,7 +28,7 @@ type Msg
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Search.Stream
     | OnQueryChanged Search.Stream
-    | RequestSearch String
+    | RequestSearch
     | ToggleBookmark String
 
 
@@ -49,7 +49,7 @@ type alias Bookmark =
 port toggleDialog : String -> Cmd msg
 
 
-port requestSearch : (String -> msg) -> Sub msg
+port requestSearch : (() -> msg) -> Sub msg
 
 
 port toggleBookmark : String -> Cmd msg
@@ -57,7 +57,7 @@ port toggleBookmark : String -> Cmd msg
 
 subscriptions : Sub Msg
 subscriptions =
-    requestSearch RequestSearch
+    requestSearch (always RequestSearch)
 
 
 buildModel : Model
@@ -137,7 +137,7 @@ update msg model =
                     Nothing ->
                         ( model, Cmd.none )
 
-        RequestSearch _ ->
+        RequestSearch ->
             ( model, toggleDialog searchModalId )
 
         ToggleBookmarksMenu ->

@@ -17,7 +17,7 @@ app.ports.toggleDialog.subscribe(function (id) {
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "k" && (event.ctrlKey || event.metaKey)) {
-    app.ports.requestSearch.send("");
+    app.ports.requestSearch.send(null);
     event.preventDefault();
   }
 });
