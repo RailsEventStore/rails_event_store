@@ -50,11 +50,6 @@ onQueryChangedCmd onQueryMsg stream =
     Task.perform onQueryMsg (Task.succeed stream)
 
 
-isExactStream : Stream -> List Stream -> Bool
-isExactStream stream streams =
-    List.any ((==) stream) streams
-
-
 hasAtLeastThreeChars : Stream -> Bool
 hasAtLeastThreeChars stream =
     String.length stream >= 3
@@ -64,12 +59,7 @@ update : Msg -> Model a -> ( Model a, Cmd a )
 update msg model =
     case msg of
         StreamChanged stream ->
-            if isExactStream stream model.streams then
-                ( { model | value = emptyStreamName }
-                , onSelectCmd model.onSelectMsg stream
-                )
-
-            else if hasAtLeastThreeChars stream then
+            if hasAtLeastThreeChars stream then
                 ( { model | value = stream }
                 , onQueryChangedCmd model.onQueryMsg stream
                 )
