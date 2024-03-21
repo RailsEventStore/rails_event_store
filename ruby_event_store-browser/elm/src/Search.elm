@@ -27,10 +27,18 @@ type Msg
     | OnQueryChanged Stream
 
 
+globalStreamName =
+    "all"
+
+
+emptyStreamName =
+    ""
+
+
 init : Model
 init =
-    { streams = [ "all" ]
-    , value = ""
+    { streams = [ globalStreamName ]
+    , value = emptyStreamName
     }
 
 
@@ -49,16 +57,13 @@ isExactStream stream streams =
     List.any (\s -> s == stream) streams
 
 
-update : Msg -> Model -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
-update msg model onSubmit =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
-                ( { model | value = "" }
-                , Cmd.batch
-                    [ onSubmit stream
-                    , hackWithInternalOnSelectMsg stream
-                    ]
+                ( { model | value = emptyStreamName }
+                , hackWithInternalOnSelectMsg stream
                 )
 
             else
@@ -67,11 +72,8 @@ update msg model onSubmit =
                 )
 
         GoToStream stream ->
-            ( { model | value = "" }
-            , Cmd.batch
-                [ onSubmit stream
-                , hackWithInternalOnSelectMsg stream
-                ]
+            ( { model | value = emptyStreamName }
+            , hackWithInternalOnSelectMsg stream
             )
 
         OnSelect _ ->

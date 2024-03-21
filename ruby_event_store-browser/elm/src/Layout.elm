@@ -72,18 +72,23 @@ update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
         SearchMsg searchMsg ->
-            let
-                ( newSearch, cmd ) =
-                    Search.update searchMsg model.internal.search (goToStream model)
-            in
             case searchMsg of
-                OnSelect _ ->
-                    ( { model | internal = Model newSearch }, toggleDialog searchModalId )
+                OnSelect streamName ->
+                    ( model
+                    , Cmd.batch
+                        [ toggleDialog searchModalId
+                        , goToStream model streamName
+                        ]
+                    )
 
                 OnQueryChanged streamName ->
                     ( model, searchStreams model.flags streamName )
 
                 _ ->
+                    let
+                        ( newSearch, cmd ) =
+                            Search.update searchMsg model.internal.search
+                    in
                     ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
         TimeZoneSelected zoneName ->
