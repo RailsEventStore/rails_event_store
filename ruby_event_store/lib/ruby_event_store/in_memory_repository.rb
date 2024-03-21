@@ -130,7 +130,6 @@ module RubyEventStore
       streams
         .select { |name,| name.include?(stream_name) }
         .take(10)
-        .reverse
         .map { |name,| Stream.new(name) }
     end
 
