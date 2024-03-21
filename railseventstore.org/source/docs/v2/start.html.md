@@ -33,4 +33,4 @@ rails new -m https://railseventstore.org/new YOUR-APP-NAME
   - concurrencycontrol using [expected version](/docs/v2/expected_version)
   - possible [errors](/docs/v2/exceptions)
 
-API documentation documentation is available [here](/docs/v2/api)
+API documentation is available [here](/docs/v2/api)
