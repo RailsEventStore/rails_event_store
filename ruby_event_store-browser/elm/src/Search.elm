@@ -1,8 +1,6 @@
 module Search exposing (..)
 
-import Api exposing (SearchStream, getSearchStreams)
 import FeatherIcons
-import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
@@ -25,7 +23,6 @@ type alias Model =
 type Msg
     = StreamChanged Stream
     | GoToStream Stream
-    | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Stream
     | OnQueryChanged Stream
 
@@ -47,18 +44,13 @@ hackWithInternalOnQueryChangedMsg stream =
     Task.perform OnQueryChanged (Task.succeed stream)
 
 
-searchStreams : Flags -> Stream -> Cmd Msg
-searchStreams flags stream =
-    getSearchStreams SearchedStreamsFetched flags stream
-
-
 isExactStream : String -> List String -> Bool
 isExactStream stream streams =
     List.any (\s -> s == stream) streams
 
 
-update : Msg -> Model -> Flags -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
-update msg model flags onSubmit =
+update : Msg -> Model -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
+update msg model onSubmit =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
@@ -71,10 +63,7 @@ update msg model flags onSubmit =
 
             else
                 ( { model | value = stream }
-                , Cmd.batch
-                    [ searchStreams flags stream
-                    , hackWithInternalOnQueryChangedMsg stream
-                    ]
+                , hackWithInternalOnQueryChangedMsg stream
                 )
 
         GoToStream stream ->
@@ -84,12 +73,6 @@ update msg model flags onSubmit =
                 , hackWithInternalOnSelectMsg stream
                 ]
             )
-
-        SearchedStreamsFetched (Ok streams) ->
-            ( { model | streams = "all" :: List.map .streamId streams }, Cmd.none )
-
-        SearchedStreamsFetched (Err _) ->
-            ( { model | streams = [] }, Cmd.none )
 
         OnSelect _ ->
             ( model, Cmd.none )

@@ -1,13 +1,16 @@
 port module Layout exposing (Model, Msg, buildModel, subscriptions, update, view, viewIncorrectConfig, viewNotFound)
 
+import Api exposing (SearchStream, getSearchStreams)
 import Browser.Events
 import Browser.Navigation
 import BrowserTime
 import Dict
 import FeatherIcons
+import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (class, href, id, list, placeholder, selected, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Http
 import Json.Decode
 import LinkedTimezones exposing (mapLinkedTimeZone)
 import List.Extra
@@ -23,6 +26,7 @@ type Msg
     | SearchMsg Search.Msg
     | KeyPress String Bool Bool
     | ToggleDialog
+    | SearchedStreamsFetched (Result Http.Error (List SearchStream))
 
 
 type alias Model =
@@ -55,8 +59,13 @@ buildModel =
 
 
 goToStream : WrappedModel Model -> String -> Cmd msg
-goToStream model stream =
-    Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl stream)
+goToStream { key, flags } stream =
+    Browser.Navigation.pushUrl key (Route.streamUrl flags.rootUrl stream)
+
+
+searchStreams : Flags -> String -> Cmd Msg
+searchStreams flags stream =
+    getSearchStreams SearchedStreamsFetched flags stream
 
 
 update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
@@ -65,14 +74,14 @@ update msg model =
         SearchMsg searchMsg ->
             let
                 ( newSearch, cmd ) =
-                    Search.update searchMsg model.internal.search model.flags (goToStream model)
+                    Search.update searchMsg model.internal.search (goToStream model)
             in
             case searchMsg of
                 OnSelect _ ->
                     ( { model | internal = Model newSearch }, toggleDialog searchModalId )
 
-                OnQueryChanged _ ->
-                    ( model, Cmd.none )
+                OnQueryChanged streamName ->
+                    ( model, searchStreams model.flags streamName )
 
                 _ ->
                     ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
@@ -127,6 +136,29 @@ update msg model =
 
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
+
+        SearchedStreamsFetched (Ok streams) ->
+            let
+                streams_ =
+                    "all" :: List.map .streamId streams
+
+                searchModel =
+                    model.internal.search
+
+                newModel =
+                    { searchModel | streams = streams_ }
+            in
+            ( { model | internal = Model newModel }, Cmd.none )
+
+        SearchedStreamsFetched (Err _) ->
+            let
+                searchModel =
+                    model.internal.search
+
+                newModel =
+                    { searchModel | streams = [] }
+            in
+            ( { model | internal = Model newModel }, Cmd.none )
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
