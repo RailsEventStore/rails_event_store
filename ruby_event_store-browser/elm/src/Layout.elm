@@ -71,6 +71,9 @@ update msg model =
                 OnSelect _ ->
                     ( { model | internal = Model newSearch }, toggleDialog searchModalId )
 
+                OnQueryChanged _ ->
+                    ( model, Cmd.none )
+
                 _ ->
                     ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
