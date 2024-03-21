@@ -55,7 +55,7 @@ onQueryChangedCmd onQueryMsg stream =
     Task.perform onQueryMsg (Task.succeed stream)
 
 
-isExactStream : String -> List String -> Bool
+isExactStream : Stream -> List Stream -> Bool
 isExactStream stream streams =
     List.any ((==) stream) streams
 
