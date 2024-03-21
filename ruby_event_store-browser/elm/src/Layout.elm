@@ -8,7 +8,7 @@ import Dict
 import FeatherIcons
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, href, id, list, placeholder, selected, value)
+import Html.Attributes exposing (class, href, id, list, placeholder, selected, title, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Http
 import LinkedTimezones exposing (mapLinkedTimeZone)
@@ -29,6 +29,7 @@ type Msg
     | OnSelect Search.Stream
     | OnQueryChanged Search.Stream
     | RequestSearch String
+    | ToggleBookmark String
 
 
 type alias Model =
@@ -49,6 +50,9 @@ port toggleDialog : String -> Cmd msg
 
 
 port requestSearch : (String -> msg) -> Sub msg
+
+
+port toggleBookmark : String -> Cmd msg
 
 
 subscriptions : Sub Msg
@@ -164,6 +168,9 @@ update msg model =
                     { searchModel | streams = [] }
             in
             ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
+
+        ToggleBookmark id ->
+            ( model, toggleBookmark id )
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
@@ -284,10 +291,13 @@ visibleBookmarksMenu displayBookmarksMenu =
 
 bookmarkToHtml : Bookmark -> Html Msg
 bookmarkToHtml bookmark =
-    li []
-        [ a [ href bookmark.link, class "whitespace-nowrap px-4 py-2 block hover:bg-gray-100" ]
-            [ text bookmark.label
-            , button [ onClick (ToggleBookmark bookmark.link) ] []
+    li [ class "flex hover:bg-gray-50 group pr-2" ]
+        [ a [ href bookmark.link, class "whitespace-nowrap py-2 block pl-4 pr-3" ]
+            [ text bookmark.label ]
+        , button [ title "Remove bookmark", class "group-hover:visible invisible text-gray-300 hover:text-gray-800", onClick (ToggleBookmark bookmark.link) ]
+            [ FeatherIcons.trash2
+                |> FeatherIcons.withClass "size-4"
+                |> FeatherIcons.toHtml []
             ]
         ]
 
@@ -303,10 +313,11 @@ bookmarksMenu model =
                 |> FeatherIcons.withClass "size-4"
                 |> FeatherIcons.toHtml []
             ]
-        , div [ class ("absolute translate-y-4 right-0 top-full bg-white overflow-clip shadow rounded-lg " ++ visibleBookmarksMenu model.internal.displayBookmarksMenu) ]
+        , div [ class ("absolute translate-y-4 right-0 top-full bg-white shadow rounded-sm" ++ " " ++ visibleBookmarksMenu model.internal.displayBookmarksMenu) ]
             [ model.internal.bookmarks
                 |> List.map bookmarkToHtml
-                |> ul [ class "text-gray-800 text-sm " ]
+                |> ul [ class "text-gray-800 text-sm" ]
+            , button [ onClick (ToggleBookmark "hi") ] [ text "Add bookmark here" ]
             ]
         ]
 

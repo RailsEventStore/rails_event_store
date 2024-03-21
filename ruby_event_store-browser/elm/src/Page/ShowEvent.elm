@@ -64,9 +64,6 @@ initModel flags eventId =
 port copyToClipboard : String -> Cmd msg
 
 
-port toggleBookmark : String -> Cmd msg
-
-
 
 -- UPDATE
 
@@ -78,7 +75,6 @@ type Msg
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | CausedStreamFetched (Result Http.Error Api.Stream)
     | Copy String
-    | ToggleBookmark String
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -139,9 +135,6 @@ update msg model =
 
         CausedEventsFetched (Err _) ->
             ( { model | causedEvents = Api.Failure }, Cmd.none )
-
-        ToggleBookmark id ->
-            ( model, toggleBookmark id )
 
 
 apiEventToEvent : Api.Event -> Event
@@ -263,15 +256,6 @@ showEvent baseUrl event maybeCausedEvents selectedTime =
                         , FeatherIcons.clipboard
                             |> FeatherIcons.withClass "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100 "
                             |> FeatherIcons.toHtml []
-                        ]
-                    ]
-                , button [ onClick (ToggleBookmark event.eventId) ]
-                    [ span [ class "flex items-center gap-1 p-1.5 px-2 rounded text-[.65rem] uppercase tracking-wide font-medium bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-900 " ]
-                        [ FeatherIcons.bookmark
-                            |> FeatherIcons.withClass "size-3"
-                            |> FeatherIcons.toHtml []
-                        , text
-                            "bookmark"
                         ]
                     ]
                 ]
