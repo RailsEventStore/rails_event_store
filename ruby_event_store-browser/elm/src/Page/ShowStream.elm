@@ -105,7 +105,7 @@ view { streamName, events, relatedStreams, problems, flags, pagination, searchSt
         _ ->
             ( title
             , div [ class "py-8" ]
-                [ div [ ]
+                [ div []
                     [ ul
                         [ class "flex items-center justify-center py-24"
                         ]
@@ -125,7 +125,7 @@ browseEvents baseUrl title streamName { links, events } relatedStreams timeZone 
                 [ text title ]
             , div [] [ displayPagination streamName baseUrl links ]
             ]
-        , div [  ] [ renderResults baseUrl events timeZone ]
+        , div [] [ renderResults baseUrl events timeZone ]
         , div [] [ renderRelatedStreams baseUrl relatedStreams ]
         , div [ class "bg-red-500" ] [ renderSearchStreams searchStreams ]
         ]
@@ -248,7 +248,7 @@ renderResults baseUrl events timeZone =
                 [ text "No items" ]
 
         _ ->
-            div 
+            div
                 [ class "overflow-x-scroll sm:overflow-visible w-full" ]
                 [ table
                     [ class "my-10 w-full lg:table-fixed text-left"
@@ -256,7 +256,7 @@ renderResults baseUrl events timeZone =
                     [ thead
                         [ class "align-bottom leading-tight sticky top-0 bg-white/70 backdrop-blur-sm text-gray-500 uppercase text-xs"
                         ]
-                        [ tr 
+                        [ tr
                             [ class "border-gray-400 border-b" ]
                             [ th
                                 [ class "p-4" ]
@@ -267,8 +267,8 @@ renderResults baseUrl events timeZone =
                             , th
                                 [ class "py-4  pr-4  text-right lg:w-60" ]
                                 [ span
-                                    [ class "cursor-help", title timeZone.zoneName]
-                                    [text "Created at" ]
+                                    [ class "cursor-help", title timeZone.zoneName ]
+                                    [ text "Created at" ]
                                 ]
                             ]
                         ]
@@ -288,8 +288,7 @@ itemRow baseUrl timeZone { eventType, createdAt, eventId } =
                 [ class "text-red-700 no-underline min-h-11 w-full flex items-center px-4"
                 , href (Route.eventUrl baseUrl eventId)
                 ]
-                [
-                    span
+                [ span
                     [ class "break-words min-w-0" ]
                     [ text eventType ]
                 ]
@@ -302,7 +301,6 @@ itemRow baseUrl timeZone { eventType, createdAt, eventId } =
                 ]
                 [ text eventId ]
             ]
-            
         , td
             [ class "font-mono text-sm leading-none font-medium" ]
             [ a
