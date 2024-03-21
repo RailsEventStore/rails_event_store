@@ -11,7 +11,6 @@ import Html exposing (..)
 import Html.Attributes exposing (class, href, id, list, placeholder, selected, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Http
-import Json.Decode
 import LinkedTimezones exposing (mapLinkedTimeZone)
 import List.Extra
 import Route
@@ -24,11 +23,11 @@ import WrappedModel exposing (..)
 type Msg
     = TimeZoneSelected String
     | SearchMsg Search.Msg
-    | KeyPress String Bool Bool
     | ToggleDialog
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Search.Stream
     | OnQueryChanged Search.Stream
+    | RequestSearch String
 
 
 type alias Model =
@@ -37,20 +36,12 @@ type alias Model =
 
 
 port toggleDialog : String -> Cmd msg
+port requestSearch : (String -> msg) -> Sub msg
 
 
 subscriptions : Sub Msg
 subscriptions =
-    Browser.Events.onKeyDown keyboardDecoder
-
-
-keyboardDecoder : Json.Decode.Decoder Msg
-keyboardDecoder =
-    Json.Decode.map3
-        KeyPress
-        (Json.Decode.field "key" Json.Decode.string)
-        (Json.Decode.field "metaKey" Json.Decode.bool)
-        (Json.Decode.field "ctrlKey" Json.Decode.bool)
+    requestSearch RequestSearch
 
 
 buildModel : Model
@@ -128,16 +119,8 @@ update msg model =
                     Nothing ->
                         ( model, Cmd.none )
 
-        KeyPress key isMetaDown isCtrlDown ->
-            case ( key, isMetaDown, isCtrlDown ) of
-                ( "k", True, False ) ->
-                    ( model, toggleDialog searchModalId )
-
-                ( "k", False, True ) ->
-                    ( model, toggleDialog searchModalId )
-
-                _ ->
-                    ( model, Cmd.none )
+        RequestSearch _ ->
+            ( model, toggleDialog searchModalId )
 
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
