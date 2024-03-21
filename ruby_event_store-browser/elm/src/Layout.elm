@@ -23,6 +23,8 @@ import WrappedModel exposing (..)
 type Msg
     = TimeZoneSelected String
     | SearchMsg Search.Msg
+    | KeyPress String Bool Bool
+    | ToggleBookmarksMenu
     | ToggleDialog
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Search.Stream
@@ -32,10 +34,21 @@ type Msg
 
 type alias Model =
     { search : Search.Model Msg
+    , displayBookmarksMenu : Bool
+    , bookmarks : List Bookmark
+    }
+
+
+type alias Bookmark =
+    { label : String
+    , link : String
+    , itemType : String
     }
 
 
 port toggleDialog : String -> Cmd msg
+
+
 port requestSearch : (String -> msg) -> Sub msg
 
 
@@ -48,6 +61,8 @@ buildModel : Model
 buildModel =
     { search =
         Search.init OnSelect OnQueryChanged
+    , displayBookmarksMenu = False
+    , bookmarks = [ { itemType = "Stream", label = "Bookmark 1", link = "/" }, { itemType = "Stream", label = "Bookmark 2", link = "/" } ]
     }
 
 
@@ -69,7 +84,7 @@ update msg model =
                 ( newSearch, cmd ) =
                     Search.update searchMsg model.internal.search
             in
-            ( { model | internal = Model newSearch }, cmd )
+            ( { model | internal = Model newSearch model.internal.displayBookmarksMenu model.internal.bookmarks }, cmd )
 
         OnSelect streamName ->
             ( model
@@ -122,6 +137,20 @@ update msg model =
         RequestSearch _ ->
             ( model, toggleDialog searchModalId )
 
+        ToggleBookmarksMenu ->
+            ( { model | internal = Model model.internal.search (not model.internal.displayBookmarksMenu) model.internal.bookmarks }, Cmd.none )
+
+        KeyPress key isMetaDown isCtrlDown ->
+            case ( key, isMetaDown, isCtrlDown ) of
+                ( "k", True, False ) ->
+                    ( model, toggleDialog searchModalId )
+
+                ( "k", False, True ) ->
+                    ( model, toggleDialog searchModalId )
+
+                _ ->
+                    ( model, Cmd.none )
+
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
 
@@ -136,7 +165,7 @@ update msg model =
                 newModel =
                     { searchModel | streams = streams_ }
             in
-            ( { model | internal = Model newModel }, Cmd.none )
+            ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
 
         SearchedStreamsFetched (Err _) ->
             let
@@ -146,7 +175,7 @@ update msg model =
                 newModel =
                     { searchModel | streams = [] }
             in
-            ( { model | internal = Model newModel }, Cmd.none )
+            ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
@@ -180,7 +209,7 @@ viewIncorrectConfig =
 browserNavigation : WrappedModel Model -> Html Msg
 browserNavigation model =
     nav
-        [ class "flex bg-red-700 px-8 h-16" ]
+        [ class "flex bg-red-700 px-8 h-16 justify-between sticky" ]
         [ div
             [ class "flex items-center" ]
             [ a
@@ -190,11 +219,8 @@ browserNavigation model =
                 [ text "Ruby Event Store" ]
             ]
         , div
-            [ class "flex-1" ]
-            []
-        , div
-            [ class "flex items-center" ]
-            [ fakeSearchInput ]
+            [ class "flex items-center gap-2" ]
+            [ fakeSearchInput, bookmarksMenu model ]
         ]
 
 
@@ -259,11 +285,46 @@ timeZoneSelect time =
         )
 
 
+visibleBookmarksMenu : Bool -> String
+visibleBookmarksMenu displayBookmarksMenu =
+    if displayBookmarksMenu then
+        "block"
+
+    else
+        "hidden"
+
+
+bookmarkToHtml : Bookmark -> Html Msg
+bookmarkToHtml bookmark =
+    li []
+        [ a [ href bookmark.link, class "whitespace-nowrap p-4 hover:bg-gray-100" ] [ text bookmark.label ]
+        ]
+
+
+bookmarksMenu : WrappedModel Model -> Html Msg
+bookmarksMenu model =
+    div [ class "relative" ]
+        [ button
+            [ onClick ToggleBookmarksMenu
+            , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 h-9 px-3 rounded"
+            ]
+            [ FeatherIcons.bookmark
+                |> FeatherIcons.withClass "size-4"
+                |> FeatherIcons.toHtml []
+            ]
+        , div [ class ("absolute translate-y-4 right-0 top-full bg-white shadow rounded-lg " ++ visibleBookmarksMenu model.internal.displayBookmarksMenu) ]
+            [ model.internal.bookmarks
+                |> List.map bookmarkToHtml
+                |> ul [ class "text-gray-800 text-sm space-y-4" ]
+            ]
+        ]
+
+
 fakeSearchInput : Html Msg
 fakeSearchInput =
     button
         [ onClick ToggleDialog
-        , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 py-2 px-3 rounded"
+        , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 h-9 px-3 rounded"
         ]
         [ FeatherIcons.search
             |> FeatherIcons.withClass "size-4"

@@ -64,6 +64,9 @@ initModel flags eventId =
 port copyToClipboard : String -> Cmd msg
 
 
+port toggleBookmark : String -> Cmd msg
+
+
 
 -- UPDATE
 
@@ -75,6 +78,7 @@ type Msg
     | CausedEventsFetched (Result Http.Error (Api.PaginatedList Api.Event))
     | CausedStreamFetched (Result Http.Error Api.Stream)
     | Copy String
+    | ToggleBookmark String
 
 
 initCmd : Flags -> String -> Cmd Msg
@@ -135,6 +139,9 @@ update msg model =
 
         CausedEventsFetched (Err _) ->
             ( { model | causedEvents = Api.Failure }, Cmd.none )
+
+        ToggleBookmark id ->
+            ( model, toggleBookmark id )
 
 
 apiEventToEvent : Api.Event -> Event
@@ -242,22 +249,29 @@ showEvent baseUrl event maybeCausedEvents selectedTime =
         [ header
             [ class "flex items-start justify-between gap-4 flex-wrap md:flex-nowrap"
             ]
-            [ div [ class "flex flex-col"]
+            [ div [ class "flex flex-col items-start" ]
                 [ h1
                     [ class "font-bold text-2xl break-words min-w-0 mb-2"
                     ]
                     [ text event.eventType ]
-                , p [ class "flex gap-2 md:items-center min-w-0 text-sm flex-wrap"]
-                    [ 
-                        span [ class "whitespace-nowrap text-xs text-gray-500 uppercase font-bold uppercase"] 
+                , p [ class "flex gap-2 md:items-center min-w-0 text-sm flex-wrap mb-4" ]
+                    [ span [ class "whitespace-nowrap text-xs text-gray-500 uppercase font-bold uppercase" ]
                         [ text "Event ID:"
-                        ],
-                        
-                        button [ class "flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm", onClick (Copy event.eventId) ]
+                        ]
+                    , button [ class "flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm", onClick (Copy event.eventId) ]
                         [ text event.eventId
                         , FeatherIcons.clipboard
                             |> FeatherIcons.withClass "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100 "
                             |> FeatherIcons.toHtml []
+                        ]
+                    ]
+                , button [ onClick (ToggleBookmark event.eventId) ]
+                    [ span [ class "flex items-center gap-1 p-1.5 px-2 rounded text-[.65rem] uppercase tracking-wide font-medium bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-900 " ]
+                        [ FeatherIcons.bookmark
+                            |> FeatherIcons.withClass "size-3"
+                            |> FeatherIcons.toHtml []
+                        , text
+                            "bookmark"
                         ]
                     ]
                 ]
@@ -284,7 +298,6 @@ showEvent baseUrl event maybeCausedEvents selectedTime =
                     ]
                 ]
             ]
-        
         , div
             [ class "w-full text-left grid md:grid-cols-2 gap-8 overflow-hidden"
             ]
