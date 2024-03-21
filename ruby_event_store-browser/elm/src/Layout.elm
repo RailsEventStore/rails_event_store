@@ -145,7 +145,7 @@ update msg model =
         SearchedStreamsFetched (Ok streams) ->
             let
                 streams_ =
-                    "all" :: List.map .streamId streams
+                    List.map .streamId streams
 
                 searchModel =
                     model.internal.search
