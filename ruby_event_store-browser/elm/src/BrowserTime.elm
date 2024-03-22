@@ -14,7 +14,7 @@ defaultTimeZone =
 
 
 format : TimeZone -> Time.Posix -> String
-format { zone, zoneName } time =
+format { zone } time =
     DateFormat.format
         [ dayOfMonthFixed
         , text "."

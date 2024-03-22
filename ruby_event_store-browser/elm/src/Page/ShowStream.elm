@@ -79,7 +79,7 @@ update msg model =
 
 
 view : Model -> BrowserTime.TimeZone -> ( String, Html Msg )
-view { streamName, events, relatedStreams, problems, flags, pagination } selectedTime =
+view { streamName, events, relatedStreams, problems, flags } selectedTime =
     let
         title =
             "Stream " ++ streamName
