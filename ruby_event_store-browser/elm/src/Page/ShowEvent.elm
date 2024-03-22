@@ -5,7 +5,7 @@ import BrowserTime
 import FeatherIcons
 import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, colspan, href, selected, title)
+import Html.Attributes exposing (attribute, class, colspan, href, title)
 import Html.Events exposing (onClick)
 import Http
 import JsonTree
@@ -15,7 +15,7 @@ import Pagination
 import Route
 import Svg exposing (path, svg)
 import Svg.Attributes as SvgAttr
-import Time exposing (Posix, posixToMillis)
+import Time exposing (Posix)
 import Url
 
 
@@ -117,7 +117,7 @@ update msg model =
         EventFetched (Err _) ->
             ( { model | event = Api.Failure }, Cmd.none )
 
-        CausedStreamFetched (Ok streamResource) ->
+        CausedStreamFetched (Ok _) ->
             ( model
             , case causationStreamName model.event of
                 Just streamName ->

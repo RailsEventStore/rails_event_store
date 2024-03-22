@@ -1,20 +1,18 @@
 port module Layout exposing (Model, Msg, buildModel, subscriptions, update, view, viewIncorrectConfig, viewNotFound)
 
 import Api exposing (SearchStream, getSearchStreams)
-import Browser.Events
 import Browser.Navigation
 import BrowserTime
 import Dict
 import FeatherIcons
-import Flags exposing (Flags)
 import Html exposing (..)
-import Html.Attributes exposing (class, href, id, list, placeholder, selected, title, value)
-import Html.Events exposing (onClick, onInput, onSubmit)
+import Html.Attributes exposing (class, href, id, selected, title, value)
+import Html.Events exposing (onClick, onInput)
 import Http
 import LinkedTimezones exposing (mapLinkedTimeZone)
 import List.Extra
 import Route
-import Search exposing (..)
+import Search
 import String
 import TimeZone exposing (zones)
 import Url

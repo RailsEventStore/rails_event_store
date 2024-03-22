@@ -5,7 +5,6 @@ import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
 import List
-import Page.ShowStream exposing (Msg(..))
 import Task
 
 

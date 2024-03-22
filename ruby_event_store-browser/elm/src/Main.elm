@@ -16,7 +16,6 @@ import Task
 import Time
 import TimeZone
 import Url
-import Url.Parser exposing ((</>))
 import WrappedModel exposing (..)
 
 
@@ -193,7 +192,7 @@ update msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
-        ( _, _ ) ->
+        _ ->
             ( model, Cmd.none )
 
 

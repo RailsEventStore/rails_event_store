@@ -3,7 +3,6 @@ module DecodersTest exposing (suite)
 import Api exposing (eventDecoder, eventsDecoder, searchStreamsDecoder)
 import Expect
 import Json.Decode
-import Main exposing (..)
 import Pagination
 import Test exposing (..)
 import Time
