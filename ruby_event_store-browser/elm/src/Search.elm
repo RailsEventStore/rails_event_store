@@ -72,7 +72,7 @@ update msg model =
             )
 
 
-view : Model msg -> Html Msg
+view : Model a -> Html Msg
 view model =
     form [ onSubmit (GoToStream model.value) ]
         [ div [ class "relative" ]
