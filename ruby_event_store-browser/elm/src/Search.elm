@@ -44,7 +44,7 @@ update msg model =
                 )
 
             else
-                ( { model | value = stream }, Cmd.none )
+                ( { model | value = stream, streams = [] }, Cmd.none )
 
         GoToStream stream ->
             ( { model | value = emptyStreamName }
