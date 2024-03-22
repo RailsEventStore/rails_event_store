@@ -64,7 +64,10 @@ buildModel =
     { search =
         Search.init OnSelect OnQueryChanged
     , displayBookmarksMenu = False
-    , bookmarks = [ { itemType = "Stream", label = "Bookmark 1", link = "/" }, { itemType = "Stream", label = "Bookmark 2", link = "/" } ]
+    , bookmarks =
+        [ { itemType = "Stream", label = "Bookmark 1", link = "/" }
+        , { itemType = "Stream", label = "Bookmark 2", link = "/" }
+        ]
     }
 
 
