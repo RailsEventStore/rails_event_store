@@ -2,7 +2,7 @@ module Search exposing (..)
 
 import FeatherIcons
 import Html exposing (..)
-import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
+import Html.Attributes exposing (autofocus, class, href, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
 import List
 import Task
@@ -84,7 +84,6 @@ view model =
                 , value model.value
                 , onInput StreamChanged
                 , placeholder "Quick search…"
-                , list "streams"
                 , autofocus True
                 ]
                 []
@@ -92,10 +91,30 @@ view model =
                 [ span [ class "text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded " ] [ text "ESC" ]
                 ]
             ]
-        , datalist
-            [ id "streams", class "appearance-none" ]
+        , if model |> streamsPresent then
+            viewList model
+
+          else
+            text ""
+        ]
+
+
+viewList : Model a -> Html Msg
+viewList model =
+    div
+        []
+        [ ul [ class "mt-4 h-80 overflow-auto space-y-2 w-full" ]
             (List.map
-                (\stream -> option [] [ text stream ])
+                (\stream ->
+                    li []
+                        [ a [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono", href ("/streams/" ++ stream) ] [ text stream ]
+                        ]
+                )
                 model.streams
             )
         ]
+
+
+streamsPresent : Model a -> Bool
+streamsPresent { streams } =
+    not <| List.isEmpty streams
