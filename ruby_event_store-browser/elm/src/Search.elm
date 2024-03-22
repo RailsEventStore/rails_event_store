@@ -44,7 +44,7 @@ update msg model =
                 )
 
             else
-                ( { model | value = stream, streams = [] }, Cmd.none )
+                ( { model | value = stream }, Cmd.none )
 
         GoToStream stream ->
             ( { model | value = emptyStreamName }
@@ -80,12 +80,15 @@ view model =
 
 
 viewStreamList : Model a -> Html Msg
-viewStreamList model =
+viewStreamList { value, streams } =
     div
         []
         [ ul
             [ class "mt-4 overflow-auto space-y-2 w-full" ]
-            (List.map (\stream -> viewStreamListItem stream) model.streams)
+            (streams
+                |> filterStreams value
+                |> List.map viewStreamListItem
+            )
         ]
 
 
@@ -123,3 +126,12 @@ hasAtLeastThreeChars stream =
 streamsPresent : Model a -> Bool
 streamsPresent { streams } =
     not <| List.isEmpty streams
+
+
+filterStreams : Stream -> List Stream -> List Stream
+filterStreams stream streams =
+    if String.isEmpty stream then
+        []
+
+    else
+        List.filter (String.contains stream) streams
