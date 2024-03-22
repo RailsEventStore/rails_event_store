@@ -75,22 +75,22 @@ view model =
                 [ span [ class "text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded " ] [ text "ESC" ]
                 ]
             ]
-        , if streams_ |> streamsPresent then
-            viewStreamList streams_
-
-          else
-            text ""
+        , viewStreamList streams_
         ]
 
 
 viewStreamList : List Stream -> Html Msg
 viewStreamList streams =
-    div
-        []
-        [ ul
-            [ class "mt-4 overflow-auto space-y-2 w-full" ]
-            (List.map viewStreamListItem streams)
-        ]
+    if streams |> streamsPresent then
+        div
+            []
+            [ ul
+                [ class "mt-4 overflow-auto space-y-2 w-full" ]
+                (List.map viewStreamListItem streams)
+            ]
+
+    else
+        text ""
 
 
 viewStreamListItem : Stream -> Html Msg
