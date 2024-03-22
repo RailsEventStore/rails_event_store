@@ -11,7 +11,6 @@ import LinkedTimezones exposing (mapLinkedTimeZone)
 import Page.Debug
 import Page.ShowEvent
 import Page.ShowStream
-import Page.Debug
 import Route
 import Task
 import Time
@@ -53,6 +52,7 @@ type Msg
     | GotShowStreamMsg Page.ShowStream.Msg
     | ReceiveTimeZone (Result String Time.ZoneName)
     | GotDebugMsg Page.Debug.Msg
+
 
 type Page
     = NotFound
@@ -134,13 +134,12 @@ update msg model =
 
         ( GotDebugMsg gotDebugMsg, Debug debugModel ) ->
             let
-                (subModel, subCmd) =
+                ( subModel, subCmd ) =
                     Page.Debug.update gotDebugMsg debugModel
             in
-                ({model | page = Debug subModel}
-                , Cmd.map GotDebugMsg subCmd
-                )
-
+            ( { model | page = Debug subModel }
+            , Cmd.map GotDebugMsg subCmd
+            )
 
         ( GotLayoutMsg layoutMsg, _ ) ->
             case model.flags of
@@ -226,10 +225,13 @@ navigate model location =
                         Nothing ->
                             ( { model | page = NotFound }, Cmd.none )
 
-                Just (Route.Debug) ->
+                Just Route.Debug ->
                     let
-                        page = Page.Debug.init flags
-                        cmd = Page.Debug.initCmd flags
+                        page =
+                            Page.Debug.init flags
+
+                        cmd =
+                            Page.Debug.initCmd flags
                     in
                     ( { model | page = Debug page }, Cmd.map GotDebugMsg cmd )
 
