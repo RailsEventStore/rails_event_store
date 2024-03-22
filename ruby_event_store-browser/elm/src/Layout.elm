@@ -1,6 +1,7 @@
 port module Layout exposing (Model, Msg, buildModel, subscriptions, update, view, viewIncorrectConfig, viewNotFound)
 
 import Api exposing (SearchStream, getSearchStreams)
+import Browser exposing (Document)
 import Browser.Navigation
 import BrowserTime
 import Dict
@@ -230,9 +231,10 @@ browserFooter : WrappedModel Model -> Html Msg
 browserFooter { flags, time } =
     let
         spacer =
-            span
-                [ class "ml-4 font-bold inline-block text-gray-400" ]
-                [ text "•" ]
+            span [ class "ml-4 font-bold inline-block text-gray-400" ] [ text "•" ]
+
+        link label url =
+            a [ href url, class "ml-4" ] [ text label ]
     in
     footer
         [ class "border-gray-400 border-t py-4 px-8 flex justify-between" ]
@@ -240,23 +242,11 @@ browserFooter { flags, time } =
             [ class "text-gray-500 text-sm" ]
             [ text ("RubyEventStore v" ++ flags.resVersion)
             , spacer
-            , a
-                [ href "https://railseventstore.org/docs/install/"
-                , class "ml-4"
-                ]
-                [ text "Documentation" ]
+            , link "Documentation" "https://railseventstore.org/docs/install/"
             , spacer
-            , a
-                [ href "https://railseventstore.org/support/"
-                , class "ml-4"
-                ]
-                [ text "Support" ]
+            , link "Support" "https://railseventstore.org/support/"
             , spacer
-            , a
-                [ href (Route.debugUrl flags.rootUrl)
-                , class "ml-4"
-                ]
-                [ text "Debug" ]
+            , link "Debug" (Route.debugUrl flags.rootUrl)
             ]
         , div
             [ class "text-gray-500 text-sm flex item-center gap-2" ]
@@ -267,19 +257,13 @@ browserFooter { flags, time } =
 
 
 timeZoneSelect time =
+    let
+        mkOption timeZone =
+            option [ value timeZone.zoneName, selected ((==) time.selected) ] [ text timeZone.zoneName ]
+    in
     Html.select
         [ onInput TimeZoneSelected ]
-        (List.map
-            (\timeZone ->
-                option
-                    [ value timeZone.zoneName
-                    , selected (timeZone == time.selected)
-                    ]
-                    [ text timeZone.zoneName
-                    ]
-            )
-            (availableTimeZones time.detected)
-        )
+        (availableTimeZones time.detected |> List.map mkOption)
 
 
 visibleBookmarksMenu : Bool -> String
