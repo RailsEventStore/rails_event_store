@@ -54,6 +54,10 @@ update msg model =
 
 view : Model a -> Html Msg
 view model =
+    let
+        streams_ =
+            filterStreams model.value model.streams
+    in
     form [ onSubmit (GoToStream model.value) ]
         [ div [ class "relative" ]
             [ FeatherIcons.search
@@ -71,24 +75,21 @@ view model =
                 [ span [ class "text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded " ] [ text "ESC" ]
                 ]
             ]
-        , if model |> streamsPresent then
-            viewStreamList model
+        , if streams_ |> streamsPresent then
+            viewStreamList model.value streams_
 
           else
             text ""
         ]
 
 
-viewStreamList : Model a -> Html Msg
-viewStreamList { value, streams } =
+viewStreamList : Stream -> List Stream -> Html Msg
+viewStreamList stream streams =
     div
         []
         [ ul
             [ class "mt-4 overflow-auto space-y-2 w-full" ]
-            (streams
-                |> filterStreams value
-                |> List.map viewStreamListItem
-            )
+            (List.map viewStreamListItem streams)
         ]
 
 
@@ -123,8 +124,8 @@ hasAtLeastThreeChars stream =
     String.length stream >= 3
 
 
-streamsPresent : Model a -> Bool
-streamsPresent { streams } =
+streamsPresent : List Stream -> Bool
+streamsPresent streams =
     not <| List.isEmpty streams
 
 
