@@ -76,15 +76,15 @@ view model =
                 ]
             ]
         , if streams_ |> streamsPresent then
-            viewStreamList model.value streams_
+            viewStreamList streams_
 
           else
             text ""
         ]
 
 
-viewStreamList : Stream -> List Stream -> Html Msg
-viewStreamList stream streams =
+viewStreamList : List Stream -> Html Msg
+viewStreamList streams =
     div
         []
         [ ul
