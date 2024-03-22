@@ -1,7 +1,7 @@
 module SearchTest exposing (suite)
 
 import Expect
-import Search exposing (Stream, filterStreams)
+import Search exposing (filterStreams)
 import Test exposing (..)
 
 
@@ -29,5 +29,10 @@ suite =
                     Expect.equal
                         [ "DummyStream$78" ]
                         (filterStreams "78" [ "DummyStream$78", "DummyStream$79" ])
+            , test "filterStreams is case insensitive" <|
+                \_ ->
+                    Expect.equal
+                        [ "DummyStream$78", "DummyStream$79" ]
+                        (filterStreams "stream" [ "DummyStream$78", "DummyStream$79" ])
             ]
         ]

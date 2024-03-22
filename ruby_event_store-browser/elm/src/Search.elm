@@ -134,4 +134,20 @@ filterStreams stream streams =
         []
 
     else
-        List.filter (String.contains stream) streams
+        List.filterMap (caseInsensitiveContains stream) streams
+
+
+caseInsensitiveContains : Stream -> Stream -> Maybe Stream
+caseInsensitiveContains needle haystack =
+    let
+        needleLower =
+            String.toLower needle
+
+        haystackLower =
+            String.toLower haystack
+    in
+    if String.contains needleLower haystackLower then
+        Just haystack
+
+    else
+        Nothing
