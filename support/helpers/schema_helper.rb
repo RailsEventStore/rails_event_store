@@ -108,6 +108,10 @@ module SchemaHelper
     return "mysql" if mysql?
   end
 
+  def sqlite?
+    ENV["DATABASE_URL"].include?("sqlite")
+  end
+
   def mysql?
     ENV["DATABASE_URL"].include?("mysql2")
   end

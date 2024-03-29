@@ -20,7 +20,8 @@ module RubyEventStore
       end
 
       specify "postgres" do
-        skip unless ENV["DATABASE_URL"].include?("postgres")
+        skip unless postgres?
+
         data_type = data_type_to_pg_type(ENV["DATA_TYPE"])
 
         expect(
@@ -69,7 +70,7 @@ module RubyEventStore
       end
 
       specify "mysql" do
-        skip unless ENV["DATABASE_URL"].include?("mysql")
+        skip unless mysql?
 
         data_type = data_type_to_mysql_type(ENV["DATA_TYPE"])
 
@@ -118,7 +119,7 @@ module RubyEventStore
       end
 
       specify "sqlite" do
-        skip unless ENV["DATABASE_URL"].include?("sqlite")
+        skip unless sqlite?
 
         expect(sqlite_schema("event_store_events")).to eq <<~SCHEMA.strip
           CREATE TABLE "event_store_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" varchar(36) NOT NULL, "event_type" varchar NOT NULL, "metadata" blob, "data" blob NOT NULL, "created_at" datetime(6) NOT NULL, "valid_at" datetime(6))
