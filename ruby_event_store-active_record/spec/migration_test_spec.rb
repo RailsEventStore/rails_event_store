@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   module ActiveRecord
-    ::RSpec.describe "Gold master test for create table schema" do
+    ::RSpec.describe "golden master test for create table schema" do
       include SchemaHelper
 
       around do |example|
