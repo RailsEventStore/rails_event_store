@@ -168,10 +168,13 @@ module RubyEventStore
       end
 
       def pg_show_create_table(table_name)
-        db_config = ::ActiveRecord::Base.connection_db_config
-        <<~RESULT.strip
-          #{IO.popen("psql #{db_config.adapter}://postgres:#{db_config.configuration_hash[:password]}@#{db_config.host}:#{db_config.configuration_hash[:port]}/#{db_config.database}  -c '\\d #{table_name}'").readlines.join}
-        RESULT
+        IO
+          .popen(
+            "psql #{::ActiveRecord::Base.connection_db_config.url} -c '\\d #{table_name}'"
+          )
+          .readlines
+          .join
+          .strip
       end
 
       def mysql_show_create_table(name)
