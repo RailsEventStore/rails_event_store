@@ -94,8 +94,8 @@ module RubyEventStore
         @repo_reader.event_in_stream?(event_id, stream)
       end
 
-      def specification
-        "#{self.class.name} with #{::ActiveRecord::Base.connection.adapter_name} db adapter"
+      def inspect
+        "#{self.class} with #{::ActiveRecord::Base.connection.adapter_name} db adapter"
       end
 
       private

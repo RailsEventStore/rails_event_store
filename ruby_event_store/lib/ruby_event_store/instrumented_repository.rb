@@ -61,13 +61,12 @@ module RubyEventStore
       repository.respond_to?(method_name)
     end
 
-    def specification
-      "Instrumented " +
-        if repository.respond_to?(:specification)
-          repository.specification
-        else
-          repository.class.to_s
-        end
+    def inspect
+      "Instrumented " + if repository.public_method(:inspect).owner.equal?(Kernel)
+                          repository.class.inspect
+                        else
+                          repository.inspect
+                        end
     end
 
     private

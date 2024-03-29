@@ -337,11 +337,11 @@ module RubyEventStore
       "#<#{self.class}:0x#{__id__.to_s(16)}>"
     end
 
-    def repository_specification
-      if repository.respond_to?(:specification)
-        repository.specification
+    def inspect_repository
+      if repository.public_method(:inspect).owner.equal?(Kernel)
+        repository.class.inspect
       else
-        repository.class.to_s
+        repository.inspect
       end
     end
 

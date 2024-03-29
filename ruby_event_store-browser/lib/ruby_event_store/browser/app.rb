@@ -172,7 +172,7 @@ module RubyEventStore
       end
 
       def repository_adapter
-        event_store.repository_specification
+        event_store.inspect_repository
       end
     end
   end
