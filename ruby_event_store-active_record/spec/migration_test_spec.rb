@@ -119,15 +119,10 @@ module RubyEventStore
         skip unless ENV["DATABASE_URL"].include?("sqlite")
 
         expect(
-          ::ActiveRecord::Base
-            .connection
-            .execute(<<~SQL)
-          SELECT  sql
-          FROM    sqlite_schema
-          WHERE   NAME LIKE '%event_store_events%'
-        SQL
-            .map { |x| x["sql"] }
-            .join("\n")
+          [
+            sqlite_schema("event_store_events"),
+            sqlite_schema("event_store_events_in_streams")
+          ].join("\n")
         ).to eq <<~SCHEMA.strip
           CREATE TABLE "event_store_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" varchar(36) NOT NULL, "event_type" varchar NOT NULL, "metadata" blob, "data" blob NOT NULL, "created_at" datetime(6) NOT NULL, "valid_at" datetime(6))
           CREATE UNIQUE INDEX "index_event_store_events_on_event_id" ON "event_store_events" ("event_id")
@@ -155,6 +150,18 @@ module RubyEventStore
 
       def data_type_to_mysql_type(data_type)
         { "binary" => "blob", "json" => "json" }.fetch(data_type)
+      end
+
+      def sqlite_schema(name)
+        ::ActiveRecord::Base
+          .connection
+          .execute(<<~SQL)
+             SELECT  sql
+             FROM    sqlite_schema
+             WHERE   tbl_name = '#{name}'
+           SQL
+          .map { |x| x["sql"] }
+          .join("\n")
       end
 
       def pg_schema(table_name)
