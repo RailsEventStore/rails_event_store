@@ -132,7 +132,7 @@ module RubyEventStore
         expect(
           sqlite_schema("event_store_events_in_streams")
         ).to eq <<~SCHEMA.strip
-          CREATE TABLE "event_store_events_in_streams" ("id" integer NOT NULL PRIMARY KEY, "stream" varchar NOT NULL, "position" integer DEFAULT NULL, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_c8d52b5857"
+          CREATE TABLE "event_store_events_in_streams" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "stream" varchar NOT NULL, "position" integer DEFAULT NULL, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_c8d52b5857"
           FOREIGN KEY ("event_id")
             REFERENCES "event_store_events" ("event_id")
           )
