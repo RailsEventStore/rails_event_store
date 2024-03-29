@@ -35,13 +35,13 @@ class CI
     SQLITE3 = "sqlite3:db.sqlite3",
     POSTGRES = [
       POSTGRES_15 =
-        "postgres://postgres:secret@localhost:10015/rails_event_store?pool=5",
+        "postgres://postgres:secret@localhost:10015/rails_event_store",
       POSTGRES_11 =
-        "postgres://postgres:secret@localhost:10011/rails_event_store?pool=5"
+        "postgres://postgres:secret@localhost:10011/rails_event_store"
     ],
     MYSQL = [
-      MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store?pool=5",
-      MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store?pool=5"
+      MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store",
+      MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store"
     ]
   ].flatten
 
