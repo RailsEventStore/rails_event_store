@@ -111,8 +111,8 @@ module RubyEventStore
             PRIMARY KEY (`id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_event_id` (`stream`,`event_id`),
             UNIQUE KEY `index_event_store_events_in_streams_on_stream_and_position` (`stream`,`position`),
-            KEY `index_event_store_events_in_streams_on_created_at` (`created_at`),
             KEY `index_event_store_events_in_streams_on_event_id` (`event_id`),
+            KEY `index_event_store_events_in_streams_on_created_at` (`created_at`),
             CONSTRAINT `fk_rails_c8d52b5857` FOREIGN KEY (`event_id`) REFERENCES `event_store_events` (`event_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
@@ -136,10 +136,10 @@ module RubyEventStore
           FOREIGN KEY ("event_id")
             REFERENCES "event_store_events" ("event_id")
           )
+          CREATE INDEX "index_event_store_events_in_streams_on_event_id" ON "event_store_events_in_streams" ("event_id")
           CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_event_id" ON "event_store_events_in_streams" ("stream", "event_id")
-          CREATE INDEX "index_event_store_events_in_streams_on_event_id" ON "event_store_events_in_streams" ("event_id")
         SCHEMA
       end
 
