@@ -14,13 +14,11 @@ class CreateEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
     create_table(:event_store_events_in_streams, force: false) do |t|
       t.string      :stream,      null: false
       t.integer     :position,    null: true
-      t.references  :event,       null: false, type: :string, limit: 36, index: true
+      t.references  :event,       null: false, type: :string, limit: 36, index: true, foreign_key: { to_table: :event_store_events, primary_key: :event_id }
       t.datetime    :created_at,  null: false, precision: 6, index: true
 
       t.index [:stream, :position], unique: true
       t.index [:stream, :event_id], unique: true
     end
-
-    add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   end
 end
