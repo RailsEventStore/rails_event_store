@@ -21,17 +21,12 @@ module RubyEventStore
 
       specify "postgres" do
         skip unless ENV["DATABASE_URL"].include?("postgres")
-
         data_type = data_type_to_pg_type(ENV["DATA_TYPE"])
-
-        create_event_store_events = pg_show_create_table("event_store_events")
-        create_event_store_events_in_streams =
-          pg_show_create_table("event_store_events_in_streams")
 
         expect(
           [
-            create_event_store_events,
-            create_event_store_events_in_streams
+            pg_schema("event_store_events"),
+            pg_schema("event_store_events_in_streams")
           ].join("\n").gsub(/\s+/, " ")
         ).to eq <<~SCHEMA.strip.gsub(/\s+/, " ")
           Table "public.event_store_events"
@@ -84,15 +79,10 @@ module RubyEventStore
         int_lenght = mysql_major_version == 8 ? "" : "(11)"
         bigint_lenght = mysql_major_version == 8 ? "" : "(20)"
 
-        create_event_store_events =
-          mysql_show_create_table("event_store_events")
-        create_event_store_events_in_streams =
-          mysql_show_create_table("event_store_events_in_streams")
-
         expect(
           [
-            create_event_store_events,
-            create_event_store_events_in_streams
+            mysql_schema("event_store_events"),
+            mysql_schema("event_store_events_in_streams")
           ].join("\n")
         ).to eq <<~SCHEMA.strip
           CREATE TABLE `event_store_events` (
@@ -167,7 +157,7 @@ module RubyEventStore
         { "binary" => "blob", "json" => "json" }.fetch(data_type)
       end
 
-      def pg_show_create_table(table_name)
+      def pg_schema(table_name)
         IO
           .popen(
             "psql #{::ActiveRecord::Base.connection_db_config.url} -c '\\d #{table_name}'"
@@ -177,7 +167,7 @@ module RubyEventStore
           .strip
       end
 
-      def mysql_show_create_table(name)
+      def mysql_schema(name)
         ::ActiveRecord::Base
           .connection
           .execute("SHOW CREATE TABLE #{name}")
