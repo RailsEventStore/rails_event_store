@@ -3,7 +3,7 @@ module Search exposing (..)
 import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, href, placeholder, value)
-import Html.Events exposing (onInput, onSubmit, onClick)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import List
 import Task
 
@@ -25,6 +25,16 @@ type Msg
     | GoToStream Stream
 
 
+emptyStreamName : Stream
+emptyStreamName =
+    ""
+
+
+emptyStreams : List Stream
+emptyStreams =
+    []
+
+
 init : (Stream -> a) -> (Stream -> a) -> Model a
 init onSelectMsg onQueryMsg =
     { streams = emptyStreams
@@ -32,6 +42,21 @@ init onSelectMsg onQueryMsg =
     , onSelectMsg = onSelectMsg
     , onQueryMsg = onQueryMsg
     }
+
+
+onSelectCmd : (Stream -> a) -> Stream -> Cmd a
+onSelectCmd onSelectMsg stream =
+    Task.perform onSelectMsg (Task.succeed stream)
+
+
+onQueryChangedCmd : (Stream -> a) -> Stream -> Cmd a
+onQueryChangedCmd onQueryMsg stream =
+    Task.perform onQueryMsg (Task.succeed stream)
+
+
+hasAtLeastThreeChars : Stream -> Bool
+hasAtLeastThreeChars stream =
+    String.length stream >= 3
 
 
 update : Msg -> Model a -> ( Model a, Cmd a )
@@ -50,6 +75,31 @@ update msg model =
             ( { model | searchedStream = emptyStreamName }
             , onSelectCmd model.onSelectMsg stream
             )
+
+
+caseInsensitiveContains : Stream -> Stream -> Maybe Stream
+caseInsensitiveContains needle haystack =
+    let
+        needleLower =
+            String.toLower needle
+
+        haystackLower =
+            String.toLower haystack
+    in
+    if String.contains needleLower haystackLower then
+        Just haystack
+
+    else
+        Nothing
+
+
+filterStreams : Stream -> List Stream -> List Stream
+filterStreams stream streams =
+    if String.isEmpty stream then
+        emptyStreams
+
+    else
+        List.filterMap (caseInsensitiveContains stream) streams
 
 
 view : Model a -> Html Msg
@@ -79,6 +129,11 @@ view model =
         ]
 
 
+streamsPresent : List Stream -> Bool
+streamsPresent streams =
+    not <| List.isEmpty streams
+
+
 viewStreamList : List Stream -> Html Msg
 viewStreamList streams =
     if streams |> streamsPresent then
@@ -103,58 +158,3 @@ viewStreamListItem stream =
             ]
             [ text stream ]
         ]
-
-
-emptyStreamName : Stream
-emptyStreamName =
-    ""
-
-
-emptyStreams : List Stream
-emptyStreams =
-    []
-
-
-onSelectCmd : (Stream -> a) -> Stream -> Cmd a
-onSelectCmd onSelectMsg stream =
-    Task.perform onSelectMsg (Task.succeed stream)
-
-
-onQueryChangedCmd : (Stream -> a) -> Stream -> Cmd a
-onQueryChangedCmd onQueryMsg stream =
-    Task.perform onQueryMsg (Task.succeed stream)
-
-
-hasAtLeastThreeChars : Stream -> Bool
-hasAtLeastThreeChars stream =
-    String.length stream >= 3
-
-
-streamsPresent : List Stream -> Bool
-streamsPresent streams =
-    not <| List.isEmpty streams
-
-
-filterStreams : Stream -> List Stream -> List Stream
-filterStreams stream streams =
-    if String.isEmpty stream then
-        emptyStreams
-
-    else
-        List.filterMap (caseInsensitiveContains stream) streams
-
-
-caseInsensitiveContains : Stream -> Stream -> Maybe Stream
-caseInsensitiveContains needle haystack =
-    let
-        needleLower =
-            String.toLower needle
-
-        haystackLower =
-            String.toLower haystack
-    in
-    if String.contains needleLower haystackLower then
-        Just haystack
-
-    else
-        Nothing
