@@ -18,7 +18,7 @@ window.addEventListener("keydown", function (event) {
   }
 
   if (event.key === "Escape") {
-    app.ports.closeSearch.send(null);
+    app.ports.requestSearchClose.send(null);
     event.preventDefault();
   }
 });
