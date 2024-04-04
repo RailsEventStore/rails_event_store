@@ -29,6 +29,7 @@ type Msg
     | OnSelect Search.Stream
     | OnQueryChanged Search.Stream
     | RequestSearch
+    | CloseSearch
     | ToggleBookmark String
 
 
@@ -52,12 +53,18 @@ port toggleDialog : String -> Cmd msg
 port requestSearch : (() -> msg) -> Sub msg
 
 
+port closeSearch : (() -> msg) -> Sub msg
+
+
 port toggleBookmark : String -> Cmd msg
 
 
 subscriptions : Sub Msg
 subscriptions =
-    requestSearch (always RequestSearch)
+    Sub.batch
+        [ requestSearch (always RequestSearch)
+        , closeSearch (always CloseSearch)
+        ]
 
 
 buildModel : Model
@@ -141,6 +148,9 @@ update msg model =
                         ( model, Cmd.none )
 
         RequestSearch ->
+            ( model, toggleDialog searchModalId )
+
+        CloseSearch ->
             ( model, toggleDialog searchModalId )
 
         ToggleBookmarksMenu ->
