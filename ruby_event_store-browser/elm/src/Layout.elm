@@ -56,6 +56,9 @@ port requestSearch : (() -> msg) -> Sub msg
 port requestSearchClose : (() -> msg) -> Sub msg
 
 
+port closeSearch : String -> Cmd msg
+
+
 port toggleBookmark : String -> Cmd msg
 
 
@@ -151,7 +154,7 @@ update msg model =
             ( model, toggleDialog searchModalId )
 
         RequestSearchClose ->
-            ( model, toggleDialog searchModalId )
+            ( model, closeSearch searchModalId )
 
         ToggleBookmarksMenu ->
             ( { model | internal = Model model.internal.search (not model.internal.displayBookmarksMenu) model.internal.bookmarks }, Cmd.none )
