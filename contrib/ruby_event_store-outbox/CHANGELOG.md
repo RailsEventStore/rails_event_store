@@ -1,9 +1,11 @@
-### unreleased
+### 0.0.26  2024-04-12
 
+* stop testing with sidekiq 5, start testing with sidekiq 7
+* get rid of deprecation warnings from sidekiq 7
 * predictable redis failures (like timeout errors) are now retried (once) instead of being treated like any other error (being logged)
 * instead of immediately starting with processing full batch size, exponential progress is implemented so that big messages OOMing the infrastructure can be pushed through
 
-### 0.0.25
+### 0.0.25  2022-05-27
 
 * added ORDER BY when cleaning up with limit #1338
 
