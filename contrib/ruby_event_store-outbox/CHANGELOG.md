@@ -1,6 +1,11 @@
+### 0.0.28  2024-04-12
+
+* Fix issues that prevent res_outbox CLI from processing
+* Upgrade docker image base to ruby:3.2
+
 ### 0.0.27  2024-04-12
 
-*  Fix issues that prevent res_outbox CLI from starting
+* Fix issues that prevent res_outbox CLI from starting
 
 ### 0.0.26  2024-04-12
 
