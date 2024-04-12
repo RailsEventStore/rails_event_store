@@ -1,3 +1,7 @@
+### 0.0.27  2024-04-12
+
+*  Fix issues that prevent res_outbox CLI from starting
+
 ### 0.0.26  2024-04-12
 
 * stop testing with sidekiq 5, start testing with sidekiq 7
