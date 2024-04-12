@@ -5,10 +5,10 @@ require "redis-client"
 require "active_record"
 require_relative "repository"
 require_relative "sidekiq5_format"
+require_relative "tempo"
 require_relative "sidekiq_processor"
 require_relative "fetch_specification"
-require_relative "cleanup_strategies/none"
-require_relative "cleanup_strategies/clean_old_enqueued"
+require_relative "cleanup_strategies"
 
 module RubyEventStore
   module Outbox

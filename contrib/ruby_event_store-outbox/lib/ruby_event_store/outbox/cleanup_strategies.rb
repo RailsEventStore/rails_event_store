@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "cleanup_strategies/none"
+require_relative "cleanup_strategies/clean_old_enqueued"
+
 module RubyEventStore
   module Outbox
     module CleanupStrategies

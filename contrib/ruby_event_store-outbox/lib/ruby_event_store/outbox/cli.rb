@@ -97,7 +97,6 @@ module RubyEventStore
       def run(argv)
         options = Parser.parse(argv)
         build_runner(options)
-          .init
           .run
       end
 
