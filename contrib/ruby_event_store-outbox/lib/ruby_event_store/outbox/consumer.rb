@@ -9,6 +9,7 @@ require_relative "tempo"
 require_relative "sidekiq_processor"
 require_relative "fetch_specification"
 require_relative "cleanup_strategies"
+require_relative "batch_result"
 
 module RubyEventStore
   module Outbox
