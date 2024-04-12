@@ -20,6 +20,7 @@ matcher:
   ignore:
     - RubyEventStore::Outbox::CLI*
     - RubyEventStore::Outbox::SidekiqProducer#call
+    - RubyEventStore::Outbox::SidekiqProducer#sidekiq_client
     - RubyEventStore::Outbox::SidekiqProcessor#process
     - RubyEventStore::Outbox::SidekiqProcessor#after_batch
     - RubyEventStore::Outbox::SidekiqProcessor#ensure_that_sidekiq_knows_about_all_queues
