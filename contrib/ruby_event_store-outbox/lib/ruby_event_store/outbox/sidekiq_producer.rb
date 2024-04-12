@@ -8,7 +8,6 @@ module RubyEventStore
   module Outbox
     class SidekiqProducer
       def call(klass, args)
-        sidekiq_client = Sidekiq::Client.new(Sidekiq.redis_pool)
         item = { "args" => args.map(&:to_h).map { |h| h.transform_keys(&:to_s) }, "class" => klass }
         normalized_item = sidekiq_client.__send__(:normalize_item, item)
         payload =
@@ -29,6 +28,15 @@ module RubyEventStore
       private
 
       attr_reader :repository
+
+      def sidekiq_client
+        @sidekiq_client ||=
+          if Gem::Version.new(Sidekiq::VERSION) < Gem::Version.new("7.0.0")
+            Sidekiq::Client.new(Sidekiq.redis_pool)
+          else
+            Sidekiq::Client.new(pool: Sidekiq.redis_pool)
+          end
+      end
     end
   end
 end
