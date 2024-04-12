@@ -7,6 +7,7 @@ eval_gemfile "../../support/bundler/Gemfile.database"
 gem "ruby_event_store", path: "../.."
 
 gem "sidekiq", "~> 6.5"
+gem "redis-client"
 gem "influxdb", "~> 0.8.1", require: false
 gem "childprocess"
 gem "rails", "~> 6.1.7"

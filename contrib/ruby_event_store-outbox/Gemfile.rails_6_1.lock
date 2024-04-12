@@ -170,7 +170,8 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0)
     rake (13.1.0)
-    redis (4.8.1)
+    redis-client (0.21.1)
+      connection_pool
     regexp_parser (2.6.2)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
@@ -185,10 +186,11 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
-    sidekiq (6.5.9)
-      connection_pool (>= 2.2.5, < 3)
-      rack (~> 2.0)
-      redis (>= 4.5.0, < 5)
+    sidekiq (7.2.2)
+      concurrent-ruby (< 2)
+      connection_pool (>= 2.3.0)
+      rack (>= 2.2.4)
+      redis-client (>= 0.19.0)
     sorbet-runtime (0.5.11042)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
@@ -233,7 +235,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-outbox!
-  sidekiq (~> 6.2)
+  sidekiq (~> 7.2)
   sqlite3 (~> 1.7)
 
 BUNDLED WITH

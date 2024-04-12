@@ -19,7 +19,7 @@ ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
   config.after(:each) { travel_back }
-  config.before(:each, redis: true) { |example| redis.flushdb }
+  config.before(:each, redis: true) { |_| redis.call("FLUSHDB") }
 end
 
 $verbose = ENV.has_key?("VERBOSE") ? true : false

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "logger"
-require "redis"
+require "redis-client"
 require "active_record"
 require_relative "repository"
 require_relative "sidekiq5_format"
@@ -24,7 +24,8 @@ module RubyEventStore
         @consumer_uuid = consumer_uuid
 
         raise "Unknown format" if configuration.message_format != SIDEKIQ5_FORMAT
-        @processor = SidekiqProcessor.new(Redis.new(url: configuration.redis_url))
+        redis_config = RedisClient.config(url: configuration.redis_url)
+        @processor = SidekiqProcessor.new(redis_config.new_client)
 
         @repository = Repository.new(configuration.database_url)
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)

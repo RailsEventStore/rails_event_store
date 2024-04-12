@@ -9,7 +9,7 @@ module RubyEventStore
 
       let(:redis_url) { RedisIsolation.redis_url }
       let(:database_url) { ENV["DATABASE_URL"] }
-      let(:redis) { Redis.new(url: redis_url) }
+      let(:redis) { RedisClient.config(url: redis_url).new_client }
       let(:logger_output) { StringIO.new }
       let(:logger) { Logger.new(logger_output) }
       let(:default_configuration) do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 if defined? RedisClient
-  raise "RedisClient version changed" unless RedisClient::VERSION == "0.14.1"
+  raise "RedisClient version changed" unless RedisClient::VERSION == "0.21.1"
 
   class RedisClient
     class Config

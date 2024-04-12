@@ -9,7 +9,7 @@ module RubyEventStore
       include SchemaHelper
       let(:redis_url) { RedisIsolation.redis_url }
       let(:database_url) { ENV["DATABASE_URL"] }
-      let(:redis) { Redis.new(url: redis_url) }
+      let(:redis) { RedisClient.config(url: redis_url).new_client }
       let(:test_logger) { Logger.new(StringIO.new) }
       let(:default_configuration) do
         Configuration.new(
@@ -28,7 +28,7 @@ module RubyEventStore
       before(:each) do |example|
         Sidekiq.configure_client { |config| config.redis = { url: redis_url } }
         reset_sidekiq_middlewares
-        redis.flushdb
+        redis.call("FLUSHDB")
       end
 
       specify do
@@ -48,12 +48,12 @@ module RubyEventStore
         SidekiqScheduler.new.call(CorrectAsyncHandler, event_record)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
         consumer.process
-        entry_from_outbox = JSON.parse(redis.lindex("queue:default", 0))
+        entry_from_outbox = JSON.parse(redis.call("LINDEX", "queue:default", 0))
 
         CorrectAsyncHandler.perform_async(event_record.serialize(Serializers::YAML).to_h.transform_keys(&:to_s))
-        entry_from_sidekiq = JSON.parse(redis.lindex("queue:default", 0))
+        entry_from_sidekiq = JSON.parse(redis.call("LINDEX", "queue:default", 0))
 
-        expect(redis.llen("queue:default")).to eq(2)
+        expect(redis.call("LLEN", "queue:default")).to eq(2)
         expect(entry_from_outbox.keys.sort).to eq(entry_from_sidekiq.keys.sort)
         expect(entry_from_outbox.except("created_at", "enqueued_at", "jid")).to eq(
           entry_from_sidekiq.except("created_at", "enqueued_at", "jid")
@@ -61,7 +61,7 @@ module RubyEventStore
         expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
       end
 
-      specify "Redis::TimeoutError is retriable" do
+      specify "RedisClient::TimeoutError is retriable" do
         stub_const("RubyEventStore::Outbox::Consumer::MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK", 1)
         event =
           TimeEnrichment.with(
@@ -79,16 +79,16 @@ module RubyEventStore
         SidekiqScheduler.new.call(CorrectAsyncHandler, event_record)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
         failed_once = false
-        allow_any_instance_of(Redis).to receive(:lpush).and_wrap_original do |m, *args|
+        allow_any_instance_of(RedisClient).to receive(:call).and_wrap_original do |m, *args|
           if failed_once
             m.call(*args)
           else
             failed_once = true
-            raise Redis::TimeoutError
+            raise RedisClient::TimeoutError
           end
         end
         consumer.process
-        entry_from_outbox = redis.lindex("queue:default", 0)
+        entry_from_outbox = redis.call("LINDEX", "queue:default", 0)
 
         expect(entry_from_outbox).to be_present
       end
@@ -111,16 +111,16 @@ module RubyEventStore
         SidekiqScheduler.new.call(CorrectAsyncHandler, event_record)
         consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: test_logger, metrics: metrics)
         failed_once = false
-        allow_any_instance_of(Redis).to receive(:lpush).and_wrap_original do |m, *args|
+        allow_any_instance_of(RedisClient).to receive(:call).and_wrap_original do |m, *args|
           if failed_once
             m.call(*args)
           else
             failed_once = true
-            raise Redis::ConnectionError
+            raise RedisClient::ConnectionError
           end
         end
         consumer.process
-        entry_from_outbox = redis.lindex("queue:default", 0)
+        entry_from_outbox = redis.call("LINDEX", "queue:default", 0)
 
         expect(entry_from_outbox).to be_present
       end

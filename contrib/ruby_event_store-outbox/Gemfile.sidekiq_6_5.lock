@@ -171,6 +171,8 @@ GEM
       thor (~> 1.0)
     rake (13.1.0)
     redis (4.8.1)
+    redis-client (0.21.1)
+      connection_pool
     regexp_parser (2.6.2)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
@@ -230,6 +232,7 @@ DEPENDENCIES
   pg (~> 1.5.4)
   rails (~> 6.1.7)
   rake (>= 10.0)
+  redis-client
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-outbox!
