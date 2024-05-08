@@ -1,5 +1,6 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
+usage: opensource
 requires:
   - ruby_event_store/newrelic
 includes:
