@@ -103,7 +103,7 @@ module RubyEventStore
       end
 
       specify "with Redis involved", redis: true do
-       scheduler.call(MyAsyncHandler, record)
+        scheduler.call(MyAsyncHandler, record)
         sidekiq_processor.send :process_one
         expect(MyAsyncHandler.received).to match(
           {
@@ -143,15 +143,14 @@ module RubyEventStore
     class MyAsyncHandler
       include Sidekiq::Worker
 
-      @@received = nil
       def self.reset
-        @@received = nil
+        Thread.current[:received] = nil
       end
       def self.received
-        @@received
+        Thread.current[:received]
       end
       def perform(event)
-        @@received = event
+        Thread.current[:received] = event
       end
     end
   end
