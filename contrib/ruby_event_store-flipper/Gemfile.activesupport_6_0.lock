@@ -15,7 +15,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (6.0.5)
+    activesupport (6.0.6.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
@@ -78,7 +78,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activesupport (= 6.0.5)
+  activesupport (~> 6.0.5)
   byebug
   flipper (~> 0.19)
   mutant (= 0.12.0)
