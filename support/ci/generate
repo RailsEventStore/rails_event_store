@@ -59,6 +59,12 @@ class CI
     GEMFILE_AS_6_0 = "Gemfile.activesupport_6_0"
   ]
 
+  AR_GEMFILES = [
+    GEMFILE_AR_7_0 = "Gemfile.activerecord_7_0",
+    GEMFILE_AR_6_1 = "Gemfile.activerecord_6_1",
+    GEMFILE_AR_6_0 = "Gemfile.activerecord_6_0"
+  ]
+
   SIDEKIQ_GEMFILES = [
     GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5",
     GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
@@ -109,7 +115,7 @@ class CI
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
-            bundle_gemfile(GEMFILE),
+            bundle_gemfile(GEMFILE, AR_GEMFILES),
             join(
               generate(
                 database_url(SQLITE3),
