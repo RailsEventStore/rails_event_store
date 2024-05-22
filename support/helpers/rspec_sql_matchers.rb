@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require "active_support/isolated_execution_state"
+require "active_support/version"
+require "active_support/isolated_execution_state" if ActiveSupport.version >= Gem::Version.new("7.0")
 require "active_support/notifications"
 
 ::RSpec::Matchers.define :match_query_count do |expected_count|
