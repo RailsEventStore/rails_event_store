@@ -54,6 +54,7 @@ class CI
   ].flatten
 
   AS_GEMFILES = [
+    GEMFILE_AS_7_0 = "Gemfile.activesupport_7_0",
     GEMFILE_AS_6_1 = "Gemfile.activesupport_6_1",
     GEMFILE_AS_6_0 = "Gemfile.activesupport_6_0"
   ]
