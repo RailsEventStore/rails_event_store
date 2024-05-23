@@ -60,5 +60,34 @@ module RubyEventStore
 
       expect(return_value).to eq({ "total" => 6000, "serialize" => 1000.0, "append_to_stream" => 1000.0 })
     end
+
+    specify "no leftover subscriptions" do
+      begin
+        $stdout = File.open("/dev/null", "w")
+        Profiler.new(instrumenter).measure {}
+      ensure
+        $stdout = STDOUT
+      end
+
+      [/rails_event_store/, /aggregate_root/, "total"].each do |pattern|
+        expect(instrumenter.notifier.listening?(pattern)).to eq(false)
+      end
+    end
+
+    specify "should unsubcribe only its own subscriptions" do
+      external_subscriber =
+        instrumenter.subscribe("total") { }
+
+      begin
+        $stdout = File.open("/dev/null", "w")
+        Profiler.new(instrumenter).measure {}
+      ensure
+        $stdout = STDOUT
+      end
+
+      expect(instrumenter.notifier.listening?("total")).to eq(true)
+    ensure
+      instrumenter.unsubscribe(external_subscriber)
+    end
   end
 end

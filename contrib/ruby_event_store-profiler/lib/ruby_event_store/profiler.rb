@@ -22,7 +22,7 @@ module RubyEventStore
 
       @instrumenter.instrument("total") { block.call }
 
-      subscribers.each { |name| @instrumenter.unsubscribe(name) }
+      subscribers.each { |s| @instrumenter.unsubscribe(s) }
 
       total = output.delete("total")
 
