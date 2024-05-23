@@ -374,6 +374,35 @@ module RubyEventStore
           expect(transformation.dump(record).metadata[:types]).to eq({ data: "OpenStruct", metadata: {} })
           expect(transformation.load(transformation.dump(record))).to eq(record)
         end
+
+        specify "handle classes with overloaded name like ActiveSupport::TimeWithZone < 7.1" do
+          ::RoyalTimeWithZone = Class.new(ActiveSupport::TimeWithZone) do
+            def self.name
+              "Time"
+            end
+          end
+
+          zone = Time.find_zone('Europe/Warsaw')
+          transformation = PreserveTypes.new.register(
+            ::RoyalTimeWithZone,
+            serializer: -> (v) { v.utc.iso8601(9) },
+            deserializer: -> (v) { ::RoyalTimeWithZone.new(Time.iso8601(v), zone) },
+            stored_type: -> (*) { "RoyalTimeWithZone" }
+          )
+
+          record =
+            Record.new(
+              event_id: uuid,
+              metadata: {},
+              data: ::RoyalTimeWithZone.new(Time.utc(2024, 5, 23), zone),
+              event_type: "TestEvent",
+              timestamp: nil,
+              valid_at: nil
+            )
+
+          expect(transformation.dump(record).metadata[:types]).to eq({ data: "RoyalTimeWithZone", metadata: {} })
+          expect(transformation.load(transformation.dump(record))).to eq(record)
+        end
       end
     end
   end
