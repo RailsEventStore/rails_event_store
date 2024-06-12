@@ -144,7 +144,7 @@ class CI
           join(
             generate(
               ruby_version(MRI_RUBY),
-              bundle_gemfile(GEMFILE, RAILS_GEMFILES, GEMFILE_SIDEKIQ_5_2),
+              bundle_gemfile(GEMFILE, RAILS_GEMFILES, GEMFILE_SIDEKIQ_6_5),
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
             )
           ),
