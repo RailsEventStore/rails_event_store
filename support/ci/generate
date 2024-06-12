@@ -64,10 +64,7 @@ class CI
     GEMFILE_AR_6_0 = "Gemfile.activerecord_6_0"
   ]
 
-  SIDEKIQ_GEMFILES = [
-    GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5",
-    GEMFILE_SIDEKIQ_5_2 = "Gemfile.sidekiq_5_2"
-  ]
+  SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5"]
 
   def workflows
     [
@@ -144,7 +141,7 @@ class CI
           join(
             generate(
               ruby_version(MRI_RUBY),
-              bundle_gemfile(GEMFILE, RAILS_GEMFILES, GEMFILE_SIDEKIQ_6_5),
+              bundle_gemfile(GEMFILE, RAILS_GEMFILES, SIDEKIQ_GEMFILES),
               database_url(SQLITE3, MYSQL_5, MYSQL_8)
             )
           ),
