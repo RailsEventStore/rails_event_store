@@ -1,4 +1,4 @@
-### Unreleased
+### 0.1.3
 
 - Remove: Drop support for Sidekiq 5.x [835f878f17ac63b39b1cdea429b718a07bb630a8]
 
