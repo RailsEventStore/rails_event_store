@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.0.8.3)
+    activesupport (7.0.8.4)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -83,7 +83,7 @@ GEM
     middleman-syntax (3.4.0)
       middleman-core (>= 3.2)
       rouge (~> 3.2)
-    minitest (5.21.2)
+    minitest (5.23.1)
     net-http (0.4.1)
       uri
     octokit (8.1.0)
