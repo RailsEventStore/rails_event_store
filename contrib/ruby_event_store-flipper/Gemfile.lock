@@ -55,7 +55,7 @@ GEM
       ast (~> 2.4.1)
       racc
     racc (1.8.0)
-    rake (13.0.6)
+    rake (13.2.1)
     regexp_parser (2.9.2)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)

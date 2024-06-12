@@ -85,7 +85,7 @@ GEM
       racc
     pg (1.5.6)
     racc (1.8.0)
-    rake (13.0.6)
+    rake (13.2.1)
     regexp_parser (2.9.2)
     rom (5.3.0)
       rom-changeset (~> 5.3, >= 5.3.0)
