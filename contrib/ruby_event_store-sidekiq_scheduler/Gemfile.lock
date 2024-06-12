@@ -242,7 +242,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-sidekiq_scheduler!
-  sidekiq (~> 7.0)
+  sidekiq (~> 7.2)
 
 BUNDLED WITH
    2.5.3
