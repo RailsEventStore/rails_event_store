@@ -214,7 +214,7 @@ GEM
     redis-client (0.22.2)
       connection_pool
     regexp_parser (2.9.2)
-    reline (0.5.8)
+    reline (0.5.9)
       io-console (~> 0.5)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
