@@ -25,5 +25,7 @@ matcher:
     - RubyEventStore::ActiveRecord::EventRepository#update_messages
     - RubyEventStore::ActiveRecord::EventRepository#upsert_hash
     - RubyEventStore::ActiveRecord::EventRepository#add_to_stream
+    - RubyEventStore::ActiveRecord::EventRepository#link_to_stream
+    - RubyEventStore::ActiveRecord::EventRepository#append_to_stream
     - RubyEventStore::ActiveRecord::WithAbstractBaseClass#build_event_klass
     - RubyEventStore::ActiveRecord::WithAbstractBaseClass#build_stream_klass

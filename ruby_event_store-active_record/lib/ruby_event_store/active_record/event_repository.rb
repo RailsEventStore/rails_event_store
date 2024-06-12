@@ -18,22 +18,13 @@ module RubyEventStore
       def append_to_stream(records, stream, expected_version)
         return if records.empty?
 
-        hashes = []
-        event_ids = []
-        records.each do |record|
-          hashes << insert_hash(record, record.serialize(serializer))
-          event_ids << record.event_id
-        end
-        add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
+        append_to_stream_(records, stream, expected_version)
       end
 
       def link_to_stream(event_ids, stream, expected_version)
         return if event_ids.empty?
 
-        (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each do |id|
-          raise EventNotFound.new(id)
-        end
-        add_to_stream(event_ids, stream, expected_version)
+        link_to_stream_(event_ids, stream, expected_version)
       end
 
       def delete_stream(stream)
@@ -166,6 +157,25 @@ module RubyEventStore
 
       def start_transaction(&block)
         @event_klass.transaction(requires_new: true, &block)
+      end
+
+      def link_to_stream_(event_ids, stream, expected_version)
+        (
+          event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)
+        ).each { |id| raise EventNotFound.new(id) }
+        add_to_stream(event_ids, stream, expected_version)
+      end
+
+      def append_to_stream_(records, stream, expected_version)
+        hashes = []
+        event_ids = []
+        records.each do |record|
+          hashes << insert_hash(record, record.serialize(serializer))
+          event_ids << record.event_id
+        end
+        add_to_stream(event_ids, stream, expected_version) do
+          @event_klass.insert_all!(hashes)
+        end
       end
     end
   end
