@@ -1,3 +1,7 @@
+### Unreleased
+
+- Remove: Drop support for Sidekiq 5.x [835f878f17ac63b39b1cdea429b718a07bb630a8]
+
 ### 0.1.2
 
 - Add: Support Sidekiq::Job::Setter as a valid handler for SidekiqScheduler [b82d61b6a046d79e0c58473cd3aa1ca9d10a10fe]
