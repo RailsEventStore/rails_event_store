@@ -39,7 +39,7 @@ GEM
     mini_mime (1.1.1)
     mini_portile2 (2.6.1)
     minitest (5.14.4)
-    mustermann (1.1.1)
+    mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
     mutant (0.10.34)
       diff-lcs (~> 1.3)
@@ -60,7 +60,7 @@ GEM
     public_suffix (4.0.6)
     racc (1.5.2)
     rack (2.2.3)
-    rack-protection (2.1.0)
+    rack-protection (2.2.4)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -84,10 +84,10 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
-    sinatra (2.1.0)
-      mustermann (~> 1.0)
+    sinatra (2.2.4)
+      mustermann (~> 2.0)
       rack (~> 2.2)
-      rack-protection (= 2.1.0)
+      rack-protection (= 2.2.4)
       tilt (~> 2.0)
     tilt (2.0.10)
     unparser (0.6.0)
@@ -114,6 +114,7 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-browser!
   selenium-webdriver (~> 3.141)
+  sinatra (~> 2.2, >= 2.2.2)
   webrick
 
 BUNDLED WITH
