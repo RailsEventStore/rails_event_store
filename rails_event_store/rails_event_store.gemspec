@@ -35,5 +35,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activesupport", ">= 6.0"
   spec.add_dependency "activemodel", ">= 6.0"
   spec.add_dependency "activejob", ">= 6.0"
-  spec.add_dependency "arkency-command_bus", ">= 0.4"
 end
