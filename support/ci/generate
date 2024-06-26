@@ -812,7 +812,6 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", name),
-        runs_on: "macos-14",
         **
       )
     end
@@ -822,7 +821,6 @@ class CI
       working_directory: "contrib/#{name}",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
-      runs_on: "macos-14",
       **
     )
       Workflow.new(
