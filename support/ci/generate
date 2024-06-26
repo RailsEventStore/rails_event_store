@@ -678,7 +678,8 @@ class CI
         matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
         steps: [checkout, verify_lockfile, setup_ruby, make("test")],
         services: [],
-        triggers: release_triggers(name)
+        triggers: release_triggers(name),
+        runs_on: "ubuntu-20.04"
       )
         @gem = gem
         @job_name = job_name
@@ -688,6 +689,7 @@ class CI
         @steps = steps
         @services = services
         @triggers = triggers
+        @runs_on = runs_on
       end
 
       def to_h
@@ -707,13 +709,14 @@ class CI
                   :matrix,
                   :steps,
                   :services,
-                  :triggers
+                  :triggers,
+                  :runs_on
 
       private
 
       def job
         {
-          "runs-on" => "ubuntu-20.04",
+          "runs-on" => runs_on,
           "timeout-minutes" => 120,
           "env" => { "WORKING_DIRECTORY" => working_directory }.merge(
             env(matrix)
