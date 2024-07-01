@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="87px" height="97px" viewBox="0 0 87 97" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
+    <title>Page 1@2x</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="0.740742447 39.1304348 33.2063835 39.1304348 33.2063835 0.359234405 0.740742447 0.359234405 0.740742447 39.1304348"></polygon>
+        <polygon id="path-3" points="0 0.00437547881 0 72.7205436 48.5581957 72.7205436 48.5581957 0.00437547881 6.83270477e-20 0.00437547881"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Logo" transform="translate(-7.000000, -2.000000)">
+            <g id="Page-1" transform="translate(7.000000, 2.000000)">
+                <g id="Group-20" transform="translate(53.000000, 57.000000)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Clip-19"></g>
+                    <polygon id="Fill-18" fill="#99CCFF" mask="url(#mask-2)" points="0.740742447 0.359234405 0.740742447 39.13069 33.2063835 19.8138658"></polygon>
+                </g>
+                <g id="Group-23" transform="translate(0.000000, 24.000000)">
+                    <mask id="mask-4" fill="white">
+                        <use xlink:href="#path-3"></use>
+                    </mask>
+                    <g id="Clip-22"></g>
+                    <polygon id="Fill-21" fill="#001E64" mask="url(#mask-4)" points="48.5581957 31.2212719 -0.000420137188 0.00437547881 -0.000420137188 41.7292846 48.5581957 72.7205436"></polygon>
+                </g>
+                <polygon id="Fill-24" fill="#00AEEF" points="87 31.168128 37.623486 0 2 20.8455071 51.1960325 52"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>
