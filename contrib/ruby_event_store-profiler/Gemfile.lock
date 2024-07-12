@@ -91,4 +91,4 @@ DEPENDENCIES
   ruby_event_store-profiler!
 
 BUNDLED WITH
-   2.5.3
+   2.5.15
