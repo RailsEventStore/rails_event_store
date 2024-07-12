@@ -6,12 +6,13 @@ module RubyEventStore
   module ActiveRecord
     class EventRepository
       POSITION_SHIFT = 1
+      UNSET = Object.new.freeze
 
-      def initialize(model_factory: WithDefaultModels.new, serializer:)
+      def initialize(model_factory: WithDefaultModels.new, serializer:, batch_reader: UNSET)
         @serializer = serializer
 
         @event_klass, @stream_klass = model_factory.call
-        @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
+        @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer, batch_reader)
         @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
       end
 

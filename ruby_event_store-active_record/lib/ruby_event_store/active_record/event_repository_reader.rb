@@ -3,10 +3,11 @@
 module RubyEventStore
   module ActiveRecord
     class EventRepositoryReader
-      def initialize(event_klass, stream_klass, serializer)
+      def initialize(event_klass, stream_klass, serializer, batch_reader)
         @event_klass = event_klass
         @stream_klass = stream_klass
         @serializer = serializer
+        @batch_reader = batch_reader
       end
 
       def has_event?(event_id)
@@ -21,7 +22,14 @@ module RubyEventStore
       def read(spec)
         stream = read_scope(spec)
         if spec.batched?
-          spec.time_sort_by ? offset_limit_batch_reader(spec, stream) : monotonic_id_batch_reader(spec, stream)
+          case [@batch_reader, spec.time_sort_by]
+          in [EventRepository::UNSET, ->(time_sort_by) { !time_sort_by.nil? }]
+            offset_limit_batch_reader(spec, stream)
+          in [EventRepository::UNSET, _]
+            monotonic_id_batch_reader(spec, stream)
+          else
+            @batch_reader[spec, stream]
+          end
         elsif spec.first?
           record_ = stream.first
           record(record_) if record_
@@ -106,7 +114,8 @@ module RubyEventStore
         else
           stream = @stream_klass.includes(:event).where(stream: spec.stream.name)
           stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
-          stream = stream.joins(:event).where(@event_klass.table_name => { event_type: spec.with_types }) if spec.with_types?
+          stream =
+            stream.joins(:event).where(@event_klass.table_name => { event_type: spec.with_types }) if spec.with_types?
           stream = stream.joins(:event).order(as_at(spec)) if spec.time_sort_by_as_at?
           stream = stream.joins(:event).order(as_of(spec)) if spec.time_sort_by_as_of?
           stream = stream.order(id: order(spec))
@@ -145,7 +154,7 @@ module RubyEventStore
         start_offset_condition(
           specification,
           @stream_klass.find_by!(event_id: specification.start, stream: specification.stream.name),
-          @stream_klass.table_name
+          @stream_klass.table_name,
         )
       rescue ::ActiveRecord::RecordNotFound
         raise EventNotFound.new(specification.start)
@@ -155,7 +164,7 @@ module RubyEventStore
         stop_offset_condition(
           specification,
           @stream_klass.find_by!(event_id: specification.stop, stream: specification.stream.name),
-          @stream_klass.table_name
+          @stream_klass.table_name,
         )
       rescue ::ActiveRecord::RecordNotFound
         raise EventNotFound.new(specification.stop)
@@ -165,7 +174,7 @@ module RubyEventStore
         start_offset_condition(
           specification,
           @event_klass.find_by!(event_id: specification.start),
-          @event_klass.table_name
+          @event_klass.table_name,
         )
       rescue ::ActiveRecord::RecordNotFound
         raise EventNotFound.new(specification.start)
@@ -175,7 +184,7 @@ module RubyEventStore
         stop_offset_condition(
           specification,
           @event_klass.find_by!(event_id: specification.stop),
-          @event_klass.table_name
+          @event_klass.table_name,
         )
       rescue ::ActiveRecord::RecordNotFound
         raise EventNotFound.new(specification.stop)
@@ -216,16 +225,14 @@ module RubyEventStore
       def record(record)
         record = record.event if @stream_klass === record
 
-        SerializedRecord
-          .new(
-            event_id: record.event_id,
-            metadata: record.metadata,
-            data: record.data,
-            event_type: record.event_type,
-            timestamp: record.created_at.iso8601(TIMESTAMP_PRECISION),
-            valid_at: (record.valid_at || record.created_at).iso8601(TIMESTAMP_PRECISION)
-          )
-          .deserialize(serializer)
+        SerializedRecord.new(
+          event_id: record.event_id,
+          metadata: record.metadata,
+          data: record.data,
+          event_type: record.event_type,
+          timestamp: record.created_at.iso8601(TIMESTAMP_PRECISION),
+          valid_at: (record.valid_at || record.created_at).iso8601(TIMESTAMP_PRECISION),
+        ).deserialize(serializer)
       end
     end
 
