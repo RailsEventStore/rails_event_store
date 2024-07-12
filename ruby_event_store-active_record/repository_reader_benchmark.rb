@@ -21,7 +21,7 @@ end
 
 Integer(ARGV.first || 1).times do
   RubyEventStore::Client.new(repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: YAML)).append(
-    (1..1_000).map { RubyEventStore::Event.new },
+    (1..1_000).map { |i| RubyEventStore::Event.new(metadata: { event_type: %w[a b c d][i % 4] }) },
   )
   print "."
 end
@@ -81,9 +81,19 @@ id_limit = ->(spec, stream) do
   RubyEventStore::ActiveRecord::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
 end
 
-mk_benchmark = ->(reader) { mk_client[reader].read.each_batch { print "." } }
+deffered = ->(spec, stream) do
+  batch_reader = ->(offset, limit) do
+    stream.joins(
+      "INNER JOIN (SELECT id FROM event_store_events WHERE event_type = 'a' LIMIT #{limit} OFFSET #{offset}) AS tmp USING(id)",
+    ).map(&record)
+  end
+  RubyEventStore::BatchEnumerator.new(spec.batch_size, spec.limit, batch_reader).each
+end
+
+mk_benchmark = ->(reader) { mk_client[reader].read.of_type("a").each {} }
 
 Benchmark.bm(14) do |x|
   x.report("offset/limit:") { mk_benchmark[offset_limit] }
   x.report("id/limit:") { mk_benchmark[id_limit] }
+  x.report("deffered:") { mk_benchmark[deffered] }
 end
