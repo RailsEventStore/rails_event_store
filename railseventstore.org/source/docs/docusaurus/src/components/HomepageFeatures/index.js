@@ -1,64 +1,68 @@
-import clsx from 'clsx';
-import Heading from '@theme/Heading';
-import styles from './styles.module.css';
+import clsx from "clsx";
+import Heading from "@theme/Heading";
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
-    description: (
-      <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
-      </>
-    ),
+    title: "Introduce Publish-Subscribe bus",
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
-    description: (
-      <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
-      </>
-    ),
+    title:
+      "Decouple core business logic from external concerns in Hexagonal style architectures",
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
-      </>
-    ),
+    title: "Replace ActiveRecord callbacks and Observers",
+  },
+  {
+    title: "Introduce communication layer between loosely coupled components",
+  },
+  {
+    title: "React to published events synchronously or asynchronously",
+  },
+  {
+    title:
+      "Extract side-effects from your controllers and services into event handlers",
+  },
+  {
+    title: "Build an Audit Log",
+  },
+  {
+    title: "Introduce Read Models",
+  },
+  {
+    title: "Implement Event Sourcing",
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({ Svg, title, description }) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
-      <div className="text--center padding-horiz--md">
-        <Heading as="h3">{title}</Heading>
-        <p>{description}</p>
-      </div>
-    </div>
+    <li
+      className="grid px-6 py-8 text-lg font-semibold text-center rounded rounded-lg bg-gray-50 min-h-36 place-content-center"
+    >
+      {title}
+    </li>
   );
 }
 
 export default function HomepageFeatures() {
   return (
-    <section className={styles.features}>
-      <div className="container">
-        <div className="row">
-          {FeatureList.map((props, idx) => (
-            <Feature key={idx} {...props} />
-          ))}
-        </div>
-      </div>
+    <section className="mb-16">
+      <header className="container my-12 text--center">
+        <h2 className="text-xl">
+          <strong>Rails Event Store</strong> is a library for publishing,
+          consuming, storing and retrieving events.
+        </h2>
+        <p className="text-lg">
+          It's your best companion for going with&nbsp;an&nbsp;Event-Driven
+          Architecture for your Rails application.
+        </p>
+      </header>
+      <ul
+        className="container grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+      >
+        {FeatureList.map((props, idx) => (
+          <Feature key={idx} {...props} />
+        ))}
+      </ul>
     </section>
   );
 }
