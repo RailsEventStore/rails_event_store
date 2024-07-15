@@ -11,7 +11,7 @@ function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx("hero hero--primary", styles.heroBanner)}>
-      <div className="container">
+      <div className="container text-white">
         <h1 className="text-3xl lg:text-4xl">{siteConfig.title}</h1>
         <p className="mb-10 text-xl lg:text-2xl">{siteConfig.tagline}</p>
         <div className="flex flex-wrap justify-center gap-4">
@@ -21,7 +21,7 @@ function HomepageHeader() {
           >
             Get Started
           </Link>
-          <Link className="button button--primary button--lg" to="/support">
+          <Link className="text-white button button--primary button--lg" to="/support">
             Get Support
           </Link>
         </div>
