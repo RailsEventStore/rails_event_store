@@ -36,7 +36,7 @@ const FeatureList = [
 function Feature({ Svg, title, description }) {
   return (
     <li
-      className="grid px-6 py-8 text-lg font-semibold text-center rounded rounded-lg bg-gray-50 min-h-36 place-content-center"
+      className="grid px-6 py-8 text-lg font-semibold text-center text-black rounded-lg bg-gray-50 min-h-36 place-content-center"
     >
       {title}
     </li>
@@ -46,7 +46,7 @@ function Feature({ Svg, title, description }) {
 export default function HomepageFeatures() {
   return (
     <section className="mb-16">
-      <header className="container my-12 text--center">
+      <header className="container my-12 text--center ">
         <h2 className="text-xl">
           <strong>Rails Event Store</strong> is a library for publishing,
           consuming, storing and retrieving events.
