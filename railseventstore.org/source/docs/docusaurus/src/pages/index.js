@@ -5,7 +5,6 @@ import Layout from "@theme/Layout";
 import HomepageFeatures from "@site/src/components/HomepageFeatures";
 import HomepageCompanies from "@site/src/components/HomepageCompanies";
 
-import Heading from "@theme/Heading";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
@@ -13,9 +12,7 @@ function HomepageHeader() {
   return (
     <header className={clsx("hero hero--primary", styles.heroBanner)}>
       <div className="container">
-        <h1 className="text-3xl lg:text-4xl">
-          {siteConfig.title}
-        </h1>
+        <h1 className="text-3xl lg:text-4xl">{siteConfig.title}</h1>
         <p className="mb-10 text-xl lg:text-2xl">{siteConfig.tagline}</p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link
@@ -42,7 +39,6 @@ export default function Home() {
     >
       <main>
         <HomepageHeader />
-
         <HomepageFeatures />
         <HomepageCompanies />
       </main>
