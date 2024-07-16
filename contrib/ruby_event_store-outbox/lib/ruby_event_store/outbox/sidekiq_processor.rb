@@ -20,7 +20,7 @@ module RubyEventStore
 
         queue = parsed_record["queue"]
         raise InvalidPayload.new("Missing queue") if queue.nil? || queue.empty?
-        payload = JSON.generate(parsed_record.merge({ "enqueued_at" => now.to_f }))
+        payload = JSON.generate(parsed_record.merge({ "enqueued_at" => record.created_at.to_f }))
 
         redis.call("LPUSH", "queue:#{queue}", payload)
 
