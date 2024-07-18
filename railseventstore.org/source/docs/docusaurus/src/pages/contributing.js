@@ -63,8 +63,8 @@ export default function Contributing() {
                 </a>
               </li>
             </ul>
-            <div class="highlight">
-              <pre class="syntax-highlight plaintext">
+            <div className="highlight">
+              <pre className="syntax-highlight plaintext">
                 <code>
                   {" "}
                   git clone git@github.com:RailsEventStore/rails_event_store.git
@@ -78,16 +78,16 @@ export default function Contributing() {
                 repository master branch with RailsEventStore master branch
               </li>
             </ul>
-            <div class="highlight">
-              <pre class="syntax-highlight plaintext">
+            <div className="highlight">
+              <pre className="syntax-highlight plaintext">
                 <code> cd rails_event_store make rebase</code>
               </pre>
             </div>
             <ul>
               <li>Create a pull request branch</li>
             </ul>
-            <div class="highlight">
-              <pre class="syntax-highlight plaintext">
+            <div className="highlight">
+              <pre className="syntax-highlight plaintext">
                 <code> git checkout -b new_branch</code>
               </pre>
             </div>
@@ -106,8 +106,8 @@ export default function Contributing() {
                 <p>Make sure your code pass all tests</p>
               </li>
             </ul>
-            <div class="highlight">
-              <pre class="syntax-highlight plaintext">
+            <div className="highlight">
+              <pre className="syntax-highlight plaintext">
                 <code> make test</code>
               </pre>
             </div>
@@ -119,8 +119,8 @@ export default function Contributing() {
             <ul>
               <li>Make sure your changes survive mutation testing</li>
             </ul>
-            <div class="highlight">
-              <pre class="syntax-highlight plaintext">
+            <div className="highlight">
+              <pre className="syntax-highlight plaintext">
                 <code> make mutate</code>
               </pre>
             </div>
@@ -131,8 +131,8 @@ export default function Contributing() {
               could try to limit the scope of mutations to some specific
               subjects:
             </p>
-            <div class="highlight">
-              <pre class="syntax-highlight plaintext">
+            <div className="highlight">
+              <pre className="syntax-highlight plaintext">
                 <code> make mutate SUBJECT=code_to_mutate</code>
               </pre>
             </div>
