@@ -1,6 +1,3 @@
-import clsx from "clsx";
-import Heading from "@theme/Heading";
-
 const CompaniesList = [
   {
     name: "billetto",
