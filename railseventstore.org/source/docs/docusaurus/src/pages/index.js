@@ -1,17 +1,15 @@
-import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import HomepageFeatures from "@site/src/components/HomepageFeatures";
 import HomepageCompanies from "@site/src/components/HomepageCompanies";
 
-import styles from "./index.module.css";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <header className={clsx("hero hero--primary", styles.heroBanner)}>
-      <div className="container text-white">
+    <header className="hero hero--primary">
+      <div className="container text-center text-white">
         <h1 className="text-3xl lg:text-4xl">{siteConfig.title}</h1>
         <p className="mb-10 text-xl lg:text-2xl">{siteConfig.tagline}</p>
         <div className="flex flex-wrap justify-center gap-4">

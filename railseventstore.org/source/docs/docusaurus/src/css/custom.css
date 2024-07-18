@@ -33,3 +33,8 @@
   --ifm-color-primary-lightest: #eab0ad;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+.navbar__toggle{
+  order:2;
+  margin-left: auto;
+}

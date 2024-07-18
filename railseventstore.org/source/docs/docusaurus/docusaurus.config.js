@@ -77,8 +77,13 @@ const config = {
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
-            position: 'left',
+            position: 'right',
             label: 'Tutorial',
+          },
+          {
+            href: '/community',
+            position: 'right',
+            label: 'Community',
           },
           {
             href: 'https://github.com/RailsEventStore/rails_event_store',
