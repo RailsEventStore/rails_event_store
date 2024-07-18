@@ -5,6 +5,8 @@ module.exports = {
   corePlugins: {
     preflight: false,
     container: false,
+    divideStyle: true,
+    borderStyle: true,
   },
   darkMode: ["class", '[data-theme="dark"]'],
   content: ["./src/**/*.{js,jsx,tsx,html}"],
@@ -19,7 +21,7 @@ module.exports = {
         sm: "4px",
       },
       colors: {
-        res: "#BB4539"
+        res: "#BB4539",
       },
     },
   },
