@@ -10,8 +10,30 @@ import appsList from "./data/apps.json";
 import articlesList from "./data/articles.json";
 import videosList from "./data/videos.json";
 
+
+import { useSpring, animated } from 'react-spring';
+
+
+const AnimatedNumber = ({ value }) => {
+    const { number } = useSpring({
+      from: { number: 0 },
+      number: value,
+      config: { duration: 2300 },
+    });
+  
+    return (
+      <animated.div>
+        {number.to(n => new Intl.NumberFormat("en-US").format(n.toFixed(0)))}
+      </animated.div>
+    );
+  };
+
+  
+
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
+
+  const [loading, setLoading] = useState(false);
 
   const [stats, setStats] = useState({
     stargazers: 0,
@@ -59,6 +81,7 @@ export default function Home() {
           releases,
           downloads,
         });
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -84,26 +107,26 @@ export default function Home() {
               <div>
                 <ul className="grid grid-cols-2 md:flex m-0 p-0  justify-center gap-4 list-none *:flex *:flex-col *:gap-2 uppercase text-xs">
                   <li className="p-4 bg-red-800 rounded-lg">
-                    <span className="text-xl md:text-3xl">
-                      {new Intl.NumberFormat("en-US").format(stats.stargazers)}
+                    <span className="text-xl md:text-3xl block  min-w-[5ch]">
+                     {loading ? "0" : <AnimatedNumber value={stats.stargazers} />}
                     </span>{" "}
                     Stargazers
                   </li>
                   <li className="p-4 bg-red-800 rounded-lg">
                     <span className="text-xl md:text-3xl">
-                      {stats.contributors}
+                      {loading ? "0" : <AnimatedNumber value={stats.contributors} />}
                     </span>
                     Contributors
                   </li>
                   <li className="p-4 bg-red-800 rounded-lg">
                     <span className="text-xl md:text-3xl">
-                      {stats.releases}
+                    {loading ? "0" : <AnimatedNumber value={stats.releases} />}
                     </span>
                     Releases
                   </li>
                   <li className="p-4 bg-red-800 rounded-lg">
-                    <span className="text-xl md:text-3xl">
-                      {new Intl.NumberFormat("en-US").format(stats.downloads)}
+                    <span className="text-xl md:text-3xl block min-w-[8ch]">
+                      {loading ? "0" :  <AnimatedNumber value={stats.downloads} />}
                     </span>
                     Downloads
                   </li>
@@ -174,7 +197,7 @@ export default function Home() {
           </p>
 
           <ul className="flex flex-wrap justify-start gap-2 p-0 m-0 mb-12 list-none">
-            {contributors.map((contributor, key) => (
+            {contributors.length && contributors.map((contributor, key) => (
               <li className="p-0 m-0 group" key={key}>
             <div className="relative rounded-lg  overflow-hidden block before:content-['']  group-hover:before:opacity-0 before:absolute before:inset-0 before:bg-res before:bg-opacity-70  before:mix-blend-hard-light before:z-10 before:block">
 
