@@ -73,7 +73,7 @@ export default function Home() {
       description="The open-source implementation of an Event Store for Ruby and Rails"
     >
       <main className="pb-24 space-y-20 md:space-y-32">
-        <header className="py-8 text-center hero hero--primary">
+        <header className="py-16 text-center hero hero--primary">
           <div className="container text-white">
             <h1 className="text-3xl lg:text-4xl">Community</h1>
             <p className="mb-10 text-xl lg:text-2xl">
