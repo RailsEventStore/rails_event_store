@@ -73,17 +73,28 @@ const config = {
           alt: 'Rails Event Store Logo',
           src: 'img/logo.svg',
         },
+
         items: [
           {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
+            type: 'doc',
             position: 'right',
-            label: 'Tutorial',
+            docId: 'start',
+            label: 'Docs',
           },
           {
             href: '/community',
             position: 'right',
             label: 'Community',
+          },
+          {
+            href: '/contributing',
+            position: 'right',
+            label: 'Contributing',
+          },
+          {
+            href: '/support',
+            position: 'right',
+            label: 'Support',
           },
           {
             href: 'https://github.com/RailsEventStore/rails_event_store',
@@ -94,48 +105,54 @@ const config = {
       },
       footer: {
         style: 'dark',
+
         links: [
           {
-            title: 'Docs',
+            title: 'Rails Event Store',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                label: 'Community',
+                to: '/community',
+              },
+              {
+                label: 'Support',
+                to: '/support',
+              },
+              {
+                label: 'Contributing',
+                to: '/contributing',
               },
             ],
           },
           {
-            title: 'Community',
+            title: 'Documentation',
+            items: [
+              {
+                label: 'Geting Started',
+                to: '/docs/start',
+              }
+            ],
+          },
+          {
+            title: 'Connect',
             items: [
               {
                 label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                href: 'https://stackoverflow.com/questions/tagged/rails-event-store',
               },
               {
                 label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
+                href: 'https://discord.gg/qjPr9ZBpX6',
               },
               {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
+                label: 'X',
+                href: 'https://x.com/RailsEventStore',
               },
             ],
           },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
-              },
-            ],
-          },
+         
         ],
-        copyright: `Supported by <a href="https://arkency.com" target="_blank">Arkency</a>`,
+        copyright: `<p class="mt-8">Supported by <a href="https://arkency.com" target="_blank">Arkency</a></p>`,
       },
       prism: {
         theme: prismThemes.github,

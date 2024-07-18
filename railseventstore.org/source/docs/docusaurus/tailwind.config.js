@@ -25,5 +25,6 @@ module.exports = {
       },
     },
   },
+  safelist: ["mt-8"],
   plugins: [],
 };
