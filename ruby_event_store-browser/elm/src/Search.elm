@@ -3,7 +3,7 @@ module Search exposing (..)
 import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, href, placeholder, value)
-import Html.Events exposing (onInput, onSubmit, onClick)
+import Html.Events exposing (onInput, onSubmit)
 import List
 import Task
 
@@ -99,7 +99,6 @@ viewStreamListItem stream =
         [ a
             [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono"
             , href ("/streams/" ++ stream)
-            , onClick (GoToStream stream)
             ]
             [ text stream ]
         ]
