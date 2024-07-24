@@ -15,7 +15,7 @@ function HomepageHeader() {
         <div className="flex flex-wrap justify-center gap-4">
           <Link
             className="button button--secondary button--lg"
-            to="/docs/start"
+            to="/docs/getting-started/introduction"
           >
             Get Started
           </Link>

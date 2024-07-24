@@ -44,3 +44,9 @@
   background-color: #141414;
 }
 
+
+.menu__link--sublist-caret {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
