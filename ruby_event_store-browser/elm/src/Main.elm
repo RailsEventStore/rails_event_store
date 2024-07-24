@@ -55,7 +55,6 @@ type Page
     = NotFound
     | ShowEvent Page.ShowEvent.Model
     | ShowStream Page.ShowStream.Model
-    | Debug
 
 
 subscriptions : Model -> Sub Msg
@@ -213,9 +212,6 @@ navigate model location =
                         Nothing ->
                             ( { model | page = NotFound }, Cmd.none )
 
-                Just (Route.Debug) ->
-                    ( { model | page = Debug }, Cmd.none )
-
                 Nothing ->
                     ( { model | page = NotFound }, Cmd.none )
 
@@ -267,9 +263,6 @@ viewPage page selectedTime =
                     Page.ShowEvent.view pageModel selectedTime
             in
             ( Just title, Html.map GotShowEventMsg content )
-
-        Debug ->
-            ( Just "Debug", text "to be filled with some helpful content" )
 
         NotFound ->
             ( Nothing, Layout.viewNotFound )
