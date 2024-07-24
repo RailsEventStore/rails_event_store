@@ -25,14 +25,12 @@ type Msg
     | ToggleBookmarksMenu
     | ToggleDialog
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
-    | OnSelect Search.Stream
-    | OnQueryChanged Search.Stream
     | RequestSearch
     | ToggleBookmark String
 
 
 type alias Model =
-    { search : Search.Model Msg
+    { search : Search.Model 
     , displayBookmarksMenu : Bool
     , bookmarks : List Bookmark
     }
@@ -62,7 +60,7 @@ subscriptions =
 buildModel : Model
 buildModel =
     { search =
-        Search.init OnSelect OnQueryChanged
+        Search.init
     , displayBookmarksMenu = False
     , bookmarks =
         [ { itemType = "Stream", label = "Bookmark 1", link = "/" }
@@ -85,22 +83,24 @@ update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
         SearchMsg searchMsg ->
-            let
-                ( newSearch, cmd ) =
-                    Search.update searchMsg model.internal.search
-            in
-            ( { model | internal = Model newSearch model.internal.displayBookmarksMenu model.internal.bookmarks }, cmd )
+            case searchMsg of
+                OnSelect streamName ->
+                    ( model
+                    , Cmd.batch
+                        [ toggleDialog searchModalId
+                        , goToStream model streamName
+                        ]
+                    )
 
-        OnSelect streamName ->
-            ( model
-            , Cmd.batch
-                [ toggleDialog searchModalId
-                , goToStream model streamName
-                ]
-            )
+                OnQueryChanged streamName ->
+                    ( model, searchStreams model.flags streamName )
 
-        OnQueryChanged streamName ->
-            ( model, searchStreams model.flags streamName )
+                _ ->
+                    let
+                        ( newSearch, cmd ) =
+                            Search.update searchMsg model.internal.search
+                    in
+                    ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
         TimeZoneSelected zoneName ->
             let

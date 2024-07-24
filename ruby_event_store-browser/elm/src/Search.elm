@@ -4,7 +4,9 @@ import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
-import List
+import Http
+import List exposing (any)
+import Page.ShowStream exposing (Msg(..))
 import Task
 
 
@@ -12,46 +14,42 @@ type alias Stream =
     String
 
 
-type alias Model a =
+type alias Model =
     { streams : List Stream
     , value : Stream
-    , onSelectMsg : Stream -> a
-    , onQueryMsg : Stream -> a
     }
 
 
 type Msg
     = StreamChanged Stream
     | GoToStream Stream
+    | OnSelect Stream
+    | OnQueryChanged Stream
 
 
-globalStreamName : Stream
 globalStreamName =
     "all"
 
 
-emptyStreamName : Stream
 emptyStreamName =
     ""
 
 
-init : (Stream -> a) -> (Stream -> a) -> Model a
-init onSelectMsg onQueryMsg =
+init : Model
+init =
     { streams = [ globalStreamName ]
     , value = emptyStreamName
-    , onSelectMsg = onSelectMsg
-    , onQueryMsg = onQueryMsg
     }
 
 
-onSelectCmd : (Stream -> a) -> Stream -> Cmd a
-onSelectCmd onSelectMsg stream =
-    Task.perform onSelectMsg (Task.succeed stream)
+hackWithInternalOnSelectMsg : Stream -> Cmd Msg
+hackWithInternalOnSelectMsg stream =
+    Task.perform OnSelect (Task.succeed stream)
 
 
-onQueryChangedCmd : (Stream -> a) -> Stream -> Cmd a
-onQueryChangedCmd onQueryMsg stream =
-    Task.perform onQueryMsg (Task.succeed stream)
+hackWithInternalOnQueryChangedMsg : Stream -> Cmd Msg
+hackWithInternalOnQueryChangedMsg stream =
+    Task.perform OnQueryChanged (Task.succeed stream)
 
 
 isExactStream : String -> List String -> Bool
@@ -59,27 +57,33 @@ isExactStream stream streams =
     List.any (\s -> s == stream) streams
 
 
-update : Msg -> Model a -> ( Model a, Cmd a )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
                 ( { model | value = emptyStreamName }
-                , onSelectCmd model.onSelectMsg stream
+                , hackWithInternalOnSelectMsg stream
                 )
 
             else
                 ( { model | value = stream }
-                , onQueryChangedCmd model.onQueryMsg stream
+                , hackWithInternalOnQueryChangedMsg stream
                 )
 
         GoToStream stream ->
             ( { model | value = emptyStreamName }
-            , onSelectCmd model.onSelectMsg stream
+            , hackWithInternalOnSelectMsg stream
             )
 
+        OnSelect _ ->
+            ( model, Cmd.none )
 
-view : Model msg -> Html Msg
+        OnQueryChanged _ ->
+            ( model, Cmd.none )
+
+
+view : Model -> Html Msg
 view model =
     form [ onSubmit (GoToStream model.value) ]
         [ div [ class "relative" ]
