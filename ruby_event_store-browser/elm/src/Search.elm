@@ -58,10 +58,6 @@ isExactStream : String -> List String -> Bool
 isExactStream stream streams =
     List.any ((==) stream) streams
 
-hasAtLeastThreeChars : Stream -> Bool
-hasAtLeastThreeChars stream =
-    String.length stream >= 3
-
 
 update : Msg -> Model a -> ( Model a, Cmd a )
 update msg model =
@@ -73,13 +69,9 @@ update msg model =
                 )
 
             else
-              if hasAtLeastThreeChars stream then
                 ( { model | value = stream }
                 , onQueryChangedCmd model.onQueryMsg stream
                 )
-              else
-                ( { model | value = stream }, Cmd.none )
-
 
         GoToStream stream ->
             ( { model | value = emptyStreamName }
