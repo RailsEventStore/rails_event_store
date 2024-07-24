@@ -105,14 +105,6 @@ getStream msgBuilder flags streamId =
         }
 
 
-getSearchStreams : (Result Http.Error (List SearchStream) -> msg) -> Cmd msg
-getSearchStreams msgBuilder =
-    Http.get
-        { url = "//localhost:9393/api/search_streams/dum"
-        , expect = Http.expectJson msgBuilder searchStreamsDecoder
-        }
-
-
 eventDecoder : Decoder Event
 eventDecoder =
     eventDecoder_
