@@ -61,15 +61,6 @@ module RubyEventStore
       repository.respond_to?(method_name)
     end
 
-    def specification
-      "Instrumented " +
-        if repository.respond_to?(:specification)
-          repository.specification
-        else
-          repository.class.to_s
-        end
-    end
-
     private
 
     attr_reader :repository, :instrumentation
