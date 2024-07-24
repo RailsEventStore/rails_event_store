@@ -77,8 +77,17 @@ update msg model =
     case msg of
         SearchMsg searchMsg ->
             let
-                ( newSearch, cmd ) =
-                    Search.update searchMsg model.internal.search (goToStream model)
+                internal =
+                    model.internal
+
+                search =
+                    internal.search
+
+                ( newSearchWrapped, cmd ) =
+                    Search.update searchMsg (WrappedModel search model.key model.time model.flags) (goToStream model)
+
+                newSearch =
+                    newSearchWrapped.internal
             in
             ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
