@@ -56,7 +56,7 @@ onQueryChangedCmd onQueryMsg stream =
 
 isExactStream : String -> List String -> Bool
 isExactStream stream streams =
-    List.any ((==) stream) streams
+    List.any (\s -> s == stream) streams
 
 
 update : Msg -> Model a -> ( Model a, Cmd a )
