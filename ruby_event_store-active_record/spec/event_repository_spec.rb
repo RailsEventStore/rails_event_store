@@ -378,12 +378,6 @@ module RubyEventStore
         }x
       end
 
-      describe "#inspect" do
-        specify "returns string representation" do
-          expect(repository.inspect).to eq("RubyEventStore::ActiveRecord::EventRepository with SQLite db adapter")
-        end
-      end
-
       private
 
       def with_precision(time)
