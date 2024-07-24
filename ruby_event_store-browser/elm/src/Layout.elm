@@ -80,17 +80,7 @@ update msg model =
                 ( newSearch, cmd ) =
                     Search.update searchMsg model.internal.search model.flags (goToStream model)
             in
-            case searchMsg of
-                GoToStream _ ->
-                    ( { model | internal = Model newSearch }
-                    , Cmd.batch
-                        [ Cmd.map SearchMsg cmd
-                        , toggleDialog searchModalId
-                        ]
-                    )
-
-                _ ->
-                    ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
+            ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
         TimeZoneSelected zoneName ->
             let
@@ -324,7 +314,7 @@ searchModal model =
         [ button [ onClick ToggleDialog, class "inset-0 fixed z-0" ]
             [ text ""
             ]
-        , div [ class "isolate" ]
+        , div [ class "isolate "]
             [ realSearchInput model
             ]
         ]
