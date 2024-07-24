@@ -76,8 +76,8 @@ goToStream { key, flags } stream =
     Browser.Navigation.pushUrl key (Route.streamUrl flags.rootUrl stream)
 
 
-searchStreams : WrappedModel Model -> String -> Cmd Msg
-searchStreams { flags } stream =
+searchStreams : Flags -> String -> Cmd Msg
+searchStreams flags stream =
     getSearchStreams SearchedStreamsFetched flags stream
 
 
@@ -100,7 +100,7 @@ update msg model =
             )
 
         OnQueryChanged streamName ->
-            ( model, searchStreams model streamName )
+            ( model, searchStreams model.flags streamName )
 
         TimeZoneSelected zoneName ->
             let
