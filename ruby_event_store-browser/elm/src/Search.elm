@@ -27,7 +27,6 @@ type Msg
     | GoToStream Stream
     | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Stream
-    | OnQueryChanged Stream
 
 
 init : Model
@@ -40,11 +39,6 @@ init =
 hackWithInternalOnSelectMsg : Stream -> Cmd Msg
 hackWithInternalOnSelectMsg stream =
     Task.perform OnSelect (Task.succeed stream)
-
-
-hackWithInternalOnQueryChangedMsg : Stream -> Cmd Msg
-hackWithInternalOnQueryChangedMsg stream =
-    Task.perform OnQueryChanged (Task.succeed stream)
 
 
 searchStreams : Flags -> Stream -> Cmd Msg
@@ -70,12 +64,7 @@ update msg model flags onSubmit =
                 )
 
             else
-                ( { model | value = stream }
-                , Cmd.batch
-                    [ searchStreams flags stream
-                    , hackWithInternalOnQueryChangedMsg stream
-                    ]
-                )
+                ( { model | value = stream }, searchStreams flags stream )
 
         GoToStream stream ->
             ( { model | value = "" }
@@ -92,9 +81,6 @@ update msg model flags onSubmit =
             ( { model | streams = [] }, Cmd.none )
 
         OnSelect _ ->
-            ( model, Cmd.none )
-
-        OnQueryChanged _ ->
             ( model, Cmd.none )
 
 
