@@ -1185,24 +1185,6 @@ module RubyEventStore
     end
 
     specify do
-      event_1 = SRecord.new(event_id: "8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea")
-      event_2 = SRecord.new(event_id: "8cee1139-4f96-483a-a175-2b947283c3c7")
-      event_3 = SRecord.new(event_id: "d345f86d-b903-4d78-803f-38990c078d9e")
-      stream_a = Stream.new("Stream A")
-      stream_b = Stream.new("Stream B")
-      stream_c = Stream.new("Stream C")
-      repository.append_to_stream([event_1], stream_a, version_any)
-      repository.append_to_stream([event_2], stream_b, version_any)
-      repository.append_to_stream([event_3], stream_c, version_any)
-
-      expect(repository.search_streams("str")).to eq [stream_c, stream_b, stream_a]
-      expect(repository.search_streams("Str")).to eq [stream_c, stream_b, stream_a]
-      expect(repository.search_streams("Stream A")).to eq [stream_a]
-      expect(repository.search_streams("Stream B")).to eq [stream_b]
-      expect(repository.search_streams("Stream C")).to eq [stream_c]
-    end
-
-    specify do
       e1 = SRecord.new(event_id: "8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea")
       e2 = SRecord.new(event_id: "8cee1139-4f96-483a-a175-2b947283c3c7")
       e3 = SRecord.new(event_id: "d345f86d-b903-4d78-803f-38990c078d9e")
