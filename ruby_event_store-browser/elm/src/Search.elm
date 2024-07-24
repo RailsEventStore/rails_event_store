@@ -1,6 +1,8 @@
 module Search exposing (..)
 
+import Api exposing (SearchStream, getSearchStreams)
 import FeatherIcons
+import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
@@ -23,22 +25,15 @@ type alias Model =
 type Msg
     = StreamChanged Stream
     | GoToStream Stream
+    | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Stream
     | OnQueryChanged Stream
 
 
-globalStreamName =
-    "all"
-
-
-emptyStreamName =
-    ""
-
-
 init : Model
 init =
-    { streams = [ globalStreamName ]
-    , value = emptyStreamName
+    { streams = [ "all" ]
+    , value = ""
     }
 
 
@@ -52,29 +47,49 @@ hackWithInternalOnQueryChangedMsg stream =
     Task.perform OnQueryChanged (Task.succeed stream)
 
 
+searchStreams : Flags -> Stream -> Cmd Msg
+searchStreams flags stream =
+    getSearchStreams SearchedStreamsFetched flags stream
+
+
 isExactStream : String -> List String -> Bool
 isExactStream stream streams =
     List.any (\s -> s == stream) streams
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> Flags -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
+update msg model flags onSubmit =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
-                ( { model | value = emptyStreamName }
-                , hackWithInternalOnSelectMsg stream
+                ( { model | value = "" }
+                , Cmd.batch
+                    [ onSubmit stream
+                    , hackWithInternalOnSelectMsg stream
+                    ]
                 )
 
             else
                 ( { model | value = stream }
-                , hackWithInternalOnQueryChangedMsg stream
+                , Cmd.batch
+                    [ searchStreams flags stream
+                    , hackWithInternalOnQueryChangedMsg stream
+                    ]
                 )
 
         GoToStream stream ->
-            ( { model | value = emptyStreamName }
-            , hackWithInternalOnSelectMsg stream
+            ( { model | value = "" }
+            , Cmd.batch
+                [ onSubmit stream
+                , hackWithInternalOnSelectMsg stream
+                ]
             )
+
+        SearchedStreamsFetched (Ok streams) ->
+            ( { model | streams = "all" :: List.map .streamId streams }, Cmd.none )
+
+        SearchedStreamsFetched (Err _) ->
+            ( { model | streams = [] }, Cmd.none )
 
         OnSelect _ ->
             ( model, Cmd.none )

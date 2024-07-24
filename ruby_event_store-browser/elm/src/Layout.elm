@@ -1,6 +1,6 @@
 port module Layout exposing (Model, Msg, buildModel, subscriptions, update, view, viewIncorrectConfig, viewNotFound)
 
-import Api exposing (SearchStream, getSearchStreams)
+import Browser.Events
 import Browser.Navigation
 import BrowserTime
 import Dict
@@ -9,6 +9,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, href, id, selected, title, value)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Json.Decode
 import LinkedTimezones exposing (mapLinkedTimeZone)
 import List.Extra
 import Route
@@ -24,10 +25,8 @@ type Msg
     | SearchMsg Search.Msg
     | ToggleBookmarksMenu
     | ToggleDialog
-    | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | RequestSearch
     | ToggleBookmark String
-
 
 type alias Model =
     { search : Search.Model 
@@ -70,36 +69,26 @@ buildModel =
 
 
 goToStream : WrappedModel Model -> String -> Cmd msg
-goToStream { key, flags } stream =
-    Browser.Navigation.pushUrl key (Route.streamUrl flags.rootUrl stream)
-
-
-searchStreams : Flags -> String -> Cmd Msg
-searchStreams flags stream =
-    getSearchStreams SearchedStreamsFetched flags stream
+goToStream model stream =
+    Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl stream)
 
 
 update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
         SearchMsg searchMsg ->
+            let
+                ( newSearch, cmd ) =
+                    Search.update searchMsg model.internal.search model.flags (goToStream model)
+            in
             case searchMsg of
-                OnSelect streamName ->
-                    ( model
-                    , Cmd.batch
-                        [ toggleDialog searchModalId
-                        , goToStream model streamName
-                        ]
-                    )
+                OnSelect _ ->
+                    ( { model | internal = Model newSearch }, toggleDialog searchModalId )
 
-                OnQueryChanged streamName ->
-                    ( model, searchStreams model.flags streamName )
+                OnQueryChanged _ ->
+                    ( model, Cmd.none )
 
                 _ ->
-                    let
-                        ( newSearch, cmd ) =
-                            Search.update searchMsg model.internal.search
-                    in
                     ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 
         TimeZoneSelected zoneName ->
@@ -147,29 +136,6 @@ update msg model =
 
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
-
-        SearchedStreamsFetched (Ok streams) ->
-            let
-                streams_ =
-                    "all" :: List.map .streamId streams
-
-                searchModel =
-                    model.internal.search
-
-                newModel =
-                    { searchModel | streams = streams_ }
-            in
-            ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
-
-        SearchedStreamsFetched (Err _) ->
-            let
-                searchModel =
-                    model.internal.search
-
-                newModel =
-                    { searchModel | streams = [] }
-            in
-            ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
 
         ToggleBookmark id ->
             ( model, toggleBookmark id )
