@@ -68,20 +68,9 @@ buildModel =
     }
 
 
-goToStream model stream =
-    Browser.Navigation.pushUrl model.key (Route.streamUrl model.flags.rootUrl stream)
-
-
 update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
 update msg model =
     case msg of
-        SearchMsg searchMsg ->
-            let
-                ( newSearch, cmd ) =
-                    Search.update searchMsg model.internal.search (goToStream model)
-            in
-            ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
-
         TimeZoneSelected zoneName ->
             let
                 defaultTimeZone =
@@ -130,6 +119,9 @@ update msg model =
 
         ToggleBookmark id ->
             ( model, toggleBookmark id )
+
+        SearchMsg _ -> 
+            ( model, Cmd.none )
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
