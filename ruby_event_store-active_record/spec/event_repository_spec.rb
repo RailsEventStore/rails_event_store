@@ -200,12 +200,12 @@ module RubyEventStore
           ExpectedVersion.any
         )
 
-        expect(repository.search_streams("Du")).to eq([s3, s2, s1])
-        expect(repository.search_streams("du")).to eq([s3, s2, s1])
-        expect(repository.search_streams("dum")).to eq([s3, s2, s1])
-        expect(repository.search_streams("dumm")).to eq([s3, s2, s1])
-        expect(repository.search_streams("dummy")).to eq([s3, s2, s1])
-        expect(repository.search_streams("Dummy")).to eq([s3, s2, s1])
+        expect(repository.search_streams("Du")).to eq([s1, s2, s3])
+        expect(repository.search_streams("du")).to eq([s1, s2, s3])
+        expect(repository.search_streams("dum")).to eq([s1, s2, s3])
+        expect(repository.search_streams("dumm")).to eq([s1, s2, s3])
+        expect(repository.search_streams("dummy")).to eq([s1, s2, s3])
+        expect(repository.search_streams("Dummy")).to eq([s1, s2, s3])
       end
 
       specify "finds no streams when search phrase doesn't match anything" do
