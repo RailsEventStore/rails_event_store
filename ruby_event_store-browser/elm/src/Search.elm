@@ -87,11 +87,7 @@ viewList model =
             (List.map
                 (\stream ->
                     li []
-                        [ a
-                            [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono"
-                            , href ("/streams/" ++ stream)
-                            ]
-                            [ text stream ]
+                        [ a [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono", href ("/streams/" ++ stream) ] [ text stream ]
                         ]
                 )
                 model.streams
