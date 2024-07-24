@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), SearchStream, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getSearchStreams, getStream, searchStreamsDecoder)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream, searchStreamsDecoder)
 
 import Flags exposing (Flags)
 import Http
