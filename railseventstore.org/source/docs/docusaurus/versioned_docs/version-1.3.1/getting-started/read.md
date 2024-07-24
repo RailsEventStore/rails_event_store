@@ -23,11 +23,6 @@ The available specification methods are:
    RailsEventStore never reads all domain events at once. Even if you don't specify
    a batch size, the read operation will be performed in batches of 100.
 * `of_type(types)` - read only specified types of domain events, ignoring all others.
-* `older_than(time)` - read events that occurred before given time
-* `older_than_or_equal(time)` - read events that occurred on or before given time
-* `newer_than(time)` - read events that occurred later than given time
-* `newer_than_or_equal(time)` - read events that occurred on or later than given time
-* `between(time_range)`- read events that occurred within given time range
 
 The read scope could be defined by chaining the specification methods, e.g.:
 
@@ -191,91 +186,3 @@ client.read.events(['event-1-id', 'event-2-id', ... 'event-N-id'])
 
 The `read.events` method will return only existing events. If none of given ids
 can be found, it will return an empty collection.
-
-## Reading events by time
-
-RailsEventStore lets you read events that occured in certain periods of time.
-You need to specify the date or dates that are interesting to you.
-
-### Reading events newer than specific date
-
-```ruby
-client.read.newer_than(3.days.ago).to_a
-```
-
-```ruby
-client.read.newer_than('2020-10-01').to_a
-```
-
-```ruby
-client.read.newer_than(Time.now).to_a
-```
-
-### Reading events newer than or equal to specific date
-
-```ruby
-client.read.newer_than_or_equal(3.days.ago).to_a
-```
-
-```ruby
-client.read.newer_than_or_equal('2020-10-01').to_a
-```
-
-```ruby
-client.read.newer_than_or_equal(Time.now).to_a
-```
-
-### Reading events older than specific date
-
-```ruby
-client.read.older_than(3.days.ago).to_a
-```
-
-```ruby
-client.read.older_than('2020-10-01').to_a
-```
-
-```ruby
-client.read.older_than(Time.now).to_a
-```
-
-### Reading events older than or equal to specific date
-
-```ruby
-client.read.older_than_or_equal(3.days.ago).to_a
-```
-
-```ruby
-client.read.older_than_or_equal('2020-10-01').to_a
-```
-
-```ruby
-client.read.older_than_or_equal(Time.now).to_a
-```
-
-### Reading events within time range
-```ruby
-client.read.between(10.days.ago..3.days.ago).to_a # includes start and end date
-client.read.between(10.days.ago...3.days.ago).to_a # includes start date, excludes end date
-```
-
-```ruby
-client.read.between(Time.utc(2021,10,01)..Time.utc(2021,12,10)).to_a # includes start date and end date
-client.read.between(Time.utc(2021,10,01)...Time.utc(2021,12,10)).to_a # includes start date, excludes end date
-```
-
-## Position of an event in the stream
-
-Sometimes you might be interested in the position of an event in the stream. There are two query methods available:
-
-* `position_in_stream(event_id, stream)` - returns the position of given event in stream 
-* `global_position(event_id)` - returns the global position of given event
-* `event_in_stream?(event_id, stream)` - returns true if the event exists in the stream, false otherwise
-
-### Usage
-
-```ruby
-client.position_in_stream("stream_name", "event_id") # Raises RubyEventStore::EventNotFoundInStream if event is not found in the specified stream
-client.global_position("event_id") # Raises RubyEventStore::EventNotFound if event doesn't exist
-client.event_in_stream?("event_id", "stream_name")
-```

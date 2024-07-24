@@ -82,7 +82,7 @@
   ```ruby
   class SendOrderEmail < ActiveJob::Base
     def perform(payload)
-      event = event_store.deserialize(**payload.symbolize_keys, serializer: ...)
+      event = event_store.deserialize(**payload, serializer: ...)
 
       email = event.data.fetch(:customer_email)
       OrderMailer.notify_customer(email).deliver_now!

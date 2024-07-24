@@ -20,11 +20,11 @@ Implementing this solution for existing events with PII can be a challenge to re
 
 Remove or overwrite personal information in event data. In this scenaro the events stay in the event store although their content is changed.
 
-The challenging part is tracking which events need to be anonymized on PII removal request. Finding the ones related to a particular person can be time consuming and difficult. In order to avoid that, events can be [linked](/docs/v2/link) into an additional per-person stream upfront when published. When the removal request is received, one has to iterate only on events related to this particular person identified in a single stream.
+The challenging part is tracking which events need to be anonymized on PII removal request. Finding the ones related to a particular person can be time consuming and difficult. In order to avoid that, events can be [linked](../getting-started/link) into an additional per-person stream upfront when published. When the removal request is received, one has to iterate only on events related to this particular person identified in a single stream.
 
 This solution does not affect domain modeling.
 
-Beware — [changing](https://railseventstore.org/docs/v2/migrating_messages/) event data has further implications. Events can no longer be assumed immutable and all the benefits of immutability [disappear](https://leanpub.com/esversioning/read#leanpub-auto-immutability). All consumers of such mutable events are affected and have to somehow be notified of any change.
+Beware — [changing](./migrating_messages) event data has further implications. Events can no longer be assumed immutable and all the benefits of immutability [disappear](https://leanpub.com/esversioning/read#leanpub-auto-immutability). All consumers of such mutable events are affected and have to somehow be notified of any change.
 
 ### Cryptographic erasure
 
@@ -117,12 +117,12 @@ end
 
 ## Collecting request metadata
 
-The unique request ID and IP address from which the request originated are [collected and stored](/docs/v2/request_metadata) in event metadata by default.
+The unique request ID and IP address from which the request originated are [collected and stored](./request_metadata) in event metadata by default.
 
 In order to fully disable them, pass an empty lambda:
 
 ```ruby
-RailsEventStore::Client.new(request_metadata: ->(env) { {} })
+RailsEventStore::Client.new(request_metadata: ->(env) {  })
 ```
 
 ## CQRS

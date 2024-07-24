@@ -105,7 +105,7 @@ end
 
 ## Correlating together events with commands, and commands with events from sync handlers
 
-If you use event store and [command bus](/docs/v2/command_bus/) you can correlate together both kinds of messages: events & commands.
+If you use event store and [command bus](./command_bus) you can correlate together both kinds of messages: events & commands.
 
 ```ruby
 config.to_prepare do

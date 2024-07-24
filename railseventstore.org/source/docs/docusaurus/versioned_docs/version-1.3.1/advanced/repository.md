@@ -32,9 +32,9 @@ Those repositories were written by community members and are not guaranteed to b
 
 ## Writing your own repository
 
-If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L3) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L26) in your repository spec. Make sure to meditate on which [expected_version option](/docs/v2/expected_version//) you are going to support and how.
+If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L3) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L26) in your repository spec. Make sure to meditate on which [expected_version option](./expected_version/) you are going to support and how.
 
-## Using RubyEventStore::InMemoryRepository for faster tests
+# Using RubyEventStore::InMemoryRepository for faster tests
 
 RubyEventStore comes with `RubyEventStore::InMemoryRepository` that you can use in tests instead of the default one. `InMemoryRepository` does not persist events but offers the same characteristics as `RailsEventStoreActiveRecord::EventRepository`. It is tested with the same test suite and raises identical exceptions.
 
@@ -65,13 +65,13 @@ end
 
 We don't recommend using `InMemoryRepository` in production even if you don't need to persist events because the repository keeps all published events in memory. This is acceptable in testing because you can throw the instance away for every test and garbage collector reclaims the memory. In production, your memory would keep growing until you restart the application server.
 
-## Using Ruby Object Mapper (ROM) for SQL without ActiveRecord or Rails
+# Using Ruby Object Mapper (ROM) for SQL without ActiveRecord or Rails
 
 RubyEventStore comes with `RubyEventStore::ROM::EventRepository` that you can use with a SQL database without requiring ActiveRecord or when not using Rails altogether. It is tested with the same test suite as the ActiveRecord implementation and raises identical exceptions.
 
-See [Using Ruby Event Store without Rails](https://railseventstore.org/docs/v2/without_rails//) for information on how to use ROM (and Sequel).
+See [Using Ruby Event Store without Rails](./without_rails/) for information on how to use ROM (and Sequel).
 
-## Using PgLinearizedEventRepository for linearized writes
+# Using PgLinearizedEventRepository for linearized writes
 
 `rails_event_store_active_record` comes with additional version of repository named `RailsEventStoreActiveRecord::PgLinearizedEventRepository`.
 It is almost the same as regular active record repository, but has linearized writes to the database and is only restricted to work in `PostgreSQL` database (as the name suggests).
