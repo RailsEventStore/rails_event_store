@@ -18,7 +18,8 @@ window.addEventListener("keydown", function (event) {
   }
 
   if (event.key === "Escape") {
-    app.ports.closeSearch.send(null);
+    const dialog = document.querySelector(`#${id}`);
+    dialog.open ? dialog.close() : null;
     event.preventDefault();
   }
 });
