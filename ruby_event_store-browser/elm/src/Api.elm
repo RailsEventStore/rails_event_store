@@ -89,11 +89,6 @@ streamUrl flags streamId =
     buildUrl (Url.toString flags.apiUrl ++ "/streams") streamId
 
 
-searchStreamsUrl : Flags -> String -> String
-searchStreamsUrl flags query =
-    buildUrl (Url.toString flags.apiUrl ++ "/search_streams") query
-
-
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
     Http.get
