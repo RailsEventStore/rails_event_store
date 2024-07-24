@@ -58,7 +58,7 @@ module RubyEventStore
       end
 
       def search_streams(stream)
-        @stream_klass.where("lower(stream) LIKE ?", "#{stream.downcase}%").order("position DESC, id DESC").pluck(:stream).map { |name| Stream.new(name) }
+        @stream_klass.where("stream LIKE ?", "#{stream}%").order("position DESC, id DESC").pluck(:stream).map { |name| Stream.new(name) }
       end
 
       private
