@@ -14,7 +14,7 @@ type alias Stream =
 
 type alias Model a =
     { streams : List Stream
-    , searchedStream : Stream
+    , value : Stream
     , onSelectMsg : Stream -> a
     , onQueryMsg : Stream -> a
     }
@@ -28,7 +28,7 @@ type Msg
 init : (Stream -> a) -> (Stream -> a) -> Model a
 init onSelectMsg onQueryMsg =
     { streams = emptyStreams
-    , searchedStream = emptyStreamName
+    , value = emptyStreamName
     , onSelectMsg = onSelectMsg
     , onQueryMsg = onQueryMsg
     }
@@ -39,15 +39,15 @@ update msg model =
     case msg of
         StreamChanged stream ->
             if hasAtLeastThreeChars stream then
-                ( { model | searchedStream = stream }
+                ( { model | value = stream }
                 , onQueryChangedCmd model.onQueryMsg stream
                 )
 
             else
-                ( { model | searchedStream = stream }, Cmd.none )
+                ( { model | value = stream }, Cmd.none )
 
         GoToStream stream ->
-            ( { model | searchedStream = emptyStreamName }
+            ( { model | value = emptyStreamName }
             , onSelectCmd model.onSelectMsg stream
             )
 
@@ -56,16 +56,16 @@ view : Model a -> Html Msg
 view model =
     let
         streams_ =
-            filterStreams model.searchedStream model.streams
+            filterStreams model.value model.streams
     in
-    form [ onSubmit (GoToStream model.searchedStream) ]
+    form [ onSubmit (GoToStream model.value) ]
         [ div [ class "relative" ]
             [ FeatherIcons.search
                 |> FeatherIcons.withClass "size-4 text-gray-400 absolute pointer-events-none top-3.5 left-2"
                 |> FeatherIcons.toHtml []
             , input
                 [ class "rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                , value model.searchedStream
+                , value model.value
                 , onInput StreamChanged
                 , placeholder "Quick search…"
                 , autofocus True
