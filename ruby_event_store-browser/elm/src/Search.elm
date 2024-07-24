@@ -4,7 +4,6 @@ import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
-import WrappedModel exposing (WrappedModel)
 
 
 type alias Stream =
@@ -29,21 +28,11 @@ init =
     }
 
 
-update : Msg -> WrappedModel Model -> (String -> Cmd Msg) -> ( WrappedModel Model, Cmd Msg )
+update : Msg -> Model -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
 update msg model onSubmit =
     case msg of
         StreamChanged stream ->
-            let
-                internal =
-                    model.internal
-
-                updatedInternal =
-                    { internal | value = stream }
-
-                wrappedModel =
-                    { model | internal = updatedInternal }
-            in
-            ( wrappedModel, Cmd.none )
+            ( { model | value = stream }, Cmd.none )
 
         GoToStream stream ->
             ( model, onSubmit stream )
