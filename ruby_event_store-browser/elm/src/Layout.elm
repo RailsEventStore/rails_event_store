@@ -259,7 +259,7 @@ browserFooter { flags, time } =
 timeZoneSelect time =
     let
         mkOption timeZone =
-            option [ value timeZone.zoneName, selected <| timeZone == time.selected ] [ text timeZone.zoneName ]
+            option [ value timeZone.zoneName, selected ((==) time.selected) ] [ text timeZone.zoneName ]
     in
     Html.select
         [ onInput TimeZoneSelected ]
