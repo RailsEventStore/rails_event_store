@@ -78,7 +78,7 @@ update msg model =
         SearchMsg searchMsg ->
             let
                 ( newSearch, cmd ) =
-                    Search.update searchMsg model.internal.search model.flags (goToStream model)
+                    Search.update searchMsg model.internal.search (goToStream model)
             in
             ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
 

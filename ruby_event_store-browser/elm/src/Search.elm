@@ -1,13 +1,9 @@
 module Search exposing (..)
 
-import Api exposing (SearchStream, getSearchStreams)
 import FeatherIcons
-import Flags exposing (Flags)
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, list, placeholder, value)
 import Html.Events exposing (onInput, onSubmit)
-import Http
-import Page.ShowStream exposing (Msg(..))
 
 
 type alias Stream =
@@ -23,7 +19,6 @@ type alias Model =
 type Msg
     = StreamChanged Stream
     | GoToStream Stream
-    | SearchedStreamsFetched (Result Http.Error (List SearchStream))
 
 
 init : Model
@@ -33,25 +28,14 @@ init =
     }
 
 
-searchStreams : Flags -> Stream -> Cmd Msg
-searchStreams flags stream =
-    getSearchStreams SearchedStreamsFetched flags stream
-
-
-update : Msg -> Model -> Flags -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
-update msg model flags onSubmit =
+update : Msg -> Model -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
+update msg model onSubmit =
     case msg of
         StreamChanged stream ->
-            ( { model | value = stream }, searchStreams flags stream )
+            ( { model | value = stream }, Cmd.none )
 
         GoToStream stream ->
             ( model, onSubmit stream )
-
-        SearchedStreamsFetched (Ok streams) ->
-            ( { model | streams = List.map .streamId streams }, Cmd.none )
-
-        SearchedStreamsFetched (Err _) ->
-            ( { model | streams = [] }, Cmd.none )
 
 
 view : Model -> Html Msg
@@ -76,8 +60,5 @@ view model =
             ]
         , datalist
             [ id "streams", class "appearance-none" ]
-            (List.map
-                (\stream -> option [] [ text stream ])
-                model.streams
-            )
+            []
         ]
