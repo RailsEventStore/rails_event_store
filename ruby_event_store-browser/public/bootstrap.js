@@ -16,12 +16,6 @@ window.addEventListener("keydown", function (event) {
     app.ports.requestSearch.send(null);
     event.preventDefault();
   }
-
-  if (event.key === "Escape") {
-    const dialog = document.querySelector(`#${id}`);
-    dialog.open ? dialog.close() : null;
-    event.preventDefault();
-  }
 });
 
 app.ports.toggleBookmark.subscribe(function (id) {
