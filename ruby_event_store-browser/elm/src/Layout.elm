@@ -82,8 +82,13 @@ update msg model =
                     Search.update searchMsg model.internal.search model.flags (goToStream model)
             in
             case searchMsg of
-                OnSelect _ ->
-                    ( { model | internal = Model newSearch }, toggleDialog searchModalId )
+                GoToStream _ ->
+                    ( { model | internal = Model newSearch }
+                    , Cmd.batch
+                        [ Cmd.map SearchMsg cmd
+                        , toggleDialog searchModalId
+                        ]
+                    )
 
                 _ ->
                     ( { model | internal = Model newSearch }, Cmd.map SearchMsg cmd )
