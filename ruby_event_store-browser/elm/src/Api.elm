@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream, searchStreamsDecoder)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -35,11 +35,6 @@ type alias Event =
     , parentEventId : Maybe String
     , streams : Maybe (List String)
     , validAt : Time.Posix
-    }
-
-
-type alias SearchStream =
-    { streamId : String
     }
 
 
@@ -157,18 +152,6 @@ eventsDecoder pagination =
     succeed (PaginatedList pagination)
         |> required "data" (list eventDecoder_)
         |> required "links" linksDecoder
-
-
-searchStreamDecoder : Decoder SearchStream
-searchStreamDecoder =
-    succeed SearchStream
-        |> required "id" string
-
-
-searchStreamsDecoder : Decoder (List SearchStream)
-searchStreamsDecoder =
-    list searchStreamDecoder
-        |> field "data"
 
 
 linksDecoder : Decoder PaginationLinks
