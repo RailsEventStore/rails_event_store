@@ -25,6 +25,11 @@ type Msg
     | GoToStream Stream
 
 
+globalStreamName : Stream
+globalStreamName =
+    "all"
+
+
 emptyStreamName : Stream
 emptyStreamName =
     ""
@@ -32,7 +37,7 @@ emptyStreamName =
 
 init : (Stream -> a) -> (Stream -> a) -> Model a
 init onSelectMsg onQueryMsg =
-    { streams = []
+    { streams = [ globalStreamName ]
     , value = emptyStreamName
     , onSelectMsg = onSelectMsg
     , onQueryMsg = onQueryMsg
