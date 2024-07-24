@@ -11,10 +11,6 @@ app.ports.toggleDialog.subscribe(function (id) {
   dialog.open ? dialog.close() : dialog.showModal();
 });
 
-app.ports.closeSearch.subscribe(function (id) {
-  document.querySelector(`#${id}`).close();
-});
-
 window.addEventListener("keydown", function (event) {
   if (event.key === "k" && (event.ctrlKey || event.metaKey)) {
     app.ports.requestSearch.send(null);
