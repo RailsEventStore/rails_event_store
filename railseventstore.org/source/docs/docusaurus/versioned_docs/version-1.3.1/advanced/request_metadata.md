@@ -6,7 +6,7 @@ In Rails environment, every event is enhanced with the request metadata provided
 
 ## Setup
 
-In order to enhance your events with metadata, you need to setup your client as described in [Installation](/docs/install).
+In order to enhance your events with metadata, you need to setup your client as described in [Installation](../getting-started/install).
 
 ## Defaults
 
@@ -90,16 +90,18 @@ my_event.metadata[:request_id] #=> unique ID
 When using `with_metadata`, the `timestamp` is still added to the metadata unless you explicitly specify it on your own. Additionally, if you are nesting `with_metadata` blocks or also using the middleware & `request_metadata` lambda, your metadata passed as `with_metadata` argument will be merged with the result of `rails_event_store.request_metadata` proc:
 
 ```ruby
-event_store.with_metadata(causation_id: 1_234_567_890) do
-  event_store.with_metadata(correlation_id: 987_654_321) { event_store.publish(MyEvent.new(data: { foo: "bar" })) }
+event_store.with_metadata(causation_id: 1234567890) do
+  event_store.with_metadata(correlation_id: 987654321) do
+    event_store.publish(MyEvent.new(data: {foo: 'bar'}))
+  end
 end
 
 my_event = event_store.read.last
-my_event.metadata[:remote_ip] #=> your IP from request metadata proc
-my_event.metadata[:request_id] #=> unique ID from request metadata proc
-my_event.metadata[:causation_id] #=> 1234567890 from with_metadata argument
+my_event.metadata[:remote_ip]      #=> your IP from request metadata proc
+my_event.metadata[:request_id      #=> unique ID from request metadata proc
+my_event.metadata[:causation_id]   #=> 1234567890 from with_metadata argument
 my_event.metadata[:correlation_id] #=> 987654321 from with_metadata argument
-my_event.metadata[:timestamp] #=> a timestamp
+my_event.metadata[:timestamp]      #=> a timestamp
 ```
 
 ### Recording current user in request–response cycle

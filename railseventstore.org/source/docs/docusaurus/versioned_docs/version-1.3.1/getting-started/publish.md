@@ -53,7 +53,7 @@ Allowed values are:
 - `Integer` such as `-1, 0, 1, 2, 3...`
 - `:auto`
 
-For more information about when should you use which one, read [expected_version explained](/docs/v2/expected_version//)
+For more information about when should you use which one, read [expected_version explained](../advanced/expected_version/)
 
 ## No stream
 

@@ -12,14 +12,11 @@ Add RES and protobuf to your app's `Gemfile`
 gem "google-protobuf"
 gem "protobuf_nested_struct"
 gem "rails_event_store"
-gem "ruby_event_store-protobuf"
 ```
 
 ## Configure protobuf mapper
 
 ```ruby
-require "ruby_event_store/protobuf"
-
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(mapper: RubyEventStore::Mappers::Protobuf.new)
@@ -78,20 +75,20 @@ event = client.read.stream("test").last
 
 ## Subscribing
 
-### Sync handlers
+#### Sync handlers
 
 ```ruby
 event_store.subscribe(->(ev) {  }, to: [MyApp::OrderPlaced.descriptor.name])
 ```
 
-### Async handlers
+#### Async handlers
 
 ```ruby
 class SendOrderEmailHandler < ActiveJob::Base
   self.queue_adapter = :inline
 
   def perform(payload)
-    event = event_store.deserialize(payload.symbolize_keys)
+    event = event_store.deserialize(payload)
     # do something
   end
 

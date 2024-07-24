@@ -1,5 +1,5 @@
 ---
-title: Subscribing to events
+title: Event handlers - Subscribing to events
 ---
 
 To subscribe a handler to events in Rails Event Store you need to use `#subscribe` method on `RailsEventStore::Client`
@@ -17,6 +17,27 @@ module YourAppName
   end
 end
 ```
+
+#### Removing subscriptions
+
+When you define a new subscription by `subscribe` method execution it will return a lambda that allows to remove defined subscription.
+
+```ruby
+Rails.configuration.event_store = event_store = RailsEventStore::Client.new
+unsubscribe = event_store.subscribe(OrderNotifier.new, to: [OrderCancelled])
+# ...and then when subscription is no longer needed
+unsubscribe.call
+```
+
+Unsubscribe lambda will remove all subscriptions defined by `subscribe` method, when you defined subscription as:
+
+```ruby
+unsubscribe = event_store.subscribe(InvoiceReadModel.new, to: [InvoiceCreated, InvoiceUpdated])
+```
+
+and then execute returned lambda both subscriptions will be removed.
+
+It you need temporary subscription to be defined [read more here](/docs/v1/subscribe/#temporary-subscriptions).
 
 ## Synchronous handlers
 
@@ -101,7 +122,7 @@ class SyncHandler
 end
 ```
 
-### Fresh handler state
+<h3 id="fresh-handler-state">Fresh handler state</h3>
 
 If you subscribe an instance of a class (`SyncHandler.new`), the same object is going to be called with new events.
 
@@ -172,7 +193,7 @@ end
 
 ## Subscribe for all event types
 
-You can also subscribe for all event types at once. It is especially useful for logging or debugging events. Use `subscribe_to_all_events(subsriber1, &subscriber2)` method for that.
+You can also subscribe for all event types at once. It is especially useful for logging or debugging events. Use `subscribe_to_all_events(subsriber1, to:, &subscriber2)` method for that.
 
 ```ruby
 class EventsLogger
@@ -261,15 +282,55 @@ event_store
 
 You start the temporary subscription by providing a block `within` which the subscriptions will be active. Then you can chain `subscribe` and `subscribe_to_all_events` as many times as you want to register temporary subscribers. When you are ready call `call` to evaluate the provided block with the temporary subscriptions.
 
-## Async handlers
+<h2 id="async-handlers">Async handlers</h2>
 
-It's possible to also subscribe asynchronous handlers to events. To enqueue asynchronous handlers as background jobs scheduler class is needed. RailsEventStore provides [implementation of a scheduler](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store/lib/rails_event_store/active_job_scheduler.rb) for `ActiveJob` library.
+It's possible to also subscribe asynchronous handlers to events. To implement asynchronous dispatcher for a background jobs library of your choice firstly you need to implement scheduler class that will enqueue asynchrounous handlers as background jobs.
+
+The sample `CustomScheduler` could be implemented as:
+
+```ruby
+class CustomScheduler
+  # method doing actual schedule
+  def call(klass, serialized_record)
+    klass.perform_async(serialized_record.to_h)
+  end
+
+  # method which is checking whether given subscriber is correct for this scheduler
+  def verify(subscriber)
+    Class === subscriber && subscriber.respond_to?(:perform_async)
+  end
+end
+```
+
+You can also use our [`scheduler_lint`](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/scheduler_lint.rb) for more confidence that your scheduler is written correctly.
+
+Then you have to initialize `RailsEventStore::Client` using asynchronous dispatcher with your custom scheduler:
+
+```ruby
+event_store =
+  RailsEventStore::Client.new(dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomScheduler.new))
+```
+
+Often you will want to be able to specify both asynchronous and synchronous dispatchers. In that case, you can use `ComposedDispatcher`, which accepts arbitrary number of dispatchers and dispatch the event to the first subscriber which is accepted (by `verify` method) by the dispatcher. This is also our default configuration in `RailsEventStore`.
+
+```ruby
+event_store =
+  RailsEventStore::Client.new(
+    dispatcher:
+      RubyEventStore::ComposedDispatcher.new(
+        RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
+        RubyEventStore::Dispatcher.new, # regular synchronous dispatcher
+      ),
+  )
+```
+
+RailsEventStore provides [implementation of a scheduler](https://github.com/RailsEventStore/rails_event_store/blob/master/rails_event_store/lib/rails_event_store/active_job_scheduler.rb) for `ActiveJob` library.
 In that case async handlers are just background jobs implemented as:
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
   def perform(payload)
-    event = event_store.deserialize(payload.symbolize_keys)
+    event = event_store.deserialize(payload)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end
@@ -301,53 +362,26 @@ event_store = RailsEventStore::Client.new
 event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 ```
 
-If you'd like to rely solely on Sidekiq, you can use the [`ruby_event_store-sidekiq_scheduler` gem](https://rubygems.org/search?query=ruby_event_store-sidekiq_scheduler) instead.
+### When are async handlers scheduled?
 
-### Custom Scheduler
-
-Alternatively you could implement your own, custom scheduler. It has to respond to the `call` and `verify` methods.
-The sample `CustomScheduler` could be implemented as:
+The default behaviour and examples above use `RubyEventStore::ImmediateAsyncDispatcher`, which schedule handlers immediately after events are stored in the database.
 
 ```ruby
-class CustomScheduler
-  # method doing actual schedule
-  def call(klass, serialized_record)
-    klass.perform_async(serialized_record.to_h)
-  end
-
-  # method which is checking whether given subscriber is correct for this scheduler
-  def verify(subscriber)
-    Class === subscriber && subscriber.respond_to?(:perform_async)
-  end
+ActiveRecord::Base.transaction do
+  order = Order.new(...).save!
+  event_store.publish(
+    OrderPlaced.new(data:{order_id: order.id}),
+    stream_name: "Order-#{order.id}"
+  )
+  # Async handlers such as SendOrderEmail scheduled here
 end
 ```
 
-You can also use our [`scheduler_lint`](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/scheduler_lint.rb) for more confidence that your scheduler is written correctly.
+It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
 
-Then you have to initialize `RailsEventStore::Client` using asynchronous dispatcher with your custom scheduler:
+### Scheduling async handlers after commit
 
-```ruby
-event_store =
-  RailsEventStore::Client.new(
-    dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new),
-  )
-```
-
-Often you will want to be able to specify both asynchronous and synchronous dispatchers. In that case, you can use `ComposedDispatcher`, which accepts arbitrary number of dispatchers and dispatch the event to the first subscriber which is accepted (by `verify` method) by the dispatcher. This is also our default configuration in `RailsEventStore`.
-
-```ruby
-event_store =
-  RailsEventStore::Client.new(
-    dispatcher:
-      RubyEventStore::ComposedDispatcher.new(
-        RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
-        RubyEventStore::Dispatcher.new, # regular synchronous dispatcher
-      ),
-  )
-```
-### When are async handlers scheduled?
-
-The default behaviour and examples above use `RubyEventStore::AfterCommitAsyncDispatcher`, which schedule handlers after the transaction is committed.
+You can configure your dispatcher slightly different, to schedule async handlers after commit. Note the usage of `RailsEventStore::AfterCommitAsyncDispatcher` instead of `RubyEventStore::ImmediateAsyncDispatcher`.
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
@@ -359,7 +393,13 @@ class SendOrderEmail < ActiveJob::Base
   end
 end
 
-event_store = RailsEventStore::Client.new
+event_store = RailsEventStore::Client.new(
+  dispatcher: RubyEventStore::ComposedDispatcher.new(
+    RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
+    RubyEventStore::Dispatcher.new
+  )
+)
+
 event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
 
 # ...
@@ -373,57 +413,3 @@ ActiveRecord::Base.transaction do
 end
 # Async handlers such as SendOrderEmail scheduled here, after transaction is committed
 ```
-
-### Scheduling async handlers immediately
-
-You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateAsyncDispatcher` instead of `RailsEventStore::AfterCommitAsyncDispatcher`.
-
-```ruby
-class SendOrderEmail < ActiveJob::Base
-  def perform(event)
-    email = event.data.fetch(:customer_email)
-    OrderMailer.notify_customer(email).deliver_now!
-  end
-end
-
-event_store = RailsEventStore::Client.new(
-  dispatcher: RubyEventStore::ComposedDispatcher.new(
-    RailsEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
-    RubyEventStore::Dispatcher.new
-  )
-)
-
-event_store.subscribe(SendOrderEmail, to: [OrderPlaced])
-
-ActiveRecord::Base.transaction do
-  order = Order.new(...).save!
-  event_store.publish(
-    OrderPlaced.new(data:{order_id: order.id}),
-    stream_name: "Order-#{order.id}"
-  )
-  # Async handlers such as SendOrderEmail scheduled here
-end
-```
-
-It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
-
-## Removing subscriptions
-
-When you define a new subscription by `subscribe` method execution it will return a lambda that allows to remove defined subscription.
-
-```ruby
-Rails.configuration.event_store = event_store = RailsEventStore::Client.new
-unsubscribe = event_store.subscribe(OrderNotifier.new, to: [OrderCancelled])
-# ...and then when subscription is no longer needed
-unsubscribe.call
-```
-
-Unsubscribe lambda will remove all subscriptions defined by `subscribe` method, when you defined subscription as:
-
-```ruby
-unsubscribe = event_store.subscribe(InvoiceReadModel.new, to: [InvoiceCreated, InvoiceUpdated])
-```
-
-and then execute returned lambda both subscriptions will be removed.
-
-It you need temporary subscription to be defined [read more here](/docs/v2/subscribe/#temporary-subscriptions).
