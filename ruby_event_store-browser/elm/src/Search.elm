@@ -12,7 +12,7 @@ type alias Stream =
 
 type alias Model =
     { streams : List Stream
-    , value : Stream
+    , value : Maybe Stream
     }
 
 
@@ -24,15 +24,25 @@ type Msg
 init : Model
 init =
     { streams = []
-    , value = ""
+    , value = Nothing
     }
+
+
+extractStream : Maybe Stream -> Stream
+extractStream maybeStream =
+    case maybeStream of
+        Just stream ->
+            stream
+
+        Nothing ->
+            ""
 
 
 update : Msg -> Model -> (String -> Cmd Msg) -> ( Model, Cmd Msg )
 update msg model onSubmit =
     case msg of
         StreamChanged stream ->
-            ( { model | value = stream }, Cmd.none )
+            ( { model | value = Just stream }, Cmd.none )
 
         GoToStream stream ->
             ( model, onSubmit stream )
@@ -40,14 +50,14 @@ update msg model onSubmit =
 
 view : Model -> Html Msg
 view model =
-    form [ onSubmit (GoToStream model.value) ]
+    form [ onSubmit (GoToStream (extractStream model.value)) ]
         [ div [ class "relative" ]
             [ FeatherIcons.search
                 |> FeatherIcons.withClass "size-4 text-gray-400 absolute pointer-events-none top-3.5 left-2"
                 |> FeatherIcons.toHtml []
             , input
                 [ class "rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                , value model.value
+                , value (extractStream model.value)
                 , onInput StreamChanged
                 , placeholder "Quick search…"
                 , list "streams"
