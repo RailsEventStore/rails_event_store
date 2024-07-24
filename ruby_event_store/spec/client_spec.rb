@@ -852,11 +852,11 @@ module RubyEventStore
       client.append(event_2, stream_name: stream_2.name)
       client.append(event_3, stream_name: stream_3.name)
 
-      expect(client.search_streams("str")).to match_array [stream_3, stream_2, stream_1]
-      expect(client.search_streams("stream-1")).to match_array [stream_1]
-      expect(client.search_streams("stream-2")).to match_array [stream_2]
-      expect(client.search_streams("stream-3")).to match_array [stream_3]
-      expect(client.search_streams("stream-4")).to match_array []
+      expect(client.search_streams("str")).to eq [stream_3, stream_2, stream_1]
+      expect(client.search_streams("stream-1")).to eq [stream_1]
+      expect(client.search_streams("stream-2")).to eq [stream_2]
+      expect(client.search_streams("stream-3")).to eq [stream_3]
+      expect(client.search_streams("stream-4")).to eq []
     end
 
     describe "#subscribers_for" do
