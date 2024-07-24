@@ -172,14 +172,6 @@ module RubyEventStore
         @db[:event_store_events_in_streams].where(event_id: event_id).map { |h| Stream.new(h[:stream]) }
       end
 
-      def search_streams(stream_name)
-        @db[:event_store_events_in_streams]
-          .where(::Sequel.like(:stream, "#{stream_name}%"))
-          .select(:stream)
-          .limit(10)
-          .map { |h| Stream.new(h[:stream]) }
-      end
-
       private
 
       def optimize_timestamp(valid_at, created_at)
