@@ -27,7 +27,7 @@ type Msg
 
 init : (Stream -> a) -> (Stream -> a) -> Model a
 init onSelectMsg onQueryMsg =
-    { streams = emptyStreams
+    { streams = []
     , value = emptyStreamName
     , onSelectMsg = onSelectMsg
     , onQueryMsg = onQueryMsg
@@ -109,11 +109,6 @@ emptyStreamName =
     ""
 
 
-emptyStreams : List Stream
-emptyStreams =
-    []
-
-
 onSelectCmd : (Stream -> a) -> Stream -> Cmd a
 onSelectCmd onSelectMsg stream =
     Task.perform onSelectMsg (Task.succeed stream)
@@ -137,7 +132,7 @@ streamsPresent streams =
 filterStreams : Stream -> List Stream -> List Stream
 filterStreams stream streams =
     if String.isEmpty stream then
-        emptyStreams
+        []
 
     else
         List.filterMap (caseInsensitiveContains stream) streams
