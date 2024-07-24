@@ -25,6 +25,11 @@ type Msg
     | GoToStream Stream
 
 
+emptyStreamName : Stream
+emptyStreamName =
+    ""
+
+
 init : (Stream -> a) -> (Stream -> a) -> Model a
 init onSelectMsg onQueryMsg =
     { streams = []
@@ -32,6 +37,21 @@ init onSelectMsg onQueryMsg =
     , onSelectMsg = onSelectMsg
     , onQueryMsg = onQueryMsg
     }
+
+
+onSelectCmd : (Stream -> a) -> Stream -> Cmd a
+onSelectCmd onSelectMsg stream =
+    Task.perform onSelectMsg (Task.succeed stream)
+
+
+onQueryChangedCmd : (Stream -> a) -> Stream -> Cmd a
+onQueryChangedCmd onQueryMsg stream =
+    Task.perform onQueryMsg (Task.succeed stream)
+
+
+hasAtLeastThreeChars : Stream -> Bool
+hasAtLeastThreeChars stream =
+    String.length stream >= 3
 
 
 update : Msg -> Model a -> ( Model a, Cmd a )
@@ -93,26 +113,6 @@ viewList model =
                 model.streams
             )
         ]
-
-
-emptyStreamName : Stream
-emptyStreamName =
-    ""
-
-
-onSelectCmd : (Stream -> a) -> Stream -> Cmd a
-onSelectCmd onSelectMsg stream =
-    Task.perform onSelectMsg (Task.succeed stream)
-
-
-onQueryChangedCmd : (Stream -> a) -> Stream -> Cmd a
-onQueryChangedCmd onQueryMsg stream =
-    Task.perform onQueryMsg (Task.succeed stream)
-
-
-hasAtLeastThreeChars : Stream -> Bool
-hasAtLeastThreeChars stream =
-    String.length stream >= 3
 
 
 streamsPresent : Model a -> Bool
