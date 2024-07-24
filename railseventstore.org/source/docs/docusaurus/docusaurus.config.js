@@ -90,7 +90,7 @@ const config = {
           },
           {
             type: 'doc',
-            docId: 'intro',
+            docId: 'getting-started/introduction',
             position: 'right',
             label: 'Docs',
           },
@@ -167,7 +167,7 @@ const config = {
         copyright: `<p class="mt-8">Supported by <a href="https://arkency.com" target="_blank">Arkency</a></p>`,
       },
       prism: {
-        theme: prismThemes.vsLight,
+        theme: prismThemes.dracula,
         darkTheme: prismThemes.dracula,
         additionalLanguages: ["bash", "ruby"],
       },

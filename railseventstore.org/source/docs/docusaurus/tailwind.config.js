@@ -9,7 +9,7 @@ module.exports = {
     borderStyle: true,
   },
   darkMode: ["class", '[data-theme="dark"]'],
-  content: ["./src/**/*.{js,jsx,tsx,html}"],
+  content: ["./src/**/*.{js,jsx,tsx,html}", "./docs/**/*.{md,mdx}"],
   theme: {
     extend: {
       fontFamily: {
