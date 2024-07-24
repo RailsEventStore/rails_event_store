@@ -72,15 +72,15 @@ view model =
                 ]
             ]
         , if model |> streamsPresent then
-            viewStreamList model
+            viewList model
 
           else
             text ""
         ]
 
 
-viewStreamList : Model a -> Html Msg
-viewStreamList model =
+viewList : Model a -> Html Msg
+viewList model =
     div
         []
         [ ul [ class "mt-4 h-80 overflow-auto space-y-2 w-full" ]
