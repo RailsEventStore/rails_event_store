@@ -10,7 +10,7 @@ There are 3 values that you can use for providing `expected_version` when publis
 event_store.publish(event, stream_name: "Order-1", expected_version: :any)
 ```
 
-### Guarantees
+#### Guarantees
 
 - When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to `:any`, all of those writes should succeed.
   - When you later try to read those events you from a stream, you don't have a guarantee about particular order you are going to get them in.
@@ -18,14 +18,14 @@ event_store.publish(event, stream_name: "Order-1", expected_version: :any)
 - Should never fail
 - When a single thread (or process) writes events A, B to a stream, it is guaranteed you will retrieve events A,B in that exact order when reading from a stream.
 
-### Usage
+#### Usage
 
 - This is a default value in RES when `expected_version` is not provided
 - Good for technical streams
 - Good if you use RES as pub-sub and only sometimes you read the events for debugging purposes
 - Good if exact order events is not critical
 
-## Integer
+## explicit number (Integer, from -1..∞)
 
 You start by publishing the first event in a stream with `expected_version` being `-1` (or `:none`). That means you expect no events in the stream right now.
 
@@ -56,13 +56,13 @@ If the `expected_version` does not match and another thread (or process) wrote d
 
 This mode effectively acts as optimistic locking.
 
-### Guarantees
+#### Guarantees
 
 - When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to the same correct number, only one of those writes will succeed.
 - When a single thread (or process) writes events A, B to a stream, it is guaranteed you will retrieve events A,B in that exact order when reading from a stream.
 - Succeeds when there were no other successful concurrent writes, raises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
 
-### Usage
+#### Usage
 
 - good for Event Sourcing
   - this is what [`aggregate_root` gem is using](https://github.com/RailsEventStore/rails_event_store/blob/d23640e4bcd54ac2e0f8af60c1ff8633632c0d99/aggregate_root/lib/aggregate_root.rb#L26)
@@ -87,13 +87,13 @@ end
 
 The guarantees mentioned below **assume there is no application specific lock.**
 
-### Guarantees
+#### Guarantees
 
 - When there are many threads (or processes) writing concurrently (at the same time) to a stream with `expected_version` set to the same correct number, at least one of those writes will succeed.
 - When a single thread (or process) writes events A, B to a stream, it is guaranteed you will retrieve events A,B in that exact order when reading from a stream.
 - Succeeds when there were no other successful concurrent writes, raises `RubyEventStore::WrongExpectedEventVersion` otherwise (also aliased as `RailsEventStore::WrongExpectedEventVersion`).
 
-### Usage
+#### Usage
 
 - good if you need deterministic, exact order of events in a stream even when there are multiple, concurrent events being published. But you already have a custom layer of locks which prevents potential concurrency issues.
 

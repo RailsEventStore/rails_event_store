@@ -28,14 +28,54 @@ class Order
 end
 ```
 
-### Define domain events
+#### Define domain events
 
 ```ruby
 class OrderSubmitted < RailsEventStore::Event; end
 class OrderExpired < RailsEventStore::Event; end
 ```
 
-### Define aggregate logic
+#### Define aggregate logic
+
+```ruby
+class Order
+  include AggregateRoot
+  class HasBeenAlreadySubmitted < StandardError; end
+  class HasExpired < StandardError; end
+
+  def initialize
+    @state = :new
+    # any other code here
+  end
+
+  def submit
+    raise HasBeenAlreadySubmitted if state == :submitted
+    raise HasExpired if state == :expired
+    apply OrderSubmitted.new(data: {delivery_date: Time.now + 24.hours})
+  end
+
+  def expire
+    apply OrderExpired.new
+  end
+
+  private
+  attr_reader :state
+
+  def apply_order_submitted(event)
+    @state = :submitted
+  end
+
+  def apply_order_expired(event)
+    @state = :expired
+  end
+end
+```
+
+The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name)for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called.
+
+#### Alternative syntax for event handler methods.
+
+Alternatively, you can use the class method `on(event_klass, &method)` for defining those methods. This is useful because you can more easily grep/find where events are used in your codebase.
 
 ```ruby
 class Order
@@ -73,46 +113,7 @@ class Order
 end
 ```
 
-### Alternative syntax for event handler methods (deprecated)
-
-The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name) for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called. The downside is that you can't easily grep for usages of the event class.
-
-```ruby
-class Order
-  include AggregateRoot
-  class HasBeenAlreadySubmitted < StandardError; end
-  class HasExpired < StandardError; end
-
-  def initialize
-    @state = :new
-    # any other code here
-  end
-
-  def submit
-    raise HasBeenAlreadySubmitted if state == :submitted
-    raise HasExpired if state == :expired
-    apply OrderSubmitted.new(data: {delivery_date: Time.now + 24.hours})
-  end
-
-  def expire
-    apply OrderExpired.new
-  end
-
-  private
-  attr_reader :state
-
-  def apply_order_submitted(event)
-    @state = :submitted
-    @delivery_date = event.data.fetch(:delivery_date)
-  end
-
-  def apply_order_expired(event)
-    @state = :expired
-  end
-end
-```
-
-### Loading an aggregate root object from an event store
+#### Loading an aggregate root object from an event store
 
 ```ruby
 stream_name = "Order$123"
@@ -121,7 +122,7 @@ order = AggregateRoot::Repository.new.load(Order.new, stream_name)
 
 To restore the state of your aggregate you need to use `AggregateRoot::Repository`. Repository's `#load` gets all domain events stored for the aggregate in the event store stream `Order$123` and applies them to the newly created order object in order to rebuild the aggregate's state.
 
-### Storing an aggregate root's changes in an event store
+#### Storing an aggregate root's changes in an event store
 
 ```ruby
 stream_name = "Order$123"
@@ -133,7 +134,7 @@ repository.store(order, stream_name)
 
 Storing (publishing) aggregate changes is also performed by the `AggregateRoot::Repository` object. Repository's `#store` gets all the unpublished aggregate's domain events (added by executing a domain logic method like `submit`) from `unpublished_events` and publishes them in order of creation to the event store.
 
-### Simplify loading/storing aggregates
+#### Simplify loading/storing aggregates
 
 `AggregateRoot::Repository` delivers a convenient method to handle a typical workflow with aggregates. The `with_aggregate` method will load an aggregate from a given stream, yield a block to allow performing an action on the aggregate object (the aggregate object will be yielded as a block argument), and then publish all changes in aggregate to the event store provided to the repository.
 
@@ -145,7 +146,7 @@ repository.with_aggregate(Order.new, stream_name) do |order|
 end
 ```
 
-You could also provide a specific repository for `Order` aggregate to make this code even better:
+You could also provide a specific repository for `Order` aggregate to make this code event better:
 
 ```ruby
 class OrderRepository

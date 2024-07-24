@@ -35,7 +35,7 @@ order.place
 
 Now imagine you'd like to see in one place all facts about placed orders in Jan 2018. This can be done processing all events collected so far in the event store. Each time you want such report, it runs from beginning — filtering irrelevant events out.
 
-For repeated use it would be much better to process events only once and store them in some sort of a collection — the stream:
+For repeated use it would be much better process events only once and store them in some sort of a collection — the stream:
 
 ```ruby
 order_placed =
@@ -86,58 +86,4 @@ event_store.subscribe(subscriber, [OrderPlaced])
 
 It is worth remembering that linking an event does not trigger event handlers and you cannot link same event more than once in a given stream.
 
-Linking also follows the same rules regarding [expected_version](/docs/v2/expected_version/) as publishing an event for the first time.
-
-## Available linking classes
-
-RailsEventStore offers a set of linking classes that can be used to link events to streams. Those classes are:
-
-  * `RailsEventStore::LinkByMetadata` - links events to stream built on specified metadata key and value,
-  * `RailsEventStore::LinkByCorrelationId` - links events to stream by event's correlation id,
-  * `RailsEventStore::LinkByCausationId` - links events to stream by event's causation id,
-  * `RailsEventStore::LinkByEventType` - links events to stream by event's type
-
-### Usage
-
-#### Linking by metadata
-
-In order to link by metadata you need to provide a metadata key that you're interested in. The following example shows how to
-link all events by the `tenant_id` metadata key:
-
-```ruby
-  event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :tenant_id))
-```
-
-The resulting stream for tenant with id = 123 would be `$by_tenant_id_123`
-
-#### Linking by correlation and causation ids
-
-In order to link by correlation and causation ids you simply call
-
-```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
-```
-
-The resulting streams would be `$by_correlation_id_123` and `$by_causation_id_123` respectively.
-
-#### Linking by event type
-
-In order to link by events types use following code:
-
-```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new)
-```
-
-The resulting stream for `OrderPlaced` event would be `$by_event_type_OrderPlaced`
-
-#### Custom prefix
-Instead of using `$by_{class}` prefix you can use your own prefix by passing it as an argument to the linking class:
-
-```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(prefix: 'my_prefix'))
-```
-
-The resulting stream for `OrderPlaced` event would be `my_prefix_OrderPlaced`.
-
-It works analogically for other linking classes.
+Linking also follows the same rules regarding [expected_version](../advanced/expected_version) as publishing an event for the first time.
