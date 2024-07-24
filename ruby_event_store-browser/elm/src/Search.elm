@@ -56,7 +56,7 @@ update msg model flags onSubmit =
     case msg of
         StreamChanged stream ->
             if isExactStream stream model.streams then
-                ( { model | value = "" }
+                ( { model | value = stream }
                 , Cmd.batch
                     [ onSubmit stream
                     , hackWithInternalOnSelectMsg stream
