@@ -83,20 +83,19 @@ viewStreamList : Model a -> Html Msg
 viewStreamList model =
     div
         []
-        [ ul
-            [ class "mt-4 overflow-auto space-y-2 w-full" ]
-            (List.map (\stream -> viewStreamListItem stream) model.streams)
-        ]
-
-
-viewStreamListItem : Stream -> Html Msg
-viewStreamListItem stream =
-    li []
-        [ a
-            [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono"
-            , href ("/streams/" ++ stream)
-            ]
-            [ text stream ]
+        [ ul [ class "mt-4 h-80 overflow-auto space-y-2 w-full" ]
+            (List.map
+                (\stream ->
+                    li []
+                        [ a
+                            [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono"
+                            , href ("/streams/" ++ stream)
+                            ]
+                            [ text stream ]
+                        ]
+                )
+                model.streams
+            )
         ]
 
 
