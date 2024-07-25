@@ -92,10 +92,6 @@ module RubyEventStore
       repository.streams_of(event_id)
     end
 
-    def search_streams(stream)
-      repository.search_streams(stream)
-    end
-
     # Gets position of the event in given stream
     #
     # The position is always nonnegative.
