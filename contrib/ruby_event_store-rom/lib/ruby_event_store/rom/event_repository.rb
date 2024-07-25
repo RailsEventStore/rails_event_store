@@ -94,10 +94,6 @@ module RubyEventStore
         @stream_entries.streams_of(event_id).map { |name| Stream.new(name) }
       end
 
-      def search_streams(stream_name)
-        @stream_entries.search_streams(stream_name)
-      end
-
       private
 
       def validate_event_ids(event_ids)
