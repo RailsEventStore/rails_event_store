@@ -100,11 +100,7 @@ module RubyEventStore
             stream_name: params.fetch("stream_name"),
           )
         end
-        router.add_route("GET", "/api/stats") do
-          json GetStats.new(
-            event_store: event_store
-          )
-        end
+
         %w[/ /events/:event_id /streams/:stream_name /debug].each do |starting_route|
           router.add_route("GET", starting_route) do |_, urls|
             erb bootstrap_html,
