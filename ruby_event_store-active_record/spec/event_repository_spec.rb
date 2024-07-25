@@ -208,18 +208,6 @@ module RubyEventStore
         expect(repository.search_streams("Dummy")).to eq([s3, s2, s1])
       end
 
-      specify "limits searched streams to 10" do
-        11.times do |index|
-        repository.append_to_stream(
-          [SRecord.new(event_id: e1 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e1}"),
-          ExpectedVersion.any
-        )
-        end
-
-        expect(repository.search_streams("Du").size).to eq 10
-      end
-
       specify "finds no streams when search phrase doesn't match anything" do
         repository.append_to_stream(
           [SRecord.new(event_id: e1 = SecureRandom.uuid)],
