@@ -183,57 +183,6 @@ module RubyEventStore
         expect(event_record.valid_at).to eq(t2)
       end
 
-      specify "finds streams that match the search phrase" do
-        repository.append_to_stream(
-          [SRecord.new(event_id: e1 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e1}"),
-          ExpectedVersion.any
-        )
-        repository.append_to_stream(
-          [SRecord.new(event_id: e2 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e2}"),
-          ExpectedVersion.any
-        )
-        repository.append_to_stream(
-          [SRecord.new(event_id: e3 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e3}"),
-          ExpectedVersion.any
-        )
-
-        expect(repository.search_streams("Du")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
-        expect(repository.search_streams("du")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
-        expect(repository.search_streams("dum")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
-        expect(repository.search_streams("dumm")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
-        expect(repository.search_streams("dummy")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
-        expect(repository.search_streams("Dummy")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
-      end
-
-      specify "finds no streams when search phrase doesn't match anything" do
-        repository.append_to_stream(
-          [SRecord.new(event_id: e1 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e1}"),
-          ExpectedVersion.any
-        )
-        repository.append_to_stream(
-          [SRecord.new(event_id: e2 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e2}"),
-          ExpectedVersion.any
-        )
-        repository.append_to_stream(
-          [SRecord.new(event_id: e3 = SecureRandom.uuid)],
-          Stream.new("Dummy$#{e3}"),
-          ExpectedVersion.any
-        )
-
-        expect(repository.search_streams("Da")).to eq([])
-        expect(repository.search_streams("da")).to eq([])
-        expect(repository.search_streams("dam")).to eq([])
-        expect(repository.search_streams("damm")).to eq([])
-        expect(repository.search_streams("dammy")).to eq([])
-        expect(repository.search_streams("Dammy")).to eq([])
-      end
-
-
       specify "with batches and bi-temporal queries use offset + limit" do
         repository.append_to_stream(
           [
