@@ -1,4 +1,4 @@
-module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, paginatedStreamUrl, streamUrl, debugUrl)
+module Route exposing (Route(..), buildUrl, decodeLocation, eventUrl, paginatedStreamUrl, streamUrl)
 
 import Maybe.Extra
 import Pagination
@@ -54,9 +54,6 @@ eventUrl : Url.Url -> String -> String
 eventUrl baseUrl eventId =
     buildUrl baseUrl [ "events", Url.percentEncode eventId ] []
 
-debugUrl : Url.Url -> String
-debugUrl baseUrl =
-    buildUrl baseUrl [ "debug" ] []
 
 pathSegments : Url.Url -> List String
 pathSegments baseUrl =
