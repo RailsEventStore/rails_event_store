@@ -47,10 +47,6 @@ module RubyEventStore
         @repo_reader.count(specification)
       end
 
-      def search_streams(stream_name)
-        @repo_reader.search_streams(stream_name)
-      end
-
       def update_messages(records)
         hashes = records.map { |record| upsert_hash(record, record.serialize(serializer)) }
         for_update = records.map(&:event_id)
