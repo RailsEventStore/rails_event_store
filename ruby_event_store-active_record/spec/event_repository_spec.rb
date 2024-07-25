@@ -380,7 +380,7 @@ module RubyEventStore
 
       describe "#inspect" do
         specify "returns string representation" do
-          expect(repository.inspect).to eq("RubyEventStore::ActiveRecord::EventRepository with #{::ActiveRecord::Base.connection.adapter_name} db adapter")
+          expect(repository.inspect).to eq("RubyEventStore::ActiveRecord::EventRepository with SQLite db adapter")
         end
       end
 
