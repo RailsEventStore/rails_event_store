@@ -8,9 +8,9 @@ import Flags exposing (Flags, RawFlags, buildFlags)
 import Html exposing (..)
 import Layout
 import LinkedTimezones exposing (mapLinkedTimeZone)
-import Page.Debug
 import Page.ShowEvent
 import Page.ShowStream
+import Page.Debug
 import Route
 import Task
 import Time
@@ -214,7 +214,7 @@ navigate model location =
                         Nothing ->
                             ( { model | page = NotFound }, Cmd.none )
 
-                Just Route.Debug ->
+                Just (Route.Debug) ->
                     ( { model | page = Debug (Page.Debug.init flags) }, Cmd.none )
 
                 Nothing ->
