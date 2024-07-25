@@ -1,6 +1,5 @@
 port module Layout exposing (Model, Msg, buildModel, subscriptions, update, view, viewIncorrectConfig, viewNotFound)
 
-import Api exposing (SearchStream, getSearchStreams)
 import Browser exposing (Document)
 import Browser.Navigation
 import BrowserTime
@@ -25,9 +24,7 @@ type Msg
     | SearchMsg Search.Msg
     | ToggleBookmarksMenu
     | ToggleDialog
-    | SearchedStreamsFetched (Result Http.Error (List SearchStream))
     | OnSelect Search.Stream
-    | OnQueryChanged Search.Stream
     | RequestSearch
     | RequestSearchClose
     | ToggleBookmark String
@@ -73,7 +70,7 @@ subscriptions =
 buildModel : Model
 buildModel =
     { search =
-        Search.init OnSelect OnQueryChanged
+        Search.init OnSelect
     , displayBookmarksMenu = False
     , bookmarks =
         [ { itemType = "Stream", label = "Bookmark 1", link = "/" }
@@ -85,11 +82,6 @@ buildModel =
 goToStream : WrappedModel Model -> String -> Cmd msg
 goToStream { key, flags } stream =
     Browser.Navigation.pushUrl key (Route.streamUrl flags.rootUrl stream)
-
-
-searchStreams : WrappedModel Model -> String -> Cmd Msg
-searchStreams { flags } stream =
-    getSearchStreams SearchedStreamsFetched flags stream
 
 
 update : Msg -> WrappedModel Model -> ( WrappedModel Model, Cmd Msg )
@@ -109,9 +101,6 @@ update msg model =
                 , goToStream model streamName
                 ]
             )
-
-        OnQueryChanged streamName ->
-            ( model, searchStreams model streamName )
 
         TimeZoneSelected zoneName ->
             let
@@ -161,29 +150,6 @@ update msg model =
 
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
-
-        SearchedStreamsFetched (Ok streams) ->
-            let
-                streams_ =
-                    List.map .streamId streams
-
-                searchModel =
-                    model.internal.search
-
-                newModel =
-                    { searchModel | streams = streams_ }
-            in
-            ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
-
-        SearchedStreamsFetched (Err _) ->
-            let
-                searchModel =
-                    model.internal.search
-
-                newModel =
-                    { searchModel | streams = [] }
-            in
-            ( { model | internal = Model newModel model.internal.displayBookmarksMenu model.internal.bookmarks }, Cmd.none )
 
         ToggleBookmark id ->
             ( model, toggleBookmark id )

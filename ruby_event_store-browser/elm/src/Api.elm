@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), SearchStream, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getSearchStreams, getStream, searchStreamsDecoder)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -37,10 +37,6 @@ type alias Event =
     , validAt : Time.Posix
     }
 
-
-type alias SearchStream =
-    { streamId : String
-    }
 
 
 type alias PaginatedList a =
@@ -89,10 +85,6 @@ streamUrl flags streamId =
     buildUrl (Url.toString flags.apiUrl ++ "/streams") streamId
 
 
-searchStreamsUrl : Flags -> String -> String
-searchStreamsUrl flags query =
-    buildUrl (Url.toString flags.apiUrl ++ "/search_streams") query
-
 
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
@@ -109,13 +101,6 @@ getStream msgBuilder flags streamId =
         , expect = Http.expectJson msgBuilder streamDecoder
         }
 
-
-getSearchStreams : (Result Http.Error (List SearchStream) -> msg) -> Flags -> String -> Cmd msg
-getSearchStreams msgBuilder flags query =
-    Http.get
-        { url = searchStreamsUrl flags query
-        , expect = Http.expectJson msgBuilder searchStreamsDecoder
-        }
 
 
 eventDecoder : Decoder Event
@@ -171,17 +156,6 @@ eventsDecoder pagination =
         |> required "data" (list eventDecoder_)
         |> required "links" linksDecoder
 
-
-searchStreamDecoder : Decoder SearchStream
-searchStreamDecoder =
-    succeed SearchStream
-        |> required "id" string
-
-
-searchStreamsDecoder : Decoder (List SearchStream)
-searchStreamsDecoder =
-    list searchStreamDecoder
-        |> field "data"
 
 
 linksDecoder : Decoder PaginationLinks

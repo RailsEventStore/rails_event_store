@@ -13,10 +13,8 @@ type alias Stream =
 
 
 type alias Model a =
-    { streams : List Stream
-    , searchedStream : Stream
+    { searchedStream : Stream
     , onSelectMsg : Stream -> a
-    , onQueryMsg : Stream -> a
     }
 
 
@@ -35,12 +33,10 @@ emptyStreams =
     []
 
 
-init : (Stream -> a) -> (Stream -> a) -> Model a
-init onSelectMsg onQueryMsg =
-    { streams = emptyStreams
-    , searchedStream = emptyStreamName
+init : (Stream -> a) -> Model a
+init onSelectMsg =
+    { searchedStream = emptyStreamName
     , onSelectMsg = onSelectMsg
-    , onQueryMsg = onQueryMsg
     }
 
 
@@ -49,27 +45,11 @@ onSelectCmd onSelectMsg stream =
     Task.perform onSelectMsg (Task.succeed stream)
 
 
-onQueryChangedCmd : (Stream -> a) -> Stream -> Cmd a
-onQueryChangedCmd onQueryMsg stream =
-    Task.perform onQueryMsg (Task.succeed stream)
-
-
-hasAtLeastThreeChars : Stream -> Bool
-hasAtLeastThreeChars stream =
-    String.length stream >= 3
-
-
 update : Msg -> Model a -> ( Model a, Cmd a )
 update msg model =
     case msg of
         StreamChanged stream ->
-            if hasAtLeastThreeChars stream then
-                ( { model | searchedStream = stream }
-                , onQueryChangedCmd model.onQueryMsg stream
-                )
-
-            else
-                ( { model | searchedStream = stream }, Cmd.none )
+            ( { model | searchedStream = stream }, Cmd.none )
 
         GoToStream stream ->
             ( { model | searchedStream = emptyStreamName }
@@ -77,37 +57,8 @@ update msg model =
             )
 
 
-caseInsensitiveContains : Stream -> Stream -> Maybe Stream
-caseInsensitiveContains needle haystack =
-    let
-        needleLower =
-            String.toLower needle
-
-        haystackLower =
-            String.toLower haystack
-    in
-    if String.contains needleLower haystackLower then
-        Just haystack
-
-    else
-        Nothing
-
-
-filterStreams : Stream -> List Stream -> List Stream
-filterStreams stream streams =
-    if String.isEmpty stream then
-        emptyStreams
-
-    else
-        List.filterMap (caseInsensitiveContains stream) streams
-
-
 view : Model a -> Html Msg
 view model =
-    let
-        streams_ =
-            filterStreams model.searchedStream model.streams
-    in
     form [ onSubmit (GoToStream model.searchedStream) ]
         [ div [ class "relative" ]
             [ FeatherIcons.search
@@ -125,36 +76,4 @@ view model =
                 [ span [ class "text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded " ] [ text "ESC" ]
                 ]
             ]
-        , viewStreamList streams_
-        ]
-
-
-streamsPresent : List Stream -> Bool
-streamsPresent streams =
-    not <| List.isEmpty streams
-
-
-viewStreamList : List Stream -> Html Msg
-viewStreamList streams =
-    if streams |> streamsPresent then
-        div
-            []
-            [ ul
-                [ class "mt-4 overflow-auto space-y-2 w-full" ]
-                (List.map viewStreamListItem streams)
-            ]
-
-    else
-        text ""
-
-
-viewStreamListItem : Stream -> Html Msg
-viewStreamListItem stream =
-    li []
-        [ a
-            [ class "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono"
-            , href ("/streams/" ++ stream)
-            , onClick (GoToStream stream)
-            ]
-            [ text stream ]
         ]
