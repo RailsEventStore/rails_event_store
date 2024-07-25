@@ -1,9 +1,9 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), SearchStream, Stats, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getSearchStreams, getStats, getStream, searchStreamsDecoder)
+module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), SearchStream, Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getSearchStreams, getStream, searchStreamsDecoder, Stats, getStats)
 
 import Flags exposing (Flags)
 import Http
 import Iso8601
-import Json.Decode exposing (Decoder, field, int, list, maybe, string, succeed, value)
+import Json.Decode exposing (Decoder, field, list, maybe, string, succeed, value, int)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
 import Json.Encode exposing (encode)
 import Maybe.Extra
@@ -42,11 +42,9 @@ type alias SearchStream =
     { streamId : String
     }
 
-
 type alias Stats =
-    { eventsInTotal : Int
+    { eventsInTotal: Int
     }
-
 
 type alias PaginatedList a =
     { pagination : Pagination.Specification
@@ -98,11 +96,9 @@ searchStreamsUrl : Flags -> String -> String
 searchStreamsUrl flags query =
     buildUrl (Url.toString flags.apiUrl ++ "/search_streams") query
 
-
 getStatsUrl : Flags -> String
 getStatsUrl flags =
     Url.toString flags.apiUrl ++ "/stats"
-
 
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
 getEvent msgBuilder flags eventId =
@@ -127,14 +123,12 @@ getSearchStreams msgBuilder flags query =
         , expect = Http.expectJson msgBuilder searchStreamsDecoder
         }
 
-
-getStats : (Result Http.Error Stats -> msg) -> Flags -> Cmd msg
+getStats : (Result Http.Error (Stats) -> msg) -> Flags -> Cmd msg
 getStats msgBuilder flags =
     Http.get
         { url = getStatsUrl flags
         , expect = Http.expectJson msgBuilder statsDecoder
         }
-
 
 eventDecoder : Decoder Event
 eventDecoder =
@@ -201,18 +195,15 @@ searchStreamsDecoder =
     list searchStreamDecoder
         |> field "data"
 
-
 statsDecoder : Decoder Stats
 statsDecoder =
     statsDecoder_
         |> field "meta"
 
-
 statsDecoder_ : Decoder Stats
 statsDecoder_ =
     succeed Stats
         |> required "events_in_total" int
-
 
 linksDecoder : Decoder PaginationLinks
 linksDecoder =
