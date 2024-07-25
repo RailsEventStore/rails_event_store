@@ -26,14 +26,3 @@ window.addEventListener("keydown", function (event) {
     event.preventDefault();
   }
 });
-
-app.ports.toggleBookmark.subscribe(function (id) {
-  const bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-  if (bookmarks.indexOf(id) >= 0) {
-    bookmarks.splice(bookmarks.indexOf(id), 1);
-  } else {
-    bookmarks.push(id);
-  }
-  console.log(bookmarks);
-  localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-});
