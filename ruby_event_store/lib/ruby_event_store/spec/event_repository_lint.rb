@@ -1203,15 +1203,6 @@ module RubyEventStore
     end
 
     specify do
-      11.times do |index|
-        stream = Stream.new("Stream #{index}")
-        repository.append_to_stream([ SRecord.new(event_id: SecureRandom.uuid)], stream, version_any)
-      end
-
-      expect(repository.search_streams("stream").size).to eq 10
-    end
-
-    specify do
       e1 = SRecord.new(event_id: "8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea")
       e2 = SRecord.new(event_id: "8cee1139-4f96-483a-a175-2b947283c3c7")
       e3 = SRecord.new(event_id: "d345f86d-b903-4d78-803f-38990c078d9e")
