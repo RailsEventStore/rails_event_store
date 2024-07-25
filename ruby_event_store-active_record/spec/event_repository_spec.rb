@@ -196,7 +196,7 @@ module RubyEventStore
         )
         repository.append_to_stream(
           [SRecord.new(event_id: e3 = SecureRandom.uuid)],
-          s3 = Stream.new("dUmMY$#{e3}"),
+          s3 = Stream.new("Dummy$#{e3}"),
           ExpectedVersion.any
         )
 
