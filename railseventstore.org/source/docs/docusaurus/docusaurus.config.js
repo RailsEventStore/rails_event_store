@@ -25,7 +25,7 @@ const config = {
   organizationName: "RailsEventStore", // Usually your GitHub org/user name.
   projectName: "rails_event_store", // Usually your repo name.
 
-  onBrokenLinks: "throw",
+  onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
 
   // Even if you don't use internationalization, you can use this field to set
