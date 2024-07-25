@@ -853,6 +853,8 @@ module RubyEventStore
       client.append(event_3, stream_name: stream_3.name)
 
       expect(client.search_streams("str")).to eq [stream_3, stream_2, stream_1]
+      expect(client.search_streams("Str")).to eq [stream_3, stream_2, stream_1]
+      expect(client.search_streams("sTr")).to eq [stream_3, stream_2, stream_1]
       expect(client.search_streams("stream-1")).to eq [stream_1]
       expect(client.search_streams("stream-2")).to eq [stream_2]
       expect(client.search_streams("stream-3")).to eq [stream_3]

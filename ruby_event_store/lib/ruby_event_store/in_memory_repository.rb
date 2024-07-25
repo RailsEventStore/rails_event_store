@@ -128,7 +128,7 @@ module RubyEventStore
 
     def search_streams(stream_name)
       streams
-        .select { |name,| name.include?(stream_name) }
+        .select { |name,| name.downcase.include?(stream_name.downcase) }
         .take(10)
         .reverse
         .map { |name,| Stream.new(name) }
