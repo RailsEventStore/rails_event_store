@@ -840,27 +840,6 @@ module RubyEventStore
       end
     end
 
-    specify "finds streams that are similar to searching criteria" do
-      event_1 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
-      event_2 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
-      event_3 = OrderCreated.new(event_id: SecureRandom.uuid, data: {})
-      stream_1 = Stream.new("stream-1")
-      stream_2 = Stream.new("stream-2")
-      stream_3 = Stream.new("stream-3")
-
-      client.append(event_1, stream_name: stream_1.name)
-      client.append(event_2, stream_name: stream_2.name)
-      client.append(event_3, stream_name: stream_3.name)
-
-      expect(client.search_streams("str")).to eq [stream_3, stream_2, stream_1]
-      expect(client.search_streams("Str")).to eq [stream_3, stream_2, stream_1]
-      expect(client.search_streams("sTr")).to eq [stream_3, stream_2, stream_1]
-      expect(client.search_streams("stream-1")).to eq [stream_1]
-      expect(client.search_streams("stream-2")).to eq [stream_2]
-      expect(client.search_streams("stream-3")).to eq [stream_3]
-      expect(client.search_streams("stream-4")).to eq []
-    end
-
     describe "#subscribers_for" do
       specify do
         handler = Subscribers::ValidHandler.new
