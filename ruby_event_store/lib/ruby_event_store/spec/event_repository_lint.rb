@@ -1195,10 +1195,11 @@ module RubyEventStore
       repository.append_to_stream([event_2], stream_b, version_any)
       repository.append_to_stream([event_3], stream_c, version_any)
 
-      expect(repository.search_streams("Str")).to contain_exactly stream_c, stream_b, stream_a
-      expect(repository.search_streams("Stream A")).to contain_exactly stream_a
-      expect(repository.search_streams("Stream B")).to contain_exactly stream_b
-      expect(repository.search_streams("Stream C")).to contain_exactly stream_c
+      expect(repository.search_streams("str")).to eq [stream_c, stream_b, stream_a]
+      expect(repository.search_streams("Str")).to eq [stream_c, stream_b, stream_a]
+      expect(repository.search_streams("Stream A")).to eq [stream_a]
+      expect(repository.search_streams("Stream B")).to eq [stream_b]
+      expect(repository.search_streams("Stream C")).to eq [stream_c]
     end
 
     specify do
@@ -1207,7 +1208,7 @@ module RubyEventStore
         repository.append_to_stream([ SRecord.new(event_id: SecureRandom.uuid)], stream, version_any)
       end
 
-      expect(repository.search_streams("Stream").size).to eq 10
+      expect(repository.search_streams("stream").size).to eq 10
     end
 
     specify do

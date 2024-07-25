@@ -13,6 +13,7 @@ module RubyEventStore
       expect(api_client.last_response).to be_ok
       expect(api_client.parsed_body["data"]).to match_array(
         [
+          { "id" => "$by_type_DummyEvent", "type" => "streams" },
           { "id" => "dummy-2", "type" => "streams" },
           { "id" => "dummy-1", "type" => "streams" }
         ]

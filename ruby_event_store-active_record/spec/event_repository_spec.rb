@@ -196,12 +196,16 @@ module RubyEventStore
         )
         repository.append_to_stream(
           [SRecord.new(event_id: e3 = SecureRandom.uuid)],
-          s3 = Stream.new("Dummy$#{e3}"),
+          s3 = Stream.new("dUmMY$#{e3}"),
           ExpectedVersion.any
         )
 
-        expect(repository.search_streams("Du")).to contain_exactly(s3, s2, s1)
-        expect(repository.search_streams("Dummy")).to contain_exactly(s3, s2, s1)
+        expect(repository.search_streams("Du")).to eq([s3, s2, s1])
+        expect(repository.search_streams("du")).to eq([s3, s2, s1])
+        expect(repository.search_streams("dum")).to eq([s3, s2, s1])
+        expect(repository.search_streams("dumm")).to eq([s3, s2, s1])
+        expect(repository.search_streams("dummy")).to eq([s3, s2, s1])
+        expect(repository.search_streams("Dummy")).to eq([s3, s2, s1])
       end
 
       specify "limits searched streams to 10" do
