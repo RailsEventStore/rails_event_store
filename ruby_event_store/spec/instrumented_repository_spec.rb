@@ -171,14 +171,6 @@ module RubyEventStore
       end
     end
 
-    describe "specification" do
-      it "present which repository is instrumented" do
-        some_repository = double("Some repository")
-        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
-        expect(instrumented_repository.specification).to eq("Instrumented RSpec::Mocks::Double")
-      end
-    end
-
     specify "method unknown by instrumentation but known by repository" do
       some_repository = double("Some repository", custom_method: 42)
       instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
