@@ -1,6 +1,6 @@
 [build]
-  base = "railseventstore.org/"
-  command = "make build"
+  base = "railseventstore.org/source/docs/docusaurus"
+  command = "npm run build"
   publish = "build/"
   ignore  = "false"
 
