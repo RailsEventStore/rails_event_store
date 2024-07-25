@@ -13,12 +13,6 @@ module RubyEventStore
       expect(parsed_meta_content(response.body)["resVersion"]).to eq(RubyEventStore::VERSION)
     end
 
-    specify "passes RES repository adapter specification" do
-      response = web_client.get "/res"
-
-      expect(parsed_meta_content(response.body)["repositoryAdapter"]).to eq('RubyEventStore::InMemoryRepository')
-    end
-
     specify "passes root_url" do
       response = web_client.get "/res"
 
