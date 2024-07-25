@@ -258,8 +258,6 @@ browserFooter { flags, time } =
             , link "Documentation" "https://railseventstore.org/docs/install/"
             , spacer
             , link "Support" "https://railseventstore.org/support/"
-            , spacer
-            , link "Debug" (Route.debugUrl flags.rootUrl)
             ]
         , div
             [ class "text-gray-500 text-sm flex item-center gap-2" ]
