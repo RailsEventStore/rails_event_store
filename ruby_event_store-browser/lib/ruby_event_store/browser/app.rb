@@ -40,23 +40,24 @@ module RubyEventStore
 
         Rack::Builder.new do
           use Rack::Static,
-              urls: %w[
-                bootstrap.js
-                ruby_event_store_browser.css
-                ruby_event_store_browser.js
-                android-chrome-192x192.png
-                android-chrome-512x512.png
-                apple-touch-icon.png
-                favicon.ico
-                favicon-16x16.png
-                favicon-32x32.png
-                mstile-70x70.png
-                mstile-144x144.png
-                mstile-150x150.png
-                mstile-310x150.png
-                mstile-310x310.png
-                safari-pinned-tab.svg
-              ].map {|f| ["/#{f}", f] }.to_h,
+              urls:
+                %w[
+                  bootstrap.js
+                  ruby_event_store_browser.css
+                  ruby_event_store_browser.js
+                  android-chrome-192x192.png
+                  android-chrome-512x512.png
+                  apple-touch-icon.png
+                  favicon.ico
+                  favicon-16x16.png
+                  favicon-32x32.png
+                  mstile-70x70.png
+                  mstile-144x144.png
+                  mstile-150x150.png
+                  mstile-310x150.png
+                  mstile-310x310.png
+                  safari-pinned-tab.svg
+                ].map { |f| ["/#{f}", f] }.to_h,
               root: "#{__dir__}/../../../public"
           run App.new(
                 event_store_locator: event_store_locator,
@@ -68,7 +69,13 @@ module RubyEventStore
         end
       end
 
-      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
+      def initialize(
+        event_store_locator:,
+        related_streams_query:,
+        host:,
+        root_path:,
+        api_url:
+      )
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
         @routing = Urls.from_configuration(host, root_path, api_url)
@@ -77,7 +84,10 @@ module RubyEventStore
       def call(env)
         router = Router.new(routing)
         router.add_route("GET", "/api/events/:event_id") do |params|
-          json GetEvent.new(event_store: event_store, event_id: params.fetch("event_id"))
+          json GetEvent.new(
+                 event_store: event_store,
+                 event_id: params.fetch("event_id")
+               )
         end
         router.add_route("GET", "/api/streams/:stream_name") do |params, urls|
           json GetStream.new(
@@ -86,7 +96,10 @@ module RubyEventStore
                  related_streams_query: related_streams_query
                )
         end
-        router.add_route("GET", "/api/streams/:stream_name/relationships/events") do |params, urls|
+        router.add_route(
+          "GET",
+          "/api/streams/:stream_name/relationships/events"
+        ) do |params, urls|
           json GetEventsFromStream.new(
                  event_store: event_store,
                  routing: urls,
@@ -96,12 +109,17 @@ module RubyEventStore
         end
         router.add_route("GET", "/api/search_streams/:stream_name") do |params|
           json SearchStreams.new(
-            event_store: event_store,
-            stream_name: params.fetch("stream_name"),
-          )
+                 event_store: event_store,
+                 stream_name: params.fetch("stream_name")
+               )
         end
 
-        %w[/ /events/:event_id /streams/:stream_name /debug].each do |starting_route|
+        %w[
+          /
+          /events/:event_id
+          /streams/:stream_name
+          /debug
+        ].each do |starting_route|
           router.add_route("GET", starting_route) do |_, urls|
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
@@ -110,8 +128,7 @@ module RubyEventStore
                 initial_data: {
                   rootUrl: urls.app_url,
                   apiUrl: urls.api_url,
-                  resVersion: res_version,
-                  repositoryAdapter: repository_adapter
+                  resVersion: res_version
                 }
           end
         end
@@ -156,19 +173,23 @@ module RubyEventStore
       end
 
       def json(body)
-        [200, { "content-type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
+        [
+          200,
+          { "content-type" => "application/vnd.api+json" },
+          [JSON.dump(body.to_h)]
+        ]
       end
 
       def erb(template, **locals)
-        [200, { "content-type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
+        [
+          200,
+          { "content-type" => "text/html;charset=utf-8" },
+          [ERB.new(template).result_with_hash(locals)]
+        ]
       end
 
       def res_version
         RubyEventStore::VERSION
-      end
-
-      def repository_adapter
-        event_store.repository_specification
       end
     end
   end
