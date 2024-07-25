@@ -17,26 +17,26 @@ module RubyEventStore
         related_streams_query: DEFAULT_RELATED_STREAMS_QUERY
       )
         warn(<<~WARN) if environment
-          Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
+        Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
 
-          This option is no-op, has no effect and will be removed in next major release.
-        WARN
+        This option is no-op, has no effect and will be removed in next major release.
+      WARN
         warn(<<~WARN) if host
-          Passing :host to RubyEventStore::Browser::App.for is deprecated. 
+        Passing :host to RubyEventStore::Browser::App.for is deprecated. 
 
-          This option will be removed in next major release. 
-          
-          Host and mount points are correctly recognized from Rack environment 
-          and this option is redundant.
-        WARN
+        This option will be removed in next major release. 
+        
+        Host and mount points are correctly recognized from Rack environment 
+        and this option is redundant.
+      WARN
         warn(<<~WARN) if path
-          Passing :path to RubyEventStore::Browser::App.for is deprecated. 
+        Passing :path to RubyEventStore::Browser::App.for is deprecated. 
 
-          This option will be removed in next major release. 
+        This option will be removed in next major release. 
 
-          Host and mount points are correctly recognized from Rack environment 
-          and this option is redundant.
-        WARN
+        Host and mount points are correctly recognized from Rack environment 
+        and this option is redundant.
+      WARN
 
         Rack::Builder.new do
           use Rack::Static,
@@ -114,12 +114,7 @@ module RubyEventStore
                )
         end
 
-        %w[
-          /
-          /events/:event_id
-          /streams/:stream_name
-          /debug
-        ].each do |starting_route|
+        %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
           router.add_route("GET", starting_route) do |_, urls|
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
