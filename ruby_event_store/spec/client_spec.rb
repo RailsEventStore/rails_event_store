@@ -1001,21 +1001,5 @@ module RubyEventStore
       expect(client.event_in_stream?(fact.event_id, GLOBAL_STREAM)).to eq(true)
       expect(client.event_in_stream?("924acfb8-755d-4fd5-b758-f92423b6560a", GLOBAL_STREAM)).to eq(false)
     end
-
-    describe "#inspect_repository" do
-      specify "repository class name is returned unless inspect is overridden" do
-        expect(client.inspect_repository).to eq("RubyEventStore::InMemoryRepository")
-      end
-
-      specify "repository custom inspection string returned if defined" do
-        class CustomRepository
-          def inspect
-            "CustomInspectionString"
-          end
-        end
-        client = Client.new(repository: CustomRepository.new)
-        expect(client.inspect_repository).to eq("CustomInspectionString")
-      end
-    end
   end
 end
