@@ -22,25 +22,14 @@ import WrappedModel exposing (..)
 type Msg
     = TimeZoneSelected String
     | SearchMsg Search.Msg
-    | ToggleBookmarksMenu
     | ToggleDialog
     | OnSelect Search.Stream
     | RequestSearch
     | RequestSearchClose
-    | ToggleBookmark String
 
 
 type alias Model =
     { search : Search.Model Msg
-    , displayBookmarksMenu : Bool
-    , bookmarks : List Bookmark
-    }
-
-
-type alias Bookmark =
-    { label : String
-    , link : String
-    , itemType : String
     }
 
 
@@ -56,9 +45,6 @@ port requestSearchClose : (() -> msg) -> Sub msg
 port closeSearch : String -> Cmd msg
 
 
-port toggleBookmark : String -> Cmd msg
-
-
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
@@ -71,11 +57,6 @@ buildModel : Model
 buildModel =
     { search =
         Search.init OnSelect
-    , displayBookmarksMenu = False
-    , bookmarks =
-        [ { itemType = "Stream", label = "Bookmark 1", link = "/" }
-        , { itemType = "Stream", label = "Bookmark 2", link = "/" }
-        ]
     }
 
 
@@ -92,7 +73,7 @@ update msg model =
                 ( newSearch, cmd ) =
                     Search.update searchMsg model.internal.search
             in
-            ( { model | internal = Model newSearch model.internal.displayBookmarksMenu model.internal.bookmarks }, cmd )
+            ( { model | internal = Model newSearch }, cmd )
 
         OnSelect streamName ->
             ( model
@@ -145,14 +126,8 @@ update msg model =
         RequestSearchClose ->
             ( model, closeSearch searchModalId )
 
-        ToggleBookmarksMenu ->
-            ( { model | internal = Model model.internal.search (not model.internal.displayBookmarksMenu) model.internal.bookmarks }, Cmd.none )
-
         ToggleDialog ->
             ( model, toggleDialog searchModalId )
-
-        ToggleBookmark id ->
-            ( model, toggleBookmark id )
 
 
 view : (Msg -> a) -> WrappedModel Model -> Html a -> Html a
@@ -197,7 +172,7 @@ browserNavigation model =
             ]
         , div
             [ class "flex items-center gap-2" ]
-            [ fakeSearchInput model.flags.platform, bookmarksMenu model ]
+            [ fakeSearchInput model.flags.platform ]
         ]
 
 
@@ -241,48 +216,6 @@ timeZoneSelect time =
     Html.select
         [ onInput TimeZoneSelected ]
         (availableTimeZones time.detected |> List.map mkOption)
-
-
-visibleBookmarksMenu : Bool -> String
-visibleBookmarksMenu displayBookmarksMenu =
-    if displayBookmarksMenu then
-        "block"
-
-    else
-        "hidden"
-
-
-bookmarkToHtml : Bookmark -> Html Msg
-bookmarkToHtml bookmark =
-    li [ class "flex hover:bg-gray-50 group pr-2" ]
-        [ a [ href bookmark.link, class "whitespace-nowrap py-2 block pl-4 pr-3" ]
-            [ text bookmark.label ]
-        , button [ title "Remove bookmark", class "group-hover:visible invisible text-gray-300 hover:text-gray-800", onClick (ToggleBookmark bookmark.link) ]
-            [ FeatherIcons.trash2
-                |> FeatherIcons.withClass "size-4"
-                |> FeatherIcons.toHtml []
-            ]
-        ]
-
-
-bookmarksMenu : WrappedModel Model -> Html Msg
-bookmarksMenu model =
-    div [ class "relative" ]
-        [ button
-            [ onClick ToggleBookmarksMenu
-            , class "text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 h-9 px-3 rounded"
-            ]
-            [ FeatherIcons.bookmark
-                |> FeatherIcons.withClass "size-4"
-                |> FeatherIcons.toHtml []
-            ]
-        , div [ class ("absolute translate-y-4 right-0 top-full bg-white shadow rounded-sm" ++ " " ++ visibleBookmarksMenu model.internal.displayBookmarksMenu) ]
-            [ model.internal.bookmarks
-                |> List.map bookmarkToHtml
-                |> ul [ class "text-gray-800 text-sm" ]
-            , button [ onClick (ToggleBookmark "hi") ] [ text "Add bookmark here" ]
-            ]
-        ]
 
 
 fakeSearchInput : String -> Html Msg
