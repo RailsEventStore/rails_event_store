@@ -13,7 +13,7 @@ type alias Stream =
 
 
 type alias Model a =
-    { searchedStream : Stream
+    { stream : Stream
     , onSelectMsg : Stream -> a
     }
 
@@ -35,7 +35,7 @@ emptyStreams =
 
 init : (Stream -> a) -> Model a
 init onSelectMsg =
-    { searchedStream = emptyStreamName
+    { stream = emptyStreamName
     , onSelectMsg = onSelectMsg
     }
 
@@ -49,24 +49,24 @@ update : Msg -> Model a -> ( Model a, Cmd a )
 update msg model =
     case msg of
         StreamChanged stream ->
-            ( { model | searchedStream = stream }, Cmd.none )
+            ( { model | stream = stream }, Cmd.none )
 
         GoToStream stream ->
-            ( { model | searchedStream = emptyStreamName }
+            ( { model | stream = emptyStreamName }
             , onSelectCmd model.onSelectMsg stream
             )
 
 
 view : Model a -> Html Msg
 view model =
-    form [ onSubmit (GoToStream model.searchedStream) ]
+    form [ onSubmit (GoToStream model.stream) ]
         [ div [ class "relative" ]
             [ FeatherIcons.search
                 |> FeatherIcons.withClass "size-4 text-gray-400 absolute pointer-events-none top-3.5 left-2"
                 |> FeatherIcons.toHtml []
             , input
                 [ class "rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                , value model.searchedStream
+                , value model.stream
                 , onInput StreamChanged
                 , placeholder "Quick search…"
                 , autofocus True
