@@ -1,6 +1,8 @@
-const flags = JSON.parse(document.querySelector("meta[name='ruby-event-store-browser-settings']").getAttribute("content"));
+const flags = JSON.parse(
+  document.querySelector("meta[name='ruby-event-store-browser-settings']").getAttribute("content")
+);
 flags.platform = navigator.platform;
-const app = Elm.Main.init({flags});
+const app = Elm.Main.init({ flags });
 
 app.ports.copyToClipboard.subscribe(function (message) {
   navigator.clipboard.writeText(message);
