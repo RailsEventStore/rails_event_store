@@ -52,7 +52,6 @@ module RubyEventStore
             .where { stream.like("#{stream_name}%") }
             .distinct
             .limit(10)
-            .order(:stream)
             .pluck(:stream)
             .map { |name| Stream.new(name) }
         end
