@@ -171,23 +171,11 @@ module RubyEventStore
       end
     end
 
-    describe "inspect" do
-      it "'Instrumented ' + repository class name is returned unless inspect is overridden" do
-        SomeRepository = Class.new
-        instrumented_repository = InstrumentedRepository.new(SomeRepository.new, ActiveSupport::Notifications)
-        expect(instrumented_repository.inspect).to eq("Instrumented RubyEventStore::SomeRepository")
-      end
-
-      specify "'Instrumented ' + repository custom inspection string returned if defined" do
-        class CustomRepository
-          def inspect
-            "CustomInspectionString"
-          end
-        end
-
-        instrumented_repository = InstrumentedRepository.new(CustomRepository.new, ActiveSupport::Notifications)
-        client = Client.new(repository: instrumented_repository)
-        expect(client.inspect_repository).to eq("Instrumented CustomInspectionString")
+    describe "specification" do
+      it "present which repository is instrumented" do
+        some_repository = double("Some repository")
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+        expect(instrumented_repository.specification).to eq("Instrumented RSpec::Mocks::Double")
       end
     end
 
@@ -209,9 +197,9 @@ module RubyEventStore
 
       expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
       expect { instrumented_repository.arbitrary_method_name }.to raise_error(
-                                                                    NoMethodError,
-                                                                    /undefined method `arbitrary_method_name' for .+RubyEventStore::InstrumentedRepository/
-                                                                  )
+        NoMethodError,
+        /undefined method `arbitrary_method_name' for .+RubyEventStore::InstrumentedRepository/
+      )
     end
 
     def subscribe_to(name)
