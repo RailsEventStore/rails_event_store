@@ -186,26 +186,26 @@ module RubyEventStore
       specify "finds streams that match the search phrase" do
         repository.append_to_stream(
           [SRecord.new(event_id: e1 = SecureRandom.uuid)],
-          s1 = Stream.new("Dummy$#{e1}"),
+          Stream.new("Dummy$#{e1}"),
           ExpectedVersion.any
         )
         repository.append_to_stream(
           [SRecord.new(event_id: e2 = SecureRandom.uuid)],
-          s2 = Stream.new("Dummy$#{e2}"),
+          Stream.new("Dummy$#{e2}"),
           ExpectedVersion.any
         )
         repository.append_to_stream(
           [SRecord.new(event_id: e3 = SecureRandom.uuid)],
-          s3 = Stream.new("Dummy$#{e3}"),
+          Stream.new("Dummy$#{e3}"),
           ExpectedVersion.any
         )
 
-        expect(repository.search_streams("Du")).to eq([s1, s2, s3])
-        expect(repository.search_streams("du")).to eq([s1, s2, s3])
-        expect(repository.search_streams("dum")).to eq([s1, s2, s3])
-        expect(repository.search_streams("dumm")).to eq([s1, s2, s3])
-        expect(repository.search_streams("dummy")).to eq([s1, s2, s3])
-        expect(repository.search_streams("Dummy")).to eq([s1, s2, s3])
+        expect(repository.search_streams("Du")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
+        expect(repository.search_streams("du")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
+        expect(repository.search_streams("dum")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
+        expect(repository.search_streams("dumm")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
+        expect(repository.search_streams("dummy")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
+        expect(repository.search_streams("Dummy")).to eq(["Dummy$#{e1}", "Dummy$#{e2}", "Dummy$#{e3}"])
       end
 
       specify "finds no streams when search phrase doesn't match anything" do
