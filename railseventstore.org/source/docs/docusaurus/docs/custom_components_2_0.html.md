@@ -1,3 +1,7 @@
+---
+sidebar_class_name: hidden
+---
+
 # Migrating custom components from v1.x to v2.x
 
 ## Event
