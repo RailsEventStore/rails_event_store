@@ -100,14 +100,14 @@ const config = {
             label: "Community",
           },
           {
-            href: "/contributing",
-            position: "right",
-            label: "Contributing",
-          },
-          {
             href: "/support",
             position: "right",
             label: "Support",
+          },
+          {
+            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.14.0",
+            label: "Changelog",
+            position: "right",
           },
           {
             href: "https://github.com/RailsEventStore/rails_event_store",
@@ -124,6 +124,21 @@ const config = {
             title: "Rails Event Store",
             items: [
               {
+                label: "Documentation",
+                to: "/docs/getting-started/introduction",
+              },
+              { label: "Changelog", 
+                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.14.0"
+              },
+              {
+                label: "GitHub",
+                href: "https://github.com/RailsEventStore/rails_event_store"}
+            ],
+          },
+          {
+            title: "Developers",
+            items: [
+              {
                 label: "Community",
                 to: "/community",
               },
@@ -134,15 +149,6 @@ const config = {
               {
                 label: "Contributing",
                 to: "/contributing",
-              },
-            ],
-          },
-          {
-            title: "Documentation",
-            items: [
-              {
-                label: "Geting Started",
-                to: "/docs/start",
               },
             ],
           },
