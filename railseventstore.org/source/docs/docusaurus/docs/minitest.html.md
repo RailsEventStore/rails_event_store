@@ -1,5 +1,6 @@
 ---
 title: Minitest assertions
+sidebar_class_name: hidden
 ---
 
 ## Installation
