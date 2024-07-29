@@ -32,8 +32,9 @@ GEM
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
-    haml (5.2.2)
-      temple (>= 0.8.0)
+    haml (6.3.0)
+      temple (>= 0.8.2)
+      thor
       tilt
     hamster (3.0.0)
       concurrent-ruby (~> 1.0)
@@ -135,7 +136,7 @@ DEPENDENCIES
   arbre
   faraday
   faraday-retry
-  haml (< 6)
+  haml (< 7)
   middleman (~> 4.5)
   middleman-aria_current
   middleman-syntax
