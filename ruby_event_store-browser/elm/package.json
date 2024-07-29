@@ -12,6 +12,6 @@
     "elm-format": "^0.8.7",
     "elm-test": "^0.19.1-revision12",
     "tailwindcss": "^3.4.4",
-    "uglify-js": "^3.18.0"
+    "uglify-js": "^3.19.1"
   }
 }
