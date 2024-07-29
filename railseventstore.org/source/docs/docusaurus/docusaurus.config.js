@@ -48,7 +48,6 @@ const config = {
               label: "2.14.0",
               path: "",
             },
-
           },
           sidebarPath: "./sidebars.js",
           // Please change this to your repo.
@@ -84,15 +83,15 @@ const config = {
 
         items: [
           {
-            type: 'docsVersionDropdown',
-            position: 'right',
+            type: "docsVersionDropdown",
+            position: "right",
             dropdownActiveClassDisabled: true,
           },
           {
-            type: 'doc',
-            docId: 'getting-started/introduction',
-            position: 'right',
-            label: 'Docs',
+            type: "doc",
+            docId: "getting-started/introduction",
+            position: "right",
+            label: "Docs",
           },
           {
             href: "/community",
@@ -127,12 +126,14 @@ const config = {
                 label: "Documentation",
                 to: "/docs/getting-started/introduction",
               },
-              { label: "Changelog", 
-                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.14.0"
+              {
+                label: "Changelog",
+                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.14.0",
               },
               {
                 label: "GitHub",
-                href: "https://github.com/RailsEventStore/rails_event_store"}
+                href: "https://github.com/RailsEventStore/rails_event_store",
+              },
             ],
           },
           {
@@ -151,7 +152,7 @@ const config = {
                 to: "/contributing",
               },
             ],
-          },  
+          },
           {
             title: "Connect",
             items: [
@@ -176,6 +177,12 @@ const config = {
         theme: prismThemes.dracula,
         darkTheme: prismThemes.dracula,
         additionalLanguages: ["bash", "ruby"],
+      },
+      algolia: {
+        appId: "KK97TFKI4L",
+        apiKey: "b16a0b4f93147cc606175f7117f8aa1d",
+        indexName: "railseventstore",
+        contextualSearch: true,
       },
     }),
 
