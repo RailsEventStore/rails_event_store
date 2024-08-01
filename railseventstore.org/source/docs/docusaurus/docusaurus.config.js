@@ -55,13 +55,7 @@ const config = {
           editUrl:
             "https://github.com/RailsEventStore/rails_event_store/tree/docusaurs/railseventstore.org/source/docs/docusaurus/",
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
-        },
+        blog: false,
         theme: {
           customCss: "./src/css/custom.css",
         },
