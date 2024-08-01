@@ -24,3 +24,4 @@ ruby_event_store-browser/public/*
 .inch/
 .tmp
 support/bundler/*.lock
+.DS_Store
