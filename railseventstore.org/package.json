@@ -1,11 +1,46 @@
 {
+  "name": "docusaurus",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
-    "watch": "tailwindcss -w -i source/stylesheets/styles.css -o .tmp/dist/style.css",
-    "build": "NODE_ENV=production tailwindcss -m -i source/stylesheets/styles.css -o .tmp/dist/style.css"
+    "docusaurus": "docusaurus",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.4.0",
+    "@docusaurus/preset-classic": "3.4.0",
+    "@mdx-js/react": "^3.0.0",
+    "clsx": "^2.0.0",
+    "prism-react-renderer": "^2.3.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-spring": "^9.7.3"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.13",
-    "tailwindcss": "^3.4.4"
+    "@docusaurus/module-type-aliases": "3.4.0",
+    "@docusaurus/types": "3.4.0",
+    "tailwindcss": "^3.4.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0"
   }
 }

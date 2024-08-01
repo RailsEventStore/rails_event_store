@@ -4,8 +4,6 @@ Source files for the documentation and website of [Rails Event Store](https://ra
 
 ## Serving the docs locally
 
-Provided you have Ruby installed, you can serve the docs locally at `http://localhost:4567`
-
 ```
 bundle install
 npm install
