@@ -6,11 +6,11 @@ build: ## Output static files (production)
 	@npm run build
 .PHONY: build
 
-serve: 
+serve:
 	@npm run serve
 .PHONY: serve
 
-watch: 
+watch:
 	@npx chokidar-cli "docs/**/*.md" \
 		-c "make build" \
 		--initial
