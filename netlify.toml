@@ -1,12 +1,11 @@
 [build]
-  base = "railseventstore.org/source/docs/docusaurus"
-  command = "npm run build"
+  base = "railseventstore.org"
+  command = "make build"
   publish = "build/"
   ignore  = "false"
 
 [build.environment]
   NODE_VERSION = "20.10"
-  RUBY_VERSION = "3.2.2"
 
 [[redirects]]
   from = "http://www.railseventstore.org/*"

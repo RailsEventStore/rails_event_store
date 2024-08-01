@@ -1,26 +1,30 @@
+const { fontFamily } = require("tailwindcss/defaultTheme");
+
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./source/**/*.{html,md,erb}", "./helpers/*.rb", "./config.rb"],
+  corePlugins: {
+    preflight: false,
+    container: false,
+    divideStyle: true,
+    borderStyle: true,
+  },
+  darkMode: ["class", '[data-theme="dark"]'],
+  content: ["./src/**/*.{js,jsx,tsx,html}", "./docs/**/*.{md,mdx}"],
   theme: {
-    fontSize: {
-      xs: ["0.75rem", { lineHeight: "1rem" }],
-      sm: ["0.875rem", { lineHeight: "1.5rem" }],
-      base: ["1rem", { lineHeight: "2rem" }],
-      lg: ["1.125rem", { lineHeight: "1.75rem" }],
-      xl: ["1.25rem", { lineHeight: "2rem" }],
-      "2xl": ["1.5rem", { lineHeight: "2.5rem" }],
-      "3xl": ["2rem", { lineHeight: "2.5rem" }],
-      "4xl": ["2.5rem", { lineHeight: "3rem" }],
-      "5xl": ["3rem", { lineHeight: "3.5rem" }],
-      "6xl": ["3.75rem", { lineHeight: "1" }],
-      "7xl": ["4.5rem", { lineHeight: "1" }],
-      "8xl": ["6rem", { lineHeight: "1" }],
-      "9xl": ["8rem", { lineHeight: "1" }],
-    },
     extend: {
-      maxWidth: {
-        "8xl": "88rem",
+      fontFamily: {
+        sans: ['"Inter"', ...fontFamily.sans],
+        jakarta: ['"Plus Jakarta Sans"', ...fontFamily.sans],
+        mono: ['"Fira Code"', ...fontFamily.mono],
+      },
+      borderRadius: {
+        sm: "4px",
+      },
+      colors: {
+        res: "#BB4539",
       },
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+  safelist: ["mt-8"],
+  plugins: [],
 };
