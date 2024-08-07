@@ -5,7 +5,7 @@
     "build": "NODE_ENV=production tailwindcss -m -i source/stylesheets/styles.css -o .tmp/dist/style.css"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.13",
+    "@tailwindcss/typography": "^0.5.14",
     "tailwindcss": "^3.4.4"
   }
 }
