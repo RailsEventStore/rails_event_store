@@ -72,8 +72,8 @@ set-version: git-check-clean git-check-committed
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-browser\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-rspec\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@sed $(SED_OPTS) "s/\(gem \"rails_event_store\", \"~>\)\(.*\)/\1 $(RES_VERSION)\"/" APP_TEMPLATE
-	@sed $(SED_OPTS) "s/\(:res_version,[[:space:]]*\)['\"][0-9]\.[0-9]\.[0-9]['\"]/\1\"$(RES_VERSION)\"/"   railseventstore.org/config.rb
-	@sed $(SED_OPTS) "s/\(:res_version_v2,[[:space:]]*\)['\"][0-9]\.[0-9]\.[0-9]['\"]/\1\"$(RES_VERSION)\"/" railseventstore.org/config.rb
+	@sed $(SED_OPTS) "s/\(:res_version,[[:space:]]*\)['\"][0-9]\.[0-9]*\.[0-9]['\"]/\1\"$(RES_VERSION)\"/"   railseventstore.org/config.rb
+	@sed $(SED_OPTS) "s/\(:res_version_v2,[[:space:]]*\)['\"][0-9]\.[0-9]*\.[0-9]['\"]/\1\"$(RES_VERSION)\"/" railseventstore.org/config.rb
 	@sed $(SED_OPTS) "s/compare\/v.*\.\.\.master/compare\/v$(RES_VERSION)...master/" RELEASE.md
 	@sed $(SED_OPTS) "s/rails_event_store\/v.*\/APP_TEMPLATE/rails_event_store\/v$(RES_VERSION)\/APP_TEMPLATE/" netlify.toml
 	@make -j8 install-all
