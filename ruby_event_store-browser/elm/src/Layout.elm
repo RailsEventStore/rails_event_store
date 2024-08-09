@@ -227,7 +227,7 @@ fakeSearchInput platform =
         [ FeatherIcons.search
             |> FeatherIcons.withClass "size-4"
             |> FeatherIcons.toHtml []
-        , text "Quick search…"
+        , text "Go to stream…"
         , span [ class "text-xs" ] [ text (platformModifier platform), text "K" ]
         ]
 

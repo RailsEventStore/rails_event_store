@@ -68,7 +68,7 @@ view model =
                 [ class "rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                 , value model.stream
                 , onInput StreamChanged
-                , placeholder "Quick search…"
+                , placeholder "Go to stream…"
                 , autofocus True
                 ]
                 []
