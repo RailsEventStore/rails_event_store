@@ -34,7 +34,7 @@ When in doubt, check this [example](https://github.com/RailsEventStore/rails_eve
 ## Release steps
 
 1. Draft a [new release](https://github.com/RailsEventStore/rails_event_store/releases/new?body=%23%23%20RubyEventStore%0A%0A*%20no%20changes%0A%0A%23%23%20RailsEventStore%0A%0A*%20no%20changes%0A%0A%23%23%20RubyEventStore::ActiveRecord%0A%0A*%20no%20changes%0A%0A%23%23%20AggregateRoot%0A%0A*%20no%20changes%0A%0A%23%23%20RubyEventStore::RSpec%0A%0A*%20no%20changes%0A%0A%23%23%20RubyEventStore::Browser%0A%0A*%20no%20changes%0A) if that hasn't happened already but don't publish it yet. Leave _Tag version_ field empty by now.
-2. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v2.14.0...master) since last release to HEAD of master branch (you may need to modify URL for correct versions to compare).
+2. Make sure all changes are listed on [releases page](https://github.com/RailsEventStore/rails_event_store/releases) for undrafted release. When in doubt, use [compare view](https://github.com/RailsEventStore/rails_event_store/compare/v2.15.0...master) since last release to HEAD of master branch (you may need to modify URL for correct versions to compare).
 3. Bump the version number for all gems and dependencies via `make set-version RES_VERSION=version_number_here`.
 4. Hit `make release` from top-level of repository. This will:
 

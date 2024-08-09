@@ -1,9 +1,9 @@
 PATH
   remote: ../..
   specs:
-    aggregate_root (2.14.0)
-      ruby_event_store (= 2.14.0)
-    ruby_event_store (2.14.0)
+    aggregate_root (2.15.0)
+      ruby_event_store (= 2.15.0)
+    ruby_event_store (2.15.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH

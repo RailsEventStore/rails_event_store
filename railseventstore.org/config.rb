@@ -38,9 +38,9 @@ set :markdown,
     no_intra_emphasis: true
 
 set :res_version_v1, "1.3.1"
-set :res_version_v2, "2.14.0"
+set :res_version_v2, "2.15.0"
 set :res_version_v3, "3.0.0"
-set :res_version, "2.14.0"
+set :res_version, "2.15.0"
 
 page "/"
 page "/docs/v1/*", locals: { version: "v1" }, layout: "documentation"

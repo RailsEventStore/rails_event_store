@@ -28,10 +28,10 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.7"
 
-  spec.add_dependency "ruby_event_store", "= 2.14.0"
-  spec.add_dependency "ruby_event_store-browser", "= 2.14.0"
-  spec.add_dependency "rails_event_store_active_record", "= 2.14.0"
-  spec.add_dependency "aggregate_root", "= 2.14.0"
+  spec.add_dependency "ruby_event_store", "= 2.15.0"
+  spec.add_dependency "ruby_event_store-browser", "= 2.15.0"
+  spec.add_dependency "rails_event_store_active_record", "= 2.15.0"
+  spec.add_dependency "aggregate_root", "= 2.15.0"
   spec.add_dependency "activesupport", ">= 6.0"
   spec.add_dependency "activemodel", ">= 6.0"
   spec.add_dependency "activejob", ">= 6.0"
