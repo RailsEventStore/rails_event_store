@@ -21,9 +21,11 @@ GEM
     dotenv (3.1.2)
     erubis (2.7.0)
     execjs (2.9.1)
-    faraday (2.9.1)
-      faraday-net_http (>= 2.0, < 3.2)
-    faraday-net_http (3.1.0)
+    faraday (2.12.0)
+      faraday-net_http (>= 2.0, < 3.4)
+      json
+      logger
+    faraday-net_http (3.3.0)
       net-http
     faraday-retry (2.2.1)
       faraday (~> 2.0)
@@ -40,11 +42,13 @@ GEM
     hashie (3.6.0)
     i18n (1.6.0)
       concurrent-ruby (~> 1.0)
+    json (2.7.2)
     kramdown (2.4.0)
       rexml
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    logger (1.6.1)
     memoist (0.16.2)
     middleman (4.5.1)
       coffee-script (~> 2.2)
@@ -123,7 +127,7 @@ GEM
       concurrent-ruby (~> 1.0)
     uglifier (3.2.0)
       execjs (>= 0.3.0, < 3)
-    uri (0.13.0)
+    uri (0.13.1)
     webrick (1.8.1)
 
 PLATFORMS
