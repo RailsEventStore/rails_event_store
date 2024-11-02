@@ -1,0 +1,80 @@
+---
+title: RailsEventStore in Billetto
+---
+<main>
+  <div class="max-w-8xl mx-auto sm:px-2 lg:px-8 xl:px-12 text-justify">
+    <div class="flex flex-wrap border-t border-gray-200 py-6 first:pb-6 first:pt-4 first:border-0 mt-6">
+      <div class="w-full text-2xl font-bold sm:w-2/5">
+        <a class="bg-none justify-center h-full w-full flex items-center" href="https://billetto.co.uk">
+          <img class="max-w-[10rem] grow-0 shrink-1 w-full" src="/images/billetto_logo.svg" />
+        </a>
+      </div>
+      <div class="w-full text-xl sm:sm:w-3/5">
+        <p class="mb-8">
+          Billetto is the leading subculture event marketplace in the Nordics
+          and operates in most of the EU countries. It connects ticket buyers
+          to indie events and push for cultural diversity by promoting
+          subcultures that make us human. The Billetto community has grown
+          to 3+&nbsp;million members over the last 12&nbsp;years. Billetto is more than
+          just a ticket sales tool. It provides users with a fully-kitted
+          platform for ticket sales and effortless event advertisement.
+        </p>
+        <p class="mb-8">
+          Rails Event Store has been introduced to the codebase as a tool to
+          help integrate with 3rd&nbsp;party systems. After a few months successfully
+          running in production the Rails Event Store concepts was proven by
+          raising usage of event store and acceptance by Billetto team members.
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-wrap border-t border-gray-200 py-6 first:pb-6 first:pt-4 first:border-0 mt-6">
+      <div class="w-full text-2xl font-bold sm:w-2/5">
+        <h3>Domains events in time</h3>
+      </div>
+      <div class="w-full text-xl sm:sm:w-3/5">
+        <img class="w-full" src="/images/billetto-chart.png" />
+      </div>
+    </div>
+    <div class="flex flex-wrap border-t border-gray-200 py-6 first:pb-6 first:pt-4 first:border-0">
+      <div class="w-full text-2xl font-bold sm:w-2/5">
+        <h3>Some statistics</h3>
+        <span class="block text-base uppercase text-gray-500 font-bold mt-2 mb-2">as for October 2024</span>
+      </div>
+      <div class="w-full text-xl sm:sm:w-3/5">
+        <ul class="list-disc list-inside">
+          <li>First event published: <strong>November 2014</strong></li>
+          <li>Current number of events: <strong>876 949 097</strong></li>
+          <li>Current number of streams: <strong>35 408 173</strong></li>
+          <li>RES tables size: <strong>~2 TB</strong></li>
+          <li>Unique number of event types: <strong>932</strong></li>
+          <li>Event handlers: <strong>547</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-wrap border-t border-gray-200 py-6 first:pb-6 first:pt-4 first:border-0 mt-6">
+      <div class="w-full text-2xl font-bold sm:w-2/5">
+        <h3>Benefits of RailsEventStore</h3>
+      </div>
+      <div class="w-full text-xl sm:sm:w-3/5">
+        <p class="mb-8">
+          Implementation of event store, and in more general a event centric approach,
+          has enabled Billetto team to embrace asynchronous processing, changed the
+          way of thinking about building the monolithic system and allowed improvements
+          in several areas of the application.
+        </p>
+        <p class="mb-8">
+          To name a few:
+          <ul class="list-disc list-inside">
+            <li>improved performance as significant part of data processing is handled asynchronously, results in faster responses to web requests and allowed much higher requests / second processed concurrently</li>
+            <li>improved resilience to errors, automatic errors handling mechanisms (i.e. retry with exponential backoff)</li>
+            <li>simpler & less fragile integration with 3rd party systems, allowing the app to operate when some of them are not responding or even automatically switch to fallback system when the primary one is experiencing issues (i.e. payment processors)</li>
+            <li>internal & external read models, optimised for reads and build asynchronously (with eventual consistency) that allowed tracking of complex calculations results and business metrics almost in real time without additional use on transactional database</li>
+            <li>audit log of user's actions, by storing facts (domain events) for each change in the system state - allowing not only to debug what happened in this distributed asynchronous system but also business analysis of system state & users behaviour</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%= partial "partials/site_footer" %>
