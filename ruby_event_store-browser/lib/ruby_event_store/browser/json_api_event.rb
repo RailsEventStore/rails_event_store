@@ -14,7 +14,7 @@ module RubyEventStore
           type: "events",
           attributes: {
             event_type: event.event_type,
-            data: event.data,
+            data: sanitize_infinity_values(event.data),
             metadata: metadata,
             correlation_stream_name: correlation_stream_name,
             causation_stream_name: causation_stream_name,
@@ -27,6 +27,25 @@ module RubyEventStore
       private
 
       attr_reader :event, :parent_event_id
+
+      def sanitize_infinity_values(value)
+        case value
+        when Hash
+          value.transform_values { |v| sanitize_infinity_values(v) }
+        when Array
+          value.map { |v| sanitize_infinity_values(v) }
+        when Float
+          if value.infinite?
+            value.positive? ? "Infinity" : "-Infinity"
+          elsif value.nan?
+            "NaN"
+          else
+            value
+          end
+        else
+          value
+        end
+      end
 
       def metadata
         event.metadata.to_h.tap do |m|

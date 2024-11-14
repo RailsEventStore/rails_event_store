@@ -7,7 +7,19 @@ module RubyEventStore
     include Browser::IntegrationHelpers
 
     let(:correlation_id) { SecureRandom.uuid }
-    let(:dummy_event) { DummyEvent.new(data: { foo: 1, bar: 2.0, baz: "3" }) }
+    let(:dummy_event) do
+      DummyEvent.new(
+        data: {
+          foo: 1,
+          bar: 2.0,
+          baz: "3",
+          bax: 1.0 / 0,
+          bay: {
+            baq: [-1.0 / 0, 0.0 / 0]
+          }
+        }
+      )
+    end
     let(:parent_event) { DummyEvent.new }
     let(:timestamp) { Time.utc(2020, 1, 1, 12, 0, 0, 1) }
     let(:stream_name) { "dummy" }
@@ -32,7 +44,11 @@ module RubyEventStore
             "data" => {
               "foo" => dummy_event.data[:foo],
               "bar" => dummy_event.data[:bar],
-              "baz" => dummy_event.data[:baz]
+              "baz" => dummy_event.data[:baz],
+              "bax" => "Infinity",
+              "bay" => {
+                "baq" => %w[-Infinity NaN]
+              }
             },
             "metadata" => {
               "timestamp" => timestamp.iso8601(6),

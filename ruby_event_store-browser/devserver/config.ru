@@ -20,7 +20,8 @@ event_store.subscribe_to_all_events(
 sample_data = {
   some_integer_attribute: 42,
   some_string_attribute: "foobar",
-  some_float_attribute: 3.14
+  some_float_attribute: 3.14,
+  some_float_infinity_attribute: 1.0 / 0
 }
 
 sample_event_type =
