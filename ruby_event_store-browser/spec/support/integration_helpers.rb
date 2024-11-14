@@ -23,11 +23,18 @@ module RubyEventStore
             end
 
             define_method :event_store do
-              @event_store ||= Client.new.tap do |event_store|
-                event_store.subscribe_to_all_events(LinkByCorrelationId.new(event_store: event_store))
-                event_store.subscribe_to_all_events(LinkByCausationId.new(event_store: event_store))
-                event_store.subscribe_to_all_events(LinkByEventType.new(event_store: event_store))
-              end
+              @event_store ||=
+                Client.new.tap do |event_store|
+                  event_store.subscribe_to_all_events(
+                    LinkByCorrelationId.new(event_store: event_store)
+                  )
+                  event_store.subscribe_to_all_events(
+                    LinkByCausationId.new(event_store: event_store)
+                  )
+                  event_store.subscribe_to_all_events(
+                    LinkByEventType.new(event_store: event_store)
+                  )
+                end
             end
           end
         end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bundler/inline'
+require "bundler/inline"
 
 gemfile do
   source "https://rubygems.org"
@@ -30,6 +30,5 @@ end
 def footer
   ["    _ -> str"]
 end
-
 
 File.write("elm/src/LinkedTimezones.elm", (header + links + footer).join("\n"))

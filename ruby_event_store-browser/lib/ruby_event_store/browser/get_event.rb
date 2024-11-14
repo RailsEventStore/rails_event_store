@@ -20,7 +20,9 @@ module RubyEventStore
       private
 
       def streams
-        event_store.streams_of(event_id).map { |stream| { "id" => stream.name, "type" => "streams" } }
+        event_store
+          .streams_of(event_id)
+          .map { |stream| { "id" => stream.name, "type" => "streams" } }
       end
 
       attr_reader :event_store, :event_id
@@ -30,7 +32,9 @@ module RubyEventStore
       end
 
       def parent_event_id
-        event_store.read.event(event.metadata.fetch(:causation_id))&.event_id if event.metadata.has_key?(:causation_id)
+        if event.metadata.has_key?(:causation_id)
+          event_store.read.event(event.metadata.fetch(:causation_id))&.event_id
+        end
       end
     end
   end

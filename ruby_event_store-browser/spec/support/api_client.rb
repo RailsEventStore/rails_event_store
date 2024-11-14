@@ -27,10 +27,13 @@ class ApiClient
   end
 
   def initialize(app, host = "example.org")
-    @session = Rack::MockSession.new(Rack::Lint.new(app), host).tap do |session|
-      session.after_request { validate_request }
-      session.after_request { validate_response }
-    end
+    @session =
+      Rack::MockSession
+        .new(Rack::Lint.new(app), host)
+        .tap do |session|
+          session.after_request { validate_request }
+          session.after_request { validate_response }
+        end
   end
 
   def get(url, params = {}, env = {})

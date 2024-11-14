@@ -20,7 +20,8 @@ module RubyEventStore
           "relationships" => {
             "events" => {
               "links" => {
-                "self" => "http://www.example.com/api/streams/all/relationships/events"
+                "self" =>
+                  "http://www.example.com/api/streams/all/relationships/events"
               }
             }
           }
@@ -42,7 +43,8 @@ module RubyEventStore
           "relationships" => {
             "events" => {
               "links" => {
-                "self" => "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events"
+                "self" =>
+                  "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events"
               }
             }
           }

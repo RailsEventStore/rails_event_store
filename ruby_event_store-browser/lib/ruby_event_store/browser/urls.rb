@@ -12,7 +12,11 @@ module RubyEventStore
       end
 
       def with_request(request)
-        Urls.new(host || request.base_url, root_path || request.script_name, api_url)
+        Urls.new(
+          host || request.base_url,
+          root_path || request.script_name,
+          api_url
+        )
       end
 
       attr_reader :app_url, :api_url, :host, :root_path
@@ -33,11 +37,20 @@ module RubyEventStore
         "#{api_url}/streams"
       end
 
-      def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
+      def paginated_events_from_stream_url(
+        id:,
+        position: nil,
+        direction: nil,
+        count: nil
+      )
         stream_name = Rack::Utils.escape(id)
         query_string =
           URI.encode_www_form(
-            { "page[position]" => position, "page[direction]" => direction, "page[count]" => count }.compact
+            {
+              "page[position]" => position,
+              "page[direction]" => direction,
+              "page[count]" => count
+            }.compact
           )
 
         if query_string.empty?
@@ -49,20 +62,12 @@ module RubyEventStore
 
       def browser_js_url
         name = "ruby_event_store_browser.js"
-        if gem_source.from_git?
-          cdn_file_url(name)
-        else
-          local_file_url(name)
-        end
+        gem_source.from_git? ? cdn_file_url(name) : local_file_url(name)
       end
 
       def browser_css_url
         name = "ruby_event_store_browser.css"
-        if gem_source.from_git?
-          cdn_file_url(name)
-        else
-          local_file_url(name)
-        end
+        gem_source.from_git? ? cdn_file_url(name) : local_file_url(name)
       end
 
       def bootstrap_js_url
@@ -70,10 +75,12 @@ module RubyEventStore
       end
 
       def ==(o)
-        self.class.eql?(o.class) && app_url.eql?(o.app_url) && api_url.eql?(o.api_url)
+        self.class.eql?(o.class) && app_url.eql?(o.app_url) &&
+          api_url.eql?(o.api_url)
       end
 
       private
+
       attr_reader :gem_source
 
       def local_file_url(name)

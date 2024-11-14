@@ -14,14 +14,17 @@ module RubyEventStore
     def publish_dummy_event
       event_store.with_metadata(
         correlation_id: correlation_id,
-        timestamp: timestamp,
+        timestamp: timestamp
       ) { event_store.append(dummy_event, stream_name: stream_name) }
     end
 
     specify "happy path" do
       publish_dummy_event
 
-      %w[/api/streams/all/relationships/events /api/streams/dummy/relationships/events].each do |endpoint|
+      %w[
+        /api/streams/all/relationships/events
+        /api/streams/dummy/relationships/events
+      ].each do |endpoint|
         api_client.get endpoint
         expect(api_client.last_response).to be_ok
         expect(api_client.parsed_body["data"]).to match_array(
@@ -39,10 +42,12 @@ module RubyEventStore
                 "metadata" => {
                   "timestamp" => timestamp.iso8601(6),
                   "valid_at" => timestamp.iso8601(6),
-                  "correlation_id" => correlation_id,
+                  "correlation_id" => correlation_id
                 },
-                "correlation_stream_name" => "$by_correlation_id_#{dummy_event.correlation_id}",
-                "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
+                "correlation_stream_name" =>
+                  "$by_correlation_id_#{dummy_event.correlation_id}",
+                "causation_stream_name" =>
+                  "$by_causation_id_#{dummy_event.event_id}",
                 "type_stream_name" => "$by_type_#{dummy_event.event_type}",
                 "parent_event_id" => nil
               }

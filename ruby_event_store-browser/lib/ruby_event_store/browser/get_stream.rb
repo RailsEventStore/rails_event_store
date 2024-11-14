@@ -10,7 +10,14 @@ module RubyEventStore
       end
 
       def to_h
-        { data: JsonApiStream.new(stream_name, events_from_stream_url, related_streams).to_h }
+        {
+          data:
+            JsonApiStream.new(
+              stream_name,
+              events_from_stream_url,
+              related_streams
+            ).to_h
+        }
       end
 
       private
@@ -22,7 +29,9 @@ module RubyEventStore
       end
 
       def related_streams
-        related_streams_query.call(stream_name) unless related_streams_query.equal?(DEFAULT_RELATED_STREAMS_QUERY)
+        unless related_streams_query.equal?(DEFAULT_RELATED_STREAMS_QUERY)
+          related_streams_query.call(stream_name)
+        end
       end
     end
   end

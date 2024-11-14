@@ -30,13 +30,21 @@ module RubyEventStore
 
       def metadata
         event.metadata.to_h.tap do |m|
-          m[:timestamp] = event.metadata.fetch(:timestamp).iso8601(TIMESTAMP_PRECISION)
-          m[:valid_at] = event.metadata.fetch(:valid_at).iso8601(TIMESTAMP_PRECISION)
+          m[:timestamp] = event
+            .metadata
+            .fetch(:timestamp)
+            .iso8601(TIMESTAMP_PRECISION)
+          m[:valid_at] = event
+            .metadata
+            .fetch(:valid_at)
+            .iso8601(TIMESTAMP_PRECISION)
         end
       end
 
       def correlation_stream_name
-        "$by_correlation_id_#{metadata.fetch(:correlation_id)}" if metadata.has_key?(:correlation_id)
+        if metadata.has_key?(:correlation_id)
+          "$by_correlation_id_#{metadata.fetch(:correlation_id)}"
+        end
       end
 
       def causation_stream_name

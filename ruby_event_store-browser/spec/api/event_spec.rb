@@ -40,8 +40,10 @@ module RubyEventStore
               "correlation_id" => correlation_id,
               "causation_id" => parent_event.event_id
             },
-            "correlation_stream_name" => "$by_correlation_id_#{dummy_event.correlation_id}",
-            "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
+            "correlation_stream_name" =>
+              "$by_correlation_id_#{dummy_event.correlation_id}",
+            "causation_stream_name" =>
+              "$by_causation_id_#{dummy_event.event_id}",
             "type_stream_name" => "$by_type_#{dummy_event.event_type}",
             "parent_event_id" => parent_event.event_id
           },
@@ -49,9 +51,18 @@ module RubyEventStore
             "streams" => {
               "data" => [
                 { "id" => stream_name, "type" => "streams" },
-                { "id" => "$by_correlation_id_#{dummy_event.correlation_id}", "type" => "streams" },
-                { "id" => "$by_causation_id_#{parent_event.event_id}", "type" => "streams" },
-                { "id" => "$by_type_#{dummy_event.event_type}", "type" => "streams" }
+                {
+                  "id" => "$by_correlation_id_#{dummy_event.correlation_id}",
+                  "type" => "streams"
+                },
+                {
+                  "id" => "$by_causation_id_#{parent_event.event_id}",
+                  "type" => "streams"
+                },
+                {
+                  "id" => "$by_type_#{dummy_event.event_type}",
+                  "type" => "streams"
+                }
               ]
             }
           }

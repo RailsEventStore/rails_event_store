@@ -19,7 +19,11 @@ module RubyEventStore
           return unless request.request_method.eql?(request_method)
 
           match_data = regexp.match(File.join("/", request.path_info))
-          match_data.named_captures.transform_values { |v| Rack::Utils.unescape(v) } if match_data
+          if match_data
+            match_data.named_captures.transform_values do |v|
+              Rack::Utils.unescape(v)
+            end
+          end
         end
 
         def call(params, urls)
@@ -47,7 +51,14 @@ module RubyEventStore
       def handle(request)
         routes.each do |route|
           route_params = route.match(request)
-          return route.call(request.params.merge(route_params), urls.with_request(request)) if route_params
+          if route_params
+            return(
+              route.call(
+                request.params.merge(route_params),
+                urls.with_request(request)
+              )
+            )
+          end
         end
         raise NoMatch
       end

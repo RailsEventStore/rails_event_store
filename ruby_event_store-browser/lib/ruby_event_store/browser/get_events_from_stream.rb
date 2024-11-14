@@ -47,14 +47,18 @@ module RubyEventStore
 
       def events_forward(position)
         spec = event_store.read.limit(count)
-        spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
+        spec = spec.stream(stream_name) unless stream_name.eql?(
+          SERIALIZED_GLOBAL_STREAM_NAME
+        )
         spec = spec.from(position) unless position.equal?(HEAD)
         spec.to_a
       end
 
       def events_backward(position)
         spec = event_store.read.limit(count).backward
-        spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
+        spec = spec.stream(stream_name) unless stream_name.eql?(
+          SERIALIZED_GLOBAL_STREAM_NAME
+        )
         spec = spec.from(position) unless position.equal?(HEAD)
         spec.to_a
       end
@@ -70,7 +74,12 @@ module RubyEventStore
       end
 
       def prev_page_link(event_id)
-        routing.paginated_events_from_stream_url(id: stream_name, position: event_id, direction: :forward, count: count)
+        routing.paginated_events_from_stream_url(
+          id: stream_name,
+          position: event_id,
+          direction: :forward,
+          count: count
+        )
       end
 
       def next_page_link(event_id)
@@ -83,11 +92,21 @@ module RubyEventStore
       end
 
       def first_page_link
-        routing.paginated_events_from_stream_url(id: stream_name, position: :head, direction: :backward, count: count)
+        routing.paginated_events_from_stream_url(
+          id: stream_name,
+          position: :head,
+          direction: :backward,
+          count: count
+        )
       end
 
       def last_page_link
-        routing.paginated_events_from_stream_url(id: stream_name, position: :head, direction: :forward, count: count)
+        routing.paginated_events_from_stream_url(
+          id: stream_name,
+          position: :head,
+          direction: :forward,
+          count: count
+        )
       end
 
       def count

@@ -35,10 +35,7 @@ module RubyEventStore
 
     specify do
       expect {
-        Browser::App.for(
-          event_store_locator: -> { event_store },
-          path: "/res"
-        )
+        Browser::App.for(event_store_locator: -> { event_store }, path: "/res")
       }.to output(<<~EOS).to_stderr
           Passing :path to RubyEventStore::Browser::App.for is deprecated. 
 
