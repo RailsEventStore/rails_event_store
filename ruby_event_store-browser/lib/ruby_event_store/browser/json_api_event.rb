@@ -30,18 +30,14 @@ module RubyEventStore
 
       def sanitize_infinity_values(value)
         case value
-        when Hash
-          value.transform_values { |v| sanitize_infinity_values(v) }
-        when Array
-          value.map { |v| sanitize_infinity_values(v) }
-        when Float
-          if value.infinite?
-            value.positive? ? "Infinity" : "-Infinity"
-          elsif value.nan?
-            "NaN"
-          else
-            value
-          end
+        in Hash => hash
+          hash.transform_values { |v| sanitize_infinity_values(v) }
+        in Array => array
+          array.map { |v| sanitize_infinity_values(v) }
+        in Float => f if f.infinite?
+          f.positive? ? "Infinity" : "-Infinity"
+        in Float => f if f.nan?
+          "NaN"
         else
           value
         end
