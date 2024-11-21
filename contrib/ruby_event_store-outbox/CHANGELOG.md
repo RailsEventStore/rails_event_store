@@ -1,3 +1,7 @@
+### unreleased
+
+* change the timestamp reported in `enqueued_at` to Sidekiq when pushing jobs from the current time to the record created at timestamp (so that the latency reported in Sidekiq includes the time a job has spent in outbox)
+
 ### 0.0.28  2024-04-12
 
 * Fix issues that prevent res_outbox CLI from processing
