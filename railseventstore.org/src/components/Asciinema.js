@@ -1,6 +1,5 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import React, { useEffect, useRef } from 'react';
-import 'asciinema-player/dist/bundle/asciinema-player.css';
 
 const AsciinemaWidget = ({ src, id}) => {
   return (
