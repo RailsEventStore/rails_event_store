@@ -1,6 +1,5 @@
 ---
 title: Command Bus
-sidebar_position: 7
 ---
 
 _Command Pattern - decoupling what is done from who does it._

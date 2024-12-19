@@ -1,6 +1,5 @@
 ---
 title: Expected Version explained
-sidebar_position: 9
 ---
 
 There are 3 values that you can use for providing `expected_version` when publishing an event in a stream: `:any`, an Integer, `:auto`.

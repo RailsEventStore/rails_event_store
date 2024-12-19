@@ -1,6 +1,5 @@
 ---
 title: Publishing events
-sidebar_position: 1
 ---
 
 ## Defining an event

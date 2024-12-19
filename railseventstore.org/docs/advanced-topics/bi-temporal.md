@@ -1,6 +1,5 @@
 ---
 title: Bi-Temporal EventSourcing
-sidebar_position: 2
 ---
 
 Sometimes in the Event-Sourced world knowing when a specific event happened is not enough. In some business cases, there's also a necessity to know at which point in time a particular event was valid.

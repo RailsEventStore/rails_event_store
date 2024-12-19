@@ -1,7 +1,6 @@
 ---
 title: Using Ruby Event Store without Rails
 sidebar_label: Ruby Event Store - without Rails
-sidebar_position: 11
 ---
 
 ActiveRecord and [ROM](http://rom-rb.org/) ([Sequel](https://github.com/jeremyevans/sequel)) are supported SQL adapters

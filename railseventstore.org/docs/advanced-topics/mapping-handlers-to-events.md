@@ -1,6 +1,5 @@
 ---
 title: 'Mapping handlers to events'
-sidebar_position: 8
 ---
 
 RailsEventStore client provides an API that helps you find all subscribers (also called event handlers) for specified event type.

@@ -1,6 +1,5 @@
 ---
 title: Event Sourcing with AggregateRoot
-sidebar_position: 8
 sidebar_label: Event sourcing
 ---
 

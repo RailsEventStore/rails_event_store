@@ -1,6 +1,5 @@
 ---
 title: Reading events
-sidebar_position: 3
 ---
 
 ## Specifying read scope

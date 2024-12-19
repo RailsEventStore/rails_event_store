@@ -1,6 +1,5 @@
 ---
 title: Client Errors
-sidebar_position: 14
 ---
 
 When using Rails Event Store you have to be prepared for following errors:

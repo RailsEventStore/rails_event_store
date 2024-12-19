@@ -1,6 +1,5 @@
 ---
 title: Event serialization formats
-sidebar_position: 3
 ---
 
 By default RailsEventStore will use `YAML` as a

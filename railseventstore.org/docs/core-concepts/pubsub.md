@@ -1,7 +1,6 @@
 ---
 title: Using Rails Event Store as a pub-sub message bus
 sidebar_label: Publish-Subscribe
-sidebar_position: 6
 ---
 
 ## Defining an event
