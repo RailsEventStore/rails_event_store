@@ -1,6 +1,5 @@
 ---
 title: Browser
-sidebar_position: 14
 ---
 
 Browser is a web interface that allows you to inspect existing streams and their contents. You can use it for debugging purpose as well as a built-in audit log frontend.

@@ -1,6 +1,5 @@
 ---
 title: Transactions with Rails Event Store
-sidebar_position: 1
 sidebar_label: Transactions
 ---
 

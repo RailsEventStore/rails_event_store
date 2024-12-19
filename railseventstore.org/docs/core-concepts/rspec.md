@@ -1,6 +1,5 @@
 ---
 title: RSpec matchers
-sidebar_position: 13
 ---
 
 ## Adding matchers to project

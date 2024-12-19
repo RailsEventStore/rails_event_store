@@ -1,6 +1,5 @@
 ---
 title: Correlation and Causation
-sidebar_position: 12
 ---
 
 Debugging can be one of the challenges when building asynchronous, evented systems. _Why did this happen, what caused all of that?_. But there are patterns which might make your life easier. We just need to keep track of what is happening as a result of what.

@@ -1,6 +1,5 @@
 ---
 title: Projections
-sidebar_position: 10
 ---
 
 You can create a projection abstract based on single stream.
