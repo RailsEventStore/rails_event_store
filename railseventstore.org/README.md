@@ -14,6 +14,10 @@ bundle exec middleman server
 
 Documentation and website are deployed continuously and automatically from the `master` branch.
 
+## Docs navigation update 
+
+The navigation is now generated from the `sidebars.json` file. You need to restart the development server after updating the file.
+
 ## About
 
 <img src="http://arkency.com/images/arkency.png" alt="Arkency" width="20%" align="left" />
