@@ -1,26 +1,28 @@
-import BrowserOnly from '@docusaurus/BrowserOnly';
-import React, { useEffect, useRef } from 'react';
+import BrowserOnly from "@docusaurus/BrowserOnly";
+import React, { useEffect, useRef } from "react";
 
-const AsciinemaWidget = ({ src, id}) => {
+const AsciinemaContent = ({ src, id }) => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.id = id;
+    script.async = true;
+    ref.current?.appendChild(script);
+
+    return () => {
+      ref.current?.removeChild(script);
+    };
+  }, [src, id]);
+
+  return <div ref={ref} />;
+};
+
+const AsciinemaWidget = (props) => {
   return (
     <BrowserOnly fallback={<div>Loading asciinema cast...</div>}>
-      {() => {
-        const ref = useRef(null);
-
-        useEffect(() => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.id = id;
-            script.async = true;
-            ref.current.appendChild(script);
-        
-            return () => {
-              ref.current.removeChild(script);
-            };
-          }, [ref,src, id]);
-
-        return <div ref={ref} />;
-      }}
+      {() => <AsciinemaContent {...props} />}
     </BrowserOnly>
   );
 };

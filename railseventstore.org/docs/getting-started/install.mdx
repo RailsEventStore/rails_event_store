@@ -2,8 +2,7 @@
 title: Installation
 ---
 
-import AsciinemaWidget from '@site/src/components/Asciinema';
-
+import AsciinemaWidget from "@site/src/components/Asciinema";
 
 ## Quick setup
 
@@ -23,10 +22,10 @@ The template will:
 rails new -m https://railseventstore.org/new APP_NAME
 ```
 
-
-<AsciinemaWidget src="https://asciinema.org/a/554180.js" id="asciicast-554180" 
- />
-
+<AsciinemaWidget
+  src="https://asciinema.org/a/554180.js"
+  id="asciicast-554180"
+/>
 
 Obviously, you can specify all the [options](https://guides.rubyonrails.org/command_line.html#rails-new) which `rails new` takes, e.g. database you want to use:
 
@@ -43,8 +42,6 @@ Simply `cd` to your Rails application root directory and run:
 ```ruby
 bin/rails app:template LOCATION=https://railseventstore.org/new
 ```
-
-
 
 The <a href="https://railseventstore.org/new">template</a> will:
 
@@ -161,7 +158,6 @@ Rails.configuration.event_store = RailsEventStore::JSONClient.new
 
 It provides the same features and API as the default client, but it is optimized for `jsonb` data type, providing valid configuration for serialization and deserialization of events.
 
-
 ## Installation with Bundler
 
 If your application dependencies happen to be managed by [Bundler](http://bundler.io/), please add the following line to your `Gemfile`:
@@ -175,10 +171,7 @@ After running `bundle install`, Rails Event Store should be ready to be used.
 <div className="px-4 text-blue-600 bg-blue-100 border-l-4 border-blue-500" role="alert">
   <p className="text-base font-bold">Kickstarting new Rails application with RailsEventStore</p>
   <p className="inline-block text-base">If you're setting up a new Rails app, there is even a faster way to begin with RailsEventStore. The <a href="https://railseventstore.org/new">template</a> will install required gems, perform initial database migration, pre-configure event browser and more — <code className="bg-transparent">rails new -m https://railseventstore.org/new APP_NAME</code></p>
-
-  <p className="inline-block text-base">
-    Make sure to check generated <code className="bg-transparent">config/initializers/rails_event_store.rb</code> for initial configuration.
-  </p>
+  <p className="inline-block text-base">Make sure to check generated <code className="bg-transparent">config/initializers/rails_event_store.rb</code> for initial configuration.</p>
 </div>
 
 ## Installation using RubyGems
