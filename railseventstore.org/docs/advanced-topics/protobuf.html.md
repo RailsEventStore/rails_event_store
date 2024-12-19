@@ -1,6 +1,5 @@
 ---
 title: Using Rails Event Store with Protobuf
-sidebar_position: 12
 sidebar_label: Protobuf
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: Deleting stream
-sidebar_position: 5
 ---
 
 You can permanently delete all events from a specific stream.

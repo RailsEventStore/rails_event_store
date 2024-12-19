@@ -1,6 +1,5 @@
 ---
 title: Linking to stream
-sidebar_position: 4
 ---
 
 An event, once published, can live in more than one stream. Such quality comes useful in order to persistently group events of particular kinds.

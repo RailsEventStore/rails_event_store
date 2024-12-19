@@ -1,6 +1,5 @@
 ---
 title: Migrating existing events
-sidebar_position: 10
 ---
 
 Sometimes it is convenient to update existing historical events. Instead of introducing a new event in a different version (`SomethingHappened-v2`), we might prefer the simplicity of adding a new field to existing events via migration. Such as for example `tenant_id` when we introduce multi-tenancy to our application. There are various trade-offs here (you are rewriting a history after all), but we assume you [understand them well](https://leanpub.com/esversioning/read#leanpub-auto-immutability) if you decide to go this way.

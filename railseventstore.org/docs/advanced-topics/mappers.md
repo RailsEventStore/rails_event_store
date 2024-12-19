@@ -1,6 +1,5 @@
 ---
 title: Mappers
-sidebar_position: 4
 ---
 
 Mapper is defined as a pipeline of transformations that transforms domain event object into record and back from record

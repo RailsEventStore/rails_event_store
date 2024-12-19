@@ -1,6 +1,5 @@
 ---
 title: Logging request metadata
-sidebar_position: 11
 ---
 
 In Rails environment, every event is enhanced with the request metadata provided by `rack` server as long as you configure your event store instance in `config.event_store`. This can help with debugging and building an audit log from events for the future use.

@@ -1,6 +1,5 @@
 ---
 title: Custom Repository
-sidebar_position: 5
 ---
 
 ## Installation with Bundler

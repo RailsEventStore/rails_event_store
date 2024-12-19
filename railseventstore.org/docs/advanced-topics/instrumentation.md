@@ -1,6 +1,5 @@
 ---
 title: Instrumentation
-sidebar_position: 6
 ---
 
 RailsEventStore ships with built-in instrumentation. You can build your own features, improve logging or implement tracing on top of it. It can also be the way to integrate with 3rd party services for like NewRelic RPM, Skylight or AppSignal.
