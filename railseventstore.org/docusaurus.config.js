@@ -168,8 +168,7 @@ const config = {
         copyright: `<p class="mt-8">Supported by <a href="https://arkency.com" target="_blank">Arkency</a></p>`,
       },
       prism: {
-        theme: prismThemes.dracula,
-        darkTheme: prismThemes.dracula,
+        theme: prismThemes.github,
         additionalLanguages: ["bash", "ruby"],
       },
       algolia: {
