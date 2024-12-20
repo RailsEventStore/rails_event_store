@@ -21,6 +21,13 @@
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --ifm-footer-background-color: #141414;
+  --ifm-font-family-base: ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+  --ifm-font-family-monospace: ui-monospace,monospace;
+  --ifm-font-family-heading: ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+  --ifm-font-size-base: 1.125rem;
+  --ifm-font-size-sm: 0.875rem;
+  --ifm-font-size-md: 1rem;
+  --ifm-font-size-lg: 1.125rem;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -45,5 +52,51 @@
 .menu__link--sublist-caret {
   font-weight: bold;
   text-transform: uppercase;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+}
+
+.theme-doc-markdown {
+
+  --ifm-heading-color: #374151;
+  --ifm-font-color-base: #374151;
+  --ifm-color-content: #374151;
+}
+
+
+.markdown li {
+  margin-bottom: .75rem;
+}
+
+.markdown code:not([class*="codeBlock"]) {
+  border-radius: .25rem;
+  padding: .25rem .5rem;
+  font-weight: 400;
+  background-color: #f7f7f7;    
+  color: #586e75;
+  border: none;
+  font-size: 0.875rem;
+}
+
+.markdown code[class*="codeBlock"] {
+  font-size: 0.875rem;
+}
+
+.theme-doc-sidebar-container {
+  --ifm-font-size-base: 0.125rem;
+  .menu__list {
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .menu__link {
+    font-size: 0.875rem;
+  }
+
+  .menu__link--sublist-caret:after {
+    scale: 0.625;
+  }
+
+
+  .theme-doc-sidebar-item-category {
+    margin-bottom: 1.25rem;
+  }
 }
