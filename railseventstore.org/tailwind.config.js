@@ -2,12 +2,7 @@ const { fontFamily } = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  corePlugins: {
-    preflight: false,
-    container: false,
-    divideStyle: true,
-    borderStyle: true,
-  },
+ 
   darkMode: ["class", '[data-theme="dark"]'],
   content: ["./src/**/*.{js,jsx,tsx,html}", "./docs/**/*.{md,mdx}"],
   theme: {
@@ -26,5 +21,7 @@ module.exports = {
     },
   },
   safelist: ["mt-8"],
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 };

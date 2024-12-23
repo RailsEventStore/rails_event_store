@@ -24,10 +24,7 @@
   --ifm-font-family-base: ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
   --ifm-font-family-monospace: ui-monospace,monospace;
   --ifm-font-family-heading: ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
-  --ifm-font-size-base: 1.125rem;
-  --ifm-font-size-sm: 0.875rem;
-  --ifm-font-size-md: 1rem;
-  --ifm-font-size-lg: 1.125rem;
+  
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -42,7 +39,19 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+@layer base {
+  img, svg, video, canvas, audio, iframe, embed, object {
+    @apply inline-block;
+  }
+  .prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::before, .prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::after  {
+    content: none !important;
+  }
+}
 
+
+.theme-doc-version-badge {
+  margin-bottom: 1rem;
+}
 
 .footer--dark {
   background-color: #141414;
@@ -55,12 +64,11 @@
   font-size: 0.875rem;
 }
 
-.theme-doc-markdown {
-
-  --ifm-heading-color: #374151;
-  --ifm-font-color-base: #374151;
-  --ifm-color-content: #374151;
+.menu__list-item:not(:first-child) {
+  margin-top: .25rem;
 }
+
+
 
 
 .markdown li {
