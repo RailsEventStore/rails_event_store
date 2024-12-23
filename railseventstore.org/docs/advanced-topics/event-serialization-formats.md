@@ -79,7 +79,7 @@ end
 
 Using the `RubyEventStore::NULL` serializer will prevent the event store from serializing the event data and metadata. This is necessary because the Active Record will handle serialization before putting the data into the database. And will do otherwise when reading. Database itself expect data to be json already.
 
-<div class="px-4 text-blue-600 bg-blue-100 border-l-4 border-blue-500" role="alert">
+<div class="px-4 py-1 text-blue-600 bg-blue-100 border-l-4 border-blue-500" role="alert">
   <p class="text-base font-bold">Bear in mind that <code>JSON</code> will convert symbols to strings and you have to prepare for that when retrieving events.</p>
   
 ```ruby
