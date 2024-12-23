@@ -2,7 +2,7 @@ const CompaniesList = [
   {
     name: "billetto",
     img: "/images/billetto_logo.svg",
-    link: "https://billetto.co.uk",
+    link: "/billetto",
   },
   {
     name: "zencargo",
