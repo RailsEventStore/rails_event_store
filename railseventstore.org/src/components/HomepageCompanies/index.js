@@ -39,6 +39,16 @@ const CompaniesList = [
     img: "/images/yago.svg",
     link: "https://www.yago.be/",
   },
+  {
+    name: "jobvalley",
+    img: "/images/jobvalley.svg",
+    link: "https://jobvalley.com/",
+  },
+  {
+    name: "anentawaste",
+    img: "/images/anenta.png",
+    link: "https://anentawaste.com",
+  },
 ];
 
 function Company({ name, img, link }) {
