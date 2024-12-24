@@ -25,7 +25,7 @@ rails new -m https://railseventstore.org/new YOUR-APP-NAME
 - implement your aggregates using `AggregateRoot` module, see how [here](../core-concepts/event-sourcing)
 - subscribe to domain events published, [check how](../core-concepts/subscribe) to define subscriptions and event handlers
 - learn Command pattern and [how to](../advanced-topics/command-bus) use Arkency's command bus to decouple your domain model from controllers
-- check [how to](../core-concepts/rspec) use provied `RSpec` matchers
+- check [how to](../core-concepts/rspec) use provided `RSpec` matchers
 - learn more about:
   - [reading](../core-concepts/read) domain events
   - [publishing](../core-concepts/publish) domain events
