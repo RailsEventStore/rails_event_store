@@ -5,40 +5,39 @@ module RailsEventStore
     def initialize(
       mapper: RubyEventStore::Mappers::PipelineMapper.new(
         RubyEventStore::Mappers::Pipeline.new(
-          RubyEventStore::Mappers::Transformation::PreserveTypes
-            .new
-            .register(Symbol, serializer: ->(v) { v.to_s }, deserializer: ->(v) { v.to_sym })
-            .register(
-              Time,
+          {
+            Symbol => {
+              serializer: ->(v) { v.to_s },
+              deserializer: ->(v) { v.to_sym },
+            },
+            Time => {
               serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
               deserializer: ->(v) { Time.iso8601(v) },
-            )
-            .register(
-              ActiveSupport::TimeWithZone,
+            },
+            ActiveSupport::TimeWithZone => {
               serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
               deserializer: ->(v) { Time.iso8601(v).in_time_zone },
               stored_type: ->(*) { "ActiveSupport::TimeWithZone" },
-            )
-            .register(
-              Date,
+            },
+            Date => {
               serializer: ->(v) { v.iso8601 },
               deserializer: ->(v) { Date.iso8601(v) },
-            )
-            .register(
-              DateTime,
+            },
+            DateTime => {
               serializer: ->(v) { v.iso8601 },
               deserializer: ->(v) { DateTime.iso8601(v) },
-            )
-            .register(
-              BigDecimal,
+            },
+            BigDecimal => {
               serializer: ->(v) { v.to_s },
               deserializer: ->(v) { BigDecimal(v) },
-            )
-            .register(
-              OpenStruct,
+            },
+            OpenStruct => {
               serializer: ->(v) { v.to_h },
               deserializer: ->(v) { OpenStruct.new(v) },
-            ),
+            },
+          }.reduce(
+            RubyEventStore::Mappers::Transformation::PreserveTypes.new,
+          ) { |preserve_types, (klass, options)| preserve_types.register(klass, **options) },
           RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
         ),
       ),
