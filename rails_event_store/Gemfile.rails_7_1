@@ -13,5 +13,5 @@ gem "aggregate_root", path: ".."
 
 gem "sidekiq"
 gem "rack-test"
-gem "rails", "~> 8.0.1"
+gem "rails", "~> 7.1.5"
 gem "sqlite3", "~> 1.7"
