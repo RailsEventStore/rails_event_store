@@ -4,6 +4,7 @@ require "spec_helper"
 require "active_support"
 require "active_support/core_ext/time"
 require "json"
+require "ostruct"
 
 module RailsEventStore
   ::RSpec.describe JSONClient do

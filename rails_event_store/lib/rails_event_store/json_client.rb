@@ -31,13 +31,21 @@ module RailsEventStore
               serializer: ->(v) { v.to_s },
               deserializer: ->(v) { BigDecimal(v) },
             },
-            OpenStruct => {
-              serializer: ->(v) { v.to_h },
-              deserializer: ->(v) { OpenStruct.new(v) },
-            },
-          }.reduce(
-            RubyEventStore::Mappers::Transformation::PreserveTypes.new,
-          ) { |preserve_types, (klass, options)| preserve_types.register(klass, **options) },
+          }.merge(
+            if defined?(OpenStruct)
+              {
+                OpenStruct => {
+                  serializer: ->(v) { v.to_h },
+                  deserializer: ->(v) { OpenStruct.new(v) },
+                },
+              }
+            else
+              {}
+            end,
+          )
+            .reduce(
+              RubyEventStore::Mappers::Transformation::PreserveTypes.new,
+            ) { |preserve_types, (klass, options)| preserve_types.register(klass, **options) },
           RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
         ),
       ),
