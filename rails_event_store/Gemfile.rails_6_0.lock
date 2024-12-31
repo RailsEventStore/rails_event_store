@@ -139,7 +139,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.5-x86_64-linux)
       racc (~> 1.4)
-    ostruct (0.6.1)
     parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
@@ -231,7 +230,6 @@ DEPENDENCIES
   mutant (= 0.12.0)
   mutant-minitest (= 0.12.0)
   mutant-rspec (= 0.12.0)
-  ostruct
   rack-test
   rails (~> 6.0.6)
   rails_event_store!

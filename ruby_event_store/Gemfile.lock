@@ -40,6 +40,7 @@ GEM
       mutant (= 0.12.0)
       rspec-core (>= 3.8.0, < 4.0.0)
     mutex_m (0.2.0)
+    ostruct (0.6.1)
     parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
@@ -77,6 +78,7 @@ DEPENDENCIES
   mutant (= 0.12.0)
   mutant-minitest (= 0.12.0)
   mutant-rspec (= 0.12.0)
+  ostruct
   rake (>= 10.0)
   rspec (~> 3.6)
   ruby_event_store!
