@@ -134,9 +134,9 @@ GEM
     sequel (5.72.0)
       bigdecimal
     sorbet-runtime (0.5.11429)
-    sqlite3 (2.5.0-arm64-darwin)
-    sqlite3 (2.5.0-x86_64-darwin)
-    sqlite3 (2.5.0-x86_64-linux-gnu)
+    sqlite3 (1.7.3-arm64-darwin)
+    sqlite3 (1.7.3-x86_64-darwin)
+    sqlite3 (1.7.3-x86_64-linux)
     transproc (1.1.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -163,7 +163,7 @@ DEPENDENCIES
   rspec (~> 3.6)
   ruby_event_store!
   ruby_event_store-rom!
-  sqlite3 (~> 2.5.0)
+  sqlite3 (~> 1.7)
 
 BUNDLED WITH
    2.5.15
