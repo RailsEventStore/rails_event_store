@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "json"
+require "ostruct"
 require "active_support"
 require "active_support/core_ext/time"
 
