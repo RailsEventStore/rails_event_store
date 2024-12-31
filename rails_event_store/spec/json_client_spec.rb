@@ -7,14 +7,20 @@ require "json"
 
 module RailsEventStore
   ::RSpec.describe JSONClient do
-    let(:client) { JSONClient.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON)) }
+    let(:client) do
+      JSONClient.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON))
+    end
 
     specify "reads type of ActiveSupport::TimeWithZone" do
       time_zone = Time.zone
       Time.zone = "Europe/Warsaw"
 
       event =
-        DummyEvent.new(data: { active_support_time_with_zone: with_precision(Time.zone.local(2021, 8, 5, 12, 0, 0.1)) })
+        DummyEvent.new(
+          data: {
+            active_support_time_with_zone: with_precision(Time.zone.local(2021, 8, 5, 12, 0, 0.1)),
+          },
+        )
       client.append(event)
 
       event_ = client.read.event(event.event_id)
