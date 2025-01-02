@@ -751,7 +751,7 @@ class CI
     def contrib_test(
       name,
       working_directory: "contrib/#{name}",
-      matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+      matrix: generate(ruby_version(MRI_RUBY - [RUBY_3_1]), bundle_gemfile(GEMFILE)),
       **
     )
       Workflow.new(
