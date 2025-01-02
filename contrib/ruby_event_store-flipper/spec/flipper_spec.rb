@@ -190,6 +190,7 @@ module RubyEventStore
 
       instrumenter.instrument("feature_operation.flipper", operation: :enabled?, feature_name: "foo_bar")
       instrumenter.instrument("feature_operation.flipper", operation: :exist?, feature_name: "foo_bar")
+    end
 
     private
 
