@@ -18,12 +18,19 @@ mkShell {
       --daemonize yes \
       --pidfile $PIDFILE
 
-    while [ ! -f $PIDFILE ]; do
-      sleep 0.1
-    done
+    if [ $? -eq 0 ]; then
+      echo "Redis server started successfully."
+      export REDIS_URL="unix://$SOCKET"
+    else
+      echo "Failed to start Redis server. Check logs or permissions."
+      exit 1
+    fi
 
-    export REDIS_URL="unix://$SOCKET"
+    if [ ! -f "$PIDFILE" ]; then
+      echo "Redis PID file not found. Starting failed?"
+      exit 1
+    fi
 
-    pushtrap "kill -9 $(cat $PIDFILE);rm -rf $TMP" EXIT
+    pushtrap "if [ -f $PIDFILE ]; then kill -9 $(cat $PIDFILE); fi; rm -rf $TMP" EXIT
   '';
 }
