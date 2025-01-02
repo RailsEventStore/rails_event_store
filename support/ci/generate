@@ -101,10 +101,9 @@ class CI
       release_test(
         "rails_event_store",
         matrix:
-          generate(
-            ruby_version(RUBY_VERSIONS),
-            bundle_gemfile(GEMFILE, RAILS_GEMFILES)
-          )
+          generate(ruby_version(RUBY_VERSIONS - [RUBY_3_1]), bundle_gemfile(GEMFILE)).concat(
+            generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(RAILS_GEMFILES)),
+          ),
       ),
       release_mutate("rails_event_store"),
       release_coverage("rails_event_store"),
