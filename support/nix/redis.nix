@@ -18,6 +18,10 @@ mkShell {
       --daemonize yes \
       --pidfile $PIDFILE
 
+    while [ ! -f $PIDFILE ]; do
+      sleep 0.1
+    done
+
     export REDIS_URL="unix://$SOCKET"
 
     pushtrap "kill -9 $(cat $PIDFILE);rm -rf $TMP" EXIT
