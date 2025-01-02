@@ -39,7 +39,12 @@ module RubyEventStore
         end
 
         specify do
-          object_responding_but_not_a_class = OpenStruct.new(through_outbox?: true)
+          object_responding_but_not_a_class =
+            Object.new.tap do |o|
+              def o.through_outbox?
+                true
+              end
+            end
 
           expect(subject.verify(object_responding_but_not_a_class)).to eq(false)
         end
