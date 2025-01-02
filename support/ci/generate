@@ -101,7 +101,8 @@ class CI
       release_test(
         "rails_event_store",
         matrix:
-          generate(ruby_version(RUBY_VERSIONS - [RUBY_3_1]), bundle_gemfile(GEMFILE)).concat(
+          join(
+            generate(ruby_version(RUBY_VERSIONS - [RUBY_3_1]), bundle_gemfile(GEMFILE)),
             generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(RAILS_GEMFILES)),
           ),
       ),
@@ -189,12 +190,11 @@ class CI
               ruby_version(MRI_RUBY - [RUBY_3_1]),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE3),
-            ).concat(
-              generate(
-                ruby_version(MRI_RUBY.take(1)),
-                bundle_gemfile(RAILS_GEMFILES),
-                database_url(SQLITE3),
-              ),
+            ),
+            generate(
+              ruby_version(MRI_RUBY.take(1)),
+              bundle_gemfile(RAILS_GEMFILES),
+              database_url(SQLITE3),
             ),
           ),
       ),
