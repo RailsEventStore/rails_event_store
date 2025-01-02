@@ -11,20 +11,9 @@ gemfile do
 end
 
 class CI
-  RUBY_VERSIONS = [
-    MRI_RUBY = [
-      RUBY_3_3 = "ruby-3.3",
-      RUBY_3_2 = "ruby-3.2",
-      RUBY_3_1 = "ruby-3.1"
-    ]
-  ].flatten
+  RUBY_VERSIONS = [MRI_RUBY = [RUBY_3_3 = "ruby-3.3", RUBY_3_2 = "ruby-3.2", RUBY_3_1 = "ruby-3.1"]].flatten
 
-  DATA_TYPES = [
-    DATA_TEXT = "text",
-    DATA_BINARY = "binary",
-    DATA_JSON = "json",
-    DATA_JSONB = "jsonb"
-  ]
+  DATA_TYPES = [DATA_TEXT = "text", DATA_BINARY = "binary", DATA_JSON = "json", DATA_JSONB = "jsonb"]
 
   DATA_TYPES_IN_AR = [DATA_BINARY, DATA_TYPES.drop(2)].flatten
   DATA_TYPES_IN_SEQUEL = [DATA_TEXT, DATA_TYPES.drop(2)].flatten
@@ -33,36 +22,22 @@ class CI
     SQLITE = "sqlite:db.sqlite3",
     SQLITE3 = "sqlite3:db.sqlite3",
     POSTGRES = [
-      POSTGRES_15 =
-        "postgres://postgres:secret@localhost:10015/rails_event_store",
-      POSTGRES_11 =
-        "postgres://postgres:secret@localhost:10011/rails_event_store"
+      POSTGRES_15 = "postgres://postgres:secret@localhost:10015/rails_event_store",
+      POSTGRES_11 = "postgres://postgres:secret@localhost:10011/rails_event_store",
     ],
     MYSQL = [
       MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store",
-      MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store"
-    ]
+      MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store",
+    ],
   ].flatten
 
   GEMFILE = "Gemfile"
 
-  RAILS_GEMFILES = [
-    GEMFILE_RAILS_7_0 = "Gemfile.rails_7_0",
-    GEMFILE_RAILS_6_1 = "Gemfile.rails_6_1",
-    GEMFILE_RAILS_6_0 = "Gemfile.rails_6_0"
-  ].flatten
+  RAILS_GEMFILES = [GEMFILE_RAILS_7_0 = "Gemfile.rails_7_0", GEMFILE_RAILS_6_1 = "Gemfile.rails_6_1"].flatten
 
-  AS_GEMFILES = [
-    GEMFILE_AS_7_0 = "Gemfile.activesupport_7_0",
-    GEMFILE_AS_6_1 = "Gemfile.activesupport_6_1",
-    GEMFILE_AS_6_0 = "Gemfile.activesupport_6_0"
-  ]
+  AS_GEMFILES = [GEMFILE_AS_7_0 = "Gemfile.activesupport_7_0", GEMFILE_AS_6_1 = "Gemfile.activesupport_6_1"]
 
-  AR_GEMFILES = [
-    GEMFILE_AR_7_0 = "Gemfile.activerecord_7_0",
-    GEMFILE_AR_6_1 = "Gemfile.activerecord_6_1",
-    GEMFILE_AR_6_0 = "Gemfile.activerecord_6_0"
-  ]
+  AR_GEMFILES = [GEMFILE_AR_7_0 = "Gemfile.activerecord_7_0", GEMFILE_AR_6_1 = "Gemfile.activerecord_6_1"]
 
   SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5"]
 
@@ -79,29 +54,14 @@ class CI
       release_coverage("ruby_event_store-rspec"),
       release_test(
         "ruby_event_store-browser",
-        steps: [
-          checkout,
-          verify_lockfile,
-          setup_ruby,
-          setup_node,
-          cache_elm,
-          make("install-npm test")
-        ],
-        matrix:
-          generate(
-            ruby_version(RUBY_VERSIONS),
-            bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")
-          )
+        steps: [checkout, verify_lockfile, setup_ruby, setup_node, cache_elm, make("install-npm test")],
+        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
       ),
       release_mutate("ruby_event_store-browser"),
       release_coverage("ruby_event_store-browser"),
       release_test(
         "rails_event_store",
-        matrix:
-          generate(
-            ruby_version(RUBY_VERSIONS),
-            bundle_gemfile(GEMFILE, RAILS_GEMFILES)
-          )
+        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, RAILS_GEMFILES)),
       ),
       release_mutate("rails_event_store"),
       release_coverage("rails_event_store"),
@@ -113,21 +73,17 @@ class CI
             ruby_version(RUBY_VERSIONS),
             bundle_gemfile(GEMFILE, AR_GEMFILES),
             join(
-              generate(
-                database_url(SQLITE3),
-                data_type(DATA_TYPES_IN_AR.take(1))
-              ),
+              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
               generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2)))
-            )
-          )
+              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+            ),
+          ),
       ),
       release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
       contrib_test(
         "ruby_event_store-flipper",
-        matrix:
-          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, AS_GEMFILES))
+        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, AS_GEMFILES)),
       ),
       contrib_mutate("ruby_event_store-flipper"),
       contrib_coverage("ruby_event_store-flipper"),
@@ -142,17 +98,10 @@ class CI
             generate(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, RAILS_GEMFILES, SIDEKIQ_GEMFILES),
-              database_url(SQLITE3, MYSQL_5, MYSQL_8)
-            )
+              database_url(SQLITE3, MYSQL_5, MYSQL_8),
+            ),
           ),
-        steps: [
-          checkout,
-          setup_nix,
-          setup_cachix,
-          verify_lockfile,
-          setup_ruby,
-          make_nix_shell("test")
-        ]
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")],
       ),
       contrib_mutate(
         "ruby_event_store-outbox",
@@ -162,19 +111,12 @@ class CI
           setup_cachix,
           verify_lockfile,
           setup_ruby,
-          make_nix_shell("mutate-changes")
-        ]
+          make_nix_shell("mutate-changes"),
+        ],
       ),
       contrib_coverage(
         "ruby_event_store-outbox",
-        steps: [
-          checkout,
-          setup_nix,
-          setup_cachix,
-          verify_lockfile,
-          setup_ruby,
-          make_nix_shell("mutate")
-        ]
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")],
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
@@ -183,28 +125,16 @@ class CI
         "ruby_event_store-protobuf",
         matrix:
           join(
-            generate(
-              ruby_version(MRI_RUBY.drop(1)),
-              bundle_gemfile(GEMFILE, RAILS_GEMFILES),
-              database_url(SQLITE3)
-            )
-          )
+            generate(ruby_version(MRI_RUBY.drop(1)), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3)),
+          ),
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
-        matrix:
-          generate(
-            ruby_version(MRI_RUBY.drop(1).take(1)),
-            bundle_gemfile(GEMFILE)
-          )
+        matrix: generate(ruby_version(MRI_RUBY.drop(1).take(1)), bundle_gemfile(GEMFILE)),
       ),
       contrib_coverage(
         "ruby_event_store-protobuf",
-        matrix:
-          generate(
-            ruby_version(MRI_RUBY.drop(1).take(1)),
-            bundle_gemfile(GEMFILE)
-          )
+        matrix: generate(ruby_version(MRI_RUBY.drop(1).take(1)), bundle_gemfile(GEMFILE)),
       ),
       contrib_test(
         "ruby_event_store-rom",
@@ -215,21 +145,21 @@ class CI
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1))
+              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
             ),
             generate(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
-              data_type(DATA_TYPES_IN_SEQUEL)
+              data_type(DATA_TYPES_IN_SEQUEL),
             ),
             generate(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(MYSQL),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1))
-            )
-          )
+              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
+            ),
+          ),
       ),
       contrib_mutate("ruby_event_store-rom"),
       contrib_coverage("ruby_event_store-rom"),
@@ -242,41 +172,28 @@ class CI
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1))
+              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
             ),
             generate(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
-              data_type(DATA_TYPES_IN_SEQUEL)
+              data_type(DATA_TYPES_IN_SEQUEL),
             ),
             generate(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(MYSQL),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1))
-            )
-          )
+              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
+            ),
+          ),
       ),
       contrib_mutate("ruby_event_store-sequel"),
       contrib_coverage("ruby_event_store-sequel"),
       contrib_test(
         "ruby_event_store-sidekiq_scheduler",
-        matrix:
-          join(
-            generate(
-              ruby_version(MRI_RUBY),
-              bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)
-            )
-          ),
-        steps: [
-          checkout,
-          setup_nix,
-          setup_cachix,
-          verify_lockfile,
-          setup_ruby,
-          make_nix_shell("test")
-        ]
+        matrix: join(generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES))),
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")],
       ),
       contrib_mutate(
         "ruby_event_store-sidekiq_scheduler",
@@ -286,19 +203,12 @@ class CI
           setup_cachix,
           verify_lockfile,
           setup_ruby,
-          make_nix_shell("mutate-changes")
-        ]
+          make_nix_shell("mutate-changes"),
+        ],
       ),
       contrib_coverage(
         "ruby_event_store-sidekiq_scheduler",
-        steps: [
-          checkout,
-          setup_nix,
-          setup_cachix,
-          verify_lockfile,
-          setup_ruby,
-          make_nix_shell("mutate")
-        ]
+        steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")],
       ),
       contrib_test("ruby_event_store-transformations"),
       contrib_mutate("ruby_event_store-transformations"),
@@ -316,12 +226,12 @@ class CI
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
-              data_type(DATA_TYPES_IN_AR)
-            )
+              data_type(DATA_TYPES_IN_AR),
+            ),
           ),
-        triggers: dres_triggers("dres_rails_test")
+        triggers: dres_triggers("dres_rails_test"),
       ),
-      assets("ruby_event_store-browser")
+      assets("ruby_event_store-browser"),
     ]
   end
 
@@ -331,10 +241,7 @@ class CI
     end
 
     def verify_lockfile
-      {
-        "run" => "test -e ${{ env.BUNDLE_GEMFILE }}.lock",
-        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-      }
+      { "run" => "test -e ${{ env.BUNDLE_GEMFILE }}.lock", "working-directory" => "${{ env.WORKING_DIRECTORY }}" }
     end
 
     def setup_ruby
@@ -343,8 +250,8 @@ class CI
         "with" => {
           "ruby-version" => "${{ env.RUBY_VERSION }}",
           "bundler-cache" => true,
-          "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-        }
+          "working-directory" => "${{ env.WORKING_DIRECTORY }}",
+        },
       }
     end
 
@@ -354,9 +261,8 @@ class CI
         "with" => {
           "node-version" => 20,
           "cache" => "npm",
-          "cache-dependency-path" =>
-            "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json"
-        }
+          "cache-dependency-path" => "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json",
+        },
       }
     end
 
@@ -365,19 +271,13 @@ class CI
         "uses" => "actions/cache@v4",
         "with" => {
           "path" => "~/.elm",
-          "key" =>
-            "elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}"
-        }
+          "key" => "elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}",
+        },
       }
     end
 
     def setup_nix
-      {
-        "uses" => "cachix/install-nix-action@v25",
-        "with" => {
-          "nix_path" => "nixpkgs=channel:nixos-unstable"
-        }
-      }
+      { "uses" => "cachix/install-nix-action@v25", "with" => { "nix_path" => "nixpkgs=channel:nixos-unstable" } }
     end
 
     def setup_cachix
@@ -385,14 +285,13 @@ class CI
         "uses" => "cachix/cachix-action@v14",
         "with" => {
           "name" => "railseventstore",
-          "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}"
-        }
+          "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}",
+        },
       }
     end
 
     def make_nix_shell(target, imports: ["redis.nix"])
-      {
-        "run" => <<~SHELL,
+      { "run" => <<~SHELL, "working-directory" => "${{ env.WORKING_DIRECTORY }}" }
         nix-shell --run "make #{target}" -E"
           with import <nixpkgs> { };
           mkShell {
@@ -402,8 +301,6 @@ class CI
           }
         "
       SHELL
-        "working-directory" => "${{ env.WORKING_DIRECTORY }}"
-      }
     end
 
     def make(target)
@@ -411,8 +308,8 @@ class CI
         "run" => "make #{target}",
         "working-directory" => "${{ env.WORKING_DIRECTORY }}",
         "env" => {
-          "RUBYOPT" => "--enable-frozen-string-literal"
-        }
+          "RUBYOPT" => "--enable-frozen-string-literal",
+        },
       }
       body
     end
@@ -422,8 +319,8 @@ class CI
         "uses" => "actions/upload-artifact@v4",
         "with" => {
           "name" => name,
-          "path" => "${{ env.WORKING_DIRECTORY }}/public/#{name}"
-        }
+          "path" => "${{ env.WORKING_DIRECTORY }}/public/#{name}",
+        },
       }
     end
 
@@ -433,23 +330,17 @@ class CI
         "with" => {
           "aws-access-key-id" => "${{ secrets.AWS_ACCESS_KEY_ID }}",
           "aws-secret-access-key" => "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
-          "aws-region" => "eu-central-1"
-        }
+          "aws-region" => "eu-central-1",
+        },
       }
     end
 
     def set_short_sha_env
-      {
-        "run" =>
-          "echo \"SHORT_SHA=$(git rev-parse --short=12 HEAD)\" >> $GITHUB_ENV"
-      }
+      { "run" => "echo \"SHORT_SHA=$(git rev-parse --short=12 HEAD)\" >> $GITHUB_ENV" }
     end
 
     def aws_s3_sync
-      {
-        "run" =>
-          "aws s3 sync ${{ env.WORKING_DIRECTORY }}/public s3://ruby-event-store-assets/${{ env.SHORT_SHA }}"
-      }
+      { "run" => "aws s3 sync ${{ env.WORKING_DIRECTORY }}/public s3://ruby-event-store-assets/${{ env.SHORT_SHA }}" }
     end
   end
   include Actions
@@ -478,43 +369,22 @@ class CI
 
     def release_triggers(workflow_name)
       paths = release_paths(workflow_name)
-      [
-        manual_trigger,
-        api_trigger,
-        push_trigger(paths.dup),
-        pr_trigger(paths.dup)
-      ]
+      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
     end
 
     def contrib_triggers(workflow_name, working_directory)
       paths = contrib_paths(workflow_name, working_directory)
-      [
-        manual_trigger,
-        api_trigger,
-        push_trigger(paths.dup),
-        pr_trigger(paths.dup)
-      ]
+      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
     end
 
     def coverage_triggers(workflow_name, working_directory)
       paths = coverage_paths(workflow_name, working_directory)
-      [
-        manual_trigger,
-        api_trigger,
-        push_trigger(paths.dup),
-        pr_trigger(paths.dup),
-        scheduled_trigger
-      ]
+      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup), scheduled_trigger]
     end
 
     def dres_triggers(workflow_name)
       paths = dres_paths(workflow_name)
-      [
-        manual_trigger,
-        api_trigger,
-        push_trigger(paths.dup),
-        pr_trigger(paths.dup)
-      ]
+      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
     end
 
     def release_paths(workflow_name)
@@ -528,31 +398,25 @@ class CI
           ruby_event_store-rspec
         ].map { |name| "#{name}/**" },
         workflow_paths(workflow_name),
-        support_paths
+        support_paths,
       ].reduce(&:concat).uniq
     end
 
     def contrib_paths(workflow_name, working_directory)
-      [
-        own_paths(working_directory),
-        workflow_paths(workflow_name),
-        support_paths
-      ].reduce(&:concat).uniq
+      [own_paths(working_directory), workflow_paths(workflow_name), support_paths].reduce(&:concat).uniq
     end
 
     def coverage_paths(workflow_name, working_directory)
-      [
-        [working_directory].map { |wd| "#{wd}/Gemfile.lock" },
-        workflow_paths(workflow_name),
-        support_paths
-      ].reduce(&:concat).uniq
+      [[working_directory].map { |wd| "#{wd}/Gemfile.lock" }, workflow_paths(workflow_name), support_paths].reduce(
+        &:concat
+      ).uniq
     end
 
     def dres_paths(workflow_name)
       [
         %w[dres_client dres_rails].map { |name| "contrib/#{name}/**" },
         workflow_paths(workflow_name),
-        support_paths
+        support_paths,
       ].reduce(&:concat).uniq
     end
 
@@ -577,12 +441,11 @@ class CI
           "image" => "postgres:11",
           "env" => {
             "POSTGRES_DB" => "rails_event_store",
-            "POSTGRES_PASSWORD" => "secret"
+            "POSTGRES_PASSWORD" => "secret",
           },
           "ports" => ["10011:5432"],
-          "options" =>
-            "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5"
-        }
+          "options" => "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5",
+        },
       }
     end
 
@@ -592,12 +455,11 @@ class CI
           "image" => "postgres:15",
           "env" => {
             "POSTGRES_DB" => "rails_event_store",
-            "POSTGRES_PASSWORD" => "secret"
+            "POSTGRES_PASSWORD" => "secret",
           },
           "ports" => ["10015:5432"],
-          "options" =>
-            "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5"
-        }
+          "options" => "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5",
+        },
       }
     end
 
@@ -607,12 +469,11 @@ class CI
           "image" => "mysql:8",
           "env" => {
             "MYSQL_DATABASE" => "rails_event_store",
-            "MYSQL_ROOT_PASSWORD" => "secret"
+            "MYSQL_ROOT_PASSWORD" => "secret",
           },
           "ports" => ["10008:3306"],
-          "options" =>
-            "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5"
-        }
+          "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
+        },
       }
     end
 
@@ -622,12 +483,11 @@ class CI
           "image" => "mysql:5",
           "env" => {
             "MYSQL_DATABASE" => "rails_event_store",
-            "MYSQL_ROOT_PASSWORD" => "secret"
+            "MYSQL_ROOT_PASSWORD" => "secret",
           },
           "ports" => ["10005:3306"],
-          "options" =>
-            "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5"
-        }
+          "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
+        },
       }
     end
   end
@@ -693,24 +553,10 @@ class CI
       end
 
       def to_h
-        {
-          "name" => name,
-          "on" => triggers.reduce(&:merge),
-          "jobs" => {
-            job_name => job
-          }
-        }
+        { "name" => name, "on" => triggers.reduce(&:merge), "jobs" => { job_name => job } }
       end
 
-      attr_reader :gem,
-                  :job_name,
-                  :name,
-                  :working_directory,
-                  :matrix,
-                  :steps,
-                  :services,
-                  :triggers,
-                  :runs_on
+      attr_reader :gem, :job_name, :name, :working_directory, :matrix, :steps, :services, :triggers, :runs_on
 
       private
 
@@ -718,28 +564,23 @@ class CI
         {
           "runs-on" => runs_on,
           "timeout-minutes" => 120,
-          "env" => { "WORKING_DIRECTORY" => working_directory }.merge(
-            env(matrix)
-          ),
+          "env" => { "WORKING_DIRECTORY" => working_directory }.merge(env(matrix)),
           "services" => services.reduce(&:merge),
           "strategy" => {
             "fail-fast" => false,
             "matrix" => {
-              "include" => matrix
-            }
+              "include" => matrix,
+            },
           },
-          "steps" => steps
-        }.reject { |k, _| k == "services" && services.empty? }
-          .reject { |k, _| k == "strategy" && matrix.empty? }
+          "steps" => steps,
+        }.reject { |k, _| k == "services" && services.empty? }.reject { |k, _| k == "strategy" && matrix.empty? }
       end
 
       def env(matrix)
         matrix
           .take(1)
           .reduce({}) do |acc, matrix_item|
-            matrix_item.reduce(acc) do |acc, (key, _)|
-              acc.merge(key.upcase => "${{ matrix.#{key} }}")
-            end
+            matrix_item.reduce(acc) { |acc, (key, _)| acc.merge(key.upcase => "${{ matrix.#{key} }}") }
           end
       end
     end
@@ -759,19 +600,14 @@ class CI
         working_directory: working_directory,
         matrix: matrix,
         triggers: contrib_triggers("#{name}_test", working_directory),
-        **
+        **,
       )
     end
 
     def release_mutate(
       name,
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-      steps: [
-        checkout(depth: 0),
-        verify_lockfile,
-        setup_ruby,
-        make("mutate-changes")
-      ],
+      steps: [checkout(depth: 0), verify_lockfile, setup_ruby, make("mutate-changes")],
       **
     )
       Workflow.new(name, job_name: "mutate", matrix: matrix, steps: steps, **)
@@ -781,12 +617,7 @@ class CI
       name,
       working_directory: "contrib/#{name}",
       matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
-      steps: [
-        checkout(depth: 0),
-        verify_lockfile,
-        setup_ruby,
-        make("mutate-changes")
-      ],
+      steps: [checkout(depth: 0), verify_lockfile, setup_ruby, make("mutate-changes")],
       **
     )
       Workflow.new(
@@ -796,7 +627,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: contrib_triggers("#{name}_mutate", working_directory),
-        **
+        **,
       )
     end
 
@@ -812,7 +643,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", name),
-        **
+        **,
       )
     end
 
@@ -830,7 +661,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", working_directory),
-        **
+        **,
       )
     end
 
@@ -849,9 +680,9 @@ class CI
           upload_artifact("ruby_event_store_browser.css"),
           configure_aws_credentials,
           set_short_sha_env,
-          aws_s3_sync
+          aws_s3_sync,
         ],
-        triggers: [manual_trigger, api_trigger, push_trigger]
+        triggers: [manual_trigger, api_trigger, push_trigger],
       )
     end
   end
@@ -866,13 +697,7 @@ class CI
   end
 
   def as_yaml(content)
-    Psych
-      .safe_dump(content, line_width: 120)
-      .lines
-      .drop(1)
-      .join
-      .strip
-      .gsub(/'on':\n/, "on:\n")
+    Psych.safe_dump(content, line_width: 120).lines.drop(1).join.strip.gsub(/'on':\n/, "on:\n")
   end
 
   def initialize(workflows_root, template_root)
@@ -883,7 +708,4 @@ class CI
   attr_reader :workflows_root, :template_root
 end
 
-CI.new(
-  File.join(__dir__, "../../.github/workflows/"),
-  __dir__
-).as_github_actions
+CI.new(File.join(__dir__, "../../.github/workflows/"), __dir__).as_github_actions
