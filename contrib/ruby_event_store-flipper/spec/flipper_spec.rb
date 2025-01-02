@@ -77,7 +77,8 @@ module RubyEventStore
     specify "enabling toggle for actor" do
       Flipper.enable(event_store)
 
-      actor = OpenStruct.new(flipper_id: "User:123")
+      actor = mk_actor
+
       flipper.enable_actor(:foo_bar, actor)
 
       expect(event_store).to have_published(
@@ -88,7 +89,7 @@ module RubyEventStore
     specify "disabling toggle for actor" do
       Flipper.enable(event_store)
 
-      actor = OpenStruct.new(flipper_id: "User:123")
+      actor = mk_actor
       flipper.disable_actor(:foo_bar, actor)
 
       expect(event_store).to have_published(
@@ -189,6 +190,17 @@ module RubyEventStore
 
       instrumenter.instrument("feature_operation.flipper", operation: :enabled?, feature_name: "foo_bar")
       instrumenter.instrument("feature_operation.flipper", operation: :exist?, feature_name: "foo_bar")
+
+    private
+
+    def mk_actor
+      Class
+        .new do
+          def flipper_id
+            "User:123"
+          end
+        end
+        .new
     end
   end
 end
