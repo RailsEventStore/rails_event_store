@@ -77,9 +77,7 @@ module RubyEventStore
     specify "enabling toggle for actor" do
       Flipper.enable(event_store)
 
-      actor = mk_actor
-
-      flipper.enable_actor(:foo_bar, actor)
+      flipper.enable_actor(:foo_bar, mk_actor.new)
 
       expect(event_store).to have_published(
         an_event(Flipper::Events::ToggleEnabledForActor).with_data(feature_name: "foo_bar", actor: "User:123")
@@ -89,8 +87,7 @@ module RubyEventStore
     specify "disabling toggle for actor" do
       Flipper.enable(event_store)
 
-      actor = mk_actor
-      flipper.disable_actor(:foo_bar, actor)
+      flipper.disable_actor(:foo_bar, mk_actor.new)
 
       expect(event_store).to have_published(
         an_event(Flipper::Events::ToggleDisabledForActor).with_data(feature_name: "foo_bar", actor: "User:123")
@@ -195,13 +192,11 @@ module RubyEventStore
     private
 
     def mk_actor
-      Class
-        .new do
-          def flipper_id
-            "User:123"
-          end
+      Class.new do
+        def flipper_id
+          "User:123"
         end
-        .new
+      end
     end
   end
 end
