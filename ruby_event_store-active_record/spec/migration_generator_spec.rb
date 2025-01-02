@@ -38,14 +38,6 @@ module RubyEventStore
         expect(read_migration(@dir)).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
       end
 
-      specify "uses particular migration version for rails 6.0" do
-        skip unless ENV["BUNDLE_GEMFILE"]&.include?("rails_6_0")
-
-        migration_generator(@dir)
-
-        expect(read_migration(@dir)).to include("ActiveRecord::Migration[6.0]")
-      end
-
       specify "uses particular migration version for rails 6.1" do
         skip unless ENV["BUNDLE_GEMFILE"]&.include?("rails_6_1")
 
@@ -64,21 +56,21 @@ module RubyEventStore
       specify "throws on attempt to create migration with json data type for SQLite adapter" do
         expect { migration_generator(@dir, "json", "SQLite") }.to raise_error(
           InvalidDataTypeForAdapter,
-          "SQLite doesn't support \"json\". Supported types are: binary."
+          "SQLite doesn't support \"json\". Supported types are: binary.",
         )
       end
 
       specify "throws on attempt to create migration with jsonb data type for SQLite adapter" do
         expect { migration_generator(@dir, "jsonb", "SQLite") }.to raise_error(
           InvalidDataTypeForAdapter,
-          "SQLite doesn't support \"jsonb\". Supported types are: binary."
+          "SQLite doesn't support \"jsonb\". Supported types are: binary.",
         )
       end
 
       specify "throws on attempt to create migration with jsonb data type for MySQL adapter" do
         expect { migration_generator(@dir, "jsonb", "MySQL2") }.to raise_error(
           InvalidDataTypeForAdapter,
-          "MySQL doesn't support \"jsonb\". Supported types are: binary, json."
+          "MySQL doesn't support \"jsonb\". Supported types are: binary, json.",
         )
       end
 
@@ -120,7 +112,7 @@ module RubyEventStore
       specify "raises error when data type is not supported" do
         expect { migration_generator(@dir, "invalid") }.to raise_error(
           InvalidDataTypeForAdapter,
-          "SQLite doesn't support \"invalid\". Supported types are: binary."
+          "SQLite doesn't support \"invalid\". Supported types are: binary.",
         )
       end
 

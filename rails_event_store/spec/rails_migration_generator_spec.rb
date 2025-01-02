@@ -28,11 +28,6 @@ module RailsEventStore
       expect(subject).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
     end
 
-    it "uses particular migration version for rails 6.0" do
-      skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_0")
-      expect(subject).to include("ActiveRecord::Migration[6.0]")
-    end
-
     it "uses particular migration version for rails 6.1" do
       skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_1")
       expect(subject).to include("ActiveRecord::Migration[6.1]")
@@ -44,7 +39,7 @@ module RailsEventStore
       subject do
         RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
           ["--data-type=#{data_type}"],
-          destination_root: @dir
+          destination_root: @dir,
         )
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
@@ -74,7 +69,7 @@ module RailsEventStore
       subject do
         RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
           ["--data-type=#{data_type}"],
-          destination_root: @dir
+          destination_root: @dir,
         )
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
@@ -106,7 +101,7 @@ module RailsEventStore
       subject do
         RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
           ["--data-type=#{data_type}"],
-          destination_root: @dir
+          destination_root: @dir,
         )
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
@@ -145,7 +140,7 @@ module RailsEventStore
         it "raises an error" do
           expect { RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type) }.to raise_error(
             RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
-            "Invalid value for --data-type option. Supported for options are: binary."
+            "Invalid value for --data-type option. Supported for options are: binary.",
           )
         end
       end

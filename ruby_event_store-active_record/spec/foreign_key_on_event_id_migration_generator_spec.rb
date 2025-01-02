@@ -30,15 +30,9 @@ module RubyEventStore
         specify "uses particular migration version" do
           migration_generator(adapter, @dir)
 
-          expect(read_migration(@dir)).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
-        end
-
-        specify "uses particular migration version for rails 6.0" do
-          skip unless ENV["BUNDLE_GEMFILE"]&.include?("rails_6_0")
-
-          migration_generator(adapter, @dir)
-
-          expect(read_migration(@dir)).to include("ActiveRecord::Migration[6.0]")
+          expect(read_migration(@dir)).to include(
+            "ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]",
+          )
         end
 
         specify "uses particular migration version for rails 6.1" do
@@ -87,7 +81,7 @@ module RubyEventStore
       end
 
       def generated_files_count(dir)
-        Dir[File.join(dir, '**', '*')].length
+        Dir[File.join(dir, "**", "*")].length
       end
     end
   end

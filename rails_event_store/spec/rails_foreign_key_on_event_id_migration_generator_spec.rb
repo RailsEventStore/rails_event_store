@@ -28,11 +28,6 @@ module RailsEventStore
       expect(subject).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
     end
 
-    it "uses particular migration version for rails 6.0" do
-      skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_0")
-      expect(subject).to include("ActiveRecord::Migration[6.0]")
-    end
-
     it "uses particular migration version for rails 6.1" do
       skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_1")
       expect(subject).to include("ActiveRecord::Migration[6.1]")
@@ -80,11 +75,13 @@ module RailsEventStore
     end
 
     def second_step_migration_exists?(dir)
-      File.exist?("#{dir}/db/migrate/20160809222223_validate_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb")
+      File.exist?(
+        "#{dir}/db/migrate/20160809222223_validate_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb",
+      )
     end
 
     def generated_files_count(dir)
-      Dir[File.join(dir, 'db/migrate', '*')].length
+      Dir[File.join(dir, "db/migrate", "*")].length
     end
   end
 end
