@@ -186,7 +186,7 @@ class CI
         matrix:
           join(
             generate(
-              ruby_version(MRI_RUBY.drop(1)),
+              ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, RAILS_GEMFILES),
               database_url(SQLITE3)
             )
@@ -194,19 +194,11 @@ class CI
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
-        matrix:
-          generate(
-            ruby_version(MRI_RUBY.drop(1).take(1)),
-            bundle_gemfile(GEMFILE)
-          )
+        matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       ),
       contrib_coverage(
         "ruby_event_store-protobuf",
-        matrix:
-          generate(
-            ruby_version(MRI_RUBY.drop(1).take(1)),
-            bundle_gemfile(GEMFILE)
-          )
+        matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       ),
       contrib_test(
         "ruby_event_store-rom",
