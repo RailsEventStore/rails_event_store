@@ -16,7 +16,8 @@ mkShell {
       --unixsocket $SOCKET \
       --save "" \
       --daemonize yes \
-      --pidfile $PIDFILE
+      --pidfile $PIDFILE \
+      --loglevel verbose
 
     export REDIS_URL="unix://$SOCKET"
 

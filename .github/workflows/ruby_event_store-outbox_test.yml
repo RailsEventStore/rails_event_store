@@ -97,6 +97,11 @@ jobs:
         bundler-cache: true
         working-directory: "${{ env.WORKING_DIRECTORY }}"
     - run: |
+        echo "Checking if /home/runner/work/_temp exists and has correct permissions"
+        ls -la /home/runner/work/_temp
+        echo "Current permissions:"
+        stat -c "%a %n" /home/runner/work/_temp
+    - run: |
         nix-shell --run "make test" -E"
           with import <nixpkgs> { };
           mkShell {
@@ -106,3 +111,11 @@ jobs:
           }
         "
       working-directory: "${{ env.WORKING_DIRECTORY }}"
+    - run: |
+        echo "Check if Redis is running:"
+        ps aux | grep redis
+        echo "Check for Redis socket:"
+        ls -la "${{ env.SOCKET }}"
+    - run: |
+        echo "REDIS_URL is set to $REDIS_URL"
+        env | grep REDIS
