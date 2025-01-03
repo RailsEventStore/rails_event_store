@@ -21,7 +21,7 @@ mkShell {
 
     export REDIS_URL="unix://$SOCKET"
 
-    ls -la /home/runner/work/_temp
+    ls -la $TMP
 
     env | grep REDIS
 
