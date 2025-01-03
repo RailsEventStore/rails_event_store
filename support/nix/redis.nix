@@ -1,10 +1,14 @@
 with import <nixpkgs> {};
 
 mkShell {
-  buildInputs = [ redis ];
+  buildInputs = [ redis glibcLocales ];
 
   shellHook = ''
     ${builtins.readFile ./pushtrap.sh}
+
+    LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive"
+    LANG = "en_US.UTF-8"
+    LC_ALL = "en_US.UTF-8"
 
     TMP=$(mktemp -d)
     SOCKET=$TMP/redis.sock

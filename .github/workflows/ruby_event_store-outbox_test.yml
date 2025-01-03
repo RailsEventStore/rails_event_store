@@ -97,16 +97,6 @@ jobs:
         bundler-cache: true
         working-directory: "${{ env.WORKING_DIRECTORY }}"
     - run: |
-        nix-shell --run "locale" -E"
-          with import <nixpkgs> { };
-          mkShell {
-            inputsFrom = [
-              (import ../../support/nix/redis.nix)
-            ];
-          }
-        "
-      working-directory: "${{ env.WORKING_DIRECTORY }}"
-    - run: |
         nix-shell --run "make test" -E"
           with import <nixpkgs> { };
           mkShell {
