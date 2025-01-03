@@ -124,7 +124,7 @@ GEM
     uglifier (3.2.0)
       execjs (>= 0.3.0, < 3)
     uri (0.13.0)
-    webrick (1.8.1)
+    webrick (1.9.0)
 
 PLATFORMS
   arm64-darwin
