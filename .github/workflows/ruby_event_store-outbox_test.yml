@@ -96,11 +96,7 @@ jobs:
         ruby-version: "${{ env.RUBY_VERSION }}"
         bundler-cache: true
         working-directory: "${{ env.WORKING_DIRECTORY }}"
-    - run: |
-        echo "Checking if /home/runner/work/_temp exists and has correct permissions"
-        ls -la /home/runner/work/_temp
-        echo "Current permissions:"
-        stat -c "%a %n" /home/runner/work/_temp
+    - run: nix-shell --run "locale"
     - run: |
         nix-shell --run "make test" -E"
           with import <nixpkgs> { };
