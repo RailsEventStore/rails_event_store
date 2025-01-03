@@ -9,6 +9,7 @@ mkShell {
     TMP=$(mktemp -d)
     SOCKET=$TMP/redis.sock
     PIDFILE=$TMP/redis.pid
+    LOGFILE=$TMP/redis.log
 
     redis-server \
       --protected-mode no \
@@ -17,13 +18,11 @@ mkShell {
       --save "" \
       --daemonize yes \
       --pidfile $PIDFILE \
-      --loglevel verbose
+      --loglevel verbose \
+      --logfile $LOGFILE
 
+    export REDIS_LOG_FILE=$LOGFILE
     export REDIS_URL="unix://$SOCKET"
-
-    ls -la $TMP
-
-    env | grep REDIS
 
     pushtrap "kill -9 $(cat $PIDFILE);rm -rf $TMP" EXIT
   '';

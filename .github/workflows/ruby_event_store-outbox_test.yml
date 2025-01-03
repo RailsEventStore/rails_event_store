@@ -111,3 +111,8 @@ jobs:
           }
         "
       working-directory: "${{ env.WORKING_DIRECTORY }}"
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: redis-logs
+        path: "{{ env.REDIS_LOG_FILE }}"
