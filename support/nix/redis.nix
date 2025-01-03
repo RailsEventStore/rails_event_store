@@ -10,7 +10,10 @@ mkShell {
     LANG = "en_US.UTF-8"
     LC_ALL = "en_US.UTF-8"
 
-    TMP=$(mktemp -d)
+    mkdir -p /home/runner/_temp/kakadudu
+    touch /home/runner/_temp/redis.log
+
+    TMP=/home/runner/_temp/kakadudu
     SOCKET=$TMP/redis.sock
     PIDFILE=$TMP/redis.pid
     LOGFILE=/home/runner/_temp/redis.log
