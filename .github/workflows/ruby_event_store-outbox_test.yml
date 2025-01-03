@@ -115,4 +115,4 @@ jobs:
       if: always()
       with:
         name: redis-logs
-        path: /home/runner/_temp/kakadudu/redis.log
+        path: /home/runner/_temp/redis.log
