@@ -21,6 +21,10 @@ mkShell {
 
     export REDIS_URL="unix://$SOCKET"
 
+    ls -la /home/runner/work/_temp
+
+    env | grep REDIS
+
     pushtrap "kill -9 $(cat $PIDFILE);rm -rf $TMP" EXIT
   '';
 }
