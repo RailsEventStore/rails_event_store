@@ -4,13 +4,9 @@ mkShell {
   buildInputs = [ redis ];
 
   shellHook = ''
-    set -x
-
     ${builtins.readFile ./pushtrap.sh}
 
-    # TMP=$(mktemp -d)
-    mkdir -p /home/runner/_temp/kakadudu
-    TMP=/home/runner/_temp/kakadudu
+    TMP=$(mktemp -d)
     SOCKET=$TMP/redis.sock
     PIDFILE=$TMP/redis.pid
     LOGFILE=/home/runner/_temp/redis.log
@@ -28,7 +24,5 @@ mkShell {
     export REDIS_URL="unix://$SOCKET"
 
     pushtrap "kill -9 $(cat $PIDFILE);rm -rf $TMP" EXIT
-
-    set +x
   '';
 }
