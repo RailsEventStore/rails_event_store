@@ -8,7 +8,7 @@ mkShell {
 
     # TMP=$(mktemp -d)
     mkdir -p /home/runner/_temp/kakadudu
-    TMP=/home/runner/_temp/kakadudu/
+    TMP=/home/runner/_temp/kakadudu
     SOCKET=$TMP/redis.sock
     PIDFILE=$TMP/redis.pid
     LOGFILE=$TMP/redis.log
