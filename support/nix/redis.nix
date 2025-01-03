@@ -13,7 +13,7 @@ mkShell {
     TMP=/home/runner/_temp/kakadudu
     SOCKET=$TMP/redis.sock
     PIDFILE=$TMP/redis.pid
-    LOGFILE=$TMP/redis.log
+    LOGFILE=/home/runner/_temp/redis.log
 
     redis-server \
       --protected-mode no \
