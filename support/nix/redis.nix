@@ -6,7 +6,9 @@ mkShell {
   shellHook = ''
     ${builtins.readFile ./pushtrap.sh}
 
-    TMP=$(mktemp -d)
+    # TMP=$(mktemp -d)
+    mkdir -p /home/runner/_temp/kakadudu
+    TMP=/home/runner/_temp/kakadudu/
     SOCKET=$TMP/redis.sock
     PIDFILE=$TMP/redis.pid
     LOGFILE=$TMP/redis.log
@@ -21,7 +23,6 @@ mkShell {
       --loglevel verbose \
       --logfile $LOGFILE
 
-    export REDIS_LOG_FILE=$LOGFILE
     export REDIS_URL="unix://$SOCKET"
 
     pushtrap "kill -9 $(cat $PIDFILE);rm -rf $TMP" EXIT

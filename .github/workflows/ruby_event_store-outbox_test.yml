@@ -115,4 +115,4 @@ jobs:
       if: always()
       with:
         name: redis-logs
-        path: "{{ env.REDIS_LOG_FILE }}"
+        path: /home/runner/_temp/kakadudu/redis.log
