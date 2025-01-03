@@ -111,11 +111,3 @@ jobs:
           }
         "
       working-directory: "${{ env.WORKING_DIRECTORY }}"
-    - run: |
-        echo "Check if Redis is running:"
-        ps aux | grep redis
-        echo "Check for Redis socket:"
-        ls -la "${{ env.SOCKET }}"
-    - run: |
-        echo "REDIS_URL is set to $REDIS_URL"
-        env | grep REDIS
