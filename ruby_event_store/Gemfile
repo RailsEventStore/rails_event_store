@@ -8,3 +8,4 @@ eval_gemfile "../support/bundler/Gemfile.shared"
 
 gem "activesupport", "~> 7.2.2.1"
 gem "concurrent-ruby", "~> 1.2"
+gem "ostruct"
