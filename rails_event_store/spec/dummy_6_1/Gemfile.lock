@@ -105,7 +105,7 @@ GEM
       concurrent-ruby
     base64 (0.2.0)
     builder (3.3.0)
-    concurrent-ruby (1.3.5)
+    concurrent-ruby (1.3.4)
     crass (1.0.6)
     date (3.4.1)
     erubi (1.13.1)
