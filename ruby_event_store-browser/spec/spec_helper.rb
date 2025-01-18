@@ -12,12 +12,6 @@ require_relative "../../support/helpers/time_enrichment"
 
 ENV["RACK_ENV"] = "test"
 
-begin
-  require "rackup"
-  $LOADED_FEATURES << "rack/handler/webrick.rb"
-rescue LoadError
-end
-
 require "capybara/cuprite"
 Capybara.server = :webrick
 Capybara.register_driver(:cuprite) do |app|
