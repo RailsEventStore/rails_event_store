@@ -39,10 +39,12 @@ require "ruby_event_store"
 
   specify "Auth" do
     page.driver.header "RES-Api-Key", "Wrong"
-    expect { visit "/dres_rails" }.to raise_error(ActionController::RoutingError)
+    visit "/dres_rails"
+    expect(page.status_code).to eq(404)
 
     page.driver.header "RES-Api-Key", "33bbd0ea-b7ce-49d5-bc9d-198f7884c485"
-    expect { visit "/dres_rails" }.not_to raise_error
+    visit "/dres_rails"
+    expect(page.status_code).to eq(200)
   end
 
   specify "returns JSON with serialized events" do
