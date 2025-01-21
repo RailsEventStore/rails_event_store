@@ -1,6 +1,5 @@
 ---
 title: Getting started
-sidebar_position: 1
 ---
 
 ## Create new Rails application
