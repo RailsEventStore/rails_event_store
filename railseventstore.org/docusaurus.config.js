@@ -98,7 +98,7 @@ const config = {
             label: "Support",
           },
           {
-            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.14.0",
+            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.15.0",
             label: "Changelog",
             position: "right",
           },
