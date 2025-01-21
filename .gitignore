@@ -24,3 +24,7 @@ ruby_event_store-browser/public/*
 .inch/
 .tmp
 support/bundler/*.lock
+.docusaurus/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
