@@ -5,9 +5,7 @@ Source files for the documentation and website of [Rails Event Store](https://ra
 ## Serving the docs locally
 
 ```
-bundle install
-npm install
-bundle exec middleman server
+make install serve
 ```
 
 ## Publishing the docs
