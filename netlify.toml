@@ -14,8 +14,326 @@
   force = true
 
 [[redirects]]
-  from = "/docs/*"
-  to = "/docs/v2/:splat"
+  from = "/docs/v2/start"
+  to = "/docs/getting-started/introduction"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/install"
+  to = "/docs/getting-started/install"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/api"
+  to = "/docs/getting-started/api"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/publish"
+  to = "/docs/core-concepts/publish"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/subscribe"
+  to = "/docs/core-concepts/subscribe"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/read"
+  to = "/docs/core-concepts/read"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/link"
+  to = "/docs/core-concepts/link"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/delete"
+  to = "/docs/core-concepts/delete"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/pubsub"
+  to = "/docs/core-concepts/pubsub"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/app"
+  to = "/docs/core-concepts/event-sourcing"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/expected_version"
+  to = "/docs/core-concepts/expected-version"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/projection"
+  to = "/docs/core-concepts/projections"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/request_metadata"
+  to = "/docs/core-concepts/request-metadata"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/correlation_causation"
+  to = "/docs/core-concepts/correlation-causation"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/rspec"
+  to = "/docs/core-concepts/rspec"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/browser"
+  to = "/docs/core-concepts/browser"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/exceptions"
+  to = "/docs/core-concepts/client-errors"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/transactions"
+  to = "/docs/advanced-topics/transactions"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/bi-temporal"
+  to = "/docs/advanced-topics/bi-temporal"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/mapping_serialization"
+  to = "/docs/advanced-topics/event-serialization-formats"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/mappers"
+  to = "/docs/advanced-topics/mappers"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/repository"
+  to = "/docs/advanced-topics/custom-repository"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/instrumentation"
+  to = "/docs/advanced-topics/instrumentation"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/command_bus"
+  to = "/docs/advanced-topics/command-bus"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/handler-to-events"
+  to = "/docs/advanced-topics/mapping-handlers-to-events"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/gdpr"
+  to = "/docs/advanced-topics/gdpr"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/migrating_messages"
+  to = "/docs/advanced-topics/migrating-existing-events"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/without_rails"
+  to = "/docs/advanced-topics/without-rails"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/publishing_unique_events"
+  to = "/docs/common-usage-patterns/publishing_unique_events"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v2/maintenance_policy"
+  to = "/docs/contributing/maintenance_policy"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/start"
+  to = "/docs/1.3.1/getting-started/start"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/install"
+  to = "/docs/1.3.1/getting-started/install"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/publish"
+  to = "/docs/1.3.1/getting-started/publish"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/subscribe"
+  to = "/docs/1.3.1/getting-started/subscribe"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/read"
+  to = "/docs/1.3.1/getting-started/read"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/link"
+  to = "/docs/1.3.1/getting-started/link"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/delete"
+  to = "/docs/1.3.1/getting-started/delete"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/api"
+  to = "/docs/1.3.1/advanced/api"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/exceptions"
+  to = "/docs/1.3.1/advanced/exceptions"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/command_bus"
+  to = "/docs/1.3.1/advanced/command_bus"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/app"
+  to = "/docs/1.3.1/advanced/app"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/expected_version"
+  to = "/docs/1.3.1/advanced/expected_version"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/projection"
+  to = "/docs/1.3.1/advanced/projection"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/rspec"
+  to = "/docs/1.3.1/advanced/rspec"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/request_metadata"
+  to = "/docs/1.3.1/advanced/request_metadata"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/mapping_serialization"
+  to = "/docs/1.3.1/advanced/mapping_serialization"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/repository"
+  to = "/docs/1.3.1/advanced/repository"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/migrating_messages"
+  to = "/docs/1.3.1/advanced/migrating_messages"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/browser"
+  to = "/docs/1.3.1/advanced/browser"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/without_rails"
+  to = "/docs/1.3.1/advanced/without_rails"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/instrumentation"
+  to = "/docs/1.3.1/advanced/instrumentation"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/gdpr"
+  to = "/docs/1.3.1/advanced/gdpr"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/pubsub"
+  to = "/docs/1.3.1/tutorials/pubsub"
+  status = 301
+  force = false
+
+[[redirects]]
+  from = "/docs/v1/protobuf"
+  to = "/docs/1.3.1/tutorials/protobuf"
   status = 301
   force = false
 
