@@ -53,7 +53,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            "https://github.com/RailsEventStore/rails_event_store/tree/docusaurs/railseventstore.org/source/docs/docusaurus/",
+            "https://github.com/RailsEventStore/rails_event_store/tree/master/railseventstore.org/",
         },
         blog: false,
         theme: {
