@@ -111,3 +111,29 @@
     margin-bottom: 1.25rem;
   }
 }
+
+.navbar__inner, .main-wrapper {
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 64rem) {
+  .navbar__inner, .main-wrapper {
+    max-width: 64rem;
+  }
+  .navbar__inner {
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  .navbar__inner, .main-wrapper {
+    max-width: 80rem;
+  }
+}
+
+@media (min-width: 96rem) {
+  .navbar__inner, .main-wrapper {
+    max-width: 96rem;
+  }
+}
