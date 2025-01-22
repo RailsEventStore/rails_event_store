@@ -165,7 +165,7 @@ const config = {
             ],
           },
         ],
-        copyright: `<p class="mt-8">Supported by <a href="https://arkency.com" target="_blank"><img src="/images/arkency.svg" alt="Arkency" class="w-20 -translate-y-[3px]"></a></p>
+        copyright: `<p class="mt-8">Brought to you by <a href="https://arkency.com" target="_blank"><img src="/images/arkency.svg" alt="Arkency" class="w-20 -translate-y-[3px]"></a></p>
         <p class="mt-8 text-sm text-gray-500 max-w-4xl mx-auto">The Rails trademarks are the intellectual property of David Heinemeier Hanson, and exclusively licensed to the Rails Foundation. Uses of ‘Rails’ and ‘Ruby on Rails’ in this website are for identification purposes only and do not imply an endorsement by or affiliation with Rails, the trademark owner, or the Rails Foundation.</p>
         `,
       },
