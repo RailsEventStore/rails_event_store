@@ -182,6 +182,8 @@ const config = {
     }),
 
   plugins: [tailwindPlugin],
+  scripts: [{src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'railseventstore.org'}],
+
 };
 
 export default config;
