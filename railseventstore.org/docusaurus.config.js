@@ -174,7 +174,7 @@ const config = {
       algolia: {
         appId: "KK97TFKI4L",
         apiKey: "b16a0b4f93147cc606175f7117f8aa1d",
-        indexName: "railseventstore",
+        indexName: "railseventstore_docusaurus",
         contextualSearch: true,
       },
     }),
