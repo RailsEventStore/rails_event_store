@@ -20,7 +20,7 @@ module.exports = {
       },
     },
   },
-  safelist: ["mt-8"],
+  safelist: ["mt-8", "w-20", "-translate-y-[3px]", "max-w-4xl"],
   plugins: [
     require('@tailwindcss/typography'),
   ],
