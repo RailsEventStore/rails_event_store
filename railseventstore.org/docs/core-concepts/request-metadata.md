@@ -6,7 +6,7 @@ In Rails environment, every event is enhanced with the request metadata provided
 
 ## Setup
 
-In order to enhance your events with metadata, you need to setup your client as described in [Installation](/docs/install).
+In order to enhance your events with metadata, you need to setup your client as described in [Installation](../getting-started/install).
 
 ## Defaults
 
