@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /search/
+
+Sitemap: https://railseventstore.org/sitemap.xml
