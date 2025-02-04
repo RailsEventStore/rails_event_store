@@ -36,7 +36,7 @@ const FeatureList = [
 function Feature({ Svg, title, description }) {
   return (
     <li
-      className="grid px-6 py-8 text-lg font-semibold text-center text-black rounded-lg bg-gray-50 min-h-36 place-content-center"
+      className="grid px-6 py-8  ring-1 ring-[#141414]/10  dark:bg-[#ededed]/5 dark:ring-white/10  text-lg font-semibold text-center rounded-xl  min-h-36 place-content-center"
     >
       {title}
     </li>
@@ -45,19 +45,16 @@ function Feature({ Svg, title, description }) {
 
 export default function HomepageFeatures() {
   return (
-    <section className="mb-16">
-      <header className="container my-12 text--center ">
-        <h2 className="text-xl">
-          <strong>Rails Event Store</strong> is a library for publishing,
-          consuming, storing and retrieving events.
+
+    <section className="container my-20 md:mb-32">
+      <header className="my-12 text-center ">
+        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+        Unlock the <span class="font-bold">Full Potential</span> of <span class="font-bold">Event-Driven Rails</span>
+
         </h2>
-        <p className="text-lg">
-          It's your best companion for going with&nbsp;an&nbsp;Event-Driven
-          Architecture for your Rails application.
-        </p>
       </header>
       <ul
-        className="container grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+        className="container grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
       >
         {FeatureList.map((props, idx) => (
           <Feature key={idx} {...props} />
