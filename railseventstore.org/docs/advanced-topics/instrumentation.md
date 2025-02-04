@@ -205,7 +205,7 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | :aggregate     | An instance of an aggregate whose events are being stored                                                                                            |
 | :stream        | A stream name to which events are stored                                                                                                             |
-| :version       | An [expected version](../core-concepts/expected-version#explicit-number-integer-from-1) of the stream to which events are stored |
+| :version       | An [expected version](./../core-concepts/expected-version#integer) of the stream to which events are stored |
 | :stored_events | An array of events that are stored as a result of actions performed on this aggregate                                                                |
 
 ```ruby

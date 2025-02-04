@@ -18,7 +18,7 @@ Rails.application.routes.draw { mount RailsEventStore::Browser => "/res" if Rail
 
 It is assumed that you have Rails Event Store configured at `Rails.configuration.event_store`, in [recommended](../getting-started/install) location.
 
-The `RailsEventStore::Browser` is just a wrapper around `RubyEventStore::Browser::App` with default options suitable for most applications. Read below the [Rack](#sinatra-rack), in case you need this browser outside as a standalone application or you have a different event store location.
+The `RailsEventStore::Browser` is just a wrapper around `RubyEventStore::Browser::App` with default options suitable for most applications. Read below the [Rack](#sinatra--rack), in case you need this browser outside as a standalone application or you have a different event store location.
 
 ### Sinatra / Rack
 

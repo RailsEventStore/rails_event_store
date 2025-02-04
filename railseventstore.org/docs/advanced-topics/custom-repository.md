@@ -32,7 +32,7 @@ Those repositories were written by community members and are not guaranteed to b
 
 ## Writing your own repository
 
-If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L3) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L26) in your repository spec. Make sure to meditate on which [expected_version option](..core-concepts/expected-version/) you are going to support and how.
+If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L3) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/a6ffb8a535373023296222bbbb5dd6ee131a6792/rails_event_store_active_record/spec/event_repository_spec.rb#L26) in your repository spec. Make sure to meditate on which [expected_version option](./../core-concepts/expected-version/) you are going to support and how.
 
 ## Using RubyEventStore::InMemoryRepository for faster tests
 

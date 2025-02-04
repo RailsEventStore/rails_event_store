@@ -37,7 +37,7 @@ unsubscribe = event_store.subscribe(InvoiceReadModel.new, to: [InvoiceCreated, I
 
 and then execute returned lambda both subscriptions will be removed.
 
-It you need temporary subscription to be defined [read more here](/docs/v1/subscribe/#temporary-subscriptions).
+It you need temporary subscription to be defined [read more here](#temporary-subscriptions).
 
 ## Synchronous handlers
 
@@ -122,7 +122,7 @@ class SyncHandler
 end
 ```
 
-<h3 id="fresh-handler-state">Fresh handler state</h3>
+### Fresh handler state
 
 If you subscribe an instance of a class (`SyncHandler.new`), the same object is going to be called with new events.
 
@@ -282,7 +282,7 @@ event_store
 
 You start the temporary subscription by providing a block `within` which the subscriptions will be active. Then you can chain `subscribe` and `subscribe_to_all_events` as many times as you want to register temporary subscribers. When you are ready call `call` to evaluate the provided block with the temporary subscriptions.
 
-<h2 id="async-handlers">Async handlers</h2>
+## Async handlers
 
 It's possible to also subscribe asynchronous handlers to events. To implement asynchronous dispatcher for a background jobs library of your choice firstly you need to implement scheduler class that will enqueue asynchrounous handlers as background jobs.
 
