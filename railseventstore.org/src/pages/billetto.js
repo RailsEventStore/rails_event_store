@@ -8,12 +8,14 @@ export default function Billetto() {
         <h1 className="sr-only">RailsEventStore in Billetto</h1>
         <div className="px-4 mx-auto space-y-16  divide-y  text-balance *:pt-16">
           <div className="">
-            <a className="block" href="https://billetto.co.uk">
+            <div className="flex justify-center">
+            <a className="block mb-10" href="https://billetto.co.uk">
+            <span className="inline-block p-6 rounded-lg bg-white/90">
               <img
-                className="max-w-[10rem] block w-full mx-auto mb-10"
+                className="max-w-[10rem] block w-full mx-auto "
                 src="/images/billetto_logo.svg"
-              />
-            </a>
+              /></span>
+            </a></div>
             <div className="max-w-2xl px-4 mx-auto text-base md:text-lg ">
               <p className="mb-8">
                 Billetto is the leading subculture event marketplace in the
@@ -52,7 +54,7 @@ export default function Billetto() {
                 </span>
               </div>
               <div className="w-full text-lg sm:sm:w-3/5">
-                <ul className="grid md:grid-cols-2 list-none list-inside gap-4 *:p-4  *:rounded-md *:bg-gray-50 *:border-gray-200 *:!border *:!border-solid">
+                <ul className="grid md:grid-cols-2 list-none list-inside gap-4 *:p-4  *:rounded-md *:bg-white/5 dark:*:ring-white/10 *:ring-[#141414]/10 *:ring-1 ">
                   <li>
                     First event published: <strong>November 2014</strong>
                   </li>
@@ -89,7 +91,7 @@ export default function Billetto() {
               </p>
             </div>
             <div className="max-w-6xl mx-auto mb-8">
-              <dl className="grid gap-6 text-left list-none list-inside md:grid-cols-2 *:bg-gray-50 *:border-gray-200 *:border  *:p-4 *:rounded-md">
+              <dl className="grid gap-6 text-left list-none list-inside md:grid-cols-2 *:p-4  *:rounded-md *:bg-white/5 dark:*:ring-white/10 *:ring-[#141414]/10 *:ring-1">
                 <div>
                   <dt className="mb-2 text-lg font-bold leading-tight tracking-tight">
                     improved performance as significant part of data processing
