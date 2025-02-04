@@ -94,22 +94,23 @@
 
 .theme-doc-sidebar-container {
   --ifm-font-size-base: 0.125rem;
-  .menu__list {
-    margin-left: 0;
-    padding-left: 0;
-  }
-  .menu__link {
-    font-size: 0.875rem;
-  }
+}
 
-  .menu__link--sublist-caret:after {
-    scale: 0.625;
-  }
+.theme-doc-sidebar-container .menu__list {
+  margin-left: 0;
+  padding-left: 0;
+}
+.theme-doc-sidebar-container .menu__link {
+  font-size: 0.875rem;
+}
+
+.theme-doc-sidebar-container .menu__link--sublist-caret:after {
+  scale: 0.625;
+}
 
 
-  .theme-doc-sidebar-item-category {
-    margin-bottom: 1.25rem;
-  }
+.theme-doc-sidebar-container .theme-doc-sidebar-item-category {
+  margin-bottom: 1.25rem;
 }
 
 
