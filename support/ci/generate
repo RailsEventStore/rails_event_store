@@ -11,7 +11,7 @@ gemfile do
 end
 
 class CI
-  RUBY_VERSIONS = [MRI_RUBY = [RUBY_3_3 = "ruby-3.3", RUBY_3_2 = "ruby-3.2", RUBY_3_1 = "ruby-3.1"]].flatten
+  RUBY_VERSIONS = [MRI_RUBY = [RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3", RUBY_3_2 = "ruby-3.2", RUBY_3_1 = "ruby-3.1"]].flatten
 
   DATA_TYPES = [DATA_TEXT = "text", DATA_BINARY = "binary", DATA_JSON = "json", DATA_JSONB = "jsonb"]
 

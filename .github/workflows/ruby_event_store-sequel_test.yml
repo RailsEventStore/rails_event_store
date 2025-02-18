@@ -68,6 +68,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
+          database_url: sqlite:db.sqlite3
+          data_type: text
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
           database_url: sqlite:db.sqlite3
@@ -80,27 +84,27 @@ jobs:
           bundle_gemfile: Gemfile
           database_url: sqlite:db.sqlite3
           data_type: text
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: text
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10013/rails_event_store
           data_type: text
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: json
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: jsonb
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
           data_type: text
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: mysql2://root:secret@127.0.0.1:10080/rails_event_store
           data_type: text

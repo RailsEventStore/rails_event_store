@@ -33,13 +33,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.2
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.1
           bundle_gemfile: Gemfile
-        - ruby_version: ruby-3.3
+        - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile.sidekiq_6_5
     steps:
     - uses: actions/checkout@v4
