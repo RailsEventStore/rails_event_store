@@ -61,7 +61,7 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected event
-          be an event FooEvent (with data including {:a=>1})
+          be an event FooEvent (with data including #{formatter[a: 1]})
         to be published 3 times
         but was published 2 times
 
@@ -113,7 +113,7 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected event
-          be an event FooEvent (with data including {:foo=>124})
+          be an event FooEvent (with data including #{formatter[foo: 124]})
         to be published 2 times, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -137,11 +137,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:foo=>124})
+          be an event FooEvent (with data including #{formatter[foo: 124]})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent (with data including {:foo=>124})
+          be an event FooEvent (with data including #{formatter[foo: 124]})
         to be published, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -160,11 +160,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with metadata including {:foo=>124})
+          be an event FooEvent (with metadata including #{formatter[foo: 124]})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent (with metadata including {:foo=>124})
+          be an event FooEvent (with metadata including #{formatter[foo: 124]})
         to be published, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -186,11 +186,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data matching {:foo=>123})
+          be an event FooEvent (with data matching #{formatter[foo: 123]})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent (with data matching {:foo=>123})
+          be an event FooEvent (with data matching #{formatter[foo: 123]})
         to be published, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -210,12 +210,12 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:a=>1})
-          be an event FooEvent (with data including {:b=>3})
+          be an event FooEvent (with data including #{formatter[a: 1]})
+          be an event FooEvent (with data including #{formatter[b: 3]})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent (with data including {:b=>3})
+          be an event FooEvent (with data including #{formatter[b: 3]})
         to be published, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -334,7 +334,7 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:a=>1})
+          be an event FooEvent (with data including #{formatter[a: 1]})
           be an event BarEvent
         ] to be published
 
@@ -395,11 +395,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         to be published, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -418,11 +418,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         ] to be applied
 
         i.e. expected event
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         to be applied, but it was not applied
 
         There are events of correct type but with incorrect payload:
@@ -455,11 +455,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         ] to be published
 
         i.e. expected event
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         to be published, but it was not published
 
         There are events of correct type but with incorrect payload:
@@ -479,11 +479,11 @@ module RubyEventStore
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
         expected [
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         ] to be applied
 
         i.e. expected event
-          be an event FooEvent (with data including {:a=>2})
+          be an event FooEvent (with data including #{formatter[a: 2]})
         to be applied, but it was not applied
 
         There are events of correct type but with incorrect payload:

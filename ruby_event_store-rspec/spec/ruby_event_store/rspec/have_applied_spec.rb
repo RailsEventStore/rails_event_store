@@ -173,7 +173,7 @@ module RubyEventStore
             matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
           )
         expect(matcher_.description).to eq(
-          "have applied events that have to (be an event FooEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}) and be an event BazEvent (with data including {:baz=>\"foo\"} and with metadata including {:baz=>\"foo\"}))"
+          "have applied events that have to (be an event FooEvent (with data including #{formatter[baz: "foo"]} and with metadata including #{formatter[baz: "foo"]}) and be an event BazEvent (with data including #{formatter[baz: "foo"]} and with metadata including #{formatter[baz: "foo"]}))"
         )
       end
 
