@@ -57,7 +57,7 @@ module AggregateRoot
       expect(instrumented_strategy).not_to respond_to(:arbitrary_method_name)
       expect do
         instrumented_strategy.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name'/)
+      end.to raise_error(NoMethodError, /undefined method.+arbitrary_method_name/)
     end
 
     def subscribe_to(name)

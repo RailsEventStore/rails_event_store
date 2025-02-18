@@ -149,7 +149,7 @@ module RubyEventStore
       expect(instrumented_subscriptions).not_to respond_to(:arbitrary_method_name)
       expect do
         instrumented_subscriptions.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method `arbitrary_method_name' for .+RubyEventStore::InstrumentedSubscriptions/)
+      end.to raise_error(NoMethodError, /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedSubscriptions/)
     end
 
     def subscribe_to(name)
