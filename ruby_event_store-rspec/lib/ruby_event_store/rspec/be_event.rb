@@ -28,10 +28,11 @@ module RubyEventStore
 
       class FailureMessage
         class ExpectedLine
-          def initialize(expected_klass, expected_metadata, expected_data)
+          def initialize(expected_klass, expected_metadata, expected_data, formatter:)
             @expected_klass = expected_klass
             @expected_metadata = expected_metadata
             @expected_data = expected_data
+            @formatter = formatter
           end
 
           def to_s
@@ -45,21 +46,22 @@ module RubyEventStore
           end
 
           def data
-            [" data: ", @expected_data] if @expected_data
+            [" data: ", @formatter.(@expected_data)] if @expected_data
           end
 
           def metadata
-            [" metadata: ", @expected_metadata] if @expected_metadata
+            [" metadata: ", @formatter.(@expected_metadata)] if @expected_metadata
           end
         end
 
         class ActualLine
-          def initialize(actual_klass, actual_metadata, actual_data, expected_metadata, expected_data)
+          def initialize(actual_klass, actual_metadata, actual_data, expected_metadata, expected_data, formatter:)
             @actual_klass = actual_klass
             @actual_metadata = actual_metadata
             @actual_data = actual_data
             @expected_metadata = expected_metadata
             @expected_data = expected_data
+            @formatter = formatter
           end
 
           def to_s
@@ -73,24 +75,25 @@ module RubyEventStore
           end
 
           def data
-            [" data: ", @actual_data] if @expected_data
+            [" data: ", @formatter.(@actual_data)] if @expected_data
           end
 
           def metadata
-            [" metadata: ", @actual_metadata] if @expected_metadata
+            [" metadata: ", @formatter.(@actual_metadata)] if @expected_metadata
           end
         end
 
         class Diff
-          def initialize(actual, expected, label, differ:)
+          def initialize(actual, expected, label, differ:, formatter:)
             @actual = actual
             @expected = expected
             @label = label
             @differ = differ
+            @formatter = formatter
           end
 
           def to_s
-            @expected && ["\n#{@label} diff:", @differ.diff(@actual.to_s + "\n", @expected.to_s)]
+            @expected && ["\n#{@label} diff:", @differ.diff(@formatter.(@actual) + "\n", @formatter.(@expected))]
           end
         end
 
@@ -101,7 +104,8 @@ module RubyEventStore
           actual_data,
           expected_metadata,
           actual_metadata,
-          differ:
+          differ:,
+          formatter:
         )
           @expected_klass = expected_klass
           @actual_klass = actual_klass
@@ -110,14 +114,15 @@ module RubyEventStore
           @expected_metadata = expected_metadata
           @actual_metadata = actual_metadata
           @differ = differ
+          @formatter = formatter
         end
 
         def to_s
           [
-            ExpectedLine.new(@expected_klass, @expected_metadata, @expected_data),
-            ActualLine.new(@actual_klass, @actual_metadata.to_h, @actual_data, @expected_metadata, @expected_data),
-            Diff.new(@actual_metadata.to_h, @expected_metadata, "Metadata", differ: @differ),
-            Diff.new(@actual_data, @expected_data, "Data", differ: @differ)
+            ExpectedLine.new(@expected_klass, @expected_metadata, @expected_data, formatter: @formatter),
+            ActualLine.new(@actual_klass, @actual_metadata.to_h, @actual_data, @expected_metadata, @expected_data, formatter: @formatter),
+            Diff.new(@actual_metadata.to_h, @expected_metadata, "Metadata", differ: @differ, formatter: @formatter),
+            Diff.new(@actual_data, @expected_data, "Data", differ: @differ, formatter: @formatter)
           ].map(&:to_s).join
         end
       end
@@ -155,7 +160,8 @@ module RubyEventStore
           actual_data,
           expected_metadata,
           actual_metadata,
-          differ: differ
+          differ: differ,
+          formatter: formatter
         ).to_s
       end
 
