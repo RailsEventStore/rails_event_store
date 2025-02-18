@@ -137,7 +137,7 @@ module AggregateRoot
       expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
       expect { instrumented_repository.arbitrary_method_name }.to raise_error(
         NoMethodError,
-        /undefined method `arbitrary_method_name' for .+AggregateRoot::InstrumentedRepository/
+        /undefined method.+arbitrary_method_name.+AggregateRoot::InstrumentedRepository/
       )
     end
 

@@ -68,7 +68,7 @@ module RubyEventStore
       expect(instrumented_dispatcher).not_to respond_to(:arbitrary_method_name)
       expect { instrumented_dispatcher.arbitrary_method_name }.to raise_error(
         NoMethodError,
-        /undefined method `arbitrary_method_name' for .+RubyEventStore::InstrumentedDispatcher/
+        /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedDispatcher/
       )
     end
 

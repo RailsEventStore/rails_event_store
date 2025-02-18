@@ -159,7 +159,7 @@ module RubyEventStore
     end
 
     specify "using default constructor" do
-      expect { Projection.new(stream_name) }.to raise_error(NoMethodError, /private method `new'/)
+      expect { Projection.new(stream_name) }.to raise_error(NoMethodError, /private method.+new/)
     end
 
     specify "at least one stream must be given" do
