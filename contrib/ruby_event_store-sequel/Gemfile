@@ -9,4 +9,4 @@ eval_gemfile "../../support/bundler/Gemfile.database"
 gem "ruby_event_store", path: "../.."
 
 gem "activesupport", "~> 7.2.2.1"
-gem "sqlite3", "~> 1.7"
+gem "sqlite3", ">= 1.7.3"
