@@ -34,21 +34,21 @@ jobs:
       DATABASE_URL: "${{ matrix.database_url }}"
       DATA_TYPE: "${{ matrix.data_type }}"
     services:
-      postgres_11:
-        image: postgres:11
+      postgres_13:
+        image: postgres:13
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
-        - 10011:5432
+        - 10013:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
-      postgres_15:
-        image: postgres:15
+      postgres_17:
+        image: postgres:17
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
-        - 10015:5432
+        - 10017:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
@@ -56,27 +56,27 @@ jobs:
         include:
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10015/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: binary
         - ruby_version: ruby-3.2
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10015/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: binary
         - ruby_version: ruby-3.1
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10015/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: binary
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10011/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10013/rails_event_store
           data_type: binary
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10015/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: json
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10015/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: jsonb
     steps:
     - uses: actions/checkout@v4
