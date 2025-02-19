@@ -31,21 +31,21 @@ jobs:
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
     services:
-      mysql_5:
-        image: mysql:5
-        env:
-          MYSQL_DATABASE: rails_event_store
-          MYSQL_ROOT_PASSWORD: secret
-        ports:
-        - 10005:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
       mysql_8:
-        image: mysql:8
+        image: mysql:8.0
         env:
           MYSQL_DATABASE: rails_event_store
           MYSQL_ROOT_PASSWORD: secret
         ports:
-        - 10008:3306
+        - 10080:3306
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql_8_4:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: rails_event_store
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+        - 10084:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
@@ -71,10 +71,10 @@ jobs:
           database_url: sqlite3:db.sqlite3
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
-          database_url: mysql2://root:secret@127.0.0.1:10005/rails_event_store
+          database_url: mysql2://root:secret@127.0.0.1:10080/rails_event_store
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
-          database_url: mysql2://root:secret@127.0.0.1:10008/rails_event_store
+          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
     steps:
     - uses: actions/checkout@v4
       with:
