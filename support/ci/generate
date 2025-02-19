@@ -22,12 +22,12 @@ class CI
     SQLITE = "sqlite:db.sqlite3",
     SQLITE3 = "sqlite3:db.sqlite3",
     POSTGRES = [
-      POSTGRES_15 = "postgres://postgres:secret@localhost:10015/rails_event_store",
-      POSTGRES_11 = "postgres://postgres:secret@localhost:10011/rails_event_store",
+      POSTGRES_17 = "postgres://postgres:secret@localhost:10017/rails_event_store",
+      POSTGRES_13 = "postgres://postgres:secret@localhost:10013/rails_event_store",
     ],
     MYSQL = [
-      MYSQL_8 = "mysql2://root:secret@127.0.0.1:10008/rails_event_store",
-      MYSQL_5 = "mysql2://root:secret@127.0.0.1:10005/rails_event_store",
+      MYSQL_8_4 = "mysql2://root:secret@127.0.0.1:10084/rails_event_store",
+      MYSQL_8_0 = "mysql2://root:secret@127.0.0.1:10080/rails_event_store",
     ],
   ].flatten
 
@@ -76,7 +76,7 @@ class CI
       release_coverage("rails_event_store"),
       release_test(
         "ruby_event_store-active_record",
-        services: [postgres_11, postgres_15, mysql_5, mysql_8],
+        services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
         matrix:
           generate(
             ruby_version(RUBY_VERSIONS),
@@ -101,13 +101,13 @@ class CI
       contrib_coverage("ruby_event_store-newrelic"),
       contrib_test(
         "ruby_event_store-outbox",
-        services: [mysql_5, mysql_8],
+        services: [mysql_8_0, mysql_8_4],
         matrix:
           join(
             generate(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, RAILS_GEMFILES, SIDEKIQ_GEMFILES),
-              database_url(SQLITE3, MYSQL_5, MYSQL_8),
+              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),
           ),
         steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")],
@@ -144,7 +144,7 @@ class CI
       ),
       contrib_test(
         "ruby_event_store-rom",
-        services: [postgres_11, postgres_15, mysql_5, mysql_8],
+        services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
         matrix:
           join(
             generate(
@@ -171,7 +171,7 @@ class CI
       contrib_coverage("ruby_event_store-rom"),
       contrib_test(
         "ruby_event_store-sequel",
-        services: [postgres_11, postgres_15, mysql_5, mysql_8],
+        services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
         matrix:
           join(
             generate(
@@ -225,7 +225,7 @@ class CI
       contrib_test("dres_client", triggers: dres_triggers("dres_client_test")),
       contrib_test(
         "dres_rails",
-        services: [postgres_11, postgres_15],
+        services: [postgres_13, postgres_17],
         matrix:
           join(
             generate(
@@ -441,57 +441,57 @@ class CI
   include Triggers
 
   module Services
-    def postgres_11
+    def postgres_13
       {
-        "postgres_11" => {
-          "image" => "postgres:11",
+        "postgres_13" => {
+          "image" => "postgres:13",
           "env" => {
             "POSTGRES_DB" => "rails_event_store",
             "POSTGRES_PASSWORD" => "secret",
           },
-          "ports" => ["10011:5432"],
+          "ports" => ["10013:5432"],
           "options" => "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }
     end
 
-    def postgres_15
+    def postgres_17
       {
-        "postgres_15" => {
-          "image" => "postgres:15",
+        "postgres_17" => {
+          "image" => "postgres:17",
           "env" => {
             "POSTGRES_DB" => "rails_event_store",
             "POSTGRES_PASSWORD" => "secret",
           },
-          "ports" => ["10015:5432"],
+          "ports" => ["10017:5432"],
           "options" => "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }
     end
 
-    def mysql_8
+    def mysql_8_0
       {
         "mysql_8" => {
-          "image" => "mysql:8",
+          "image" => "mysql:8.0",
           "env" => {
             "MYSQL_DATABASE" => "rails_event_store",
             "MYSQL_ROOT_PASSWORD" => "secret",
           },
-          "ports" => ["10008:3306"],
+          "ports" => ["10080:3306"],
           "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }
     end
 
-    def mysql_5
+    def mysql_8_4
       {
-        "mysql_5" => {
-          "image" => "mysql:5",
+        "mysql_8_4" => {
+          "image" => "mysql:8.4",
           "env" => {
             "MYSQL_DATABASE" => "rails_event_store",
             "MYSQL_ROOT_PASSWORD" => "secret",
           },
-          "ports" => ["10005:3306"],
+          "ports" => ["10084:3306"],
           "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }
