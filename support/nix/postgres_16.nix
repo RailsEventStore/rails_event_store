@@ -1,7 +1,7 @@
 with import <nixpkgs> {};
 
 mkShell {
-  buildInputs = [ postgresql_15 ];
+  buildInputs = [ postgresql_16 ];
 
   shellHook = ''
     ${builtins.readFile ./pushtrap.sh}
