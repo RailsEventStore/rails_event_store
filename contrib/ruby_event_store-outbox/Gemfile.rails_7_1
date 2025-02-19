@@ -12,3 +12,4 @@ gem "sidekiq", "~> 7.2"
 gem "influxdb", "~> 0.8.1", require: false
 gem "childprocess"
 gem "rails", "~> 7.1.5"
+gem "sqlite3", "~> 1.7"

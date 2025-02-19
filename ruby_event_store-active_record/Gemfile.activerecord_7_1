@@ -10,3 +10,4 @@ gem "ruby_event_store", path: ".."
 
 gem "childprocess"
 gem "activerecord", "~> 7.1.5"
+gem "sqlite3", "~> 1.7"
