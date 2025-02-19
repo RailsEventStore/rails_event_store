@@ -545,7 +545,7 @@ class CI
         steps: [checkout, verify_lockfile, setup_ruby, make("test")],
         services: [],
         triggers: release_triggers(name),
-        runs_on: "ubuntu-20.04"
+        runs_on: "ubuntu-latest"
       )
         @gem = gem
         @job_name = job_name

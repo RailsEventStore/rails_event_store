@@ -23,7 +23,7 @@ on:
     - "!support/ci/**"
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-sidekiq_scheduler

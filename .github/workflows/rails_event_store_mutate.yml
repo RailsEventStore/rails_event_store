@@ -33,7 +33,7 @@ on:
     - "!support/ci/**"
 jobs:
   mutate:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: rails_event_store

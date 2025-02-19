@@ -25,7 +25,7 @@ on:
   - cron: 0 17 * * *
 jobs:
   coverage:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: ruby_event_store-active_record

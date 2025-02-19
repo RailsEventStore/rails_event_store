@@ -7,7 +7,7 @@ on:
   push:
 jobs:
   assets:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: ruby_event_store-browser
