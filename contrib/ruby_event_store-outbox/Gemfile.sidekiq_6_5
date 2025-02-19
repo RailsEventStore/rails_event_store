@@ -14,4 +14,4 @@ gem "influxdb", "~> 0.8.1", require: false
 gem "childprocess"
 gem "rails", "~> 7.2.2.1"
 gem "zeitwerk", "~> 2.6.0"
-gem "sqlite3", "~> 1.7"
+gem "sqlite3", ">= 1.7.3"
