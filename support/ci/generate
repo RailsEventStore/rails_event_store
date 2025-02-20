@@ -70,29 +70,43 @@ class CI
       release_coverage("ruby_event_store-browser"),
       release_test(
         "rails_event_store",
-        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, RAILS_GEMFILES)),
+        matrix: join(
+          generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+          generate(ruby_version([RUBY_3_3]), bundle_gemfile(RAILS_GEMFILES)),
+        ),
       ),
       release_mutate("rails_event_store"),
       release_coverage("rails_event_store"),
       release_test(
         "ruby_event_store-active_record",
         services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
-        matrix:
+        matrix: join(
           generate(
-            ruby_version(RUBY_VERSIONS),
-            bundle_gemfile(GEMFILE, AR_GEMFILES),
+            generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
             join(
               generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
               generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
               generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
             ),
           ),
+          generate(
+            generate(ruby_version([RUBY_3_3]), bundle_gemfile(AR_GEMFILES)),
+            join(
+              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+              generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+            ),
+          ),
+        ),
       ),
       release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
       contrib_test(
         "ruby_event_store-flipper",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, AS_GEMFILES)),
+        matrix: join(
+          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+          generate(ruby_version([RUBY_3_3]), bundle_gemfile(AS_GEMFILES)),
+        ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
       contrib_coverage("ruby_event_store-flipper"),
@@ -106,7 +120,12 @@ class CI
           join(
             generate(
               ruby_version(MRI_RUBY),
-              bundle_gemfile(GEMFILE, RAILS_GEMFILES, SIDEKIQ_GEMFILES),
+              bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
+              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
+            ),
+            generate(
+              ruby_version([RUBY_3_3]),
+              bundle_gemfile(RAILS_GEMFILES),
               database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),
           ),
@@ -132,7 +151,10 @@ class CI
       contrib_coverage("ruby_event_store-profiler"),
       contrib_test(
         "ruby_event_store-protobuf",
-        matrix: join(generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3))),
+        matrix: join(
+          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE), database_url(SQLITE3)),
+          generate(ruby_version([RUBY_3_3]), bundle_gemfile(RAILS_GEMFILES), database_url(SQLITE3)),
+        ),
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
