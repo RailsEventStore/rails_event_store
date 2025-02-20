@@ -11,17 +11,10 @@ ENV["DATA_TYPE"] ||= "text"
 module RubyEventStore
   module Sequel
     class SpecHelper
-      attr_reader :sequel
+      attr_reader :database_uri
 
       def initialize(database_uri = ENV["DATABASE_URL"])
-        @sequel =
-          ::Sequel.connect(
-            database_uri,
-            fractional_seconds: true,
-            preconnect: :concurrently,
-            max_connections: database_uri.include?("sqlite") ? 1 : 5
-          )
-        @sequel.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
+        @database_uri = database_uri
       end
 
       def serializer
@@ -73,20 +66,32 @@ module RubyEventStore
       end
 
       def connection_pool_size
-        @sequel.pool.max_size
+        sequel.pool.max_size
+      end
+
+      def sequel
+        @sequel ||=
+          ::Sequel.connect(
+            database_uri,
+            fractional_seconds: true,
+            preconnect: :concurrently,
+            max_connections: database_uri.include?("sqlite") ? 1 : 5
+        ).tap do |sequel|
+          sequel.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
+        end
       end
 
       protected
 
       def load_schema
         ::Sequel.extension :migration
-        ::Sequel::Migrator.run(@sequel, "lib/ruby_event_store/generators/templates/#{template_dir}", version: 0)
+        ::Sequel::Migrator.run(sequel, "lib/ruby_event_store/generators/templates/#{template_dir}", version: 0)
       end
 
       def drop_schema
-        @sequel.drop_table?(:event_store_events)
-        @sequel.drop_table?(:event_store_events_in_streams)
-        @sequel.drop_table?(:schema_info)
+        sequel.drop_table?(:event_store_events)
+        sequel.drop_table?(:event_store_events_in_streams)
+        sequel.drop_table?(:schema_info)
       end
 
       private

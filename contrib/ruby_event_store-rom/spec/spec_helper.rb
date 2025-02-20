@@ -11,21 +11,10 @@ ENV["DATA_TYPE"] ||= "text"
 module RubyEventStore
   module ROM
     class SpecHelper
-      attr_reader :rom_container
+      attr_reader :rom_container, :database_uri
 
       def initialize(database_uri = ENV["DATABASE_URL"])
-        config =
-          ::ROM::Configuration.new(
-            :sql,
-            database_uri,
-            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
-            preconnect: :concurrently,
-            fractional_seconds: true
-          )
-        config.default.use_logger(Logger.new(STDOUT)) if ENV.has_key?("VERBOSE")
-        config.default.run_migrations
-
-        @rom_container = ROM.setup(config)
+        @database_uri = database_uri
       end
 
       def serializer
@@ -83,6 +72,19 @@ module RubyEventStore
       protected
 
       def gateway
+        @config ||=
+          ::ROM::Configuration.new(
+            :sql,
+            database_uri,
+            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
+            preconnect: :concurrently,
+            fractional_seconds: true
+        ).tap do |config|
+          config.default.use_logger(Logger.new(STDOUT)) if ENV.has_key?("VERBOSE")
+          config.default.run_migrations
+        end
+        @rom_container ||= ROM.setup(@config)
+
         rom_container.gateways.fetch(:default)
       end
 
