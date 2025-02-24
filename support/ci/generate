@@ -151,18 +151,19 @@ class CI
       contrib_coverage("ruby_event_store-profiler"),
       contrib_test(
         "ruby_event_store-protobuf",
-        matrix: join(
-          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE), database_url(SQLITE3)),
-          generate(ruby_version([RUBY_3_3]), bundle_gemfile(RAILS_GEMFILES), database_url(SQLITE3)),
+        matrix: generate(
+          ruby_version(MRI_RUBY - [RUBY_3_4]),
+          bundle_gemfile(GEMFILE, RAILS_GEMFILES),
+          database_url(SQLITE3)
         ),
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
-        matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version([RUBY_3_3]), bundle_gemfile(GEMFILE)),
       ),
       contrib_coverage(
         "ruby_event_store-protobuf",
-        matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version([RUBY_3_3]), bundle_gemfile(GEMFILE)),
       ),
       contrib_test(
         "ruby_event_store-rom",
