@@ -255,7 +255,10 @@ module RubyEventStore
       specify "deadlock when releasing lock doesnt do anything" do
         create_record("default", "default")
         allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
-          if caller.any? { |l| l.include? "`release'" }
+          if caller.any? do |l|
+            l.include?("in `release'") || #Ruby < 3.4
+            l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") #Ruby 3.4+
+          end
             raise ::ActiveRecord::Deadlocked
           else
             m.call(*args)
@@ -282,7 +285,10 @@ module RubyEventStore
       specify "lock timeout when releasing lock doesnt do anything" do
         create_record("default", "default")
         allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
-          if caller.any? { |l| l.include? "`release'" }
+          if caller.any? do |l|
+            l.include?("in `release'") || #Ruby < 3.4
+            l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") #Ruby 3.4+
+          end
             raise ::ActiveRecord::LockWaitTimeout
           else
             m.call(*args)
