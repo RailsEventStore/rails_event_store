@@ -34,9 +34,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby_version: ruby-3.4
-          bundle_gemfile: Gemfile
-          database_url: sqlite3:db.sqlite3
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
