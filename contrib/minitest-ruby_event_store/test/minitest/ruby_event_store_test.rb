@@ -79,8 +79,8 @@ to NOT include
 
     message = <<-EOM.chomp
 Event data mismatch.
-Expected: {"foo"=>"foo"}
-  Actual: {"foo"=>"bar"}
+Expected: #{{"foo"=>"foo"}}
+  Actual: #{{"foo"=>"bar"}}
     EOM
     assert_triggered(message) do
       assert_published(@event_store, DummyEvent, with_data: { "foo" => "foo" })
@@ -92,8 +92,8 @@ Expected: {"foo"=>"foo"}
 
     message = <<-EOM.chomp
 Event metadata mismatch.
-Expected: {"foo"=>"foo"}
-  Actual: {"foo"=>"bar"}
+Expected: #{{"foo"=>"foo"}}
+  Actual: #{{"foo"=>"bar"}}
     EOM
     assert_triggered(message) do
       assert_published(@event_store, DummyEvent, with_metadata: { "foo" => "foo" })
@@ -149,8 +149,8 @@ Expected: 1
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     message = <<-EOM.chomp
 Event data mismatch.
-Expected: {"foo"=>"foo"}
-  Actual: {"foo"=>"bar"}
+Expected: #{{"foo"=>"foo"}}
+  Actual: #{{"foo"=>"bar"}}
     EOM
     assert_triggered(message) do
       assert_published_once(@event_store, DummyEvent, with_data: { foo: "foo" })
@@ -161,8 +161,8 @@ Expected: {"foo"=>"foo"}
     @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new) }
     message = <<-EOM.chomp
 Event metadata mismatch.
-Expected: {"foo"=>"foo"}
-  Actual: {"foo"=>"bar"}
+Expected: #{{"foo"=>"foo"}}
+  Actual: #{{"foo"=>"bar"}}
     EOM
     assert_triggered(message) do
       assert_published_once(@event_store, DummyEvent, with_metadata: { foo: "foo" })
@@ -338,8 +338,8 @@ Didn't include all of: [DummyEvent] in [AnotherDummyEvent]
     actual_event = @event_store.read.backward.first
 
     message = <<-EOM.chomp
-Expected: {:foo=>\"foo\"}
-  Actual: {:foo=>\"bar\"}
+Expected: #{{:foo=>"foo"}}
+  Actual: #{{:foo=>"bar"}}
     EOM
 
     assert_triggered(message) do
