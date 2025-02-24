@@ -261,7 +261,7 @@ DEPENDENCIES
   mutant (= 0.12.0)
   mutant-minitest (= 0.12.0)
   mutant-rspec (= 0.12.0)
-  rails (~> 7.2.2.1)
+  rails (~> 7.2)
   rails_event_store!
   rake (>= 10.0)
   rspec (~> 3.6)
