@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+gemspec
+
+eval_gemfile "../support/bundler/Gemfile.shared"
+
+gem "ruby_event_store", path: ".."
+gem "ruby_event_store-browser", path: ".."
+gem "ruby_event_store-active_record", path: ".."
+gem "rails_event_store_active_record", path: ".."
+gem "aggregate_root", path: ".."
+
+gem "sidekiq"
+gem "rack-test"
+gem "rails", "~> 7.2.2.1"
+gem "sqlite3", ">= 1.7.3"
+gem "zeitwerk", "~> 2.6.0"

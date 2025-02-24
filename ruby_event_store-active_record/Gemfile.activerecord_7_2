@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+gemspec name: "ruby_event_store-active_record"
+
+eval_gemfile "../support/bundler/Gemfile.shared"
+eval_gemfile "../support/bundler/Gemfile.database"
+
+gem "ruby_event_store", path: ".."
+
+gem "childprocess"
+gem "activerecord", "~> 7.2.2.1"
+gem "sqlite3", ">= 1.7.3"
