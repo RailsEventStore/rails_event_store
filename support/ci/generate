@@ -34,16 +34,19 @@ class CI
   GEMFILE = "Gemfile"
 
   RAILS_GEMFILES = [
+    GEMFILE_RAILS_7_2 = "Gemfile.rails_7_2",
     GEMFILE_RAILS_7_1 = "Gemfile.rails_7_1",
     GEMFILE_RAILS_7_0 = "Gemfile.rails_7_0",
   ].flatten
 
   AS_GEMFILES = [
+    GEMFILE_AS_7_2 = "Gemfile.activesupport_7_2",
     GEMFILE_AS_7_1 = "Gemfile.activesupport_7_1",
     GEMFILE_AS_7_0 = "Gemfile.activesupport_7_0",
   ]
 
   AR_GEMFILES = [
+    GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2",
     GEMFILE_AR_7_1 = "Gemfile.activerecord_7_1",
     GEMFILE_AR_7_0 = "Gemfile.activerecord_7_0",
   ]
@@ -72,7 +75,8 @@ class CI
         "rails_event_store",
         matrix: join(
           generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-          generate(ruby_version([RUBY_3_3]), bundle_gemfile(RAILS_GEMFILES)),
+          generate(ruby_version([RUBY_3_4]), bundle_gemfile(RAILS_GEMFILES.take(1))),
+          generate(ruby_version([RUBY_3_3]), bundle_gemfile(RAILS_GEMFILES.drop(1))),
         ),
       ),
       release_mutate("rails_event_store"),
@@ -90,7 +94,15 @@ class CI
             ),
           ),
           generate(
-            generate(ruby_version([RUBY_3_3]), bundle_gemfile(AR_GEMFILES)),
+            generate(ruby_version([RUBY_3_4]), bundle_gemfile(AR_GEMFILES.take(1))),
+            join(
+              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+              generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+            ),
+          ),
+          generate(
+            generate(ruby_version([RUBY_3_3]), bundle_gemfile(AR_GEMFILES.drop(1))),
             join(
               generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
               generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
@@ -105,7 +117,8 @@ class CI
         "ruby_event_store-flipper",
         matrix: join(
           generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-          generate(ruby_version([RUBY_3_3]), bundle_gemfile(AS_GEMFILES)),
+          generate(ruby_version([RUBY_3_4]), bundle_gemfile(AS_GEMFILES.take(1))),
+          generate(ruby_version([RUBY_3_3]), bundle_gemfile(AS_GEMFILES.drop(1))),
         ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
@@ -124,8 +137,13 @@ class CI
               database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),
             generate(
+              ruby_version([RUBY_3_4]),
+            bundle_gemfile(RAILS_GEMFILES.take(1)),
+              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
+            ),
+            generate(
               ruby_version([RUBY_3_3]),
-              bundle_gemfile(RAILS_GEMFILES),
+            bundle_gemfile(RAILS_GEMFILES.drop(1)),
               database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),
           ),
