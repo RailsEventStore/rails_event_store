@@ -27,10 +27,5 @@ module RailsEventStore
     it "uses particular migration version" do
       expect(subject).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
     end
-
-    it "uses particular migration version for rails 6.1" do
-      skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_1")
-      expect(subject).to include("ActiveRecord::Migration[6.1]")
-    end
   end
 end

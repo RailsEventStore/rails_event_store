@@ -28,11 +28,6 @@ module RailsEventStore
       expect(subject).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
     end
 
-    it "uses particular migration version for rails 6.1" do
-      skip unless ENV["BUNDLE_GEMFILE"].include?("rails_6_1")
-      expect(subject).to include("ActiveRecord::Migration[6.1]")
-    end
-
     context "when postgresql adapter is used and data_type option is specified" do
       before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgresql")) }
 

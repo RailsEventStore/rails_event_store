@@ -38,14 +38,6 @@ module RubyEventStore
         expect(read_migration(@dir)).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
       end
 
-      specify "uses particular migration version for rails 6.1" do
-        skip unless ENV["BUNDLE_GEMFILE"]&.include?("rails_6_1")
-
-        migration_generator(@dir)
-
-        expect(read_migration(@dir)).to include("ActiveRecord::Migration[6.1]")
-      end
-
       specify "creates migration with binary data type for SQLite adapter" do
         migration_generator(@dir, "binary", "SQLite")
 
