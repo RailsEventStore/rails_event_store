@@ -9,5 +9,5 @@ gem "ruby_event_store-rspec", path: "../.."
 
 gem "flipper", "~> 0.19"
 gem "byebug"
-gem "activesupport", "~> 8.0.0"
+gem "activesupport", "~> 7.2.2.1"
 
