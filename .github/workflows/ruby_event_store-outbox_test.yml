@@ -60,9 +60,6 @@ jobs:
         - ruby_version: ruby-3.2
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile
-          database_url: sqlite3:db.sqlite3
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile.sidekiq_6_5
           database_url: sqlite3:db.sqlite3

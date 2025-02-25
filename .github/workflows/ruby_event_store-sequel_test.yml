@@ -80,10 +80,6 @@ jobs:
           bundle_gemfile: Gemfile
           database_url: sqlite:db.sqlite3
           data_type: text
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile
-          database_url: sqlite:db.sqlite3
-          data_type: text
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
