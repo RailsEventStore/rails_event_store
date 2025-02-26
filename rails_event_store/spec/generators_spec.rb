@@ -137,7 +137,7 @@ module RailsEventStore
           require "rails_helper"
 
           path = Rails.root.join("identity_access/spec")
-          Dir.glob("#{path}/**/*_spec.rb") do |file|
+          Dir.glob("#{path}/\*\*/\*_spec.rb") do |file|
             require file
           end
         EOF
@@ -157,7 +157,7 @@ module RailsEventStore
 
           require_relative "test_helper"
 
-          Dir[Rails.root.join("identity_access/test/*_test.rb")].each { |file| require file }
+          Dir[Rails.root.join("identity_access/test/\*_test.rb")].each { |file| require file }
         EOF
       end
     end
