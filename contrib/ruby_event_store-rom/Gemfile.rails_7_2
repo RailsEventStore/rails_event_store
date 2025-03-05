@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+gemspec
+
+eval_gemfile "../../support/bundler/Gemfile.shared"
+eval_gemfile "../../support/bundler/Gemfile.database"
+
+gem "ruby_event_store", path: "../.."
+
+gem "activesupport", "~> 7.2.0"
+gem "dry-core", "<= 1.0.0"
+gem "zeitwerk", "~> 2.6.0"
+gem "sqlite3", ">= 1.7.3"
