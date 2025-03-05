@@ -66,6 +66,10 @@ jobs:
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: binary
+        - ruby_version: ruby-3.1
+          bundle_gemfile: Gemfile
+          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
+          data_type: binary
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10013/rails_event_store
@@ -76,26 +80,6 @@ jobs:
           data_type: json
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
-          data_type: jsonb
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile.rails_7_1
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
-          data_type: binary
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile.rails_7_0
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
-          data_type: binary
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile.rails_7_1
-          database_url: postgres://postgres:secret@localhost:10013/rails_event_store
-          data_type: binary
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile.rails_7_1
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
-          data_type: json
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile.rails_7_1
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: jsonb
     steps:

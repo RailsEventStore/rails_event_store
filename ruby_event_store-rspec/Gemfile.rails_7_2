@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+gemspec
+
+eval_gemfile "../support/bundler/Gemfile.shared"
+
+gem "ruby_event_store", path: ".."
+gem "aggregate_root", path: ".."
+gem "ruby_event_store-transformations", path: "../contrib/ruby_event_store-transformations"
+
+gem "diff-lcs", "= 1.3.0"
+gem "rails", "~> 7.2.0"
