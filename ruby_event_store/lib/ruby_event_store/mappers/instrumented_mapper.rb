@@ -3,6 +3,8 @@
 module RubyEventStore
   module Mappers
     class InstrumentedMapper
+      include BatchMapping
+
       def initialize(mapper, instrumentation)
         @mapper = mapper
         @instrumentation = instrumentation
