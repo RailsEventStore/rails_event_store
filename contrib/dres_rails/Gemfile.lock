@@ -276,7 +276,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.7.2)
+    zeitwerk (2.6.18)
 
 PLATFORMS
   arm64-darwin
@@ -301,6 +301,7 @@ DEPENDENCIES
   ruby_event_store-active_record!
   ruby_event_store-browser!
   timecop
+  zeitwerk (~> 2.6.0)
 
 BUNDLED WITH
    2.5.15
