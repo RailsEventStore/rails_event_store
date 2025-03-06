@@ -133,7 +133,7 @@ GEM
     securerandom (0.4.1)
     sequel (5.90.0)
       bigdecimal
-    sorbet-runtime (0.5.11888)
+    sorbet-runtime (0.5.11899)
     sqlite3 (2.6.0-aarch64-linux-gnu)
     sqlite3 (2.6.0-aarch64-linux-musl)
     sqlite3 (2.6.0-arm-linux-gnu)
