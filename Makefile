@@ -77,7 +77,7 @@ set-version: git-check-clean git-check-committed
 	@sed $(SED_OPTS) "s/rails_event_store\/v.*\/APP_TEMPLATE/rails_event_store\/v$(RES_VERSION)\/APP_TEMPLATE/" netlify.toml
 	@make -j8 install-all
 	@make -j8 -C contrib install-all
-	@git add $(shell find . -name Gemfile*.lock -print) **/*.gemspec **/version.rb railseventstore.org/config.rb RES_VERSION APP_TEMPLATE RELEASE.md netlify.toml
+	@git add $(shell find . -name Gemfile*.lock -print) **/*.gemspec **/version.rb railseventstore.org/docusaurus.config.js RES_VERSION APP_TEMPLATE RELEASE.md netlify.toml
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
