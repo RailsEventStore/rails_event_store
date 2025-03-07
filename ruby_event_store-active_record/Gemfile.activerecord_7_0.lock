@@ -1,15 +1,15 @@
 PATH
   remote: ..
   specs:
-    ruby_event_store (2.15.0)
+    ruby_event_store (2.16.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    ruby_event_store-active_record (2.15.0)
+    ruby_event_store-active_record (2.16.0)
       activerecord (>= 6.0)
-      ruby_event_store (= 2.15.0)
+      ruby_event_store (= 2.16.0)
 
 GEM
   remote: https://rubygems.org/

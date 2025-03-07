@@ -339,7 +339,7 @@
 
 [[redirects]]
   from = "/new"
-  to = "https://raw.githubusercontent.com/RailsEventStore/rails_event_store/v2.15.0/APP_TEMPLATE"
+  to = "https://raw.githubusercontent.com/RailsEventStore/rails_event_store/v2.16.0/APP_TEMPLATE"
   status = 301
   force = false
 

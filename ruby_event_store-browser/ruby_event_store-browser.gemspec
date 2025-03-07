@@ -43,6 +43,6 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.7"
 
-  spec.add_dependency "ruby_event_store", "= 2.15.0"
+  spec.add_dependency "ruby_event_store", "= 2.16.0"
   spec.add_dependency "rack"
 end

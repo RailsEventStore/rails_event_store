@@ -45,7 +45,7 @@ const config = {
           lastVersion: "current",
           versions: {
             current: {
-              label: "2.15.0",
+              label: "2.16.0",
               path: "",
             },
           },
@@ -98,7 +98,7 @@ const config = {
             label: "Support",
           },
           {
-            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.15.0",
+            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.16.0",
             label: "Changelog",
             position: "right",
           },
@@ -122,7 +122,7 @@ const config = {
               },
               {
                 label: "Changelog",
-                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.14.0",
+                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.16.0",
               },
               {
                 label: "GitHub",
