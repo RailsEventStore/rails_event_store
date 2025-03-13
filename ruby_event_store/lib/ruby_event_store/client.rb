@@ -7,16 +7,19 @@ module RubyEventStore
     def initialize(
       repository: InMemoryRepository.new,
       mapper: Mappers::Default.new,
-      subscriptions: Subscriptions.new,
-      dispatcher: Dispatcher.new,
+      subscriptions: nil,
+      dispatcher: nil,
+      message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       event_type_resolver: EventTypeResolver.new
     )
       @repository = repository
       @mapper = mapper
-      @subscriptions = subscriptions
-      @broker = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
+      @broker = message_broker || Broker.new(
+        subscriptions: subscriptions || Subscriptions.new, 
+        dispatcher: dispatcher || Dispatcher.new
+      )
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
