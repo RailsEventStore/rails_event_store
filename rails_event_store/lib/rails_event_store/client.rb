@@ -57,6 +57,14 @@ module RailsEventStore
             )
           )
         EOW
+
+        if (message_broker)
+          warn <<~EOW
+
+            Because message_broker has been provided,
+            arguments passed by subscriptions or dispatcher will be ignored.
+          EOW
+        end
       end
     end
 
